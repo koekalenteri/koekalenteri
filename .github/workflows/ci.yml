@@ -24,3 +24,4 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           base-path: ./src/koekalenteri-frontend
+          path-to-lcov: ./src/koekalenteri-frontend/coverage/lcov.info
