@@ -16,5 +16,6 @@ jobs:
       - name: Build and Test
         run: |
           cd src/koekalenteri-frontend
+          npm ci
           npm run build
           npm test
