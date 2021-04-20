@@ -2,6 +2,15 @@
 
 An open-source project to implement the functionality of <http://koekalenteri.snj.fi> on a modern architecture and futher enhance it with new functionality. Koekalenteri is used to create a calendar of the different types of retriever hunt tests (NOME-A, NOME-B, NOME-WT and NOU) in Finland as well as a tool for entrants to enter their dogs and organizers to manage entries etc.
 
+## Frontend
+
+[![Coverage Status](https://coveralls.io/repos/github/koekalenteri/koekalenteri/badge.svg)](https://coveralls.io/github/koekalenteri/koekalenteri)
+
+Frontend is written in [TypeScript](https://www.typescriptlang.org/) and is based on the following major libraries:
+
+* [React](https://reactjs.org) - UI framework
+* [MobX](https://mobx.js.org/) - State managemend
+
 ## Development
 
 The following tools must be installed:
@@ -11,9 +20,9 @@ The following tools must be installed:
 * Docker
 * Node.js 12+
 
-### Building and deploying 
+### Building and deploying
 
-To deploy to AWS Amplify run 
+To deploy to AWS Amplify run
 
     ./deploy.sh
 
