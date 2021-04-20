@@ -17,6 +17,7 @@ jobs:
         run: |
           cd src/koekalenteri-frontend
           npm ci
+          npm run lint
           npm run build
           npm test -- --coverage
       - name: Coveralls GitHub Action

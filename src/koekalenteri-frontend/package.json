@@ -21,6 +21,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
+    "lint": "eslint \"src/**/*{.ts,.tsx}\"",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
@@ -28,7 +29,13 @@
     "extends": [
       "react-app",
       "react-app/jest"
-    ]
+    ],
+    "rules": {
+      "@typescript-eslint/indent": [
+        "error",
+        2
+      ]
+    }
   },
   "browserslist": {
     "production": [
