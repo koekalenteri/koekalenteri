@@ -28,6 +28,6 @@ else
   sed -i -e 's/REDIRECT_URL/'"${REDIRECT_URL//\//\\/}"'/g' koekalenteri-fronend/src/config.js
 fi
 
-git add www/src/config.js
+git add koekalenteri-frontend/src/config.js
 git commit -m 'Frontend config update'
 git push
