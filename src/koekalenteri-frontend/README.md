@@ -1,8 +1,13 @@
-# Getting Started with Create React App
+# Overview
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Koekalenteri frontend is written in [TypeScript](https://www.typescriptlang.org/) and is based on the following major libraries:
 
-## Available Scripts
+* [React](https://reactjs.org) - UI framework
+* [MobX](https://mobx.js.org/) - State managemend
+
+## Development
+
+### Available Scripts
 
 In the project directory, you can run:
 
