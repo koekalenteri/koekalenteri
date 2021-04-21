@@ -1,0 +1,11 @@
+version = 0.1
+[default]
+[default.deploy]
+[default.deploy.parameters]
+stack_name = "koekalenteri-test"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-y0tow9zqec3x"
+s3_prefix = "koekalenteri-test"
+region = "eu-north-1"
+confirm_changeset = true
+capabilities = "CAPABILITY_IAM"
+parameter_overrides = "VersionParam=\"v1\" StageNameParam=\"prod\" CognitoDomainName=\"koekalenteri\" Repository=\"https://github.com/koekalenteri/koekalenteri\" Branch=\"master\""
