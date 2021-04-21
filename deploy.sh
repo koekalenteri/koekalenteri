@@ -13,19 +13,19 @@ export STAGE_NAME_PARAM=`aws cloudformation describe-stacks --stack-name $STACK_
 export COGNITO_HOSTED_DOMAIN=`aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='CognitoDomainName'].OutputValue" --output text`
 export REDIRECT_URL=`aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='AmplifyURL'].OutputValue" --output text`
 
-cp koekalenteri-fronend/src/config.default.js koekalenteri-fronend/src/config.js
+cp koekalenteri-frontend/src/config.default.js koekalenteri-frontend/src/config.js
 if [[ "$OSTYPE" == "darwin"* ]]; then
-  sed -i '' -e 's/AWS_USER_POOLS_WEB_CLIENT_ID/'"$AWS_USER_POOLS_WEB_CLIENT_ID"'/g' koekalenteri-fronend/src/config.js
-  sed -i '' -e 's/API_BASE_URL/'"${API_BASE_URL//\//\\/}"'/g' koekalenteri-fronend/src/config.js
-  sed -i '' -e 's/{StageNameParam}/'"$STAGE_NAME_PARAM"'/g' koekalenteri-fronend/src/config.js
-  sed -i '' -e 's/COGNITO_HOSTED_DOMAIN/'"$COGNITO_HOSTED_DOMAIN"'/g' koekalenteri-fronend/src/config.js
-  sed -i '' -e 's/REDIRECT_URL/'"${REDIRECT_URL//\//\\/}"'/g' koekalenteri-fronend/src/config.js
+  sed -i '' -e 's/AWS_USER_POOLS_WEB_CLIENT_ID/'"$AWS_USER_POOLS_WEB_CLIENT_ID"'/g' koekalenteri-frontend/src/config.js
+  sed -i '' -e 's/API_BASE_URL/'"${API_BASE_URL//\//\\/}"'/g' koekalenteri-frontend/src/config.js
+  sed -i '' -e 's/{StageNameParam}/'"$STAGE_NAME_PARAM"'/g' koekalenteri-frontend/src/config.js
+  sed -i '' -e 's/COGNITO_HOSTED_DOMAIN/'"$COGNITO_HOSTED_DOMAIN"'/g' koekalenteri-frontend/src/config.js
+  sed -i '' -e 's/REDIRECT_URL/'"${REDIRECT_URL//\//\\/}"'/g' koekalenteri-frontend/src/config.js
 else
-  sed -i -e 's/AWS_USER_POOLS_WEB_CLIENT_ID/'"$AWS_USER_POOLS_WEB_CLIENT_ID"'/g' koekalenteri-fronend/src/config.js
-  sed -i -e 's/API_BASE_URL/'"${API_BASE_URL//\//\\/}"'/g' koekalenteri-fronend/src/config.js
-  sed -i -e 's/{StageNameParam}/'"$STAGE_NAME_PARAM"'/g' koekalenteri-fronend/src/config.js
-  sed -i -e 's/COGNITO_HOSTED_DOMAIN/'"$COGNITO_HOSTED_DOMAIN"'/g' koekalenteri-fronend/src/config.js
-  sed -i -e 's/REDIRECT_URL/'"${REDIRECT_URL//\//\\/}"'/g' koekalenteri-fronend/src/config.js
+  sed -i -e 's/AWS_USER_POOLS_WEB_CLIENT_ID/'"$AWS_USER_POOLS_WEB_CLIENT_ID"'/g' koekalenteri-frontend/src/config.js
+  sed -i -e 's/API_BASE_URL/'"${API_BASE_URL//\//\\/}"'/g' koekalenteri-frontend/src/config.js
+  sed -i -e 's/{StageNameParam}/'"$STAGE_NAME_PARAM"'/g' koekalenteri-frontend/src/config.js
+  sed -i -e 's/COGNITO_HOSTED_DOMAIN/'"$COGNITO_HOSTED_DOMAIN"'/g' koekalenteri-frontend/src/config.js
+  sed -i -e 's/REDIRECT_URL/'"${REDIRECT_URL//\//\\/}"'/g' koekalenteri-frontend/src/config.js
 fi
 
 git add koekalenteri-frontend/src/config.js
