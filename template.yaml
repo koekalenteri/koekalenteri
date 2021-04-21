@@ -186,7 +186,7 @@ Resources:
           DYNAMODB_LOCAL_URI: ""
 
       Events:
-        GetItem:
+        GetEvents:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
             Path: /event
@@ -210,12 +210,12 @@ Resources:
           ENDPOINT_OVERRIDE: ""
 
       Events:
-        GetItem:
+        GetEvent:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
             Path: /event/{id}
             Method: get
-            RestApiId: !Ref EventApi
+            RestApiId: !Ref KoekalenteriApi
 
   CreateEventFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
@@ -234,12 +234,12 @@ Resources:
           ENDPOINT_OVERRIDE: ""
 
       Events:
-        GetItem:
+        CreateEvent:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
             Path: /event
             Method: POST
-            RestApiId: !Ref EventApi
+            RestApiId: !Ref KoekalenteriApi
             Auth:
               Authorizer: CognitoAuthorizer
 
