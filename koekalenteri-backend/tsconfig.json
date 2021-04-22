@@ -1,13 +1,10 @@
 {
-    "compilerOptions": {
-      "target": "es6",
-      "module": "commonjs"
-    },
-    "exclude": [
-      "node_modules"
-    ],
-    "types": [
-      "node",
-      "aws-sdk"
-    ]
-  }
+  "extends": "@tsconfig/node14/tsconfig.json",
+  "compilerOptions": {
+    "sourceMap": true,
+    "moduleResolution": "node",
+    "outDir": "./dist",
+    "rootDir": "./src"
+  },
+  "include": ["src/**/*.ts", "src/**/*.js"]
+}

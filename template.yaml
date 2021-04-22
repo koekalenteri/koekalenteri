@@ -6,7 +6,7 @@ Description: "Koekalenteri v2"
 # TODO Check lambda sizing etc... KOE-6
 Globals:
   Function:
-    Runtime: nodejs12.x
+    Runtime: nodejs14.x
     Timeout: 60 
     Tracing: Active
     MemorySize: 1024 # From Lambda Power Tuner - https://lambda-power-tuning.show/#gAAAAQACAAQACMAL;Fu+DQkrxg0JplAJBPCnQQBhL0EDm+NlA;m1ZfNJtW3zSbVl81m1bfNZtWXzaaA6Q2
@@ -171,8 +171,8 @@ Resources:
   GetEventsFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
-      CodeUri: koekalenteri-backend/event
-      Handler: app.getEvents
+      CodeUri: koekalenteri-backend
+      Handler: dist/handlers/event.getEventsHandler
       Tracing: Active
       Policies:
         - DynamoDBReadPolicy:
@@ -196,8 +196,8 @@ Resources:
   GetEventFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
-      CodeUri: koekalenteri-backend/event
-      Handler: app.getEvent
+      CodeUri: koekalenteri-backend
+      Handler: dist/handlers/event.getEventHandler
       Tracing: Active
       Policies:
         - DynamoDBReadPolicy:
@@ -220,11 +220,11 @@ Resources:
   CreateEventFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
-      CodeUri: koekalenteri-backend/event
-      Handler: app.createEvent
+      CodeUri: koekalenteri-backend
+      Handler: dist/handlers/event.createEventHandler
       Tracing: Active
       Policies:
-        - DynamoDBReadPolicy:
+        - DynamoDBCrudPolicy:
             TableName: !Ref EventTable
         - CloudWatchPutMetricPolicy: {}
       Environment:
@@ -311,6 +311,16 @@ Resources:
             baseDirectory: koekalenteri-frontend/build
             files:
               - '**/*'
+        backend:
+          phases:
+            build:
+              commands:
+                - cd koekalenteri-backend
+                - npm install
+                - rm -rf dist
+                - echo "{\"extends\": \"./tsconfig.json\", \"include\": [\"${HANDLER}\"] }" > tsconfig-only-handler.json
+                - npm run build -- --build tsconfig-only-handler.json
+                - cp -r dist "$(ARTIFACTS_DIR)/"
       Tags:
         - Key: Name
           Value: Koekalenteri
