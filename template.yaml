@@ -304,23 +304,22 @@ Resources:
           phases:
             build:
               commands:
-                - cd koekalenteri-frontend/src
+                - cd ../koekalenteri-frontend/src
                 - npm install
                 - npm run build
           artifacts:
             baseDirectory: koekalenteri-frontend/build
             files:
               - '**/*'
-        backend:
-          phases:
-            build:
-              commands:
-                - cd koekalenteri-backend
-                - npm install
-                - rm -rf dist
-                - echo "{\"extends\": \"./tsconfig.json\", \"include\": [\"${HANDLER}\"] }" > tsconfig-only-handler.json
-                - npm run build -- --build tsconfig-only-handler.json
-                - cp -r dist "$(ARTIFACTS_DIR)/"
+ #       backend:
+ #         phases:
+ #           build:
+ #             commands:
+ #               - cd koekalenteri-backend
+ #               - npm install
+ #               - rm -rf dist
+ #               - npm run build
+ #               - cp -r dist "$(ARTIFACTS_DIR)/"
       Tags:
         - Key: Name
           Value: Koekalenteri

@@ -9,7 +9,7 @@ import CustomDynamoClient from "../utils/dynamoClient";
 import { response } from "../utils/response";
 import { metricsSuccess, metricsError } from "../utils/metrics";
 // TODO model needs to be moved to koekalenteri-shared so that same file can be used in BE and FE
-import { Event } from "../model/Event";
+import { Event } from "koekalenteri-shared/model/Event";
 
 const dynamoDB = new CustomDynamoClient();
 
