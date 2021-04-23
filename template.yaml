@@ -173,6 +173,8 @@ Resources:
     Properties:
       CodeUri: koekalenteri-backend
       Handler: dist/handlers/event.getEventsHandler
+      Layers:
+        - !Ref CommonLayer
       Tracing: Active
       Policies:
         - DynamoDBReadPolicy:
@@ -198,6 +200,8 @@ Resources:
     Properties:
       CodeUri: koekalenteri-backend
       Handler: dist/handlers/event.getEventHandler
+      Layers:
+        - !Ref CommonLayer
       Tracing: Active
       Policies:
         - DynamoDBReadPolicy:
@@ -222,6 +226,8 @@ Resources:
     Properties:
       CodeUri: koekalenteri-backend
       Handler: dist/handlers/event.createEventHandler
+      Layers:
+        - !Ref CommonLayer
       Tracing: Active
       Policies:
         - DynamoDBCrudPolicy:
@@ -242,6 +248,16 @@ Resources:
             RestApiId: !Ref KoekalenteriApi
             Auth:
               Authorizer: CognitoAuthorizer
+  CommonLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+        LayerName: koekalenteri-shared
+        Description: Shared resources between BE and FE
+        ContentUri: koekalenteri-shared/
+        CompatibleRuntimes:
+          - nodejs14.x
+        LicenseInfo: 'MIT'
+        RetentionPolicy: Retain
 
   # TODO Rest of API definitions, maybe split APIs in separate file? what about autogenerate from OpenAPI?
   # This role allows API Gateway to push execution and access logs to CloudWatch logs
