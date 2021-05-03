@@ -1,6 +1,7 @@
 # Koekalenteri
 
 [![Coverage Status](https://coveralls.io/repos/github/koekalenteri/koekalenteri/badge.svg)](https://coveralls.io/github/koekalenteri/koekalenteri)
+[![Quality gate](https://sonarcloud.io/api/project_badges/quality_gate?project=koekalenteri_koekalenteri)](https://sonarcloud.io/dashboard?id=koekalenteri_koekalenteri)
 
 An open-source project to implement the functionality of <http://koekalenteri.snj.fi> on a modern architecture and futher enhance it with new functionality. Koekalenteri is used to create a calendar of the different types of retriever hunt tests (NOME-A, NOME-B, NOME-WT and NOU) in Finland as well as a tool for entrants to enter their dogs and organizers to manage entries etc.
 
