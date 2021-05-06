@@ -13,14 +13,48 @@ The following tools must be installed:
 * Docker
 * Node.js 12+
 
+All scripts assume that you have a well configured CLI with the necessary AWS profile set, see [AWS profile creation](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-profiles.html). It is recommended to name this profile as *koekalenteri* – at least all scripts and examples here assume this setup.
+
 ### Building and deploying
 
-To deploy to AWS Amplify run
+All of the following commands assume that you have set the following environment variables:
 
-    ./deploy.sh
+    export AWS_DEFAULT_REGION=<your preferred region, i.e. us-east-1>
+    export STACK_NAME=<a unique name for your CloudFormation stack>
 
-This builds and deploys the code to Amplify. To run locally, use the following commands:
+The supplied ```deploy.sh``` is used to create the initial deployment to AWS and the base settings. You should not need to run it as the base set of resources should be already provisioned into Amplify. 
 
-    TODO
+To manually build and deploy the backend functionality you will need the following commands:
+
+    sam build --use-container
+    sam package \
+        --output-template-file packaged.yml \
+        --s3-bucket $DEPLOYMENT_BUCKET
+    sam deploy \
+        --template-file packaged.yml \
+        --stack-name $STACK_NAME \
+        --capabilities CAPABILITY_IAM
+
+See ```samconfig.toml``` to find the value of the relevant DEPLOYMENT_BUCKET for the environment in which you wan to deploy.
+
+To run locally, use the following commands:
+
+    docker run -p 8000:8000 amazon/dynamodb-local
+    sh koekalenteri-backend/test/environment/local/create_tables.sh
+    sam local start-api --env-vars todo-src/test/environment/local/mac.json
+
+**Please note that the environment file has only been created for mac so far. It will need to be created for other OSs as needed.**
+
+The frontend configuration file ```koekalenteri-frontend/src/config.default.js``` must be copied to ```koekalenteri-frontend/src/config.js``` and the values there replaced by the output of 
+
+    aws cloudformation describe-stacks --stack-name $STACK_NAME \
+        --query "Stacks[0].Outputs[]"
+
+For local testing set the ```redirect_url``` to ```https://localhost:8080``` then run
+
+    cd koekalenteri-frontend/src
+    npm start
+
+To use the local backend set ```api_base_url``` to ```http://127.0.0.1:8080```
 
 **Please note that AWS Cognito cannot be run locally so for user authentication a working network connection to the AWS setup is required.**

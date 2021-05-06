@@ -1,0 +1,79 @@
+{
+  "id": {
+    "S": "0001"
+  },
+  "event-type": {
+    "S": "NOME-B"
+  },
+  "classes": {
+    "L": [
+      {
+        "S": "ALO"
+      },
+      {
+        "S": "AVO"
+      }
+    ]
+  },
+  "start-date": {
+    "S": "2021-05-24"
+  },
+  "end-date": {
+    "S": "2021-05-25"
+  },
+  "location": {
+    "S": "Liperi"
+  },
+  "name": {
+    "S": "Nuusku"
+  },
+  "description": {
+    "S": "Pietun pysti jaossa ALO-luokassa"
+  },
+  "allow-online-entry": {
+    "BOOL": true
+  },
+  "allow-online-payment": {
+    "BOOL": true
+  },
+  "unofficial": {
+    "BOOL": false
+  },
+  "allow-owner-membership-priority": {
+    "BOOL": true
+  },
+  "allow-handler-membership-priority": {
+    "BOOL": true
+  },
+  "cost": {
+    "N": "40"
+  },
+  "cost-member": {
+    "N": "35"
+  },
+  "payment-details": {
+    "S": "lorem ipsum"
+  },
+  "account-number": {
+    "S": "FI46...."
+  },
+  "reference-number": {
+    "S": "11041"
+  },
+  "require-payment-before-entry": {
+    "BOOL": false
+  },
+  "judges": {
+    "L": [
+      {
+        "N": "888666"
+      },
+      {
+        "N": "167761"
+      }
+    ]
+  },
+  "official": {
+    "N": "313313"
+  }
+}
