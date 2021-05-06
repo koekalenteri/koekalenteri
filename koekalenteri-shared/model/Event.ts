@@ -1,27 +1,27 @@
 export type Event = {
-    id: String
-    "event-type": String
-    "classes": [String]
+    id: string
+    "event-type": string
+    "classes": [string]
     "start-date": Date
     "end-date": Date
-    "location": String
-    "name": String
-    "description": String
-    "allow-online-entry": Boolean
-    "allow-online-payment": Boolean
-    "unofficial": Boolean
-    "allow-owner-membership-priority": Boolean
-    "allow-handler-membership-priority": Boolean
-    "cost": Number
-    "cost-member": Number
-    "payment-details": String
-    "account-number": String
-    "reference-number": String
-    "require-payment-before-entry": Boolean
-    "judges": [Number]
-    "official": Number   
-    "created-at": String
-    "created-by": String
-    "modified-at": String
-    "modified-by": String
+    "location": string
+    "name": string
+    "description": string
+    "allow-online-entry": boolean
+    "allow-online-payment": boolean
+    "unofficial": boolean
+    "allow-owner-membership-priority": boolean
+    "allow-handler-membership-priority": boolean
+    "cost": number
+    "cost-member": number
+    "payment-details": string
+    "account-number": string
+    "reference-number": string
+    "require-payment-before-entry": boolean
+    "judges": [number]
+    "official": number   
+    "created-at": string
+    "created-by": string
+    "modified-at": string
+    "modified-by": string
 }

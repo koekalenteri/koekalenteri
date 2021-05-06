@@ -4,7 +4,7 @@ set -x
 [ -z "$AWS_DEFAULT_REGION" ] && echo "Please specify AWS_DEFAULT_REGION environment variable" && exit 1;
 
 sam build --use-container --profile koekalenteri
-sam deploy --stack-name $STACK_NAME --profile koekalenteri
+sam deploy --guided --stack-name $STACK_NAME --profile koekalenteri
 
 export AWS_COGNITO_REGION=$AWS_DEFAULT_REGION
 export AWS_USER_POOLS_WEB_CLIENT_ID=`aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='CognitoClientID'].OutputValue" --output text`
