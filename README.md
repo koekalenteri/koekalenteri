@@ -22,7 +22,13 @@ All of the following commands assume that you have set the following environment
     export AWS_DEFAULT_REGION=eu-north-1
     export STACK_NAME=amplify-koekalenteri
 
-The supplied ```deploy.sh``` is used to create the initial deployment to AWS and the base settings. You should not need to run it as the base set of resources should be already provisioned into Amplify.
+The supplied ```deploy.sh``` is used to create the initial deployment to AWS and the base settings. You should not need to run it as the base set of resources should be already provisioned into Amplify. 
+
+Next copy run
+
+    cp samconfig.default.toml samconfig.toml
+
+In the new file the OauthToken from ```foobar``` to your [personal token](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token)
 
 To manually build and deploy the backend functionality you will need the following commands:
 
