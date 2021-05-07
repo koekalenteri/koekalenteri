@@ -19,8 +19,8 @@ All scripts assume that you have a well configured CLI with the necessary AWS pr
 
 All of the following commands assume that you have set the following environment variables:
 
-    export AWS_DEFAULT_REGION=<your preferred region, i.e. us-east-1>
-    export STACK_NAME=<a unique name for your CloudFormation stack>
+    export AWS_DEFAULT_REGION=eu-north-1
+    export STACK_NAME=amplify-koekalenteri
 
 The supplied ```deploy.sh``` is used to create the initial deployment to AWS and the base settings. You should not need to run it as the base set of resources should be already provisioned into Amplify.
 
