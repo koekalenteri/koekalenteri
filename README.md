@@ -22,7 +22,7 @@ All of the following commands assume that you have set the following environment
     export AWS_DEFAULT_REGION=<your preferred region, i.e. us-east-1>
     export STACK_NAME=<a unique name for your CloudFormation stack>
 
-The supplied ```deploy.sh``` is used to create the initial deployment to AWS and the base settings. You should not need to run it as the base set of resources should be already provisioned into Amplify. 
+The supplied ```deploy.sh``` is used to create the initial deployment to AWS and the base settings. You should not need to run it as the base set of resources should be already provisioned into Amplify.
 
 To manually build and deploy the backend functionality you will need the following commands:
 
@@ -45,7 +45,7 @@ To run locally, use the following commands:
 
 **Please note that the environment file has only been created for mac so far. It will need to be created for other OSs as needed.**
 
-The frontend configuration file ```koekalenteri-frontend/src/config.default.js``` must be copied to ```koekalenteri-frontend/src/config.js``` and the values there replaced by the output of 
+The frontend configuration file ```koekalenteri-frontend/src/config.default.js``` must be copied to ```koekalenteri-frontend/src/config.js``` and the values there replaced by the output of
 
     aws cloudformation describe-stacks --stack-name $STACK_NAME \
         --query "Stacks[0].Outputs[]"

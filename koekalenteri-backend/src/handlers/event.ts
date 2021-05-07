@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 const {metricScope} = require("aws-embedded-metrics");
 
-import CustomDynamoClient from "../utils/dynamoClient";
+import CustomDynamoClient from "../utils/CustomDynamoClient";
 import { response } from "../utils/response";
 import { metricsSuccess, metricsError } from "../utils/metrics";
 // TODO model needs to be moved to koekalenteri-shared so that same file can be used in BE and FE
