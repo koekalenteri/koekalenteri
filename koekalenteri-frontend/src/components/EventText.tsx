@@ -34,7 +34,7 @@ const EventText: FunctionComponent<EventTextProps> = ({events}) => {
               </Grid>   
               <Grid item sm>
                 <Typography  variant="h6" >
-                  {...event.classes}
+                  {event.classes}
                 </Typography>
               </Grid>   
             </Grid>
