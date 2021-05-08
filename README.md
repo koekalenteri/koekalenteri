@@ -29,7 +29,9 @@ Next copy run
 
     cp samconfig.default.toml samconfig.toml
 
-In the new file the OauthToken from ```foobar``` to your [personal token](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token)
+In the new file change all instances of the OauthToken from ```foobar``` to your [personal token](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token)
+
+You can use the different build env parameters in manual deployments by adding the parameter ```--config-env [env name]``` to all of the sam commands listed below.
 
 To manually build and deploy the backend functionality you will need the following commands:
 
