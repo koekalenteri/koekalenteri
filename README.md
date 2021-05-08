@@ -23,7 +23,7 @@ All of the following commands assume that you have set the following environment
     export AWS_DEFAULT_REGION=eu-north-1
     export STACK_NAME=amplify-koekalenteri
 
-The supplied ```deploy.sh``` is used to create the initial deployment to AWS and the base settings. You should not need to run it as the base set of resources should be already provisioned into Amplify. 
+The supplied ```deploy.sh``` is used to create the initial deployment to AWS and the base settings. You should not need to run it as the base set of resources should be already provisioned into Amplify.
 
 Next copy run
 

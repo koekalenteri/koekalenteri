@@ -1,7 +1,12 @@
-import React from 'react';
+import React, { FunctionComponent } from 'react';
 import { Container, Grid, Paper } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import EventText from '../components/EventText';
+import { Event } from "koekalenteri-shared/model/Event";
+
+type MainContainerProps = {
+  events: Array<Event>
+}
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -24,7 +29,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const MainContainer = () => {
+const MainContainer: FunctionComponent<MainContainerProps> = ({events}) => {
   const classes = useStyles();
 
   return (
@@ -32,7 +37,7 @@ const MainContainer = () => {
       <Grid container spacing={2}>
         <Grid item  md>
           <Paper className={classes.paper}>
-            <EventText/>
+            <EventText events={events}/>
           </Paper>
         </Grid>
         <Grid item md>

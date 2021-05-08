@@ -1,15 +1,20 @@
 import { Container } from '@material-ui/core';
-import React from 'react';
+import React, { FunctionComponent } from 'react';
 import InfoContainer from '../layout/InfoContainer';
 import NotificationContainer from '../layout/NotificationContainer';
 import MainContainer from '../layout/MainContainer';
+import { Event } from "koekalenteri-shared/model/Event";
 
-const SearchPage = () => {
+type SearchPageProps = {
+  events: Array<Event>
+}
+
+const SearchPage: FunctionComponent<SearchPageProps> = ({events}) => {
   return(
     <Container maxWidth="md">
       <NotificationContainer />
       <InfoContainer/>
-      <MainContainer/>
+      <MainContainer events={events} />
     </Container>
 
   )

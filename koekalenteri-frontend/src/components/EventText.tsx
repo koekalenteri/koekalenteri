@@ -1,23 +1,12 @@
-import React from 'react';
+import React, { FunctionComponent } from 'react';
 import { Typography, List, ListItem, Grid, Container } from '@material-ui/core';
+import { Event } from "koekalenteri-shared/model/Event";
 
-interface IEvent {
-  id: number,
-  date: String,
-  eventName: String,
-  place: String
-};
+type EventTextProps = {
+  events: Array<Event>
+}
 
-
-const events:IEvent[] = [
-  {id: 1, date: '1.5.2021', eventName: 'Taipumuskoe', place: 'Pälkäne'},
-  {id: 2, date: '1.8.2021', eventName: 'Sasta SM NOME-B', place: 'Kuopio'},
-  {id: 3, date: '1.10.2022', eventName: 'Beretta WT Hyvinkää', place: 'Hyvinkää'}
-];
-
-
-
-const EventText = () => {
+const EventText: FunctionComponent<EventTextProps> = ({events}) => {
 
   return (
     <Container maxWidth="md">
@@ -30,17 +19,22 @@ const EventText = () => {
             <Grid container spacing={3} justify="space-around" >
               <Grid item sm>
                 <Typography variant="h6" >
-                  {event.date} 
+                  {event.startDate} 
                 </Typography >
               </Grid>
               <Grid item sm>
                 <Typography  variant="h6" >
-                  {event.eventName}
+                  [{event.eventType}] {event.name}
                 </Typography>
               </Grid>
               <Grid item sm>
                 <Typography  variant="h6" >
-                  {event.place}
+                  {event.location}
+                </Typography>
+              </Grid>   
+              <Grid item sm>
+                <Typography  variant="h6" >
+                  {...event.classes}
                 </Typography>
               </Grid>   
             </Grid>

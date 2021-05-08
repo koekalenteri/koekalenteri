@@ -44,7 +44,7 @@ Parameters:
     Type: String
     Description: GitHub Branch
     Default: master
-  OauthToken:
+    OauthToken:
     Type: String
     Description: GitHub Repository URL
     NoEcho: true
@@ -97,10 +97,10 @@ Resources:
       KeySchema:
           - AttributeName: id
             KeyType: HASH
-          - AttributeName: event-type
+          - AttributeName: eventType
             KeyType: RANGE
       AttributeDefinitions:
-          - AttributeName: event-type
+          - AttributeName: eventType
             AttributeType: S
           - AttributeName: id
             AttributeType: S
