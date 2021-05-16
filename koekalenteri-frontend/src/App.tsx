@@ -1,35 +1,24 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import config from './config';
-import Header from '../src/layout/Header';
-import SearchPage from '../src/pages/SearchPage'
+import { useEffect } from 'react';
+import Header from './layout/Header';
+import SearchPage from './pages/SearchPage'
+import { useStores } from './use-stores';
+import * as eventApi from './api/event';
 
 function App() {
-  const [events, setEvents] = useState([]);
+
+  const { eventStore } = useStores();
 
   useEffect(() => {
-    getEvents();
-  });
-
-  const getEvents = async () => {
-    const result = await axios({
-      url: config.api_base_url + '/event/'
-    }).catch(error => {
-      console.log(error);
-    });
-  
-    console.log(result);
-  
-    if (result && result.status === 200) {
-      console.log(result.data);
-      setEvents(result.data);
+    async function loadEvents() {
+      eventStore.events = await eventApi.getEvents();
     }
-  };
+    loadEvents();
+  });
 
   return (
     <div>
       <Header/>
-      <SearchPage events={events} />
+      <SearchPage />
     </div>
   );
 }

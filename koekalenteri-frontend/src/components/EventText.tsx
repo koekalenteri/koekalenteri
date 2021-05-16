@@ -12,14 +12,14 @@ const EventText: FunctionComponent<EventTextProps> = ({events}) => {
     <Container maxWidth="md">
       <Typography variant="h4" >
                 Incoming events
-      </Typography>  
+      </Typography>
       <List >
         {events.map((event) => (
           <ListItem button  key={event.id}>
             <Grid container spacing={3} justify="space-around" >
               <Grid item sm>
                 <Typography variant="h6" >
-                  {event.startDate} 
+                  {event.startDate}
                 </Typography >
               </Grid>
               <Grid item sm>
@@ -31,17 +31,17 @@ const EventText: FunctionComponent<EventTextProps> = ({events}) => {
                 <Typography  variant="h6" >
                   {event.location}
                 </Typography>
-              </Grid>   
+              </Grid>
               <Grid item sm>
                 <Typography  variant="h6" >
                   {event.classes}
                 </Typography>
-              </Grid>   
+              </Grid>
             </Grid>
-          </ListItem>         
+          </ListItem>
         ))}
-      </List>    
-    </Container> 
+      </List>
+    </Container>
   )
 }
 

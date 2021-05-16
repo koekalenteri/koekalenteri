@@ -1,6 +1,6 @@
 import { createContext } from "react";
-import { TestStore } from "./TestStore";
+import { EventStore } from "./EventStrore";
 
 export const rootStoreContext = createContext({
-  testStore: new TestStore()
+  eventStore: new EventStore()
 });
