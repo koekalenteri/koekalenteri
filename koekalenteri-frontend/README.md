@@ -3,7 +3,7 @@
 Koekalenteri frontend is written in [TypeScript](https://www.typescriptlang.org/) and is based on the following major libraries:
 
 * [React](https://reactjs.org) - UI framework
-* [MobX](https://mobx.js.org/) - State managemend
+* [MobX](https://mobx.js.org/) - State management
 
 ## Development
 

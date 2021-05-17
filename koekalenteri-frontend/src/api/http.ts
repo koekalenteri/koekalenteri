@@ -1,20 +1,11 @@
 import config from '../config';
 
-const BASE_URL = config.api_base_url.endsWith('/') ? config.api_base_url.substr(0, -1) : config.api_base_url;
-
 async function http<T>(path: string, init: RequestInit): Promise<T> {
-  const response = await fetch(buildURL(path), init);
+  const response = await fetch(config.api_base_url + path, init);
   if (!response.ok) {
     throw new Error(`${response.status} ${response.statusText}`);
   }
   return response.json().catch(() => ({}));
-}
-
-function buildURL(path: string): string {
-  if (path.startsWith('/')) {
-    path = path.substr(1);
-  }
-  return BASE_URL + '/' + path;
 }
 
 const HTTP = {

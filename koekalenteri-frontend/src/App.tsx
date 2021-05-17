@@ -9,10 +9,11 @@ function App() {
   const { eventStore } = useStores();
 
   useEffect(() => {
-    async function loadEvents() {
+    async function load() {
       eventStore.events = await eventApi.getEvents();
     }
-    loadEvents();
+
+    load();
   });
 
   return (
