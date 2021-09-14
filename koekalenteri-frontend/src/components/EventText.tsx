@@ -9,13 +9,10 @@ type EventTextProps = {
 const EventText: FunctionComponent<EventTextProps> = ({events}) => {
 
   return (
-    <Container maxWidth="md">
-      <Typography variant="h4" >
-                Incoming events
-      </Typography>
+    <Container>
       <List >
         {events.map((event) => (
-          <ListItem button  key={event.id}>
+          <ListItem button key={event.id}>
             <Grid container spacing={3} justify="space-around" >
               <Grid item sm>
                 <Typography variant="h6" >
