@@ -12,6 +12,7 @@
     "@types/node": "^16.9.1",
     "@types/react": "^17.0.3",
     "@types/react-dom": "^17.0.3",
+    "date-fns": "^2.23.0",
     "jest-fetch-mock": "^3.0.3",
     "koekalenteri-shared": "file:../koekalenteri-shared",
     "mobx": "^6.2.0",

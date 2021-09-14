@@ -3,6 +3,7 @@ import { TableContainer, Paper, Table, TableHead, TableBody, TableRow, TableCell
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
 import { Event } from "koekalenteri-shared/model/Event";
+import { isValid, isSameMonth, lightFormat, isSameDay, parseISO, isSameYear } from "date-fns";
 
 type EventTableProps = {
   events: Array<Event>
@@ -23,7 +24,28 @@ const useRowStyles = makeStyles({
   }
 });
 
-const dateSpan = (start: Date, end: Date) => start === end ? start : `${start}-${end}`;
+const dateSpan = (start: Date | string, end: Date | string) => {
+  if (typeof start === 'string') {
+    start = parseISO(start);
+  }
+  if (typeof end === 'string') {
+    end = parseISO(end) || start;
+  }
+  if (!isValid(start)) {
+    return '';
+  }
+  end = end || start;
+  if (isSameDay(start, end)) {
+    return lightFormat(start, 'd.M.yyyy');
+  }
+  if (isSameMonth(start, end)) {
+    return lightFormat(start, 'd') + '-' + lightFormat(end, 'd.M.yyyy');
+  }
+  if (isSameYear(start, end)) {
+    return lightFormat(start, 'd.M') + '-' + lightFormat(end, 'd.M.yyyy');
+  }
+  return lightFormat(start, 'd.M.yyyy') + ' - ' + lightFormat(end, 'd.M.yyyy');
+}
 
 function Row(props: { event: Event }) {
   const { event } = props;
