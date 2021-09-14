@@ -1,9 +1,10 @@
 import { FunctionComponent, Fragment, useState } from 'react';
-import { TableContainer, Paper, Table, TableHead, TableBody, TableRow, TableCell, makeStyles, IconButton, Collapse, Box } from '@material-ui/core';
+import { TableContainer, Paper, Table, TableHead, TableBody, TableRow, TableCell, makeStyles, IconButton, Collapse } from '@material-ui/core';
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
 import { Event } from "koekalenteri-shared/model/Event";
-import { isValid, isSameMonth, lightFormat, isSameDay, parseISO, isSameYear } from "date-fns";
+import EventInfo from './EventInfo';
+import { dateSpan } from './utils';
 
 type EventTableProps = {
   events: Array<Event>
@@ -23,29 +24,6 @@ const useRowStyles = makeStyles({
     },
   }
 });
-
-const dateSpan = (start: Date | string, end: Date | string) => {
-  if (typeof start === 'string') {
-    start = parseISO(start);
-  }
-  if (typeof end === 'string') {
-    end = parseISO(end) || start;
-  }
-  if (!isValid(start)) {
-    return '';
-  }
-  end = end || start;
-  if (isSameDay(start, end)) {
-    return lightFormat(start, 'd.M.yyyy');
-  }
-  if (isSameMonth(start, end)) {
-    return lightFormat(start, 'd') + '-' + lightFormat(end, 'd.M.yyyy');
-  }
-  if (isSameYear(start, end)) {
-    return lightFormat(start, 'd.M') + '-' + lightFormat(end, 'd.M.yyyy');
-  }
-  return lightFormat(start, 'd.M.yyyy') + ' - ' + lightFormat(end, 'd.M.yyyy');
-}
 
 function Row(props: { event: Event }) {
   const { event } = props;
@@ -71,32 +49,7 @@ function Row(props: { event: Event }) {
       <TableRow className={classes.inner}>
         <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={8}>
           <Collapse in={open} timeout="auto" unmountOnExit>
-            <Box margin={1}>
-              <Table size="small" aria-label="details">
-                <TableBody>
-                  <TableRow className={classes.root}>
-                    <TableCell component="th" scope="row">Ilmoittautumisaika:</TableCell>
-                    <TableCell>{dateSpan(event.entryStartDate, event.entryEndDate)}</TableCell>
-                  </TableRow>
-                  <TableRow className={classes.root}>
-                    <TableCell component="th" scope="row" rowSpan={event.judges.length}>Tuomarit:</TableCell>
-                    <TableCell>{event.judges[0]}</TableCell>
-                  </TableRow>
-                  {event.judges.slice(1).map((judge) => (
-                    // TODO: tuomarit ja luokat, päivät, ilmoittautumiset ja paikat pitää linkittää
-                    <TableRow className={classes.root}><TableCell>{judge}</TableCell></TableRow>
-                  ))}
-                  <TableRow className={classes.root}>
-                    <TableCell component="th" scope="row">Maksutiedot:</TableCell>
-                    <TableCell>{event.paymentDetails}</TableCell>
-                  </TableRow>
-                  <TableRow className={classes.root}>
-                    <TableCell component="th" scope="row">Lisätiedot:</TableCell>
-                    <TableCell>{event.description}</TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </Box>
+            <EventInfo event={event}></EventInfo>
           </Collapse>
         </TableCell>
       </TableRow>
