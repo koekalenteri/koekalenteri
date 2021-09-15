@@ -31,6 +31,10 @@ export default function EventInfo(props: { event: Event }) {
             // TODO: tuomarit ja luokat, päivät, ilmoittautumiset ja paikat pitää linkittää
             <TableRow key={event.id + 'judge' + judge} className={classes.root}><TableCell>{judge}</TableCell></TableRow>
           ))}
+          <TableRow key={event.id + 'official'} className={classes.root}>
+            <TableCell component="th" scope="row">Vastaava koetoimitsija:</TableCell>
+            <TableCell>{event.official}</TableCell>
+          </TableRow>
           <TableRow key={event.id + 'payment'} className={classes.root}>
             <TableCell component="th" scope="row">Maksutiedot:</TableCell>
             <TableCell>{event.paymentDetails}</TableCell>
