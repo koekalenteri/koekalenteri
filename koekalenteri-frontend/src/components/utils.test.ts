@@ -3,9 +3,21 @@ import { dateSpan } from './utils';
 describe('utils', () => {
   describe('dateSpan', () => {
     it('should format properly', () => {
-      expect(dateSpan('2021-01-01', '2021-01-02')).toEqual('1.-2.1.2021');
-      expect(dateSpan('2021-01-31', '2021-02-02')).toEqual('31.1.-2.2.2021');
-      expect(dateSpan('2021-12-15', '2022-01-15')).toEqual('15.12.2021-15.1.2022');
+      const tests = [
+        { start: '', end: '', result: '' },
+        { start: '2021-01-01', end: '', result: '1.1.2021' },
+        { start: '2021-01-01', end: '2021-01-01', result: '1.1.2021' },
+        { start: '2021-01-01', end: '2021-01-02', result: '1.-2.1.2021' },
+        { start: '2021-01-31', end: '2021-02-02', result: '31.1.-2.2.2021' },
+        { start: '2021-12-15', end: '2022-01-15', result: '15.12.2021-15.1.2022' },
+      ];
+
+      for (const test of tests) {
+        expect(dateSpan(test.start, test.end)).toEqual(test.result);
+        expect(dateSpan(new Date(test.start), test.end)).toEqual(test.result);
+        expect(dateSpan(test.start, new Date(test.end))).toEqual(test.result);
+        expect(dateSpan(new Date(test.start), new Date(test.end))).toEqual(test.result);
+      }
     });
   });
 });

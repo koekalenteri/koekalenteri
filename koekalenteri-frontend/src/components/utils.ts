@@ -5,12 +5,14 @@ export function dateSpan(start: Date | string, end: Date | string): string {
     start = parseISO(start);
   }
   if (typeof end === 'string') {
-    end = parseISO(end) || start;
+    end = parseISO(end);
   }
   if (!isValid(start)) {
     return '';
   }
-  end = end || start;
+  if (!isValid(end)) {
+    end = start;
+  }
   if (isSameDay(start, end)) {
     return lightFormat(start, 'd.M.yyyy');
   }
