@@ -1,7 +1,18 @@
 import { FunctionComponent, Fragment, useState } from 'react';
-import { TableContainer, Paper, Table, TableHead, TableBody, TableRow, TableCell, makeStyles, IconButton, Collapse } from '@material-ui/core';
-import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
-import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
+import {
+  TableContainer,
+  Paper,
+  Table,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+  IconButton,
+  Collapse,
+} from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { Event } from "koekalenteri-shared/model/Event";
 import EventInfo from './EventInfo';
 import { dateSpan } from './utils';

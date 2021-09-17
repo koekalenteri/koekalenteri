@@ -1,4 +1,5 @@
-import { Table, TableBody, TableRow, TableCell, Box, makeStyles } from '@material-ui/core';
+import { Table, TableBody, TableRow, TableCell, Box } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 import { Event } from "koekalenteri-shared/model/Event";
 import { dateSpan } from './utils';
 

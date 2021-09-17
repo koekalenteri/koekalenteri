@@ -1,8 +1,8 @@
 import React from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import { AppBar, Typography, IconButton, Toolbar, Link } from '@material-ui/core';
-import AccountBox from '@material-ui/icons/AccountBox';
-import LanguageIcon from '@material-ui/icons/Language';
+import makeStyles from '@mui/styles/makeStyles';
+import { AppBar, Typography, IconButton, Toolbar, Link } from '@mui/material';
+import AccountBox from '@mui/icons-material/AccountBox';
+import LanguageIcon from '@mui/icons-material/Language';
 import logo from '../assets/snj-logo.png';
 import banner from '../assets/banner.png';
 
@@ -32,23 +32,23 @@ const Header = () => {
       <AppBar position="static">
         <Toolbar>
           <Link href="https://www.snj.fi/" target="_blank"  rel="noopener">
-            <IconButton>
+            <IconButton size="large">
               <img src={logo} alt="Suomen noutajakoirajärjestö" className={classes.logo} />
             </IconButton>
           </Link>
           <Typography className={classes.title} variant="h6">
             Koekalenteri
           </Typography>
-          <IconButton onClick={() => alert('clicked')}>
+          <IconButton onClick={() => alert('clicked')} size="large">
             <LanguageIcon />
           </IconButton>
-          <IconButton onClick={() => { alert('clicked') }}>
+          <IconButton onClick={() => { alert('clicked') }} size="large">
             <AccountBox />
           </IconButton>
         </Toolbar>
       </AppBar>
     </div>
-  )
+  );
 }
 
 export default Header;

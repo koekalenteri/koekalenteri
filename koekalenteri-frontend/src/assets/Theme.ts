@@ -1,5 +1,10 @@
-import { red } from '@material-ui/core/colors';
-import { createTheme } from '@material-ui/core/styles';
+import { red } from '@mui/material/colors';
+import { createTheme, Theme } from '@mui/material/styles';
+
+declare module '@mui/styles/defaultTheme' {
+  // eslint-disable-next-line @typescript-eslint/no-empty-interface
+  interface DefaultTheme extends Theme {}
+}
 
 const theme = createTheme({
   palette: {
