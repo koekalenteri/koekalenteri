@@ -1,9 +1,11 @@
 import { Box } from '@mui/material';
 import EventContainer from '../layout/EventContainer';
+import EventFilterContainer from '../layout/EventFilterContainer';
 
 const SearchPage = () => {
   return (
-    <Box margin={1}>
+    <Box>
+      <EventFilterContainer/>
       <EventContainer/>
     </Box>
   )

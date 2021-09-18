@@ -1,6 +1,6 @@
 export type Event = {
   id: string
-  organizer: string // TODO: split to own type
+  organizer: string // TODO split to own type
   eventType: string
   classes: Array<string>
   startDate: Date
@@ -10,8 +10,8 @@ export type Event = {
   location: string
   name: string
   description: string
-  places: number; // TODO: places / class
-  entries: number; // TODO entries / class
+  places: number // TODO places / class
+  entries: number // TODO entries / class
   allowOnlineEntry: boolean
   allowOnlinePayment: boolean
   unofficial: boolean
@@ -23,7 +23,7 @@ export type Event = {
   accountNumber: string
   referenceNumber: string
   requirePaymentBeforeEntry: boolean
-  judges: Array<number>
+  judges: Array<number> //TODO judges / class
   official: number
   createdAt: string
   createdBy: string

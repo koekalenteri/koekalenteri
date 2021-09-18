@@ -1,4 +1,4 @@
-import { FunctionComponent, Fragment, useState } from 'react';
+import { Fragment, useState } from 'react';
 import {
   TableContainer,
   Paper,
@@ -51,7 +51,7 @@ function Row(props: { event: Event }) {
         </TableCell>
         <TableCell>{dateSpan(event.startDate, event.endDate)}</TableCell>
         <TableCell>{event.eventType}</TableCell>
-        <TableCell>{event.classes}</TableCell>
+        <TableCell>{event.classes?.join(', ')}</TableCell>
         <TableCell>{event.location}</TableCell>
         <TableCell>{event.organizer}</TableCell>
         <TableCell>{event.entries}/{event.places}</TableCell>
@@ -68,8 +68,7 @@ function Row(props: { event: Event }) {
   );
 }
 
-const EventTable: FunctionComponent<EventTableProps> = ({events}) => {
-
+export default function EventTable({ events }: EventTableProps) {
   return (
     <TableContainer component={Paper}>
       <Table aria-label="event table">
@@ -95,4 +94,3 @@ const EventTable: FunctionComponent<EventTableProps> = ({events}) => {
   )
 }
 
-export default EventTable;

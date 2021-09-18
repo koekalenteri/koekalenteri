@@ -1,26 +1,24 @@
 import { useEffect } from 'react';
+import AdapterDateFns from '@mui/lab/AdapterDateFns';
+import LocalizationProvider from '@mui/lab/LocalizationProvider';
+import fi from 'date-fns/locale/fi';
 import Header from './layout/Header';
 import SearchPage from './pages/SearchPage'
 import { useStores } from './use-stores';
-import * as eventApi from './api/event';
 
 function App() {
 
   const { eventStore } = useStores();
 
   useEffect(() => {
-    async function load() {
-      eventStore.events = await eventApi.getEvents();
-    }
-
-    load();
+    eventStore.load();
   });
 
   return (
-    <div>
+    <LocalizationProvider dateAdapter={AdapterDateFns} locale={fi}>
       <Header/>
       <SearchPage />
-    </div>
+    </LocalizationProvider>
   );
 }
 
