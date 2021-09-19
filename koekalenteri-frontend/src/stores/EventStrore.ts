@@ -38,11 +38,15 @@ export class EventStore {
     }
   }
 
+  setLoading(value: boolean) {
+    this.loading = value;
+  }
+
   async load() {
-    this.loading = true;
+    this.setLoading(true);
     this._events = await eventApi.getEvents();
     this._applyFilter();
-    this.loading = false;
+    this.setLoading(false);
   }
 
   private _applyFilter() {
