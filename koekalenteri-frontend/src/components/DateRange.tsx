@@ -22,7 +22,6 @@ export default function DateRange({ start, end, startLabel, endLabel, onChange }
     onChange && onChange(_start, _end);
   };
   const endChanged = (date: DateValue) => {
-    console.log('endChanged');
     _end = date;
     onChange && onChange(_start, _end);
   };

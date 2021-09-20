@@ -24,11 +24,19 @@ test('should render labels', () => {
 
 test('It should fire onChange', async () => {
   const changeHandler = jest.fn();
-  const { startInput } = renderComponent({ startLabel: 'start', start: new Date(), endLabel: 'end', end: null, onChange: changeHandler });
+  const { startInput, endInput } = renderComponent({ startLabel: 'start', start: new Date(), endLabel: 'end', end: null, onChange: changeHandler });
 
   fireEvent.click(startInput);
   await waitFor(() => screen.getByRole('dialog'));
   fireEvent.click(screen.getByLabelText('25. ', { exact: false }));
 
+  screen.getByRole('dialog').remove(); // Should be removed automatically, no idea why this is needed
+
   expect(changeHandler).toHaveBeenCalled();
+
+  fireEvent.click(endInput);
+  await waitFor(() => screen.getByRole('dialog', {hidden: false}));
+  fireEvent.click(screen.getByLabelText('26. ', { exact: false }));
+
+  expect(changeHandler).toHaveBeenCalledTimes(2);
 });
