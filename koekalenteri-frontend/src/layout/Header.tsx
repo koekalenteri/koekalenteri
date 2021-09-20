@@ -39,10 +39,10 @@ const Header = () => {
           <Typography className={classes.title} variant="h6">
             Koekalenteri
           </Typography>
-          <IconButton onClick={() => alert('clicked')} size="large">
+          <IconButton size="large">
             <LanguageIcon />
           </IconButton>
-          <IconButton onClick={() => { alert('clicked') }} size="large">
+          <IconButton size="large">
             <AccountBox />
           </IconButton>
         </Toolbar>
