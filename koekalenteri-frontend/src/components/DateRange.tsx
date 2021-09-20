@@ -15,14 +15,16 @@ export type DateRangeProps = {
 const inputFormat = 'dd.MM.yyyy';
 
 export default function DateRange({ start, end, startLabel, endLabel, onChange }: DateRangeProps) {
+  let _start = start;
+  let _end = end;
   const startChanged = (date: DateValue) => {
-    start = date;
-    onChange && onChange(start, end);
+    _start = date;
+    onChange && onChange(_start, _end);
   };
   const endChanged = (date: DateValue) => {
     console.log('endChanged');
-    end = date;
-    onChange && onChange(start, end);
+    _end = date;
+    onChange && onChange(_start, _end);
   };
 
   return (
