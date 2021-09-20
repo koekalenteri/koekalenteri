@@ -5,12 +5,12 @@ import DateRange from './DateRange';
 
 type EventFilterProps = {
   filter: FilterProps
-  onChange: (filter: FilterProps) => void
+  onChange?: (filter: FilterProps) => void
 }
 
 export default function EventFilter({ filter, onChange }: EventFilterProps) {
   const setFilter = (props: Partial<FilterProps>) => {
-    onChange(Object.assign({}, filter, props));
+    onChange && onChange(Object.assign({}, filter, props));
   }
 
   return (
@@ -33,7 +33,7 @@ export default function EventFilter({ filter, onChange }: EventFilterProps) {
             </FormControl>
             <FormControl sx={{ width: '45%', minWidth: 150 }}>
               <InputLabel id="class-label">Koeluokka</InputLabel>
-              <Select id="type" labelId="class-label" label={"Koeluokka"} value={filter.eventClass} onChange={(event) => setFilter({ eventClass: event.target.value })}>
+              <Select id="class" labelId="class-label" label={"Koeluokka"} value={filter.eventClass} onChange={(event) => setFilter({ eventClass: event.target.value })}>
                 <MenuItem value=''><em>Kaikki</em></MenuItem>
                 <MenuItem value='ALO'>ALO</MenuItem>
                 <MenuItem value='AVO'>AVO</MenuItem>
