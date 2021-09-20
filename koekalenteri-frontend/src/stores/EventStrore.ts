@@ -24,18 +24,10 @@ export class EventStore {
     makeAutoObservable(this)
   }
 
-  setEvents(events: Event[]) {
-    this.events = events;
-  }
-
-  setFilter(filter: FilterProps) {
+  async setFilter(filter: FilterProps) {
     const reload = filter.start !== this.filter.start || filter.end !== this.filter.end;
     this.filter = filter;
-    if (reload) {
-      this.load();
-    } else {
-      this._applyFilter();
-    }
+    return reload ? this.load() : this._applyFilter();
   }
 
   setLoading(value: boolean) {
