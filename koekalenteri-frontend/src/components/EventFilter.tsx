@@ -1,4 +1,4 @@
-import { FormControl, Grid, InputLabel, MenuItem, Select } from '@mui/material';
+import { Checkbox, FormControl, Grid, InputLabel, ListItemText, MenuItem, Select, SelectProps } from '@mui/material';
 import { Box } from '@mui/system';
 import { FilterProps } from '../stores/EventStrore';
 import DateRange from './DateRange';
@@ -8,7 +8,25 @@ type EventFilterProps = {
   onChange?: (filter: FilterProps) => void
 }
 
+function MultiSelect(props: SelectProps<string[]> & {options: string[]}) {
+  return (
+    <Select
+      {...props}
+      multiple
+      renderValue={(selected) => selected.join(', ')}
+    >
+      {props.options.map((value) => (
+        <MenuItem key={value} value={value}>
+          <Checkbox checked={props.value?.includes(value)} />
+          <ListItemText primary={value} />
+        </MenuItem>
+      ))}
+    </Select>
+  );
+}
+
 export default function EventFilter({ filter, onChange }: EventFilterProps) {
+  const multiValue = (value: string | string[]) => typeof value === 'string' ? value.split(',') : value;
   const setFilter = (props: Partial<FilterProps>) => {
     onChange && onChange(Object.assign({}, filter, props));
   }
@@ -23,22 +41,25 @@ export default function EventFilter({ filter, onChange }: EventFilterProps) {
           <Grid item xs={12} md={6}>
             <FormControl sx={{ mr: 1, width: '45%', minWidth: 150 }}>
               <InputLabel id="type-label">Koetyyppi</InputLabel>
-              <Select id="type" labelId="type-label" label={"Koetyyppi"} value={filter.eventType} onChange={(event) => setFilter({ eventType: event.target.value })}>
-                <MenuItem value=''><em>Kaikki</em></MenuItem>
-                <MenuItem value='NOU'>NOU</MenuItem>
-                <MenuItem value='NOME-B'>NOME-B</MenuItem>
-                <MenuItem value='NOME-A'>NOME-A</MenuItem>
-                <MenuItem value='NOWT'>NOWT</MenuItem>
-              </Select>
+              <MultiSelect
+                id="type"
+                labelId="type-label"
+                label={"Koetyyppi"}
+                value={filter.eventType}
+                onChange={(event) => setFilter({ eventType: multiValue(event.target.value) })}
+                options={['NOU', 'NOME-B', 'NOME-A', 'NOWT']}
+              />
             </FormControl>
             <FormControl sx={{ width: '45%', minWidth: 150 }}>
               <InputLabel id="class-label">Koeluokka</InputLabel>
-              <Select id="class" labelId="class-label" label={"Koeluokka"} value={filter.eventClass} onChange={(event) => setFilter({ eventClass: event.target.value })}>
-                <MenuItem value=''><em>Kaikki</em></MenuItem>
-                <MenuItem value='ALO'>ALO</MenuItem>
-                <MenuItem value='AVO'>AVO</MenuItem>
-                <MenuItem value='VOI'>VOI</MenuItem>
-              </Select>
+              <MultiSelect
+                id="class"
+                labelId="class-label"
+                label={"Koeluokka"}
+                value={filter.eventClass}
+                onChange={(event) => setFilter({ eventClass: multiValue(event.target.value) })}
+                options={['ALO', 'AVO', 'VOI']}
+              />
             </FormControl>
           </Grid>
         </Grid>

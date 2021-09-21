@@ -12,7 +12,7 @@ const renderComponent = (filter: FilterProps, onChange?: ((filter: FilterProps) 
 );
 
 test('should render', () => {
-  const {getByLabelText} = renderComponent({ start: null, end: null, eventType: 'NOME-B', eventClass: 'ALO'});
+  const {getByLabelText} = renderComponent({ start: null, end: null, eventType: ['NOME-B'], eventClass: ['ALO']});
 
   expect(getByLabelText(/Koetyyppi/i)).toHaveTextContent(/NOME-B/i);
   expect(getByLabelText(/Koeluokka/i)).toHaveTextContent(/ALO/i);
@@ -20,7 +20,7 @@ test('should render', () => {
 
 test('It should fire onChange', async () => {
   const changeHandler = jest.fn();
-  const { getByLabelText, getByRole, getAllByLabelText } = renderComponent({ start: null, end: null, eventType: '', eventClass: '' }, changeHandler);
+  const { getByLabelText, getByRole, getAllByLabelText } = renderComponent({ start: null, end: null, eventType: [], eventClass: [] }, changeHandler);
 
   fireEvent.mouseDown(getByLabelText(/Koetyyppi/i));
   fireEvent.click(within(getByRole('listbox')).getByText(/NOME-A/i));

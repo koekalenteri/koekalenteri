@@ -5,8 +5,8 @@ import { Event } from "koekalenteri-shared/model/Event";
 export type FilterProps = {
   start: Date | null
   end: Date | null
-  eventType: string
-  eventClass: string
+  eventType: string[]
+  eventClass: string[]
 }
 export class EventStore {
   private _events: Event[] = [];
@@ -16,8 +16,8 @@ export class EventStore {
   public filter: FilterProps = {
     start: null, // new Date(),
     end: null,
-    eventType: '',
-    eventClass: ''
+    eventType: [],
+    eventClass: []
   }
 
   constructor() {
@@ -50,10 +50,10 @@ export class EventStore {
       if (end && new Date(event.startDate) > end) {
         return false;
       }
-      if (eventType && event.eventType !== eventType) {
+      if (eventType.length && !eventType.includes(event.eventType)) {
         return false;
       }
-      if (eventClass && !event.classes?.includes(eventClass)) {
+      if (eventClass.length && !eventClass.some(c => event.classes?.includes(c))) {
         return false;
       }
       return true;
