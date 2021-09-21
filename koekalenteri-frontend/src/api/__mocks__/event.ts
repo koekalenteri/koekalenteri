@@ -18,7 +18,6 @@ const commonProps = {
   accountNumber: 'test',
   referenceNumber: 'test',
   requirePaymentBeforeEntry: true,
-  judges: [123],
   official: 123,
   createdAt: 'test',
   createdBy: 'test',
@@ -35,6 +34,7 @@ const mockEvents: Event[] = [
     endDate: new Date('2021-02-11'),
     entryStartDate: new Date('2021-02-01'),
     entryEndDate: new Date('2021-02-07'),
+    judges: [123],
     ...commonProps
   },
   {
@@ -45,6 +45,7 @@ const mockEvents: Event[] = [
     endDate: new Date('2021-02-13'),
     entryStartDate: new Date('2021-02-01'),
     entryEndDate: new Date('2021-02-07'),
+    judges: [223],
     ...commonProps
   }
 ];

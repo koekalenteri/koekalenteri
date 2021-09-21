@@ -7,6 +7,7 @@ export type FilterProps = {
   end: Date | null
   eventType: string[]
   eventClass: string[]
+  judge: number[]
 }
 export class EventStore {
   private _events: Event[] = [];
@@ -17,7 +18,8 @@ export class EventStore {
     start: null, // new Date(),
     end: null,
     eventType: [],
-    eventClass: []
+    eventClass: [],
+    judge: []
   }
 
   constructor() {
@@ -42,7 +44,7 @@ export class EventStore {
   }
 
   private _applyFilter() {
-    const { start, end, eventType, eventClass } = this.filter;
+    const { start, end, eventType, eventClass, judge } = this.filter;
     this.events = this._events.filter(event => {
       if (start && new Date(event.endDate) < start) {
         return false;
@@ -54,6 +56,9 @@ export class EventStore {
         return false;
       }
       if (eventClass.length && !eventClass.some(c => event.classes?.includes(c))) {
+        return false;
+      }
+      if (judge.length && !judge.some(j => event.judges?.includes(j))) {
         return false;
       }
       return true;

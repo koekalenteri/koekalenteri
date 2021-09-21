@@ -1,13 +1,13 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: "Koekalenteri v2"
-  
+
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 # TODO Check lambda sizing etc... KOE-6
 Globals:
   Function:
     Runtime: nodejs14.x
-    Timeout: 60 
+    Timeout: 60
     Tracing: Active
     MemorySize: 1024 # From Lambda Power Tuner - https://lambda-power-tuning.show/#gAAAAQACAAQACMAL;Fu+DQkrxg0JplAJBPCnQQBhL0EDm+NlA;m1ZfNJtW3zSbVl81m1bfNZtWXzaaA6Q2
     Tags:
@@ -69,7 +69,7 @@ Resources:
           RequireNumbers: true
           RequireSymbols: false
           RequireUppercase: true
-  
+
   KoekalenteriUserPoolTokenClient:
     Type: AWS::Cognito::UserPoolClient
     Properties:
@@ -82,10 +82,10 @@ Resources:
       AllowedOAuthScopes: ['email', 'openid']
       ExplicitAuthFlows:
       - USER_PASSWORD_AUTH
-  
+
   KoekalenteriDomain:
     Type: AWS::Cognito::UserPoolDomain
-    Properties: 
+    Properties:
       Domain: !Join ['-', [!Ref CognitoDomainName, !Ref AWS::StackName]]
       UserPoolId: !Ref KoekalenteriUserPool
 
@@ -111,7 +111,7 @@ Resources:
           Value: "koekalenteri"
       ProvisionedThroughput:
           ReadCapacityUnits: 5
-          WriteCapacityUnits: 5                  
+          WriteCapacityUnits: 5
       SSESpecification:
         SSEEnabled: false
 
@@ -136,7 +136,32 @@ Resources:
           Value: "koekalenteri"
       ProvisionedThroughput:
           ReadCapacityUnits: 5
-          WriteCapacityUnits: 5                  
+          WriteCapacityUnits: 5
+      SSESpecification:
+        SSEEnabled: false
+
+  JudgeTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Join ['-', [judge-table, !Ref AWS::StackName]]
+      KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+          - AttributeName: name
+            KeyType: RANGE
+      AttributeDefinitions:
+          - AttributeName: name
+            AttributeType: S
+          - AttributeName: id
+            AttributeType: N
+      Tags:
+        - Key: "env"
+          Value: !Ref AWS::StackName
+        - Key: "label"
+          Value: "koekalenteri"
+      ProvisionedThroughput:
+          ReadCapacityUnits: 5
+          WriteCapacityUnits: 5
       SSESpecification:
         SSEEnabled: false
 
@@ -145,7 +170,7 @@ Resources:
   # API declaration
   KoekalenteriApi:
     Type: AWS::Serverless::Api
-    MethodSettings: 
+    MethodSettings:
         DataTraceEnabled: true
         MetricsEnabled: true
         HttpMethod: '*'
@@ -259,6 +284,33 @@ Resources:
         LicenseInfo: 'MIT'
         RetentionPolicy: Retain
 
+  GetJudgesFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: koekalenteri-backend
+      Handler: dist/handlers/judge.getJudgesHandler
+      Layers:
+        - !Ref CommonLayer
+      Tracing: Active
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref JudgeTable
+        - CloudWatchPutMetricPolicy: {}
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref JudgeTable
+          AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
+          USE_DYNAMODB_LOCAL: "0"
+          DYNAMODB_LOCAL_URI: ""
+
+      Events:
+        GetJudges:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /judge
+            Method: get
+            RestApiId: !Ref KoekalenteriApi
+
   # TODO Rest of API definitions, maybe split APIs in separate file? what about autogenerate from OpenAPI?
   # This role allows API Gateway to push execution and access logs to CloudWatch logs
 
@@ -277,7 +329,7 @@ Resources:
       ManagedPolicyArns:
         - !Sub "arn:${AWS::Partition}:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs"
 
-  
+
   ApiAccessLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
@@ -285,7 +337,7 @@ Resources:
       RetentionInDays: 365
 
   # Amplify console hosting for static website
-  # 
+  #
   AmplifyRole:
     Type: AWS::IAM::Role
     Properties:

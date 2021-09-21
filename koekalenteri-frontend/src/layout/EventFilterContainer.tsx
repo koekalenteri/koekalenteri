@@ -4,10 +4,10 @@ import EventFilter from '../components/EventFilter';
 import { FilterProps } from '../stores/EventStrore';
 
 const EventFilterContainer = observer(() => {
-  const { eventStore } = useStores();
+  const { eventStore, judgeStore } = useStores();
 
   return (
-    <EventFilter filter={{ ...eventStore.filter }} onChange={(filter: FilterProps) => eventStore.setFilter(filter)}></EventFilter>
+    <EventFilter judges={judgeStore.judges} filter={{ ...eventStore.filter }} onChange={(filter: FilterProps) => eventStore.setFilter(filter)}></EventFilter>
   )
 });
 
