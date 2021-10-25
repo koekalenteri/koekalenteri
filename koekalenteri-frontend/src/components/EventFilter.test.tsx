@@ -4,7 +4,7 @@ import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import { fireEvent, render, within, screen, waitFor } from '@testing-library/react';
 import EventFilter from './EventFilter';
 import { FilterProps } from '../stores/EventStrore';
-import { Judge } from 'koekalenteri-shared/model/Judge';
+import { Judge, Organizer } from 'koekalenteri-shared/model';
 
 const judges: Judge[] = [
   {
@@ -27,14 +27,21 @@ const judges: Judge[] = [
   },
 ];
 
+const organizers: Organizer[] = [
+  {
+    id: 1,
+    name: 'Järjestäjä 1'
+  }
+];
+
 const renderComponent = (filter: FilterProps, onChange?: ((filter: FilterProps) => void)) => render(
   <LocalizationProvider dateAdapter={AdapterDateFns} locale={fi}>
-    <EventFilter judges={judges} filter={filter} onChange={onChange}></EventFilter>
+    <EventFilter judges={judges} organizers={organizers} filter={filter} onChange={onChange}></EventFilter>
   </LocalizationProvider>
 );
 
 test('should render', () => {
-  const {getByLabelText} = renderComponent({ start: null, end: null, eventType: ['NOME-B'], eventClass: ['ALO'], judge: [234]});
+  const { getByLabelText } = renderComponent({ start: null, end: null, eventType: ['NOME-B'], eventClass: ['ALO'], judge: [234], organizer: []});
 
   expect(getByLabelText(/Koetyyppi/i)).toHaveTextContent(/NOME-B/i);
   expect(getByLabelText(/Koeluokka/i)).toHaveTextContent(/ALO/i);
@@ -42,7 +49,7 @@ test('should render', () => {
 
 test('It should fire onChange', async () => {
   const changeHandler = jest.fn();
-  const { getByLabelText, getByRole, getAllByLabelText } = renderComponent({ start: null, end: null, eventType: [], eventClass: [], judge: [] }, changeHandler);
+  const { getByLabelText, getByRole, getAllByLabelText } = renderComponent({ start: null, end: null, eventType: [], eventClass: [], judge: [], organizer: [] }, changeHandler);
 
   fireEvent.mouseDown(getByLabelText(/Koetyyppi/i));
   fireEvent.click(within(getByRole('listbox')).getByText(/NOME-A/i));
@@ -61,4 +68,8 @@ test('It should fire onChange', async () => {
   fireEvent.mouseDown(getByLabelText(/Tuomari/i));
   fireEvent.click(within(getByRole('listbox')).getByText(/Tuomari 1/i));
   expect(changeHandler).toHaveBeenCalledTimes(4);
+
+  fireEvent.mouseDown(getByLabelText(/Järjestäjä/i));
+  fireEvent.click(within(getByRole('listbox')).getByText(/Järjestäjä 1/i));
+  expect(changeHandler).toHaveBeenCalledTimes(5);
 });
