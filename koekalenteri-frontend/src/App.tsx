@@ -8,11 +8,12 @@ import { useStores } from './use-stores';
 
 function App() {
 
-  const { eventStore, judgeStore } = useStores();
+  const { eventStore, judgeStore, organizerStore } = useStores();
 
   useEffect(() => {
     eventStore.load();
     judgeStore.load();
+    organizerStore.load()
   });
 
   return (

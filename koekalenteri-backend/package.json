@@ -12,6 +12,7 @@
         "create-tables:nix": "./__test__/environment/local/create_tables.sh",
         "create-tables:win32": "cd ./__test__/environment/local/ && @powershell -NoProfile -ExecutionPolicy Unrestricted -Command ./create_tables.ps1",
         "start-watch": "npm run watch",
+        "start-tables": "npm run create-tables",
         "start": "concurrently npm:start-*"
     },
     "keywords": [],

@@ -1,6 +1,6 @@
 import { makeAutoObservable } from 'mobx';
 import * as eventApi from '../api/event';
-import { Event } from "koekalenteri-shared/model/Event";
+import { Event } from 'koekalenteri-shared/model';
 
 export type FilterProps = {
   start: Date | null
@@ -8,6 +8,7 @@ export type FilterProps = {
   eventType: string[]
   eventClass: string[]
   judge: number[]
+  organizer: number[]
 }
 export class EventStore {
   private _events: Event[] = [];
@@ -19,7 +20,8 @@ export class EventStore {
     end: null,
     eventType: [],
     eventClass: [],
-    judge: []
+    judge: [],
+    organizer: []
   }
 
   constructor() {
@@ -44,7 +46,7 @@ export class EventStore {
   }
 
   private _applyFilter() {
-    const { start, end, eventType, eventClass, judge } = this.filter;
+    const { start, end, eventType, eventClass, judge, organizer } = this.filter;
     this.events = this._events.filter(event => {
       if (start && new Date(event.endDate) < start) {
         return false;
@@ -59,6 +61,9 @@ export class EventStore {
         return false;
       }
       if (judge.length && !judge.some(j => event.judges?.includes(j))) {
+        return false;
+      }
+      if (organizer.length && !organizer.includes(event.organizer?.id)) {
         return false;
       }
       return true;

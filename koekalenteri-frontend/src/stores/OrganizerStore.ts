@@ -1,10 +1,10 @@
 import { makeAutoObservable } from 'mobx';
-import * as judgeApi from '../api/judge';
-import { Judge } from 'koekalenteri-shared/model';
+import * as organizerApi from '../api/organizer';
+import { Organizer } from 'koekalenteri-shared/model';
 
-export class JudgeStore {
+export class OrganizerStore {
   public loading: boolean = false;
-  public judges: Judge[] = [];
+  public organizers: Organizer[] = [];
 
   constructor() {
     makeAutoObservable(this)
@@ -16,7 +16,7 @@ export class JudgeStore {
 
   async load() {
     this.setLoading(true);
-    this.judges = await judgeApi.getJudges();
+    this.organizers = await organizerApi.getOrganizers();
     this.setLoading(false);
   }
 }

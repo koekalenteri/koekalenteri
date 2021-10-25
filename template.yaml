@@ -165,6 +165,31 @@ Resources:
       SSESpecification:
         SSEEnabled: false
 
+  OrganizerTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Join ['-', [organizer-table, !Ref AWS::StackName]]
+      KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+          - AttributeName: name
+            KeyType: RANGE
+      AttributeDefinitions:
+          - AttributeName: name
+            AttributeType: S
+          - AttributeName: id
+            AttributeType: N
+      Tags:
+        - Key: "env"
+          Value: !Ref AWS::StackName
+        - Key: "label"
+          Value: "koekalenteri"
+      ProvisionedThroughput:
+          ReadCapacityUnits: 5
+          WriteCapacityUnits: 5
+      SSESpecification:
+        SSEEnabled: false
+
   # TODO Rest of table definitions, maybe split tables into separate file?
 
   # API declaration
@@ -294,6 +319,31 @@ Resources:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
             Path: /judge
+            Method: get
+            RestApiId: !Ref KoekalenteriApi
+
+  GetOrganizersFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: koekalenteri-backend
+      Handler: dist/handlers/organizer.getOrganizersHandler
+      Layers:
+        - !Ref CommonLayer
+      Tracing: Active
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref OrganizerTable
+        - CloudWatchPutMetricPolicy: {}
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref OrganizerTable
+          AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
+
+      Events:
+        GetJudges:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /organizer
             Method: get
             RestApiId: !Ref KoekalenteriApi
 

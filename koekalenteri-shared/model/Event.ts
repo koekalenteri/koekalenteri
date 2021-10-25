@@ -1,6 +1,8 @@
+import { Organizer } from './Organizer';
+
 export type Event = {
   id: string
-  organizer: string // TODO split to own type
+  organizer: Organizer
   eventType: string
   classes: Array<string>
   startDate: Date

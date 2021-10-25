@@ -1,7 +1,10 @@
 import { Event } from "koekalenteri-shared/model/Event";
 
 const commonProps = {
-  organizer: 'test',
+  organizer: {
+    id: 1,
+    name: 'Suomen Noutajakoirajärjestö ry'
+  },
   location: 'test',
   name: 'test',
   description: 'test',

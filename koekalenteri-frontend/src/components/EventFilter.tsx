@@ -1,11 +1,12 @@
 import { Checkbox, FormControl, Grid, InputLabel, ListItemText, MenuItem, Select, SelectProps } from '@mui/material';
 import { Box } from '@mui/system';
-import { Judge } from 'koekalenteri-shared/model/Judge';
+import { Judge, Organizer } from 'koekalenteri-shared/model';
 import { FilterProps } from '../stores/EventStrore';
 import DateRange from './DateRange';
 
 type EventFilterProps = {
-  judges: Judge[]
+  judges: Judge[],
+  organizers: Organizer[],
   filter: FilterProps
   onChange?: (filter: FilterProps) => void
 }
@@ -36,7 +37,7 @@ function MultiSelect(props: SelectProps<string[]> & { options: MultiSelectOption
   );
 }
 
-export default function EventFilter({ judges, filter, onChange }: EventFilterProps) {
+export default function EventFilter({ judges, organizers, filter, onChange }: EventFilterProps) {
   const multiValue = (value: string | string[]) => typeof value === 'string' ? value.split(',') : value;
   const multiNumber = (value: string | string[]) => multiValue(value).map(v => +v);
   const setFilter = (props: Partial<FilterProps>) => {
@@ -75,7 +76,19 @@ export default function EventFilter({ judges, filter, onChange }: EventFilterPro
             />
           </FormControl>
         </Grid>
-        <Grid item xs={12} md={6} xl={2}>TODO: Yhdistys</Grid>
+        <Grid item xs={12} md={6} xl={2}>
+          <FormControl sx={{ width: '100%' }}>
+            <InputLabel id="organizer-label">Järjestäjä</InputLabel>
+            <MultiSelect
+              id="organizer"
+              labelId="organizer-label"
+              label={"Järjestäjä"}
+              value={filter.organizer.map(n => n.toString())}
+              onChange={(event) => setFilter({ organizer: multiNumber(event.target.value) })}
+              options={organizers.map(o => ({value: o.id.toString(), name: o.name}))}
+            />
+          </FormControl>
+        </Grid>
         <Grid item xs={12} md={6} xl={2}>
           <FormControl sx={{ width: '100%' }}>
             <InputLabel id="judge-label">Tuomari</InputLabel>
