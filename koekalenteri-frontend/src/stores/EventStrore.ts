@@ -72,17 +72,17 @@ export class EventStore {
       }
       const entryStartDate = new Date(event.entryStartDate);
       const entryEndDate = new Date(event.entryEndDate);
-      const isClosedEntry = (entryStartDate >= today || entryEndDate <= today)
+      const isClosedEntry = (entryStartDate > today || entryEndDate < today)
       if (withOpenEntry && isClosedEntry) {
         return false;
       }
-      if (withClosingEntry && (isClosedEntry || subDays(entryEndDate, 7) >= today)) {
+      if (withClosingEntry && (isClosedEntry || subDays(entryEndDate, 7) > today)) {
         return false;
       }
       if (withUpcomingEntry && entryStartDate <= today) {
         return false;
       }
-      if (withFreePlaces && event.places <= event.entries) {
+      if (withFreePlaces && (isClosedEntry || event.places <= event.entries)) {
         return false;
       }
       if (eventType.length && !eventType.includes(event.eventType)) {

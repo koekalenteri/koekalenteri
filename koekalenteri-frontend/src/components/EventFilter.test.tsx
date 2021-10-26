@@ -78,4 +78,16 @@ test('It should fire onChange', async () => {
   fireEvent.mouseDown(getByLabelText(/Järjestäjä/i));
   fireEvent.click(within(getByRole('listbox')).getByText(/Järjestäjä 1/i));
   expect(changeHandler).toHaveBeenCalledTimes(5);
+
+  fireEvent.click(getByLabelText(/Ilmoittautuminen auki/i));
+  expect(changeHandler).toHaveBeenCalledTimes(6);
+
+  fireEvent.click(getByLabelText(/Vielä mahtuu/i));
+  expect(changeHandler).toHaveBeenCalledTimes(7);
+
+  fireEvent.click(getByLabelText(/Ilmoittautuminen tulossa/i));
+  expect(changeHandler).toHaveBeenCalledTimes(8);
+
+  fireEvent.click(getByLabelText(/Vielä ehdit!/i));
+  expect(changeHandler).toHaveBeenCalledTimes(9);
 });
