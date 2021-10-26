@@ -15,6 +15,7 @@ export type FilterProps = {
   judge: number[]
   organizer: number[]
 }
+
 export class EventStore {
   private _events: Event[] = [];
 
@@ -56,48 +57,57 @@ export class EventStore {
 
   private _applyFilter() {
     const today = startOfDay(new Date());
-    const {
-      start, end,
-      eventType, eventClass,
-      judge, organizer,
-      withOpenEntry, withClosingEntry, withUpcomingEntry, withFreePlaces
-    } = this.filter;
+    const filter = this.filter;
 
     this.events = this._events.filter(event => {
-      if (start && new Date(event.endDate) < start) {
-        return false;
-      }
-      if (end && new Date(event.startDate) > end) {
-        return false;
-      }
-      const entryStartDate = new Date(event.entryStartDate);
-      const entryEndDate = new Date(event.entryEndDate);
-      const isClosedEntry = (entryStartDate > today || entryEndDate < today)
-      if (withOpenEntry && isClosedEntry) {
-        return false;
-      }
-      if (withClosingEntry && (isClosedEntry || subDays(entryEndDate, 7) > today)) {
-        return false;
-      }
-      if (withUpcomingEntry && entryStartDate <= today) {
-        return false;
-      }
-      if (withFreePlaces && (isClosedEntry || event.places <= event.entries)) {
-        return false;
-      }
-      if (eventType.length && !eventType.includes(event.eventType)) {
-        return false;
-      }
-      if (eventClass.length && !eventClass.some(c => event.classes?.includes(c))) {
-        return false;
-      }
-      if (judge.length && !judge.some(j => event.judges?.includes(j))) {
-        return false;
-      }
-      if (organizer.length && !organizer.includes(event.organizer?.id)) {
-        return false;
-      }
-      return true;
+      return withinDateFilters(event, filter)
+        && withinSwitchFilters(event, filter, today)
+        && withinArrayFilters(event, filter);
     });
   }
+}
+
+function withinDateFilters(event: Event, { start, end }: FilterProps) {
+  if (start && new Date(event.endDate) < start) {
+    return false;
+  }
+  if (end && new Date(event.startDate) > end) {
+    return false;
+  }
+  return true;
+}
+
+function withinSwitchFilters(event: Event, { withOpenEntry, withClosingEntry, withUpcomingEntry, withFreePlaces }: FilterProps, today: Date) {
+  const entryStartDate = new Date(event.entryStartDate);
+  const entryEndDate = new Date(event.entryEndDate);
+  const isClosedEntry = (entryStartDate > today || entryEndDate < today)
+  if (withOpenEntry && isClosedEntry) {
+    return false;
+  }
+  if (withClosingEntry && (isClosedEntry || subDays(entryEndDate, 7) > today)) {
+    return false;
+  }
+  if (withUpcomingEntry && entryStartDate <= today) {
+    return false;
+  }
+  if (withFreePlaces && (isClosedEntry || event.places <= event.entries)) {
+    return false;
+  }
+  return true;
+}
+
+function withinArrayFilters(event: Event, { eventType, eventClass, judge, organizer }: FilterProps) {
+  if (eventType.length && !eventType.includes(event.eventType)) {
+    return false;
+  }
+  if (eventClass.length && !eventClass.some(c => event.classes?.includes(c))) {
+    return false;
+  }
+  if (judge.length && !judge.some(j => event.judges?.includes(j))) {
+    return false;
+  }
+  if (organizer.length && !organizer.includes(event.organizer?.id)) {
+    return false;
+  }
+  return true;
 }
