@@ -31,6 +31,10 @@ const organizers: Organizer[] = [
   {
     id: 1,
     name: 'Järjestäjä 1'
+  },
+  {
+    id: 2,
+    name: 'Test org'
   }
 ];
 
@@ -41,10 +45,12 @@ const renderComponent = (filter: FilterProps, onChange?: ((filter: FilterProps) 
 );
 
 test('should render', () => {
-  const { getByLabelText } = renderComponent({ start: null, end: null, eventType: ['NOME-B'], eventClass: ['ALO'], judge: [234], organizer: []});
+  const { getByLabelText } = renderComponent({ start: null, end: null, eventType: ['NOME-B'], eventClass: ['ALO'], judge: [234], organizer: [2]});
 
   expect(getByLabelText(/Koetyyppi/i)).toHaveTextContent(/NOME-B/i);
   expect(getByLabelText(/Koeluokka/i)).toHaveTextContent(/ALO/i);
+  expect(getByLabelText(/Tuomari/i)).toHaveTextContent(/234/i);
+  expect(getByLabelText(/Järjestäjä/i)).toHaveTextContent(/2/i);
 });
 
 test('It should fire onChange', async () => {

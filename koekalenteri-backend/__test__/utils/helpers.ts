@@ -1,4 +1,5 @@
 import { APIGatewayProxyEvent } from "aws-lambda";
+import { AWSError } from "aws-sdk";
 
 const DEFAULT_OPTIONS = { method: "GET", headers: {}, query: {}, path: "/" }
 
@@ -47,4 +48,14 @@ export function constructAPIGwEvent(message: any, options: any = DEFAULT_OPTIONS
     },
     resource: '',
   }
+}
+
+export function createAWSError(code: number, message: string): AWSError {
+  return {
+    name: 'Test Error',
+    code: '' + code,
+    statusCode: code,
+    message: message,
+    time: new Date()
+  };
 }
