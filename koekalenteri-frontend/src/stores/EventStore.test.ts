@@ -21,10 +21,13 @@ test('EventStore', async () => {
 
   expect(store.events).toEqual([])
   expect(store.loading).toEqual(false);
-  expect(store.filter).toEqual(emptyFilter);
+  // empty + defaults
+  expect(store.filter).toEqual({ ...emptyFilter, withOpenEntry: true, withUpcomingEntry: true});
 
   await store.load();
+  expect(store.events.length).toEqual(3);
 
+  await store.setFilter({ ...emptyFilter });
   expect(store.events.length).toEqual(5);
 
   await store.setFilter({
@@ -111,4 +114,15 @@ test('EventStore', async () => {
   });
   expect(store.events.length).toEqual(1);
   expect(store.events[0]).toMatchObject({ id: 'test5' });
+
+  await store.setFilter({
+    ...emptyFilter,
+    withOpenEntry: true,
+    withUpcomingEntry: true
+  });
+  expect(store.events.length).toEqual(3);
+  expect(store.events[0]).toMatchObject({ id: 'test3' });
+  expect(store.events[1]).toMatchObject({ id: 'test4' });
+  expect(store.events[2]).toMatchObject({ id: 'test5' });
+
 });

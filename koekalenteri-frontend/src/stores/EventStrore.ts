@@ -1,7 +1,7 @@
 import { makeAutoObservable } from 'mobx';
 import * as eventApi from '../api/event';
 import { Event } from 'koekalenteri-shared/model';
-import { subDays, startOfDay } from 'date-fns';
+import { subDays, startOfDay, endOfYear } from 'date-fns';
 
 export type FilterProps = {
   start: Date | null
@@ -22,10 +22,10 @@ export class EventStore {
   public loading: boolean = false;
   public events: Event[] = [];
   public filter: FilterProps = {
-    start: null, // new Date(),
+    start: null,
     end: null,
-    withOpenEntry: false,
-    withUpcomingEntry: false,
+    withOpenEntry: true,
+    withUpcomingEntry: true,
     withClosingEntry: false,
     withFreePlaces: false,
     eventType: [],
@@ -78,22 +78,27 @@ function withinDateFilters(event: Event, { start, end }: FilterProps) {
 }
 
 function withinSwitchFilters(event: Event, { withOpenEntry, withClosingEntry, withUpcomingEntry, withFreePlaces }: FilterProps, today: Date) {
+  if (!(withOpenEntry || withClosingEntry || withUpcomingEntry || withFreePlaces)) {
+    // no filters
+    return true;
+  }
   const entryStartDate = new Date(event.entryStartDate);
   const entryEndDate = new Date(event.entryEndDate);
-  const isClosedEntry = (entryStartDate > today || entryEndDate < today)
-  if (withOpenEntry && isClosedEntry) {
-    return false;
+  const isOpenEntry = (entryStartDate <= today && entryEndDate >= today)
+  let result = false;
+  if (withOpenEntry) {
+    result = result || isOpenEntry;
   }
-  if (withClosingEntry && (isClosedEntry || subDays(entryEndDate, 7) > today)) {
-    return false;
+  if (withClosingEntry) {
+    result = result || (isOpenEntry && subDays(entryEndDate, 7) <= today);
   }
-  if (withUpcomingEntry && entryStartDate <= today) {
-    return false;
+  if (withUpcomingEntry) {
+    result = result || entryStartDate > today;
   }
-  if (withFreePlaces && (isClosedEntry || event.places <= event.entries)) {
-    return false;
+  if (withFreePlaces) {
+    result = result || (isOpenEntry && event.places > event.entries);
   }
-  return true;
+  return result;
 }
 
 function withinArrayFilters(event: Event, { eventType, eventClass, judge, organizer }: FilterProps) {
