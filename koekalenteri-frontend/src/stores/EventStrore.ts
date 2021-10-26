@@ -1,10 +1,15 @@
 import { makeAutoObservable } from 'mobx';
 import * as eventApi from '../api/event';
 import { Event } from 'koekalenteri-shared/model';
+import { subDays, startOfDay } from 'date-fns';
 
 export type FilterProps = {
   start: Date | null
   end: Date | null
+  withOpenEntry?: boolean
+  withClosingEntry?: boolean
+  withUpcomingEntry?: boolean
+  withFreePlaces?: boolean
   eventType: string[]
   eventClass: string[]
   judge: number[]
@@ -18,6 +23,10 @@ export class EventStore {
   public filter: FilterProps = {
     start: null, // new Date(),
     end: null,
+    withOpenEntry: false,
+    withUpcomingEntry: false,
+    withClosingEntry: false,
+    withFreePlaces: false,
     eventType: [],
     eventClass: [],
     judge: [],
@@ -46,12 +55,34 @@ export class EventStore {
   }
 
   private _applyFilter() {
-    const { start, end, eventType, eventClass, judge, organizer } = this.filter;
+    const today = startOfDay(new Date());
+    const {
+      start, end,
+      eventType, eventClass,
+      judge, organizer,
+      withOpenEntry, withClosingEntry, withUpcomingEntry, withFreePlaces
+    } = this.filter;
+
     this.events = this._events.filter(event => {
       if (start && new Date(event.endDate) < start) {
         return false;
       }
       if (end && new Date(event.startDate) > end) {
+        return false;
+      }
+      const entryStartDate = new Date(event.entryStartDate);
+      const entryEndDate = new Date(event.entryEndDate);
+      const isClosedEntry = (entryStartDate >= today || entryEndDate <= today)
+      if (withOpenEntry && isClosedEntry) {
+        return false;
+      }
+      if (withClosingEntry && (isClosedEntry || subDays(entryEndDate, 7) >= today)) {
+        return false;
+      }
+      if (withUpcomingEntry && entryStartDate <= today) {
+        return false;
+      }
+      if (withFreePlaces && event.places <= event.entries) {
         return false;
       }
       if (eventType.length && !eventType.includes(event.eventType)) {

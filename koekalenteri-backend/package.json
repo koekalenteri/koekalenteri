@@ -7,7 +7,7 @@
         "test": "jest",
         "build": "tsc",
         "watch": "tsc -w --preserveWatchOutput",
-        "lint": "eslint \"src/**/*.ts\"",
+        "lint": "eslint \"src/**/*.ts\" \"__test__/**/*.ts\"",
         "create-tables": "run-script-os",
         "create-tables:nix": "./__test__/environment/local/create_tables.sh",
         "create-tables:win32": "cd ./__test__/environment/local/ && @powershell -NoProfile -ExecutionPolicy Unrestricted -Command ./create_tables.ps1",
