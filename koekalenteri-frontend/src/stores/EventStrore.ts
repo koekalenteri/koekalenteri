@@ -1,7 +1,7 @@
 import { makeAutoObservable } from 'mobx';
 import * as eventApi from '../api/event';
 import { Event } from 'koekalenteri-shared/model';
-import { subDays, startOfDay, endOfYear } from 'date-fns';
+import { subDays, startOfDay } from 'date-fns';
 
 export type FilterProps = {
   start: Date | null
