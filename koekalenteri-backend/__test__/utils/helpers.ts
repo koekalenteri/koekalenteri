@@ -19,7 +19,12 @@ export function constructAPIGwEvent(message: any, options: any = DEFAULT_OPTIONS
     requestContext: {
       accountId: '',
       apiId: '',
-      authorizer: { name: '' },
+      authorizer: {
+        name: '',
+        claims: {
+          'cognito:username': options.username
+        }
+      },
       protocol: 'http',
       httpMethod: opts.method,
       identity: {
