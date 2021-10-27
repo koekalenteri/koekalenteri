@@ -1,4 +1,7 @@
+import { addDays, startOfDay } from "date-fns";
 import { Event } from "koekalenteri-shared/model/Event";
+
+const today = startOfDay(new Date());
 
 const commonProps = {
   organizer: {
@@ -8,8 +11,8 @@ const commonProps = {
   location: 'test',
   name: 'test',
   description: 'test',
-  places: 123,
-  entries: 123,
+  places: 10,
+  entries: 0,
   allowOnlineEntry: true,
   allowOnlinePayment: true,
   unofficial: true,
@@ -30,6 +33,7 @@ const commonProps = {
 
 const mockEvents: Event[] = [
   {
+    ...commonProps,
     id: 'test1',
     eventType: 'type1',
     classes: ['class1'],
@@ -38,19 +42,61 @@ const mockEvents: Event[] = [
     entryStartDate: new Date('2021-02-01'),
     entryEndDate: new Date('2021-02-07'),
     judges: [123],
-    ...commonProps
   },
   {
+    ...commonProps,
     id: 'test2',
+    organizer: {
+      id: 2,
+      name: 'Test org'
+    },
     eventType: 'type2',
     classes: ['class2'],
     startDate: new Date('2021-02-12'),
     endDate: new Date('2021-02-13'),
     entryStartDate: new Date('2021-02-01'),
-    entryEndDate: new Date('2021-02-07'),
+    entryEndDate: new Date('2021-02-12'),
     judges: [223],
-    ...commonProps
-  }
+  },
+  {
+    ...commonProps,
+    id: 'test3',
+    eventType: 'type3',
+    classes: ['class3'],
+    startDate: addDays(today, 14),
+    endDate: addDays(today, 15),
+    entryStartDate: today, // entry starts today
+    entryEndDate: addDays(today, 8), // over week from today
+    judges: [223],
+    places: 10,
+    entries: 10,
+  },
+  {
+    ...commonProps,
+    id: 'test4',
+    eventType: 'type4',
+    classes: ['class4'],
+    startDate: addDays(today, 14),
+    endDate: addDays(today, 15),
+    entryStartDate: addDays(today, 1), // entry not open yet
+    entryEndDate: addDays(today, 8),
+    judges: [223],
+    places: 10,
+    entries: 0,
+  },
+  {
+    ...commonProps,
+    id: 'test5',
+    eventType: 'type5',
+    classes: ['class5'],
+    startDate: addDays(today, 24),
+    endDate: addDays(today, 25),
+    entryStartDate: addDays(today, -1),
+    entryEndDate: addDays(today, 6),
+    judges: [223],
+    places: 10,
+    entries: 9,
+  },
 ];
 
 export async function getEvents() {

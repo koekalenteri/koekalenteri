@@ -47,7 +47,7 @@ const renderComponent = (filter: FilterProps, onChange?: ((filter: FilterProps) 
 test('should render', () => {
   const { getByLabelText } = renderComponent({ start: null, end: null, eventType: ['NOME-B'], eventClass: ['ALO'], judge: [234], organizer: [2]});
 
-  expect(getByLabelText(/Koetyyppi/i)).toHaveTextContent(/NOME-B/i);
+  expect(getByLabelText(/Koemuoto/i)).toHaveTextContent(/NOME-B/i);
   expect(getByLabelText(/Koeluokka/i)).toHaveTextContent(/ALO/i);
   expect(getByLabelText(/Tuomari/i)).toHaveTextContent(/234/i);
   expect(getByLabelText(/Järjestäjä/i)).toHaveTextContent(/2/i);
@@ -57,7 +57,7 @@ test('It should fire onChange', async () => {
   const changeHandler = jest.fn();
   const { getByLabelText, getByRole, getAllByLabelText } = renderComponent({ start: null, end: null, eventType: [], eventClass: [], judge: [], organizer: [] }, changeHandler);
 
-  fireEvent.mouseDown(getByLabelText(/Koetyyppi/i));
+  fireEvent.mouseDown(getByLabelText(/Koemuoto/i));
   fireEvent.click(within(getByRole('listbox')).getByText(/NOME-A/i));
   expect(changeHandler).toHaveBeenCalledTimes(1);
 
@@ -78,4 +78,16 @@ test('It should fire onChange', async () => {
   fireEvent.mouseDown(getByLabelText(/Järjestäjä/i));
   fireEvent.click(within(getByRole('listbox')).getByText(/Järjestäjä 1/i));
   expect(changeHandler).toHaveBeenCalledTimes(5);
+
+  fireEvent.click(getByLabelText(/Ilmoittautuminen auki/i));
+  expect(changeHandler).toHaveBeenCalledTimes(6);
+
+  fireEvent.click(getByLabelText(/Vielä mahtuu/i));
+  expect(changeHandler).toHaveBeenCalledTimes(7);
+
+  fireEvent.click(getByLabelText(/Ilmoittautuminen tulossa/i));
+  expect(changeHandler).toHaveBeenCalledTimes(8);
+
+  fireEvent.click(getByLabelText(/Vielä ehdit!/i));
+  expect(changeHandler).toHaveBeenCalledTimes(9);
 });

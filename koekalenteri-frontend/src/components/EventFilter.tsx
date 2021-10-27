@@ -1,4 +1,4 @@
-import { Checkbox, FormControl, Grid, InputLabel, ListItemText, MenuItem, Select, SelectProps } from '@mui/material';
+import { Checkbox, FormControl, FormControlLabel, FormGroup, Grid, InputLabel, ListItemText, MenuItem, Select, SelectProps, Switch } from '@mui/material';
 import { Box } from '@mui/system';
 import { Judge, Organizer } from 'koekalenteri-shared/model';
 import { FilterProps } from '../stores/EventStrore';
@@ -52,11 +52,11 @@ export default function EventFilter({ judges, organizers, filter, onChange }: Ev
         </Grid>
         <Grid item xs={12} md={6} xl>
           <FormControl sx={{ width: '100%' }}>
-            <InputLabel id="type-label">Koetyyppi</InputLabel>
+            <InputLabel id="type-label">Koemuoto</InputLabel>
             <MultiSelect
               id="type"
               labelId="type-label"
-              label={"Koetyyppi"}
+              label={"Koemuoto"}
               value={filter.eventType}
               onChange={(event) => setFilter({ eventType: multiValue(event.target.value) })}
               options={stringsToMultiSelectOptions(['NOU', 'NOME-B', 'NOME-A', 'NOWT'])}
@@ -102,7 +102,44 @@ export default function EventFilter({ judges, organizers, filter, onChange }: Ev
             />
           </FormControl>
         </Grid>
-        <Grid item xs={12} md={6} xl={3}>TODO: Switchit</Grid>
+        <Grid item container xs={12} md={6} xl={3}>
+          <FormGroup sx={{ width: '100%' }} row>
+            <FormControlLabel
+              value="withOpenEntry"
+              checked={filter.withOpenEntry}
+              control={<Switch />}
+              label="Ilmoittautuminen auki"
+              labelPlacement="start"
+              onChange={(_event, checked) => setFilter({ withOpenEntry: checked })}
+            />
+            <FormControlLabel
+              value="withFreePlaces"
+              checked={filter.withFreePlaces}
+              control={<Switch />}
+              label="Vielä mahtuu"
+              labelPlacement="start"
+              onChange={(_event, checked) => setFilter({ withFreePlaces: checked })}
+            />
+          </FormGroup>
+          <FormGroup sx={{ width: '100%' }} row>
+            <FormControlLabel
+              value="withUpcomingEntry"
+              checked={filter.withUpcomingEntry}
+              control={<Switch />}
+              label="Ilmoittautuminen tulossa"
+              labelPlacement="start"
+              onChange={(_event, checked) => setFilter({ withUpcomingEntry: checked })}
+            />
+            <FormControlLabel
+              value="withClosingEntry"
+              checked={filter.withClosingEntry}
+              control={<Switch />}
+              label="Vielä ehdit!"
+              labelPlacement="start"
+              onChange={(_event, checked) => setFilter({ withClosingEntry: checked })}
+            />
+          </FormGroup>
+        </Grid>
       </Grid>
     </Box>
   );

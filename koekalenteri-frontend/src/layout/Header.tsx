@@ -29,7 +29,7 @@ const Header = () => {
 
   return (
     <div className={classes.header}>
-      <AppBar position="static">
+      <AppBar position="static" color="secondary">
         <Toolbar>
           <Link href="https://www.snj.fi/" target="_blank"  rel="noopener">
             <IconButton size="large">
