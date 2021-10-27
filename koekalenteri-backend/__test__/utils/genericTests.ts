@@ -32,7 +32,7 @@ export const genericReadAllTest = (handler: (event: APIGatewayProxyEvent) => Pro
       });
     });
 
-    it('should catch error', async () => {
+    it('should catch AWSError', async () => {
       const error = createAWSError(500, 'Test error');
       scanSpy.mockImplementation(() => {
         throw error;
@@ -43,6 +43,22 @@ export const genericReadAllTest = (handler: (event: APIGatewayProxyEvent) => Pro
 
       expect(result).toEqual({
         statusCode: 500,
+        headers: defaultJSONHeaders,
+        body: JSON.stringify(error)
+      });
+    });
+
+    it('should catch Error', async () => {
+      const error = new Error('Test error');
+      scanSpy.mockImplementation(() => {
+        throw error;
+      });
+
+      const event = constructAPIGwEvent({}, { method: 'GET' });
+      const result = await handler(event);
+
+      expect(result).toEqual({
+        statusCode: 501,
         headers: defaultJSONHeaders,
         body: JSON.stringify(error)
       });
@@ -79,7 +95,7 @@ export const genericReadTest = (handler: (event: APIGatewayProxyEvent) => Promis
       });
     });
 
-    it('should catch error', async () => {
+    it('should catch AWSError', async () => {
       const error = createAWSError(500, 'Test error');
       getSpy.mockImplementation(() => {
         throw error;
@@ -90,6 +106,22 @@ export const genericReadTest = (handler: (event: APIGatewayProxyEvent) => Promis
 
       expect(result).toEqual({
         statusCode: 500,
+        headers: defaultJSONHeaders,
+        body: JSON.stringify(error)
+      });
+    });
+
+    it('should catch Error', async () => {
+      const error = new Error('Test error');
+      getSpy.mockImplementation(() => {
+        throw error;
+      });
+
+      const event = constructAPIGwEvent({}, { method: 'GET' });
+      const result = await handler(event);
+
+      expect(result).toEqual({
+        statusCode: 501,
         headers: defaultJSONHeaders,
         body: JSON.stringify(error)
       });
@@ -135,7 +167,7 @@ export const genericWriteTest = (handler: (event: APIGatewayProxyEvent) => Promi
       expect(data.modifiedAt.substr(0, 10)).toEqual(timestamp);
     });
 
-    it('should catch error', async () => {
+    it('should catch AWSError', async () => {
       const error = createAWSError(500, 'Test error');
       putSpy.mockImplementation(() => {
         throw error;
@@ -146,6 +178,22 @@ export const genericWriteTest = (handler: (event: APIGatewayProxyEvent) => Promi
 
       expect(result).toEqual({
         statusCode: 500,
+        headers: defaultJSONHeaders,
+        body: JSON.stringify(error)
+      });
+    });
+
+    it('should catch Error', async () => {
+      const error = new Error('Test error');
+      putSpy.mockImplementation(() => {
+        throw error;
+      });
+
+      const event = constructAPIGwEvent({}, { method: 'PUT', username: 'TEST' });
+      const result = await handler(event);
+
+      expect(result).toEqual({
+        statusCode: 501,
         headers: defaultJSONHeaders,
         body: JSON.stringify(error)
       });
