@@ -107,6 +107,6 @@ export async function getEvents() {
 
 export async function getEvent(id: string) {
   return new Promise((resolve, reject) => {
-    process.nextTick(() => resolve(mockEvents.filter(event => event.id === id)));
+    process.nextTick(() => resolve(mockEvents.find(event => event.id === id)));
   });
 }
