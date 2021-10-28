@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react';
+import { useState } from 'react';
 import {
   TableContainer,
   Paper,
@@ -13,6 +13,7 @@ import {
 import makeStyles from '@mui/styles/makeStyles';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import { Link } from 'react-router-dom';
 import { Event } from "koekalenteri-shared/model/Event";
 import EventInfo from './EventInfo';
 import { dateSpan } from './utils';
@@ -42,7 +43,7 @@ function Row(props: { event: Event }) {
   const classes = useRowStyles();
 
   return (
-    <Fragment>
+    <>
       <TableRow className={classes.root}>
         <TableCell>
           <IconButton aria-label="expand row" size="small" onClick={() => setOpen(!open)}>
@@ -55,7 +56,7 @@ function Row(props: { event: Event }) {
         <TableCell>{event.location}</TableCell>
         <TableCell>{event.organizer}</TableCell>
         <TableCell>{event.entries}/{event.places}</TableCell>
-        <TableCell>Ilmoittaudu</TableCell>
+        <TableCell><Link to={`/event/${event.id}`}>Ilmoittaudu</Link></TableCell>
       </TableRow>
       <TableRow className={classes.inner}>
         <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={8}>
@@ -64,7 +65,7 @@ function Row(props: { event: Event }) {
           </Collapse>
         </TableCell>
       </TableRow>
-    </Fragment>
+    </>
   );
 }
 

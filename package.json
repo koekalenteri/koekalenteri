@@ -3,18 +3,23 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
+    "install": "npm run install-be && npm run install-fe",
+    "install-be": "cd koekalenteri-backend && npm ci",
+    "install-fe": "cd koekalenteri-frontend && npm ci",
     "docker-init": "docker network create lambda-local",
+    "dynamodb": "docker run -d --name dynamodb --network lambda-local -p 8000:8000 amazon/dynamodb-local",
+    "start": "shx rm -rf .aws-sam && concurrently npm:start-*",
     "start-backend": "cd koekalenteri-backend && npm start",
     "start-frontend": "cd koekalenteri-frontend && npm start",
-    "start-dynamodb": "docker run --name dynamodb --network lambda-local -p 8000:8000 amazon/dynamodb-local",
-    "start-sam": "sam local start-api -p 8080 --docker-network lambda-local",
-    "start": "shx rm -rf .aws-sam && concurrently npm:start-*"
+    "start-dynamodb": "docker attach dynamodb",
+    "start-sam": "sam local start-api -p 8080 --docker-network lambda-local"
   },
   "author": "",
   "license": "MIT",
   "devDependencies": {
     "@types/jest": "^27.0.2",
     "concurrently": "^6.3.0",
+    "cross-env": "^7.0.3",
     "shx": "^0.3.3"
   }
 }

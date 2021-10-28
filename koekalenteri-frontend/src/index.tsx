@@ -5,12 +5,15 @@ import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles';
 import App from './App';
 import theme from './assets/Theme';
 import reportWebVitals from './reportWebVitals';
+import { BrowserRouter } from "react-router-dom";
 
 ReactDOM.render(
   <StyledEngineProvider injectFirst>
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <App />
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
     </ThemeProvider>
   </StyledEngineProvider>,
   document.getElementById('root')

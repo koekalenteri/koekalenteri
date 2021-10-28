@@ -19,6 +19,7 @@ export type FilterProps = {
 export class EventStore {
   private _events: Event[] = [];
 
+  public loaded: boolean = false;
   public loading: boolean = false;
   public events: Event[] = [];
   public filter: FilterProps = {
@@ -46,6 +47,7 @@ export class EventStore {
 
   setLoading(value: boolean) {
     this.loading = value;
+    this.loaded = !value;
   }
 
   async load() {
@@ -53,6 +55,14 @@ export class EventStore {
     this._events = await eventApi.getEvents();
     this._applyFilter();
     this.setLoading(false);
+  }
+
+  async get(id: string) {
+    const cached = this._events.find(event => event.id === id);
+    if (cached) {
+      return cached;
+    }
+    return await eventApi.getEvent(id);
   }
 
   private _applyFilter() {

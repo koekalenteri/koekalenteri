@@ -1,25 +1,16 @@
-import { useEffect } from 'react';
 import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
+import { Routes, Route } from "react-router-dom";
 import fi from 'date-fns/locale/fi';
-import Header from './layout/Header';
-import SearchPage from './pages/SearchPage'
-import { useStores } from './use-stores';
+import { SearchPage, EventPage } from './pages'
 
 function App() {
-
-  const { eventStore, judgeStore, organizerStore } = useStores();
-
-  useEffect(() => {
-    eventStore.load();
-    judgeStore.load();
-    organizerStore.load()
-  });
-
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns} locale={fi}>
-      <Header/>
-      <SearchPage />
+      <Routes>
+        <Route path="/" element={<SearchPage />} />
+        <Route path="/event/:id" element={<EventPage />} />
+      </Routes>
     </LocalizationProvider>
   );
 }

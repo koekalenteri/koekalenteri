@@ -11,9 +11,7 @@
         "create-tables": "run-script-os",
         "create-tables:nix": "./__test__/environment/local/create_tables.sh",
         "create-tables:win32": "cd ./__test__/environment/local/ && @powershell -NoProfile -ExecutionPolicy Unrestricted -Command ./create_tables.ps1",
-        "start-watch": "npm run watch",
-        "start-tables": "npm run create-tables",
-        "start": "concurrently npm:start-*"
+        "start": "npm run create-tables && npm run watch"
     },
     "keywords": [],
     "author": "",
@@ -33,7 +31,6 @@
         "@typescript-eslint/eslint-plugin": "^4.31.2",
         "@typescript-eslint/eslint-plugin-tslint": "^4.31.2",
         "@typescript-eslint/parser": "^4.31.2",
-        "concurrently": "^6.3.0",
         "eslint": "^7.32.0",
         "eslint-config-prettier": "^8.3.0",
         "eslint-plugin-import": "^2.24.2",

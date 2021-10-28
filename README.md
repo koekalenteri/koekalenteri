@@ -10,60 +10,65 @@ The following tools must be installed:
 
 * [AWS CLI](https://aws.amazon.com/cli/)
 * [AWS SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html)
-* Docker
-* Node.js 12+
+* [Docker](https://www.docker.com/get-started)
+* [Node.js 12+](https://nodejs.org/)
 
 All scripts assume that you have a well configured CLI with the necessary AWS profile set, see [AWS profile creation](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-profiles.html). It is recommended to name this profile as *koekalenteri* – at least all scripts and examples here assume this setup.
 
-### Building and deploying
+### Configuring AWS CLI
 
-All of the following commands assume that you have set the following environment variables:
+You need `AWS Access Key ID` and `AWS Secret Access Key`. These can be generated in the [IAM console](https://console.aws.amazon.com/iam/).
 
-    export AWS_DEFAULT_REGION=eu-north-1
-    export STACK_NAME=amplify-koekalenteri
+```bash
+aws configure --profile koekalenteri
+```
 
-The supplied ```deploy.sh``` is used to create the initial deployment to AWS and the base settings. You should not need to run it as the base set of resources should be already provisioned into Amplify.
+#### Environment variables
 
-Next copy run
+You will need to setup the following environment variables so AWS uses the configured profile
 
-    cp samconfig.default.toml samconfig.toml
+Linux or macOS
 
-In the new file change all instances of the OauthToken from ```foobar``` to your [personal token](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token)
+```bash
+export AWS_PROFILE=koekalenteri
+```
 
-You can use the different build env parameters in manual deployments by adding the parameter ```--config-env [env name]``` to all of the sam commands listed below.
+Windows
 
-To manually build and deploy the backend functionality you will need the following commands. Check the values for the environment variables from the samconfig.toml file.
+```ps1
+setx AWS_PROFILE koekalenteri
+```
 
-    sam build --use-container
-    sam package \
-        --output-template-file packaged.yml \
-        --s3-bucket $DEPLOYMENT_BUCKET \
-        --s3-prefix $BUCKET_PREFIX
-    sam deploy \
-        --template-file packaged.yml \
-        --stack-name $STACK_NAME \
-        --capabilities CAPABILITY_IAM
+### Setting up dependencies and services
 
-See ```samconfig.toml``` to find the value of the relevant DEPLOYMENT_BUCKET for the environment in which you wan to deploy.
+Following commands install dependencies to all of the projects and initialize a docker network and dynamodb instance
 
-To run locally, use the following commands:
+```bash
+npm ci
+npm run docker-init
+```
 
-    docker run -p 8000:8000 amazon/dynamodb-local
-    sh koekalenteri-backend/test/environment/local/create_tables.sh
-    sam local start-api --env-vars todo-src/test/environment/local/mac.json
+### Local development
 
-**Please note that the environment file has only been created for mac so far. It will need to be created for other OSs as needed.**
+#### Start the dynamodb instance (once, it is persistent)
 
-The frontend configuration file ```koekalenteri-frontend/src/config.default.js``` must be copied to ```koekalenteri-frontend/src/config.js``` and the values there replaced by the output of
+```bash
+npm run dynamodb
+```
 
-    aws cloudformation describe-stacks --stack-name $STACK_NAME \
-        --query "Stacks[0].Outputs[]"
+#### Start backend & frontend
 
-For local testing set the ```redirect_url``` to ```https://localhost:8080``` then run
+```bash
+npm start
+```
 
-    cd koekalenteri-frontend/src
-    npm start
+This command will start both backend and frontend.
+Changes are detected automatically. Only if you change the template.yaml, you need to stop (ctrl-c) and restart.
 
-To use the local backend set ```api_base_url``` to ```http://127.0.0.1:8080```
+Note: SAM local is very slow, because it rebuilds lambda on every access. If you are changing only the frontend, please see README.md in koekalenteri-frontend folder.
 
 **Please note that AWS Cognito cannot be run locally so for user authentication a working network connection to the AWS setup is required.**
+
+### Deploying
+
+Deployment automated with GitHub actions and AWS Amplify.
