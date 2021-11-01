@@ -54,7 +54,7 @@ See the section about [deployment](https://facebook.github.io/create-react-app/d
 
 ## Deployment
 
-After project is deployed to Amplyfy, following redirects need to be defined (in Amplify comsole):
+After project is deployed to Amplify, following redirects need to be defined (in Amplify comsole):
 
 ```json
 [{
