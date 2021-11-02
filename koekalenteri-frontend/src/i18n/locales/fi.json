@@ -2,6 +2,7 @@
   "dateformat": "dd.MM.yyyy",
   "datemask": "__.__.____",
   "daterange": "{{ start, datespan(end: undefined) }}",
+  "dateshort": "{{ date, short }}",
   "daterange-end": "Aikaväli päättyen",
   "daterange-start": "Aikaväli alkaen",
   "entryOpen": "Ilmoittautuminen auki",
@@ -14,7 +15,8 @@
     "judges": "Tuomarit:",
     "official": "Vastaava koetoimitsija:",
     "paymentDetails": "Maksutiedot:",
-    "description": "Lisätiedot:"
+    "description": "Lisätiedot:",
+    "location": "Sijainti:"
   },
   "judge": "Tuomari",
   "locale_en": "English",

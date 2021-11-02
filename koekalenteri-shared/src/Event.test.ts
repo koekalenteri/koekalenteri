@@ -5,18 +5,21 @@ import { emptyEvent } from './test-utils/emptyEvent';
 const event: Event = {
   ...emptyEvent,
   entryStartDate: new Date('2021-01-02'),
-  entryEndDate: new Date('2021-01-03'),
+  entryEndDate: new Date('2021-01-13'),
 }
 
 test.each([
-  { date: '2021-01-01 23:59', result: false },
-  { date: '2021-01-02', result: true },
-  { date: '2021-01-02 00:00', result: true },
-  { date: '2021-01-03', result: true },
-  { date: '2021-01-03 23:59', result: true },
-  { date: '2021-01-04 00:00', result: false },
-])(`When entry is 2021-01-02 to 2021-01-03, isEntryOpen at $date should be $result`, ({ date, result }) => {
-  expect(extendEvent(event, new Date(date)).isEntryOpen).toEqual(result);
+  { date: '2021-01-01 23:59', open: false, closing: false },
+  { date: '2021-01-02', open: true, closing: false },
+  { date: '2021-01-02 00:00', open: true, closing: false },
+  { date: '2021-01-05', open: true, closing: false },
+  { date: '2021-01-06', open: true, closing: true },
+  { date: '2021-01-13', open: true, closing: true },
+  { date: '2021-01-13 23:59', open: true, closing: true },
+  { date: '2021-01-14 00:00', open: false, closing: false },
+])(`When entry is 2021-01-02 to 2021-01-13, @$date: isEntryOpen: $open, isEntryClosing: $closing`, ({ date, open, closing }) => {
+  expect(extendEvent(event, new Date(date)).isEntryOpen).toEqual(open);
+  expect(extendEvent(event, new Date(date)).isEntryClosing).toEqual(closing);
 });
 
 
@@ -31,3 +34,4 @@ test('isEntryOpen with mocked date', function() {
 
   jest.useRealTimers();
 });
+

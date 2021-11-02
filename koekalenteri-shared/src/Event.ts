@@ -1,11 +1,11 @@
 import { Organizer } from './Organizer';
-import { startOfDay, endOfDay } from 'date-fns';
+import { startOfDay, endOfDay, subDays } from 'date-fns';
 
 export type Event = {
   id: string
   organizer: Organizer
   eventType: string
-  classes: Array<string>
+  classes: Array<string | EventClass>
   startDate: Date
   endDate: Date
   entryStartDate: Date
@@ -13,8 +13,8 @@ export type Event = {
   location: string
   name: string
   description: string
-  places: number // TODO places / class
-  entries: number // TODO entries / class
+  places: number
+  entries: number
   allowOnlineEntry: boolean
   allowOnlinePayment: boolean
   unofficial: boolean
@@ -26,7 +26,7 @@ export type Event = {
   accountNumber: string
   referenceNumber: string
   requirePaymentBeforeEntry: boolean
-  judges: Array<number> //TODO judges / class
+  judges: Array<number>
   official: number
   createdAt: string
   createdBy: string
@@ -34,13 +34,30 @@ export type Event = {
   modifiedBy: string
 }
 
-export interface EventEx extends Event {
-  isEntryOpen: boolean;
+export type EventClass = {
+  date: Date
+  class: string
+  judge: {
+    id: number,
+    name: string
+  },
+  places: number
+  entries: number
+  members: number
 }
 
-export const extendEvent = (event: Event, now = new Date()): EventEx => ({
-  ...event,
-  isEntryOpen: startOfDay(new Date(event.entryStartDate)) <= now && endOfDay(new Date(event.entryEndDate)) >= now
-})
+export interface EventEx extends Event {
+  isEntryOpen: boolean
+  isEntryClosing: boolean
+}
+
+export function extendEvent(event: Event, now = new Date()): EventEx {
+  const isEntryOpen = startOfDay(new Date(event.entryStartDate)) <= now && endOfDay(new Date(event.entryEndDate)) >= now;
+  return {
+    ...event,
+    isEntryOpen,
+    isEntryClosing: isEntryOpen && subDays(new Date(event.entryEndDate), 7) <= now
+  };
+}
 
 export const extendEvents = (events: Event[], now = new Date()): EventEx[] => events.map((event) => extendEvent(event, now))

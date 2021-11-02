@@ -4,6 +4,7 @@ import { Link, useParams } from 'react-router-dom';
 import { Header } from '../layout';
 import { useStores } from '../use-stores';
 import { EventEx } from 'koekalenteri-shared';
+import { EventInfo } from '../components';
 
 export const EventPage = () => {
   const params = useParams();
@@ -29,12 +30,4 @@ export const EventPage = () => {
       </Box>
     </>
   )
-}
-
-type EventInfoProps = {
-  event: EventEx
-}
-
-function EventInfo({event}: EventInfoProps) {
-  return <pre>{JSON.stringify(event, null, '  ')}</pre>;
 }

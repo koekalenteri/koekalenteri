@@ -5,10 +5,12 @@ export const locales = { en, fi };
 export type LocaleKey = keyof typeof locales;
 
 export const formatDate = (fmt: string) =>
-  (value: Date, lng: string | undefined): string => {
-    console.log(lng, fmt);
+  (date: Date | string, lng: string | undefined): string => {
     const locale = locales[lng as LocaleKey];
-    return format(value, fmt, { locale });
+    if (typeof date === 'string') {
+      date = parseISO(date);
+    }
+    return format(date, fmt, { locale });
   };
 
 export function formatDateSpan(start: Date | string, lng: string | undefined, { end }: { end: Date | string}): string {
