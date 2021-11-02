@@ -18,3 +18,16 @@ test.each([
 ])(`When entry is 2021-01-02 to 2021-01-03, isEntryOpen at $date should be $result`, ({ date, result }) => {
   expect(extendEvent(event, new Date(date)).isEntryOpen).toEqual(result);
 });
+
+
+test('isEntryOpen with mocked date', function() {
+  jest.useFakeTimers();
+
+  jest.setSystemTime(new Date('2021-01-01'));
+  expect(extendEvent(event).isEntryOpen).toEqual(false);
+
+  jest.setSystemTime(new Date('2021-01-02'));
+  expect(extendEvent(event).isEntryOpen).toEqual(true);
+
+  jest.useRealTimers();
+});
