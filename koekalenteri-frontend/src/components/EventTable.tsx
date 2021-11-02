@@ -9,6 +9,7 @@ import {
   TableCell,
   IconButton,
   Collapse,
+  Box,
 } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
@@ -69,29 +70,40 @@ function Row(props: { event: EventEx }) {
   );
 }
 
+function EmptyResult() {
+  return (
+    <Box sx={{ width: '100%', textAlign: 'center', color: 'red' }}>
+      Tekemälläsi haulla ei löytynyt tapahtumia. Poista joku hakusuodattimista.
+    </Box>
+  );
+}
+
 export default function EventTable({ events }: EventTableProps) {
   return (
-    <TableContainer component={Paper}>
-      <Table aria-label="event table">
-        <TableHead style={{ display: 'none' }}>
-          <TableRow>
-            <TableCell />
-            <TableCell>Ajankohta</TableCell>
-            <TableCell>Tyyppi</TableCell>
-            <TableCell>Luokat</TableCell>
-            <TableCell>Sijainti</TableCell>
-            <TableCell>Järjestäjä</TableCell>
-            <TableCell>Paikkoja</TableCell>
-            <TableCell />
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {events.map((event) => (
-            <Row key={event.id} event={event} />
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+    <>
+      {events.length ?
+        <TableContainer component={Paper}>
+          <Table aria-label="event table">
+            <TableHead style={{ display: 'none' }}>
+              <TableRow>
+                <TableCell />
+                <TableCell>Ajankohta</TableCell>
+                <TableCell>Tyyppi</TableCell>
+                <TableCell>Luokat</TableCell>
+                <TableCell>Sijainti</TableCell>
+                <TableCell>Järjestäjä</TableCell>
+                <TableCell>Paikkoja</TableCell>
+                <TableCell />
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {events.map((event) => (<Row key={event.id} event={event} />))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+        : <EmptyResult />
+      }
+    </>
   )
 }
 
