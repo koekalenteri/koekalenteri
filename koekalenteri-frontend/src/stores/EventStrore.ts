@@ -1,7 +1,7 @@
 import { makeAutoObservable } from 'mobx';
 import * as eventApi from '../api/event';
-import { Event } from 'koekalenteri-shared/model';
 import { subDays, startOfDay } from 'date-fns';
+import { EventEx, extendEvent, extendEvents } from 'koekalenteri-shared/model';
 
 export type FilterProps = {
   start: Date | null
@@ -17,11 +17,11 @@ export type FilterProps = {
 }
 
 export class EventStore {
-  private _events: Event[] = [];
+  private _events: EventEx[] = [];
 
   public loaded: boolean = false;
   public loading: boolean = false;
-  public events: Event[] = [];
+  public events: EventEx[] = [];
   public filter: FilterProps = {
     start: null,
     end: null,
@@ -52,7 +52,7 @@ export class EventStore {
 
   async load() {
     this.setLoading(true);
-    this._events = await eventApi.getEvents();
+    this._events = extendEvents(await eventApi.getEvents());
     this._applyFilter();
     this.setLoading(false);
   }
@@ -62,7 +62,7 @@ export class EventStore {
     if (cached) {
       return cached;
     }
-    return await eventApi.getEvent(id);
+    return extendEvent(await eventApi.getEvent(id));
   }
 
   private _applyFilter() {
@@ -77,7 +77,7 @@ export class EventStore {
   }
 }
 
-function withinDateFilters(event: Event, { start, end }: FilterProps) {
+function withinDateFilters(event: EventEx, { start, end }: FilterProps) {
   if (start && new Date(event.endDate) < start) {
     return false;
   }
@@ -87,14 +87,14 @@ function withinDateFilters(event: Event, { start, end }: FilterProps) {
   return true;
 }
 
-function withinSwitchFilters(event: Event, { withOpenEntry, withClosingEntry, withUpcomingEntry, withFreePlaces }: FilterProps, today: Date) {
+function withinSwitchFilters(event: EventEx, { withOpenEntry, withClosingEntry, withUpcomingEntry, withFreePlaces }: FilterProps, today: Date) {
   if (!(withOpenEntry || withClosingEntry || withUpcomingEntry || withFreePlaces)) {
     // no filters
     return true;
   }
   const entryStartDate = new Date(event.entryStartDate);
   const entryEndDate = new Date(event.entryEndDate);
-  const isOpenEntry = (entryStartDate <= today && entryEndDate >= today)
+  const isOpenEntry = event.isEntryOpen;
   let result = false;
   if (withOpenEntry) {
     result = result || isOpenEntry;
@@ -111,7 +111,7 @@ function withinSwitchFilters(event: Event, { withOpenEntry, withClosingEntry, wi
   return result;
 }
 
-function withinArrayFilters(event: Event, { eventType, eventClass, judge, organizer }: FilterProps) {
+function withinArrayFilters(event: EventEx, { eventType, eventClass, judge, organizer }: FilterProps) {
   if (eventType.length && !eventType.includes(event.eventType)) {
     return false;
   }

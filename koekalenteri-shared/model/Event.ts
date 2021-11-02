@@ -32,3 +32,16 @@ export type Event = {
   modifiedAt: string
   modifiedBy: string
 }
+
+export interface EventEx extends Event {
+  isEntryOpen: boolean;
+}
+
+const now = new Date();
+
+export const extendEvent = (event: Event): EventEx => ({
+  ...event,
+  isEntryOpen: new Date(event.entryStartDate) <= now && new Date(event.entryEndDate) >= now
+})
+
+export const extendEvents = (events: Event[]): EventEx[] => events.map(extendEvent)

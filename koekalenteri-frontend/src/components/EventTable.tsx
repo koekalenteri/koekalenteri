@@ -14,12 +14,12 @@ import makeStyles from '@mui/styles/makeStyles';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { Link } from 'react-router-dom';
-import { Event } from "koekalenteri-shared/model/Event";
+import { EventEx } from 'koekalenteri-shared/model';
 import EventInfo from './EventInfo';
 import { dateSpan } from './utils';
 
 type EventTableProps = {
-  events: Array<Event>
+  events: Array<EventEx>
 }
 
 const useRowStyles = makeStyles({
@@ -37,7 +37,7 @@ const useRowStyles = makeStyles({
   }
 });
 
-function Row(props: { event: Event }) {
+function Row(props: { event: EventEx }) {
   const { event } = props;
   const [open, setOpen] = useState(false);
   const classes = useRowStyles();
@@ -56,7 +56,7 @@ function Row(props: { event: Event }) {
         <TableCell>{event.location}</TableCell>
         <TableCell>{event.organizer}</TableCell>
         <TableCell>{event.entries}/{event.places}</TableCell>
-        <TableCell><Link to={`/event/${event.id}`}>Ilmoittaudu</Link></TableCell>
+        <TableCell>{event.isEntryOpen ? <Link to={`/event/${event.id}`}>Ilmoittaudu</Link> : ''}</TableCell>
       </TableRow>
       <TableRow className={classes.inner}>
         <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={8}>

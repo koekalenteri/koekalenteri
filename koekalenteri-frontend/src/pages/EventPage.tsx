@@ -3,12 +3,12 @@ import { Box, CircularProgress } from '@mui/material';
 import { Link, useParams } from 'react-router-dom';
 import Header from '../layout/Header';
 import { useStores } from '../use-stores';
-import { Event } from 'koekalenteri-shared/model';
+import { EventEx } from 'koekalenteri-shared/model';
 
 export const EventPage = () => {
   const params = useParams();
   const { eventStore } = useStores();
-  const [event, setEvent] = useState<Event>();
+  const [event, setEvent] = useState<EventEx>();
 
   useEffect(() => {
     async function get(id: string) {
@@ -32,7 +32,7 @@ export const EventPage = () => {
 }
 
 type EventInfoProps = {
-  event: Event
+  event: EventEx
 }
 
 function EventInfo({event}: EventInfoProps) {
