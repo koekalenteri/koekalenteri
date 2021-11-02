@@ -55,7 +55,7 @@ function Row(props: { event: EventEx }) {
         <TableCell>{event.eventType}</TableCell>
         <TableCell>{event.classes?.join(', ')}</TableCell>
         <TableCell>{event.location}</TableCell>
-        <TableCell>{event.organizer}</TableCell>
+        <TableCell>{event.organizer?.name}</TableCell>
         <TableCell>{event.entries}/{event.places}</TableCell>
         <TableCell>{event.isEntryOpen ? <Link to={`/event/${event.id}`}>Ilmoittaudu</Link> : ''}</TableCell>
       </TableRow>
