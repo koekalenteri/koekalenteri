@@ -38,6 +38,17 @@ const useRowStyles = makeStyles({
   }
 });
 
+function eventClasses(event: EventEx) {
+  const ret: string[] = [];
+  for (const c of event.classes) {
+    const name = typeof c === 'string' ? c : c.class;
+    if (ret.indexOf(name) === -1) {
+      ret.push(name);
+    }
+  };
+  return ret.join(', ');
+}
+
 function Row(props: { event: EventEx }) {
   const { event } = props;
   const [open, setOpen] = useState(false);
@@ -54,7 +65,7 @@ function Row(props: { event: EventEx }) {
         </TableCell>
         <TableCell>{t('daterange', { start: event.startDate, end: event.endDate })}</TableCell>
         <TableCell>{event.eventType}</TableCell>
-        <TableCell>{event.classes?.join(', ')}</TableCell>
+        <TableCell>{eventClasses(event)}</TableCell>
         <TableCell>{event.location}</TableCell>
         <TableCell>{event.organizer?.name}</TableCell>
         <TableCell>{event.entries}/{event.places}</TableCell>
