@@ -1,6 +1,6 @@
 import { Table, TableBody, TableRow, TableCell, Box } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
-import { Event } from "koekalenteri-shared/model/Event";
+import { Event } from "koekalenteri-shared";
 import { dateSpan } from './utils';
 
 const useRowStyles = makeStyles({

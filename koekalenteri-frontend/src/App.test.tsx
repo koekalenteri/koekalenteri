@@ -3,6 +3,8 @@ import App from './App';
 import { MemoryRouter } from 'react-router-dom';
 
 jest.mock('./api/event');
+jest.mock('./api/judge');
+jest.mock('./api/organizer');
 
 test('renders logo with proper ALT', () => {
   render(

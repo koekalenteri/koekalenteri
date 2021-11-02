@@ -4,7 +4,7 @@ import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import { fireEvent, render, within, screen, waitFor } from '@testing-library/react';
 import EventFilter from './EventFilter';
 import { FilterProps } from '../stores/EventStrore';
-import { Judge, Organizer } from 'koekalenteri-shared/model';
+import { Judge, Organizer } from 'koekalenteri-shared';
 
 const judges: Judge[] = [
   {

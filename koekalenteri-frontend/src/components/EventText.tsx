@@ -1,6 +1,6 @@
 import React, { FunctionComponent } from 'react';
 import { Typography, List, ListItem, Grid, Container } from '@mui/material';
-import { Event } from "koekalenteri-shared/model/Event";
+import { Event } from "koekalenteri-shared";
 
 type EventTextProps = {
   events: Array<Event>

@@ -1,5 +1,5 @@
 import http from './http';
-import { Event } from "koekalenteri-shared/model/Event";
+import { Event } from "koekalenteri-shared";
 
 const PATH = '/event/';
 

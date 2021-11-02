@@ -9,6 +9,7 @@
     "docker-init": "docker network create lambda-local",
     "dynamodb": "docker run -d --name dynamodb --network lambda-local -p 8000:8000 amazon/dynamodb-local",
     "start": "shx rm -rf .aws-sam && concurrently npm:start-*",
+    "start-shared": "cd koekalenteri-shared && npm run watch",
     "start-backend": "cd koekalenteri-backend && npm start",
     "start-frontend": "cd koekalenteri-frontend && npm start",
     "start-dynamodb": "docker attach dynamodb",

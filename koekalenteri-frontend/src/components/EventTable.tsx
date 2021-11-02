@@ -14,7 +14,7 @@ import makeStyles from '@mui/styles/makeStyles';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { Link } from 'react-router-dom';
-import { EventEx } from 'koekalenteri-shared/model';
+import { EventEx } from 'koekalenteri-shared';
 import EventInfo from './EventInfo';
 import { dateSpan } from './utils';
 

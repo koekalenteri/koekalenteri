@@ -1,0 +1,37 @@
+import { Event } from '../Event';
+
+export const emptyEvent: Event = {
+  accountNumber: 'test',
+  allowHandlerMembershipPriority: true,
+  allowOnlineEntry: true,
+  allowOnlinePayment: true,
+  allowOwnerMembershipPriority: true,
+  classes: ['test'],
+  cost: 123,
+  costMember: 123,
+  createdAt: 'test',
+  createdBy: 'test',
+  description: 'test',
+  endDate: new Date('1990-01-01'),
+  entries: 0,
+  entryEndDate: new Date('1990-01-01'),
+  entryStartDate: new Date('1990-01-01'),
+  eventType: 'test',
+  id: 'test',
+  judges: [123],
+  location: 'test',
+  modifiedAt: 'test',
+  modifiedBy: 'test',
+  name: 'test',
+  official: 123,
+  organizer: {
+    id: 1,
+    name: 'Suomen Noutajakoirajärjestö ry'
+  },
+  paymentDetails: 'test',
+  places: 10,
+  referenceNumber: 'test',
+  requirePaymentBeforeEntry: true,
+  startDate: new Date('1990-01-01'),
+  unofficial: true,
+}

@@ -1,5 +1,5 @@
 import http from './http';
-import { Organizer } from "koekalenteri-shared/model";
+import { Organizer } from "koekalenteri-shared";
 
 const PATH = '/organizer/';
 

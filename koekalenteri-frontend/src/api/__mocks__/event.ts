@@ -1,39 +1,12 @@
 import { addDays, startOfDay } from "date-fns";
-import { Event } from "koekalenteri-shared/model/Event";
+import { Event } from "koekalenteri-shared";
+import { emptyEvent } from "koekalenteri-shared/src/test-utils/emptyEvent";
 
 const today = startOfDay(new Date());
 
-const commonProps = {
-  organizer: {
-    id: 1,
-    name: 'Suomen Noutajakoirajärjestö ry'
-  },
-  location: 'test',
-  name: 'test',
-  description: 'test',
-  places: 10,
-  entries: 0,
-  allowOnlineEntry: true,
-  allowOnlinePayment: true,
-  unofficial: true,
-  allowOwnerMembershipPriority: true,
-  allowHandlerMembershipPriority: true,
-  cost: 123,
-  costMember: 123,
-  paymentDetails: 'test',
-  accountNumber: 'test',
-  referenceNumber: 'test',
-  requirePaymentBeforeEntry: true,
-  official: 123,
-  createdAt: 'test',
-  createdBy: 'test',
-  modifiedAt: 'test',
-  modifiedBy: 'test',
-}
-
 const mockEvents: Event[] = [
   {
-    ...commonProps,
+    ...emptyEvent,
     id: 'test1',
     eventType: 'type1',
     classes: ['class1'],
@@ -44,7 +17,7 @@ const mockEvents: Event[] = [
     judges: [123],
   },
   {
-    ...commonProps,
+    ...emptyEvent,
     id: 'test2',
     organizer: {
       id: 2,
@@ -59,7 +32,7 @@ const mockEvents: Event[] = [
     judges: [223],
   },
   {
-    ...commonProps,
+    ...emptyEvent,
     id: 'test3',
     eventType: 'type3',
     classes: ['class3'],
@@ -72,7 +45,7 @@ const mockEvents: Event[] = [
     entries: 10,
   },
   {
-    ...commonProps,
+    ...emptyEvent,
     id: 'test4',
     eventType: 'type4',
     classes: ['class4'],
@@ -85,7 +58,7 @@ const mockEvents: Event[] = [
     entries: 0,
   },
   {
-    ...commonProps,
+    ...emptyEvent,
     id: 'test5',
     eventType: 'type5',
     classes: ['class5'],

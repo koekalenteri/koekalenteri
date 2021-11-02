@@ -3,7 +3,7 @@ import { Box, CircularProgress } from '@mui/material';
 import { Link, useParams } from 'react-router-dom';
 import Header from '../layout/Header';
 import { useStores } from '../use-stores';
-import { EventEx } from 'koekalenteri-shared/model';
+import { EventEx } from 'koekalenteri-shared';
 
 export const EventPage = () => {
   const params = useParams();

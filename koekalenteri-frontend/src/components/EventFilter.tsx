@@ -1,6 +1,6 @@
 import { Checkbox, FormControl, FormControlLabel, FormGroup, Grid, InputLabel, ListItemText, MenuItem, Select, SelectProps, Switch } from '@mui/material';
 import { Box } from '@mui/system';
-import { Judge, Organizer } from 'koekalenteri-shared/model';
+import { Judge, Organizer } from 'koekalenteri-shared';
 import { FilterProps } from '../stores/EventStrore';
 import DateRange from './DateRange';
 
