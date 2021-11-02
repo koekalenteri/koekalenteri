@@ -22,7 +22,12 @@ const eventTitle = (event: Event) =>
   + ' ' + event.location
   + (event.name ? ` (${event.name})` : '');
 
-const entryDateColor = (event: EventEx) => event.isEntryOpen ? event.isEntryClosing ? 'orange' : 'green' : 'black';
+function entryDateColor(event: EventEx) {
+  if (!event.isEntryOpen) {
+    return 'black';
+  }
+  return event.isEntryClosing ? 'orange' : 'green';
+}
 
 export function EventInfo(props: { event: EventEx }) {
   const { event } = props;

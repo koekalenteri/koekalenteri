@@ -45,7 +45,7 @@ function eventClasses(event: EventEx) {
     if (ret.indexOf(name) === -1) {
       ret.push(name);
     }
-  };
+  }
   return ret.join(', ');
 }
 
