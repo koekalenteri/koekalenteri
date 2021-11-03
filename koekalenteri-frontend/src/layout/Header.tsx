@@ -1,9 +1,10 @@
 import React from 'react';
 import makeStyles from '@mui/styles/makeStyles';
 import { AppBar, Typography, IconButton, Toolbar, Link } from '@mui/material';
-import { AccountBox, Language } from '@mui/icons-material';
+import { AccountBox } from '@mui/icons-material';
 import logo from '../assets/snj-logo.png';
 import banner from '../assets/banner.png';
+import { LanguageMenu } from '../components';
 
 const useStyles = makeStyles((theme) => ({
   header: {
@@ -38,9 +39,7 @@ export const Header = () => {
           <Typography className={classes.title} variant="h6">
             Koekalenteri
           </Typography>
-          <IconButton size="large">
-            <Language />
-          </IconButton>
+          <LanguageMenu />
           <IconButton size="large">
             <AccountBox />
           </IconButton>

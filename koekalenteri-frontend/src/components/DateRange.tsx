@@ -1,5 +1,6 @@
 import { DatePicker } from "@mui/lab";
 import { Box, FormControl, TextField } from "@mui/material";
+import { useTranslation } from 'react-i18next';
 
 type DateValue = Date | null;
 
@@ -11,9 +12,8 @@ export type DateRangeProps = {
   onChange?: (start: DateValue, end: DateValue) => void
 };
 
-const inputFormat = 'dd.MM.yyyy';
-
 export function DateRange({ start, end, startLabel, endLabel, onChange }: DateRangeProps) {
+  const { t } = useTranslation();
   let _start = start;
   let _end = end;
   const startChanged = (date: DateValue) => {
@@ -31,8 +31,8 @@ export function DateRange({ start, end, startLabel, endLabel, onChange }: DateRa
         <DatePicker
           label={startLabel}
           value={start}
-          mask={'__.__.____'}
-          inputFormat={inputFormat}
+          mask={t('datemask')}
+          inputFormat={t('dateformat')}
           maxDate={end ? end : undefined}
           clearable={true}
           showToolbar={false}
@@ -45,8 +45,8 @@ export function DateRange({ start, end, startLabel, endLabel, onChange }: DateRa
         <DatePicker
           label={endLabel}
           value={end}
-          mask={'__.__.____'}
-          inputFormat={inputFormat}
+          mask={t('datemask')}
+          inputFormat={t('dateformat')}
           minDate={start ? start : undefined}
           clearable={true}
           showToolbar={false}

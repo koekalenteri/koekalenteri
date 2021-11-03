@@ -1,0 +1,27 @@
+{
+  "dateformat": "dd.MM.yyyy",
+  "datemask": "__.__.____",
+  "daterange": "{{ start, datespan(end: undefined) }}",
+  "daterange-end": "Aikaväli päättyen",
+  "daterange-start": "Aikaväli alkaen",
+  "entryOpen": "Ilmoittautuminen auki",
+  "eventClass": "Koeluokka",
+  "eventClasses": "Koeluokat",
+  "eventTime": "Ajankohta",
+  "eventType": "Koemuoto",
+  "event": {
+    "entryTime": "Ilmoittautumisaika:",
+    "judges": "Tuomarit:",
+    "official": "Vastaava koetoimitsija:",
+    "paymentDetails": "Maksutiedot:",
+    "description": "Lisätiedot:"
+  },
+  "judge": "Tuomari",
+  "locale_en": "English",
+  "locale_fi": "Suomi",
+  "location": "Sijainti",
+  "no_results": "Tekemälläsi haulla ei löytynyt tapahtumia. Poista joku hakusuodattimista.",
+  "organizer": "Järjestäjä",
+  "places": "Paikkoja",
+  "register": "Ilmoittaudu"
+}

@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import CssBaseline from '@mui/material/CssBaseline';
-import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles';
+import { ThemeProvider, StyledEngineProvider, CssBaseline } from '@mui/material';
+import "./i18n";
 import App from './App';
 import theme from './assets/Theme';
 import reportWebVitals from './reportWebVitals';

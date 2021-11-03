@@ -1,6 +1,7 @@
 import { Checkbox, FormControl, FormControlLabel, FormGroup, Grid, InputLabel, ListItemText, MenuItem, Select, SelectProps, Switch } from '@mui/material';
 import { Box } from '@mui/system';
 import { Judge, Organizer } from 'koekalenteri-shared';
+import { useTranslation } from 'react-i18next';
 import { FilterProps } from '../stores/EventStrore';
 import { DateRange } from './DateRange';
 
@@ -38,6 +39,7 @@ function MultiSelect(props: SelectProps<string[]> & { options: MultiSelectOption
 }
 
 export function EventFilter({ judges, organizers, filter, onChange }: EventFilterProps) {
+  const { t } = useTranslation();
   const multiValue = (value: string | string[]) => typeof value === 'string' ? value.split(',') : value;
   const multiNumber = (value: string | string[]) => multiValue(value).map(v => +v);
   const setFilter = (props: Partial<FilterProps>) => {
@@ -48,15 +50,15 @@ export function EventFilter({ judges, organizers, filter, onChange }: EventFilte
     <Box m={1}>
       <Grid container justifyContent="space-around" spacing={1}>
         <Grid item xs={12} md={6} xl={3}>
-          <DateRange start={filter.start} startLabel={"Aikaväli alkaen"} end={filter.end} endLabel={"Aikaväli päättyen"} onChange={(start, end) => setFilter({ start, end })}></DateRange>
+          <DateRange start={filter.start} startLabel={t("daterange-start")} end={filter.end} endLabel={t("daterange-end")} onChange={(start, end) => setFilter({ start, end })}></DateRange>
         </Grid>
         <Grid item xs={12} md={6} xl>
           <FormControl sx={{ width: '100%' }}>
-            <InputLabel id="type-label">Koemuoto</InputLabel>
+            <InputLabel id="type-label">{t("eventType")}</InputLabel>
             <MultiSelect
               id="type"
               labelId="type-label"
-              label={"Koemuoto"}
+              label={t("eventType")}
               value={filter.eventType}
               onChange={(event) => setFilter({ eventType: multiValue(event.target.value) })}
               options={stringsToMultiSelectOptions(['NOU', 'NOME-B', 'NOME-A', 'NOWT'])}
@@ -65,11 +67,11 @@ export function EventFilter({ judges, organizers, filter, onChange }: EventFilte
         </Grid>
         <Grid item xs={12} md={6} xl>
           <FormControl sx={{ width: '100%' }}>
-            <InputLabel id="class-label">Koeluokka</InputLabel>
+            <InputLabel id="class-label">{t("eventClass")}</InputLabel>
             <MultiSelect
               id="class"
               labelId="class-label"
-              label={"Koeluokka"}
+              label={t("eventClass")}
               value={filter.eventClass}
               onChange={(event) => setFilter({ eventClass: multiValue(event.target.value) })}
               options={stringsToMultiSelectOptions(['ALO', 'AVO', 'VOI'])}
@@ -78,11 +80,11 @@ export function EventFilter({ judges, organizers, filter, onChange }: EventFilte
         </Grid>
         <Grid item xs={12} md={6} xl={2}>
           <FormControl sx={{ width: '100%' }}>
-            <InputLabel id="organizer-label">Järjestäjä</InputLabel>
+            <InputLabel id="organizer-label">{t("organizer")}</InputLabel>
             <MultiSelect
               id="organizer"
               labelId="organizer-label"
-              label={"Järjestäjä"}
+              label={t("organizer")}
               value={filter.organizer.map(n => n.toString())}
               onChange={(event) => setFilter({ organizer: multiNumber(event.target.value) })}
               options={organizers.map(o => ({value: o.id.toString(), name: o.name}))}
@@ -91,11 +93,11 @@ export function EventFilter({ judges, organizers, filter, onChange }: EventFilte
         </Grid>
         <Grid item xs={12} md={6} xl={2}>
           <FormControl sx={{ width: '100%' }}>
-            <InputLabel id="judge-label">Tuomari</InputLabel>
+            <InputLabel id="judge-label">{t("judge")}</InputLabel>
             <MultiSelect
               id="judge"
               labelId="judge-label"
-              label={"Tuomari"}
+              label={t("judge")}
               value={filter.judge.map(n => n.toString())}
               onChange={(event) => setFilter({ judge: multiNumber(event.target.value) })}
               options={judges.map(j => ({value: j.id.toString(), name: j.name}))}
@@ -108,7 +110,7 @@ export function EventFilter({ judges, organizers, filter, onChange }: EventFilte
               value="withOpenEntry"
               checked={filter.withOpenEntry}
               control={<Switch />}
-              label="Ilmoittautuminen auki"
+              label={t('entryOpen')}
               labelPlacement="start"
               onChange={(_event, checked) => setFilter({ withOpenEntry: checked })}
             />

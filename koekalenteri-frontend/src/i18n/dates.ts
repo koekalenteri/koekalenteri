@@ -1,6 +1,17 @@
-import { isValid, isSameMonth, lightFormat, isSameDay, parseISO, isSameYear } from "date-fns";
+import { format, isValid, isSameMonth, lightFormat, isSameDay, parseISO, isSameYear } from "date-fns";
+import { enUS as en, fi } from "date-fns/locale";
 
-export function dateSpan(start: Date | string, end: Date | string): string {
+export const locales = { en, fi };
+export type LocaleKey = keyof typeof locales;
+
+export const formatDate = (fmt: string) =>
+  (value: Date, lng: string | undefined): string => {
+    console.log(lng, fmt);
+    const locale = locales[lng as LocaleKey];
+    return format(value, fmt, { locale });
+  };
+
+export function formatDateSpan(start: Date | string, lng: string | undefined, { end }: { end: Date | string}): string {
   if (typeof start === 'string') {
     start = parseISO(start);
   }

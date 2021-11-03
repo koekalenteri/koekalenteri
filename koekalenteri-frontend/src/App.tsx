@@ -1,12 +1,16 @@
 import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import { Routes, Route } from "react-router-dom";
-import fi from 'date-fns/locale/fi';
+import { locales, LocaleKey } from "./i18n";
 import { SearchPage, EventPage } from './pages'
+import { useTranslation } from 'react-i18next';
 
 function App() {
+  const { i18n } = useTranslation();
+  const locale = i18n.language as LocaleKey;
+
   return (
-    <LocalizationProvider dateAdapter={AdapterDateFns} locale={fi}>
+    <LocalizationProvider dateAdapter={AdapterDateFns} locale={locales[locale]}>
       <Routes>
         <Route path="/" element={<SearchPage />} />
         <Route path="/event/:id" element={<EventPage />} />

@@ -1,0 +1,24 @@
+{
+  "dateformat": "MM/dd/yyyy",
+  "datemask": "__/__/____",
+  "daterange-end": "Date to",
+  "daterange-start": "Date from",
+  "entryOpen": "Entry open",
+  "eventClass": "Event class",
+  "eventClasses": "Event classes",
+  "eventTime": "Event time",
+  "eventType": "Event type",
+  "event": {
+    "entryTime": "Registration time:",
+    "judges": "Judges:",
+    "official": "Responsible official:",
+    "paymentDetails": "Payment details:",
+    "description": "Description:"
+  },
+  "judge": "Judge",
+  "location": "Location",
+  "no_results": "Your search returned no events. Please remove one of the search filters.",
+  "organizer": "Organizer",
+  "places": "Places",
+  "register": "Register"
+}

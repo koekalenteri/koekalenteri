@@ -17,7 +17,7 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { Link } from 'react-router-dom';
 import { EventEx } from 'koekalenteri-shared';
 import { EventInfo } from './EventInfo';
-import { dateSpan } from './utils';
+import { useTranslation } from 'react-i18next';
 
 type EventTableProps = {
   events: Array<EventEx>
@@ -42,6 +42,7 @@ function Row(props: { event: EventEx }) {
   const { event } = props;
   const [open, setOpen] = useState(false);
   const classes = useRowStyles();
+  const { t } = useTranslation();
 
   return (
     <>
@@ -51,13 +52,13 @@ function Row(props: { event: EventEx }) {
             {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
           </IconButton>
         </TableCell>
-        <TableCell>{dateSpan(event.startDate, event.endDate)}</TableCell>
+        <TableCell>{t('daterange', { start: event.startDate, end: event.endDate })}</TableCell>
         <TableCell>{event.eventType}</TableCell>
         <TableCell>{event.classes?.join(', ')}</TableCell>
         <TableCell>{event.location}</TableCell>
         <TableCell>{event.organizer?.name}</TableCell>
         <TableCell>{event.entries}/{event.places}</TableCell>
-        <TableCell>{event.isEntryOpen ? <Link to={`/event/${event.id}`}>Ilmoittaudu</Link> : ''}</TableCell>
+        <TableCell>{event.isEntryOpen ? <Link to={`/event/${event.id}`}>{t('register')}</Link> : ''}</TableCell>
       </TableRow>
       <TableRow className={classes.inner}>
         <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={8}>
@@ -71,28 +72,28 @@ function Row(props: { event: EventEx }) {
 }
 
 function EmptyResult() {
+  const { t } = useTranslation();
   return (
-    <Box sx={{ width: '100%', textAlign: 'center', color: 'red' }}>
-      Tekemälläsi haulla ei löytynyt tapahtumia. Poista joku hakusuodattimista.
-    </Box>
+    <Box sx={{ width: '100%', textAlign: 'center', color: 'red' }}>{t('no_results')}</Box>
   );
 }
 
 export function EventTable({ events }: EventTableProps) {
+  const { t } = useTranslation();
   return (
     <>
       {events.length ?
         <TableContainer component={Paper}>
           <Table aria-label="event table">
-            <TableHead style={{ display: 'none' }}>
+            <TableHead>
               <TableRow>
                 <TableCell />
-                <TableCell>Ajankohta</TableCell>
-                <TableCell>Tyyppi</TableCell>
-                <TableCell>Luokat</TableCell>
-                <TableCell>Sijainti</TableCell>
-                <TableCell>Järjestäjä</TableCell>
-                <TableCell>Paikkoja</TableCell>
+                <TableCell>{t('eventTime')}</TableCell>
+                <TableCell>{t('eventType')}</TableCell>
+                <TableCell>{t('eventClasses')}</TableCell>
+                <TableCell>{t('location')}</TableCell>
+                <TableCell>{t('organizer')}</TableCell>
+                <TableCell>{t('places')}</TableCell>
                 <TableCell />
               </TableRow>
             </TableHead>
