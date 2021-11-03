@@ -17,16 +17,11 @@ const useRowStyles = makeStyles({
   },
 });
 
-const eventTitle = (event: Event) =>
-  dateSpan(event.startDate, event.endDate)
-  + ' ' + event.location
-  + (event.name ? ` (${event.name})` : '');
-
 function entryDateColor(event: EventEx) {
   if (!event.isEntryOpen) {
-    return 'black';
+    return 'text.primary';
   }
-  return event.isEntryClosing ? 'orange' : 'green';
+  return event.isEntryClosing ? 'warning.main' : 'success.main';
 }
 
 export function EventInfo(props: { event: EventEx }) {
@@ -39,45 +34,46 @@ export function EventInfo(props: { event: EventEx }) {
         <TableBody>
           <TableRow key={event.id + 'title'} >
             <TableCell component="th" scope="row" colSpan={2}>
-              {eventTitle(event)}
+              {t('daterange', { start: event.startDate, end: event.endDate }) +
+                ' ' + event.location + (event.name ? ` (${event.name})` : '')}
             </TableCell>
           </TableRow>
           <TableRow key={event.id + 'organizer'}>
-            <TableCell component="th" scope="row">Järjestäjä:</TableCell>
+            <TableCell component="th" scope="row">{t('organizer')}:</TableCell>
             <TableCell>{event.organizer?.name}</TableCell>
           </TableRow>
           <TableRow key={event.id + 'date'}>
-            <TableCell component="th" scope="row">{t('event.entryTime')}</TableCell>
+            <TableCell component="th" scope="row">{t('entryTime')}:</TableCell>
             <TableCell sx={{ color: entryDateColor(event) }}>
               {t('daterange', { start: event.entryStartDate, end: event.entryEndDate })}
             </TableCell>
           </TableRow>
           <TableRow key={event.id + 'eventType'}>
-            <TableCell component="th" scope="row">Koemuoto:</TableCell>
+            <TableCell component="th" scope="row">{t('eventType')}:</TableCell>
             <TableCell>{event.eventType}</TableCell>
           </TableRow>
           {event.classes.length ? <EventClassRow event={event} /> : ''}
           <TableRow key={event.id + 'judge' + event.judges[0]}>
-            <TableCell component="th" scope="row" rowSpan={event.judges.length}>{t('event.judges')}</TableCell>
+            <TableCell component="th" scope="row" rowSpan={event.judges.length}>{t('judges')}:</TableCell>
             <TableCell>{event.judges[0]}</TableCell>
           </TableRow>
           {event.judges.slice(1).map((judge) => (
             <TableRow key={event.id + 'judge' + judge}><TableCell>{judge}</TableCell></TableRow>
           ))}
           <TableRow key={event.id + 'official'}>
-            <TableCell component="th" scope="row">{t('event.official')}</TableCell>
+            <TableCell component="th" scope="row">{t('official')}:</TableCell>
             <TableCell>{event.official}</TableCell>
           </TableRow>
           <TableRow key={event.id + 'payment'}>
-            <TableCell component="th" scope="row">{t('event.paymentDetails')}</TableCell>
+            <TableCell component="th" scope="row">{t('paymentDetails')}:</TableCell>
             <TableCell>{event.paymentDetails}</TableCell>
           </TableRow>
           <TableRow key={event.id + 'location'}>
-            <TableCell component="th" scope="row">{t('event.location')}</TableCell>
+            <TableCell component="th" scope="row">{t('location')}:</TableCell>
             <TableCell>{event.location}</TableCell>
           </TableRow>
           <TableRow key={event.id + 'description'}>
-            <TableCell component="th" scope="row">{t('event.description')}</TableCell>
+            <TableCell component="th" scope="row">{t('description')}:</TableCell>
             <TableCell>{event.description}</TableCell>
           </TableRow>
         </TableBody>
@@ -91,9 +87,10 @@ type EventProps = {
 }
 
 function EventClassRow({ event }: EventProps) {
+  const { t } = useTranslation();
   return (
     <TableRow key={event.id + 'classes'}>
-      <TableCell component="th" scope="row">Luokat:</TableCell>
+      <TableCell component="th" scope="row">{t('eventClasses')}:</TableCell>
       <TableCell><EventClassTable event={event} /></TableCell>
     </TableRow>
   );
@@ -137,7 +134,7 @@ function ComplexEventClass({ eventClass }: { eventClass: EventClass }) {
       <TableCell component="th" scope="row">{t('dateshort', { date: eventClass.date })}</TableCell>
       <TableCell component="th" scope="row">{eventClass.class}</TableCell>
       <TableCell component="th" scope="row">{eventClass.judge?.name}</TableCell>
-      <TableCell component="th" scope="row">Paikkoja: {eventClass.places}, ilmoittautumisia: {eventClass.entries}, joista jäseniä {eventClass.members}</TableCell>
+      <TableCell component="th" scope="row">{eventClass.entries}/{eventClass.places} ({eventClass.members})</TableCell>
       <TableCell></TableCell>
     </>
   );

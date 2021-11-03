@@ -22,6 +22,7 @@ i18n
     fallbackLng: "fi",
     supportedLngs: ['fi', 'en'],
     debug: process.env.NODE_ENV === 'development',
+    keySeparator: false, // flat json
     interpolation: {
       escapeValue: false
     }
