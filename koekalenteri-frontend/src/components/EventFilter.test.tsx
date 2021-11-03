@@ -2,7 +2,7 @@ import fi from 'date-fns/locale/fi';
 import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import { fireEvent, render, within, screen, waitFor } from '@testing-library/react';
-import EventFilter from './EventFilter';
+import { EventFilter } from './';
 import { FilterProps } from '../stores/EventStrore';
 import { Judge, Organizer } from 'koekalenteri-shared';
 

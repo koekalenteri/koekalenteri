@@ -16,7 +16,7 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { Link } from 'react-router-dom';
 import { EventEx } from 'koekalenteri-shared';
-import EventInfo from './EventInfo';
+import { EventInfo } from './EventInfo';
 import { dateSpan } from './utils';
 
 type EventTableProps = {
@@ -78,7 +78,7 @@ function EmptyResult() {
   );
 }
 
-export default function EventTable({ events }: EventTableProps) {
+export function EventTable({ events }: EventTableProps) {
   return (
     <>
       {events.length ?

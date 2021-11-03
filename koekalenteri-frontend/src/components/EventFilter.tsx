@@ -2,7 +2,7 @@ import { Checkbox, FormControl, FormControlLabel, FormGroup, Grid, InputLabel, L
 import { Box } from '@mui/system';
 import { Judge, Organizer } from 'koekalenteri-shared';
 import { FilterProps } from '../stores/EventStrore';
-import DateRange from './DateRange';
+import { DateRange } from './DateRange';
 
 type EventFilterProps = {
   judges: Judge[],
@@ -37,7 +37,7 @@ function MultiSelect(props: SelectProps<string[]> & { options: MultiSelectOption
   );
 }
 
-export default function EventFilter({ judges, organizers, filter, onChange }: EventFilterProps) {
+export function EventFilter({ judges, organizers, filter, onChange }: EventFilterProps) {
   const multiValue = (value: string | string[]) => typeof value === 'string' ? value.split(',') : value;
   const multiNumber = (value: string | string[]) => multiValue(value).map(v => +v);
   const setFilter = (props: Partial<FilterProps>) => {

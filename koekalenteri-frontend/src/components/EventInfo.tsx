@@ -13,7 +13,7 @@ const useRowStyles = makeStyles({
   },
 });
 
-export default function EventInfo(props: { event: Event }) {
+export function EventInfo(props: { event: Event }) {
   const { event } = props;
   const classes = useRowStyles();
   return (

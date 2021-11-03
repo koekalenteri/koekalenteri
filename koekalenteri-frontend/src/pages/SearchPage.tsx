@@ -1,8 +1,6 @@
 import { useEffect } from 'react';
 import { Box } from '@mui/material';
-import EventContainer from '../layout/EventContainer';
-import EventFilterContainer from '../layout/EventFilterContainer';
-import Header from '../layout/Header';
+import { EventContainer, EventFilterContainer, Header } from '../layout';
 import { useStores } from '../use-stores';
 
 export const SearchPage = () => {

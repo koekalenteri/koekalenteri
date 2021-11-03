@@ -13,7 +13,7 @@ export type DateRangeProps = {
 
 const inputFormat = 'dd.MM.yyyy';
 
-export default function DateRange({ start, end, startLabel, endLabel, onChange }: DateRangeProps) {
+export function DateRange({ start, end, startLabel, endLabel, onChange }: DateRangeProps) {
   let _start = start;
   let _end = end;
   const startChanged = (date: DateValue) => {
