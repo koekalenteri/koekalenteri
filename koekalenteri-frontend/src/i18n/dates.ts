@@ -1,5 +1,5 @@
 import { format, isValid, isSameMonth, lightFormat, isSameDay, parseISO, isSameYear } from "date-fns";
-import { enUS as en, fi } from "date-fns/locale";
+import { enGB as en, fi } from "date-fns/locale";
 
 export const locales = { en, fi };
 export type LocaleKey = keyof typeof locales;

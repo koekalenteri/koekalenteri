@@ -1,6 +1,4 @@
 {
-  "dateformat": "MM/dd/yyyy",
-  "datemask": "__/__/____",
   "daterange-end": "Date to",
   "daterange-start": "Date from",
   "entryOpen": "Entry open",
