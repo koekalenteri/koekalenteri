@@ -43,7 +43,7 @@ test('It should render event information', async function() {
   expect(getByText('ke 10.2.')).toBeInTheDocument();
   expect(getByText('TestClass')).toBeInTheDocument();
   expect(getByText('Test Judge')).toBeInTheDocument();
-  expect(getByText('Paikkoja: 11, ilmoittautumisia: 22, joista jäseniä 2')).toBeInTheDocument();
+  expect(getByText('22/11 (2)')).toBeInTheDocument();
 
   // description
   expect(getByText('event description text')).toBeInTheDocument();
