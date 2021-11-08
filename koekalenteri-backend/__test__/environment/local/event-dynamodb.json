@@ -2,7 +2,7 @@
   "id": {
     "S": "0001"
   },
-  "event-type": {
+  "eventType": {
     "S": "NOME-B"
   },
   "classes": {
@@ -15,11 +15,17 @@
       }
     ]
   },
-  "start-date": {
-    "S": "2021-05-24"
+  "startDate": {
+    "S": "2021-12-24"
   },
-  "end-date": {
-    "S": "2021-05-25"
+  "endDate": {
+    "S": "2021-12-25"
+  },
+  "entryStartDate": {
+    "S": "2021-11-04"
+  },
+  "entryEndDate": {
+    "S": "2021-12-23"
   },
   "location": {
     "S": "Liperi"
@@ -30,37 +36,37 @@
   "description": {
     "S": "Pietun pysti jaossa ALO-luokassa"
   },
-  "allow-online-entry": {
+  "allowOnlineEntry": {
     "BOOL": true
   },
-  "allow-online-payment": {
+  "allowOnlinePayment": {
     "BOOL": true
   },
   "unofficial": {
     "BOOL": false
   },
-  "allow-owner-membership-priority": {
+  "allowOwnerMembershipPriority": {
     "BOOL": true
   },
-  "allow-handler-membership-priority": {
+  "allowHandlerMembershipPriority": {
     "BOOL": true
   },
   "cost": {
     "N": "40"
   },
-  "cost-member": {
+  "costMember": {
     "N": "35"
   },
-  "payment-details": {
+  "paymentDetails": {
     "S": "lorem ipsum"
   },
-  "account-number": {
+  "accountNumber": {
     "S": "FI46...."
   },
-  "reference-number": {
+  "referenceNumber": {
     "S": "11041"
   },
-  "require-payment-before-entry": {
+  "requirePaymentBeforeEntry": {
     "BOOL": false
   },
   "judges": {
@@ -75,5 +81,14 @@
   },
   "official": {
     "N": "313313"
+  },
+  "places": {
+    "N": "15"
+  },
+  "entries": {
+    "N": "10"
+  },
+  "members": {
+    "N": "3"
   }
 }

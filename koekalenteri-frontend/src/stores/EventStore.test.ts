@@ -23,7 +23,7 @@ test('EventStore', async () => {
   expect(store.loading).toEqual(false);
   expect(store.loaded).toEqual(false);
 
-  let evt = await store.get('test4');
+  let evt = await store.get('type4', 'test4');
   expect(evt.id).toEqual('test4');
   expect(store.loaded).toEqual(false);
 
@@ -34,8 +34,9 @@ test('EventStore', async () => {
   expect(store.loaded).toEqual(true);
   expect(store.events.length).toEqual(3);
 
-  evt = await store.get(store.events[0].id);
-  expect(evt).toEqual(store.events[0]);
+  const first = store.events[0];
+  evt = await store.get(first.eventType, first.id);
+  expect(evt).toEqual(first);
 
   await store.setFilter({ ...emptyFilter });
   expect(store.events.length).toEqual(5);

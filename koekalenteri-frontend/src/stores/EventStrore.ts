@@ -57,12 +57,12 @@ export class EventStore {
     this.setLoading(false);
   }
 
-  async get(id: string) {
-    const cached = this._events.find(event => event.id === id);
+  async get(eventType: string, id: string) {
+    const cached = this._events.find(event => event.eventType === eventType && event.id === id);
     if (cached) {
       return cached;
     }
-    return extendEvent(await eventApi.getEvent(id));
+    return extendEvent(await eventApi.getEvent(eventType, id));
   }
 
   private _applyFilter() {

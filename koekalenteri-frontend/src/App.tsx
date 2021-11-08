@@ -13,7 +13,7 @@ function App() {
     <LocalizationProvider dateAdapter={AdapterDateFns} locale={locales[locale]}>
       <Routes>
         <Route path="/" element={<SearchPage />} />
-        <Route path="/event/:id" element={<EventPage />} />
+        <Route path="/event/:eventType/:id" element={<EventPage />} />
       </Routes>
     </LocalizationProvider>
   );

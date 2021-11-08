@@ -18,7 +18,7 @@ test('renders logo with proper ALT', () => {
 
 test('renders event page', async () => {
   const {findByText, getByRole} = render(
-    <MemoryRouter initialEntries={['/event/test2']}>
+    <MemoryRouter initialEntries={['/event/type2/test2']}>
       <App />
     </MemoryRouter>
   );

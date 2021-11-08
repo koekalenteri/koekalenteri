@@ -1,4 +1,5 @@
 // Create a DocumentClient that represents the query to add an item
+import { APIGatewayProxyEventPathParameters } from 'aws-lambda';
 import DynamoDB, { AttributeMap, ItemList } from 'aws-sdk/clients/dynamodb';
 
 export default class CustomDynamoClient {
@@ -30,10 +31,14 @@ export default class CustomDynamoClient {
     return data.Items;
   }
 
-  async read(id: unknown): Promise<AttributeMap | undefined> {
+  async read(key: APIGatewayProxyEventPathParameters | null): Promise<AttributeMap | undefined> {
+    if (!key) {
+      console.warn('CustomDynamoClient.read: no key provoded, returning undefined');
+      return;
+    }
     const params = {
       TableName : this.table,
-      Key: { id: id },
+      Key: key,
     };
     const data = await this.docClient.get(params).promise();
     return data.Item;

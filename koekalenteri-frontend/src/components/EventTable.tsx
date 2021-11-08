@@ -69,7 +69,7 @@ function Row(props: { event: EventEx }) {
         <TableCell>{event.location}</TableCell>
         <TableCell>{event.organizer?.name}</TableCell>
         <TableCell>{event.entries}/{event.places}</TableCell>
-        <TableCell>{event.isEntryOpen ? <Link to={`/event/${event.id}`}>{t('register')}</Link> : ''}</TableCell>
+        <TableCell>{event.isEntryOpen ? <Link to={`/event/${event.eventType}/${event.id}`}>{t('register')}</Link> : ''}</TableCell>
       </TableRow>
       <TableRow className={classes.inner}>
         <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={8}>

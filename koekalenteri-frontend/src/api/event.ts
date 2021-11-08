@@ -7,6 +7,6 @@ export async function getEvents() {
   return http.get<Array<Event>>(PATH);
 }
 
-export async function getEvent(id: string) {
-  return http.get<Event>(`${PATH}?${id}`);
+export async function getEvent(eventType: string, id: string) {
+  return http.get<Event>(`${PATH}${eventType}/${id}`);
 }

@@ -12,12 +12,12 @@ export const EventPage = () => {
   const [event, setEvent] = useState<EventEx>();
 
   useEffect(() => {
-    async function get(id: string) {
-      const result = await eventStore.get(id);
+    async function get(eventType: string, id: string) {
+      const result = await eventStore.get(eventType, id);
       setEvent(result);
     }
-    if (params.id) {
-      get(params.id);
+    if (params.eventType && params.id) {
+      get(params.eventType, params.id);
     }
   });
 

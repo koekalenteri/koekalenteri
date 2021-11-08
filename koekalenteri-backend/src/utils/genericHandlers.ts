@@ -31,7 +31,7 @@ export const genericReadHandler = (dynamoDB: CustomDynamoClient, name: string): 
       event: APIGatewayProxyEvent,
     ): Promise<APIGatewayProxyResult> => {
       try {
-        const item = await dynamoDB.read(event.pathParameters?.id);
+        const item = await dynamoDB.read(event.pathParameters);
         metricsSuccess(metrics, event.requestContext, name);
         return response(200, item);
       } catch (err) {

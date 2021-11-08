@@ -95,9 +95,13 @@ Resources:
     Properties:
       TableName: !Join ['-', [event-table, !Ref AWS::StackName]]
       KeySchema:
-          - AttributeName: id
+          - AttributeName: eventType
             KeyType: HASH
+          - AttributeName: id
+            KeyType: RANGE
       AttributeDefinitions:
+          - AttributeName: eventType
+            AttributeType: S
           - AttributeName: id
             AttributeType: S
       Tags:
@@ -254,7 +258,7 @@ Resources:
         GetEvent:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
-            Path: /event/{id}
+            Path: /event/{eventType}/{id}
             Method: get
             RestApiId: !Ref KoekalenteriApi
 
