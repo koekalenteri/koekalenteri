@@ -97,11 +97,7 @@ Resources:
       KeySchema:
           - AttributeName: id
             KeyType: HASH
-          - AttributeName: eventType
-            KeyType: RANGE
       AttributeDefinitions:
-          - AttributeName: eventType
-            AttributeType: S
           - AttributeName: id
             AttributeType: S
       Tags:
@@ -147,11 +143,7 @@ Resources:
       KeySchema:
           - AttributeName: id
             KeyType: HASH
-          - AttributeName: name
-            KeyType: RANGE
       AttributeDefinitions:
-          - AttributeName: name
-            AttributeType: S
           - AttributeName: id
             AttributeType: N
       Tags:
@@ -172,11 +164,7 @@ Resources:
       KeySchema:
           - AttributeName: id
             KeyType: HASH
-          - AttributeName: name
-            KeyType: RANGE
       AttributeDefinitions:
-          - AttributeName: name
-            AttributeType: S
           - AttributeName: id
             AttributeType: N
       Tags:
