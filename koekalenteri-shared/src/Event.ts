@@ -28,9 +28,9 @@ export type Event = {
   requirePaymentBeforeEntry: boolean
   judges: Array<number>
   official: number
-  createdAt: string
+  createdAt: Date
   createdBy: string
-  modifiedAt: string
+  modifiedAt: Date
   modifiedBy: string
 }
 
