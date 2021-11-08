@@ -8,5 +8,5 @@ export async function getEvents() {
 }
 
 export async function getEvent(id: string) {
-  return http.get<Event>(`${PATH}?${id}`);
+  return http.get<Event>(`${PATH}?id=${id}`);
 }

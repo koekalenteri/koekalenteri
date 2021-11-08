@@ -2,24 +2,27 @@ import { IconButton, Menu, MenuItem, Tooltip } from '@mui/material';
 import { Language } from '@mui/icons-material';
 import { locales, LocaleKey } from '../i18n';
 import { useTranslation } from 'react-i18next';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import useLocalStorage from "use-local-storage";
 
 export function LanguageMenu() {
   const { t, i18n } = useTranslation();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
+  const [language, setLanguage] = useLocalStorage('i18nextLng', i18n.language, {serializer: (v) => v || '', parser: (v) => v});
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
   const handleClose = (...args: any[]) => {
-    console.log(i18n.language);
     setAnchorEl(null);
   };
 
-  const changeLanguage = (lng: string) => {
-    i18n.changeLanguage(lng);
-  };
+  useEffect(() => {
+    if (i18n.language !== language) {
+      i18n.changeLanguage(language);
+    }
+  }, [i18n, language])
 
   return (
     <>
@@ -37,8 +40,8 @@ export function LanguageMenu() {
         {Object.keys(locales).map((locale) => (
           <MenuItem
             key={locale}
-            selected={i18n.language === locale}
-            onClick={() => changeLanguage(locale)}
+            selected={language === locale}
+            onClick={() => setLanguage(locale)}
           >
             {t(`locale_${locale as LocaleKey}`)}
           </MenuItem>
