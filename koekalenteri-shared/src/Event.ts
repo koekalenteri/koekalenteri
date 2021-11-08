@@ -52,9 +52,6 @@ export interface EventEx extends Event {
 }
 
 export function extendEvent(event: Event, now = new Date()): EventEx {
-  if (!event) {
-    return;
-  }
   const isEntryOpen = startOfDay(new Date(event.entryStartDate)) <= now && endOfDay(new Date(event.entryEndDate)) >= now;
   return {
     ...event,
