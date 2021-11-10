@@ -26,7 +26,7 @@ export const EventPage = () => {
       <Header />
       <Box>
         {eventStore.loaded && <Link to="/">Home</Link>}
-        { event ? <EventInfo event={event} /> : <CircularProgress />}
+        {event ? <EventInfo event={event} header={true} /> : <CircularProgress />}
       </Box>
     </>
   )

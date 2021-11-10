@@ -1,4 +1,4 @@
-import { Table, TableBody, TableRow, TableCell, Box, Grid, TableHead } from '@mui/material';
+import { Table, TableBody, TableRow, TableCell } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
 import { Event, EventClass, EventEx } from "koekalenteri-shared";
 import { useTranslation } from 'react-i18next';
@@ -32,14 +32,28 @@ function entryDateColor(event: EventEx) {
   return event.isEntryClosing ? 'warning.main' : 'success.main';
 }
 
-export function EventInfo(props: { event: EventEx }) {
-  const { event } = props;
+export function EventInfo(props: { event: EventEx, header?: boolean }) {
+  const { event, header = false } = props;
   const classes = useRowStyles();
   const { t } = useTranslation();
   return (
     <>
       <Table size="small" aria-label="details" className={classes.root}>
         <TableBody>
+          {header ?
+            <>
+              <TableRow key={event.id + 'title'} >
+                <TableCell component="th" scope="row" colSpan={2}>
+                  {t('daterange', { start: event.startDate, end: event.endDate }) +
+                    ' ' + event.location + (event.name ? ` (${event.name})` : '')}
+                </TableCell>
+              </TableRow>
+              <TableRow key={event.id + 'organizer'}>
+                <TableCell component="th" scope="row">{t('organizer')}:</TableCell>
+                <TableCell>{event.organizer?.name}</TableCell>
+              </TableRow>
+            </>
+            : ''}
           <TableRow key={event.id + 'date'}>
             <TableCell component="th" scope="row">{t('entryTime')}:</TableCell>
             <TableCell sx={{ color: entryDateColor(event) }}>

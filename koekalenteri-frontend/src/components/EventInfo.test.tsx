@@ -26,9 +26,10 @@ test('It should render event information', async function() {
       members: 2
     }],
     isEntryOpen: false,
-    isEntryClosing: false
+    isEntryClosing: false,
+    isEntryUpcoming: false
   };
-  const { getByText } = render(<EventInfo event={event} />);
+  const { getByText } = render(<EventInfo event={event} header={true} />);
 
   // organizer
   expect(getByText('test organization')).toBeInTheDocument();
@@ -43,7 +44,7 @@ test('It should render event information', async function() {
   expect(getByText('ke 10.2.')).toBeInTheDocument();
   expect(getByText('TestClass')).toBeInTheDocument();
   expect(getByText('Test Judge')).toBeInTheDocument();
-  expect(getByText('22/11 (2)')).toBeInTheDocument();
+  expect(getByText('22/11')).toBeInTheDocument();
 
   // description
   expect(getByText('event description text')).toBeInTheDocument();

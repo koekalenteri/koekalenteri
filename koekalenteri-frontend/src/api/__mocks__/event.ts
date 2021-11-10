@@ -1,4 +1,4 @@
-import { addDays, startOfDay } from "date-fns";
+import { addDays, parseISO, startOfDay } from "date-fns";
 import { Event } from "koekalenteri-shared";
 import { emptyEvent } from "koekalenteri-shared/src/test-utils/emptyEvent";
 
@@ -10,10 +10,10 @@ const mockEvents: Event[] = [
     id: 'test1',
     eventType: 'type1',
     classes: ['class1'],
-    startDate: new Date('2021-02-10'),
-    endDate: new Date('2021-02-11'),
-    entryStartDate: new Date('2021-02-01'),
-    entryEndDate: new Date('2021-02-07'),
+    startDate: parseISO('2021-02-10'),
+    endDate: parseISO('2021-02-11'),
+    entryStartDate: parseISO('2021-02-01'),
+    entryEndDate: parseISO('2021-02-07'),
     judges: [123],
   },
   {
@@ -25,10 +25,10 @@ const mockEvents: Event[] = [
     },
     eventType: 'type2',
     classes: ['class2'],
-    startDate: new Date('2021-02-12'),
-    endDate: new Date('2021-02-13'),
-    entryStartDate: new Date('2021-02-01'),
-    entryEndDate: new Date('2021-02-12'),
+    startDate: parseISO('2021-02-12'),
+    endDate: parseISO('2021-02-13'),
+    entryStartDate: parseISO('2021-02-01'),
+    entryEndDate: parseISO('2021-02-12'),
     judges: [223],
   },
   {

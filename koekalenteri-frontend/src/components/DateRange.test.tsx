@@ -3,7 +3,7 @@ import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { DateRange, DateRangeProps } from './';
-import { startOfMonth } from 'date-fns';
+import { parseISO, startOfMonth } from 'date-fns';
 
 const renderComponent = (props: DateRangeProps) => {
   const utils = render(
@@ -17,7 +17,7 @@ const renderComponent = (props: DateRangeProps) => {
 }
 
 test('should render labels', () => {
-  const {getAllByText} = renderComponent({ startLabel: 'Start Label', start: new Date('2021-01-01'), endLabel: 'End Label', end: new Date('2021-02-01') });
+  const {getAllByText} = renderComponent({ startLabel: 'Start Label', start: parseISO('2021-01-01'), endLabel: 'End Label', end: parseISO('2021-02-01') });
 
   expect(getAllByText('Start Label').length).toEqual(2);
   expect(getAllByText('End Label').length).toEqual(2);

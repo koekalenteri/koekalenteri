@@ -89,26 +89,23 @@ function withinDateFilters(event: EventEx, { start, end }: FilterProps) {
 }
 
 function withinSwitchFilters(event: EventEx, { withOpenEntry, withClosingEntry, withUpcomingEntry, withFreePlaces }: FilterProps, today: Date) {
-  if (!(withOpenEntry || withClosingEntry || withUpcomingEntry || withFreePlaces)) {
-    // no filters
-    return true;
-  }
-  const entryStartDate = new Date(event.entryStartDate);
-  const isOpenEntry = event.isEntryOpen;
-  let result = false;
+  let result;
+
   if (withOpenEntry) {
-    result = result || isOpenEntry;
+    result =  event.isEntryOpen;
+    if (withClosingEntry) {
+      result = result && event.isEntryClosing;
+    }
+    if (withFreePlaces) {
+      result = result && event.places > event.entries;
+    }
   }
-  if (withClosingEntry) {
-    result = result || event.isEntryClosing;
-  }
+
   if (withUpcomingEntry) {
-    result = result || entryStartDate > today;
+    result = result || event.isEntryUpcoming;
   }
-  if (withFreePlaces) {
-    result = result || (isOpenEntry && event.places > event.entries);
-  }
-  return result;
+
+  return result !== false;
 }
 
 function withinArrayFilters(event: EventEx, { eventType, eventClass, judge, organizer }: FilterProps) {

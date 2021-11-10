@@ -1,3 +1,4 @@
+import { parseISO } from "date-fns";
 import { EventStore } from "./EventStrore";
 
 jest.mock('../api/event');
@@ -43,15 +44,15 @@ test('EventStore', async () => {
 
   await store.setFilter({
     ...emptyFilter,
-    start: new Date('2021-01-01'),
-    end: new Date('2021-02-11')
+    start: parseISO('2021-01-01'),
+    end: parseISO('2021-02-11')
   });
   expect(store.events.length).toEqual(1);
   expect(store.events[0]).toMatchObject({ id: 'test1' });
 
   await store.setFilter({
     ...emptyFilter,
-    start: new Date('2021-02-13'),
+    start: parseISO('2021-02-13'),
     end: new Date() // the events relative to today are excluded
   });
   expect(store.events.length).toEqual(1);
@@ -59,8 +60,8 @@ test('EventStore', async () => {
 
   await store.setFilter({
     ...emptyFilter,
-    start: new Date('2021-02-11'),
-    end: new Date('2021-02-12')
+    start: parseISO('2021-02-11'),
+    end: parseISO('2021-02-12')
   });
   expect(store.events.length).toEqual(2);
 
@@ -107,6 +108,7 @@ test('EventStore', async () => {
 
   await store.setFilter({
     ...emptyFilter,
+    withOpenEntry: true,
     withClosingEntry: true
   });
   expect(store.events.length).toEqual(1);
@@ -121,6 +123,7 @@ test('EventStore', async () => {
 
   await store.setFilter({
     ...emptyFilter,
+    withOpenEntry: true,
     withFreePlaces: true
   });
   expect(store.events.length).toEqual(1);

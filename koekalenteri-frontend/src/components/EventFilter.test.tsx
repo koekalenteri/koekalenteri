@@ -49,8 +49,8 @@ test('should render', () => {
 
   expect(getByLabelText(/Koemuoto/i)).toHaveTextContent(/NOME-B/i);
   expect(getByLabelText(/Koeluokka/i)).toHaveTextContent(/ALO/i);
-  expect(getByLabelText(/Tuomari/i)).toHaveTextContent(/234/i);
-  expect(getByLabelText(/Järjestäjä/i)).toHaveTextContent(/2/i);
+  expect(getByLabelText(/Tuomari/i)).toHaveTextContent(/Tuomari 2/i);
+  expect(getByLabelText(/Järjestäjä/i)).toHaveTextContent(/Test org/i);
 });
 
 test('It should fire onChange', async () => {

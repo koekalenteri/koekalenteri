@@ -1,5 +1,5 @@
 import { Organizer } from './Organizer';
-import { startOfDay, endOfDay, subDays } from 'date-fns';
+import { endOfDay, startOfDay, subDays } from 'date-fns';
 
 export type Event = {
   id: string
@@ -49,14 +49,16 @@ export type EventClass = {
 export interface EventEx extends Event {
   isEntryOpen: boolean
   isEntryClosing: boolean
+  isEntryUpcoming: boolean
 }
 
 export function extendEvent(event: Event, now = new Date()): EventEx {
-  const isEntryOpen = startOfDay(new Date(event.entryStartDate)) <= now && endOfDay(new Date(event.entryEndDate)) >= now;
+  const isEntryOpen = startOfDay(event.entryStartDate) <= now && endOfDay(event.entryEndDate) >= now;
   return {
     ...event,
     isEntryOpen,
-    isEntryClosing: isEntryOpen && subDays(new Date(event.entryEndDate), 7) <= now
+    isEntryClosing: isEntryOpen && subDays(event.entryEndDate, 7) <= endOfDay(now),
+    isEntryUpcoming: event.entryStartDate > now
   };
 }
 
