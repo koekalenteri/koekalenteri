@@ -1,6 +1,7 @@
 {
-  "daterange-end": "Date to",
-  "daterange-start": "Date from",
+  "date": "Date",
+  "daterangeEnd": "Date to",
+  "daterangeStart": "Date from",
   "description": "Description",
   "distanceLeft": "{{ date, distance }} left",
   "entryOpen": "Entry open",
@@ -11,17 +12,18 @@
   "eventClasses": "Event classes",
   "eventTime": "Event time",
   "eventType": "Event type",
-  "go_back": "Back",
-  "go_home": "Home",
+  "goBack": "Back",
+  "goHome": "Home",
   "judge": "Judge",
   "judges": "Judges",
   "location": "Location",
-  "no_results": "Your search returned no events. Please remove one of the search filters.",
+  "noResults": "Your search returned no events. Please remove one of the search filters.",
   "official": "Responsible official",
   "organizer": "Organizer",
   "paymentDetails": "Payment details",
   "places": "Places",
+  "qualifyingResults": "Qualifying results",
   "register": "Register",
   "result": "Result",
-  "total_places": "places"
+  "toltaPlaces": "places"
 }

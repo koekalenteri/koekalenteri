@@ -25,7 +25,7 @@ export function EventFilter({ judges, organizers, filter, onChange }: EventFilte
     <Box m={1}>
       <Grid container justifyContent="space-around" spacing={1}>
         <Grid item xs={12} md={6} xl={2}>
-          <DateRange start={filter.start} startLabel={t("daterange-start")} end={filter.end} endLabel={t("daterange-end")} onChange={(start, end) => setFilter({ start, end })}></DateRange>
+          <DateRange start={filter.start} startLabel={t("daterangeStart")} end={filter.end} endLabel={t("daterangeEnd")} onChange={(start, end) => setFilter({ start, end })}></DateRange>
         </Grid>
         <Grid item xs={6} md={3} xl>
           <FormControl sx={{ width: '100%' }}>

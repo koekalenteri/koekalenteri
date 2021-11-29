@@ -82,7 +82,7 @@ function Row({ event }: { event: EventEx }) {
               <Grid item container xs={12} md={6} spacing={1}>
                 <Grid item xs={6} md={7}>{event.organizer?.name}</Grid>
                 <Grid item xs={3} md={2} textAlign="right" sx={{ color: placesColor(event) }}>
-                  {event.entries ? `${event.entries}/${event.places}` : event.places + ' ' + t('total_places')}
+                  {event.entries ? `${event.entries}/${event.places}` : event.places + ' ' + t('toltaPlaces')}
                 </Grid>
                 <Grid item xs={3} md={3}>{event.isEntryOpen ? <LinkButton to={`/event/${event.eventType}/${event.id}`} text={t('register')} /> : ''}</Grid>
               </Grid>
@@ -100,7 +100,7 @@ function Row({ event }: { event: EventEx }) {
 function EmptyResult() {
   const { t } = useTranslation();
   return (
-    <Box sx={{ width: '100%', textAlign: 'center', color: 'red' }}>{t('no_results')}</Box>
+    <Box sx={{ width: '100%', textAlign: 'center', color: 'red' }}>{t('noResults')}</Box>
   );
 }
 

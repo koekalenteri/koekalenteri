@@ -295,7 +295,7 @@ function QualifyingResultsInfo() {
   const [date, setDate] = useState<Date | null>(null);
 
   return (
-    <CollapsibleSection title="Koeluokkaan oikeuttavat tulokset">
+    <CollapsibleSection title={t("qualifyingResults")}>
       <Grid item container spacing={1}>
         <Grid item>
           <FormControl sx={{ width: 150 }}>
@@ -327,7 +327,7 @@ function QualifyingResultsInfo() {
         <Grid item>
           <FormControl sx={{ width: 150 }}>
             <DatePicker
-              label="Aika"
+              label={t("date")}
               value={date}
               mask={t('datemask')}
               inputFormat={t('dateformat')}
@@ -339,10 +339,10 @@ function QualifyingResultsInfo() {
           </FormControl>
         </Grid>
         <Grid item>
-          <TextField sx={{width: 300}} label="Paikka" />
+          <TextField sx={{width: 300}} label={t("location")} />
         </Grid>
         <Grid item>
-          <TextField sx={{width: 300}} label="Tuomari" />
+          <TextField sx={{width: 300}} label={t("judge")} />
         </Grid>
       </Grid>
     </CollapsibleSection>

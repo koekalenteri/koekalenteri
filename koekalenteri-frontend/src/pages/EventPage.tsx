@@ -31,7 +31,7 @@ export const EventPage = () => {
     <>
       <Header small />
       <Box m={1}>
-        <LinkButton sx={{mb: 1}} to="/" text={sessionStarted ? t('go_back') : t('go_home')} />
+        <LinkButton sx={{mb: 1}} to="/" text={sessionStarted ? t('goBack') : t('goHome')} />
         {event ? <EventComponent event={event} classDate={params.date} className={params.class} /> : <CircularProgress />}
       </Box>
     </>
