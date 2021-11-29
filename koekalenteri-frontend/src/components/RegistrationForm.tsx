@@ -1,6 +1,6 @@
 import { DarkMode, KeyboardArrowDown, KeyboardArrowRight, LightMode } from '@mui/icons-material';
 import { DatePicker } from '@mui/lab';
-import { Box, Checkbox, Chip, Collapse, FormControl, FormControlLabel, FormHelperText, Grid, IconButton, InputLabel, MenuItem, Select, SelectChangeEvent, TextField, Typography } from '@mui/material';
+import { Box, Checkbox, Chip, Collapse, FormControl, FormControlLabel, FormHelperText, Grid, IconButton, InputLabel, Link, MenuItem, Select, SelectChangeEvent, TextField, Typography } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import { eachDayOfInterval, format, subMonths, subYears } from 'date-fns';
 import { EventClass, EventEx } from 'koekalenteri-shared';
@@ -28,6 +28,14 @@ export function RegistrationForm({ event, className, classDate }: { event: Event
       <HandlerInfo />
       <QualifyingResultsInfo />
       <AdditionalInfo />
+      <FormControlLabel control={<Checkbox required />} label={
+        <>
+          <span>Olen lukenut</span>&nbsp;
+          <Link target="_blank" rel="noopener" href="https://yttmk.yhdistysavain.fi/noutajien-metsastyskokeet/metsastyskoesaannot/kokeen-ja-tai-kilpailun-ilmoitta/">ilmoittautumisen ehdot</Link>
+          &nbsp;<span>ja hyväksyn ne</span>
+        </>
+      } />
+      <FormControlLabel control={<Checkbox required />} label="Hyväksyn, että kokeen järjestämisen vastuuhenkilöt voivat käsitellä ilmoittamiani henkilötietoja ja julkaista niitä tarpeen mukaan kokeen osallistuja- ja tulosluettelossa koepaikalla ja kokeeseen liittyvissä julkaisuissa internetissä tai muissa yhdistyksen medioissa." />
     </Box>
   );
 }
