@@ -235,10 +235,10 @@ function BreederInfo() {
     <CollapsibleSection title="Kasvattajan tiedot">
       <Grid item container spacing={1}>
         <Grid item>
-          <TextField sx={{width: 300}} label="Nimi" />
+          <TextField name="name" sx={{width: 300}} label="Nimi" />
         </Grid>
         <Grid item>
-          <TextField sx={{width: 300}} label="Postitoimipaikka" />
+          <TextField name="city" sx={{width: 300}} label="Postitoimipaikka" />
         </Grid>
       </Grid>
     </CollapsibleSection>
@@ -251,18 +251,18 @@ function OwnerInfo() {
       <Grid item container spacing={1}>
         <Grid item container spacing={1}>
           <Grid item>
-            <TextField sx={{width: 300}} label="Nimi" />
+            <TextField name="name" sx={{width: 300}} label="Nimi" />
           </Grid>
           <Grid item>
-            <TextField sx={{width: 300}} label="Kotikunta" />
+            <TextField name="city" sx={{width: 300}} label="Kotikunta" />
           </Grid>
         </Grid>
         <Grid item container spacing={1}>
           <Grid item>
-            <TextField sx={{width: 300}} label="Sähköposti" />
+            <TextField name="email" sx={{width: 300}} label="Sähköposti" />
           </Grid>
           <Grid item>
-            <TextField sx={{width: 300}} label="Puhelin" />
+            <TextField name="phone" sx={{width: 300}} label="Puhelin" />
           </Grid>
         </Grid>
       </Grid>
@@ -278,18 +278,18 @@ function HandlerInfo() {
       <Grid item container spacing={1}>
         <Grid item container spacing={1}>
           <Grid item>
-            <TextField sx={{width: 300}} label="Nimi" />
+            <TextField name="name" sx={{width: 300}} label="Nimi" />
           </Grid>
           <Grid item>
-            <TextField sx={{width: 300}} label="Kotikunta" />
+            <TextField name="city" sx={{width: 300}} label="Kotikunta" />
           </Grid>
         </Grid>
         <Grid item container spacing={1}>
           <Grid item>
-            <TextField sx={{width: 300}} label="Sähköposti" />
+            <TextField name="email" sx={{width: 300}} label="Sähköposti" />
           </Grid>
           <Grid item>
-            <TextField sx={{width: 300}} label="Puhelin" />
+            <TextField name="phone" sx={{width: 300}} label="Puhelin" />
           </Grid>
         </Grid>
       </Grid>
