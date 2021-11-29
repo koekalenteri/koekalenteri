@@ -1,6 +1,6 @@
 import { DarkMode, KeyboardArrowDown, KeyboardArrowRight, LightMode } from '@mui/icons-material';
 import { DatePicker } from '@mui/lab';
-import { Box, Checkbox, Chip, Collapse, FormControl, FormControlLabel, FormGroup, FormHelperText, Grid, IconButton, InputLabel, MenuItem, Select, SelectChangeEvent, TextField, Typography } from '@mui/material';
+import { Box, Checkbox, Chip, Collapse, FormControl, FormControlLabel, FormHelperText, Grid, IconButton, InputLabel, MenuItem, Select, SelectChangeEvent, TextField, Typography } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import { eachDayOfInterval, format, subMonths, subYears } from 'date-fns';
 import { EventClass, EventEx } from 'koekalenteri-shared';
@@ -20,7 +20,7 @@ const useStyles = makeStyles(theme => ({
 export function RegistrationForm({ event, className, classDate }: { event: EventEx, className?: string, classDate?: string }) {
   const classes = useStyles();
   return (
-    <Box className={classes.root}>
+    <Box className={classes.root} sx={{pb: 0.5}}>
       <EventEntryInfo event={event} className={className} classDate={classDate} />
       <DogInfo eventDate={event.startDate} minDogAgeMonths={9} />
       <BreederInfo />
@@ -291,9 +291,60 @@ function HandlerInfo() {
 }
 
 function QualifyingResultsInfo() {
+  const { t } = useTranslation();
+  const [date, setDate] = useState<Date | null>(null);
+
   return (
     <CollapsibleSection title="Koeluokkaan oikeuttavat tulokset">
-      Palikat
+      <Grid item container spacing={1}>
+        <Grid item>
+          <FormControl sx={{ width: 150 }}>
+            <InputLabel id="type-label">{t("eventType")}</InputLabel>
+            <Select
+              labelId="type-label"
+              label={t("eventType")}
+            >
+              <MenuItem value="NOU">NOU</MenuItem>
+              <MenuItem value="NOME-B">NOME-B</MenuItem>
+              <MenuItem value="NOME-A">NOME-A</MenuItem>
+              <MenuItem value="NOWT">NOWT</MenuItem>
+            </Select>
+          </FormControl>
+        </Grid>
+        <Grid item>
+          <FormControl sx={{ width: 150 }}>
+            <InputLabel id="result-label">{t("result")}</InputLabel>
+            <Select
+              labelId="result-label"
+              label={t("result")}
+            >
+              <MenuItem value="1">1</MenuItem>
+              <MenuItem value="2">2</MenuItem>
+              <MenuItem value="3">3</MenuItem>
+            </Select>
+          </FormControl>
+        </Grid>
+        <Grid item>
+          <FormControl sx={{ width: 150 }}>
+            <DatePicker
+              label="Aika"
+              value={date}
+              mask={t('datemask')}
+              inputFormat={t('dateformat')}
+              minDate={subYears(new Date(), 15)}
+              maxDate={new Date()}
+              onChange={setDate}
+              renderInput={(params) => <TextField {...params} />}
+            />
+          </FormControl>
+        </Grid>
+        <Grid item>
+          <TextField sx={{width: 300}} label="Paikka" />
+        </Grid>
+        <Grid item>
+          <TextField sx={{width: 300}} label="Tuomari" />
+        </Grid>
+      </Grid>
     </CollapsibleSection>
   );
 }
@@ -301,7 +352,7 @@ function QualifyingResultsInfo() {
 function AdditionalInfo() {
   return (
     <CollapsibleSection title="Lisätiedot">
-      Palikat
+      <TextField multiline rows={4} sx={{width: '100%'}}></TextField>
     </CollapsibleSection>
   );
 }
