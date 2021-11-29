@@ -1,7 +1,9 @@
 import { Table, TableBody, TableRow, TableCell } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
-import { Event, EventClass, EventEx } from "koekalenteri-shared";
+import { format } from 'date-fns';
+import { EventClass, EventEx } from "koekalenteri-shared";
 import { useTranslation } from 'react-i18next';
+import { LinkButton } from './Buttons';
 
 const useRowStyles = makeStyles({
   root: {
@@ -20,7 +22,8 @@ const useRowStyles = makeStyles({
   },
   classes: {
     '& th': {
-      paddingRight: '4px'
+      padding: '0 8px 0 0',
+      verticalAlign: 'middle'
     }
   }
 });
@@ -32,39 +35,29 @@ function entryDateColor(event: EventEx) {
   return event.isEntryClosing ? 'warning.main' : 'success.main';
 }
 
-export function EventInfo(props: { event: EventEx, header?: boolean }) {
-  const { event, header = false } = props;
+export function EventInfo({ event }: { event: EventEx }) {
   const classes = useRowStyles();
   const { t } = useTranslation();
   return (
     <>
       <Table size="small" aria-label="details" className={classes.root}>
         <TableBody>
-          {header ?
-            <>
-              <TableRow key={event.id + 'title'} >
-                <TableCell component="th" scope="row" colSpan={2}>
-                  {t('daterange', { start: event.startDate, end: event.endDate }) +
-                    ' ' + event.location + (event.name ? ` (${event.name})` : '')}
-                </TableCell>
-              </TableRow>
-              <TableRow key={event.id + 'organizer'}>
-                <TableCell component="th" scope="row">{t('organizer')}:</TableCell>
-                <TableCell>{event.organizer?.name}</TableCell>
-              </TableRow>
-            </>
-            : ''}
           <TableRow key={event.id + 'date'}>
             <TableCell component="th" scope="row">{t('entryTime')}:</TableCell>
             <TableCell sx={{ color: entryDateColor(event) }}>
               <b>{t('daterange', { start: event.entryStartDate, end: event.entryEndDate })}</b>
+              {event.isEntryOpen ? t('distanceLeft', { date: event.entryEndDate }) : ''}
             </TableCell>
+          </TableRow>
+          <TableRow key={event.id + 'organizer'}>
+            <TableCell component="th" scope="row">{t('organizer')}:</TableCell>
+            <TableCell>{event.organizer?.name}</TableCell>
           </TableRow>
           <TableRow key={event.id + 'eventType'}>
             <TableCell component="th" scope="row">{t('eventType')}:</TableCell>
             <TableCell>{event.eventType}</TableCell>
           </TableRow>
-          {event.classes.length ? <EventClassRow event={event} /> : ''}
+          {event.classes.length ? <EventClassRow key={event.id + 'classes'} event={event} /> : ''}
           <TableRow key={event.id + 'judge' + event.judges[0]}>
             <TableCell component="th" scope="row" rowSpan={event.judges.length}>{t('judges')}:</TableCell>
             <TableCell>{event.judges[0]}</TableCell>
@@ -95,7 +88,7 @@ export function EventInfo(props: { event: EventEx, header?: boolean }) {
 }
 
 type EventProps = {
-  event: Event
+  event: EventEx
 }
 
 function EventClassRow({ event }: EventProps) {
@@ -117,19 +110,27 @@ function EventClassTable({ event }: EventProps) {
     <Table size="small" className={classes.classes}>
       <TableBody>
         {event.classes.map(eventClass =>
-          <EventClassTableRow key={eventClassKey(event.id, eventClass)} eventClass={eventClass} />)}
+          <EventClassTableRow key={eventClassKey(event.id, eventClass)} event={event} eventClass={eventClass} />)}
       </TableBody>
     </Table>
   );
 }
 
-function EventClassTableRow({ eventClass }: { eventClass: string | EventClass }) {
+function EventClassTableRow({ event, eventClass }: { event: EventEx, eventClass: string | EventClass }) {
+  const { t } = useTranslation();
+  const isSimple = typeof eventClass === 'string';
+  const classString = isSimple ? eventClass : eventClass.class;
+  const classDate = format(isSimple ? event.startDate : eventClass.date, t('dateformatS'));
   return (
     <TableRow>
-      {typeof eventClass === 'string'
+      {isSimple
         ? <SimpleEventClass eventClass={eventClass} />
         : <ComplexEventClass eventClass={eventClass} />
       }
+      <TableCell component="th" scope="row">
+        {event.isEntryOpen ? <LinkButton to={`/event/${event.eventType}/${event.id}/${classString}/${classDate}`} text={t('register')} /> : ''}
+      </TableCell>
+      <TableCell></TableCell>
     </TableRow>
   )
 }
@@ -149,7 +150,6 @@ function ComplexEventClass({ eventClass }: { eventClass: EventClass }) {
       <TableCell component="th" scope="row">{eventClass.judge?.name}</TableCell>
       <TableCell component="th" scope="row" align="right">{eventClass.entries}/{eventClass.places}</TableCell>
       <TableCell component="th" scope="row" align="right">{eventClass.members}</TableCell>
-      <TableCell></TableCell>
     </>
   );
 }

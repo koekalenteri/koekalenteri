@@ -1,6 +1,6 @@
 import { observer } from 'mobx-react-lite';
 import { EventTable }  from '../components';
-import { useStores } from '../use-stores';
+import { useStores } from '../stores';
 import { CircularProgress, Grid } from '@mui/material';
 
 export const EventContainer = observer(() => {

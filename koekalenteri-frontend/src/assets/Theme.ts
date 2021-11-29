@@ -6,6 +6,13 @@ declare module '@mui/styles/defaultTheme' {
   interface DefaultTheme extends Theme {}
 }
 
+declare module '@mui/material/styles/createPalette' {
+  interface TypeBackground {
+    form: string
+  }
+}
+
+
 const theme = createTheme({
   breakpoints: {
     values: {
@@ -34,6 +41,7 @@ const theme = createTheme({
     },
     background: {
       default: '#fcfdfd',
+      form: '#f2f2f2'
     },
   },
 })

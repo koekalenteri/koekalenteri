@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect } from 'react';
 import {
   TableContainer,
   Paper,
@@ -13,19 +13,16 @@ import {
 } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
 import { KeyboardArrowDown, KeyboardArrowRight } from '@mui/icons-material';
-import { Link } from 'react-router-dom';
 import { EventEx } from 'koekalenteri-shared';
 import { EventInfo } from './EventInfo';
 import { useTranslation } from 'react-i18next';
+import { LinkButton } from './Buttons';
+import { useSessionBoolean } from '../stores';
 
-type EventTableProps = {
-  events: Array<EventEx>
-}
-
-const useRowStyles = makeStyles({
+const useRowStyles = makeStyles(theme => ({
   root: {
     '& > td': {
-      backgroundColor: '#F2F2F2',
+      backgroundColor: theme.palette.background.form,
       borderBottom: '2px solid white',
       borderRadius: 4,
       padding: '2px 0',
@@ -40,7 +37,7 @@ const useRowStyles = makeStyles({
     borderTop: '1px solid #BDBDBD',
     marginLeft: '34px'
   }
-});
+}));
 
 function eventClasses(event: EventEx) {
   const ret: string[] = [];
@@ -55,11 +52,15 @@ function eventClasses(event: EventEx) {
 
 const placesColor = (event: EventEx) => event.entries > event.places ? 'warning.main' : 'text.primary';
 
-function Row(props: { event: EventEx }) {
-  const { event } = props;
-  const [open, setOpen] = useState(false);
+function Row({ event }: { event: EventEx }) {
+
+  const [open, setOpen] = useSessionBoolean('open' + event.id, false);
   const classes = useRowStyles();
   const { t } = useTranslation();
+
+  useEffect(() => {
+    sessionStorage.setItem('open' + event.id, JSON.stringify(open));
+  }, [event, open])
 
   return (
     <>
@@ -71,19 +72,19 @@ function Row(props: { event: EventEx }) {
                 {open ? <KeyboardArrowDown /> : <KeyboardArrowRight />}
               </IconButton>
             </Grid>
-            <Grid item container xs>
+            <Grid item container xs onClick={() => setOpen(!open)}>
               <Grid item container xs={12} md={6} justifyContent="flex-start" spacing={1}>
                 <Grid item xs={3}>{t('daterange', { start: event.startDate, end: event.endDate })}</Grid>
-                <Grid item xs={3}>{event.eventType}</Grid>
-                <Grid item xs={3}>{eventClasses(event)}</Grid>
-                <Grid item xs={3}>{event.location} ({event.name})</Grid>
+                <Grid item xs={2}>{event.eventType}</Grid>
+                <Grid item xs={2}>{eventClasses(event)}</Grid>
+                <Grid item xs={5}>{event.location} ({event.name})</Grid>
               </Grid>
               <Grid item container xs={12} md={6} spacing={1}>
-                <Grid item xs={7} md={8}>{event.organizer?.name}</Grid>
-                <Grid item xs={2} md={2} textAlign="right" sx={{ color: placesColor(event) }}>
+                <Grid item xs={6} md={7}>{event.organizer?.name}</Grid>
+                <Grid item xs={3} md={2} textAlign="right" sx={{ color: placesColor(event) }}>
                   {event.entries ? `${event.entries}/${event.places}` : event.places + ' ' + t('total_places')}
                 </Grid>
-                <Grid item xs={3} md={2}>{event.isEntryOpen ? <Link to={`/event/${event.eventType}/${event.id}`}>{t('register')}</Link> : ''}</Grid>
+                <Grid item xs={3} md={3}>{event.isEntryOpen ? <LinkButton to={`/event/${event.eventType}/${event.id}`} text={t('register')} /> : ''}</Grid>
               </Grid>
             </Grid>
           </Grid>
@@ -103,7 +104,7 @@ function EmptyResult() {
   );
 }
 
-export function EventTable({ events }: EventTableProps) {
+export function EventTable({ events }: {events: EventEx[]}) {
   return (
     <>
       {events.length ?

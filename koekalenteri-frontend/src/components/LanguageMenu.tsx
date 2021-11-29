@@ -3,13 +3,13 @@ import { Language } from '@mui/icons-material';
 import { locales, LocaleKey } from '../i18n';
 import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
-import useLocalStorage from "use-local-storage";
+import { useLanguage } from '../stores';
 
 export function LanguageMenu() {
   const { t, i18n } = useTranslation();
+  const [language, setLanguage] = useLanguage(i18n.language);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
-  const [language, setLanguage] = useLocalStorage('i18nextLng', i18n.language, {serializer: (v) => v || '', parser: (v) => v});
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -19,7 +19,7 @@ export function LanguageMenu() {
   };
 
   useEffect(() => {
-    if (i18n.language !== language) {
+    if (language && i18n.language !== language) {
       i18n.changeLanguage(language);
     }
   }, [i18n, language])

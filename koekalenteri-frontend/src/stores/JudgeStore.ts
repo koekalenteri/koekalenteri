@@ -1,4 +1,4 @@
-import { makeAutoObservable } from 'mobx';
+import { makeAutoObservable, runInAction } from 'mobx';
 import * as judgeApi from '../api/judge';
 import { Judge } from 'koekalenteri-shared';
 
@@ -16,7 +16,10 @@ export class JudgeStore {
 
   async load() {
     this.setLoading(true);
-    this.judges = await judgeApi.getJudges();
+    const judges = await judgeApi.getJudges();
+    runInAction(() => {
+      this.judges = judges;
+    });
     this.setLoading(false);
   }
 }

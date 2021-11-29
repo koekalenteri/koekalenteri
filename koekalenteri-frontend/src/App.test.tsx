@@ -1,6 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import App from './App';
 import { MemoryRouter } from 'react-router-dom';
+import { ThemeProvider } from '@mui/material';
+import theme from './assets/Theme';
 
 jest.mock('./api/event');
 jest.mock('./api/judge');
@@ -19,7 +21,9 @@ test('renders logo with proper ALT', () => {
 test('renders event page', async () => {
   const {findByText, getByRole} = render(
     <MemoryRouter initialEntries={['/event/type2/test2']}>
-      <App />
+      <ThemeProvider theme={theme}>
+        <App />
+      </ThemeProvider>
     </MemoryRouter>
   );
   const spinner = getByRole('progressbar');

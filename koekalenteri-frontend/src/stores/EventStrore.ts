@@ -18,6 +18,7 @@ export type FilterProps = {
 
 export class EventStore {
   private _events: EventEx[] = [];
+  private _open: Record<string, boolean> = {};
 
   public loaded: boolean = false;
   public loading: boolean = false;
@@ -50,6 +51,14 @@ export class EventStore {
     this.loaded = !value;
   }
 
+  setOpen(id: string, value: boolean) {
+    this._open[id] = value;
+  }
+
+  isOpen(id: string) {
+    return this._open[id] || false;
+  }
+
   async load() {
     this.setLoading(true);
     this._events = extendEvents(await eventApi.getEvents())
@@ -58,12 +67,12 @@ export class EventStore {
     this.setLoading(false);
   }
 
-  async get(eventType: string, id: string) {
+  async get(eventType: string, id: string, signal?: AbortSignal) {
     const cached = this._events.find(event => event.eventType === eventType && event.id === id);
     if (cached) {
       return cached;
     }
-    return extendEvent(await eventApi.getEvent(eventType, id));
+    return extendEvent(await eventApi.getEvent(eventType, id, signal));
   }
 
   private _applyFilter() {

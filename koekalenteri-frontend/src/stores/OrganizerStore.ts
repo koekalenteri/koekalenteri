@@ -1,4 +1,4 @@
-import { makeAutoObservable } from 'mobx';
+import { makeAutoObservable, runInAction } from 'mobx';
 import * as organizerApi from '../api/organizer';
 import { Organizer } from 'koekalenteri-shared';
 
@@ -16,7 +16,10 @@ export class OrganizerStore {
 
   async load() {
     this.setLoading(true);
-    this.organizers = await organizerApi.getOrganizers();
+    const organizers = await organizerApi.getOrganizers();
+    runInAction(() => {
+      this.organizers = organizers;
+    });
     this.setLoading(false);
   }
 }

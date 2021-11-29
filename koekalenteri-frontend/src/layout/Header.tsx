@@ -7,7 +7,10 @@ import banner from '../assets/banner.png';
 import { LanguageMenu } from '../components';
 
 const useStyles = makeStyles((theme) => ({
-  header: {
+  small: {
+    height: '80px',
+  },
+  large: {
     backgroundImage: `url(${banner})`,
     backgroundPositionY: '20px',
     backgroundRepeat: 'no-repeat',
@@ -24,11 +27,11 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export const Header = () => {
+export const Header = ({small}: {small?: boolean}) => {
   const classes = useStyles();
 
   return (
-    <div className={classes.header}>
+    <div className={small ? classes.small : classes.large}>
       <AppBar position="static" color="secondary">
         <Toolbar>
           <Link href="https://www.snj.fi/" target="_blank"  rel="noopener">

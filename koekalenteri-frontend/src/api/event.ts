@@ -15,6 +15,12 @@ function reviveDates(event: Event) {
   for (const prop of EVENT_DATE_PROPS) {
     event[prop] = event[prop] && new Date(event[prop]);
   }
+  for (const cls of event.classes) {
+    if (typeof cls === 'string') {
+      continue;
+    }
+    cls.date = new Date(cls.date);
+  }
   return event;
 }
 
@@ -23,7 +29,7 @@ export async function getEvents() {
   return jsonedEvents.map(event => reviveDates(event));
 }
 
-export async function getEvent(eventType: string, id: string) {
-  const jsonedEvent = await http.get<Event>(`${PATH}${eventType}/${id}`);
+export async function getEvent(eventType: string, id: string, signal?: AbortSignal) {
+  const jsonedEvent = await http.get<Event>(`${PATH}${eventType}/${id}`, {signal});
   return reviveDates(jsonedEvent);
 }

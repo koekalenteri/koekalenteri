@@ -29,13 +29,7 @@ test('It should render event information', async function() {
     isEntryClosing: false,
     isEntryUpcoming: false
   };
-  const { getByText } = render(<EventInfo event={event} header={true} />);
-
-  // organizer
-  expect(getByText('test organization')).toBeInTheDocument();
-
-  // title
-  expect(getByText('10.-11.2.2021 location (name)')).toBeInTheDocument();
+  const { getByText } = render(<EventInfo event={event} />);
 
   // entry dates
   expect(getByText('20.1.-4.2.2021')).toBeInTheDocument();

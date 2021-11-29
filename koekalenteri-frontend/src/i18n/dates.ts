@@ -1,4 +1,4 @@
-import { format, isValid, isSameMonth, lightFormat, isSameDay, parseISO, isSameYear } from "date-fns";
+import { format, isValid, isSameMonth, lightFormat, isSameDay, parseISO, isSameYear, formatDistanceToNowStrict } from "date-fns";
 import { enGB as en, fi } from "date-fns/locale";
 
 export const locales = { en, fi };
@@ -36,4 +36,9 @@ export function formatDateSpan(start: Date | string, lng: string | undefined, { 
     return lightFormat(start, 'd.M.') + '-' + lightFormat(end, 'd.M.yyyy');
   }
   return lightFormat(start, 'd.M.yyyy') + '-' + lightFormat(end, 'd.M.yyyy');
+}
+
+export function formatDistance(date: Date, lng: string | undefined): string {
+  const locale = locales[lng as LocaleKey];
+  return formatDistanceToNowStrict(date, { locale });
 }

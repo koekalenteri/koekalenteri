@@ -13,7 +13,9 @@ function App() {
     <LocalizationProvider dateAdapter={AdapterDateFns} locale={locales[locale]}>
       <Routes>
         <Route path="/" element={<SearchPage />} />
-        <Route path="/event/:eventType/:id" element={<EventPage />} />
+        <Route path="/event/:eventType/:id"  element={<EventPage />} />
+        <Route path="/event/:eventType/:id/:class"  element={<EventPage />} />
+        <Route path="/event/:eventType/:id/:class/:date"  element={<EventPage />} />
       </Routes>
     </LocalizationProvider>
   );

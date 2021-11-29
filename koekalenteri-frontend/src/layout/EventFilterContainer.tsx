@@ -1,5 +1,5 @@
 import { observer } from 'mobx-react-lite';
-import { useStores } from '../use-stores';
+import { useStores } from '../stores';
 import { EventFilter } from '../components';
 import { FilterProps } from '../stores/EventStrore';
 

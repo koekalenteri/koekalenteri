@@ -1,12 +1,16 @@
 import { useEffect } from 'react';
 import { Box } from '@mui/material';
 import { EventContainer, EventFilterContainer, Header } from '../layout';
-import { useStores } from '../use-stores';
+import { useStores, useSessionStarted } from '../stores';
 
 export const SearchPage = () => {
   const { eventStore, judgeStore, organizerStore } = useStores();
+  const [sessionStarted, setSessionStarted] = useSessionStarted();
 
   useEffect(() => {
+    if (!sessionStarted) {
+      setSessionStarted(new Date().toISOString());
+    }
     if (!eventStore.loaded) {
       eventStore.load();
       judgeStore.load();

@@ -3,7 +3,7 @@ import LanguageDetector from "i18next-browser-languagedetector";
 import { initReactI18next } from "react-i18next";
 import fi from './locales/fi.json';
 import en from './locales/en.json';
-import { locales, LocaleKey, formatDate, formatDateSpan } from "./dates";
+import { locales, LocaleKey, formatDate, formatDateSpan, formatDistance } from "./dates";
 
 export { locales };
 export type { LocaleKey };
@@ -31,3 +31,4 @@ i18n
 //  additional formats
 i18n.services.formatter?.add('short', formatDate('eeeeee d.M.'));
 i18n.services.formatter?.add('datespan', formatDateSpan);
+i18n.services.formatter?.add('distance', formatDistance);
