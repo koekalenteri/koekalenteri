@@ -3,6 +3,7 @@ import makeStyles from '@mui/styles/makeStyles';
 import { format } from 'date-fns';
 import { EventClass, EventEx } from "koekalenteri-shared";
 import { useTranslation } from 'react-i18next';
+import { entryDateColor } from '../utils';
 import { LinkButton } from './Buttons';
 
 const useRowStyles = makeStyles({
@@ -27,13 +28,6 @@ const useRowStyles = makeStyles({
     }
   }
 });
-
-function entryDateColor(event: EventEx) {
-  if (!event.isEntryOpen) {
-    return 'text.primary';
-  }
-  return event.isEntryClosing ? 'warning.main' : 'success.main';
-}
 
 export function EventInfo({ event }: { event: EventEx }) {
   const classes = useRowStyles();

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Box, CircularProgress, Typography } from '@mui/material';
+import { Box, CircularProgress, Table, TableBody, TableCell, TableRow, Typography } from '@mui/material';
+import { makeStyles } from '@mui/styles';
 import { useParams } from 'react-router-dom';
 import { Header } from '../layout';
 import { useSessionStarted, useStores } from '../stores';
@@ -7,6 +8,7 @@ import { EventEx } from 'koekalenteri-shared';
 import { useTranslation } from 'react-i18next';
 import { RegistrationForm } from '../components/RegistrationForm';
 import { LinkButton } from '../components/Buttons';
+import { entryDateColor } from '../utils';
 
 export const EventPage = () => {
   const params = useParams();
@@ -38,9 +40,32 @@ export const EventPage = () => {
   )
 }
 
+const useStyles = makeStyles({
+  root: {
+    '& *': {
+      borderBottom: 'unset',
+      padding: '2px 16px 2px 0'
+    },
+    '& th': {
+      width: '1%',
+      whiteSpace: 'nowrap',
+      verticalAlign: 'top'
+    },
+    '& td': {
+      whiteSpace: 'normal'
+    }
+  },
+  classes: {
+    '& th': {
+      padding: '0 8px 0 0',
+      verticalAlign: 'middle'
+    }
+  }
+});
+
 function EventComponent({ event, classDate = '', className = '' }: { event: EventEx, classDate?: string, className?: string }) {
   const { t } = useTranslation();
-
+  const classes = useStyles();
   return (
     <>
       <Typography variant="h5">{t('entryTitle', { context: event.eventType === 'other' ? '' : 'test' })}</Typography>
@@ -49,12 +74,37 @@ function EventComponent({ event, classDate = '', className = '' }: { event: Even
         ' ' + event.location + (event.name ? ` (${event.name})` : '')}
       </Typography>
       <Box sx={{ mb: 1 }}>
-        Imoaika<br/>
-        Järjestäjä: {event.organizer?.name}<br/>
-        Tuomari<br/>
-        Vastaava koetoimitsija<br/>
-        Maksutiedot<br/>
-        Lisätiedot<br/>
+        <Table size="small" aria-label="details" className={classes.root}>
+          <TableBody>
+            <TableRow key={event.id + 'date'}>
+              <TableCell component="th" scope="row">{t('entryTime')}:</TableCell>
+              <TableCell sx={{ color: entryDateColor(event) }}>
+                <b>{t('daterange', { start: event.entryStartDate, end: event.entryEndDate })}</b>
+                {event.isEntryOpen ? t('distanceLeft', { date: event.entryEndDate }) : ''}
+              </TableCell>
+            </TableRow>
+            <TableRow key={event.id + 'organizer'}>
+              <TableCell component="th" scope="row">{t('organizer')}:</TableCell>
+              <TableCell>{event.organizer?.name}</TableCell>
+            </TableRow>
+            <TableRow key={event.id + 'judge' + event.judges[0]}>
+              <TableCell component="th" scope="row" rowSpan={event.judges.length}>{t('judges')}:</TableCell>
+              <TableCell>{event.judges[0]}</TableCell>
+            </TableRow>
+            <TableRow key={event.id + 'official'}>
+              <TableCell component="th" scope="row">{t('official')}:</TableCell>
+              <TableCell>{event.official}</TableCell>
+            </TableRow>
+            <TableRow key={event.id + 'payment'}>
+              <TableCell component="th" scope="row">{t('paymentDetails')}:</TableCell>
+              <TableCell>{event.paymentDetails}</TableCell>
+            </TableRow>
+            <TableRow key={event.id + 'description'}>
+              <TableCell component="th" scope="row">{t('description')}:</TableCell>
+              <TableCell>{event.description}</TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
       </Box>
       <RegistrationForm event={event} className={className} classDate={classDate} />
     </>
