@@ -109,9 +109,7 @@ Resources:
           Value: !Ref AWS::StackName
         - Key: "label"
           Value: "koekalenteri"
-      ProvisionedThroughput:
-          ReadCapacityUnits: 5
-          WriteCapacityUnits: 5
+      BillingMode: PAY_PER_REQUEST
       SSESpecification:
         SSEEnabled: false
 
@@ -134,9 +132,7 @@ Resources:
           Value: !Ref AWS::StackName
         - Key: "label"
           Value: "koekalenteri"
-      ProvisionedThroughput:
-          ReadCapacityUnits: 5
-          WriteCapacityUnits: 5
+      BillingMode: PAY_PER_REQUEST
       SSESpecification:
         SSEEnabled: false
 
@@ -155,9 +151,7 @@ Resources:
           Value: !Ref AWS::StackName
         - Key: "label"
           Value: "koekalenteri"
-      ProvisionedThroughput:
-          ReadCapacityUnits: 5
-          WriteCapacityUnits: 5
+      BillingMode: PAY_PER_REQUEST
       SSESpecification:
         SSEEnabled: false
 
@@ -176,9 +170,7 @@ Resources:
           Value: !Ref AWS::StackName
         - Key: "label"
           Value: "koekalenteri"
-      ProvisionedThroughput:
-          ReadCapacityUnits: 5
-          WriteCapacityUnits: 5
+      BillingMode: PAY_PER_REQUEST
       SSESpecification:
         SSEEnabled: false
 
