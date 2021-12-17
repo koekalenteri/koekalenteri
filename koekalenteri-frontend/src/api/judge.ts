@@ -1,5 +1,5 @@
 import http from './http';
-import { Judge } from "koekalenteri-shared";
+import type { Judge } from 'koekalenteri-shared/model';
 
 const PATH = '/judge/';
 

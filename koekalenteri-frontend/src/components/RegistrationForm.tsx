@@ -3,7 +3,7 @@ import { DatePicker } from '@mui/lab';
 import { Box, Checkbox, Chip, Collapse, FormControl, FormControlLabel, FormHelperText, Grid, IconButton, InputLabel, Link, MenuItem, Select, SelectChangeEvent, TextField, Typography } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import { eachDayOfInterval, format, subMonths, subYears } from 'date-fns';
-import { EventClass, EventEx } from 'koekalenteri-shared';
+import type { EventEx, EventClass } from 'koekalenteri-shared/model';
 import { ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MultiSelect, multiSelectValue, stringsToMultiSelectOptions } from './MultiSelect';

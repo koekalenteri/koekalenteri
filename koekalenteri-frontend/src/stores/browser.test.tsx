@@ -1,4 +1,4 @@
-import { fireEvent, render } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { useLocalStorage, useSessionStorage } from "./browser";
 
 function LocalTestComponent() {
@@ -52,44 +52,44 @@ function createStorageEvent(key: string, newValue: string | null, storage: Stora
     });
 
     it('initializes default value', () => {
-      const { getByTestId } = render(<Component />);
-      expect(getByTestId('data')).toHaveTextContent(name + ' Default');
+      render(<Component />);
+      expect(screen.getByTestId('data')).toHaveTextContent(name + ' Default');
       expect(storage.getItem('test')).toEqual(name + ' Default');
     });
 
     it('reads previously set value', () => {
       storage.setItem('test', 'Stored Value');
-      const { getByTestId } = render(<Component />);
-      expect(getByTestId('data')).toHaveTextContent('Stored Value');
+      render(<Component />);
+      expect(screen.getByTestId('data')).toHaveTextContent('Stored Value');
       expect(storage.getItem('test')).toEqual('Stored Value');
     });
 
     it('updates state and storage', () => {
       storage.setItem('test', 'Stored Value');
-      const { getByTestId, getByRole } = render(<Component />);
-      fireEvent.click(getByRole("button"));
-      expect(getByTestId('data')).toHaveTextContent(name + ' From Button');
+      render(<Component />);
+      fireEvent.click(screen.getByRole("button"));
+      expect(screen.getByTestId('data')).toHaveTextContent(name + ' From Button');
       expect(storage.getItem('test')).toEqual(name + ' From Button');
     });
 
     it('syncs data from other tab', () => {
-      const { getByTestId } = render(<Component />);
+      render(<Component />);
       fireEvent(window, createStorageEvent("test", "Test Sync", storage));
-      expect(getByTestId('data')).toHaveTextContent('Test Sync');
+      expect(screen.getByTestId('data')).toHaveTextContent('Test Sync');
       expect(storage.getItem('test')).toEqual('Test Sync');
     });
 
     it('does not sync from different key', () => {
-      const { getByTestId } = render(<Component />);
+      render(<Component />);
       fireEvent(window, createStorageEvent("test1", "Test Sync", storage));
-      expect(getByTestId('data')).toHaveTextContent(name + ' Default');
+      expect(screen.getByTestId('data')).toHaveTextContent(name + ' Default');
       expect(storage.getItem('test')).toEqual(name + ' Default');
     });
 
     it('does not sync from different storage', () => {
-      const { getByTestId } = render(<Component />);
+      render(<Component />);
       fireEvent(window, createStorageEvent("test", "Test Sync", otherStorage));
-      expect(getByTestId('data')).toHaveTextContent(name + ' Default');
+      expect(screen.getByTestId('data')).toHaveTextContent(name + ' Default');
       expect(storage.getItem('test')).toEqual(name + ' Default');
     });
   });

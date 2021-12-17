@@ -1,5 +1,4 @@
 import { Organizer } from './Organizer';
-import { endOfDay, startOfDay, subDays } from 'date-fns';
 
 export type Event = {
   id: string
@@ -51,15 +50,3 @@ export interface EventEx extends Event {
   isEntryClosing: boolean
   isEntryUpcoming: boolean
 }
-
-export function extendEvent(event: Event, now = new Date()): EventEx {
-  const isEntryOpen = startOfDay(event.entryStartDate) <= now && endOfDay(event.entryEndDate) >= now;
-  return {
-    ...event,
-    isEntryOpen,
-    isEntryClosing: isEntryOpen && subDays(event.entryEndDate, 7) <= endOfDay(now),
-    isEntryUpcoming: event.entryStartDate > now
-  };
-}
-
-export const extendEvents = (events: Event[], now = new Date()): EventEx[] => events.map((event) => extendEvent(event, now))

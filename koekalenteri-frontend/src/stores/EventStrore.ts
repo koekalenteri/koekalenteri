@@ -1,7 +1,7 @@
 import { makeAutoObservable } from 'mobx';
 import * as eventApi from '../api/event';
 import { startOfDay } from 'date-fns';
-import { EventEx, extendEvent, extendEvents } from 'koekalenteri-shared';
+import type { EventEx } from 'koekalenteri-shared/model';
 
 export type FilterProps = {
   start: Date | null
@@ -61,7 +61,7 @@ export class EventStore {
 
   async load() {
     this.setLoading(true);
-    this._events = extendEvents(await eventApi.getEvents())
+    this._events = (await eventApi.getEvents())
       .sort((a: EventEx, b: EventEx) => +new Date(a.startDate) - +new Date(b.startDate));
     this._applyFilter();
     this.setLoading(false);
@@ -72,7 +72,7 @@ export class EventStore {
     if (cached) {
       return cached;
     }
-    return extendEvent(await eventApi.getEvent(eventType, id, signal));
+    return eventApi.getEvent(eventType, id, signal);
   }
 
   private _applyFilter() {
@@ -88,10 +88,10 @@ export class EventStore {
 }
 
 function withinDateFilters(event: EventEx, { start, end }: FilterProps) {
-  if (start && new Date(event.endDate) < start) {
+  if (start && event.endDate < start) {
     return false;
   }
-  if (end && new Date(event.startDate) > end) {
+  if (end && event.startDate > end) {
     return false;
   }
   return true;

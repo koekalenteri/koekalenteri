@@ -1,37 +1,37 @@
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { EventTable } from './EventTable';
-import { emptyEvent } from 'koekalenteri-shared/src/test-utils/emptyEvent';
-import { MemoryRouter } from 'react-router';
+import { emptyEvent } from '../api/test-utils/emptyEvent';
+import { MemoryRouter } from 'react-router-dom';
 import { parseISO } from 'date-fns';
 import { ThemeProvider } from '@mui/material';
 import theme from '../assets/Theme';
 
 test('It should render error text on empty result', () => {
-  const { getByText } = render(
+  render(
     <ThemeProvider theme={theme}>
       <EventTable events={[]} />
     </ThemeProvider>
   );
-  expect(getByText(/Tekemälläsi haulla ei löytynyt tapahtumia. Poista joku hakusuodattimista./i)).toBeInTheDocument();
+  expect(screen.getByText(/Tekemälläsi haulla ei löytynyt tapahtumia. Poista joku hakusuodattimista./i)).toBeInTheDocument();
 });
 
 test('It should render event dates', async function() {
   const event = { ...emptyEvent, startDate: parseISO('2021-02-10'), endDate: parseISO('2021-02-11'), isEntryOpen: false, isEntryClosing: false, isEntryUpcoming: false };
-  const { getByText } = render(
+  render(
     <ThemeProvider theme={theme}>
       <EventTable events={[event]} />
     </ThemeProvider>
   );
-  expect(getByText(/10.-11.2.2021/)).toBeInTheDocument();
+  expect(screen.getByText(/10.-11.2.2021/)).toBeInTheDocument();
 });
 
 test('It should render registration link', async function() {
   const event = { ...emptyEvent, id: 'eventID', eventType: 'TestType', isEntryOpen: true, isEntryClosing: false, isEntryUpcoming: false };
-  const { getByRole } = render(
+  render(
     <ThemeProvider theme={theme}>
       <MemoryRouter>
         <EventTable events={[event]} />
       </MemoryRouter>
     </ThemeProvider>);
-  expect(getByRole('link')).toHaveAttribute('href', '/event/TestType/eventID');
+  expect(screen.getByRole('link')).toHaveAttribute('href', '/event/TestType/eventID');
 });

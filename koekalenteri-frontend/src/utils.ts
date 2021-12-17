@@ -1,4 +1,4 @@
-import { EventEx } from "koekalenteri-shared";
+import type { EventEx } from 'koekalenteri-shared/model';
 
 export function entryDateColor(event: EventEx) {
   if (!event.isEntryOpen) {

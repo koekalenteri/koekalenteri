@@ -1,16 +1,16 @@
-import { fireEvent, render, within } from '@testing-library/react';
+import { fireEvent, render, within, screen } from '@testing-library/react';
 import { LanguageMenu } from './LanguageMenu';
 
 test('It should render the button', () => {
-  const {getByTestId} = render(<LanguageMenu />);
-  expect(getByTestId('LanguageIcon')).toBeInTheDocument();
+  render(<LanguageMenu />);
+  expect(screen.getByTestId('LanguageIcon')).toBeInTheDocument();
 });
 
 test('It should render the menu', () => {
-  const {getByTestId, getByRole} = render(<LanguageMenu />);
+  render(<LanguageMenu />);
 
-  fireEvent.click(getByTestId('LanguageIcon'));
-  const menu = getByRole('menu');
+  fireEvent.click(screen.getByTestId('LanguageIcon'));
+  const menu = screen.getByRole('menu');
 
   expect(menu).toBeVisible();
   expect(within(menu).getByText(/English/i)).toBeInTheDocument();
@@ -18,19 +18,21 @@ test('It should render the menu', () => {
 });
 
 test('It should change the language', () => {
-  const { getByTestId, getByRole } = render(<LanguageMenu />);
+  render(<LanguageMenu />);
 
   expect(localStorage.getItem('i18nextLng')).toEqual('fi');
 
-  fireEvent.click(getByTestId('LanguageIcon'));
-  const menu = getByRole('menu');
+  fireEvent.click(screen.getByTestId('LanguageIcon'));
+  const menu = screen.getByRole('menu');
 
-  expect(menu.querySelector('.Mui-selected')).toHaveTextContent('Suomi');
+  expect(within(menu).getByText(/English/i)).not.toHaveClass('Mui-selected');
+  expect(within(menu).getByText(/Suomi/i)).toHaveClass('Mui-selected');
 
   fireEvent.click(within(menu).getByText(/English/i));
 
   expect(menu).not.toBeVisible();
-  expect(menu.querySelector('.Mui-selected')).toHaveTextContent('English');
+  expect(within(menu).getByText(/English/i)).toHaveClass('Mui-selected');
+  expect(within(menu).getByText(/Suomi/i)).not.toHaveClass('Mui-selected');
 
   expect(localStorage.getItem('i18nextLng')).toEqual('en');
 

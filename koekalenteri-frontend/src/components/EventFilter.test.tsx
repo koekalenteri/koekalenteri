@@ -1,10 +1,10 @@
 import fi from 'date-fns/locale/fi';
 import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
-import { fireEvent, render, within, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, within, screen } from '@testing-library/react';
 import { EventFilter } from './';
 import { FilterProps } from '../stores/EventStrore';
-import { Judge, Organizer } from 'koekalenteri-shared';
+import { Judge, Organizer } from 'koekalenteri-shared/model';
 
 const judges: Judge[] = [
   {
@@ -45,49 +45,49 @@ const renderComponent = (filter: FilterProps, onChange?: ((filter: FilterProps) 
 );
 
 test('should render', () => {
-  const { getByLabelText } = renderComponent({ start: null, end: null, eventType: ['NOME-B'], eventClass: ['ALO'], judge: [234], organizer: [2]});
+  renderComponent({ start: null, end: null, eventType: ['NOME-B'], eventClass: ['ALO'], judge: [234], organizer: [2]});
 
-  expect(getByLabelText(/Koemuoto/i)).toHaveTextContent(/NOME-B/i);
-  expect(getByLabelText(/Koeluokka/i)).toHaveTextContent(/ALO/i);
-  expect(getByLabelText(/Tuomari/i)).toHaveTextContent(/Tuomari 2/i);
-  expect(getByLabelText(/Järjestäjä/i)).toHaveTextContent(/Test org/i);
+  expect(screen.getByLabelText(/Koemuoto/i)).toHaveTextContent(/NOME-B/i);
+  expect(screen.getByLabelText(/Koeluokka/i)).toHaveTextContent(/ALO/i);
+  expect(screen.getByLabelText(/Tuomari/i)).toHaveTextContent(/Tuomari 2/i);
+  expect(screen.getByLabelText(/Järjestäjä/i)).toHaveTextContent(/Test org/i);
 });
 
 test('It should fire onChange', async () => {
   const changeHandler = jest.fn();
-  const { getByLabelText, getByRole, getAllByLabelText } = renderComponent({ start: null, end: null, eventType: [], eventClass: [], judge: [], organizer: [] }, changeHandler);
+  renderComponent({ start: null, end: null, eventType: [], eventClass: [], judge: [], organizer: [] }, changeHandler);
 
-  fireEvent.mouseDown(getByLabelText(/Koemuoto/i));
-  fireEvent.click(within(getByRole('listbox')).getByText(/NOME-A/i));
+  fireEvent.mouseDown(screen.getByLabelText(/Koemuoto/i));
+  fireEvent.click(within(screen.getByRole('listbox')).getByText(/NOME-A/i));
   expect(changeHandler).toHaveBeenCalledTimes(1);
 
-  fireEvent.mouseDown(getByLabelText(/Koeluokka/i));
-  fireEvent.click(within(getByRole('listbox')).getByText(/VOI/i));
+  fireEvent.mouseDown(screen.getByLabelText(/Koeluokka/i));
+  fireEvent.click(within(screen.getByRole('listbox')).getByText(/VOI/i));
   expect(changeHandler).toHaveBeenCalledTimes(2);
 
-  const dateInputs = getAllByLabelText('Choose date', { exact: false }) as HTMLInputElement[];
+  const dateInputs = screen.getAllByLabelText('Choose date', { exact: false }) as HTMLInputElement[];
   fireEvent.click(dateInputs[0]);
-  await waitFor(() => screen.getByRole('dialog'));
+  await screen.findByRole('dialog');
   fireEvent.click(screen.getByLabelText('25. ', { exact: false }));
   expect(changeHandler).toHaveBeenCalledTimes(3);
 
-  fireEvent.mouseDown(getByLabelText(/Tuomari/i));
-  fireEvent.click(within(getByRole('listbox')).getByText(/Tuomari 1/i));
+  fireEvent.mouseDown(screen.getByLabelText(/Tuomari/i));
+  fireEvent.click(within(screen.getByRole('listbox')).getByText(/Tuomari 1/i));
   expect(changeHandler).toHaveBeenCalledTimes(4);
 
-  fireEvent.mouseDown(getByLabelText(/Järjestäjä/i));
-  fireEvent.click(within(getByRole('listbox')).getByText(/Järjestäjä 1/i));
+  fireEvent.mouseDown(screen.getByLabelText(/Järjestäjä/i));
+  fireEvent.click(within(screen.getByRole('listbox')).getByText(/Järjestäjä 1/i));
   expect(changeHandler).toHaveBeenCalledTimes(5);
 
-  fireEvent.click(getByLabelText(/Ilmoittautuminen auki/i));
+  fireEvent.click(screen.getByLabelText(/Ilmoittautuminen auki/i));
   expect(changeHandler).toHaveBeenCalledTimes(6);
 
-  fireEvent.click(getByLabelText(/Vielä mahtuu/i));
+  fireEvent.click(screen.getByLabelText(/Vielä mahtuu/i));
   expect(changeHandler).toHaveBeenCalledTimes(7);
 
-  fireEvent.click(getByLabelText(/Ilmoittautuminen tulossa/i));
+  fireEvent.click(screen.getByLabelText(/Ilmoittautuminen tulossa/i));
   expect(changeHandler).toHaveBeenCalledTimes(8);
 
-  fireEvent.click(getByLabelText(/Vielä ehdit!/i));
+  fireEvent.click(screen.getByLabelText(/Vielä ehdit!/i));
   expect(changeHandler).toHaveBeenCalledTimes(9);
 });

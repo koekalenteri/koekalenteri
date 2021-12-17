@@ -403,10 +403,7 @@ Resources:
           phases:
             build:
               commands:
-                - cd koekalenteri-shared
-                - npm ci
-                - npm run build
-                - cd ../koekalenteri-frontend
+                - cd koekalenteri-frontend
                 - npm ci
                 - npm run build
           artifacts:

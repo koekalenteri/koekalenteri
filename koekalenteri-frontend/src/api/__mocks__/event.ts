@@ -1,10 +1,11 @@
-import { addDays, parseISO, startOfDay } from "date-fns";
-import { Event } from "koekalenteri-shared";
-import { emptyEvent } from "koekalenteri-shared/src/test-utils/emptyEvent";
+import { addDays, parseISO, startOfDay } from 'date-fns';
+import { EventEx } from 'koekalenteri-shared/model';
+import { emptyEvent } from '../test-utils/emptyEvent';
+import { rehydrateEvent } from '../utils';
 
 const today = startOfDay(new Date());
 
-const mockEvents: Event[] = [
+const mockEvents: EventEx[] = [
   {
     ...emptyEvent,
     id: 'test1',
@@ -70,16 +71,17 @@ const mockEvents: Event[] = [
     places: 10,
     entries: 9,
   },
-];
+].map(event => rehydrateEvent(event));
 
-export async function getEvents() {
+export async function getEvents(): Promise<EventEx[]> {
   return new Promise((resolve, reject) => {
     process.nextTick(() => resolve(mockEvents));
   });
 }
 
-export async function getEvent(eventType: string, id: string) {
+export async function getEvent(eventType: string, id: string): Promise<EventEx> {
   return new Promise((resolve, reject) => {
-    process.nextTick(() => resolve(mockEvents.find(event => event.eventType === eventType && event.id === id)));
+    const event = mockEvents.find(event => event.eventType === eventType && event.id === id);
+    process.nextTick(() => event ? resolve(event) : reject());
   });
 }

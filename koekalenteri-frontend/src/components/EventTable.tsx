@@ -13,7 +13,7 @@ import {
 } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
 import { KeyboardArrowDown, KeyboardArrowRight } from '@mui/icons-material';
-import { EventEx } from 'koekalenteri-shared';
+import type { EventEx } from 'koekalenteri-shared/model';
 import { EventInfo } from './EventInfo';
 import { useTranslation } from 'react-i18next';
 import { LinkButton } from './Buttons';

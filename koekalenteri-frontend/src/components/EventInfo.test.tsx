@@ -1,6 +1,6 @@
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { EventInfo } from './EventInfo';
-import { emptyEvent } from 'koekalenteri-shared/src/test-utils/emptyEvent';
+import { emptyEvent } from '../api/test-utils/emptyEvent';
 
 
 test('It should render event information', async function() {
@@ -29,17 +29,17 @@ test('It should render event information', async function() {
     isEntryClosing: false,
     isEntryUpcoming: false
   };
-  const { getByText } = render(<EventInfo event={event} />);
+  render(<EventInfo event={event} />);
 
   // entry dates
-  expect(getByText('20.1.-4.2.2021')).toBeInTheDocument();
+  expect(screen.getByText('20.1.-4.2.2021')).toBeInTheDocument();
 
   // classes
-  expect(getByText('ke 10.2.')).toBeInTheDocument();
-  expect(getByText('TestClass')).toBeInTheDocument();
-  expect(getByText('Test Judge')).toBeInTheDocument();
-  expect(getByText('22/11')).toBeInTheDocument();
+  expect(screen.getByText('ke 10.2.')).toBeInTheDocument();
+  expect(screen.getByText('TestClass')).toBeInTheDocument();
+  expect(screen.getByText('Test Judge')).toBeInTheDocument();
+  expect(screen.getByText('22/11')).toBeInTheDocument();
 
   // description
-  expect(getByText('event description text')).toBeInTheDocument();
+  expect(screen.getByText('event description text')).toBeInTheDocument();
 });

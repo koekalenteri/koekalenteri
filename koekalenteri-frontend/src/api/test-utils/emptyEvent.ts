@@ -1,4 +1,4 @@
-import { Event } from '../Event';
+import type { Event } from 'koekalenteri-shared/model';
 
 export const emptyEvent: Event = {
   accountNumber: 'test',

@@ -4,7 +4,7 @@ import { makeStyles } from '@mui/styles';
 import { useParams } from 'react-router-dom';
 import { Header } from '../layout';
 import { useSessionStarted, useStores } from '../stores';
-import { EventEx } from 'koekalenteri-shared';
+import type { EventEx } from 'koekalenteri-shared/model';
 import { useTranslation } from 'react-i18next';
 import { RegistrationForm } from '../components/RegistrationForm';
 import { LinkButton } from '../components/Buttons';

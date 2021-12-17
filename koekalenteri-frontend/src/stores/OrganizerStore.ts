@@ -1,6 +1,6 @@
 import { makeAutoObservable, runInAction } from 'mobx';
 import * as organizerApi from '../api/organizer';
-import { Organizer } from 'koekalenteri-shared';
+import { Organizer } from 'koekalenteri-shared/model';
 
 export class OrganizerStore {
   public loading: boolean = false;

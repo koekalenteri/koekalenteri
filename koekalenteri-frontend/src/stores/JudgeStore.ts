@@ -1,6 +1,6 @@
 import { makeAutoObservable, runInAction } from 'mobx';
 import * as judgeApi from '../api/judge';
-import { Judge } from 'koekalenteri-shared';
+import { Judge } from 'koekalenteri-shared/model';
 
 export class JudgeStore {
   public loading: boolean = false;

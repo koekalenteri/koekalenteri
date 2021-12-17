@@ -19,16 +19,16 @@ test('renders logo with proper ALT', () => {
 });
 
 test('renders event page', async () => {
-  const {findByText, getByRole} = render(
+  render(
     <MemoryRouter initialEntries={['/event/type2/test2']}>
       <ThemeProvider theme={theme}>
         <App />
       </ThemeProvider>
     </MemoryRouter>
   );
-  const spinner = getByRole('progressbar');
+  const spinner = screen.getByRole('progressbar');
   expect(spinner).toBeInTheDocument();
-  const organizer = await findByText(/Test org/);
+  const organizer = await screen.findByText(/Test org/);
   expect(organizer).toBeInTheDocument();
   expect(spinner).not.toBeInTheDocument();
 });

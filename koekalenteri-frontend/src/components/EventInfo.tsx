@@ -1,7 +1,7 @@
 import { Table, TableBody, TableRow, TableCell } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
 import { format } from 'date-fns';
-import { EventClass, EventEx } from "koekalenteri-shared";
+import type { EventEx, EventClass } from 'koekalenteri-shared/model';
 import { useTranslation } from 'react-i18next';
 import { entryDateColor } from '../utils';
 import { LinkButton } from './Buttons';
