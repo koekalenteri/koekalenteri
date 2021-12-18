@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Box } from '@mui/material';
-import { EventContainer, EventFilterContainer, Header } from '../layout';
+import { Banner, EventContainer, EventFilterContainer, Header } from '../layout';
 import { useStores, useSessionStarted } from '../stores';
 
 export const SearchPage = () => {
@@ -21,6 +21,7 @@ export const SearchPage = () => {
   return (
     <>
       <Header />
+      <Banner />
       <Box>
         <EventFilterContainer/>
         <EventContainer/>

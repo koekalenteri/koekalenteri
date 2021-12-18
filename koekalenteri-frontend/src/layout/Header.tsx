@@ -1,53 +1,36 @@
-import React from 'react';
-import makeStyles from '@mui/styles/makeStyles';
-import { AppBar, Typography, IconButton, Toolbar, Link } from '@mui/material';
-import { AccountBox } from '@mui/icons-material';
+import { AppBar, Typography, IconButton, Toolbar, Link, Box } from '@mui/material';
 import logo from '../assets/snj-logo.png';
 import banner from '../assets/banner.png';
-import { LanguageMenu } from '../components';
+import { LanguageMenu, UserMenu } from '../components';
 
-const useStyles = makeStyles((theme) => ({
-  small: {
-    height: '80px',
-  },
-  large: {
-    backgroundImage: `url(${banner})`,
-    backgroundPositionY: '20px',
-    backgroundRepeat: 'no-repeat',
-    backgroundSize: 'cover',
-    height: '260px',
-  },
-  title: {
-    flexGrow: 1,
-    color: 'rgba(0, 0, 0, 0.87)',
-  },
-  logo: {
-    maxWidth: 40,
-    marginRight: '10px',
-  },
-}));
-
-export const Header = ({small}: {small?: boolean}) => {
-  const classes = useStyles();
-
+export function Header() {
   return (
-    <div className={small ? classes.small : classes.large}>
-      <AppBar position="static" color="secondary">
-        <Toolbar>
-          <Link href="https://www.snj.fi/" target="_blank"  rel="noopener">
-            <IconButton size="large">
-              <img src={logo} alt="Suomen noutajakoirajärjestö" className={classes.logo} />
-            </IconButton>
-          </Link>
-          <Typography className={classes.title} variant="h6">
-            Koekalenteri
-          </Typography>
-          <LanguageMenu />
-          <IconButton size="large">
-            <AccountBox />
+    <AppBar position="fixed" color="secondary">
+      <Toolbar variant="dense" sx={{width: '100%'}}>
+        <Link href="https://www.snj.fi/" target="_blank"  rel="noopener">
+          <IconButton size="large" sx={{ mr: 2, p: 0 }}>
+            <img src={logo} alt="Suomen noutajakoirajärjestö" />
           </IconButton>
-        </Toolbar>
-      </AppBar>
-    </div>
+        </Link>
+        <Typography variant="h5" sx={{ flexGrow: 1 }}>
+          Koekalenteri
+        </Typography>
+        <LanguageMenu />
+        <UserMenu />
+      </Toolbar>
+    </AppBar>
+  );
+}
+
+export function Banner() {
+  return (
+    <Box sx={{
+      backgroundImage: `url(${banner})`,
+      backgroundRepeat: 'no-repeat',
+      backgroundPositionY: '48px',
+      backgroundSize: 'cover',
+      width: '100%',
+      height: '260px'
+    }}></Box>
   );
 }

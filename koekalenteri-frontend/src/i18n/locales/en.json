@@ -17,6 +17,8 @@
   "judge": "Judge",
   "judges": "Judges",
   "location": "Location",
+  "login": "Login",
+  "login_failed": "Login failed",
   "noResults": "Your search returned no events. Please remove one of the search filters.",
   "official": "Responsible official",
   "organizer": "Organizer",

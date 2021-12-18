@@ -1,9 +1,10 @@
-import { IconButton, Menu, MenuItem, Tooltip } from '@mui/material';
-import { Language } from '@mui/icons-material';
+import { Menu, MenuItem } from '@mui/material';
+import { Language, ExpandMore } from '@mui/icons-material';
 import { locales, LocaleKey } from '../i18n';
 import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
 import { useLanguage } from '../stores';
+import { AppBarButton } from './Buttons';
 
 export function LanguageMenu() {
   const { t, i18n } = useTranslation();
@@ -26,11 +27,9 @@ export function LanguageMenu() {
 
   return (
     <>
-      <Tooltip title="">
-        <IconButton onClick={handleClick} size="large">
-          <Language />
-        </IconButton>
-      </Tooltip>
+      <AppBarButton onClick={handleClick} startIcon={<Language />} endIcon={<ExpandMore />}>
+        {t(`locale_${language as LocaleKey}`)}
+      </AppBarButton>
       <Menu
         anchorEl={anchorEl}
         open={open}

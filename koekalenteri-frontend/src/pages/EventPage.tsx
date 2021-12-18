@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Box, CircularProgress, Table, TableBody, TableCell, TableRow, Typography } from '@mui/material';
+import { Box, CircularProgress, Table, TableBody, TableCell, TableRow, Toolbar, Typography } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import { useParams } from 'react-router-dom';
 import { Header } from '../layout';
@@ -31,7 +31,8 @@ export const EventPage = () => {
 
   return (
     <>
-      <Header small />
+      <Header />
+      <Toolbar variant="dense" />{/* To allocate the space for fixed header */}
       <Box m={1}>
         <LinkButton sx={{mb: 1}} to="/" text={sessionStarted ? t('goBack') : t('goHome')} />
         {event ? <EventComponent event={event} classDate={params.date} className={params.class} /> : <CircularProgress />}

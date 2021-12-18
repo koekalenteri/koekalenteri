@@ -12,7 +12,6 @@ declare module '@mui/material/styles/createPalette' {
   }
 }
 
-
 const theme = createTheme({
   breakpoints: {
     values: {
@@ -41,9 +40,12 @@ const theme = createTheme({
     },
     background: {
       default: '#fcfdfd',
-      form: '#f2f2f2'
+      form: '#f2f2f2',
     },
   },
+  zIndex: {
+    snackbar: 1200
+  }
 })
 
 export default theme;
