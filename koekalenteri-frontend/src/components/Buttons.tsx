@@ -1,4 +1,4 @@
-import { Button } from '@mui/material';
+import { Box, Button } from '@mui/material';
 import { MouseEventHandler, ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -16,9 +16,13 @@ export function AppBarButton(props: AppBarButtonProps) {
       onClick={props.onClick}
       startIcon={props.startIcon}
       endIcon={props.endIcon}
-      sx={{ textTransform: 'none' }}
+      sx={{
+        textTransform: 'none',
+        '& .MuiButton-startIcon': { marginRight: {xs: 0, sm: 2}},
+        '& .MuiButton-endIcon': { marginLeft: {xs: 0, sm: 2}}
+      }}
     >
-      {props.children}
+      <Box sx={{ display: { xs: 'none', sm: 'block' } }}>{props.children}</Box>
     </Button>
   );
 }
