@@ -3,7 +3,7 @@ import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import { SnackbarProvider } from 'notistack';
 import { Routes, Route } from "react-router-dom";
 import { locales, LocaleKey } from "./i18n";
-import { SearchPage, EventPage } from './pages'
+import { SearchPage, EventPage, ListPage } from './pages'
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from '@mui/styles';
 
@@ -29,7 +29,8 @@ function App() {
           <Route path="/" element={<SearchPage />} />
           <Route path="/event/:eventType/:id"  element={<EventPage />} />
           <Route path="/event/:eventType/:id/:class"  element={<EventPage />} />
-          <Route path="/event/:eventType/:id/:class/:date"  element={<EventPage />} />
+          <Route path="/event/:eventType/:id/:class/:date" element={<EventPage />} />
+          <Route path="/sihteeri" element={<ListPage />} />
         </Routes>
       </SnackbarProvider>
     </LocalizationProvider>
