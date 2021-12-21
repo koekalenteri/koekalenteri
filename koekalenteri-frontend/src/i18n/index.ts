@@ -3,10 +3,16 @@ import LanguageDetector from "i18next-browser-languagedetector";
 import { initReactI18next } from "react-i18next";
 import fi from './locales/fi.json';
 import en from './locales/en.json';
+import { fiFI, enUS, Localization } from '@mui/material/locale';
 import { locales, LocaleKey, formatDate, formatDateSpan, formatDistance } from "./dates";
 
 export { locales };
 export type { LocaleKey };
+
+export const muiLocales: Record<LocaleKey, Localization> = {
+  fi: fiFI,
+  en: enUS
+};
 
 i18n
   .use(LanguageDetector)

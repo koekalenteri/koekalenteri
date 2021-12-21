@@ -20,7 +20,7 @@ test('EventStore', async () => {
     withUpcomingEntry: false
   };
 
-  expect(store.events).toEqual([])
+  expect(store.filteredEvents).toEqual([])
   expect(store.loading).toEqual(false);
   expect(store.loaded).toEqual(false);
 
@@ -33,110 +33,110 @@ test('EventStore', async () => {
 
   await store.load();
   expect(store.loaded).toEqual(true);
-  expect(store.events.length).toEqual(3);
+  expect(store.filteredEvents.length).toEqual(3);
 
-  const first = store.events[0];
+  const first = store.filteredEvents[0];
   evt = await store.get(first.eventType, first.id);
   expect(evt).toEqual(first);
 
   await store.setFilter({ ...emptyFilter });
-  expect(store.events.length).toEqual(5);
+  expect(store.filteredEvents.length).toEqual(5);
 
   await store.setFilter({
     ...emptyFilter,
     start: parseISO('2021-01-01'),
     end: parseISO('2021-02-11')
   });
-  expect(store.events.length).toEqual(1);
-  expect(store.events[0]).toMatchObject({ id: 'test1' });
+  expect(store.filteredEvents.length).toEqual(1);
+  expect(store.filteredEvents[0]).toMatchObject({ id: 'test1' });
 
   await store.setFilter({
     ...emptyFilter,
     start: parseISO('2021-02-13'),
     end: new Date() // the events relative to today are excluded
   });
-  expect(store.events.length).toEqual(1);
-  expect(store.events[0]).toMatchObject({ id: 'test2' });
+  expect(store.filteredEvents.length).toEqual(1);
+  expect(store.filteredEvents[0]).toMatchObject({ id: 'test2' });
 
   await store.setFilter({
     ...emptyFilter,
     start: parseISO('2021-02-11'),
     end: parseISO('2021-02-12')
   });
-  expect(store.events.length).toEqual(2);
+  expect(store.filteredEvents.length).toEqual(2);
 
   await store.setFilter({
     ...emptyFilter,
     eventType: ['type1']
   });
-  expect(store.events.length).toEqual(1);
-  expect(store.events[0]).toMatchObject({ id: 'test1' });
+  expect(store.filteredEvents.length).toEqual(1);
+  expect(store.filteredEvents[0]).toMatchObject({ id: 'test1' });
 
   await store.setFilter({
     ...emptyFilter,
     eventClass: ['class1']
   });
-  expect(store.events.length).toEqual(1);
-  expect(store.events[0]).toMatchObject({ id: 'test1' });
+  expect(store.filteredEvents.length).toEqual(1);
+  expect(store.filteredEvents[0]).toMatchObject({ id: 'test1' });
 
   await store.setFilter({
     ...emptyFilter,
     eventType: ['type2'],
     eventClass: ['class1']
   });
-  expect(store.events.length).toEqual(0);
+  expect(store.filteredEvents.length).toEqual(0);
 
   await store.setFilter({
     ...emptyFilter,
     judge: [123]
   });
-  expect(store.events.length).toEqual(1);
+  expect(store.filteredEvents.length).toEqual(1);
 
   await store.setFilter({
     ...emptyFilter,
     organizer: [2]
   });
-  expect(store.events.length).toEqual(1);
+  expect(store.filteredEvents.length).toEqual(1);
 
   await store.setFilter({
     ...emptyFilter,
     withOpenEntry: true
   });
-  expect(store.events.length).toEqual(2);
-  expect(store.events[0]).toMatchObject({ id: 'test3' });
-  expect(store.events[1]).toMatchObject({ id: 'test5' });
+  expect(store.filteredEvents.length).toEqual(2);
+  expect(store.filteredEvents[0]).toMatchObject({ id: 'test3' });
+  expect(store.filteredEvents[1]).toMatchObject({ id: 'test5' });
 
   await store.setFilter({
     ...emptyFilter,
     withOpenEntry: true,
     withClosingEntry: true
   });
-  expect(store.events.length).toEqual(1);
-  expect(store.events[0]).toMatchObject({ id: 'test5' });
+  expect(store.filteredEvents.length).toEqual(1);
+  expect(store.filteredEvents[0]).toMatchObject({ id: 'test5' });
 
   await store.setFilter({
     ...emptyFilter,
     withUpcomingEntry: true
   });
-  expect(store.events.length).toEqual(1);
-  expect(store.events[0]).toMatchObject({ id: 'test4' });
+  expect(store.filteredEvents.length).toEqual(1);
+  expect(store.filteredEvents[0]).toMatchObject({ id: 'test4' });
 
   await store.setFilter({
     ...emptyFilter,
     withOpenEntry: true,
     withFreePlaces: true
   });
-  expect(store.events.length).toEqual(1);
-  expect(store.events[0]).toMatchObject({ id: 'test5' });
+  expect(store.filteredEvents.length).toEqual(1);
+  expect(store.filteredEvents[0]).toMatchObject({ id: 'test5' });
 
   await store.setFilter({
     ...emptyFilter,
     withOpenEntry: true,
     withUpcomingEntry: true
   });
-  expect(store.events.length).toEqual(3);
-  expect(store.events[0]).toMatchObject({ id: 'test3' });
-  expect(store.events[1]).toMatchObject({ id: 'test4' });
-  expect(store.events[2]).toMatchObject({ id: 'test5' });
+  expect(store.filteredEvents.length).toEqual(3);
+  expect(store.filteredEvents[0]).toMatchObject({ id: 'test3' });
+  expect(store.filteredEvents[1]).toMatchObject({ id: 'test4' });
+  expect(store.filteredEvents[2]).toMatchObject({ id: 'test5' });
 
 });

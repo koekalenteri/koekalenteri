@@ -42,6 +42,13 @@ export const MiniDrawer = styled(Drawer, {
       ...closedMixin(theme),
       '& .MuiDrawer-paper': closedMixin(theme),
     }),
+    '& a': {
+      textDecoration: 'none',
+      color: 'inherit'
+    },
+    '& a.active > .MuiButtonBase-root': {
+      backgroundColor: theme.palette.secondary.light
+    }
   }),
 );
 
@@ -53,11 +60,11 @@ export function DrawerList({children}: {children: ReactNode}) {
   );
 }
 
-export function DrawerItem({ text, icon, onClick, mini }: {text: string, icon: ReactNode, onClick?: MouseEventHandler, mini?: boolean}) {
+export function DrawerItem({ text, icon, onClick }: {text: string, icon: ReactNode, onClick?: MouseEventHandler}) {
   return (
     <ListItem button key={text} onClick={onClick}>
       <ListItemIcon>{icon}</ListItemIcon>
-      <ListItemText primary={text} hidden={mini} />
+      <ListItemText primary={text} />
     </ListItem>
   );
 }

@@ -10,6 +10,7 @@
   "entryTitle_test": "Register to test",
   "eventClass": "Event class",
   "eventClasses": "Event classes",
+  "events": "Events",
   "eventTime": "Event time",
   "eventType": "Event type",
   "goBack": "Back",
@@ -19,13 +20,17 @@
   "location": "Location",
   "login": "Login",
   "login_failed": "Login failed",
+  "logout": "Logout",
+  "logout_failed": "Logout failed",
   "noResults": "Your search returned no events. Please remove one of the search filters.",
   "official": "Responsible official",
   "organizer": "Organizer",
+  "organizations": "Organizations",
   "paymentDetails": "Payment details",
   "places": "Places",
   "qualifyingResults": "Qualifying results",
   "register": "Register",
   "result": "Result",
-  "toltaPlaces": "places"
+  "toltaPlaces": "places",
+  "users": "Users"
 }

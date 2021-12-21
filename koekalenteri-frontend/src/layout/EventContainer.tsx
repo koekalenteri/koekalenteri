@@ -11,6 +11,6 @@ export const EventContainer = observer(() => {
     )
   }
   return (
-    <EventTable events={eventStore.events}></EventTable>
+    <EventTable events={eventStore.filteredEvents}></EventTable>
   )
 });

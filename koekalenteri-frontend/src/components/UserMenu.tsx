@@ -9,7 +9,7 @@ export function UserMenu() {
   const { enqueueSnackbar } = useSnackbar();
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-    enqueueSnackbar(t('login_failed'));
+    enqueueSnackbar(t('login_failed'), {variant: 'error'});
   };
 
   return (

@@ -11,6 +11,6 @@ export const EventGridContainer = observer(() => {
     )
   }
   return (
-    <EventGrid events={[...eventStore.events]}></EventGrid>
+    <EventGrid events={[...eventStore.userEvents]}></EventGrid>
   )
 });

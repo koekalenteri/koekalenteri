@@ -22,7 +22,8 @@ export class EventStore {
 
   public loaded: boolean = false;
   public loading: boolean = false;
-  public events: EventEx[] = [];
+  public filteredEvents: EventEx[] = [];
+  public userEvents: EventEx[] = [];
   public filter: FilterProps = {
     start: null,
     end: null,
@@ -64,6 +65,10 @@ export class EventStore {
     this._events = (await eventApi.getEvents())
       .sort((a: EventEx, b: EventEx) => +new Date(a.startDate) - +new Date(b.startDate));
     this._applyFilter();
+
+    // TODO
+    this.userEvents = this._events;
+
     this.setLoading(false);
   }
 
@@ -79,7 +84,7 @@ export class EventStore {
     const today = startOfDay(new Date());
     const filter = this.filter;
 
-    this.events = this._events.filter(event => {
+    this.filteredEvents = this._events.filter(event => {
       return withinDateFilters(event, filter)
         && withinSwitchFilters(event, filter, today)
         && withinArrayFilters(event, filter);

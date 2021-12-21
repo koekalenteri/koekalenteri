@@ -22,6 +22,7 @@
   "entryTitle_test": "Ilmoittaudu kokeeseen",
   "eventClass": "Koeluokka",
   "eventClasses": "Koeluokat",
+  "events": "Tapahtumat",
   "eventTime": "Ajankohta",
   "eventType": "Koemuoto",
   "goBack": "Takaisin",
@@ -33,13 +34,17 @@
   "location": "Sijainti",
   "login": "Kirjaudu",
   "login_failed": "Kirjautuminen epäonnistui",
+  "logout": "Kirjaudu ulos",
+  "logout_failed": "Uloskirjautuminen epäonnistui",
   "noResults": "Tekemälläsi haulla ei löytynyt tapahtumia. Poista joku hakusuodattimista.",
   "official": "Vastaava koetoimitsija",
   "organizer": "Järjestäjä",
+  "organizations": "Yhdistykset",
   "paymentDetails": "Maksutiedot",
   "places": "Paikkoja",
   "qualifyingResults": "Koeluokkaan oikeuttavat tulokset",
   "register": "Ilmoittaudu",
   "result": "Tulos",
-  "toltaPlaces": "paikkaa"
+  "toltaPlaces": "paikkaa",
+  "users": "Käyttäjät"
 }

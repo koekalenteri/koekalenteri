@@ -9,6 +9,8 @@ declare module '@mui/styles/defaultTheme' {
 declare module '@mui/material/styles/createPalette' {
   interface TypeBackground {
     form: string
+    oddRow: string
+    tableHead: string
   }
 }
 
@@ -41,6 +43,8 @@ const theme = createTheme({
     background: {
       default: '#fcfdfd',
       form: '#f2f2f2',
+      oddRow: '#f8f8f8',
+      tableHead: '#C4C4C4'
     },
   },
   zIndex: {
