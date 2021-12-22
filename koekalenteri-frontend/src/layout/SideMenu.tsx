@@ -5,6 +5,7 @@ import { Accessibility, Event, Logout, Menu, PersonOutline, Support } from '@mui
 import { DrawerItem, DrawerList, MiniDrawer } from '../components/MiniDrawer';
 import { useTranslation } from 'react-i18next';
 import { useLocalStorage } from '../stores/browser';
+import { ADMIN_EVENTS, ADMIN_JUDGES, ADMIN_ORGS, ADMIN_USERS } from '../config';
 
 export function SideMenu() {
   const { t } = useTranslation();
@@ -20,10 +21,10 @@ export function SideMenu() {
       <Toolbar variant="dense" />
       <DrawerList>
         <DrawerItem text="" icon={<Menu />} onClick={toggleMini} />
-        <NavLink to="/sihteeri/events"><DrawerItem text={t('events')} icon={<Event />} /></NavLink>
-        <NavLink to="/sihteeri/organizations"><DrawerItem text={t('organizations')} icon={<Support />} /></NavLink>
-        <NavLink to="/sihteeri/users"><DrawerItem text={t('users')} icon={<PersonOutline />} /></NavLink>
-        <NavLink to="/sihteeri/judges"><DrawerItem text={t('judges')} icon={<Accessibility />} /></NavLink>
+        <NavLink to={ADMIN_EVENTS}><DrawerItem text={t('events')} icon={<Event />} /></NavLink>
+        <NavLink to={ADMIN_ORGS}><DrawerItem text={t('organizations')} icon={<Support />} /></NavLink>
+        <NavLink to={ADMIN_USERS}><DrawerItem text={t('users')} icon={<PersonOutline />} /></NavLink>
+        <NavLink to={ADMIN_JUDGES}><DrawerItem text={t('judges')} icon={<Accessibility />} /></NavLink>
       </DrawerList>
       <Divider />
       <DrawerList>

@@ -3,7 +3,7 @@ import { parseISO } from "date-fns";
 import type { Event } from 'koekalenteri-shared/model';
 import { emptyEvent } from './test-utils/emptyEvent';
 import { getEvents, getEvent } from './event';
-import { API_BASE_URL } from './http';
+import { API_BASE_URL } from "../config";
 import { rehydrateEvent } from './utils';
 
 fetchMock.enableMocks();

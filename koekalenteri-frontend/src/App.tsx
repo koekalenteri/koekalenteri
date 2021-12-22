@@ -1,12 +1,13 @@
 import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import { SnackbarProvider } from 'notistack';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { locales, muiLocales, LocaleKey } from './i18n';
 import { SearchPage, EventPage, ListPage, JudgesPage, UsersPage, OrganizationsPage } from './pages'
 import { useTranslation } from 'react-i18next';
 import { makeStyles, ThemeProvider } from '@mui/styles';
 import { createTheme } from '@mui/material/styles';
+import { ADMIN_DEFAULT, ADMIN_EVENTS, ADMIN_JUDGES, ADMIN_ORGS, ADMIN_ROOT, ADMIN_USERS } from './config';
 
 const useStyles = makeStyles({
   snack: {
@@ -32,11 +33,11 @@ function App() {
             <Route path="/event/:eventType/:id"  element={<EventPage />} />
             <Route path="/event/:eventType/:id/:class"  element={<EventPage />} />
             <Route path="/event/:eventType/:id/:class/:date" element={<EventPage />} />
-            <Route path="/sihteeri" element={<ListPage />} />
-            <Route path="/sihteeri/events" element={<ListPage />} />
-            <Route path="/sihteeri/organizations" element={<OrganizationsPage />} />
-            <Route path="/sihteeri/users" element={<UsersPage />} />
-            <Route path="/sihteeri/judges" element={<JudgesPage />} />
+            <Route path={ADMIN_ROOT} element={<Navigate replace to={ADMIN_DEFAULT} />} />
+            <Route path={ADMIN_EVENTS} element={<ListPage />} />
+            <Route path={ADMIN_ORGS} element={<OrganizationsPage />} />
+            <Route path={ADMIN_USERS} element={<UsersPage />} />
+            <Route path={ADMIN_JUDGES} element={<JudgesPage />} />
           </Routes>
         </SnackbarProvider>
       </LocalizationProvider>
