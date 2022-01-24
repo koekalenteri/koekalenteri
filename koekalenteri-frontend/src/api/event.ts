@@ -13,3 +13,7 @@ export async function getEvent(eventType: string, id: string, signal?: AbortSign
   const jsonedEvent = await http.get<Event>(`${PATH}${eventType}/${id}`, {signal});
   return rehydrateEvent(jsonedEvent);
 }
+
+export async function createEvent(event: Partial<Event>): Promise<EventEx> {
+  return rehydrateEvent(await http.post<Partial<Event>, EventEx>(PATH, event));
+}

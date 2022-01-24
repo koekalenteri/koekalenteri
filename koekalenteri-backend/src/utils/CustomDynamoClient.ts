@@ -28,7 +28,7 @@ export default class CustomDynamoClient {
   async readAll(): Promise<ItemList | undefined> {
     // TODO should this be improved with a query? Or create a query version of this?
     const data = await this.docClient.scan({ TableName: this.table }).promise();
-    return data.Items;
+    return data.Items?.filter(item => !item.deletedAt);
   }
 
   async read(key: APIGatewayProxyEventPathParameters | null): Promise<AttributeMap | undefined> {

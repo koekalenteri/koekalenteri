@@ -29,6 +29,8 @@ export type Event = {
   official: number
   createdAt: Date
   createdBy: string
+  deletedAt?: Date
+  deletedBy?: string
   modifiedAt: Date
   modifiedBy: string
 }

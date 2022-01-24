@@ -24,7 +24,6 @@ export const genericReadAllHandler = (dynamoDB: CustomDynamoClient, name: string
     }
   );
 
-
 export const genericReadHandler = (dynamoDB: CustomDynamoClient, name: string): (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult> =>
   metricScope((metrics: MetricsLogger) =>
     async (

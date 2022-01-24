@@ -1,11 +1,12 @@
-import { DarkMode, KeyboardArrowDown, KeyboardArrowRight, LightMode } from '@mui/icons-material';
+import { DarkMode, LightMode } from '@mui/icons-material';
 import { DatePicker } from '@mui/lab';
-import { Box, Checkbox, Chip, Collapse, FormControl, FormControlLabel, FormHelperText, Grid, IconButton, InputLabel, Link, MenuItem, Select, SelectChangeEvent, TextField, Typography } from '@mui/material';
+import { Box, Checkbox, Chip, FormControl, FormControlLabel, FormHelperText, Grid, InputLabel, Link, MenuItem, Select, SelectChangeEvent, TextField } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import { eachDayOfInterval, format, subMonths, subYears } from 'date-fns';
 import type { EventEx, EventClass } from 'koekalenteri-shared/model';
-import { ReactNode, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { CollapsibleSection } from './CollapsibleSection';
 import { MultiSelect, multiSelectValue, stringsToMultiSelectOptions } from './MultiSelect';
 
 const useStyles = makeStyles(theme => ({
@@ -365,21 +366,4 @@ function AdditionalInfo() {
   );
 }
 
-function CollapsibleSection({ title, children }: { title: string, children?: ReactNode }) {
-  const [open, setOpen] = useState(true);
-  return (
-    <>
-      <IconButton size="small" color="primary" sx={{position: 'absolute'}} onClick={() => setOpen(!open)}>
-        {open ? <KeyboardArrowDown /> : <KeyboardArrowRight />}
-      </IconButton>
-      <Box sx={{m: 1, pt: '6px', pl: '30px'}}>
-        <Box sx={{borderBottom: '1px solid #bdbdbd', userSelect: 'none'}} onClick={() => setOpen(!open)}>
-          <Typography>{title}</Typography>
-        </Box>
-        <Collapse in={open} timeout="auto" sx={{ mt: 1, pt: 1 }}>
-          {children}
-        </Collapse>
-      </Box>
-    </>
-  );
-}
+

@@ -1,7 +1,7 @@
 import { makeAutoObservable } from 'mobx';
 import * as eventApi from '../api/event';
 import { startOfDay } from 'date-fns';
-import type { EventEx } from 'koekalenteri-shared/model';
+import type { Event, EventEx } from 'koekalenteri-shared/model';
 
 export type FilterProps = {
   start: Date | null
@@ -24,6 +24,8 @@ export class EventStore {
   public loading: boolean = false;
   public filteredEvents: EventEx[] = [];
   public userEvents: EventEx[] = [];
+  public newEvent: Partial<Event> = {eventType: ''};
+  public selectedEvent: Event | undefined = undefined;
   public filter: FilterProps = {
     start: null,
     end: null,
@@ -56,6 +58,14 @@ export class EventStore {
     this._open[id] = value;
   }
 
+  setNewEvent(event: Partial<Event>) {
+    this.newEvent = event;
+  }
+
+  setSelectedEvent(event: EventEx|undefined) {
+    this.selectedEvent = event;
+  }
+
   isOpen(id: string) {
     return this._open[id] || false;
   }
@@ -78,6 +88,29 @@ export class EventStore {
       return cached;
     }
     return eventApi.getEvent(eventType, id, signal);
+  }
+
+  async save(event: Partial<Event>) {
+    const saved = await eventApi.createEvent(event);
+    if (!event.id) {
+      this.userEvents.push(saved);
+      this.newEvent = {eventType: ''};
+    } else {
+      const old = this.userEvents.find(e => e.id === event.id);
+      if (old) {
+        Object.assign(old, event);
+      }
+    }
+  }
+
+  async delete(event: Event) {
+    const index = this.userEvents.findIndex(e => e.id === event.id);
+    if (index > -1) {
+      this.userEvents.splice(index, 1);
+      event.deletedAt = new Date();
+      event.deletedBy = 'user';
+      return this.save(event);
+    }
   }
 
   private _applyFilter() {

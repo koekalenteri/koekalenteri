@@ -5,6 +5,7 @@
   "breed_GR": "Kultainennoutaja",
   "breed_LR": "Labradorinnoutaja",
   "breed_NS": "Novascotiannoutaja",
+  "createEvent": "Uusi tapahtuma",
   "date": "Aika",
   "dateformat": "dd.MM.yyyy",
   "dateformatS": "dd.MM",

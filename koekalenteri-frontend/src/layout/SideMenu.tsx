@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { useSnackbar } from 'notistack';
 import { Divider, Toolbar } from '@mui/material';
 import { Accessibility, Event, Logout, Menu, PersonOutline, Support } from '@mui/icons-material';
@@ -12,6 +12,7 @@ export function SideMenu() {
   const [mini, setMini] = useLocalStorage('miniMenu', '0');
   const { enqueueSnackbar } = useSnackbar();
   const toggleMini = () => setMini(mini === '0' ? '1' : '0');
+  const navigate = useNavigate();
 
   return (
     <MiniDrawer
@@ -28,7 +29,10 @@ export function SideMenu() {
       </DrawerList>
       <Divider />
       <DrawerList>
-        <DrawerItem text={t('logout')} icon={<Logout />} onClick={() => enqueueSnackbar(t('logout_failed'), { variant: 'error' })} />
+        <DrawerItem text={t('logout')} icon={<Logout />} onClick={() => {
+          enqueueSnackbar("Heippa!", { variant: 'info' });
+          navigate('/');
+        }} />
       </DrawerList>
     </MiniDrawer>
   );

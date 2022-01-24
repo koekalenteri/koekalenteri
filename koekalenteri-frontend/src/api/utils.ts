@@ -3,7 +3,7 @@ import { endOfDay, startOfDay, subDays } from 'date-fns';
 
 // https://stackoverflow.com/a/69756175/10359775
 type PickByType<T, Value> = {
-  [P in keyof T as T[P] extends Value | undefined ? P : never]: T[P]
+  [P in keyof T as T[P] extends Value ? P : never]: T[P]
 }
 type EventDates = keyof PickByType<Event, Date>;
 
@@ -14,8 +14,11 @@ export function rehydrateEvent(event: Event, now = new Date()): EventEx {
   for (const prop of EVENT_DATE_PROPS) {
     event[prop] = event[prop] && new Date(event[prop]);
   }
+  if (event.deletedAt) {
+    event.deletedAt = new Date(event.deletedAt);
+  }
 
-  for (const cls of event.classes) {
+  for (const cls of event.classes || []) {
     if (typeof cls === 'string') {
       continue;
     }

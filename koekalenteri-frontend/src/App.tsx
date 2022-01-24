@@ -7,7 +7,8 @@ import { SearchPage, EventPage, ListPage, JudgesPage, UsersPage, OrganizationsPa
 import { useTranslation } from 'react-i18next';
 import { makeStyles, ThemeProvider } from '@mui/styles';
 import { createTheme } from '@mui/material/styles';
-import { ADMIN_DEFAULT, ADMIN_EVENTS, ADMIN_JUDGES, ADMIN_ORGS, ADMIN_ROOT, ADMIN_USERS } from './config';
+import { ADMIN_DEFAULT, ADMIN_EDIT_EVENT, ADMIN_EVENTS, ADMIN_JUDGES, ADMIN_NEW_EVENT, ADMIN_ORGS, ADMIN_ROOT, ADMIN_USERS } from './config';
+import { EditEventPage } from './pages/EditEventPage';
 
 const useStyles = makeStyles({
   snack: {
@@ -35,6 +36,8 @@ function App() {
             <Route path="/event/:eventType/:id/:class/:date" element={<EventPage />} />
             <Route path={ADMIN_ROOT} element={<Navigate replace to={ADMIN_DEFAULT} />} />
             <Route path={ADMIN_EVENTS} element={<ListPage />} />
+            <Route path={ADMIN_NEW_EVENT} element={<EditEventPage create />} />
+            <Route path={ADMIN_EDIT_EVENT} element={<EditEventPage />} />
             <Route path={ADMIN_ORGS} element={<OrganizationsPage />} />
             <Route path={ADMIN_USERS} element={<UsersPage />} />
             <Route path={ADMIN_JUDGES} element={<JudgesPage />} />
