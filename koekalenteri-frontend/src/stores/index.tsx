@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { Setter, useLocalStorage, useSessionStorage } from './browser';
-import { EventStore } from "./EventStrore";
+import { EventStore } from "./EventStore";
 import { JudgeStore } from "./JudgeStore";
 import { OrganizerStore } from "./OrganizerStore";
 

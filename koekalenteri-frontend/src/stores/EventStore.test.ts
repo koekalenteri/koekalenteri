@@ -1,5 +1,5 @@
 import { parseISO } from "date-fns";
-import { EventStore } from "./EventStrore";
+import { EventStore } from "./EventStore";
 
 jest.mock('../api/event');
 

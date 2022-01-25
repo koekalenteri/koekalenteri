@@ -1,7 +1,7 @@
 import { observer } from 'mobx-react-lite';
 import { useStores } from '../stores';
 import { EventFilter } from '../components';
-import { FilterProps } from '../stores/EventStrore';
+import { FilterProps } from '../stores/EventStore';
 
 export const EventFilterContainer = observer(() => {
   const { eventStore, judgeStore, organizerStore } = useStores();
