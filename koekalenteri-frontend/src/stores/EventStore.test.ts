@@ -35,6 +35,16 @@ test('EventStore', async () => {
   expect(store.loaded).toEqual(true);
   expect(store.filteredEvents.length).toEqual(3);
 
+  const origLength = store.userEvents.length;
+  const newEvent = await store.save({ eventType: 'saveTest' });
+  expect(newEvent.id).toBeDefined();
+  expect(store.userEvents.length).toBe(origLength + 1);
+
+  const deletedEvent = await store.delete(newEvent);
+  expect(deletedEvent).toBeDefined();
+  expect(deletedEvent?.deletedAt).toBeDefined();
+  expect(store.userEvents.length).toBe(origLength);
+
   const first = store.filteredEvents[0];
   evt = await store.get(first.eventType, first.id);
   expect(evt).toEqual(first);

@@ -86,13 +86,22 @@ export async function getEvent(eventType: string, id: string): Promise<EventEx> 
   });
 }
 
-export async function createEvent(event: Event): Promise<EventEx> {
+export async function saveEvent(event: Event): Promise<EventEx> {
   return new Promise((resolve, reject) => {
-    let fullEvent: EventEx;
+    let fullEvent: EventEx | undefined;
     if (event) {
-      event.id = 'test' + (mockEvents.length + 1);
-      fullEvent = rehydrateEvent(event);
-      mockEvents.push(fullEvent);
+      if (!event.id) {
+        event.id = 'test' + (mockEvents.length + 1);
+        fullEvent = rehydrateEvent(event);
+        mockEvents.push(fullEvent);
+      } else {
+        fullEvent = mockEvents.find(e => e.id === event.id);
+        if (fullEvent) {
+          Object.assign(fullEvent, event);
+          fullEvent.modifiedAt = new Date();
+          fullEvent.modifiedBy = 'mock';
+        }
+      }
     }
     process.nextTick(() => fullEvent ? resolve(fullEvent) : reject());
   });

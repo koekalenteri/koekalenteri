@@ -18,7 +18,6 @@ export type FilterProps = {
 
 export class EventStore {
   private _events: EventEx[] = [];
-  private _open: Record<string, boolean> = {};
 
   public loaded: boolean = false;
   public loading: boolean = false;
@@ -54,20 +53,12 @@ export class EventStore {
     this.loaded = !value;
   }
 
-  setOpen(id: string, value: boolean) {
-    this._open[id] = value;
-  }
-
   setNewEvent(event: Partial<Event>) {
     this.newEvent = event;
   }
 
   setSelectedEvent(event: EventEx|undefined) {
     this.selectedEvent = event;
-  }
-
-  isOpen(id: string) {
-    return this._open[id] || false;
   }
 
   async load() {
@@ -91,16 +82,13 @@ export class EventStore {
   }
 
   async save(event: Partial<Event>) {
-    const saved = await eventApi.createEvent(event);
-    if (!event.id) {
+    const newEvent = !event.id;
+    const saved = await eventApi.saveEvent(event);
+    if (newEvent) {
       this.userEvents.push(saved);
       this.newEvent = {eventType: ''};
-    } else {
-      const old = this.userEvents.find(e => e.id === event.id);
-      if (old) {
-        Object.assign(old, event);
-      }
     }
+    return saved;
   }
 
   async delete(event: Event) {
@@ -118,7 +106,8 @@ export class EventStore {
     const filter = this.filter;
 
     this.filteredEvents = this._events.filter(event => {
-      return withinDateFilters(event, filter)
+      return !event.deletedAt
+        && withinDateFilters(event, filter)
         && withinSwitchFilters(event, filter, today)
         && withinArrayFilters(event, filter);
     });
