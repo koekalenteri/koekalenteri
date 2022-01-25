@@ -34,7 +34,7 @@ export function EventFormBasicInfo({ event, onChange }: { event: Partial<Event>;
             <TextField sx={{ width: 300 }} label="Kennelliiton kokeen tunnus" InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
-                  <IconButton onClick={(event) => setHelpAnchorEl(event.currentTarget)}>
+                  <IconButton onClick={(e) => setHelpAnchorEl(e.currentTarget)}>
                     <HelpOutlined />
                   </IconButton>
                 </InputAdornment>
@@ -69,7 +69,7 @@ export function EventFormBasicInfo({ event, onChange }: { event: Partial<Event>;
                 id="eventType-select"
                 value={event.eventType}
                 label={t('eventType')}
-                onChange={(event) => onChange({ eventType: event.target.value })}
+                onChange={(e) => onChange({ eventType: e.target.value })}
               >
                 {['NOU', 'NOME-B', 'NOME-A', 'NOWT'].map((type) => <MenuItem key={type} value={type}>{type}</MenuItem>)}
               </Select>
@@ -84,12 +84,12 @@ export function EventFormBasicInfo({ event, onChange }: { event: Partial<Event>;
                 label="Koeluokat"
                 value={(event.classes || []).map(c => typeof c === 'string' ? c : c.class)}
                 options={stringsToMultiSelectOptions(['ALO', 'AVO', 'VOI'])}
-                onChange={(event) => onChange({ classes: multiValue(event.target.value) })} />
+                onChange={(e) => onChange({ classes: multiValue(e.target.value) })} />
             </FormControl>
           </Grid>
         </Grid>
         <Grid item sx={{ width: 616 }}>
-          <TextField label="Tapahtuman nimi" fullWidth value={event.name || ''} onChange={(event) => onChange({ name: event.target.value })} />
+          <TextField label="Tapahtuman nimi" fullWidth value={event.name || ''} onChange={(e) => onChange({ name: e.target.value })} />
         </Grid>
       </Grid>
     </CollapsibleSection>
