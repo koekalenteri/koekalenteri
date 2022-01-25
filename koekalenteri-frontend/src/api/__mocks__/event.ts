@@ -1,5 +1,5 @@
 import { addDays, parseISO, startOfDay } from 'date-fns';
-import { EventEx } from 'koekalenteri-shared/model';
+import { Event, EventEx } from 'koekalenteri-shared/model';
 import { emptyEvent } from '../test-utils/emptyEvent';
 import { rehydrateEvent } from '../utils';
 
@@ -83,5 +83,17 @@ export async function getEvent(eventType: string, id: string): Promise<EventEx> 
   return new Promise((resolve, reject) => {
     const event = mockEvents.find(event => event.eventType === eventType && event.id === id);
     process.nextTick(() => event ? resolve(event) : reject());
+  });
+}
+
+export async function createEvent(event: Event): Promise<EventEx> {
+  return new Promise((resolve, reject) => {
+    let fullEvent: EventEx;
+    if (event) {
+      event.id = 'test' + (mockEvents.length + 1);
+      fullEvent = rehydrateEvent(event);
+      mockEvents.push(fullEvent);
+    }
+    process.nextTick(() => fullEvent ? resolve(fullEvent) : reject());
   });
 }

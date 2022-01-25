@@ -3,7 +3,7 @@ import App from './App';
 import { MemoryRouter } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material';
 import theme from './assets/Theme';
-import { ADMIN_JUDGES, ADMIN_ORGS, ADMIN_ROOT, ADMIN_USERS } from './config';
+import { ADMIN_EVENTS, ADMIN_JUDGES, ADMIN_NEW_EVENT, ADMIN_ORGS, ADMIN_ROOT, ADMIN_USERS } from './config';
 
 jest.mock('./api/event');
 jest.mock('./api/judge');
@@ -36,7 +36,7 @@ test('renders event page', async () => {
   expect(spinner).not.toBeInTheDocument();
 });
 
-test('renders admin default page', async () => {
+test('renders admin default (event) page', async () => {
   render(
     <MemoryRouter initialEntries={[ADMIN_ROOT]}>
       <ThemeProvider theme={theme}>
@@ -46,6 +46,18 @@ test('renders admin default page', async () => {
   );
   const head = await screen.findAllByText(/Tapahtumat/);
   expect(head.length).toBe(2);
+});
+
+test('renders admin createEvent page', async () => {
+  render(
+    <MemoryRouter initialEntries={[ADMIN_EVENTS, ADMIN_NEW_EVENT]}>
+      <ThemeProvider theme={theme}>
+        <App />
+      </ThemeProvider>
+    </MemoryRouter>
+  );
+  const head = await screen.findByText(/Uusi tapahtuma/);
+  expect(head).toBeInTheDocument();
 });
 
 test('renders admin organizations', async () => {
