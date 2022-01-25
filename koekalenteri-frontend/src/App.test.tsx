@@ -1,13 +1,30 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import App from './App';
 import { MemoryRouter } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material';
 import theme from './assets/Theme';
 import { ADMIN_EVENTS, ADMIN_JUDGES, ADMIN_NEW_EVENT, ADMIN_ORGS, ADMIN_ROOT, ADMIN_USERS } from './config';
+import { DataGridProps } from '@mui/x-data-grid';
 
 jest.mock('./api/event');
 jest.mock('./api/judge');
 jest.mock('./api/organizer');
+
+// DataGrid needs disableVirtualizaton to render properly in tests
+jest.mock('@mui/x-data-grid', () => {
+  const { DataGrid } = jest.requireActual('@mui/x-data-grid');
+  return {
+    ...jest.requireActual('@mui/x-data-grid'),
+    DataGrid: (props: DataGridProps) => {
+      return (
+        <DataGrid
+          {...props}
+          disableVirtualization
+        />
+      );
+    },
+  };
+});
 
 test('renders logo with proper ALT', () => {
   render(
@@ -46,6 +63,14 @@ test('renders admin default (event) page', async () => {
   );
   const head = await screen.findAllByText(/Tapahtumat/);
   expect(head.length).toBe(2);
+
+  // Select an event, and click edit button
+  const row = screen.getAllByRole('row')[1];
+  fireEvent.click(row, 'click');
+  expect(row).toHaveClass('Mui-selected');
+  fireEvent.click(screen.getByText(/Muokkaa/));
+  const newHead = await screen.findByText('Muokkaa tapahtumaa');
+  expect(newHead).toBeInstanceOf(HTMLHeadingElement);
 });
 
 test('renders admin createEvent page', async () => {
