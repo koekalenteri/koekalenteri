@@ -37,6 +37,7 @@
   "login_failed": "Kirjautuminen epäonnistui",
   "logout": "Kirjaudu ulos",
   "logout_failed": "Uloskirjautuminen epäonnistui",
+  "name": "Nimi",
   "noResults": "Tekemälläsi haulla ei löytynyt tapahtumia. Poista joku hakusuodattimista.",
   "official": "Vastaava koetoimitsija",
   "organizer": "Järjestäjä",
@@ -46,6 +47,7 @@
   "qualifyingResults": "Koeluokkaan oikeuttavat tulokset",
   "register": "Ilmoittaudu",
   "result": "Tulos",
+  "state": "Tila",
   "toltaPlaces": "paikkaa",
   "users": "Käyttäjät"
 }

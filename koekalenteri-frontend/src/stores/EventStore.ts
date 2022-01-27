@@ -87,6 +87,8 @@ export class EventStore {
     if (newEvent) {
       this.userEvents.push(saved);
       this.newEvent = {eventType: ''};
+    } else {
+      Object.assign(this.userEvents.find(e => e.id === event.id), saved);
     }
     return saved;
   }
@@ -106,7 +108,7 @@ export class EventStore {
     const filter = this.filter;
 
     this.filteredEvents = this._events.filter(event => {
-      return !event.deletedAt
+      return event.state !== 'draft' && !event.deletedAt
         && withinDateFilters(event, filter)
         && withinSwitchFilters(event, filter, today)
         && withinArrayFilters(event, filter);

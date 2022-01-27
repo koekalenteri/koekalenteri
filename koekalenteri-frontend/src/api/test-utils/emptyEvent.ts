@@ -33,5 +33,6 @@ export const emptyEvent: Event = {
   referenceNumber: 'test',
   requirePaymentBeforeEntry: true,
   startDate: new Date('1990-01-01'),
+  state: 'confirmed',
   unofficial: true,
 }

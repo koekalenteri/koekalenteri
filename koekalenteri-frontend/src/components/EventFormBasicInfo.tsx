@@ -1,9 +1,9 @@
 import { HelpOutlined } from '@mui/icons-material';
-import { DatePicker } from '@mui/lab';
 import { Fade, FormControl, Grid, IconButton, InputAdornment, InputLabel, MenuItem, Paper, Popover, Select, TextField } from '@mui/material';
 import { Event } from 'koekalenteri-shared/model';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { DateRange } from '.';
 import { CollapsibleSection } from './CollapsibleSection';
 import { MultiSelect, stringsToMultiSelectOptions } from './MultiSelect';
 
@@ -13,22 +13,18 @@ export function EventFormBasicInfo({ event, onChange }: { event: Partial<Event>;
   const helpOpen = Boolean(helpAnchorEl);
   const multiValue = (value: string | string[]) => typeof value === 'string' ? value.split(',') : value;
 
-  const setStartDate = (date: Date | null) => {
-    onChange({ startDate: date || undefined });
-  };
   return (
     <CollapsibleSection title="Kokeen perustiedot">
       <Grid item container spacing={1}>
         <Grid item container spacing={1}>
           <Grid item>
-            <DatePicker
-              label="Kokeen alkamispäivä"
-              value={event.startDate}
-              mask={t('datemask')}
-              inputFormat={t('dateformat')}
-              showToolbar={true}
-              onChange={setStartDate}
-              renderInput={(params) => <TextField required {...params} sx={{ width: 300 }} />} />
+            <DateRange
+              startLabel="Alkupäivä"
+              endLabel="Loppupäivä"
+              start={event.startDate || null}
+              end={event.endDate || null}
+              onChange={(start, end) => onChange({startDate: start || undefined, endDate: end || undefined})}
+            />
           </Grid>
           <Grid item>
             <TextField sx={{ width: 300 }} label="Kennelliiton kokeen tunnus" InputProps={{

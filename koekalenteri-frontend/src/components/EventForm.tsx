@@ -1,9 +1,10 @@
 import { Cancel, Save } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
-import { Box, Button, Stack, Step, StepLabel, Stepper, Typography } from '@mui/material';
+import { Box, Button, FormControl, InputLabel, MenuItem, Select, Stack } from '@mui/material';
 import { makeStyles } from '@mui/styles';
-import type { Event } from 'koekalenteri-shared/model';
+import type { Event, EventState } from 'koekalenteri-shared/model';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { EventFormBasicInfo } from './EventFormBasicInfo';
 
 const useStyles = makeStyles(theme => ({
@@ -19,6 +20,7 @@ export type EventHandler = (event: Partial<Event>) => void;
 
 export function EventForm({ event, onSave, onCancel }: { event: Partial<Event>, onSave: EventHandler, onCancel: EventHandler }) {
   const classes = useStyles();
+  const { t } = useTranslation();
   const [local, setLocal] = useState({ ...event });
   const [saving, setSaving] = useState(false);
   const onChange = (props: Partial<Event>) => setLocal({ ...local, ...props });
@@ -30,14 +32,21 @@ export function EventForm({ event, onSave, onCancel }: { event: Partial<Event>, 
 
   return (
     <>
-      <Stepper activeStep={0} sx={{ my: 2 }}>
-        <Step><StepLabel>Luonnos</StepLabel></Step>
-        <Step><StepLabel>Alustava</StepLabel></Step>
-        <Step><StepLabel optional={(<Typography variant="caption" color="error">Tietoja puuttuu</Typography>)}>Julkaistu</StepLabel></Step>
-        <Step><StepLabel>Ilmoittautuminen</StepLabel></Step>
-        <Step><StepLabel>Käynnissä</StepLabel></Step>
-        <Step><StepLabel>Päättynyt</StepLabel></Step>
-      </Stepper>
+      <FormControl>
+        <InputLabel id="demo-simple-select-label">{t('state')}</InputLabel>
+        <Select
+          labelId="demo-simple-select-label"
+          id="demo-simple-select"
+          value={local.state || 'draft'}
+          label={t('state')}
+          onChange={(e) => onChange({state: (e.target.value || 'draft') as EventState})}
+        >
+          <MenuItem value="draft">{t('draft', { ns: 'states'})}</MenuItem>
+          <MenuItem value="tentative">{t('tentative', { ns: 'states' })}</MenuItem>
+          <MenuItem value="confirmed">{t('confirmed', { ns: 'states' })}</MenuItem>
+          <MenuItem value="cancelled">{t('cancelled', { ns: 'states' })}</MenuItem>
+        </Select>
+      </FormControl>
 
       <Box className={classes.root} sx={{ pb: 0.5 }}>
         <EventFormBasicInfo event={local} onChange={onChange} />

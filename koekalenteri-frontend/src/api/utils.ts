@@ -18,7 +18,10 @@ export function rehydrateEvent(event: Event, now = new Date()): EventEx {
     event.deletedAt = new Date(event.deletedAt);
   }
 
-  for (const cls of event.classes || []) {
+  event.classes = event.classes || [];
+  event.judges = event.judges || [];
+
+  for (const cls of event.classes) {
     if (typeof cls === 'string') {
       continue;
     }

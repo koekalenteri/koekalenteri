@@ -2,7 +2,9 @@ import i18n from "i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
 import { initReactI18next } from "react-i18next";
 import fi from './locales/fi.json';
+import fiStates from './locales/fi_states.json';
 import en from './locales/en.json';
+import enStates from './locales/en_states.json';
 import { fiFI, enUS, Localization } from '@mui/material/locale';
 import { locales, LocaleKey, formatDate, formatDateSpan, formatDistance } from "./dates";
 
@@ -20,10 +22,10 @@ i18n
   .init({
     lng: process.env.NODE_ENV === 'test' ? 'fi' : undefined,
     resources: {
-      fi: { common: fi },
-      en: { common: en }
+      fi: { common: fi, states: fiStates },
+      en: { common: en, states: enStates }
     },
-    ns: ['common'],
+    ns: ['common', 'states'],
     defaultNS: 'common',
     fallbackLng: "fi",
     supportedLngs: ['fi', 'en'],

@@ -2,6 +2,7 @@ import { Organizer } from './Organizer';
 
 export type Event = {
   id: string
+  state: EventState
   organizer: Organizer
   eventType: string
   classes: Array<string | EventClass>
@@ -46,6 +47,8 @@ export type EventClass = {
   entries: number
   members: number
 }
+
+export type EventState = 'draft' | 'tentative' | 'confirmed' | 'cancelled';
 
 export interface EventEx extends Event {
   isEntryOpen: boolean

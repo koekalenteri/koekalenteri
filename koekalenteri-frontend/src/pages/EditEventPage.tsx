@@ -13,7 +13,7 @@ export function EditEventPage({create}: {create?: boolean}) {
 
   return (
     <AuthPage>
-      <Typography variant="h5">{create ? t('createEvent') : 'Muokkaa tapahtumaa'}</Typography>
+      <Typography variant="h5" sx={{pb: 1}}>{create ? t('createEvent') : 'Muokkaa tapahtumaa'}</Typography>
       <EventForm event={!create && eventStore.selectedEvent ? eventStore.selectedEvent : eventStore.newEvent}
         onSave={async (event) => {
           await eventStore.save(event)

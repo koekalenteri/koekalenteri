@@ -90,5 +90,8 @@
   },
   "members": {
     "N": "3"
+  },
+  "state": {
+    "S": "confirmed"
   }
 }

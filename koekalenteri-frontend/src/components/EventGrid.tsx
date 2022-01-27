@@ -1,13 +1,12 @@
 import { Box } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { useTranslation } from 'react-i18next';
-import { format } from 'date-fns';
-import { EventEx } from 'koekalenteri-shared/model';
+import { EventClass, EventEx, EventState } from 'koekalenteri-shared/model';
 import { useStores } from '../stores';
 import { observer } from 'mobx-react-lite';
 
 interface EventGridColDef extends GridColDef {
-  field: keyof EventEx
+  field: keyof EventEx | 'date'
 }
 
 export const EventGrid = observer(({ events }: { events: EventEx[] }) => {
@@ -15,23 +14,40 @@ export const EventGrid = observer(({ events }: { events: EventEx[] }) => {
   const { eventStore } = useStores();
 
   const columns: EventGridColDef[] = [
-    { field: 'id', headerName: 'ID', width: 90 },
+    {
+      field: 'date',
+      headerName: t('date'),
+      width: 150,
+      type: 'string',
+      valueGetter: (params) => t('daterange', { start: params.row.startDate, end: params.row.endDate })
+    },
+    {
+      field: 'eventType',
+      headerName: t('eventType'),
+      width: 150,
+    },
+    {
+      field: 'classes',
+      headerName: t('eventClasses'),
+      width: 150,
+      valueFormatter: ({value}) => ((value || []) as Array<EventClass|string>).map(c => typeof c === 'string' ? c : c.class).join(', ')
+    },
     {
       field: 'location',
-      headerName: 'Location',
+      headerName: t('location'),
       width: 150,
     },
     {
       field: 'name',
-      headerName: 'Name',
+      headerName: t('name'),
       width: 150,
     },
     {
-      field: 'startDate',
-      headerName: 'Start Date',
+      field: 'state',
+      headerName: t('state'),
       width: 150,
-      type: 'date',
-      valueFormatter: (params) => params.value instanceof Date ? format(params.value, t('dateformat')) : ''
+      type: 'string',
+      valueFormatter: (params) => t((params.value || 'draft') as EventState, {ns: 'states'})
     },
   ];
 
