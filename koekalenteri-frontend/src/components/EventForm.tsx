@@ -5,6 +5,7 @@ import { makeStyles } from '@mui/styles';
 import type { Event, EventState, Judge } from 'koekalenteri-shared/model';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { EventFormAdditionalInfo } from './EventFormAdditionalInfo';
 import { EventFormBasicInfo } from './EventFormBasicInfo';
 import { EventFormJudges } from './EventFormJudges';
 
@@ -19,12 +20,16 @@ const useStyles = makeStyles(theme => ({
 
 export type EventHandler = (event: Partial<Event>) => void;
 
-export function EventForm({ event, judges, onSave, onCancel }: { event: Partial<Event>, judges: Judge[] , onSave: EventHandler, onCancel: EventHandler }) {
+export function EventForm({ event, judges, onSave, onCancel }: { event: Partial<Event>, judges: Judge[], onSave: EventHandler, onCancel: EventHandler }) {
   const classes = useStyles();
   const { t } = useTranslation();
   const [local, setLocal] = useState({ classes: [], judges: [], ...event });
   const [saving, setSaving] = useState(false);
-  const onChange = (props: Partial<Event>) => setLocal({ ...local, ...props });
+  const [changes, setChanges] = useState(false);
+  const onChange = (props: Partial<Event>) => {
+    setLocal({ ...local, ...props });
+    setChanges(true);
+  }
   const saveHandler = () => {
     setSaving(true);
     onSave(local);
@@ -52,10 +57,11 @@ export function EventForm({ event, judges, onSave, onCancel }: { event: Partial<
       <Box className={classes.root} sx={{ pb: 0.5 }}>
         <EventFormBasicInfo event={local} onChange={onChange} />
         <EventFormJudges event={local} judges={judges} onChange={onChange} />
+        <EventFormAdditionalInfo event={local} onChange={onChange} />
       </Box>
 
       <Stack spacing={1} direction="row" justifyContent="flex-end" sx={{mt: 1}}>
-        <LoadingButton color="primary" loading={saving} loadingPosition="start" startIcon={<Save />} variant="contained" onClick={saveHandler}>Tallenna</LoadingButton>
+        <LoadingButton color="primary" disabled={!changes} loading={saving} loadingPosition="start" startIcon={<Save />} variant="contained" onClick={saveHandler}>Tallenna</LoadingButton>
         <Button startIcon={<Cancel />} variant="outlined" onClick={cancelHandler}>Peruuta</Button>
       </Stack>
     </>
