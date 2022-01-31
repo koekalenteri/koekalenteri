@@ -88,7 +88,11 @@ export class EventStore {
       this.userEvents.push(saved);
       this.newEvent = {eventType: ''};
     } else {
-      Object.assign(this.userEvents.find(e => e.id === event.id), saved);
+      // Update cached instance (deleted events are not found)
+      const oldInstance = this.userEvents.find(e => e.id === event.id);
+      if (oldInstance) {
+        Object.assign(oldInstance, saved);
+      }
     }
     return saved;
   }
