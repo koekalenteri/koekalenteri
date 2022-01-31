@@ -50,10 +50,10 @@ export function EventFormJudges({ event, judges, onChange }: { event: Partial<Ev
                           value={c.class}
                           control={<Checkbox
                             checked={c.judge?.id === id}
-                            disabled={c.judge && c.judge.id !== id}
+                            disabled={!id || (c.judge && c.judge.id !== id)}
                             onChange={(e) => {
                               const classes = [...event.classes];
-                              classes[i].judge = e.target.checked ? { id, name: judges.find(j => j.id === id)?.name || '' } : undefined;
+                              classes[i].judge = e.target.checked && id ? { id, name: judges.find(j => j.id === id)?.name || '' } : undefined;
                               return onChange({ classes });
                             }}
                             size="small"

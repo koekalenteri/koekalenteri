@@ -9,10 +9,11 @@ export type DateRangeProps = {
   startLabel: string,
   end: DateValue
   endLabel: string,
+  required?: boolean,
   onChange?: (start: DateValue, end: DateValue) => void
 };
 
-export function DateRange({ start, end, startLabel, endLabel, onChange }: DateRangeProps) {
+export function DateRange({ start, end, startLabel, endLabel, required, onChange }: DateRangeProps) {
   const { t } = useTranslation();
   let _start = start;
   let _end = end;
@@ -37,7 +38,7 @@ export function DateRange({ start, end, startLabel, endLabel, onChange }: DateRa
           clearable={true}
           showToolbar={false}
           onChange={startChanged}
-          renderInput={(params) => <TextField {...params} />}
+          renderInput={(params) => <TextField {...params} required />}
         />
       </FormControl>
 
@@ -51,7 +52,7 @@ export function DateRange({ start, end, startLabel, endLabel, onChange }: DateRa
           clearable={true}
           showToolbar={false}
           onChange={endChanged}
-          renderInput={(params) => <TextField {...params} />}
+          renderInput={(params) => <TextField {...params} required />}
         />
       </FormControl>
     </Box>

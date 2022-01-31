@@ -23,6 +23,7 @@ export function EventFormBasicInfo({ event, onChange }: { event: Partial<Event>;
               endLabel="Loppupäivä"
               start={event.startDate || null}
               end={event.endDate || null}
+              required
               onChange={(start, end) => onChange({startDate: start || undefined, endDate: end || undefined})}
             />
           </Grid>
