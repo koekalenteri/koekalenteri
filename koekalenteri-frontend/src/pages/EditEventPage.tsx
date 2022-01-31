@@ -8,13 +8,15 @@ import { ADMIN_EVENTS } from '../config';
 
 export function EditEventPage({create}: {create?: boolean}) {
   const { t } = useTranslation();
-  const { eventStore } = useStores();
+  const { eventStore, judgeStore } = useStores();
   const naviage = useNavigate();
 
   return (
     <AuthPage>
       <Typography variant="h5" sx={{pb: 1}}>{create ? t('createEvent') : 'Muokkaa tapahtumaa'}</Typography>
-      <EventForm event={!create && eventStore.selectedEvent ? eventStore.selectedEvent : eventStore.newEvent}
+      <EventForm
+        event={!create && eventStore.selectedEvent ? eventStore.selectedEvent : eventStore.newEvent}
+        judges={judgeStore.judges}
         onSave={async (event) => {
           await eventStore.save(event)
           naviage(ADMIN_EVENTS);
