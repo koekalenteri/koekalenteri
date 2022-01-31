@@ -1,6 +1,6 @@
 import { HelpOutlined } from '@mui/icons-material';
 import { Fade, FormControl, Grid, IconButton, InputAdornment, InputLabel, MenuItem, Paper, Popover, Select, TextField } from '@mui/material';
-import { Event } from 'koekalenteri-shared/model';
+import { Event, EventClass } from 'koekalenteri-shared/model';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DateRange } from '.';
@@ -11,7 +11,7 @@ export function EventFormBasicInfo({ event, onChange }: { event: Partial<Event>;
   const { t } = useTranslation();
   const [helpAnchorEl, setHelpAnchorEl] = useState<HTMLButtonElement | null>(null);
   const helpOpen = Boolean(helpAnchorEl);
-  const multiValue = (value: string | string[]) => typeof value === 'string' ? value.split(',') : value;
+  const eventClasses = (existing: EventClass[], value: string[]) => value.map(c => (existing.find(ec => ec.class === c) || { class: c }));
 
   return (
     <CollapsibleSection title="Kokeen perustiedot">
@@ -80,7 +80,7 @@ export function EventFormBasicInfo({ event, onChange }: { event: Partial<Event>;
                 label="Koeluokat"
                 value={(event.classes || []).map(c => typeof c === 'string' ? c : c.class)}
                 options={stringsToMultiSelectOptions(['ALO', 'AVO', 'VOI'])}
-                onChange={(e) => onChange({ classes: multiValue(e.target.value) })} />
+                onChange={(value) => onChange({ classes: eventClasses(event.classes || [], value) })} />
             </FormControl>
           </Grid>
         </Grid>

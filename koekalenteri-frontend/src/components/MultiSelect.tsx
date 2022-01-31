@@ -5,6 +5,8 @@ export type MultiSelectOption = {
   name: string
 }
 
+type onMultiSelectChange = (value: string[]) => void;
+
 export function stringsToMultiSelectOptions(opts: string[]): MultiSelectOption[] {
   return opts.map(o => ({ value: o, name: o }));
 }
@@ -12,11 +14,13 @@ export function stringsToMultiSelectOptions(opts: string[]): MultiSelectOption[]
 export const multiSelectValue = (value: string | string[]) => typeof value === 'string' ? value.split(',') : value;
 
 const defaultValueRender = (selected: string[]) => selected.join(', ');
-export function MultiSelect(props: SelectProps<string[]> & { options: MultiSelectOption[] }) {
+
+export function MultiSelect(props: Omit<SelectProps<string[]>, 'onChange'> & { onChange: onMultiSelectChange, options: MultiSelectOption[] }) {
   const renderValue = props.renderValue || defaultValueRender;
   return (
     <Select
       {...props}
+      onChange={(e) => props.onChange(multiSelectValue(e.target.value).sort((a, b) => props.options.findIndex(o => o.value === a) - props.options.findIndex(o => o.value === b)))}
       multiple
       renderValue={(selected) => renderValue(props.options
         .filter(opt => selected.includes(opt.value))

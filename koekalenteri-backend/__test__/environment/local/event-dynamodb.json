@@ -8,10 +8,14 @@
   "classes": {
     "L": [
       {
-        "S": "ALO"
+        "class": {
+          "S": "ALO"
+        }
       },
       {
-        "S": "AVO"
+        "class": {
+          "S": "AVO"
+        }
       }
     ]
   },

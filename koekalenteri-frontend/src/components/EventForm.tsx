@@ -22,7 +22,7 @@ export type EventHandler = (event: Partial<Event>) => void;
 export function EventForm({ event, judges, onSave, onCancel }: { event: Partial<Event>, judges: Judge[] , onSave: EventHandler, onCancel: EventHandler }) {
   const classes = useStyles();
   const { t } = useTranslation();
-  const [local, setLocal] = useState({ ...event });
+  const [local, setLocal] = useState({ classes: [], judges: [], ...event });
   const [saving, setSaving] = useState(false);
   const onChange = (props: Partial<Event>) => setLocal({ ...local, ...props });
   const saveHandler = () => {

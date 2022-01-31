@@ -7,7 +7,7 @@ import type { EventEx, EventClass } from 'koekalenteri-shared/model';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CollapsibleSection } from './CollapsibleSection';
-import { MultiSelect, multiSelectValue, stringsToMultiSelectOptions } from './MultiSelect';
+import { MultiSelect, stringsToMultiSelectOptions } from './MultiSelect';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -47,7 +47,7 @@ function unique(arr: string[]): string[] {
 
 function classDates(event: EventEx, eventClass: string, fmt: string): string[] {
   const classes = event.classes.filter(cls => typeof cls !== 'string' && (eventClass === '' || cls.class === eventClass)) as EventClass[];
-  const dates = classes.length ? classes.map(c => c.date) : eachDayOfInterval({ start: event.startDate, end: event.endDate });
+  const dates = classes.length ? classes.map(c => c.date || event.startDate) : eachDayOfInterval({ start: event.startDate, end: event.endDate });
   const strings = unique(dates.map(date => format(date, fmt)));
   const result = [];
   for (const s of strings) {
@@ -58,7 +58,7 @@ function classDates(event: EventEx, eventClass: string, fmt: string): string[] {
 }
 
 function eventClasses(event: EventEx): string[] {
-  return unique(event.classes.map(c => typeof c === 'string' ? c : c.class));
+  return unique(event.classes.map(c => c.class));
 }
 
 function renderDates(selected: string[]) {
@@ -110,7 +110,7 @@ function EventEntryInfo({event, className, classDate}: {event: EventEx, classNam
               id="class-select"
               value={eventTime}
               label={t("eventTime")}
-              onChange={(event) => setEventTime(multiSelectValue(event.target.value))}
+              onChange={(value) => setEventTime(value)}
               options={stringsToMultiSelectOptions(classDates(event, eventClass, t('dateformatS')))}
               renderValue={renderDates}
             />

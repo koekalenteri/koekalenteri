@@ -15,8 +15,7 @@ type EventFilterProps = {
 
 export function EventFilter({ judges, organizers, filter, onChange }: EventFilterProps) {
   const { t } = useTranslation();
-  const multiValue = (value: string | string[]) => typeof value === 'string' ? value.split(',') : value;
-  const multiNumber = (value: string | string[]) => multiValue(value).map(v => +v);
+  const multiNumber = (value: string[]) => value.map(v => +v);
   const setFilter = (props: Partial<FilterProps>) => {
     onChange && onChange(Object.assign({}, filter, props));
   }
@@ -35,7 +34,7 @@ export function EventFilter({ judges, organizers, filter, onChange }: EventFilte
               labelId="type-label"
               label={t("eventType")}
               value={filter.eventType}
-              onChange={(event) => setFilter({ eventType: multiValue(event.target.value) })}
+              onChange={(value) => setFilter({ eventType: value })}
               options={stringsToMultiSelectOptions(['NOU', 'NOME-B', 'NOME-A', 'NOWT'])}
             />
           </FormControl>
@@ -48,7 +47,7 @@ export function EventFilter({ judges, organizers, filter, onChange }: EventFilte
               labelId="class-label"
               label={t("eventClass")}
               value={filter.eventClass}
-              onChange={(event) => setFilter({ eventClass: multiValue(event.target.value) })}
+              onChange={(value) => setFilter({ eventClass: value })}
               options={stringsToMultiSelectOptions(['ALO', 'AVO', 'VOI'])}
             />
           </FormControl>
@@ -61,7 +60,7 @@ export function EventFilter({ judges, organizers, filter, onChange }: EventFilte
               labelId="organizer-label"
               label={t("organizer")}
               value={filter.organizer.map(n => n.toString())}
-              onChange={(event) => setFilter({ organizer: multiNumber(event.target.value) })}
+              onChange={(value) => setFilter({ organizer: multiNumber(value) })}
               options={organizers.map(o => ({value: o.id.toString(), name: o.name}))}
             />
           </FormControl>
@@ -74,7 +73,7 @@ export function EventFilter({ judges, organizers, filter, onChange }: EventFilte
               labelId="judge-label"
               label={t("judge")}
               value={filter.judge.map(n => n.toString())}
-              onChange={(event) => setFilter({ judge: multiNumber(event.target.value) })}
+              onChange={(value) => setFilter({ judge: multiNumber(value) })}
               options={judges.map(j => ({value: j.id.toString(), name: j.name}))}
             />
           </FormControl>

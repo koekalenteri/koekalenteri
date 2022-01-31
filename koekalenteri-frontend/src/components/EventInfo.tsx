@@ -110,40 +110,20 @@ function EventClassTable({ event }: EventProps) {
   );
 }
 
-function EventClassTableRow({ event, eventClass }: { event: EventEx, eventClass: string | EventClass }) {
+function EventClassTableRow({ event, eventClass }: { event: EventEx, eventClass: EventClass }) {
   const { t } = useTranslation();
-  const isSimple = typeof eventClass === 'string';
-  const classString = isSimple ? eventClass : eventClass.class;
-  const classDate = format(isSimple ? event.startDate : eventClass.date, t('dateformatS'));
+  const classDate = format(eventClass.date || event.startDate, t('dateformatS'));
   return (
     <TableRow>
-      {isSimple
-        ? <SimpleEventClass eventClass={eventClass} />
-        : <ComplexEventClass eventClass={eventClass} />
-      }
-      <TableCell component="th" scope="row">
-        {event.isEntryOpen ? <LinkButton to={`/event/${event.eventType}/${event.id}/${classString}/${classDate}`} text={t('register')} /> : ''}
-      </TableCell>
-      <TableCell></TableCell>
-    </TableRow>
-  )
-}
-
-function SimpleEventClass({ eventClass }: {eventClass: string}) {
-  return (
-    <TableCell component="th" scope="row">{eventClass}</TableCell>
-  );
-}
-
-function ComplexEventClass({ eventClass }: { eventClass: EventClass }) {
-  const { t } = useTranslation();
-  return (
-    <>
       <TableCell component="th" scope="row">{t('dateshort', { date: eventClass.date })}</TableCell>
       <TableCell component="th" scope="row">{eventClass.class}</TableCell>
       <TableCell component="th" scope="row">{eventClass.judge?.name}</TableCell>
       <TableCell component="th" scope="row" align="right">{eventClass.entries}/{eventClass.places}</TableCell>
       <TableCell component="th" scope="row" align="right">{eventClass.members}</TableCell>
-    </>
-  );
+      <TableCell component="th" scope="row">
+        {event.isEntryOpen ? <LinkButton to={`/event/${event.eventType}/${event.id}/${eventClass.class}/${classDate}`} text={t('register')} /> : ''}
+      </TableCell>
+      <TableCell></TableCell>
+    </TableRow>
+  )
 }

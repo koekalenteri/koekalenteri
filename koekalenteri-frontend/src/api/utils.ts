@@ -25,7 +25,7 @@ export function rehydrateEvent(event: Event, now = new Date()): EventEx {
     if (typeof cls === 'string') {
       continue;
     }
-    cls.date = new Date(cls.date);
+    cls.date = new Date(cls.date || event.startDate);
   }
 
   const isEntryOpen = startOfDay(event.entryStartDate) <= now && endOfDay(event.entryEndDate) >= now;
