@@ -8,22 +8,24 @@ function filterJudges(judges: Judge[], eventJudges: number[], id: number) {
   return judges.filter(j => j.id === id || !eventJudges.includes(j.id));
 }
 
-export function EventFormJudges({ event, judges, onChange }: { event: Partial<Event> & {judges: Array<number>, classes: Array<EventClass>}, judges: Judge[], onChange: (props: Partial<Event>) => void }) {
+export type PartialEventWithJudgesAndClasses = Partial<Event> & { judges: Array<number>, classes: Array<EventClass> };
+
+export function EventFormJudges({ event, judges, onChange }: { event: PartialEventWithJudgesAndClasses, judges: Judge[], onChange: (props: Partial<Event>) => void }) {
   const { t } = useTranslation();
   const list = event.judges.length ? event.judges : [0];
   return (
     <CollapsibleSection title={t('judges')}>
       <Grid item container spacing={1}>
         {list.map((id, index) => {
-          const title = index === 0 ? 'Ylituomari' : 'Tuomari';
+          const title = index === 0 ? 'Ylituomari' : `Tuomari ${index + 1}`;
           return (
             <Grid key={id} item container spacing={1} alignItems="center">
               <Grid item>
                 <FormControl sx={{ width: 300 }}>
-                  <InputLabel id="headJudge-label">{title}</InputLabel>
+                  <InputLabel id={`judge${index}-label`}>{title}</InputLabel>
                   <Select
-                    labelId="eventType-label"
-                    id="eventType-select"
+                    labelId={`judge${index}-label`}
+                    id={`judge${index}-select`}
                     value={id}
                     label={title}
                     onChange={(e) => {
