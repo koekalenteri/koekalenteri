@@ -2,6 +2,7 @@ import { Cancel, Save } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import { Box, Button, FormControl, InputLabel, MenuItem, Select, Stack } from '@mui/material';
 import { makeStyles } from '@mui/styles';
+import { addDays, nextSaturday } from 'date-fns';
 import type { Event, EventState, Judge } from 'koekalenteri-shared/model';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -22,10 +23,18 @@ export type EventHandler = (event: Partial<Event>) => void;
 
 export function EventForm({ event, judges, onSave, onCancel }: { event: Partial<Event>, judges: Judge[], onSave: EventHandler, onCancel: EventHandler }) {
   const classes = useStyles();
+  const baseDate = addDays(Date.now(), 90);
   const { t } = useTranslation();
-  const [local, setLocal] = useState({ classes: [], judges: [], ...event });
+  const [local, setLocal] = useState({
+    state: 'draft' as EventState,
+    startDate: nextSaturday(baseDate),
+    endDate: nextSaturday(baseDate),
+    classes: [],
+    judges: [],
+    ...event
+  });
   const [saving, setSaving] = useState(false);
-  const [changes, setChanges] = useState(false);
+  const [changes, setChanges] = useState(!('id' in event) || !('state' in event));
   const onChange = (props: Partial<Event>) => {
     setLocal({ ...local, ...props });
     setChanges(true);
@@ -39,11 +48,11 @@ export function EventForm({ event, judges, onSave, onCancel }: { event: Partial<
   return (
     <>
       <FormControl>
-        <InputLabel id="demo-simple-select-label">{t('state')}</InputLabel>
+        <InputLabel id="state-label">{t('state')}</InputLabel>
         <Select
-          labelId="demo-simple-select-label"
-          id="demo-simple-select"
-          value={local.state || 'draft'}
+          labelId="state-label"
+          id="state"
+          value={local.state}
           label={t('state')}
           onChange={(e) => onChange({state: (e.target.value || 'draft') as EventState})}
         >

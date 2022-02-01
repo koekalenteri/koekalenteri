@@ -1,7 +1,7 @@
 import { Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { AuthPage } from './AuthPage';
-import { EventForm } from '../components/EventForm';
+import { EventForm } from '../components';
 import { useStores } from '../stores';
 import { useNavigate } from 'react-router-dom';
 import { ADMIN_EVENTS } from '../config';
