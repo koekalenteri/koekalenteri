@@ -100,10 +100,11 @@ export class EventStore {
   async delete(event: Event) {
     const index = this.userEvents.findIndex(e => e.id === event.id);
     if (index > -1) {
-      this.userEvents.splice(index, 1);
       event.deletedAt = new Date();
       event.deletedBy = 'user';
-      return this.save(event);
+      const saved = await this.save(event);
+      this.userEvents.splice(index, 1);
+      return saved;
     }
   }
 

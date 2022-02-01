@@ -1,5 +1,6 @@
 import { AddOutlined, Remove } from '@mui/icons-material';
 import { Button, Checkbox, FormControl, FormControlLabel, FormGroup, FormLabel, Grid, InputLabel, MenuItem, Select } from '@mui/material';
+import { format } from 'date-fns';
 import { Event, EventClass, Judge } from 'koekalenteri-shared/model';
 import { useTranslation } from 'react-i18next';
 import { CollapsibleSection } from './CollapsibleSection';
@@ -43,9 +44,10 @@ export function EventFormJudges({ event, judges, onChange }: { event: PartialEve
                   <FormLabel component="legend">Arvostelee koeluokat</FormLabel>
                   <FormGroup row>
                     {event.classes.map((c, i) => {
+                      const classDate = format(c.date || event.startDate || new Date(), t('dateformatS'));
                       return (
                         <FormControlLabel
-                          key={c.class}
+                          key={c.class + classDate}
                           value={c.class}
                           control={<Checkbox
                             checked={c.judge?.id === id}
@@ -57,7 +59,7 @@ export function EventFormJudges({ event, judges, onChange }: { event: PartialEve
                             }}
                             size="small"
                           />}
-                          label={c.class}
+                          label={`${c.class} ${classDate}`}
                         />
                       );
                     })}

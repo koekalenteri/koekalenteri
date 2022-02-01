@@ -1,6 +1,7 @@
 import { Box, Button, FormControlLabel, Stack, Switch, TextField, Typography } from '@mui/material';
 import { EventGridContainer } from '../layout';
 import { useTranslation } from 'react-i18next';
+import { useSnackbar } from 'notistack';
 import { AuthPage } from './AuthPage';
 import { AddCircleOutline, DeleteOutline, EditOutlined } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
@@ -11,6 +12,7 @@ import { observer } from 'mobx-react-lite';
 export const ListPage = observer(() => {
   const { t } = useTranslation();
   const { eventStore } = useStores();
+  const { enqueueSnackbar } = useSnackbar();
 
   return (
     <AuthPage>
@@ -36,10 +38,14 @@ export const ListPage = observer(() => {
         </div>
         <Stack direction="row" spacing={2}>
           <Link to={ADMIN_NEW_EVENT}><Button startIcon={<AddCircleOutline />}>{t('createEvent')}</Button></Link>
-          <Link to={ADMIN_EDIT_EVENT}><Button startIcon={<EditOutlined />}>Muokkaa</Button></Link>
-          <Button startIcon={<DeleteOutline />} disabled={!eventStore.selectedEvent} onClick={() => {
+          <Link to={ADMIN_EDIT_EVENT}><Button startIcon={<EditOutlined />} disabled={!eventStore.selectedEvent}>Muokkaa</Button></Link>
+          <Button startIcon={<DeleteOutline />} disabled={!eventStore.selectedEvent} onClick={async () => {
             if (eventStore.selectedEvent) {
-              eventStore.delete(eventStore.selectedEvent);
+              try {
+                await eventStore.delete(eventStore.selectedEvent);
+              } catch (e: any) {
+                enqueueSnackbar(e.message, { variant: 'error' });
+              }
             }
           }}>Poista</Button>
         </Stack>

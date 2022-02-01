@@ -19,7 +19,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export type EventHandler = (event: Partial<Event>) => void;
+export type EventHandler = (event: Partial<Event>) => Promise<boolean>;
 
 export function EventForm({ event, judges, onSave, onCancel }: { event: Partial<Event>, judges: Judge[], onSave: EventHandler, onCancel: EventHandler }) {
   const classes = useStyles();
@@ -39,9 +39,10 @@ export function EventForm({ event, judges, onSave, onCancel }: { event: Partial<
     setLocal({ ...local, ...props });
     setChanges(true);
   }
-  const saveHandler = () => {
+  const saveHandler = async () => {
     setSaving(true);
-    onSave(local);
+    await onSave(local);
+    setSaving(false);
   }
   const cancelHandler = () => onCancel(local);
 

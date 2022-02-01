@@ -1,11 +1,26 @@
 import { API_BASE_URL } from "../config";
 
+class APIError extends Error {
+  status: number;
+  statusText: string;
+  result: string;
+
+  constructor(response: Response, json: any) {
+    const message = `Error: ${response.status} - ${json.message}`;
+    super(message);
+    this.status = response.status;
+    this.statusText = response.statusText;
+    this.result = json.message;
+  }
+}
+
 async function http<T>(path: string, init: RequestInit): Promise<T> {
   const response = await fetch(API_BASE_URL + path, init);
+  const json = await response.json().catch(() => ({}));
   if (!response.ok) {
-    throw new Error(`${response.status} ${response.statusText}`);
+    throw new APIError(response, json);
   }
-  return response.json().catch(() => ({}));
+  return json;
 }
 
 const HTTP = {
