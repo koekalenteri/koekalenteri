@@ -28,7 +28,17 @@ const JUDGES = [{
 }];
 
 test('It should fire onChange', async () => {
-  const testEvent = { id: 'test', judges: [1], classes: [{ class: 'c1' }, { class: 'c2' }, { class: 'c3' }] };
+  const testEvent = {
+    id: 'test',
+    judges: [1],
+    startDate: new Date('2022-06-01'),
+    endDate: new Date('2022-06-02'),
+    classes: [
+      { class: 'c1' },
+      { class: 'c2' },
+      { class: 'c3' }
+    ]
+  };
 
   const changeHandler = jest.fn((props) => Object.assign(testEvent, props));
 
@@ -69,7 +79,7 @@ test('It should fire onChange', async () => {
 
   rerender(<EventFormJudges event={testEvent} judges={JUDGES} onChange={changeHandler} />);
 
-  fireEvent.click(screen.getByText('c2'));
+  fireEvent.click(screen.getByText('c2 01.06'));
   expect(changeHandler).toHaveBeenCalledTimes(5);
   expect(testEvent.classes[1]).toEqual({ class: 'c2', judge: { id: 3, name: 'Test Judge 3' } });
 });

@@ -6,7 +6,7 @@ class APIError extends Error {
   result: string;
 
   constructor(response: Response, json: any) {
-    const message = `Error: ${response.status} - ${json.message}`;
+    const message = `${response.status} ${json.message || response.statusText}`;
     super(message);
     this.status = response.status;
     this.statusText = response.statusText;
