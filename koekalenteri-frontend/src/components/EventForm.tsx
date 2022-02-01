@@ -54,7 +54,7 @@ export function EventForm({ event, judges, onSave, onCancel }: { event: Partial<
           id="state"
           value={local.state}
           label={t('state')}
-          onChange={(e) => onChange({state: (e.target.value || 'draft') as EventState})}
+          onChange={(e) => onChange({state: e.target.value as EventState})}
         >
           <MenuItem value="draft">{t('draft', { ns: 'states'})}</MenuItem>
           <MenuItem value="tentative">{t('tentative', { ns: 'states' })}</MenuItem>

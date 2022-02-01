@@ -1,7 +1,7 @@
 import fi from 'date-fns/locale/fi';
 import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import { Event, Judge } from 'koekalenteri-shared/model';
 import { EventForm, EventHandler } from '.';
@@ -28,9 +28,18 @@ const JUDGES = [{
 test('It should fire onSave and onCancel', async () => {
   const saveHandler = jest.fn();
   const cancelHandler = jest.fn();
-  renderComponent({ id: 'test' }, JUDGES, saveHandler, cancelHandler);
+  renderComponent({ id: 'test', state: 'draft' }, JUDGES, saveHandler, cancelHandler);
 
-  fireEvent.click(screen.getByText(/Tallenna/i));
+  const saveButton = screen.getByText(/Tallenna/i);
+  expect(saveButton).toBeDisabled();
+
+  // Make a change to enable save button
+  fireEvent.mouseDown(screen.getByLabelText(/Tila/i));
+  fireEvent.click(within(screen.getByRole('listbox')).getByText(/Julkaistu alustavana/i));
+
+  expect(saveButton).toBeEnabled();
+
+  fireEvent.click(saveButton);
   expect(saveHandler).toHaveBeenCalledTimes(1);
 
   fireEvent.click(screen.getByText(/Peruuta/i));
