@@ -6,15 +6,28 @@ import fiStates from './locales/fi_states.json';
 import en from './locales/en.json';
 import enStates from './locales/en_states.json';
 import { fiFI, enUS, Localization } from '@mui/material/locale';
+import { fiFI as gfiFI, enUS as genUS, GridLocaleText } from "@mui/x-data-grid";
 import { locales, LocaleKey, formatDate, formatDateSpan, formatDistance } from "./dates";
+
+type MuiLocalization = Localization & {
+  components: {
+    MuiDataGrid: {
+      defaultProps: {
+        localeText: Partial<GridLocaleText>;
+      };
+    };
+  };
+};
+
 
 export { locales };
 export type { LocaleKey };
 
-export const muiLocales: Record<LocaleKey, Localization> = {
-  fi: fiFI,
-  en: enUS
+export const muiLocales: Record<LocaleKey, MuiLocalization> = {
+  fi: { ...fiFI, ...gfiFI },
+  en: { ...enUS, ...genUS }
 };
+
 
 i18n
   .use(LanguageDetector)
