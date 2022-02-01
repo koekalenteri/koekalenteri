@@ -23,6 +23,14 @@ test('should render labels', () => {
   expect(screen.getAllByText('End Label').length).toEqual(2);
 });
 
+test('should render labels when required', () => {
+  renderComponent({ startLabel: 'Start Label', start: parseISO('2021-01-01'), endLabel: 'End Label', end: parseISO('2021-02-01'), required: true });
+
+  expect(screen.getAllByText('Start Label').length).toEqual(1);
+  expect(screen.getAllByText('End Label').length).toEqual(1);
+  expect(screen.getAllByText('*').length).toEqual(2);
+});
+
 test('It should fire onChange', async () => {
   const changeHandler = jest.fn();
   const { startInput, endInput } = renderComponent({ startLabel: 'start', start: startOfMonth(new Date()), endLabel: 'end', end: null, onChange: changeHandler });

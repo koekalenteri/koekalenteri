@@ -38,7 +38,7 @@ export function DateRange({ start, end, startLabel, endLabel, required, onChange
           clearable={true}
           showToolbar={false}
           onChange={startChanged}
-          renderInput={(params) => <TextField {...params} required />}
+          renderInput={(params) => <TextField {...params} required={required} />}
         />
       </FormControl>
 
@@ -52,7 +52,7 @@ export function DateRange({ start, end, startLabel, endLabel, required, onChange
           clearable={true}
           showToolbar={false}
           onChange={endChanged}
-          renderInput={(params) => <TextField {...params} required />}
+          renderInput={(params) => <TextField {...params} required={required} />}
         />
       </FormControl>
     </Box>
