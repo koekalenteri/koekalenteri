@@ -42,10 +42,7 @@ export function EventFormJudges({ event, judges, onChange }: { event: PartialEve
                 <FormControl component="fieldset">
                   <FormLabel component="legend">Arvostelee koeluokat</FormLabel>
                   <FormGroup row>
-                    {event.classes?.map((c, i) => {
-                      if (typeof c === 'string') {
-                        return '';
-                      }
+                    {event.classes.map((c, i) => {
                       return (
                         <FormControlLabel
                           key={c.class}
