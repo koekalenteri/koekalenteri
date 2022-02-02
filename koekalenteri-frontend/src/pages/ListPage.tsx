@@ -11,7 +11,7 @@ import { observer } from 'mobx-react-lite';
 
 export const ListPage = observer(() => {
   const { t } = useTranslation();
-  const { eventStore } = useStores();
+  const { privateStore } = useStores();
   const { enqueueSnackbar } = useSnackbar();
 
   return (
@@ -38,11 +38,11 @@ export const ListPage = observer(() => {
         </div>
         <Stack direction="row" spacing={2}>
           <Link to={ADMIN_NEW_EVENT}><Button startIcon={<AddCircleOutline />}>{t('createEvent')}</Button></Link>
-          <Link to={ADMIN_EDIT_EVENT}><Button startIcon={<EditOutlined />} disabled={!eventStore.selectedEvent}>Muokkaa</Button></Link>
-          <Button startIcon={<DeleteOutline />} disabled={!eventStore.selectedEvent} onClick={async () => {
-            if (eventStore.selectedEvent) {
+          <Link to={ADMIN_EDIT_EVENT}><Button startIcon={<EditOutlined />} disabled={!privateStore.selectedEvent}>Muokkaa</Button></Link>
+          <Button startIcon={<DeleteOutline />} disabled={!privateStore.selectedEvent} onClick={async () => {
+            if (privateStore.selectedEvent) {
               try {
-                await eventStore.delete(eventStore.selectedEvent);
+                await privateStore.deleteEvent(privateStore.selectedEvent);
               } catch (e: any) {
                 enqueueSnackbar(e.message, { variant: 'error' });
               }

@@ -89,7 +89,6 @@ Resources:
       Domain: !Join ['-', [!Ref CognitoDomainName, !Ref AWS::StackName]]
       UserPoolId: !Ref KoekalenteriUserPool
 
-  # TODO Define DynamoDB BillingMode KOE-7
   EventTable:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -140,6 +139,25 @@ Resources:
     Type: AWS::DynamoDB::Table
     Properties:
       TableName: !Join ['-', [judge-table, 'v2', !Ref AWS::StackName]]
+      KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+      AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: N
+      Tags:
+        - Key: "env"
+          Value: !Ref AWS::StackName
+        - Key: "label"
+          Value: "koekalenteri"
+      BillingMode: PAY_PER_REQUEST
+      SSESpecification:
+        SSEEnabled: false
+
+  OfficialTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Join ['-', [official-table, !Ref AWS::StackName]]
       KeySchema:
           - AttributeName: id
             KeyType: HASH
@@ -306,6 +324,31 @@ Resources:
             Method: get
             RestApiId: !Ref KoekalenteriApi
 
+  GetOfficialsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: koekalenteri-backend
+      Handler: dist/handlers/official.getOfficialsHandler
+      Layers:
+        - !Ref CommonLayer
+      Tracing: Active
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref OfficialTable
+        - CloudWatchPutMetricPolicy: {}
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref OfficialTable
+          AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
+
+      Events:
+        GetOfficials:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /official
+            Method: get
+            RestApiId: !Ref KoekalenteriApi
+
   GetOrganizersFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
@@ -324,7 +367,7 @@ Resources:
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
 
       Events:
-        GetJudges:
+        GetOrganizers:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
             Path: /organizer

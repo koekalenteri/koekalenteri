@@ -5,17 +5,18 @@ import { useStores, useSessionStarted } from '../stores';
 import { SideMenu } from '../layout/SideMenu';
 
 export function AuthPage({children}: {children: ReactNode}) {
-  const { eventStore, judgeStore, organizerStore } = useStores();
+  const { publicStore, privateStore } = useStores();
   const [sessionStarted, setSessionStarted] = useSessionStarted();
 
   useEffect(() => {
     if (!sessionStarted) {
       setSessionStarted(new Date().toISOString());
     }
-    if (!eventStore.loaded) {
-      eventStore.load();
-      judgeStore.load();
-      organizerStore.load()
+    if (!publicStore.loaded) {
+      publicStore.load();
+    }
+    if (!privateStore.loaded) {
+      privateStore.load();
     }
   });
 

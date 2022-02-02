@@ -1,0 +1,17 @@
+{
+  "name": {
+    "S": "Toimari 3"
+  },
+  "id": {
+    "N": "333"
+  },
+  "location": {
+    "S": "Turku"
+  },
+  "phone": {
+    "S": "123456783"
+  },
+  "email": {
+    "S": "toimari3@sposti.not"
+  }
+}

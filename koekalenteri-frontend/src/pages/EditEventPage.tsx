@@ -9,7 +9,7 @@ import { ADMIN_EVENTS } from '../config';
 
 export function EditEventPage({create}: {create?: boolean}) {
   const { t } = useTranslation();
-  const { eventStore, judgeStore } = useStores();
+  const { publicStore, privateStore } = useStores();
   const { enqueueSnackbar } = useSnackbar();
   const naviage = useNavigate();
 
@@ -17,11 +17,11 @@ export function EditEventPage({create}: {create?: boolean}) {
     <AuthPage>
       <Typography variant="h5" sx={{pb: 1}}>{create ? t('createEvent') : 'Muokkaa tapahtumaa'}</Typography>
       <EventForm
-        event={!create && eventStore.selectedEvent ? eventStore.selectedEvent : eventStore.newEvent}
-        judges={judgeStore.judges}
+        event={!create && privateStore.selectedEvent ? privateStore.selectedEvent : privateStore.newEvent}
+        judges={publicStore.judges}
         onSave={async (event) => {
           try {
-            await eventStore.save(event)
+            await privateStore.saveEvent(event)
             naviage(ADMIN_EVENTS);
             return Promise.resolve(true);
           } catch (e: any) {
@@ -31,7 +31,7 @@ export function EditEventPage({create}: {create?: boolean}) {
         }}
         onCancel={(event) => {
           if (create) {
-            eventStore.newEvent = { ...event }
+            privateStore.newEvent = { ...event }
           }
           naviage(ADMIN_EVENTS);
           return Promise.resolve(true);

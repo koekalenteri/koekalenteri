@@ -1,11 +1,11 @@
 const mockOrganizers = [
   {
-    name: "Järjestäjä 1",
     id: 1,
+    name: "Järjestäjä 1",
   },
   {
-    name: "Järjestäjä 1",
-    id: 1,
+    id: 2,
+    name: "Järjestäjä 2",
   },
 ];
 

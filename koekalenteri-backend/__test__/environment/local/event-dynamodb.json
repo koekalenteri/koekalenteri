@@ -8,13 +8,17 @@
   "classes": {
     "L": [
       {
-        "class": {
-          "S": "ALO"
+        "M": {
+          "class": {
+            "S": "ALO"
+          }
         }
       },
       {
-        "class": {
-          "S": "AVO"
+        "M": {
+          "class": {
+            "S": "AVO"
+          }
         }
       }
     ]

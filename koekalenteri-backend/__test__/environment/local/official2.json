@@ -1,0 +1,17 @@
+{
+  "name": {
+    "S": "Toimari2 2"
+  },
+  "id": {
+    "N": "222"
+  },
+  "location": {
+    "S": "Tampere"
+  },
+  "phone": {
+    "S": "123456782"
+  },
+  "email": {
+    "S": "toimari2@sposti.not"
+  }
+}

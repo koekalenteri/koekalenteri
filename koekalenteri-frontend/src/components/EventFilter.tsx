@@ -2,7 +2,7 @@ import { FormControl, FormControlLabel, Grid, InputLabel, Stack, Switch } from '
 import { Box } from '@mui/system';
 import { Judge, Organizer } from 'koekalenteri-shared/model';
 import { useTranslation } from 'react-i18next';
-import { FilterProps } from '../stores/EventStore';
+import { FilterProps } from '../stores/PublicStore';
 import { DateRange } from './DateRange';
 import { MultiSelect, stringsToMultiSelectOptions } from './MultiSelect';
 

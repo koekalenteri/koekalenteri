@@ -11,7 +11,7 @@ interface EventGridColDef extends GridColDef {
 
 export const EventGrid = observer(({ events }: { events: EventEx[] }) => {
   const { t } = useTranslation();
-  const { eventStore } = useStores();
+  const { privateStore } = useStores();
 
   const columns: EventGridColDef[] = [
     {
@@ -73,9 +73,9 @@ export const EventGrid = observer(({ events }: { events: EventEx[] }) => {
         rows={events}
         onSelectionModelChange={(newSelectionModel) => {
           const id = newSelectionModel.length === 1 ? newSelectionModel[0] : '';
-          eventStore.setSelectedEvent(events.find(e => e.id === id));
+          privateStore.setSelectedEvent(events.find(e => e.id === id));
         }}
-        selectionModel={eventStore.selectedEvent ? [eventStore.selectedEvent.id] : []}
+        selectionModel={privateStore.selectedEvent ? [privateStore.selectedEvent.id] : []}
       />
     </Box>
   );

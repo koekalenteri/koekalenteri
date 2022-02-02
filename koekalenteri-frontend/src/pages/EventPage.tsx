@@ -12,7 +12,7 @@ import { entryDateColor } from '../utils';
 
 export const EventPage = () => {
   const params = useParams();
-  const { eventStore } = useStores();
+  const { publicStore } = useStores();
   const [event, setEvent] = useState<EventEx>();
   const [sessionStarted] = useSessionStarted();
   const { t } = useTranslation();
@@ -20,14 +20,14 @@ export const EventPage = () => {
   useEffect(() => {
     const abort = new AbortController();
     async function get(eventType: string, id: string) {
-      const result = await eventStore.get(eventType, id, abort.signal);
+      const result = await publicStore.get(eventType, id, abort.signal);
       setEvent(result);
     }
     if (params.eventType && params.id) {
       get(params.eventType, params.id);
     }
     return () => abort.abort();
-  }, [params, eventStore]);
+  }, [params, publicStore]);
 
   return (
     <>

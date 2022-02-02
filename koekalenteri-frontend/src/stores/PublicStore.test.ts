@@ -1,11 +1,13 @@
 import { parseISO } from "date-fns";
-import { EventStore } from "./EventStore";
+import { PublicStore } from "./PublicStore";
 
 jest.mock('../api/event');
+jest.mock('../api/judge');
+jest.mock('../api/organizer');
 
-test('EventStore', async () => {
+test('PublicStore', async () => {
 
-  const store = new EventStore();
+  const store = new PublicStore();
 
   const emptyFilter = {
     start: null,
@@ -21,6 +23,8 @@ test('EventStore', async () => {
   };
 
   expect(store.filteredEvents).toEqual([])
+  expect(store.judges).toEqual([])
+  expect(store.organizers).toEqual([])
   expect(store.loading).toEqual(false);
   expect(store.loaded).toEqual(false);
 
@@ -33,17 +37,9 @@ test('EventStore', async () => {
 
   await store.load();
   expect(store.loaded).toEqual(true);
+  expect(store.judges.length).toEqual(3);
+  expect(store.organizers.length).toEqual(2);
   expect(store.filteredEvents.length).toEqual(3);
-
-  const origLength = store.userEvents.length;
-  const newEvent = await store.save({ eventType: 'saveTest' });
-  expect(newEvent.id).toBeDefined();
-  expect(store.userEvents.length).toBe(origLength + 1);
-
-  const deletedEvent = await store.delete(newEvent);
-  expect(deletedEvent).toBeDefined();
-  expect(deletedEvent?.deletedAt).toBeDefined();
-  expect(store.userEvents.length).toBe(origLength);
 
   const first = store.filteredEvents[0];
   evt = await store.get(first.eventType, first.id);

@@ -1,13 +1,11 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { Setter, useLocalStorage, useSessionStorage } from './browser';
-import { EventStore } from "./EventStore";
-import { JudgeStore } from "./JudgeStore";
-import { OrganizerStore } from "./OrganizerStore";
+import { PublicStore } from "./PublicStore";
+import { PrivateStore } from "./PrivateStore";
 
 const rootStoreContext = createContext({
-  eventStore: new EventStore(),
-  judgeStore: new JudgeStore(),
-  organizerStore: new OrganizerStore(),
+  publicStore: new PublicStore(),
+  privateStore: new PrivateStore(),
 });
 
 export const useStores = () => useContext(rootStoreContext);

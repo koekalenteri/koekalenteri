@@ -3,7 +3,7 @@ import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import { fireEvent, render, within, screen } from '@testing-library/react';
 import { EventFilter } from './';
-import { FilterProps } from '../stores/EventStore';
+import { FilterProps } from '../stores/PublicStore';
 import { Judge, Organizer } from 'koekalenteri-shared/model';
 
 const judges: Judge[] = [

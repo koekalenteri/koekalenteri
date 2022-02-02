@@ -4,13 +4,13 @@ import { useStores } from '../stores';
 import { CircularProgress, Grid } from '@mui/material';
 
 export const EventContainer = observer(() => {
-  const { eventStore } = useStores();
-  if (eventStore.loading) {
+  const { publicStore } = useStores();
+  if (publicStore.loading) {
     return (
       <Grid container justifyContent="center"><CircularProgress /></Grid>
     )
   }
   return (
-    <EventTable events={eventStore.filteredEvents}></EventTable>
+    <EventTable events={publicStore.filteredEvents}></EventTable>
   )
 });

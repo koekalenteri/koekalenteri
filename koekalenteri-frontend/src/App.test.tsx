@@ -8,6 +8,7 @@ import { DataGridProps } from '@mui/x-data-grid';
 
 jest.mock('./api/event');
 jest.mock('./api/judge');
+jest.mock('./api/official');
 jest.mock('./api/organizer');
 
 // DataGrid needs disableVirtualizaton to render properly in tests
