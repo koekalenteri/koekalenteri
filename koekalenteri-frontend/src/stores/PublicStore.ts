@@ -21,6 +21,13 @@ export type FilterProps = {
 export class PublicStore {
   private _events: EventEx[] = [];
 
+  public eventTypes = ['NOU', 'NOME-B', 'NOME-A', 'NOWT'];
+  public eventTypeClasses = {
+    NOU: [],
+    'NOME-B': ['ALO', 'AVO', 'VOI'],
+    'NOME-A': [],
+    'NOWT': ['ALO', 'AVO', 'VOI']
+  };
   public judges: Judge[] = [];
   public organizers: Organizer[] = [];
 

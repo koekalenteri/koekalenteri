@@ -23,7 +23,21 @@ export const emptyEvent: Event = {
   modifiedAt: new Date('1989-01-02'),
   modifiedBy: 'test',
   name: 'test',
-  official: 123,
+  official: {
+    id: 1,
+    name: 'Teemu Toimitsija',
+    email: 'joo@ei.com',
+    phone: '040-official',
+    location: 'Suomi',
+    eventTypes: ['test']
+  },
+  secretary: {
+    id: 2,
+    name: 'Siiri Sihteeri',
+    email: 'ei@joo.com',
+    phone: '040-secretary',
+    location: 'Ruotsi'
+  },
   organizer: {
     id: 1,
     name: 'Suomen Noutajakoirajärjestö ry'

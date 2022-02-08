@@ -34,9 +34,12 @@ test('It should fire onChange', async () => {
     startDate: new Date('2022-06-01'),
     endDate: new Date('2022-06-02'),
     classes: [
-      { class: 'c1' },
-      { class: 'c2' },
-      { class: 'c3' }
+      { class: 'c1', date: new Date('2022-06-01') },
+      { class: 'c2', date: new Date('2022-06-01') },
+      { class: 'c3', date: new Date('2022-06-01') },
+      { class: 'c1', date: new Date('2022-06-02') },
+      { class: 'c2', date: new Date('2022-06-02') },
+      { class: 'c3', date: new Date('2022-06-02') },
     ]
   };
 
@@ -76,10 +79,4 @@ test('It should fire onChange', async () => {
   expect(changeHandler).toHaveBeenCalledTimes(4);
   expect(testEvent.judges.length).toBe(1);
   expect(testEvent.judges[0]).toBe(3);
-
-  rerender(<EventFormJudges event={testEvent} judges={JUDGES} onChange={changeHandler} />);
-
-  fireEvent.click(screen.getByText('c2 01.06'));
-  expect(changeHandler).toHaveBeenCalledTimes(5);
-  expect(testEvent.classes[1]).toEqual({ class: 'c2', judge: { id: 3, name: 'Test Judge 3' } });
 });

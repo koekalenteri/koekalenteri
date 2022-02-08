@@ -18,7 +18,11 @@ export function EditEventPage({create}: {create?: boolean}) {
       <Typography variant="h5" sx={{pb: 1}}>{create ? t('createEvent') : 'Muokkaa tapahtumaa'}</Typography>
       <EventForm
         event={!create && privateStore.selectedEvent ? privateStore.selectedEvent : privateStore.newEvent}
+        eventTypes={publicStore.eventTypes}
+        eventTypeClasses={publicStore.eventTypeClasses}
         judges={publicStore.judges}
+        officials={privateStore.officials}
+        organizers={publicStore.organizers}
         onSave={async (event) => {
           try {
             await privateStore.saveEvent(event)

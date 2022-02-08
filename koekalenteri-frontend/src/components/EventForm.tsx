@@ -3,11 +3,12 @@ import { LoadingButton } from '@mui/lab';
 import { Box, Button, FormControl, InputLabel, MenuItem, Select, Stack } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import { addDays, nextSaturday } from 'date-fns';
-import type { Event, EventState, Judge } from 'koekalenteri-shared/model';
+import type { Event, EventState, Judge, Official, Organizer } from 'koekalenteri-shared/model';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { EventFormAdditionalInfo } from './EventFormAdditionalInfo';
 import { EventFormBasicInfo } from './EventFormBasicInfo';
+import { EventFormEntry } from './EventFormEntry';
 import { EventFormJudges } from './EventFormJudges';
 
 const useStyles = makeStyles(theme => ({
@@ -21,7 +22,18 @@ const useStyles = makeStyles(theme => ({
 
 export type EventHandler = (event: Partial<Event>) => Promise<boolean>;
 
-export function EventForm({ event, judges, onSave, onCancel }: { event: Partial<Event>, judges: Judge[], onSave: EventHandler, onCancel: EventHandler }) {
+type EventFormParams = {
+  event: Partial<Event>
+  eventTypes: string[]
+  eventTypeClasses: Record<string, string[]>
+  judges: Judge[]
+  officials: Official[]
+  organizers: Organizer[]
+  onSave: EventHandler
+  onCancel: EventHandler
+};
+
+export function EventForm({ event, judges, eventTypes, eventTypeClasses, officials, organizers, onSave, onCancel }: EventFormParams) {
   const classes = useStyles();
   const baseDate = addDays(Date.now(), 90);
   const { t } = useTranslation();
@@ -36,13 +48,17 @@ export function EventForm({ event, judges, onSave, onCancel }: { event: Partial<
   const [saving, setSaving] = useState(false);
   const [changes, setChanges] = useState(!('id' in event) || !('state' in event));
   const onChange = (props: Partial<Event>) => {
+    if (props.eventType && eventTypeClasses[props.eventType].length === 0) {
+      props.classes = [];
+    }
     setLocal({ ...local, ...props });
     setChanges(true);
   }
   const saveHandler = async () => {
     setSaving(true);
-    await onSave(local);
-    setSaving(false);
+    if (await onSave(local) === false) {
+      setSaving(false);
+    }
   }
   const cancelHandler = () => onCancel(local);
 
@@ -65,8 +81,9 @@ export function EventForm({ event, judges, onSave, onCancel }: { event: Partial<
       </FormControl>
 
       <Box className={classes.root} sx={{ pb: 0.5 }}>
-        <EventFormBasicInfo event={local} onChange={onChange} />
+        <EventFormBasicInfo event={local} eventTypes={eventTypes} eventTypeClasses={eventTypeClasses} officials={officials} organizers={organizers} onChange={onChange} />
         <EventFormJudges event={local} judges={judges} onChange={onChange} />
+        <EventFormEntry event={local} onChange={onChange} />
         <EventFormAdditionalInfo event={local} onChange={onChange} />
       </Box>
 

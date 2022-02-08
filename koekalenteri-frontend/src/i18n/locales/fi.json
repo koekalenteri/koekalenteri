@@ -47,7 +47,9 @@
   "qualifyingResults": "Koeluokkaan oikeuttavat tulokset",
   "register": "Ilmoittaudu",
   "result": "Tulos",
+  "secretary": "Koesihteeri",
   "state": "Tila",
   "toltaPlaces": "paikkaa",
-  "users": "Käyttäjät"
+  "users": "Käyttäjät",
+  "weekday": "{{ date, weekday }}"
 }

@@ -5,15 +5,16 @@ import { useTranslation } from 'react-i18next';
 type DateValue = Date | null;
 
 export type DateRangeProps = {
-  start: DateValue,
-  startLabel: string,
+  start: DateValue
+  startLabel: string
   end: DateValue
-  endLabel: string,
-  required?: boolean,
+  endLabel: string
+  range?: {start?: Date, end?: Date}
+  required?: boolean
   onChange?: (start: DateValue, end: DateValue) => void
 };
 
-export function DateRange({ start, end, startLabel, endLabel, required, onChange }: DateRangeProps) {
+export function DateRange({ start, end, startLabel, endLabel, range, required, onChange }: DateRangeProps) {
   const { t } = useTranslation();
   let _start = start;
   let _end = end;
@@ -34,7 +35,8 @@ export function DateRange({ start, end, startLabel, endLabel, required, onChange
           value={start}
           mask={t('datemask')}
           inputFormat={t('dateformat')}
-          maxDate={end ? end : undefined}
+          minDate={range?.start}
+          maxDate={range?.end}
           clearable={true}
           showToolbar={false}
           onChange={startChanged}
@@ -48,7 +50,8 @@ export function DateRange({ start, end, startLabel, endLabel, required, onChange
           value={end}
           mask={t('datemask')}
           inputFormat={t('dateformat')}
-          minDate={start ? start : undefined}
+          minDate={start ? start : range?.start}
+          maxDate={range?.end}
           clearable={true}
           showToolbar={false}
           onChange={endChanged}

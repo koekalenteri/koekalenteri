@@ -40,7 +40,7 @@ i18n
     },
     ns: ['common', 'states'],
     defaultNS: 'common',
-    fallbackLng: "fi",
+    fallbackLng: 'fi',
     supportedLngs: ['fi', 'en'],
     debug: process.env.NODE_ENV === 'development',
     keySeparator: false, // flat json
@@ -51,5 +51,6 @@ i18n
 
 //  additional formats
 i18n.services.formatter?.add('short', formatDate('eeeeee d.M.'));
+i18n.services.formatter?.add('weekday', formatDate('eeeeee'));
 i18n.services.formatter?.add('datespan', formatDateSpan);
 i18n.services.formatter?.add('distance', formatDistance);

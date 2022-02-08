@@ -12,7 +12,7 @@
     "start-backend": "cd koekalenteri-backend && npm start",
     "start-frontend": "cd koekalenteri-frontend && npm start",
     "start-dynamodb": "docker start dynamodb && docker attach dynamodb",
-    "start-sam": "sam local start-api -p 8080 --docker-network lambda-local"
+    "start-sam": "sam local start-api -p 8080 --docker-network lambda-local --warm-containers=EAGER"
   },
   "author": "",
   "license": "MIT",

@@ -1,4 +1,4 @@
-import { Organizer } from './Organizer';
+import { Official, Organizer, Secretary } from '.';
 
 export type Event = {
   id: string
@@ -27,7 +27,8 @@ export type Event = {
   referenceNumber: string
   requirePaymentBeforeEntry: boolean
   judges: Array<number>
-  official: number
+  official: Official
+  secretary: Secretary
   createdAt: Date
   createdBy: string
   deletedAt?: Date

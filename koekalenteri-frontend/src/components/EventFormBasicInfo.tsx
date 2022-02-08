@@ -1,23 +1,33 @@
 import { HelpOutlined } from '@mui/icons-material';
-import { Fade, FormControl, Grid, IconButton, InputAdornment, InputLabel, MenuItem, Paper, Popover, Select, TextField } from '@mui/material';
-import { Event, EventClass } from 'koekalenteri-shared/model';
+import { Autocomplete, Avatar, Checkbox, Chip, Fade, FormControl, Grid, IconButton, InputAdornment, InputLabel, MenuItem, Paper, Popover, Select, TextField } from '@mui/material';
+import { eachDayOfInterval, isSameDay } from 'date-fns';
+import { Event, EventClass, Official, Organizer } from 'koekalenteri-shared/model';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DateRange } from '.';
 import { CollapsibleSection } from './CollapsibleSection';
-import { MultiSelect, stringsToMultiSelectOptions } from './MultiSelect';
+import { CheckBoxOutlineBlank, CheckBox } from '@mui/icons-material';
 
-export function EventFormBasicInfo({ event, onChange }: { event: Partial<Event>; onChange: (props: Partial<Event>) => void; }) {
+type EventFormBasicInfoParams = {
+  event: Partial<Event> & {startDate: Date}
+  eventTypes: string[]
+  eventTypeClasses: Record<string, string[]>
+  officials: Official[]
+  organizers: Organizer[]
+  onChange: (props: Partial<Event>) => void
+};
+
+export function EventFormBasicInfo({ event, eventTypes, eventTypeClasses, officials, organizers, onChange }: EventFormBasicInfoParams) {
   const { t } = useTranslation();
   const [helpAnchorEl, setHelpAnchorEl] = useState<HTMLButtonElement | null>(null);
   const helpOpen = Boolean(helpAnchorEl);
-  const eventClasses = (existing: EventClass[], value: string[]) => value.map(c => (existing.find(ec => ec.class === c) || { class: c }));
+  const typeOptions = eventClassOptions(event, eventTypeClasses[event.eventType || ''] || []);
 
   return (
     <CollapsibleSection title="Kokeen perustiedot">
       <Grid item container spacing={1}>
         <Grid item container spacing={1}>
-          <Grid item>
+          <Grid item sx={{ width: 600 }}>
             <DateRange
               startLabel="Alkupäivä"
               endLabel="Loppupäivä"
@@ -27,8 +37,8 @@ export function EventFormBasicInfo({ event, onChange }: { event: Partial<Event>;
               onChange={(start, end) => onChange({startDate: start || undefined, endDate: end || undefined})}
             />
           </Grid>
-          <Grid item>
-            <TextField sx={{ width: 300 }} label="Kennelliiton kokeen tunnus" InputProps={{
+          <Grid item sx={{ width: 300 }}>
+            <TextField fullWidth label="Kennelliiton kokeen tunnus" InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
                   <IconButton onClick={(e) => setHelpAnchorEl(e.currentTarget)}>
@@ -58,8 +68,8 @@ export function EventFormBasicInfo({ event, onChange }: { event: Partial<Event>;
           </Grid>
         </Grid>
         <Grid item container spacing={1}>
-          <Grid item>
-            <FormControl sx={{ width: 300 }}>
+          <Grid item sx={{ width: 300 }}>
+            <FormControl fullWidth>
               <InputLabel id="eventType-label">{t('eventType')}</InputLabel>
               <Select
                 labelId="eventType-label"
@@ -68,27 +78,118 @@ export function EventFormBasicInfo({ event, onChange }: { event: Partial<Event>;
                 label={t('eventType')}
                 onChange={(e) => onChange({ eventType: e.target.value })}
               >
-                {['NOU', 'NOME-B', 'NOME-A', 'NOWT'].map((type) => <MenuItem key={type} value={type}>{type}</MenuItem>)}
+                {eventTypes.map((type) => <MenuItem key={type} value={type}>{type}</MenuItem>)}
               </Select>
             </FormControl>
           </Grid>
-          <Grid item>
-            <FormControl sx={{ width: 300 }}>
-              <InputLabel id="class-label">{t("eventClass")}</InputLabel>
-              <MultiSelect
-                id="class"
-                labelId="class-label"
-                label="Koeluokat"
-                value={(event.classes || []).map(c => typeof c === 'string' ? c : c.class)}
-                options={stringsToMultiSelectOptions(['ALO', 'AVO', 'VOI'])}
-                onChange={(value) => onChange({ classes: eventClasses(event.classes || [], value) })} />
-            </FormControl>
+          <Grid item sx={{ width: 600 }}>
+            <Autocomplete
+              id="class"
+              fullWidth
+              disableClearable
+              disableCloseOnSelect
+              disabled={typeOptions.length === 0}
+              multiple
+              value={event.classes}
+              groupBy={c => t('weekday', { date: c.date })}
+              options={typeOptions}
+              onChange={(e, values) => onChange({ classes: values.sort((a, b) => isSameDay(a.date|| event.startDate, b.date || event.startDate) ? a.class.localeCompare(b.class) : (a.date?.valueOf() || 0) - (b.date?.valueOf() || 0)) })}
+              getOptionLabel={c => c.class}
+              isOptionEqualToValue={(o, v) => isSameDay(o.date|| event.startDate, v.date || event.startDate) && o.class === v.class}
+              renderOption={(props, option, { selected }) => (
+                <li {...props}>
+                  <Checkbox
+                    icon={<CheckBoxOutlineBlank fontSize="small" />}
+                    checkedIcon={<CheckBox fontSize="small" />}
+                    style={{ marginRight: 8 }}
+                    checked={selected}
+                  />
+                  {option.class}
+                </li>
+              )}
+              renderInput={(params) => <TextField {...params} label={t("eventClasses")} />}
+              renderTags={(tagValue, getTagProps) => tagValue.map((option, index) => (
+                <Chip
+                  avatar={<Avatar sx={{ fontWeight: 'bold', bgcolor: isSameDay(option.date || event.startDate, event.startDate) ? 'secondary.light' : 'secondary.dark' }}>{t('weekday', { date: option.date })}</Avatar>}
+                  size="small"
+                  label={option.class}
+                  variant="outlined"
+                  {...getTagProps({ index })}
+                  onDelete={undefined}
+                />
+              ))}
+            />
           </Grid>
         </Grid>
-        <Grid item sx={{ width: 616 }}>
-          <TextField label="Tapahtuman nimi" fullWidth value={event.name || ''} onChange={(e) => onChange({ name: e.target.value })} />
+        <Grid item container spacing={1}>
+          <Grid item sx={{ width: 600 }}>
+            <TextField label="Tapahtuman nimi" fullWidth value={event.name || ''} onChange={(e) => onChange({ name: e.target.value })} />
+          </Grid>
+        </Grid>
+        <Grid item container spacing={1}>
+          <Grid item sx={{ width: 600 }}>
+            <Autocomplete
+              id="organizer"
+              disableClearable
+              getOptionLabel={o => o.name}
+              value={event.organizer || {id: 0, name: ''}}
+              options={organizers}
+              renderInput={(params) => <TextField {...params} label={t("organizer")} />}
+              onChange={(e, value) => onChange({ organizer: value })}
+            />
+          </Grid>
+          <Grid item sx={{ width: 300 }}>
+            <Autocomplete
+              id="location"
+              disableClearable
+              freeSolo
+              value={event.location}
+              options={[]}
+              renderInput={(params) => <TextField {...params} label={t("location")} />}
+              onChange={(e, value) => onChange({ location: value })}
+            />
+          </Grid>
+        </Grid>
+        <Grid item container spacing={1}>
+          <Grid item sx={{ width: 450 }}>
+            <Autocomplete
+              id="official"
+              disableClearable
+              getOptionLabel={o => o.name}
+              value={event.official || {id: 0, name: '', email: '', phone: '', location: '', eventTypes: []}}
+              options={officials}
+              renderInput={(params) => <TextField {...params} label={t("official")} />}
+              onChange={(e, value) => onChange({ official: value })}
+            />
+          </Grid>
+          <Grid item sx={{ width: 450 }}>
+            <Autocomplete
+              id="secretary"
+              disableClearable
+              getOptionLabel={o => o.name}
+              value={event.secretary || {id: 0, name: '', email: '', phone: '', location: ''}}
+              options={officials}
+              renderInput={(params) => <TextField {...params} label={t("secretary")} />}
+              onChange={(e, value) => onChange({ secretary: value })}
+            />
+          </Grid>
         </Grid>
       </Grid>
     </CollapsibleSection>
   );
+}
+
+function eventClassOptions(event: Partial<Event>, typeClasses: string[]) {
+  const days = eachDayOfInterval({
+    start: event.startDate || new Date(),
+    end: event.endDate || new Date()
+  });
+  const result: EventClass[] = [];
+  for (const day of days) {
+    result.push(...typeClasses.map(c => ({
+      class: c,
+      date: day,
+    })));
+  }
+  return result;
 }
