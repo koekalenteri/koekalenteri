@@ -42,12 +42,12 @@ export function EventFormJudges({ event, judges, onChange }: { event: PartialEve
                     value={id}
                     label={title}
                     onChange={(e) => {
-                      const id = e.target.value as number;
+                      const newId = e.target.value as number;
                       const newJudges = [...event.judges];
-                      const oldId = newJudges.splice(index, 1, id)[0];
+                      const oldId = newJudges.splice(index, 1, newId)[0];
                       onChange({
                         judges: newJudges,
-                        classes: updateJudge(id, event.classes.filter(c => c.judge && c.judge.id === oldId))
+                        classes: updateJudge(newId, event.classes.filter(c => c.judge && c.judge.id === oldId))
                       })
                     }}
                   >

@@ -2,7 +2,7 @@ import { Checkbox, FormControlLabel, Grid, Table, TableBody, TableCell, TableHea
 import { eachDayOfInterval, isSameDay, sub } from 'date-fns';
 import { Event, EventClass } from 'koekalenteri-shared/model';
 import { useTranslation } from 'react-i18next';
-import { CollapsibleSection, DateRange, PartialEvent } from '.';
+import { CollapsibleSection, compareEventClass, DateRange, PartialEvent } from '.';
 import { unique } from '../utils';
 
 export function EventFormEntry({ event, onChange }: { event: PartialEvent; onChange: (props: Partial<Event>) => void; }) {
@@ -55,6 +55,17 @@ export function EventFormEntry({ event, onChange }: { event: PartialEvent; onCha
   );
 }
 
+const validValue = (s: string) => {
+  let value = +s;
+  if (value < 0) {
+    value = 0;
+  }
+  if (value > 200) {
+    value = 200;
+  }
+  return value;
+};
+
 function EventFormPlaces({ event, onChange } : { event: PartialEvent, onChange: (props: Partial<Event>) => void; }) {
   const { t } = useTranslation();
   const days = eachDayOfInterval({
@@ -65,16 +76,9 @@ function EventFormPlaces({ event, onChange } : { event: PartialEvent, onChange: 
   const classesByDays = days.map(day => ({ day, classes: event.classes.filter(c => isSameDay(c.date || event.startDate, day)) }));
   const handleChange = (c: EventClass) => (e: { target: { value: any; }; }) => {
     const newClasses = [...event.classes];
-    const cls = newClasses.find(ec => ec.class === c.class && isSameDay(ec.date || event.startDate, c.date || event.startDate));
+    const cls = newClasses.find(ec => compareEventClass(ec, c) === 0);
     if (cls) {
-      let value = +e.target.value;
-      if (value < 0) {
-        value = 0;
-      }
-      if (value > 200) {
-        value = 200;
-      }
-      cls.places = value > 0 ? value : undefined;
+      cls.places = validValue(e.target.value);
     }
     const total = newClasses.reduce((prev, cur) => prev + (cur?.places || 0), 0);
     onChange({ classes: newClasses, places: total ? total : event.places });

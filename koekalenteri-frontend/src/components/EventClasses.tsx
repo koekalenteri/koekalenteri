@@ -28,12 +28,14 @@ type EventClassesProps = {
   onChange: EventClassesOnChange
 }
 
+export const compareEventClass = (a: EventClass, b: EventClass) =>
+  isSameDay(a.date || new Date(), b.date || new Date())
+    ? a.class.localeCompare(b.class)
+    : (a.date?.valueOf() || 0) - (b.date?.valueOf() || 0);
+
 export function EventClasses({ id, event, value, classes, label, onChange }: EventClassesProps) {
   if (value) {
-    value.sort((a: EventClass, b: EventClass) =>
-      isSameDay(a.date || event.startDate, b.date || event.startDate)
-        ? a.class.localeCompare(b.class)
-        : (a.date?.valueOf() || 0) - (b.date?.valueOf() || 0));
+    value.sort(compareEventClass);
   }
 
   return (
@@ -49,7 +51,7 @@ export function EventClasses({ id, event, value, classes, label, onChange }: Eve
       options={classes}
       onChange={onChange}
       getOptionLabel={c => c.class}
-      isOptionEqualToValue={(o, v) => isSameDay(o.date || event.startDate, v.date || event.startDate) && o.class === v.class}
+      isOptionEqualToValue={(o, v) => compareEventClass(o, v) === 0}
       renderOption={(props, option, { selected }) => (
         <li {...props}>
           <Checkbox
