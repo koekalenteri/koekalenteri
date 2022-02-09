@@ -14,6 +14,20 @@ export type PartialEventWithJudgesAndClasses = Partial<Event> & { startDate: Dat
 export function EventFormJudges({ event, judges, onChange }: { event: PartialEventWithJudgesAndClasses, judges: Judge[], onChange: (props: Partial<Event>) => void }) {
   const { t } = useTranslation();
   const list = event.judges.length ? event.judges : [0];
+  const updateJudge = (id: number, values: EventClass[]) => {
+    const judge = { id, name: judges.find(j => j.id === id)?.name || '' };
+    const isSelected = (c: EventClass) => values.find(v => isSameDay(v.date || event.startDate, c.date || event.startDate) && v.class === c.class);
+    const wasSelected = (c: EventClass) => c.judge?.id === id;
+    return event.classes.map(c => ({
+      ...c,
+      judge: isSelected(c)
+        ? judge
+        : wasSelected(c)
+          ? undefined
+          : c.judge
+    }));
+  }
+
   return (
     <CollapsibleSection title={t('judges')}>
       <Grid item container spacing={1}>
@@ -47,14 +61,7 @@ export function EventFormJudges({ event, judges, onChange }: { event: PartialEve
                   classes={[...event.classes]}
                   label="Arvostelee koeluokat"
                   onChange={(e, values) => onChange({
-                    classes: event.classes.map(c =>
-                      values.find(v =>
-                        isSameDay(v.date || event.startDate, c.date || event.startDate) && v.class === c.class)
-                        ? { ...c, judge: { id, name: judges.find(j => j.id === id)?.name || '' } }
-                        : c.judge?.id === id
-                          ? { ...c, judge: undefined }
-                          : { ...c }
-                    )
+                    classes: updateJudge(id, values)
                   })}
                 />
               </Grid>
