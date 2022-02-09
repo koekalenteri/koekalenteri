@@ -1,6 +1,6 @@
 import { TextField } from '@mui/material';
 import { Event } from 'koekalenteri-shared/model';
-import { CollapsibleSection } from './CollapsibleSection';
+import { CollapsibleSection } from '.';
 
 export function EventFormAdditionalInfo({ event, onChange }: { event: Partial<Event>; onChange: (props: Partial<Event>) => void; }) {
   return (

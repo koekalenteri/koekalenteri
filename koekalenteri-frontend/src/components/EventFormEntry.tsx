@@ -1,7 +1,6 @@
 import { Grid } from '@mui/material';
 import { Event } from 'koekalenteri-shared/model';
-import { DateRange } from '.';
-import { CollapsibleSection } from './CollapsibleSection';
+import { CollapsibleSection, DateRange } from '.';
 
 export function EventFormEntry({ event, onChange }: { event: Partial<Event>; onChange: (props: Partial<Event>) => void; }) {
   return (

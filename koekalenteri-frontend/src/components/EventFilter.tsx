@@ -3,8 +3,7 @@ import { Box } from '@mui/system';
 import { Judge, Organizer } from 'koekalenteri-shared/model';
 import { useTranslation } from 'react-i18next';
 import { FilterProps } from '../stores/PublicStore';
-import { DateRange } from './DateRange';
-import { MultiSelect, stringsToMultiSelectOptions } from './MultiSelect';
+import { DateRange, MultiSelect, stringsToMultiSelectOptions } from '.';
 
 type EventFilterProps = {
   judges: Judge[],

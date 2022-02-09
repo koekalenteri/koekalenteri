@@ -1,12 +1,10 @@
 import { HelpOutlined } from '@mui/icons-material';
-import { Autocomplete, Avatar, Checkbox, Chip, Fade, FormControl, Grid, IconButton, InputAdornment, InputLabel, MenuItem, Paper, Popover, Select, TextField } from '@mui/material';
-import { eachDayOfInterval, isSameDay } from 'date-fns';
+import { Autocomplete, Fade, FormControl, Grid, IconButton, InputAdornment, InputLabel, MenuItem, Paper, Popover, Select, TextField } from '@mui/material';
+import { eachDayOfInterval } from 'date-fns';
 import { Event, EventClass, Official, Organizer } from 'koekalenteri-shared/model';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DateRange } from '.';
-import { CollapsibleSection } from './CollapsibleSection';
-import { CheckBoxOutlineBlank, CheckBox } from '@mui/icons-material';
+import { CollapsibleSection, DateRange, EventClasses } from '.';
 
 type EventFormBasicInfoParams = {
   event: Partial<Event> & {startDate: Date}
@@ -83,41 +81,13 @@ export function EventFormBasicInfo({ event, eventTypes, eventTypeClasses, offici
             </FormControl>
           </Grid>
           <Grid item sx={{ width: 600 }}>
-            <Autocomplete
+            <EventClasses
               id="class"
-              fullWidth
-              disableClearable
-              disableCloseOnSelect
-              disabled={typeOptions.length === 0}
-              multiple
+              event={event}
               value={event.classes}
-              groupBy={c => t('weekday', { date: c.date })}
-              options={typeOptions}
-              onChange={(e, values) => onChange({ classes: values.sort((a, b) => isSameDay(a.date|| event.startDate, b.date || event.startDate) ? a.class.localeCompare(b.class) : (a.date?.valueOf() || 0) - (b.date?.valueOf() || 0)) })}
-              getOptionLabel={c => c.class}
-              isOptionEqualToValue={(o, v) => isSameDay(o.date|| event.startDate, v.date || event.startDate) && o.class === v.class}
-              renderOption={(props, option, { selected }) => (
-                <li {...props}>
-                  <Checkbox
-                    icon={<CheckBoxOutlineBlank fontSize="small" />}
-                    checkedIcon={<CheckBox fontSize="small" />}
-                    style={{ marginRight: 8 }}
-                    checked={selected}
-                  />
-                  {option.class}
-                </li>
-              )}
-              renderInput={(params) => <TextField {...params} label={t("eventClasses")} />}
-              renderTags={(tagValue, getTagProps) => tagValue.map((option, index) => (
-                <Chip
-                  avatar={<Avatar sx={{ fontWeight: 'bold', bgcolor: isSameDay(option.date || event.startDate, event.startDate) ? 'secondary.light' : 'secondary.dark' }}>{t('weekday', { date: option.date })}</Avatar>}
-                  size="small"
-                  label={option.class}
-                  variant="outlined"
-                  {...getTagProps({ index })}
-                  onDelete={undefined}
-                />
-              ))}
+              classes={typeOptions}
+              label={t("eventClasses")}
+              onChange={(e, values) => onChange({ classes: values })}
             />
           </Grid>
         </Grid>

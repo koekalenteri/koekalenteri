@@ -14,9 +14,8 @@ import {
 import makeStyles from '@mui/styles/makeStyles';
 import { KeyboardArrowDown, KeyboardArrowRight } from '@mui/icons-material';
 import type { EventEx } from 'koekalenteri-shared/model';
-import { EventInfo } from './EventInfo';
+import { EventInfo, LinkButton } from '.';
 import { useTranslation } from 'react-i18next';
-import { LinkButton } from './Buttons';
 import { useSessionBoolean } from '../stores';
 
 const useRowStyles = makeStyles(theme => ({

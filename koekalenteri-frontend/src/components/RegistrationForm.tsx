@@ -6,8 +6,7 @@ import { eachDayOfInterval, format, subMonths, subYears } from 'date-fns';
 import type { EventEx, EventClass } from 'koekalenteri-shared/model';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CollapsibleSection } from './CollapsibleSection';
-import { MultiSelect, stringsToMultiSelectOptions } from './MultiSelect';
+import { CollapsibleSection, MultiSelect, stringsToMultiSelectOptions } from '.';
 
 const useStyles = makeStyles(theme => ({
   root: {

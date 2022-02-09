@@ -2,7 +2,7 @@ import fi from 'date-fns/locale/fi';
 import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import { fireEvent, render, screen } from '@testing-library/react';
-import { DateRange, DateRangeProps } from './';
+import { DateRange, DateRangeProps } from '.';
 import { parseISO, startOfMonth } from 'date-fns';
 
 const renderComponent = (props: DateRangeProps) => {

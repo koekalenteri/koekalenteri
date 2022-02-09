@@ -6,10 +6,7 @@ import { addDays, nextSaturday } from 'date-fns';
 import type { Event, EventState, Judge, Official, Organizer } from 'koekalenteri-shared/model';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { EventFormAdditionalInfo } from './EventFormAdditionalInfo';
-import { EventFormBasicInfo } from './EventFormBasicInfo';
-import { EventFormEntry } from './EventFormEntry';
-import { EventFormJudges } from './EventFormJudges';
+import { EventFormAdditionalInfo, EventFormBasicInfo, EventFormEntry, EventFormJudges } from '.';
 
 const useStyles = makeStyles(theme => ({
   root: {

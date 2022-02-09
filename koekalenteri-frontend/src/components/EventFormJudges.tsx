@@ -1,9 +1,9 @@
-import { AddOutlined, CheckBox, CheckBoxOutlineBlank, Remove } from '@mui/icons-material';
-import { Autocomplete, Avatar, Button, Checkbox, Chip, FormControl, Grid, InputLabel, MenuItem, Select, TextField } from '@mui/material';
+import { AddOutlined, Remove } from '@mui/icons-material';
+import { Button, FormControl, Grid, InputLabel, MenuItem, Select } from '@mui/material';
 import { isSameDay } from 'date-fns';
 import { Event, EventClass, Judge } from 'koekalenteri-shared/model';
 import { useTranslation } from 'react-i18next';
-import { CollapsibleSection } from './CollapsibleSection';
+import { CollapsibleSection, EventClasses } from '.';
 
 function filterJudges(judges: Judge[], eventJudges: number[], id: number) {
   return judges.filter(j => j.id === id || !eventJudges.includes(j.id));
@@ -39,42 +39,23 @@ export function EventFormJudges({ event, judges, onChange }: { event: PartialEve
                   </Select>
                 </FormControl>
               </Grid>
-              <Grid item sx={{width: 300}}>
-                <Autocomplete
-                  id="class"
-                  fullWidth
-                  disableClearable
-                  disableCloseOnSelect
-                  disabled={!event.classes?.length}
-                  multiple
+              <Grid item sx={{ width: 300 }}>
+                <EventClasses
+                  id={`class${index}`}
+                  event={event}
                   value={event.classes.filter(c => c.judge && c.judge.id === id)}
-                  groupBy={c => t('weekday', { date: c.date })}
-                  options={event.classes || []}
-                  onChange={(e, values) => onChange({ classes: event.classes.map(c => values.find(v => isSameDay(v.date || event.startDate, c.date || event.startDate) && v.class === c.class) ? { ...c, judge: { id, name: judges.find(j => j.id === id)?.name || '' } } : c) })}
-                  getOptionLabel={c => c.class}
-                  isOptionEqualToValue={(o, v) => o.date === v.date && o.class === v.class}
-                  renderOption={(props, option, { selected }) => (
-                    <li {...props}>
-                      <Checkbox
-                        icon={<CheckBoxOutlineBlank fontSize="small" />}
-                        checkedIcon={<CheckBox fontSize="small" />}
-                        style={{ marginRight: 8 }}
-                        checked={selected}
-                      />
-                      {option.class}
-                    </li>
-                  )}
-                  renderInput={(params) => <TextField {...params} label="Arvostelee koeluokat" />}
-                  renderTags={(tagValue, getTagProps) => tagValue.map((option, index) => (
-                    <Chip
-                      avatar={<Avatar sx={{ fontWeight: 'bold', bgcolor: isSameDay(option.date || event.startDate, event.startDate) ? 'secondary.light' : 'secondary.dark' }}>{t('weekday', { date: option.date })}</Avatar>}
-                      size="small"
-                      label={option.class}
-                      variant="outlined"
-                      {...getTagProps({ index })}
-                      onDelete={undefined}
-                    />
-                  ))}
+                  classes={[...event.classes]}
+                  label="Arvostelee koeluokat"
+                  onChange={(e, values) => onChange({
+                    classes: event.classes.map(c =>
+                      values.find(v =>
+                        isSameDay(v.date || event.startDate, c.date || event.startDate) && v.class === c.class)
+                        ? { ...c, judge: { id, name: judges.find(j => j.id === id)?.name || '' } }
+                        : c.judge?.id === id
+                          ? { ...c, judge: undefined }
+                          : { ...c }
+                    )
+                  })}
                 />
               </Grid>
               <Grid item>

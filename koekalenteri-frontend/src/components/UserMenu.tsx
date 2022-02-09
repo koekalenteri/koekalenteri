@@ -1,7 +1,7 @@
 import { PersonOutline } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import { useSnackbar } from 'notistack';
-import { AppBarButton } from './Buttons';
+import { AppBarButton } from '.';
 
 
 export function UserMenu() {
