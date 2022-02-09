@@ -2,8 +2,8 @@ import { Cancel, Save } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import { Box, Button, FormControl, InputLabel, MenuItem, Select, Stack } from '@mui/material';
 import { makeStyles } from '@mui/styles';
-import { addDays, nextSaturday } from 'date-fns';
-import type { Event, EventState, Judge, Official, Organizer } from 'koekalenteri-shared/model';
+import { addDays, nextSaturday, startOfDay } from 'date-fns';
+import type { Event, EventClass, EventState, Judge, Official, Organizer } from 'koekalenteri-shared/model';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { EventFormAdditionalInfo, EventFormBasicInfo, EventFormEntry, EventFormJudges } from '.';
@@ -17,6 +17,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
+export type PartialEvent = Partial<Event> & { startDate: Date, endDate: Date, classes: EventClass[], judges: number[] };
 export type EventHandler = (event: Partial<Event>) => Promise<boolean>;
 
 type EventFormParams = {
@@ -32,9 +33,9 @@ type EventFormParams = {
 
 export function EventForm({ event, judges, eventTypes, eventTypeClasses, officials, organizers, onSave, onCancel }: EventFormParams) {
   const classes = useStyles();
-  const baseDate = addDays(Date.now(), 90);
+  const baseDate = startOfDay(addDays(Date.now(), 90));
   const { t } = useTranslation();
-  const [local, setLocal] = useState({
+  const [local, setLocal] = useState<PartialEvent>({
     state: 'draft' as EventState,
     startDate: nextSaturday(baseDate),
     endDate: nextSaturday(baseDate),

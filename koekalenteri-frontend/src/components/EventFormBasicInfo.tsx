@@ -1,13 +1,13 @@
 import { HelpOutlined } from '@mui/icons-material';
 import { Autocomplete, Fade, FormControl, Grid, IconButton, InputAdornment, InputLabel, MenuItem, Paper, Popover, Select, TextField } from '@mui/material';
-import { eachDayOfInterval } from 'date-fns';
+import { add, differenceInDays, eachDayOfInterval, isAfter, isSameDay, startOfDay } from 'date-fns';
 import { Event, EventClass, Official, Organizer } from 'koekalenteri-shared/model';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CollapsibleSection, DateRange, EventClasses } from '.';
+import { CollapsibleSection, DateRange, EventClasses, PartialEvent } from '.';
 
 type EventFormBasicInfoParams = {
-  event: Partial<Event> & {startDate: Date}
+  event: PartialEvent
   eventTypes: string[]
   eventTypeClasses: Record<string, string[]>
   officials: Official[]
@@ -29,10 +29,23 @@ export function EventFormBasicInfo({ event, eventTypes, eventTypeClasses, offici
             <DateRange
               startLabel="Alkupäivä"
               endLabel="Loppupäivä"
-              start={event.startDate || null}
-              end={event.endDate || null}
+              start={event.startDate}
+              end={event.endDate}
               required
-              onChange={(start, end) => onChange({startDate: start || undefined, endDate: end || undefined})}
+              onChange={(start, end) => {
+                start = start || event.startDate;
+                end = end || event.endDate;
+                if (!isSameDay(start, event.startDate) && isSameDay(end, event.endDate)) {
+                  // startDate changed and endDate remained the same => change endDate based on the previous distance between days
+                  end = add(start, { days: differenceInDays(event.endDate, event.startDate) });
+                }
+                onChange({
+                  startDate: start,
+                  endDate: end,
+                  classes: updateClassDates(event, start, end)
+                })
+              }
+              }
             />
           </Grid>
           <Grid item sx={{ width: 300 }}>
@@ -101,7 +114,7 @@ export function EventFormBasicInfo({ event, eventTypes, eventTypeClasses, offici
             <Autocomplete
               id="organizer"
               disableClearable
-              getOptionLabel={o => o.name}
+              getOptionLabel={o => o.name || ''}
               value={event.organizer || {id: 0, name: ''}}
               options={organizers}
               renderInput={(params) => <TextField {...params} label={t("organizer")} />}
@@ -125,7 +138,7 @@ export function EventFormBasicInfo({ event, eventTypes, eventTypeClasses, offici
             <Autocomplete
               id="official"
               disableClearable
-              getOptionLabel={o => o.name}
+              getOptionLabel={o => o.name || ''}
               value={event.official || {id: 0, name: '', email: '', phone: '', location: '', eventTypes: []}}
               options={officials}
               renderInput={(params) => <TextField {...params} label={t("official")} />}
@@ -136,7 +149,7 @@ export function EventFormBasicInfo({ event, eventTypes, eventTypeClasses, offici
             <Autocomplete
               id="secretary"
               disableClearable
-              getOptionLabel={o => o.name}
+              getOptionLabel={o => o.name || ''}
               value={event.secretary || {id: 0, name: '', email: '', phone: '', location: ''}}
               options={officials}
               renderInput={(params) => <TextField {...params} label={t("secretary")} />}
@@ -149,10 +162,10 @@ export function EventFormBasicInfo({ event, eventTypes, eventTypeClasses, offici
   );
 }
 
-function eventClassOptions(event: Partial<Event>, typeClasses: string[]) {
+function eventClassOptions(event: PartialEvent, typeClasses: string[]) {
   const days = eachDayOfInterval({
-    start: event.startDate || new Date(),
-    end: event.endDate || new Date()
+    start: event.startDate,
+    end: event.endDate
   });
   const result: EventClass[] = [];
   for (const day of days) {
@@ -160,6 +173,17 @@ function eventClassOptions(event: Partial<Event>, typeClasses: string[]) {
       class: c,
       date: day,
     })));
+  }
+  return result;
+}
+
+function updateClassDates(event: PartialEvent, start: Date, end: Date) {
+  const result: EventClass[] = [];
+  for (const c of event.classes) {
+    c.date = startOfDay(add(start, { days: differenceInDays(c.date || event.startDate, event.startDate) }));
+    if (!isAfter(c.date, end)) {
+      result.push(c);
+    }
   }
   return result;
 }

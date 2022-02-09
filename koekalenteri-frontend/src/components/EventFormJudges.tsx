@@ -3,15 +3,13 @@ import { Button, FormControl, Grid, InputLabel, MenuItem, Select } from '@mui/ma
 import { isSameDay } from 'date-fns';
 import { Event, EventClass, Judge } from 'koekalenteri-shared/model';
 import { useTranslation } from 'react-i18next';
-import { CollapsibleSection, EventClasses } from '.';
+import { CollapsibleSection, EventClasses, PartialEvent } from '.';
 
 function filterJudges(judges: Judge[], eventJudges: number[], id: number) {
   return judges.filter(j => j.id === id || !eventJudges.includes(j.id));
 }
 
-export type PartialEventWithJudgesAndClasses = Partial<Event> & { startDate: Date, judges: Array<number>, classes: Array<EventClass> };
-
-export function EventFormJudges({ event, judges, onChange }: { event: PartialEventWithJudgesAndClasses, judges: Judge[], onChange: (props: Partial<Event>) => void }) {
+export function EventFormJudges({ event, judges, onChange }: { event: PartialEvent, judges: Judge[], onChange: (props: Partial<Event>) => void }) {
   const { t } = useTranslation();
   const list = event.judges.length ? event.judges : [0];
   const updateJudge = (id: number, values: EventClass[]) => {
@@ -44,9 +42,13 @@ export function EventFormJudges({ event, judges, onChange }: { event: PartialEve
                     value={id}
                     label={title}
                     onChange={(e) => {
+                      const id = e.target.value as number;
                       const newJudges = [...event.judges];
-                      newJudges.splice(index, 1, e.target.value as number);
-                      onChange({ judges: newJudges })
+                      const oldId = newJudges.splice(index, 1, id)[0];
+                      onChange({
+                        judges: newJudges,
+                        classes: updateJudge(id, event.classes.filter(c => c.judge && c.judge.id === oldId))
+                      })
                     }}
                   >
                     {filterJudges(judges, event.judges, id).map((judge) => <MenuItem key={judge.id} value={judge.id}>{judge.name}</MenuItem>)}

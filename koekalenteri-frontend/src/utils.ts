@@ -6,3 +6,7 @@ export function entryDateColor(event: EventEx) {
   }
   return event.isEntryClosing ? 'warning.main' : 'success.main';
 }
+
+export function unique(arr: string[]): string[] {
+  return arr.filter((c, i, a) => a.indexOf(c) === i);
+}

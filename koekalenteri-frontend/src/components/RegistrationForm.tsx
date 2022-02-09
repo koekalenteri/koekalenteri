@@ -7,6 +7,7 @@ import type { EventEx, EventClass } from 'koekalenteri-shared/model';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CollapsibleSection, MultiSelect, stringsToMultiSelectOptions } from '.';
+import { unique } from '../utils';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -38,10 +39,6 @@ export function RegistrationForm({ event, className, classDate }: { event: Event
       <FormControlLabel control={<Checkbox required />} label="Hyväksyn, että kokeen järjestämisen vastuuhenkilöt voivat käsitellä ilmoittamiani henkilötietoja ja julkaista niitä tarpeen mukaan kokeen osallistuja- ja tulosluettelossa koepaikalla ja kokeeseen liittyvissä julkaisuissa internetissä tai muissa yhdistyksen medioissa." />
     </Box>
   );
-}
-
-function unique(arr: string[]): string[] {
-  return arr.filter((c, i, a) => a.indexOf(c) === i);
 }
 
 function classDates(event: EventEx, eventClass: string, fmt: string): string[] {

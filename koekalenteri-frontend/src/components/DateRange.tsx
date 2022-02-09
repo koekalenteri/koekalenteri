@@ -1,5 +1,6 @@
 import { DatePicker } from "@mui/lab";
 import { Box, FormControl, TextField } from "@mui/material";
+import { startOfDay } from "date-fns";
 import { useTranslation } from 'react-i18next';
 
 type DateValue = Date | null;
@@ -19,11 +20,11 @@ export function DateRange({ start, end, startLabel, endLabel, range, required, o
   let _start = start;
   let _end = end;
   const startChanged = (date: DateValue) => {
-    _start = date;
+    _start = date && startOfDay(date);
     onChange && onChange(_start, _end);
   };
   const endChanged = (date: DateValue) => {
-    _end = date;
+    _end = date && startOfDay(date);
     onChange && onChange(_start, _end);
   };
 
