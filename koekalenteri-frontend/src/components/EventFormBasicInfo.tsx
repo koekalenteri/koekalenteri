@@ -80,7 +80,7 @@ export function EventFormBasicInfo({ event, eventTypes, eventTypeClasses, offici
         </Grid>
         <Grid item container spacing={1}>
           <Grid item sx={{ width: 300 }}>
-            <FormControl fullWidth>
+            <FormControl fullWidth required error={!event.eventType}>
               <InputLabel id="eventType-label">{t('eventType')}</InputLabel>
               <Select
                 labelId="eventType-label"

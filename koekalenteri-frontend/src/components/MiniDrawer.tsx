@@ -63,7 +63,7 @@ export function DrawerList({children}: {children: ReactNode}) {
 export function DrawerItem({ text, icon, onClick }: {text: string, icon: ReactNode, onClick?: MouseEventHandler}) {
   return (
     <ListItem button key={text} onClick={onClick}>
-      <ListItemIcon>{icon}</ListItemIcon>
+      <ListItemIcon aria-label={text}>{icon}</ListItemIcon>
       <ListItemText primary={text} />
     </ListItem>
   );
