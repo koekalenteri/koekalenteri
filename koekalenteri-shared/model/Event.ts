@@ -11,6 +11,7 @@ export type Event = {
   entryStartDate: Date
   entryEndDate: Date
   location: string
+  headquerters?: Partial<Headquarters>
   name: string
   description: string
   places: number
@@ -29,6 +30,7 @@ export type Event = {
   judges: Array<number>
   official: Official
   secretary: Secretary
+  contactInfo?: Partial<ContactInfo>
   createdAt: Date
   createdBy: string
   deletedAt?: Date
@@ -50,6 +52,24 @@ export type EventClass = {
 }
 
 export type EventState = 'draft' | 'tentative' | 'confirmed' | 'cancelled';
+
+export type Headquarters = {
+  name: string
+  address: string
+  zipCode: number
+  postalDistrict: string
+}
+
+export type ContactInfo = {
+  official: ShowContactInfo
+  secretary: ShowContactInfo
+}
+
+export type ShowContactInfo = {
+  name: boolean
+  email: boolean
+  phone: boolean
+}
 
 export interface EventEx extends Event {
   isEntryOpen: boolean

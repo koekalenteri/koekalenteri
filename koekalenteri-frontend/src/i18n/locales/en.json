@@ -1,4 +1,5 @@
 {
+  "contactInfo": "Contact info",
   "createEvent": "Create event",
   "date": "Date",
   "daterangeEnd": "Date to",
@@ -16,6 +17,7 @@
   "eventType": "Event type",
   "goBack": "Back",
   "goHome": "Home",
+  "headquarters": "Headquarters info",
   "judge": "Judge",
   "judges": "Judges",
   "location": "Location",

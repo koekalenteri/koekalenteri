@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { EventClass, EventEx, EventState } from 'koekalenteri-shared/model';
 import { useStores } from '../stores';
 import { observer } from 'mobx-react-lite';
+import { ADMIN_EDIT_EVENT } from '../config';
+import { useNavigate } from 'react-router-dom';
 
 interface EventGridColDef extends GridColDef {
   field: keyof EventEx | 'date'
@@ -12,6 +14,7 @@ interface EventGridColDef extends GridColDef {
 export const EventGrid = observer(({ events }: { events: EventEx[] }) => {
   const { t } = useTranslation();
   const { privateStore } = useStores();
+  const naviage = useNavigate();
 
   const columns: EventGridColDef[] = [
     {
@@ -55,15 +58,6 @@ export const EventGrid = observer(({ events }: { events: EventEx[] }) => {
     <Box sx={{
       height: '400px',
       width: '100%',
-      '& .MuiDataGrid-columnHeaders': {
-        backgroundColor: 'background.tableHead'
-      },
-      '& .MuiDataGrid-row:nth-of-type(2n+1)': {
-        backgroundColor: 'background.oddRow'
-      },
-      '& .MuiDataGrid-cell:focus': {
-        outlineColor: (theme) => theme.palette.secondary.dark
-      }
     }}>
       <DataGrid
         autoPageSize
@@ -76,6 +70,30 @@ export const EventGrid = observer(({ events }: { events: EventEx[] }) => {
           privateStore.setSelectedEvent(events.find(e => e.id === id));
         }}
         selectionModel={privateStore.selectedEvent ? [privateStore.selectedEvent.id] : []}
+        onRowDoubleClick={(params) => naviage(ADMIN_EDIT_EVENT)}
+        sx={{
+          '& .MuiDataGrid-columnHeaders': {
+            backgroundColor: 'background.tableHead'
+          },
+          '& .MuiDataGrid-row:nth-of-type(2n+1)': {
+            backgroundColor: 'background.oddRow'
+          },
+          '& .MuiDataGrid-cell:focus': {
+            outline: 'none'
+          },
+          '& .MuiDataGrid-row.Mui-selected': {
+            backgroundColor: 'secondary.light'
+          },
+          '& .MuiDataGrid-row:hover': {
+            backgroundColor: undefined
+          },
+          '& .MuiDataGrid-row.Mui-selected:hover': {
+            backgroundColor: 'secondary.light'
+          },
+          '& .MuiDataGrid-row:hover > .MuiDataGrid-cell': {
+            background: 'linear-gradient(rgb(0 0 0 / 5%),rgb(0 0 0 / 10%))'
+          }
+        }}
       />
     </Box>
   );

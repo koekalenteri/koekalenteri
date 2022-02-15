@@ -6,7 +6,7 @@ import { addDays, nextSaturday, startOfDay } from 'date-fns';
 import type { Event, EventClass, EventState, Judge, Official, Organizer } from 'koekalenteri-shared/model';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { EventFormAdditionalInfo, EventFormBasicInfo, EventFormEntry, EventFormJudges } from '.';
+import { EventFormAdditionalInfo, EventFormBasicInfo, EventFormContactInfo, EventFormEntry, EventFormJudges, EventFormHeadquarters, EventFormPayment } from '.';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -45,12 +45,16 @@ export function EventForm({ event, judges, eventTypes, eventTypeClasses, officia
   });
   const [saving, setSaving] = useState(false);
   const [changes, setChanges] = useState(!('id' in event) || !('state' in event));
+  const [valid, setValid] = useState(local.id ? true : !!local.eventType);
   const onChange = (props: Partial<Event>) => {
     if (props.eventType && eventTypeClasses[props.eventType].length === 0) {
       props.classes = [];
     }
     setLocal({ ...local, ...props });
     setChanges(true);
+    if (!valid && props.eventType) {
+      setValid(true);
+    }
   }
   const saveHandler = async () => {
     setSaving(true);
@@ -82,11 +86,14 @@ export function EventForm({ event, judges, eventTypes, eventTypeClasses, officia
         <EventFormBasicInfo event={local} eventTypes={eventTypes} eventTypeClasses={eventTypeClasses} officials={officials} organizers={organizers} onChange={onChange} />
         <EventFormJudges event={local} judges={judges} onChange={onChange} />
         <EventFormEntry event={local} onChange={onChange} />
+        <EventFormPayment event={local} onChange={onChange} />
+        <EventFormHeadquarters event={local} onChange={onChange} />
+        <EventFormContactInfo event={local} onChange={onChange} />
         <EventFormAdditionalInfo event={local} onChange={onChange} />
       </Box>
 
       <Stack spacing={1} direction="row" justifyContent="flex-end" sx={{mt: 1}}>
-        <LoadingButton color="primary" disabled={!changes} loading={saving} loadingPosition="start" startIcon={<Save />} variant="contained" onClick={saveHandler}>Tallenna</LoadingButton>
+        <LoadingButton color="primary" disabled={!changes ||!valid} loading={saving} loadingPosition="start" startIcon={<Save />} variant="contained" onClick={saveHandler}>Tallenna</LoadingButton>
         <Button startIcon={<Cancel />} variant="outlined" onClick={cancelHandler}>Peruuta</Button>
       </Stack>
     </>

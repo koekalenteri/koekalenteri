@@ -16,14 +16,14 @@ export function EventFormEntry({ event, onChange }: { event: PartialEvent; onCha
               endLabel="Ilmoittautumisaika päättyy"
               start={event.entryStartDate || sub(event.startDate, {weeks: 6}) }
               end={event.entryEndDate || sub(event.startDate, {weeks: 3})}
-              range={{start: event.createdAt || new Date(), end: event.startDate}}
+              range={{start: event.createdAt || sub(event.startDate, {weeks: 9}), end: event.startDate}}
               required={false}
               onChange={(start, end) => onChange({entryStartDate: start || undefined, entryEndDate: end || undefined})}
             />
           </Grid>
         </Grid>
         <Grid item container spacing={1}>
-          <Grid item sx={{ width: 600 }}>
+          <Grid item>
             Koepaikkojen määrä
             <EventFormPlaces event={event} onChange={onChange} />
           </Grid>
@@ -33,7 +33,7 @@ export function EventFormEntry({ event, onChange }: { event: PartialEvent; onCha
             <FormControlLabel
               control={
                 <Checkbox
-                  checked={event.allowOwnerMembershipPriority}
+                  checked={!!event.allowOwnerMembershipPriority}
                   onChange={e => onChange({ allowOwnerMembershipPriority: e.target.checked })}
                 />
               }
@@ -42,7 +42,7 @@ export function EventFormEntry({ event, onChange }: { event: PartialEvent; onCha
             <FormControlLabel
               control={
                 <Checkbox
-                  checked={event.allowHandlerMembershipPriority}
+                  checked={!!event.allowHandlerMembershipPriority}
                   onChange={e => onChange({ allowHandlerMembershipPriority: e.target.checked })}
                 />
               }
@@ -101,7 +101,7 @@ function EventFormPlaces({ event, onChange } : { event: PartialEvent, onChange: 
               {uniqueClasses.map(c => {
                 const cls = classes.find(cl => cl.class === c);
                 dayTotal += cls?.places || 0;
-                return <TableCell>{cls ? <PlacesInput value={cls.places} onChange={handleChange(cls)} /> : ''}</TableCell>
+                return <TableCell align="center">{cls ? <PlacesInput value={cls.places} onChange={handleChange(cls)} /> : ''}</TableCell>
               })}
               <TableCell align="center"><PlacesDisplay value={dayTotal} /></TableCell>
             </TableRow>
@@ -110,7 +110,7 @@ function EventFormPlaces({ event, onChange } : { event: PartialEvent, onChange: 
         <TableRow>
           <TableCell component="th" scope="row">Yhteensä</TableCell>
           {uniqueClasses.map(c => <TableCell align="center"><PlacesDisplay value={event.classes.filter(ec => ec.class === c).reduce((prev, cur) => prev + (cur?.places || 0), 0)} /></TableCell>)}
-          <TableCell>
+          <TableCell align="center">
             <PlacesInput
               value={event.places || ''}
               onChange={(e) => {
@@ -142,7 +142,7 @@ function PlacesInput(props: JSX.IntrinsicAttributes & TextFieldProps) {
       value={props.value === 0 ? '' : props.value}
       type="number"
       size="small"
-      InputProps={{ inputProps: { min: 0, max: 999 } }}
+      InputProps={{ inputProps: { min: 0, max: 999, style: {textAlign: 'right', padding: 4} } }}
     >
     </TextField>);
 }
