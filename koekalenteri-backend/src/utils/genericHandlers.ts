@@ -46,10 +46,15 @@ export const genericWriteHandler = (dynamoDB: CustomDynamoClient, name: string):
       event: APIGatewayProxyEvent,
     ): Promise<APIGatewayProxyResult> => {
       const timestamp = new Date().toISOString();
-      if (event.requestContext.authorizer === null || event.body === null) {
+      // TODO: remove unauthorized access
+      const authorized = event.requestContext.authorizer !== null
+        || event.headers.origin === 'https://dev.koekalenteri.snj.fi'
+        || event.headers.origin === 'http://localhost:3000';
+
+      if (!authorized || event.body === null) {
         throw new Error("Unauthorized user");
       }
-      const username = event.requestContext.authorizer?.claims["cognito:username"];
+      const username = event.requestContext.authorizer?.claims["cognito:username"] || 'anonymous';
 
       try {
         const item = {
