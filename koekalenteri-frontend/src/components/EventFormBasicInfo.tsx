@@ -1,13 +1,16 @@
 import { HelpOutlined } from '@mui/icons-material';
-import { Autocomplete, Fade, FormControl, Grid, IconButton, InputAdornment, InputLabel, MenuItem, Paper, Popover, Select, TextField } from '@mui/material';
+import { Fade, Grid, IconButton, InputAdornment, Paper, Popover, TextField } from '@mui/material';
 import { add, differenceInDays, eachDayOfInterval, isAfter, isSameDay, startOfDay } from 'date-fns';
 import { Event, EventClass, Official, Organizer } from 'koekalenteri-shared/model';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CollapsibleSection, DateRange, EventClasses, PartialEvent } from '.';
+import { ValidatedAutocomplete } from './ValidatedAutocomplete';
+import { FieldRequirements } from './validation';
 
 type EventFormBasicInfoParams = {
   event: PartialEvent
+  fields: FieldRequirements
   eventTypes: string[]
   eventTypeClasses: Record<string, string[]>
   officials: Official[]
@@ -15,8 +18,8 @@ type EventFormBasicInfoParams = {
   onChange: (props: Partial<Event>) => void
 };
 
-export function EventFormBasicInfo({ event, eventTypes, eventTypeClasses, officials, organizers, onChange }: EventFormBasicInfoParams) {
-  const { t } = useTranslation();
+export function EventFormBasicInfo({ event, fields, eventTypes, eventTypeClasses, officials, organizers, onChange }: EventFormBasicInfoParams) {
+  const { t } = useTranslation('event');
   const [helpAnchorEl, setHelpAnchorEl] = useState<HTMLButtonElement | null>(null);
   const helpOpen = Boolean(helpAnchorEl);
   const typeOptions = eventClassOptions(event, eventTypeClasses[event.eventType || ''] || []);
@@ -27,8 +30,8 @@ export function EventFormBasicInfo({ event, eventTypes, eventTypeClasses, offici
         <Grid item container spacing={1}>
           <Grid item sx={{ width: 600 }}>
             <DateRange
-              startLabel="Alkupäivä"
-              endLabel="Loppupäivä"
+              startLabel={t('startDate')}
+              endLabel={t('endDate')}
               start={event.startDate}
               end={event.endDate}
               required
@@ -49,7 +52,7 @@ export function EventFormBasicInfo({ event, eventTypes, eventTypeClasses, offici
             />
           </Grid>
           <Grid item sx={{ width: 300 }}>
-            <TextField fullWidth label="Kennelliiton kokeen tunnus" InputProps={{
+            <TextField fullWidth label={"Kennelliiton kokeen tunnus"} InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
                   <IconButton onClick={(e) => setHelpAnchorEl(e.currentTarget)}>
@@ -80,18 +83,7 @@ export function EventFormBasicInfo({ event, eventTypes, eventTypeClasses, offici
         </Grid>
         <Grid item container spacing={1}>
           <Grid item sx={{ width: 300 }}>
-            <FormControl fullWidth required error={!event.eventType}>
-              <InputLabel id="eventType-label">{t('eventType')}</InputLabel>
-              <Select
-                labelId="eventType-label"
-                id="eventType-select"
-                value={event.eventType}
-                label={t('eventType')}
-                onChange={(e) => onChange({ eventType: e.target.value })}
-              >
-                {eventTypes.map((type) => <MenuItem key={type} value={type}>{type}</MenuItem>)}
-              </Select>
-            </FormControl>
+            <ValidatedAutocomplete id="eventType" event={event} fields={fields} options={eventTypes} onChange={onChange} />
           </Grid>
           <Grid item sx={{ width: 600 }}>
             <EventClasses
@@ -99,7 +91,7 @@ export function EventFormBasicInfo({ event, eventTypes, eventTypeClasses, offici
               event={event}
               value={event.classes}
               classes={typeOptions}
-              label={t("eventClasses")}
+              label={t("classes")}
               onChange={(e, values) => onChange({ classes: values })}
             />
           </Grid>
@@ -111,50 +103,18 @@ export function EventFormBasicInfo({ event, eventTypes, eventTypeClasses, offici
         </Grid>
         <Grid item container spacing={1}>
           <Grid item sx={{ width: 600 }}>
-            <Autocomplete
-              id="organizer"
-              disableClearable
-              getOptionLabel={o => o.name || ''}
-              value={event.organizer || {id: 0, name: ''}}
-              options={organizers}
-              renderInput={(params) => <TextField {...params} label={t("organizer")} />}
-              onChange={(e, value) => onChange({ organizer: value })}
-            />
+            <ValidatedAutocomplete id="organizer" event={event} fields={fields} options={organizers} getOptionLabel={o => o?.name || ''} onChange={onChange} />
           </Grid>
           <Grid item sx={{ width: 300 }}>
-            <Autocomplete
-              id="location"
-              disableClearable
-              freeSolo
-              value={event.location}
-              options={[]}
-              renderInput={(params) => <TextField {...params} label={t("location")} />}
-              onChange={(e, value) => onChange({ location: value })}
-            />
+            <ValidatedAutocomplete id="location" event={event} fields={fields} options={[]} freeSolo onChange={onChange} />
           </Grid>
         </Grid>
         <Grid item container spacing={1}>
           <Grid item sx={{ width: 450 }}>
-            <Autocomplete
-              id="official"
-              disableClearable
-              getOptionLabel={o => o.name || ''}
-              value={event.official || {id: 0, name: '', email: '', phone: '', location: '', eventTypes: []}}
-              options={officials}
-              renderInput={(params) => <TextField {...params} label={t("official")} />}
-              onChange={(e, value) => onChange({ official: value })}
-            />
+            <ValidatedAutocomplete id="official" event={event} fields={fields} options={officials} getOptionLabel={o => o?.name || ''} onChange={onChange} />
           </Grid>
           <Grid item sx={{ width: 450 }}>
-            <Autocomplete
-              id="secretary"
-              disableClearable
-              getOptionLabel={o => o.name || ''}
-              value={event.secretary || {id: 0, name: '', email: '', phone: '', location: ''}}
-              options={officials}
-              renderInput={(params) => <TextField {...params} label={t("secretary")} />}
-              onChange={(e, value) => onChange({ secretary: value })}
-            />
+            <ValidatedAutocomplete id="secretary" event={event} fields={fields} options={officials} getOptionLabel={o => o?.name || ''} onChange={onChange} />
           </Grid>
         </Grid>
       </Grid>

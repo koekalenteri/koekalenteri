@@ -16,9 +16,6 @@ export type Event = {
   description: string
   places: number
   entries: number
-  allowOnlineEntry: boolean
-  allowOnlinePayment: boolean
-  unofficial: boolean
   allowOwnerMembershipPriority: boolean
   allowHandlerMembershipPriority: boolean
   cost: number
@@ -26,7 +23,6 @@ export type Event = {
   paymentDetails: string
   accountNumber: string
   referenceNumber: string
-  requirePaymentBeforeEntry: boolean
   judges: Array<number>
   official: Official
   secretary: Secretary

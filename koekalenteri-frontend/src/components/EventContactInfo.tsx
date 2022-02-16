@@ -13,7 +13,7 @@ export function EventContactInfo({ event }: { event: PartialEvent }) {
 }
 
 function ContactInfo({ contact, person, show }: { contact: 'official'|'secretary', person?: Person, show?: Partial<ShowContactInfo> }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation('event');
   if (!person || !show || (!show.name && !show.email && !show.phone)) {
     return (<></>);
   }

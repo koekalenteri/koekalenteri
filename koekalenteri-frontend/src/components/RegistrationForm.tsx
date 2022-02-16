@@ -297,6 +297,8 @@ function HandlerInfo() {
 
 function QualifyingResultsInfo() {
   const { t } = useTranslation();
+  const { t: te } = useTranslation('event');
+
   const [date, setDate] = useState<Date | null>(null);
 
   return (
@@ -344,7 +346,7 @@ function QualifyingResultsInfo() {
           </FormControl>
         </Grid>
         <Grid item>
-          <TextField sx={{width: 300}} label={t("location")} />
+          <TextField sx={{width: 300}} label={te("location")} />
         </Grid>
         <Grid item>
           <TextField sx={{width: 300}} label={t("judge")} />

@@ -5,7 +5,7 @@ import { CollapsibleSection, PartialEvent } from ".";
 import { EventContactInfo } from "./EventContactInfo";
 
 export function EventFormContactInfo({ event, onChange }: { event: PartialEvent; onChange: (props: Partial<Event>) => void; }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation('event');
   const handleChange = (props: Partial<ContactInfo>) => onChange({ contactInfo: { ...(event.contactInfo || {}), ...props } });
 
   return (
@@ -27,7 +27,7 @@ export function EventFormContactInfo({ event, onChange }: { event: PartialEvent;
 }
 
 function PersonContactInfo({contact, show, onChange}: { contact: 'official'|'secretary', show?: Partial<ShowContactInfo>, onChange: (props: Partial<ContactInfo>) => void }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation('event');
   const handleChange = (props: Partial<ShowContactInfo>) => onChange({ [contact]: {...show, ...props} });
 
   return (

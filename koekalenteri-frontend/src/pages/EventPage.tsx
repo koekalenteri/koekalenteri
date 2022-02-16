@@ -66,6 +66,7 @@ const useStyles = makeStyles({
 
 function EventComponent({ event, classDate = '', className = '' }: { event: EventEx, classDate?: string, className?: string }) {
   const { t } = useTranslation();
+  const { t: te } = useTranslation('event');
   const classes = useStyles();
   return (
     <>
@@ -89,7 +90,7 @@ function EventComponent({ event, classDate = '', className = '' }: { event: Even
               <TableCell>{event.organizer?.name}</TableCell>
             </TableRow>
             <TableRow key={event.id + 'judge' + event.judges[0]}>
-              <TableCell component="th" scope="row" rowSpan={event.judges.length}>{t('judges')}:</TableCell>
+              <TableCell component="th" scope="row" rowSpan={event.judges.length}>{te('judges')}:</TableCell>
               <TableCell>{event.judges[0]}</TableCell>
             </TableRow>
             <TableRow key={event.id + 'official'}>
@@ -101,7 +102,7 @@ function EventComponent({ event, classDate = '', className = '' }: { event: Even
               <TableCell>{event.paymentDetails}</TableCell>
             </TableRow>
             <TableRow key={event.id + 'description'}>
-              <TableCell component="th" scope="row">{t('description')}:</TableCell>
+              <TableCell component="th" scope="row">{te('description')}:</TableCell>
               <TableCell>{event.description}</TableCell>
             </TableRow>
           </TableBody>

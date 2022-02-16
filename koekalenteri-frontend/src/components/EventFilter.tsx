@@ -1,5 +1,4 @@
-import { FormControl, FormControlLabel, Grid, InputLabel, Stack, Switch } from '@mui/material';
-import { Box } from '@mui/system';
+import { Box, FormControl, FormControlLabel, Grid, InputLabel, Stack, Switch } from '@mui/material';
 import { Judge, Organizer } from 'koekalenteri-shared/model';
 import { useTranslation } from 'react-i18next';
 import { FilterProps } from '../stores/PublicStore';

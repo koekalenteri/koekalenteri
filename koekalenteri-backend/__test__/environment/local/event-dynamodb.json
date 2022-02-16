@@ -44,15 +44,6 @@
   "description": {
     "S": "Pietun pysti jaossa ALO-luokassa"
   },
-  "allowOnlineEntry": {
-    "BOOL": true
-  },
-  "allowOnlinePayment": {
-    "BOOL": true
-  },
-  "unofficial": {
-    "BOOL": false
-  },
   "allowOwnerMembershipPriority": {
     "BOOL": true
   },

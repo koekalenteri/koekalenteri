@@ -1,10 +1,15 @@
 import 'react-i18next';
+import { fi, fiEvent, fiStates } from './locales';
 
-import common from './locales/fi.json';
-import states from './locales/fi_states.json';
 declare module 'react-i18next' {
-  export interface Resources {
-    common: typeof common;
-    states: typeof states;
-  }
+  interface CustomTypeOptions {
+    // custom namespace type if you changed it
+    defaultNS: 'common';
+    // custom resources type
+    resources: {
+      common: typeof fi;
+      event: typeof fiEvent;
+      states: typeof fiStates;
+    };
+  };
 }

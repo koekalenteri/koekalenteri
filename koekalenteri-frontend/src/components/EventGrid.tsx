@@ -11,46 +11,52 @@ interface EventGridColDef extends GridColDef {
   field: keyof EventEx | 'date'
 }
 
+type addPrefix<TKey, TPrefix extends string> = TKey extends string
+  ? `${TPrefix}${TKey}`
+  : never;
+
+type EventStateNS = addPrefix<EventState, 'states:'>;
+
 export const EventGrid = observer(({ events }: { events: EventEx[] }) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation(['common', 'event', 'states']);
   const { privateStore } = useStores();
   const naviage = useNavigate();
 
   const columns: EventGridColDef[] = [
     {
       field: 'date',
-      headerName: t('date'),
+      headerName: t('common:date'),
       width: 150,
       type: 'string',
-      valueGetter: (params) => t('daterange', { start: params.row.startDate, end: params.row.endDate })
+      valueGetter: (params) => t('common:daterange', { start: params.row.startDate, end: params.row.endDate })
     },
     {
       field: 'eventType',
-      headerName: t('eventType'),
+      headerName: t('event:eventType'),
       width: 150,
     },
     {
       field: 'classes',
-      headerName: t('eventClasses'),
+      headerName: t('event:classes'),
       width: 150,
       valueFormatter: ({value}) => ((value || []) as Array<EventClass|string>).map(c => typeof c === 'string' ? c : c.class).join(', ')
     },
     {
       field: 'location',
-      headerName: t('location'),
+      headerName: t('event:location'),
       width: 150,
     },
     {
       field: 'name',
-      headerName: t('name'),
+      headerName: t('event:name'),
       width: 150,
     },
     {
       field: 'state',
-      headerName: t('state'),
+      headerName: t('event:state'),
       width: 150,
       type: 'string',
-      valueFormatter: (params) => t((params.value || 'draft') as EventState, {ns: 'states'})
+      valueFormatter: (params) => t(('states:' + (params.value || 'draft')) as EventStateNS)
     },
   ];
 

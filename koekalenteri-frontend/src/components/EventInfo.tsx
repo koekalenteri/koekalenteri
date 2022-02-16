@@ -31,16 +31,17 @@ const useRowStyles = makeStyles({
 
 export function EventInfo({ event }: { event: EventEx }) {
   const classes = useRowStyles();
-  const { t } = useTranslation();
+  const { t } = useTranslation('event');
+  const { t: tc } = useTranslation('common');
   return (
     <>
       <Table size="small" aria-label="details" className={classes.root}>
         <TableBody>
           <TableRow key={event.id + 'date'}>
-            <TableCell component="th" scope="row">{t('entryTime')}:</TableCell>
+            <TableCell component="th" scope="row">{tc('entryTime')}:</TableCell>
             <TableCell sx={{ color: entryDateColor(event) }}>
-              <b>{t('daterange', { start: event.entryStartDate, end: event.entryEndDate })}</b>
-              {event.isEntryOpen ? t('distanceLeft', { date: event.entryEndDate }) : ''}
+              <b>{tc('daterange', { start: event.entryStartDate, end: event.entryEndDate })}</b>
+              {event.isEntryOpen ? tc('distanceLeft', { date: event.entryEndDate }) : ''}
             </TableCell>
           </TableRow>
           <TableRow key={event.id + 'organizer'}>
@@ -86,10 +87,10 @@ type EventProps = {
 }
 
 function EventClassRow({ event }: EventProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation('event');
   return (
     <TableRow key={event.id + 'classes'}>
-      <TableCell component="th" scope="row">{t('eventClasses')}:</TableCell>
+      <TableCell component="th" scope="row">{t('classes')}:</TableCell>
       <TableCell><EventClassTable event={event} /></TableCell>
     </TableRow>
   );

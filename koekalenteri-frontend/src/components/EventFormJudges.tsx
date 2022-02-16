@@ -10,7 +10,7 @@ function filterJudges(judges: Judge[], eventJudges: number[], id: number) {
 }
 
 export function EventFormJudges({ event, judges, onChange }: { event: PartialEvent, judges: Judge[], onChange: (props: Partial<Event>) => void }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation('event');
   const list = event.judges.length ? event.judges : [0];
   const updateJudge = (id: number, values: EventClass[]) => {
     const judge = { id, name: judges.find(j => j.id === id)?.name || '' };

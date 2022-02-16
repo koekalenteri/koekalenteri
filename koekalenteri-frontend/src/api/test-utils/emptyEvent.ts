@@ -3,8 +3,6 @@ import type { Event } from 'koekalenteri-shared/model';
 export const emptyEvent: Event = {
   accountNumber: 'test',
   allowHandlerMembershipPriority: true,
-  allowOnlineEntry: true,
-  allowOnlinePayment: true,
   allowOwnerMembershipPriority: true,
   classes: [{ class: 'test' }],
   cost: 123,
@@ -45,8 +43,6 @@ export const emptyEvent: Event = {
   paymentDetails: 'test',
   places: 10,
   referenceNumber: 'test',
-  requirePaymentBeforeEntry: true,
   startDate: new Date('1990-01-01'),
-  state: 'confirmed',
-  unofficial: true,
+  state: 'confirmed'
 }

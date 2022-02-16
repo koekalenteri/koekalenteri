@@ -9,6 +9,7 @@ import { ADMIN_EVENTS } from '../config';
 
 export function EditEventPage({create}: {create?: boolean}) {
   const { t } = useTranslation();
+  const { t: ts } = useTranslation('states');
   const { publicStore, privateStore } = useStores();
   const { enqueueSnackbar } = useSnackbar();
   const naviage = useNavigate();
@@ -27,6 +28,7 @@ export function EditEventPage({create}: {create?: boolean}) {
           try {
             await privateStore.saveEvent(event)
             naviage(ADMIN_EVENTS);
+            enqueueSnackbar(ts(event.state || 'draft', { context: 'save' }), { variant: 'info' });
             return Promise.resolve(true);
           } catch (e: any) {
             enqueueSnackbar(e.message, { variant: 'error' });
