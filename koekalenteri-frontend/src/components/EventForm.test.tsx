@@ -21,7 +21,7 @@ const JUDGES = [{
   phone: '0700-judge',
   location: 'Pohjois-Karjala',
   languages: ['fi'],
-  eventTypes: ['NOWT']
+  eventTypes: ['TEST-A', 'TEST-C']
 }];
 
 const ORGANIZERS = [{
@@ -35,7 +35,7 @@ const OFFICIALS = [{
   email: 'joo@ei.com',
   phone: '0700-official',
   location: 'Perähikiä',
-  eventTypes: ['NOWT']
+  eventTypes: ['TEST-A', 'TEST-C']
 }];
 
 const renderComponent = (event: Partial<Event>, judges: Judge[], officials: Official[], organizers: Organizer[], onSave: EventHandler, onCancel: EventHandler) => render(
@@ -50,14 +50,20 @@ const renderComponent = (event: Partial<Event>, judges: Judge[], officials: Offi
 test('It should fire onSave and onCancel', async () => {
   const saveHandler = jest.fn();
   const cancelHandler = jest.fn();
-  renderComponent({ id: 'test', state: 'draft' }, JUDGES, OFFICIALS, ORGANIZERS, saveHandler, cancelHandler);
+  renderComponent({
+    id: 'test',
+    state: 'draft',
+    eventType: 'TEST-A',
+    organizer: ORGANIZERS[0],
+    secretary: OFFICIALS[0]
+  }, JUDGES, OFFICIALS, ORGANIZERS, saveHandler, cancelHandler);
 
   const saveButton = screen.getByText(/Tallenna/i);
   expect(saveButton).toBeDisabled();
 
   // Make a change to enable save button
-  fireEvent.mouseDown(screen.getByLabelText(/Tila/i));
-  fireEvent.click(within(screen.getByRole('listbox')).getByText(/Julkaistu alustavana/i));
+  fireEvent.mouseDown(screen.getByLabelText(/Koemuoto/i));
+  fireEvent.click(within(screen.getByRole('listbox')).getByText(/TEST-C/i));
 
   expect(saveButton).toBeEnabled();
 
