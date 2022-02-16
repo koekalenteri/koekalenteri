@@ -25,6 +25,6 @@ export function ValidatedAutocomplete<Property extends keyof PartialEvent, freeS
       value={event[id]}
       renderInput={(params) => <TextField {...params} label={t(id)} required={isRequired} error={error} helperText={helperText} />}
       onChange={(e, value) => props.onChange({ [id]: value || undefined })}
-      onInputChange={(e, value) => { props.freeSolo && props.onChange({ [id]: value }); }} />
+      onInputChange={(e, value) => { props.freeSolo && value !== event[id] && props.onChange({ [id]: value }); }} />
   );
 }

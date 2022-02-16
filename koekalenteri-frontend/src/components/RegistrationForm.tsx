@@ -125,7 +125,7 @@ function EventEntryInfo({event, className, classDate}: {event: EventEx, classNam
             >
               <MenuItem value="1">Osallistun varasijalta</MenuItem>
               <MenuItem value="2">Osallistun varasijalta, päivän varoitusajalla</MenuItem>
-              <MenuItem value="3">Osallistun varasijalta, viikkon varoitusajalla</MenuItem>
+              <MenuItem value="3">Osallistun varasijalta, viikon varoitusajalla</MenuItem>
               <MenuItem value="4">En osallistu varasijalta</MenuItem>
             </Select>
           </FormControl>

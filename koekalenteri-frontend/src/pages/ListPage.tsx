@@ -1,18 +1,45 @@
 import { Box, Button, FormControlLabel, Stack, Switch, TextField, Typography } from '@mui/material';
+import cloneDeep from 'lodash.clonedeep';
 import { EventGridContainer } from '../layout';
 import { useTranslation } from 'react-i18next';
 import { useSnackbar } from 'notistack';
 import { AuthPage } from './AuthPage';
-import { AddCircleOutline, DeleteOutline, EditOutlined } from '@mui/icons-material';
-import { Link } from 'react-router-dom';
+import { AddCircleOutline, ContentCopyOutlined, DeleteOutline, EditOutlined } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
 import { ADMIN_EDIT_EVENT, ADMIN_NEW_EVENT } from '../config';
 import { useStores } from '../stores';
 import { observer } from 'mobx-react-lite';
+import { Event } from 'koekalenteri-shared/model';
 
 export const ListPage = observer(() => {
   const { t } = useTranslation();
   const { privateStore } = useStores();
   const { enqueueSnackbar } = useSnackbar();
+  const navigate = useNavigate();
+
+  const copyAction = async () => {
+    if (privateStore.selectedEvent) {
+      const newEvent: Partial<Event> = cloneDeep({ ...privateStore.selectedEvent });
+      delete newEvent.id;
+      delete newEvent.state;
+      delete newEvent.startDate;
+      delete newEvent.endDate;
+      delete newEvent.entryStartDate;
+      delete newEvent.entryEndDate;
+      privateStore.setNewEvent(newEvent);
+      navigate(ADMIN_NEW_EVENT);
+    }
+  }
+
+  const deleteAction = async () => {
+    if (privateStore.selectedEvent) {
+      try {
+        await privateStore.deleteEvent(privateStore.selectedEvent);
+      } catch (e: any) {
+        enqueueSnackbar(e.message, { variant: 'error' });
+      }
+    }
+  }
 
   return (
     <AuthPage>
@@ -37,17 +64,10 @@ export const ListPage = observer(() => {
           />
         </div>
         <Stack direction="row" spacing={2}>
-          <Link to={ADMIN_NEW_EVENT}><Button startIcon={<AddCircleOutline />}>{t('createEvent')}</Button></Link>
-          <Link to={ADMIN_EDIT_EVENT}><Button startIcon={<EditOutlined />} disabled={!privateStore.selectedEvent}>Muokkaa</Button></Link>
-          <Button startIcon={<DeleteOutline />} disabled={!privateStore.selectedEvent} onClick={async () => {
-            if (privateStore.selectedEvent) {
-              try {
-                await privateStore.deleteEvent(privateStore.selectedEvent);
-              } catch (e: any) {
-                enqueueSnackbar(e.message, { variant: 'error' });
-              }
-            }
-          }}>Poista</Button>
+          <Button startIcon={<AddCircleOutline />} onClick={() => navigate(ADMIN_NEW_EVENT)}>{t('createEvent')}</Button>
+          <Button startIcon={<EditOutlined />} disabled={!privateStore.selectedEvent} onClick={() => navigate(ADMIN_EDIT_EVENT)}>{t('edit')}</Button>
+          <Button startIcon={<ContentCopyOutlined />} disabled={!privateStore.selectedEvent} onClick={copyAction}>{t('copy')}</Button>
+          <Button startIcon={<DeleteOutline />} disabled={!privateStore.selectedEvent} onClick={deleteAction}>{t('delete')}</Button>
         </Stack>
         <EventGridContainer />
       </Box>

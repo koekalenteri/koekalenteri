@@ -24,6 +24,7 @@
     "i18next-browser-languagedetector": "^6.1.2",
     "jest-fetch-mock": "^3.0.3",
     "koekalenteri-shared": "file:../koekalenteri-shared",
+    "lodash.clonedeep": "^4.5.0",
     "mobx": "^6.2.0",
     "mobx-react-lite": "^3.2.0",
     "notistack": "^2.0.3",
@@ -74,5 +75,8 @@
       "/index.tsx",
       "/reportWebVitals.ts"
     ]
+  },
+  "devDependencies": {
+    "@types/lodash.clonedeep": "^4.5.6"
   }
 }

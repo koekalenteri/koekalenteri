@@ -12,7 +12,7 @@ export function EditEventPage({create}: {create?: boolean}) {
   const { t: ts } = useTranslation('states');
   const { publicStore, privateStore } = useStores();
   const { enqueueSnackbar } = useSnackbar();
-  const naviage = useNavigate();
+  const navigate = useNavigate();
 
   return (
     <AuthPage>
@@ -27,7 +27,7 @@ export function EditEventPage({create}: {create?: boolean}) {
         onSave={async (event) => {
           try {
             await privateStore.saveEvent(event)
-            naviage(ADMIN_EVENTS);
+            navigate(ADMIN_EVENTS);
             enqueueSnackbar(ts(event.state || 'draft', { context: 'save' }), { variant: 'info' });
             return Promise.resolve(true);
           } catch (e: any) {
@@ -39,7 +39,7 @@ export function EditEventPage({create}: {create?: boolean}) {
           if (create) {
             privateStore.newEvent = { ...event }
           }
-          naviage(ADMIN_EVENTS);
+          navigate(ADMIN_EVENTS);
           return Promise.resolve(true);
         }}
       />
