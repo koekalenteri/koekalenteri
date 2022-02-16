@@ -38,7 +38,7 @@ export function EventForm({ event, judges, eventTypes, eventTypeClasses, officia
   const [valid, setValid] = useState(validateEvent(local));
   const fields = useMemo(() => requiredFields(local), [local]);
   const onChange = (props: Partial<Event>) => {
-    console.log('changed: ' + Object.keys(props).join(', '));
+    console.log('changed: ' + JSON.stringify(props));
     if (props.eventType && eventTypeClasses[props.eventType].length === 0) {
       props.classes = [];
     }

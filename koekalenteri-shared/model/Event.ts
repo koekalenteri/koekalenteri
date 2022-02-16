@@ -2,6 +2,7 @@ import { Official, Organizer, Secretary } from '.';
 
 export type Event = {
   id: string
+  kcId?: number
   state: EventState
   organizer: Organizer
   eventType: string

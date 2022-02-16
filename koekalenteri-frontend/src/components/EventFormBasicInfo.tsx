@@ -1,10 +1,10 @@
-import { HelpOutlined } from '@mui/icons-material';
-import { Fade, Grid, IconButton, InputAdornment, Paper, Popover, TextField } from '@mui/material';
+import { Grid, TextField } from '@mui/material';
 import { add, differenceInDays, eachDayOfInterval, isAfter, isSameDay, startOfDay } from 'date-fns';
 import { Event, EventClass, Official, Organizer } from 'koekalenteri-shared/model';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CollapsibleSection, DateRange, EventClasses, PartialEvent } from '.';
+import { HelpPopover } from './HelpPopover';
 import { ValidatedAutocomplete } from './ValidatedAutocomplete';
 import { FieldRequirements } from './validation';
 
@@ -18,10 +18,10 @@ type EventFormBasicInfoParams = {
   onChange: (props: Partial<Event>) => void
 };
 
+
 export function EventFormBasicInfo({ event, fields, eventTypes, eventTypeClasses, officials, organizers, onChange }: EventFormBasicInfoParams) {
   const { t } = useTranslation('event');
   const [helpAnchorEl, setHelpAnchorEl] = useState<HTMLButtonElement | null>(null);
-  const helpOpen = Boolean(helpAnchorEl);
   const typeOptions = eventClassOptions(event, eventTypeClasses[event.eventType || ''] || []);
 
   return (
@@ -52,33 +52,18 @@ export function EventFormBasicInfo({ event, fields, eventTypes, eventTypeClasses
             />
           </Grid>
           <Grid item sx={{ width: 300 }}>
-            <TextField fullWidth label={"Kennelliiton kokeen tunnus"} InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton onClick={(e) => setHelpAnchorEl(e.currentTarget)}>
-                    <HelpOutlined />
-                  </IconButton>
-                </InputAdornment>
-              )
-            }} />
-            <Popover
-              anchorEl={helpAnchorEl}
-              open={helpOpen}
-              anchorOrigin={{
-                vertical: 'center',
-                horizontal: 'center',
-              }}
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'left',
-              }}
-              TransitionComponent={Fade}
-              onClose={() => setHelpAnchorEl(null)}
-            >
-              <Paper sx={{ maxWidth: 400, p: 1, backgroundColor: 'secondary.light' }}>
-                Saat Kennelliiton kokeen tunnuksen Oma koirasta, kun koe on anottu ja hyväksytty Kennelliitossa. Kokeen tunnusta tarvitaan tulosten tallentamiseen.
-              </Paper>
-            </Popover>
+            <ValidatedAutocomplete
+              id="kcId"
+              freeSolo
+              event={event}
+              fields={fields}
+              options={[]}
+              onChange={onChange}
+              helpClick={(e) => setHelpAnchorEl(e.currentTarget)}
+            />
+            <HelpPopover anchorEl={helpAnchorEl} onClose={() => setHelpAnchorEl(null)}>
+              Saat Kennelliiton kokeen tunnuksen Oma koirasta, kun koe on anottu ja hyväksytty Kennelliitossa. Kokeen tunnusta tarvitaan tulosten tallentamiseen.
+            </HelpPopover>
           </Grid>
         </Grid>
         <Grid item container spacing={1}>
@@ -89,6 +74,7 @@ export function EventFormBasicInfo({ event, fields, eventTypes, eventTypeClasses
             <EventClasses
               id="class"
               event={event}
+              required={fields.required.classes}
               value={event.classes}
               classes={typeOptions}
               label={t("classes")}

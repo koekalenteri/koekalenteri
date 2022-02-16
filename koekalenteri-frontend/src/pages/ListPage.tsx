@@ -21,6 +21,7 @@ export const ListPage = observer(() => {
     if (privateStore.selectedEvent) {
       const newEvent: Partial<Event> = cloneDeep({ ...privateStore.selectedEvent });
       delete newEvent.id;
+      delete newEvent.kcId;
       delete newEvent.state;
       delete newEvent.startDate;
       delete newEvent.endDate;

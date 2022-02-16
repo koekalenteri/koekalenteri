@@ -19,6 +19,7 @@
   "headquerters": "Keskuspaikka",
   "id": "Tunnus",
   "judges": "Tuomarit",
+  "kcId": "Kennelliiton koetunnus",
   "location": "Sijainti",
   "modifiedAt": "Muokkausaika",
   "modifiedBy": "Muokkaaja",

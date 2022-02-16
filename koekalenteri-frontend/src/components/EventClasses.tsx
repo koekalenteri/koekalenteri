@@ -3,6 +3,7 @@ import { Autocomplete, AutocompleteChangeReason, Avatar, Checkbox, Chip, TextFie
 import { isSameDay } from "date-fns";
 import { t } from "i18next";
 import { EventClass } from "koekalenteri-shared/model";
+import { PartialEvent } from ".";
 
 
 /**
@@ -21,10 +22,11 @@ type EventClassesOnChange = (
 
 type EventClassesProps = {
   id: string
-  event: { classes?: EventClass[], startDate: Date }
+  event: PartialEvent
   value: EventClass[] | undefined
   classes: EventClass[]
   label: string
+  required?: boolean
   onChange: EventClassesOnChange
 }
 
@@ -33,23 +35,24 @@ export const compareEventClass = (a: EventClass, b: EventClass) =>
     ? a.class.localeCompare(b.class)
     : (a.date?.valueOf() || 0) - (b.date?.valueOf() || 0);
 
-export function EventClasses({ id, event, value, classes, label, onChange }: EventClassesProps) {
-  if (value) {
-    value.sort(compareEventClass);
+export function EventClasses(props: EventClassesProps) {
+  if (props.value) {
+    props.value.sort(compareEventClass);
   }
+
+  const { classes, label, event, required, ...rest } = props;
+  const error = required && props.value?.length === 0;
 
   return (
     <Autocomplete
-      id={id}
+      {...rest}
       fullWidth
       disableClearable
       disableCloseOnSelect
       disabled={classes.length === 0}
       multiple
-      value={value}
       groupBy={c => t('weekday', { date: c.date })}
       options={classes}
-      onChange={onChange}
       getOptionLabel={c => c.class}
       isOptionEqualToValue={(o, v) => compareEventClass(o, v) === 0}
       renderOption={(props, option, { selected }) => (
@@ -63,7 +66,7 @@ export function EventClasses({ id, event, value, classes, label, onChange }: Eve
           {option.class}
         </li>
       )}
-      renderInput={(params) => <TextField {...params} label={label} />}
+      renderInput={(params) => <TextField {...params} required={required} error={error} label={label} />}
       renderTags={(tagValue, getTagProps) => tagValue.map((option, index) => (
         <Chip
           {...getTagProps({ index })}
