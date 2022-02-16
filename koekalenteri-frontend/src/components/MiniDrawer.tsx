@@ -1,5 +1,5 @@
 import { MouseEventHandler, ReactNode } from 'react';
-import { CSSObject, Drawer, List, ListItem, ListItemIcon, ListItemText, styled, Theme } from '@mui/material';
+import { CSSObject, Drawer, List, ListItem, ListItemIcon, ListItemText, styled, Theme, Tooltip } from '@mui/material';
 
 const drawerWidth = '256px';
 
@@ -63,7 +63,7 @@ export function DrawerList({children}: {children: ReactNode}) {
 export function DrawerItem({ text, icon, onClick }: {text: string, icon: ReactNode, onClick?: MouseEventHandler}) {
   return (
     <ListItem button key={text} onClick={onClick}>
-      <ListItemIcon aria-label={text}>{icon}</ListItemIcon>
+      <Tooltip title={text} arrow><ListItemIcon aria-label={text}>{icon}</ListItemIcon></Tooltip>
       <ListItemText primary={text} />
     </ListItem>
   );
