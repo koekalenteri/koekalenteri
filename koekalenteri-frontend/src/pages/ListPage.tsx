@@ -47,6 +47,7 @@ export const ListPage = observer(() => {
       <Box sx={{
         display: 'flex',
         flexDirection: 'column',
+        flexGrow: 1,
         '& .MuiDataGrid-root': {
           flexGrow: 1
         }

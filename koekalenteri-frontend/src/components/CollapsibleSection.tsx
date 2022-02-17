@@ -5,11 +5,11 @@ import { ReactNode, useState } from 'react';
 export function CollapsibleSection({ title, children, initOpen = true }: { title: string; initOpen?: boolean, children?: ReactNode; }) {
   const [open, setOpen] = useState(initOpen);
   return (
-    <>
-      <IconButton size="small" color="primary" sx={{ position: 'absolute' }} onClick={() => setOpen(!open)}>
+    <Box sx={{display: 'flex', alignItems: 'flex-start'}}>
+      <IconButton size="small" color="primary" onClick={() => setOpen(!open)}>
         {open ? <KeyboardArrowDown /> : <KeyboardArrowRight />}
       </IconButton>
-      <Box sx={{ m: 1, pt: '6px', pl: '30px' }}>
+      <Box sx={{ pt: '6px', width: '100%' }}>
         <Box sx={{ borderBottom: '1px solid #bdbdbd', userSelect: 'none' }} onClick={() => setOpen(!open)}>
           <Typography>{title}</Typography>
         </Box>
@@ -17,6 +17,6 @@ export function CollapsibleSection({ title, children, initOpen = true }: { title
           {children}
         </Collapse>
       </Box>
-    </>
+    </Box>
   );
 }

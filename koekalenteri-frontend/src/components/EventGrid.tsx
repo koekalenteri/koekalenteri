@@ -62,8 +62,11 @@ export const EventGrid = observer(({ events }: { events: EventEx[] }) => {
 
   return (
     <Box sx={{
-      height: '400px',
+      display: 'flex',
+      flexDirection: 'column',
+      flexGrow: 1,
       width: '100%',
+      minHeight: 400,
     }}>
       <DataGrid
         autoPageSize

@@ -23,9 +23,9 @@ export function AuthPage({children}: {children: ReactNode}) {
   return (
     <>
       <Header />
-      <Box sx={{ display: 'flex' }}>
+      <Box sx={{ display: 'flex', height: '100%' }}>
         <SideMenu />
-        <Box sx={{ p: 2, flexGrow: 1, overflow: 'auto' }}>
+        <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', flexGrow: 1, overflow: 'auto' }}>
           <Toolbar variant="dense" />
           {children}
         </Box>

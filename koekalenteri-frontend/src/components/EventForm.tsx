@@ -60,23 +60,25 @@ export function EventForm({ event, judges, eventTypes, eventTypeClasses, officia
 
   return (
     <>
-      <FormControl>
-        <InputLabel id="state-label">{t('event:state')}</InputLabel>
-        <Select
-          labelId="state-label"
-          id="state"
-          value={local.state}
-          label={t('event:state')}
-          onChange={(e) => onChange({state: e.target.value as EventState})}
-        >
-          <MenuItem value="draft">{t('states:draft')}</MenuItem>
-          <MenuItem value="tentative">{t('states:tentative')}</MenuItem>
-          <MenuItem value="confirmed">{t('states:confirmed')}</MenuItem>
-          <MenuItem value="cancelled">{t('states:cancelled')}</MenuItem>
-        </Select>
-      </FormControl>
+      <Box sx={{ pb: 1 }}>
+        <FormControl>
+          <InputLabel id="state-label">{t('event:state')}</InputLabel>
+          <Select
+            labelId="state-label"
+            id="state"
+            value={local.state}
+            label={t('event:state')}
+            onChange={(e) => onChange({state: e.target.value as EventState})}
+          >
+            <MenuItem value="draft">{t('states:draft')}</MenuItem>
+            <MenuItem value="tentative">{t('states:tentative')}</MenuItem>
+            <MenuItem value="confirmed">{t('states:confirmed')}</MenuItem>
+            <MenuItem value="cancelled">{t('states:cancelled')}</MenuItem>
+          </Select>
+        </FormControl>
+      </Box>
 
-      <Box sx={{ pb: 0.5, bgcolor: 'background.form', '& .MuiInputBase-root': { bgcolor: 'background.default'} }}>
+      <Box sx={{ pb: 0.5, overflow: 'auto', borderRadius: 1, bgcolor: 'background.form', '& .MuiInputBase-root': { bgcolor: 'background.default'} }}>
         <EventFormBasicInfo event={local} fields={fields} eventTypes={eventTypes} eventTypeClasses={eventTypeClasses} officials={officials} organizers={organizers} onChange={onChange} />
         <EventFormJudges event={local} judges={judges} onChange={onChange} />
         <EventFormEntry event={local} onChange={onChange} />

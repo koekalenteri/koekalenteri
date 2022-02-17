@@ -1,5 +1,6 @@
 import ReactDOM from 'react-dom';
 import { ThemeProvider, StyledEngineProvider, CssBaseline } from '@mui/material';
+import "./index.css";
 import "./i18n";
 import App from './App';
 import theme from './assets/Theme';
