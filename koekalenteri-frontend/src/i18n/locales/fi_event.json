@@ -20,7 +20,7 @@
   "id": "Tunnus",
   "judges": "Tuomarit",
   "kcId": "Kennelliiton koetunnus",
-  "location": "Sijainti",
+  "location": "Paikkakunta",
   "modifiedAt": "Muokkausaika",
   "modifiedBy": "Muokkaaja",
   "name": "Nimi",
