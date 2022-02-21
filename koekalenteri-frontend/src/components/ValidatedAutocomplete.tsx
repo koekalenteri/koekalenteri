@@ -21,7 +21,7 @@ export function ValidatedAutocomplete<Property extends keyof PartialEvent, freeS
   const { id, event, fields: { state, required }, helpClick, ...acProps } = props;
   const isRequired = required[id] || false;
   const error = isRequired && !event[id];
-  const helperText = error ? t(id) + ' on vaadittu tieto "' + ts(state[id] || 'draft') + '" tilalla olevalle tapahtumalle' : '';
+  const helperText = error ? t(id) + ' on vaadittu tieto "' + ts(state[id] || 'draft') + '" -tilassa olevalle tapahtumalle' : '';
   return (
     <Autocomplete
       id={id}
