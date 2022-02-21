@@ -16,6 +16,7 @@ type addPrefix<TKey, TPrefix extends string> = TKey extends string
   : never;
 
 type EventStateNS = addPrefix<EventState, 'states:'>;
+type StartEndDate = { start: Date, end: Date };
 
 export const EventGrid = observer(({ events }: { events: EventEx[] }) => {
   const { t } = useTranslation(['common', 'event', 'states']);
@@ -27,29 +28,32 @@ export const EventGrid = observer(({ events }: { events: EventEx[] }) => {
       field: 'date',
       headerName: t('common:date'),
       width: 150,
-      type: 'string',
-      valueGetter: (params) => t('common:daterange', { start: params.row.startDate, end: params.row.endDate })
+      sortComparator: (a, b) => (b as StartEndDate).start.valueOf() - (a as StartEndDate).start.valueOf(),
+      valueGetter: (params) => ({ start: params.row.startDate, end: params.row.endDate }),
+      valueFormatter: ({value}) => t('common:daterange', value as StartEndDate),
     },
     {
       field: 'eventType',
       headerName: t('event:eventType'),
-      width: 150,
+      minWidth: 100,
     },
     {
       field: 'classes',
       headerName: t('event:classes'),
-      width: 150,
+      minWidth: 100,
       valueFormatter: ({value}) => ((value || []) as Array<EventClass|string>).map(c => typeof c === 'string' ? c : c.class).join(', ')
     },
     {
       field: 'location',
       headerName: t('event:location'),
-      width: 150,
+      minWidth: 150,
+      flex: 1
     },
     {
       field: 'name',
       headerName: t('event:name'),
-      width: 150,
+      minWidth: 200,
+      flex: 1
     },
     {
       field: 'state',
