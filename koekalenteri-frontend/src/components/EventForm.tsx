@@ -82,7 +82,7 @@ export function EventForm({ event, judges, eventTypes, eventTypeClasses, officia
         <EventFormBasicInfo event={local} fields={fields} eventTypes={eventTypes} eventTypeClasses={eventTypeClasses} officials={officials} organizers={organizers} onChange={onChange} />
         <EventFormJudges event={local} judges={judges} onChange={onChange} />
         <EventFormEntry event={local} onChange={onChange} />
-        <EventFormPayment event={local} onChange={onChange} />
+        <EventFormPayment event={local} fields={fields} onChange={onChange} />
         <EventFormHeadquarters event={local} onChange={onChange} />
         <EventFormContactInfo event={local} onChange={onChange} />
         <EventFormAdditionalInfo event={local} onChange={onChange} />
