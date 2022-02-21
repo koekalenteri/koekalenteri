@@ -1,4 +1,4 @@
-import { Grid, Autocomplete, TextField, AutocompleteProps } from "@mui/material";
+import { Grid, Autocomplete, TextField, AutocompleteProps, InputAdornment } from "@mui/material";
 import { Event } from "koekalenteri-shared/model";
 import { useTranslation } from "react-i18next";
 import { CollapsibleSection, PartialEvent } from ".";
@@ -37,7 +37,13 @@ function PriceInput(props: Partial<AutocompleteProps<number, false, true, true>>
       freeSolo
       options={[30, 35, 40, 45]}
       getOptionLabel={(v) => v.toString()}
-      renderInput={(params) => <TextField {...params} label={props.label} />}
+      renderInput={(params) => <TextField
+        {...params}
+        label={props.label}
+        InputProps={{
+          endAdornment: < InputAdornment position="end" >€</InputAdornment>
+        }}
+      />}
     />
   );
 }
