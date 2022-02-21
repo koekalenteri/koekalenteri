@@ -1,4 +1,4 @@
-import { AddOutlined, Remove } from '@mui/icons-material';
+import { AddOutlined, DeleteOutline } from '@mui/icons-material';
 import { Button, FormControl, Grid, InputLabel, MenuItem, Select } from '@mui/material';
 import { isSameDay } from 'date-fns';
 import { Event, EventClass, Judge } from 'koekalenteri-shared/model';
@@ -68,7 +68,7 @@ export function EventFormJudges({ event, judges, onChange }: { event: PartialEve
                 />
               </Grid>
               <Grid item>
-                <Button startIcon={<Remove />} onClick={() => onChange({judges: event.judges.filter(j => j !== id), classes: event.classes.map(c => c.judge?.id === id ? {...c, judge: undefined} : c)})}>Poista tuomari</Button>
+                <Button startIcon={<DeleteOutline />} onClick={() => onChange({judges: event.judges.filter(j => j !== id), classes: event.classes.map(c => c.judge?.id === id ? {...c, judge: undefined} : c)})}>Poista tuomari</Button>
               </Grid>
             </Grid>
           );
