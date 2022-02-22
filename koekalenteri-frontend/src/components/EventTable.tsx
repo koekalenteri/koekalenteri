@@ -13,7 +13,7 @@ import {
 } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
 import { KeyboardArrowDown, KeyboardArrowRight } from '@mui/icons-material';
-import type { EventEx } from 'koekalenteri-shared/model';
+import type { EventEx, EventState } from 'koekalenteri-shared/model';
 import { EventInfo, LinkButton } from '.';
 import { useTranslation } from 'react-i18next';
 import { useSessionBoolean } from '../stores';
@@ -49,8 +49,6 @@ function eventClasses(event: EventEx) {
   return ret.join(', ');
 }
 
-const placesColor = (event: EventEx) => event.entries > event.places ? 'warning.main' : 'text.primary';
-
 function Row({ event }: { event: EventEx }) {
 
   const [open, setOpen] = useSessionBoolean('open' + event.id, false);
@@ -80,10 +78,8 @@ function Row({ event }: { event: EventEx }) {
               </Grid>
               <Grid item container xs={12} md={6} spacing={1}>
                 <Grid item xs={6} md={7}>{event.organizer?.name}</Grid>
-                <Grid item xs={3} md={2} textAlign="right" sx={{ color: placesColor(event) }}>
-                  {event.entries ? `${event.entries}/${event.places}` : event.places + ' ' + t('toltaPlaces')}
-                </Grid>
-                <Grid item xs={3} md={3}>{event.isEntryOpen ? <LinkButton to={`/event/${event.eventType}/${event.id}`} text={t('register')} /> : ''}</Grid>
+                <Grid item xs={3} md={2}><EventPlaces event={event} /></Grid>
+                <Grid item xs={3} md={3} textAlign="right">{event.isEntryOpen ? <LinkButton to={`/event/${event.eventType}/${event.id}`} text={t('register')} /> : <EventStateInfo state={event.state} />}</Grid>
               </Grid>
             </Grid>
           </Grid>
@@ -94,6 +90,28 @@ function Row({ event }: { event: EventEx }) {
       </TableRow>
     </>
   );
+}
+
+function EventPlaces({ event }: { event: EventEx }) {
+  const { t } = useTranslation();
+  const color = event.entries > event.places ? 'warning.main' : 'text.primary';
+  let text = '';
+  if (event.places) {
+    if (event.entries) {
+      text = `${event.entries}/${event.places}`;
+    } else {
+      text = event.places + ' ' + t('toltaPlaces');
+    }
+  }
+  return (
+    <Box textAlign="right" sx={{ color }}>{text}</Box>
+  );
+}
+
+function EventStateInfo({ state }: { state: EventState }) {
+  const { t } = useTranslation('states');
+  const showInfo = state === 'tentative' || state === 'cancelled';
+  return <Box sx={{ color: 'warning.main', textTransform: 'uppercase', mr: 1 }}>{showInfo ? t(`${state}_info`) : ''}</Box>;
 }
 
 function EmptyResult() {

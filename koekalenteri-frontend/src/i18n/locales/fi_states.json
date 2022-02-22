@@ -2,9 +2,11 @@
   "draft": "Luonnos",
   "draft_save": "Tapahtuma on tallennettu luonnoksena",
   "tentative": "Julkaistu alustavana",
+  "tentative_info": "Alustava",
   "tentative_save": "Tapahtuma on julkaistu alustavana",
   "confirmed": "Julkaistu",
   "confirmed_save": "Tapahtuma on julkaistu",
   "cancelled": "Peruttu",
+  "cancelled_info": "Peruttu",
   "cancelled_save": "Tapahtuma on peruttu"
 }

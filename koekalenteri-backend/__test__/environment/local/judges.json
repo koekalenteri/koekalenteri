@@ -1,0 +1,67 @@
+{
+  "judge-table": [
+    {
+      "PutRequest": {
+        "Item": {
+          "name": {
+            "S": "Tuomari 1"
+          },
+          "id": {
+            "N": "888888"
+          },
+          "location": {
+            "S": "Helsinki"
+          },
+          "phone": {
+            "S": "123456789"
+          },
+          "email": {
+            "S": "tuomari1@sposti.not"
+          }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "name": {
+            "S": "Tuomari 2"
+          },
+          "id": {
+            "N": "999999"
+          },
+          "location": {
+            "S": "Tampere"
+          },
+          "phone": {
+            "S": "123456788"
+          },
+          "email": {
+            "S": "tuomari2@sposti.not"
+          }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "name": {
+            "S": "Tuomari 3"
+          },
+          "id": {
+            "N": "777777"
+          },
+          "location": {
+            "S": "Turku"
+          },
+          "phone": {
+            "S": "123456787"
+          },
+          "email": {
+            "S": "tuomari3@sposti.not"
+          }
+        }
+      }
+    }
+  ]
+}

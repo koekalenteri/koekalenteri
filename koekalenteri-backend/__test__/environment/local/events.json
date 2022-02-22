@@ -1,0 +1,606 @@
+{
+  "event-table": [
+    {
+      "PutRequest": {
+        "Item": {
+          "eventType": {
+            "S": "NOU"
+          },
+          "id": {
+            "S": "07432b79-6721-48c8-be26-3035a1ba065d"
+          },
+          "isEntryUpcoming": {
+            "BOOL": false
+          },
+          "modifiedAt": {
+            "S": "2022-02-17T10:04:56.481Z"
+          },
+          "secretary": {
+            "M": {
+              "name": {
+                "S": "Siiri Sihteeri"
+              },
+              "location": {
+                "S": "Praha"
+              },
+              "id": {
+                "N": "2"
+              },
+              "phone": {
+                "S": "0700-siiri"
+              },
+              "email": {
+                "S": "siiri@example.org"
+              }
+            }
+          },
+          "endDate": {
+            "S": "2022-05-20T21:00:00.000Z"
+          },
+          "classes": {
+            "L": []
+          },
+          "createdAt": {
+            "S": "2022-02-17T10:04:56.481Z"
+          },
+          "isEntryOpen": {
+            "BOOL": false
+          },
+          "createdBy": {
+            "S": "anonymous"
+          },
+          "name": {
+            "S": "Luonnos"
+          },
+          "isEntryClosing": {
+            "BOOL": false
+          },
+          "organizer": {
+            "M": {
+              "name": {
+                "S": "Toinen Yhdistys"
+              },
+              "id": {
+                "N": "2"
+              }
+            }
+          },
+          "state": {
+            "S": "draft"
+          },
+          "startDate": {
+            "S": "2022-05-20T21:00:00.000Z"
+          },
+          "judges": {
+            "L": []
+          },
+          "modifiedBy": {
+            "S": "anonymous"
+          }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "eventType": {
+            "S": "NOME-B"
+          },
+          "id": {
+            "S": "af4d1dc6-bf6c-49d5-afa7-e6ea52aa9cdf"
+          },
+          "isEntryUpcoming": {
+            "BOOL": true
+          },
+          "endDate": {
+            "S": "2022-06-11T21:00:00.000Z"
+          },
+          "classes": {
+            "L": [
+              {
+                "M": {
+                  "date": {
+                    "S": "2022-06-10T21:00:00.000Z"
+                  },
+                  "class": {
+                    "S": "ALO"
+                  },
+                  "places": {
+                    "N": "16"
+                  }
+                }
+              },
+              {
+                "M": {
+                  "date": {
+                    "S": "2022-06-10T21:00:00.000Z"
+                  },
+                  "places": {
+                    "N": "15"
+                  },
+                  "judge": {
+                    "M": {
+                      "name": {
+                        "S": "Aaltonen Risto"
+                      },
+                      "id": {
+                        "N": "295731"
+                      }
+                    }
+                  },
+                  "class": {
+                    "S": "AVO"
+                  }
+                }
+              },
+              {
+                "M": {
+                  "date": {
+                    "S": "2022-06-10T21:00:00.000Z"
+                  },
+                  "places": {
+                    "N": "16"
+                  },
+                  "judge": {
+                    "M": {
+                      "name": {
+                        "S": "Ahola Pauliina"
+                      },
+                      "id": {
+                        "N": "751529"
+                      }
+                    }
+                  },
+                  "class": {
+                    "S": "VOI"
+                  }
+                }
+              },
+              {
+                "M": {
+                  "date": {
+                    "S": "2022-06-11T21:00:00.000Z"
+                  },
+                  "places": {
+                    "N": "16"
+                  },
+                  "judge": {
+                    "M": {
+                      "name": {
+                        "S": "Ahola Pauliina"
+                      },
+                      "id": {
+                        "N": "751529"
+                      }
+                    }
+                  },
+                  "class": {
+                    "S": "VOI"
+                  }
+                }
+              }
+            ]
+          },
+          "official": {
+            "M": {
+              "name": {
+                "S": "Teemu Toimitsija"
+              },
+              "location": {
+                "S": "Ähtäri"
+              },
+              "id": {
+                "N": "1"
+              },
+              "phone": {
+                "S": "0700-teemu"
+              },
+              "email": {
+                "S": "teemu@example.org"
+              }
+            }
+          },
+          "createdBy": {
+            "S": "anonymous"
+          },
+          "name": {
+            "S": "Minsun kesäkuun! B-koe"
+          },
+          "isEntryClosing": {
+            "BOOL": false
+          },
+          "state": {
+            "S": "tentative"
+          },
+          "contactInfo": {
+            "M": {
+              "official": {
+                "M": {
+                  "name": {
+                    "BOOL": false
+                  }
+                }
+              }
+            }
+          },
+          "costMember": {
+            "N": "0"
+          },
+          "startDate": {
+            "S": "2022-06-10T21:00:00.000Z"
+          },
+          "judges": {
+            "L": [
+              {
+                "N": "751529"
+              },
+              {
+                "N": "295731"
+              }
+            ]
+          },
+          "referenceNumber": {
+            "S": "123654"
+          },
+          "modifiedAt": {
+            "S": "2022-02-21T15:35:26.990Z"
+          },
+          "location": {
+            "S": "Tyrvää"
+          },
+          "secretary": {
+            "M": {
+              "name": {
+                "S": "Siiri Sihteeri"
+              },
+              "location": {
+                "S": "Praha"
+              },
+              "id": {
+                "N": "2"
+              },
+              "phone": {
+                "S": "0700-siiri"
+              },
+              "email": {
+                "S": "siiri@example.org"
+              }
+            }
+          },
+          "entryStartDate": {
+            "S": "2022-04-29T21:00:00.000Z"
+          },
+          "createdAt": {
+            "S": "2022-02-21T15:35:26.990Z"
+          },
+          "places": {
+            "N": "63"
+          },
+          "entryEndDate": {
+            "S": "2022-05-20T21:00:00.000Z"
+          },
+          "isEntryOpen": {
+            "BOOL": false
+          },
+          "accountNumber": {
+            "S": "FI6420012001013623"
+          },
+          "organizer": {
+            "M": {
+              "name": {
+                "S": "Toinen Yhdistys"
+              },
+              "id": {
+                "N": "2"
+              }
+            }
+          },
+          "cost": {
+            "N": "30"
+          },
+          "description": {
+            "S": "Paikalla myös buffa "
+          },
+          "modifiedBy": {
+            "S": "anonymous"
+          }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "eventType": {
+            "S": "NOME-B"
+          },
+          "id": {
+            "S": "f2c6c56b-f193-4a2a-96f5-2af166884217"
+          },
+          "isEntryUpcoming": {
+            "BOOL": false
+          },
+          "modifiedAt": {
+            "S": "2022-02-17T12:05:31.784Z"
+          },
+          "location": {
+            "S": "Jyväskylä"
+          },
+          "secretary": {
+            "M": {
+              "name": {
+                "S": "Siiri Sihteeri"
+              },
+              "location": {
+                "S": "Praha"
+              },
+              "id": {
+                "N": "2"
+              },
+              "phone": {
+                "S": "0700-siiri"
+              },
+              "email": {
+                "S": "siiri@example.org"
+              }
+            }
+          },
+          "endDate": {
+            "S": "2022-05-20T21:00:00.000Z"
+          },
+          "classes": {
+            "L": []
+          },
+          "createdAt": {
+            "S": "2022-02-17T12:05:31.784Z"
+          },
+          "isEntryOpen": {
+            "BOOL": false
+          },
+          "createdBy": {
+            "S": "anonymous"
+          },
+          "name": {
+            "S": "Alustava NOME-B"
+          },
+          "isEntryClosing": {
+            "BOOL": false
+          },
+          "organizer": {
+            "M": {
+              "name": {
+                "S": "Järjestäjä 1"
+              },
+              "id": {
+                "N": "1"
+              }
+            }
+          },
+          "state": {
+            "S": "tentative"
+          },
+          "startDate": {
+            "S": "2022-05-20T21:00:00.000Z"
+          },
+          "judges": {
+            "L": []
+          },
+          "modifiedBy": {
+            "S": "anonymous"
+          }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "eventType": {
+            "S": "NOME-B"
+          },
+          "id": {
+            "S": "0001"
+          },
+          "allowOnlineEntry": {
+            "BOOL": true
+          },
+          "isEntryUpcoming": {
+            "BOOL": false
+          },
+          "endDate": {
+            "S": "2022-03-25T00:00:00.000Z"
+          },
+          "paymentDetails": {
+            "S": "lorem ipsum"
+          },
+          "classes": {
+            "L": [
+              {
+                "M": {
+                  "date": {
+                    "S": "2022-03-24T00:00:00.000Z"
+                  },
+                  "class": {
+                    "S": "ALO"
+                  },
+                  "judge": {
+                    "M": {
+                      "name": {
+                        "S": "Ahola Pauliina"
+                      },
+                      "id": {
+                        "N": "751529"
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "M": {
+                  "date": {
+                    "S": "2022-03-24T00:00:00.000Z"
+                  },
+                  "class": {
+                    "S": "AVO"
+                  },
+                  "judge": {
+                    "M": {
+                      "name": {
+                        "S": "Ahola Pauliina"
+                      },
+                      "id": {
+                        "N": "751529"
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "official": {
+            "M": {
+              "name": {
+                "S": "Teemu Toimitsija"
+              },
+              "location": {
+                "S": "Ähtäri"
+              },
+              "id": {
+                "N": "1"
+              },
+              "phone": {
+                "S": "0700-teemu"
+              },
+              "email": {
+                "S": "teemu@example.org"
+              }
+            }
+          },
+          "name": {
+            "S": "Nuusku"
+          },
+          "isEntryClosing": {
+            "BOOL": false
+          },
+          "createdBy": {
+            "S": "anonymous"
+          },
+          "state": {
+            "S": "confirmed"
+          },
+          "costMember": {
+            "N": "35"
+          },
+          "contactInfo": {
+            "M": {
+              "secretary": {
+                "M": {
+                  "name": {
+                    "BOOL": true
+                  },
+                  "phone": {
+                    "BOOL": true
+                  },
+                  "email": {
+                    "BOOL": true
+                  }
+                }
+              }
+            }
+          },
+          "allowOwnerMembershipPriority": {
+            "BOOL": true
+          },
+          "startDate": {
+            "S": "2022-03-24T00:00:00.000Z"
+          },
+          "judges": {
+            "L": [
+              {
+                "N": "751529"
+              }
+            ]
+          },
+          "allowHandlerMembershipPriority": {
+            "BOOL": true
+          },
+          "referenceNumber": {
+            "S": "11041"
+          },
+          "location": {
+            "S": "Liperi"
+          },
+          "modifiedAt": {
+            "S": "2022-02-15T22:24:16.656Z"
+          },
+          "secretary": {
+            "M": {
+              "name": {
+                "S": "Siiri Sihteeri"
+              },
+              "location": {
+                "S": "Praha"
+              },
+              "id": {
+                "N": "2"
+              },
+              "phone": {
+                "S": "0700-siiri"
+              },
+              "email": {
+                "S": "siiri@example.org"
+              }
+            }
+          },
+          "requirePaymentBeforeEntry": {
+            "BOOL": false
+          },
+          "entryEndDate": {
+            "S": "2022-03-01T00:00:00.000Z"
+          },
+          "entryStartDate": {
+            "S": "2022-02-15T22:00:00.000Z"
+          },
+          "places": {
+            "N": "15"
+          },
+          "createdAt": {
+            "S": "2022-02-15T22:24:16.656Z"
+          },
+          "isEntryOpen": {
+            "BOOL": true
+          },
+          "entries": {
+            "N": "10"
+          },
+          "accountNumber": {
+            "S": "FI46...."
+          },
+          "organizer": {
+            "M": {
+              "name": {
+                "S": "Järjestäjä 1"
+              },
+              "id": {
+                "N": "1"
+              }
+            }
+          },
+          "cost": {
+            "N": "40"
+          },
+          "allowOnlinePayment": {
+            "BOOL": true
+          },
+          "unofficial": {
+            "BOOL": false
+          },
+          "description": {
+            "S": "Pietun pysti jaossa ALO-luokassa"
+          },
+          "modifiedBy": {
+            "S": "anonymous"
+          }
+        }
+      }
+    }
+  ]
+}
