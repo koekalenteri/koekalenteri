@@ -9,10 +9,19 @@ type EventDates = keyof PickByType<Event, Date>;
 
 const EVENT_DATE_PROPS: EventDates[] = ['startDate', 'endDate', 'entryStartDate', 'entryEndDate', 'createdAt', 'modifiedAt'];
 
-export function rehydrateEvent(event: Event, now = new Date()): EventEx {
+function rehydrateDate(value: string | number | Date | undefined) {
+  if (value instanceof Date) {
+    return value;
+  }
+  if (value) {
+    return new Date(value);
+  }
+}
+
+export function rehydrateEvent(event: Partial<Event>, now = new Date()): Partial<EventEx> {
 
   for (const prop of EVENT_DATE_PROPS) {
-    event[prop] = event[prop] && new Date(event[prop]);
+    event[prop] = rehydrateDate(event[prop]);
   }
   if (event.deletedAt) {
     event.deletedAt = new Date(event.deletedAt);
@@ -25,14 +34,25 @@ export function rehydrateEvent(event: Event, now = new Date()): EventEx {
     if (typeof cls === 'string') {
       continue;
     }
-    cls.date = new Date(cls.date || event.startDate);
+    cls.date = rehydrateDate(cls.date || event.startDate);
   }
 
-  const isEntryOpen = startOfDay(event.entryStartDate) <= now && endOfDay(event.entryEndDate) >= now;
+  let isEntryOpen = false;
+  let isEntryClosing = false;
+  let isEntryUpcoming = false;
+
+  if (event.entryStartDate && event.entryEndDate) {
+    isEntryOpen = event.state === 'confirmed' &&
+      startOfDay(event.entryStartDate) <= now &&
+      endOfDay(event.entryEndDate) >= now;
+    isEntryClosing = isEntryOpen && subDays(event.entryEndDate, 7) <= endOfDay(now);
+    isEntryUpcoming = event.entryStartDate > now;
+  }
+
   return {
     ...event,
     isEntryOpen,
-    isEntryClosing: isEntryOpen && subDays(event.entryEndDate, 7) <= endOfDay(now),
-    isEntryUpcoming: event.entryStartDate > now
+    isEntryClosing,
+    isEntryUpcoming
   };
 }
