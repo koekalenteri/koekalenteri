@@ -6,9 +6,8 @@ import { Header } from '../layout';
 import { useSessionStarted, useStores } from '../stores';
 import type { EventEx } from 'koekalenteri-shared/model';
 import { useTranslation } from 'react-i18next';
-import { RegistrationForm } from '../components/RegistrationForm';
-import { LinkButton } from '../components/Buttons';
 import { entryDateColor } from '../utils';
+import { CostInfo, LinkButton, RegistrationForm } from '../components';
 
 export const EventPage = () => {
   const params = useParams();
@@ -99,7 +98,7 @@ function EventComponent({ event, classDate = '', className = '' }: { event: Even
             </TableRow>
             <TableRow key={event.id + 'payment'}>
               <TableCell component="th" scope="row">{t('paymentDetails')}:</TableCell>
-              <TableCell>{event.paymentDetails}</TableCell>
+              <TableCell><CostInfo event={event} /></TableCell>
             </TableRow>
             <TableRow key={event.id + 'description'}>
               <TableCell component="th" scope="row">{te('description')}:</TableCell>
