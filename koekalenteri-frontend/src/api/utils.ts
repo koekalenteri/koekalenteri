@@ -1,5 +1,6 @@
 import type { Event, EventEx } from 'koekalenteri-shared/model';
 import { endOfDay, startOfDay, subDays } from 'date-fns';
+import { DEFAULT_EVENT } from './defaultEvent';
 
 // https://stackoverflow.com/a/69756175/10359775
 type PickByType<T, Value> = {
@@ -18,7 +19,7 @@ function rehydrateDate(value: string | number | Date | undefined) {
   }
 }
 
-export function rehydrateEvent(event: Partial<Event>, now = new Date()): Partial<EventEx> {
+export function rehydrateEvent(event: Partial<Event>, now = new Date()): EventEx {
 
   for (const prop of EVENT_DATE_PROPS) {
     event[prop] = rehydrateDate(event[prop]);
@@ -27,10 +28,7 @@ export function rehydrateEvent(event: Partial<Event>, now = new Date()): Partial
     event.deletedAt = new Date(event.deletedAt);
   }
 
-  event.classes = event.classes || [];
-  event.judges = event.judges || [];
-
-  for (const cls of event.classes) {
+  for (const cls of event.classes || []) {
     if (typeof cls === 'string') {
       continue;
     }
@@ -50,6 +48,7 @@ export function rehydrateEvent(event: Partial<Event>, now = new Date()): Partial
   }
 
   return {
+    ...DEFAULT_EVENT,
     ...event,
     isEntryOpen,
     isEntryClosing,
