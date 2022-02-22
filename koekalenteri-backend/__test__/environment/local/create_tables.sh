@@ -1,8 +1,6 @@
 #!/bin/zsh
-echo `pwd`
 export JSON_PATH='__test__/environment/local/'
 cd ${JSON_PATH}
-echo `pwd`
 
 aws dynamodb delete-table --table-name event-table --endpoint-url http://127.0.0.1:8000
 
