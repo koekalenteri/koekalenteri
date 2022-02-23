@@ -1,6 +1,7 @@
 export * from './Buttons';
 export * from './DateRange';
 export * from './CollapsibleSection';
+export * from './CostInfo';
 export * from './EventClasses';
 export * from './EventFilter';
 export * from './EventForm';

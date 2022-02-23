@@ -7,16 +7,26 @@
             "S": "Tuomari 1"
           },
           "id": {
-            "N": "888888"
+            "N": "100001"
           },
           "location": {
-            "S": "Helsinki"
+            "S": "Paikkakunta 1"
           },
           "phone": {
-            "S": "123456789"
+            "S": "1234..."
           },
           "email": {
-            "S": "tuomari1@sposti.not"
+            "S": "tuomari2@kolumbus.fi"
+          },
+          "languages": {
+            "L": [{
+              "S": "FI"
+            }]
+          },
+          "eventTypes": {
+            "L": [{
+              "S": "NOU"
+            }]
           }
         }
       }
@@ -28,16 +38,30 @@
             "S": "Tuomari 2"
           },
           "id": {
-            "N": "999999"
+            "N": "100002"
           },
           "location": {
-            "S": "Tampere"
+            "S": "Paikkakunta 2"
           },
           "phone": {
-            "S": "123456788"
+            "S": "1234..."
           },
           "email": {
-            "S": "tuomari2@sposti.not"
+            "S": "tuomari2@gmail.com"
+          },
+          "languages": {
+            "L": [{
+              "S": "FI"
+            }, {
+              "S": "SV"
+            }]
+          },
+          "eventTypes": {
+            "L": [{
+              "S": "NOME-A"
+            }, {
+              "S": "NOWT"
+            }]
           }
         }
       }
@@ -49,19 +73,38 @@
             "S": "Tuomari 3"
           },
           "id": {
-            "N": "777777"
+            "N": "100003"
           },
           "location": {
-            "S": "Turku"
+            "S": "Paikkakunta 3"
           },
           "phone": {
-            "S": "123456787"
+            "S": "1234..."
           },
           "email": {
-            "S": "tuomari3@sposti.not"
+            "S": "tuomari3@gmail.com"
+          },
+          "languages": {
+            "L": [{
+              "S": "FI"
+            }, {
+              "S": "SV"
+            }]
+          },
+          "eventTypes": {
+            "L": [{
+              "S": "NOU"
+            }, {
+              "S": "NOME-B"
+            }, {
+              "S": "NOME-A"
+            }, {
+              "S": "NOWT"
+            }]
           }
         }
       }
     }
+
   ]
 }

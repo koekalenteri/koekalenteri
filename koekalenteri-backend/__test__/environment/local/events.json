@@ -121,10 +121,10 @@
                   "judge": {
                     "M": {
                       "name": {
-                        "S": "Aaltonen Risto"
+                        "S": "Tuomari 2"
                       },
                       "id": {
-                        "N": "295731"
+                        "N": "100001"
                       }
                     }
                   },
@@ -144,10 +144,10 @@
                   "judge": {
                     "M": {
                       "name": {
-                        "S": "Ahola Pauliina"
+                        "S": "Tuomari 1"
                       },
                       "id": {
-                        "N": "751529"
+                        "N": "100002"
                       }
                     }
                   },
@@ -167,10 +167,10 @@
                   "judge": {
                     "M": {
                       "name": {
-                        "S": "Ahola Pauliina"
+                        "S": "Tuomari 1"
                       },
                       "id": {
-                        "N": "751529"
+                        "N": "100002"
                       }
                     }
                   },
@@ -232,10 +232,10 @@
           "judges": {
             "L": [
               {
-                "N": "751529"
+                "N": "100002"
               },
               {
-                "N": "295731"
+                "N": "100001"
               }
             ]
           },
@@ -424,10 +424,10 @@
                   "judge": {
                     "M": {
                       "name": {
-                        "S": "Ahola Pauliina"
+                        "S": "Tuomari 1"
                       },
                       "id": {
-                        "N": "751529"
+                        "N": "100002"
                       }
                     }
                   }
@@ -444,10 +444,10 @@
                   "judge": {
                     "M": {
                       "name": {
-                        "S": "Ahola Pauliina"
+                        "S": "Tuomari 1"
                       },
                       "id": {
-                        "N": "751529"
+                        "N": "100002"
                       }
                     }
                   }
@@ -515,7 +515,7 @@
           "judges": {
             "L": [
               {
-                "N": "751529"
+                "N": "100002"
               }
             ]
           },
@@ -581,6 +581,146 @@
               },
               "id": {
                 "N": "1"
+              }
+            }
+          },
+          "cost": {
+            "N": "40"
+          },
+          "allowOnlinePayment": {
+            "BOOL": true
+          },
+          "unofficial": {
+            "BOOL": false
+          },
+          "description": {
+            "S": "Pietun pysti jaossa ALO-luokassa"
+          },
+          "modifiedBy": {
+            "S": "anonymous"
+          }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "eventType": {
+            "S": "NOWT"
+          },
+          "id": {
+            "S": "0007"
+          },
+          "allowOnlineEntry": {
+            "BOOL": true
+          },
+          "isEntryUpcoming": {
+            "BOOL": false
+          },
+          "endDate": {
+            "S": "2022-11-24T22:00:00.000Z"
+          },
+          "paymentDetails": {
+            "S": "lorem ipsum"
+          },
+          "classes": {
+            "L": [
+              {
+                "M": {
+                  "date": {
+                    "S": "2022-11-23T22:00:00.000Z"
+                  },
+                  "class": {
+                    "S": "ALO"
+                  }
+                }
+              },
+              {
+                "M": {
+                  "date": {
+                    "S": "2022-11-23T22:00:00.000Z"
+                  },
+                  "class": {
+                    "S": "VOI"
+                  }
+                }
+              }
+            ]
+          },
+          "official": {
+            "N": "313313"
+          },
+          "name": {
+            "S": "Nuusku"
+          },
+          "isEntryClosing": {
+            "BOOL": false
+          },
+          "createdBy": {
+            "S": "anonymous"
+          },
+          "state": {
+            "S": "confirmed"
+          },
+          "costMember": {
+            "N": "35"
+          },
+          "allowOwnerMembershipPriority": {
+            "BOOL": true
+          },
+          "startDate": {
+            "S": "2022-11-23T22:00:00.000Z"
+          },
+          "judges": {
+            "L": [
+              {
+                "N": "100003"
+              }
+            ]
+          },
+          "allowHandlerMembershipPriority": {
+            "BOOL": true
+          },
+          "referenceNumber": {
+            "S": "11041"
+          },
+          "location": {
+            "S": "Liperi"
+          },
+          "modifiedAt": {
+            "S": "2022-02-16T06:12:50.544Z"
+          },
+          "requirePaymentBeforeEntry": {
+            "BOOL": false
+          },
+          "entryEndDate": {
+            "S": "2022-11-14T22:00:00.000Z"
+          },
+          "entryStartDate": {
+            "S": "2022-10-31T22:00:00.000Z"
+          },
+          "places": {
+            "N": "15"
+          },
+          "createdAt": {
+            "S": "2022-02-16T06:12:50.544Z"
+          },
+          "isEntryOpen": {
+            "BOOL": false
+          },
+          "entries": {
+            "N": "10"
+          },
+          "accountNumber": {
+            "S": "FI46...."
+          },
+          "organizer": {
+            "M": {
+              "name": {
+                "S": "Toinen Yhdistys"
+              },
+              "id": {
+                "N": "2"
               }
             }
           },

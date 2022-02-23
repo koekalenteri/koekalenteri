@@ -4,7 +4,8 @@ import { format } from 'date-fns';
 import type { EventEx, EventClass } from 'koekalenteri-shared/model';
 import { useTranslation } from 'react-i18next';
 import { entryDateColor } from '../utils';
-import { LinkButton } from '.';
+import { CostInfo, LinkButton } from '.';
+import { useStores } from '../stores';
 
 const useRowStyles = makeStyles({
   root: {
@@ -30,9 +31,12 @@ const useRowStyles = makeStyles({
 });
 
 export function EventInfo({ event }: { event: EventEx }) {
+  const { publicStore } = useStores();
   const classes = useRowStyles();
   const { t } = useTranslation('event');
   const { t: tc } = useTranslation('common');
+  const judgeName = (id: number) => publicStore.judges.find(j => j.id === id)?.name || '';
+  const allJudgesInCalsses = event.judges.filter(j => !event.classes.find(c => c.judge?.id === j)).length === 0;
   return (
     <>
       <Table size="small" aria-label="details" className={classes.root}>
@@ -53,20 +57,24 @@ export function EventInfo({ event }: { event: EventEx }) {
             <TableCell>{event.eventType}</TableCell>
           </TableRow>
           {event.classes.length ? <EventClassRow key={event.id + 'classes'} event={event} /> : ''}
-          <TableRow key={event.id + 'judge' + event.judges[0]}>
-            <TableCell component="th" scope="row" rowSpan={event.judges.length}>{t('judges')}:</TableCell>
-            <TableCell>{event.judges[0]}</TableCell>
-          </TableRow>
-          {event.judges.slice(1).map((judge) => (
-            <TableRow key={event.id + 'judge' + judge}><TableCell>{judge}</TableCell></TableRow>
-          ))}
+          {allJudgesInCalsses ? '' :
+            <>
+              <TableRow key={event.id + 'judge' + event.judges[0]}>
+                <TableCell component="th" scope="row" rowSpan={event.judges.length}>{t('judges')}:</TableCell>
+                <TableCell>{judgeName(event.judges[0])}</TableCell>
+              </TableRow>
+              {event.judges.slice(1).map((judgeId) => (
+                <TableRow key={event.id + 'judge' + judgeId}><TableCell>{judgeName(judgeId)}</TableCell></TableRow>
+              ))}
+            </>
+          }
           <TableRow key={event.id + 'official'}>
             <TableCell component="th" scope="row">{t('official')}:</TableCell>
             <TableCell>{event.official?.name || ''}</TableCell>
           </TableRow>
           <TableRow key={event.id + 'payment'}>
             <TableCell component="th" scope="row">{t('paymentDetails')}:</TableCell>
-            <TableCell>{event.paymentDetails}</TableCell>
+            <TableCell><CostInfo event={event} /></TableCell>
           </TableRow>
           <TableRow key={event.id + 'location'}>
             <TableCell component="th" scope="row">{t('location')}:</TableCell>
@@ -114,13 +122,15 @@ function EventClassTable({ event }: EventProps) {
 function EventClassTableRow({ event, eventClass }: { event: EventEx, eventClass: EventClass }) {
   const { t } = useTranslation();
   const classDate = format(eventClass.date || event.startDate || new Date(), t('dateformatS'));
+  const entryStatus = eventClass.places ? `${eventClass.entries || 0}/${eventClass.places}` : '';
+  const memberStatus = eventClass.members ? `(${eventClass.members} jäsentä)` : '';
   return (
     <TableRow>
       <TableCell component="th" scope="row">{t('dateshort', { date: eventClass.date })}</TableCell>
       <TableCell component="th" scope="row">{eventClass.class}</TableCell>
       <TableCell component="th" scope="row">{eventClass.judge?.name}</TableCell>
-      <TableCell component="th" scope="row" align="right">{eventClass.entries}/{eventClass.places}</TableCell>
-      <TableCell component="th" scope="row" align="right">{eventClass.members}</TableCell>
+      <TableCell component="th" scope="row" align="right">{entryStatus}</TableCell>
+      <TableCell component="th" scope="row" align="right">{memberStatus}</TableCell>
       <TableCell component="th" scope="row">
         {event.isEntryOpen ? <LinkButton to={`/event/${event.eventType}/${event.id}/${eventClass.class}/${classDate}`} text={t('register')} /> : ''}
       </TableCell>
