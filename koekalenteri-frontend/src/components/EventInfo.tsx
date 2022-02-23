@@ -113,7 +113,7 @@ function EventClassTable({ event }: EventProps) {
 
 function EventClassTableRow({ event, eventClass }: { event: EventEx, eventClass: EventClass }) {
   const { t } = useTranslation();
-  const classDate = format(eventClass.date || event.startDate, t('dateformatS'));
+  const classDate = format(eventClass.date || event.startDate || new Date(), t('dateformatS'));
   return (
     <TableRow>
       <TableCell component="th" scope="row">{t('dateshort', { date: eventClass.date })}</TableCell>

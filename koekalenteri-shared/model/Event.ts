@@ -7,10 +7,10 @@ export type Event = {
   organizer: Organizer
   eventType: string
   classes: Array<EventClass>
-  startDate: Date
-  endDate: Date
-  entryStartDate: Date
-  entryEndDate: Date
+  startDate?: Date
+  endDate?: Date
+  entryStartDate?: Date
+  entryEndDate?: Date
   location: string
   headquerters?: Partial<Headquarters>
   name: string
@@ -28,12 +28,12 @@ export type Event = {
   official: Official
   secretary: Secretary
   contactInfo?: Partial<ContactInfo>
-  createdAt: Date
-  createdBy: string
+  createdAt?: Date
+  createdBy?: string
   deletedAt?: Date
   deletedBy?: string
-  modifiedAt: Date
-  modifiedBy: string
+  modifiedAt?: Date
+  modifiedBy?: string
 }
 
 export type EventClass = {
@@ -72,4 +72,12 @@ export interface EventEx extends Event {
   isEntryOpen: boolean
   isEntryClosing: boolean
   isEntryUpcoming: boolean
+}
+
+export type ConfirmedEventEx = EventEx & {
+  state: 'confirmed',
+  startDate: Date,
+  endDate: Date,
+  entryStartDate: Date,
+  entryEndDate: Date
 }

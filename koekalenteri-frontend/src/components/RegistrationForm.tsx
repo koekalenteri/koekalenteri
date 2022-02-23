@@ -3,7 +3,7 @@ import { DatePicker } from '@mui/lab';
 import { Box, Checkbox, Chip, FormControl, FormControlLabel, FormHelperText, Grid, InputLabel, Link, MenuItem, Select, SelectChangeEvent, TextField } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import { eachDayOfInterval, format, subMonths, subYears } from 'date-fns';
-import type { EventEx, EventClass } from 'koekalenteri-shared/model';
+import type { EventClass, ConfirmedEventEx } from 'koekalenteri-shared/model';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CollapsibleSection, MultiSelect, stringsToMultiSelectOptions } from '.';
@@ -18,7 +18,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export function RegistrationForm({ event, className, classDate }: { event: EventEx, className?: string, classDate?: string }) {
+export function RegistrationForm({ event, className, classDate }: { event: ConfirmedEventEx, className?: string, classDate?: string }) {
   const classes = useStyles();
   return (
     <Box className={classes.root} sx={{pb: 0.5}}>
@@ -41,7 +41,7 @@ export function RegistrationForm({ event, className, classDate }: { event: Event
   );
 }
 
-function classDates(event: EventEx, eventClass: string, fmt: string): string[] {
+function classDates(event: ConfirmedEventEx, eventClass: string, fmt: string): string[] {
   const classes = event.classes.filter(cls => typeof cls !== 'string' && (eventClass === '' || cls.class === eventClass)) as EventClass[];
   const dates = classes.length ? classes.map(c => c.date || event.startDate) : eachDayOfInterval({ start: event.startDate, end: event.endDate });
   const strings = unique(dates.map(date => format(date, fmt)));
@@ -53,7 +53,7 @@ function classDates(event: EventEx, eventClass: string, fmt: string): string[] {
   return result;
 }
 
-function eventClasses(event: EventEx): string[] {
+function eventClasses(event: ConfirmedEventEx): string[] {
   return unique(event.classes.map(c => c.class));
 }
 
@@ -76,7 +76,7 @@ function renderDates(selected: string[]) {
   );
 }
 
-function EventEntryInfo({event, className, classDate}: {event: EventEx, className?: string, classDate?: string}) {
+function EventEntryInfo({event, className, classDate}: {event: ConfirmedEventEx, className?: string, classDate?: string}) {
   const {t} = useTranslation();
   const [reserve, setReserve] = useState('1');
   const [eventClass, setEventClass] = useState(className || '');

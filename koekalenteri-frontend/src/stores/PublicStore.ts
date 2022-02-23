@@ -65,7 +65,7 @@ export class PublicStore {
   async load(reload = false) {
     this.setLoading(true);
     this._events = (await eventApi.getEvents())
-      .sort((a: EventEx, b: EventEx) => +new Date(a.startDate) - +new Date(b.startDate));
+      .sort((a: EventEx, b: EventEx) => +new Date(a.startDate || new Date()) - +new Date(b.startDate || new Date()));
     this._applyFilter();
 
     if (!reload) {
@@ -102,10 +102,10 @@ export class PublicStore {
 }
 
 function withinDateFilters(event: EventEx, { start, end }: FilterProps) {
-  if (start && event.endDate < start) {
+  if (start && (!event.endDate || event.endDate < start)) {
     return false;
   }
-  if (end && event.startDate > end) {
+  if (end && (!event.startDate || event.startDate > end)) {
     return false;
   }
   return true;

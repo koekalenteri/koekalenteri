@@ -4,7 +4,7 @@ import { makeStyles } from '@mui/styles';
 import { useParams } from 'react-router-dom';
 import { Header } from '../layout';
 import { useSessionStarted, useStores } from '../stores';
-import type { EventEx } from 'koekalenteri-shared/model';
+import type { ConfirmedEventEx } from 'koekalenteri-shared/model';
 import { useTranslation } from 'react-i18next';
 import { RegistrationForm } from '../components/RegistrationForm';
 import { LinkButton } from '../components/Buttons';
@@ -13,14 +13,14 @@ import { entryDateColor } from '../utils';
 export const EventPage = () => {
   const params = useParams();
   const { publicStore } = useStores();
-  const [event, setEvent] = useState<EventEx>();
+  const [event, setEvent] = useState<ConfirmedEventEx>();
   const [sessionStarted] = useSessionStarted();
   const { t } = useTranslation();
 
   useEffect(() => {
     const abort = new AbortController();
     async function get(eventType: string, id: string) {
-      const result = await publicStore.get(eventType, id, abort.signal);
+      const result = await publicStore.get(eventType, id, abort.signal) as ConfirmedEventEx;
       setEvent(result);
     }
     if (params.eventType && params.id) {
@@ -64,7 +64,7 @@ const useStyles = makeStyles({
   }
 });
 
-function EventComponent({ event, classDate = '', className = '' }: { event: EventEx, classDate?: string, className?: string }) {
+function EventComponent({ event, classDate = '', className = '' }: { event: ConfirmedEventEx, classDate?: string, className?: string }) {
   const { t } = useTranslation();
   const { t: te } = useTranslation('event');
   const classes = useStyles();

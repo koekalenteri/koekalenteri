@@ -6,9 +6,9 @@ import { DEFAULT_EVENT } from './defaultEvent';
 type PickByType<T, Value> = {
   [P in keyof T as T[P] extends Value ? P : never]: T[P]
 }
-type EventDates = keyof PickByType<Event, Date>;
+type EventDates = keyof PickByType<Event, Date|undefined>;
 
-const EVENT_DATE_PROPS: EventDates[] = ['startDate', 'endDate', 'entryStartDate', 'entryEndDate', 'createdAt', 'modifiedAt'];
+const EVENT_DATE_PROPS: EventDates[] = ['startDate', 'endDate', 'entryStartDate', 'entryEndDate', 'createdAt', 'modifiedAt', 'deletedAt'];
 
 function rehydrateDate(value: string | number | Date | undefined) {
   if (value instanceof Date) {
