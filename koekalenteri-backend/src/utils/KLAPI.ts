@@ -63,7 +63,7 @@ export default class KLAPI {
     if (!regno || !lang) {
       return { status: 404 };
     }
-    return await this.get('Koira/Lue/Perustiedot', {
+    return this.get('Koira/Lue/Perustiedot', {
       Rekisterinumero: regno,
       Kieli: lang
     });

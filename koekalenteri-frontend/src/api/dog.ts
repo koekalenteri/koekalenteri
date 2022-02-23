@@ -3,7 +3,7 @@ import http from './http';
 
 const PATH = '/dog/';
 
-function rehydrateDog(dog: Dog): Dog {
+export function rehydrateDog(dog: Dog): Dog {
   if (dog.dob) {
     dog.dob = new Date(dog.dob);
   }

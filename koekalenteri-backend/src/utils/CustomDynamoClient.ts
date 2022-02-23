@@ -49,6 +49,6 @@ export default class CustomDynamoClient {
       TableName: this.table,
       Item,
     };
-    return await this.docClient.put(params).promise();
+    return this.docClient.put(params).promise();
   }
 }
