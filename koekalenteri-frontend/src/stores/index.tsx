@@ -19,3 +19,5 @@ export const useSessionBoolean = (key: string, defaultValue: boolean): [boolean,
   useEffect(() => setStringValue(value ? 'true' : null), [value, setStringValue]);
   return [value, setValue];
 }
+
+export { useLocalStorage, useSessionStorage };

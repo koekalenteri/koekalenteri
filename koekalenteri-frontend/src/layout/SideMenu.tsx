@@ -4,7 +4,7 @@ import { Divider, Toolbar } from '@mui/material';
 import { Accessibility, Event, Logout, Menu, PersonOutline, Support } from '@mui/icons-material';
 import { DrawerItem, DrawerList, MiniDrawer } from '../components/MiniDrawer';
 import { useTranslation } from 'react-i18next';
-import { useLocalStorage } from '../stores/browser';
+import { useLocalStorage } from '../stores';
 import { ADMIN_EVENTS, ADMIN_JUDGES, ADMIN_ORGS, ADMIN_USERS } from '../config';
 
 export function SideMenu() {

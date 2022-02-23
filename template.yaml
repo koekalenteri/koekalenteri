@@ -192,6 +192,25 @@ Resources:
       SSESpecification:
         SSEEnabled: false
 
+  DogTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Join ['-', [dog-table, !Ref AWS::StackName]]
+      KeySchema:
+          - AttributeName: regNo
+            KeyType: HASH
+      AttributeDefinitions:
+          - AttributeName: regNo
+            AttributeType: S
+      Tags:
+        - Key: "env"
+          Value: !Ref AWS::StackName
+        - Key: "label"
+          Value: "koekalenteri"
+      BillingMode: PAY_PER_REQUEST
+      SSESpecification:
+        SSEEnabled: false
+
   # TODO Rest of table definitions, maybe split tables into separate file?
 
   # API declaration
@@ -371,6 +390,32 @@ Resources:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
             Path: /organizer
+            Method: get
+            RestApiId: !Ref KoekalenteriApi
+
+  GetDogFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: koekalenteri-backend
+      Handler: dist/handlers/dog.getDogHandler
+      Layers:
+        - !Ref CommonLayer
+      Tracing: Active
+      Policies:
+        - AmazonSSMReadOnlyAccess: {}
+        - CloudWatchPutMetricPolicy: {}
+        - DynamoDBReadPolicy:
+            TableName: !Ref DogTable
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref DogTable
+          AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
+
+      Events:
+        getDog:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /dog/{regNo}
             Method: get
             RestApiId: !Ref KoekalenteriApi
 

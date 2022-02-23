@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { useLocalStorage, useSessionStorage } from "./browser";
+import { useLocalStorage, useSessionStorage } from ".";
 
 function LocalTestComponent() {
   const [data, setData] = useLocalStorage("test", "useLocalStorage Default");

@@ -36,3 +36,9 @@ aws dynamodb create-table `
   --billing-mode PAY_PER_REQUEST --endpoint-url http://127.0.0.1:8000
 
 aws dynamodb put-item --table-name organizer-table --item file://organizer1.json --endpoint-url http://127.0.0.1:8000
+
+aws dynamodb create-table `
+  --table-name dog-table `
+  --attribute-definitions AttributeName=regNo,AttributeType=S `
+  --key-schema AttributeName=regNo,KeyType=HASH `
+  --billing-mode PAY_PER_REQUEST --endpoint-url http://127.0.0.1:8000

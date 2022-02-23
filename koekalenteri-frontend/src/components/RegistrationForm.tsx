@@ -1,12 +1,14 @@
-import { DarkMode, LightMode } from '@mui/icons-material';
+import { DarkMode, LightMode, RefreshOutlined } from '@mui/icons-material';
 import { DatePicker } from '@mui/lab';
-import { Box, Checkbox, Chip, FormControl, FormControlLabel, FormHelperText, Grid, InputLabel, Link, MenuItem, Select, SelectChangeEvent, TextField } from '@mui/material';
+import { Autocomplete, Box, Checkbox, Chip, FormControl, FormControlLabel, FormHelperText, Grid, IconButton, InputAdornment, InputLabel, Link, MenuItem, Select, SelectChangeEvent, TextField } from '@mui/material';
 import { makeStyles } from '@mui/styles';
-import { eachDayOfInterval, format, subMonths, subYears } from 'date-fns';
-import type { EventClass, ConfirmedEventEx } from 'koekalenteri-shared/model';
+import { differenceInMinutes, eachDayOfInterval, format, subMonths, subYears } from 'date-fns';
+import { EventClass, ConfirmedEventEx, Dog, DogGender } from 'koekalenteri-shared/model';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CollapsibleSection, MultiSelect, stringsToMultiSelectOptions } from '.';
+import { getDog } from '../api/dog';
+import { useLocalStorage } from '../stores';
 import { unique } from '../utils';
 
 const useStyles = makeStyles(theme => ({
@@ -135,44 +137,74 @@ function EventEntryInfo({event, className, classDate}: {event: ConfirmedEventEx,
   );
 }
 
+type BreedCode = '110' | '111' | '121' | '122' | '263' | '312';
+
 function DogInfo({ eventDate, minDogAgeMonths }: { eventDate: Date, minDogAgeMonths: number }) {
-  const {t} = useTranslation();
-  const [dob, setDob] = useState<Date | null>(null);
-  const [gender, setGender] = useState("");
-  const [breed, setBreed] = useState("");
-  const genderChanged = (event: SelectChangeEvent) => { setGender(event.target.value); }
-  const breedChanged = (event: SelectChangeEvent) => { setBreed(event.target.value); }
+  const { t } = useTranslation();
+  const [loading, setLoading] = useState(false);
+  const [dogs, setDogs] = useLocalStorage('dogs', '');
+  const [regNo, setRegNo] = useState<string>('');
+  const [dog, setDog] = useState<Partial<Dog>>({});
+  const allowRefresh = dog && (!dog.refreshDate || differenceInMinutes(new Date(), dog.refreshDate as Date) > 5);
+  const genderChanged = (event: SelectChangeEvent) => { setDog({ ...dog, gender: event.target.value as DogGender }); }
+  const loadDog = async(value?: string, refresh?: boolean) => {
+    if (!value) {
+      value = regNo;
+    }
+    if (value !== '' && (dog.regNo !== value || refresh)) {
+      setLoading(true);
+      const lookup = await getDog(value, refresh);
+      setDog(lookup);
+      setLoading(false);
+      if (lookup && lookup.regNo) {
+        const newDogs = (dogs?.split(',') || []);
+        newDogs.push(value);
+        setDogs(unique(newDogs).filter(v => v !== '').join(','));
+      }
+    }
+  }
   return (
-    <CollapsibleSection title="Koiran tiedot">
+    <CollapsibleSection title="Koiran tiedot" loading={loading}>
       <Grid container spacing={1}>
-        <Grid item>
-          <TextField sx={{width: 146, mr: 0.5}} label="Koiran rekisterinumero" />
-          <TextField sx={{width: 146, ml: 0.5}} label="Tunnistusmerkintä" />
+        <Grid item sx={{ minWidth: 220 }}>
+          <Autocomplete
+            freeSolo
+            renderInput={(props) =>
+              <TextField {...props}
+                label="Koiran rekisterinumero"
+                InputProps={{
+                  ...props.InputProps,
+                  endAdornment: <>{allowRefresh ? <InputAdornment position="end">
+                    <IconButton size="small" onClick={() => loadDog(undefined, true)}><RefreshOutlined fontSize="small" /></IconButton>
+                  </InputAdornment> : ''}{props.InputProps.endAdornment}</>
+                }}
+              />}
+            value={regNo}
+            onChange={(e, value) => { setRegNo(value || ''); loadDog(value || ''); }}
+            onInputChange={(e, value) => setRegNo(value)}
+            options={dogs?.split(',') || []}
+            onBlur={() => loadDog()}
+          />
         </Grid>
         <Grid item>
-          <FormControl sx={{width: 300}}>
-            <InputLabel id="breed-label">Rotu</InputLabel>
-            <Select
-              labelId="breed-label"
-              id="breed-select"
-              value={breed}
-              label="Rotu"
-              onChange={breedChanged}
-            >
-              <MenuItem value="LR">Labradorinnoutaja</MenuItem>
-              <MenuItem value="GR">Kultainennoutaja</MenuItem>
-              <MenuItem value="FC">Sileäkarvainen noutaja</MenuItem>
-              <MenuItem value="NS">Novascotiannoutaja</MenuItem>
-              <MenuItem value="CC">Kiharakarvainen noutaja</MenuItem>
-              <MenuItem value="CB">Chesapeakelahdennoutaja</MenuItem>
-            </Select>
-          </FormControl>
+          <TextField fullWidth label="Tunnistusmerkintä" value={dog.rfid || ''} />
+        </Grid>
+        <Grid item sx={{ width: 300 }}>
+          <Autocomplete
+            sx={{display: 'flex'}}
+            fullWidth
+            renderInput={(props) => <TextField {...props} label="Rotu" />}
+            value={dog.breedCode || ''}
+            onChange={(e, value) => setDog({ ...dog, breedCode: value || '' })}
+            options={['122', '111', '121', '312', '110', '263']}
+            getOptionLabel={(v) => v ? t(`breed_${v as BreedCode}`) : ''}
+          />
         </Grid>
         <Grid item sm={12} lg={'auto'}>
           <FormControl sx={{width: 146, mr: 0.5}}>
             <DatePicker
               label="Syntymäaika"
-              value={dob}
+              value={dog.dob || ''}
               mask={t('datemask')}
               inputFormat={t('dateformat')}
               minDate={subYears(new Date(), 15)}
@@ -180,7 +212,7 @@ function DogInfo({ eventDate, minDogAgeMonths }: { eventDate: Date, minDogAgeMon
               defaultCalendarMonth={subYears(new Date(), 2)}
               openTo={'year'}
               views={['year', 'month', 'day']}
-              onChange={setDob}
+              onChange={(value) => setDog({...dog, dob: value || ''})}
               renderInput={(params) => <TextField {...params} />}
             />
           </FormControl>
@@ -189,7 +221,7 @@ function DogInfo({ eventDate, minDogAgeMonths }: { eventDate: Date, minDogAgeMon
             <Select
               labelId="gender-label"
               id="gender-select"
-              value={gender}
+              value={dog.gender || ''}
               label="Sukupuoli"
               onChange={genderChanged}
             >
@@ -203,7 +235,7 @@ function DogInfo({ eventDate, minDogAgeMonths }: { eventDate: Date, minDogAgeMon
             <TextField sx={{width: 300}} label="Tittelit" />
           </Grid>
           <Grid item>
-            <TextField sx={{width: 300}} label="Nimi" />
+            <TextField sx={{width: 300}} label="Nimi" value={dog.name || ''} onChange={(e) => setDog({...dog, name: e.target.value})} />
           </Grid>
         </Grid>
         <Grid item container spacing={1}>
