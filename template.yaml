@@ -291,7 +291,7 @@ Resources:
             Method: get
             RestApiId: !Ref KoekalenteriApi
 
-  CreateEventFunction:
+  PutEventFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
       CodeUri: koekalenteri-backend
@@ -309,7 +309,7 @@ Resources:
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
 
       Events:
-        CreateEvent:
+        PutEvent:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
             Path: /event

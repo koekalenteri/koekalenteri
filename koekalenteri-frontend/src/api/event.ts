@@ -14,6 +14,6 @@ export async function getEvent(eventType: string, id: string, signal?: AbortSign
   return rehydrateEvent(jsonedEvent);
 }
 
-export async function saveEvent(event: Partial<Event>): Promise<EventEx> {
+export async function putEvent(event: Partial<Event>): Promise<EventEx> {
   return rehydrateEvent(await http.post<Partial<Event>, EventEx>(PATH, event));
 }

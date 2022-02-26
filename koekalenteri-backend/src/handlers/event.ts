@@ -5,4 +5,4 @@ const dynamoDB = new CustomDynamoClient();
 
 export const getEventsHandler = genericReadAllHandler(dynamoDB, 'getEvents');
 export const getEventHandler = genericReadHandler(dynamoDB, 'getEvent');
-export const putEventHandler = genericWriteHandler(dynamoDB, 'createEvent');
+export const putEventHandler = genericWriteHandler(dynamoDB, 'putEvent');

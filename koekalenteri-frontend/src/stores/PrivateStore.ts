@@ -50,7 +50,7 @@ export class PrivateStore {
 
   async saveEvent(event: Partial<Event>) {
     const newEvent = !event.id;
-    const saved = await eventApi.saveEvent(event);
+    const saved = await eventApi.putEvent(event);
     if (newEvent) {
       this.events.push(saved);
       this.newEvent = {eventType: ''};
