@@ -18,7 +18,7 @@ type addPrefix<TKey, TPrefix extends string> = TKey extends string
 type EventStateNS = addPrefix<EventState, 'states:'>;
 type StartEndDate = { start: Date, end: Date };
 
-export const EventGrid = observer(({ events }: { events: EventEx[] }) => {
+export const EventGrid = observer(({ events }: { events: Partial<EventEx>[] }) => {
   const { t } = useTranslation(['common', 'event', 'states']);
   const { privateStore } = useStores();
   const naviage = useNavigate();
@@ -82,8 +82,8 @@ export const EventGrid = observer(({ events }: { events: EventEx[] }) => {
           const id = newSelectionModel.length === 1 ? newSelectionModel[0] : '';
           privateStore.setSelectedEvent(events.find(e => e.id === id));
         }}
-        selectionModel={privateStore.selectedEvent ? [privateStore.selectedEvent.id] : []}
-        onRowDoubleClick={(params) => naviage(ADMIN_EDIT_EVENT)}
+        selectionModel={privateStore.selectedEvent && privateStore.selectedEvent.id ? [privateStore.selectedEvent.id] : []}
+        onRowDoubleClick={(params) => naviage(`${ADMIN_EDIT_EVENT}/${privateStore.selectedEvent?.id}`)}
         sx={{
           '& .MuiDataGrid-columnHeaders': {
             backgroundColor: 'background.tableHead'

@@ -37,7 +37,7 @@ function App() {
             <Route path={ADMIN_ROOT} element={<Navigate replace to={ADMIN_DEFAULT} />} />
             <Route path={ADMIN_EVENTS} element={<ListPage />} />
             <Route path={ADMIN_NEW_EVENT} element={<EditEventPage create />} />
-            <Route path={ADMIN_EDIT_EVENT} element={<EditEventPage />} />
+            <Route path={`${ADMIN_EDIT_EVENT}/:id`} element={<EditEventPage />} />
             <Route path={ADMIN_ORGS} element={<OrganizationsPage />} />
             <Route path={ADMIN_USERS} element={<UsersPage />} />
             <Route path={ADMIN_JUDGES} element={<JudgesPage />} />

@@ -49,7 +49,16 @@ export function ValidatedAutocomplete<Property extends keyof PartialEvent, freeS
         </Box>
       }
       onChange={(e, value) => props.onChange({ [id]: value || undefined })}
-      onInputChange={(e, value) => { props.freeSolo && value !== event[id] && props.onChange({ [id]: value }); }}
+      onInputChange={(e, value) => {
+        if (!props.freeSolo) {
+          return;
+        }
+        const old = event[id];
+        const type = typeof old;
+        if ((type === 'number' && old !== +(value || '')) || (type !== 'number' && old !== value)) {
+          props.onChange({ [id]: value });
+        }
+      }}
     />
   );
 }

@@ -62,15 +62,15 @@ export class PublicStore {
     this.loaded = !value;
   }
 
-  async load(reload = false) {
+  async load(reload = false, signal?: AbortSignal) {
     this.setLoading(true);
-    this._events = (await eventApi.getEvents())
+    this._events = (await eventApi.getEvents(signal))
       .sort((a: EventEx, b: EventEx) => +new Date(a.startDate || new Date()) - +new Date(b.startDate || new Date()));
     this._applyFilter();
 
     if (!reload) {
-      const judges = await judgeApi.getJudges();
-      const organizers = await organizerApi.getOrganizers();
+      const judges = await judgeApi.getJudges(signal);
+      const organizers = await organizerApi.getOrganizers(signal);
 
       runInAction(() => {
         this.judges = judges;

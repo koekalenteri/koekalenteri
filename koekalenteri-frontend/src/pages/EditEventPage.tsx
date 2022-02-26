@@ -1,49 +1,68 @@
-import { Typography } from '@mui/material';
+import { CircularProgress, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { useSnackbar } from 'notistack';
 import { AuthPage } from './AuthPage';
 import { EventForm } from '../components';
 import { useStores } from '../stores';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { ADMIN_EVENTS } from '../config';
+import { useEffect, useState } from 'react';
 
 export function EditEventPage({create}: {create?: boolean}) {
+  const params = useParams();
   const { t } = useTranslation();
   const { t: ts } = useTranslation('states');
   const { publicStore, privateStore } = useStores();
   const { enqueueSnackbar } = useSnackbar();
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const abort = new AbortController();
+    async function get(id: string) {
+      const result = await privateStore.get(id, abort.signal);
+      privateStore.setSelectedEvent(result);
+      setLoading(false);
+    }
+    if (params.id && privateStore.selectedEvent?.id !== params.id) {
+      get(params.id);
+    } else {
+      setLoading(false);
+    }
+    return () => abort.abort();
+  }, [params, privateStore]);
 
   return (
     <AuthPage>
       <Typography variant="h5" sx={{pb: 1}}>{create ? t('createEvent') : 'Muokkaa tapahtumaa'}</Typography>
-      <EventForm
-        event={!create && privateStore.selectedEvent ? privateStore.selectedEvent : privateStore.newEvent}
-        eventTypes={publicStore.eventTypes}
-        eventTypeClasses={publicStore.eventTypeClasses}
-        judges={publicStore.judges}
-        officials={privateStore.officials}
-        organizers={publicStore.organizers}
-        onSave={async (event) => {
-          try {
-            await privateStore.saveEvent(event)
+      {loading
+        ? <CircularProgress />
+        : <EventForm
+          event={!create && privateStore.selectedEvent ? privateStore.selectedEvent : privateStore.newEvent}
+          eventTypes={publicStore.eventTypes}
+          eventTypeClasses={publicStore.eventTypeClasses}
+          judges={publicStore.judges}
+          officials={privateStore.officials}
+          organizers={publicStore.organizers}
+          onSave={async (event) => {
+            try {
+              await privateStore.saveEvent(event)
+              navigate(ADMIN_EVENTS);
+              enqueueSnackbar(ts(event.state || 'draft', { context: 'save' }), { variant: 'info' });
+              return Promise.resolve(true);
+            } catch (e: any) {
+              enqueueSnackbar(e.message, { variant: 'error' });
+              return Promise.resolve(false);
+            }
+          }}
+          onCancel={(event) => {
+            if (create) {
+              privateStore.newEvent = { ...event }
+            }
             navigate(ADMIN_EVENTS);
-            enqueueSnackbar(ts(event.state || 'draft', { context: 'save' }), { variant: 'info' });
             return Promise.resolve(true);
-          } catch (e: any) {
-            enqueueSnackbar(e.message, { variant: 'error' });
-            return Promise.resolve(false);
-          }
-        }}
-        onCancel={(event) => {
-          if (create) {
-            privateStore.newEvent = { ...event }
-          }
-          navigate(ADMIN_EVENTS);
-          return Promise.resolve(true);
-        }}
-      />
+          }}
+        />}
     </AuthPage>
   )
 }
-

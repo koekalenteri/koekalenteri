@@ -88,7 +88,7 @@ function EventFormPlaces({ event, onChange } : { event: PartialEvent, onChange: 
       <TableHead>
         <TableRow>
           <TableCell>{t('date')}</TableCell>
-          {uniqueClasses.map(c => <TableCell align='center'>{c}</TableCell>)}
+          {uniqueClasses.map(c => <TableCell key={`head${c}`} align='center'>{c}</TableCell>)}
           <TableCell align="center">Yhteensä</TableCell>
         </TableRow>
       </TableHead>
@@ -101,7 +101,7 @@ function EventFormPlaces({ event, onChange } : { event: PartialEvent, onChange: 
               {uniqueClasses.map(c => {
                 const cls = classes.find(cl => cl.class === c);
                 dayTotal += cls?.places || 0;
-                return <TableCell align="center">{cls ? <PlacesInput value={cls.places} onChange={handleChange(cls)} /> : ''}</TableCell>
+                return <TableCell key={c} align="center">{cls ? <PlacesInput value={cls.places} onChange={handleChange(cls)} /> : ''}</TableCell>
               })}
               <TableCell align="center"><PlacesDisplay value={dayTotal} /></TableCell>
             </TableRow>

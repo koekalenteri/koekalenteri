@@ -4,8 +4,8 @@ import { rehydrateEvent } from './utils';
 
 const PATH = '/event/';
 
-export async function getEvents(): Promise<EventEx[]> {
-  const jsonedEvents = await http.get<Array<Event>>(PATH);
+export async function getEvents(signal?: AbortSignal): Promise<EventEx[]> {
+  const jsonedEvents = await http.get<Array<Event>>(PATH, {signal});
   return jsonedEvents.map(event => rehydrateEvent(event));
 }
 

@@ -23,6 +23,7 @@ type EventFormParams = {
 };
 
 export function EventForm({ event, judges, eventTypes, eventTypeClasses, officials, organizers, onSave, onCancel }: EventFormParams) {
+  console.log(event?.id);
   const baseDate = startOfDay(addDays(Date.now(), 90));
   const { t } = useTranslation(['event', 'states']);
   const [local, setLocal] = useState<PartialEvent>({
@@ -38,7 +39,9 @@ export function EventForm({ event, judges, eventTypes, eventTypeClasses, officia
   const [valid, setValid] = useState(validateEvent(local));
   const fields = useMemo(() => requiredFields(local), [local]);
   const onChange = (props: Partial<Event>) => {
-    console.log('changed: ' + JSON.stringify(props));
+    const tmp: any = {};
+    Object.keys(props).forEach(k => {tmp[k] = (local as any)[k]});
+    console.log('changed: ' + JSON.stringify(props), JSON.stringify(tmp));
     if (props.eventType && eventTypeClasses[props.eventType].length === 0) {
       props.classes = [];
     }

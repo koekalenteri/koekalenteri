@@ -68,7 +68,6 @@ const validateClasses = (classes?: EventClass[]) => {
   return false;
 }
 const validateCosts = (event: PartialEvent) => {
-  console.log(event.cost, event.costMember);
   if (!event.cost) {
     return true;
   }

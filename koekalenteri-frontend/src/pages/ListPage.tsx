@@ -67,7 +67,7 @@ export const ListPage = observer(() => {
         </div>
         <Stack direction="row" spacing={2}>
           <Button startIcon={<AddCircleOutline />} onClick={() => navigate(ADMIN_NEW_EVENT)}>{t('createEvent')}</Button>
-          <Button startIcon={<EditOutlined />} disabled={!privateStore.selectedEvent} onClick={() => navigate(ADMIN_EDIT_EVENT)}>{t('edit')}</Button>
+          <Button startIcon={<EditOutlined />} disabled={!privateStore.selectedEvent} onClick={() => navigate(`${ADMIN_EDIT_EVENT}/${privateStore.selectedEvent?.id}`)}>{t('edit')}</Button>
           <Button startIcon={<ContentCopyOutlined />} disabled={!privateStore.selectedEvent} onClick={copyAction}>{t('copy')}</Button>
           <Button startIcon={<DeleteOutline />} disabled={!privateStore.selectedEvent} onClick={deleteAction}>{t('delete')}</Button>
         </Stack>
