@@ -46,7 +46,7 @@ export function EditEventPage({create}: {create?: boolean}) {
           organizers={publicStore.organizers}
           onSave={async (event) => {
             try {
-              await privateStore.saveEvent(event)
+              await privateStore.putEvent(event)
               navigate(ADMIN_EVENTS);
               enqueueSnackbar(ts(event.state || 'draft', { context: 'save' }), { variant: 'info' });
               return Promise.resolve(true);

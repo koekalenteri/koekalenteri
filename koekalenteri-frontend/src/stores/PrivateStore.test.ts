@@ -18,7 +18,7 @@ test('PrivateStore', async () => {
   expect(store.officials.length).toEqual(3);
 
   const origLength = store.events.length;
-  const newEvent = await store.saveEvent({ eventType: 'saveTest' });
+  const newEvent = await store.putEvent({ eventType: 'saveTest' });
   expect(newEvent.id).toBeDefined();
   expect(store.events.length).toBe(origLength + 1);
 

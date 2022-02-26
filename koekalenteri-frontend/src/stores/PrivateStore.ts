@@ -48,7 +48,7 @@ export class PrivateStore {
     return this.events.find(e => e.id === id);
   }
 
-  async saveEvent(event: Partial<Event>) {
+  async putEvent(event: Partial<Event>) {
     const newEvent = !event.id;
     const saved = await eventApi.putEvent(event);
     if (newEvent) {
@@ -69,7 +69,7 @@ export class PrivateStore {
     if (index > -1) {
       event.deletedAt = new Date();
       event.deletedBy = 'user';
-      const saved = await this.saveEvent(event);
+      const saved = await this.putEvent(event);
       this.events.splice(index, 1);
       return saved;
     }
