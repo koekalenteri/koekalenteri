@@ -2,7 +2,7 @@ import { Grid, InputAdornment, TextField } from "@mui/material";
 import { Event } from "koekalenteri-shared/model";
 import { useTranslation } from "react-i18next";
 import { CollapsibleSection, PartialEvent, ValidatedAutocomplete, ValidatedAutocompleteProps } from ".";
-import { FieldRequirements } from "./validation";
+import { FieldRequirements } from "./EventForm.validation";
 
 export function EventFormPayment({ event, fields, onChange }: { event: PartialEvent; fields: FieldRequirements; onChange: (props: Partial<Event>) => void; }) {
   const { t } = useTranslation('event');

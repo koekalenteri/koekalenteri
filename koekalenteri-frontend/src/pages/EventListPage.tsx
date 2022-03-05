@@ -11,7 +11,7 @@ import { useStores } from '../stores';
 import { observer } from 'mobx-react-lite';
 import { Event } from 'koekalenteri-shared/model';
 
-export const ListPage = observer(() => {
+export const EventListPage = observer(() => {
   const { t } = useTranslation();
   const { privateStore } = useStores();
   const { enqueueSnackbar } = useSnackbar();

@@ -211,6 +211,25 @@ Resources:
       SSESpecification:
         SSEEnabled: false
 
+  EventTypesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Join ['-', [event-types-table, !Ref AWS::StackName]]
+      KeySchema:
+          - AttributeName: code
+            KeyType: HASH
+      AttributeDefinitions:
+          - AttributeName: code
+            AttributeType: S
+      Tags:
+        - Key: "env"
+          Value: !Ref AWS::StackName
+        - Key: "label"
+          Value: "koekalenteri"
+      BillingMode: PAY_PER_REQUEST
+      SSESpecification:
+        SSEEnabled: false
+
   # TODO Rest of table definitions, maybe split tables into separate file?
 
   # API declaration
@@ -422,6 +441,38 @@ Resources:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
             Path: /dog/{regNo}
+            Method: get
+            RestApiId: !Ref KoekalenteriApi
+
+  GetEventTypesFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: koekalenteri-backend
+      Handler: dist/handlers/eventTypes.getEventTypesHandler
+      Layers:
+        - !Ref CommonLayer
+      Tracing: Active
+      Policies:
+        - Statement:
+            - Sid: SSMGetParameterPolicy
+              Effect: Allow
+              Action:
+              - ssm:GetParameters
+              - ssm:GetParameter
+              Resource: '*'
+        - CloudWatchPutMetricPolicy: {}
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EventTypesTable
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref EventTypesTable
+          AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
+
+      Events:
+        getDog:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /eventTypes
             Method: get
             RestApiId: !Ref KoekalenteriApi
 

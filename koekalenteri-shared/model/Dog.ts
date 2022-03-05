@@ -1,24 +1,3 @@
-export type KLDog = {
-  /**
-   * Koiran yksilöivä ID
-   */
-  id: number
-  /**
-   * Voimassa oleva rekisterinumero
-   */
-  rekisterinumero: string
-  /**
-   * Viimeisin koiralle kirjattu tunnistusmerkintä
-   */
-  tunnistusmerkintä: string
-  nimi: string
-  syntymäaika: string
-  sukupuoli: string
-  rotukoodi: string
-  rotunimi: string
-  väri: string
-}
-
 export type Dog = {
   regNo: string
   name: string
@@ -27,6 +6,23 @@ export type Dog = {
   dob: Date | string
   gender?: DogGender
   refreshDate?: Date | string
+  results?: TestResult[]
+  titles?: string
 }
 
 export type DogGender = 'F' | 'M'
+
+export type TestResult = {
+  type: string
+  class: string
+  date: Date | string
+  location: string
+  result: string
+  judge: string
+  points?: number
+  rank?: number
+  ext?: string
+  notes?: string
+  cert?: boolean
+  resCert?: boolean
+}

@@ -5,7 +5,7 @@ import { Event } from 'koekalenteri-shared/model';
 import { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PartialEvent } from '.';
-import { FieldRequirements, validateEventField } from './validation';
+import { FieldRequirements, validateEventField } from './EventForm.validation';
 
 export type ValidatedAutocompleteProps<Property extends keyof PartialEvent, freeSolo extends boolean> =
   Omit<AutocompleteProps<PartialEvent[Property], false, false, freeSolo>, 'renderInput' | 'onChange' | 'value'> & {

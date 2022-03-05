@@ -2,12 +2,12 @@ import { Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { AuthPage } from './AuthPage';
 
-export function OrganizationsPage() {
+export function JudgeListPage() {
   const { t } = useTranslation();
 
   return (
     <AuthPage>
-      <Typography variant="h5">{t('organizations')}</Typography>
+      <Typography variant="h5">{t('judges')}</Typography>
     </AuthPage>
   )
 }

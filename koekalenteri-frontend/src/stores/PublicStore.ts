@@ -28,6 +28,7 @@ export class PublicStore {
     'NOME-A': [],
     'NOWT': ['ALO', 'AVO', 'VOI']
   };
+
   public judges: Judge[] = [];
   public organizers: Organizer[] = [];
 

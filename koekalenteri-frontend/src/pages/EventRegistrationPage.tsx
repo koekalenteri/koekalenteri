@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { entryDateColor } from '../utils';
 import { CostInfo, LinkButton, RegistrationForm } from '../components';
 
-export const EventPage = () => {
+export const EventRegistrationPage = () => {
   const params = useParams();
   const { publicStore } = useStores();
   const [event, setEvent] = useState<ConfirmedEventEx>();

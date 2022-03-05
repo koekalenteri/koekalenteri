@@ -5,7 +5,7 @@ import KLAPI from "../utils/KLAPI";
 import { metricsError, metricsSuccess } from "../utils/metrics";
 import { response } from "../utils/response";
 import CustomDynamoClient from "../utils/CustomDynamoClient";
-import { Dog } from "koekalenteri-shared/model";
+import { Dog, TestResult } from "koekalenteri-shared/model";
 
 const dynamoDB = new CustomDynamoClient();
 
@@ -29,7 +29,7 @@ export const getDogHandler = metricScope((metrics: MetricsLogger) =>
       let item: Dog = await dynamoDB.read({ regNo }) as Dog;
 
       if (!item || refresh) {
-        const { status, json } = await klapi.lueKoiranPerustiedot(regNo, '1');
+        const { status, json } = await klapi.lueKoiranPerustiedot(regNo);
 
         if (status === 200 && json) {
           // Cache
@@ -41,8 +41,36 @@ export const getDogHandler = metricScope((metrics: MetricsLogger) =>
             breedCode: json.rotukoodi,
             dob: json.syntymäaika,
             gender: GENDER[json.sukupuoli],
-            refreshDate: new Date()
+            titles: json.tittelit,
+            refreshDate: new Date().toISOString()
           };
+
+          const results = await klapi.lueKoiranKoetulokset(regNo);
+          if (results.status === 200) {
+            const res: TestResult[] = [];
+            for (const result of results.json || []) {
+              res.push({
+                type: result.koemuoto,
+                class: result.luokka,
+                date: result.aika,
+                result: result.tulos,
+                judge: result.tuomari,
+                location: result.paikkakunta,
+
+                ext: result.tarkenne,
+                notes: result.lisämerkinnät,
+                points: result.pisteet,
+                rank: result.sijoitus,
+
+                cert: result.lisämerkinnät.substring(0, 5).toLowerCase() === 'cert ',
+                resCert: result.lisämerkinnät.substring(0, 9).toLowerCase() === 'vara sert',
+              })
+            }
+            item.results = res;
+          } else {
+            console.error(JSON.stringify(results));
+          }
+
           await dynamoDB.write(item);
         }
       }

@@ -1,8 +1,8 @@
-import { Box, FormControl, FormControlLabel, Grid, InputLabel, Stack, Switch } from '@mui/material';
+import { Box, FormControlLabel, Grid, Stack, Switch } from '@mui/material';
 import { Judge, Organizer } from 'koekalenteri-shared/model';
 import { useTranslation } from 'react-i18next';
 import { FilterProps } from '../stores/PublicStore';
-import { DateRange, MultiSelect, stringsToMultiSelectOptions } from '.';
+import { AutocompleteMulti, DateRange } from '.';
 
 type EventFilterProps = {
   judges: Judge[],
@@ -13,7 +13,6 @@ type EventFilterProps = {
 
 export function EventFilter({ judges, organizers, filter, onChange }: EventFilterProps) {
   const { t } = useTranslation();
-  const multiNumber = (value: string[]) => value.map(v => +v);
   const setFilter = (props: Partial<FilterProps>) => {
     onChange && onChange(Object.assign({}, filter, props));
   }
@@ -24,57 +23,41 @@ export function EventFilter({ judges, organizers, filter, onChange }: EventFilte
         <Grid item xs={12} md={6} xl={2}>
           <DateRange start={filter.start} startLabel={t("daterangeStart")} end={filter.end} endLabel={t("daterangeEnd")} onChange={(start, end) => setFilter({ start, end })}></DateRange>
         </Grid>
-        <Grid item xs={6} md={3} xl>
-          <FormControl sx={{ width: '100%' }}>
-            <InputLabel id="type-label">{t("eventType")}</InputLabel>
-            <MultiSelect
-              id="type"
-              labelId="type-label"
-              label={t("eventType")}
-              value={filter.eventType}
-              onChange={(value) => setFilter({ eventType: value })}
-              options={stringsToMultiSelectOptions(['NOU', 'NOME-B', 'NOME-A', 'NOWT'])}
-            />
-          </FormControl>
+        <Grid item xs={12} sm={6} md={4} xl>
+          <AutocompleteMulti
+            label={t('eventType')}
+            onChange={(e, value) => setFilter({ eventType: value })}
+            options={['NOU', 'NOME-B', 'NOME-A', 'NOWT']}
+            value={filter.eventType}
+          />
         </Grid>
-        <Grid item xs={6} md={3} xl>
-          <FormControl sx={{ width: '100%' }}>
-            <InputLabel id="class-label">{t("eventClass")}</InputLabel>
-            <MultiSelect
-              id="class"
-              labelId="class-label"
-              label={t("eventClass")}
-              value={filter.eventClass}
-              onChange={(value) => setFilter({ eventClass: value })}
-              options={stringsToMultiSelectOptions(['ALO', 'AVO', 'VOI'])}
-            />
-          </FormControl>
+        <Grid item xs={12} sm={6} md={2} xl>
+          <AutocompleteMulti
+            label={t('eventClass')}
+            onChange={(e, value) => setFilter({ eventClass: value })}
+            options={['ALO', 'AVO', 'VOI']}
+            value={filter.eventClass}
+          />
         </Grid>
-        <Grid item xs={12} md={6} xl={2}>
-          <FormControl sx={{ width: '100%' }}>
-            <InputLabel id="organizer-label">{t("organizer")}</InputLabel>
-            <MultiSelect
-              id="organizer"
-              labelId="organizer-label"
-              label={t("organizer")}
-              value={filter.organizer.map(n => n.toString())}
-              onChange={(value) => setFilter({ organizer: multiNumber(value) })}
-              options={organizers.map(o => ({value: o.id.toString(), name: o.name}))}
-            />
-          </FormControl>
+        <Grid item xs={12} sm={6} xl={2}>
+          <AutocompleteMulti
+            getOptionLabel={o => o.name}
+            isOptionEqualToValue={(o, v) => o.id === v.id}
+            label={t('organizer')}
+            onChange={(e, value) => setFilter({ organizer: value.map(v => +v.id) })}
+            options={organizers}
+            value={organizers.filter(o => filter.organizer.includes(o.id))}
+          />
         </Grid>
-        <Grid item xs={12} md={6} xl={2}>
-          <FormControl sx={{ width: '100%' }}>
-            <InputLabel id="judge-label">{t("judge")}</InputLabel>
-            <MultiSelect
-              id="judge"
-              labelId="judge-label"
-              label={t("judge")}
-              value={filter.judge.map(n => n.toString())}
-              onChange={(value) => setFilter({ judge: multiNumber(value) })}
-              options={judges.map(j => ({value: j.id.toString(), name: j.name}))}
-            />
-          </FormControl>
+        <Grid item xs={12} sm={6} xl={2}>
+          <AutocompleteMulti
+            getOptionLabel={o => o.name}
+            isOptionEqualToValue={(o, v) => o.id === v.id}
+            label={t('judge')}
+            onChange={(e, value) => setFilter({ judge: value.map(v => +v.id) })}
+            options={judges}
+            value={judges.filter(j => filter.judge.includes(j.id))}
+          />
         </Grid>
         <Grid item md={12} xl={4}>
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={0} alignItems="start" justifyContent="space-evenly">

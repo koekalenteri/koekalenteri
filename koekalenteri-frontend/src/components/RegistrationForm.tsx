@@ -1,35 +1,146 @@
-import { DarkMode, LightMode, RefreshOutlined } from '@mui/icons-material';
+import { RefreshOutlined } from '@mui/icons-material';
 import { DatePicker } from '@mui/lab';
-import { Autocomplete, Box, Checkbox, Chip, FormControl, FormControlLabel, FormHelperText, Grid, IconButton, InputAdornment, InputLabel, Link, MenuItem, Select, SelectChangeEvent, TextField } from '@mui/material';
-import { makeStyles } from '@mui/styles';
-import { differenceInMinutes, eachDayOfInterval, format, subMonths, subYears } from 'date-fns';
-import { EventClass, ConfirmedEventEx, Dog, DogGender } from 'koekalenteri-shared/model';
+import { Autocomplete, Box, Checkbox, FormControl, FormControlLabel, Grid, IconButton, InputAdornment, InputLabel, Link, MenuItem, Select, SelectChangeEvent, TextField } from '@mui/material';
+import { differenceInMinutes, eachDayOfInterval, subMonths, subYears } from 'date-fns';
+import { ConfirmedEventEx, Dog, DogGender, Registration, TestResult } from 'koekalenteri-shared/model';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CollapsibleSection, MultiSelect, stringsToMultiSelectOptions } from '.';
+import { AutocompleteMulti, AutocompleteSingle, CollapsibleSection } from '.';
 import { getDog } from '../api/dog';
 import { useLocalStorage } from '../stores';
 import { unique } from '../utils';
 
-const useStyles = makeStyles(theme => ({
-  root: {
-    backgroundColor: theme.palette.background.form,
-    '& .MuiInputBase-root': {
-      backgroundColor: theme.palette.background.default
+// TODO, these should be configurable
+type EventRequirement = {
+  age?: number,
+  results?: EventResultRquirements | Array<EventResultRquirements>
+};
+type EventClassRequirement = {
+  ALO?: EventRequirement
+  AVO?: EventRequirement
+  VOI?: EventRequirement
+}
+type EventResultRquirements = Array<Partial<TestResult> & { count: number }>;
+
+const REQUIREMENTS: { [key: string]: EventRequirement | EventClassRequirement } = {
+  NOU: {
+    age: 9
+  },
+  'NOME-B': {
+    ALO: {
+      results: [{ type: 'NOU', result: 'NOU1', count: 1 }]
+    },
+    AVO: {
+      results: [{ type: 'NOME-B', result: 'ALO1', count: 2 }]
+    },
+    VOI: {
+      results: [{ type: 'NOME-B', result: 'AVO1', count: 2 }]
+    }
+  },
+  NOWT: {
+    ALO: {
+      results: [{ type: 'NOU', result: 'NOU1', count: 1 }]
+    },
+    AVO: {
+      results: [{ type: 'NOWT', result: 'ALO1', count: 1 }]
+    },
+    VOI: {
+      results: [{ type: 'NOWT', result: 'AVO1', count: 1 }]
+    }
+  },
+  'NOME-A': {
+    results: [
+      [{ type: 'NOME-B', result: 'AVO1', count: 2 }],
+      [{ type: 'NOWT', result: 'AVO1', count: 2 }]
+    ]
+  },
+  NKM: {
+    results: [
+      [{ type: 'NOME-B', result: 'VOI1', count: 2 }],
+      [{ type: 'NOWT', cert: true, count: 2 }]
+    ]
+  }
+};
+
+const objectContains = (obj: Record<string, any>, req: Record<string, any>) => {
+  for (const key of Object.keys(req)) {
+    if (obj[key] !== req[key]) {
+      return false;
     }
   }
-}));
+  return true;
+}
 
 export function RegistrationForm({ event, className, classDate }: { event: ConfirmedEventEx, className?: string, classDate?: string }) {
-  const classes = useStyles();
+  const requirements = REQUIREMENTS[event.eventType];
+  const [local, setLocal] = useState<Registration>({
+    eventId: event.id,
+    class: className || '',
+    dates: [],
+    dog: {
+      regNo: '',
+      rfid: '',
+      breedCode: '',
+      name: '',
+      dob: ''
+    },
+    owner: {
+      name: '',
+      phone: '',
+      email: '',
+      location: '',
+      membership: false
+    },
+    handler: {
+      name: '',
+      phone: '',
+      email: '',
+      location: '',
+      membership: false
+    },
+    qualifyingResults: [],
+    notes: '',
+    agreeToTerms: false,
+    agreeToPublish: false
+  });
+  const onChange = (props: Partial<Registration>) => {
+    console.log('Changes: ' + JSON.stringify(props));
+    if (props.class || props.dog) {
+      const c = props.class || local.class;
+      const dog = props.dog || local.dog;
+      const req = ((requirements as EventClassRequirement)[c as 'ALO' | 'AVO' | 'VOI'] || requirements) as EventRequirement;
+      const qr = [];
+      if (dog.results) {
+        for (const res of (req.results || [])) {
+          if (Array.isArray(res)) {
+            console.log('array');
+          } else {
+            const { count: n, ...resultProps } = res;
+            qr.push(...dog.results.filter(dr => objectContains(dr, resultProps)).slice(0, n));
+          }
+        }
+      }
+      props.qualifyingResults = qr;
+      console.log(qr);
+    }
+    const newState = { ...local, ...props };
+    //const isValid = validateEvent(newState);
+    setLocal(newState);
+    /*
+    setChanges(true);
+    if (valid !== isValid) {
+      setValid(isValid);
+    }*/
+  }
+
   return (
-    <Box className={classes.root} sx={{pb: 0.5}}>
-      <EventEntryInfo event={event} className={className} classDate={classDate} />
-      <DogInfo eventDate={event.startDate} minDogAgeMonths={9} />
+    <Box sx={{ backgroundColor: 'background.form', pb: 0.5, '& .MuiInputBase-root': { backgroundColor: 'background.default' } }}>
+      <EventEntryInfo reg={local} event={event} className={className} classDate={classDate} onChange={onChange} />
+      <DogInfo reg={local} eventDate={event.startDate} minDogAgeMonths={9} onChange={onChange} />
       <BreederInfo />
       <OwnerInfo />
       <HandlerInfo />
-      <QualifyingResultsInfo />
+      <QualifyingResultsInfo reg={local} onChange={onChange} />
       <AdditionalInfo />
       <FormControlLabel control={<Checkbox required />} label={
         <>
@@ -43,80 +154,42 @@ export function RegistrationForm({ event, className, classDate }: { event: Confi
   );
 }
 
-function classDates(event: ConfirmedEventEx, eventClass: string, fmt: string): string[] {
-  const classes = event.classes.filter(cls => typeof cls !== 'string' && (eventClass === '' || cls.class === eventClass)) as EventClass[];
-  const dates = classes.length ? classes.map(c => c.date || event.startDate) : eachDayOfInterval({ start: event.startDate, end: event.endDate });
-  const strings = unique(dates.map(date => format(date, fmt)));
-  const result = [];
-  for (const s of strings) {
-    result.push(s + ' (aamupäivä)');
-    result.push(s + ' (iltapäivä)');
-  }
-  return result;
+function getClassDates(event: ConfirmedEventEx, eventClass: string) {
+  const classes = event.classes.filter(c => typeof c !== 'string' && (eventClass === '' || c.class === eventClass));
+
+  return classes.length
+    ? classes.map(c => c.date || event.startDate)
+    : eachDayOfInterval({ start: event.startDate, end: event.endDate });
 }
 
-function eventClasses(event: ConfirmedEventEx): string[] {
-  return unique(event.classes.map(c => c.class));
-}
-
-function renderDates(selected: string[]) {
-  const map: Record<string, Record<string, boolean>> = {};
-  for (const s of selected) {
-    const [date, time] = s.split(' ');
-    const set = map[date] || (map[date] = {});
-    set[time] = true;
-  }
-  const dates = Object.keys(map);
-  return (
-    dates.map((date) =>
-      <Box key={date} sx={{ position: 'relative', display: 'inline-block', pr: 2 }}>
-        <Chip size="small" label={date} variant="outlined" color="success" sx={{height: '21px'}}/>
-        {map[date]['(aamupäivä)'] ? <LightMode sx={{ fontSize: 'x-small', position: 'absolute', right: 6, top: 0 }} color="info" /> : ''}
-        {map[date]['(iltapäivä)'] ? <DarkMode sx={{ fontSize: 'x-small', position: 'absolute', right: 6, bottom: 0 }} color="info" /> : ''}
-      </Box>
-    )
-  );
-}
-
-function EventEntryInfo({event, className, classDate}: {event: ConfirmedEventEx, className?: string, classDate?: string}) {
+function EventEntryInfo({reg, event, className, classDate, onChange}: {reg: Registration, event: ConfirmedEventEx, className?: string, classDate?: string, onChange: (props: Partial<Registration>) => void;}) {
   const {t} = useTranslation();
   const [reserve, setReserve] = useState('1');
-  const [eventClass, setEventClass] = useState(className || '');
-  const [eventTime, setEventTime] = useState(classDate ? [classDate + ' (aamupäivä)', classDate + ' (iltapäivä)'] : []);
+  const classDates = unique(getClassDates(event, reg.class).map(date => t('weekday', { date }))).flatMap(wd => [wd + ' (aamu)', wd + ' (ilta)']);
+  const [eventTime, setEventTime] = useState(classDate ? classDates : []);
   return (
     <CollapsibleSection title="Koeluokka">
       <Grid container spacing={1}>
-        <Grid item>
-          <FormControl sx={{width: 300}}>
-            <InputLabel id="class-label">{t("eventClass")}</InputLabel>
-            <Select
-              labelId="class-label"
-              id="class-select"
-              value={eventClass}
-              label={t("eventClass")}
-              onChange={(event) => setEventClass(event.target.value)}
-            >
-              {eventClasses(event).map(c => <MenuItem key={'class' + c} value={c}>{c}</MenuItem>)}
-            </Select>
-          </FormControl>
+        <Grid item sx={{minWidth: 150}}>
+          <AutocompleteSingle
+            disableClearable
+            label={t("eventClass")}
+            onChange={(e, value) => { onChange({ class: value || '' }) }}
+            options={unique(event.classes.map(c => c.class))}
+            value={reg.class}
+          />
         </Grid>
         <Grid item>
-          <FormControl sx={{width: 300}}>
-            <InputLabel id="date-label">{t("eventTime")}</InputLabel>
-            <MultiSelect
-              labelId="class-label"
-              id="class-select"
-              value={eventTime}
-              label={t("eventTime")}
-              onChange={(value) => setEventTime(value)}
-              options={stringsToMultiSelectOptions(classDates(event, eventClass, t('dateformatS')))}
-              renderValue={renderDates}
-            />
-            <FormHelperText>Valitse sinulle sopivat ajankohdat kokeeseen osallistumiselle.</FormHelperText>
-          </FormControl>
+          <AutocompleteMulti
+            helperText="Valitse sinulle sopivat ajankohdat kokeeseen osallistumiselle."
+            label={t("eventTime")}
+            onChange={(e, value) => setEventTime(value)}
+            options={classDates}
+            value={eventTime}
+          />
         </Grid>
-        <Grid item>
-          <FormControl sx={{width: 300}}>
+        <Grid item sx={{width: 300}}>
+          <FormControl fullWidth>
             <InputLabel id="reserve-label">Varasija</InputLabel>
             <Select
               labelId="reserve-label"
@@ -139,19 +212,30 @@ function EventEntryInfo({event, className, classDate}: {event: ConfirmedEventEx,
 
 type BreedCode = '110' | '111' | '121' | '122' | '263' | '312';
 
-function DogInfo({ eventDate, minDogAgeMonths }: { eventDate: Date, minDogAgeMonths: number }) {
+function shouldAllowRefresh(dog?: Partial<Dog>) {
+  if (!dog || !dog.regNo) {
+    return false;
+  }
+  if (dog.refreshDate && differenceInMinutes(new Date(), dog.refreshDate as Date) <= 5) {
+    return false;
+  }
+  return true;
+}
+
+function DogInfo({ reg, eventDate, minDogAgeMonths, onChange }: { reg: Registration, eventDate: Date, minDogAgeMonths: number, onChange: (props: Partial<Registration>) => void; }) {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [dogs, setDogs] = useLocalStorage('dogs', '');
   const [regNo, setRegNo] = useState<string>('');
   const [dog, setDog] = useState<Partial<Dog>>({});
-  const allowRefresh = dog && (!dog.refreshDate || differenceInMinutes(new Date(), dog.refreshDate as Date) > 5);
+  const allowRefresh = shouldAllowRefresh(dog);
   const genderChanged = (event: SelectChangeEvent) => { setDog({ ...dog, gender: event.target.value as DogGender }); }
   const loadDog = async(value?: string, refresh?: boolean) => {
     if (!value) {
       value = regNo;
     }
-    if (value !== '' && (dog.regNo !== value || refresh)) {
+    value = value.toUpperCase();
+    if (value !== '' && (reg.dog.regNo !== value || refresh)) {
       setLoading(true);
       const lookup = await getDog(value, refresh);
       setDog(lookup);
@@ -160,6 +244,9 @@ function DogInfo({ eventDate, minDogAgeMonths }: { eventDate: Date, minDogAgeMon
         const newDogs = (dogs?.split(',') || []);
         newDogs.push(value);
         setDogs(unique(newDogs).filter(v => v !== '').join(','));
+        onChange({ dog: lookup });
+      } else {
+        onChange({ dog: { ...reg.dog, regNo: value } });
       }
     }
   }
@@ -179,7 +266,7 @@ function DogInfo({ eventDate, minDogAgeMonths }: { eventDate: Date, minDogAgeMon
                   </InputAdornment> : ''}{props.InputProps.endAdornment}</>
                 }}
               />}
-            value={regNo}
+            value={reg.dog.regNo}
             onChange={(e, value) => { setRegNo(value || ''); loadDog(value || ''); }}
             onInputChange={(e, value) => setRegNo(value)}
             options={dogs?.split(',') || []}
@@ -232,7 +319,7 @@ function DogInfo({ eventDate, minDogAgeMonths }: { eventDate: Date, minDogAgeMon
         </Grid>
         <Grid item container spacing={1}>
           <Grid item>
-            <TextField sx={{width: 300}} label="Tittelit" />
+            <TextField sx={{width: 300}} label="Tittelit" value={dog.titles || ''} />
           </Grid>
           <Grid item>
             <TextField sx={{width: 300}} label="Nimi" value={dog.name || ''} onChange={(e) => setDog({...dog, name: e.target.value})} />
@@ -327,62 +414,68 @@ function HandlerInfo() {
   );
 }
 
-function QualifyingResultsInfo() {
+function QualifyingResultsInfo({ reg, onChange }: { reg: Registration, onChange: (props: Partial<Registration>) => void; }) {
   const { t } = useTranslation();
   const { t: te } = useTranslation('event');
-
-  const [date, setDate] = useState<Date | null>(null);
 
   return (
     <CollapsibleSection title={t("qualifyingResults")}>
       <Grid item container spacing={1}>
-        <Grid item>
-          <FormControl sx={{ width: 150 }}>
-            <InputLabel id="type-label">{t("eventType")}</InputLabel>
-            <Select
-              labelId="type-label"
-              label={t("eventType")}
-            >
-              <MenuItem value="NOU">NOU</MenuItem>
-              <MenuItem value="NOME-B">NOME-B</MenuItem>
-              <MenuItem value="NOME-A">NOME-A</MenuItem>
-              <MenuItem value="NOWT">NOWT</MenuItem>
-            </Select>
-          </FormControl>
-        </Grid>
-        <Grid item>
-          <FormControl sx={{ width: 150 }}>
-            <InputLabel id="result-label">{t("result")}</InputLabel>
-            <Select
-              labelId="result-label"
-              label={t("result")}
-            >
-              <MenuItem value="1">1</MenuItem>
-              <MenuItem value="2">2</MenuItem>
-              <MenuItem value="3">3</MenuItem>
-            </Select>
-          </FormControl>
-        </Grid>
-        <Grid item>
-          <FormControl sx={{ width: 150 }}>
-            <DatePicker
-              label={t("date")}
-              value={date}
-              mask={t('datemask')}
-              inputFormat={t('dateformat')}
-              minDate={subYears(new Date(), 15)}
-              maxDate={new Date()}
-              onChange={setDate}
-              renderInput={(params) => <TextField {...params} />}
-            />
-          </FormControl>
-        </Grid>
-        <Grid item>
-          <TextField sx={{width: 300}} label={te("location")} />
-        </Grid>
-        <Grid item>
-          <TextField sx={{width: 300}} label={t("judge")} />
-        </Grid>
+        {reg.qualifyingResults.map(result =>
+          <Grid key={result.date.toString()} item container spacing={1}>
+            <Grid item>
+              <FormControl sx={{ width: 150 }}>
+                <InputLabel id="type-label">{t("eventType")}</InputLabel>
+                <Select
+                  labelId="type-label"
+                  label={t("eventType")}
+                  value={result.type}
+                >
+                  <MenuItem value="NOU">NOU</MenuItem>
+                  <MenuItem value="NOME-B">NOME-B</MenuItem>
+                  <MenuItem value="NOME-A">NOME-A</MenuItem>
+                  <MenuItem value="NOWT">NOWT</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item>
+              <FormControl sx={{ width: 150 }}>
+                <InputLabel id="result-label">{t("result")}</InputLabel>
+                <Select
+                  labelId="result-label"
+                  label={t("result")}
+                  value={result.cert ? 'CERT' : result.result}
+                >
+                  <MenuItem value="NOU1">NOU1</MenuItem>
+                  <MenuItem value="ALO1">ALO1</MenuItem>
+                  <MenuItem value="AVO1">AVO1</MenuItem>
+                  <MenuItem value="VOI1">VOI1</MenuItem>
+                  <MenuItem value="CERT">VOI1 (CERT)</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item>
+              <FormControl sx={{ width: 150 }}>
+                <DatePicker
+                  label={t("date")}
+                  value={result.date}
+                  mask={t('datemask')}
+                  inputFormat={t('dateformat')}
+                  minDate={subYears(new Date(), 15)}
+                  maxDate={new Date()}
+                  onChange={(value) => { if (value) { result.date = value } }}
+                  renderInput={(params) => <TextField {...params} />}
+                />
+              </FormControl>
+            </Grid>
+            <Grid item>
+              <TextField sx={{ width: 300 }} label={te("location")} value={result.location} />
+            </Grid>
+            <Grid item>
+              <TextField sx={{ width: 300 }} label={t("judge")} value={result.judge} />
+            </Grid>
+          </Grid>
+        )}
       </Grid>
     </CollapsibleSection>
   );

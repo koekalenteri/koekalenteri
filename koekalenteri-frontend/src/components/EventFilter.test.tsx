@@ -47,36 +47,41 @@ const renderComponent = (filter: FilterProps, onChange?: ((filter: FilterProps) 
 test('should render', () => {
   renderComponent({ start: null, end: null, eventType: ['NOME-B'], eventClass: ['ALO'], judge: [234], organizer: [2]});
 
-  expect(screen.getByLabelText(/Koemuoto/i)).toHaveTextContent(/NOME-B/i);
-  expect(screen.getByLabelText(/Koeluokka/i)).toHaveTextContent(/ALO/i);
-  expect(screen.getByLabelText(/Tuomari/i)).toHaveTextContent(/Tuomari 2/i);
-  expect(screen.getByLabelText(/Järjestäjä/i)).toHaveTextContent(/Test org/i);
+  expect(screen.getByTestId(/Koemuoto/i)).toHaveTextContent(/NOME-B/i);
+  expect(screen.getByTestId(/Koeluokka/i)).toHaveTextContent(/ALO/i);
+  expect(screen.getByTestId(/Tuomari/i)).toHaveTextContent(/Tuomari 2/i);
+  expect(screen.getByTestId(/Järjestäjä/i)).toHaveTextContent(/Test org/i);
 });
+
+function changeAutocompleteValue(testId: string, value: string) {
+  const autocomplete = screen.getByTestId(testId);
+  const input = within(autocomplete).getByRole('textbox');
+  autocomplete.focus();
+  fireEvent.change(input, { target: { value } })
+  fireEvent.keyDown(autocomplete, { key: 'ArrowDown' })
+  fireEvent.keyDown(autocomplete, { key: 'Enter' })
+}
 
 test('It should fire onChange', async () => {
   const changeHandler = jest.fn();
   renderComponent({ start: null, end: null, eventType: [], eventClass: [], judge: [], organizer: [] }, changeHandler);
 
-  fireEvent.mouseDown(screen.getByLabelText(/Koemuoto/i));
-  fireEvent.click(within(screen.getByRole('listbox')).getByText(/NOME-A/i));
+  changeAutocompleteValue('Koemuoto', 'NOME-A');
   expect(changeHandler).toHaveBeenCalledTimes(1);
 
-  fireEvent.mouseDown(screen.getByLabelText(/Koeluokka/i));
-  fireEvent.click(within(screen.getByRole('listbox')).getByText(/VOI/i));
+  changeAutocompleteValue('Koeluokka', 'VOI');
   expect(changeHandler).toHaveBeenCalledTimes(2);
+
+  changeAutocompleteValue('Tuomari', 'Tuomari 1');
+  expect(changeHandler).toHaveBeenCalledTimes(3);
+
+  changeAutocompleteValue('Järjestäjä', 'Järjestäjä 1');
+  expect(changeHandler).toHaveBeenCalledTimes(4);
 
   const dateInputs = screen.getAllByLabelText('Choose date', { exact: false }) as HTMLInputElement[];
   fireEvent.click(dateInputs[0]);
   await screen.findByRole('dialog');
   fireEvent.click(screen.getByLabelText('25. ', { exact: false }));
-  expect(changeHandler).toHaveBeenCalledTimes(3);
-
-  fireEvent.mouseDown(screen.getByLabelText(/Tuomari/i));
-  fireEvent.click(within(screen.getByRole('listbox')).getByText(/Tuomari 1/i));
-  expect(changeHandler).toHaveBeenCalledTimes(4);
-
-  fireEvent.mouseDown(screen.getByLabelText(/Järjestäjä/i));
-  fireEvent.click(within(screen.getByRole('listbox')).getByText(/Järjestäjä 1/i));
   expect(changeHandler).toHaveBeenCalledTimes(5);
 
   fireEvent.click(screen.getByLabelText(/Ilmoittautuminen auki/i));

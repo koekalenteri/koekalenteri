@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { CollapsibleSection, DateRange, EventClasses, PartialEvent } from '.';
 import { HelpPopover } from './HelpPopover';
 import { ValidatedAutocomplete } from './ValidatedAutocomplete';
-import { FieldRequirements } from './validation';
+import { FieldRequirements } from './EventForm.validation';
 
 type EventFormBasicInfoParams = {
   event: PartialEvent

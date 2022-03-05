@@ -6,7 +6,7 @@ import type { Event, EventClass, EventState, Judge, Official, Organizer } from '
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { EventFormAdditionalInfo, EventFormBasicInfo, EventFormContactInfo, EventFormEntry, EventFormJudges, EventFormHeadquarters, EventFormPayment } from '.';
-import { requiredFields, validateEvent } from './validation';
+import { requiredFields, validateEvent } from './EventForm.validation';
 
 export type PartialEvent = Partial<Event> & { startDate: Date, endDate: Date, classes: EventClass[], judges: number[] };
 export type EventHandler = (event: Partial<Event>) => Promise<boolean>;
@@ -23,7 +23,6 @@ type EventFormParams = {
 };
 
 export function EventForm({ event, judges, eventTypes, eventTypeClasses, officials, organizers, onSave, onCancel }: EventFormParams) {
-  console.log(event?.id);
   const baseDate = startOfDay(addDays(Date.now(), 90));
   const { t } = useTranslation(['event', 'states']);
   const [local, setLocal] = useState<PartialEvent>({

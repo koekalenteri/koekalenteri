@@ -3,16 +3,16 @@ import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import { SnackbarProvider } from 'notistack';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { locales, muiLocales, LocaleKey } from './i18n';
-import { SearchPage, EventPage, ListPage, JudgesPage, UsersPage, OrganizationsPage } from './pages'
+import { SearchPage, EventRegistrationPage, EventListPage, JudgeListPage, UsersPage, OrganizationListPage } from './pages'
 import { useTranslation } from 'react-i18next';
 import { makeStyles, ThemeProvider } from '@mui/styles';
 import { createTheme } from '@mui/material/styles';
 import { ADMIN_DEFAULT, ADMIN_EDIT_EVENT, ADMIN_EVENTS, ADMIN_JUDGES, ADMIN_NEW_EVENT, ADMIN_ORGS, ADMIN_ROOT, ADMIN_USERS } from './config';
-import { EditEventPage } from './pages/EditEventPage';
+import { EventEditPage } from './pages/EventEditPage';
 
 const useStyles = makeStyles({
   snack: {
-    paddingTop: 38
+    paddingTop: 38 // So snacks appear below the header
   }
 });
 
@@ -31,16 +31,16 @@ function App() {
         >
           <Routes>
             <Route path="/" element={<SearchPage />} />
-            <Route path="/event/:eventType/:id"  element={<EventPage />} />
-            <Route path="/event/:eventType/:id/:class"  element={<EventPage />} />
-            <Route path="/event/:eventType/:id/:class/:date" element={<EventPage />} />
+            <Route path="/event/:eventType/:id"  element={<EventRegistrationPage />} />
+            <Route path="/event/:eventType/:id/:class"  element={<EventRegistrationPage />} />
+            <Route path="/event/:eventType/:id/:class/:date" element={<EventRegistrationPage />} />
             <Route path={ADMIN_ROOT} element={<Navigate replace to={ADMIN_DEFAULT} />} />
-            <Route path={ADMIN_EVENTS} element={<ListPage />} />
-            <Route path={ADMIN_NEW_EVENT} element={<EditEventPage create />} />
-            <Route path={`${ADMIN_EDIT_EVENT}/:id`} element={<EditEventPage />} />
-            <Route path={ADMIN_ORGS} element={<OrganizationsPage />} />
+            <Route path={ADMIN_EVENTS} element={<EventListPage />} />
+            <Route path={ADMIN_NEW_EVENT} element={<EventEditPage create />} />
+            <Route path={`${ADMIN_EDIT_EVENT}/:id`} element={<EventEditPage />} />
+            <Route path={ADMIN_ORGS} element={<OrganizationListPage />} />
             <Route path={ADMIN_USERS} element={<UsersPage />} />
-            <Route path={ADMIN_JUDGES} element={<JudgesPage />} />
+            <Route path={ADMIN_JUDGES} element={<JudgeListPage />} />
           </Routes>
         </SnackbarProvider>
       </LocalizationProvider>

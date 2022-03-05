@@ -67,6 +67,8 @@ Changes are detected automatically. Only if you change the template.yaml, you ne
 
 Note: SAM local is very slow, because it rebuilds lambda on every access. If you are changing only the frontend, please see README.md in koekalenteri-frontend folder.
 
+Note: If you change types in koekalenteri-shared, you need to restart the app (ctrl-c + npm start) for changes to take effect.
+
 **Please note that AWS Cognito cannot be run locally so for user authentication a working network connection to the AWS setup is required.**
 
 ### Deploying

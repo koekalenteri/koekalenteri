@@ -8,7 +8,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { ADMIN_EVENTS } from '../config';
 import { useEffect, useState } from 'react';
 
-export function EditEventPage({create}: {create?: boolean}) {
+export function EventEditPage({create}: {create?: boolean}) {
   const params = useParams();
   const { t } = useTranslation();
   const { t: ts } = useTranslation('states');
