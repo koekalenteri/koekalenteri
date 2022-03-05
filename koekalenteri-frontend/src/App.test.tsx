@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import App from './App';
 import { MemoryRouter } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material';
@@ -67,7 +67,8 @@ test('renders admin default (event) page', async () => {
 
   // Select an event, and click edit button
   const row = screen.getAllByRole('row')[1];
-  fireEvent.click(row, 'click');
+  const cell = within(row).getAllByRole('cell')[0];
+  fireEvent.click(cell, 'click');
   expect(row).toHaveClass('Mui-selected');
   fireEvent.click(screen.getByText(/Muokkaa/));
   const newHead = await screen.findByText('Muokkaa tapahtumaa');
