@@ -21,5 +21,3 @@ export const AWSConfig = {
     userPoolWebClientId: process.env.REACT_APP_CLIENT_ID,
   }
 };
-
-console.log(AWSConfig);
