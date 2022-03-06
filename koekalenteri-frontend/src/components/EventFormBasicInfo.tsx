@@ -61,9 +61,7 @@ export function EventFormBasicInfo({ event, fields, eventTypes, eventTypeClasses
               onChange={onChange}
               helpClick={(e) => setHelpAnchorEl(e.currentTarget)}
             />
-            <HelpPopover anchorEl={helpAnchorEl} onClose={() => setHelpAnchorEl(null)}>
-              Saat Kennelliiton kokeen tunnuksen Oma koirasta, kun koe on anottu ja hyväksytty Kennelliitossa. Kokeen tunnusta tarvitaan tulosten tallentamiseen.
-            </HelpPopover>
+            <HelpPopover anchorEl={helpAnchorEl} onClose={() => setHelpAnchorEl(null)}>{t('kcId_info')}</HelpPopover>
           </Grid>
         </Grid>
         <Grid item container spacing={1}>

@@ -20,6 +20,7 @@
   "id": "Tunnus",
   "judges": "Tuomarit",
   "kcId": "Kennelliiton koetunnus",
+  "kcId_info": "Saat Kennelliiton koetunnuksen Omakoirasta, kun olet anonut kokeen Kennelliitosta ja se on hyväksytty. Koetunnusta tarvitaan tulosten tallentamiseen.",
   "location": "Paikkakunta",
   "modifiedAt": "Muokkausaika",
   "modifiedBy": "Muokkaaja",
