@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@aws-amplify/ui-react": "^2.8.0",
     "@emotion/react": "^11.4.1",
     "@emotion/styled": "^11.3.0",
     "@mui/icons-material": "^5.0.5",
@@ -17,11 +18,13 @@
     "@types/node": "^17.0.0",
     "@types/react": "^17.0.3",
     "@types/react-dom": "^17.0.3",
+    "aws-amplify": "^4.3.14",
     "date-fns": "^2.23.0",
     "eslint-config-react-app": "^7.0.0",
     "history": "^5.0.1",
     "i18next": "^21.4.0",
     "i18next-browser-languagedetector": "^6.1.2",
+    "identity-obj-proxy": "^3.0.0",
     "jest-fetch-mock": "^3.0.3",
     "koekalenteri-shared": "file:../koekalenteri-shared",
     "lodash.clonedeep": "^4.5.0",
@@ -75,7 +78,10 @@
       "/node_modules/",
       "/index.tsx",
       "/reportWebVitals.ts"
-    ]
+    ],
+    "moduleNameMapper": {
+      "\\.(css|less)$": "identity-obj-proxy"
+    }
   },
   "devDependencies": {
     "@types/lodash.clonedeep": "^4.5.6"

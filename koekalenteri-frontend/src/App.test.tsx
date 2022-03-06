@@ -11,6 +11,8 @@ jest.mock('./api/judge');
 jest.mock('./api/official');
 jest.mock('./api/organizer');
 
+jest.mock('@aws-amplify/auth');
+
 // DataGrid needs disableVirtualizaton to render properly in tests
 jest.mock('@mui/x-data-grid', () => {
   const { DataGrid } = jest.requireActual('@mui/x-data-grid');

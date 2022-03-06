@@ -7,6 +7,8 @@ Koekalenteri frontend is written in [TypeScript](https://www.typescriptlang.org/
 
 ## Development
 
+First you need to create a `.env` file (copy `.env.sample` and fill in values).
+
 ### Available Scripts
 
 In the project directory, you can run:
@@ -18,20 +20,6 @@ Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
 The page will reload if you make edits.\
 You will also see any lint errors in the console.
-
-By default, local backend is used. You can use alternative backed by defining `REACT_APP_API_BASE_URL` environment variable (deployed backends are a lot faster, because `sam` rebuilds the lambda for every request).
-
-For example (windows):
-
-```powershell
-($env:REACT_APP_API_BASE_URL = 'https://xyz.execute-api.eu-north-1.amazonaws.com/dev') -and (npm start)
-```
-
-*nix:
-
-```bash
-REACT_APP_API_BASE_URL=https://xyz.execute-api.eu-north-1.amazonaws.com/dev npm start
-```
 
 ### `npm test`
 

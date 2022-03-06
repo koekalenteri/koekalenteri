@@ -3,9 +3,8 @@
 // expect(element).toHaveTextContent(/react/i)
 // learn more: https://github.com/testing-library/jest-dom
 import '@testing-library/jest-dom';
-
+import sizeMe from 'react-sizeme';
 import './i18n';
 
-import sizeMe from "react-sizeme";
 
 sizeMe.noPlaceholders = true;

@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useMemo } from "react";
 import { Setter, useLocalStorage, useSessionStorage } from './browser';
 import { PublicStore } from "./PublicStore";
 import { PrivateStore } from "./PrivateStore";
@@ -15,8 +15,8 @@ export const useSessionStarted = () => useSessionStorage('started', '');
 
 export const useSessionBoolean = (key: string, defaultValue: boolean): [boolean, Setter<boolean>] => {
   const [stringValue, setStringValue] = useSessionStorage(key, defaultValue ? 'true' : '');
-  const [value, setValue] = useState<boolean>(stringValue === 'true');
-  useEffect(() => setStringValue(value ? 'true' : null), [value, setStringValue]);
+  const value = useMemo<boolean>(() => stringValue === 'true', [stringValue]);
+  const setValue: Setter<boolean> = (value) => setStringValue(value ? 'true' : null);
   return [value, setValue];
 }
 
