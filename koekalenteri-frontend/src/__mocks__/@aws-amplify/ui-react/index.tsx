@@ -1,6 +1,11 @@
 import React, { createContext, useContext, useMemo, useState } from "react";
 
-const AuthenticatorContext = createContext({ route: 'idle', signOut: () => { } });
+const AuthenticatorContext = createContext({
+  route: 'idle',
+  signOut: () => {
+    // noop
+  }
+});
 
 const mockUser: any = {
   username: 'mock_user',
