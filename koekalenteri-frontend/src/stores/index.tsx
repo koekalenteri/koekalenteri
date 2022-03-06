@@ -16,7 +16,7 @@ export const useSessionStarted = () => useSessionStorage('started', '');
 export const useSessionBoolean = (key: string, defaultValue: boolean): [boolean, Setter<boolean>] => {
   const [stringValue, setStringValue] = useSessionStorage(key, defaultValue ? 'true' : '');
   const value = useMemo<boolean>(() => stringValue === 'true', [stringValue]);
-  const setValue: Setter<boolean> = (value) => setStringValue(value ? 'true' : null);
+  const setValue: Setter<boolean> = (newValue) => setStringValue(newValue ? 'true' : null);
   return [value, setValue];
 }
 

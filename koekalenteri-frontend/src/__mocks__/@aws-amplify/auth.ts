@@ -7,31 +7,13 @@ export const user = {
 };
 
 export const Auth = {
-  signUp,
-  signIn,
-  currentSession,
-  confirmSignUp,
-  signOut,
-  resendSignUp,
+  signUp: jest.fn(),
+  signIn: jest.fn(),
+  currentSession: jest.fn(),
+  confirmSignUp: jest.fn(),
+  signOut: jest.fn(),
+  resendSignUp: jest.fn(),
   completeNewPassword: jest.fn(),
   currentAuthenticatedUser: jest.fn(),
   configure: jest.fn()
 };
-
-function signUp(email: any) {
-}
-
-function signIn(email: any) {
-}
-
-function currentSession() {
-}
-
-function confirmSignUp() {
-}
-
-function signOut() {
-}
-
-function resendSignUp() {
-}
