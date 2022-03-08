@@ -1,9 +1,10 @@
 import { CheckBox, CheckBoxOutlineBlank } from "@mui/icons-material";
 import { Autocomplete, AutocompleteChangeReason, Avatar, Checkbox, Chip, TextField } from "@mui/material";
 import { isSameDay } from "date-fns";
-import { t } from "i18next";
-import { EventClass } from "koekalenteri-shared/model";
+import { EventClass, EventState } from "koekalenteri-shared/model";
+import { useTranslation } from "react-i18next";
 import { PartialEvent } from ".";
+import { validateEventField } from "./EventForm.validation";
 
 
 /**
@@ -27,6 +28,7 @@ type EventClassesProps = {
   classes: EventClass[]
   label: string
   required?: boolean
+  requiredState?: EventState
   onChange: EventClassesOnChange
 }
 
@@ -40,8 +42,11 @@ export function EventClasses(props: EventClassesProps) {
     props.value.sort(compareEventClass);
   }
 
-  const { classes, label, event, required, ...rest } = props;
-  const error = required && props.value?.length === 0;
+  const { t } = useTranslation();
+  const { t: te } = useTranslation('event');
+  const { classes, label, event, required, requiredState, ...rest } = props;
+  const error = required && validateEventField(event, 'classes');
+  const helperText = error ? te(error.key, { ...error.opts, state: requiredState }) : '';
 
   return (
     <Autocomplete
@@ -66,7 +71,7 @@ export function EventClasses(props: EventClassesProps) {
           {option.class}
         </li>
       )}
-      renderInput={(params) => <TextField {...params} required={required} error={error} label={label} />}
+      renderInput={(params) => <TextField {...params} required={required} error={!!error} helperText={helperText} label={label} />}
       renderTags={(tagValue, getTagProps) => tagValue.map((option, index) => (
         <Chip
           {...getTagProps({ index })}

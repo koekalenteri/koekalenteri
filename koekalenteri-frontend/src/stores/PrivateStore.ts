@@ -7,7 +7,7 @@ export class PrivateStore {
   public loaded: boolean = false;
   public loading: boolean = false;
 
-  public newEvent: Partial<Event> = {eventType: ''};
+  public newEvent: Partial<Event> = {};
   public selectedEvent: Partial<Event> | undefined = undefined;
 
   public officials: Official[] = [];
@@ -53,7 +53,7 @@ export class PrivateStore {
     const saved = await eventApi.putEvent(event);
     if (newEvent) {
       this.events.push(saved);
-      this.newEvent = {eventType: ''};
+      this.newEvent = {};
     } else {
       // Update cached instance (deleted events are not found)
       const oldInstance = this.events.find(e => e.id === event.id);

@@ -1,4 +1,4 @@
-import { Grid, InputAdornment, TextField } from "@mui/material";
+import { Grid, InputAdornment } from "@mui/material";
 import { Event } from "koekalenteri-shared/model";
 import { useTranslation } from "react-i18next";
 import { CollapsibleSection, PartialEvent, ValidatedAutocomplete, ValidatedAutocompleteProps } from ".";
@@ -19,11 +19,11 @@ export function EventFormPayment({ event, fields, onChange }: { event: PartialEv
           </Grid>
         </Grid>
         <Grid item container spacing={1}>
-          <Grid item sx={{width: 300}}>
-            <TextField label={t('accountNumber')} value={event.accountNumber || ''} onChange={e => onChange({ accountNumber: e.target.value })} fullWidth />
+          <Grid item sx={{ width: 300 }}>
+            <ValidatedAutocomplete id="accountNumber" event={event} fields={fields} options={[]} freeSolo onChange={onChange} />
           </Grid>
           <Grid item sx={{width: 300}}>
-            <TextField label={t('referenceNumber')} value={event.referenceNumber || ''} onChange={e => onChange({ referenceNumber: e.target.value })} fullWidth />
+            <ValidatedAutocomplete id="referenceNumber" event={event} fields={fields} options={[]} freeSolo onChange={onChange} />
           </Grid>
         </Grid>
       </Grid>
@@ -45,7 +45,3 @@ function ValidatedPriceInput(props: ValidatedPriceInputProps) {
     />
   );
 }
-
-/*
-
-*/

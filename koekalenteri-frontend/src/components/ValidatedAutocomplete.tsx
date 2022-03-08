@@ -19,12 +19,10 @@ export type ValidatedAutocompleteProps<Property extends keyof PartialEvent, free
 
 export function ValidatedAutocomplete<Property extends keyof PartialEvent, freeSolo extends boolean>(props: ValidatedAutocompleteProps<Property, freeSolo>) {
   const { t } = useTranslation('event');
-  const { t: ts } = useTranslation('states');
   const { id, event, fields: { state, required }, helpClick, endAdornment, ...acProps } = props;
   const isRequired = required[id] || false;
-  const validationError = isRequired && validateEventField(event, id);
-  const error = !!validationError;
-  const helperText = error ? t(id) + ' '  + (validationError || ('on vaadittu tieto "' + ts(state[id] || 'draft') + '" -tilassa olevalle tapahtumalle')) : '';
+  const error = isRequired && validateEventField(event, id);
+  const helperText = error ? t(error.key, { ...error.opts, state: (state[id] || 'draft') as string }) : '';
   return (
     <Autocomplete
       id={id}
@@ -36,14 +34,14 @@ export function ValidatedAutocomplete<Property extends keyof PartialEvent, freeS
             {...params}
             label={t(id)}
             required={isRequired}
-            error={error}
+            error={!!error}
             helperText={helperText}
             InputProps={{
               ...params.InputProps,
               endAdornment: <>{endAdornment}{params.InputProps.endAdornment}</>
             }}
           />
-          <IconButton onClick={helpClick} sx={{display: helpClick ? 'block' : 'none', position: 'absolute', right: 0, top: 8}}>
+          <IconButton onClick={helpClick} sx={{ display: helpClick ? 'flex' : 'none', margin: 'auto'}}>
             <HelpOutlined />
           </IconButton>
         </Box>

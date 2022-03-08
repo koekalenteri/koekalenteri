@@ -3,9 +3,15 @@
   "allowHandlerMembershipPriority": "Ohjaaja jäsenet etusijalla",
   "allowOwnerMembershipPriority": "Omistaja jäsenet etusijalla",
   "classes": "Koeluokat",
+  "classes_required": "Koeluokat on vaadittu tieto \"$t(states:{{state}})\" -tilassa olevalle {{type}}-tapahtumalle",
+  "classes_judge": "Tila \"$t(states:{{state}})\": {{list}} $t(classes_missing, {\"count\": {{length}} }) puuttuu tuomari.",
+  "classes_missing_one": "koeluokalta",
+  "classes_missing_other": "koeluokilta",
   "contactInfo": "Yhteystiedot",
+  "contactInfo_required": "Tila \"$t(states:{{state}})\": Valitse vähintään yksi yhteystieto",
   "cost": "Koemaksu",
   "costMember": "Koemaksu jäsenille",
+  "costMember_high": "Jäsenten koemaksu ei saa olla muiden koemaksua suurempi",
   "createdAt": "Luontiaika",
   "createdBy": "Luoja",
   "deletedAt": "Poistoaika",
@@ -29,8 +35,10 @@
   "organizer": "Järjestäjä",
   "paymentDetails": "Maksutiedot",
   "places": "Paikkoja",
+  "places_class": "Tila \"$t(states:{{state}})\": {{list}} $t(classes_missing, {\"count\": {{length}} }) puuttuu koepaikat.",
   "referenceNumber": "Viitenumero",
   "secretary": "Koesihteeri",
   "startDate": "Kokeen alkamispäivä",
-  "state": "Tila"
+  "state": "Tila",
+  "validationError": "Tila \"$t(states:{{state}})\": $t({{field}}) on vaadittu tieto."
 }

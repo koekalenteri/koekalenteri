@@ -1,17 +1,21 @@
 import { AddOutlined, DeleteOutline } from '@mui/icons-material';
-import { Button, FormControl, Grid, InputLabel, MenuItem, Select } from '@mui/material';
+import { Button, FormControl, FormHelperText, Grid, InputLabel, MenuItem, Select } from '@mui/material';
 import { isSameDay } from 'date-fns';
 import { Event, EventClass, Judge } from 'koekalenteri-shared/model';
 import { useTranslation } from 'react-i18next';
 import { CollapsibleSection, EventClasses, PartialEvent } from '.';
+import { FieldRequirements, validateEventField } from './EventForm.validation';
 
 function filterJudges(judges: Judge[], eventJudges: number[], id: number) {
   return judges.filter(j => j.id === id || !eventJudges.includes(j.id));
 }
 
-export function EventFormJudges({ event, judges, onChange }: { event: PartialEvent, judges: Judge[], onChange: (props: Partial<Event>) => void }) {
+export function EventFormJudges({ event, judges, fields, onChange }: { event: PartialEvent, judges: Judge[], fields?: FieldRequirements, onChange: (props: Partial<Event>) => void }) {
   const { t } = useTranslation('event');
   const list = event.judges.length ? event.judges : [0];
+  const error = fields?.required.judges && validateEventField(event, 'judges');
+  const helperText = error ? t(error.key, { ...error.opts, state: fields.state.judges || 'draft' }) : '';
+
   const updateJudge = (id: number, values: EventClass[]) => {
     const judge = { id, name: judges.find(j => j.id === id)?.name || '' };
     const isSelected = (c: EventClass) => values.find(v => isSameDay(v.date || event.startDate, c.date || event.startDate) && v.class === c.class);
@@ -75,6 +79,7 @@ export function EventFormJudges({ event, judges, onChange }: { event: PartialEve
         })}
         <Grid item><Button startIcon={<AddOutlined />} onClick={() => onChange({ judges: [...event.judges].concat(0) })}>Lisää tuomari</Button></Grid>
       </Grid>
+      <FormHelperText error>{helperText}</FormHelperText>
     </CollapsibleSection>
   );
 }

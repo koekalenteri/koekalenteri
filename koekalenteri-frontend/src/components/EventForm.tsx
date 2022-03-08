@@ -82,11 +82,11 @@ export function EventForm({ event, judges, eventTypes, eventTypeClasses, officia
 
       <Box sx={{ pb: 0.5, overflow: 'auto', borderRadius: 1, bgcolor: 'background.form', '& .MuiInputBase-root': { bgcolor: 'background.default'} }}>
         <EventFormBasicInfo event={local} fields={fields} eventTypes={eventTypes} eventTypeClasses={eventTypeClasses} officials={officials} organizers={organizers} onChange={onChange} />
-        <EventFormJudges event={local} judges={judges} onChange={onChange} />
-        <EventFormEntry event={local} onChange={onChange} />
+        <EventFormJudges event={local} judges={judges} fields={fields} onChange={onChange} />
+        <EventFormEntry event={local} fields={fields} onChange={onChange} />
         <EventFormPayment event={local} fields={fields} onChange={onChange} />
         <EventFormHeadquarters event={local} onChange={onChange} />
-        <EventFormContactInfo event={local} onChange={onChange} />
+        <EventFormContactInfo event={local} fields={fields} onChange={onChange} />
         <EventFormAdditionalInfo event={local} onChange={onChange} />
       </Box>
 

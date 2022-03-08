@@ -1,4 +1,4 @@
-import { Event, EventClass, EventState, ShowContactInfo } from "koekalenteri-shared/model";
+import { Event, EventState, ShowContactInfo } from "koekalenteri-shared/model";
 import { PartialEvent } from ".";
 
 type EventCallback = (event: PartialEvent) => boolean;
@@ -15,7 +15,8 @@ type RequiredFields = Partial<{
   [Property in keyof Event]: boolean;
 }>
 
-type EventValidator = (event: PartialEvent) => boolean | string;
+type ValidationErrorKey = 'validationError' | 'contactInfo_required' | 'classes_required' | 'classes_judge' | 'costMember_high' | 'places_class';
+type EventValidator = (event: PartialEvent) => boolean | ValidationErrorKey | { key: ValidationErrorKey, opts: { list?: Array<string>, length?: number }};
 type EventValidators = Partial<{
   [Property in keyof Event]: EventValidator;
 }>
@@ -55,34 +56,52 @@ const REQUIRED_BY_STATE: Record<EventState, EventFlags> = {
   }
 };
 
-const contactInfoShown = (show?: ShowContactInfo) => !!show && (show.email || show.phone);
-const validateClasses = (classes?: EventClass[]) => {
-  if (!classes) {
-    return true;
-  }
-  for (const c of classes) {
-    if (!c.places) {
-      return true;
-    }
-  }
-  return false;
-}
-const validateCosts = (event: PartialEvent) => {
-  if (!event.cost) {
-    return true;
-  }
-  if (event.costMember && +event.cost < +event.costMember) {
-    return 'ei saa olla muiden koemaksua suurempi';
-  }
-  return false;
-}
+const contactInfoShown = (contact?: ShowContactInfo) => !!contact && (contact.email || contact.phone);
 
 const VALIDATORS: EventValidators = {
-  contactInfo: (event: PartialEvent) => !contactInfoShown(event.contactInfo?.official) && !contactInfoShown(event.contactInfo?.secretary),
-  classes: (event: PartialEvent) => event.eventType === 'NOME-B' && validateClasses(event.classes),
-  judges: (event: PartialEvent) => event.judges?.length === 0,
+  classes: (event: PartialEvent) => {
+    const classes = event.classes;
+    if (!classes || !classes.length) {
+      return 'classes_required';
+    }
+    const list: string[] = [];
+    for (const c of classes) {
+      if (!c.judge?.id) {
+        list.push(c.class);
+      }
+    }
+    return list.length ? { key: 'classes_judge', opts: { list, length: list.length }} : false;
+  },
+  contactInfo: (event: PartialEvent) => {
+    const contactInfo = event.contactInfo;
+    if (!contactInfoShown(contactInfo?.official) && !contactInfoShown(contactInfo?.secretary)) {
+      return 'contactInfo_required';
+    }
+    return false;
+  },
   cost: (event: PartialEvent) => !event.cost,
-  costMember: validateCosts,
+  costMember: (event: PartialEvent) => {
+    const cost = event.cost || 0;
+    if (event.costMember && cost < event.costMember) {
+      return 'costMember_high';
+    }
+    return false;
+  },
+  judges: (event: PartialEvent) => event.judges?.length === 0,
+  places: (event: PartialEvent) => {
+    if (!event.places) {
+      return true;
+    }
+    const list: string[] = [];
+    if (event.eventType === 'NOME-B') {
+      for (const c of event.classes) {
+        if (!c.places) {
+          list.push(c.class);
+        }
+      }
+    }
+    return list.length ? { key: 'places_class', opts: { list, length: list.length }} : false;
+  }
 }
 
 export type FieldRequirements = {
@@ -110,18 +129,38 @@ function resolve(value: EventFlag, event: PartialEvent): boolean {
   return typeof value === 'function' ? value(event) : value;
 }
 
-export function validateEventField(event: PartialEvent, field: keyof Event) {
-  const validator = VALIDATORS[field] || (() => typeof event[field] === 'undefined');
-  return validator(event);
+export function validateEventField(event: PartialEvent, field: keyof Event): false | {key: ValidationErrorKey, opts: {field: keyof Event, type?: string, list?: Array<string>, length?: number}} {
+  const validator = VALIDATORS[field] || (() => typeof event[field] === 'undefined' || event[field] === '');
+  const result = validator(event);
+  if (!result) {
+    return false;
+  }
+  if (result === true) {
+    return {
+      key: 'validationError',
+      opts: { field }
+    };
+  }
+  if (typeof result === 'string') {
+    return {
+      key: result,
+      opts: { field, type: event.eventType }
+    };
+  }
+  return {
+    key: result.key,
+    opts: { field, ...result.opts}
+  };
 }
 
 export function validateEvent(event: PartialEvent): boolean {
   const fields = requiredFields(event);
+  let allValid = true;
   for (const field in fields.required) {
     if (validateEventField(event, field as keyof Event)) {
       console.log('Validation failed: ' + field);
-      return false;
+      allValid = false;
     }
   }
-  return true;
+  return allValid;
 }

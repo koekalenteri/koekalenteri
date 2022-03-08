@@ -1,12 +1,15 @@
-import { Checkbox, FormControlLabel, FormGroup, Grid } from "@mui/material";
+import { Checkbox, FormControlLabel, FormGroup, FormHelperText, Grid } from "@mui/material";
 import { ContactInfo, Event, ShowContactInfo } from "koekalenteri-shared/model";
 import { useTranslation } from "react-i18next";
 import { CollapsibleSection, PartialEvent } from ".";
 import { EventContactInfo } from "./EventContactInfo";
+import { FieldRequirements, validateEventField } from "./EventForm.validation";
 
-export function EventFormContactInfo({ event, onChange }: { event: PartialEvent; onChange: (props: Partial<Event>) => void; }) {
+export function EventFormContactInfo({ event, fields, onChange }: { event: PartialEvent, fields: FieldRequirements, onChange: (props: Partial<Event>) => void }) {
   const { t } = useTranslation('event');
   const handleChange = (props: Partial<ContactInfo>) => onChange({ contactInfo: { ...(event.contactInfo || {}), ...props } });
+  const error = fields.required.contactInfo && validateEventField(event, 'contactInfo');
+  const helperText = error ? t(error.key, { ...error.opts, state: fields.state.contactInfo || 'draft' }) : '';
 
   return (
     <CollapsibleSection title={t('contactInfo')}>
@@ -20,6 +23,7 @@ export function EventFormContactInfo({ event, onChange }: { event: PartialEvent;
           </Grid>
         </Grid>
       </Grid>
+      <FormHelperText error>{helperText}</FormHelperText>
       <hr />
       <EventContactInfo event={event} />
     </CollapsibleSection>

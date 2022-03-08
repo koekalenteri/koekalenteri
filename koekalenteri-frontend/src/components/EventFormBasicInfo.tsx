@@ -73,6 +73,7 @@ export function EventFormBasicInfo({ event, fields, eventTypes, eventTypeClasses
               id="class"
               event={event}
               required={fields.required.classes}
+              requiredState={fields.state.classes}
               value={event.classes}
               classes={typeOptions}
               label={t("classes")}
