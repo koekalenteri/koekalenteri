@@ -1,6 +1,6 @@
 // Create a DocumentClient that represents the query to add an item
 import { APIGatewayProxyEventPathParameters } from 'aws-lambda';
-import DynamoDB, { AttributeMap, ExpressionAttributeNameMap, ItemList, KeyExpression, UpdateExpression, UpdateItemInput } from 'aws-sdk/clients/dynamodb';
+import DynamoDB, { AttributeMap, ItemList, UpdateExpression } from 'aws-sdk/clients/dynamodb';
 
 function fromSamLocalTable(table: string) {
   // sam local does not provide proper table name as env variable

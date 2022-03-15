@@ -1,5 +1,5 @@
 import { APIGatewayProxyEvent } from "aws-lambda";
-import { Event, JsonRegistration } from "koekalenteri-shared/model";
+import { JsonRegistration } from "koekalenteri-shared/model";
 import CustomDynamoClient from "../utils/CustomDynamoClient";
 import { genericWriteHandler, genericReadAllHandler, genericReadHandler } from "../utils/genericHandlers";
 import { sendTemplatedMail } from "./email";
@@ -16,17 +16,17 @@ export const putRegistrationHandler = async (e: APIGatewayProxyEvent) => {
     const registration = JSON.parse(dbResult.body) as JsonRegistration;
     const eventKey = { eventType: registration.eventType, id: registration.eventId };
     const eventTable = process.env.EVENT_TABLE_NAME || '';
-    // const event = await dynamoDB.readTable(process.env.EVENT_TABLE_NAME || '', eventKey) as Event;
     const registrations = await dynamoDB.query('eventId = :id', { ':id': registration.eventId });
 
-    dynamoDB.update(eventTable, eventKey, 'set entries = :entries', { ':entries': registrations?.length || 0 });
+    await dynamoDB.update(eventTable, eventKey, 'set entries = :entries', { ':entries': registrations?.length || 0 });
 
-    //event.entries
-    const to: string[] = [registration.handler.email];
-    if (registration.owner.email !== registration.handler.email) {
-      to.push(registration.owner.email);
+    if (registration.handler?.email && registration.owner?.email) {
+      const to: string[] = [registration.handler.email];
+      if (registration.owner.email !== registration.handler.email) {
+        to.push(registration.owner.email);
+      }
+      await sendTemplatedMail('RegistrationFI', to, {});
     }
-    await sendTemplatedMail('RegistrationFI', to, {});
   }
   return dbResult;
 }
