@@ -4,10 +4,10 @@ import { Box } from '@mui/system';
 import { Event } from 'koekalenteri-shared/model';
 import { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { PartialEvent } from '.';
-import { FieldRequirements, validateEventField } from './EventForm.validation';
+import { PartialEvent } from '../..';
+import { FieldRequirements, validateEventField } from './validation';
 
-export type ValidatedAutocompleteProps<Property extends keyof PartialEvent, freeSolo extends boolean> =
+export type EventPropertyProps<Property extends keyof PartialEvent, freeSolo extends boolean> =
   Omit<AutocompleteProps<PartialEvent[Property], false, false, freeSolo>, 'renderInput' | 'onChange' | 'value'> & {
     id: Property,
     event: PartialEvent,
@@ -17,12 +17,12 @@ export type ValidatedAutocompleteProps<Property extends keyof PartialEvent, free
     endAdornment?: ReactNode
   };
 
-export function ValidatedAutocomplete<Property extends keyof PartialEvent, freeSolo extends boolean>(props: ValidatedAutocompleteProps<Property, freeSolo>) {
-  const { t } = useTranslation('event');
+export function EventProperty<Property extends keyof PartialEvent, freeSolo extends boolean>(props: EventPropertyProps<Property, freeSolo>) {
+  const { t } = useTranslation();
   const { id, event, fields: { state, required }, helpClick, endAdornment, ...acProps } = props;
   const isRequired = required[id] || false;
   const error = isRequired && validateEventField(event, id);
-  const helperText = error ? t(error.key, { ...error.opts, state: (state[id] || 'draft') as string }) : '';
+  const helperText = error ? t(`validation.event.${error.key}`, { ...error.opts, state: (state[id] || 'draft') as string }) : '';
   return (
     <Autocomplete
       id={id}
@@ -32,7 +32,7 @@ export function ValidatedAutocomplete<Property extends keyof PartialEvent, freeS
         <Box sx={{display: 'flex', flex: '0 0 auto', position: 'relative'}}>
           <TextField
             {...params}
-            label={t(id)}
+            label={t(`event.${id}`)}
             required={isRequired}
             error={!!error}
             helperText={helperText}

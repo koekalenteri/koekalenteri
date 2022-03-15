@@ -1,9 +1,11 @@
-export type JSONValue =
+export type JsonValue =
   | string
   | number
   | boolean
-  | JSONArray
-  | JSONObject
+  | JsonArray
+  | JsonObject
 
-export type JSONObject = { [x: string]: JSONValue }
-export type JSONArray = Array<JSONValue>
+export type JsonObject = { [x: string]: JsonValue }
+export type JsonArray = Array<JsonValue>
+
+export type Replace<T, Key extends keyof T, NewType> = Omit<T, Key> & { [P in Key]: NewType }

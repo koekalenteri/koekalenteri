@@ -1,10 +1,80 @@
 {
-  "breed_110": "Kiharakarvainen noutaja",
-  "breed_111": "Kultainennoutaja",
-  "breed_121": "Sileäkarvainen noutaja",
-  "breed_122": "Labradorinnoutaja",
-  "breed_263": "Chesapeakelahdennoutaja",
-  "breed_312": "Novascotiannoutaja",
+  "breed": {
+    "110": "Kiharakarvainen noutaja",
+    "111": "Kultainennoutaja",
+    "121": "Sileäkarvainen noutaja",
+    "122": "Labradorinnoutaja",
+    "263": "Chesapeakelahdennoutaja",
+    "312": "Novascotiannoutaja"
+  },
+  "dog": {
+    "dam": {
+      "name": "Emän nimi",
+      "titles": "Emän tittelit"
+    },
+    "dob": "Syntymäaika",
+    "gender": "Sukupuoli",
+    "gender_choises": {
+      "F": "Narttu",
+      "M": "Uros"
+    },
+    "name": "Nimi",
+    "rfid": "Tunnistusmerkintä",
+    "regNo": "Koiran rekisterinumero",
+    "sire": {
+      "name": "Isän nimi",
+      "titles": "Isän tittelit"
+    },
+    "titles": "Tittelit"
+  },
+  "event": {
+    "accountNumber": "Tilinumero",
+    "allowHandlerMembershipPriority": "Ohjaaja jäsenet etusijalla",
+    "allowOwnerMembershipPriority": "Omistaja jäsenet etusijalla",
+    "classes": "Koeluokat",
+    "contactInfo": "Yhteystiedot",
+    "cost": "Koemaksu",
+    "costMember": "Koemaksu jäsenille",
+    "createdAt": "Luontiaika",
+    "createdBy": "Luoja",
+    "deletedAt": "Poistoaika",
+    "deletedBy": "Poistaja",
+    "description": "Lisätiedot",
+    "endDate": "Kokeen päättymispäivä",
+    "entries": "Ilmoittautumisia",
+    "entryEndDate": "Ilmoittautumisen päättymispäivä",
+    "entryStartDate": "Ilmoittautumisen alkamispäivä",
+    "eventType": "Koemuoto",
+    "headquerters": "Keskuspaikka",
+    "id": "Tunnus",
+    "judges": "Tuomarit",
+    "kcId": "Kennelliiton koetunnus",
+    "kcId_info": "Saat Kennelliiton koetunnuksen Omakoirasta, kun olet anonut kokeen Kennelliitosta ja se on hyväksytty. Koetunnusta tarvitaan tulosten tallentamiseen.",
+    "location": "Paikkakunta",
+    "modifiedAt": "Muokkausaika",
+    "modifiedBy": "Muokkaaja",
+    "name": "Nimi",
+    "official": "Vastaava koetoimitsija",
+    "organizer": "Järjestäjä",
+    "paymentDetails": "Maksutiedot",
+    "places": "Paikkoja",
+    "referenceNumber": "Viitenumero",
+    "states": {
+      "draft": "Luonnos",
+      "draft_save": "Tapahtuma on tallennettu luonnoksena",
+      "tentative": "Julkaistu alustavana",
+      "tentative_info": "Alustava",
+      "tentative_save": "Tapahtuma on julkaistu alustavana",
+      "confirmed": "Julkaistu",
+      "confirmed_save": "Tapahtuma on julkaistu",
+      "cancelled": "Peruttu",
+      "cancelled_info": "Peruttu",
+      "cancelled_save": "Tapahtuma on peruttu"
+    },
+    "secretary": "Koesihteeri",
+    "startDate": "Kokeen alkamispäivä",
+    "state": "Tila"
+  },
   "copy": "Kopioi",
   "createEvent": "Uusi tapahtuma",
   "date": "Aika",
@@ -46,10 +116,53 @@
   "organizer": "Järjestäjä",
   "paymentDetails": "Maksutiedot",
   "places": "Paikkoja",
-  "qualifyingResults": "Koeluokkaan oikeuttavat tulokset",
   "register": "Ilmoittaudu",
-  "result": "Tulos",
+  "registration": {
+    "class": "Koeluokka",
+    "dates": "",
+    "dates_info": "Valitse sinulle sopivat ajankohdat kokeeseen osallistumiselle.",
+    "dog": "Koiran tiedot",
+    "qualifyingResults": "Osallistumisoikeuteen vaikuttavat tulokset",
+    "reserve": "Varasija",
+    "reserve_choises": {
+      "ANY": "Osallistun",
+      "DAY": "Osallistun, päivän varoitusajalla",
+      "WEEK": "Osallistun, viikon varoitusajalla",
+      "NO": "En osallistu"
+    },
+    "terms": {
+      "read": "Olen lukenut",
+      "terms": "ilmoittautumisen ehdot",
+      "agree": "ja hyväksyn ne"
+    }
+  },
+  "testResult": {
+    "date": "Aika",
+    "eventType": "Koemuoto",
+    "judge": "Tuomari",
+    "location": "Paikkakunta",
+    "result": "Tulos"
+  },
   "toltaPlaces": "paikkaa",
   "users": "Käyttäjät",
+  "validation": {
+    "event": {
+      "classes_required": "Koeluokat on vaadittu tieto \"$t(event.states.{{state}})\" -tilassa olevalle {{type}}-tapahtumalle",
+      "classes_judge": "Tila \"$t(event.states.{{state}})\": {{list}} $t(classes_missing, {\"count\": {{length}} }) puuttuu tuomari.",
+      "classes_missing_one": "koeluokalta",
+      "classes_missing_other": "koeluokilta",
+      "contactInfo_required": "Tila \"$t(event.states.{{state}})\": Valitse vähintään yksi yhteystieto",
+      "costMember_high": "Jäsenten koemaksu ei saa olla muiden koemaksua suurempi",
+      "places_class": "Tila \"$t(event.states.{{state}})\": {{list}} $t(validation.event.classes_missing, {\"count\": {{length}} }) puuttuu koepaikat.",
+      "validationError": "Tila \"$t(event.states.{{state}})\": $t(event.{{field}}) on vaadittu tieto."
+    },
+    "registration": {
+      "choose": "Valitse $t(registration.{{field}})",
+      "dog_results": "Tulosten perusteella koiralla ei ole oikeutta osallistua valittuun koeluokkaan.",
+      "reserve": "Valitse osallistutko varasijalta",
+      "required": "$t(registration.{{field}}) ovat puutteelliset",
+      "terms": "Ehtojen hyväksyminen on pakollista"
+    }
+  },
   "weekday": "{{ date, weekday }}"
 }

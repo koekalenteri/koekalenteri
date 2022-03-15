@@ -1,7 +1,7 @@
 import fetchMock from 'jest-fetch-mock';
 import { getDog } from './dog';
 import { API_BASE_URL } from "../config";
-import { Dog } from "koekalenteri-shared/model"
+import { JsonDog } from "koekalenteri-shared/model"
 import { rehydrateDog } from "./dog";
 
 fetchMock.enableMocks();
@@ -9,12 +9,11 @@ fetchMock.enableMocks();
 beforeEach(() => fetchMock.resetMocks());
 
 test('rehydrateDog', function() {
-  const dog: Dog = { regNo: 'abc', name: 'def', rfid: '', breedCode: '', dob: '20210101T00:00:00', refreshDate: '20200101T00:00:00' };
+  const dog: JsonDog = { regNo: 'abc', name: 'def', rfid: '', dob: '20210101T00:00:00', refreshDate: '20200101T00:00:00' };
   const rdog = rehydrateDog(dog);
 
-  expect(rdog).toEqual(dog);
-  expect(dog.dob).toBeInstanceOf(Date);
-  expect(dog.refreshDate).toBeInstanceOf(Date);
+  expect(rdog.dob).toBeInstanceOf(Date);
+  expect(rdog.refreshDate).toBeInstanceOf(Date);
 })
 
 test('getDog', async () => {

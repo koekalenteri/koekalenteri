@@ -1,18 +1,18 @@
 import { Checkbox, FormControlLabel, FormGroup, FormHelperText, Grid } from "@mui/material";
 import { ContactInfo, Event, ShowContactInfo } from "koekalenteri-shared/model";
 import { useTranslation } from "react-i18next";
-import { CollapsibleSection, PartialEvent } from ".";
-import { EventContactInfo } from "./EventContactInfo";
-import { FieldRequirements, validateEventField } from "./EventForm.validation";
+import { CollapsibleSection, PartialEvent } from "../..";
+import { EventContactInfo } from "../../EventContactInfo";
+import { FieldRequirements, validateEventField } from "./validation";
 
-export function EventFormContactInfo({ event, fields, onChange }: { event: PartialEvent, fields: FieldRequirements, onChange: (props: Partial<Event>) => void }) {
-  const { t } = useTranslation('event');
+export function ContactInfoSection({ event, fields, onChange }: { event: PartialEvent, fields: FieldRequirements, onChange: (props: Partial<Event>) => void }) {
+  const { t } = useTranslation();
   const handleChange = (props: Partial<ContactInfo>) => onChange({ contactInfo: { ...(event.contactInfo || {}), ...props } });
   const error = fields.required.contactInfo && validateEventField(event, 'contactInfo');
-  const helperText = error ? t(error.key, { ...error.opts, state: fields.state.contactInfo || 'draft' }) : '';
+  const helperText = error ? 'error' : '';
 
   return (
-    <CollapsibleSection title={t('contactInfo')}>
+    <CollapsibleSection title={t('event.contactInfo')}>
       <Grid container spacing={1}>
         <Grid item container spacing={1}>
           <Grid item>
@@ -31,12 +31,12 @@ export function EventFormContactInfo({ event, fields, onChange }: { event: Parti
 }
 
 function PersonContactInfo({contact, show, onChange}: { contact: 'official'|'secretary', show?: Partial<ShowContactInfo>, onChange: (props: Partial<ContactInfo>) => void }) {
-  const { t } = useTranslation('event');
+  const { t } = useTranslation();
   const handleChange = (props: Partial<ShowContactInfo>) => onChange({ [contact]: {...show, ...props} });
 
   return (
     <>
-      {t(contact)}
+      {t(`event.${contact}`)}
       <FormGroup row>
         <FormControlLabel
           control={<Checkbox checked={!!show?.name} onChange={e => handleChange({ name: e.target.checked })} />}

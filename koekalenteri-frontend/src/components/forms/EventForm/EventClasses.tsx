@@ -3,8 +3,8 @@ import { Autocomplete, AutocompleteChangeReason, Avatar, Checkbox, Chip, TextFie
 import { isSameDay } from "date-fns";
 import { EventClass, EventState } from "koekalenteri-shared/model";
 import { useTranslation } from "react-i18next";
-import { PartialEvent } from ".";
-import { validateEventField } from "./EventForm.validation";
+import { PartialEvent } from "../..";
+import { validateEventField } from "./validation";
 
 
 /**
@@ -43,10 +43,9 @@ export function EventClasses(props: EventClassesProps) {
   }
 
   const { t } = useTranslation();
-  const { t: te } = useTranslation('event');
   const { classes, label, event, required, requiredState, ...rest } = props;
   const error = required && validateEventField(event, 'classes');
-  const helperText = error ? te(error.key, { ...error.opts, state: requiredState }) : '';
+  const helperText = error ? 'error' : '';
 
   return (
     <Autocomplete

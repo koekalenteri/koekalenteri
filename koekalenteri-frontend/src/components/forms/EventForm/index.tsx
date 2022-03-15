@@ -1,16 +1,22 @@
 import { Cancel, Save } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
-import { Box, Button, FormControl, InputLabel, MenuItem, Select, Stack } from '@mui/material';
+import { Box, Button, Stack } from '@mui/material';
 import { addDays, nextSaturday, startOfDay } from 'date-fns';
 import type { Event, EventClass, EventState, Judge, Official, Organizer } from 'koekalenteri-shared/model';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { EventFormAdditionalInfo, EventFormBasicInfo, EventFormContactInfo, EventFormEntry, EventFormJudges, EventFormHeadquarters, EventFormPayment } from '.';
-import { requiredFields, validateEvent } from './EventForm.validation';
+import { requiredFields, validateEvent } from './validation';
+import { AdditionalInfoSection } from './7.AdditionalInfoSection';
+import { BasicInfoSection } from './1.BasicInfoSection';
+import { ContactInfoSection } from './6.ContactInfoSection';
+import { EntrySection } from './3.EntrySection';
+import { HeadquartersSection } from './5.HeadquartersSection';
+import { JudgesSection } from './2.JudgesSection';
+import { PaymentSection } from './4.PaymentSection';
+import { AutocompleteSingle } from '../..';
 
+export type FormEventHandler = (event: Partial<Event>) => Promise<boolean>;
 export type PartialEvent = Partial<Event> & { startDate: Date, endDate: Date, classes: EventClass[], judges: number[] };
-export type EventHandler = (event: Partial<Event>) => Promise<boolean>;
-
 type EventFormParams = {
   event: Partial<Event>
   eventTypes: string[]
@@ -18,13 +24,13 @@ type EventFormParams = {
   judges: Judge[]
   officials: Official[]
   organizers: Organizer[]
-  onSave: EventHandler
-  onCancel: EventHandler
+  onSave: FormEventHandler
+  onCancel: FormEventHandler
 };
 
 export function EventForm({ event, judges, eventTypes, eventTypeClasses, officials, organizers, onSave, onCancel }: EventFormParams) {
   const baseDate = startOfDay(addDays(Date.now(), 90));
-  const { t } = useTranslation(['event', 'states']);
+  const { t } = useTranslation();
   const [local, setLocal] = useState<PartialEvent>({
     state: 'draft' as EventState,
     startDate: nextSaturday(baseDate),
@@ -35,7 +41,8 @@ export function EventForm({ event, judges, eventTypes, eventTypeClasses, officia
   });
   const [saving, setSaving] = useState(false);
   const [changes, setChanges] = useState(typeof local.id === 'undefined');
-  const [valid, setValid] = useState(validateEvent(local));
+  const [errors, setErrors] = useState(validateEvent(local));
+  const valid = errors.length === 0;
   const fields = useMemo(() => requiredFields(local), [local]);
   const onChange = (props: Partial<Event>) => {
     const tmp: any = {};
@@ -45,12 +52,9 @@ export function EventForm({ event, judges, eventTypes, eventTypeClasses, officia
       props.classes = [];
     }
     const newState = { ...local, ...props };
-    const isValid = validateEvent(newState);
+    setErrors(validateEvent(newState));
     setLocal(newState);
     setChanges(true);
-    if (valid !== isValid) {
-      setValid(isValid);
-    }
   }
   const saveHandler = async () => {
     setSaving(true);
@@ -60,34 +64,33 @@ export function EventForm({ event, judges, eventTypes, eventTypeClasses, officia
   }
   const cancelHandler = () => onCancel(local);
 
+  const errorStates: { [Property in keyof Event]?: boolean } = {};
+  const helperTexts: { [Property in keyof Event]?: string } = {};
+  for (const error of errors) {
+    helperTexts[error.opts.field] = t(`validation.event.${error.key}`, error.opts);
+    errorStates[error.opts.field] = true;
+  }
+
   return (
     <>
       <Box sx={{ pb: 1 }}>
-        <FormControl>
-          <InputLabel id="state-label">{t('event:state')}</InputLabel>
-          <Select
-            labelId="state-label"
-            id="state"
-            value={local.state}
-            label={t('event:state')}
-            onChange={(e) => onChange({state: e.target.value as EventState})}
-          >
-            <MenuItem value="draft">{t('states:draft')}</MenuItem>
-            <MenuItem value="tentative">{t('states:tentative')}</MenuItem>
-            <MenuItem value="confirmed">{t('states:confirmed')}</MenuItem>
-            <MenuItem value="cancelled">{t('states:cancelled')}</MenuItem>
-          </Select>
-        </FormControl>
+        <AutocompleteSingle
+          getOptionLabel={o => t(`event.states.${o}`)}
+          label={t('event.state')}
+          onChange={(e, value) => onChange({state: value || undefined})}
+          options={['draft', 'tentative', 'confirmed', 'cancelled'] as EventState[]}
+          value={local.state}
+        />
       </Box>
 
       <Box sx={{ pb: 0.5, overflow: 'auto', borderRadius: 1, bgcolor: 'background.form', '& .MuiInputBase-root': { bgcolor: 'background.default'} }}>
-        <EventFormBasicInfo event={local} fields={fields} eventTypes={eventTypes} eventTypeClasses={eventTypeClasses} officials={officials} organizers={organizers} onChange={onChange} />
-        <EventFormJudges event={local} judges={judges} fields={fields} onChange={onChange} />
-        <EventFormEntry event={local} fields={fields} onChange={onChange} />
-        <EventFormPayment event={local} fields={fields} onChange={onChange} />
-        <EventFormHeadquarters event={local} onChange={onChange} />
-        <EventFormContactInfo event={local} fields={fields} onChange={onChange} />
-        <EventFormAdditionalInfo event={local} onChange={onChange} />
+        <BasicInfoSection event={local} fields={fields} eventTypes={eventTypes} eventTypeClasses={eventTypeClasses} officials={officials} organizers={organizers} onChange={onChange} />
+        <JudgesSection event={local} judges={judges} fields={fields} onChange={onChange} />
+        <EntrySection event={local} fields={fields} errorStates={errorStates} helperTexts={helperTexts} onChange={onChange} />
+        <PaymentSection event={local} fields={fields} onChange={onChange} />
+        <HeadquartersSection event={local} onChange={onChange} />
+        <ContactInfoSection event={local} fields={fields} onChange={onChange} />
+        <AdditionalInfoSection event={local} onChange={onChange} />
       </Box>
 
       <Stack spacing={1} direction="row" justifyContent="flex-end" sx={{mt: 1}}>

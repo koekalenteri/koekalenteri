@@ -4,7 +4,7 @@ import { initReactI18next } from "react-i18next";
 import { fiFI, enUS, Localization } from '@mui/material/locale';
 import { fiFI as gfiFI, enUS as genUS, GridLocaleText } from "@mui/x-data-grid";
 import { locales, LocaleKey, formatDate, formatDateSpan, formatDistance } from "./dates";
-import { en, enEvent, enStates, fi, fiEvent, fiStates } from "./locales";
+import { en, fi } from "./locales";
 
 type MuiLocalization = Localization & {
   components: {
@@ -19,6 +19,7 @@ type MuiLocalization = Localization & {
 
 export { locales };
 export type { LocaleKey };
+export type ValidationErrorKey = typeof fi.validation;
 
 export const muiLocales: Record<LocaleKey, MuiLocalization> = {
   fi: { ...fiFI, ...gfiFI },
@@ -32,15 +33,15 @@ i18n
   .init({
     lng: process.env.NODE_ENV === 'test' ? 'fi' : undefined,
     resources: {
-      fi: { common: fi, event: fiEvent, states: fiStates },
-      en: { common: en, event: enEvent, states: enStates }
+      fi: { common: fi },
+      en: { common: en }
     },
-    ns: ['common', 'event', 'states'],
+    ns: ['common'],
     defaultNS: 'common',
     fallbackLng: 'fi',
     supportedLngs: ['fi', 'en'],
     debug: process.env.NODE_ENV === 'development',
-    keySeparator: false, // flat json
+    //keySeparator: false, // flat json
     interpolation: {
       escapeValue: false
     }

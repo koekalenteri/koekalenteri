@@ -1,5 +1,5 @@
 import { red } from '@mui/material/colors';
-import { createTheme, Theme } from '@mui/material/styles';
+import { createTheme, Theme, responsiveFontSizes } from '@mui/material/styles';
 
 declare module '@mui/styles/defaultTheme' {
   // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -55,4 +55,4 @@ const theme = createTheme({
   }
 })
 
-export default theme;
+export default responsiveFontSizes(theme);

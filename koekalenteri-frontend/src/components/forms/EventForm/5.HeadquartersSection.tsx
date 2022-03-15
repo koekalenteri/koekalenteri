@@ -1,9 +1,9 @@
 import { Grid, TextField } from "@mui/material";
 import { Event, Headquarters } from "koekalenteri-shared/model";
 import { useTranslation } from "react-i18next";
-import { CollapsibleSection, PartialEvent } from ".";
+import { CollapsibleSection, PartialEvent } from "../..";
 
-export function EventFormHeadquarters({ event, onChange }: { event: PartialEvent; onChange: (props: Partial<Event>) => void; }) {
+export function HeadquartersSection({ event, onChange }: { event: PartialEvent; onChange: (props: Partial<Event>) => void; }) {
   const { t } = useTranslation();
   const handleChange = (props: Partial<Headquarters>) => onChange({ headquerters: { ...(event.headquerters || {}), ...props } });
 

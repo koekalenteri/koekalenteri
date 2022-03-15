@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, within } from '@testing-library/react';
-import { EventFormJudges } from '.';
+import { JudgesSection } from './2.JudgesSection';
 
 const JUDGES = [{
   id: 1,
@@ -45,12 +45,12 @@ test('It should fire onChange', async () => {
 
   const changeHandler = jest.fn((props) => Object.assign(testEvent, props));
 
-  const { rerender } = render(<EventFormJudges event={testEvent} judges={JUDGES} onChange={changeHandler} />);
+  const { rerender } = render(<JudgesSection event={testEvent} judges={JUDGES} onChange={changeHandler} />);
 
   fireEvent.mouseDown(screen.getByLabelText(/Ylituomari/i));
   fireEvent.click(within(screen.getByRole('listbox')).getByText(/Test Judge 3/i));
 
-  rerender(<EventFormJudges event={testEvent} judges={JUDGES} onChange={changeHandler} />);
+  rerender(<JudgesSection event={testEvent} judges={JUDGES} onChange={changeHandler} />);
 
   expect(changeHandler).toHaveBeenCalledTimes(1);
   expect(testEvent.judges.length).toBe(1);
@@ -61,7 +61,7 @@ test('It should fire onChange', async () => {
   expect(testEvent.judges.length).toBe(2);
   expect(testEvent.judges[1]).toBe(0);
 
-  rerender(<EventFormJudges event={testEvent} judges={JUDGES} onChange={changeHandler} />);
+  rerender(<JudgesSection event={testEvent} judges={JUDGES} onChange={changeHandler} />);
 
   fireEvent.mouseDown(screen.getByLabelText(/Tuomari 2/i));
   fireEvent.click(within(screen.getByRole('listbox')).getByText(/Test Judge 1/i));
@@ -69,7 +69,7 @@ test('It should fire onChange', async () => {
   expect(changeHandler).toHaveBeenCalledTimes(3);
   expect(testEvent.judges[1]).toBe(1);
 
-  rerender(<EventFormJudges event={testEvent} judges={JUDGES} onChange={changeHandler} />);
+  rerender(<JudgesSection event={testEvent} judges={JUDGES} onChange={changeHandler} />);
 
   const buttons = screen.getAllByText(/Poista Tuomari/i);
   expect(buttons.length).toBe(2);

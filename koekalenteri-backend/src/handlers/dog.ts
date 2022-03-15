@@ -5,7 +5,7 @@ import KLAPI from "../utils/KLAPI";
 import { metricsError, metricsSuccess } from "../utils/metrics";
 import { response } from "../utils/response";
 import CustomDynamoClient from "../utils/CustomDynamoClient";
-import { Dog, TestResult } from "koekalenteri-shared/model";
+import { BreedCode, JsonDog, JsonTestResult } from "koekalenteri-shared/model";
 
 const dynamoDB = new CustomDynamoClient();
 
@@ -26,7 +26,8 @@ export const getDogHandler = metricScope((metrics: MetricsLogger) =>
       const regNo = event.pathParameters?.regNo?.replace('~', '/');
       const refresh = event.queryStringParameters && 'refresh' in event.queryStringParameters;
 
-      let item: Dog = await dynamoDB.read({ regNo }) as Dog;
+      let item = await dynamoDB.read({ regNo }) as JsonDog;
+      console.log(item);
 
       if (!item || refresh) {
         const { status, json } = await klapi.lueKoiranPerustiedot(regNo);
@@ -38,7 +39,7 @@ export const getDogHandler = metricScope((metrics: MetricsLogger) =>
             regNo: json.rekisterinumero,
             name: json.nimi,
             rfid: json.tunnistusmerkintä,
-            breedCode: json.rotukoodi,
+            breedCode: json.rotukoodi as BreedCode,
             dob: json.syntymäaika,
             gender: GENDER[json.sukupuoli],
             titles: json.tittelit,
@@ -47,7 +48,7 @@ export const getDogHandler = metricScope((metrics: MetricsLogger) =>
 
           const results = await klapi.lueKoiranKoetulokset(regNo);
           if (results.status === 200) {
-            const res: TestResult[] = [];
+            const res: JsonTestResult[] = [];
             for (const result of results.json || []) {
               res.push({
                 type: result.koemuoto,

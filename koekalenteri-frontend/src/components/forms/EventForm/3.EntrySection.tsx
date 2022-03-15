@@ -2,17 +2,21 @@ import { Checkbox, FormControlLabel, FormHelperText, Grid, Table, TableBody, Tab
 import { eachDayOfInterval, isSameDay, sub } from 'date-fns';
 import { Event, EventClass } from 'koekalenteri-shared/model';
 import { useTranslation } from 'react-i18next';
-import { CollapsibleSection, compareEventClass, DateRange, PartialEvent } from '.';
-import { unique } from '../utils';
-import { FieldRequirements, validateEventField } from './EventForm.validation';
+import { CollapsibleSection, DateRange, PartialEvent } from '../..';
+import { unique } from '../../../utils';
+import { compareEventClass } from './EventClasses';
+import { FieldRequirements } from './validation';
 
-export function EventFormEntry({ event, fields, onChange }: { event: PartialEvent, fields: FieldRequirements, onChange: (props: Partial<Event>) => void }) {
-  const { t } = useTranslation('event');
-  const errorStart = fields.required.entryStartDate && validateEventField(event, 'entryStartDate');
-  const errorEnd = fields.required.entryEndDate && validateEventField(event, 'entryEndDate');
-  const error = errorStart || errorEnd;
-  const helperText = error ? t(error.key, { ...error.opts, state: fields.state[error.opts.field] || 'draft' }) : '';
+type EntrySectionProps = {
+  event: PartialEvent
+  fields: FieldRequirements
+  errorStates: { [Property in keyof Event]?: boolean }
+  helperTexts: { [Property in keyof Event]?: string }
+  onChange: (props: Partial<Event>) => void
+}
 
+export function EntrySection(props: EntrySectionProps) {
+  const { event, fields, helperTexts, onChange } = props;
   return (
     <CollapsibleSection title="Ilmoittautuminen">
       <Grid item container spacing={1}>
@@ -29,13 +33,13 @@ export function EventFormEntry({ event, fields, onChange }: { event: PartialEven
               required={fields.required.entryStartDate || fields.required.entryEndDate}
               onChange={(start, end) => onChange({entryStartDate: start || undefined, entryEndDate: end || undefined})}
             />
-            <FormHelperText error>{helperText}</FormHelperText>
+            <FormHelperText error>{helperTexts.entryStartDate || helperTexts.entryEndDate}</FormHelperText>
           </Grid>
         </Grid>
         <Grid item container spacing={1}>
           <Grid item>
             Koepaikkojen määrä
-            <EventFormPlaces event={event} fields={fields} onChange={onChange} />
+            <EventFormPlaces {...props} />
           </Grid>
         </Grid>
         <Grid item container spacing={1}>
@@ -76,9 +80,8 @@ const validValue = (s: string) => {
   return value;
 };
 
-function EventFormPlaces({ event, fields, onChange } : { event: PartialEvent, fields: FieldRequirements, onChange: (props: Partial<Event>) => void; }) {
+function EventFormPlaces({ event, helperTexts, onChange } : EntrySectionProps) {
   const { t } = useTranslation();
-  const { t: te } = useTranslation('event');
   const days = eachDayOfInterval({
     start: event.startDate,
     end: event.endDate
@@ -94,8 +97,6 @@ function EventFormPlaces({ event, fields, onChange } : { event: PartialEvent, fi
     const total = newClasses.reduce((prev, cur) => prev + (cur?.places || 0), 0);
     onChange({ classes: newClasses, places: total ? total : event.places });
   };
-  const error = fields.required.places && validateEventField(event, 'places');
-  const helperText = error ? te(error.key, { ...error.opts, state: fields.state.places || 'draft' }) : '';
 
   return (
     <>
@@ -147,7 +148,7 @@ function EventFormPlaces({ event, fields, onChange } : { event: PartialEvent, fi
           </TableRow>
         </TableBody>
       </Table>
-      <FormHelperText error>{helperText}</FormHelperText>
+      <FormHelperText error>{helperTexts.places}</FormHelperText>
     </>
 
   );

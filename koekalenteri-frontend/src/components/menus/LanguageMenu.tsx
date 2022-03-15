@@ -1,10 +1,10 @@
 import { Menu, MenuItem } from '@mui/material';
 import { Language, ExpandMore } from '@mui/icons-material';
-import { locales, LocaleKey } from '../i18n';
+import { locales, LocaleKey } from '../../i18n';
 import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
-import { useLanguage } from '../stores';
-import { AppBarButton } from '.';
+import { useLanguage } from '../../stores';
+import { AppBarButton } from '..';
 
 export function LanguageMenu() {
   const { t, i18n } = useTranslation();

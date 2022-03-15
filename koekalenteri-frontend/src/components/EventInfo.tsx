@@ -33,8 +33,7 @@ const useRowStyles = makeStyles({
 export function EventInfo({ event }: { event: EventEx }) {
   const { publicStore } = useStores();
   const classes = useRowStyles();
-  const { t } = useTranslation('event');
-  const { t: tc } = useTranslation('common');
+  const { t } = useTranslation();
   const judgeName = (id: number) => publicStore.judges.find(j => j.id === id)?.name || '';
   const allJudgesInCalsses = event.judges.filter(j => !event.classes.find(c => c.judge?.id === j)).length === 0;
   return (
@@ -42,25 +41,25 @@ export function EventInfo({ event }: { event: EventEx }) {
       <Table size="small" aria-label="details" className={classes.root}>
         <TableBody>
           <TableRow key={event.id + 'date'}>
-            <TableCell component="th" scope="row">{tc('entryTime')}:</TableCell>
+            <TableCell component="th" scope="row">{t('entryTime')}:</TableCell>
             <TableCell sx={{ color: entryDateColor(event) }}>
-              <b>{tc('daterange', { start: event.entryStartDate, end: event.entryEndDate })}</b>
-              {event.isEntryOpen ? tc('distanceLeft', { date: event.entryEndDate }) : ''}
+              <b>{t('daterange', { start: event.entryStartDate, end: event.entryEndDate })}</b>
+              {event.isEntryOpen ? t('distanceLeft', { date: event.entryEndDate }) : ''}
             </TableCell>
           </TableRow>
           <TableRow key={event.id + 'organizer'}>
-            <TableCell component="th" scope="row">{t('organizer')}:</TableCell>
+            <TableCell component="th" scope="row">{t('event.organizer')}:</TableCell>
             <TableCell>{event.organizer?.name}</TableCell>
           </TableRow>
           <TableRow key={event.id + 'eventType'}>
-            <TableCell component="th" scope="row">{t('eventType')}:</TableCell>
+            <TableCell component="th" scope="row">{t('event.eventType')}:</TableCell>
             <TableCell>{event.eventType}</TableCell>
           </TableRow>
           {event.classes.length ? <EventClassRow key={event.id + 'classes'} event={event} /> : ''}
           {allJudgesInCalsses ? '' :
             <>
               <TableRow key={event.id + 'judge' + event.judges[0]}>
-                <TableCell component="th" scope="row" rowSpan={event.judges.length}>{t('judges')}:</TableCell>
+                <TableCell component="th" scope="row" rowSpan={event.judges.length}>{t('event.judges')}:</TableCell>
                 <TableCell>{judgeName(event.judges[0])}</TableCell>
               </TableRow>
               {event.judges.slice(1).map((judgeId) => (
@@ -69,19 +68,19 @@ export function EventInfo({ event }: { event: EventEx }) {
             </>
           }
           <TableRow key={event.id + 'official'}>
-            <TableCell component="th" scope="row">{t('official')}:</TableCell>
+            <TableCell component="th" scope="row">{t('event.official')}:</TableCell>
             <TableCell>{event.official?.name || ''}</TableCell>
           </TableRow>
           <TableRow key={event.id + 'payment'}>
-            <TableCell component="th" scope="row">{t('paymentDetails')}:</TableCell>
+            <TableCell component="th" scope="row">{t('event.paymentDetails')}:</TableCell>
             <TableCell><CostInfo event={event} /></TableCell>
           </TableRow>
           <TableRow key={event.id + 'location'}>
-            <TableCell component="th" scope="row">{t('location')}:</TableCell>
+            <TableCell component="th" scope="row">{t('event.location')}:</TableCell>
             <TableCell>{event.location}</TableCell>
           </TableRow>
           <TableRow key={event.id + 'description'}>
-            <TableCell component="th" scope="row">{t('description')}:</TableCell>
+            <TableCell component="th" scope="row">{t('event.description')}:</TableCell>
             <TableCell>{event.description}</TableCell>
           </TableRow>
         </TableBody>
@@ -95,10 +94,10 @@ type EventProps = {
 }
 
 function EventClassRow({ event }: EventProps) {
-  const { t } = useTranslation('event');
+  const { t } = useTranslation();
   return (
     <TableRow key={event.id + 'classes'}>
-      <TableCell component="th" scope="row">{t('classes')}:</TableCell>
+      <TableCell component="th" scope="row">{t('event.classes')}:</TableCell>
       <TableCell><EventClassTable event={event} /></TableCell>
     </TableRow>
   );

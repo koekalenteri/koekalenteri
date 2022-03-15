@@ -109,9 +109,9 @@ function EventPlaces({ event }: { event: EventEx }) {
 }
 
 function EventStateInfo({ state }: { state: EventState }) {
-  const { t } = useTranslation('states');
+  const { t } = useTranslation();
   const showInfo = state === 'tentative' || state === 'cancelled';
-  return <Box sx={{ color: 'warning.main', textTransform: 'uppercase', mr: 1 }}>{showInfo ? t(`${state}_info`) : ''}</Box>;
+  return <Box sx={{ color: 'warning.main', textTransform: 'uppercase', mr: 1 }}>{showInfo ? t(`event.states.${state}_info`) : ''}</Box>;
 }
 
 function EmptyResult() {

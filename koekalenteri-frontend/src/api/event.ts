@@ -1,6 +1,7 @@
 import http from './http';
-import type { Event, EventEx } from 'koekalenteri-shared/model';
+import type { Event, EventEx, JsonRegistration, Registration, RegistrationDate } from 'koekalenteri-shared/model';
 import { rehydrateEvent } from './utils';
+import { rehydrateDog } from './dog';
 
 const PATH = '/event/';
 
@@ -16,4 +17,16 @@ export async function getEvent(eventType: string, id: string, signal?: AbortSign
 
 export async function putEvent(event: Partial<Event>): Promise<EventEx> {
   return rehydrateEvent(await http.post<Partial<Event>, EventEx>(PATH, event));
+}
+
+export async function putRegistration(registration: Registration): Promise<Registration> {
+  return rehydrateRegistration(await http.post<Registration, JsonRegistration>(PATH + 'register/', registration));
+}
+
+export function rehydrateRegistration(json: JsonRegistration): Registration {
+  return {
+    ...json,
+    dog: rehydrateDog(json.dog),
+    dates: json.dates?.map<RegistrationDate>(d => ({...d, date: new Date(d.date)}))
+  };
 }

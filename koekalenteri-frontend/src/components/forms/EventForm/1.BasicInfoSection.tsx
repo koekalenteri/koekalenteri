@@ -3,12 +3,13 @@ import { add, differenceInDays, eachDayOfInterval, isAfter, isSameDay, startOfDa
 import { Event, EventClass, Official, Organizer } from 'koekalenteri-shared/model';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CollapsibleSection, DateRange, EventClasses, PartialEvent } from '.';
-import { HelpPopover } from './HelpPopover';
-import { ValidatedAutocomplete } from './ValidatedAutocomplete';
-import { FieldRequirements } from './EventForm.validation';
+import { PartialEvent } from '.';
+import { CollapsibleSection, DateRange, HelpPopover } from '../..';
+import { EventClasses } from './EventClasses';
+import { FieldRequirements } from './validation';
+import { EventProperty } from './EventProperty';
 
-type EventFormBasicInfoParams = {
+type BasicInfoSectionParams = {
   event: PartialEvent
   fields: FieldRequirements
   eventTypes: string[]
@@ -19,8 +20,8 @@ type EventFormBasicInfoParams = {
 };
 
 
-export function EventFormBasicInfo({ event, fields, eventTypes, eventTypeClasses, officials, organizers, onChange }: EventFormBasicInfoParams) {
-  const { t } = useTranslation('event');
+export function BasicInfoSection({ event, fields, eventTypes, eventTypeClasses, officials, organizers, onChange }: BasicInfoSectionParams) {
+  const { t } = useTranslation();
   const [helpAnchorEl, setHelpAnchorEl] = useState<HTMLButtonElement | null>(null);
   const typeOptions = eventClassOptions(event, eventTypeClasses[event.eventType || ''] || []);
 
@@ -30,8 +31,8 @@ export function EventFormBasicInfo({ event, fields, eventTypes, eventTypeClasses
         <Grid item container spacing={1}>
           <Grid item sx={{ width: 600 }}>
             <DateRange
-              startLabel={t('startDate')}
-              endLabel={t('endDate')}
+              startLabel={t('event.startDate')}
+              endLabel={t('event.endDate')}
               start={event.startDate}
               end={event.endDate}
               required
@@ -52,7 +53,7 @@ export function EventFormBasicInfo({ event, fields, eventTypes, eventTypeClasses
             />
           </Grid>
           <Grid item sx={{ width: 300 }}>
-            <ValidatedAutocomplete
+            <EventProperty
               id="kcId"
               freeSolo
               event={event}
@@ -61,12 +62,12 @@ export function EventFormBasicInfo({ event, fields, eventTypes, eventTypeClasses
               onChange={onChange}
               helpClick={(e) => setHelpAnchorEl(e.currentTarget)}
             />
-            <HelpPopover anchorEl={helpAnchorEl} onClose={() => setHelpAnchorEl(null)}>{t('kcId_info')}</HelpPopover>
+            <HelpPopover anchorEl={helpAnchorEl} onClose={() => setHelpAnchorEl(null)}>{t('event.kcId_info')}</HelpPopover>
           </Grid>
         </Grid>
         <Grid item container spacing={1}>
           <Grid item sx={{ width: 300 }}>
-            <ValidatedAutocomplete id="eventType" event={event} fields={fields} options={eventTypes} onChange={onChange} />
+            <EventProperty id="eventType" event={event} fields={fields} options={eventTypes} onChange={onChange} />
           </Grid>
           <Grid item sx={{ width: 600 }}>
             <EventClasses
@@ -76,7 +77,7 @@ export function EventFormBasicInfo({ event, fields, eventTypes, eventTypeClasses
               requiredState={fields.state.classes}
               value={event.classes}
               classes={typeOptions}
-              label={t("classes")}
+              label={t("event.classes")}
               onChange={(e, values) => onChange({ classes: values })}
             />
           </Grid>
@@ -88,18 +89,18 @@ export function EventFormBasicInfo({ event, fields, eventTypes, eventTypeClasses
         </Grid>
         <Grid item container spacing={1}>
           <Grid item sx={{ width: 600 }}>
-            <ValidatedAutocomplete id="organizer" event={event} fields={fields} options={organizers} getOptionLabel={o => o?.name || ''} onChange={onChange} />
+            <EventProperty id="organizer" event={event} fields={fields} options={organizers} getOptionLabel={o => o?.name || ''} onChange={onChange} />
           </Grid>
           <Grid item sx={{ width: 300 }}>
-            <ValidatedAutocomplete id="location" event={event} fields={fields} options={[]} freeSolo onChange={onChange} />
+            <EventProperty id="location" event={event} fields={fields} options={[]} freeSolo onChange={onChange} />
           </Grid>
         </Grid>
         <Grid item container spacing={1}>
           <Grid item sx={{ width: 450 }}>
-            <ValidatedAutocomplete id="official" event={event} fields={fields} options={officials} getOptionLabel={o => o?.name || ''} onChange={onChange} />
+            <EventProperty id="official" event={event} fields={fields} options={officials} getOptionLabel={o => o?.name || ''} onChange={onChange} />
           </Grid>
           <Grid item sx={{ width: 450 }}>
-            <ValidatedAutocomplete id="secretary" event={event} fields={fields} options={officials} getOptionLabel={o => o?.name || ''} onChange={onChange} />
+            <EventProperty id="secretary" event={event} fields={fields} options={officials} getOptionLabel={o => o?.name || ''} onChange={onChange} />
           </Grid>
         </Grid>
       </Grid>

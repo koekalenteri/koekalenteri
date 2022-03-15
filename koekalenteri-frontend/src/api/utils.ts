@@ -10,6 +10,10 @@ type EventDates = keyof PickByType<Event, Date|undefined>;
 
 const EVENT_DATE_PROPS: EventDates[] = ['startDate', 'endDate', 'entryStartDate', 'entryEndDate', 'createdAt', 'modifiedAt', 'deletedAt'];
 
+export function toDate(value: string | undefined): Date | undefined {
+  return value ? new Date(value) : undefined;
+}
+
 function rehydrateDate(value: string | number | Date | undefined) {
   if (value instanceof Date) {
     return value;

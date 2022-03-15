@@ -3,18 +3,19 @@ import { Button, FormControl, FormHelperText, Grid, InputLabel, MenuItem, Select
 import { isSameDay } from 'date-fns';
 import { Event, EventClass, Judge } from 'koekalenteri-shared/model';
 import { useTranslation } from 'react-i18next';
-import { CollapsibleSection, EventClasses, PartialEvent } from '.';
-import { FieldRequirements, validateEventField } from './EventForm.validation';
+import { CollapsibleSection, PartialEvent } from '../..';
+import { EventClasses } from './EventClasses';
+import { FieldRequirements, validateEventField } from './validation';
 
 function filterJudges(judges: Judge[], eventJudges: number[], id: number) {
   return judges.filter(j => j.id === id || !eventJudges.includes(j.id));
 }
 
-export function EventFormJudges({ event, judges, fields, onChange }: { event: PartialEvent, judges: Judge[], fields?: FieldRequirements, onChange: (props: Partial<Event>) => void }) {
-  const { t } = useTranslation('event');
+export function JudgesSection({ event, judges, fields, onChange }: { event: PartialEvent, judges: Judge[], fields?: FieldRequirements, onChange: (props: Partial<Event>) => void }) {
+  const { t } = useTranslation();
   const list = event.judges.length ? event.judges : [0];
   const error = fields?.required.judges && validateEventField(event, 'judges');
-  const helperText = error ? t(error.key, { ...error.opts, state: fields.state.judges || 'draft' }) : '';
+  const helperText = error ? t(`validation.event.${error.key}`, { ...error.opts, state: fields.state.judges || 'draft' }) : '';
 
   const updateJudge = (id: number, values: EventClass[]) => {
     const judge = { id, name: judges.find(j => j.id === id)?.name || '' };

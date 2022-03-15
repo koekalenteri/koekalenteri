@@ -1,21 +1,34 @@
-export type Dog = {
+import { Replace } from "./JSON";
+
+export type BreedCode = '110' | '111' | '121' | '122' | '263' | '312';
+
+export type JsonDog = {
   regNo: string
-  name: string
-  rfid: string
-  breedCode: string
-  dob: Date | string
+  name?: string
+  rfid?: string
+  breedCode?: BreedCode
+  dob?: string
   gender?: DogGender
-  refreshDate?: Date | string
-  results?: TestResult[]
+  refreshDate?: string
+  results?: JsonTestResult[]
+  titles?: string
+  sire?: DogName,
+  dam?: DogName
+}
+
+export type Dog = Replace<Replace<JsonDog, 'dob' | 'refreshDate', Date | undefined>, 'results', TestResult[] | undefined>;
+
+export type DogName = {
+  name: string,
   titles?: string
 }
 
 export type DogGender = 'F' | 'M'
 
-export type TestResult = {
+export type JsonTestResult = {
   type: string
   class: string
-  date: Date | string
+  date: string
   location: string
   result: string
   judge: string
@@ -26,3 +39,5 @@ export type TestResult = {
   cert?: boolean
   resCert?: boolean
 }
+
+export type TestResult = Replace<JsonTestResult, 'date', Date>

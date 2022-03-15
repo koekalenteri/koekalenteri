@@ -11,7 +11,6 @@ import { useEffect, useState } from 'react';
 export function EventEditPage({create}: {create?: boolean}) {
   const params = useParams();
   const { t } = useTranslation();
-  const { t: ts } = useTranslation('states');
   const { publicStore, privateStore } = useStores();
   const { enqueueSnackbar } = useSnackbar();
   const [loading, setLoading] = useState(true);
@@ -48,7 +47,7 @@ export function EventEditPage({create}: {create?: boolean}) {
             try {
               await privateStore.putEvent(event)
               navigate(ADMIN_EVENTS);
-              enqueueSnackbar(ts(event.state || 'draft', { context: 'save' }), { variant: 'info' });
+              enqueueSnackbar(t(`event.states.${event.state || 'draft'}`, { context: 'save' }), { variant: 'info' });
               return Promise.resolve(true);
             } catch (e: any) {
               enqueueSnackbar(e.message, { variant: 'error' });

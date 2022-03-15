@@ -6,6 +6,14 @@
   "daterangeStart": "Date from",
   "description": "Description",
   "distanceLeft": "{{ date, distance }} left",
+  "event": {
+    "states": {
+      "draft": "Draft",
+      "tentative": "Published tentative",
+      "confirmed": "Published",
+      "cancelled": "Cancelled"
+    }
+  },
   "entryOpen": "Entry open",
   "entryTime": "Registration time",
   "entryTitle": "Register to event",

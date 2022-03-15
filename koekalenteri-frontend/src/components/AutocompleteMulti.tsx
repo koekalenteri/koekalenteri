@@ -5,12 +5,13 @@ import { SizeMe } from 'react-sizeme'
 type OmitProps = 'disableCloseOnSelect' | 'fullWidth' | 'freeSolo' | 'multiple' | 'renderInput' | 'renderOption' | 'renderTags';
 
 export type AutocompleteMultiProps<T> = Omit<AutocompleteProps<T, true, false, false>, OmitProps> & {
+  error?: boolean
   helperText?: string
   label: string
 }
 
 export function AutocompleteMulti<T>(props: AutocompleteMultiProps<T>) {
-  const { helperText, label, ...acProps } = props;
+  const { error, helperText, label, ...acProps } = props;
   const getLabel = props.getOptionLabel || ((o: T) => o);
 
   return (
@@ -24,7 +25,7 @@ export function AutocompleteMulti<T>(props: AutocompleteMultiProps<T>) {
           fullWidth
           limitTags={size.width ? Math.trunc((size.width - 64) / 100) : undefined}
           multiple
-          renderInput={(props) => <TextField {...props} label={label} helperText={helperText} />}
+          renderInput={(props) => <TextField {...props} label={label} error={error} helperText={helperText} />}
           renderOption={(props, option, { selected }) => (
             <li {...props}>
               <Checkbox

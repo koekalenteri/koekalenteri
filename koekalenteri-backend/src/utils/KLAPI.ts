@@ -1,5 +1,5 @@
 import { SSM } from 'aws-sdk';
-import { JSONArray, JSONObject } from 'koekalenteri-shared/model';
+import { JsonArray, JsonObject } from 'koekalenteri-shared/model';
 import fetch from 'node-fetch';
 import { KLAPIConfig, KLDog, KLKoemuoto, KLTestResults } from './KLAPI_models';
 
@@ -41,7 +41,7 @@ export default class KLAPI {
     return this._config;
   }
 
-  async get<T extends JSONObject|JSONArray>(path: string, params: Record<string, string>): Promise<KLAPIResult<T>> {
+  async get<T extends JsonObject|JsonArray>(path: string, params: Record<string, string>): Promise<KLAPIResult<T>> {
     const cfg = await this._getConfig();
     const sp = new URLSearchParams(params);
     console.log(`KLAPI: ${path}?${sp}`);

@@ -3,17 +3,22 @@ import logo from '../assets/snj-logo.png';
 import banner from '../assets/banner.png';
 import { LanguageMenu, UserMenu } from '../components';
 
-export function Header() {
+export function Header({title}: {title?: string}) {
   return (
     <AppBar position="fixed" color="secondary">
-      <Toolbar variant="dense" sx={{width: '100%'}}>
-        <Link href="https://www.snj.fi/" target="_blank"  rel="noopener">
-          <IconButton size="large" sx={{ mr: 2, p: 0 }}>
+      <Toolbar variant="dense" sx={{ width: '100%' }}>
+        <Link href="/">
+          <IconButton size="large" sx={{ mr: { xs: 1, sm: 2 }, p: 0 }}>
             <img src={logo} alt="Suomen noutajakoirajärjestö" />
           </IconButton>
         </Link>
-        <Typography variant="h5" sx={{ flexGrow: 1 }}>
-          Koekalenteri
+        <Link href="/" sx={{textDecoration: 'none'}}>
+          <Typography variant="h6" noWrap component="div" sx={{flexShrink: 1}}>
+            Koekalenteri
+          </Typography>
+        </Link>
+        <Typography variant="h6" color="primary.dark" noWrap component="div" sx={{ ml: 1, flexGrow: 1, flexShrink: 10000 }}>
+          {title ? ' › ' + title : ''}
         </Typography>
         <LanguageMenu />
         <UserMenu />
@@ -30,7 +35,7 @@ export function Banner() {
       backgroundPositionY: '48px',
       backgroundSize: 'cover',
       width: '100%',
-      height: '260px'
+      height: { xs: 98, sm: 148, md: 260 },
     }}></Box>
   );
 }

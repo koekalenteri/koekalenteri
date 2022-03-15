@@ -1,12 +1,12 @@
 import { ExpandMore, PersonOutline } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
-import { AppBarButton } from '.';
+import { AppBarButton } from '..';
 import { useAuthenticator } from '@aws-amplify/ui-react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { Menu, MenuItem } from '@mui/material';
-import { ADMIN_ROOT } from '../config';
-import { useSessionBoolean } from '../stores';
+import { ADMIN_ROOT } from '../../config';
+import { useSessionBoolean } from '../../stores';
 
 export function UserMenu() {
   const { route } = useAuthenticator(context => [context.route]);

@@ -4,8 +4,8 @@ import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import { Event, Judge, Official, Organizer } from 'koekalenteri-shared/model';
-import { EventForm, EventHandler } from '.';
-import theme from '../assets/Theme';
+import { EventForm, FormEventHandler } from '.';
+import theme from '../../../assets/Theme';
 
 const eventTypes = ['TEST-A', 'TEST-B', 'TEST-C'];
 const eventTypeClasses = {
@@ -38,7 +38,7 @@ const OFFICIALS = [{
   eventTypes: ['TEST-A', 'TEST-C']
 }];
 
-const renderComponent = (event: Partial<Event>, judges: Judge[], officials: Official[], organizers: Organizer[], onSave: EventHandler, onCancel: EventHandler) => render(
+const renderComponent = (event: Partial<Event>, judges: Judge[], officials: Official[], organizers: Organizer[], onSave: FormEventHandler, onCancel: FormEventHandler) => render(
   <ThemeProvider theme={theme}>
     <LocalizationProvider dateAdapter={AdapterDateFns} locale={fi}>
       <EventForm event={event} eventTypes={eventTypes} eventTypeClasses={eventTypeClasses} judges={judges} officials={officials} organizers={organizers} onSave={onSave} onCancel={onCancel}></EventForm>

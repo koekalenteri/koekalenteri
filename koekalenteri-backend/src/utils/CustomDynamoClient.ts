@@ -1,6 +1,12 @@
 // Create a DocumentClient that represents the query to add an item
 import { APIGatewayProxyEventPathParameters } from 'aws-lambda';
-import DynamoDB, { AttributeMap, ItemList } from 'aws-sdk/clients/dynamodb';
+import DynamoDB, { AttributeMap, ExpressionAttributeNameMap, ItemList, KeyExpression, UpdateExpression, UpdateItemInput } from 'aws-sdk/clients/dynamodb';
+
+function fromSamLocalTable(table: string) {
+  // sam local does not provide proper table name as env variable
+  // EventTable => event-table
+  return table.replace(/([a-zA-Z])(?=[A-Z])/g, '$1-').toLowerCase();
+}
 
 export default class CustomDynamoClient {
   table: string;
@@ -15,9 +21,7 @@ export default class CustomDynamoClient {
       // Override endpoint when in local development
       options.endpoint = 'http://dynamodb:8000';
 
-      // sam local does not provide proper table name as env variable
-      // EventTable => event-table
-      this.table = this.table.replace(/([a-zA-Z])(?=[A-Z])/g, '$1-').toLowerCase();
+      this.table = fromSamLocalTable(this.table);
 
       console.info('SAM LOCAL DynamoDB: endpoint=' + options.endpoint + ', table: ' + this.table);
     }
@@ -44,11 +48,45 @@ export default class CustomDynamoClient {
     return data.Item;
   }
 
+  async query(key: DynamoDB.DocumentClient.KeyExpression, values: DynamoDB.DocumentClient.ExpressionAttributeValueMap): Promise<ItemList | undefined> {
+    if (!key) {
+      console.warn('CustomDynamoClient.read: no key provoded, returning undefined');
+      return;
+    }
+    const params: DynamoDB.DocumentClient.QueryInput = {
+      TableName : this.table,
+      KeyConditionExpression: key,
+      ExpressionAttributeValues: values
+    };
+    const data = await this.docClient.query(params).promise();
+    return data.Items;
+  }
+
+  async readTable(table: string, key: APIGatewayProxyEventPathParameters) {
+    if (process.env.AWS_SAM_LOCAL) {
+      table = fromSamLocalTable(table);
+    }
+
+    const data = await this.docClient.get({ TableName: table, Key: key }).promise();
+    return data.Item;
+  }
+
   async write(Item: Record<string, unknown>): Promise<unknown> {
     const params = {
       TableName: this.table,
       Item,
     };
     return this.docClient.put(params).promise();
+  }
+
+  async update(table: string|null, key: DynamoDB.DocumentClient.Key, expression: UpdateExpression, values: DynamoDB.DocumentClient.ExpressionAttributeValueMap) {
+    const useTable = table ? fromSamLocalTable(table) : this.table;
+    const params: DynamoDB.DocumentClient.UpdateItemInput = {
+      TableName: useTable,
+      Key: key,
+      UpdateExpression: expression,
+      ExpressionAttributeValues: values
+    };
+    return this.docClient.update(params).promise();
   }
 }

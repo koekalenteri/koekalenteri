@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Box, CircularProgress, Table, TableBody, TableCell, TableRow, Toolbar, Typography } from '@mui/material';
 import { makeStyles } from '@mui/styles';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Header } from '../layout';
 import { useSessionStarted, useStores } from '../stores';
-import type { ConfirmedEventEx } from 'koekalenteri-shared/model';
+import type { ConfirmedEventEx, Registration } from 'koekalenteri-shared/model';
 import { useTranslation } from 'react-i18next';
 import { entryDateColor } from '../utils';
 import { CostInfo, LinkButton, RegistrationForm } from '../components';
+import { putRegistration } from '../api/event';
 
 export const EventRegistrationPage = () => {
   const params = useParams();
@@ -30,9 +31,9 @@ export const EventRegistrationPage = () => {
 
   return (
     <>
-      <Header />
-      <Toolbar variant="dense" />{/* To allocate the space for fixed header */}
-      <Box m={1}>
+      <Header title="Ilmoittaudu kokeeseen" />
+      <Box sx={{ p: 1, overflow: 'hidden', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+        <Toolbar variant="dense" />{/* To allocate the space for fixed header */}
         <LinkButton sx={{mb: 1}} to="/" text={sessionStarted ? t('goBack') : t('goHome')} />
         {event ? <EventComponent event={event} classDate={params.date} className={params.class} /> : <CircularProgress />}
       </Box>
@@ -64,9 +65,22 @@ const useStyles = makeStyles({
 });
 
 function EventComponent({ event, classDate = '', className = '' }: { event: ConfirmedEventEx, classDate?: string, className?: string }) {
+  const { publicStore } = useStores();
   const { t } = useTranslation();
-  const { t: te } = useTranslation('event');
+  const navigate = useNavigate();
   const classes = useStyles();
+  const onSave = async (registration: Registration) => {
+    try {
+      const saved = await putRegistration(registration);
+      console.log(saved);
+      publicStore.load(true);
+      navigate('/', { replace: true });
+      return true;
+    } catch (e: any) {
+      console.error(e);
+      return false;
+    }
+  }
   return (
     <>
       <Typography variant="h5">{t('entryTitle', { context: event.eventType === 'other' ? '' : 'test' })}</Typography>
@@ -85,29 +99,29 @@ function EventComponent({ event, classDate = '', className = '' }: { event: Conf
               </TableCell>
             </TableRow>
             <TableRow key={event.id + 'organizer'}>
-              <TableCell component="th" scope="row">{t('organizer')}:</TableCell>
+              <TableCell component="th" scope="row">{t('event.organizer')}:</TableCell>
               <TableCell>{event.organizer?.name}</TableCell>
             </TableRow>
             <TableRow key={event.id + 'judge' + event.judges[0]}>
-              <TableCell component="th" scope="row" rowSpan={event.judges.length}>{te('judges')}:</TableCell>
+              <TableCell component="th" scope="row" rowSpan={event.judges.length}>{t('event.judges')}:</TableCell>
               <TableCell>{event.judges[0]}</TableCell>
             </TableRow>
             <TableRow key={event.id + 'official'}>
-              <TableCell component="th" scope="row">{t('official')}:</TableCell>
+              <TableCell component="th" scope="row">{t('event.official')}:</TableCell>
               <TableCell>{event.official?.name || ''}</TableCell>
             </TableRow>
             <TableRow key={event.id + 'payment'}>
-              <TableCell component="th" scope="row">{t('paymentDetails')}:</TableCell>
+              <TableCell component="th" scope="row">{t('event.paymentDetails')}:</TableCell>
               <TableCell><CostInfo event={event} /></TableCell>
             </TableRow>
             <TableRow key={event.id + 'description'}>
-              <TableCell component="th" scope="row">{te('description')}:</TableCell>
+              <TableCell component="th" scope="row">{t('event.description')}:</TableCell>
               <TableCell>{event.description}</TableCell>
             </TableRow>
           </TableBody>
         </Table>
       </Box>
-      <RegistrationForm event={event} className={className} classDate={classDate} />
+      <RegistrationForm event={event} className={className} classDate={classDate} onSave={onSave} />
     </>
   );
 }

@@ -19,48 +19,48 @@ type EventStateNS = addPrefix<EventState, 'states:'>;
 type StartEndDate = { start: Date, end: Date };
 
 export const EventGrid = observer(({ events }: { events: Partial<EventEx>[] }) => {
-  const { t } = useTranslation(['common', 'event', 'states']);
+  const { t } = useTranslation();
   const { privateStore } = useStores();
   const naviage = useNavigate();
 
   const columns: EventGridColDef[] = [
     {
       field: 'date',
-      headerName: t('common:date'),
+      headerName: t('date'),
       width: 150,
       sortComparator: (a, b) => (b as StartEndDate).start.valueOf() - (a as StartEndDate).start.valueOf(),
       valueGetter: (params) => ({ start: params.row.startDate, end: params.row.endDate }),
-      valueFormatter: ({value}) => t('common:daterange', value as StartEndDate),
+      valueFormatter: ({value}) => t('daterange', value as StartEndDate),
     },
     {
       field: 'eventType',
-      headerName: t('event:eventType'),
+      headerName: t('event.eventType'),
       minWidth: 100,
     },
     {
       field: 'classes',
-      headerName: t('event:classes'),
+      headerName: t('event.classes'),
       minWidth: 100,
       valueFormatter: ({value}) => ((value || []) as Array<EventClass|string>).map(c => typeof c === 'string' ? c : c.class).join(', ')
     },
     {
       field: 'location',
-      headerName: t('event:location'),
+      headerName: t('event.location'),
       minWidth: 150,
       flex: 1
     },
     {
       field: 'name',
-      headerName: t('event:name'),
+      headerName: t('event.name'),
       minWidth: 200,
       flex: 1
     },
     {
       field: 'state',
-      headerName: t('event:state'),
+      headerName: t('event.state'),
       width: 150,
       type: 'string',
-      valueFormatter: (params) => t(('states:' + (params.value || 'draft')) as EventStateNS)
+      valueFormatter: (params) => t(`event.states.${(params.value || 'draft') as EventState}`)
     },
   ];
 
