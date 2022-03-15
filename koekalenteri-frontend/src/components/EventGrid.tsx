@@ -11,11 +11,6 @@ interface EventGridColDef extends GridColDef {
   field: keyof EventEx | 'date'
 }
 
-type addPrefix<TKey, TPrefix extends string> = TKey extends string
-  ? `${TPrefix}${TKey}`
-  : never;
-
-type EventStateNS = addPrefix<EventState, 'states:'>;
 type StartEndDate = { start: Date, end: Date };
 
 export const EventGrid = observer(({ events }: { events: Partial<EventEx>[] }) => {
