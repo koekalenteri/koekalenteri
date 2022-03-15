@@ -44,7 +44,7 @@ export function EventClasses(props: EventClassesProps) {
 
   const { t } = useTranslation();
   const { classes, label, event, required, requiredState, ...rest } = props;
-  const error = required && validateEventField(event, 'classes');
+  const error = required && validateEventField(event, 'classes', true);
   const helperText = error ? 'error' : '';
 
   return (

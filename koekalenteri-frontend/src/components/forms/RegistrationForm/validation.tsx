@@ -26,7 +26,7 @@ const VALIDATORS: Validators<Registration, 'registration'> = {
 
 export function validateRegistrationField(registration: Registration, field: keyof Registration): ValidationResult<Registration, 'registration'> {
   const validator = VALIDATORS[field] || ((value) => typeof value[field] === 'undefined' || value[field] === '');
-  const result = validator(registration);
+  const result = validator(registration, true);
   if (!result) {
     return false;
   }

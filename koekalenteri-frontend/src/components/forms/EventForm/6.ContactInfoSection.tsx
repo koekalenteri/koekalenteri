@@ -8,7 +8,7 @@ import { FieldRequirements, validateEventField } from "./validation";
 export function ContactInfoSection({ event, fields, onChange }: { event: PartialEvent, fields: FieldRequirements, onChange: (props: Partial<Event>) => void }) {
   const { t } = useTranslation();
   const handleChange = (props: Partial<ContactInfo>) => onChange({ contactInfo: { ...(event.contactInfo || {}), ...props } });
-  const error = fields.required.contactInfo && validateEventField(event, 'contactInfo');
+  const error = fields.required.contactInfo && validateEventField(event, 'contactInfo', true);
   const helperText = error ? 'error' : '';
 
   return (

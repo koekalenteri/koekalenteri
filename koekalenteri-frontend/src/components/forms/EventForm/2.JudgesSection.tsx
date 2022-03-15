@@ -14,7 +14,7 @@ function filterJudges(judges: Judge[], eventJudges: number[], id: number) {
 export function JudgesSection({ event, judges, fields, onChange }: { event: PartialEvent, judges: Judge[], fields?: FieldRequirements, onChange: (props: Partial<Event>) => void }) {
   const { t } = useTranslation();
   const list = event.judges.length ? event.judges : [0];
-  const error = fields?.required.judges && validateEventField(event, 'judges');
+  const error = fields?.required.judges && validateEventField(event, 'judges', true);
   const helperText = error ? t(`validation.event.${error.key}`, { ...error.opts, state: fields.state.judges || 'draft' }) : '';
 
   const updateJudge = (id: number, values: EventClass[]) => {

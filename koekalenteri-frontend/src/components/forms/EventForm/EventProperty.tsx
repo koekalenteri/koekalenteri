@@ -21,7 +21,7 @@ export function EventProperty<Property extends keyof PartialEvent, freeSolo exte
   const { t } = useTranslation();
   const { id, event, fields: { state, required }, helpClick, endAdornment, ...acProps } = props;
   const isRequired = required[id] || false;
-  const error = isRequired && validateEventField(event, id);
+  const error = isRequired && validateEventField(event, id, true);
   const helperText = error ? t(`validation.event.${error.key}`, { ...error.opts, state: (state[id] || 'draft') as string }) : '';
   return (
     <Autocomplete
