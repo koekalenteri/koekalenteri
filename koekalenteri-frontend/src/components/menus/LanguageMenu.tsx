@@ -1,6 +1,6 @@
 import { Menu, MenuItem } from '@mui/material';
-import { Language, ExpandMore } from '@mui/icons-material';
-import { locales, LocaleKey } from '../../i18n';
+import { Language as LanguageIcon, ExpandMore } from '@mui/icons-material';
+import { Language, locales } from '../../i18n';
 import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
 import { useLanguage } from '../../stores';
@@ -27,8 +27,8 @@ export function LanguageMenu() {
 
   return (
     <>
-      <AppBarButton onClick={handleClick} startIcon={<Language />} endIcon={<ExpandMore />}>
-        {t(`locale_${language as LocaleKey}`)}
+      <AppBarButton onClick={handleClick} startIcon={<LanguageIcon />} endIcon={<ExpandMore />}>
+        {t(`locale_${language as Language}`)}
       </AppBarButton>
       <Menu
         anchorEl={anchorEl}
@@ -42,7 +42,7 @@ export function LanguageMenu() {
             selected={language === locale}
             onClick={() => setLanguage(locale)}
           >
-            {t(`locale_${locale as LocaleKey}`)}
+            {t(`locale_${locale as Language}`)}
           </MenuItem>
         ))}
       </Menu>
