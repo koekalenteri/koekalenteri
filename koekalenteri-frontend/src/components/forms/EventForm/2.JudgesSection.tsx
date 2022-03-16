@@ -21,13 +21,10 @@ export function JudgesSection({ event, judges, fields, onChange }: { event: Part
     const judge = { id, name: judges.find(j => j.id === id)?.name || '' };
     const isSelected = (c: EventClass) => values.find(v => isSameDay(v.date || event.startDate, c.date || event.startDate) && v.class === c.class);
     const wasSelected = (c: EventClass) => c.judge?.id === id;
+    const previousOrUndefined = (c: EventClass) => wasSelected(c) ? undefined : c.judge;
     return event.classes.map(c => ({
       ...c,
-      judge: isSelected(c)
-        ? judge
-        : wasSelected(c)
-          ? undefined
-          : c.judge
+      judge: isSelected(c) ? judge : previousOrUndefined(c)
     }));
   }
 

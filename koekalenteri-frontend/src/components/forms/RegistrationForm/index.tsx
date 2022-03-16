@@ -71,9 +71,9 @@ export function RegistrationForm({ event, className, classDate, onSave, onCancel
     if (props.class || props.dog) {
       const c = props.class || local.class;
       const dog = props.dog || local.dog;
-      const { relevant, qualifies } = filterRelevantResults(event.eventType, c as 'ALO' | 'AVO' | 'VOI', dog.results);
-      setQualifies(qualifies);
-      props.qualifyingResults = relevant;
+      const filtered = filterRelevantResults(event.eventType, c as 'ALO' | 'AVO' | 'VOI', dog.results);
+      setQualifies(filtered.qualifies);
+      props.qualifyingResults = filtered.relevant;
     }
     const newState = { ...local, ...props };
     setErrors(validateRegistration(newState));

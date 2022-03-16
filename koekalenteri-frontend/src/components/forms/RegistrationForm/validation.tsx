@@ -12,7 +12,7 @@ const VALIDATORS: Validators<Registration, 'registration'> = {
     }
     if (reg.eventType && reg.class && !filterRelevantResults(reg.eventType, reg.class as 'ALO' | 'AVO' | 'VOI', reg.dog.results).qualifies) {
       return 'dog_results';
-    };
+    }
     if (!reg.dog.sire?.name || !reg.dog.dam?.name) {
       return 'required';
     }

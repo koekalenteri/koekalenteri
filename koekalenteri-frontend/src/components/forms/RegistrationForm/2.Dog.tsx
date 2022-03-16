@@ -14,7 +14,7 @@ export function shouldAllowRefresh(dog?: Partial<Dog>) {
   if (!dog || !dog.regNo) {
     return false;
   }
-  if (dog.refreshDate && differenceInMinutes(new Date(), dog.refreshDate as Date) <= 5) {
+  if (dog.refreshDate && differenceInMinutes(new Date(), dog.refreshDate) <= 5) {
     return false;
   }
   return true;

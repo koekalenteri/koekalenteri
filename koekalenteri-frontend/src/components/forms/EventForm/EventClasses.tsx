@@ -59,8 +59,8 @@ export function EventClasses(props: EventClassesProps) {
       options={classes}
       getOptionLabel={c => c.class}
       isOptionEqualToValue={(o, v) => compareEventClass(o, v) === 0}
-      renderOption={(props, option, { selected }) => (
-        <li {...props}>
+      renderOption={(optionProps, option, { selected }) => (
+        <li {...optionProps}>
           <Checkbox
             icon={<CheckBoxOutlineBlank fontSize="small" />}
             checkedIcon={<CheckBox fontSize="small" />}
@@ -70,7 +70,7 @@ export function EventClasses(props: EventClassesProps) {
           {option.class}
         </li>
       )}
-      renderInput={(params) => <TextField {...params} required={required} error={!!error} helperText={helperText} label={label} />}
+      renderInput={(inputProps) => <TextField {...inputProps} required={required} error={!!error} helperText={helperText} label={label} />}
       renderTags={(tagValue, getTagProps) => tagValue.map((option, index) => (
         <Chip
           {...getTagProps({ index })}

@@ -25,9 +25,9 @@ export function AutocompleteMulti<T>(props: AutocompleteMultiProps<T>) {
           fullWidth
           limitTags={size.width ? Math.trunc((size.width - 64) / 100) : undefined}
           multiple
-          renderInput={(props) => <TextField {...props} label={label} error={error} helperText={helperText} />}
-          renderOption={(props, option, { selected }) => (
-            <li {...props}>
+          renderInput={(inputProps) => <TextField {...inputProps} label={label} error={error} helperText={helperText} />}
+          renderOption={(optionProps, option, { selected }) => (
+            <li {...optionProps}>
               <Checkbox
                 icon={<CheckBoxOutlineBlank fontSize="small" />}
                 checkedIcon={<CheckBox fontSize="small" />}

@@ -18,7 +18,7 @@ export function AutocompleteSingle<T, DisableClearable extends boolean | undefin
       {...acProps}
       multiple={false}
       fullWidth
-      renderInput={(props) => <TextField {...props} label={label} error={error} helperText={helperText} />}
+      renderInput={(inputProps) => <TextField {...inputProps} label={label} error={error} helperText={helperText} />}
     />
   );
 }
