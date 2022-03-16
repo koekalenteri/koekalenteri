@@ -26,7 +26,8 @@ export const putRegistrationHandler = async (e: APIGatewayProxyEvent) => {
         to.push(registration.owner.email);
       }
       // TODO: sender address from env / other config
-      await sendTemplatedMail('Registration', registration.language, "koekalenteri@koekalenteri.snj.fi", to, {});    }
+      await sendTemplatedMail('Registration', registration.language, "koekalenteri@koekalenteri.snj.fi", to, {});
+    }
   }
   return dbResult;
 }

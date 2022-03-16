@@ -62,15 +62,6 @@ export default class CustomDynamoClient {
     return data.Items;
   }
 
-  async readTable(table: string, key: APIGatewayProxyEventPathParameters) {
-    if (process.env.AWS_SAM_LOCAL) {
-      table = fromSamLocalTable(table);
-    }
-
-    const data = await this.docClient.get({ TableName: table, Key: key }).promise();
-    return data.Item;
-  }
-
   async write(Item: Record<string, unknown>): Promise<unknown> {
     const params = {
       TableName: this.table,

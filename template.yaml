@@ -370,9 +370,9 @@ Resources:
       Tracing: Active
       Policies:
         - DynamoDBCrudPolicy:
-            TableName:
-              - !Ref EventRegistrationTable
-              - !Ref EventTable
+            TableName: !Ref EventRegistrationTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EventTable
         - CloudWatchPutMetricPolicy: {}
         - Statement:
             - Sid: SESSendEmailPolicy
