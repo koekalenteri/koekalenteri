@@ -21,6 +21,8 @@ type EntryInfoProps = {
   reg: Registration
   event: ConfirmedEventEx
   classDate?: string
+  error?: boolean
+  helperText?: string
   errorStates: { [Property in keyof Registration]?: boolean }
   helperTexts: { [Property in keyof Registration]?: string }
   onChange: (props: Partial<Registration>) => void
@@ -32,7 +34,7 @@ export function EntryInfo({ reg, event, classDate, errorStates, helperTexts, onC
   const error = errorStates.class || errorStates.dates || errorStates.reserve;
 
   return (
-    <CollapsibleSection title="Koeluokka" error={error} helperText={error ? 'Tiedot ovat puutteelliset' : ''}>
+    <CollapsibleSection title={t('registration.class')} error={error} helperText={error ? t('validation.registration.required', {field: 'classesDetails'}) : ''}>
       <Grid container spacing={1}>
         <Grid item sx={{ minWidth: 150 }}>
           <AutocompleteSingle

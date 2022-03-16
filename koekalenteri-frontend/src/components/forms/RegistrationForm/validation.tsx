@@ -1,10 +1,21 @@
 import { startOfYear } from 'date-fns';
-import { Registration, TestResult } from 'koekalenteri-shared/model';
+import { Person, Registration, RegistrationBreeder, TestResult } from 'koekalenteri-shared/model';
 import { Validators, ValidationResult } from '../validation';
 
 import { EventClassRequirement, EventRequirement, REQUIREMENTS, RULE_DATES } from './rules';
 
+function validateBreeder(breeder: RegistrationBreeder) {
+  return !breeder.name || !breeder.location;
+}
+
+function validatePerson(person: Person) {
+  return !person.email || !person.name || !person.location || !person.phone;
+}
+
 const VALIDATORS: Validators<Registration, 'registration'> = {
+  agreeToPublish: (reg) => !reg.agreeToPublish ? 'terms' : false,
+  agreeToTerms: (reg) => !reg.agreeToTerms ? 'terms' : false,
+  breeder: (reg) => validateBreeder(reg.breeder) ? 'required' : false,
   dates: (reg) => reg.dates.length === 0,
   dog: (reg) => {
     if (!reg.dog.regNo) {
@@ -18,10 +29,11 @@ const VALIDATORS: Validators<Registration, 'registration'> = {
     }
     return false;
   },
+  handler: (reg) => validatePerson(reg.handler) ? 'required' : false,
   id: () => false,
   notes: () => false,
+  owner: (reg) => validatePerson(reg.owner) ? 'required' : false,
   reserve: (reg) => !reg.reserve ? 'reserve' : false,
-  agreeToTerms: (reg) => !reg.agreeToTerms ? 'terms' : false
 };
 
 export function validateRegistrationField(registration: Registration, field: keyof Registration): ValidationResult<Registration, 'registration'> {

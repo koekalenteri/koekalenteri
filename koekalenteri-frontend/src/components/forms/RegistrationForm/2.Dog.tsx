@@ -65,6 +65,7 @@ export function DogInfo({ reg, eventDate, minDogAgeMonths, error, helperText, on
             id="txtReknro"
             freeSolo
             renderInput={(props) => <TextField {...props}
+              error={!reg.dog.regNo}
               label={t('dog.regNo')}
               InputProps={{
                 ...props.InputProps,
@@ -79,7 +80,7 @@ export function DogInfo({ reg, eventDate, minDogAgeMonths, error, helperText, on
             onBlur={() => loadDog()} />
         </Grid>
         <Grid item>
-          <TextField disabled={disabled} fullWidth label={t('dog.rfid')} value={reg.dog.rfid || ''} />
+          <TextField disabled={disabled} fullWidth label={t('dog.rfid')} value={reg.dog.rfid || ''} error={!reg.dog.rfid} onChange={(e) => onChange({ dog: { ...reg.dog, rfid: e.target.value } })} />
         </Grid>
         <Grid item sx={{ width: 300 }}>
           <AutocompleteSingle
@@ -125,23 +126,23 @@ export function DogInfo({ reg, eventDate, minDogAgeMonths, error, helperText, on
             <TextField disabled={disabled} sx={{ width: 300 }} label={t('dog.titles')} value={reg.dog.titles || ''} onChange={(e) => onChange({ dog: { ...reg.dog, titles: e.target.value } })}/>
           </Grid>
           <Grid item>
-            <TextField disabled={disabled} sx={{ width: 300 }} label={t('dog.name')} value={reg.dog.name || ''} onChange={(e) => onChange({ dog: { ...reg.dog, name: e.target.value } })} />
+            <TextField disabled={disabled} sx={{ width: 300 }} label={t('dog.name')} value={reg.dog.name || ''} error={!reg.dog.name} onChange={(e) => onChange({ dog: { ...reg.dog, name: e.target.value } })} />
           </Grid>
         </Grid>
         <Grid item container spacing={1}>
           <Grid item>
-            <TextField id="sire_titles" sx={{ width: 300 }} label={t('dog.sire.titles')} value={reg.dog.sire?.titles || ''}/>
+            <TextField id="sire_titles" sx={{ width: 300 }} label={t('dog.sire.titles')} value={reg.dog.sire?.titles || ''} onChange={(e) => onChange({ dog: { ...reg.dog, sire: { ...reg.dog.sire, titles: e.target.value } } })} />
           </Grid>
           <Grid item>
-            <TextField id="sire_name" sx={{ width: 300 }} label={t('dog.sire.name')} error={!reg.dog.sire?.name} value={reg.dog.sire?.name || ''} onChange={(e) => onChange({dog: {...reg.dog, sire: {...reg.dog.sire, name: e.target.value}}}) } />
+            <TextField id="sire_name" sx={{ width: 300 }} label={t('dog.sire.name')} error={!reg.dog.sire?.name} value={reg.dog.sire?.name || ''} onChange={(e) => onChange({ dog: { ...reg.dog, sire: { ...reg.dog.sire, name: e.target.value } } }) } />
           </Grid>
         </Grid>
         <Grid item container spacing={1}>
           <Grid item>
-            <TextField id="dam_titles" sx={{ width: 300 }} label={t('dog.dam.titles')} value={reg.dog.dam?.titles || ''} />
+            <TextField id="dam_titles" sx={{ width: 300 }} label={t('dog.dam.titles')} value={reg.dog.dam?.titles || ''} onChange={(e) => onChange({ dog: { ...reg.dog, dam: { ...reg.dog.dam, titles: e.target.value } } })} />
           </Grid>
           <Grid item>
-            <TextField id="dam_name" sx={{ width: 300 }} label={t('dog.dam.name')} value={reg.dog.dam?.name || ''} error={!reg.dog.dam?.name} onChange={(e) => onChange({dog: {...reg.dog, dam: {...reg.dog.dam, name: e.target.value}}}) } />
+            <TextField id="dam_name" sx={{ width: 300 }} label={t('dog.dam.name')} value={reg.dog.dam?.name || ''} error={!reg.dog.dam?.name} onChange={(e) => onChange({ dog: { ...reg.dog, dam: { ...reg.dog.dam, name: e.target.value } } }) } />
           </Grid>
         </Grid>
       </Grid>

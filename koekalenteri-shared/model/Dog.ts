@@ -19,7 +19,7 @@ export type JsonDog = {
 export type Dog = Replace<Replace<JsonDog, 'dob' | 'refreshDate', Date | undefined>, 'results', TestResult[] | undefined>;
 
 export type DogName = {
-  name: string,
+  name?: string,
   titles?: string
 }
 

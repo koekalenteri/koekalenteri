@@ -60,7 +60,7 @@ export function RegistrationForm({ event, className, classDate, onSave, onCancel
     agreeToTerms: false,
     agreeToPublish: false
   });
-  const [qualifies, setQualifies] = useState<boolean>(false);
+  const [qualifies, setQualifies] = useState<boolean|null>(null);
   const [saving, setSaving] = useState(false);
   const [changes, setChanges] = useState(local.id === '');
   const [errors, setErrors] = useState(validateRegistration(local));
@@ -72,8 +72,14 @@ export function RegistrationForm({ event, className, classDate, onSave, onCancel
       const c = props.class || local.class;
       const dog = props.dog || local.dog;
       const filtered = filterRelevantResults(event.eventType, c as 'ALO' | 'AVO' | 'VOI', dog.results);
-      setQualifies(filtered.qualifies);
+      setQualifies((!dog || !c) ? null : filtered.qualifies);
       props.qualifyingResults = filtered.relevant;
+    }
+    if (props.owner && local.handler.name === props.owner.name) {
+      props.handler = { ...props.owner }
+    }
+    if (props.handler && local.owner.name === props.handler.name) {
+      props.owner = { ...props.handler }
     }
     const newState = { ...local, ...props };
     setErrors(validateRegistration(newState));
@@ -91,7 +97,11 @@ export function RegistrationForm({ event, className, classDate, onSave, onCancel
 
   const errorStates: { [Property in keyof Registration]?: boolean } = {};
   const helperTexts: { [Property in keyof Registration]?: string } = {
-    dog: `${local.dog.regNo} - ${local.dog.name}`
+    breeder: `${local.breeder.name}`,
+    dog: `${local.dog.regNo} - ${local.dog.name}`,
+    handler: local.handler.name === local.owner.name ? t('registration.ownerHandles') : `${local.handler.name}`,
+    owner: `${local.owner.name}`,
+    qualifyingResults: qualifies === null ? '' : t('registration.qualifyingResultsInfo', {qualifies: t(qualifies ? 'registration.qyalifyingResultsYes' : 'registration.qualifyingResultsNo') }),
   };
   for (const error of errors) {
     helperTexts[error.opts.field] = t(`validation.registration.${error.key}`, error.opts);
@@ -103,22 +113,26 @@ export function RegistrationForm({ event, className, classDate, onSave, onCancel
       <Box sx={{ pb: 0.5, overflow: 'auto', borderRadius: 1, bgcolor: 'background.form', '& .MuiInputBase-root': { bgcolor: 'background.default'} }}>
         <EntryInfo reg={local} event={event} classDate={classDate} errorStates={errorStates} helperTexts={helperTexts} onChange={onChange} />
         <DogInfo reg={local} eventDate={event.startDate} minDogAgeMonths={9} error={errorStates.dog} helperText={helperTexts.dog} onChange={onChange} />
-        <BreederInfo />
-        <OwnerInfo reg={local} onChange={onChange} />
-        <HandlerInfo reg={local} onChange={onChange} />
-        <QualifyingResultsInfo reg={local} qualifies={qualifies} onChange={onChange} />
-        <AdditionalInfo />
-        <FormControl error={errorStates.agreeToTerms}>
-          <FormControlLabel control={<Checkbox checked={local.agreeToTerms} onChange={e => onChange({agreeToTerms: e.target.checked}) }/>} label={
-            <>
-              <span>{t('registration.terms.read')}</span>&nbsp;
-              <Link target="_blank" rel="noopener" href="https://yttmk.yhdistysavain.fi/noutajien-metsastyskokeet-2/ohjeistukset/kokeen-ja-tai-kilpailun-ilmoitta/">{t('registration.terms.terms')}</Link>
+        <BreederInfo reg={local} error={errorStates.breeder} helperText={helperTexts.breeder} onChange={onChange} />
+        <OwnerInfo reg={local} error={errorStates.owner} helperText={helperTexts.owner} onChange={onChange} />
+        <HandlerInfo reg={local} error={errorStates.handler} helperText={helperTexts.handler} onChange={onChange} />
+        <QualifyingResultsInfo reg={local} error={!qualifies} helperText={helperTexts.qualifyingResults} onChange={onChange} />
+        <AdditionalInfo reg={local} onChange={onChange} />
+        <Box sx={{ m: 1, mt: 2, ml: 4, borderTop: '1px solid #bdbdbd' }}>
+          <FormControl error={errorStates.agreeToTerms}>
+            <FormControlLabel control={<Checkbox checked={local.agreeToTerms} onChange={e => onChange({agreeToTerms: e.target.checked})}/>} label={
+              <>
+                <span>{t('registration.terms.read')}</span>&nbsp;
+                <Link target="_blank" rel="noopener" href="https://yttmk.yhdistysavain.fi/noutajien-metsastyskokeet-2/ohjeistukset/kokeen-ja-tai-kilpailun-ilmoitta/">{t('registration.terms.terms')}</Link>
             &nbsp;<span>{t('registration.terms.agree')}</span>
-            </>
-          } />
-        </FormControl>
-        <FormHelperText error>{helperTexts.agreeToTerms}</FormHelperText>
-        <FormControlLabel control={<Checkbox required />} label="Hyväksyn, että kokeen järjestämisen vastuuhenkilöt voivat käsitellä ilmoittamiani henkilötietoja ja julkaista niitä tarpeen mukaan kokeen osallistuja- ja tulosluettelossa koepaikalla ja kokeeseen liittyvissä julkaisuissa internetissä tai muissa yhdistyksen medioissa." />
+              </>
+            } />
+          </FormControl>
+          <FormControl error={errorStates.agreeToPublish}>
+            <FormControlLabel control={<Checkbox checked={local.agreeToPublish} onChange={e => onChange({ agreeToPublish: e.target.checked })} />} label={t('registration.terms.publish')} />
+          </FormControl>
+          <FormHelperText error>{helperTexts.agreeToTerms || helperTexts.agreeToPublish}</FormHelperText>
+        </Box>
       </Box>
 
       <Stack spacing={1} direction="row" justifyContent="flex-end" sx={{mt: 1}}>

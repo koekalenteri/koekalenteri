@@ -1,15 +1,22 @@
 import { DatePicker } from '@mui/lab';
-import { FormControl, FormHelperText, Grid, InputLabel, MenuItem, Select, TextField } from '@mui/material';
+import { FormControl, Grid, InputLabel, MenuItem, Select, TextField } from '@mui/material';
 import { subYears } from 'date-fns';
 import { Registration } from 'koekalenteri-shared/model';
 import { useTranslation } from 'react-i18next';
 import { CollapsibleSection } from '../..';
 
-export function QualifyingResultsInfo({ reg, qualifies, onChange }: { reg: Registration; qualifies: boolean; onChange: (props: Partial<Registration>) => void; }) {
+type QualifyingResultsInfoProps = {
+  reg: Registration
+  error?: boolean
+  helperText?: string
+  onChange: (props: Partial<Registration>) => void
+}
+
+export function QualifyingResultsInfo({ reg, error, helperText, onChange }: QualifyingResultsInfoProps) {
   const { t } = useTranslation();
 
   return (
-    <CollapsibleSection title={t("registration.qualifyingResults")}>
+    <CollapsibleSection title={t("registration.qualifyingResults")} error={error} helperText={helperText}>
       <Grid item container spacing={1}>
         {reg.qualifyingResults.map(result => <Grid key={result.date.toString()} item container spacing={1}>
           <Grid item>
@@ -65,7 +72,6 @@ export function QualifyingResultsInfo({ reg, qualifies, onChange }: { reg: Regis
         </Grid>
         )}
       </Grid>
-      <FormHelperText error={!qualifies}>Tulosten perusteella koiralla {qualifies ? 'on oikeus' : 'ei ole oikeutta'} osallistua valittuun koeluokkaan.</FormHelperText>
     </CollapsibleSection>
   );
 }

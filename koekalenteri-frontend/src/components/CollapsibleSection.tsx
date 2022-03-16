@@ -13,13 +13,14 @@ type CollapsibleSectionProps = {
 export function CollapsibleSection(props: CollapsibleSectionProps) {
   const [open, setOpen] = useState(props.initOpen !== false);
   return (
-    <Box sx={{display: 'flex', alignItems: 'flex-start'}}>
+    <Box sx={{display: 'flex', alignItems: 'flex-start', pr: 1}}>
       <IconButton size="small" color="primary" onClick={() => setOpen(!open)}>
         {open ? <KeyboardArrowDown /> : <KeyboardArrowRight />}
       </IconButton>
       <Box sx={{ pt: '6px', width: '100%' }}>
         <Box sx={{ borderBottom: '1px solid #bdbdbd', userSelect: 'none', mb: '1px' }} onClick={() => setOpen(!open)}>
-          <Typography>{props.title}</Typography><FormHelperText error={props.error}>{props.helperText}</FormHelperText>
+          <Typography>{props.title}</Typography>
+          <FormHelperText error={props.error} sx={{color: 'success.main'}}>{props.helperText}</FormHelperText>
         </Box>
         <Fade in={props.loading} color="secondary">
           <LinearProgress />

@@ -3,7 +3,7 @@ import { Dog, JsonDog, Language, Person, Replace, TestResult } from ".";
 export type JsonRegistration = {
   agreeToPublish: boolean
   agreeToTerms: boolean
-  breeder: Omit<Person, 'email'|'phone'>
+  breeder: RegistrationBreeder
   class: string
   dates: JsonRegistrationDate[]
   dog: JsonDog
@@ -32,5 +32,7 @@ export type RegistrationTime = 'ap' | 'ip'
 export type RegistrationPerson = Person & {
   membership: boolean
 }
+
+export type RegistrationBreeder = Omit<Person, 'email' | 'phone'>;
 
 export type ReserveChoise = 'ANY' | 'DAY' | 'WEEK' | 'NO'
