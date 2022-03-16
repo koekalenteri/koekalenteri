@@ -1,7 +1,7 @@
 import { Save, Cancel } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import { Box, Button, Checkbox, FormControl, FormControlLabel, FormHelperText, Link, Stack } from '@mui/material';
-import { ConfirmedEventEx, Registration } from 'koekalenteri-shared/model';
+import { ConfirmedEventEx, Language, Registration } from 'koekalenteri-shared/model';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { EntryInfo } from './1.Entry';
@@ -23,10 +23,11 @@ type RegistrationFormProps = {
 };
 
 export function RegistrationForm({ event, className, classDate, onSave, onCancel }: RegistrationFormProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [local, setLocal] = useState<Registration>({
     eventId: event.id,
     eventType: event.eventType,
+    language: i18n.language as Language,
     class: className || '',
     dates: [],
     reserve: '',

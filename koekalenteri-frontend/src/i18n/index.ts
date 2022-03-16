@@ -3,8 +3,9 @@ import LanguageDetector from "i18next-browser-languagedetector";
 import { initReactI18next } from "react-i18next";
 import { fiFI, enUS, Localization } from '@mui/material/locale';
 import { fiFI as gfiFI, enUS as genUS, GridLocaleText } from "@mui/x-data-grid";
-import { locales, LocaleKey, formatDate, formatDateSpan, formatDistance } from "./dates";
+import { locales, formatDate, formatDateSpan, formatDistance } from "./dates";
 import { en, fi } from "./locales";
+import { Language } from "koekalenteri-shared/model";
 
 type MuiLocalization = Localization & {
   components: {
@@ -18,10 +19,10 @@ type MuiLocalization = Localization & {
 
 
 export { locales };
-export type { LocaleKey };
+export type { Language };
 export type ValidationErrorKey = typeof fi.validation;
 
-export const muiLocales: Record<LocaleKey, MuiLocalization> = {
+export const muiLocales: Record<Language, MuiLocalization> = {
   fi: { ...fiFI, ...gfiFI },
   en: { ...enUS, ...genUS }
 };

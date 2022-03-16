@@ -1,12 +1,12 @@
 import { format, isValid, isSameMonth, lightFormat, isSameDay, parseISO, isSameYear, formatDistanceToNowStrict } from "date-fns";
 import { enGB as en, fi } from "date-fns/locale";
+import { Language } from "koekalenteri-shared/model";
 
-export const locales = { en, fi };
-export type LocaleKey = keyof typeof locales;
+export const locales: Record<Language, Locale> = { en, fi };
 
 export const formatDate = (fmt: string) =>
   (date: Date | string, lng: string | undefined): string => {
-    const locale = locales[lng as LocaleKey];
+    const locale = locales[lng as Language];
     if (typeof date === 'string') {
       date = parseISO(date);
     }
@@ -39,6 +39,6 @@ export function formatDateSpan(start: Date | string, lng: string | undefined, { 
 }
 
 export function formatDistance(date: Date, lng: string | undefined): string {
-  const locale = locales[lng as LocaleKey];
+  const locale = locales[lng as Language];
   return formatDistanceToNowStrict(date, { locale });
 }

@@ -1,20 +1,21 @@
-import { Dog, JsonDog, Person, Replace, TestResult } from ".";
+import { Dog, JsonDog, Language, Person, Replace, TestResult } from ".";
 
 export type JsonRegistration = {
-  eventId: string
-  id?: string
-  eventType: string
+  agreeToPublish: boolean
+  agreeToTerms: boolean
+  breeder: Omit<Person, 'email'|'phone'>
   class: string
   dates: JsonRegistrationDate[]
   dog: JsonDog
-  breeder: Omit<Person, 'email'|'phone'>
-  owner: RegistrationPerson
+  eventId: string
+  eventType: string
   handler: RegistrationPerson
-  qualifyingResults: TestResult[]
+  id?: string
+  language: Language
   notes: string
+  owner: RegistrationPerson
+  qualifyingResults: TestResult[]
   reserve: ReserveChoise | ''
-  agreeToTerms: boolean
-  agreeToPublish: boolean
 }
 
 export type Registration = Replace<Replace<JsonRegistration, 'dates', RegistrationDate[]>, 'dog', Dog>
