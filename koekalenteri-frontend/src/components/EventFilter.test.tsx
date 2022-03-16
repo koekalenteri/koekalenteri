@@ -55,7 +55,7 @@ test('should render', () => {
 
 function changeAutocompleteValue(testId: string, value: string) {
   const autocomplete = screen.getByTestId(testId);
-  const input = within(autocomplete).getByRole('textbox');
+  const input = within(autocomplete).getByRole('combobox');
   autocomplete.focus();
   fireEvent.change(input, { target: { value } })
   fireEvent.keyDown(autocomplete, { key: 'ArrowDown' })
