@@ -147,6 +147,8 @@
       "WEEK": "Osallistun, viikon varoitusajalla",
       "NO": "En osallistu"
     },
+    "saved_one": "Ilmoittautuminen on tallennettu.\nVahvistus on lähetetty sähköpostiosoitteeseen:\n{{to}}",
+    "saved_other": "Ilmoittautuminen on tallennettu.\nVahvistus on lähetetty sähköpostiosoitteisiin:\n{{to}}",
     "terms": {
       "read": "Olen lukenut",
       "terms": "ilmoittautumisen ehdot",

@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { entryDateColor } from '../utils';
 import { CostInfo, LinkButton, RegistrationForm } from '../components';
 import { putRegistration } from '../api/event';
+import { useSnackbar } from 'notistack';
 
 export const EventRegistrationPage = () => {
   const params = useParams();
@@ -65,6 +66,7 @@ const useStyles = makeStyles({
 });
 
 function EventComponent({ event, classDate = '', className = '' }: { event: ConfirmedEventEx, classDate?: string, className?: string }) {
+  const { enqueueSnackbar } = useSnackbar();
   const { publicStore } = useStores();
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -73,13 +75,22 @@ function EventComponent({ event, classDate = '', className = '' }: { event: Conf
     try {
       const saved = await putRegistration(registration);
       console.log(saved);
-      publicStore.load(true);
+      publicStore.load(true); // Update registraion counts for the event. This is not optimal, but does not probably matter.
       navigate('/', { replace: true });
+      const emails = [saved.handler.email];
+      if (saved.owner.email !== saved.handler.email) {
+        emails.push(saved.owner.email);
+      }
+      enqueueSnackbar(t('registration.saved', { count: emails.length, to: emails.join("\n") }), { variant: 'success', style: { whiteSpace: 'pre-line' } });
       return true;
     } catch (e: any) {
       console.error(e);
       return false;
     }
+  }
+  const onCancel = async () => {
+    navigate('/');
+    return true;
   }
   return (
     <>
@@ -121,7 +132,7 @@ function EventComponent({ event, classDate = '', className = '' }: { event: Conf
           </TableBody>
         </Table>
       </Box>
-      <RegistrationForm event={event} className={className} classDate={classDate} onSave={onSave} />
+      <RegistrationForm event={event} className={className} classDate={classDate} onSave={onSave} onCancel={onCancel}/>
     </>
   );
 }
