@@ -1,8 +1,14 @@
-import { APIGatewayProxyEvent } from "aws-lambda";
-import { JsonRegistration } from "koekalenteri-shared/model";
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
+import { v4 as uuidv4 } from 'uuid';
+import { JsonConfirmedEvent, JsonRegistration } from "koekalenteri-shared/model";
 import CustomDynamoClient from "../utils/CustomDynamoClient";
-import { genericWriteHandler, genericReadAllHandler, genericReadHandler } from "../utils/genericHandlers";
+import { formatDateSpan, formatRegDate } from "../utils/dates";
+import { genericWriteHandler, genericReadAllHandler, genericReadHandler, getUsername } from "../utils/genericHandlers";
+import { metricsSuccess, metricsError } from "../utils/metrics";
 import { sendTemplatedMail } from "./email";
+import { metricScope, MetricsLogger } from "aws-embedded-metrics";
+import { response } from "../utils/response";
+import { AWSError } from "aws-sdk";
 
 const dynamoDB = new CustomDynamoClient();
 
@@ -10,24 +16,63 @@ export const getEventsHandler = genericReadAllHandler(dynamoDB, 'getEvents');
 export const getEventHandler = genericReadHandler(dynamoDB, 'getEvent');
 export const putEventHandler = genericWriteHandler(dynamoDB, 'putEvent');
 
-export const putRegistrationHandler = async (e: APIGatewayProxyEvent) => {
-  const dbResult = await genericWriteHandler(dynamoDB, 'putRegistration')(e);
-  if (dbResult.statusCode === 200) {
-    const registration = JSON.parse(dbResult.body) as JsonRegistration;
-    const eventKey = { eventType: registration.eventType, id: registration.eventId };
-    const eventTable = process.env.EVENT_TABLE_NAME || '';
-    const registrations = await dynamoDB.query('eventId = :id', { ':id': registration.eventId });
+export const putRegistrationHandler = metricScope((metrics: MetricsLogger) =>
+  async (
+    event: APIGatewayProxyEvent,
+  ): Promise<APIGatewayProxyResult> => {
 
-    await dynamoDB.update(eventTable, eventKey, 'set entries = :entries', { ':entries': registrations?.length || 0 });
+    const timestamp = new Date().toISOString();
+    const username = getUsername(event);
 
-    if (registration.handler?.email && registration.owner?.email) {
-      const to: string[] = [registration.handler.email];
-      if (registration.owner.email !== registration.handler.email) {
-        to.push(registration.owner.email);
+    try {
+      const item: JsonRegistration = {
+        id: uuidv4(),
+        ...JSON.parse(event.body || ""),
+        createdAt: timestamp,
+        createdBy: username,
+        modifiedAt: timestamp,
+        modifiedBy: username,
       }
-      // TODO: sender address from env / other config
-      await sendTemplatedMail('Registration', registration.language, "koekalenteri@koekalenteri.snj.fi", to, {});
+      const eventKey = { eventType: item.eventType, id: item.eventId };
+      const eventTable = process.env.EVENT_TABLE_NAME || '';
+      const confirmedEvent = await dynamoDB.read<JsonConfirmedEvent>(eventKey, eventTable);
+      if (!confirmedEvent) {
+        throw new Error(`Event of type "${item.eventType}" not found with id "${item.eventId}"`);
+      }
+      await dynamoDB.write(item);
+      const registrations = await dynamoDB.query('eventId = :id', { ':id': item.eventId });
+      await dynamoDB.update(eventKey, 'set entries = :entries', { ':entries': registrations?.length || 0 }, eventTable);
+
+      if (item.handler?.email && item.owner?.email) {
+        const to: string[] = [item.handler.email];
+        if (item.owner.email !== item.handler.email) {
+          to.push(item.owner.email);
+        }
+        const eventDate = formatDateSpan(confirmedEvent.startDate, confirmedEvent.endDate);
+        // TODO: i18n for backend or include additional data in registration?
+        const reserveText = item.reserve;
+        const dogBreed = item.dog.breedCode;
+        const regDates = item.dates.map(d => formatRegDate(d.date, d.time)).join(', ');
+        // TODO: link
+        const editLink = 'https://localhost:3000/regitration/' + item.id;
+        // TODO: sender address from env / other config
+        const from = "koekalenteri@koekalenteri.snj.fi";
+        await sendTemplatedMail('RegistrationV2', item.language, from, to, {
+          dogBreed,
+          editLink,
+          event: confirmedEvent,
+          eventDate,
+          reg: item,
+          regDates,
+          reserveText,
+        });
+      }
+
+      metricsSuccess(metrics, event.requestContext, 'putRegistration');
+      return response(200, item);
+    } catch (err) {
+      metricsError(metrics, event.requestContext, 'putRegistration');
+      return response((err as AWSError).statusCode || 501, err);
     }
   }
-  return dbResult;
-}
+);

@@ -1,16 +1,16 @@
-import { Official, Organizer, Secretary } from '.';
+import { DbRecord, JsonDbRecord, NotOptional, Official, Organizer, Secretary } from '.';
+import { Replace, ReplaceOptional } from '.';
 
-export type Event = {
-  id: string
+export interface JsonEvent extends JsonDbRecord {
   kcId?: number
   state: EventState
   organizer: Organizer
   eventType: string
-  classes: Array<EventClass>
-  startDate?: Date
-  endDate?: Date
-  entryStartDate?: Date
-  entryEndDate?: Date
+  classes: Array<JsonEventClass>
+  startDate?: string
+  endDate?: string
+  entryStartDate?: string
+  entryEndDate?: string
   location: string
   headquerters?: Partial<Headquarters>
   name: string
@@ -28,17 +28,13 @@ export type Event = {
   official: Official
   secretary: Secretary
   contactInfo?: Partial<ContactInfo>
-  createdAt?: Date
-  createdBy?: string
-  deletedAt?: Date
-  deletedBy?: string
-  modifiedAt?: Date
-  modifiedBy?: string
 }
 
-export type EventClass = {
+export type Event = DbRecord & Replace<ReplaceOptional<Omit<JsonEvent, keyof JsonDbRecord>, 'startDate' | 'endDate' | 'entryStartDate' | 'entryEndDate', Date>, 'classes', Array<EventClass>>
+
+export type JsonEventClass = {
   class: string
-  date?: Date
+  date?: string
   judge?: {
     id: number,
     name: string
@@ -47,6 +43,7 @@ export type EventClass = {
   entries?: number
   members?: number
 }
+export type EventClass = ReplaceOptional<JsonEventClass, 'date', Date>
 
 export type EventState = 'draft' | 'tentative' | 'confirmed' | 'cancelled';
 
@@ -74,10 +71,10 @@ export interface EventEx extends Event {
   isEntryUpcoming: boolean
 }
 
-export type ConfirmedEventEx = EventEx & {
-  state: 'confirmed',
-  startDate: Date,
-  endDate: Date,
-  entryStartDate: Date,
-  entryEndDate: Date
+export type ConfirmedEventEx = Replace<EventEx, 'startDate'|'endDate'|'entryStartDate'|'entryEndDate', Date> & {
+  state: 'confirmed'
+}
+
+export type JsonConfirmedEvent = NotOptional<JsonEvent, 'startDate'|'endDate'|'entryStartDate'|'entryEndDate'> & {
+  state: 'confirmed'
 }

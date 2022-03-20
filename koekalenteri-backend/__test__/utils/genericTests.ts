@@ -3,14 +3,6 @@ import { DocumentClient } from "aws-sdk/clients/dynamodb";
 import { defaultJSONHeaders } from "./headers";
 import { constructAPIGwEvent, createAWSError } from "./helpers";
 
-jest.mock('aws-sdk/clients/ses', () => {
-  const mSES = {
-    sendTemplatedEmail: jest.fn().mockReturnThis(),
-    promise: jest.fn(),
-  };
-  return jest.fn(() => mSES);
-});
-
 export const genericReadAllTest = (handler: (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult>) =>
   (): void => {
     let scanSpy: jest.SpyInstance;
@@ -139,19 +131,13 @@ export const genericReadTest = (handler: (event: APIGatewayProxyEvent) => Promis
 export const genericWriteTest = (handler: (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult>) =>
   (): void => {
     let putSpy: jest.SpyInstance;
-    let querySpy: jest.SpyInstance;
-    let updateSpy: jest.SpyInstance;
 
     beforeAll(() => {
       putSpy = jest.spyOn(DocumentClient.prototype, 'put');
-      querySpy = jest.spyOn(DocumentClient.prototype, 'query');
-      updateSpy = jest.spyOn(DocumentClient.prototype, 'update');
     });
 
     afterAll(() => {
       putSpy.mockRestore();
-      querySpy.mockRestore();
-      updateSpy.mockRestore();
     });
 
     it('should return put data', async () => {
@@ -163,8 +149,6 @@ export const genericWriteTest = (handler: (event: APIGatewayProxyEvent) => Promi
           promise: () => Promise.resolve()
         }
       });
-      querySpy.mockImplementation(() => ({ promise: () => Promise.resolve({Items: []}) }));
-      updateSpy.mockImplementation(() => ({ promise: () => Promise.resolve() }));
 
       const event = constructAPIGwEvent({}, { method: 'PUT', username: 'TEST' });
       const result = await handler(event);

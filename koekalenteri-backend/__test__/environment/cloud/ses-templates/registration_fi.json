@@ -1,8 +1,0 @@
-{
-  "Template": {
-      "TemplateName": "Registration-fi",
-      "SubjectPart": "Ilmoittautumisen vahvistus",
-      "TextPart": "Ilmoittautumisesi on otettu vastaan. Alla näet ilmoituksesi tiedot sekä linkin, jonka avulla voit tarvittaessa tehdä muutoksia ilmoittautumiseen tai perua ilmoittautumisesi.\n\nTäsä olis ne tiedot.",
-      "HtmlPart": "<html>\n<body>\n<h2>Ilmoittautumisesi on otettu vastaan</h2>\n<p>Alla näet ilmoituksesi tiedot sekä linkin, jonka avulla voit tarvittaessa tehdä muutoksia ilmoittautumiseen tai perua ilmoittautumisesi.</p><p>Täsä olis ne tiedot</p></body>\n</html>"
-  }
-}

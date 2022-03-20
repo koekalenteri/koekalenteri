@@ -1,6 +1,7 @@
 // Create a DocumentClient that represents the query to add an item
 import { APIGatewayProxyEventPathParameters } from 'aws-lambda';
-import DynamoDB, { AttributeMap, ItemList, UpdateExpression } from 'aws-sdk/clients/dynamodb';
+import DynamoDB, { ItemList, UpdateExpression } from 'aws-sdk/clients/dynamodb';
+import { JsonObject } from 'koekalenteri-shared/model';
 
 function fromSamLocalTable(table: string) {
   // sam local does not provide proper table name as env variable
@@ -35,20 +36,20 @@ export default class CustomDynamoClient {
     return data.Items?.filter(item => !item.deletedAt);
   }
 
-  async read(key: APIGatewayProxyEventPathParameters | null): Promise<AttributeMap | undefined> {
+  async read<T>(key: APIGatewayProxyEventPathParameters | null, table?: string): Promise<T | undefined> {
     if (!key) {
       console.warn('CustomDynamoClient.read: no key provoded, returning undefined');
       return;
     }
     const params = {
-      TableName : this.table,
+      TableName : table ? fromSamLocalTable(table) : this.table,
       Key: key,
     };
     const data = await this.docClient.get(params).promise();
-    return data.Item;
+    return data.Item as T;
   }
 
-  async query(key: DynamoDB.DocumentClient.KeyExpression, values: DynamoDB.DocumentClient.ExpressionAttributeValueMap): Promise<ItemList | undefined> {
+  async query<T>(key: DynamoDB.DocumentClient.KeyExpression, values: DynamoDB.DocumentClient.ExpressionAttributeValueMap): Promise<T[] | undefined> {
     if (!key) {
       console.warn('CustomDynamoClient.read: no key provoded, returning undefined');
       return;
@@ -59,7 +60,7 @@ export default class CustomDynamoClient {
       ExpressionAttributeValues: values
     };
     const data = await this.docClient.query(params).promise();
-    return data.Items;
+    return data.Items as T[];
   }
 
   async write(Item: Record<string, unknown>): Promise<unknown> {
@@ -70,10 +71,9 @@ export default class CustomDynamoClient {
     return this.docClient.put(params).promise();
   }
 
-  async update(table: string|null, key: DynamoDB.DocumentClient.Key, expression: UpdateExpression, values: DynamoDB.DocumentClient.ExpressionAttributeValueMap) {
-    const useTable = table ? fromSamLocalTable(table) : this.table;
+  async update(key: DynamoDB.DocumentClient.Key, expression: UpdateExpression, values: JsonObject, table?: string) {
     const params: DynamoDB.DocumentClient.UpdateItemInput = {
-      TableName: useTable,
+      TableName: table ? fromSamLocalTable(table) : this.table,
       Key: key,
       UpdateExpression: expression,
       ExpressionAttributeValues: values

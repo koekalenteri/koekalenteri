@@ -1,8 +1,0 @@
-{
-  "Template": {
-      "TemplateName": "Registration-en",
-      "SubjectPart": "Registration confirmation",
-      "TextPart": "Your registration has been received. Below you will find the details of your registration and a link that will allow you to make changes to your registration or cancel your registration if necessary.\n\nTäsä olis ne tiedot.",
-      "HtmlPart": "<html>\n<body>\n<h2>Your registration has been received</h2>\n<p>Below you will find the details of your registration and a link that will allow you to make changes to your registration or cancel your registration if necessary.</p><p>Täsä olis ne tiedot</p></body>\n</html>"
-  }
-}

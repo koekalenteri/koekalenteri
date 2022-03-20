@@ -4,8 +4,9 @@ import { Language } from 'koekalenteri-shared/model';
 
 const ses = new SES();
 
-export async function sendTemplatedMail(template: string, language: Language, from: string, to: string[], data: Record<string, string>) {
+export async function sendTemplatedMail(template: string, language: Language, from: string, to: string[], data: Record<string, unknown>) {
   const params: SendTemplatedEmailRequest = {
+    ConfigurationSetName: 'Koekalenteri',
     Destination: {
       ToAddresses: to,
     },

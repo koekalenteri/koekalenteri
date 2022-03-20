@@ -36,5 +36,9 @@ export const DEFAULT_EVENT: Event = {
   paymentDetails: '',
   places: 0,
   referenceNumber: '',
-  state: 'draft'
+  state: 'draft',
+  createdAt: new Date(),
+  createdBy: 'unknown',
+  modifiedAt: new Date(),
+  modifiedBy: 'unknown',
 };

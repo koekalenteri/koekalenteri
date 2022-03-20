@@ -45,16 +45,10 @@ export const genericWriteHandler = (dynamoDB: CustomDynamoClient, name: string):
     async (
       event: APIGatewayProxyEvent,
     ): Promise<APIGatewayProxyResult> => {
-      const timestamp = new Date().toISOString();
-      // TODO: remove unauthorized access
-      const authorized = event.requestContext.authorizer !== null
-        || event.headers.origin === 'https://dev.koekalenteri.snj.fi'
-        || event.headers.origin === 'http://localhost:3000';
+      authorize(event);
 
-      if (!authorized || event.body === null) {
-        throw new Error("Unauthorized user");
-      }
-      const username = event.requestContext.authorizer?.claims["cognito:username"] || 'anonymous';
+      const timestamp = new Date().toISOString();
+      const username = getUsername(event);
 
       try {
         const item = {
@@ -74,3 +68,18 @@ export const genericWriteHandler = (dynamoDB: CustomDynamoClient, name: string):
       }
     }
   );
+
+export function authorize(event: APIGatewayProxyEvent) {
+  // TODO: remove unauthorized access
+  const authorized = event.requestContext.authorizer !== null
+    || event.headers.origin === 'https://dev.koekalenteri.snj.fi'
+    || event.headers.origin === 'http://localhost:3000';
+
+  if (!authorized || event.body === null) {
+    throw new Error("Unauthorized user");
+  }
+}
+
+export function getUsername(event: APIGatewayProxyEvent) {
+  return event.requestContext.authorizer?.claims["cognito:username"] || 'anonymous';
+}

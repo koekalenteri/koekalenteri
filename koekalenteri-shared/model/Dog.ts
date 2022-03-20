@@ -1,4 +1,4 @@
-import { Replace } from "./JSON";
+import { Replace, ReplaceOptional } from ".";
 
 export type BreedCode = '110' | '111' | '121' | '122' | '263' | '312';
 
@@ -16,7 +16,7 @@ export type JsonDog = {
   dam?: DogName
 }
 
-export type Dog = Replace<Replace<JsonDog, 'dob' | 'refreshDate', Date | undefined>, 'results', TestResult[] | undefined>;
+export type Dog = Replace<ReplaceOptional<JsonDog, 'dob' | 'refreshDate', Date>, 'results', TestResult[] | undefined>;
 
 export type DogName = {
   name?: string,

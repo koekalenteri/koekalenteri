@@ -1,4 +1,6 @@
+export * from './utility';
 export * from './JSON';
+export * from './Database';
 
 export * from './Dog';
 export * from './Event';

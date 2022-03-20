@@ -133,16 +133,19 @@ export function validateEventField(event: PartialEvent, field: keyof Event, requ
   if (result === true) {
     return {
       key: 'validationError',
-      opts: { field }
+      opts: { field, state: event.state }
     };
   }
   if (typeof result === 'string') {
     return {
       key: result,
-      opts: { field, type: event.eventType }
+      opts: { field, state: event.state, type: event.eventType }
     };
   }
-  return result;
+  return {
+    key: result.key,
+    opts: { state: event.state, type: event.eventType, ...result.opts }
+  };
 }
 
 export function validateEvent(event: PartialEvent) {

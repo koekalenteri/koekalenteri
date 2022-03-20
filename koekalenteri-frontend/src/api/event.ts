@@ -1,22 +1,22 @@
 import http from './http';
-import type { Event, EventEx, JsonRegistration, Registration, RegistrationDate } from 'koekalenteri-shared/model';
+import type { Event, EventEx, JsonEvent, JsonRegistration, Registration, RegistrationDate } from 'koekalenteri-shared/model';
 import { rehydrateEvent } from './utils';
 import { rehydrateDog } from './dog';
 
 const PATH = '/event/';
 
 export async function getEvents(signal?: AbortSignal): Promise<EventEx[]> {
-  const jsonedEvents = await http.get<Array<Event>>(PATH, {signal});
+  const jsonedEvents = await http.get<Array<JsonEvent>>(PATH, {signal});
   return jsonedEvents.map(event => rehydrateEvent(event));
 }
 
 export async function getEvent(eventType: string, id: string, signal?: AbortSignal): Promise<EventEx> {
-  const jsonedEvent = await http.get<Event>(`${PATH}${eventType}/${id}`, {signal});
+  const jsonedEvent = await http.get<JsonEvent>(`${PATH}${eventType}/${id}`, {signal});
   return rehydrateEvent(jsonedEvent);
 }
 
 export async function putEvent(event: Partial<Event>): Promise<EventEx> {
-  return rehydrateEvent(await http.post<Partial<Event>, EventEx>(PATH, event));
+  return rehydrateEvent(await http.post<Partial<Event>, JsonEvent>(PATH, event));
 }
 
 export async function putRegistration(registration: Registration): Promise<Registration> {

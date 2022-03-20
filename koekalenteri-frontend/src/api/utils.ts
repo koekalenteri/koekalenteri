@@ -1,4 +1,4 @@
-import type { Event, EventEx } from 'koekalenteri-shared/model';
+import type { Event, EventEx, JsonEvent } from 'koekalenteri-shared/model';
 import { endOfDay, startOfDay, subDays } from 'date-fns';
 import { DEFAULT_EVENT } from './defaultEvent';
 
@@ -8,7 +8,7 @@ type PickByType<T, Value> = {
 }
 type EventDates = keyof PickByType<Event, Date|undefined>;
 
-const EVENT_DATE_PROPS: EventDates[] = ['startDate', 'endDate', 'entryStartDate', 'entryEndDate', 'createdAt', 'modifiedAt', 'deletedAt'];
+const EVENT_DATE_PROPS: EventDates[] = ['startDate', 'endDate', 'entryStartDate', 'entryEndDate', 'createdAt', 'modifiedAt'];
 
 export function toDate(value: string | undefined): Date | undefined {
   return value ? new Date(value) : undefined;
@@ -23,8 +23,7 @@ function rehydrateDate(value: string | number | Date | undefined) {
   }
 }
 
-export function rehydrateEvent(event: Partial<Event>, now = new Date()): EventEx {
-
+export function rehydrateEvent(event: Partial<JsonEvent> | Partial<Event>, now = new Date()): EventEx {
   for (const prop of EVENT_DATE_PROPS) {
     event[prop] = rehydrateDate(event[prop]);
   }
@@ -45,15 +44,15 @@ export function rehydrateEvent(event: Partial<Event>, now = new Date()): EventEx
 
   if (event.entryStartDate && event.entryEndDate) {
     isEntryOpen = event.state === 'confirmed' &&
-      startOfDay(event.entryStartDate) <= now &&
-      endOfDay(event.entryEndDate) >= now;
-    isEntryClosing = isEntryOpen && subDays(event.entryEndDate, 7) <= endOfDay(now);
+      startOfDay(event.entryStartDate as Date) <= now &&
+      endOfDay(event.entryEndDate as Date) >= now;
+    isEntryClosing = isEntryOpen && subDays(event.entryEndDate as Date, 7) <= endOfDay(now);
     isEntryUpcoming = event.entryStartDate > now;
   }
 
   return {
     ...DEFAULT_EVENT,
-    ...event,
+    ...event as Partial<Event>,
     isEntryOpen,
     isEntryClosing,
     isEntryUpcoming

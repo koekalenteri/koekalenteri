@@ -108,3 +108,5 @@ dist
 samconfig.toml
 
 stack.json
+
+koekalenteri-backend/ses-templates/samples/
