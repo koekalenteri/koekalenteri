@@ -1,4 +1,4 @@
-import { Box, Button, FormControlLabel, Stack, Switch, TextField, Typography } from '@mui/material';
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControlLabel, Stack, Switch, TextField, Typography } from '@mui/material';
 import cloneDeep from 'lodash.clonedeep';
 import { EventGridContainer } from '../layout';
 import { useTranslation } from 'react-i18next';
@@ -10,12 +10,18 @@ import { ADMIN_EDIT_EVENT, ADMIN_NEW_EVENT } from '../config';
 import { useStores } from '../stores';
 import { observer } from 'mobx-react-lite';
 import { Event } from 'koekalenteri-shared/model';
+import { useState } from 'react';
 
 export const EventListPage = observer(() => {
   const { t } = useTranslation();
   const { privateStore } = useStores();
   const { enqueueSnackbar } = useSnackbar();
+  const [open, setOpen] = useState(false);
   const navigate = useNavigate();
+
+  const handleClose = () => {
+    setOpen(false);
+  };
 
   const copyAction = async () => {
     if (privateStore.selectedEvent) {
@@ -34,8 +40,10 @@ export const EventListPage = observer(() => {
 
   const deleteAction = async () => {
     if (privateStore.selectedEvent) {
+      setOpen(false);
       try {
         await privateStore.deleteEvent(privateStore.selectedEvent);
+        enqueueSnackbar(t('deleteEventComplete'), { variant: 'info' });
       } catch (e: any) {
         enqueueSnackbar(e.message, { variant: 'error' });
       }
@@ -69,10 +77,29 @@ export const EventListPage = observer(() => {
           <Button startIcon={<AddCircleOutline />} onClick={() => navigate(ADMIN_NEW_EVENT)}>{t('createEvent')}</Button>
           <Button startIcon={<EditOutlined />} disabled={!privateStore.selectedEvent} onClick={() => navigate(`${ADMIN_EDIT_EVENT}/${privateStore.selectedEvent?.id}`)}>{t('edit')}</Button>
           <Button startIcon={<ContentCopyOutlined />} disabled={!privateStore.selectedEvent} onClick={copyAction}>{t('copy')}</Button>
-          <Button startIcon={<DeleteOutline />} disabled={!privateStore.selectedEvent} onClick={deleteAction}>{t('delete')}</Button>
+          <Button startIcon={<DeleteOutline />} disabled={!privateStore.selectedEvent} onClick={() => setOpen(true)}>{t('delete')}</Button>
         </Stack>
         <EventGridContainer />
       </Box>
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="delete-dialog-title"
+        aria-describedby="delete-dialog-description"
+      >
+        <DialogTitle id="delete-dialog-title">
+          {t('deleteEventTitle')}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="delete-dialog-description">
+            {t('deleteEventText')}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose}>{t('cancel')}</Button>
+          <Button onClick={deleteAction} autoFocus>{t('delete')}</Button>
+        </DialogActions>
+      </Dialog>
     </AuthPage>
   )
 });

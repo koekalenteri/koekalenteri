@@ -74,7 +74,7 @@ const VALIDATORS: Validators<PartialEvent, 'event'> = {
     }
     return false;
   },
-  cost: (event) => !event.cost,
+  cost: (event, required) => required && !event.cost,
   costMember: (event) => {
     const cost = event.cost || 0;
     if (event.costMember && cost < event.costMember) {

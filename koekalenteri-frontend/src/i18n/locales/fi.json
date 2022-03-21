@@ -75,6 +75,7 @@
     "startDate": "Kokeen alkamispäivä",
     "state": "Tila"
   },
+  "cancel": "Peruta",
   "copy": "Kopioi",
   "createEvent": "Uusi tapahtuma",
   "date": "Aika",
@@ -86,6 +87,9 @@
   "daterangeStart": "Aikaväli alkaen",
   "dateshort": "{{ date, short }}",
   "delete": "Poista",
+  "deleteEventComplete": "Tapahtuma poistettu",
+  "deleteEventTitle": "Varmistus",
+  "deleteEventText": "Haluatko varmasti poistaa kokeen?",
   "distance": "{{ date, distance }}",
   "distanceLeft": "{{ date, distance }} jäljellä",
   "edit": "Muokkaa",
