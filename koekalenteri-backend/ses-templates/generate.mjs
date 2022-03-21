@@ -3,30 +3,44 @@ import remarkBreaks from 'remark-breaks'
 import remarkGfm from 'remark-gfm'
 import remarkHtml from 'remark-html'
 import remarkParse from 'remark-parse'
-import {readdirSync, writeFileSync} from 'fs'
+import {existsSync, readdirSync, writeFileSync} from 'fs'
 import {read} from 'to-vfile'
 import {reporter} from 'vfile-reporter'
 import {unified} from 'unified'
 import {visit, SKIP} from 'unist-util-visit'
-import tableHandler from './gen.tableHandler.mjs'
+import tableHandler from './handlers/table.mjs'
 
 const templates = readdirSync('.', {withFileTypes: true})
-  .filter(entry => entry.isDirectory() && entry.name !== 'samples')
+  .filter(entry => entry.isDirectory() && !['samples', 'handlers'].includes(entry.name))
   .map(entry => entry.name);
 
 for (const template of templates) {
-  const context = await import(`./${template}/_sample.mjs`);
+  const contextFn = `./${template}/_sample.mjs`;
+  const context = existsSync(contextFn) && await import(contextFn);
+  if (!context) {
+    console.warn(`${contextFn} does not exist, can not generate samples`);
+  }
 
   for (const lang of ['fi', 'en']) {
     const templateObj = await genJson(template, lang);
+    if (!templateObj) {
+      continue;
+    }
     writeFileSync(`${template}-${lang}.json`, JSON.stringify(templateObj));
-    writeFileSync(`samples/${template}-${lang}.txt`, Handlebars.compile(templateObj.Template.TextPart)(context.default));
-    writeFileSync(`samples/${template}-${lang}.html`, Handlebars.compile(templateObj.Template.HtmlPart)(context.default));
+    if (context) {
+      writeFileSync(`samples/${template}-${lang}.txt`, Handlebars.compile(templateObj.Template.TextPart)(context.default));
+      writeFileSync(`samples/${template}-${lang}.html`, Handlebars.compile(templateObj.Template.HtmlPart)(context.default));
+    }
   }
 }
 
 async function genJson(template, lang) {
   const source = `${template}/${lang}.md`;
+
+  if (!existsSync(source)) {
+    console.warn(`${source} does not exist!`);
+    return null;
+  }
 
   let subject = '';
   const extractSubject = () =>
