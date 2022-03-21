@@ -75,11 +75,13 @@ export function EventForm({ event, judges, eventTypes, eventTypeClasses, officia
     <>
       <Box sx={{ pb: 1 }}>
         <AutocompleteSingle
+          disableClearable
           getOptionLabel={o => t(`event.states.${o}`)}
           label={t('event.state')}
           onChange={(e, value) => onChange({state: value || undefined})}
           options={['draft', 'tentative', 'confirmed', 'cancelled'] as EventState[]}
           value={local.state}
+          sx={{width: 200}}
         />
       </Box>
 
@@ -94,7 +96,7 @@ export function EventForm({ event, judges, eventTypes, eventTypeClasses, officia
       </Box>
 
       <Stack spacing={1} direction="row" justifyContent="flex-end" sx={{mt: 1}}>
-        <LoadingButton color="primary" disabled={!changes ||!valid} loading={saving} loadingPosition="start" startIcon={<Save />} variant="contained" onClick={saveHandler}>Tallenna</LoadingButton>
+        <LoadingButton color="primary" disabled={!changes || !valid} loading={saving} loadingPosition="start" startIcon={<Save />} variant="contained" onClick={saveHandler}>Tallenna</LoadingButton>
         <Button startIcon={<Cancel />} variant="outlined" onClick={cancelHandler}>Peruuta</Button>
       </Stack>
     </>

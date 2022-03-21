@@ -1,6 +1,7 @@
 import { Event, EventState, ShowContactInfo } from "koekalenteri-shared/model";
 import { Validators, ValidationResult } from '../validation';
 import { PartialEvent } from ".";
+import { unique } from "../../../utils";
 
 type EventCallback = (event: PartialEvent) => boolean;
 type EventFlag = boolean | EventCallback;
@@ -152,7 +153,8 @@ export function validateEvent(event: PartialEvent) {
   const required = requiredFields(event).required;
   const errors = [];
   let field: keyof Event;
-  for (field in event) {
+  const fields = unique(Object.keys(event).concat(Object.keys(required))) as Array<keyof Event>;
+  for (field of fields) {
     const result = validateEventField(event, field, !!required[field]);
     if (result) {
       console.log(result);

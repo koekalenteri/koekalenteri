@@ -89,18 +89,49 @@ export function BasicInfoSection({ event, fields, eventTypes, eventTypeClasses, 
         </Grid>
         <Grid item container spacing={1}>
           <Grid item sx={{ width: 600 }}>
-            <EventProperty id="organizer" event={event} fields={fields} options={organizers} getOptionLabel={o => o?.name || ''} onChange={onChange} />
+            <EventProperty
+              event={event}
+              fields={fields}
+              getOptionLabel={o => o?.name || ''}
+              id="organizer"
+              isOptionEqualToValue={(o, v) => o?.id === v?.id}
+              onChange={onChange}
+              options={organizers}
+            />
           </Grid>
           <Grid item sx={{ width: 300 }}>
-            <EventProperty id="location" event={event} fields={fields} options={[]} freeSolo onChange={onChange} />
+            <EventProperty
+              event={event}
+              fields={fields}
+              freeSolo
+              id="location"
+              onChange={onChange}
+              options={[]}
+            />
           </Grid>
         </Grid>
         <Grid item container spacing={1}>
           <Grid item sx={{ width: 450 }}>
-            <EventProperty id="official" event={event} fields={fields} options={officials} getOptionLabel={o => o?.name || ''} onChange={onChange} />
+            <EventProperty
+              event={event}
+              fields={fields}
+              getOptionLabel={o => o?.name || ''}
+              id="official"
+              isOptionEqualToValue={(o, v) => o?.id === v?.id}
+              onChange={onChange}
+              options={officials}
+            />
           </Grid>
           <Grid item sx={{ width: 450 }}>
-            <EventProperty id="secretary" event={event} fields={fields} options={officials} getOptionLabel={o => o?.name || ''} onChange={onChange} />
+            <EventProperty
+              event={event}
+              fields={fields}
+              getOptionLabel={o => o?.name || ''}
+              id="secretary"
+              isOptionEqualToValue={(o, v) => o?.id === v?.id}
+              onChange={onChange}
+              options={officials}
+            />
           </Grid>
         </Grid>
       </Grid>

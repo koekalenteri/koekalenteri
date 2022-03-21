@@ -1,9 +1,10 @@
 import { AddOutlined, DeleteOutline } from '@mui/icons-material';
-import { Button, FormControl, FormHelperText, Grid, InputLabel, MenuItem, Select } from '@mui/material';
+import { Button, FormHelperText, Grid } from '@mui/material';
 import { isSameDay } from 'date-fns';
 import { Event, EventClass, Judge } from 'koekalenteri-shared/model';
 import { useTranslation } from 'react-i18next';
 import { CollapsibleSection, PartialEvent } from '../..';
+import { AutocompleteSingle } from '../../AutocompleteSingle';
 import { EventClasses } from './EventClasses';
 import { FieldRequirements, validateEventField } from './validation';
 
@@ -17,8 +18,8 @@ export function JudgesSection({ event, judges, fields, onChange }: { event: Part
   const error = fields?.required.judges && validateEventField(event, 'judges', true);
   const helperText = error ? t(`validation.event.${error.key}`, { ...error.opts, state: fields.state.judges || 'draft' }) : '';
 
-  const updateJudge = (id: number, values: EventClass[]) => {
-    const judge = { id, name: judges.find(j => j.id === id)?.name || '' };
+  const updateJudge = (id: number | undefined, values: EventClass[]) => {
+    const judge = id ? { id, name: judges.find(j => j.id === id)?.name || '' } : undefined;
     const isSelected = (c: EventClass) => values.find(v => isSameDay(v.date || event.startDate, c.date || event.startDate) && v.class === c.class);
     const wasSelected = (c: EventClass) => c.judge?.id === id;
     const previousOrUndefined = (c: EventClass) => wasSelected(c) ? undefined : c.judge;
@@ -35,27 +36,25 @@ export function JudgesSection({ event, judges, fields, onChange }: { event: Part
           const title = index === 0 ? 'Ylituomari' : `Tuomari ${index + 1}`;
           return (
             <Grid key={id} item container spacing={1} alignItems="center">
-              <Grid item>
-                <FormControl sx={{ width: 300 }}>
-                  <InputLabel id={`judge${index}-label`}>{title}</InputLabel>
-                  <Select
-                    labelId={`judge${index}-label`}
-                    id={`judge${index}-select`}
-                    value={id}
-                    label={title}
-                    onChange={(e) => {
-                      const newId = e.target.value as number;
-                      const newJudges = [...event.judges];
-                      const oldId = newJudges.splice(index, 1, newId)[0];
-                      onChange({
-                        judges: newJudges,
-                        classes: updateJudge(newId, event.classes.filter(c => c.judge && c.judge.id === oldId))
-                      })
-                    }}
-                  >
-                    {filterJudges(judges, event.judges, id).map((judge) => <MenuItem key={judge.id} value={judge.id}>{judge.name}</MenuItem>)}
-                  </Select>
-                </FormControl>
+              <Grid item sx={{ width: 300 }}>
+                <AutocompleteSingle
+                  value={judges.find(j => j.id === id)}
+                  label={title}
+                  getOptionLabel={o => o?.name || ''}
+                  options={filterJudges(judges, event.judges, id)}
+                  onChange={(e, value) => {
+                    const newId = value?.id;
+                    const newJudges = [...event.judges];
+                    const oldId = newJudges.splice(index, 1)[0]
+                    if (newId) {
+                      newJudges.splice(index, 0, newId);
+                    }
+                    onChange({
+                      judges: newJudges,
+                      classes: updateJudge(newId, event.classes.filter(c => c.judge && c.judge.id === oldId))
+                    })
+                  }}
+                />
               </Grid>
               <Grid item sx={{ width: 300 }}>
                 <EventClasses
