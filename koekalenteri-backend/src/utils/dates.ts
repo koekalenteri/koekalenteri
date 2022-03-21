@@ -1,5 +1,4 @@
 import { isValid, isSameMonth, lightFormat, isSameDay, parseISO, isSameYear } from "date-fns";
-import { RegistrationTime } from "koekalenteri-shared/model";
 
 export function formatDateSpan(start: Date | string, end: Date | string): string {
   if (typeof start === 'string') {

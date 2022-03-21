@@ -1,5 +1,4 @@
-import { DbRecord, JsonDbRecord, NotOptional, Official, Organizer, Secretary } from '.';
-import { Replace, ReplaceOptional } from '.';
+import { DbRecord, JsonDbRecord, NotOptional, Official, Organizer, Replace, ReplaceOptional, Secretary } from '.';
 
 export interface JsonEvent extends JsonDbRecord {
   kcId?: number
