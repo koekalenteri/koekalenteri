@@ -125,7 +125,7 @@ function resolve(value: EventFlag | undefined, event: PartialEvent): boolean {
 }
 
 export function validateEventField(event: PartialEvent, field: keyof Event, required: boolean): ValidationResult<PartialEvent, 'event'> {
-  const validator = VALIDATORS[field] || (() => typeof event[field] === 'undefined' || event[field] === '');
+  const validator = VALIDATORS[field] || (() => required && (typeof event[field] === 'undefined' || event[field] === ''));
   const result = validator(event, required);
   if (!result) {
     return false;

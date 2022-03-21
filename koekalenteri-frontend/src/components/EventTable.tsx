@@ -74,7 +74,7 @@ function Row({ event }: { event: EventEx }) {
                 <Grid item xs={3}>{t('daterange', { start: event.startDate, end: event.endDate })}</Grid>
                 <Grid item xs={2}>{event.eventType}</Grid>
                 <Grid item xs={2}>{eventClasses(event)}</Grid>
-                <Grid item xs={5}>{event.location} ({event.name})</Grid>
+                <Grid item xs={5}>{event.location}{event.name ? ` (${event.name})` : ''}</Grid>
               </Grid>
               <Grid item container xs={12} md={6} spacing={1}>
                 <Grid item xs={6} md={7}>{event.organizer?.name}</Grid>
