@@ -1,0 +1,98 @@
+{
+  "name": "web",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@aws-amplify/auth": "^4.4.4",
+    "@aws-amplify/ui-react": "^2.8.0",
+    "@babel/core": "^7.17.8",
+    "@babel/plugin-syntax-flow": "^7.16.7",
+    "@babel/plugin-transform-react-jsx": "^7.17.3",
+    "@babel/preset-env": "^7.16.11",
+    "@emotion/react": "^11.8.2",
+    "@emotion/styled": "^11.3.0",
+    "@mui/icons-material": "^5.0.5",
+    "@mui/lab": "^5.0.0-alpha.47",
+    "@mui/material": "^5.0.0",
+    "@mui/styles": "^5.0.0",
+    "@mui/system": "^5.5.2",
+    "@mui/x-data-grid": "^5.6.1",
+    "@testing-library/dom": "^8.11.3",
+    "@testing-library/jest-dom": "^5.11.10",
+    "@testing-library/react": "^12.1.0",
+    "@testing-library/user-event": "^13.1.4",
+    "@types/jest": "^27.0.1",
+    "@types/node": "^17.0.0",
+    "@types/react": "^17.0.3",
+    "@types/react-dom": "^17.0.3",
+    "date-fns": "^2.23.0",
+    "eslint": "^8.11.0",
+    "eslint-config-react-app": "^7.0.0",
+    "history": "^5.0.1",
+    "i18next": "^21.4.0",
+    "i18next-browser-languagedetector": "^6.1.2",
+    "identity-obj-proxy": "^3.0.0",
+    "jest-fetch-mock": "^3.0.3",
+    "lodash.clonedeep": "^4.5.0",
+    "mobx": "^6.2.0",
+    "mobx-react-lite": "^3.3.0",
+    "notistack": "^2.0.3",
+    "postcss": "^8.4.12",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-i18next": "^11.16.1",
+    "react-router-dom": "^6.0.0",
+    "react-scripts": "^5.0.0",
+    "react-sizeme": "^3.0.2",
+    "shared": "file:../shared",
+    "typescript": "^4.2.4",
+    "web-vitals": "^2.1.0"
+  },
+  "scripts": {
+    "analyze": "source-map-explorer 'build/static/js/*.js'",
+    "describe-stacks": "aws cloudformation describe-stacks --stack-name koekalenteri-dev --query Stacks[0] > stack.json",
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "lint": "eslint \"src/**/*{.ts,.tsx}\"",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ],
+    "rules": {
+      "@typescript-eslint/indent": [
+        "error",
+        2
+      ]
+    }
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "jest": {
+    "coveragePathIgnorePatterns": [
+      "/build/",
+      "/node_modules/",
+      "/index.tsx",
+      "/reportWebVitals.ts"
+    ],
+    "moduleNameMapper": {
+      "\\.(css|less)$": "identity-obj-proxy"
+    }
+  },
+  "devDependencies": {
+    "@types/lodash.clonedeep": "^4.5.6"
+  }
+}

@@ -21,7 +21,7 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
       - name: Build BE
         run: |
-          cd koekalenteri-backend
+          cd lambda
           npm ci
           npm run lint
           npm run build

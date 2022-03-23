@@ -17,14 +17,14 @@ jobs:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis (SonarCloud)
       - name: Build and Test BE
         run: |
-          cd koekalenteri-backend
+          cd lambda
           npm ci
           npm run lint
           npm run build
           npm test -- --coverage
       - name: Build and Test FE
         run: |
-          cd koekalenteri-frontend
+          cd web
           npm ci
           npm run lint
           npm run build

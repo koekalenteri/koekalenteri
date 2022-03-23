@@ -109,4 +109,4 @@ samconfig.toml
 
 stack.json
 
-koekalenteri-backend/ses-templates/samples/
+lambda/ses-templates/samples/

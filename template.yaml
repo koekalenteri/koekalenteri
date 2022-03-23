@@ -284,7 +284,7 @@ Resources:
   GetEventsFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
-      CodeUri: koekalenteri-backend
+      CodeUri: lambda
       Handler: dist/handlers/event.getEventsHandler
       Layers:
         - !Ref CommonLayer
@@ -311,7 +311,7 @@ Resources:
   GetEventFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
-      CodeUri: koekalenteri-backend
+      CodeUri: lambda
       Handler: dist/handlers/event.getEventHandler
       Layers:
         - !Ref CommonLayer
@@ -336,7 +336,7 @@ Resources:
   PutEventFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
-      CodeUri: koekalenteri-backend
+      CodeUri: lambda
       Handler: dist/handlers/event.putEventHandler
       Layers:
         - !Ref CommonLayer
@@ -363,7 +363,7 @@ Resources:
   PutRegistrationFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: koekalenteri-backend
+      CodeUri: lambda
       Handler: dist/handlers/event.putRegistrationHandler
       Layers:
         - !Ref CommonLayer
@@ -398,7 +398,7 @@ Resources:
   GetJudgesFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
-      CodeUri: koekalenteri-backend
+      CodeUri: lambda
       Handler: dist/handlers/judge.getJudgesHandler
       Layers:
         - !Ref CommonLayer
@@ -423,7 +423,7 @@ Resources:
   GetOfficialsFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: koekalenteri-backend
+      CodeUri: lambda
       Handler: dist/handlers/official.getOfficialsHandler
       Layers:
         - !Ref CommonLayer
@@ -448,7 +448,7 @@ Resources:
   GetOrganizersFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
-      CodeUri: koekalenteri-backend
+      CodeUri: lambda
       Handler: dist/handlers/organizer.getOrganizersHandler
       Layers:
         - !Ref CommonLayer
@@ -473,7 +473,7 @@ Resources:
   GetDogFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
-      CodeUri: koekalenteri-backend
+      CodeUri: lambda
       Handler: dist/handlers/dog.getDogHandler
       Layers:
         - !Ref CommonLayer
@@ -505,7 +505,7 @@ Resources:
   GetEventTypesFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
-      CodeUri: koekalenteri-backend
+      CodeUri: lambda
       Handler: dist/handlers/eventTypes.getEventTypesHandler
       Layers:
         - !Ref CommonLayer
@@ -537,9 +537,9 @@ Resources:
   CommonLayer:
     Type: AWS::Serverless::LayerVersion
     Properties:
-        LayerName: koekalenteri-shared
+        LayerName: shared
         Description: Shared resources between BE and FE
-        ContentUri: koekalenteri-shared/
+        ContentUri: shared/
         CompatibleRuntimes:
           - nodejs14.x
         LicenseInfo: 'MIT'
@@ -606,11 +606,11 @@ Resources:
           phases:
             build:
               commands:
-                - cd koekalenteri-frontend
+                - cd web
                 - npm ci
                 - npm run build
           artifacts:
-            baseDirectory: koekalenteri-frontend/build
+            baseDirectory: web/build
             files:
               - '**/*'
       Tags:
