@@ -1,0 +1,478 @@
+{
+  "event-registration-table": [
+    {
+      "PutRequest": {
+        "Item": {
+          "owner": {
+            "M": {
+              "name": {
+                "S": "Jukka Kurkela"
+              },
+              "location": {
+                "S": "Ypäjä"
+              },
+              "membership": {
+                "BOOL": false
+              },
+              "phone": {
+                "S": "+358407328453"
+              },
+              "email": {
+                "S": "jukka.kurkela@gmail.com"
+              }
+            }
+          },
+          "eventId": {
+            "S": "0001"
+          },
+          "handler": {
+            "M": {
+              "name": {
+                "S": "Jukka Kurkela"
+              },
+              "location": {
+                "S": "Ypäjä"
+              },
+              "membership": {
+                "BOOL": false
+              },
+              "phone": {
+                "S": "+358407328453"
+              },
+              "email": {
+                "S": "jukka.kurkela@gmail.com"
+              }
+            }
+          },
+          "notes": {
+            "S": ""
+          },
+          "agreeToTerms": {
+            "BOOL": true
+          },
+          "modifiedAt": {
+            "S": "2022-03-25T17:37:16.836Z"
+          },
+          "breeder": {
+            "M": {
+              "name": {
+                "S": "Susanna Särkijärvi"
+              },
+              "location": {
+                "S": "Ypäjä"
+              }
+            }
+          },
+          "language": {
+            "S": "fi"
+          },
+          "dates": {
+            "L": [
+              {
+                "M": {
+                  "date": {
+                    "S": "2022-03-24T00:00:00.000Z"
+                  },
+                  "time": {
+                    "S": "ap"
+                  }
+                }
+              }
+            ]
+          },
+          "eventType": {
+            "S": "NOME-B"
+          },
+          "agreeToPublish": {
+            "BOOL": true
+          },
+          "createdAt": {
+            "S": "2022-03-25T17:37:16.836Z"
+          },
+          "createdBy": {
+            "S": "anonymous"
+          },
+          "reserve": {
+            "S": "ANY"
+          },
+          "qualifyingResults": {
+            "L": [
+              {
+                "M": {
+                  "date": {
+                    "S": "2020-09-11T21:00:00.000Z"
+                  },
+                  "result": {
+                    "S": "NOU1"
+                  },
+                  "ext": {
+                    "S": ""
+                  },
+                  "resCert": {
+                    "BOOL": false
+                  },
+                  "notes": {
+                    "S": ""
+                  },
+                  "rank": {
+                    "N": "0"
+                  },
+                  "location": {
+                    "S": "Raasepori"
+                  },
+                  "cert": {
+                    "BOOL": false
+                  },
+                  "judge": {
+                    "S": "VILLIKKA KATJA"
+                  },
+                  "type": {
+                    "S": "NOU"
+                  },
+                  "class": {
+                    "S": "NOU"
+                  },
+                  "points": {
+                    "N": "0"
+                  }
+                }
+              }
+            ]
+          },
+          "modifiedBy": {
+            "S": "anonymous"
+          },
+          "id": {
+            "S": "da1b5621-e0a4-417b-a5d5-d49bea4cb702"
+          },
+          "class": {
+            "S": "ALO"
+          },
+          "dog": {
+            "M": {
+              "regNo": {
+                "S": "FI10090/20"
+              },
+              "refreshDate": {
+                "S": "2022-03-25T17:36:10.822Z"
+              },
+              "dam": {
+                "M": {
+                  "name": {
+                    "S": "Kelmarsky Ballina"
+                  }
+                }
+              },
+              "gender": {
+                "S": "F"
+              },
+              "dob": {
+                "S": "2019-11-19T22:00:00.000Z"
+              },
+              "name": {
+                "S": "WATERFOWLER KATIE"
+              },
+              "breedCode": {
+                "S": "122"
+              },
+              "rfid": {
+                "S": "978101082313347"
+              },
+              "titles": {
+                "S": ""
+              },
+              "sire": {
+                "M": {
+                  "name": {
+                    "S": "Waterfowler Copper"
+                  }
+                }
+              },
+              "results": {
+                "L": [
+                  {
+                    "M": {
+                      "date": {
+                        "S": "2020-09-11T21:00:00.000Z"
+                      },
+                      "result": {
+                        "S": "NOU1"
+                      },
+                      "ext": {
+                        "S": ""
+                      },
+                      "resCert": {
+                        "BOOL": false
+                      },
+                      "notes": {
+                        "S": ""
+                      },
+                      "rank": {
+                        "N": "0"
+                      },
+                      "location": {
+                        "S": "Raasepori"
+                      },
+                      "cert": {
+                        "BOOL": false
+                      },
+                      "judge": {
+                        "S": "VILLIKKA KATJA"
+                      },
+                      "type": {
+                        "S": "NOU"
+                      },
+                      "class": {
+                        "S": "NOU"
+                      },
+                      "points": {
+                        "N": "0"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "owner": {
+            "M": {
+              "name": {
+                "S": "Jukka Kurkela"
+              },
+              "location": {
+                "S": "Ypäjä"
+              },
+              "membership": {
+                "BOOL": false
+              },
+              "phone": {
+                "S": "+358407328453"
+              },
+              "email": {
+                "S": "jukka.kurkela@gmail.com"
+              }
+            }
+          },
+          "eventId": {
+            "S": "0001"
+          },
+          "handler": {
+            "M": {
+              "name": {
+                "S": "Jukka Kurkela"
+              },
+              "location": {
+                "S": "Ypäjä"
+              },
+              "membership": {
+                "BOOL": false
+              },
+              "phone": {
+                "S": "+358407328453"
+              },
+              "email": {
+                "S": "jukka.kurkela@gmail.com"
+              }
+            }
+          },
+          "notes": {
+            "S": ""
+          },
+          "agreeToTerms": {
+            "BOOL": true
+          },
+          "modifiedAt": {
+            "S": "2022-03-25T17:37:16.836Z"
+          },
+          "breeder": {
+            "M": {
+              "name": {
+                "S": "Susanna Särkijärvi"
+              },
+              "location": {
+                "S": "Ypäjä"
+              }
+            }
+          },
+          "language": {
+            "S": "fi"
+          },
+          "dates": {
+            "L": [
+              {
+                "M": {
+                  "date": {
+                    "S": "2022-03-24T00:00:00.000Z"
+                  },
+                  "time": {
+                    "S": "ap"
+                  }
+                }
+              }
+            ]
+          },
+          "eventType": {
+            "S": "NOME-B"
+          },
+          "agreeToPublish": {
+            "BOOL": true
+          },
+          "createdAt": {
+            "S": "2022-03-25T17:37:16.836Z"
+          },
+          "createdBy": {
+            "S": "anonymous"
+          },
+          "reserve": {
+            "S": "ANY"
+          },
+          "qualifyingResults": {
+            "L": [
+              {
+                "M": {
+                  "date": {
+                    "S": "2020-09-11T21:00:00.000Z"
+                  },
+                  "result": {
+                    "S": "NOU1"
+                  },
+                  "ext": {
+                    "S": ""
+                  },
+                  "resCert": {
+                    "BOOL": false
+                  },
+                  "notes": {
+                    "S": ""
+                  },
+                  "rank": {
+                    "N": "0"
+                  },
+                  "location": {
+                    "S": "Raasepori"
+                  },
+                  "cert": {
+                    "BOOL": false
+                  },
+                  "judge": {
+                    "S": "VILLIKKA KATJA"
+                  },
+                  "type": {
+                    "S": "NOU"
+                  },
+                  "class": {
+                    "S": "NOU"
+                  },
+                  "points": {
+                    "N": "0"
+                  }
+                }
+              }
+            ]
+          },
+          "modifiedBy": {
+            "S": "anonymous"
+          },
+          "id": {
+            "S": "da1b5621-e0a4-417b-a5d5-d49bea4cb702"
+          },
+          "class": {
+            "S": "ALO"
+          },
+          "dog": {
+            "M": {
+              "regNo": {
+                "S": "FI10090/20"
+              },
+              "refreshDate": {
+                "S": "2022-03-25T17:36:10.822Z"
+              },
+              "dam": {
+                "M": {
+                  "name": {
+                    "S": "Kelmarsky Ballina"
+                  }
+                }
+              },
+              "gender": {
+                "S": "F"
+              },
+              "dob": {
+                "S": "2019-11-19T22:00:00.000Z"
+              },
+              "name": {
+                "S": "WATERFOWLER KATIE"
+              },
+              "breedCode": {
+                "S": "122"
+              },
+              "rfid": {
+                "S": "978101082313347"
+              },
+              "titles": {
+                "S": ""
+              },
+              "sire": {
+                "M": {
+                  "name": {
+                    "S": "Waterfowler Copper"
+                  }
+                }
+              },
+              "results": {
+                "L": [
+                  {
+                    "M": {
+                      "date": {
+                        "S": "2020-09-11T21:00:00.000Z"
+                      },
+                      "result": {
+                        "S": "NOU1"
+                      },
+                      "ext": {
+                        "S": ""
+                      },
+                      "resCert": {
+                        "BOOL": false
+                      },
+                      "notes": {
+                        "S": ""
+                      },
+                      "rank": {
+                        "N": "0"
+                      },
+                      "location": {
+                        "S": "Raasepori"
+                      },
+                      "cert": {
+                        "BOOL": false
+                      },
+                      "judge": {
+                        "S": "VILLIKKA KATJA"
+                      },
+                      "type": {
+                        "S": "NOU"
+                      },
+                      "class": {
+                        "S": "NOU"
+                      },
+                      "points": {
+                        "N": "0"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

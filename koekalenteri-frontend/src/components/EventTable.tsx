@@ -96,15 +96,17 @@ function EventPlaces({ event }: { event: EventEx }) {
   const { t } = useTranslation();
   const color = event.entries > event.places ? 'warning.main' : 'text.primary';
   let text = '';
+  let bold = false;
   if (event.places) {
     if (event.entries) {
-      text = `${event.entries}/${event.places}`;
+      text = `${event.entries} / ${event.places}`;
+      bold = true;
     } else {
       text = event.places + ' ' + t('toltaPlaces');
     }
   }
   return (
-    <Box textAlign="right" sx={{ color }}>{text}</Box>
+    <Box textAlign="right" sx={{ color, fontWeight: bold ? 'bold' : 'normal' }}>{text}</Box>
   );
 }
 

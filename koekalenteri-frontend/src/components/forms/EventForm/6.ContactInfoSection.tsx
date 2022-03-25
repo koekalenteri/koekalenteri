@@ -3,13 +3,20 @@ import { ContactInfo, Event, ShowContactInfo } from "koekalenteri-shared/model";
 import { useTranslation } from "react-i18next";
 import { CollapsibleSection, PartialEvent } from "../..";
 import { EventContactInfo } from "../../EventContactInfo";
-import { FieldRequirements, validateEventField } from "./validation";
+import { FieldRequirements } from "./validation";
 
-export function ContactInfoSection({ event, fields, onChange }: { event: PartialEvent, fields: FieldRequirements, onChange: (props: Partial<Event>) => void }) {
+type ContactInfoSectionParams = {
+  event: PartialEvent
+  errorStates: { [Property in keyof Event]?: boolean }
+  helperTexts: { [Property in keyof Event]?: string }
+  fields: FieldRequirements
+  onChange: (props: Partial<Event>) => void
+};
+
+export function ContactInfoSection({ event, fields, errorStates, helperTexts, onChange }: ContactInfoSectionParams) {
   const { t } = useTranslation();
   const handleChange = (props: Partial<ContactInfo>) => onChange({ contactInfo: { ...(event.contactInfo || {}), ...props } });
-  const error = fields.required.contactInfo && validateEventField(event, 'contactInfo', true);
-  const helperText = error ? 'error' : '';
+  const helperText = helperTexts.contactInfo || '';
 
   return (
     <CollapsibleSection title={t('event.contactInfo')}>

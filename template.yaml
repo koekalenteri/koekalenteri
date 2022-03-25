@@ -360,6 +360,35 @@ Resources:
             #Auth:
             #  Authorizer: CognitoAuthorizer
 
+  GetRegistrationsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: koekalenteri-backend
+      Handler: dist/handlers/event.getRegistrationsHandler
+      Layers:
+        - !Ref CommonLayer
+      Tracing: Active
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EventRegistrationTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EventTable
+        - CloudWatchPutMetricPolicy: {}
+
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref EventRegistrationTable
+          EVENT_TABLE_NAME : !Ref EventTable
+          AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
+
+      Events:
+        PutEvent:
+          Type: Api
+          Properties:
+            Path: /registrations/{eventId}
+            Method: GET
+            RestApiId: !Ref KoekalenteriApi
+
   PutRegistrationFunction:
     Type: AWS::Serverless::Function
     Properties:

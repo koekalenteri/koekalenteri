@@ -38,7 +38,7 @@ test('It should render event information', async function() {
   expect(screen.getByText('ke 10.2.')).toBeInTheDocument();
   expect(screen.getByText('TestClass')).toBeInTheDocument();
   expect(screen.getByText('Test Judge')).toBeInTheDocument();
-  expect(screen.getByText('22/11')).toBeInTheDocument();
+  expect(screen.getByText('22 / 11')).toBeInTheDocument();
 
   // description
   expect(screen.getByText('event description text')).toBeInTheDocument();

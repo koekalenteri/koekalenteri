@@ -12,6 +12,8 @@ declare module '@mui/material/styles/createPalette' {
     oddRow: string
     tableHead: string
     ok: string
+    hover: string
+    selected: string
   }
 }
 
@@ -46,7 +48,9 @@ const theme = createTheme({
       form: '#f2f2f2',
       oddRow: '#f8f8f8',
       tableHead: '#C4C4C4',
-      ok: '#c1d4c9'
+      ok: '#c1d4c9',
+      hover: '#AFC1B7',
+      selected: '#D5E1DB'
     },
   },
   zIndex: {

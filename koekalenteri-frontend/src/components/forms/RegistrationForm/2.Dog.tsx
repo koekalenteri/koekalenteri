@@ -45,14 +45,18 @@ export function DogInfo({ reg, eventDate, minDogAgeMonths, error, helperText, on
       setLoading(true);
       const lookup = await getDog(value, refresh);
       setLoading(false);
+      const storedDogs = dogs?.split(',') || [];
       if (lookup && lookup.regNo) {
-        const newDogs = (dogs?.split(',') || []);
-        newDogs.push(value);
-        setDogs(unique(newDogs).filter(v => v !== '').join(','));
+        storedDogs.push(lookup.regNo);
+        setDogs(unique(storedDogs).filter(v => v !== '').join(','));
         setDisabled(true);
-        onChange({ dog: lookup });
+        setRegNo(lookup.regNo);
+        onChange({ dog: { ...reg.dog, ...lookup } });
       } else {
         setDisabled(false);
+        if (storedDogs.includes(value)) {
+          setDogs(storedDogs.filter(v => v !== value).join(','));
+        }
         onChange({ dog: { ...reg.dog, regNo: value } });
       }
     }
@@ -87,7 +91,7 @@ export function DogInfo({ reg, eventDate, minDogAgeMonths, error, helperText, on
             disableClearable
             disabled={disabled}
             getOptionLabel={(o) => t(`breed.${o}`)}
-            label="Rotu"
+            label={t('dog.breed')}
             onChange={(e, value) => onChange({ dog: { ...reg.dog, breedCode: value || undefined } })}
             options={['122', '111', '121', '312', '110', '263'] as BreedCode[]}
             value={reg.dog.breedCode || '122'}

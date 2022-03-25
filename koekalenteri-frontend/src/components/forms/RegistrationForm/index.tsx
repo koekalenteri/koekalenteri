@@ -26,6 +26,7 @@ export function RegistrationForm({ event, className, classDate, onSave, onCancel
   const { t, i18n } = useTranslation();
   const [local, setLocal] = useState<Registration>({
     eventId: event.id,
+    id: '',
     eventType: event.eventType,
     language: i18n.language as Language,
     class: className || '',
@@ -58,7 +59,11 @@ export function RegistrationForm({ event, className, classDate, onSave, onCancel
     qualifyingResults: [],
     notes: '',
     agreeToTerms: false,
-    agreeToPublish: false
+    agreeToPublish: false,
+    createdAt: new Date(),
+    createdBy: '',
+    modifiedAt: new Date(),
+    modifiedBy: ''
   });
   const [qualifies, setQualifies] = useState<boolean|null>(null);
   const [saving, setSaving] = useState(false);

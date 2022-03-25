@@ -1,0 +1,152 @@
+{
+  "dog-table": [
+    {
+      "PutRequest": {
+        "Item": {
+          "regNo": {
+            "S": "FI10090/20"
+          },
+          "refreshDate": {
+            "S": "2022-03-25T17:36:10.822Z"
+          },
+          "gender": {
+            "S": "F"
+          },
+          "dob": {
+            "S": "2019-11-20T00:00:00"
+          },
+          "name": {
+            "S": "WATERFOWLER KATIE"
+          },
+          "breedCode": {
+            "S": "122"
+          },
+          "rfid": {
+            "S": "978101082313347"
+          },
+          "titles": {
+            "S": ""
+          },
+          "results": {
+            "L": [
+              {
+                "M": {
+                  "date": {
+                    "S": "2020-09-12T00:00:00"
+                  },
+                  "result": {
+                    "S": "NOU1"
+                  },
+                  "ext": {
+                    "S": ""
+                  },
+                  "resCert": {
+                    "BOOL": false
+                  },
+                  "notes": {
+                    "S": ""
+                  },
+                  "rank": {
+                    "N": "0"
+                  },
+                  "location": {
+                    "S": "Raasepori"
+                  },
+                  "cert": {
+                    "BOOL": false
+                  },
+                  "judge": {
+                    "S": "VILLIKKA KATJA"
+                  },
+                  "type": {
+                    "S": "NOU"
+                  },
+                  "class": {
+                    "S": "NOU"
+                  },
+                  "points": {
+                    "N": "0"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "regNo": {
+            "S": "FI29100/20"
+          },
+          "refreshDate": {
+            "S": "2022-03-25T17:52:33.802Z"
+          },
+          "gender": {
+            "S": "F"
+          },
+          "dob": {
+            "S": "2019-08-06T00:00:00"
+          },
+          "name": {
+            "S": "HARMONIE VOM HOFESAAT"
+          },
+          "breedCode": {
+            "S": "122"
+          },
+          "rfid": {
+            "S": "276097202656689"
+          },
+          "titles": {
+            "S": ""
+          },
+          "results": {
+            "L": [
+              {
+                "M": {
+                  "date": {
+                    "S": "2021-06-12T00:00:00"
+                  },
+                  "result": {
+                    "S": "NOU1"
+                  },
+                  "ext": {
+                    "S": ""
+                  },
+                  "resCert": {
+                    "BOOL": false
+                  },
+                  "notes": {
+                    "S": ""
+                  },
+                  "rank": {
+                    "N": "0"
+                  },
+                  "location": {
+                    "S": "Pori"
+                  },
+                  "cert": {
+                    "BOOL": false
+                  },
+                  "judge": {
+                    "S": "HUTTUNEN ARI"
+                  },
+                  "type": {
+                    "S": "NOU"
+                  },
+                  "class": {
+                    "S": "NOU"
+                  },
+                  "points": {
+                    "N": "0"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

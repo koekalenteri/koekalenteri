@@ -49,6 +49,7 @@ i18n
   });
 
 //  additional formats
+i18n.services.formatter?.add('dtshort', formatDate('eeeeee d.M. HH:mm'));
 i18n.services.formatter?.add('short', formatDate('eeeeee d.M.'));
 i18n.services.formatter?.add('weekday', formatDate('eeeeee'));
 i18n.services.formatter?.add('datespan', formatDateSpan);

@@ -16,6 +16,21 @@ export const getEventsHandler = genericReadAllHandler(dynamoDB, 'getEvents');
 export const getEventHandler = genericReadHandler(dynamoDB, 'getEvent');
 export const putEventHandler = genericWriteHandler(dynamoDB, 'putEvent');
 
+export const getRegistrationsHandler = metricScope((metrics: MetricsLogger) =>
+  async (
+    event: APIGatewayProxyEvent,
+  ): Promise<APIGatewayProxyResult> => {
+    try {
+      const items = await dynamoDB.query<JsonRegistration>('eventId = :eventId', { ':eventId': event.pathParameters?.eventId });
+      metricsSuccess(metrics, event.requestContext, 'getRegistrations');
+      return response(200, items);
+    } catch (err: any) {
+      metricsError(metrics, event.requestContext, 'getRegistrations');
+      return response(err.statusCode || 501, err);
+    }
+  }
+);
+
 export const putRegistrationHandler = metricScope((metrics: MetricsLogger) =>
   async (
     event: APIGatewayProxyEvent,
@@ -40,8 +55,18 @@ export const putRegistrationHandler = metricScope((metrics: MetricsLogger) =>
         throw new Error(`Event of type "${item.eventType}" not found with id "${item.eventId}"`);
       }
       await dynamoDB.write(item);
-      const registrations = await dynamoDB.query('eventId = :id', { ':id': item.eventId });
-      await dynamoDB.update(eventKey, 'set entries = :entries', { ':entries': registrations?.length || 0 }, eventTable);
+      const registrations = await dynamoDB.query<JsonRegistration>('eventId = :id', { ':id': item.eventId });
+
+      const membershipPriority = (r: JsonRegistration) =>
+        (confirmedEvent.allowHandlerMembershipPriority && r.handler.membership)
+        || (confirmedEvent.allowOwnerMembershipPriority && r.owner.membership);
+
+      for (const cls of confirmedEvent.classes || []) {
+        const regsToClass = registrations?.filter(r => r.class === cls.class);
+        cls.entries = regsToClass?.length;
+        cls.members = regsToClass?.filter(r => membershipPriority(r)).length
+      }
+      await dynamoDB.update(eventKey, 'set entries = :entries, classes = :classes', { ':entries': registrations?.length || 0, ':classes': confirmedEvent.classes }, eventTable);
 
       if (item.handler?.email && item.owner?.email) {
         const to: string[] = [item.handler.email];
@@ -54,7 +79,7 @@ export const putRegistrationHandler = metricScope((metrics: MetricsLogger) =>
         const dogBreed = item.dog.breedCode;
         const regDates = item.dates.map(d => formatRegDate(d.date, d.time)).join(', ');
         // TODO: link
-        const editLink = 'https://localhost:3000/regitration/' + item.id;
+        const editLink = 'https://localhost:3000/registration/' + item.id;
         // TODO: sender address from env / other config
         const from = "koekalenteri@koekalenteri.snj.fi";
         await sendTemplatedMail('RegistrationV2', item.language, from, to, {

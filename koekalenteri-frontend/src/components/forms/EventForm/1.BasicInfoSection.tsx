@@ -11,6 +11,8 @@ import { EventProperty } from './EventProperty';
 
 type BasicInfoSectionParams = {
   event: PartialEvent
+  errorStates: { [Property in keyof Event]?: boolean }
+  helperTexts: { [Property in keyof Event]?: string }
   fields: FieldRequirements
   eventTypes: string[]
   eventTypeClasses: Record<string, string[]>
@@ -20,7 +22,7 @@ type BasicInfoSectionParams = {
 };
 
 
-export function BasicInfoSection({ event, fields, eventTypes, eventTypeClasses, officials, organizers, onChange }: BasicInfoSectionParams) {
+export function BasicInfoSection({ event, errorStates, helperTexts, fields, eventTypes, eventTypeClasses, officials, organizers, onChange }: BasicInfoSectionParams) {
   const { t } = useTranslation();
   const [helpAnchorEl, setHelpAnchorEl] = useState<HTMLButtonElement | null>(null);
   const typeOptions = eventClassOptions(event, eventTypeClasses[event.eventType || ''] || []);
@@ -74,6 +76,8 @@ export function BasicInfoSection({ event, fields, eventTypes, eventTypeClasses, 
               id="class"
               event={event}
               required={fields.required.classes}
+              errorStates={errorStates}
+              helperTexts={helperTexts}
               requiredState={fields.state.classes}
               value={event.classes}
               classes={typeOptions}

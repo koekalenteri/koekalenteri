@@ -33,7 +33,7 @@ export function JudgesSection({ event, judges, fields, onChange }: { event: Part
     <CollapsibleSection title={t('judges')}>
       <Grid item container spacing={1}>
         {list.map((id, index) => {
-          const title = index === 0 ? 'Ylituomari' : `Tuomari ${index + 1}`;
+          const title = index === 0 ? t('judge_chief') : t('judge') + ` ${index + 1}`;
           return (
             <Grid key={id} item container spacing={1} alignItems="center">
               <Grid item sx={{ width: 300 }}>

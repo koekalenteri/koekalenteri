@@ -86,12 +86,12 @@ export function EventForm({ event, judges, eventTypes, eventTypeClasses, officia
       </Box>
 
       <Box sx={{ pb: 0.5, overflow: 'auto', borderRadius: 1, bgcolor: 'background.form', '& .MuiInputBase-root': { bgcolor: 'background.default'} }}>
-        <BasicInfoSection event={local} fields={fields} eventTypes={eventTypes} eventTypeClasses={eventTypeClasses} officials={officials} organizers={organizers} onChange={onChange} />
+        <BasicInfoSection event={local} fields={fields} errorStates={errorStates} helperTexts={helperTexts} eventTypes={eventTypes} eventTypeClasses={eventTypeClasses} officials={officials} organizers={organizers} onChange={onChange} />
         <JudgesSection event={local} judges={judges} fields={fields} onChange={onChange} />
         <EntrySection event={local} fields={fields} errorStates={errorStates} helperTexts={helperTexts} onChange={onChange} />
         <PaymentSection event={local} fields={fields} onChange={onChange} />
         <HeadquartersSection event={local} onChange={onChange} />
-        <ContactInfoSection event={local} fields={fields} onChange={onChange} />
+        <ContactInfoSection event={local} errorStates={errorStates} helperTexts={helperTexts} fields={fields} onChange={onChange} />
         <AdditionalInfoSection event={local} onChange={onChange} />
       </Box>
 

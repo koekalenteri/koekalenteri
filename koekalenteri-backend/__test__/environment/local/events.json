@@ -393,101 +393,8 @@
     {
       "PutRequest": {
         "Item": {
-          "eventType": {
-            "S": "NOME-B"
-          },
-          "id": {
-            "S": "0001"
-          },
-          "allowOnlineEntry": {
+          "allowHandlerMembershipPriority": {
             "BOOL": true
-          },
-          "isEntryUpcoming": {
-            "BOOL": false
-          },
-          "endDate": {
-            "S": "2022-04-25T00:00:00.000Z"
-          },
-          "paymentDetails": {
-            "S": "lorem ipsum"
-          },
-          "classes": {
-            "L": [
-              {
-                "M": {
-                  "date": {
-                    "S": "2022-03-24T00:00:00.000Z"
-                  },
-                  "class": {
-                    "S": "ALO"
-                  },
-                  "judge": {
-                    "M": {
-                      "name": {
-                        "S": "Tuomari 1"
-                      },
-                      "id": {
-                        "N": "100002"
-                      }
-                    }
-                  }
-                }
-              },
-              {
-                "M": {
-                  "date": {
-                    "S": "2022-03-24T00:00:00.000Z"
-                  },
-                  "class": {
-                    "S": "AVO"
-                  },
-                  "judge": {
-                    "M": {
-                      "name": {
-                        "S": "Tuomari 1"
-                      },
-                      "id": {
-                        "N": "100002"
-                      }
-                    }
-                  }
-                }
-              }
-            ]
-          },
-          "official": {
-            "M": {
-              "name": {
-                "S": "Teemu Toimitsija"
-              },
-              "location": {
-                "S": "Ähtäri"
-              },
-              "id": {
-                "N": "1"
-              },
-              "phone": {
-                "S": "0700-teemu"
-              },
-              "email": {
-                "S": "teemu@example.org"
-              }
-            }
-          },
-          "name": {
-            "S": "Nuusku"
-          },
-          "isEntryClosing": {
-            "BOOL": false
-          },
-          "createdBy": {
-            "S": "anonymous"
-          },
-          "state": {
-            "S": "confirmed"
-          },
-          "costMember": {
-            "N": "35"
           },
           "contactInfo": {
             "M": {
@@ -506,73 +413,214 @@
               }
             }
           },
-          "allowOwnerMembershipPriority": {
-            "BOOL": true
+          "entryStartDate": {
+            "S": "2022-02-15T22:00:00.000Z"
           },
-          "startDate": {
-            "S": "2022-04-24T00:00:00.000Z"
+          "endDate": {
+            "S": "2022-04-25T00:00:00.000Z"
           },
-          "judges": {
+          "modifiedAt": {
+            "S": "2022-03-25T18:21:14.127Z"
+          },
+          "classes": {
             "L": [
               {
-                "N": "100002"
+                "M": {
+                  "date": {
+                    "S": "2022-04-23T21:00:00.000Z"
+                  },
+                  "places": {
+                    "N": "15"
+                  },
+                  "entries": {
+                    "N": "2"
+                  },
+                  "judge": {
+                    "M": {
+                      "name": {
+                        "S": "Tuomari 3"
+                      },
+                      "id": {
+                        "N": "100003"
+                      }
+                    }
+                  },
+                  "class": {
+                    "S": "ALO"
+                  }
+                }
+              },
+              {
+                "M": {
+                  "date": {
+                    "S": "2022-04-24T21:00:00.000Z"
+                  },
+                  "places": {
+                    "N": "15"
+                  },
+                  "judge": {
+                    "M": {
+                      "name": {
+                        "S": "Tuomari 3"
+                      },
+                      "id": {
+                        "N": "100003"
+                      }
+                    }
+                  },
+                  "class": {
+                    "S": "ALO"
+                  }
+                }
+              },
+              {
+                "M": {
+                  "date": {
+                    "S": "2022-04-24T21:00:00.000Z"
+                  },
+                  "places": {
+                    "N": "15"
+                  },
+                  "judge": {
+                    "M": {
+                      "name": {
+                        "S": "Tuomari 3"
+                      },
+                      "id": {
+                        "N": "100003"
+                      }
+                    }
+                  },
+                  "class": {
+                    "S": "AVO"
+                  }
+                }
+              },
+              {
+                "M": {
+                  "date": {
+                    "S": "2022-04-24T21:00:00.000Z"
+                  },
+                  "places": {
+                    "N": "12"
+                  },
+                  "judge": {
+                    "M": {
+                      "name": {
+                        "S": "Tuomari 1"
+                      },
+                      "id": {
+                        "N": "100001"
+                      }
+                    }
+                  },
+                  "class": {
+                    "S": "VOI"
+                  }
+                }
               }
             ]
           },
-          "allowHandlerMembershipPriority": {
+          "allowOwnerMembershipPriority": {
             "BOOL": true
           },
-          "referenceNumber": {
-            "S": "11041"
+          "description": {
+            "S": "Pietun pysti jaossa ALO-luokassa"
           },
-          "location": {
-            "S": "Liperi"
+          "official": {
+            "M": {
+              "name": {
+                "S": "Toimari 3"
+              },
+              "location": {
+                "S": "Turku"
+              },
+              "id": {
+                "N": "333"
+              },
+              "phone": {
+                "S": "123456783"
+              },
+              "email": {
+                "S": "toimari3@sposti.not"
+              }
+            }
           },
-          "modifiedAt": {
-            "S": "2022-02-15T22:24:16.656Z"
+          "allowOnlinePayment": {
+            "BOOL": true
+          },
+          "createdAt": {
+            "S": "2022-03-25T18:21:14.127Z"
           },
           "secretary": {
             "M": {
               "name": {
-                "S": "Siiri Sihteeri"
+                "S": "Toimari2 2"
               },
               "location": {
-                "S": "Praha"
+                "S": "Tampere"
               },
               "id": {
-                "N": "2"
+                "N": "222"
               },
               "phone": {
-                "S": "0700-siiri"
+                "S": "123456782"
               },
               "email": {
-                "S": "siiri@example.org"
+                "S": "toimari2@sposti.not"
               }
             }
+          },
+          "isEntryUpcoming": {
+            "BOOL": false
+          },
+          "referenceNumber": {
+            "S": "11041"
+          },
+          "modifiedBy": {
+            "S": "anonymous"
+          },
+          "id": {
+            "S": "0001"
+          },
+          "state": {
+            "S": "confirmed"
+          },
+          "paymentDetails": {
+            "S": "lorem ipsum"
+          },
+          "unofficial": {
+            "BOOL": false
+          },
+          "kcId": {
+            "S": "123"
+          },
+          "cost": {
+            "N": "40"
+          },
+          "isEntryClosing": {
+            "BOOL": false
+          },
+          "eventType": {
+            "S": "NOME-B"
+          },
+          "accountNumber": {
+            "S": "FI46...."
           },
           "requirePaymentBeforeEntry": {
             "BOOL": false
           },
-          "entryEndDate": {
-            "S": "2022-04-15T00:00:00.000Z"
-          },
-          "entryStartDate": {
-            "S": "2022-02-15T22:00:00.000Z"
+          "entries": {
+            "N": "2"
           },
           "places": {
-            "N": "15"
+            "N": "57"
           },
-          "createdAt": {
-            "S": "2022-02-15T22:24:16.656Z"
+          "costMember": {
+            "N": "35"
           },
-          "isEntryOpen": {
-            "BOOL": true
-          },
-          "entries": {
-            "N": "10"
-          },
-          "accountNumber": {
-            "S": "FI46...."
+          "createdBy": {
+            "S": "anonymous"
           },
           "organizer": {
             "M": {
@@ -584,20 +632,33 @@
               }
             }
           },
-          "cost": {
-            "N": "40"
+          "name": {
+            "S": "Nuusku"
           },
-          "allowOnlinePayment": {
+          "entryEndDate": {
+            "S": "2022-04-15T00:00:00.000Z"
+          },
+          "location": {
+            "S": "Liperi"
+          },
+          "isEntryOpen": {
             "BOOL": true
           },
-          "unofficial": {
-            "BOOL": false
+          "allowOnlineEntry": {
+            "BOOL": true
           },
-          "description": {
-            "S": "Pietun pysti jaossa ALO-luokassa"
+          "judges": {
+            "L": [
+              {
+                "N": "100003"
+              },
+              {
+                "N": "100001"
+              }
+            ]
           },
-          "modifiedBy": {
-            "S": "anonymous"
+          "startDate": {
+            "S": "2022-04-24T00:00:00.000Z"
           }
         }
       }

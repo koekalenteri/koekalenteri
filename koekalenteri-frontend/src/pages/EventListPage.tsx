@@ -4,9 +4,9 @@ import { EventGridContainer } from '../layout';
 import { useTranslation } from 'react-i18next';
 import { useSnackbar } from 'notistack';
 import { AuthPage } from './AuthPage';
-import { AddCircleOutline, ContentCopyOutlined, DeleteOutline, EditOutlined } from '@mui/icons-material';
+import { AddCircleOutline, ContentCopyOutlined, DeleteOutline, EditOutlined, FormatListNumberedOutlined } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { ADMIN_EDIT_EVENT, ADMIN_NEW_EVENT } from '../config';
+import { ADMIN_EDIT_EVENT, ADMIN_NEW_EVENT, ADMIN_VIEW_EVENT } from '../config';
 import { useStores } from '../stores';
 import { observer } from 'mobx-react-lite';
 import { Event } from 'koekalenteri-shared/model';
@@ -78,6 +78,7 @@ export const EventListPage = observer(() => {
           <Button startIcon={<EditOutlined />} disabled={!privateStore.selectedEvent} onClick={() => navigate(`${ADMIN_EDIT_EVENT}/${privateStore.selectedEvent?.id}`)}>{t('edit')}</Button>
           <Button startIcon={<ContentCopyOutlined />} disabled={!privateStore.selectedEvent} onClick={copyAction}>{t('copy')}</Button>
           <Button startIcon={<DeleteOutline />} disabled={!privateStore.selectedEvent} onClick={() => setOpen(true)}>{t('delete')}</Button>
+          <Button startIcon={<FormatListNumberedOutlined />} disabled={!privateStore.selectedEvent || !privateStore.selectedEvent.entries} onClick={() => navigate(`${ADMIN_VIEW_EVENT}/${privateStore.selectedEvent?.id}`)}>{t('registrations')}</Button>
         </Stack>
         <EventGridContainer />
       </Box>

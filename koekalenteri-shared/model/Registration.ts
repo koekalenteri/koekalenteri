@@ -1,6 +1,6 @@
-import { Dog, JsonDog, Language, Person, Replace, TestResult } from ".";
+import { DbRecord, Dog, JsonDbRecord, JsonDog, JsonTestResult, Language, Person, Replace, TestResult } from ".";
 
-export type JsonRegistration = {
+export type JsonRegistration = JsonDbRecord & {
   agreeToPublish: boolean
   agreeToTerms: boolean
   breeder: RegistrationBreeder
@@ -10,15 +10,14 @@ export type JsonRegistration = {
   eventId: string
   eventType: string
   handler: RegistrationPerson
-  id?: string
   language: Language
   notes: string
   owner: RegistrationPerson
-  qualifyingResults: TestResult[]
+  qualifyingResults: JsonTestResult[]
   reserve: ReserveChoise | ''
 }
 
-export type Registration = Replace<Replace<JsonRegistration, 'dates', RegistrationDate[]>, 'dog', Dog>
+export type Registration = DbRecord & Replace<Replace<Replace<Omit<JsonRegistration, keyof JsonDbRecord>, 'dates', RegistrationDate[]>, 'dog', Dog>, 'qualifyingResults', TestResult[]>
 
 export type JsonRegistrationDate = {
   date: string

@@ -15,14 +15,15 @@ type StartEndDate = { start: Date, end: Date };
 
 export const EventGrid = observer(({ events }: { events: Partial<EventEx>[] }) => {
   const { t } = useTranslation();
-  const { privateStore } = useStores();
+  const { publicStore, privateStore } = useStores();
   const naviage = useNavigate();
 
   const columns: EventGridColDef[] = [
     {
+      align: 'right',
       field: 'date',
       headerName: t('date'),
-      width: 150,
+      width: 120,
       sortComparator: (a, b) => (b as StartEndDate).start.valueOf() - (a as StartEndDate).start.valueOf(),
       valueGetter: (params) => ({ start: params.row.startDate, end: params.row.endDate }),
       valueFormatter: ({value}) => t('daterange', value as StartEndDate),
@@ -36,26 +37,42 @@ export const EventGrid = observer(({ events }: { events: Partial<EventEx>[] }) =
       field: 'classes',
       headerName: t('event.classes'),
       minWidth: 100,
-      valueFormatter: ({value}) => ((value || []) as Array<EventClass|string>).map(c => typeof c === 'string' ? c : c.class).join(', ')
+      flex: 1,
+      valueGetter: (params) => ((params.row.classes || []) as Array<EventClass|string>).map(c => typeof c === 'string' ? c : c.class).join(', ')
     },
     {
       field: 'location',
       headerName: t('event.location'),
-      minWidth: 150,
-      flex: 1
+      minWidth: 100,
+      flex: 1,
     },
     {
-      field: 'name',
-      headerName: t('event.name'),
-      minWidth: 200,
-      flex: 1
+      field: 'official',
+      headerName: t('event.official'),
+      minWidth: 100,
+      flex: 1,
+      valueGetter: (params) => params.row.official?.name
+    },
+    {
+      field: 'judges',
+      headerName: t('judge_chief'),
+      minWidth: 100,
+      flex: 1,
+      valueGetter: (params) => publicStore.judges.find(j => j.id === params.row.judges[0])?.name
+    },
+    {
+      field: 'places',
+      headerName: t('places'),
+      align: 'right',
+      width: 80,
+      valueGetter: (params) => `${params.row.entries} / ${params.row.places}`
     },
     {
       field: 'state',
       headerName: t('event.state'),
-      width: 150,
+      flex: 1,
       type: 'string',
-      valueFormatter: (params) => t(`event.states.${(params.value || 'draft') as EventState}`)
+      valueGetter: (params) => (params.row as EventEx).isEntryOpen ? t('event.states.confirmed_entryOpen') : t(`event.states.${(params.value || 'draft') as EventState}`)
     },
   ];
 
@@ -90,16 +107,16 @@ export const EventGrid = observer(({ events }: { events: Partial<EventEx>[] }) =
             outline: 'none'
           },
           '& .MuiDataGrid-row.Mui-selected': {
-            backgroundColor: 'secondary.light'
+            backgroundColor: 'background.selected'
           },
           '& .MuiDataGrid-row:hover': {
             backgroundColor: undefined
           },
           '& .MuiDataGrid-row.Mui-selected:hover': {
-            backgroundColor: 'secondary.light'
+            backgroundColor: 'background.hover'
           },
           '& .MuiDataGrid-row:hover > .MuiDataGrid-cell': {
-            background: 'linear-gradient(rgb(0 0 0 / 5%),rgb(0 0 0 / 10%))'
+            backgroundColor: 'background.hover'
           }
         }}
       />

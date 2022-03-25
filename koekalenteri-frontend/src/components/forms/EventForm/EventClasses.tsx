@@ -1,7 +1,7 @@
 import { CheckBox, CheckBoxOutlineBlank } from "@mui/icons-material";
 import { Autocomplete, AutocompleteChangeReason, Avatar, Checkbox, Chip, TextField } from "@mui/material";
 import { isSameDay } from "date-fns";
-import { EventClass, EventState } from "koekalenteri-shared/model";
+import { Event, EventClass, EventState } from "koekalenteri-shared/model";
 import { useTranslation } from "react-i18next";
 import { PartialEvent } from "../..";
 import { validateEventField } from "./validation";
@@ -29,6 +29,8 @@ type EventClassesProps = {
   label: string
   required?: boolean
   requiredState?: EventState
+  errorStates?: { [Property in keyof Event]?: boolean }
+  helperTexts?: { [Property in keyof Event]?: string }
   onChange: EventClassesOnChange
 }
 
@@ -43,9 +45,9 @@ export function EventClasses(props: EventClassesProps) {
   }
 
   const { t } = useTranslation();
-  const { classes, label, event, required, requiredState, ...rest } = props;
-  const error = required && validateEventField(event, 'classes', true);
-  const helperText = error ? 'error' : '';
+  const { classes, label, event, required, requiredState, errorStates, helperTexts, ...rest } = props;
+  const error = errorStates?.classes;
+  const helperText = helperTexts?.classes || '';
 
   return (
     <Autocomplete

@@ -121,15 +121,15 @@ function EventClassTable({ event }: EventProps) {
 function EventClassTableRow({ event, eventClass }: { event: EventEx, eventClass: EventClass }) {
   const { t } = useTranslation();
   const classDate = format(eventClass.date || event.startDate || new Date(), t('dateformatS'));
-  const entryStatus = eventClass.places ? `${eventClass.entries || 0}/${eventClass.places}` : '';
-  const memberStatus = eventClass.members ? `(${eventClass.members} jäsentä)` : '';
+  const entryStatus = eventClass.places || eventClass.entries ? `${eventClass.entries || 0} / ${eventClass.places || '-'}` : '';
+  const memberStatus = eventClass.members ? t('members', {count: eventClass.members}) : '';
   return (
     <TableRow>
       <TableCell component="th" scope="row">{t('dateshort', { date: eventClass.date })}</TableCell>
       <TableCell component="th" scope="row">{eventClass.class}</TableCell>
       <TableCell component="th" scope="row">{eventClass.judge?.name}</TableCell>
-      <TableCell component="th" scope="row" align="right">{entryStatus}</TableCell>
-      <TableCell component="th" scope="row" align="right">{memberStatus}</TableCell>
+      <TableCell component="th" scope="row" align="right" sx={{fontWeight: 'bold'}}>{entryStatus}</TableCell>
+      <TableCell component="th" scope="row" align="right" sx={{fontWeight: 'bold'}}>{memberStatus}</TableCell>
       <TableCell component="th" scope="row">
         {event.isEntryOpen ? <LinkButton to={`/event/${event.eventType}/${event.id}/${eventClass.class}/${classDate}`} text={t('register')} /> : ''}
       </TableCell>

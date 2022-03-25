@@ -51,7 +51,7 @@ export function EventFormPlaces({ event, helperTexts, onChange }: EntrySectionPr
           })}
           <TableRow>
             <TableCell component="th" scope="row">Yhteensä</TableCell>
-            {uniqueClasses.map(c => <TableCell align="center"><PlacesDisplay value={event.classes.filter(ec => ec.class === c).reduce((prev, cur) => prev + (cur?.places || 0), 0)} /></TableCell>)}
+            {uniqueClasses.map(c => <TableCell key={c} align="center"><PlacesDisplay value={event.classes.filter(ec => ec.class === c).reduce((prev, cur) => prev + (cur?.places || 0), 0)} /></TableCell>)}
             <TableCell align="center">
               <PlacesInput
                 value={event.places || ''}

@@ -46,7 +46,9 @@ export const getDogHandler = metricScope((metrics: MetricsLogger) =>
             refreshDate: new Date().toISOString()
           };
 
-          const results = await klapi.lueKoiranKoetulokset(regNo);
+          // Luetaan koetulokset käyttäen palautettua rekisterinumeroa.
+          // Jos koiralla on useampi rekkari, niin palautettu on se mille tulokset on kirjattu.
+          const results = await klapi.lueKoiranKoetulokset(item.regNo);
           if (results.status === 200) {
             const res: JsonTestResult[] = [];
             for (const result of results.json || []) {

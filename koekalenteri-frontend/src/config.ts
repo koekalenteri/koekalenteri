@@ -5,6 +5,7 @@ export const ADMIN_ROOT = '/admin';
 export const ADMIN_EVENTS = `${ADMIN_ROOT}/event`;
 export const ADMIN_NEW_EVENT = `${ADMIN_EVENTS}/create`;
 export const ADMIN_EDIT_EVENT = `${ADMIN_EVENTS}/edit`;
+export const ADMIN_VIEW_EVENT = `${ADMIN_EVENTS}/view`;
 
 export const ADMIN_JUDGES = `${ADMIN_ROOT}/judge`;
 export const ADMIN_ORGS = `${ADMIN_ROOT}/organizations`;

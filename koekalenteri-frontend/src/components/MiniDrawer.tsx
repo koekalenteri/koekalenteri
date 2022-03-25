@@ -47,7 +47,10 @@ export const MiniDrawer = styled(Drawer, {
       color: 'inherit'
     },
     '& a.active > .MuiButtonBase-root': {
-      backgroundColor: theme.palette.secondary.light
+      backgroundColor: theme.palette.background.selected
+    },
+    '& .MuiButtonBase-root:hover': {
+      backgroundColor: theme.palette.background.hover
     }
   }),
 );
