@@ -4,8 +4,6 @@ import { isSameDay } from "date-fns";
 import { Event, EventClass, EventState } from "koekalenteri-shared/model";
 import { useTranslation } from "react-i18next";
 import { PartialEvent } from "../..";
-import { validateEventField } from "./validation";
-
 
 /**
  * Callback fired when the value changes.
