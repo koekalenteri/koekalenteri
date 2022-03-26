@@ -3,7 +3,7 @@ import App from './App';
 import { MemoryRouter } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material';
 import theme from './assets/Theme';
-import { ADMIN_JUDGES, ADMIN_NEW_EVENT, ADMIN_ORGS, ADMIN_ROOT, ADMIN_USERS } from './config';
+import { ADMIN_JUDGES, ADMIN_NEW_EVENT, ADMIN_ORGS, ADMIN_ROOT, ADMIN_USERS, ADMIN_VIEW_EVENT } from './config';
 import { DataGridProps } from '@mui/x-data-grid';
 
 jest.mock('./api/event');
@@ -74,6 +74,14 @@ test('renders admin createEvent page', async () => {
   const head = await screen.findByText(/Uusi tapahtuma/);
   expect(head).toBeInTheDocument();
 });
+
+test('renders admin EventViewPage', async () => {
+  renderPath(`${ADMIN_VIEW_EVENT}/test1`);
+  const spinner = screen.getByRole('progressbar');
+  expect(spinner).toBeInTheDocument();
+  const head = await screen.findByText(/type1, 10.-11.2.2021, test location/i);
+  expect(head).toBeInTheDocument();
+})
 
 test('renders admin organizations', async () => {
   renderPath(ADMIN_ORGS);

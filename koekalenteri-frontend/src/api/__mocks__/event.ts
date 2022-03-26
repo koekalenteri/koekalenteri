@@ -1,5 +1,5 @@
 import { addDays, parseISO, startOfDay } from 'date-fns';
-import { Event, EventEx } from 'koekalenteri-shared/model';
+import { Event, EventEx, Registration } from 'koekalenteri-shared/model';
 import { emptyEvent } from '../test-utils/emptyEvent';
 import { rehydrateEvent } from '../utils';
 
@@ -16,6 +16,7 @@ const mockEvents: EventEx[] = [
     entryStartDate: parseISO('2021-02-01'),
     entryEndDate: parseISO('2021-02-07'),
     judges: [123],
+    location: 'test location'
   },
   {
     ...emptyEvent,
@@ -104,5 +105,16 @@ export async function putEvent(event: Event): Promise<EventEx> {
       }
     }
     process.nextTick(() => fullEvent ? resolve(fullEvent) : reject());
+  });
+}
+
+export async function getRegistrations(eventId: string, signal?: AbortSignal): Promise<Registration[]> {
+  return new Promise((resolve, reject) => {
+    const event = mockEvents.find(event => event.id === eventId);
+    if (!event) {
+      reject();
+    } else {
+      process.nextTick(() => resolve([]));
+    }
   });
 }
