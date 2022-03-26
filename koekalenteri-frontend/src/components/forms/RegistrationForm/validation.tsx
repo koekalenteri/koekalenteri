@@ -57,10 +57,15 @@ export function validateRegistrationField(registration: Registration, field: key
   return result;
 }
 
+const NOT_VALIDATED = ['createdAt', 'createdBy', 'modifiedAt', 'modifiedBy'];
+
 export function validateRegistration(registration: Registration) {
   const errors = [];
   let field: keyof Registration;
   for (field in registration) {
+    if (NOT_VALIDATED.includes(field)) {
+      continue;
+    }
     const result = validateRegistrationField(registration, field);
     if (result) {
       console.log({ field, result });

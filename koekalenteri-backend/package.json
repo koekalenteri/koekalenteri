@@ -11,17 +11,20 @@
         "create-tables": "run-script-os",
         "create-tables:nix": "./__test__/environment/local/create_tables.sh",
         "create-tables:win32": "cd ./__test__/environment/local/ && @powershell -NoProfile -ExecutionPolicy Unrestricted -Command ./create_tables.ps1",
-        "start": "npm run create-tables && npm run watch"
+        "start": "rimraf dist && npm run create-tables && npm run watch"
     },
     "keywords": [],
     "author": "",
     "license": "MIT",
     "dependencies": {
+        "@aws-sdk/client-dynamodb": "^3.56.0",
+        "@aws-sdk/client-ses": "^3.56.0",
+        "@aws-sdk/client-ssm": "^3.57.0",
+        "@aws-sdk/util-dynamodb": "^3.56.0",
         "aws-embedded-metrics": "^2.0.4",
-        "aws-sdk": "^2.437.0",
         "date-fns": "^2.28.0",
         "i18next": "^21.6.14",
-        "node-fetch": "^2.6.7",
+        "node-fetch": "^3.2.3",
         "source-map-support": "^0.5.19",
         "uuid": "^8.3.2"
     },
@@ -45,6 +48,7 @@
         "remark-gfm": "^3.0.1",
         "remark-html": "^15.0.1",
         "remark-parse": "^10.0.1",
+        "rimraf": "^3.0.2",
         "run-script-os": "^1.1.6",
         "to-vfile": "^7.2.3",
         "ts-jest": "^27.0.5",

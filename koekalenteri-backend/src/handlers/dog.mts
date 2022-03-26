@@ -1,10 +1,9 @@
 import { metricScope, MetricsLogger } from "aws-embedded-metrics";
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
-import { AWSError } from "aws-sdk";
-import KLAPI from "../utils/KLAPI";
-import { metricsError, metricsSuccess } from "../utils/metrics";
-import { response } from "../utils/response";
-import CustomDynamoClient from "../utils/CustomDynamoClient";
+import KLAPI from "../utils/KLAPI.mjs";
+import { metricsError, metricsSuccess } from "../utils/metrics.mjs";
+import { response } from "../utils/response.mjs";
+import CustomDynamoClient from "../utils/CustomDynamoClient.mjs";
 import { BreedCode, JsonDog, JsonTestResult } from "koekalenteri-shared/model";
 
 const dynamoDB = new CustomDynamoClient();
@@ -80,10 +79,10 @@ export const getDogHandler = metricScope((metrics: MetricsLogger) =>
 
       metricsSuccess(metrics, event.requestContext, 'getDog');
       return response(200, item);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
       metricsError(metrics, event.requestContext, 'getDog');
-      return response((err as AWSError).statusCode || 501, err);
+      return response(err.statusCode || 501, err);
     }
   }
 );

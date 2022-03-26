@@ -1,17 +1,18 @@
-import { SSM } from 'aws-sdk';
+import { SSMClient, GetParametersCommand } from "@aws-sdk/client-ssm";
 import { JsonArray, JsonObject } from 'koekalenteri-shared/model';
 import fetch from 'node-fetch';
 import { KLAPIConfig, KLDog, KLKoemuoto, KLTestResults } from './KLAPI_models';
 
 export type KLKieli = '1' | '2' | '3';
 
-const ssm = new SSM();
+const ssm = new SSMClient({});
 
 type ValuesOf<T extends string[]> = T[number];
 type ParamsFromKeys<T extends string[]> = { [key in ValuesOf<T>]: string };
 
 async function getSSMParams(names: string[]): Promise<ParamsFromKeys<typeof names>> {
-  const result = await ssm.getParameters({ Names: names }).promise();
+  const command = new GetParametersCommand({ Names: names });
+  const result = await ssm.send(command);
   const values: ParamsFromKeys<typeof names> = {};
   const params = result.Parameters || [];
   for (const name of names) {
@@ -57,7 +58,7 @@ export default class KLAPI {
         }
       });
       status = res.status;
-      json = await res.json();
+      json = await res.json() as T;
       if (json) {
         console.log('response: ' + JSON.stringify(json));
       }

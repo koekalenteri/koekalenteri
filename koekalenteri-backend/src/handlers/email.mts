@@ -1,11 +1,10 @@
-import SES, { SendTemplatedEmailRequest } from 'aws-sdk/clients/ses';
+import { SESClient, SendTemplatedEmailCommand  } from '@aws-sdk/client-ses';
 import { Language } from 'koekalenteri-shared/model';
 
-
-const ses = new SES();
+const sesClient = new SESClient({});
 
 export async function sendTemplatedMail(template: string, language: Language, from: string, to: string[], data: Record<string, unknown>) {
-  const params: SendTemplatedEmailRequest = {
+  const params = {
     ConfigurationSetName: 'Koekalenteri',
     Destination: {
       ToAddresses: to,
@@ -16,7 +15,7 @@ export async function sendTemplatedMail(template: string, language: Language, fr
   };
 
   try {
-    return ses.sendTemplatedEmail(params).promise();
+    return sesClient.send(new SendTemplatedEmailCommand(params));
   } catch (e) {
     // TODO: queue for retry based on error
     console.log('Failed to send email', e);

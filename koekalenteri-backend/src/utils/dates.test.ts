@@ -1,4 +1,4 @@
-import { formatDateSpan } from './dates';
+import { formatDateSpan } from './dates.mjs';
 
 test('formatDateSpan', () => {
   const tests = [

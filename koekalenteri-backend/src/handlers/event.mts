@@ -1,14 +1,13 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { v4 as uuidv4 } from 'uuid';
 import { JsonConfirmedEvent, JsonRegistration } from "koekalenteri-shared/model";
-import CustomDynamoClient from "../utils/CustomDynamoClient";
-import { formatDateSpan, formatRegDate } from "../utils/dates";
-import { genericWriteHandler, genericReadAllHandler, genericReadHandler, getUsername } from "../utils/genericHandlers";
-import { metricsSuccess, metricsError } from "../utils/metrics";
-import { sendTemplatedMail } from "./email";
+import CustomDynamoClient from "../utils/CustomDynamoClient.mjs";
+import { formatDateSpan, formatRegDate } from "../utils/dates.mjs";
+import { genericWriteHandler, genericReadAllHandler, genericReadHandler, getUsername } from "../utils/genericHandlers.mjs";
+import { metricsSuccess, metricsError } from "../utils/metrics.mjs";
+import { sendTemplatedMail } from "./email.mjs";
 import { metricScope, MetricsLogger } from "aws-embedded-metrics";
-import { response } from "../utils/response";
-import { AWSError } from "aws-sdk";
+import { response } from "../utils/response.mjs";
 
 const dynamoDB = new CustomDynamoClient();
 
@@ -21,7 +20,7 @@ export const getRegistrationsHandler = metricScope((metrics: MetricsLogger) =>
     event: APIGatewayProxyEvent,
   ): Promise<APIGatewayProxyResult> => {
     try {
-      const items = await dynamoDB.query<JsonRegistration>('eventId = :eventId', { ':eventId': event.pathParameters?.eventId });
+      const items = await dynamoDB.query<JsonRegistration>('eventId = :eventId', { ':eventId': event.pathParameters?.eventId || '' });
       metricsSuccess(metrics, event.requestContext, 'getRegistrations');
       return response(200, items);
     } catch (err: any) {
@@ -48,6 +47,9 @@ export const putRegistrationHandler = metricScope((metrics: MetricsLogger) =>
         modifiedAt: timestamp,
         modifiedBy: username,
       }
+      if (item.id === '') {
+        item.id = uuidv4();
+      }
       const eventKey = { eventType: item.eventType, id: item.eventId };
       const eventTable = process.env.EVENT_TABLE_NAME || '';
       const confirmedEvent = await dynamoDB.read<JsonConfirmedEvent>(eventKey, eventTable);
@@ -58,8 +60,8 @@ export const putRegistrationHandler = metricScope((metrics: MetricsLogger) =>
       const registrations = await dynamoDB.query<JsonRegistration>('eventId = :id', { ':id': item.eventId });
 
       const membershipPriority = (r: JsonRegistration) =>
-        (confirmedEvent.allowHandlerMembershipPriority && r.handler.membership)
-        || (confirmedEvent.allowOwnerMembershipPriority && r.owner.membership);
+        (confirmedEvent.allowHandlerMembershipPriority && r.handler?.membership)
+        || (confirmedEvent.allowOwnerMembershipPriority && r.owner?.membership);
 
       for (const cls of confirmedEvent.classes || []) {
         const regsToClass = registrations?.filter(r => r.class === cls.class);
@@ -82,6 +84,7 @@ export const putRegistrationHandler = metricScope((metrics: MetricsLogger) =>
         const editLink = 'https://localhost:3000/registration/' + item.id;
         // TODO: sender address from env / other config
         const from = "koekalenteri@koekalenteri.snj.fi";
+
         await sendTemplatedMail('RegistrationV2', item.language, from, to, {
           dogBreed,
           editLink,
@@ -95,9 +98,10 @@ export const putRegistrationHandler = metricScope((metrics: MetricsLogger) =>
 
       metricsSuccess(metrics, event.requestContext, 'putRegistration');
       return response(200, item);
-    } catch (err) {
+    } catch (err: any) {
+      console.error(JSON.stringify(err));
       metricsError(metrics, event.requestContext, 'putRegistration');
-      return response((err as AWSError).statusCode || 501, err);
+      return response(err.statusCode || 501, err);
     }
   }
 );
