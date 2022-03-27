@@ -36,7 +36,7 @@ export function EntryInfo({ reg, event, classDate, errorStates, helperTexts, onC
   return (
     <CollapsibleSection title={t('registration.class')} error={error} helperText={error ? t('validation.registration.required', {field: 'classesDetails'}) : ''}>
       <Grid container spacing={1}>
-        <Grid item sx={{ minWidth: 150 }}>
+        <Grid item sx={{ minWidth: 100 }}>
           <AutocompleteSingle
             disableClearable
             error={errorStates.class}
@@ -59,7 +59,7 @@ export function EntryInfo({ reg, event, classDate, errorStates, helperTexts, onC
             value={reg.dates}
           />
         </Grid>
-        <Grid item sx={{ width: 300 }}>
+        <Grid item sx={{ width: 280 }}>
           <AutocompleteSingle
             disableClearable
             error={errorStates.reserve}

@@ -20,7 +20,7 @@ export function QualifyingResultsInfo({ reg, error, helperText, onChange }: Qual
       <Grid item container spacing={1}>
         {reg.qualifyingResults.map(result => <Grid key={result.date.toString()} item container spacing={1}>
           <Grid item>
-            <FormControl sx={{ width: 150 }}>
+            <FormControl sx={{ width: 120 }}>
               <InputLabel id="type-label">{t("testResult.eventType")}</InputLabel>
               <Select
                 labelId="type-label"
@@ -35,7 +35,7 @@ export function QualifyingResultsInfo({ reg, error, helperText, onChange }: Qual
             </FormControl>
           </Grid>
           <Grid item>
-            <FormControl sx={{ width: 150 }}>
+            <FormControl sx={{ width: 120 }}>
               <InputLabel id="result-label">{t("testResult.result")}</InputLabel>
               <Select
                 labelId="result-label"
@@ -64,10 +64,10 @@ export function QualifyingResultsInfo({ reg, error, helperText, onChange }: Qual
             </FormControl>
           </Grid>
           <Grid item>
-            <TextField sx={{ width: 300 }} label={t("testResult.location")} value={result.location} />
+            <TextField sx={{ width: 170 }} label={t("testResult.location")} value={result.location} />
           </Grid>
           <Grid item>
-            <TextField sx={{ width: 300 }} label={t("testResult.judge")} value={result.judge} />
+            <TextField sx={{ width: 180 }} label={t("testResult.judge")} value={result.judge} />
           </Grid>
         </Grid>
         )}

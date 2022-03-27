@@ -1,4 +1,4 @@
-import { Box, Button, Dialog, DialogContent, DialogTitle, Grid, Paper, Stack, Typography } from '@mui/material';
+import { Box, Button, Dialog, DialogContent, DialogTitle, Grid, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { AuthPage } from './AuthPage';
 import { useStores } from '../stores';
@@ -10,6 +10,7 @@ import { getRegistrations, putRegistration } from '../api/event';
 import { BreedCode, ConfirmedEventEx, Registration } from 'koekalenteri-shared/model';
 import { DataGrid, GridColDef, GridSelectionModel } from '@mui/x-data-grid';
 import { AddCircleOutline, DeleteOutline, EditOutlined, EuroOutlined, PersonOutline } from '@mui/icons-material';
+import { format } from 'date-fns';
 
 
 export function EventViewPage() {
@@ -22,6 +23,9 @@ export function EventViewPage() {
   const [selected, setSelected] = useState<Registration>();
 
   useEffect(() => {
+    if (!loading) {
+      return;
+    }
     const abort = new AbortController();
     async function get(id: string) {
       const event = await privateStore.get(id, abort.signal);
@@ -38,9 +42,9 @@ export function EventViewPage() {
       setLoading(false);
     }
     return () => abort.abort();
-  }, [params, privateStore]);
+  }, [params, privateStore, loading]);
 
-  const event = privateStore.selectedEvent || {};
+  const event = (privateStore.selectedEvent || {}) as ConfirmedEventEx;
 
   const columns: GridColDef[] = [
     {
@@ -103,7 +107,11 @@ export function EventViewPage() {
       if (old) {
         Object.assign(old, saved);
         setSelected(saved);
+      } else {
+        setRegistrations(registrations.concat([saved]));
+        event.entries++;
       }
+      // TODO: update event calsses (infopanel)
       setOpen(false);
       return true;
     } catch (e: any) {
@@ -128,19 +136,15 @@ export function EventViewPage() {
         }}>
           <Grid container justifyContent="space-between">
             <Grid item xs>
-              <LinkButton sx={{mb: 1}} to={ADMIN_EVENTS} text={t('goBack')} />
-              <Typography variant="h5">
-                {event.eventType}, {t('daterange', { start: event.startDate, end: event.endDate })}, {event.location}
-                <Box sx={{ display: 'inline-block', mx: 2, color: '#018786' }}>{t('event.states.confirmed_entryOpen')}</Box>
-              </Typography>
-
+              <LinkButton sx={{ mb: 1 }} to={ADMIN_EVENTS} text={t('goBack')} />
+              <Title event={event} />
               <CollapsibleSection title="Kokeen tiedot" initOpen={false}>
                   Kokeen tarkat tiedot tähän...
               </CollapsibleSection>
                 Filttereitä tähän...
             </Grid>
             <Grid item xs="auto">
-              <Paper sx={{height: 128, width: 256, backgroundColor: 'background.selected', p: 1}}>Infopaneeli tähän...</Paper>
+              <InfoPanel event={event} />
             </Grid>
           </Grid>
           <Stack direction="row" spacing={2}>
@@ -190,12 +194,53 @@ export function EventViewPage() {
           onClose={() => setOpen(false)}
           aria-labelledby="reg-dialog-title"
         >
-          <DialogTitle id="reg-dialog-title">{selected?.dog.name} / {selected?.handler.name}</DialogTitle>
+          <DialogTitle id="reg-dialog-title">{selected ? `${selected.dog.name} / ${selected.handler.name}` : t('create')}</DialogTitle>
           <DialogContent dividers sx={{height: '80vh'}}>
-            <RegistrationForm event={event as ConfirmedEventEx} registration={selected} onSave={onSave} onCancel={onCancel} />
+            <RegistrationForm event={event} registration={selected} onSave={onSave} onCancel={onCancel} />
           </DialogContent>
         </Dialog>
       </Box>
     </AuthPage>
   )
+}
+
+function Title({ event }: { event: ConfirmedEventEx }) {
+  const { t } = useTranslation();
+  return (
+    <Typography variant="h5">
+      {event.eventType}, {t('daterange', { start: event.startDate, end: event.endDate })}, {event.location}
+      <Box sx={{ display: 'inline-block', mx: 2, color: '#018786' }}>{t('event.states.confirmed_entryOpen')}</Box>
+    </Typography>
+  );
+}
+
+function InfoPanel({ event }: { event: ConfirmedEventEx }) {
+  const { t } = useTranslation();
+  return (
+    <TableContainer component={Paper} elevation={4} sx={{
+      width: 256,
+      backgroundColor: 'background.selected',
+      p: 1,
+      '& .MuiTableCell-root': {py: 0, px: 1}
+    }}>
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell colSpan={5}><b>Ilmoittautuneita</b></TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {event.classes?.map(c =>
+            <TableRow key={c.class + c.date?.toISOString()}>
+              <TableCell>{format(c.date || event.startDate, t('dateformatS'))}</TableCell>
+              <TableCell>{c.class}</TableCell>
+              <TableCell align="right">{c.entries}</TableCell>
+              <TableCell>Jäseniä</TableCell>
+              <TableCell align="right">{c.members}</TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  );
 }

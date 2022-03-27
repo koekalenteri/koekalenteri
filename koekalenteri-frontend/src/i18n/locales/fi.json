@@ -83,7 +83,7 @@
   "createEvent": "Uusi tapahtuma",
   "date": "Aika",
   "dateformat": "dd.MM.yyyy",
-  "dateformatS": "dd.MM",
+  "dateformatS": "dd.MM.",
   "datemask": "__.__.____",
   "daterange": "{{ start, datespan(end: undefined) }}",
   "daterangeEnd": "Aikaväli päättyen",
