@@ -3,7 +3,7 @@ import remarkBreaks from 'remark-breaks'
 import remarkGfm from 'remark-gfm'
 import remarkHtml from 'remark-html'
 import remarkParse from 'remark-parse'
-import {existsSync, readdirSync, writeFileSync} from 'fs'
+import {existsSync, mkdirSync, readdirSync, writeFileSync} from 'fs'
 import {read} from 'to-vfile'
 import {reporter} from 'vfile-reporter'
 import {unified} from 'unified'
@@ -28,6 +28,9 @@ for (const template of templates) {
     }
     writeFileSync(`${template}-${lang}.json`, JSON.stringify(templateObj));
     if (context) {
+      if (!existsSync('samples')) {
+        mkdirSync('samples');
+      }
       writeFileSync(`samples/${template}-${lang}.txt`, Handlebars.compile(templateObj.Template.TextPart)(context.default));
       writeFileSync(`samples/${template}-${lang}.html`, Handlebars.compile(templateObj.Template.HtmlPart)(context.default));
     }

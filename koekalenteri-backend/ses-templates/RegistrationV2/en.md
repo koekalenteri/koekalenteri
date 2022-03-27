@@ -7,6 +7,7 @@ Below you will find the details of your registration and a link that will allow 
 table header | is removed
 :-- | ----
 Event          :| {{reg.eventType}} {{eventDate}} {{event.location}} {{#if event.name}}({{event.name}}){{/if}}
+Class          :| {{reg.class}}
 Dog            :| {{reg.dog.regNo}} {{reg.dog.name}}
 Identification :| {{reg.dog.rfid}}
 Breed          :| {{dogBreed}}

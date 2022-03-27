@@ -59,6 +59,9 @@ export const genericWriteHandler = (dynamoDB: CustomDynamoClient, name: string):
           modifiedAt: timestamp,
           modifiedBy: username,
         }
+        if (item.id === '') {
+          item.id = uuidv4();
+        }
         await dynamoDB.write(item);
         metricsSuccess(metrics, event.requestContext, name);
         return response(200, item);

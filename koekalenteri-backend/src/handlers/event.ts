@@ -48,6 +48,9 @@ export const putRegistrationHandler = metricScope((metrics: MetricsLogger) =>
         modifiedAt: timestamp,
         modifiedBy: username,
       }
+      if (item.id === '') {
+        item.id = uuidv4();
+      }
       const eventKey = { eventType: item.eventType, id: item.eventId };
       const eventTable = process.env.EVENT_TABLE_NAME || '';
       const confirmedEvent = await dynamoDB.read<JsonConfirmedEvent>(eventKey, eventTable);
@@ -58,8 +61,8 @@ export const putRegistrationHandler = metricScope((metrics: MetricsLogger) =>
       const registrations = await dynamoDB.query<JsonRegistration>('eventId = :id', { ':id': item.eventId });
 
       const membershipPriority = (r: JsonRegistration) =>
-        (confirmedEvent.allowHandlerMembershipPriority && r.handler.membership)
-        || (confirmedEvent.allowOwnerMembershipPriority && r.owner.membership);
+        (confirmedEvent.allowHandlerMembershipPriority && r.handler?.membership)
+        || (confirmedEvent.allowOwnerMembershipPriority && r.owner?.membership);
 
       for (const cls of confirmedEvent.classes || []) {
         const regsToClass = registrations?.filter(r => r.class === cls.class);

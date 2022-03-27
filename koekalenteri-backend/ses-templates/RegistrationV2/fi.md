@@ -7,6 +7,7 @@ Alla näet ilmoituksesi tiedot sekä linkin, jonka avulla voit tarvittaessa tehd
 table header | is removed
 :-- | ----
 Koe                :| {{reg.eventType}} {{eventDate}} {{event.location}} {{#if event.name}}({{event.name}}){{/if}}
+Luokka             :| {{reg.class}}
 Koira              :| {{reg.dog.regNo}} {{reg.dog.name}}
 Tunnistusmerkintä  :| {{reg.dog.rfid}}
 Rotu               :| {{dogBreed}}
