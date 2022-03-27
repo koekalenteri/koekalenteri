@@ -57,7 +57,7 @@ export function validateRegistrationField(registration: Registration, field: key
   return result;
 }
 
-const NOT_VALIDATED = ['createdAt', 'createdBy', 'modifiedAt', 'modifiedBy'];
+const NOT_VALIDATED = ['createdAt', 'createdBy', 'modifiedAt', 'modifiedBy', 'deletedAt', 'deletedBy'];
 
 export function validateRegistration(registration: Registration) {
   const errors = [];

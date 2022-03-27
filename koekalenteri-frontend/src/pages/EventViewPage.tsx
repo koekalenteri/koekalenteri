@@ -1,14 +1,14 @@
-import { Box, CircularProgress, Grid, Paper, Typography } from '@mui/material';
+import { Box, CircularProgress, Dialog, DialogContent, DialogContentText, DialogProps, DialogTitle, Grid, Paper, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { AuthPage } from './AuthPage';
 import { useStores } from '../stores';
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { CollapsibleSection, LinkButton } from '../components';
+import { CollapsibleSection, LinkButton, RegistrationForm } from '../components';
 import { ADMIN_EVENTS } from '../config';
-import { getRegistrations } from '../api/event';
-import { BreedCode, Registration } from 'koekalenteri-shared/model';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { getRegistrations, putRegistration } from '../api/event';
+import { BreedCode, ConfirmedEventEx, Registration } from 'koekalenteri-shared/model';
+import { DataGrid, GridColDef, GridSelectionModel } from '@mui/x-data-grid';
 import { EuroOutlined, PersonOutline } from '@mui/icons-material';
 
 
@@ -18,6 +18,8 @@ export function EventViewPage() {
   const { privateStore } = useStores();
   const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [loading, setLoading] = useState(true);
+  const [open, setOpen] = useState(false);
+  const [selected, setSelected] = useState<Registration>();
 
   useEffect(() => {
     const abort = new AbortController();
@@ -94,6 +96,26 @@ export function EventViewPage() {
     }
   ];
 
+  const onSave = async (registration: Registration) => {
+    try {
+      const saved = await putRegistration(registration);
+      const old = registrations.find(r => r.id === saved.id);
+      if (old) {
+        Object.assign(old, saved);
+        setSelected(saved);
+      }
+      setOpen(false);
+      return true;
+    } catch (e: any) {
+      console.error(e);
+      return false;
+    }
+  }
+  const onCancel = async () => {
+    setOpen(false);
+    return true;
+  }
+
   return (
     <AuthPage>
       {loading
@@ -131,6 +153,9 @@ export function EventViewPage() {
               density='compact'
               disableColumnMenu
               rows={registrations}
+              onSelectionModelChange={(selectionModel: GridSelectionModel) => setSelected(registrations.find(r => r.id === selectionModel[0]))}
+              selectionModel={selected ? [selected.id] : []}
+              onRowDoubleClick={(params) => setOpen(true)}
               sx={{
                 '& .MuiDataGrid-columnHeaders': {
                   backgroundColor: 'background.tableHead'
@@ -138,12 +163,36 @@ export function EventViewPage() {
                 '& .MuiDataGrid-row:nth-of-type(2n+1)': {
                   backgroundColor: 'background.oddRow'
                 },
+                '& .MuiDataGrid-cell:focus': {
+                  outline: 'none'
+                },
+                '& .MuiDataGrid-row.Mui-selected': {
+                  backgroundColor: 'background.selected'
+                },
+                '& .MuiDataGrid-row:hover': {
+                  backgroundColor: undefined
+                },
+                '& .MuiDataGrid-row.Mui-selected:hover': {
+                  backgroundColor: 'background.hover'
+                },
                 '& .MuiDataGrid-row:hover > .MuiDataGrid-cell': {
                   backgroundColor: 'background.hover'
                 }
               }}
             />
           </Box>
+          <Dialog
+            fullWidth
+            maxWidth='md'
+            open={open}
+            onClose={() => setOpen(false)}
+            aria-labelledby="reg-dialog-title"
+          >
+            <DialogTitle id="scroll-dialog-title">{selected?.dog.name} / {selected?.handler.name}</DialogTitle>
+            <DialogContent dividers sx={{height: '80vh', overflow: 'hidden', p: 1, pb: 6}}>
+              <RegistrationForm event={event as ConfirmedEventEx} registration={selected} onSave={onSave} onCancel={onCancel} />
+            </DialogContent>
+          </Dialog>
         </Box>
       }
     </AuthPage>

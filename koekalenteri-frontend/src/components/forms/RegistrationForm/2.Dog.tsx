@@ -97,7 +97,7 @@ export function DogInfo({ reg, eventDate, minDogAgeMonths, error, helperText, on
             value={reg.dog.breedCode || '122'}
           />
         </Grid>
-        <Grid item sm={12} lg={'auto'}>
+        <Grid item xs={'auto'}>
           <FormControl sx={{ width: 146, mr: 0.5 }}>
             <DatePicker
               label={t('dog.dob')}
@@ -114,7 +114,7 @@ export function DogInfo({ reg, eventDate, minDogAgeMonths, error, helperText, on
               renderInput={(params) => <TextField {...params} />} />
           </FormControl>
         </Grid>
-        <Grid item sm={12} lg={'auto'} sx={{minWidth: 120}}>
+        <Grid item xs={'auto'} sx={{minWidth: 120}}>
           <AutocompleteSingle
             disableClearable
             disabled={disabled}

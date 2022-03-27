@@ -16,13 +16,14 @@ import { filterRelevantResults, validateRegistration } from './validation';
 type FormEventHandler = (registration: Registration) => Promise<boolean>;
 type RegistrationFormProps = {
   event: ConfirmedEventEx
+  registration?: Registration
   className?: string
   classDate?: string
   onSave?: FormEventHandler
   onCancel?: FormEventHandler
 };
 
-export function RegistrationForm({ event, className, classDate, onSave, onCancel }: RegistrationFormProps) {
+export function RegistrationForm({ event, className, registration, classDate, onSave, onCancel }: RegistrationFormProps) {
   const { t, i18n } = useTranslation();
   const [local, setLocal] = useState<Registration>({
     eventId: event.id,
@@ -63,7 +64,8 @@ export function RegistrationForm({ event, className, classDate, onSave, onCancel
     createdAt: new Date(),
     createdBy: '',
     modifiedAt: new Date(),
-    modifiedBy: ''
+    modifiedBy: '',
+    ...registration
   });
   const [qualifies, setQualifies] = useState<boolean|null>(null);
   const [saving, setSaving] = useState(false);
