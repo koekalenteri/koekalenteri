@@ -1,4 +1,4 @@
-import { Box, Button, CircularProgress, Dialog, DialogContent, DialogTitle, Grid, Paper, Stack, Typography } from '@mui/material';
+import { Box, Button, Dialog, DialogContent, DialogTitle, Grid, Paper, Stack, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { AuthPage } from './AuthPage';
 import { useStores } from '../stores';
@@ -118,87 +118,84 @@ export function EventViewPage() {
 
   return (
     <AuthPage>
-      {loading
-        ? <CircularProgress />
-        :
-        <Box sx={{ p: 1, overflow: 'hidden', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-          <Box sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            flexGrow: 1,
-            width: '100%',
-            minHeight: 600,
-          }}>
-            <Grid container justifyContent="space-between">
-              <Grid item xs>
-                <LinkButton sx={{mb: 1}} to={ADMIN_EVENTS} text={t('goBack')} />
-                <Typography variant="h5">
-                  {event.eventType}, {t('daterange', { start: event.startDate, end: event.endDate })}, {event.location}
-                  <Box sx={{ display: 'inline-block', mx: 2, color: '#018786' }}>{t('event.states.confirmed_entryOpen')}</Box>
-                </Typography>
+      <Box sx={{ display: 'flex', p: 1, overflow: 'hidden', height: '100%', flexDirection: 'column', alignItems: 'flex-start' }}>
+        <Box sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          flexGrow: 1,
+          width: '100%',
+          minHeight: 600,
+        }}>
+          <Grid container justifyContent="space-between">
+            <Grid item xs>
+              <LinkButton sx={{mb: 1}} to={ADMIN_EVENTS} text={t('goBack')} />
+              <Typography variant="h5">
+                {event.eventType}, {t('daterange', { start: event.startDate, end: event.endDate })}, {event.location}
+                <Box sx={{ display: 'inline-block', mx: 2, color: '#018786' }}>{t('event.states.confirmed_entryOpen')}</Box>
+              </Typography>
 
-                <CollapsibleSection title="Kokeen tiedot" initOpen={false}>
+              <CollapsibleSection title="Kokeen tiedot" initOpen={false}>
                   Kokeen tarkat tiedot tähän...
-                </CollapsibleSection>
+              </CollapsibleSection>
                 Filttereitä tähän...
-              </Grid>
-              <Grid item xs="auto">
-                <Paper sx={{height: 128, width: 256, background: '#D5E1DB', p: 1}}>Infopaneeli tähän...</Paper>
-              </Grid>
             </Grid>
-            <Stack direction="row" spacing={2}>
-              <Button startIcon={<AddCircleOutline />} onClick={() => { setSelected(undefined); setOpen(true); }}>{t('create')}</Button>
-              <Button startIcon={<EditOutlined />} disabled={!selected} onClick={() => setOpen(true)}>{t('edit')}</Button>
-              <Button startIcon={<DeleteOutline />} disabled>{t('delete')}</Button>
-            </Stack>
-            <DataGrid
-              autoPageSize
-              columns={columns}
-              density='compact'
-              disableColumnMenu
-              rows={registrations}
-              onSelectionModelChange={(selectionModel: GridSelectionModel) => setSelected(registrations.find(r => r.id === selectionModel[0]))}
-              selectionModel={selected ? [selected.id] : []}
-              onRowDoubleClick={() => setOpen(true)}
-              sx={{
-                '& .MuiDataGrid-columnHeaders': {
-                  backgroundColor: 'background.tableHead'
-                },
-                '& .MuiDataGrid-row:nth-of-type(2n+1)': {
-                  backgroundColor: 'background.oddRow'
-                },
-                '& .MuiDataGrid-cell:focus': {
-                  outline: 'none'
-                },
-                '& .MuiDataGrid-row.Mui-selected': {
-                  backgroundColor: 'background.selected'
-                },
-                '& .MuiDataGrid-row:hover': {
-                  backgroundColor: undefined
-                },
-                '& .MuiDataGrid-row.Mui-selected:hover': {
-                  backgroundColor: 'background.hover'
-                },
-                '& .MuiDataGrid-row:hover > .MuiDataGrid-cell': {
-                  backgroundColor: 'background.hover'
-                }
-              }}
-            />
-          </Box>
-          <Dialog
-            fullWidth
-            maxWidth='md'
-            open={open}
-            onClose={() => setOpen(false)}
-            aria-labelledby="reg-dialog-title"
-          >
-            <DialogTitle id="reg-dialog-title">{selected?.dog.name} / {selected?.handler.name}</DialogTitle>
-            <DialogContent dividers sx={{height: '80vh'}}>
-              <RegistrationForm event={event as ConfirmedEventEx} registration={selected} onSave={onSave} onCancel={onCancel} />
-            </DialogContent>
-          </Dialog>
+            <Grid item xs="auto">
+              <Paper sx={{height: 128, width: 256, backgroundColor: 'background.selected', p: 1}}>Infopaneeli tähän...</Paper>
+            </Grid>
+          </Grid>
+          <Stack direction="row" spacing={2}>
+            <Button startIcon={<AddCircleOutline />} onClick={() => { setSelected(undefined); setOpen(true); }}>{t('create')}</Button>
+            <Button startIcon={<EditOutlined />} disabled={!selected} onClick={() => setOpen(true)}>{t('edit')}</Button>
+            <Button startIcon={<DeleteOutline />} disabled>{t('delete')}</Button>
+          </Stack>
+          <DataGrid
+            loading={loading}
+            autoPageSize
+            columns={columns}
+            density='compact'
+            disableColumnMenu
+            rows={registrations}
+            onSelectionModelChange={(selectionModel: GridSelectionModel) => setSelected(registrations.find(r => r.id === selectionModel[0]))}
+            selectionModel={selected ? [selected.id] : []}
+            onRowDoubleClick={() => setOpen(true)}
+            sx={{
+              '& .MuiDataGrid-columnHeaders': {
+                backgroundColor: 'background.tableHead'
+              },
+              '& .MuiDataGrid-row:nth-of-type(2n+1)': {
+                backgroundColor: 'background.oddRow'
+              },
+              '& .MuiDataGrid-cell:focus': {
+                outline: 'none'
+              },
+              '& .MuiDataGrid-row.Mui-selected': {
+                backgroundColor: 'background.selected'
+              },
+              '& .MuiDataGrid-row:hover': {
+                backgroundColor: undefined
+              },
+              '& .MuiDataGrid-row.Mui-selected:hover': {
+                backgroundColor: 'background.hover'
+              },
+              '& .MuiDataGrid-row:hover > .MuiDataGrid-cell': {
+                backgroundColor: 'background.hover'
+              }
+            }}
+          />
         </Box>
-      }
+        <Dialog
+          fullWidth
+          maxWidth='md'
+          open={open}
+          onClose={() => setOpen(false)}
+          aria-labelledby="reg-dialog-title"
+        >
+          <DialogTitle id="reg-dialog-title">{selected?.dog.name} / {selected?.handler.name}</DialogTitle>
+          <DialogContent dividers sx={{height: '80vh'}}>
+            <RegistrationForm event={event as ConfirmedEventEx} registration={selected} onSave={onSave} onCancel={onCancel} />
+          </DialogContent>
+        </Dialog>
+      </Box>
     </AuthPage>
   )
 }
