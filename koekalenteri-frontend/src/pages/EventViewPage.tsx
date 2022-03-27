@@ -1,4 +1,4 @@
-import { Box, CircularProgress, Dialog, DialogContent, DialogContentText, DialogProps, DialogTitle, Grid, Paper, Typography } from '@mui/material';
+import { Box, Button, CircularProgress, Dialog, DialogContent, DialogTitle, Grid, Paper, Stack, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { AuthPage } from './AuthPage';
 import { useStores } from '../stores';
@@ -9,7 +9,7 @@ import { ADMIN_EVENTS } from '../config';
 import { getRegistrations, putRegistration } from '../api/event';
 import { BreedCode, ConfirmedEventEx, Registration } from 'koekalenteri-shared/model';
 import { DataGrid, GridColDef, GridSelectionModel } from '@mui/x-data-grid';
-import { EuroOutlined, PersonOutline } from '@mui/icons-material';
+import { AddCircleOutline, DeleteOutline, EditOutlined, EuroOutlined, PersonOutline } from '@mui/icons-material';
 
 
 export function EventViewPage() {
@@ -146,7 +146,11 @@ export function EventViewPage() {
                 <Paper sx={{height: 128, width: 256, background: '#D5E1DB', p: 1}}>Infopaneeli tähän...</Paper>
               </Grid>
             </Grid>
-            Nappuloita tähän...
+            <Stack direction="row" spacing={2}>
+              <Button startIcon={<AddCircleOutline />} onClick={() => { setSelected(undefined); setOpen(true); }}>{t('create')}</Button>
+              <Button startIcon={<EditOutlined />} disabled={!selected} onClick={() => setOpen(true)}>{t('edit')}</Button>
+              <Button startIcon={<DeleteOutline />} disabled>{t('delete')}</Button>
+            </Stack>
             <DataGrid
               autoPageSize
               columns={columns}
@@ -155,7 +159,7 @@ export function EventViewPage() {
               rows={registrations}
               onSelectionModelChange={(selectionModel: GridSelectionModel) => setSelected(registrations.find(r => r.id === selectionModel[0]))}
               selectionModel={selected ? [selected.id] : []}
-              onRowDoubleClick={(params) => setOpen(true)}
+              onRowDoubleClick={() => setOpen(true)}
               sx={{
                 '& .MuiDataGrid-columnHeaders': {
                   backgroundColor: 'background.tableHead'
@@ -188,8 +192,8 @@ export function EventViewPage() {
             onClose={() => setOpen(false)}
             aria-labelledby="reg-dialog-title"
           >
-            <DialogTitle id="scroll-dialog-title">{selected?.dog.name} / {selected?.handler.name}</DialogTitle>
-            <DialogContent dividers sx={{height: '80vh', overflow: 'hidden', p: 1, pb: 6}}>
+            <DialogTitle id="reg-dialog-title">{selected?.dog.name} / {selected?.handler.name}</DialogTitle>
+            <DialogContent dividers sx={{height: '80vh'}}>
               <RegistrationForm event={event as ConfirmedEventEx} registration={selected} onSave={onSave} onCancel={onCancel} />
             </DialogContent>
           </Dialog>

@@ -116,7 +116,7 @@ export function RegistrationForm({ event, className, registration, classDate, on
   }
 
   return (
-    <Box sx={{ p: 1, display: 'flex', flexDirection: 'column', flexGrow: 1, overflow: 'auto' }}>
+    <Box sx={{ p: 1, display: 'flex', flexDirection: 'column', flexGrow: 1, overflow: 'auto', height: '100%' }}>
       <Box sx={{ pb: 0.5, overflow: 'auto', borderRadius: 1, bgcolor: 'background.form', '& .MuiInputBase-root': { bgcolor: 'background.default'} }}>
         <EntryInfo reg={local} event={event} classDate={classDate} errorStates={errorStates} helperTexts={helperTexts} onChange={onChange} />
         <DogInfo reg={local} eventDate={event.startDate} minDogAgeMonths={9} error={errorStates.dog} helperText={helperTexts.dog} onChange={onChange} />
