@@ -4,7 +4,9 @@ import type { JsonArray, JsonObject } from 'koekalenteri-shared/model';
 import type {
   KLAPIConfig, KLAPIResult, KLArvo, KLKennelpiiri, KLKoeHenkilö, KLKoemuodonTarkenne, KLKoemuodonTulos,
   KLKoemuodotParametrit, KLKoemuoto, KLKoemuotoParametrit, KLKoetapahtuma,
-  KLKoetapahtumaParametrit, KLKoetulos, KLKoetulosParametrit, KLKoira, KLKoiraParametrit, KLPaikkakunta, KLParametritParametrit, KLRodutParametrit, KLRotu, KLRoturyhmätParametrit, KLRotyryhmä, KLYhdistys, KLYhdistysParametrit, KLYhdistysRajaus
+  KLKoetapahtumaParametrit, KLKoetulos, KLKoetulosParametrit, KLKoira, KLKoiraParametrit,
+  KLPaikkakunta, KLParametritParametrit, KLRodutParametrit, KLRotu, KLRoturyhmätParametrit,
+  KLRoturyhmä, KLYhdistys, KLYhdistysParametrit
 } from './KLAPI_models';
 
 const ssm = new SSM();
@@ -145,7 +147,7 @@ export default class KLAPI {
     return this.get('Yleistä/Lue/Parametrit', parametrit);
   }
 
-  async lueRoturyhmät(parametrit: KLRoturyhmätParametrit): KLAPIResult<Array<KLRotyryhmä>> {
+  async lueRoturyhmät(parametrit: KLRoturyhmätParametrit): KLAPIResult<Array<KLRoturyhmä>> {
     return this.get('Yleistä/Lue/Roturyhmät', parametrit);
   }
 

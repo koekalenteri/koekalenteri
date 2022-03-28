@@ -184,7 +184,7 @@ export type KLRoturyhmätParametrit = {
   Kieli: KLKieli
 }
 
-export type KLRotyryhmä = {
+export type KLRoturyhmä = {
   numero: number
   tunnus: string
   roturyhmä: string
