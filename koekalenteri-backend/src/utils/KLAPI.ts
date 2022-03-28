@@ -1,9 +1,11 @@
 import { SSM } from 'aws-sdk';
-import { JsonArray, JsonObject } from 'koekalenteri-shared/model';
 import fetch from 'node-fetch';
-import { KLAPIConfig, KLDog, KLKoemuoto, KLTestResults } from './KLAPI_models';
-
-export type KLKieli = '1' | '2' | '3';
+import type { JsonArray, JsonObject } from 'koekalenteri-shared/model';
+import type {
+  KLAPIConfig, KLAPIResult, KLArvo, KLKennelpiiri, KLKoeHenkilö, KLKoemuodonTarkenne, KLKoemuodonTulos,
+  KLKoemuodotParametrit, KLKoemuoto, KLKoemuotoParametrit, KLKoetapahtuma,
+  KLKoetapahtumaParametrit, KLKoetulos, KLKoetulosParametrit, KLKoira, KLKoiraParametrit, KLPaikkakunta, KLParametritParametrit, KLRodutParametrit, KLRotu, KLRoturyhmätParametrit, KLRotyryhmä, KLYhdistys, KLYhdistysParametrit, KLYhdistysRajaus
+} from './KLAPI_models';
 
 const ssm = new SSM();
 
@@ -20,16 +22,25 @@ async function getSSMParams(names: string[]): Promise<ParamsFromKeys<typeof name
   return values;
 }
 
-export type KLAPIResult<T> = {
-  status: number
-  error?: string
-  json?: T
+function toURLParams(params: Record<string, string | number | undefined> = {}): Record<string, string> {
+  const result: Record<string, string> = {};
+  for (const param in params) {
+    const value = params[param];
+    if (typeof value === 'undefined') {
+      continue;
+    }
+    if (typeof value === 'number') {
+      result[param] = value.toString();
+    } else {
+      result[param] = value;
+    }
+  }
+  return result;
 }
-
 export default class KLAPI {
   private _config?: KLAPIConfig
 
-  async _getConfig(): Promise<KLAPIConfig> {
+  private async _getConfig(): Promise<KLAPIConfig> {
     if (!this._config) {
       this._config = await getSSMParams(['KL_API_URL', 'KL_API_UID', 'KL_API_PWD']) as KLAPIConfig;
     }
@@ -41,27 +52,38 @@ export default class KLAPI {
     return this._config;
   }
 
-  async get<T extends JsonObject|JsonArray>(path: string, params: Record<string, string>): Promise<KLAPIResult<T>> {
+  private async get<T extends JsonObject | JsonArray>(path: string, params?: Record<string, string | number | undefined>): KLAPIResult<T> {
     const cfg = await this._getConfig();
-    const sp = new URLSearchParams(params);
+    const sp = new URLSearchParams(toURLParams(params));
     console.log(`KLAPI: ${path}?${sp}`);
     let json: T | undefined;
     let status = 204;
     let error;
     try {
       const res = await fetch(`${cfg.KL_API_URL}/${path}?` + sp, {
+        method: 'GET',
         headers: {
-          method: 'GET',
-          "X-Kayttajatunnus": cfg.KL_API_UID,
-          "X-Salasana": cfg.KL_API_PWD
+          'Content-Type': 'application/json',
+          'X-Kayttajatunnus': cfg.KL_API_UID,
+          'X-Salasana': cfg.KL_API_PWD
         }
       });
       status = res.status;
-      json = await res.json();
-      if (json) {
-        console.log('response: ' + JSON.stringify(json));
+      console.log(status, JSON.stringify(res.headers), JSON.stringify(res.body));
+      try {
+        json = res.ok && await res.json();
+        if (json) {
+          console.log('response: ' + JSON.stringify(json));
+        } else {
+          error = await res.text();
+          console.error('not ok', status, error);
+        }
+      } catch (jse) {
+        console.error(jse);
+        console.log(status, JSON.stringify(res));
       }
     } catch (e: unknown) {
+      console.error(e);
       if (e instanceof Error) {
         error = e.message;
       }
@@ -69,30 +91,65 @@ export default class KLAPI {
     return { status, error, json };
   }
 
-  async lueKoiranPerustiedot(regno?: string, lang: KLKieli = '1'): Promise<KLAPIResult<KLDog>> {
-    if (!regno) {
+  async lueKoiranPerustiedot(parametrit: KLKoiraParametrit): KLAPIResult<KLKoira> {
+    if (!parametrit.Rekisterinumero && !parametrit.Tunnistusmerkintä) {
       return { status: 404 };
     }
-    return this.get('Koira/Lue/Perustiedot', {
-      Rekisterinumero: regno,
-      Kieli: lang
-    });
+    return this.get('Koira/Lue/Perustiedot', parametrit);
   }
 
-  async lueKoiranKoetulokset(regno?: string, lang: KLKieli = '1'): Promise<KLAPIResult<KLTestResults>> {
-    if (!regno) {
+  async lueKoiranKoetulokset(parametrit: KLKoetulosParametrit): KLAPIResult<Array<KLKoetulos>> {
+    if (!parametrit.Rekisterinumero) {
       return { status: 404 };
     }
-    return this.get('Koira/Lue/Koetulokset', {
-      Rekisterinumero: regno,
-      Kieli: lang
-    });
+    return this.get('Koira/Lue/Koetulokset', parametrit);
   }
 
-  async lueKoemuodot(breedCode?: string, lang: KLKieli = '1'): Promise<KLAPIResult<KLKoemuoto>> {
-    return this.get('Koemuoto/Lue/Koemuodot', {
-      Rotukoodi: breedCode || '',
-      Kieli: lang
-    });
+  async lueKoemuodot(parametrit: KLKoemuodotParametrit): KLAPIResult<Array<KLKoemuoto>> {
+    return this.get('Koemuoto/Lue/Koemuodot', parametrit);
+  }
+
+  async lueKoetulokset(parametrit: KLKoemuotoParametrit): KLAPIResult<Array<KLKoemuodonTulos>> {
+    return this.get('Koemuoto/Lue/Tulokset', parametrit);
+  }
+
+  async lueKoemuodonTarkenteet(parametrit: KLKoemuotoParametrit): KLAPIResult<Array<KLKoemuodonTarkenne>> {
+    return this.get('Koemuoto/Lue/Tarkenteet', parametrit);
+  }
+
+  async lueKoemuodonYlituomarit(parametrit: KLKoemuotoParametrit): KLAPIResult<Array<KLKoeHenkilö>> {
+    return this.get('Koemuoto/Lue/Ylituomarit', parametrit);
+  }
+
+  async lueKoemuodonKoetoimitsijat(parametrit: KLKoemuotoParametrit): KLAPIResult<Array<KLKoeHenkilö>> {
+    return this.get('Koemuoto/Lue/Koetoimitsijat', parametrit);
+  }
+
+  async lueKoetapahtumat(parametrit: KLKoetapahtumaParametrit): KLAPIResult<Array<KLKoetapahtuma>> {
+    return this.get('Koe/Lue/Koetapahtumat', parametrit);
+  }
+
+  async lueKennelpiirit(): KLAPIResult<Array<KLKennelpiiri>> {
+    return this.get('Yleistä/Lue/Kennelpiirit');
+  }
+
+  async luePaikkakunnat(parametrit: { KennelpiirinNumero?: number }): KLAPIResult<Array<KLPaikkakunta>> {
+    return this.get('Yleistä/Lue/Paikkakunnat', parametrit);
+  }
+
+  async lueYhdistykset(parametrit: KLYhdistysParametrit): KLAPIResult<Array<KLYhdistys>> {
+    return this.get('Yleistä/Lue/Yhdistykset', parametrit);
+  }
+
+  async lueParametrit(parametrit: KLParametritParametrit): KLAPIResult<Array<KLArvo>> {
+    return this.get('Yleistä/Lue/Parametrit', parametrit);
+  }
+
+  async lueRoturyhmät(parametrit: KLRoturyhmätParametrit): KLAPIResult<Array<KLRotyryhmä>> {
+    return this.get('Yleistä/Lue/Roturyhmät', parametrit);
+  }
+
+  async lueRodut(parametrit: KLRodutParametrit): KLAPIResult<Array<KLRotu>> {
+    return this.get('Yleistä/Lue/Rodut', parametrit);
   }
 }

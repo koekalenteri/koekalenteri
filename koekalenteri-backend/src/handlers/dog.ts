@@ -6,6 +6,7 @@ import { metricsError, metricsSuccess } from "../utils/metrics";
 import { response } from "../utils/response";
 import CustomDynamoClient from "../utils/CustomDynamoClient";
 import { BreedCode, JsonDog, JsonTestResult } from "koekalenteri-shared/model";
+import { KLKieli } from "../utils/KLAPI_models";
 
 const dynamoDB = new CustomDynamoClient();
 
@@ -30,7 +31,7 @@ export const getDogHandler = metricScope((metrics: MetricsLogger) =>
       console.log(item);
 
       if (!item || refresh) {
-        const { status, json } = await klapi.lueKoiranPerustiedot(regNo);
+        const { status, json } = await klapi.lueKoiranPerustiedot({ Rekisterinumero: regNo, Kieli: KLKieli.Suomi });
 
         if (status === 200 && json) {
           // Cache
@@ -48,7 +49,7 @@ export const getDogHandler = metricScope((metrics: MetricsLogger) =>
 
           // Luetaan koetulokset käyttäen palautettua rekisterinumeroa.
           // Jos koiralla on useampi rekkari, niin palautettu on se mille tulokset on kirjattu.
-          const results = await klapi.lueKoiranKoetulokset(item.regNo);
+          const results = await klapi.lueKoiranKoetulokset({ Rekisterinumero: item.regNo, Kieli: KLKieli.Suomi });
           if (results.status === 200) {
             const res: JsonTestResult[] = [];
             for (const result of results.json || []) {
