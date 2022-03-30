@@ -28,7 +28,7 @@ export const getDogHandler = metricScope((metrics: MetricsLogger) =>
       const refresh = event.queryStringParameters && 'refresh' in event.queryStringParameters;
 
       let item = await dynamoDB.read({ regNo }) as JsonDog;
-      console.log(item);
+      console.log('cached: ' + JSON.stringify(item));
 
       if (!item || refresh) {
         const { status, json } = await klapi.lueKoiranPerustiedot({ Rekisterinumero: regNo, Kieli: KLKieli.Suomi });

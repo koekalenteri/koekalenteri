@@ -1,6 +1,6 @@
 import { Save, Cancel } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
-import { Box, Button, Checkbox, FormControl, FormControlLabel, FormHelperText, Link, Stack } from '@mui/material';
+import { Box, Button, Checkbox, FormControl, FormControlLabel, FormHelperText, Link, Paper, Stack } from '@mui/material';
 import { ConfirmedEventEx, Language, Registration } from 'koekalenteri-shared/model';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -11,7 +11,7 @@ import { OwnerInfo } from './4.OwnerInfo';
 import { HandlerInfo } from './5.HandlerInfo';
 import { QualifyingResultsInfo } from './6.QualifyingResultsInfo';
 import { AdditionalInfo } from './7.AdditionalInfo';
-import { filterRelevantResults, validateRegistration } from './validation';
+import { filterRelevantResults, RegistrationClass, validateRegistration } from './validation';
 
 type FormEventHandler = (registration: Registration) => Promise<boolean>;
 type RegistrationFormProps = {
@@ -35,7 +35,7 @@ export function RegistrationForm({ event, className, registration, classDate, on
     reserve: '',
     dog: {
       regNo: '',
-      dob: undefined,
+      dob: new Date(),
       refreshDate: undefined,
       results: []
     },
@@ -67,10 +67,10 @@ export function RegistrationForm({ event, className, registration, classDate, on
     modifiedBy: '',
     ...registration
   });
-  const [qualifies, setQualifies] = useState<boolean|null>(null);
+  const [qualifies, setQualifies] = useState<boolean|null>(local.id ? filterRelevantResults(event, local.class as RegistrationClass, local.dog.results).qualifies : null);
   const [saving, setSaving] = useState(false);
   const [changes, setChanges] = useState(local.id === '');
-  const [errors, setErrors] = useState(validateRegistration(local));
+  const [errors, setErrors] = useState(validateRegistration(local, event));
   const valid = errors.length === 0;
 
   const onChange = (props: Partial<Registration>) => {
@@ -78,18 +78,18 @@ export function RegistrationForm({ event, className, registration, classDate, on
     if (props.class || props.dog) {
       const c = props.class || local.class;
       const dog = props.dog || local.dog;
-      const filtered = filterRelevantResults(event.eventType, c as 'ALO' | 'AVO' | 'VOI', dog.results);
+      const filtered = filterRelevantResults(event, c as RegistrationClass, dog.results);
       setQualifies((!dog || !c) ? null : filtered.qualifies);
       props.qualifyingResults = filtered.relevant;
     }
-    if (props.owner && local.handler.name === props.owner.name) {
-      props.handler = { ...props.owner }
+    if (props.ownerHandles || (props.owner && local.ownerHandles)) {
+      props.handler = { ...local.owner, ...props.owner }
     }
-    if (props.handler && local.owner.name === props.handler.name) {
+    if (props.handler && local.ownerHandles && props.ownerHandles !== false) {
       props.owner = { ...props.handler }
     }
     const newState = { ...local, ...props };
-    setErrors(validateRegistration(newState));
+    setErrors(validateRegistration(newState, event));
     setLocal(newState);
     setChanges(true);
     setSaving(false);
@@ -116,7 +116,7 @@ export function RegistrationForm({ event, className, registration, classDate, on
   }
 
   return (
-    <Box sx={{ p: 1, display: 'flex', flexDirection: 'column', flexGrow: 1, overflow: 'auto', height: '100%' }}>
+    <Paper elevation={2} sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, overflow: 'auto', maxHeight: '100%' }}>
       <Box sx={{ pb: 0.5, overflow: 'auto', borderRadius: 1, bgcolor: 'background.form', '& .MuiInputBase-root': { bgcolor: 'background.default'} }}>
         <EntryInfo reg={local} event={event} classDate={classDate} errorStates={errorStates} helperTexts={helperTexts} onChange={onChange} />
         <DogInfo reg={local} eventDate={event.startDate} minDogAgeMonths={9} error={errorStates.dog} helperText={helperTexts.dog} onChange={onChange} />
@@ -126,7 +126,7 @@ export function RegistrationForm({ event, className, registration, classDate, on
         <QualifyingResultsInfo reg={local} error={!qualifies} helperText={helperTexts.qualifyingResults} onChange={onChange} />
         <AdditionalInfo reg={local} onChange={onChange} />
         <Box sx={{ m: 1, mt: 2, ml: 4, borderTop: '1px solid #bdbdbd' }}>
-          <FormControl error={errorStates.agreeToTerms}>
+          <FormControl error={errorStates.agreeToTerms} disabled={!!local.id}>
             <FormControlLabel control={<Checkbox checked={local.agreeToTerms} onChange={e => onChange({agreeToTerms: e.target.checked})}/>} label={
               <>
                 <span>{t('registration.terms.read')}</span>&nbsp;
@@ -135,17 +135,17 @@ export function RegistrationForm({ event, className, registration, classDate, on
               </>
             } />
           </FormControl>
-          <FormControl error={errorStates.agreeToPublish}>
+          <FormControl error={errorStates.agreeToPublish} disabled={!!local.id}>
             <FormControlLabel control={<Checkbox checked={local.agreeToPublish} onChange={e => onChange({ agreeToPublish: e.target.checked })} />} label={t('registration.terms.publish')} />
           </FormControl>
           <FormHelperText error>{helperTexts.agreeToTerms || helperTexts.agreeToPublish}</FormHelperText>
         </Box>
       </Box>
 
-      <Stack spacing={1} direction="row" justifyContent="flex-end" sx={{mt: 1}}>
+      <Stack spacing={1} direction="row" justifyContent="flex-end" sx={{p: 1, borderTop: '1px solid', borderColor: '#bdbdbd'}}>
         <LoadingButton color="primary" disabled={!changes || !valid} loading={saving} loadingPosition="start" startIcon={<Save />} variant="contained" onClick={saveHandler}>Tallenna</LoadingButton>
         <Button startIcon={<Cancel />} variant="outlined" onClick={cancelHandler}>Peruuta</Button>
       </Stack>
-    </Box>
+    </Paper>
   );
 }

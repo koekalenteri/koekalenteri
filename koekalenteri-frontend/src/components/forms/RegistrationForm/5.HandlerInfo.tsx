@@ -17,8 +17,9 @@ export function HandlerInfo({ reg, error, helperText, onChange }: HandlerInfoPro
     <CollapsibleSection title={t('registration.handler')} error={error} helperText={helperText}>
       <FormControlLabel control={
         <Checkbox
-          checked={reg.handler.name === reg.owner.name}
+          checked={reg.ownerHandles}
           onChange={e => onChange({
+            ownerHandles: e.target.checked,
             handler: e.target.checked ? { ...reg.owner } : { name: '', location: '', email: '', phone: '', membership: false }
           })}
         />

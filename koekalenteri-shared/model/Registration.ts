@@ -13,6 +13,7 @@ export type JsonRegistration = JsonDbRecord & {
   language: Language
   notes: string
   owner: RegistrationPerson
+  ownerHandles?: boolean
   qualifyingResults: JsonTestResult[]
   reserve: ReserveChoise | ''
 }

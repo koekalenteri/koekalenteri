@@ -71,7 +71,6 @@ export default class KLAPI {
         }
       });
       status = res.status;
-      console.log(status, JSON.stringify(res.headers), JSON.stringify(res.body));
       try {
         json = res.ok && await res.json();
         if (json) {

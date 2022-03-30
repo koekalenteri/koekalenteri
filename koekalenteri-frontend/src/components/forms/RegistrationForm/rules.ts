@@ -15,6 +15,7 @@ export type RULE_DATES = {
 
 export type EventRequirement = {
   age?: number
+  breedCode?: Array<string>
   results?: {[Property in keyof RULE_DATES]?: EventResultRequirements | Array<EventResultRequirements>}
 };
 
@@ -26,7 +27,8 @@ export type EventClassRequirement = {
 
 export const REQUIREMENTS: { [key: string]: EventRequirement | EventClassRequirement } = {
   NOU: {
-    age: 9
+    age: 9,
+    breedCode: ['122', '111', '121', '312', '110', '263']
   },
   'NOME-B': {
     ALO: {

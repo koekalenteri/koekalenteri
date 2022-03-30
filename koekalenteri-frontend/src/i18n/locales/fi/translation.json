@@ -1,12 +1,4 @@
 {
-  "breed": {
-    "110": "Kiharakarvainen noutaja",
-    "111": "Kultainennoutaja",
-    "121": "Sileäkarvainen noutaja",
-    "122": "Labradorinnoutaja",
-    "263": "Chesapeakelahdennoutaja",
-    "312": "Novascotiannoutaja"
-  },
   "dog": {
     "breed": "Rotu",
     "dam": {
@@ -153,7 +145,7 @@
     "qualifyingResults": "Osallistumisoikeuteen vaikuttavat tulokset",
     "qualifyingResultsInfo": "Tulosten perusteella koiralla {{qualifies}} osallistua valittuun koeluokkaan.",
     "qyalifyingResultsYes": "on oikeus",
-    "qualifyingResultsNo": "ei ole oukeutta",
+    "qualifyingResultsNo": "ei ole oikeutta",
     "reserve": "Varasija",
     "reserve_choises": {
       "ANY": "Osallistun",
@@ -171,6 +163,7 @@
     }
   },
   "registrations": "Ilmoittautumiset",
+  "since": "Koiran perustiedot ja koetulokset on haettu Kennelliiton rajapinnasta {{date, distance}} sitten.",
   "testResult": {
     "date": "Aika",
     "eventType": "Koemuoto",
@@ -193,6 +186,8 @@
     },
     "registration": {
       "choose": "Valitse $t(registration.{{field}})",
+      "dog_age": "Koiran tulee olla vähintään {{length}} kuukautta vanha koepäivänä.",
+      "dog_breed": "Rodulla \"$t(breed.{{type}})\" ei ole osallistumisoikeutta kokeeseen.",
       "dog_results": "Tulosten perusteella koiralla ei ole oikeutta osallistua valittuun koeluokkaan.",
       "reserve": "Valitse osallistutko varasijalta",
       "required": "$t(registration.{{field}}) ovat puutteelliset",

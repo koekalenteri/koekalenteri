@@ -1,6 +1,6 @@
-import { RefreshOutlined } from '@mui/icons-material';
-import { DatePicker } from '@mui/lab';
-import { Autocomplete, FormControl, Grid, IconButton, InputAdornment, TextField } from '@mui/material';
+import { CachedOutlined } from '@mui/icons-material';
+import { DatePicker, LoadingButton } from '@mui/lab';
+import { Autocomplete, FormControl, FormHelperText, Grid, Stack, TextField } from '@mui/material';
 import { differenceInMinutes, subMonths, subYears } from 'date-fns';
 import { BreedCode, Dog, DogGender, Registration } from 'koekalenteri-shared/model';
 import { useState } from 'react';
@@ -17,7 +17,7 @@ export function shouldAllowRefresh(dog?: Partial<Dog>) {
   if (dog.refreshDate && differenceInMinutes(new Date(), dog.refreshDate) <= 5) {
     return false;
   }
-  return true;
+  return !!dog.refreshDate;
 }
 
 type DogInfoProps = {
@@ -31,66 +31,107 @@ type DogInfoProps = {
 
 export function DogInfo({ reg, eventDate, minDogAgeMonths, error, helperText, onChange }: DogInfoProps ) {
   const { t } = useTranslation();
+  const { t: breed } = useTranslation('breed');
   const [loading, setLoading] = useState(false);
   const [dogs, setDogs] = useLocalStorage('dogs', '');
-  const [regNo, setRegNo] = useState<string>('');
-  const [disabled, setDisabled] = useState(false);
+  const [regNo, setRegNo] = useState<string>(reg.dog.regNo);
+  const [disabled, setDisabled] = useState(true);
   const allowRefresh = shouldAllowRefresh(reg.dog);
+  const [dogHelper, setDogHelper] = useState(reg.dog.refreshDate ? t('since', {date: reg.dog.refreshDate}) : '');
+  const [dogHelperError, setDogHelperError] = useState(false);
+  const [buttonText, setButtonText] = useState(reg.id ? 'Päivitä' : 'Hae tiedot');
+  const [mode, setMode] = useState('fetch');
   const loadDog = async (value?: string, refresh?: boolean) => {
+    setRegNo(value || '');
     if (!value) {
-      value = regNo;
+      return;
     }
     value = value.toUpperCase();
-    if (value !== '' && (reg.dog.regNo !== value || refresh)) {
-      setLoading(true);
-      const lookup = await getDog(value, refresh);
-      setLoading(false);
-      const storedDogs = dogs?.split(',') || [];
-      if (lookup && lookup.regNo) {
-        storedDogs.push(lookup.regNo);
-        setDogs(unique(storedDogs).filter(v => v !== '').join(','));
-        setDisabled(true);
-        setRegNo(lookup.regNo);
-        onChange({ dog: { ...reg.dog, ...lookup } });
-      } else {
-        setDisabled(false);
-        if (storedDogs.includes(value)) {
-          setDogs(storedDogs.filter(v => v !== value).join(','));
-        }
-        onChange({ dog: { ...reg.dog, regNo: value } });
+    console.log(value);
+    setLoading(true);
+    const lookup = await getDog(value, refresh);
+    setLoading(false);
+    setDisabled(true);
+    const storedDogs = dogs?.split(',') || [];
+    if (lookup && lookup.regNo) {
+      storedDogs.push(lookup.regNo);
+      setDogs(unique(storedDogs).filter(v => v !== '').join(','));
+      setDogHelper(t('since', {date: lookup.refreshDate}));
+      setDogHelperError(false);
+      setRegNo(lookup.regNo);
+      setButtonText('Päivitä');
+      onChange({ dog: { ...reg.dog, ...lookup } });
+    } else {
+      setDogHelper('Rekisterinumerolla ei löytynyt tietoja');
+      setDogHelperError(true);
+      setButtonText('Syötä tiedot käsin');
+      if (storedDogs.includes(value)) {
+        setDogs(storedDogs.filter(v => v !== value).join(','));
       }
+      onChange({ dog: { regNo: value, dob: new Date(), results: [] } });
     }
   };
+  const buttonClick = () => {
+    if (mode === 'fetch') {
+      if (dogHelperError) {
+        setMode('manual');
+        setDogHelperError(false);
+        setDogHelper('Syötä tiedot käsin');
+        setButtonText('Tee uusi haku rekisterinumerolla');
+        setDisabled(false);
+      } else {
+        loadDog(regNo, allowRefresh);
+      }
+    } else {
+      setMode('fetch');
+      setButtonText('Hae tiedot');
+    }
+  }
   return (
-    <CollapsibleSection title={t('registration.dog')} loading={loading} error={error} helperText={helperText}>
-      <Grid container spacing={1}>
-        <Grid item sx={{ minWidth: 220 }}>
-          <Autocomplete
-            id="txtReknro"
-            freeSolo
-            renderInput={(props) => <TextField {...props}
-              error={!reg.dog.regNo}
-              label={t('dog.regNo')}
-              InputProps={{
-                ...props.InputProps,
-                endAdornment: <>{allowRefresh ? <InputAdornment position="end">
-                  <IconButton size="small" onClick={() => loadDog(undefined, true)}><RefreshOutlined fontSize="small" /></IconButton>
-                </InputAdornment> : ''}{props.InputProps.endAdornment}</>
-              }} />}
-            value={reg.dog.regNo}
-            onChange={(e, value) => { setRegNo(value || ''); loadDog(value || ''); }}
-            onInputChange={(e, value) => setRegNo(value)}
-            options={dogs?.split(',') || []}
-            onBlur={() => loadDog()} />
-        </Grid>
+    <CollapsibleSection title={t('registration.dog')} error={error} helperText={helperText}>
+      <Stack direction="row" spacing={1} alignItems="flex-end">
+        <Autocomplete
+          id="txtReknro"
+          disabled={mode === 'manual'}
+          freeSolo
+          renderInput={(props) => <TextField {...props} error={!reg.dog.regNo} label={t('dog.regNo')}/>}
+          value={regNo}
+          onChange={(e, value) => { loadDog(value || ''); }}
+          onInputChange={(e, value) => setRegNo(value)}
+          options={dogs?.split(',') || []}
+          sx={{minWidth: 200}}
+        />
+        <Stack alignItems="flex-start">
+          <FormHelperText error={dogHelperError}>{dogHelper}</FormHelperText>
+          <LoadingButton
+            disabled={regNo === '' || (mode === 'fetch' && (regNo === reg.dog.regNo && !allowRefresh) && !dogHelperError)}
+            startIcon={<CachedOutlined />}
+            size="small"
+            loading={loading}
+            variant="outlined"
+            color="info"
+            onClick={buttonClick}
+          >
+            {buttonText}
+          </LoadingButton>
+        </Stack>
+      </Stack>
+      <Grid container spacing={1} sx={{mt: 0.5}}>
         <Grid item>
-          <TextField disabled={disabled} fullWidth label={t('dog.rfid')} value={reg.dog.rfid || ''} error={!reg.dog.rfid} onChange={(e) => onChange({ dog: { ...reg.dog, rfid: e.target.value } })} />
+          <TextField
+            disabled={disabled}
+            fullWidth
+            label={t('dog.rfid')}
+            value={reg.dog.rfid || ''}
+            error={!disabled && !reg.dog.rfid}
+            onChange={(e) => onChange({ dog: { ...reg.dog, rfid: e.target.value } })}
+          />
         </Grid>
         <Grid item sx={{ width: 300 }}>
           <AutocompleteSingle
             disableClearable
             disabled={disabled}
-            getOptionLabel={(o) => t(`breed.${o}`)}
+            getOptionLabel={(o) => breed(o)}
             label={t('dog.breed')}
             onChange={(e, value) => onChange({ dog: { ...reg.dog, breedCode: value || undefined } })}
             options={['122', '111', '121', '312', '110', '263'] as BreedCode[]}
@@ -127,10 +168,10 @@ export function DogInfo({ reg, eventDate, minDogAgeMonths, error, helperText, on
         </Grid>
         <Grid item container spacing={1}>
           <Grid item>
-            <TextField disabled={disabled} sx={{ width: 300 }} label={t('dog.titles')} value={reg.dog.titles || ''} onChange={(e) => onChange({ dog: { ...reg.dog, titles: e.target.value } })}/>
+            <TextField id="dog_titles" disabled={disabled} sx={{ width: 300 }} label={t('dog.titles')} value={reg.dog.titles || ''} onChange={(e) => onChange({ dog: { ...reg.dog, titles: e.target.value } })}/>
           </Grid>
           <Grid item>
-            <TextField disabled={disabled} sx={{ width: 300 }} label={t('dog.name')} value={reg.dog.name || ''} error={!reg.dog.name} onChange={(e) => onChange({ dog: { ...reg.dog, name: e.target.value } })} />
+            <TextField id="dog_name" disabled={disabled} sx={{ width: 300 }} label={t('dog.name')} value={reg.dog.name || ''} error={!disabled && !reg.dog.name} onChange={(e) => onChange({ dog: { ...reg.dog, name: e.target.value } })} />
           </Grid>
         </Grid>
         <Grid item container spacing={1}>

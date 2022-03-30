@@ -16,6 +16,7 @@ import { format } from 'date-fns';
 export function EventViewPage() {
   const params = useParams();
   const { t } = useTranslation();
+  const { t: breed } = useTranslation('breed');
   const { privateStore } = useStores();
   const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [loading, setLoading] = useState(true);
@@ -64,7 +65,7 @@ export function EventViewPage() {
       field: 'dob.breed',
       headerName: t('dog.breed'),
       width: 150,
-      valueGetter: (params) => t(`breed.${params.row.dog.breedCode as BreedCode}`)
+      valueGetter: (params) => breed(`${params.row.dog.breedCode as BreedCode}`)
     },
     {
       field: 'class',
