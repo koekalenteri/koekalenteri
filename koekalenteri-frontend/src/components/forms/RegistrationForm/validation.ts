@@ -205,10 +205,10 @@ export function filterRelevantResults({eventType, startDate}: {eventType: string
 }
 
 function getNextClass(c: RegistrationClass): RegistrationClass | undefined {
-  switch (c) {
-    case 'ALO': return 'AVO';
-    case 'AVO': return 'AVO';
-    default:
-      ///noop
+  if (c === 'ALO') {
+    return 'AVO';
+  }
+  if (c === 'AVO') {
+    return 'VOI';
   }
 }

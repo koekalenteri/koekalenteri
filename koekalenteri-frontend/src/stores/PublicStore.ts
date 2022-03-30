@@ -136,7 +136,7 @@ function withinArrayFilters(event: EventEx, { eventType, eventClass, judge, orga
   if (eventType.length && !eventType.includes(event.eventType)) {
     return false;
   }
-  if (eventClass.length && !eventClass.some(c => event.classes.map(c => c.class).includes(c))) {
+  if (eventClass.length && !eventClass.some(c => event.classes.map(cl => cl.class).includes(c))) {
     return false;
   }
   if (judge.length && !judge.some(j => event.judges?.includes(j))) {

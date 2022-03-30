@@ -78,7 +78,7 @@ test('It should fire onChange', async () => {
   changeAutocompleteValue('Järjestäjä', 'Järjestäjä 1');
   expect(changeHandler).toHaveBeenCalledTimes(4);
 
-  const dateInputs = screen.getAllByLabelText('Choose date', { exact: false }) as HTMLInputElement[];
+  const dateInputs = screen.getAllByLabelText('Choose date', { exact: false });
   fireEvent.click(dateInputs[0]);
   await screen.findByRole('dialog');
   fireEvent.click(screen.getByLabelText('25. ', { exact: false }));

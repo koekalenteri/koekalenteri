@@ -12,7 +12,7 @@ const renderComponent = (props: DateRangeProps) => {
     </LocalizationProvider>
   );
 
-  const inputs = screen.getAllByLabelText('Choose date', { exact: false }) as HTMLInputElement[];
+  const inputs = screen.getAllByLabelText('Choose date', { exact: false });
   return { startInput: inputs[0], endInput: inputs[1] };
 }
 

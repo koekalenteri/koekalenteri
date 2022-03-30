@@ -27,9 +27,9 @@ test('getEvent', async () => {
     ? Promise.resolve(JSON.stringify(emptyEvent))
     : Promise.reject(new Error(`${req.method} !== 'GET'`)));
 
-  const event = await getEvent('TestEventType', 'TestEventID');
+  const testEvent = await getEvent('TestEventType', 'TestEventID');
 
-  expect(event).toMatchObject(emptyEvent);
+  expect(testEvent).toMatchObject(emptyEvent);
   expect(fetchMock.mock.calls.length).toEqual(1);
   expect(fetchMock.mock.calls[0][0]).toEqual(API_BASE_URL + '/event/TestEventType/TestEventID');
 });

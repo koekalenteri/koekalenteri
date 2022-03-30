@@ -29,9 +29,9 @@ export function EventViewPage() {
     }
     const abort = new AbortController();
     async function get(id: string) {
-      const event = await privateStore.get(id, abort.signal);
-      if (privateStore.selectedEvent?.id !== event?.id) {
-        privateStore.setSelectedEvent(event);
+      const loadedEvent = await privateStore.get(id, abort.signal);
+      if (privateStore.selectedEvent?.id !== loadedEvent?.id) {
+        privateStore.setSelectedEvent(loadedEvent);
       }
       const items = await getRegistrations(id, abort.signal);
       setRegistrations(items);

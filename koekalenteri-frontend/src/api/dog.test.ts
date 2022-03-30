@@ -1,8 +1,7 @@
 import fetchMock from 'jest-fetch-mock';
-import { getDog } from './dog';
+import { JsonDog } from "koekalenteri-shared/model";
 import { API_BASE_URL } from "../config";
-import { JsonDog } from "koekalenteri-shared/model"
-import { rehydrateDog } from "./dog";
+import { getDog, rehydrateDog } from './dog';
 
 fetchMock.enableMocks();
 

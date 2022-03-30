@@ -82,7 +82,7 @@ export async function getEvents(): Promise<EventEx[]> {
 
 export async function getEvent(eventType: string, id: string): Promise<EventEx> {
   return new Promise((resolve, reject) => {
-    const event = mockEvents.find(event => event.eventType === eventType && event.id === id);
+    const event = mockEvents.find(item => item.eventType === eventType && item.id === id);
     process.nextTick(() => event ? resolve(event) : reject());
   });
 }
@@ -110,7 +110,7 @@ export async function putEvent(event: Event): Promise<EventEx> {
 
 export async function getRegistrations(eventId: string, signal?: AbortSignal): Promise<Registration[]> {
   return new Promise((resolve, reject) => {
-    const event = mockEvents.find(event => event.id === eventId);
+    const event = mockEvents.find(item => item.id === eventId);
     if (!event) {
       reject();
     } else {
