@@ -131,7 +131,7 @@ function validateDogBreed(event: {eventType: string}, dog: {breedCode?: BreedCod
 export function filterRelevantResults({eventType, startDate}: {eventType: string, startDate: Date}, eventClass: RegistrationClass, results?: TestResult[]) {
   const requirements = REQUIREMENTS[eventType] || {};
   const classRules = eventClass && (requirements as EventClassRequirement)[eventClass];
-  const nextClass = eventClass === 'ALO' ? 'AVO' : eventClass === 'AVO' ? 'VOI' : undefined;
+  const nextClass = getNextClass(eventClass);
   const nextClassRules = classRules && nextClass && (requirements as EventClassRequirement)[nextClass];
   const rules = classRules || (requirements as EventRequirement);
 
@@ -202,4 +202,13 @@ export function filterRelevantResults({eventType, startDate}: {eventType: string
   relevant.sort((a, b) => new Date(a.date).valueOf() - new Date(b.date).valueOf());
 
   return { relevant, qualifies };
+}
+
+function getNextClass(c: RegistrationClass): RegistrationClass | undefined {
+  switch (c) {
+    case 'ALO': return 'AVO';
+    case 'AVO': return 'AVO';
+    default:
+      ///noop
+  }
 }

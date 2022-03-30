@@ -53,19 +53,19 @@ export function EventViewPage() {
       headerName: t('dog.name'),
       width: 250,
       flex: 1,
-      valueGetter: (params) => params.row.dog.name
+      valueGetter: (p) => p.row.dog.name
     },
     {
       field: 'dog.regNo',
       headerName: t('dog.regNo'),
       width: 130,
-      valueGetter: (params) => params.row.dog.regNo
+      valueGetter: (p) => p.row.dog.regNo
     },
     {
       field: 'dob.breed',
       headerName: t('dog.breed'),
       width: 150,
-      valueGetter: (params) => breed(`${params.row.dog.breedCode as BreedCode}`)
+      valueGetter: (p) => breed(`${p.row.dog.breedCode as BreedCode}`)
     },
     {
       field: 'class',
@@ -77,27 +77,27 @@ export function EventViewPage() {
       headerName: t('registration.handler'),
       width: 150,
       flex: 1,
-      valueGetter: (params) => params.row.handler.name
+      valueGetter: (p) => p.row.handler.name
     },
     {
       field: 'createdAt',
       headerName: t('registration.createdAt'),
       width: 140,
-      valueGetter: (params) => t('dateTimeShort', { date: params.value })
+      valueGetter: (p) => t('dateTimeShort', { date: p.value })
     },
     {
       field: 'member',
       headerName: t('registration.member'),
       width: 60,
       align: 'center',
-      renderCell: (params) => (params.row.handler.membership ? <PersonOutline fontSize="small" /> : <></>)
+      renderCell: (p) => (p.row.handler.membership ? <PersonOutline fontSize="small" /> : <></>)
     },
     {
       field: 'paid',
       headerName: t('registration.paid'),
       width: 90,
       align: 'center',
-      renderCell: (params) => (<EuroOutlined fontSize="small" />)
+      renderCell: () => (<EuroOutlined fontSize="small" />)
     }
   ];
 
