@@ -180,17 +180,17 @@ function checkRequiredResults(date: Date, req?: EventRequirement, results?: Test
     const n = (counts.get(r) || 0) + 1;
     counts.set(r, n);
     return n;
-  }
+  };
 
   const checkResult = (result: TestResult, r: EventResultRequirement) => {
     const { count, ...resultProps } = r;
     if (objectContains(result, resultProps)) {
-      relevant.push({ ...result, qualifying  });
+      relevant.push({ ...result, qualifying });
       if (getCount(r) >= count) {
         qualifies = true;
       }
     }
-  }
+  };
 
   for (const result of results || []) {
     const ruleDate = getRuleDate(date, ruleDates);
@@ -198,7 +198,8 @@ function checkRequiredResults(date: Date, req?: EventRequirement, results?: Test
       asArray(resultRules).forEach(resultRule => checkResult(result, resultRule));
     }
   }
-  return {relevant, qualifies}
+
+  return { relevant, qualifies };
 }
 
 function getNextClass(c: RegistrationClass): RegistrationClass | undefined {

@@ -36,11 +36,11 @@ export function DogInfo({ reg, eventDate, minDogAgeMonths, error, helperText, on
   const [dogs, setDogs] = useLocalStorage('dogs', '');
   const [regNo, setRegNo] = useState<string>(reg.dog.regNo);
   const [disabled, setDisabled] = useState(true);
-  const allowRefresh = shouldAllowRefresh(reg.dog);
   const [dogHelper, setDogHelper] = useState(reg.dog.refreshDate ? t('since', {date: reg.dog.refreshDate}) : '');
   const [dogHelperError, setDogHelperError] = useState(false);
   const [buttonText, setButtonText] = useState(reg.id ? 'Päivitä' : 'Hae tiedot');
   const [mode, setMode] = useState('fetch');
+  const allowRefresh = shouldAllowRefresh(reg.dog);
   const loadDog = async (value?: string, refresh?: boolean) => {
     setRegNo(value || '');
     if (!value) {
@@ -167,30 +167,76 @@ export function DogInfo({ reg, eventDate, minDogAgeMonths, error, helperText, on
           />
         </Grid>
         <Grid item container spacing={1}>
-          <Grid item>
-            <TextField id="dog_titles" disabled={disabled} sx={{ width: 300 }} label={t('dog.titles')} value={reg.dog.titles || ''} onChange={(e) => onChange({ dog: { ...reg.dog, titles: e.target.value } })}/>
-          </Grid>
-          <Grid item>
-            <TextField id="dog_name" disabled={disabled} sx={{ width: 300 }} label={t('dog.name')} value={reg.dog.name || ''} error={!disabled && !reg.dog.name} onChange={(e) => onChange({ dog: { ...reg.dog, name: e.target.value } })} />
-          </Grid>
+          <TitlesAndName
+            disabled={disabled}
+            id="dog"
+            name={reg.dog.name}
+            nameLabel={t('dog.titles')}
+            onChange={props => onChange({ dog: { ...reg.dog, ...props } })}
+            titles={reg.dog.titles}
+            titlesLabel={t('dog.titles')}
+          />
         </Grid>
         <Grid item container spacing={1}>
-          <Grid item>
-            <TextField id="sire_titles" disabled={disabled} sx={{ width: 300 }} label={t('dog.sire.titles')} value={reg.dog.sire?.titles || ''} onChange={(e) => onChange({ dog: { ...reg.dog, sire: { ...reg.dog.sire, titles: e.target.value } } })} />
-          </Grid>
-          <Grid item>
-            <TextField id="sire_name" disabled={disabled} sx={{ width: 300 }} label={t('dog.sire.name')} value={reg.dog.sire?.name || ''} onChange={(e) => onChange({ dog: { ...reg.dog, sire: { ...reg.dog.sire, name: e.target.value } } }) } />
-          </Grid>
+          <TitlesAndName
+            disabled={disabled}
+            id="sire"
+            name={reg.dog.sire?.name}
+            nameLabel={t('dog.sire.name')}
+            onChange={props => onChange({ dog: { ...reg.dog, sire: { ...reg.dog.sire, ...props } } })}
+            titles={reg.dog.sire?.titles}
+            titlesLabel={t('dog.sire.titles')}
+          />
         </Grid>
         <Grid item container spacing={1}>
-          <Grid item>
-            <TextField id="dam_titles" disabled={disabled} sx={{ width: 300 }} label={t('dog.dam.titles')} value={reg.dog.dam?.titles || ''} onChange={(e) => onChange({ dog: { ...reg.dog, dam: { ...reg.dog.dam, titles: e.target.value } } })} />
-          </Grid>
-          <Grid item>
-            <TextField id="dam_name" disabled={disabled} sx={{ width: 300 }} label={t('dog.dam.name')} value={reg.dog.dam?.name || ''} onChange={(e) => onChange({ dog: { ...reg.dog, dam: { ...reg.dog.dam, name: e.target.value } } }) } />
-          </Grid>
+          <TitlesAndName
+            disabled={disabled}
+            id="dam"
+            name={reg.dog.dam?.name}
+            nameLabel={t('dog.dam.name')}
+            onChange={props => onChange({ dog: { ...reg.dog, dam: { ...reg.dog.dam, ...props } } })}
+            titles={reg.dog.dam?.titles}
+            titlesLabel={t('dog.dam.titles')}
+          />
         </Grid>
       </Grid>
     </CollapsibleSection>
+  );
+}
+
+type TitlesAndNameProps = {
+  disabled: boolean
+  id: string
+  name?: string
+  nameLabel: String
+  onChange: (props: {titles?: string, name?: string}) => void
+  titles?: string
+  titlesLabel: string
+}
+function TitlesAndName(props: TitlesAndNameProps) {
+  return (
+    <Grid item container spacing={1}>
+      <Grid item>
+        <TextField
+          disabled={props.disabled}
+          id={`${props.id}_titles`}
+          label={props.titlesLabel}
+          onChange={(e) => props.onChange({ titles: e.target.value })}
+          sx={{ width: 300 }}
+          value={props.titles || ''}
+        />
+      </Grid>
+      <Grid item>
+        <TextField
+          disabled={props.disabled}
+          error={!props.disabled && !props.name}
+          id={`${props.id}_name`}
+          label={props.nameLabel}
+          onChange={(e) => props.onChange({ name: e.target.value })}
+          sx={{ width: 300 }}
+          value={props.name || ''}
+        />
+      </Grid>
+    </Grid>
   );
 }
