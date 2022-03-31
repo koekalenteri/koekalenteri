@@ -161,7 +161,7 @@ export function DogInfo({ reg, eventDate, minDogAgeMonths, error, helperText, on
             disabled={disabled}
             value={reg.dog.gender || 'F'}
             label={t('dog.gender')}
-            onChange={(e, value) => onChange({ dog: { ...reg.dog, gender: value } })}
+            onChange={(_e, value) => onChange({ dog: { ...reg.dog, gender: value } })}
             options={['F', 'M'] as DogGender[]}
             getOptionLabel={o => t(`dog.gender_choises.${o}`)}
           />

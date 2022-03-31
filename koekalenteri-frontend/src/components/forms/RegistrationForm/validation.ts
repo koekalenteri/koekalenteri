@@ -2,7 +2,7 @@ import { differenceInMonths, startOfYear } from 'date-fns';
 import { BreedCode, ConfirmedEventEx, Dog, Person, Registration, RegistrationBreeder, TestResult } from 'koekalenteri-shared/model';
 import { Validators2, ValidationResult, WideValidationResult } from '../validation';
 
-import { EventClassRequirement, EventRequirement, REQUIREMENTS, RULE_DATES } from './rules';
+import { EventClassRequirement, EventRequirement, EventResultRequirement, EventResultRequirements, REQUIREMENTS, RULE_DATES } from './rules';
 
 function validateBreeder(breeder: RegistrationBreeder) {
   return !breeder.name || !breeder.location;
@@ -165,7 +165,7 @@ function findDisqualifyingResult(results: TestResult[] | undefined, eventType: s
   }
 }
 
-function checkRequiredResults(startDate: Date, req?: EventRequirement, results?: TestResult[], qualifying = true) {
+function checkRequiredResults(date: Date, req?: EventRequirement, results?: TestResult[], qualifying = true) {
   if (!req?.results) {
     return { relevant: [], qualifies: qualifying };
   }
@@ -175,26 +175,33 @@ function checkRequiredResults(startDate: Date, req?: EventRequirement, results?:
   const counts = new Map();
   const ruleDates = Object.keys(req.results) as Array<keyof RULE_DATES>;
 
-  for (const result of results || []) {
-    const ruleDate = getRuleDate(startDate, ruleDates);
-    for (const res of req.results[ruleDate] || []) {
-      for (const r of Array.isArray(res) ? res : [res]) {
-        const { count, ...resultProps } = r;
-        if (objectContains(result, resultProps)) {
-          relevant.push({ ...result, qualifying  });
-          const n = (counts.get(r) || 0) + 1;
-          counts.set(r, n);
-          if (n >= count) {
-            qualifies = true;
-          }
-        }
+  const asArray = (v: EventResultRequirements | EventResultRequirement) => Array.isArray(v) ? v : [v];
+  const getCount = (r: EventResultRequirement) => {
+    const n = (counts.get(r) || 0) + 1;
+    counts.set(r, n);
+    return n;
+  }
+
+  const checkResult = (result: TestResult, r: EventResultRequirement) => {
+    const { count, ...resultProps } = r;
+    if (objectContains(result, resultProps)) {
+      relevant.push({ ...result, qualifying  });
+      if (getCount(r) >= count) {
+        qualifies = true;
       }
+    }
+  }
+
+  for (const result of results || []) {
+    const ruleDate = getRuleDate(date, ruleDates);
+    for (const resultRules of req.results[ruleDate] || []) {
+      asArray(resultRules).forEach(resultRule => checkResult(result, resultRule));
     }
   }
   return {relevant, qualifies}
 }
 
-export function getNextClass(c: RegistrationClass): RegistrationClass | undefined {
+function getNextClass(c: RegistrationClass): RegistrationClass | undefined {
   if (c === 'ALO') {
     return 'AVO';
   }
