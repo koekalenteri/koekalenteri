@@ -2,7 +2,6 @@ import { makeAutoObservable, runInAction } from 'mobx';
 import * as eventApi from '../api/event';
 import * as judgeApi from '../api/judge';
 import * as organizerApi from '../api/organizer';
-import { startOfDay } from 'date-fns';
 import type { EventEx, Judge, Organizer } from 'koekalenteri-shared/model';
 
 export type FilterProps = {
@@ -90,13 +89,12 @@ export class PublicStore {
   }
 
   private _applyFilter() {
-    const today = startOfDay(new Date());
     const filter = this.filter;
 
     this.filteredEvents = this._events.filter(event => {
       return event.state !== 'draft' && !event.deletedAt
         && withinDateFilters(event, filter)
-        && withinSwitchFilters(event, filter, today)
+        && withinSwitchFilters(event, filter)
         && withinArrayFilters(event, filter);
     });
   }
@@ -112,7 +110,7 @@ function withinDateFilters(event: EventEx, { start, end }: FilterProps) {
   return true;
 }
 
-function withinSwitchFilters(event: EventEx, { withOpenEntry, withClosingEntry, withUpcomingEntry, withFreePlaces }: FilterProps, today: Date) {
+function withinSwitchFilters(event: EventEx, { withOpenEntry, withClosingEntry, withUpcomingEntry, withFreePlaces }: FilterProps) {
   let result;
 
   if (withOpenEntry) {

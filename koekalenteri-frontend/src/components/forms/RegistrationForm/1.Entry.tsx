@@ -51,7 +51,7 @@ export function EntryInfo({ reg, event, classDate, errorStates, helperTexts, onC
             error={errorStates.class}
             helperText={helperTexts.class}
             label={t("registration.class")}
-            onChange={(e, value) => { onChange({ class: value || '' }); }}
+            onChange={(_e, value) => { onChange({ class: value || '' }); }}
             options={unique(event.classes.map(c => c.class))}
             value={reg.class}
           />
@@ -61,7 +61,7 @@ export function EntryInfo({ reg, event, classDate, errorStates, helperTexts, onC
             error={errorStates.dates}
             helperText={t("registration.dates_info")}
             label={t("registration.dates")}
-            onChange={(e, value) => onChange({dates: value})}
+            onChange={(_e, value) => onChange({dates: value})}
             isOptionEqualToValue={(o, v) => o.date.valueOf() === v.date.valueOf() && o.time === v.time}
             getOptionLabel={o => t('weekday', { date: o.date }) + (o.time === 'ap' ? ' (aamu)' : ' (ilta)')}
             options={classDates}
@@ -74,7 +74,7 @@ export function EntryInfo({ reg, event, classDate, errorStates, helperTexts, onC
             error={errorStates.reserve}
             helperText={helperTexts.reserve}
             label={t('registration.reserve')}
-            onChange={(e, value) => onChange({ reserve: value || undefined })}
+            onChange={(_e, value) => onChange({ reserve: value || undefined })}
             getOptionLabel={o => o !== '' ? t(`registration.reserve_choises.${o}`) : ''}
             options={['ANY', 'DAY', 'WEEK', 'NO'] as ReserveChoise[]}
             value={reg.reserve}

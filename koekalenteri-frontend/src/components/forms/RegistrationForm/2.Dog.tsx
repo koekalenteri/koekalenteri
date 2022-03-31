@@ -96,8 +96,8 @@ export function DogInfo({ reg, eventDate, minDogAgeMonths, error, helperText, on
           freeSolo
           renderInput={(props) => <TextField {...props} error={!reg.dog.regNo} label={t('dog.regNo')}/>}
           value={regNo}
-          onChange={(e, value) => { loadDog(value || ''); }}
-          onInputChange={(e, value) => setRegNo(value)}
+          onChange={(_e, value) => { loadDog(value || ''); }}
+          onInputChange={(_e, value) => setRegNo(value)}
           options={dogs?.split(',') || []}
           sx={{minWidth: 200}}
         />
@@ -133,7 +133,7 @@ export function DogInfo({ reg, eventDate, minDogAgeMonths, error, helperText, on
             disabled={disabled}
             getOptionLabel={(o) => breed(o)}
             label={t('dog.breed')}
-            onChange={(e, value) => onChange({ dog: { ...reg.dog, breedCode: value || undefined } })}
+            onChange={(_e, value) => onChange({ dog: { ...reg.dog, breedCode: value || undefined } })}
             options={['122', '111', '121', '312', '110', '263'] as BreedCode[]}
             value={reg.dog.breedCode || '122'}
           />

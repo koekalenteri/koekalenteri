@@ -12,7 +12,7 @@ type QualifyingResultsInfoProps = {
   onChange: (props: Partial<Registration>) => void
 }
 
-export function QualifyingResultsInfo({ reg, error, helperText, onChange }: QualifyingResultsInfoProps) {
+export function QualifyingResultsInfo({ reg, error, helperText }: QualifyingResultsInfoProps) {
   const { t } = useTranslation();
 
   return (
