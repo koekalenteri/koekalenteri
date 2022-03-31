@@ -92,6 +92,9 @@ export function DogInfo({ reg, eventDate, minDogAgeMonths, error, helperText, on
           onChange={(_e, value) => loadDog(value?.toUpperCase() || '')}
           onInputChange={(e, value) => {
             value = value.toUpperCase();
+            if (regNo === value) {
+              return;
+            }
             if (e?.nativeEvent instanceof InputEvent && e.nativeEvent.inputType === 'insertFromPaste') {
               loadDog(value);
             } else {
