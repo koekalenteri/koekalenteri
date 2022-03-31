@@ -4,7 +4,6 @@ import { subYears } from 'date-fns';
 import { Registration } from 'koekalenteri-shared/model';
 import { useTranslation } from 'react-i18next';
 import { CollapsibleSection } from '../..';
-import { getNextClass, RegistrationClass } from './validation';
 
 type QualifyingResultsInfoProps = {
   reg: Registration
