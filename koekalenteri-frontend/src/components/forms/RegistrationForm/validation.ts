@@ -106,9 +106,6 @@ export function validateDog(event: {eventType: string, startDate: Date}, dog: Do
   if (event.eventType && !filterRelevantResults(event, regClass as RegistrationClass, dog.results).qualifies) {
     return 'dog_results';
   }
-  if (!dog.sire?.name || !dog.dam?.name) {
-    return 'required';
-  }
   return false;
 }
 
@@ -128,83 +125,76 @@ function validateDogBreed(event: {eventType: string}, dog: {breedCode?: BreedCod
   }
 }
 
-export function filterRelevantResults({eventType, startDate}: {eventType: string, startDate: Date}, eventClass: RegistrationClass, results?: TestResult[]) {
+const byDate = (a: TestResult, b: TestResult) => new Date(a.date).valueOf() - new Date(b.date).valueOf();
+
+export function filterRelevantResults({ eventType, startDate }: { eventType: string, startDate: Date }, regClass: RegistrationClass, results?: TestResult[]) {
   const requirements = REQUIREMENTS[eventType] || {};
-  const classRules = eventClass && (requirements as EventClassRequirement)[eventClass];
-  const nextClass = getNextClass(eventClass);
+  const classRules = regClass && (requirements as EventClassRequirement)[regClass];
+  const nextClass = getNextClass(regClass);
   const nextClassRules = classRules && nextClass && (requirements as EventClassRequirement)[nextClass];
   const rules = classRules || (requirements as EventRequirement);
 
-  const relevant = [];
-  const counts = new Map();
-  let qualifies = false;
+  const test = findDisqualifyingResult(results, eventType, nextClass);
+  if (test) {
+    return test;
+  }
 
-  if (eventType === 'NOU' && results) {
-    qualifies = true;
-    for (const result of results) {
-      if (result.result === 'NOU1') {
-        relevant.push(result);
-        qualifies = false;
+  const check = checkRequiredResults(startDate, rules, results);
+  if (check.qualifies && check.relevant.length) {
+    const resultsExcludingThisYear = results?.filter(r => !excludeByYear(r, startDate));
+    const dis = checkRequiredResults(startDate, nextClassRules, resultsExcludingThisYear, false);
+    if (dis.qualifies) {
+      return {
+        relevant: check.relevant.concat(dis.relevant).sort(byDate),
+        qualifies: false
+      };
+    } else {
+      const bestResult = results?.filter(r => r.type === eventType && r.class === regClass).slice(0, 3);
+      if (bestResult) {
+        check.relevant.push(...bestResult);
       }
     }
   }
-
-  if (results && rules.results) {
-    const ruleDates = Object.keys(rules.results) as Array<keyof RULE_DATES>;
-    for (const result of results) {
-      const ruleDate = getRuleDate(startDate, ruleDates);
-      for (const res of rules.results[ruleDate] || []) {
-        for (const r of Array.isArray(res) ? res : [res]) {
-          const { count, ...resultProps } = r;
-          if (objectContains(result, resultProps)) {
-            relevant.push(result);
-            const n = (counts.get(r) || 0) + 1;
-            counts.set(r, n);
-            if (n >= count) {
-              qualifies = true;
-            }
-          }
-        }
-      }
-    }
-    if (nextClass) {
-      for (const result of results) {
-        if (result.class === nextClass) {
-          relevant.push(result);
-          qualifies = false;
-        }
-      }
-      if (nextClassRules && nextClassRules.results) {
-        const nextRuleDates = Object.keys(nextClassRules.results) as Array<keyof RULE_DATES>;
-        for (const result of results) {
-          if (excludeByYear(result, startDate)) {
-            continue;
-          }
-          const ruleDate = getRuleDate(startDate, nextRuleDates);
-          for (const res of nextClassRules.results[ruleDate] || []) {
-            for (const r of Array.isArray(res) ? res : [res]) {
-              const { count, ...resultProps } = r;
-              if (objectContains(result, resultProps)) {
-                relevant.push(result);
-                const n = (counts.get(r) || 0) + 1;
-                counts.set(r, n);
-                if (n >= count) {
-                  qualifies = false;
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-
-  relevant.sort((a, b) => new Date(a.date).valueOf() - new Date(b.date).valueOf());
-
-  return { relevant, qualifies };
+  return check;
 }
 
-function getNextClass(c: RegistrationClass): RegistrationClass | undefined {
+function findDisqualifyingResult(results: TestResult[] | undefined, eventType: string, nextClass?: RegistrationClass) {
+  const result = results?.find(r => r.type === eventType && (r.class === nextClass || r.result === 'NOU1'));
+  if (result) {
+    return { relevant: [{ ...result, qualifying: false }], qualifies: false };
+  }
+}
+
+function checkRequiredResults(startDate: Date, req?: EventRequirement, results?: TestResult[], qualifying = true) {
+  if (!req?.results) {
+    return { relevant: [], qualifies: qualifying };
+  }
+
+  const relevant: Array<TestResult & {qualifying?: boolean}> = [];
+  let qualifies = false;
+  const counts = new Map();
+  const ruleDates = Object.keys(req.results) as Array<keyof RULE_DATES>;
+
+  for (const result of results || []) {
+    const ruleDate = getRuleDate(startDate, ruleDates);
+    for (const res of req.results[ruleDate] || []) {
+      for (const r of Array.isArray(res) ? res : [res]) {
+        const { count, ...resultProps } = r;
+        if (objectContains(result, resultProps)) {
+          relevant.push({ ...result, qualifying  });
+          const n = (counts.get(r) || 0) + 1;
+          counts.set(r, n);
+          if (n >= count) {
+            qualifies = true;
+          }
+        }
+      }
+    }
+  }
+  return {relevant, qualifies}
+}
+
+export function getNextClass(c: RegistrationClass): RegistrationClass | undefined {
   if (c === 'ALO') {
     return 'AVO';
   }

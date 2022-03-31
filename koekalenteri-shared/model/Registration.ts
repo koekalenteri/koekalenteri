@@ -18,7 +18,8 @@ export type JsonRegistration = JsonDbRecord & {
   reserve: ReserveChoise | ''
 }
 
-export type Registration = DbRecord & Replace<Replace<Replace<Omit<JsonRegistration, keyof JsonDbRecord>, 'dates', RegistrationDate[]>, 'dog', Dog>, 'qualifyingResults', TestResult[]>
+export type QualifyingResult = TestResult & { qualifying?: boolean };
+export type Registration = DbRecord & Replace<Replace<Replace<Omit<JsonRegistration, keyof JsonDbRecord>, 'dates', RegistrationDate[]>, 'dog', Dog>, 'qualifyingResults', QualifyingResult[]>
 
 export type JsonRegistrationDate = {
   date: string
