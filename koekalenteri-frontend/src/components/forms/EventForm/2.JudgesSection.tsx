@@ -42,7 +42,7 @@ export function JudgesSection({ event, judges, fields, onChange }: { event: Part
                   label={title}
                   getOptionLabel={o => o?.name || ''}
                   options={filterJudges(judges, event.judges, id)}
-                  onChange={(e, value) => {
+                  onChange={(_e, value) => {
                     const newId = value?.id;
                     const newJudges = [...event.judges];
                     const oldId = newJudges.splice(index, 1)[0]
@@ -63,7 +63,7 @@ export function JudgesSection({ event, judges, fields, onChange }: { event: Part
                   value={event.classes.filter(c => c.judge && c.judge.id === id)}
                   classes={[...event.classes]}
                   label="Arvostelee koeluokat"
-                  onChange={(e, values) => onChange({
+                  onChange={(_e, values) => onChange({
                     classes: updateJudge(id, values)
                   })}
                 />

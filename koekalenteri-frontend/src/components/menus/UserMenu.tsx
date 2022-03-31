@@ -43,7 +43,7 @@ function LoggedInUserMenu() {
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
-  const handleClose = (...args: any[]) => {
+  const handleClose = () => {
     setAnchorEl(null);
   };
 

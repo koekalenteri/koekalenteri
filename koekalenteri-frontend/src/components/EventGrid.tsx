@@ -95,7 +95,7 @@ export const EventGrid = observer(({ events }: { events: Partial<EventEx>[] }) =
           privateStore.setSelectedEvent(events.find(e => e.id === id));
         }}
         selectionModel={privateStore.selectedEvent && privateStore.selectedEvent.id ? [privateStore.selectedEvent.id] : []}
-        onRowDoubleClick={(params) => naviage(`${ADMIN_EDIT_EVENT}/${privateStore.selectedEvent?.id}`)}
+        onRowDoubleClick={() => naviage(`${ADMIN_EDIT_EVENT}/${privateStore.selectedEvent?.id}`)}
         sx={{
           '& .MuiDataGrid-columnHeaders': {
             backgroundColor: 'background.tableHead'
