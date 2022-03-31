@@ -9,6 +9,7 @@ import { AutocompleteSingle, CollapsibleSection } from '../..';
 import { getDog } from '../../../api/dog';
 import { useLocalStorage } from '../../../stores';
 import { unique } from '../../../utils';
+import { validateRegNo } from './validation';
 
 export function shouldAllowRefresh(dog?: Partial<Dog>) {
   if (!dog || !dog.regNo) {
@@ -35,76 +36,77 @@ export function DogInfo({ reg, eventDate, minDogAgeMonths, error, helperText, on
   const [loading, setLoading] = useState(false);
   const [dogs, setDogs] = useLocalStorage('dogs', '');
   const [regNo, setRegNo] = useState<string>(reg.dog.regNo);
-  const [disabled, setDisabled] = useState(true);
-  const [dogHelper, setDogHelper] = useState(reg.dog.refreshDate ? t('since', {date: reg.dog.refreshDate}) : '');
-  const [dogHelperError, setDogHelperError] = useState(false);
-  const [buttonText, setButtonText] = useState(reg.id ? 'Päivitä' : 'Hae tiedot');
-  const [mode, setMode] = useState('fetch');
+  const [mode, setMode] = useState<'fetch' | 'manual' | 'update' | 'invalid' | 'notfound'>('fetch');
   const allowRefresh = shouldAllowRefresh(reg.dog);
-  const loadDog = async (value?: string, refresh?: boolean) => {
-    setRegNo(value || '');
-    if (!value) {
+  const disabled = mode !== 'manual';
+  const validRegNo = validateRegNo(regNo);
+  const loadDog = async (value: string, refresh?: boolean) => {
+    setRegNo(value);
+    if (!value || !validateRegNo(value)) {
       return;
     }
-    value = value.toUpperCase();
-    console.log(value);
     setLoading(true);
     const lookup = await getDog(value, refresh);
-    setLoading(false);
-    setDisabled(true);
     const storedDogs = dogs?.split(',') || [];
+    setLoading(false);
     if (lookup && lookup.regNo) {
       storedDogs.push(lookup.regNo);
-      setDogs(unique(storedDogs).filter(v => v !== '').join(','));
-      setDogHelper(t('since', {date: lookup.refreshDate}));
-      setDogHelperError(false);
+      setDogs(unique(storedDogs).join(','));
       setRegNo(lookup.regNo);
-      setButtonText('Päivitä');
       onChange({ dog: { ...reg.dog, ...lookup } });
+      setMode('update');
     } else {
-      setDogHelper('Rekisterinumerolla ei löytynyt tietoja');
-      setDogHelperError(true);
-      setButtonText('Syötä tiedot käsin');
       if (storedDogs.includes(value)) {
         setDogs(storedDogs.filter(v => v !== value).join(','));
       }
-      onChange({ dog: { regNo: value, dob: new Date(), results: [] } });
+      setMode('notfound');
+      onChange({ dog: { regNo: value, name: '', dob: new Date(), results: [] } });
     }
   };
   const buttonClick = () => {
-    if (mode === 'fetch') {
-      if (dogHelperError) {
+    switch (mode) {
+      case 'fetch':
+        loadDog(regNo);
+        break;
+      case 'update':
+        loadDog(regNo, true);
+        break;
+      case 'notfound':
         setMode('manual');
-        setDogHelperError(false);
-        setDogHelper('Syötä tiedot käsin');
-        setButtonText('Tee uusi haku rekisterinumerolla');
-        setDisabled(false);
-      } else {
-        loadDog(regNo, allowRefresh);
-      }
-    } else {
-      setMode('fetch');
-      setButtonText('Hae tiedot');
+        break;
+      default:
+        setMode('fetch');
+        break;
     }
   }
+
   return (
     <CollapsibleSection title={t('registration.dog')} error={error} helperText={helperText}>
       <Stack direction="row" spacing={1} alignItems="flex-end">
         <Autocomplete
           id="txtReknro"
-          disabled={mode === 'manual'}
+          disabled={!disabled}
           freeSolo
           renderInput={(props) => <TextField {...props} error={!reg.dog.regNo} label={t('dog.regNo')}/>}
           value={regNo}
-          onChange={(_e, value) => { loadDog(value || ''); }}
-          onInputChange={(_e, value) => setRegNo(value)}
+          onChange={(_e, value) => loadDog(value?.toUpperCase() || '')}
+          onInputChange={(e, value) => {
+            value = value.toUpperCase();
+            if (e?.nativeEvent instanceof InputEvent && e.nativeEvent.inputType === 'insertFromPaste') {
+              loadDog(value);
+            } else {
+              setRegNo(value);
+              onChange({ dog: { regNo: value, name: '', dob: new Date(), results: [] } });
+              setMode(validateRegNo(value) ? 'fetch' : 'invalid');
+            }
+          }}
           options={dogs?.split(',') || []}
           sx={{minWidth: 200}}
         />
         <Stack alignItems="flex-start">
-          <FormHelperText error={dogHelperError}>{dogHelper}</FormHelperText>
+          <FormHelperText error={mode === 'notfound' || mode === 'invalid'}>{t(`registration.cta.helper.${mode}`, {date: reg.dog.refreshDate})}</FormHelperText>
           <LoadingButton
-            disabled={regNo === '' || (mode === 'fetch' && (regNo === reg.dog.regNo && !allowRefresh) && !dogHelperError)}
+            disabled={!validRegNo || (mode === 'update' && !allowRefresh)}
             startIcon={<CachedOutlined />}
             size="small"
             loading={loading}
@@ -112,7 +114,7 @@ export function DogInfo({ reg, eventDate, minDogAgeMonths, error, helperText, on
             color="info"
             onClick={buttonClick}
           >
-            {buttonText}
+            {t(`registration.cta.${mode}`)}
           </LoadingButton>
         </Stack>
       </Stack>
@@ -171,7 +173,7 @@ export function DogInfo({ reg, eventDate, minDogAgeMonths, error, helperText, on
             disabled={disabled}
             id="dog"
             name={reg.dog.name}
-            nameLabel={t('dog.titles')}
+            nameLabel={t('dog.name')}
             onChange={props => onChange({ dog: { ...reg.dog, ...props } })}
             titles={reg.dog.titles}
             titlesLabel={t('dog.titles')}
@@ -208,7 +210,7 @@ type TitlesAndNameProps = {
   disabled: boolean
   id: string
   name?: string
-  nameLabel: String
+  nameLabel: string
   onChange: (props: {titles?: string, name?: string}) => void
   titles?: string
   titlesLabel: string

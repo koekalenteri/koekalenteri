@@ -3,6 +3,7 @@ import { validateDog } from './validation';
 
 const testDog = {
   regNo: 'test-123',
+  rfid: 'test-id',
   name: 'Test Dog',
   dob: new Date('2018-03-28'),
   results: [],
@@ -11,6 +12,24 @@ const testDog = {
 };
 
 describe('validateDog', function() {
+  it('Should validate registration number', function() {
+    const testEvent = { eventType: 'NOU', startDate: new Date('2020-10-15') };
+    expect(validateDog(testEvent, testDog)).toEqual(false);
+    expect(validateDog(testEvent, { ...testDog, regNo: '' })).toEqual('required');
+  });
+
+  it('Should validate identification number', function() {
+    const testEvent = { eventType: 'NOU', startDate: new Date('2020-10-15') };
+    expect(validateDog(testEvent, testDog)).toEqual(false);
+    expect(validateDog(testEvent, { ...testDog, rfid: '' })).toEqual('required');
+  });
+
+  it('Should validate name', function() {
+    const testEvent = { eventType: 'NOU', startDate: new Date('2020-10-15') };
+    expect(validateDog(testEvent, testDog)).toEqual(false);
+    expect(validateDog(testEvent, { ...testDog, name: '' })).toEqual('required');
+  });
+
   it('Should validate dog breed', function() {
     const valid: Array<BreedCode> = ['110', '111', '121', '122', '263', '312'];
     const testEvent = { eventType: 'NOU', startDate: new Date('2020-10-15') };
@@ -21,17 +40,17 @@ describe('validateDog', function() {
     const invalid: Array<BreedCode> = ['1', '13', '148.1P'];
     for (const test of invalid) {
       expect(validateDog(testEvent, { ...testDog, breedCode: test }))
-        .toEqual({ key: 'dog_breed', opts: { field: 'dog', type: test.replace('.', '-') } });
+        .toEqual({ key: 'dogBreed', opts: { field: 'dog', type: test.replace('.', '-') } });
     }
   });
 
   it('Should validate dog age', function() {
     const cases = [{
       dob: '2021-01-01',
-      result: { key: 'dog_age', opts: { field: 'dog', length: 9 } }
+      result: { key: 'dogAge', opts: { field: 'dog', length: 9 } }
     }, {
       dob: '2020-01-16',
-      result: { key: 'dog_age', opts: { field: 'dog', length: 9 } }
+      result: { key: 'dogAge', opts: { field: 'dog', length: 9 } }
     }, {
       dob: '2020-01-15',
       result: false
@@ -67,7 +86,7 @@ describe('validateDog', function() {
         const testEvent = { eventType: 'NOME-B', startDate: new Date('2022-08-01') };
         const NOU0 = { type: 'NOU', result: 'NOU0', class: '', date: new Date('2022-05-30'), location: 'Test', judge: 'Test Judge' };
         expect(validateDog(testEvent, { ...testDog, results: [NOU0] }, 'ALO'))
-          .toEqual('dog_results');
+          .toEqual('dogResults');
       });
 
       it('Should allow a dog with 2xALO1 the same year 2016..2022', function() {
@@ -85,7 +104,7 @@ describe('validateDog', function() {
         const ALO1_1 = { type: 'NOME-B', result: 'ALO1', class: 'ALO', date: new Date('2016-05-30'), location: 'Test', judge: 'Test Judge' };
         const ALO1_2 = { type: 'NOME-B', result: 'ALO1', class: 'ALO', date: new Date('2018-06-15'), location: 'Test', judge: 'Test Judge' };
         expect(validateDog(testEvent, { ...testDog, results: [NOU1, ALO1_1, ALO1_2] }, 'ALO'))
-          .toEqual('dog_results');
+          .toEqual('dogResults');
       });
 
       it('Should reject a dog with any AVO result', function() {
@@ -93,7 +112,7 @@ describe('validateDog', function() {
         const NOU1 = { type: 'NOU', result: 'NOU1', class: '', date: new Date('2022-05-30'), location: 'Test', judge: 'Test Judge' };
         const AVO2 = { type: 'NOME-B', result: 'AVO2', class: 'AVO', date: new Date('2016-05-30'), location: 'Test', judge: 'Test Judge' };
         expect(validateDog(testEvent, { ...testDog, results: [NOU1, AVO2] }, 'ALO'))
-          .toEqual('dog_results');
+          .toEqual('dogResults');
       });
     });
 
@@ -111,7 +130,7 @@ describe('validateDog', function() {
         const ALO2 = { type: 'NOME-B', result: 'ALO2', class: 'ALO', date: new Date('2016-05-30'), location: 'Test', judge: 'Test Judge' };
         const ALO1 = { type: 'NOME-B', result: 'ALO1', class: 'ALO', date: new Date('2016-06-15'), location: 'Test', judge: 'Test Judge' };
         expect(validateDog(testEvent, { ...testDog, results: [ALO2, ALO1] }, 'AVO'))
-          .toEqual('dog_results');
+          .toEqual('dogResults');
       });
 
       it('Should allow a dog with 2xAVO1 the same year 2016..2022', function() {
@@ -131,7 +150,7 @@ describe('validateDog', function() {
         const AVO1_1 = { type: 'NOME-B', result: 'AVO1', class: 'AVO', date: new Date('2017-05-30'), location: 'Test', judge: 'Test Judge' };
         const AVO1_2 = { type: 'NOME-B', result: 'AVO1', class: 'AVO', date: new Date('2018-06-15'), location: 'Test', judge: 'Test Judge' };
         expect(validateDog(testEvent, { ...testDog, results: [ALO1_1, ALO1_2, AVO1_1, AVO1_2] }, 'AVO'))
-          .toEqual('dog_results');
+          .toEqual('dogResults');
       });
 
       it('Should reject a dog with any VOI result', function() {
@@ -140,7 +159,7 @@ describe('validateDog', function() {
         const ALO1_2 = { type: 'NOME-B', result: 'ALO1', class: 'ALO', date: new Date('2017-06-15'), location: 'Test', judge: 'Test Judge' };
         const VOI = { type: 'NOME-B', result: 'VOI-', class: 'VOI', date: new Date('2016-05-30'), location: 'Test', judge: 'Test Judge' };
         expect(validateDog(testEvent, { ...testDog, results: [ALO1_1, ALO1_2, VOI] }, 'AVO'))
-          .toEqual('dog_results');
+          .toEqual('dogResults');
       });
 
       it('Should allow a dog with 1xALO1 2009..2015', function() {
@@ -172,7 +191,7 @@ describe('validateDog', function() {
         const AVO2 = { type: 'NOME-B', result: 'AVO2', class: 'AVO', date: new Date('2016-05-30'), location: 'Test', judge: 'Test Judge' };
         const AVO1 = { type: 'NOME-B', result: 'AVO1', class: 'AVO', date: new Date('2016-06-15'), location: 'Test', judge: 'Test Judge' };
         expect(validateDog(testEvent, { ...testDog, results: [AVO2, AVO1] }, 'VOI'))
-          .toEqual('dog_results');
+          .toEqual('dogResults');
       });
 
       it('Should allow a dog with 1xAVO1 2006..2008', function() {
@@ -196,7 +215,7 @@ describe('validateDog', function() {
         const testEvent = { eventType: 'NOWT', startDate: new Date('2022-08-01') };
         const NOU0 = { type: 'NOU', result: 'NOU0', class: '', date: new Date('2022-05-30'), location: 'Test', judge: 'Test Judge' };
         expect(validateDog(testEvent, { ...testDog, results: [NOU0] }, 'ALO'))
-          .toEqual('dog_results');
+          .toEqual('dogResults');
       });
 
       it('Should allow a dog with ALO1 the same year 2016..2022', function() {
@@ -212,7 +231,7 @@ describe('validateDog', function() {
         const NOU1 = { type: 'NOU', result: 'NOU1', class: '', date: new Date('2022-05-30'), location: 'Test', judge: 'Test Judge' };
         const ALO1 = { type: 'NOWT', result: 'ALO1', class: 'ALO', date: new Date('2018-06-15'), location: 'Test', judge: 'Test Judge' };
         expect(validateDog(testEvent, { ...testDog, results: [NOU1, ALO1] }, 'ALO'))
-          .toEqual('dog_results');
+          .toEqual('dogResults');
       });
 
       it('Should reject a dog with any AVO result', function() {
@@ -220,7 +239,7 @@ describe('validateDog', function() {
         const NOU1 = { type: 'NOU', result: 'NOU1', class: '', date: new Date('2022-05-30'), location: 'Test', judge: 'Test Judge' };
         const AVO0 = { type: 'NOWT', result: 'AVO0', class: 'AVO', date: new Date('2016-05-30'), location: 'Test', judge: 'Test Judge' };
         expect(validateDog(testEvent, { ...testDog, results: [NOU1, AVO0] }, 'ALO'))
-          .toEqual('dog_results');
+          .toEqual('dogResults');
       });
     });
 
@@ -237,7 +256,7 @@ describe('validateDog', function() {
         const testEvent = { eventType: 'NOWT', startDate: new Date('2022-08-01') };
         const ALO2 = { type: 'NOWT', result: 'ALO2', class: 'ALO', date: new Date('2016-05-30'), location: 'Test', judge: 'Test Judge' };
         expect(validateDog(testEvent, { ...testDog, results: [ALO2] }, 'AVO'))
-          .toEqual('dog_results');
+          .toEqual('dogResults');
       });
 
       it('Should allow a dog with AVO1 the same year', function() {
@@ -253,7 +272,7 @@ describe('validateDog', function() {
         const ALO1 = { type: 'NOWT', result: 'ALO1', class: 'ALO', date: new Date('2016-05-30'), location: 'Test', judge: 'Test Judge' };
         const AVO1 = { type: 'NOWT', result: 'AVO1', class: 'AVO', date: new Date('2018-07-30'), location: 'Test', judge: 'Test Judge' };
         expect(validateDog(testEvent, { ...testDog, results: [ALO1, AVO1] }, 'AVO'))
-          .toEqual('dog_results');
+          .toEqual('dogResults');
       });
 
       it('Should reject a dog with any VOI result', function() {
@@ -261,7 +280,7 @@ describe('validateDog', function() {
         const ALO1 = { type: 'NOWT', result: 'ALO1', class: 'ALO', date: new Date('2016-05-30'), location: 'Test', judge: 'Test Judge' };
         const VOI = { type: 'NOWT', result: 'VOI-', class: 'VOI', date: new Date('2016-05-30'), location: 'Test', judge: 'Test Judge' };
         expect(validateDog(testEvent, { ...testDog, results: [ALO1, VOI] }, 'AVO'))
-          .toEqual('dog_results');
+          .toEqual('dogResults');
       });
     });
 
@@ -277,7 +296,7 @@ describe('validateDog', function() {
         const testEvent = { eventType: 'NOWT', startDate: new Date('2022-08-01') };
         const AVO2 = { type: 'NOWT', result: 'AVO2', class: 'AVO', date: new Date('2016-05-30'), location: 'Test', judge: 'Test Judge' };
         expect(validateDog(testEvent, { ...testDog, results: [AVO2] }, 'VOI'))
-          .toEqual('dog_results');
+          .toEqual('dogResults');
       });
     });
 
@@ -323,7 +342,7 @@ describe('validateDog', function() {
         const RES1 = { type: 'NOME-B', result: 'VOI1', class: 'VOI', date: new Date('2016-05-30'), location: 'Test', judge: 'Test Judge' };
         const RES2 = { type: 'NOWT', result: 'VOI1', cert: true, class: 'VOI', date: new Date('2016-06-15'), location: 'Test', judge: 'Test Judge' };
         expect(validateDog(testEvent, { ...testDog, results: [RES1, RES2] }))
-          .toEqual('dog_results');
+          .toEqual('dogResults');
       });
 
       it('Should reject a dog with only 1x CERT from NOWT', function() {
@@ -331,7 +350,7 @@ describe('validateDog', function() {
         const VOI1_1 = { type: 'NOWT', result: 'VOI1', cert: false, class: 'VOI', date: new Date('2016-05-30'), location: 'Test', judge: 'Test Judge' };
         const VOI1_2 = { type: 'NOWT', result: 'VOI1', cert: true, class: 'VOI', date: new Date('2016-06-15'), location: 'Test', judge: 'Test Judge' };
         expect(validateDog(testEvent, { ...testDog, results: [VOI1_1, VOI1_2] }))
-          .toEqual('dog_results');
+          .toEqual('dogResults');
       });
     });
   });

@@ -28,7 +28,7 @@ export function LanguageMenu() {
   return (
     <>
       <AppBarButton onClick={handleClick} startIcon={<LanguageIcon />} endIcon={<ExpandMore />}>
-        {t(`locale_${language as Language}`)}
+        {t(`locale.${language as Language}`)}
       </AppBarButton>
       <Menu
         anchorEl={anchorEl}
@@ -42,7 +42,7 @@ export function LanguageMenu() {
             selected={language === locale}
             onClick={() => setLanguage(locale)}
           >
-            {t(`locale_${locale as Language}`)}
+            {t(`locale.${locale as Language}`)}
           </MenuItem>
         ))}
       </Menu>

@@ -101,15 +101,17 @@
   "goHome": "Etusivulle",
   "headquarters": "Keskuspaikan tiedot",
   "id": "Tunnus",
-  "judge_chief": "Ylituomari",
+  "judgeChief": "Ylituomari",
   "judge": "Tuomari",
   "judges": "Tuomarit",
-  "locale_en": "In English",
-  "locale_fi": "Suomeksi",
+  "locale": {
+    "en": "In English",
+    "fi": "Suomeksi"
+  },
   "login": "Kirjaudu",
-  "login_failed": "Kirjautuminen epäonnistui",
+  "loginFailed": "Kirjautuminen epäonnistui",
   "logout": "Kirjaudu ulos",
-  "logout_failed": "Uloskirjautuminen epäonnistui",
+  "logoutFailed": "Uloskirjautuminen epäonnistui",
   "members_one": "({{count}} jäsen)",
   "members_other": "({{count}} jäsentä)",
   "name": "Nimi",
@@ -131,8 +133,22 @@
       "phone": "Puhelin"
     },
     "createdAt": "Ilmoittautumisaika",
-    "dates": "",
-    "dates_info": "Valitse sinulle sopivat ajankohdat kokeeseen osallistumiselle.",
+    "cta": {
+      "fetch": "Hae tiedot",
+      "helper": {
+        "fetch": "",
+        "invalid": "Virheellinen rekisterinumero",
+        "manual": "Syötä koiran tiedot manuaalisesti",
+        "notfound": "Rekisterinumerolla ei löytynyt tietoja",
+        "update": "Koiran perustiedot ja koetulokset on haettu Kennelliiton rajapinnasta {{date, distance}} sitten."
+      },
+      "invalid": "Hae tiedot",
+      "manual": "Tee uusi haku rekisterinumerolla",
+      "notfound": "Syötä koiran tiedot manuaalisesti",
+      "update": "Päivitä"
+    },
+    "dates": "Ajankohdat",
+    "datesInfo": "Valitse sinulle sopivat ajankohdat kokeeseen osallistumiselle.",
     "dog": "Koiran tiedot",
     "handler": "Ohjaajan tiedot",
     "handlerIsMember": "Ohjaaja on järjestävän yhdistyksen jäsen",
@@ -147,7 +163,7 @@
     "qyalifyingResultsYes": "on oikeus",
     "qualifyingResultsNo": "ei ole oikeutta",
     "reserve": "Varasija",
-    "reserve_choises": {
+    "reserveChoises": {
       "ANY": "Osallistun",
       "DAY": "Osallistun, päivän varoitusajalla",
       "WEEK": "Osallistun, viikon varoitusajalla",
@@ -163,7 +179,6 @@
     }
   },
   "registrations": "Ilmoittautumiset",
-  "since": "Koiran perustiedot ja koetulokset on haettu Kennelliiton rajapinnasta {{date, distance}} sitten.",
   "testResult": {
     "date": "Aika",
     "eventType": "Koemuoto",
@@ -175,20 +190,20 @@
   "users": "Käyttäjät",
   "validation": {
     "event": {
-      "classes_required": "Koeluokat on vaadittu tieto \"$t(event.states.{{state}})\" -tilassa olevalle {{type}}-tapahtumalle",
-      "classes_judge": "Tila \"$t(event.states.{{state}})\": {{list}} $t(validation.event.classes_missing, {\"count\": {{length}} }) puuttuu tuomari.",
-      "classes_missing_one": "koeluokalta",
-      "classes_missing_other": "koeluokilta",
-      "contactInfo_required": "Tila \"$t(event.states.{{state}})\": Valitse vähintään yksi yhteystieto",
-      "costMember_high": "Jäsenten koemaksu ei saa olla muiden koemaksua suurempi",
-      "places_class": "Tila \"$t(event.states.{{state}})\": {{list}} $t(validation.event.classes_missing, {\"count\": {{length}} }) puuttuu koepaikat.",
+      "classes": "Koeluokat on vaadittu tieto \"$t(event.states.{{state}})\" -tilassa olevalle {{type}}-tapahtumalle",
+      "classesJudge": "Tila \"$t(event.states.{{state}})\": {{list}} $t(validation.event.classesMissing, {\"count\": {{length}} }) puuttuu tuomari.",
+      "classesMissing_one": "koeluokalta",
+      "classesMissing_other": "koeluokilta",
+      "contactInfo": "Tila \"$t(event.states.{{state}})\": Valitse vähintään yksi yhteystieto",
+      "costMemberHigh": "Jäsenten koemaksu ei saa olla muiden koemaksua suurempi",
+      "placesClass": "Tila \"$t(event.states.{{state}})\": {{list}} $t(validation.event.classesMissing, {\"count\": {{length}} }) puuttuu koepaikat.",
       "validationError": "Tila \"$t(event.states.{{state}})\": $t(event.{{field}}) on vaadittu tieto."
     },
     "registration": {
       "choose": "Valitse $t(registration.{{field}})",
-      "dog_age": "Koiran tulee olla vähintään {{length}} kuukautta vanha koepäivänä.",
-      "dog_breed": "Rodulla \"$t(breed.{{type}})\" ei ole osallistumisoikeutta kokeeseen.",
-      "dog_results": "Tulosten perusteella koiralla ei ole oikeutta osallistua valittuun koeluokkaan.",
+      "dogAge": "Koiran tulee olla vähintään {{length}} kuukautta vanha koepäivänä.",
+      "dogBreed": "Rodulla \"$t(breed.{{type}})\" ei ole osallistumisoikeutta kokeeseen.",
+      "dogResults": "Tulosten perusteella koiralla ei ole oikeutta osallistua valittuun koeluokkaan.",
       "reserve": "Valitse osallistutko varasijalta",
       "required": "$t(registration.{{field}}) ovat puutteelliset",
       "terms": "Ehtojen hyväksyminen on pakollista"

@@ -58,7 +58,7 @@ const VALIDATORS: Validators<PartialEvent, 'event'> = {
   classes: (event, required) => {
     const classes = event.classes;
     if ((!classes || !classes.length) && required) {
-      return 'classes_required';
+      return 'classes';
     }
     const list: string[] = [];
     for (const c of classes) {
@@ -66,12 +66,12 @@ const VALIDATORS: Validators<PartialEvent, 'event'> = {
         list.push(c.class);
       }
     }
-    return list.length ? { key: 'classes_judge', opts: { field: 'classes', list, length: list.length }} : false;
+    return list.length ? { key: 'classesJudge', opts: { field: 'classes', list, length: list.length }} : false;
   },
   contactInfo: (event, required) => {
     const contactInfo = event.contactInfo;
     if (required && !contactInfoShown(contactInfo?.official) && !contactInfoShown(contactInfo?.secretary)) {
-      return 'contactInfo_required';
+      return 'contactInfo';
     }
     return false;
   },
@@ -79,7 +79,7 @@ const VALIDATORS: Validators<PartialEvent, 'event'> = {
   costMember: (event) => {
     const cost = event.cost || 0;
     if (event.costMember && cost < event.costMember) {
-      return 'costMember_high';
+      return 'costMemberHigh';
     }
     return false;
   },
@@ -96,7 +96,7 @@ const VALIDATORS: Validators<PartialEvent, 'event'> = {
         }
       }
     }
-    return list.length ? { key: 'places_class', opts: { field: 'places', list, length: list.length }} : false;
+    return list.length ? { key: 'placesClass', opts: { field: 'places', list, length: list.length }} : false;
   }
 }
 

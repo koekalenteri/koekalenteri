@@ -33,7 +33,7 @@ export function EntryInfo({ reg, event, classDate, errorStates, helperTexts, onC
   const classDates: RegistrationDate[] = getClassDates(event, classDate, reg.class).flatMap((date) => [{ date, time: 'ap' }, { date, time: 'ip' }]);
   const error = errorStates.class || errorStates.dates || errorStates.reserve;
   const datesText = reg.dates.map(o => t('weekday', { date: o.date }) + (o.time === 'ap' ? ' (aamu)' : ' (ilta)')).join(' / ');
-  const reserveText = reg.reserve ? t(`registration.reserve_choises.${reg.reserve}`) : '';
+  const reserveText = reg.reserve ? t(`registration.reserveChoises.${reg.reserve}`) : '';
   const infoText = `${reg.class || reg.eventType}, ${datesText}, ${reserveText}`;
   const helperText = error ? t('validation.registration.required', { field: 'classesDetails' }) : infoText;
 
@@ -59,7 +59,7 @@ export function EntryInfo({ reg, event, classDate, errorStates, helperTexts, onC
         <Grid item>
           <AutocompleteMulti
             error={errorStates.dates}
-            helperText={t("registration.dates_info")}
+            helperText={t("registration.datesInfo")}
             label={t("registration.dates")}
             onChange={(_e, value) => onChange({dates: value})}
             isOptionEqualToValue={(o, v) => o.date.valueOf() === v.date.valueOf() && o.time === v.time}
@@ -75,7 +75,7 @@ export function EntryInfo({ reg, event, classDate, errorStates, helperTexts, onC
             helperText={helperTexts.reserve}
             label={t('registration.reserve')}
             onChange={(_e, value) => onChange({ reserve: value || undefined })}
-            getOptionLabel={o => o !== '' ? t(`registration.reserve_choises.${o}`) : ''}
+            getOptionLabel={o => o !== '' ? t(`registration.reserveChoises.${o}`) : ''}
             options={['ANY', 'DAY', 'WEEK', 'NO'] as ReserveChoise[]}
             value={reg.reserve}
           />

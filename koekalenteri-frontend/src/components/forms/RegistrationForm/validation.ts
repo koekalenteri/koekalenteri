@@ -92,19 +92,19 @@ function getRuleDate(date: Date | string, available: Array<keyof RULE_DATES>) {
 export type RegistrationClass = 'ALO' | 'AVO' | 'VOI';
 
 export function validateDog(event: {eventType: string, startDate: Date}, dog: Dog, regClass?: string): WideValidationResult<Registration, 'registration'> {
-  if (!dog.regNo) {
+  if (!dog.regNo || !dog.name || !dog.rfid) {
     return 'required';
   }
   const breedCode = validateDogBreed(event, dog);
   if (breedCode) {
-    return { key: 'dog_breed', opts: { field: 'dog', type: breedCode.replace('.', '-') } };
+    return { key: 'dogBreed', opts: { field: 'dog', type: breedCode.replace('.', '-') } };
   }
   const minAge = validateDogAge(event, dog);
   if (minAge) {
-    return { key: 'dog_age', opts: { field: 'dog', length: minAge } };
+    return { key: 'dogAge', opts: { field: 'dog', length: minAge } };
   }
   if (event.eventType && !filterRelevantResults(event, regClass as RegistrationClass, dog.results).qualifies) {
-    return 'dog_results';
+    return 'dogResults';
   }
   return false;
 }
@@ -209,4 +209,9 @@ function getNextClass(c: RegistrationClass): RegistrationClass | undefined {
   if (c === 'AVO') {
     return 'VOI';
   }
+}
+
+const RE = new RegExp(/^[A-Z\-/.]{2,9}[0-9/]{4,12}$/);
+export function validateRegNo(input: string): boolean {
+  return RE.test(input);
 }
