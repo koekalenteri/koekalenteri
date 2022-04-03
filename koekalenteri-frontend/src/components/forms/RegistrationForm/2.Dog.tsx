@@ -176,7 +176,8 @@ export function DogInfo({ reg, eventDate, minDogAgeMonths, error, helperText, on
         </Grid>
         <Grid item container spacing={1}>
           <TitlesAndName
-            disabled={disabled}
+            disabledTitle={disabled && mode !== 'update'}
+            disabledName={disabled}
             id="dog"
             name={reg.dog.name}
             nameLabel={t('dog.name')}
@@ -187,7 +188,8 @@ export function DogInfo({ reg, eventDate, minDogAgeMonths, error, helperText, on
         </Grid>
         <Grid item container spacing={1}>
           <TitlesAndName
-            disabled={disabled}
+            disabledTitle={disabled && mode !== 'update'}
+            disabledName={disabled && mode !== 'update'}
             id="sire"
             name={reg.dog.sire?.name}
             nameLabel={t('dog.sire.name')}
@@ -198,7 +200,8 @@ export function DogInfo({ reg, eventDate, minDogAgeMonths, error, helperText, on
         </Grid>
         <Grid item container spacing={1}>
           <TitlesAndName
-            disabled={disabled}
+            disabledTitle={disabled && mode !== 'update'}
+            disabledName={disabled && mode !== 'update'}
             id="dam"
             name={reg.dog.dam?.name}
             nameLabel={t('dog.dam.name')}
@@ -213,7 +216,8 @@ export function DogInfo({ reg, eventDate, minDogAgeMonths, error, helperText, on
 }
 
 type TitlesAndNameProps = {
-  disabled: boolean
+  disabledName: boolean
+  disabledTitle: boolean
   id: string
   name?: string
   nameLabel: string
@@ -226,7 +230,7 @@ function TitlesAndName(props: TitlesAndNameProps) {
     <Grid item container spacing={1}>
       <Grid item>
         <TextField
-          disabled={props.disabled}
+          disabled={props.disabledTitle}
           id={`${props.id}_titles`}
           label={props.titlesLabel}
           onChange={(e) => props.onChange({ titles: e.target.value })}
@@ -236,8 +240,8 @@ function TitlesAndName(props: TitlesAndNameProps) {
       </Grid>
       <Grid item>
         <TextField
-          disabled={props.disabled}
-          error={!props.disabled && !props.name}
+          disabled={props.disabledName}
+          error={!props.disabledName && !props.name}
           id={`${props.id}_name`}
           label={props.nameLabel}
           onChange={(e) => props.onChange({ name: e.target.value })}
