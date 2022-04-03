@@ -24,8 +24,9 @@ export function QualifyingResultsInfo({ reg, error, helperText }: QualifyingResu
               <FormControl sx={{ width: 120 }}>
                 <InputLabel id="type-label">{t("testResult.eventType")}</InputLabel>
                 <Select
-                  labelId="type-label"
+                  disabled={result.official}
                   label={t("testResult.eventType")}
+                  labelId="type-label"
                   value={result.type}
                 >
                   <MenuItem value="NOU">NOU</MenuItem>
@@ -39,16 +40,20 @@ export function QualifyingResultsInfo({ reg, error, helperText }: QualifyingResu
               <FormControl sx={{ width: 120 }}>
                 <InputLabel id="result-label">{t("testResult.result")}</InputLabel>
                 <Select
-                  labelId="result-label"
-                  label={t("testResult.result")}
+                  disabled={result.official}
                   error={result.qualifying === false}
-                  value={result.cert ? 'CERT' : result.result}
+                  label={t("testResult.result")}
+                  labelId="result-label"
                   sx={{
                     '& fieldset': {
                       borderColor: result.qualifying ? 'success.light' : undefined,
                       borderWidth: result.qualifying === undefined ? undefined : 2
+                    },
+                    '&.Mui-disabled .MuiOutlinedInput-notchedOutline': {
+                      borderColor: result.qualifying ? 'success.light' : undefined,
                     }
                   }}
+                  value={result.cert ? 'CERT' : result.result}
                 >
                   <MenuItem value="NOU0">NOU0</MenuItem>
                   <MenuItem value="NOU1">NOU1</MenuItem>
@@ -74,21 +79,33 @@ export function QualifyingResultsInfo({ reg, error, helperText }: QualifyingResu
             <Grid item>
               <FormControl sx={{ width: 150 }}>
                 <DatePicker
-                  label={t("testResult.date")}
-                  value={result.date}
-                  mask={t('datemask')}
+                  disabled={result.official}
                   inputFormat={t('dateformat')}
-                  minDate={subYears(new Date(), 15)}
+                  label={t("testResult.date")}
+                  mask={t('datemask')}
                   maxDate={new Date()}
+                  minDate={subYears(new Date(), 15)}
                   onChange={(value) => { if (value) { result.date = value; } }}
-                  renderInput={(params) => <TextField {...params} />} />
+                  renderInput={(params) => <TextField {...params} />}
+                  value={result.date}
+                />
               </FormControl>
             </Grid>
             <Grid item>
-              <TextField sx={{ width: 170 }} label={t("testResult.location")} value={result.location} />
+              <TextField
+                disabled={result.official}
+                label={t("testResult.location")}
+                sx={{ width: 170 }}
+                value={result.location}
+              />
             </Grid>
             <Grid item>
-              <TextField sx={{ width: 180 }} label={t("testResult.judge")} value={result.judge} />
+              <TextField
+                disabled={result.official}
+                label={t("testResult.judge")}
+                sx={{ width: 180 }}
+                value={result.judge}
+              />
             </Grid>
           </Grid>
         )}

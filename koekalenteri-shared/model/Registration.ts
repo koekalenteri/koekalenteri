@@ -4,7 +4,7 @@ export type JsonRegistration = JsonDbRecord & {
   agreeToPublish: boolean
   agreeToTerms: boolean
   breeder: RegistrationBreeder
-  class: string
+  class?: string
   dates: JsonRegistrationDate[]
   dog: JsonDog
   eventId: string
@@ -14,12 +14,32 @@ export type JsonRegistration = JsonDbRecord & {
   notes: string
   owner: RegistrationPerson
   ownerHandles?: boolean
-  qualifyingResults: JsonTestResult[]
+  qualifyingResults: JsonQualifyingResult[]
   reserve: ReserveChoise | ''
+  results?: JsonTestResult[]
 }
 
-export type QualifyingResult = TestResult & { qualifying?: boolean };
-export type Registration = DbRecord & Replace<Replace<Replace<Omit<JsonRegistration, keyof JsonDbRecord>, 'dates', RegistrationDate[]>, 'dog', Dog>, 'qualifyingResults', QualifyingResult[]>
+export type Registration = DbRecord & {
+  agreeToPublish: boolean
+  agreeToTerms: boolean
+  breeder: RegistrationBreeder
+  class?: string
+  dates: RegistrationDate[]
+  dog: Dog
+  eventId: string
+  eventType: string
+  handler: RegistrationPerson
+  language: Language
+  notes: string
+  owner: RegistrationPerson
+  ownerHandles?: boolean
+  qualifyingResults: QualifyingResult[]
+  reserve: ReserveChoise | ''
+  results?: TestResult[]
+}
+
+export type JsonQualifyingResult = JsonTestResult & { official: boolean, qualifying?: boolean };
+export type QualifyingResult = TestResult & { official: boolean, qualifying?: boolean };
 
 export type JsonRegistrationDate = {
   date: string

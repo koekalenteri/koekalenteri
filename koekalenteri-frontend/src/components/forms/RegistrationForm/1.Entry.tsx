@@ -5,8 +5,8 @@ import { useTranslation } from 'react-i18next';
 import { AutocompleteMulti, AutocompleteSingle, CollapsibleSection } from '../..';
 import { unique, uniqueDate } from '../../../utils';
 
-function getClassDates(event: ConfirmedEventEx, classDate: string|undefined, eventClass: string) {
-  const classes = event.classes.filter(c => typeof c !== 'string' && (eventClass === '' || c.class === eventClass));
+function getClassDates(event: ConfirmedEventEx, classDate: string|undefined, regClass: string|undefined) {
+  const classes = event.classes.filter(c => typeof c !== 'string' && (regClass === '' || c.class === regClass));
 
   const dates = classes.length
     ? classes.map(c => c.date || event.startDate)

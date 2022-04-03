@@ -1,5 +1,5 @@
 import http from './http';
-import type { Event, EventEx, JsonEvent, JsonRegistration, Registration, RegistrationDate, TestResult } from 'koekalenteri-shared/model';
+import type { Event, EventEx, JsonEvent, JsonRegistration, QualifyingResult, Registration, RegistrationDate, TestResult } from 'koekalenteri-shared/model';
 import { rehydrateEvent } from './utils';
 import { rehydrateDog } from './dog';
 
@@ -31,11 +31,12 @@ export async function putRegistration(registration: Registration): Promise<Regis
 export function rehydrateRegistration(json: JsonRegistration): Registration {
   return {
     ...json,
-    dog: rehydrateDog(json.dog),
-    dates: json.dates?.map<RegistrationDate>(d => ({ ...d, date: new Date(d.date) })),
-    qualifyingResults: json.qualifyingResults.map<TestResult>(r => ({...r, date: new Date(r.date)})),
     createdAt: new Date(json.createdAt),
+    dates: json.dates?.map<RegistrationDate>(d => ({ ...d, date: new Date(d.date) })),
+    deletedAt: json.deletedAt ? new Date(json.deletedAt) : undefined,
+    dog: rehydrateDog(json.dog),
     modifiedAt: new Date(json.modifiedAt),
-    deletedAt: json.deletedAt ? new Date(json.deletedAt) : undefined
+    qualifyingResults: json.qualifyingResults.map<QualifyingResult>(r => ({ ...r, date: new Date(r.date) })),
+    results: json.results?.map<QualifyingResult>(r => ({ ...r, date: new Date(r.date), official: false })),
   };
 }

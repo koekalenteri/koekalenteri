@@ -1,5 +1,5 @@
 import { differenceInMonths, startOfYear } from 'date-fns';
-import { BreedCode, ConfirmedEventEx, Dog, Person, Registration, RegistrationBreeder, TestResult } from 'koekalenteri-shared/model';
+import { BreedCode, ConfirmedEventEx, Dog, Person, QualifyingResult, Registration, RegistrationBreeder, TestResult } from 'koekalenteri-shared/model';
 import { Validators2, ValidationResult, WideValidationResult } from '../validation';
 
 import { EventClassRequirement, EventRequirement, EventResultRequirement, EventResultRequirements, REQUIREMENTS, RULE_DATES } from './rules';
@@ -18,7 +18,7 @@ const VALIDATORS: Validators2<Registration, 'registration', ConfirmedEventEx> = 
   breeder: (reg) => validateBreeder(reg.breeder) ? 'required' : false,
   class: (reg, _req, evt) => evt.classes.length > 0 && !reg.class,
   dates: (reg) => reg.dates.length === 0,
-  dog: (reg, _req, evt) => validateDog(evt, reg.dog, reg.class),
+  dog: (reg, _req, evt) => validateDog(evt, reg),
   handler: (reg) => validatePerson(reg.handler) ? 'required' : false,
   id: () => false,
   notes: () => false,
@@ -91,7 +91,12 @@ function getRuleDate(date: Date | string, available: Array<keyof RULE_DATES>) {
 
 export type RegistrationClass = 'ALO' | 'AVO' | 'VOI';
 
-export function validateDog(event: {eventType: string, startDate: Date}, dog: Dog, regClass?: string): WideValidationResult<Registration, 'registration'> {
+export function validateDog(
+  event: { eventType: string, startDate: Date },
+  reg: { class?: string, dog: Dog, results?: TestResult[] }
+): WideValidationResult<Registration, 'registration'>
+{
+  const dog = reg.dog;
   if (!dog.regNo || !dog.name || !dog.rfid) {
     return 'required';
   }
@@ -103,7 +108,7 @@ export function validateDog(event: {eventType: string, startDate: Date}, dog: Do
   if (minAge) {
     return { key: 'dogAge', opts: { field: 'dog', length: minAge } };
   }
-  if (event.eventType && !filterRelevantResults(event, regClass as RegistrationClass, dog.results).qualifies) {
+  if (event.eventType && !filterRelevantResults(event, reg.class as RegistrationClass, dog.results, reg.results).qualifies) {
     return 'dogResults';
   }
   return false;
@@ -125,52 +130,75 @@ function validateDogBreed(event: {eventType: string}, dog: {breedCode?: BreedCod
   }
 }
 
-const byDate = (a: TestResult, b: TestResult) => new Date(a.date).valueOf() - new Date(b.date).valueOf();
+type RelevantResults = { relevant: QualifyingResult[], qualifies: boolean };
 
-export function filterRelevantResults({ eventType, startDate }: { eventType: string, startDate: Date }, regClass: RegistrationClass, results?: TestResult[]) {
+const byDate = (a: TestResult, b: TestResult) => new Date(a.date).valueOf() - new Date(b.date).valueOf();
+export function filterRelevantResults(
+  { eventType, startDate }: { eventType: string, startDate: Date },
+  regClass: RegistrationClass,
+  official?: TestResult[],
+  manual?: TestResult[]
+): RelevantResults
+{
   const requirements = REQUIREMENTS[eventType] || {};
   const classRules = regClass && (requirements as EventClassRequirement)[regClass];
   const nextClass = getNextClass(regClass);
   const nextClassRules = classRules && nextClass && (requirements as EventClassRequirement)[nextClass];
   const rules = classRules || (requirements as EventRequirement);
 
-  const test = findDisqualifyingResult(results, eventType, nextClass);
+  const test = findDisqualifyingResult(official, manual, eventType, nextClass);
   if (test) {
     return test;
   }
 
-  const check = checkRequiredResults(startDate, rules, results);
+  const check = checkRequiredResults(startDate, rules, official, manual);
   if (check.qualifies && check.relevant.length) {
-    const resultsExcludingThisYear = results?.filter(r => !excludeByYear(r, startDate));
-    const dis = checkRequiredResults(startDate, nextClassRules, resultsExcludingThisYear, false);
+    const officialNotThisYear = official?.filter(r => !excludeByYear(r, startDate));
+    const manulNotThisYear = manual?.filter(r => !excludeByYear(r, startDate));
+    const dis = checkRequiredResults(startDate, nextClassRules, officialNotThisYear, manulNotThisYear, false);
     if (dis.qualifies) {
       return {
         relevant: check.relevant.concat(dis.relevant).sort(byDate),
         qualifies: false
       };
     } else {
-      const bestResult = results?.filter(r => r.type === eventType && r.class === regClass && r.result.endsWith('1')).slice(0, 3);
-      if (bestResult) {
-        check.relevant.push(...bestResult);
-      }
+      check.relevant.push(...bestResults(eventType, regClass, official, manual));
     }
   }
   return check;
 }
 
-function findDisqualifyingResult(results: TestResult[] | undefined, eventType: string, nextClass?: RegistrationClass) {
-  const result = results?.find(r => r.type === eventType && (r.class === nextClass || r.result === 'NOU1'));
-  if (result) {
-    return { relevant: [{ ...result, qualifying: false }], qualifies: false };
+function findDisqualifyingResult(
+  official: TestResult[] | undefined,
+  manual: TestResult[] | undefined,
+  eventType: string,
+  nextClass?: RegistrationClass
+): RelevantResults | undefined
+{
+  const compare = (r: TestResult) => r.type === eventType && (r.class === nextClass || r.result === 'NOU1');
+  const officialResult = official?.find(compare);
+  if (officialResult) {
+    return { relevant: [{ ...officialResult, qualifying: false, official: true }], qualifies: false };
+  }
+  const manualResult = official?.find(compare);
+  if (manualResult) {
+    return { relevant: [{ ...manualResult, qualifying: false, official: false }], qualifies: false };
   }
 }
 
-function checkRequiredResults(date: Date, req?: EventRequirement, results?: TestResult[], qualifying = true) {
+function checkRequiredResults(
+  date: Date,
+  req?: EventRequirement,
+  official?: TestResult[],
+  manual?: TestResult[],
+  qualifying = true
+) : RelevantResults
+{
   if (!req?.results) {
     return { relevant: [], qualifies: qualifying };
   }
 
-  const relevant: Array<TestResult & {qualifying?: boolean}> = [];
+  const relevant: QualifyingResult[] = [];
   let qualifies = false;
   const counts = new Map();
   const ruleDates = Object.keys(req.results) as Array<keyof RULE_DATES>;
@@ -182,24 +210,37 @@ function checkRequiredResults(date: Date, req?: EventRequirement, results?: Test
     return n;
   };
 
-  const checkResult = (result: TestResult, r: EventResultRequirement) => {
+  const checkResult = (result: TestResult, r: EventResultRequirement, official: boolean) => {
     const { count, ...resultProps } = r;
     if (objectContains(result, resultProps)) {
-      relevant.push({ ...result, qualifying });
+      relevant.push({ ...result, qualifying, official });
       if (getCount(r) >= count) {
         qualifies = true;
       }
     }
   };
 
-  for (const result of results || []) {
+  for (const result of official || []) {
     const ruleDate = getRuleDate(date, ruleDates);
     for (const resultRules of req.results[ruleDate] || []) {
-      asArray(resultRules).forEach(resultRule => checkResult(result, resultRule));
+      asArray(resultRules).forEach(resultRule => checkResult(result, resultRule, true));
     }
   }
 
   return { relevant, qualifies };
+}
+
+function bestResults(
+  eventType: string,
+  regClass: string,
+  official: TestResult[] | undefined,
+  manual: TestResult[] | undefined
+): QualifyingResult[]
+{
+  const filter = (r: TestResult) => r.type === eventType && r.class === regClass && r.result.endsWith('1');
+  const officialBest: QualifyingResult[] = official?.filter(filter).map(r => ({ ...r, official: true })) || [];
+  const manualBest: QualifyingResult[] = manual?.filter(filter).map(r => ({ ...r, official: false })) || [];
+  return officialBest.concat(manualBest).sort(byDate).slice(0, 3);
 }
 
 function getNextClass(c: RegistrationClass): RegistrationClass | undefined {
