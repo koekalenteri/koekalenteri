@@ -60,7 +60,7 @@ export function DogInfo({ reg, eventDate, minDogAgeMonths, error, helperText, on
         setDogs(storedDogs.filter(v => v !== value).join(','));
       }
       setMode('notfound');
-      onChange({ dog: { regNo: value, name: '', dob: new Date(), results: [] } });
+      onChange({ dog: { regNo: value, name: '', results: [] } });
     }
   };
   const buttonClick = () => {
@@ -99,7 +99,7 @@ export function DogInfo({ reg, eventDate, minDogAgeMonths, error, helperText, on
               loadDog(value);
             } else {
               setRegNo(value);
-              onChange({ dog: { regNo: value, name: '', dob: new Date(), results: [] } });
+              onChange({ dog: { regNo: value, name: '', results: [] } });
               setMode(validateRegNo(value) ? 'fetch' : 'invalid');
             }
           }}
@@ -136,39 +136,42 @@ export function DogInfo({ reg, eventDate, minDogAgeMonths, error, helperText, on
           <AutocompleteSingle
             disableClearable
             disabled={disabled}
+            error={!disabled && !reg.dog.breedCode}
             getOptionLabel={(o) => breed(o)}
             label={t('dog.breed')}
             onChange={(_e, value) => onChange({ dog: { ...reg.dog, breedCode: value || undefined } })}
             options={['122', '111', '121', '312', '110', '263'] as BreedCode[]}
-            value={reg.dog.breedCode || '122'}
+            value={reg.dog.breedCode}
           />
         </Grid>
         <Grid item xs={'auto'}>
           <FormControl sx={{ width: 146, mr: 0.5 }}>
             <DatePicker
-              label={t('dog.dob')}
-              disabled={disabled}
-              value={reg.dog.dob || ''}
-              mask={t('datemask')}
-              inputFormat={t('dateformat')}
-              minDate={subYears(new Date(), 15)}
-              maxDate={subMonths(eventDate, minDogAgeMonths)}
               defaultCalendarMonth={subYears(new Date(), 2)}
-              openTo={'year'}
-              views={['year', 'month', 'day']}
+              disabled={disabled}
+              inputFormat={t('dateformat')}
+              label={t('dog.dob')}
+              mask={t('datemask')}
+              maxDate={subMonths(eventDate, minDogAgeMonths)}
+              minDate={subYears(new Date(), 15)}
               onChange={(value) => value && onChange({ dog: { ...reg.dog, dob: value } })}
-              renderInput={(params) => <TextField {...params} />} />
+              openTo={'year'}
+              renderInput={(params) => <TextField {...params} />}
+              value={reg.dog.dob || null}
+              views={['year', 'month', 'day']}
+            />
           </FormControl>
         </Grid>
         <Grid item xs={'auto'} sx={{minWidth: 120}}>
           <AutocompleteSingle
             disableClearable
             disabled={disabled}
-            value={reg.dog.gender || 'F'}
+            error={!disabled && !reg.dog.gender}
+            getOptionLabel={o => t(`dog.gender_choises.${o}`)}
             label={t('dog.gender')}
             onChange={(_e, value) => onChange({ dog: { ...reg.dog, gender: value } })}
             options={['F', 'M'] as DogGender[]}
-            getOptionLabel={o => t(`dog.gender_choises.${o}`)}
+            value={reg.dog.gender}
           />
         </Grid>
         <Grid item container spacing={1}>

@@ -5,7 +5,7 @@ export type JsonDog = {
   name?: string
   rfid?: string
   breedCode?: BreedCode
-  dob: string
+  dob?: string
   gender?: DogGender
   refreshDate?: string
   results?: JsonTestResult[]
@@ -14,7 +14,7 @@ export type JsonDog = {
   dam?: DogName
 }
 
-export type Dog = Replace<ReplaceOptional<Replace<JsonDog, 'dob', Date>, 'refreshDate', Date>, 'results', TestResult[] | undefined>;
+export type Dog = Replace<ReplaceOptional<JsonDog, 'dob' | 'refreshDate', Date>, 'results', TestResult[] | undefined>;
 
 export type DogName = {
   name?: string,

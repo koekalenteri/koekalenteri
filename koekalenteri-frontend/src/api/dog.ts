@@ -7,7 +7,7 @@ const PATH = '/dog/';
 export function rehydrateDog(dog: JsonDog): Dog {
   return {
     ...dog,
-    dob: new Date(dog.dob),
+    dob: toDate(dog.dob),
     refreshDate: toDate(dog.refreshDate),
     results: dog.results?.map<TestResult>(r => ({...r, date: new Date(r.date)}))
   };

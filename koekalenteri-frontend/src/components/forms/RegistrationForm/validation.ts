@@ -109,10 +109,10 @@ export function validateDog(event: {eventType: string, startDate: Date}, dog: Do
   return false;
 }
 
-function validateDogAge(event: {eventType: string, startDate: Date}, dog: {dob: Date}) {
+function validateDogAge(event: {eventType: string, startDate: Date}, dog: {dob?: Date}) {
   const requirements = REQUIREMENTS[event.eventType];
   const minAge = (requirements as EventRequirement).age || 0;
-  if (differenceInMonths(event.startDate, dog.dob) < minAge) {
+  if (!dog.dob || differenceInMonths(event.startDate, dog.dob) < minAge) {
     return minAge;
   }
 }

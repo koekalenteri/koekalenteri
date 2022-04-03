@@ -35,7 +35,6 @@ export function RegistrationForm({ event, className, registration, classDate, on
     reserve: '',
     dog: {
       regNo: '',
-      dob: new Date(),
       refreshDate: undefined,
       results: []
     },
