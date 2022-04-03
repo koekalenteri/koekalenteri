@@ -204,9 +204,10 @@
       "dogAge": "Koiran tulee olla vähintään {{length}} kuukautta vanha koepäivänä.",
       "dogBreed": "Rodulla \"$t(breed.{{type}})\" ei ole osallistumisoikeutta kokeeseen.",
       "dogResults": "Tulosten perusteella koiralla ei ole oikeutta osallistua valittuun koeluokkaan.",
+      "publish": "Henkilötietojen käsittelyn hyväksyminen on pakollista.",
       "reserve": "Valitse osallistutko varasijalta",
       "required": "$t(registration.{{field}}) ovat puutteelliset",
-      "terms": "Ehtojen hyväksyminen on pakollista"
+      "terms": "Ilmoittautumisen ehtojen hyväksyminen on pakollista."
     }
   },
   "weekday": "{{ date, weekday }}"

@@ -135,10 +135,11 @@ export function RegistrationForm({ event, className, registration, classDate, on
               </>
             } />
           </FormControl>
+          <FormHelperText error>{helperTexts.agreeToTerms}</FormHelperText>
           <FormControl error={errorStates.agreeToPublish} disabled={!!local.id}>
             <FormControlLabel control={<Checkbox checked={local.agreeToPublish} onChange={e => onChange({ agreeToPublish: e.target.checked })} />} label={t('registration.terms.publish')} />
           </FormControl>
-          <FormHelperText error>{helperTexts.agreeToTerms || helperTexts.agreeToPublish}</FormHelperText>
+          <FormHelperText error>{helperTexts.agreeToPublish}</FormHelperText>
         </Box>
       </Box>
 
