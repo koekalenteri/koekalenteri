@@ -53,6 +53,11 @@ const theme = createTheme({
       selected: '#D5E1DB'
     },
   },
+  typography: {
+    button: {
+      textTransform: "none"
+    }
+  },
   zIndex: {
     snackbar: 1200,
     drawer: 1000
