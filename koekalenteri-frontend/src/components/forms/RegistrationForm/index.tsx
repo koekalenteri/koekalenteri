@@ -4,7 +4,7 @@ import { Box, Button, Checkbox, FormControl, FormControlLabel, FormHelperText, L
 import { ConfirmedEventEx, Language, Registration } from 'koekalenteri-shared/model';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { EntryInfo } from './1.Entry';
+import { EntryInfo, getRegistrationDates } from './1.Entry';
 import { DogInfo } from './2.Dog';
 import { BreederInfo } from './3.Breeder';
 import { OwnerInfo } from './4.OwnerInfo';
@@ -31,8 +31,8 @@ export function RegistrationForm({ event, className, registration, classDate, on
     eventType: event.eventType,
     language: i18n.language as Language,
     class: className || '',
-    dates: [],
-    reserve: '',
+    dates: getRegistrationDates(event, classDate, className || ''),
+    reserve: 'ANY',
     dog: {
       regNo: '',
       refreshDate: undefined,
@@ -74,12 +74,23 @@ export function RegistrationForm({ event, className, registration, classDate, on
 
   const onChange = (props: Partial<Registration>) => {
     console.log('Changes: ' + JSON.stringify(props));
-    if (props.class || props.dog) {
-      const c = props.class || local.class;
-      const dog = props.dog || local.dog;
-      const filtered = filterRelevantResults(event, c as RegistrationClass, dog.results);
-      setQualifies((!dog || !c) ? null : filtered.qualifies);
-      props.qualifyingResults = filtered.relevant;
+    if (props.class) {
+      if (!props.dates) {
+        const allCount = getRegistrationDates(event, classDate, local.class).length;
+        const available = getRegistrationDates(event, classDate, props.class);
+        if (local.dates.length === allCount) {
+          local.dates = available;
+        } else {
+          props.dates = local.dates.filter(rd => available.find(a => a.date.valueOf() === rd.date.valueOf() && a.time === rd.time));
+        }
+      }
+      if (props.dog) {
+        const c = props.class || local.class;
+        const dog = props.dog || local.dog;
+        const filtered = filterRelevantResults(event, c as RegistrationClass, dog.results);
+        setQualifies((!dog || !c) ? null : filtered.qualifies);
+        props.qualifyingResults = filtered.relevant;
+      }
     }
     if (props.ownerHandles || (props.owner && local.ownerHandles)) {
       props.handler = { ...local.owner, ...props.owner }

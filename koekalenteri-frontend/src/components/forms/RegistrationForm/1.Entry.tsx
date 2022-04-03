@@ -17,6 +17,10 @@ function getClassDates(event: ConfirmedEventEx, classDate: string|undefined, eve
   return uniqueDate(dates);
 }
 
+export function getRegistrationDates(event: ConfirmedEventEx, classDate: string | undefined, eventClass: string): RegistrationDate[] {
+  return getClassDates(event, classDate, eventClass).flatMap((date) => [{ date, time: 'ap' }, { date, time: 'ip' }]);
+}
+
 type EntryInfoProps = {
   reg: Registration
   event: ConfirmedEventEx
@@ -30,7 +34,7 @@ type EntryInfoProps = {
 
 export function EntryInfo({ reg, event, classDate, errorStates, helperTexts, onChange }: EntryInfoProps) {
   const { t } = useTranslation();
-  const classDates: RegistrationDate[] = getClassDates(event, classDate, reg.class).flatMap((date) => [{ date, time: 'ap' }, { date, time: 'ip' }]);
+  const classDates = getRegistrationDates(event, classDate, reg.class);
   const error = errorStates.class || errorStates.dates || errorStates.reserve;
   const datesText = reg.dates.map(o => t('weekday', { date: o.date }) + (o.time === 'ap' ? ' (aamu)' : ' (ilta)')).join(' / ');
   const reserveText = reg.reserve ? t(`registration.reserveChoises.${reg.reserve}`) : '';
