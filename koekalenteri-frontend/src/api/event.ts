@@ -1,5 +1,5 @@
 import http from './http';
-import type { Event, EventEx, JsonEvent, JsonRegistration, QualifyingResult, Registration, RegistrationDate, TestResult } from 'koekalenteri-shared/model';
+import type { Event, EventEx, JsonEvent, JsonRegistration, QualifyingResult, Registration, RegistrationDate } from 'koekalenteri-shared/model';
 import { rehydrateEvent } from './utils';
 import { rehydrateDog } from './dog';
 
