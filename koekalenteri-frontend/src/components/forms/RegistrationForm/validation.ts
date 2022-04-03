@@ -149,7 +149,7 @@ export function filterRelevantResults({ eventType, startDate }: { eventType: str
         qualifies: false
       };
     } else {
-      const bestResult = results?.filter(r => r.type === eventType && r.class === regClass).slice(0, 3);
+      const bestResult = results?.filter(r => r.type === eventType && r.class === regClass && r.result.endsWith('1')).slice(0, 3);
       if (bestResult) {
         check.relevant.push(...bestResult);
       }
