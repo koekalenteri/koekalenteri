@@ -1,7 +1,7 @@
-import http from './http';
-import type { Event, EventEx, JsonEvent, JsonRegistration, QualifyingResult, Registration, RegistrationDate } from 'koekalenteri-shared/model';
-import { rehydrateEvent } from './utils';
+import { Event, EventEx, JsonEvent, JsonRegistration, QualifyingResult, Registration, RegistrationDate } from 'koekalenteri-shared/model';
 import { rehydrateDog } from './dog';
+import http from './http';
+import { rehydrateEvent } from './utils';
 
 const PATH = '/event/';
 
@@ -37,6 +37,6 @@ export function rehydrateRegistration(json: JsonRegistration): Registration {
     dog: rehydrateDog(json.dog),
     modifiedAt: new Date(json.modifiedAt),
     qualifyingResults: json.qualifyingResults.map<QualifyingResult>(r => ({ ...r, date: new Date(r.date) })),
-    results: json.results?.map<QualifyingResult>(r => ({ ...r, date: new Date(r.date), official: false })),
+    results: json.results?.map(r => ({ ...r, date: new Date(r.date), official: false })),
   };
 }

@@ -1,9 +1,14 @@
+import { AddOutlined, DeleteOutline } from '@mui/icons-material';
 import { DatePicker } from '@mui/lab';
-import { FormControl, Grid, InputLabel, MenuItem, Select, TextField } from '@mui/material';
+import { Button, debounce, FormControl, Grid, InputLabel, MenuItem, Select, TextField } from '@mui/material';
 import { subYears } from 'date-fns';
-import { Registration } from 'koekalenteri-shared/model';
+import { QualifyingResult, Registration, TestResult } from 'koekalenteri-shared/model';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { v4 as uuidv4 } from 'uuid';
 import { CollapsibleSection } from '../..';
+import { EventResultRequirement, EventResultRequirements, EventResultRequirementsByDate, getRequirements, RegistrationClass } from './rules';
+import { objectContains } from './validation';
 
 type QualifyingResultsInfoProps = {
   reg: Registration
@@ -12,14 +17,40 @@ type QualifyingResultsInfoProps = {
   onChange: (props: Partial<Registration>) => void
 }
 
-export function QualifyingResultsInfo({ reg, error, helperText }: QualifyingResultsInfoProps) {
+type QRWithId = Partial<QualifyingResult> & { id: string };
+const asArray = (v: EventResultRequirements | EventResultRequirement) => Array.isArray(v) ? v : [v];
+export function QualifyingResultsInfo({ reg, error, helperText, onChange }: QualifyingResultsInfoProps) {
   const { t } = useTranslation();
+  const requirements = useMemo(() => getRequirements(reg.eventType, reg.class as RegistrationClass, reg.dates[0].date) || {rules: []}, [reg.eventType, reg.class, reg.dates]);
+  const [results, setResults] = useState<Array<QRWithId>>([]);
+  const sendChange = useMemo(() => debounce(onChange, 300), [onChange]);
+  const handleChange = (result: QRWithId, props: Partial<TestResult>) => {
+    const index = results.findIndex(r => !r.official && r.id && r.id === result.id);
+    if (index >= 0) {
+      const newResults: QRWithId[] = results.slice(0);
+      newResults.splice(index, 1, { ...result, ...props });
+      setResults(newResults);
+      sendChange({ results: newResults });
+    }
+  };
+  useEffect(() => {
+    const newResults: Array<QRWithId> = (reg.qualifyingResults || []).map(r => ({ ...r, id: getResultId(r) }));
+    if (reg.results) {
+      for (let i = 0; i < reg.results.length; i++) {
+        const result = reg.results[i]
+        if (!newResults.find(r => !r.official && r.id && r.id === result.id)) {
+          newResults.push({ ...result, official: false });
+        }
+      }
+    }
+    setResults(newResults);
+  }, [reg.qualifyingResults, reg.results]);
 
   return (
     <CollapsibleSection title={t("registration.qualifyingResults")} error={error} helperText={helperText}>
       <Grid item container spacing={1}>
-        {reg.qualifyingResults.map(result =>
-          <Grid key={result.date.toString()} item container spacing={1}>
+        {results.map(result =>
+          <Grid key={getResultId(result)} item container spacing={1} alignItems="center">
             <Grid item>
               <FormControl sx={{ width: 120 }}>
                 <InputLabel id="type-label">{t("testResult.eventType")}</InputLabel>
@@ -27,6 +58,7 @@ export function QualifyingResultsInfo({ reg, error, helperText }: QualifyingResu
                   disabled={result.official}
                   label={t("testResult.eventType")}
                   labelId="type-label"
+                  onChange={(e) => handleChange(result, {type: e.target.value})}
                   value={result.type}
                 >
                   <MenuItem value="NOU">NOU</MenuItem>
@@ -41,16 +73,16 @@ export function QualifyingResultsInfo({ reg, error, helperText }: QualifyingResu
                 <InputLabel id="result-label">{t("testResult.result")}</InputLabel>
                 <Select
                   disabled={result.official}
-                  error={result.qualifying === false}
                   label={t("testResult.result")}
                   labelId="result-label"
+                  onChange={(e) => handleChange(result, {result: e.target.value, class: e.target.value.slice(0, -1)})}
                   sx={{
                     '& fieldset': {
-                      borderColor: result.qualifying ? 'success.light' : undefined,
-                      borderWidth: result.qualifying === undefined ? undefined : 2
+                      borderColor: resultBorderColor(result.qualifying),
+                      borderWidth: !result.result || result.qualifying === undefined ? undefined : 2
                     },
                     '&.Mui-disabled .MuiOutlinedInput-notchedOutline': {
-                      borderColor: result.qualifying ? 'success.light' : undefined,
+                      borderColor: resultBorderColor(result.qualifying),
                     }
                   }}
                   value={result.cert ? 'CERT' : result.result}
@@ -85,31 +117,78 @@ export function QualifyingResultsInfo({ reg, error, helperText }: QualifyingResu
                   mask={t('datemask')}
                   maxDate={new Date()}
                   minDate={subYears(new Date(), 15)}
-                  onChange={(value) => { if (value) { result.date = value; } }}
-                  renderInput={(params) => <TextField {...params} />}
-                  value={result.date}
+                  onChange={(value) => handleChange(result, { date: value || undefined })}
+                  renderInput={(params) => <TextField {...params} error={!result.date} />}
+                  value={result.date || null}
                 />
               </FormControl>
             </Grid>
             <Grid item>
               <TextField
                 disabled={result.official}
+                error={!result.location}
                 label={t("testResult.location")}
                 sx={{ width: 170 }}
+                onChange={(e) => handleChange(result, { location: e.target.value })}
                 value={result.location}
               />
             </Grid>
             <Grid item>
               <TextField
                 disabled={result.official}
+                error={!result.judge}
                 label={t("testResult.judge")}
                 sx={{ width: 180 }}
+                onChange={(e) => handleChange(result, { judge: e.target.value })}
                 value={result.judge}
               />
             </Grid>
+            <Grid item sx={{display: result.official ? 'none' : 'block'}}>
+              <Button startIcon={<DeleteOutline />} onClick={() => onChange({
+                results: (reg.results || []).filter(r => r.id !== result.id)
+              })}>Poista tulos</Button>
+            </Grid>
           </Grid>
         )}
+        <Button startIcon={<AddOutlined />} onClick={() => onChange({
+          results: (reg.results || []).concat([createMissingResult(requirements, results)])
+        })}>Lisää tulos</Button>
       </Grid>
     </CollapsibleSection>
   );
+}
+
+function findFirstMissing(requirements: EventResultRequirementsByDate | { rules: EventResultRequirements }, results: QRWithId[]) {
+  for (const rule of requirements.rules) {
+    for (const opt of asArray(rule)) {
+      const { count, ...rest } = opt;
+      if (results.filter(r => objectContains(r, rest)).length < count) {
+        return rest;
+      }
+    }
+  }
+}
+
+function createMissingResult(requirements: EventResultRequirementsByDate | { rules: EventResultRequirements }, results: QRWithId[]) {
+  const rule = findFirstMissing(requirements, results);
+  return {
+    id: uuidv4(),
+    ...rule
+  };
+}
+
+function resultBorderColor(qualifying: boolean | undefined) {
+  if (qualifying === true) {
+    return 'success.light';
+  }
+  if (qualifying === false) {
+    return 'error.main';
+  }
+}
+
+function getResultId(result: QRWithId|QualifyingResult) {
+  if ('id' in result) {
+    return result.id;
+  }
+  return (result.judge || '') + result.date?.toString();
 }

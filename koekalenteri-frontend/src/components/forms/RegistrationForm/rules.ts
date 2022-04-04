@@ -13,17 +13,60 @@ export type RULE_DATES = {
   '2016-04-01': true
 };
 
+export type RegistrationClass = 'ALO' | 'AVO' | 'VOI';
+
 export type EventRequirement = {
   age?: number
   breedCode?: Array<string>
   results?: {[Property in keyof RULE_DATES]?: EventResultRequirements | Array<EventResultRequirements>}
 };
 
+export type EventResultRequirementsByDate = {
+  date: keyof RULE_DATES
+  rules: EventResultRequirements | Array<EventResultRequirements>
+}
+
+export type EventRequirementsByDate = {
+  age?: number
+  breedCode?: Array<string>
+  results?: EventResultRequirementsByDate
+}
+
 export type EventClassRequirement = {
   ALO?: EventRequirement
   AVO?: EventRequirement
   VOI?: EventRequirement
 };
+
+function getRuleDate(date: Date | string, available: Array<keyof RULE_DATES>) {
+  if (typeof date === 'string') {
+    date = new Date(date);
+  }
+  const asDates = available.map(v => new Date(v));
+  for (let i = 0; i < asDates.length; i++) {
+    if (i > 0 && asDates[i] > date) {
+      return available[i - 1]
+    }
+  }
+  return available[available.length - 1];
+}
+
+export function getRequirements(eventType: string, regClass: RegistrationClass | undefined, date: Date) {
+  const eventRequirements = REQUIREMENTS[eventType] || {};
+  const classRequirements = regClass && (eventRequirements as EventClassRequirement)[regClass];
+  const requirements = classRequirements || (eventRequirements as EventRequirement);
+  let results: EventResultRequirementsByDate | undefined;
+  if (requirements.results) {
+    const resultRequirements = requirements.results;
+    const ruleDates = Object.keys(resultRequirements) as Array<keyof RULE_DATES>;
+    const ruleDate = getRuleDate(date, ruleDates);
+    results = {
+      date: ruleDate,
+      rules: resultRequirements[ruleDate] || []
+    };
+  }
+  return results;
+}
 
 export const REQUIREMENTS: { [key: string]: EventRequirement | EventClassRequirement } = {
   NOU: {

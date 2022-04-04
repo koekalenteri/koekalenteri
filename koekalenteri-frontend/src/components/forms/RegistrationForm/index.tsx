@@ -1,4 +1,4 @@
-import { Save, Cancel } from '@mui/icons-material';
+import { Cancel, Save } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import { Box, Button, Checkbox, FormControl, FormControlLabel, FormHelperText, Link, Paper, Stack } from '@mui/material';
 import { ConfirmedEventEx, Language, Registration } from 'koekalenteri-shared/model';
@@ -11,7 +11,8 @@ import { OwnerInfo } from './4.OwnerInfo';
 import { HandlerInfo } from './5.HandlerInfo';
 import { QualifyingResultsInfo } from './6.QualifyingResultsInfo';
 import { AdditionalInfo } from './7.AdditionalInfo';
-import { filterRelevantResults, RegistrationClass, validateRegistration } from './validation';
+import { RegistrationClass } from './rules';
+import { filterRelevantResults, validateRegistration } from './validation';
 
 type FormEventHandler = (registration: Registration) => Promise<boolean>;
 type RegistrationFormProps = {
@@ -71,26 +72,23 @@ export function RegistrationForm({ event, className, registration, classDate, on
   const [changes, setChanges] = useState(local.id === '');
   const [errors, setErrors] = useState(validateRegistration(local, event));
   const valid = errors.length === 0;
-
   const onChange = (props: Partial<Registration>) => {
     console.log('Changes: ' + JSON.stringify(props));
-    if (props.class) {
-      if (!props.dates) {
-        const allCount = getRegistrationDates(event, classDate, local.class || '').length;
-        const available = getRegistrationDates(event, classDate, props.class);
-        if (local.dates.length === allCount) {
-          local.dates = available;
-        } else {
-          props.dates = local.dates.filter(rd => available.find(a => a.date.valueOf() === rd.date.valueOf() && a.time === rd.time));
-        }
+    if (props.class && !props.dates) {
+      const allCount = getRegistrationDates(event, classDate, local.class || '').length;
+      const available = getRegistrationDates(event, classDate, props.class);
+      if (local.dates.length === allCount) {
+        local.dates = available;
+      } else {
+        props.dates = local.dates.filter(rd => available.find(a => a.date.valueOf() === rd.date.valueOf() && a.time === rd.time));
       }
-      if (props.dog) {
-        const c = props.class || local.class;
-        const dog = props.dog || local.dog;
-        const filtered = filterRelevantResults(event, c as RegistrationClass, dog.results);
-        setQualifies((!dog || !c) ? null : filtered.qualifies);
-        props.qualifyingResults = filtered.relevant;
-      }
+    }
+    if (props.class || props.dog || props.results) {
+      const c = props.class || local.class;
+      const dog = props.dog || local.dog;
+      const filtered = filterRelevantResults(event, c as RegistrationClass, dog.results, props.results || local.results);
+      setQualifies((!dog || !c) ? null : filtered.qualifies);
+      props.qualifyingResults = filtered.relevant;
     }
     if (props.ownerHandles || (props.owner && local.ownerHandles)) {
       props.handler = { ...local.owner, ...props.owner }
