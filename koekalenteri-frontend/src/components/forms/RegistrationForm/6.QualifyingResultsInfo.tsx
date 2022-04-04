@@ -36,8 +36,7 @@ export function QualifyingResultsInfo({ reg, error, helperText, onChange }: Qual
   useEffect(() => {
     const newResults: Array<QRWithId> = (reg.qualifyingResults || []).map(r => ({ ...r, id: getResultId(r) }));
     if (reg.results) {
-      for (let i = 0; i < reg.results.length; i++) {
-        const result = reg.results[i]
+      for (const result of reg.results) {
         if (!newResults.find(r => !r.official && r.id && r.id === result.id)) {
           newResults.push({ ...result, official: false });
         }
