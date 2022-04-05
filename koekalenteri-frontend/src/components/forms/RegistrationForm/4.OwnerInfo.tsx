@@ -1,4 +1,4 @@
-import { Checkbox, FormControlLabel, Grid, TextField } from '@mui/material';
+import { Checkbox, FormControlLabel, FormGroup, Grid, Switch, TextField } from '@mui/material';
 import { Registration } from 'koekalenteri-shared/model';
 import { useTranslation } from 'react-i18next';
 import { CollapsibleSection } from '../..';
@@ -12,10 +12,9 @@ type OwnerInfoProps = {
 
 export function OwnerInfo({reg, error, helperText, onChange}: OwnerInfoProps) {
   const { t } = useTranslation();
-  const title = reg.ownerHandles ? 'registration.ownerAndHandler' : 'registration.owner';
 
   return (
-    <CollapsibleSection title={t(title)} error={error} helperText={helperText}>
+    <CollapsibleSection title={t('registration.owner')} error={error} helperText={helperText}>
       <Grid item container spacing={1}>
         <Grid item container spacing={1}>
           <Grid item sx={{ width: 300 }}>
@@ -70,27 +69,33 @@ export function OwnerInfo({reg, error, helperText, onChange}: OwnerInfoProps) {
           </Grid>
         </Grid>
       </Grid>
-      <FormControlLabel control={
-        <Checkbox
-          checked={reg.owner.membership}
-          onChange={e => onChange({
-            owner: { ...reg.owner, membership: e.target.checked }
-          })} />} label={t('registration.ownerIsMember')} />
-      <FormControlLabel control={
-        <Checkbox
-          checked={reg.ownerHandles}
-          onChange={e => onChange({
-            ownerHandles: e.target.checked,
-            handler: e.target.checked ? { ...reg.owner } : {
-              name: '',
-              location: '',
-              email: '',
-              phone: '',
-              membership: false
-            }
-          })}
+      <FormGroup>
+        <FormControlLabel control={
+          <Checkbox
+            checked={reg.owner.membership}
+            onChange={e => onChange({
+              owner: { ...reg.owner, membership: e.target.checked }
+            })}
+          />} label={t('registration.ownerIsMember')}
         />
-      } label={t('registration.ownerHandles')} />
+      </FormGroup>
+      <FormGroup>
+        <FormControlLabel control={
+          <Switch
+            checked={reg.ownerHandles}
+            onChange={e => onChange({
+              ownerHandles: e.target.checked,
+              handler: e.target.checked ? { ...reg.owner } : {
+                name: '',
+                location: '',
+                email: '',
+                phone: '',
+                membership: false
+              }
+            })}
+          />
+        } label={t('registration.ownerHandles')} />
+      </FormGroup>
     </CollapsibleSection>
   );
 }
