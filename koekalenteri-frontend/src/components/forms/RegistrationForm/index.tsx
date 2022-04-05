@@ -50,6 +50,7 @@ export function RegistrationForm({ event, className, registration, classDate, on
       location: '',
       membership: false
     },
+    ownerHandles: true,
     handler: {
       name: '',
       phone: '',
@@ -129,8 +130,7 @@ export function RegistrationForm({ event, className, registration, classDate, on
         <EntryInfo reg={local} event={event} classDate={classDate} errorStates={errorStates} helperTexts={helperTexts} onChange={onChange} />
         <DogInfo reg={local} eventDate={event.startDate} minDogAgeMonths={9} error={errorStates.dog} helperText={helperTexts.dog} onChange={onChange} />
         <BreederInfo reg={local} error={errorStates.breeder} helperText={helperTexts.breeder} onChange={onChange} />
-        <OwnerInfo reg={local} error={errorStates.owner} helperText={helperTexts.owner} onChange={onChange} />
-        <HandlerInfo reg={local} error={errorStates.handler} helperText={helperTexts.handler} onChange={onChange} />
+        <OwnerAndHandler reg={local} errorStates={errorStates} helperTexts={helperTexts} onChange={onChange} />
         <QualifyingResultsInfo reg={local} error={!qualifies} helperText={helperTexts.qualifyingResults} onChange={onChange} />
         <AdditionalInfo reg={local} onChange={onChange} />
         <Box sx={{ m: 1, mt: 2, ml: 4, borderTop: '1px solid #bdbdbd' }}>
@@ -156,5 +156,24 @@ export function RegistrationForm({ event, className, registration, classDate, on
         <Button startIcon={<Cancel />} variant="outlined" onClick={cancelHandler}>Peruuta</Button>
       </Stack>
     </Paper>
+  );
+}
+
+type OwnerAndHandlerProps = {
+  reg: Registration
+  errorStates: { [Property in keyof Registration]?: boolean }
+  helperTexts: { [Property in keyof Registration]?: string }
+  onChange: (props: Partial<Registration>) => void
+}
+
+function OwnerAndHandler({ reg, errorStates, helperTexts, onChange }: OwnerAndHandlerProps) {
+  if (reg.ownerHandles) {
+    return <OwnerInfo reg={reg} error={errorStates.owner} helperText={helperTexts.owner} onChange={onChange} />
+  }
+  return (
+    <>
+      <OwnerInfo reg={reg} error={errorStates.owner} helperText={helperTexts.owner} onChange={onChange} />
+      <HandlerInfo reg={reg} error={errorStates.handler} helperText={helperTexts.handler} onChange={onChange} />
+    </>
   );
 }

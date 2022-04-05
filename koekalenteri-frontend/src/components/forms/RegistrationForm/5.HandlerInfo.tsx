@@ -15,15 +15,6 @@ export function HandlerInfo({ reg, error, helperText, onChange }: HandlerInfoPro
 
   return (
     <CollapsibleSection title={t('registration.handler')} error={error} helperText={helperText}>
-      <FormControlLabel control={
-        <Checkbox
-          checked={reg.ownerHandles}
-          onChange={e => onChange({
-            ownerHandles: e.target.checked,
-            handler: e.target.checked ? { ...reg.owner } : { name: '', location: '', email: '', phone: '', membership: false }
-          })}
-        />
-      } label={t('registration.ownerHandles')} />
       <Grid item container spacing={1}>
         <Grid item container spacing={1}>
           <Grid item sx={{ width: 300 }}>
