@@ -30,7 +30,7 @@ export function QualifyingResultsInfo({ reg, error, helperText, onChange }: Qual
       const newResults: QRWithId[] = results.slice(0);
       newResults.splice(index, 1, { ...result, ...props });
       setResults(newResults);
-      sendChange({ results: newResults });
+      sendChange({ results: newResults.filter(r => !r.official) });
     }
   };
   useEffect(() => {
