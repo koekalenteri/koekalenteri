@@ -1,4 +1,4 @@
-import { ReactNode, useEffect } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { Box, Toolbar } from '@mui/material';
 import { Header } from '../layout';
 import { useStores, useSessionStarted } from '../stores';
@@ -10,6 +10,7 @@ export function AuthPage({ children }: { children: ReactNode }) {
   const location = useLocation();
   const { route } = useAuthenticator(context => [context.route]);
   const { publicStore, privateStore } = useStores();
+  const [menuOpen, setMenuOpen] = useState(false);
   const [sessionStarted, setSessionStarted] = useSessionStarted();
 
   useEffect(() => {
@@ -24,11 +25,16 @@ export function AuthPage({ children }: { children: ReactNode }) {
     }
   });
 
+  const toggleMenu = () => {
+    console.log('toggleMenu', menuOpen);
+    setMenuOpen(!menuOpen);
+  }
+
   return (route !== 'authenticated' ? <Navigate to="/login" state={{ from: location }} replace /> :
     <>
-      <Header />
+      <Header toggleMenu={toggleMenu} />
       <Box sx={{ display: 'flex', height: '100%' }}>
-        <SideMenu />
+        <SideMenu open={menuOpen}/>
         <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', flexGrow: 1, overflow: 'auto' }}>
           <Toolbar variant="dense" />
           {children}

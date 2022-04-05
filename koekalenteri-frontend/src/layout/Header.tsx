@@ -2,14 +2,16 @@ import { AppBar, Typography, IconButton, Toolbar, Link, Box } from '@mui/materia
 import logo from '../assets/snj-logo.png';
 import banner from '../assets/banner.png';
 import { LanguageMenu, UserMenu } from '../components';
+import { Menu } from '@mui/icons-material';
 
-export function Header({title}: {title?: string}) {
+export function Header({title, toggleMenu}: {title?: string, toggleMenu?: () => void}) {
   return (
     <AppBar position="fixed" color="secondary">
-      <Toolbar variant="dense" sx={{ width: '100%' }}>
+      <Toolbar variant="dense" disableGutters sx={{ width: '100%', px: 1 }}>
+        <IconButton sx={{display: {sm: 'inline-flex', md: 'none'}}} onClick={() => toggleMenu && toggleMenu()}><Menu /></IconButton>
         <Link href="/">
-          <IconButton size="large" sx={{ mr: { xs: 1, sm: 2 }, p: 0 }}>
-            <img src={logo} alt="Suomen noutajakoirajärjestö" />
+          <IconButton sx={{ mx: { xs: 1, sm: 1 }, p: 0, height: 36 }}>
+            <img src={logo} height="100%" alt="Suomen noutajakoirajärjestö" />
           </IconButton>
         </Link>
         <Link href="/" sx={{textDecoration: 'none'}}>

@@ -1,25 +1,26 @@
 import { NavLink, useNavigate } from 'react-router-dom';
-import { Divider, Toolbar } from '@mui/material';
-import { Accessibility, Event, Logout, Menu, PersonOutline, Support } from '@mui/icons-material';
+import { Divider, Theme, Toolbar, useMediaQuery } from '@mui/material';
+import { Accessibility, Event, Logout, PersonOutline, Support } from '@mui/icons-material';
 import { DrawerItem, DrawerList, MiniDrawer } from '../components/MiniDrawer';
 import { useTranslation } from 'react-i18next';
-import { useLocalStorage } from '../stores';
 import { ADMIN_EVENTS, ADMIN_JUDGES, ADMIN_ORGS, ADMIN_USERS } from '../config';
 
-export function SideMenu() {
+export function SideMenu({ open }: { open?: boolean }) {
+  const md = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'));
+  const lg = useMediaQuery((theme: Theme) => theme.breakpoints.up('lg'));
   const { t } = useTranslation();
-  const [mini, setMini] = useLocalStorage('miniMenu', '0');
-  const toggleMini = () => setMini(mini === '0' ? '1' : '0');
   const navigate = useNavigate();
 
   return (
     <MiniDrawer
-      variant="permanent"
-      open={mini === '0'}
+      variant={md ? 'permanent' : 'temporary'}
+      open={lg || open}
+      ModalProps={{
+        keepMounted: true
+      }}
     >
-      <Toolbar variant="dense" />
+      <Toolbar variant='dense' />
       <DrawerList>
-        <DrawerItem text="" icon={<Menu />} onClick={toggleMini} />
         <NavLink to={ADMIN_EVENTS}><DrawerItem text={t('events')} icon={<Event />} /></NavLink>
         <NavLink to={ADMIN_ORGS}><DrawerItem text={t('organizations')} icon={<Support />} /></NavLink>
         <NavLink to={ADMIN_USERS}><DrawerItem text={t('users')} icon={<PersonOutline />} /></NavLink>

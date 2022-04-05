@@ -82,7 +82,7 @@ export const EventGrid = observer(({ events }: { events: Partial<EventEx>[] }) =
       flexDirection: 'column',
       flexGrow: 1,
       width: '100%',
-      minHeight: 400,
+      minHeight: 300,
     }}>
       <DataGrid
         autoPageSize

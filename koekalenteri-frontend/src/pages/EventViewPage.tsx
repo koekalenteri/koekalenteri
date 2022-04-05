@@ -190,13 +190,23 @@ export function EventViewPage() {
         </Box>
         <Dialog
           fullWidth
-          maxWidth='md'
+          maxWidth='lg'
           open={open}
           onClose={() => setOpen(false)}
           aria-labelledby="reg-dialog-title"
+          PaperProps={{
+            sx: {
+              m: 1,
+              maxHeight: 'calc(100% - 16px)',
+              width: 'calc(100% - 16px)',
+              '& .MuiDialogTitle-root': {
+                fontSize: '1rem'
+              }
+            }
+          }}
         >
           <DialogTitle id="reg-dialog-title">{selected ? `${selected.dog.name} / ${selected.handler.name}` : t('create')}</DialogTitle>
-          <DialogContent dividers sx={{height: '80vh'}}>
+          <DialogContent dividers sx={{height: '100%', p: 0 }}>
             <RegistrationForm event={event} registration={selected} onSave={onSave} onCancel={onCancel} />
           </DialogContent>
         </Dialog>

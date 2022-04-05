@@ -3,7 +3,7 @@ import { CSSObject, Drawer, List, ListItem, ListItemIcon, ListItemText, styled, 
 
 const drawerWidth = '256px';
 
-const openedMixin = (theme: Theme): CSSObject => ({
+const fullMixin = (theme: Theme): CSSObject => ({
   backgroundColor: theme.palette.grey[100],
   width: drawerWidth,
   transition: theme.transitions.create('width', {
@@ -13,7 +13,7 @@ const openedMixin = (theme: Theme): CSSObject => ({
   overflowX: 'hidden',
 });
 
-const closedMixin = (theme: Theme): CSSObject => ({
+const miniMixin = (theme: Theme): CSSObject => ({
   backgroundColor: theme.palette.grey[100],
   transition: theme.transitions.create('width', {
     easing: theme.transitions.easing.sharp,
@@ -26,33 +26,34 @@ const closedMixin = (theme: Theme): CSSObject => ({
   },
 });
 
-export const MiniDrawer = styled(Drawer, {
-  shouldForwardProp: (prop: string) => prop !== 'open'
-})(
-  ({ theme, open }) => ({
-    width: drawerWidth,
-    flexShrink: 0,
-    whiteSpace: 'nowrap',
-    boxSizing: 'border-box',
-    ...(open && {
-      ...openedMixin(theme),
-      '& .MuiDrawer-paper': openedMixin(theme),
-    }),
-    ...(!open && {
-      ...closedMixin(theme),
-      '& .MuiDrawer-paper': closedMixin(theme),
-    }),
-    '& a': {
-      textDecoration: 'none',
-      color: 'inherit'
-    },
-    '& a.active > .MuiButtonBase-root': {
-      backgroundColor: theme.palette.background.selected
-    },
-    '& .MuiButtonBase-root:hover': {
-      backgroundColor: theme.palette.background.hover
+export const MiniDrawer = styled(Drawer)(
+  ({ theme, variant, open }) => {
+    const mini = variant === 'permanent' && !open;
+    return {
+      width: drawerWidth,
+      flexShrink: 0,
+      whiteSpace: 'nowrap',
+      boxSizing: 'border-box',
+      ...(!mini && {
+        ...fullMixin(theme),
+        '& .MuiDrawer-paper': fullMixin(theme),
+      }),
+      ...(mini && {
+        ...miniMixin(theme),
+        '& .MuiDrawer-paper': miniMixin(theme),
+      }),
+      '& a': {
+        textDecoration: 'none',
+        color: 'inherit'
+      },
+      '& a.active > .MuiButtonBase-root': {
+        backgroundColor: theme.palette.background.selected
+      },
+      '& .MuiButtonBase-root:hover': {
+        backgroundColor: theme.palette.background.hover
+      }
     }
-  }),
+  }
 );
 
 export function DrawerList({children}: {children: ReactNode}) {

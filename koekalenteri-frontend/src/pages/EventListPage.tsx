@@ -11,6 +11,7 @@ import { useStores } from '../stores';
 import { observer } from 'mobx-react-lite';
 import { Event } from 'koekalenteri-shared/model';
 import { useState } from 'react';
+import { AutoButton } from '../components';
 
 export const EventListPage = observer(() => {
   const { t } = useTranslation();
@@ -74,11 +75,11 @@ export const EventListPage = observer(() => {
           />
         </div>
         <Stack direction="row" spacing={2}>
-          <Button startIcon={<AddCircleOutline />} onClick={() => navigate(ADMIN_NEW_EVENT)}>{t('createEvent')}</Button>
-          <Button startIcon={<EditOutlined />} disabled={!privateStore.selectedEvent} onClick={() => navigate(`${ADMIN_EDIT_EVENT}/${privateStore.selectedEvent?.id}`)}>{t('edit')}</Button>
-          <Button startIcon={<ContentCopyOutlined />} disabled={!privateStore.selectedEvent} onClick={copyAction}>{t('copy')}</Button>
-          <Button startIcon={<DeleteOutline />} disabled={!privateStore.selectedEvent} onClick={() => setOpen(true)}>{t('delete')}</Button>
-          <Button startIcon={<FormatListNumberedOutlined />} disabled={!privateStore.selectedEvent || !privateStore.selectedEvent.entries} onClick={() => navigate(`${ADMIN_VIEW_EVENT}/${privateStore.selectedEvent?.id}`)}>{t('registrations')}</Button>
+          <AutoButton startIcon={<AddCircleOutline />} onClick={() => navigate(ADMIN_NEW_EVENT)} text={t('createEvent')} />
+          <AutoButton startIcon={<EditOutlined />} disabled={!privateStore.selectedEvent} onClick={() => navigate(`${ADMIN_EDIT_EVENT}/${privateStore.selectedEvent?.id}`)} text={t('edit')} />
+          <AutoButton startIcon={<ContentCopyOutlined />} disabled={!privateStore.selectedEvent} onClick={copyAction} text={t('copy')} />
+          <AutoButton startIcon={<DeleteOutline />} disabled={!privateStore.selectedEvent} onClick={() => setOpen(true)} text={t('delete')} />
+          <AutoButton startIcon={<FormatListNumberedOutlined />} disabled={!privateStore.selectedEvent || !privateStore.selectedEvent.entries} onClick={() => navigate(`${ADMIN_VIEW_EVENT}/${privateStore.selectedEvent?.id}`)} text={t('registrations')} />
         </Stack>
         <EventGridContainer />
       </Box>

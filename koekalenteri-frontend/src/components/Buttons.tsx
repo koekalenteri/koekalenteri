@@ -1,4 +1,4 @@
-import { Box, Button } from '@mui/material';
+import { Box, Button, ButtonProps, IconButton, Stack, Theme, Typography, useMediaQuery } from '@mui/material';
 import { MouseEventHandler, ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -25,4 +25,19 @@ export function AppBarButton(props: AppBarButtonProps) {
       <Box sx={{ display: { xs: 'none', sm: 'block' } }}>{props.children}</Box>
     </Button>
   );
+}
+
+export function AutoButton(props: ButtonProps & { text: string }) {
+  const sm = useMediaQuery((theme: Theme) => theme.breakpoints.down('sm'));
+  const {children, text, ...rest} = props;
+
+  if (sm) {
+    return (
+      <Stack>
+        <IconButton color="primary" {...rest}>{rest.startIcon || rest.endIcon}</IconButton>
+        <Typography variant="caption" noWrap sx={{ textAlign: 'center', width: 42, overflow: 'hidden' }}>{text}</Typography>
+      </Stack >
+    );
+  }
+  return <Button color="primary" {...rest}>{text}</Button>
 }
