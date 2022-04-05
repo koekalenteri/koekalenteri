@@ -13,7 +13,13 @@ export function AdditionalInfo({reg, onChange}: AdditionalInfoProps) {
 
   return (
     <CollapsibleSection title={t('registration.notes')}>
-      <TextField multiline rows={4} sx={{ width: '100%' }} onChange={(e) => onChange({notes: e.target.value})}>{reg.notes}</TextField>
+      <TextField
+        multiline
+        onChange={(e) => onChange({ notes: e.target.value })}
+        rows={4}
+        sx={{ width: '100%' }}
+        value={reg.notes}
+      />
     </CollapsibleSection>
   );
 }

@@ -23,6 +23,7 @@ const VALIDATORS: Validators2<Registration, 'registration', ConfirmedEventEx> = 
   notes: () => false,
   owner: (reg) => validatePerson(reg.owner) ? 'required' : false,
   reserve: (reg) => !reg.reserve ? 'reserve' : false,
+  results: () => false
 };
 
 export function validateRegistrationField(registration: Registration, field: keyof Registration, event: ConfirmedEventEx): ValidationResult<Registration, 'registration'> {
