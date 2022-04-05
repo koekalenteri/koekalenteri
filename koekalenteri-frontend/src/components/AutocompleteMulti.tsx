@@ -23,7 +23,6 @@ export function AutocompleteMulti<T>(props: AutocompleteMultiProps<T>) {
           {...acProps}
           disableCloseOnSelect
           fullWidth
-          limitTags={size.width ? Math.trunc((size.width - 64) / 100) : undefined}
           multiple
           renderInput={(inputProps) => <TextField {...inputProps} label={label} error={error} helperText={helperText} />}
           renderOption={(optionProps, option, { selected }) => (
@@ -37,12 +36,6 @@ export function AutocompleteMulti<T>(props: AutocompleteMultiProps<T>) {
               {getLabel(option)}
             </li>
           )}
-          sx={{
-            '& .MuiAutocomplete-inputRoot': {
-              flexWrap: 'nowrap',
-              overflowX: 'hidden'
-            }
-          }}
         />
       }
     </SizeMe>

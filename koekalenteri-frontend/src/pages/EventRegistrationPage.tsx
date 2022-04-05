@@ -74,8 +74,10 @@ function EventComponent({ event, classDate = '', className = '' }: { event: Conf
           {event.eventType} {t('daterange', { start: event.startDate, end: event.endDate })} {event.location + (event.name ? ` (${event.name})` : '')}
         </Typography>
         <CollapsibleSection title="Kokeen tiedot">
-          <Grid container justifyContent="space-between" alignItems="flex-start">
-            <Grid item container sm={12} md>
+          <Grid container justifyContent="space-between" alignItems="flex-start"
+            sx={{ '& .MuiGrid-item': { overflow: 'hidden', textOverflow: 'ellipsis' } }}
+          >
+            <Grid item container sm={12} md columnSpacing={1}>
               <Grid item xs={4}>{t('entryTime')}:</Grid>
               <Grid item xs={8} sx={{ color: entryDateColor(event) }}>
                 <b>{t('daterange', { start: event.entryStartDate, end: event.entryEndDate })}</b>&nbsp;
@@ -88,7 +90,7 @@ function EventComponent({ event, classDate = '', className = '' }: { event: Conf
               <Grid item xs={4}>{t('event.official')}:</Grid>
               <Grid item xs={8}>{event.official?.name || ''}</Grid>
             </Grid>
-            <Grid item container sm={12} md>
+            <Grid item container sm={12} md columnSpacing={1}>
               <Grid item xs={4}>{t('event.paymentDetails')}:</Grid>
               <Grid item xs={8}><CostInfo event={event} /></Grid>
               <Grid item xs={4}>{t('event.description')}:</Grid>

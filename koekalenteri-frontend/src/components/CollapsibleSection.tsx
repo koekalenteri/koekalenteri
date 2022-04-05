@@ -17,7 +17,7 @@ export function CollapsibleSection({title, initOpen, children, error, helperText
       <IconButton size="small" color="primary" onClick={() => setOpen(!open)}>
         {open ? <KeyboardArrowDown /> : <KeyboardArrowRight />}
       </IconButton>
-      <Box sx={{ pt: '5px', width: '100%' }}>
+      <Box sx={{ pt: '5px', width: 'calc(100% - 34px)', overflowX: 'auto' }}>
         <Box sx={{ userSelect: 'none', mb: '1px' }} onClick={() => setOpen(!open)}>
           <Typography>{title}</Typography>
           <FormHelperText
