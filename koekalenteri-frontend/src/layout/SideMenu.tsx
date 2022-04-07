@@ -5,7 +5,7 @@ import { DrawerItem, DrawerList, MiniDrawer } from '../components/MiniDrawer';
 import { useTranslation } from 'react-i18next';
 import { ADMIN_EVENTS, ADMIN_JUDGES, ADMIN_ORGS, ADMIN_USERS } from '../config';
 
-export function SideMenu({ open }: { open?: boolean }) {
+export function SideMenu({ open, onClose }: { open?: boolean, onClose: () => void }) {
   const md = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'));
   const lg = useMediaQuery((theme: Theme) => theme.breakpoints.up('lg'));
   const { t } = useTranslation();
@@ -18,6 +18,7 @@ export function SideMenu({ open }: { open?: boolean }) {
       ModalProps={{
         keepMounted: true
       }}
+      onClose={onClose}
     >
       <Toolbar variant='dense' />
       <DrawerList>

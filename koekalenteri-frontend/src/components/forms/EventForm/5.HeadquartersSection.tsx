@@ -3,12 +3,19 @@ import { Event, Headquarters } from "koekalenteri-shared/model";
 import { useTranslation } from "react-i18next";
 import { CollapsibleSection, PartialEvent } from "../..";
 
-export function HeadquartersSection({ event, onChange }: { event: PartialEvent; onChange: (props: Partial<Event>) => void; }) {
+type HeadquartersSectionProps = {
+  event: PartialEvent
+  onChange: (props: Partial<Event>) => void;
+  onOpenChange?: (value: boolean) => void
+  open?: boolean
+}
+
+export function HeadquartersSection({ event, onChange, onOpenChange, open }: HeadquartersSectionProps) {
   const { t } = useTranslation();
   const handleChange = (props: Partial<Headquarters>) => onChange({ headquerters: { ...(event.headquerters || {}), ...props } });
 
   return (
-    <CollapsibleSection title={t('headquarters')}>
+    <CollapsibleSection title={t('headquarters')} open={open} onOpenChange={onOpenChange}>
       <Grid container spacing={1}>
         <Grid item container spacing={1}>
           <Grid item sx={{width: 300}}>

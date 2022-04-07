@@ -8,13 +8,15 @@ type OwnerInfoProps = {
   error?: boolean
   helperText?: string
   onChange: (props: Partial<Registration>) => void
+  onOpenChange?: (value: boolean) => void
+  open?: boolean
 };
 
-export function OwnerInfo({reg, error, helperText, onChange}: OwnerInfoProps) {
+export function OwnerInfo({reg, error, helperText, onChange, onOpenChange, open}: OwnerInfoProps) {
   const { t } = useTranslation();
 
   return (
-    <CollapsibleSection title={t('registration.owner')} error={error} helperText={helperText}>
+    <CollapsibleSection title={t('registration.owner')} error={error} helperText={helperText} open={open} onOpenChange={onOpenChange}>
       <Grid item container spacing={1}>
         <Grid item container spacing={1}>
           <Grid item sx={{ width: 300 }}>

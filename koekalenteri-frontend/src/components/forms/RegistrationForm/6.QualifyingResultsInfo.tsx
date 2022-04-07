@@ -15,11 +15,13 @@ type QualifyingResultsInfoProps = {
   error?: boolean
   helperText?: string
   onChange: (props: Partial<Registration>) => void
+  onOpenChange?: (value: boolean) => void
+  open?: boolean
 }
 
 type QRWithId = Partial<QualifyingResult> & { id: string };
 const asArray = (v: EventResultRequirements | EventResultRequirement) => Array.isArray(v) ? v : [v];
-export function QualifyingResultsInfo({ reg, error, helperText, onChange }: QualifyingResultsInfoProps) {
+export function QualifyingResultsInfo({ reg, error, helperText, onChange, onOpenChange, open }: QualifyingResultsInfoProps) {
   const { t } = useTranslation();
   const requirements = useMemo(() => getRequirements(reg.eventType, reg.class as RegistrationClass, reg.dates[0].date) || {rules: []}, [reg.eventType, reg.class, reg.dates]);
   const [results, setResults] = useState<Array<QRWithId>>([]);
@@ -46,7 +48,7 @@ export function QualifyingResultsInfo({ reg, error, helperText, onChange }: Qual
   }, [reg.qualifyingResults, reg.results]);
 
   return (
-    <CollapsibleSection title={t("registration.qualifyingResults")} error={error} helperText={helperText}>
+    <CollapsibleSection title={t("registration.qualifyingResults")} error={error} helperText={helperText} open={open} onOpenChange={onOpenChange}>
       <Grid item container spacing={1}>
         {results.map(result =>
           <Grid key={getResultId(result)} item container spacing={1} alignItems="center">

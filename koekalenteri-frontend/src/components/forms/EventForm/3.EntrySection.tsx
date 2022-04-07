@@ -11,12 +11,14 @@ export type EntrySectionProps = {
   errorStates: { [Property in keyof Event]?: boolean }
   helperTexts: { [Property in keyof Event]?: string }
   onChange: (props: Partial<Event>) => void
+  onOpenChange?: (value: boolean) => void
+  open?: boolean
 }
 
 export function EntrySection(props: EntrySectionProps) {
-  const { event, fields, helperTexts, onChange } = props;
+  const { event, fields, helperTexts, onChange, onOpenChange, open } = props;
   return (
-    <CollapsibleSection title="Ilmoittautuminen">
+    <CollapsibleSection title="Ilmoittautuminen" open={open} onOpenChange={onOpenChange}>
       <Grid item container spacing={1}>
         <Grid item container spacing={1}>
           <Grid item>

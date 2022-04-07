@@ -6,7 +6,7 @@ import { SideMenu } from '../layout/SideMenu';
 import { useAuthenticator } from '@aws-amplify/ui-react';
 import { Navigate, useLocation } from 'react-router-dom';
 
-export function AuthPage({ children }: { children: ReactNode }) {
+export function AuthPage({ children, title }: { children: ReactNode, title?: string }) {
   const location = useLocation();
   const { route } = useAuthenticator(context => [context.route]);
   const { publicStore, privateStore } = useStores();
@@ -32,10 +32,10 @@ export function AuthPage({ children }: { children: ReactNode }) {
 
   return (route !== 'authenticated' ? <Navigate to="/login" state={{ from: location }} replace /> :
     <>
-      <Header toggleMenu={toggleMenu} />
-      <Box sx={{ display: 'flex', height: '100%' }}>
-        <SideMenu open={menuOpen}/>
-        <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', flexGrow: 1, overflow: 'auto' }}>
+      <Header title={title} toggleMenu={toggleMenu} />
+      <Box sx={{ display: 'flex', maxHeight: '100%' }}>
+        <SideMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
+        <Box sx={{ p: 1, display: 'flex', flexDirection: 'column', flexGrow: 1, overflow: 'auto' }}>
           <Toolbar variant="dense" />
           {children}
         </Box>

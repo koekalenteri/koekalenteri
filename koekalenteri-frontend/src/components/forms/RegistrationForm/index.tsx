@@ -1,6 +1,6 @@
 import { Cancel, Save } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
-import { Box, Button, Checkbox, Collapse, FormControl, FormControlLabel, FormHelperText, Link, Paper, Stack } from '@mui/material';
+import { Box, Button, Checkbox, Collapse, FormControl, FormControlLabel, FormHelperText, Link, Paper, Stack, Theme, useMediaQuery } from '@mui/material';
 import { ConfirmedEventEx, Language, Registration } from 'koekalenteri-shared/model';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -25,6 +25,7 @@ type RegistrationFormProps = {
 };
 
 export function RegistrationForm({ event, className, registration, classDate, onSave, onCancel }: RegistrationFormProps) {
+  const md = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'));
   const { t, i18n } = useTranslation();
   const [local, setLocal] = useState<Registration>({
     eventId: event.id,
@@ -72,6 +73,15 @@ export function RegistrationForm({ event, className, registration, classDate, on
   const [saving, setSaving] = useState(false);
   const [changes, setChanges] = useState(local.id === '');
   const [errors, setErrors] = useState(validateRegistration(local, event));
+  const [open, setOpen] = useState<{[key: string]: boolean|undefined}>({
+    entry: true,
+    dog: md,
+    breeder: md,
+    owner: md,
+    handler: md,
+    qr: md,
+    info: md
+  });
   const valid = errors.length === 0;
   const onChange = (props: Partial<Registration>) => {
     console.log('Changes: ' + JSON.stringify(props));
@@ -110,7 +120,24 @@ export function RegistrationForm({ event, className, registration, classDate, on
     }
   }
   const cancelHandler = () => onCancel && onCancel(local);
-
+  const handleOpenChange = (id: keyof typeof open, value: boolean) => {
+    const newState = md
+      ? {
+        ...open,
+        [id]: value
+      }
+      : {
+        entry: false,
+        dog: false,
+        breeder: false,
+        owner: false,
+        handler: false,
+        qr: false,
+        info: false,
+        [id]: value
+      };
+    setOpen(newState);
+  }
   const errorStates: { [Property in keyof Registration]?: boolean } = {};
   const helperTexts: { [Property in keyof Registration]?: string } = {
     breeder: `${local.breeder.name}`,
@@ -127,15 +154,66 @@ export function RegistrationForm({ event, className, registration, classDate, on
   return (
     <Paper elevation={2} sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, overflow: 'auto', maxHeight: '100%', maxWidth: '100%' }}>
       <Box sx={{ pb: 0.5, overflow: 'auto', borderRadius: 1, bgcolor: 'background.form', '& .MuiInputBase-root': { bgcolor: 'background.default'} }}>
-        <EntryInfo reg={local} event={event} classDate={classDate} errorStates={errorStates} helperTexts={helperTexts} onChange={onChange} />
-        <DogInfo reg={local} eventDate={event.startDate} minDogAgeMonths={9} error={errorStates.dog} helperText={helperTexts.dog} onChange={onChange} />
-        <BreederInfo reg={local} error={errorStates.breeder} helperText={helperTexts.breeder} onChange={onChange} />
-        <OwnerInfo reg={local} error={errorStates.owner} helperText={helperTexts.owner} onChange={onChange} />
+        <EntryInfo
+          reg={local}
+          event={event}
+          classDate={classDate}
+          errorStates={errorStates}
+          helperTexts={helperTexts}
+          onChange={onChange}
+          onOpenChange={(value) => handleOpenChange('entry', value)}
+          open={open.entry}
+        />
+        <DogInfo
+          reg={local}
+          eventDate={event.startDate}
+          minDogAgeMonths={9}
+          error={errorStates.dog}
+          helperText={helperTexts.dog}
+          onChange={onChange}
+          onOpenChange={(value) => handleOpenChange('dog', value)}
+          open={open.dog}
+        />
+        <BreederInfo
+          reg={local}
+          error={errorStates.breeder}
+          helperText={helperTexts.breeder}
+          onChange={onChange}
+          onOpenChange={(value) => handleOpenChange('breeder', value)}
+          open={open.breeder}
+        />
+        <OwnerInfo
+          reg={local}
+          error={errorStates.owner}
+          helperText={helperTexts.owner}
+          onChange={onChange}
+          onOpenChange={(value) => handleOpenChange('owner', value)}
+          open={open.owner}
+        />
         <Collapse in={!local.ownerHandles}>
-          <HandlerInfo reg={local} error={errorStates.handler} helperText={helperTexts.handler} onChange={onChange} />
+          <HandlerInfo
+            reg={local}
+            error={errorStates.handler}
+            helperText={helperTexts.handler}
+            onChange={onChange}
+            onOpenChange={(value) => handleOpenChange('handler', value)}
+            open={open.handler}
+          />
         </Collapse>
-        <QualifyingResultsInfo reg={local} error={!qualifies} helperText={helperTexts.qualifyingResults} onChange={onChange} />
-        <AdditionalInfo reg={local} onChange={onChange} />
+        <QualifyingResultsInfo
+          reg={local}
+          error={!qualifies}
+          helperText={helperTexts.qualifyingResults}
+          onChange={onChange}
+          onOpenChange={(value) => handleOpenChange('qr', value)}
+          open={open.qr}
+        />
+        <AdditionalInfo
+          reg={local}
+          onChange={onChange}
+          onOpenChange={(value) => handleOpenChange('info', value)}
+          open={open.info}
+        />
         <Box sx={{ m: 1, mt: 2, ml: 4, borderTop: '1px solid #bdbdbd' }}>
           <FormControl error={errorStates.agreeToTerms} disabled={!!local.id}>
             <FormControlLabel control={<Checkbox checked={local.agreeToTerms} onChange={e => onChange({agreeToTerms: e.target.checked})}/>} label={

@@ -11,15 +11,17 @@ type ContactInfoSectionParams = {
   helperTexts: { [Property in keyof Event]?: string }
   fields: FieldRequirements
   onChange: (props: Partial<Event>) => void
+  onOpenChange?: (value: boolean) => void
+  open?: boolean
 };
 
-export function ContactInfoSection({ event, fields, errorStates, helperTexts, onChange }: ContactInfoSectionParams) {
+export function ContactInfoSection({ event, helperTexts, onChange, onOpenChange, open }: ContactInfoSectionParams) {
   const { t } = useTranslation();
   const handleChange = (props: Partial<ContactInfo>) => onChange({ contactInfo: { ...(event.contactInfo || {}), ...props } });
   const helperText = helperTexts.contactInfo || '';
 
   return (
-    <CollapsibleSection title={t('event.contactInfo')}>
+    <CollapsibleSection title={t('event.contactInfo')} open={open} onOpenChange={onOpenChange}>
       <Grid container spacing={1}>
         <Grid item container spacing={1}>
           <Grid item>

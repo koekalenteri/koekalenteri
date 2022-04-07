@@ -12,7 +12,16 @@ function filterJudges(judges: Judge[], eventJudges: number[], id: number) {
   return judges.filter(j => j.id === id || !eventJudges.includes(j.id));
 }
 
-export function JudgesSection({ event, judges, fields, onChange }: { event: PartialEvent, judges: Judge[], fields?: FieldRequirements, onChange: (props: Partial<Event>) => void }) {
+type JudgesSectionProps = {
+  event: PartialEvent
+  fields?: FieldRequirements
+  judges: Judge[]
+  onChange: (props: Partial<Event>) => void
+  onOpenChange?: (value: boolean) => void
+  open?: boolean
+}
+
+export function JudgesSection({ event, judges, fields, onChange, onOpenChange, open }: JudgesSectionProps) {
   const { t } = useTranslation();
   const list = event.judges.length ? event.judges : [0];
   const error = fields?.required.judges && validateEventField(event, 'judges', true);
@@ -30,7 +39,7 @@ export function JudgesSection({ event, judges, fields, onChange }: { event: Part
   }
 
   return (
-    <CollapsibleSection title={t('judges')}>
+    <CollapsibleSection title={t('judges')} open={open} onOpenChange={onOpenChange}>
       <Grid item container spacing={1}>
         {list.map((id, index) => {
           const title = index === 0 ? t('judgeChief') : t('judge') + ` ${index + 1}`;

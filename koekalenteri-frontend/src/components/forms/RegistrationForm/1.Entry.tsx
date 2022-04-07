@@ -30,9 +30,11 @@ type EntryInfoProps = {
   errorStates: { [Property in keyof Registration]?: boolean }
   helperTexts: { [Property in keyof Registration]?: string }
   onChange: (props: Partial<Registration>) => void
+  onOpenChange?: (value: boolean) => void
+  open?: boolean
 }
 
-export function EntryInfo({ reg, event, classDate, errorStates, helperTexts, onChange }: EntryInfoProps) {
+export function EntryInfo({ reg, event, classDate, errorStates, helperTexts, onChange, onOpenChange, open }: EntryInfoProps) {
   const { t } = useTranslation();
   const classDates = getRegistrationDates(event, classDate, reg.class || '');
   const error = errorStates.class || errorStates.dates || errorStates.reserve;
@@ -47,6 +49,8 @@ export function EntryInfo({ reg, event, classDate, errorStates, helperTexts, onC
       border={false}
       error={error}
       helperText={helperText}
+      open={open}
+      onOpenChange={onOpenChange}
     >
       <Grid container spacing={1}>
         <Grid item sx={{ minWidth: 100, display: event.classes.length === 0 ? 'none' : 'block' }}>

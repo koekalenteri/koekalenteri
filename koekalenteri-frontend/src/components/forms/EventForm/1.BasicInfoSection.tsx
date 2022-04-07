@@ -19,16 +19,18 @@ type BasicInfoSectionParams = {
   officials: Official[]
   organizers: Organizer[]
   onChange: (props: Partial<Event>) => void
+  open?: boolean
+  onOpenChange?: (value: boolean) => void
 };
 
 
-export function BasicInfoSection({ event, errorStates, helperTexts, fields, eventTypes, eventTypeClasses, officials, organizers, onChange }: BasicInfoSectionParams) {
+export function BasicInfoSection({ event, errorStates, helperTexts, fields, eventTypes, eventTypeClasses, officials, open, onOpenChange, organizers, onChange }: BasicInfoSectionParams) {
   const { t } = useTranslation();
   const [helpAnchorEl, setHelpAnchorEl] = useState<HTMLButtonElement | null>(null);
   const typeOptions = eventClassOptions(event, eventTypeClasses[event.eventType || ''] || []);
 
   return (
-    <CollapsibleSection title="Kokeen perustiedot">
+    <CollapsibleSection title="Kokeen perustiedot" open={open} onOpenChange={onOpenChange}>
       <Grid item container spacing={1}>
         <Grid item container spacing={1}>
           <Grid item sx={{ width: 600 }}>

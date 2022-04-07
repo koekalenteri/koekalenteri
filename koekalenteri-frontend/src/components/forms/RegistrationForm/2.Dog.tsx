@@ -28,9 +28,11 @@ type DogInfoProps = {
   error?: boolean
   helperText?: string
   onChange: (props: Partial<Registration>) => void
+  onOpenChange?: (value: boolean) => void
+  open?: boolean
 };
 
-export function DogInfo({ reg, eventDate, minDogAgeMonths, error, helperText, onChange }: DogInfoProps) {
+export function DogInfo({ reg, eventDate, minDogAgeMonths, error, helperText, onChange, onOpenChange, open }: DogInfoProps) {
   const { t } = useTranslation();
   const { t: breed } = useTranslation('breed');
   const [loading, setLoading] = useState(false);
@@ -81,7 +83,7 @@ export function DogInfo({ reg, eventDate, minDogAgeMonths, error, helperText, on
   }
 
   return (
-    <CollapsibleSection title={t('registration.dog')} error={error} helperText={helperText}>
+    <CollapsibleSection title={t('registration.dog')} error={error} helperText={helperText} open={open} onOpenChange={onOpenChange}>
       <Stack direction="row" spacing={1} alignItems="flex-end">
         <Autocomplete
           id="txtReknro"

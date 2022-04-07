@@ -65,8 +65,8 @@ test('renders admin default (event) page', async () => {
   fireEvent.click(cell, 'click');
   expect(row).toHaveClass('Mui-selected');
   fireEvent.click(screen.getByText(/Muokkaa/));
-  const newHead = await screen.findByText('Muokkaa tapahtumaa');
-  expect(newHead).toBeInstanceOf(HTMLHeadingElement);
+  const newHead = await screen.findByText(/Muokkaa tapahtumaa/);
+  expect(newHead).toBeInstanceOf(HTMLDivElement);
 });
 
 test('renders admin createEvent page', async () => {

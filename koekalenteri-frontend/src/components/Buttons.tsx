@@ -35,7 +35,7 @@ export function AutoButton(props: ButtonProps & { text: string }) {
     return (
       <Stack>
         <IconButton color="primary" {...rest}>{rest.startIcon || rest.endIcon}</IconButton>
-        <Typography variant="caption" noWrap sx={{ textAlign: 'center', width: 42, overflow: 'hidden' }}>{text}</Typography>
+        <Typography variant="caption" noWrap sx={{ textAlign: 'center', width: 56, overflow: 'hidden' }}>{text}</Typography>
       </Stack >
     );
   }

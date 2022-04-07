@@ -6,11 +6,19 @@ import { CollapsibleSection } from "../..";
 import { FieldRequirements } from "./validation";
 import { EventProperty, EventPropertyProps } from "./EventProperty";
 
-export function PaymentSection({ event, fields, onChange }: { event: PartialEvent; fields: FieldRequirements; onChange: (props: Partial<Event>) => void; }) {
+type PaymentSectionProps = {
+  event: PartialEvent
+  fields: FieldRequirements
+  onChange: (props: Partial<Event>) => void
+  onOpenChange?: (value: boolean) => void
+  open?: boolean
+}
+
+export function PaymentSection({ event, fields, onChange, open, onOpenChange }: PaymentSectionProps) {
   const { t } = useTranslation();
 
   return (
-    <CollapsibleSection title={t('event.paymentDetails')}>
+    <CollapsibleSection title={t('event.paymentDetails')} open={open} onOpenChange={onOpenChange}>
       <Grid container spacing={1}>
         <Grid item container spacing={1}>
           <Grid item sx={{width: 200}}>

@@ -1,6 +1,6 @@
 import { Cancel, Save } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
-import { Box, Button, Stack } from '@mui/material';
+import { Box, Button, Paper, Stack, Theme, useMediaQuery } from '@mui/material';
 import { addDays, nextSaturday, startOfDay } from 'date-fns';
 import type { Event, EventClass, EventState, Judge, Official, Organizer } from 'koekalenteri-shared/model';
 import { useMemo, useState } from 'react';
@@ -29,6 +29,7 @@ type EventFormParams = {
 };
 
 export function EventForm({ event, judges, eventTypes, eventTypeClasses, officials, organizers, onSave, onCancel }: EventFormParams) {
+  const md = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'));
   const baseDate = startOfDay(addDays(Date.now(), 90));
   const { t } = useTranslation();
   const [local, setLocal] = useState<PartialEvent>({
@@ -42,6 +43,15 @@ export function EventForm({ event, judges, eventTypes, eventTypeClasses, officia
   const [saving, setSaving] = useState(false);
   const [changes, setChanges] = useState(typeof local.id === 'undefined');
   const [errors, setErrors] = useState(validateEvent(local));
+  const [open, setOpen] = useState<{[key: string]: boolean|undefined}>({
+    basic: true,
+    judges: md,
+    entry: md,
+    payment: md,
+    hq: md,
+    contact: md,
+    info: md
+  });
   const valid = errors.length === 0;
   const fields = useMemo(() => requiredFields(local), [local]);
   const onChange = (props: Partial<Event>) => {
@@ -63,6 +73,24 @@ export function EventForm({ event, judges, eventTypes, eventTypeClasses, officia
     }
   }
   const cancelHandler = () => onCancel(local);
+  const handleOpenChange = (id: keyof typeof open, value: boolean) => {
+    const newState = md
+      ? {
+        ...open,
+        [id]: value
+      }
+      : {
+        basic: false,
+        judges: false,
+        entry: false,
+        payment: false,
+        hq: false,
+        contact: false,
+        info: false,
+        [id]: value
+      };
+    setOpen(newState);
+  }
 
   const errorStates: { [Property in keyof Event]?: boolean } = {};
   const helperTexts: { [Property in keyof Event]?: string } = {};
@@ -72,8 +100,8 @@ export function EventForm({ event, judges, eventTypes, eventTypeClasses, officia
   }
 
   return (
-    <>
-      <Box sx={{ pb: 1 }}>
+    <Paper elevation={2} sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, overflow: 'auto', maxHeight: '100%', maxWidth: '100%' }}>
+      <Box sx={{ p: 1 }}>
         <AutocompleteSingle
           disableClearable
           getOptionLabel={o => t(`event.states.${o}`)}
@@ -85,20 +113,71 @@ export function EventForm({ event, judges, eventTypes, eventTypeClasses, officia
         />
       </Box>
 
-      <Box sx={{ pb: 0.5, overflow: 'auto', borderRadius: 1, bgcolor: 'background.form', '& .MuiInputBase-root': { bgcolor: 'background.default'} }}>
-        <BasicInfoSection event={local} fields={fields} errorStates={errorStates} helperTexts={helperTexts} eventTypes={eventTypes} eventTypeClasses={eventTypeClasses} officials={officials} organizers={organizers} onChange={onChange} />
-        <JudgesSection event={local} judges={judges} fields={fields} onChange={onChange} />
-        <EntrySection event={local} fields={fields} errorStates={errorStates} helperTexts={helperTexts} onChange={onChange} />
-        <PaymentSection event={local} fields={fields} onChange={onChange} />
-        <HeadquartersSection event={local} onChange={onChange} />
-        <ContactInfoSection event={local} errorStates={errorStates} helperTexts={helperTexts} fields={fields} onChange={onChange} />
-        <AdditionalInfoSection event={local} onChange={onChange} />
+      <Box sx={{ pb: 0.5, overflow: 'auto', bgcolor: 'background.form', '& .MuiInputBase-root': { bgcolor: 'background.default'} }}>
+        <BasicInfoSection
+          errorStates={errorStates}
+          event={local}
+          eventTypeClasses={eventTypeClasses}
+          eventTypes={eventTypes}
+          fields={fields}
+          helperTexts={helperTexts}
+          officials={officials}
+          onChange={onChange}
+          onOpenChange={(value) => handleOpenChange('basic', value)}
+          open={open.basic}
+          organizers={organizers}
+        />
+        <JudgesSection
+          event={local}
+          judges={judges}
+          fields={fields}
+          onChange={onChange}
+          onOpenChange={(value) => handleOpenChange('judges', value)}
+          open={open.judges}
+        />
+        <EntrySection
+          event={local}
+          fields={fields}
+          errorStates={errorStates}
+          helperTexts={helperTexts}
+          onChange={onChange}
+          onOpenChange={(value) => handleOpenChange('entry', value)}
+          open={open.entry}
+        />
+        <PaymentSection
+          event={local}
+          fields={fields}
+          onChange={onChange}
+          onOpenChange={(value) => handleOpenChange('payment', value)}
+          open={open.payment}
+        />
+        <HeadquartersSection
+          event={local}
+          onChange={onChange}
+          onOpenChange={(value) => handleOpenChange('hq', value)}
+          open={open.hq}
+        />
+        <ContactInfoSection
+          event={local}
+          errorStates={errorStates}
+          helperTexts={helperTexts}
+          fields={fields}
+          onChange={onChange}
+          onOpenChange={(value) => handleOpenChange('contact', value)}
+          open={open.contact}
+        />
+        <AdditionalInfoSection
+          event={local}
+          onChange={onChange}
+          onOpenChange={(value) => handleOpenChange('info', value)}
+          open={open.info}
+        />
       </Box>
 
-      <Stack spacing={1} direction="row" justifyContent="flex-end" sx={{mt: 1}}>
+      <Stack spacing={1} direction="row" justifyContent="flex-end" sx={{p: 1, borderTop: '1px solid', borderColor: '#bdbdbd'}}>
         <LoadingButton color="primary" disabled={!changes || !valid} loading={saving} loadingPosition="start" startIcon={<Save />} variant="contained" onClick={saveHandler}>Tallenna</LoadingButton>
         <Button startIcon={<Cancel />} variant="outlined" onClick={cancelHandler}>Peruuta</Button>
       </Stack>
-    </>
+    </Paper>
   );
 }

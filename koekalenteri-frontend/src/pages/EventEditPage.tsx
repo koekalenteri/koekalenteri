@@ -1,4 +1,4 @@
-import { CircularProgress, Typography } from '@mui/material';
+import { CircularProgress } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { useSnackbar } from 'notistack';
 import { AuthPage } from './AuthPage';
@@ -32,8 +32,7 @@ export function EventEditPage({create}: {create?: boolean}) {
   }, [params, privateStore]);
 
   return (
-    <AuthPage>
-      <Typography variant="h5" sx={{pb: 1}}>{create ? t('createEvent') : 'Muokkaa tapahtumaa'}</Typography>
+    <AuthPage title={create ? t('createEvent') : 'Muokkaa tapahtumaa'}>
       {loading
         ? <CircularProgress />
         : <EventForm

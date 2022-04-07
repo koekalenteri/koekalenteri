@@ -8,13 +8,15 @@ type BreederInfoProps = {
   error?: boolean
   helperText?: string
   onChange: (props: Partial<Registration>) => void
+  onOpenChange?: (value: boolean) => void
+  open?: boolean
 };
 
-export function BreederInfo({ reg, error, helperText, onChange }: BreederInfoProps) {
+export function BreederInfo({ reg, error, helperText, onChange, onOpenChange, open }: BreederInfoProps) {
   const { t } = useTranslation();
 
   return (
-    <CollapsibleSection title={t('registration.breeder')} error={error} helperText={helperText}>
+    <CollapsibleSection title={t('registration.breeder')} error={error} helperText={helperText} open={open} onOpenChange={onOpenChange}>
       <Grid item container spacing={1}>
         <Grid item>
           <TextField

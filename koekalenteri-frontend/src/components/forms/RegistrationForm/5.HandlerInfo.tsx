@@ -8,13 +8,15 @@ type HandlerInfoProps = {
   error?: boolean
   helperText?: string
   onChange: (props: Partial<Registration>) => void
+  onOpenChange?: (value: boolean) => void
+  open?: boolean
 };
 
-export function HandlerInfo({ reg, error, helperText, onChange }: HandlerInfoProps) {
+export function HandlerInfo({ reg, error, helperText, onChange, onOpenChange, open }: HandlerInfoProps) {
   const { t } = useTranslation();
 
   return (
-    <CollapsibleSection title={t('registration.handler')} error={error} helperText={helperText}>
+    <CollapsibleSection title={t('registration.handler')} error={error} helperText={helperText} open={open} onOpenChange={onOpenChange}>
       <Grid item container spacing={1}>
         <Grid item container spacing={1}>
           <Grid item sx={{ width: 300 }}>
