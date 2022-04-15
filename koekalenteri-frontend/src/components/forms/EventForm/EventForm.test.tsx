@@ -20,6 +20,7 @@ const JUDGES = [{
   email: 'joo@ei.com',
   phone: '0700-judge',
   location: 'Pohjois-Karjala',
+  district: 'Pohjois-Karjalan Kennelpiiri ry',
   languages: ['fi'],
   eventTypes: ['TEST-A', 'TEST-C']
 }];

@@ -31,10 +31,10 @@ const useRowStyles = makeStyles({
 });
 
 export function EventInfo({ event }: { event: EventEx }) {
-  const { publicStore } = useStores();
+  const { rootStore } = useStores();
   const classes = useRowStyles();
   const { t } = useTranslation();
-  const judgeName = (id: number) => publicStore.judges.find(j => j.id === id)?.name || '';
+  const judgeName = (id: number) => rootStore.judgeStore.judges.find(j => j.id === id)?.name || '';
   const allJudgesInCalsses = event.judges.filter(j => !event.classes.find(c => c.judge?.id === j)).length === 0;
   return (
     <>

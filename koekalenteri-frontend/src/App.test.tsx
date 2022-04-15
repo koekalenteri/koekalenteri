@@ -10,6 +10,7 @@ jest.mock('./api/event');
 jest.mock('./api/judge');
 jest.mock('./api/official');
 jest.mock('./api/organizer');
+jest.mock('./api/eventType');
 
 jest.mock('@aws-amplify/ui-react');
 
@@ -86,7 +87,7 @@ test('renders admin EventViewPage', async () => {
 test('renders admin organizations', async () => {
   renderPath(ADMIN_ORGS);
   const head = await screen.findAllByText(/Yhdistykset/);
-  expect(head.length).toBe(2);
+  expect(head.length).toBe(3);
 });
 
 test('renders admin users', async () => {
@@ -98,7 +99,7 @@ test('renders admin users', async () => {
 test('renders admin judges', async () => {
   renderPath(ADMIN_JUDGES);
   const head = await screen.findAllByText(/Tuomarit/);
-  expect(head.length).toBe(2);
+  expect(head.length).toBe(3);
 });
 
 test('renders logout page', async () => {

@@ -1,8 +1,7 @@
 import { makeAutoObservable, runInAction } from 'mobx';
 import * as eventApi from '../api/event';
-import * as judgeApi from '../api/judge';
 import * as organizerApi from '../api/organizer';
-import type { EventEx, Judge, Organizer } from 'koekalenteri-shared/model';
+import type { EventEx, Organizer } from 'koekalenteri-shared/model';
 
 export type FilterProps = {
   start: Date | null
@@ -28,7 +27,6 @@ export class PublicStore {
     'NOWT': ['ALO', 'AVO', 'VOI']
   };
 
-  public judges: Judge[] = [];
   public organizers: Organizer[] = [];
 
   public loaded: boolean = false;
@@ -69,11 +67,9 @@ export class PublicStore {
     this._applyFilter();
 
     if (!reload) {
-      const judges = await judgeApi.getJudges(signal);
-      const organizers = await organizerApi.getOrganizers(signal);
+      const organizers = await organizerApi.getOrganizers(false, signal);
 
       runInAction(() => {
-        this.judges = judges;
         this.organizers = organizers;
       });
     }

@@ -7,6 +7,7 @@ const JUDGES = [{
   email: 'joo@ei.com',
   phone: '0700-judge',
   location: 'Pohjois-Karjala',
+  district: 'Pohjois-Karjalan Kennelpiiri ry',
   languages: ['fi'],
   eventTypes: ['NOWT']
 }, {
@@ -15,6 +16,7 @@ const JUDGES = [{
   email: 'joo2@ei.com',
   phone: '0700-judge2',
   location: 'Pohjois-Karjala',
+  district: 'Pohjois-Karjalan Kennelpiiri ry',
   languages: ['fi'],
   eventTypes: ['NOWT']
 }, {
@@ -23,6 +25,7 @@ const JUDGES = [{
   email: 'joo3@ei.com',
   phone: '0700-judge3',
   location: 'Pohjois-Karjala',
+  district: 'Pohjois-Karjalan Kennelpiiri ry',
   languages: ['fi'],
   eventTypes: ['NOWT']
 }];

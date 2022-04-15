@@ -16,6 +16,12 @@ export enum KLKieli {
   Englanti
 }
 
+export const KLKieliToLang = {
+  1: 'fi',
+  2: 'sv',
+  3: 'en'
+}
+
 export type KLKoiraParametrit = {
   Rekisterinumero?: string,
   Tunnistusmerkintä?: string,
@@ -163,7 +169,7 @@ export enum KLYhdistysRajaus {
 
 export type KLYhdistysParametrit = {
   Rajaus: KLYhdistysRajaus
-  KennelpiirinNumero: number
+  KennelpiirinNumero?: number
 }
 
 export enum KLParametri {

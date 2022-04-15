@@ -1,9 +1,9 @@
-import { NavLink, useNavigate } from 'react-router-dom';
+import { Accessibility, EmojiEventsOutlined, Event, Logout, PersonOutline, Support } from '@mui/icons-material';
 import { Divider, Theme, Toolbar, useMediaQuery } from '@mui/material';
-import { Accessibility, Event, Logout, PersonOutline, Support } from '@mui/icons-material';
-import { DrawerItem, DrawerList, MiniDrawer } from '../components/MiniDrawer';
 import { useTranslation } from 'react-i18next';
-import { ADMIN_EVENTS, ADMIN_JUDGES, ADMIN_ORGS, ADMIN_USERS } from '../config';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { DrawerItem, DrawerList, MiniDrawer } from '../components/MiniDrawer';
+import { ADMIN_EVENTS, ADMIN_EVENT_TYPES, ADMIN_JUDGES, ADMIN_ORGS, ADMIN_USERS } from '../config';
 
 export function SideMenu({ open, onClose }: { open?: boolean, onClose: () => void }) {
   const md = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'));
@@ -26,6 +26,7 @@ export function SideMenu({ open, onClose }: { open?: boolean, onClose: () => voi
         <NavLink to={ADMIN_ORGS}><DrawerItem text={t('organizations')} icon={<Support />} /></NavLink>
         <NavLink to={ADMIN_USERS}><DrawerItem text={t('users')} icon={<PersonOutline />} /></NavLink>
         <NavLink to={ADMIN_JUDGES}><DrawerItem text={t('judges')} icon={<Accessibility />} /></NavLink>
+        <NavLink to={ADMIN_EVENT_TYPES}><DrawerItem text={t('eventTypes')} icon={<EmojiEventsOutlined />} /></NavLink>
       </DrawerList>
       <Divider />
       <DrawerList>

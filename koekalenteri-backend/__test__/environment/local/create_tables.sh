@@ -2,8 +2,6 @@
 export JSON_PATH='__test__/environment/local/'
 cd ${JSON_PATH}
 
-aws dynamodb delete-table --table-name event-table --endpoint-url http://127.0.0.1:8000
-
 aws dynamodb create-table \
         --table-name event-table \
         --attribute-definitions AttributeName=eventType,AttributeType=S AttributeName=id,AttributeType=S \
@@ -44,3 +42,8 @@ aws dynamodb create-table \
 
 aws dynamodb batch-write-item --endpoint-url http://127.0.0.1:8000 --request-items file://registrations.json
 
+aws dynamodb create-table \
+  --table-name event-type-table \
+  --attribute-definitions AttributeName=eventType,AttributeType=S \
+  --key-schema AttributeName=eventType,KeyType=HASH \
+  --billing-mode PAY_PER_REQUEST --endpoint-url http://127.0.0.1:8000

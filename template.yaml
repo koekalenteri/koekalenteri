@@ -234,10 +234,10 @@ Resources:
       SSESpecification:
         SSEEnabled: false
 
-  EventTypesTable:
+  EventTypeTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: !Join ['-', [event-types-table, !Ref AWS::StackName]]
+      TableName: !Join ['-', [event-type-table, !Ref AWS::StackName]]
       KeySchema:
           - AttributeName: code
             KeyType: HASH
@@ -309,7 +309,7 @@ Resources:
             RestApiId: !Ref KoekalenteriApi
 
   GetEventFunction:
-    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Type: AWS::Serverless::Function
     Properties:
       CodeUri: koekalenteri-backend
       Handler: dist/handlers/event.getEventHandler
@@ -327,14 +327,14 @@ Resources:
 
       Events:
         GetEvent:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Type: Api
           Properties:
             Path: /event/{eventType}/{id}
             Method: get
             RestApiId: !Ref KoekalenteriApi
 
   PutEventFunction:
-    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Type: AWS::Serverless::Function
     Properties:
       CodeUri: koekalenteri-backend
       Handler: dist/handlers/event.putEventHandler
@@ -352,7 +352,7 @@ Resources:
 
       Events:
         PutEvent:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Type: Api
           Properties:
             Path: /event
             Method: POST
@@ -433,6 +433,13 @@ Resources:
         - !Ref CommonLayer
       Tracing: Active
       Policies:
+        - Statement:
+            - Sid: SSMGetParameterPolicy
+              Effect: Allow
+              Action:
+              - ssm:GetParameters
+              - ssm:GetParameter
+              Resource: '*'
         - DynamoDBReadPolicy:
             TableName: !Ref JudgeTable
         - CloudWatchPutMetricPolicy: {}
@@ -483,6 +490,13 @@ Resources:
         - !Ref CommonLayer
       Tracing: Active
       Policies:
+        - Statement:
+            - Sid: SSMGetParameterPolicy
+              Effect: Allow
+              Action:
+              - ssm:GetParameters
+              - ssm:GetParameter
+              Resource: '*'
         - DynamoDBReadPolicy:
             TableName: !Ref OrganizerTable
         - CloudWatchPutMetricPolicy: {}
@@ -535,7 +549,7 @@ Resources:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
       CodeUri: koekalenteri-backend
-      Handler: dist/handlers/eventTypes.getEventTypesHandler
+      Handler: dist/handlers/eventType.getEventTypesHandler
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -549,17 +563,17 @@ Resources:
               Resource: '*'
         - CloudWatchPutMetricPolicy: {}
         - DynamoDBCrudPolicy:
-            TableName: !Ref EventTypesTable
+            TableName: !Ref EventTypeTable
       Environment:
         Variables:
-          TABLE_NAME: !Ref EventTypesTable
+          TABLE_NAME: !Ref EventTypeTable
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
 
       Events:
         getDog:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
-            Path: /eventTypes
+            Path: /eventType
             Method: get
             RestApiId: !Ref KoekalenteriApi
 

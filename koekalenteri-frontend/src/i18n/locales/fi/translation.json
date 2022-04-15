@@ -96,6 +96,8 @@
   "eventClass": "Koeluokka",
   "eventTime": "Ajankohta",
   "eventType": "Koemuoto",
+  "eventType_short": "Lyhenne",
+  "eventTypes": "Koemuodot",
   "events": "Tapahtumat",
   "goBack": "Takaisin",
   "goHome": "Etusivulle",
@@ -187,6 +189,7 @@
     "result": "Tulos"
   },
   "toltaPlaces": "paikkaa",
+  "updateData": "Päivitä $t({{data}}) Kennelliiton rajapinnasta",
   "users": "Käyttäjät",
   "validation": {
     "event": {

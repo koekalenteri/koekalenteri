@@ -3,6 +3,7 @@ import type { Judge } from 'koekalenteri-shared/model';
 
 const PATH = '/judge/';
 
-export async function getJudges(signal?: AbortSignal) {
-  return http.get<Array<Judge>>(PATH, {signal});
+export async function getJudges(refresh?: boolean, signal?: AbortSignal) {
+  const qs = refresh ? '?refresh' : '';
+  return http.get<Array<Judge>>(PATH + qs, {signal});
 }

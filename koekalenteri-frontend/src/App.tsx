@@ -3,11 +3,11 @@ import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import { SnackbarProvider } from 'notistack';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { locales, muiLocales, Language } from './i18n';
-import { EventEditPage, EventListPage, EventRegistrationPage, EventViewPage, JudgeListPage, LoginPage, LogoutPage, OrganizationListPage, SearchPage, UsersPage } from './pages'
+import { EventEditPage, EventListPage, EventRegistrationPage, EventTypeListPage, EventViewPage, JudgeListPage, LoginPage, LogoutPage, OrganizerListPage, SearchPage, UsersPage } from './pages'
 import { useTranslation } from 'react-i18next';
 import { makeStyles, ThemeProvider } from '@mui/styles';
 import { createTheme } from '@mui/material/styles';
-import { ADMIN_DEFAULT, ADMIN_EDIT_EVENT, ADMIN_EVENTS, ADMIN_JUDGES, ADMIN_NEW_EVENT, ADMIN_ORGS, ADMIN_VIEW_EVENT, ADMIN_ROOT, ADMIN_USERS } from './config';
+import { ADMIN_DEFAULT, ADMIN_EDIT_EVENT, ADMIN_EVENTS, ADMIN_JUDGES, ADMIN_NEW_EVENT, ADMIN_ORGS, ADMIN_VIEW_EVENT, ADMIN_ROOT, ADMIN_USERS, ADMIN_EVENT_TYPES } from './config';
 import { AWSConfig } from './amplify-env';
 import { Auth } from '@aws-amplify/auth';
 import { Authenticator } from '@aws-amplify/ui-react';
@@ -48,9 +48,10 @@ function App() {
               <Route path={`${ADMIN_EDIT_EVENT}/:id`} element={<EventEditPage />} />
               <Route path={`${ADMIN_VIEW_EVENT}/:id`} element={<EventViewPage />} />
               <Route path={`${ADMIN_VIEW_EVENT}/:id/:reistrationId`} element={<EventViewPage />} />
-              <Route path={ADMIN_ORGS} element={<OrganizationListPage />} />
+              <Route path={ADMIN_ORGS} element={<OrganizerListPage />} />
               <Route path={ADMIN_USERS} element={<UsersPage />} />
               <Route path={ADMIN_JUDGES} element={<JudgeListPage />} />
+              <Route path={ADMIN_EVENT_TYPES} element={<EventTypeListPage />} />
             </Routes>
           </Authenticator.Provider>
         </SnackbarProvider>

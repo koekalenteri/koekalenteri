@@ -11,7 +11,7 @@ import { useEffect, useState } from 'react';
 export function EventEditPage({create}: {create?: boolean}) {
   const params = useParams();
   const { t } = useTranslation();
-  const { publicStore, privateStore } = useStores();
+  const { rootStore, publicStore, privateStore } = useStores();
   const { enqueueSnackbar } = useSnackbar();
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -39,7 +39,7 @@ export function EventEditPage({create}: {create?: boolean}) {
           event={!create && privateStore.selectedEvent ? privateStore.selectedEvent : privateStore.newEvent}
           eventTypes={publicStore.eventTypes}
           eventTypeClasses={publicStore.eventTypeClasses}
-          judges={publicStore.judges}
+          judges={rootStore.judgeStore.judges}
           officials={privateStore.officials}
           organizers={publicStore.organizers}
           onSave={async (event) => {

@@ -18,4 +18,5 @@ export type Official = OfficialPerson & {
 export type Judge = OfficialPerson & {
   languages: string[]
   eventTypes: string[]
+  district: string
 }
