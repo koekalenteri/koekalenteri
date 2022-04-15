@@ -2,7 +2,7 @@ import { Dog } from "koekalenteri-shared/model";
 import { rehydrateDog } from "../dog";
 
 export async function getDog(regNo: string, refresh?: boolean, signal?: AbortSignal): Promise<Dog> {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     process.nextTick(() => resolve(rehydrateDog({
       regNo,
       name: 'Test Dog',

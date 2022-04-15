@@ -10,7 +10,7 @@ const mockOrganizers = [
 ];
 
 export async function getOrganizers() {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     process.nextTick(() => resolve(mockOrganizers));
   });
 }

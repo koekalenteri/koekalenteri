@@ -25,7 +25,7 @@ export const getJudgesHandler = metricScope((metrics: MetricsLogger) =>
                 district: item.kennelpiiri,
                 email: item.sähköposti,
                 phone: item.puhelin,
-                eventTypes: item.koemuodot.map(item => item.lyhenne)
+                eventTypes: item.koemuodot.map(koemuoto => koemuoto.lyhenne)
               });
             }
           }

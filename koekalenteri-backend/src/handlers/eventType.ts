@@ -19,7 +19,7 @@ export const getEventTypesHandler = metricScope((metrics: MetricsLogger) =>
           const { status, json } = await klapi.lueKoemuodot({ Kieli: kieli });
           if (status === 200 && json) {
             for (const item of json) {
-              const existing = await dynamoDB.read({ eventType: item.lyhenne }) as EventType|undefined;
+              const existing = await dynamoDB.read<EventType>({ eventType: item.lyhenne });
               dynamoDB.write({
                 ...existing,
                 eventType: item.lyhenne,

@@ -27,7 +27,7 @@ export const getDogHandler = metricScope((metrics: MetricsLogger) =>
       const regNo = event.pathParameters?.regNo?.replace('~', '/');
       const refresh = event.queryStringParameters && 'refresh' in event.queryStringParameters;
 
-      let item = await dynamoDB.read({ regNo }) as JsonDog;
+      let item = await dynamoDB.read<JsonDog>({ regNo });
       console.log('cached: ' + JSON.stringify(item));
 
       if (!item || refresh) {

@@ -23,7 +23,7 @@ const mockOfficials = [
 ];
 
 export async function getOfficials() {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     process.nextTick(() => resolve(mockOfficials));
   });
 }
