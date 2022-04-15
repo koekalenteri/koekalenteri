@@ -2,7 +2,7 @@ import { Cancel, Save } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import { Box, Button, Checkbox, Collapse, FormControl, FormControlLabel, FormHelperText, Link, Paper, Stack, Theme, useMediaQuery } from '@mui/material';
 import { ConfirmedEventEx, Language, Registration } from 'koekalenteri-shared/model';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { EntryInfo, getRegistrationDates } from './1.Entry';
 import { DogInfo } from './2.Dog';
@@ -25,7 +25,7 @@ type RegistrationFormProps = {
 };
 
 export function RegistrationForm({ event, className, registration, classDate, onSave, onCancel }: RegistrationFormProps) {
-  const md = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'));
+  const large = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'));
   const { t, i18n } = useTranslation();
   const [local, setLocal] = useState<Registration>({
     eventId: event.id,
@@ -73,15 +73,7 @@ export function RegistrationForm({ event, className, registration, classDate, on
   const [saving, setSaving] = useState(false);
   const [changes, setChanges] = useState(local.id === '');
   const [errors, setErrors] = useState(validateRegistration(local, event));
-  const [open, setOpen] = useState<{[key: string]: boolean|undefined}>({
-    entry: true,
-    dog: md,
-    breeder: md,
-    owner: md,
-    handler: md,
-    qr: md,
-    info: md
-  });
+  const [open, setOpen] = useState<{ [key: string]: boolean | undefined }>({});
   const valid = errors.length === 0;
   const onChange = (props: Partial<Registration>) => {
     console.log('Changes: ' + JSON.stringify(props));
@@ -104,8 +96,8 @@ export function RegistrationForm({ event, className, registration, classDate, on
     if (props.ownerHandles || (props.owner && local.ownerHandles)) {
       props.handler = { ...local.owner, ...props.owner }
     }
-    if (props.handler && local.ownerHandles && props.ownerHandles !== false) {
-      props.owner = { ...props.handler }
+    if (props.ownerHandles) {
+      setOpen({ ...open, handler: true });
     }
     const newState = { ...local, ...props };
     setErrors(validateRegistration(newState, event));
@@ -121,7 +113,7 @@ export function RegistrationForm({ event, className, registration, classDate, on
   }
   const cancelHandler = () => onCancel && onCancel(local);
   const handleOpenChange = (id: keyof typeof open, value: boolean) => {
-    const newState = md
+    const newState = large
       ? {
         ...open,
         [id]: value
@@ -131,7 +123,7 @@ export function RegistrationForm({ event, className, registration, classDate, on
         dog: false,
         breeder: false,
         owner: false,
-        handler: false,
+        handler: local.ownerHandles,
         qr: false,
         info: false,
         [id]: value
@@ -151,9 +143,33 @@ export function RegistrationForm({ event, className, registration, classDate, on
     errorStates[error.opts.field] = true;
   }
 
+  useEffect(() => {
+    setOpen({
+      entry: true,
+      dog: large,
+      breeder: large,
+      owner: large,
+      handler: large,
+      qr: large,
+      info: large
+    });
+  }, [large]);
+
   return (
     <Paper elevation={2} sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, overflow: 'auto', maxHeight: '100%', maxWidth: '100%' }}>
-      <Box sx={{ pb: 0.5, overflow: 'auto', borderRadius: 1, bgcolor: 'background.form', '& .MuiInputBase-root': { bgcolor: 'background.default'} }}>
+      <Box sx={{
+        pb: 0.5,
+        overflow: 'auto',
+        borderRadius: 1,
+        bgcolor: 'background.form',
+        '& .MuiInputBase-root': {
+          bgcolor: 'background.default'
+        },
+        '& .fact input.Mui-disabled': {
+          color: 'success.main',
+          '-webkit-text-fill-color': 'inherit'
+        }
+      }}>
         <EntryInfo
           reg={local}
           event={event}

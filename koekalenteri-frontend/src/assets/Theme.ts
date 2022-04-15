@@ -27,6 +27,13 @@ const theme = createTheme({
       xl: 1900,
     }
   },
+  components: {
+    MuiSwitch: {
+      defaultProps: {
+        color: 'success'
+      }
+    },
+  },
   palette: {
     primary: {
       light: '#547463',
@@ -56,7 +63,7 @@ const theme = createTheme({
   typography: {
     button: {
       textTransform: "none"
-    }
+    },
   },
   zIndex: {
     snackbar: 1200,

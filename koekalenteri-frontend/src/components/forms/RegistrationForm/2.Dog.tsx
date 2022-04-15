@@ -126,6 +126,7 @@ export function DogInfo({ reg, eventDate, minDogAgeMonths, error, helperText, on
       <Grid container spacing={1} sx={{ mt: 0.5 }}>
         <Grid item>
           <TextField
+            className={disabled && reg.dog.rfid ? 'fact' : ''}
             disabled={disabled}
             fullWidth
             label={t('dog.rfid')}
@@ -136,6 +137,7 @@ export function DogInfo({ reg, eventDate, minDogAgeMonths, error, helperText, on
         </Grid>
         <Grid item sx={{ width: 280 }}>
           <AutocompleteSingle<BreedCode | '', true>
+            className={disabled && reg.dog.breedCode ? 'fact' : ''}
             disableClearable
             disabled={disabled}
             error={!disabled && !reg.dog.breedCode}
@@ -148,7 +150,7 @@ export function DogInfo({ reg, eventDate, minDogAgeMonths, error, helperText, on
           />
         </Grid>
         <Grid item xs={'auto'}>
-          <FormControl sx={{ width: 146 }}>
+          <FormControl sx={{ width: 146 }} className={disabled && reg.dog.dob ? 'fact' : ''}>
             <DatePicker
               defaultCalendarMonth={subYears(new Date(), 2)}
               disabled={disabled}
@@ -167,6 +169,7 @@ export function DogInfo({ reg, eventDate, minDogAgeMonths, error, helperText, on
         </Grid>
         <Grid item xs={'auto'} sx={{ minWidth: 128 }}>
           <AutocompleteSingle<DogGender | '', true>
+            className={disabled && reg.dog.gender ? 'fact' : ''}
             disableClearable
             disabled={disabled}
             error={!disabled && !reg.dog.gender}
@@ -180,6 +183,7 @@ export function DogInfo({ reg, eventDate, minDogAgeMonths, error, helperText, on
         </Grid>
         <Grid item container spacing={1}>
           <TitlesAndName
+            className={disabled && reg.dog.breedCode ? 'fact' : ''}
             disabledTitle={disabled && mode !== 'update'}
             disabledName={disabled}
             id="dog"
@@ -220,6 +224,7 @@ export function DogInfo({ reg, eventDate, minDogAgeMonths, error, helperText, on
 }
 
 type TitlesAndNameProps = {
+  className?: string
   disabledName: boolean
   disabledTitle: boolean
   id: string
@@ -234,6 +239,7 @@ function TitlesAndName(props: TitlesAndNameProps) {
     <Grid item container spacing={1}>
       <Grid item>
         <TextField
+          className={props.className}
           disabled={props.disabledTitle}
           id={`${props.id}_titles`}
           label={props.titlesLabel}
@@ -244,6 +250,7 @@ function TitlesAndName(props: TitlesAndNameProps) {
       </Grid>
       <Grid item>
         <TextField
+          className={props.className}
           disabled={props.disabledName}
           error={!props.disabledName && !props.name}
           id={`${props.id}_name`}

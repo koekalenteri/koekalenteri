@@ -94,9 +94,6 @@ export function validateDog(
   if (minAge) {
     return { key: 'dogAge', opts: { field: 'dog', length: minAge } };
   }
-  if (event.eventType && !filterRelevantResults(event, reg.class as RegistrationClass, dog.results, reg.results).qualifies) {
-    return 'dogResults';
-  }
   return false;
 }
 
