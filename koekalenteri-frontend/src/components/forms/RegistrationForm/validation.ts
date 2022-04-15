@@ -215,7 +215,7 @@ function checkRequiredResults(
 
 function bestResults(
   eventType: string,
-  regClass: string,
+  regClass: string | undefined,
   officialResults: TestResult[] | undefined,
   manualResults: Partial<TestResult>[] | undefined
 ): QualifyingResult[]

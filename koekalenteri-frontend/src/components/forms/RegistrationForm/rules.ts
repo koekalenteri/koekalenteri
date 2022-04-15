@@ -13,7 +13,7 @@ export type RULE_DATES = {
   '2016-04-01': true
 };
 
-export type RegistrationClass = 'ALO' | 'AVO' | 'VOI';
+export type RegistrationClass = 'ALO' | 'AVO' | 'VOI' | undefined;
 
 export type EventRequirement = {
   age?: number
