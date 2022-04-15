@@ -7,24 +7,24 @@ import { RootStore } from "./RootStore";
 export class OrganizerStore {
   rootStore
   organizers: Array<COrganizer> = []
-  loading = true
+  loading = false
 
   constructor(rootStore: RootStore) {
     makeAutoObservable(this, {
       rootStore: false
     })
     this.rootStore = rootStore;
-    this.load();
   }
 
-  load(refresh?: boolean, signal?: AbortSignal) {
-    this.loading = true;
-    getOrganizers(refresh, signal).then(data => {
-      runInAction(() => {
-        data.forEach(json => this.updateOrganizer(json))
-        this.loading = false;
-      })
-    })
+  async load(refresh?: boolean, signal?: AbortSignal) {
+    runInAction(() => {
+      this.loading = true;
+    });
+    const data = await getOrganizers(refresh, signal);
+    runInAction(() => {
+      data.forEach(json => this.updateOrganizer(json))
+      this.loading = false;
+    });
   }
 
   updateOrganizer(json: Organizer) {

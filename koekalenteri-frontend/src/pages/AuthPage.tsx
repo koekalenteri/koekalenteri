@@ -9,13 +9,16 @@ import { Navigate, useLocation } from 'react-router-dom';
 export function AuthPage({ children, title }: { children: ReactNode, title?: string }) {
   const location = useLocation();
   const { route } = useAuthenticator(context => [context.route]);
-  const { publicStore, privateStore } = useStores();
+  const { rootStore, publicStore, privateStore } = useStores();
   const [menuOpen, setMenuOpen] = useState(false);
   const [sessionStarted, setSessionStarted] = useSessionStarted();
 
   useEffect(() => {
     if (!sessionStarted) {
       setSessionStarted(new Date().toISOString());
+    }
+    if (!rootStore.loaded) {
+      rootStore.load();
     }
     if (!publicStore.loaded) {
       publicStore.load();

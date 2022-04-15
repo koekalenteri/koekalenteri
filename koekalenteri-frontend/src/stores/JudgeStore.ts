@@ -7,24 +7,24 @@ import { RootStore } from "./RootStore";
 export class JudgeStore {
   rootStore
   judges: Array<CJudge> = []
-  loading = true
+  loading = false
 
   constructor(rootStore: RootStore) {
     makeAutoObservable(this, {
       rootStore: false
     })
     this.rootStore = rootStore;
-    this.load();
   }
 
-  load(refresh?: boolean, signal?: AbortSignal) {
-    this.loading = true;
-    getJudges(refresh, signal).then(data => {
-      runInAction(() => {
-        data.forEach(json => this.updateJudge(json))
-        this.loading = false;
-      })
-    })
+  async load(refresh?: boolean, signal?: AbortSignal) {
+    runInAction(() => {
+      this.loading = true;
+    });
+    const data = await getJudges(refresh, signal);
+    runInAction(() => {
+      data.forEach(json => this.updateJudge(json));
+      this.loading = false;
+    });
   }
 
   getJudges(ids?: number[]): CJudge[] {

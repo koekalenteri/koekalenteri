@@ -7,24 +7,24 @@ import { RootStore } from "./RootStore";
 export class EventTypeStore {
   rootStore
   eventTypes: Array<CEventType> = []
-  loading = true
+  loading = false
 
   constructor(rootStore: RootStore) {
     makeAutoObservable(this, {
       rootStore: false
     })
     this.rootStore = rootStore;
-    this.load();
   }
 
-  load(refresh?: boolean, signal?: AbortSignal) {
-    this.loading = true;
-    getEventTypes(refresh, signal).then(data => {
-      runInAction(() => {
-        data.forEach(json => this.updateEventType(json))
-        this.loading = false;
-      })
-    })
+  async load(refresh?: boolean, signal?: AbortSignal) {
+    runInAction(() => {
+      this.loading = true;
+    });
+    const data = await getEventTypes(refresh, signal);
+    runInAction(() => {
+      data.forEach(json => this.updateEventType(json))
+      this.loading = false;
+    });
   }
 
   updateEventType(json: EventType) {
