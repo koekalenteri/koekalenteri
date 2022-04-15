@@ -25,8 +25,8 @@ const mockEvents: EventEx[] = [
       id: 2,
       name: 'Test org'
     },
-    eventType: 'type2',
-    classes: [{ class: 'class2' }],
+    eventType: 'NOME-B',
+    classes: [{ class: 'AVO' }],
     startDate: parseISO('2021-02-12'),
     endDate: parseISO('2021-02-13'),
     entryStartDate: parseISO('2021-02-01'),

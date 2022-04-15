@@ -12,7 +12,7 @@ function getClassDates(event: ConfirmedEventEx, classDate: string|undefined, reg
     ? classes.map(c => c.date || event.startDate)
     : eachDayOfInterval({ start: event.startDate, end: event.endDate });
   if (classDate) {
-    return dates.filter(d => format(d, 'dd.MM') === classDate);
+    return dates.filter(d => format(d, 'dd.MM.') === classDate);
   }
   return uniqueDate(dates);
 }

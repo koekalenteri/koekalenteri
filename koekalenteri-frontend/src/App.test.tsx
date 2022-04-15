@@ -47,7 +47,16 @@ function renderPath(path: string) {
 }
 
 test('renders event page', async () => {
-  renderPath('/event/type2/test2');
+  renderPath('/event/NOME-B/test2');
+  const spinner = screen.getByRole('progressbar');
+  expect(spinner).toBeInTheDocument();
+  const organizer = await screen.findByText(/Test org/);
+  expect(organizer).toBeInTheDocument();
+  expect(spinner).not.toBeInTheDocument();
+});
+
+test('renders event page with date selected', async () => {
+  renderPath('/event/NOME-B/test2/13.02.');
   const spinner = screen.getByRole('progressbar');
   expect(spinner).toBeInTheDocument();
   const organizer = await screen.findByText(/Test org/);
