@@ -9,7 +9,7 @@ export const EventFilterContainer = observer(() => {
   return (
     <EventFilter
       judges={rootStore.judgeStore.judges}
-      organizers={publicStore.organizers}
+      organizers={rootStore.organizerStore.organizers}
       filter={{ ...publicStore.filter }}
       onChange={(filter: FilterProps) => publicStore.setFilter(filter)}
     />

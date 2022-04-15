@@ -41,7 +41,7 @@ export function EventEditPage({create}: {create?: boolean}) {
           eventTypeClasses={publicStore.eventTypeClasses}
           judges={rootStore.judgeStore.judges}
           officials={privateStore.officials}
-          organizers={publicStore.organizers}
+          organizers={rootStore.organizerStore.organizers}
           onSave={async (event) => {
             try {
               await privateStore.putEvent(event)

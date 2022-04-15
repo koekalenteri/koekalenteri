@@ -50,7 +50,7 @@ function EventComponent({ event, classDate = '', className = '' }: { event: Conf
     try {
       const saved = await putRegistration(registration);
       console.log(saved);
-      publicStore.load(true); // Update registraion counts for the event. This is not optimal, but does not probably matter.
+      publicStore.load(); // TODO: Use MobX properly
       navigate('/', { replace: true });
       const emails = [saved.handler.email];
       if (saved.owner.email !== saved.handler.email) {

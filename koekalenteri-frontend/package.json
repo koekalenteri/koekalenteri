@@ -28,7 +28,6 @@
     "react-i18next": "^11.13.0",
     "react-router-dom": "^6.0.0",
     "react-scripts": "^5.0.0",
-    "react-sizeme": "^3.0.2",
     "source-map-explorer": "^2.5.2",
     "uuid": "^8.3.2",
     "web-vitals": "^2.1.0"

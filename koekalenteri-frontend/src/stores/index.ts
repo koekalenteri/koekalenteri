@@ -8,11 +8,13 @@ import { configure } from "mobx";
 // Make sure TS is configured properly for MobX
 if (!new class { x: any }().hasOwnProperty('x')) throw new Error('Transpiler is not configured correctly');
 
+// Configure MobX warnings (but not in tests, to reduce warnings)
+const notInTest = process.env.NODE_ENV !== 'test';
 configure({
   enforceActions: "always",
-  computedRequiresReaction: true,
-  reactionRequiresObservable: true,
-  observableRequiresReaction: process.env.NODE_ENV !== 'test'
+  computedRequiresReaction: notInTest,
+  reactionRequiresObservable: notInTest,
+  observableRequiresReaction: notInTest
 });
 
 const rootStoreContext = createContext({
