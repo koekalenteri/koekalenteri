@@ -3,6 +3,8 @@ import { Judge, Organizer } from 'koekalenteri-shared/model';
 import { useTranslation } from 'react-i18next';
 import { FilterProps } from '../stores/PublicStore';
 import { AutocompleteMulti, DateRange } from '.';
+import { observer } from 'mobx-react-lite';
+import { URLSearchParamsInit } from 'react-router-dom';
 
 type EventFilterProps = {
   judges: Judge[],
@@ -11,7 +13,56 @@ type EventFilterProps = {
   onChange?: (filter: FilterProps) => void
 }
 
-export function EventFilter({ judges, organizers, filter, onChange }: EventFilterProps) {
+const readDate = (date: string | null) => date ? new Date(date) : null;
+const writeDate = (date: Date) => date.toISOString().slice(0, 10);
+
+export function serializeFilter(filter: FilterProps): URLSearchParamsInit {
+  const result: Record<string, string | string[]> = {};
+  const bits = [];
+  if (filter.withClosingEntry) {
+    bits.push('c');
+  }
+  if (filter.withFreePlaces) {
+    bits.push('f');
+  }
+  if (filter.withOpenEntry) {
+    bits.push('o');
+  }
+  if (filter.withUpcomingEntry) {
+    bits.push('u');
+  }
+  if (filter.end) {
+    result['e'] = writeDate(filter.end);
+  }
+  result['c'] = filter.eventClass;
+  result['t'] = filter.eventType;
+  result['j'] = filter.judge.map(j => j.toString());
+  result['o'] = filter.organizer.map(o => o.toString());
+  if (filter.start) {
+    result['s'] = writeDate(filter.start);
+  }
+  result['b'] = bits;
+  return result;
+}
+
+export function deserializeFilter(searchParams: URLSearchParams): FilterProps {
+  const bits = searchParams.getAll('b');
+  const result: FilterProps = {
+    end: readDate(searchParams.get('e')),
+    eventClass: searchParams.getAll('c'),
+    eventType: searchParams.getAll('t'),
+    judge: searchParams.getAll('j').map(j => parseInt(j)),
+    organizer: searchParams.getAll('o').map(s => parseInt(s)),
+    start: readDate(searchParams.get('s')),
+    withClosingEntry: bits.includes('c'),
+    withFreePlaces: bits.includes('f'),
+    withOpenEntry: bits.includes('o'),
+    withUpcomingEntry: bits.includes('u'),
+  };
+  return result;
+}
+
+export const EventFilter = observer(function EventFilter({ judges, organizers, filter, onChange }: EventFilterProps) {
   const { t } = useTranslation();
   const setFilter = (props: Partial<FilterProps>) => {
     onChange && onChange(Object.assign({}, filter, props));
@@ -61,7 +112,7 @@ export function EventFilter({ judges, organizers, filter, onChange }: EventFilte
         </Grid>
         <Grid item md={12} xl={4}>
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={0} alignItems="start" justifyContent="space-evenly">
-            <Box sx={{display: 'flex'}}>
+            <Box sx={{ display: 'flex' }}>
               <FormControlLabel
                 value="withOpenEntry"
                 checked={filter.withOpenEntry}
@@ -73,7 +124,7 @@ export function EventFilter({ judges, organizers, filter, onChange }: EventFilte
                   withFreePlaces: checked && filter.withFreePlaces
                 })}
               />
-              <Box sx={{display: 'inline-grid'}}>
+              <Box sx={{ display: 'inline-grid' }}>
                 <FormControlLabel
                   value="withClosingEntry"
                   checked={filter.withClosingEntry}
@@ -109,4 +160,4 @@ export function EventFilter({ judges, organizers, filter, onChange }: EventFilte
       </Grid>
     </Box>
   );
-}
+});

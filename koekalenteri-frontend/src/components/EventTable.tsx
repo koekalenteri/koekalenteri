@@ -17,6 +17,7 @@ import type { EventEx, EventState } from 'koekalenteri-shared/model';
 import { EventInfo, LinkButton } from '.';
 import { useTranslation } from 'react-i18next';
 import { useSessionBoolean } from '../stores';
+import { observer } from 'mobx-react-lite';
 
 const useRowStyles = makeStyles(theme => ({
   root: {
@@ -49,7 +50,7 @@ function eventClasses(event: EventEx) {
   return ret.join(', ');
 }
 
-function Row({ event }: { event: EventEx }) {
+const Row = observer(function Row({ event }: { event: EventEx }) {
 
   const [open, setOpen] = useSessionBoolean('open' + event.id, false);
   const classes = useRowStyles();
@@ -83,16 +84,16 @@ function Row({ event }: { event: EventEx }) {
               </Grid>
             </Grid>
           </Grid>
-          <Collapse in={open} className={classes.inner} timeout="auto" unmountOnExit sx={{mt: 1, pt: 1}}>
+          <Collapse in={open} className={classes.inner} timeout="auto" unmountOnExit sx={{ mt: 1, pt: 1 }}>
             <EventInfo event={event}></EventInfo>
           </Collapse>
         </TableCell>
       </TableRow>
     </>
   );
-}
+});
 
-function EventPlaces({ event }: { event: EventEx }) {
+const EventPlaces = observer(function EventPlaces({ event }: { event: EventEx }) {
   const { t } = useTranslation();
   const color = event.entries > event.places ? 'warning.main' : 'text.primary';
   let text = '';
@@ -108,7 +109,7 @@ function EventPlaces({ event }: { event: EventEx }) {
   return (
     <Box textAlign="right" sx={{ color, fontWeight: bold ? 'bold' : 'normal' }}>{text}</Box>
   );
-}
+});
 
 function EventStateInfo({ state }: { state: EventState }) {
   const { t } = useTranslation();
@@ -123,7 +124,7 @@ function EmptyResult() {
   );
 }
 
-export function EventTable({ events }: {events: EventEx[]}) {
+export const EventTable = observer(function EventTable({ events }: { events: EventEx[] }) {
   return (
     <>
       {events.length ?
@@ -138,5 +139,4 @@ export function EventTable({ events }: {events: EventEx[]}) {
       }
     </>
   )
-}
-
+});
