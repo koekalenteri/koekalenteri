@@ -3,12 +3,12 @@ import { BreedCode, ConfirmedEventEx, Dog, Person, QualifyingResult, Registratio
 import { ValidationResult, Validators2, WideValidationResult } from '../validation';
 import { EventRequirement, EventResultRequirement, EventResultRequirements, EventResultRequirementsByDate, getRequirements, RegistrationClass, REQUIREMENTS } from './rules';
 
-function validateBreeder(breeder: RegistrationBreeder) {
-  return !breeder.name || !breeder.location;
+function validateBreeder(breeder: RegistrationBreeder | undefined) {
+  return !breeder || !breeder.name || !breeder.location;
 }
 
-function validatePerson(person: Person) {
-  return !person.email || !person.name || !person.location || !person.phone;
+function validatePerson(person: Person | undefined) {
+  return !person || !person.email || !person.name || !person.location || !person.phone;
 }
 
 const VALIDATORS: Validators2<Registration, 'registration', ConfirmedEventEx> = {

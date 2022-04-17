@@ -382,10 +382,36 @@ Resources:
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
 
       Events:
-        PutEvent:
+        GetEvent:
           Type: Api
           Properties:
-            Path: /registrations/{eventId}
+            Path: /registration/{eventId}
+            Method: GET
+            RestApiId: !Ref KoekalenteriApi
+
+  GetRegistrationFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: koekalenteri-backend
+      Handler: dist/handlers/event.getRegistrationHandler
+      Layers:
+        - !Ref CommonLayer
+      Tracing: Active
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EventRegistrationTable
+        - CloudWatchPutMetricPolicy: {}
+
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref EventRegistrationTable
+          AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
+
+      Events:
+        GetEvent:
+          Type: Api
+          Properties:
+            Path: /registration/{eventId}/{id}
             Method: GET
             RestApiId: !Ref KoekalenteriApi
 

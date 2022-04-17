@@ -6,13 +6,13 @@ import { rehydrateEvent } from './utils';
 const PATH = '/event/';
 
 export async function getEvents(signal?: AbortSignal): Promise<EventEx[]> {
-  const jsonedEvents = await http.get<Array<JsonEvent>>(PATH, {signal});
-  return jsonedEvents.map(item => rehydrateEvent(item));
+  const jsonEvents = await http.get<Array<JsonEvent>>(PATH, {signal});
+  return jsonEvents.map(item => rehydrateEvent(item));
 }
 
 export async function getEvent(eventType: string, id: string, signal?: AbortSignal): Promise<EventEx> {
-  const jsonedEvent = await http.get<JsonEvent>(`${PATH}${eventType}/${id}`, {signal});
-  return rehydrateEvent(jsonedEvent);
+  const jsonEvent = await http.get<JsonEvent>(`${PATH}${eventType}/${id}`, {signal});
+  return rehydrateEvent(jsonEvent);
 }
 
 export async function putEvent(event: Partial<Event>): Promise<EventEx> {
@@ -20,8 +20,12 @@ export async function putEvent(event: Partial<Event>): Promise<EventEx> {
 }
 
 export async function getRegistrations(eventId: string, signal?: AbortSignal): Promise<Registration[]> {
-  const jsonedRegistrations = await http.get<Array<JsonRegistration>>(`/registrations/${eventId}`, {signal})
-  return jsonedRegistrations.map(item => rehydrateRegistration(item));
+  const jsonRegistrations = await http.get<Array<JsonRegistration>>(`/registration/${eventId}`, {signal})
+  return jsonRegistrations.map(item => rehydrateRegistration(item));
+}
+
+export async function getRegistration(eventId: string, id: string, signal?: AbortSignal): Promise<Registration | undefined> {
+  return rehydrateRegistration(await http.get<JsonRegistration>(`registration/${eventId}/${id}`, {signal}));
 }
 
 export async function putRegistration(registration: Registration): Promise<Registration> {

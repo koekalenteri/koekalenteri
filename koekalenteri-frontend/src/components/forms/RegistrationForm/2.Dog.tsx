@@ -3,12 +3,14 @@ import { DatePicker, LoadingButton } from '@mui/lab';
 import { Autocomplete, FormControl, FormHelperText, Grid, Stack, TextField } from '@mui/material';
 import { differenceInMinutes, subMonths, subYears } from 'date-fns';
 import { BreedCode, Dog, DogGender, Registration } from 'koekalenteri-shared/model';
+import merge from 'lodash.merge';
+import { toJS } from 'mobx';
+import { observer } from 'mobx-react-lite';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AutocompleteSingle, CollapsibleSection } from '../..';
-import { getDog } from '../../../api/dog';
-import { useLocalStorage } from '../../../stores';
-import { unique } from '../../../utils';
+import { useStores } from '../../../stores';
+import { DogCachedInfo } from '../../../stores/DogStore';
 import { validateRegNo } from './validation';
 
 export function shouldAllowRefresh(dog?: Partial<Dog>) {
@@ -32,37 +34,39 @@ type DogInfoProps = {
   open?: boolean
 };
 
-export function DogInfo({ reg, eventDate, minDogAgeMonths, error, helperText, onChange, onOpenChange, open }: DogInfoProps) {
+export const DogInfo = observer(function DogInfo({ reg, eventDate, minDogAgeMonths, error, helperText, onChange, onOpenChange, open }: DogInfoProps) {
+  const { rootStore } = useStores();
   const { t } = useTranslation();
   const { t: breed } = useTranslation('breed');
   const [loading, setLoading] = useState(false);
-  const [dogs, setDogs] = useLocalStorage('dogs', '');
   const [regNo, setRegNo] = useState<string>(reg.dog.regNo);
   const [mode, setMode] = useState<'fetch' | 'manual' | 'update' | 'invalid' | 'notfound'>('fetch');
   const allowRefresh = shouldAllowRefresh(reg.dog);
   const disabled = mode !== 'manual';
   const validRegNo = validateRegNo(regNo);
+  const handleChange = (props: Partial<Dog & DogCachedInfo>, replace?: boolean) => {
+    const dog = replace ? props as Dog : merge({}, reg.dog, props)
+    if (props.titles || props.sire || props.dam) {
+      rootStore.dogStore.save({ dog });
+    }
+    onChange({ dog });
+  };
   const loadDog = async (value: string, refresh?: boolean) => {
     setRegNo(value);
     if (!value || !validateRegNo(value)) {
       return;
     }
     setLoading(true);
-    const lookup = await getDog(value, refresh);
-    const storedDogs = dogs?.split(',') || [];
+    const lookup = await rootStore.dogStore.load(value, refresh);
     setLoading(false);
     if (lookup && lookup.regNo) {
-      storedDogs.push(lookup.regNo);
-      setDogs(unique(storedDogs).join(','));
       setRegNo(lookup.regNo);
-      onChange({ dog: { ...reg.dog, ...lookup } });
+      const { breeder, handler, owner, ownerHandles, ...dog } = lookup;
+      onChange({ dog: dog as Dog, breeder, handler, owner, ownerHandles });
       setMode('update');
     } else {
-      if (storedDogs.includes(value)) {
-        setDogs(storedDogs.filter(v => v !== value).join(','));
-      }
       setMode('notfound');
-      onChange({ dog: { regNo: value, name: '', results: [] } });
+      handleChange({ regNo: value, name: '', results: [] }, true);
     }
   };
   const buttonClick = () => {
@@ -81,7 +85,6 @@ export function DogInfo({ reg, eventDate, minDogAgeMonths, error, helperText, on
         break;
     }
   }
-
   return (
     <CollapsibleSection title={t('registration.dog')} error={error} helperText={helperText} open={open} onOpenChange={onOpenChange}>
       <Stack direction="row" spacing={1} alignItems="flex-end">
@@ -90,8 +93,8 @@ export function DogInfo({ reg, eventDate, minDogAgeMonths, error, helperText, on
           disabled={!disabled}
           freeSolo
           renderInput={(props) => <TextField {...props} error={!reg.dog.regNo} label={t('dog.regNo')} />}
-          value={regNo}
-          onChange={(_e, value) => loadDog(value?.toUpperCase() || '')}
+          value={{ regNo } as Partial<Dog>}
+          onChange={(_e, value) => value && typeof value !== 'string' && loadDog(value.regNo?.toUpperCase() || '')}
           onInputChange={(e, value) => {
             value = value.toUpperCase();
             if (regNo === value) {
@@ -101,11 +104,13 @@ export function DogInfo({ reg, eventDate, minDogAgeMonths, error, helperText, on
               loadDog(value);
             } else {
               setRegNo(value);
-              onChange({ dog: { regNo: value, name: '', results: [] } });
+              onChange({ dog: { regNo: value, name: '', results: [] }, breeder: undefined, owner: undefined, handler: undefined });
               setMode(validateRegNo(value) ? 'fetch' : 'invalid');
             }
           }}
-          options={dogs?.split(',') || []}
+          getOptionLabel={o => o.regNo || ''}
+          isOptionEqualToValue={(o, v) => o.regNo === v.regNo}
+          options={toJS(rootStore.dogStore.dogs)}
           sx={{ minWidth: 200 }}
         />
         <Stack alignItems="flex-start">
@@ -132,7 +137,7 @@ export function DogInfo({ reg, eventDate, minDogAgeMonths, error, helperText, on
             label={t('dog.rfid')}
             value={reg.dog.rfid || ''}
             error={!disabled && !reg.dog.rfid}
-            onChange={(e) => onChange({ dog: { ...reg.dog, rfid: e.target.value } })}
+            onChange={(e) => handleChange({ rfid: e.target.value })}
           />
         </Grid>
         <Grid item sx={{ width: 280 }}>
@@ -144,7 +149,7 @@ export function DogInfo({ reg, eventDate, minDogAgeMonths, error, helperText, on
             getOptionLabel={(o) => o ? breed(o) : ''}
             isOptionEqualToValue={(o, v) => o === v}
             label={t('dog.breed')}
-            onChange={(_e, value) => onChange({ dog: { ...reg.dog, breedCode: value ? value : undefined } })}
+            onChange={(_e, value) => handleChange({ breedCode: value ? value : undefined })}
             options={['122', '111', '121', '312', '110', '263']}
             value={reg.dog.breedCode || ''}
           />
@@ -159,7 +164,7 @@ export function DogInfo({ reg, eventDate, minDogAgeMonths, error, helperText, on
               mask={t('datemask')}
               maxDate={subMonths(eventDate, minDogAgeMonths)}
               minDate={subYears(new Date(), 15)}
-              onChange={(value) => value && onChange({ dog: { ...reg.dog, dob: value } })}
+              onChange={(value) => value && handleChange({ dob: value })}
               openTo={'year'}
               renderInput={(params) => <TextField {...params} />}
               value={reg.dog.dob || null}
@@ -176,7 +181,7 @@ export function DogInfo({ reg, eventDate, minDogAgeMonths, error, helperText, on
             getOptionLabel={o => o ? t(`dog.gender_choises.${o}`) : ''}
             isOptionEqualToValue={(o, v) => o === v}
             label={t('dog.gender')}
-            onChange={(_e, value) => onChange({ dog: { ...reg.dog, gender: value ? value : undefined } })}
+            onChange={(_e, value) => handleChange({ gender: value ? value : undefined })}
             options={['F', 'M'] as DogGender[]}
             value={reg.dog.gender || ''}
           />
@@ -189,7 +194,7 @@ export function DogInfo({ reg, eventDate, minDogAgeMonths, error, helperText, on
             id="dog"
             name={reg.dog.name}
             nameLabel={t('dog.name')}
-            onChange={props => onChange({ dog: { ...reg.dog, ...props } })}
+            onChange={props => handleChange(props)}
             titles={reg.dog.titles}
             titlesLabel={t('dog.titles')}
           />
@@ -201,7 +206,7 @@ export function DogInfo({ reg, eventDate, minDogAgeMonths, error, helperText, on
             id="sire"
             name={reg.dog.sire?.name}
             nameLabel={t('dog.sire.name')}
-            onChange={props => onChange({ dog: { ...reg.dog, sire: { ...reg.dog.sire, ...props } } })}
+            onChange={props => handleChange({ sire: props })}
             titles={reg.dog.sire?.titles}
             titlesLabel={t('dog.sire.titles')}
           />
@@ -213,7 +218,7 @@ export function DogInfo({ reg, eventDate, minDogAgeMonths, error, helperText, on
             id="dam"
             name={reg.dog.dam?.name}
             nameLabel={t('dog.dam.name')}
-            onChange={props => onChange({ dog: { ...reg.dog, dam: { ...reg.dog.dam, ...props } } })}
+            onChange={props => handleChange({ dam: props })}
             titles={reg.dog.dam?.titles}
             titlesLabel={t('dog.dam.titles')}
           />
@@ -221,7 +226,7 @@ export function DogInfo({ reg, eventDate, minDogAgeMonths, error, helperText, on
       </Grid>
     </CollapsibleSection>
   );
-}
+});
 
 type TitlesAndNameProps = {
   className?: string

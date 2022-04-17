@@ -1,15 +1,14 @@
 import { Replace, ReplaceOptional } from ".";
 
-export type JsonDog = {
+export type JsonDog = DogName & {
   regNo: string
-  name?: string
+  callingName?: string
   rfid?: string
   breedCode?: BreedCode
   dob?: string
   gender?: DogGender
   refreshDate?: string
   results?: JsonTestResult[]
-  titles?: string
   sire?: DogName,
   dam?: DogName
 }

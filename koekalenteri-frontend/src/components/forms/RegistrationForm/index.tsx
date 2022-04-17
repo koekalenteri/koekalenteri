@@ -24,6 +24,23 @@ type RegistrationFormProps = {
   onCancel?: FormEventHandler
 };
 
+export const emptyDog = {
+  regNo: '',
+  refreshDate: undefined,
+  results: []
+};
+export const emptyBreeder = {
+  name: '',
+  location: ''
+};
+export const emptyPerson = {
+  name: '',
+  phone: '',
+  email: '',
+  location: '',
+  membership: false
+};
+
 export function RegistrationForm({ event, className, registration, classDate, onSave, onCancel }: RegistrationFormProps) {
   const large = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'));
   const { t, i18n } = useTranslation();
@@ -35,30 +52,11 @@ export function RegistrationForm({ event, className, registration, classDate, on
     class: className || '',
     dates: getRegistrationDates(event, classDate, className || ''),
     reserve: 'ANY',
-    dog: {
-      regNo: '',
-      refreshDate: undefined,
-      results: []
-    },
-    breeder: {
-      name: '',
-      location: ''
-    },
-    owner: {
-      name: '',
-      phone: '',
-      email: '',
-      location: '',
-      membership: false
-    },
+    dog: { ...emptyDog },
+    breeder: { ...emptyBreeder },
+    owner: { ...emptyPerson },
     ownerHandles: true,
-    handler: {
-      name: '',
-      phone: '',
-      email: '',
-      location: '',
-      membership: false
-    },
+    handler: { ...emptyPerson },
     qualifyingResults: [],
     notes: '',
     agreeToTerms: false,
@@ -69,7 +67,7 @@ export function RegistrationForm({ event, className, registration, classDate, on
     modifiedBy: '',
     ...registration
   });
-  const [qualifies, setQualifies] = useState<boolean|null>(local.id ? filterRelevantResults(event, local.class as RegistrationClass, local.dog.results).qualifies : null);
+  const [qualifies, setQualifies] = useState<boolean | null>(local.id ? filterRelevantResults(event, local.class as RegistrationClass, local.dog.results).qualifies : null);
   const [saving, setSaving] = useState(false);
   const [changes, setChanges] = useState(local.id === '');
   const [errors, setErrors] = useState(validateRegistration(local, event));
@@ -132,11 +130,11 @@ export function RegistrationForm({ event, className, registration, classDate, on
   }
   const errorStates: { [Property in keyof Registration]?: boolean } = {};
   const helperTexts: { [Property in keyof Registration]?: string } = {
-    breeder: `${local.breeder.name}`,
-    dog: `${local.dog.regNo} - ${local.dog.name}`,
-    handler: local.handler.name === local.owner.name ? t('registration.ownerHandles') : `${local.handler.name}`,
-    owner: `${local.owner.name}`,
-    qualifyingResults: qualifies === null ? '' : t('registration.qualifyingResultsInfo', {qualifies: t(qualifies ? 'registration.qyalifyingResultsYes' : 'registration.qualifyingResultsNo') }),
+    breeder: `${local.breeder?.name || ''}`,
+    dog: !local.dog ? '' : `${local.dog.regNo} - ${local.dog.name}`,
+    handler: !local.handler ? '' : local.handler.name === local.owner.name ? t('registration.ownerHandles') : `${local.handler.name}`,
+    owner: !local.owner ? '' : `${local.owner.name}`,
+    qualifyingResults: qualifies === null ? '' : t('registration.qualifyingResultsInfo', { qualifies: t(qualifies ? 'registration.qyalifyingResultsYes' : 'registration.qualifyingResultsNo') }),
   };
   for (const error of errors) {
     helperTexts[error.opts.field] = t(`validation.registration.${error.key}`, error.opts);
@@ -232,11 +230,11 @@ export function RegistrationForm({ event, className, registration, classDate, on
         />
         <Box sx={{ m: 1, mt: 2, ml: 4, borderTop: '1px solid #bdbdbd' }}>
           <FormControl error={errorStates.agreeToTerms} disabled={!!local.id}>
-            <FormControlLabel control={<Checkbox checked={local.agreeToTerms} onChange={e => onChange({agreeToTerms: e.target.checked})}/>} label={
+            <FormControlLabel control={<Checkbox checked={local.agreeToTerms} onChange={e => onChange({ agreeToTerms: e.target.checked })} />} label={
               <>
                 <span>{t('registration.terms.read')}</span>&nbsp;
                 <Link target="_blank" rel="noopener" href="https://yttmk.yhdistysavain.fi/noutajien-metsastyskokeet-2/ohjeistukset/kokeen-ja-tai-kilpailun-ilmoitta/">{t('registration.terms.terms')}</Link>
-            &nbsp;<span>{t('registration.terms.agree')}</span>
+                &nbsp;<span>{t('registration.terms.agree')}</span>
               </>
             } />
           </FormControl>
@@ -248,7 +246,7 @@ export function RegistrationForm({ event, className, registration, classDate, on
         </Box>
       </Box>
 
-      <Stack spacing={1} direction="row" justifyContent="flex-end" sx={{p: 1, borderTop: '1px solid', borderColor: '#bdbdbd'}}>
+      <Stack spacing={1} direction="row" justifyContent="flex-end" sx={{ p: 1, borderTop: '1px solid', borderColor: '#bdbdbd' }}>
         <LoadingButton color="primary" disabled={!changes || !valid} loading={saving} loadingPosition="start" startIcon={<Save />} variant="contained" onClick={saveHandler}>Tallenna</LoadingButton>
         <Button startIcon={<Cancel />} variant="outlined" onClick={cancelHandler}>Peruuta</Button>
       </Stack>

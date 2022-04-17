@@ -24,12 +24,14 @@ export const getRegistrationsHandler = metricScope((metrics: MetricsLogger) =>
       const items = await dynamoDB.query<JsonRegistration>('eventId = :eventId', { ':eventId': event.pathParameters?.eventId });
       metricsSuccess(metrics, event.requestContext, 'getRegistrations');
       return response(200, items);
-    } catch (err: any) {
+    } catch (err: unknown) {
       metricsError(metrics, event.requestContext, 'getRegistrations');
-      return response(err.statusCode || 501, err);
+      return response((err as AWSError).statusCode || 501, err);
     }
   }
 );
+
+export const getRegistrationHandler = genericReadHandler(dynamoDB, 'getRegistration');
 
 export const putRegistrationHandler = metricScope((metrics: MetricsLogger) =>
   async (
