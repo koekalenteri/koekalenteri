@@ -19,7 +19,7 @@ export class PublicStore {
   private _events: EventEx[] = [];
 
   public eventTypes = ['NOU', 'NOME-B', 'NOME-A', 'NOWT'];
-  public eventTypeClasses = {
+  public eventTypeClasses: Record<string, string[]> = {
     NOU: [],
     'NOME-B': ['ALO', 'AVO', 'VOI'],
     'NOME-A': [],

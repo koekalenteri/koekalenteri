@@ -4,6 +4,7 @@ import { Box, Button, Checkbox, Collapse, FormControl, FormControlLabel, FormHel
 import { ConfirmedEventEx, Language, Registration } from 'koekalenteri-shared/model';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useStores } from '../../../stores';
 import { EntryInfo, getRegistrationDates } from './1.Entry';
 import { DogInfo } from './2.Dog';
 import { BreederInfo } from './3.Breeder';
@@ -25,6 +26,8 @@ type RegistrationFormProps = {
 };
 
 export function RegistrationForm({ event, className, registration, classDate, onSave, onCancel }: RegistrationFormProps) {
+  const { publicStore } = useStores();
+  const eventHasClasses = (publicStore.eventTypeClasses[event.eventType] || []).length > 0;
   const large = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'));
   const { t, i18n } = useTranslation();
   const [local, setLocal] = useState<Registration>({
@@ -90,7 +93,7 @@ export function RegistrationForm({ event, className, registration, classDate, on
       const c = props.class || local.class;
       const dog = props.dog || local.dog;
       const filtered = filterRelevantResults(event, c as RegistrationClass, dog.results, props.results || local.results);
-      setQualifies((!dog || !c) ? null : filtered.qualifies);
+      setQualifies((!dog.regNo || (eventHasClasses && !c)) ? null : filtered.qualifies);
       props.qualifyingResults = filtered.relevant;
     }
     if (props.ownerHandles || (props.owner && local.ownerHandles)) {
