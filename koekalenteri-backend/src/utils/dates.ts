@@ -1,4 +1,4 @@
-import { isValid, isSameMonth, lightFormat, isSameDay, parseISO, isSameYear } from "date-fns";
+import { isSameDay, isSameMonth, isSameYear, isValid, lightFormat, parseISO } from "date-fns";
 
 export function formatDateSpan(start: Date | string, end: Date | string): string {
   if (typeof start === 'string') {
@@ -23,8 +23,4 @@ export function formatDateSpan(start: Date | string, end: Date | string): string
     return lightFormat(start, 'd.M.') + '-' + lightFormat(end, 'd.M.yyyy');
   }
   return lightFormat(start, 'd.M.yyyy') + '-' + lightFormat(end, 'd.M.yyyy');
-}
-
-export function formatRegDate(date: string, time?: string) {
-  return lightFormat(parseISO(date), 'd.M.') + time ? ` ${time}` : '';
 }

@@ -38,7 +38,7 @@ export function EntryInfo({ reg, event, classDate, errorStates, helperTexts, onC
   const { t } = useTranslation();
   const classDates = getRegistrationDates(event, classDate, reg.class || '');
   const error = errorStates.class || errorStates.dates || errorStates.reserve;
-  const datesText = reg.dates.map(o => t('weekday', { date: o.date }) + (o.time === 'ap' ? ' (aamu)' : ' (ilta)')).join(' / ');
+  const datesText = reg.dates.map(o => t('weekday', { date: o.date }) + ' ' + t(`registration.time.${o.time}`)).join(' / ');
   const reserveText = reg.reserve ? t(`registration.reserveChoises.${reg.reserve}`) : '';
   const infoText = `${reg.class || reg.eventType}, ${datesText}, ${reserveText}`;
   const helperText = error ? t('validation.registration.required', { field: 'classesDetails' }) : infoText;

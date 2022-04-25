@@ -42,6 +42,6 @@ export const getJudgesHandler = metricScope((metrics: MetricsLogger) =>
   }
 );
 
-function capitalize(s: string) {
-  return s.toLowerCase().replace(/(^|\s)\S/g, (l: string) => l.toUpperCase());
+export function capitalize(s: string) {
+  return s.toLowerCase().replace(/(^|[ -])[^ -]/g, (l: string) => l.toUpperCase());
 }

@@ -6,8 +6,8 @@ import { useTranslation } from 'react-i18next';
 import { PartialEvent } from '.';
 import { CollapsibleSection, DateRange, HelpPopover } from '../..';
 import { EventClasses } from './EventClasses';
-import { FieldRequirements } from './validation';
 import { EventProperty } from './EventProperty';
+import { FieldRequirements } from './validation';
 
 type BasicInfoSectionParams = {
   event: PartialEvent
@@ -98,7 +98,7 @@ export function BasicInfoSection({ event, errorStates, helperTexts, fields, even
             <EventProperty
               event={event}
               fields={fields}
-              getOptionLabel={o => o?.name || ''}
+              getOptionLabel={o => typeof o === 'string' ? o : o?.name || ''}
               id="organizer"
               isOptionEqualToValue={(o, v) => o?.id === v?.id}
               onChange={onChange}
@@ -121,7 +121,7 @@ export function BasicInfoSection({ event, errorStates, helperTexts, fields, even
             <EventProperty
               event={event}
               fields={fields}
-              getOptionLabel={o => o?.name || ''}
+              getOptionLabel={o => typeof o === 'string' ? o : o?.name || ''}
               id="official"
               isOptionEqualToValue={(o, v) => o?.id === v?.id}
               onChange={onChange}
@@ -132,7 +132,7 @@ export function BasicInfoSection({ event, errorStates, helperTexts, fields, even
             <EventProperty
               event={event}
               fields={fields}
-              getOptionLabel={o => o?.name || ''}
+              getOptionLabel={o => typeof o === 'string' ? o : o?.name || ''}
               id="secretary"
               isOptionEqualToValue={(o, v) => o?.id === v?.id}
               onChange={onChange}

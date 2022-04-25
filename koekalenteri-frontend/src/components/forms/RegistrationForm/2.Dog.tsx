@@ -108,7 +108,7 @@ export const DogInfo = observer(function DogInfo({ reg, eventDate, minDogAgeMont
               setMode(validateRegNo(value) ? 'fetch' : 'invalid');
             }
           }}
-          getOptionLabel={o => o.regNo || ''}
+          getOptionLabel={o => typeof o === 'string' ? o : o.regNo || ''}
           isOptionEqualToValue={(o, v) => o.regNo === v.regNo}
           options={toJS(rootStore.dogStore.dogs)}
           sx={{ minWidth: 200 }}

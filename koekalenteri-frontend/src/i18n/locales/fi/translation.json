@@ -178,6 +178,10 @@
       "terms": "ilmoittautumisen ehdot",
       "agree": "ja hyväksyn ne",
       "publish": "Hyväksyn, että kokeen järjestämisen vastuuhenkilöt voivat käsitellä ilmoittamiani henkilötietoja ja julkaista niitä tarpeen mukaan kokeen osallistuja- ja tulosluettelossa koepaikalla ja kokeeseen liittyvissä julkaisuissa internetissä tai muissa yhdistyksen medioissa."
+    },
+    "time": {
+      "ap": "(aamu)",
+      "ip": "(ilta)"
     }
   },
   "registrations": "Ilmoittautumiset",

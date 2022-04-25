@@ -8,7 +8,7 @@
     "install-fe": "cd koekalenteri-frontend && npm ci",
     "docker-init": "docker network create lambda-local",
     "dynamodb": "docker run -d --name dynamodb --network lambda-local -p 8000:8000 amazon/dynamodb-local",
-    "start": "shx rm -rf .aws-sam && concurrently npm:start-*",
+    "start": "rimraf .aws-sam && concurrently npm:start-*",
     "start-backend": "cd koekalenteri-backend && npm start",
     "start-frontend": "cd koekalenteri-frontend && npm start",
     "start-dynamodb": "docker start dynamodb && docker attach dynamodb",
@@ -19,8 +19,7 @@
   "devDependencies": {
     "@types/jest": "^27.0.2",
     "concurrently": "^7.0.0",
-    "cross-env": "^7.0.3",
-    "shx": "^0.3.3",
+    "rimraf": "^3.0.2",
     "typescript": "^4.5.5"
   }
 }

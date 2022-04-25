@@ -23,7 +23,7 @@ type QRWithId = Partial<QualifyingResult> & { id: string };
 const asArray = (v: EventResultRequirements | EventResultRequirement) => Array.isArray(v) ? v : [v];
 export function QualifyingResultsInfo({ reg, error, helperText, onChange, onOpenChange, open }: QualifyingResultsInfoProps) {
   const { t } = useTranslation();
-  const requirements = useMemo(() => getRequirements(reg.eventType, reg.class as RegistrationClass, reg.dates[0].date) || {rules: []}, [reg.eventType, reg.class, reg.dates]);
+  const requirements = useMemo(() => getRequirements(reg.eventType, reg.class as RegistrationClass, reg.dates && reg.dates.length ? reg.dates[0].date : new Date()) || {rules: []}, [reg.eventType, reg.class, reg.dates]);
   const [results, setResults] = useState<Array<QRWithId>>([]);
   const sendChange = useMemo(() => debounce(onChange, 300), [onChange]);
   const handleChange = (result: QRWithId, props: Partial<TestResult>) => {

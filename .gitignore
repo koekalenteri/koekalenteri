@@ -110,3 +110,5 @@ samconfig.toml
 stack.json
 
 koekalenteri-backend/ses-templates/samples/
+koekalenteri-backend/src/i18n/locales/**/*.json
+koekalenteri-backend/src/i18n/locales/**/*.ts

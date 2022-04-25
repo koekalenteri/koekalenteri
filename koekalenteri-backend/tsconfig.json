@@ -4,6 +4,7 @@
     "sourceMap": true,
     "moduleResolution": "node",
     "outDir": "./dist",
+    "resolveJsonModule": true,
     "rootDir": "./src",
   },
   "include": ["src/**/*.ts", "src/**/*.js"]

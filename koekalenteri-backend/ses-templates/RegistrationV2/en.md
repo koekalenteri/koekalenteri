@@ -22,7 +22,7 @@ Times          :| {{regDates}}
 Reserve        :| {{reserveText}}
 
 **Qualifying results**
-{{#each reg.qualifyingResults}}
+{{#each qualifyingResults}}
 {{this.type}} {{this.result}}, {{this.date}}, {{this.location}}, {{this.judge}}
 {{/each}}
 {{#if reg.notes}}

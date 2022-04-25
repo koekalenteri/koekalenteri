@@ -72,7 +72,7 @@ export class DogStore {
         dam: record.dam,
         handler: record.handler,
         owner: record.owner,
-        ownerHandles: record.ownerHandles,
+        ownerHandles: !!record.ownerHandles,
         regNo: record.regNo,
         sire: record.sire,
         titles: record.titles,
