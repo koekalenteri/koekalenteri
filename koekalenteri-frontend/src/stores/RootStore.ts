@@ -22,7 +22,6 @@ export class RootStore {
   }
 
   async load() {
-    console.trace();
     this.loading = true;
     await Promise.allSettled([
       this.eventTypeStore.load(),

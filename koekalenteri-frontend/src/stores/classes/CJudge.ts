@@ -12,6 +12,7 @@ export class CJudge {
   location: string = "";
   name: string = "";
   phone: string = "";
+  search: string = "";
   store: JudgeStore | null = null;
 
   constructor(store: JudgeStore, id: number) {
@@ -31,5 +32,6 @@ export class CJudge {
     this.location = json.location;
     this.name = json.name;
     this.phone = json.phone;
+    this.search = [json.district, json.email, ...json.eventTypes, json.location, json.name, json.phone].map(v => v?.toLocaleLowerCase() || '').join(' ');
   }
 }

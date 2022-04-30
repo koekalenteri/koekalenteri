@@ -1,11 +1,13 @@
 import { CloudSync } from '@mui/icons-material';
-import { Box, Button, Stack } from '@mui/material';
+import { Button, Stack } from '@mui/material';
 import { GridColDef } from '@mui/x-data-grid';
 import { Judge } from 'koekalenteri-shared/model';
-import { toJS } from 'mobx';
+import { computed, toJS } from 'mobx';
 import { observer } from 'mobx-react-lite';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { StyledDataGrid } from '../components';
+import { QuickSearchToolbar, StyledDataGrid } from '../components';
+import { FullPageFlex } from '../layout';
 import { useStores } from '../stores';
 import { AuthPage } from './AuthPage';
 
@@ -14,6 +16,7 @@ interface JudgeColDef extends GridColDef {
 }
 
 export const JudgeListPage = observer(function JudgeListPage() {
+  const [searchText, setSearchText] = useState('');
   const { t } = useTranslation();
   const { rootStore } = useStores();
   const columns: JudgeColDef[] = [
@@ -21,10 +24,13 @@ export const JudgeListPage = observer(function JudgeListPage() {
       field: 'name',
       flex: 1,
       headerName: t('name'),
+      minWidth: 150,
     },
     {
       field: 'id',
-      headerName: t('id')
+      flex: 0,
+      headerName: t('id'),
+      width: 80
     },
     {
       field: 'location',
@@ -58,31 +64,41 @@ export const JudgeListPage = observer(function JudgeListPage() {
     rootStore.judgeStore.load(true);
   };
 
+  const rows = computed(() => {
+    const lvalue = searchText.toLocaleLowerCase();
+    return toJS(rootStore.judgeStore.judges).filter(o => o.search.includes(lvalue));
+  }).get();
+
+  const requestSearch = (searchValue: string) => {
+    setSearchText(searchValue);
+  };
+
   return (
     <AuthPage title={t('judges')}>
-      <Box sx={{ display: 'flex', p: 1, overflow: 'hidden', height: '100%', flexDirection: 'column', alignItems: 'flex-start' }}>
-        <Box sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          flexGrow: 1,
-          width: '100%',
-          minHeight: 600,
-        }}>
-          <Stack direction="row" spacing={2}>
-            <Button startIcon={<CloudSync />} onClick={refresh}>{t('updateData', { data: 'judges' })}</Button>
-          </Stack>
+      <FullPageFlex>
+        <Stack direction="row" spacing={2}>
+          <Button startIcon={<CloudSync />} onClick={refresh}>{t('updateData', { data: 'judges' })}</Button>
+        </Stack>
 
-          <StyledDataGrid
-            loading={rootStore.judgeStore.loading}
-            autoPageSize
-            columns={columns}
-            density='compact'
-            disableColumnMenu
-            disableVirtualization
-            rows={toJS(rootStore.judgeStore.judges)}
-          />
-        </Box>
-      </Box>
+        <StyledDataGrid
+          loading={rootStore.judgeStore.loading}
+          autoPageSize
+          columns={columns}
+          components={{ Toolbar: QuickSearchToolbar }}
+          componentsProps={{
+            toolbar: {
+              value: searchText,
+              onChange: (event: React.ChangeEvent<HTMLInputElement>) =>
+                requestSearch(event.target.value),
+              clearSearch: () => requestSearch(''),
+            },
+          }}
+          density='compact'
+          disableColumnMenu
+          disableVirtualization
+          rows={rows}
+        />
+      </FullPageFlex>
     </AuthPage>
   )
 });

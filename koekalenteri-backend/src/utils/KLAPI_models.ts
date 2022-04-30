@@ -159,7 +159,7 @@ export type KLPaikkakunta = {
 
 export type KLYhdistys = {
   jäsennumero: number
-  yhdistys: string
+  strYhdistys: string
 }
 
 export enum KLYhdistysRajaus {

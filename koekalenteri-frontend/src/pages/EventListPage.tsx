@@ -1,6 +1,6 @@
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControlLabel, Stack, Switch, TextField, Typography } from '@mui/material';
 import cloneDeep from 'lodash.clonedeep';
-import { EventGridContainer } from '../layout';
+import { EventGridContainer, FullPageFlex } from '../layout';
 import { useTranslation } from 'react-i18next';
 import { useSnackbar } from 'notistack';
 import { AuthPage } from './AuthPage';
@@ -52,16 +52,8 @@ export const EventListPage = observer(() => {
   }
 
   return (
-    <AuthPage>
-      <Box sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        flexGrow: 1,
-        '& .MuiDataGrid-root': {
-          flexGrow: 1
-        }
-      }}>
-        <Typography variant="h5">{t('events')}</Typography>
+    <AuthPage title={t('events')}>
+      <FullPageFlex>
         <TextField sx={{ mt: 2, width: '300px' }} size="small" label="Hae" variant="outlined" disabled />
         <div>
           <FormControlLabel
@@ -82,7 +74,7 @@ export const EventListPage = observer(() => {
           <AutoButton startIcon={<FormatListNumberedOutlined />} disabled={!privateStore.selectedEvent || !privateStore.selectedEvent.entries} onClick={() => navigate(`${ADMIN_VIEW_EVENT}/${privateStore.selectedEvent?.id}`)} text={t('registrations')} />
         </Stack>
         <EventGridContainer />
-      </Box>
+      </FullPageFlex>
       <Dialog
         open={open}
         onClose={handleClose}

@@ -60,6 +60,10 @@ export class PublicStore {
   }
 
   async load(signal?: AbortSignal) {
+    if (this.loading) {
+      return;
+    }
+
     this.loading = true;
 
     const events = await getEvents(signal);

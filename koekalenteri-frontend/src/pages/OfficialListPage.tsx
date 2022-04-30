@@ -1,11 +1,12 @@
 import { CloudSync } from '@mui/icons-material';
-import { Box, Button, Stack, Theme, useMediaQuery } from '@mui/material';
+import { Button, Stack, Theme, useMediaQuery } from '@mui/material';
 import { GridColDef } from '@mui/x-data-grid';
 import { computed, toJS } from 'mobx';
 import { observer } from 'mobx-react-lite';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { QuickSearchToolbar, StyledDataGrid } from '../components';
+import { FullPageFlex } from '../layout';
 import { useStores } from '../stores';
 import { COfficial } from '../stores/classes/COfficial';
 import { AuthPage } from './AuthPage';
@@ -78,44 +79,36 @@ export const OfficialListPage = observer(function OfficialListPage() {
 
   return (
     <AuthPage title={t('officials')}>
-      <Box sx={{ display: 'flex', p: 1, overflow: 'hidden', height: '100%', flexDirection: 'column', alignItems: 'flex-start' }}>
-        <Box sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          flexGrow: 1,
-          width: '100%',
-          minHeight: 600,
-        }}>
-          <Stack direction="row" spacing={2}>
-            <Button startIcon={<CloudSync />} onClick={refresh}>{t('updateData', { data: 'officials' })}</Button>
-          </Stack>
+      <FullPageFlex>
+        <Stack direction="row" spacing={2}>
+          <Button startIcon={<CloudSync />} onClick={refresh}>{t('updateData', { data: 'officials' })}</Button>
+        </Stack>
 
-          <StyledDataGrid
-            autoPageSize
-            columns={columns}
-            columnVisibilityModel={{
-              district: large,
-              eventTypes: large,
-              id: large,
-              location: large,
-            }}
-            components={{ Toolbar: QuickSearchToolbar }}
-            componentsProps={{
-              toolbar: {
-                value: searchText,
-                onChange: (event: React.ChangeEvent<HTMLInputElement>) =>
-                  requestSearch(event.target.value),
-                clearSearch: () => requestSearch(''),
-              },
-            }}
-            density='compact'
-            disableColumnMenu
-            disableVirtualization
-            loading={rootStore.officialStore.loading}
-            rows={rows}
-          />
-        </Box>
-      </Box>
+        <StyledDataGrid
+          autoPageSize
+          columns={columns}
+          columnVisibilityModel={{
+            district: large,
+            eventTypes: large,
+            id: large,
+            location: large,
+          }}
+          components={{ Toolbar: QuickSearchToolbar }}
+          componentsProps={{
+            toolbar: {
+              value: searchText,
+              onChange: (event: React.ChangeEvent<HTMLInputElement>) =>
+                requestSearch(event.target.value),
+              clearSearch: () => requestSearch(''),
+            },
+          }}
+          density='compact'
+          disableColumnMenu
+          disableVirtualization
+          loading={rootStore.officialStore.loading}
+          rows={rows}
+        />
+      </FullPageFlex>
     </AuthPage>
   )
 });

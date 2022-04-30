@@ -17,7 +17,7 @@ export const getOrganizersHandler = metricScope((metrics: MetricsLogger) =>
         const { status, json } = await klapi.lueYhdistykset({ Rajaus: KLYhdistysRajaus.Koejärjestätä });
         if (status === 200 && json) {
           for (const item of json) {
-            await dynamoDB.write({ id: item.jäsennumero, name: item.yhdistys });
+            await dynamoDB.write({ id: item.jäsennumero, name: item.strYhdistys });
           }
         }
       }

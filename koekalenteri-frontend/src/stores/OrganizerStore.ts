@@ -17,6 +17,9 @@ export class OrganizerStore {
   }
 
   async load(refresh?: boolean, signal?: AbortSignal) {
+    if (this.loading) {
+      return;
+    }
     runInAction(() => {
       this.loading = true;
     });

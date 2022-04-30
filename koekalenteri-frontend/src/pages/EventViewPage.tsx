@@ -4,13 +4,14 @@ import { AuthPage } from './AuthPage';
 import { useStores } from '../stores';
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { CollapsibleSection, LinkButton, RegistrationForm } from '../components';
+import { CollapsibleSection, LinkButton, RegistrationForm, StyledDataGrid } from '../components';
 import { ADMIN_EVENTS } from '../config';
 import { getRegistrations, putRegistration } from '../api/event';
 import { BreedCode, ConfirmedEventEx, Registration } from 'koekalenteri-shared/model';
-import { DataGrid, GridColDef, GridSelectionModel } from '@mui/x-data-grid';
+import { GridColDef, GridSelectionModel } from '@mui/x-data-grid';
 import { AddCircleOutline, DeleteOutline, EditOutlined, EuroOutlined, PersonOutline } from '@mui/icons-material';
 import { format } from 'date-fns';
+import { FullPageFlex } from '../layout';
 
 
 export function EventViewPage() {
@@ -127,90 +128,59 @@ export function EventViewPage() {
 
   return (
     <AuthPage>
-      <Box sx={{ display: 'flex', p: 1, overflow: 'hidden', height: '100%', flexDirection: 'column', alignItems: 'flex-start' }}>
-        <Box sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          flexGrow: 1,
-          width: '100%',
-          minHeight: 600,
-        }}>
-          <Grid container justifyContent="space-between">
-            <Grid item xs>
-              <LinkButton sx={{ mb: 1 }} to={ADMIN_EVENTS} text={t('goBack')} />
-              <Title event={event} />
-              <CollapsibleSection title="Kokeen tiedot" initOpen={false}>
-                  Kokeen tarkat tiedot tähän...
-              </CollapsibleSection>
-                Filttereitä tähän...
-            </Grid>
-            <Grid item xs="auto">
-              <InfoPanel event={event} />
-            </Grid>
+      <FullPageFlex>
+        <Grid container justifyContent="space-between">
+          <Grid item xs>
+            <LinkButton sx={{ mb: 1 }} to={ADMIN_EVENTS} text={t('goBack')} />
+            <Title event={event} />
+            <CollapsibleSection title="Kokeen tiedot" initOpen={false}>
+                Kokeen tarkat tiedot tähän...
+            </CollapsibleSection>
+              Filttereitä tähän...
           </Grid>
-          <Stack direction="row" spacing={2}>
-            <Button startIcon={<AddCircleOutline />} onClick={() => { setSelected(undefined); setOpen(true); }}>{t('create')}</Button>
-            <Button startIcon={<EditOutlined />} disabled={!selected} onClick={() => setOpen(true)}>{t('edit')}</Button>
-            <Button startIcon={<DeleteOutline />} disabled>{t('delete')}</Button>
-          </Stack>
-          <DataGrid
-            loading={loading}
-            autoPageSize
-            columns={columns}
-            density='compact'
-            disableColumnMenu
-            rows={registrations}
-            onSelectionModelChange={(selectionModel: GridSelectionModel) => setSelected(registrations.find(r => r.id === selectionModel[0]))}
-            selectionModel={selected ? [selected.id] : []}
-            onRowDoubleClick={() => setOpen(true)}
-            sx={{
-              '& .MuiDataGrid-columnHeaders': {
-                backgroundColor: 'background.tableHead'
-              },
-              '& .MuiDataGrid-row:nth-of-type(2n+1)': {
-                backgroundColor: 'background.oddRow'
-              },
-              '& .MuiDataGrid-cell:focus': {
-                outline: 'none'
-              },
-              '& .MuiDataGrid-row.Mui-selected': {
-                backgroundColor: 'background.selected'
-              },
-              '& .MuiDataGrid-row:hover': {
-                backgroundColor: undefined
-              },
-              '& .MuiDataGrid-row.Mui-selected:hover': {
-                backgroundColor: 'background.hover'
-              },
-              '& .MuiDataGrid-row:hover > .MuiDataGrid-cell': {
-                backgroundColor: 'background.hover'
-              }
-            }}
-          />
-        </Box>
-        <Dialog
-          fullWidth
-          maxWidth='lg'
-          open={open}
-          onClose={() => setOpen(false)}
-          aria-labelledby="reg-dialog-title"
-          PaperProps={{
-            sx: {
-              m: 1,
-              maxHeight: 'calc(100% - 16px)',
-              width: 'calc(100% - 16px)',
-              '& .MuiDialogTitle-root': {
-                fontSize: '1rem'
-              }
+          <Grid item xs="auto">
+            <InfoPanel event={event} />
+          </Grid>
+        </Grid>
+        <Stack direction="row" spacing={2}>
+          <Button startIcon={<AddCircleOutline />} onClick={() => { setSelected(undefined); setOpen(true); }}>{t('create')}</Button>
+          <Button startIcon={<EditOutlined />} disabled={!selected} onClick={() => setOpen(true)}>{t('edit')}</Button>
+          <Button startIcon={<DeleteOutline />} disabled>{t('delete')}</Button>
+        </Stack>
+        <StyledDataGrid
+          loading={loading}
+          autoPageSize
+          columns={columns}
+          density='compact'
+          disableColumnMenu
+          rows={registrations}
+          onSelectionModelChange={(selectionModel: GridSelectionModel) => setSelected(registrations.find(r => r.id === selectionModel[0]))}
+          selectionModel={selected ? [selected.id] : []}
+          onRowDoubleClick={() => setOpen(true)}
+        />
+      </FullPageFlex>
+      <Dialog
+        fullWidth
+        maxWidth='lg'
+        open={open}
+        onClose={() => setOpen(false)}
+        aria-labelledby="reg-dialog-title"
+        PaperProps={{
+          sx: {
+            m: 1,
+            maxHeight: 'calc(100% - 16px)',
+            width: 'calc(100% - 16px)',
+            '& .MuiDialogTitle-root': {
+              fontSize: '1rem'
             }
-          }}
-        >
-          <DialogTitle id="reg-dialog-title">{selected ? `${selected.dog.name} / ${selected.handler.name}` : t('create')}</DialogTitle>
-          <DialogContent dividers sx={{height: '100%', p: 0 }}>
-            <RegistrationForm event={event} registration={selected} onSave={onSave} onCancel={onCancel} />
-          </DialogContent>
-        </Dialog>
-      </Box>
+          }
+        }}
+      >
+        <DialogTitle id="reg-dialog-title">{selected ? `${selected.dog.name} / ${selected.handler.name}` : t('create')}</DialogTitle>
+        <DialogContent dividers sx={{height: '100%', p: 0 }}>
+          <RegistrationForm event={event} registration={selected} onSave={onSave} onCancel={onCancel} />
+        </DialogContent>
+      </Dialog>
     </AuthPage>
   )
 }

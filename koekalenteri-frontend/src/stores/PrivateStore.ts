@@ -32,6 +32,9 @@ export class PrivateStore {
   }
 
   async load(signal?: AbortSignal) {
+    if (this.loading) {
+      return;
+    }
     this.loading = true;
     const events = await eventApi.getEvents(signal);
     runInAction(() => {

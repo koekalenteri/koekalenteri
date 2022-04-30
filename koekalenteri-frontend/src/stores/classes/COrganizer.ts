@@ -6,6 +6,7 @@ import { OrganizerStore } from "../OrganizerStore";
 export class COrganizer {
   id: number = 0;
   name: string = "";
+  search: string = "";
   store: OrganizerStore | null = null;
 
   constructor(store: OrganizerStore, id: number) {
@@ -19,5 +20,6 @@ export class COrganizer {
 
   updateFromJson(json: Organizer) {
     this.name = json.name;
+    this.search = json.name.toLocaleLowerCase();
   }
 }
