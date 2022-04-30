@@ -27,6 +27,10 @@ export class JudgeStore {
     });
   }
 
+  getJudge(id: number): CJudge | undefined {
+    return this.judges.find(item => item.id === id);
+  }
+
   getJudges(ids?: number[]): CJudge[] {
     const result: CJudge[] = [];
     if (!ids || ids.length === 0) {

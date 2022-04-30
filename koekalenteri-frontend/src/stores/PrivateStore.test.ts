@@ -15,7 +15,6 @@ test('PrivateStore', async () => {
   await promise;
   expect(store.loaded).toEqual(true);
   expect(store.events.length).toEqual(5);
-  expect(store.officials.length).toEqual(3);
 
   const origLength = store.events.length;
   const newEvent = await store.putEvent({ eventType: 'saveTest' });

@@ -9,6 +9,7 @@ export const ADMIN_VIEW_EVENT = `${ADMIN_EVENTS}/view`;
 
 export const ADMIN_JUDGES = `${ADMIN_ROOT}/judge`;
 export const ADMIN_ORGS = `${ADMIN_ROOT}/organizations`;
+export const ADMIN_OFFICIALS = `${ADMIN_ROOT}/officials`;
 export const ADMIN_USERS = `${ADMIN_ROOT}/users`;
 export const ADMIN_EVENT_TYPES = `${ADMIN_ROOT}/types`;
 

@@ -20,6 +20,7 @@ export const DEFAULT_EVENT: Event = {
     email: '',
     phone: '',
     location: '',
+    district: '',
     eventTypes: []
   },
   organizer: {

@@ -70,6 +70,7 @@
     "state": "Tila"
   },
   "cancel": "Peruuta",
+  "clear": "Tyhjennä",
   "create": "Lisää uusi",
   "copy": "Kopioi",
   "createEvent": "Uusi tapahtuma",
@@ -119,6 +120,7 @@
   "name": "Nimi",
   "noResults": "Tekemälläsi haulla ei löytynyt tapahtumia. Poista joku hakusuodattimista.",
   "official": "Vastaava koetoimitsija",
+  "officials": "Koetoimitsijat",
   "organizations": "Yhdistykset",
   "organizer": "Järjestäjä",
   "paymentDetails": "Maksutiedot",
@@ -185,6 +187,7 @@
     }
   },
   "registrations": "Ilmoittautumiset",
+  "searchPlaceholder": "Hae...",
   "testResult": {
     "date": "Aika",
     "eventType": "Koemuoto",

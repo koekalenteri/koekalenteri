@@ -1,4 +1,4 @@
-import { makeAutoObservable } from 'mobx';
+import { makeAutoObservable, runInAction } from 'mobx';
 import { getEvent, getEvents } from '../api/event';
 import type { EventEx } from 'koekalenteri-shared/model';
 
@@ -17,6 +17,8 @@ export type FilterProps = {
 
 export class PublicStore {
   private _events: EventEx[] = [];
+  private _loaded = false;
+  private _loading = false;
 
   public eventTypes = ['NOU', 'NOME-B', 'NOME-A', 'NOWT'];
   public eventTypeClasses: Record<string, string[]> = {
@@ -26,8 +28,6 @@ export class PublicStore {
     'NOWT': ['ALO', 'AVO', 'VOI']
   };
 
-  public loaded: boolean = false;
-  public loading: boolean = false;
   public filteredEvents: EventEx[] = [];
   public filter: FilterProps = {
     start: null,
@@ -52,17 +52,24 @@ export class PublicStore {
     return reload ? this.load() : this._applyFilter();
   }
 
-  setLoading(value: boolean) {
-    this.loading = value;
-    this.loaded = !value;
+  get loaded() { return this._loaded }
+  get loading() { return this._loading }
+  set loading(value: boolean) {
+    this._loading = value;
+    this._loaded = !value;
   }
 
   async load(signal?: AbortSignal) {
-    this.setLoading(true);
-    this._events = (await getEvents(signal))
-      .sort((a: EventEx, b: EventEx) => +new Date(a.startDate || new Date()) - +new Date(b.startDate || new Date()));
+    this.loading = true;
+
+    const events = await getEvents(signal);
+
+    runInAction(() => {
+      this._events = events.sort((a: EventEx, b: EventEx) => +new Date(a.startDate || new Date()) - +new Date(b.startDate || new Date()));
+    });
+
     this._applyFilter();
-    this.setLoading(false);
+    this.loading = false;
   }
 
   async get(eventType: string, id: string, signal?: AbortSignal) {
@@ -76,11 +83,13 @@ export class PublicStore {
   private _applyFilter() {
     const filter = this.filter;
 
-    this.filteredEvents = this._events.filter(event => {
-      return event.state !== 'draft' && !event.deletedAt
-        && withinDateFilters(event, filter)
-        && withinSwitchFilters(event, filter)
-        && withinArrayFilters(event, filter);
+    runInAction(() => {
+      this.filteredEvents = this._events.filter(event => {
+        return event.state !== 'draft' && !event.deletedAt
+          && withinDateFilters(event, filter)
+          && withinSwitchFilters(event, filter)
+          && withinArrayFilters(event, filter);
+      });
     });
   }
 }

@@ -1,6 +1,6 @@
 import { DeepPartial, Dog, Registration, RegistrationBreeder, RegistrationPerson } from "koekalenteri-shared/model";
 import merge from "lodash.merge";
-import { makeAutoObservable, toJS } from "mobx";
+import { makeAutoObservable, runInAction, toJS } from "mobx";
 import { getDog } from "../api/dog";
 import { RootStore } from "./RootStore";
 
@@ -15,7 +15,7 @@ export type DogCachedInfo = {
 
 export class DogStore {
   rootStore
-  _data: Record<string, Partial<Dog & DogCachedInfo>>
+  _data: Record<string, Partial<Dog & DogCachedInfo>> = {}
 
   constructor(rootStore: RootStore) {
     makeAutoObservable(this, {
@@ -23,7 +23,9 @@ export class DogStore {
     })
     this.rootStore = rootStore;
     const stored = localStorage.getItem(STORAGE_KEY);
-    this._data = stored ? JSON.parse(stored) : {};
+    runInAction(() => {
+      this._data = stored ? JSON.parse(stored) : {};
+    });
     window.addEventListener('storage', this._change);
 
   }
@@ -37,9 +39,11 @@ export class DogStore {
   }
 
   private _change(e: StorageEvent) {
-    if (e.storageArea === localStorage && e.key === STORAGE_KEY) {
-      this._data = e.newValue ? JSON.parse(e.newValue) : {};
-    }
+    runInAction(() => {
+      if (e.storageArea === localStorage && e.key === STORAGE_KEY) {
+        this._data = e.newValue ? JSON.parse(e.newValue) : {};
+      }
+    });
   }
 
   get dogs() {

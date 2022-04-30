@@ -1,25 +1,26 @@
 import { makeAutoObservable, runInAction } from 'mobx';
-import * as officialApi from '../api/official';
 import * as eventApi from '../api/event';
-import { Event, EventEx, Official } from 'koekalenteri-shared/model';
+import { Event, EventEx } from 'koekalenteri-shared/model';
 
 export class PrivateStore {
-  public loaded: boolean = false;
-  public loading: boolean = false;
+  private _loaded: boolean = false;
+  private _loading: boolean = false;
 
   public newEvent: Partial<Event> = {};
   public selectedEvent: Partial<Event> | undefined = undefined;
 
-  public officials: Official[] = [];
   public events: Partial<EventEx>[] = [];
 
   constructor() {
     makeAutoObservable(this)
   }
 
-  setLoading(value: boolean) {
-    this.loading = value;
-    this.loaded = !value;
+  get loaded() { return this._loaded }
+  get loading() { return this._loading }
+
+  set loading(v) {
+    this._loading = v;
+    this._loaded = !v;
   }
 
   setNewEvent(event: Partial<Event>) {
@@ -31,14 +32,12 @@ export class PrivateStore {
   }
 
   async load(signal?: AbortSignal) {
-    this.setLoading(true);
+    this.loading = true;
     const events = await eventApi.getEvents(signal);
-    const officials = await officialApi.getOfficials(signal);
     runInAction(() => {
       this.events = events;
-      this.officials = officials;
     });
-    this.setLoading(false);
+    this.loading = false;
   }
 
   async get(id: string, signal?: AbortSignal): Promise<Partial<Event>|undefined> {

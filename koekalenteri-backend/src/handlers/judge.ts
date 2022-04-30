@@ -6,6 +6,7 @@ import KLAPI from "../utils/KLAPI";
 import { KLKieli } from "../utils/KLAPI_models";
 import { metricsError, metricsSuccess } from "../utils/metrics";
 import { response } from "../utils/response";
+import { capitalize } from "../utils/string";
 
 const dynamoDB = new CustomDynamoClient();
 const klapi = new KLAPI();
@@ -14,6 +15,7 @@ export const getJudgesHandler = metricScope((metrics: MetricsLogger) =>
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     try {
       if (event.queryStringParameters && 'refresh' in event.queryStringParameters) {
+        // TODO: use enabled event types
         for (const eventType of ['NOU', 'NOME-B', 'NOWT', 'NOME-A', 'NKM']) {
           const { status, json } = await klapi.lueKoemuodonYlituomarit({ Koemuoto: eventType, Kieli: KLKieli.Suomi });
           if (status === 200 && json) {
@@ -32,16 +34,14 @@ export const getJudgesHandler = metricScope((metrics: MetricsLogger) =>
         }
       }
       const items = await dynamoDB.readAll();
-      metricsSuccess(metrics, event.requestContext, 'refreshJudges');
+      metricsSuccess(metrics, event.requestContext, 'getJudges');
       return response(200, items);
     } catch (err) {
       console.error(err);
-      metricsError(metrics, event.requestContext, 'refreshJudges');
+      metricsError(metrics, event.requestContext, 'getJudges');
       return response((err as AWSError).statusCode || 501, err);
     }
   }
 );
 
-export function capitalize(s: string) {
-  return s.toLowerCase().replace(/(^|[ -])[^ -]/g, (l: string) => l.toUpperCase());
-}
+

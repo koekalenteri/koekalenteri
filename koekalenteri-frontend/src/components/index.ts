@@ -14,3 +14,4 @@ export * from './EventTable';
 export * from './HelpPopover';
 export * from './MiniDrawer';
 export * from './StyledDataGrid';
+export * from './QuickSearchToolbar';

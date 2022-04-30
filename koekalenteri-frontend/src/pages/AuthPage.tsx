@@ -1,10 +1,11 @@
-import { ReactNode, useEffect, useState } from 'react';
-import { Box, Toolbar } from '@mui/material';
-import { Header } from '../layout';
-import { useStores, useSessionStarted } from '../stores';
-import { SideMenu } from '../layout/SideMenu';
 import { useAuthenticator } from '@aws-amplify/ui-react';
+import { Box, Toolbar } from '@mui/material';
+import { autorun } from 'mobx';
+import { ReactNode, useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
+import { Header } from '../layout';
+import { SideMenu } from '../layout/SideMenu';
+import { useSessionStarted, useStores } from '../stores';
 
 export function AuthPage({ children, title }: { children: ReactNode, title?: string }) {
   const location = useLocation();
@@ -17,16 +18,21 @@ export function AuthPage({ children, title }: { children: ReactNode, title?: str
     if (!sessionStarted) {
       setSessionStarted(new Date().toISOString());
     }
+  });
+  useEffect(() => {
     if (!rootStore.loaded) {
       rootStore.load();
     }
-    if (!publicStore.loaded) {
-      publicStore.load();
-    }
-    if (!privateStore.loaded) {
-      privateStore.load();
-    }
+    autorun(() => {
+      if (!publicStore.loaded) {
+        publicStore.load();
+      }
+      if (!privateStore.loaded) {
+        privateStore.load();
+      }
+    })
   });
+
 
   const toggleMenu = () => {
     console.log('toggleMenu', menuOpen);
@@ -36,7 +42,7 @@ export function AuthPage({ children, title }: { children: ReactNode, title?: str
   return (route !== 'authenticated' ? <Navigate to="/login" state={{ from: location }} replace /> :
     <>
       <Header title={title} toggleMenu={toggleMenu} />
-      <Box sx={{ display: 'flex', maxHeight: '100%' }}>
+      <Box sx={{ display: 'flex', height: '100%' }}>
         <SideMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
         <Box sx={{ p: 1, display: 'flex', flexDirection: 'column', flexGrow: 1, overflow: 'auto' }}>
           <Toolbar variant="dense" />
@@ -45,4 +51,4 @@ export function AuthPage({ children, title }: { children: ReactNode, title?: str
       </Box>
     </>
   );
-}
+};

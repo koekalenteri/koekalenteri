@@ -58,7 +58,7 @@ export const EventGrid = observer(({ events }: { events: Partial<EventEx>[] }) =
       headerName: t('judgeChief'),
       minWidth: 100,
       flex: 1,
-      valueGetter: (params) => rootStore.judgeStore.judges.find(j => j.id === params.row.judges[0])?.name
+      valueGetter: (params) => rootStore.judgeStore.getJudge(params.row.judges[0])?.name
     },
     {
       field: 'places',

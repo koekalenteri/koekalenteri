@@ -12,11 +12,12 @@ export type OfficialPerson = Person & {
 export type Secretary = OfficialPerson;
 
 export type Official = OfficialPerson & {
+  district: string
   eventTypes: string[]
 }
 
 export type Judge = OfficialPerson & {
-  languages: string[]
-  eventTypes: string[]
   district: string
+  eventTypes: string[]
+  languages: string[]
 }

@@ -36,6 +36,7 @@ const OFFICIALS = [{
   email: 'joo@ei.com',
   phone: '0700-official',
   location: 'Perähikiä',
+  district: 'Hikiä',
   eventTypes: ['TEST-A', 'TEST-C']
 }];
 

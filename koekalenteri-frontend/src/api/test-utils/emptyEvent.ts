@@ -27,6 +27,7 @@ export const emptyEvent: Event = {
     email: 'joo@ei.com',
     phone: '040-official',
     location: 'Suomi',
+    district: 'Helsinki',
     eventTypes: ['test']
   },
   secretary: {
