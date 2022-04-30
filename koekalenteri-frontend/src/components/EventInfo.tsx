@@ -34,7 +34,7 @@ export function EventInfo({ event }: { event: EventEx }) {
   const { rootStore } = useStores();
   const classes = useRowStyles();
   const { t } = useTranslation();
-  const judgeName = (id: number) => rootStore.judgeStore.judges.find(j => j.id === id)?.name || '';
+  const judgeName = (id: number) => rootStore.judgeStore.getJudge(id)?.name || '';
   const allJudgesInCalsses = event.judges.filter(j => !event.classes.find(c => c.judge?.id === j)).length === 0;
   return (
     <>
