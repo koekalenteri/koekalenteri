@@ -24,10 +24,10 @@ export function SideMenu({ open, onClose }: { open?: boolean, onClose: () => voi
       <DrawerList>
         <NavLink to={ADMIN_EVENTS}><DrawerItem text={t('events')} icon={<Event />} /></NavLink>
         <NavLink to={ADMIN_ORGS}><DrawerItem text={t('organizations')} icon={<Support />} /></NavLink>
-        <NavLink to={ADMIN_OFFICIALS}><DrawerItem text={t('officials')} icon={<SupervisorAccount />} /></NavLink>
-        <NavLink to={ADMIN_USERS}><DrawerItem text={t('users')} icon={<PersonOutline />} /></NavLink>
         <NavLink to={ADMIN_JUDGES}><DrawerItem text={t('judges')} icon={<Accessibility />} /></NavLink>
+        <NavLink to={ADMIN_OFFICIALS}><DrawerItem text={t('officials')} icon={<SupervisorAccount />} /></NavLink>
         <NavLink to={ADMIN_EVENT_TYPES}><DrawerItem text={t('eventTypes')} icon={<EmojiEventsOutlined />} /></NavLink>
+        <NavLink to={ADMIN_USERS}><DrawerItem text={t('users')} icon={<PersonOutline />} /></NavLink>
       </DrawerList>
       <Divider />
       <DrawerList>
