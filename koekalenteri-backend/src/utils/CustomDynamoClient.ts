@@ -1,5 +1,4 @@
 // Create a DocumentClient that represents the query to add an item
-import { APIGatewayProxyEventPathParameters } from 'aws-lambda';
 import DynamoDB, { ItemList, UpdateExpression } from 'aws-sdk/clients/dynamodb';
 import { JsonObject } from 'koekalenteri-shared/model';
 
