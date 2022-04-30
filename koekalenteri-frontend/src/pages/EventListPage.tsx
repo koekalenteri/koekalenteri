@@ -1,4 +1,4 @@
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControlLabel, Stack, Switch, TextField, Typography } from '@mui/material';
+import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControlLabel, Stack, Switch, TextField } from '@mui/material';
 import cloneDeep from 'lodash.clonedeep';
 import { EventGridContainer, FullPageFlex } from '../layout';
 import { useTranslation } from 'react-i18next';
