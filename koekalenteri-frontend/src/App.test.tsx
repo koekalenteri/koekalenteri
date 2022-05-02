@@ -3,7 +3,7 @@ import App from './App';
 import { MemoryRouter } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material';
 import theme from './assets/Theme';
-import { ADMIN_JUDGES, ADMIN_NEW_EVENT, ADMIN_ORGS, ADMIN_ROOT, ADMIN_USERS, ADMIN_VIEW_EVENT } from './config';
+import { ADMIN_EVENT_TYPES, ADMIN_JUDGES, ADMIN_NEW_EVENT, ADMIN_ORGS, ADMIN_ROOT, ADMIN_USERS, ADMIN_VIEW_EVENT } from './config';
 import { DataGridProps } from '@mui/x-data-grid';
 
 jest.mock('./api/event');
@@ -108,6 +108,12 @@ test('renders admin users', async () => {
 test('renders admin judges', async () => {
   renderPath(ADMIN_JUDGES);
   const head = await screen.findAllByText(/Tuomarit/);
+  expect(head.length).toBe(3);
+});
+
+test('renders admin eventTypes', async () => {
+  renderPath(ADMIN_EVENT_TYPES);
+  const head = await screen.findAllByText(/Koemuodot/);
   expect(head.length).toBe(3);
 });
 
