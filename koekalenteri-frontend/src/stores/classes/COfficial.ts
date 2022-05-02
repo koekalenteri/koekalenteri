@@ -32,4 +32,16 @@ export class COfficial {
     this.phone = json.phone;
     this.search = [json.email, json.name, json.location, json.phone].map(v => v.toLocaleLowerCase()).join(' ');
   }
+
+  toJSON(): Official {
+    return {
+      district: this.district,
+      email: this.email,
+      eventTypes: this.eventTypes,
+      id: this.id,
+      location: this.location,
+      name: this.name,
+      phone: this.phone,
+    };
+  }
 }

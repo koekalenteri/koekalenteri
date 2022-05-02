@@ -40,9 +40,11 @@ const organizers: Organizer[] = [
   }
 ];
 
+const eventTypes = ['NOU', 'NOME-B', 'NOME-A', 'NOWT', 'NKM'];
+
 const renderComponent = (filter: FilterProps, onChange?: ((filter: FilterProps) => void)) => render(
   <LocalizationProvider dateAdapter={AdapterDateFns} locale={fi}>
-    <EventFilter judges={judges} organizers={organizers} filter={filter} onChange={onChange}></EventFilter>
+    <EventFilter judges={judges} organizers={organizers} filter={filter} eventTypes={eventTypes} onChange={onChange}></EventFilter>
   </LocalizationProvider>
 );
 

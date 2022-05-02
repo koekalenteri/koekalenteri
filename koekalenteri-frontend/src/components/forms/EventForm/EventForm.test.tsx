@@ -43,7 +43,16 @@ const OFFICIALS = [{
 const renderComponent = (event: Partial<Event>, judges: Judge[], officials: Official[], organizers: Organizer[], onSave: FormEventHandler, onCancel: FormEventHandler) => render(
   <ThemeProvider theme={theme}>
     <LocalizationProvider dateAdapter={AdapterDateFns} locale={fi}>
-      <EventForm event={event} eventTypes={eventTypes} eventTypeClasses={eventTypeClasses} judges={judges} officials={officials} organizers={organizers} onSave={onSave} onCancel={onCancel}></EventForm>
+      <EventForm
+        event={event}
+        eventTypes={eventTypes}
+        eventTypeClasses={eventTypeClasses}
+        judges={judges}
+        officials={officials}
+        organizers={organizers}
+        onSave={onSave}
+        onCancel={onCancel}
+      />
     </LocalizationProvider>
   </ThemeProvider>
 );

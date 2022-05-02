@@ -610,6 +610,33 @@ Resources:
             Method: get
             RestApiId: !Ref KoekalenteriApi
 
+  PutEventTypeFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: koekalenteri-backend
+      Handler: dist/handlers/eventType.putEventTypeHandler
+      Layers:
+        - !Ref CommonLayer
+      Tracing: Active
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EventTypeTable
+        - CloudWatchPutMetricPolicy: {}
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref EventTypeTable
+          AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
+
+      Events:
+        PutEvent:
+          Type: Api
+          Properties:
+            Path: /eventType
+            Method: POST
+            RestApiId: !Ref KoekalenteriApi
+            #Auth:
+            #  Authorizer: CognitoAuthorizer
+
   CommonLayer:
     Type: AWS::Serverless::LayerVersion
     Properties:

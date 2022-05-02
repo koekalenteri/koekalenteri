@@ -69,6 +69,7 @@
     "startDate": "Kokeen alkamispäivä",
     "state": "Tila"
   },
+  "active": "Käytössä",
   "cancel": "Peruuta",
   "clear": "Tyhjennä",
   "create": "Lisää uusi",
@@ -119,7 +120,7 @@
   "members_other": "({{count}} jäsentä)",
   "name": "Nimi",
   "noResults": "Tekemälläsi haulla ei löytynyt tapahtumia. Poista joku hakusuodattimista.",
-  "official": "Vastaava koetoimitsija",
+  "official": "Virallinen",
   "officials": "Koetoimitsijat",
   "organizations": "Yhdistykset",
   "organizer": "Järjestäjä",

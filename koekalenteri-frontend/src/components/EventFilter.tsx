@@ -1,16 +1,17 @@
 import { Box, FormControlLabel, Grid, Stack, Switch } from '@mui/material';
 import { Judge, Organizer } from 'koekalenteri-shared/model';
-import { useTranslation } from 'react-i18next';
-import { FilterProps } from '../stores/PublicStore';
-import { AutocompleteMulti, DateRange } from '.';
 import { observer } from 'mobx-react-lite';
+import { useTranslation } from 'react-i18next';
 import { URLSearchParamsInit } from 'react-router-dom';
+import { AutocompleteMulti, DateRange } from '.';
+import { FilterProps } from '../stores/PublicStore';
 
 type EventFilterProps = {
-  judges: Judge[],
-  organizers: Organizer[],
+  eventTypes: string[]
   filter: FilterProps
+  judges: Judge[]
   onChange?: (filter: FilterProps) => void
+  organizers: Organizer[]
 }
 
 const readDate = (date: string | null) => date ? new Date(date) : null;
@@ -62,7 +63,7 @@ export function deserializeFilter(searchParams: URLSearchParams): FilterProps {
   return result;
 }
 
-export const EventFilter = observer(function EventFilter({ judges, organizers, filter, onChange }: EventFilterProps) {
+export const EventFilter = observer(function EventFilter({ judges, organizers, eventTypes, filter, onChange }: EventFilterProps) {
   const { t } = useTranslation();
   const setFilter = (props: Partial<FilterProps>) => {
     onChange && onChange(Object.assign({}, filter, props));
@@ -78,7 +79,7 @@ export const EventFilter = observer(function EventFilter({ judges, organizers, f
           <AutocompleteMulti
             label={t('eventType')}
             onChange={(e, value) => setFilter({ eventType: value })}
-            options={['NOU', 'NOME-B', 'NOME-A', 'NOWT']}
+            options={eventTypes}
             value={filter.eventType}
           />
         </Grid>

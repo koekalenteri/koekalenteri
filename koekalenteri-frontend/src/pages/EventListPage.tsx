@@ -1,19 +1,19 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControlLabel, Stack, Switch, TextField } from '@mui/material';
-import cloneDeep from 'lodash.clonedeep';
-import { EventGridContainer, FullPageFlex } from '../layout';
-import { useTranslation } from 'react-i18next';
-import { useSnackbar } from 'notistack';
-import { AuthPage } from './AuthPage';
 import { AddCircleOutline, ContentCopyOutlined, DeleteOutline, EditOutlined, FormatListNumberedOutlined } from '@mui/icons-material';
-import { useNavigate } from 'react-router-dom';
-import { ADMIN_EDIT_EVENT, ADMIN_NEW_EVENT, ADMIN_VIEW_EVENT } from '../config';
-import { useStores } from '../stores';
-import { observer } from 'mobx-react-lite';
+import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControlLabel, Stack, Switch, TextField } from '@mui/material';
 import { Event } from 'koekalenteri-shared/model';
+import cloneDeep from 'lodash.clonedeep';
+import { observer } from 'mobx-react-lite';
+import { useSnackbar } from 'notistack';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { AutoButton } from '../components';
+import { ADMIN_EDIT_EVENT, ADMIN_NEW_EVENT, ADMIN_VIEW_EVENT } from '../config';
+import { EventGridContainer, FullPageFlex } from '../layout';
+import { useStores } from '../stores';
+import { AuthPage } from './AuthPage';
 
-export const EventListPage = observer(() => {
+export const EventListPage = observer(function EventListPage() {
   const { t } = useTranslation();
   const { privateStore } = useStores();
   const { enqueueSnackbar } = useSnackbar();

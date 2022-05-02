@@ -1,5 +1,6 @@
 import { Box } from '@mui/material';
 import { toJS } from 'mobx';
+import { observer } from 'mobx-react-lite';
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { deserializeFilter, EventFilter, serializeFilter } from '../components';
@@ -7,7 +8,7 @@ import { Banner, EventContainer, Header } from '../layout';
 import { useSessionStarted, useStores } from '../stores';
 import { FilterProps } from '../stores/PublicStore';
 
-export const SearchPage = () => {
+export const SearchPage = observer(function SearchPage() {
   const { rootStore, publicStore } = useStores();
   const [sessionStarted, setSessionStarted] = useSessionStarted();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -15,6 +16,7 @@ export const SearchPage = () => {
 
   const organizers = toJS(rootStore.organizerStore.organizers);
   const judges = toJS(rootStore.judgeStore.judges);
+  const eventTypes = rootStore.eventTypeStore.enabledEventTypes.map(et => et.eventType);
 
   const handleChange = (filter: FilterProps) => {
     setFilter(filter);
@@ -45,9 +47,9 @@ export const SearchPage = () => {
       <Header />
       <Banner />
       <Box>
-        <EventFilter organizers={organizers} judges={judges} filter={filter} onChange={handleChange} />
+        <EventFilter organizers={organizers} judges={judges} filter={filter} eventTypes={eventTypes} onChange={handleChange} />
         <EventContainer />
       </Box>
     </>
   )
-}
+})

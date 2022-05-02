@@ -1,14 +1,15 @@
 import { CircularProgress } from '@mui/material';
-import { useTranslation } from 'react-i18next';
+import { observer } from 'mobx-react-lite';
 import { useSnackbar } from 'notistack';
-import { AuthPage } from './AuthPage';
-import { EventForm } from '../components';
-import { useStores } from '../stores';
-import { useNavigate, useParams } from 'react-router-dom';
-import { ADMIN_EVENTS } from '../config';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useNavigate, useParams } from 'react-router-dom';
+import { EventForm } from '../components';
+import { ADMIN_EVENTS } from '../config';
+import { useStores } from '../stores';
+import { AuthPage } from './AuthPage';
 
-export function EventEditPage({create}: {create?: boolean}) {
+export const EventEditPage = observer(function EventEditPage({create}: {create?: boolean}) {
   const params = useParams();
   const { t } = useTranslation();
   const { rootStore, publicStore, privateStore } = useStores();
@@ -37,11 +38,11 @@ export function EventEditPage({create}: {create?: boolean}) {
         ? <CircularProgress />
         : <EventForm
           event={!create && privateStore.selectedEvent ? privateStore.selectedEvent : privateStore.newEvent}
-          eventTypes={publicStore.eventTypes}
+          eventTypes={rootStore.eventTypeStore.enabledEventTypes.map(et => et.eventType)}
           eventTypeClasses={publicStore.eventTypeClasses}
-          judges={rootStore.judgeStore.judges}
-          officials={rootStore.officialStore.officials}
-          organizers={rootStore.organizerStore.organizers}
+          judges={rootStore.judgeStore.judges.map(j => j.toJSON())}
+          officials={rootStore.officialStore.officials.map(o => o.toJSON())}
+          organizers={rootStore.organizerStore.organizers.map(o => o.toJSON())}
           onSave={async (event) => {
             try {
               await privateStore.putEvent(event)
@@ -63,4 +64,4 @@ export function EventEditPage({create}: {create?: boolean}) {
         />}
     </AuthPage>
   )
-}
+})

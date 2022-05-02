@@ -2,7 +2,6 @@ import { HelpOutlined } from '@mui/icons-material';
 import { Autocomplete, AutocompleteProps, IconButton, TextField } from '@mui/material';
 import { Box } from '@mui/system';
 import { Event } from 'koekalenteri-shared/model';
-import { observer } from "mobx-react-lite";
 import { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PartialEvent } from '../..';
@@ -18,7 +17,7 @@ export type EventPropertyProps<Property extends keyof PartialEvent, freeSolo ext
     endAdornment?: ReactNode
   };
 
-export const EventProperty = observer(function EventProperty<Property extends keyof PartialEvent, freeSolo extends boolean>(props: EventPropertyProps<Property, freeSolo>) {
+export function EventProperty<Property extends keyof PartialEvent, freeSolo extends boolean>(props: EventPropertyProps<Property, freeSolo>) {
   const { t } = useTranslation();
   const { id, event, fields: { required }, helpClick, endAdornment, ...acProps } = props;
   const isRequired = required[id] || false;
@@ -60,4 +59,4 @@ export const EventProperty = observer(function EventProperty<Property extends ke
       }}
     />
   );
-});
+}

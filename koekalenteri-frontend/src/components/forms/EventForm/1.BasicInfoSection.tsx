@@ -1,7 +1,8 @@
 import { Grid, TextField } from '@mui/material';
 import { add, differenceInDays, eachDayOfInterval, isAfter, isSameDay, startOfDay } from 'date-fns';
 import { Event, EventClass, Official, Organizer } from 'koekalenteri-shared/model';
-import { useState } from 'react';
+import { observer } from 'mobx-react-lite';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PartialEvent } from '.';
 import { CollapsibleSection, DateRange, HelpPopover } from '../..';
@@ -24,10 +25,13 @@ type BasicInfoSectionParams = {
 };
 
 
-export function BasicInfoSection({ event, errorStates, helperTexts, fields, eventTypes, eventTypeClasses, officials, open, onOpenChange, organizers, onChange }: BasicInfoSectionParams) {
+export const BasicInfoSection = observer(function BasicInfoSection({ event, errorStates, helperTexts, fields, eventTypes, eventTypeClasses, officials, open, onOpenChange, organizers, onChange }: BasicInfoSectionParams) {
   const { t } = useTranslation();
   const [helpAnchorEl, setHelpAnchorEl] = useState<HTMLButtonElement | null>(null);
   const typeOptions = eventClassOptions(event, eventTypeClasses[event.eventType || ''] || []);
+  const availableOfficials = useMemo(() => {
+    return officials.filter(o => !event.eventType || o.eventTypes?.includes(event.eventType));
+  }, [event, officials]);
 
   return (
     <CollapsibleSection title="Kokeen perustiedot" open={open} onOpenChange={onOpenChange}>
@@ -125,7 +129,7 @@ export function BasicInfoSection({ event, errorStates, helperTexts, fields, even
               id="official"
               isOptionEqualToValue={(o, v) => o?.id === v?.id}
               onChange={onChange}
-              options={officials}
+              options={availableOfficials}
             />
           </Grid>
           <Grid item sx={{ width: 450 }}>
@@ -143,7 +147,7 @@ export function BasicInfoSection({ event, errorStates, helperTexts, fields, even
       </Grid>
     </CollapsibleSection>
   );
-}
+});
 
 function eventClassOptions(event: PartialEvent, typeClasses: string[]) {
   const days = eachDayOfInterval({

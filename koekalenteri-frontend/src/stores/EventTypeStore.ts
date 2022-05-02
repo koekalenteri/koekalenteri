@@ -1,6 +1,6 @@
 import { EventType } from "koekalenteri-shared/model";
 import { makeAutoObservable, runInAction } from "mobx";
-import { getEventTypes } from "../api/eventType";
+import { getEventTypes, putEventType } from "../api/eventType";
 import { CEventType } from "./classes/CEventType";
 import { RootStore } from "./RootStore";
 
@@ -16,6 +16,10 @@ export class EventTypeStore {
     this.rootStore = rootStore;
   }
 
+  get enabledEventTypes() {
+    return this.eventTypes.filter(e => e.active);
+  }
+
   async load(refresh?: boolean, signal?: AbortSignal) {
     runInAction(() => {
       this.loading = true;
@@ -25,6 +29,22 @@ export class EventTypeStore {
       data.forEach(json => this.updateEventType(json))
       this.loading = false;
     });
+  }
+
+  async save(eventType: EventType) {
+    try {
+      runInAction(() => {
+        this.loading = true;
+      });
+      const saved = await putEventType(eventType);
+      runInAction(() => {
+        this.updateEventType(saved);
+        this.loading = false;
+      });
+    } catch (e) {
+      console.error(e);
+      this.loading = false;
+    }
   }
 
   updateEventType(json: EventType) {

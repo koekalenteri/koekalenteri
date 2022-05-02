@@ -4,5 +4,7 @@ export type EventType = {
     fi: string,
     en: string,
     sv: string
-  }
+  },
+  active?: boolean,
+  official?: boolean,
 }

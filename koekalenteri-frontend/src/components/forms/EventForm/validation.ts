@@ -1,7 +1,7 @@
 import { Event, EventState, ShowContactInfo } from "koekalenteri-shared/model";
-import { Validators, ValidationResult } from '../validation';
 import { PartialEvent } from ".";
 import { unique } from "../../../utils";
+import { ValidationResult, Validators } from '../validation';
 
 type EventCallback = (event: PartialEvent) => boolean;
 type EventFlag = boolean | EventCallback;
@@ -56,8 +56,11 @@ const contactInfoShown = (contact?: ShowContactInfo) => !!contact && (contact.em
 
 const VALIDATORS: Validators<PartialEvent, 'event'> = {
   classes: (event, required) => {
+    if (!required) {
+      return false;
+    }
     const classes = event.classes;
-    if ((!classes || !classes.length) && required) {
+    if (!classes || !classes.length) {
       return 'classes';
     }
     const list: string[] = [];

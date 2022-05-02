@@ -1,16 +1,17 @@
-import { useEffect, useState } from 'react';
 import { Box, CircularProgress, Grid, Paper, Toolbar, Typography } from '@mui/material';
+import type { ConfirmedEventEx, Registration } from 'koekalenteri-shared/model';
+import { observer } from 'mobx-react-lite';
+import { useSnackbar } from 'notistack';
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
+import { putRegistration } from '../api/event';
+import { CollapsibleSection, CostInfo, LinkButton, RegistrationForm } from '../components';
 import { Header } from '../layout';
 import { useSessionStarted, useStores } from '../stores';
-import type { ConfirmedEventEx, Registration } from 'koekalenteri-shared/model';
-import { useTranslation } from 'react-i18next';
 import { entryDateColor } from '../utils';
-import { CollapsibleSection, CostInfo, LinkButton, RegistrationForm } from '../components';
-import { putRegistration } from '../api/event';
-import { useSnackbar } from 'notistack';
 
-export const EventRegistrationPage = () => {
+export const EventRegistrationPage = observer(function EventRegistrationPage() {
   const params = useParams();
   const { publicStore } = useStores();
   const [event, setEvent] = useState<ConfirmedEventEx>();
@@ -39,7 +40,7 @@ export const EventRegistrationPage = () => {
       </Box>
     </>
   )
-}
+})
 
 function EventComponent({ event, classDate = '', className = '' }: { event: ConfirmedEventEx, classDate?: string, className?: string }) {
   const { enqueueSnackbar } = useSnackbar();

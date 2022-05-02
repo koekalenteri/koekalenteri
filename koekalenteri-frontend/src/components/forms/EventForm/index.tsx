@@ -3,17 +3,18 @@ import { LoadingButton } from '@mui/lab';
 import { Box, Button, Paper, Stack, Theme, useMediaQuery } from '@mui/material';
 import { addDays, nextSaturday, startOfDay } from 'date-fns';
 import type { Event, EventClass, EventState, Judge, Official, Organizer } from 'koekalenteri-shared/model';
+import { observer } from 'mobx-react-lite';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { requiredFields, validateEvent } from './validation';
-import { AdditionalInfoSection } from './7.AdditionalInfoSection';
-import { BasicInfoSection } from './1.BasicInfoSection';
-import { ContactInfoSection } from './6.ContactInfoSection';
-import { EntrySection } from './3.EntrySection';
-import { HeadquartersSection } from './5.HeadquartersSection';
-import { JudgesSection } from './2.JudgesSection';
-import { PaymentSection } from './4.PaymentSection';
 import { AutocompleteSingle } from '../..';
+import { BasicInfoSection } from './1.BasicInfoSection';
+import { JudgesSection } from './2.JudgesSection';
+import { EntrySection } from './3.EntrySection';
+import { PaymentSection } from './4.PaymentSection';
+import { HeadquartersSection } from './5.HeadquartersSection';
+import { ContactInfoSection } from './6.ContactInfoSection';
+import { AdditionalInfoSection } from './7.AdditionalInfoSection';
+import { requiredFields, validateEvent } from './validation';
 
 export type FormEventHandler = (event: Partial<Event>) => Promise<boolean>;
 export type PartialEvent = Partial<Event> & { startDate: Date, endDate: Date, classes: EventClass[], judges: number[] };
@@ -28,7 +29,7 @@ type EventFormParams = {
   onCancel: FormEventHandler
 };
 
-export function EventForm({ event, judges, eventTypes, eventTypeClasses, officials, organizers, onSave, onCancel }: EventFormParams) {
+export const EventForm = observer(function EventForm({ event, judges, eventTypes, eventTypeClasses, officials, organizers, onSave, onCancel }: EventFormParams) {
   const md = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'));
   const baseDate = startOfDay(addDays(Date.now(), 90));
   const { t } = useTranslation();
@@ -58,7 +59,7 @@ export function EventForm({ event, judges, eventTypes, eventTypeClasses, officia
     const tmp: any = {};
     Object.keys(props).forEach(k => {tmp[k] = (local as any)[k]});
     console.log('changed: ' + JSON.stringify(props), JSON.stringify(tmp));
-    if (props.eventType && eventTypeClasses[props.eventType].length === 0) {
+    if (props.eventType && (eventTypeClasses[props.eventType] || []).length === 0) {
       props.classes = [];
     }
     const newState = { ...local, ...props };
@@ -180,4 +181,4 @@ export function EventForm({ event, judges, eventTypes, eventTypeClasses, officia
       </Stack>
     </Paper>
   );
-}
+})

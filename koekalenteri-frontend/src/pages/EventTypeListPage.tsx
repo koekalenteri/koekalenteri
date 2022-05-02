@@ -1,7 +1,6 @@
-import { CloudSync } from '@mui/icons-material';
-import { Button, Stack } from '@mui/material';
-import { GridColDef } from '@mui/x-data-grid';
-import { EventType } from 'koekalenteri-shared/model';
+import { CheckBoxOutlineBlankOutlined, CheckBoxOutlined, CloudSync } from '@mui/icons-material';
+import { Button, Stack, Switch } from '@mui/material';
+import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 import { computed, toJS } from 'mobx';
 import { observer } from 'mobx-react-lite';
 import { useState } from 'react';
@@ -9,10 +8,11 @@ import { useTranslation } from 'react-i18next';
 import { QuickSearchToolbar, StyledDataGrid } from '../components';
 import { FullPageFlex } from '../layout';
 import { useStores } from '../stores';
+import { CEventType } from '../stores/classes/CEventType';
 import { AuthPage } from './AuthPage';
 
 interface EventTypeColDef extends GridColDef {
-  field: keyof EventType
+  field: keyof CEventType
 }
 
 export const EventTypeListPage = observer(function EventTypeListPage()  {
@@ -22,7 +22,32 @@ export const EventTypeListPage = observer(function EventTypeListPage()  {
   const columns: EventTypeColDef[] = [
     {
       field: 'eventType',
-      headerName: t('eventType', {context: 'short'})
+      headerName: t('eventType', { context: 'short' })
+    },
+    {
+      align: 'center',
+      field: 'official',
+      headerName: t('official'),
+      renderCell: (params) => params.value ? <CheckBoxOutlined /> : <CheckBoxOutlineBlankOutlined />,
+      width: 80
+    },
+    {
+      field: 'active',
+      headerName: t('active'),
+      renderCell: (params: GridRenderCellParams<CEventType, CEventType>) => <Switch checked={!!params.value} onChange={(e, checked) => {
+        console.log(params.row);
+        try {
+          params.row.active = checked;
+          const props: any = { ...params.row };
+          delete props.store;
+          delete props.search;
+          params.row.store.rootStore.eventTypeStore.save(props);
+        } catch(e) {
+          console.log(e);
+        }
+        console.log(params.row);
+      }} />,
+      width: 80
     },
     {
       field: 'description',

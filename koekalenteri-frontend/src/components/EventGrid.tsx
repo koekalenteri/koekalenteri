@@ -1,11 +1,11 @@
 import { Box } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import { useTranslation } from 'react-i18next';
 import { EventClass, EventEx, EventState } from 'koekalenteri-shared/model';
-import { useStores } from '../stores';
 import { observer } from 'mobx-react-lite';
-import { ADMIN_EDIT_EVENT } from '../config';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { ADMIN_EDIT_EVENT } from '../config';
+import { useStores } from '../stores';
 
 interface EventGridColDef extends GridColDef {
   field: keyof EventEx | 'date'
@@ -13,7 +13,7 @@ interface EventGridColDef extends GridColDef {
 
 type StartEndDate = { start: Date, end: Date };
 
-export const EventGrid = observer(({ events }: { events: Partial<EventEx>[] }) => {
+export const EventGrid = observer(function EventGrid({ events }: { events: Partial<EventEx>[] }) {
   const { t } = useTranslation();
   const { rootStore, privateStore } = useStores();
   const naviage = useNavigate();
@@ -58,7 +58,7 @@ export const EventGrid = observer(({ events }: { events: Partial<EventEx>[] }) =
       headerName: t('judgeChief'),
       minWidth: 100,
       flex: 1,
-      valueGetter: (params) => rootStore.judgeStore.getJudge(params.row.judges[0])?.name
+      valueGetter: (params) => rootStore.judgeStore.getJudge(params.row.judges[0])?.toJSON().name
     },
     {
       field: 'places',

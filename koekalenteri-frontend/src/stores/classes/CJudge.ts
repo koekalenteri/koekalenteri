@@ -34,4 +34,17 @@ export class CJudge {
     this.phone = json.phone;
     this.search = [json.district, json.email, ...(json.eventTypes || []), json.location, json.name, json.phone].map(v => v?.toLocaleLowerCase() || '').join(' ');
   }
+
+  toJSON(): Judge {
+    return {
+      district: this.district,
+      email: this.email,
+      eventTypes: this.eventTypes,
+      id: this.id,
+      languages: this.languages,
+      location: this.location,
+      name: this.name,
+      phone: this.phone,
+    }
+  }
 }

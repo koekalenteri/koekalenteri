@@ -22,4 +22,11 @@ export class COrganizer {
     this.name = json.name;
     this.search = json.name.toLocaleLowerCase();
   }
+
+  toJSON() {
+    return {
+      id: this.id,
+      name: this.name
+    }
+  }
 }

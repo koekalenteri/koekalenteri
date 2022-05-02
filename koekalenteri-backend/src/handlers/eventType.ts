@@ -3,6 +3,7 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { AWSError } from "aws-sdk";
 import { EventType } from "koekalenteri-shared/model";
 import CustomDynamoClient from "../utils/CustomDynamoClient";
+import { genericWriteHandler } from "../utils/genericHandlers";
 import KLAPI from "../utils/KLAPI";
 import { KLKieli, KLKieliToLang } from "../utils/KLAPI_models";
 import { metricsError, metricsSuccess } from "../utils/metrics";
@@ -26,7 +27,8 @@ export const getEventTypesHandler = metricScope((metrics: MetricsLogger) =>
                 description: {
                   ...existing?.description,
                   [KLKieliToLang[kieli]]: item.koemuoto
-                }
+                },
+                official: true
               })
             }
           }
@@ -43,3 +45,4 @@ export const getEventTypesHandler = metricScope((metrics: MetricsLogger) =>
   }
 );
 
+export const putEventTypeHandler = genericWriteHandler(dynamoDB, 'putEventType');
