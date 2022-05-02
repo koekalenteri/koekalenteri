@@ -34,18 +34,16 @@ export const EventTypeListPage = observer(function EventTypeListPage()  {
     {
       field: 'active',
       headerName: t('active'),
-      renderCell: (params: GridRenderCellParams<CEventType, CEventType>) => <Switch checked={!!params.value} onChange={(e, checked) => {
-        console.log(params.row);
+      renderCell: (params: GridRenderCellParams<CEventType, CEventType>) => <Switch checked={!!params.value} onChange={async (_e, checked) => {
         try {
           params.row.active = checked;
           const props: any = { ...params.row };
           delete props.store;
           delete props.search;
-          params.row.store.rootStore.eventTypeStore.save(props);
-        } catch(e) {
-          console.log(e);
+          await params.row.store.rootStore.eventTypeStore.save(props);
+        } catch(err) {
+          console.log(err);
         }
-        console.log(params.row);
       }} />,
       width: 80
     },
