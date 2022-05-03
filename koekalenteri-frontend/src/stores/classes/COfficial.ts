@@ -12,7 +12,7 @@ export class COfficial {
   name: string = "";
   phone: string = "";
   search: string = "";
-  store: OfficialStore | null = null;
+  store: OfficialStore;
 
   constructor(store: OfficialStore, id: number) {
     makeAutoObservable(this, {

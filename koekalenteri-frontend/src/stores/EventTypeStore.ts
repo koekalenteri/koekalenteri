@@ -16,7 +16,7 @@ export class EventTypeStore {
     this.rootStore = rootStore;
   }
 
-  get enabledEventTypes() {
+  get activeEventTypes() {
     return this.eventTypes.filter(e => e.active);
   }
 
@@ -30,6 +30,7 @@ export class EventTypeStore {
     const data = await getEventTypes(refresh, signal);
     runInAction(() => {
       data.forEach(json => this.updateEventType(json))
+      this.eventTypes.sort((a, b) => a.eventType.localeCompare(b.eventType));
       this.loading = false;
     });
   }

@@ -107,7 +107,14 @@
   "id": "Tunnus",
   "judgeChief": "Ylituomari",
   "judge": "Tuomari",
+  "judgeActive": "Arvostelee",
   "judges": "Tuomarit",
+  "languages": "Arvostelukielet",
+  "language": {
+    "fi": "suomi",
+    "sv": "ruotsi",
+    "en": "englanti"
+  },
   "locale": {
     "en": "In English",
     "fi": "Suomeksi"

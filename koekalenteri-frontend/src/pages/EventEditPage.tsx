@@ -38,9 +38,9 @@ export const EventEditPage = observer(function EventEditPage({create}: {create?:
         ? <CircularProgress />
         : <EventForm
           event={!create && privateStore.selectedEvent ? privateStore.selectedEvent : privateStore.newEvent}
-          eventTypes={rootStore.eventTypeStore.enabledEventTypes.map(et => et.eventType)}
+          eventTypes={rootStore.eventTypeStore.activeEventTypes.map(et => et.eventType)}
           eventTypeClasses={publicStore.eventTypeClasses}
-          judges={rootStore.judgeStore.judges.map(j => j.toJSON())}
+          judges={rootStore.judgeStore.activeJudges.map(j => j.toJSON())}
           officials={rootStore.officialStore.officials.map(o => o.toJSON())}
           organizers={rootStore.organizerStore.organizers.map(o => o.toJSON())}
           onSave={async (event) => {

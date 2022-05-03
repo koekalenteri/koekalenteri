@@ -1,27 +1,38 @@
-const mockJudges = [
+import { Judge } from "koekalenteri-shared/model";
+
+const mockJudges: Judge[] = [
   {
-    name: "Tuomari 1",
-    id: 888888,
-    location: "Helsinki",
+    active: true,
     district: "Uusimaa",
+    email: "tuomari1@sposti.not",
+    eventTypes: [],
+    id: 888888,
+    languages: [],
+    location: "Helsinki",
+    name: "Tuomari 1",
     phone: "123456789",
-    email: "tuomari1@sposti.not"
   },
   {
-    name: "Tuomari 2",
-    id: 999999,
-    location: "Tampere",
+    active: true,
     district: "Tampere",
+    email: "tuomari2@sposti.not",
+    eventTypes: [],
+    id: 999999,
+    languages: [],
+    location: "Tampere",
+    name: "Tuomari 2",
     phone: "123456788",
-    email: "tuomari2@sposti.not"
   },
   {
-    name: "Tuomari 3",
-    id: 777777,
-    location: "Turku",
+    active: true,
     district: "Turku",
+    email: "tuomari3@sposti.not",
+    eventTypes: [],
+    id: 777777,
+    languages: [],
+    location: "Turku",
+    name: "Tuomari 3",
     phone: "123456787",
-    email: "tuomari3@sposti.not"
   },
 ];
 

@@ -1,10 +1,10 @@
 export type EventType = {
-  eventType: string,
+  eventType: string
   description: {
-    fi: string,
-    en: string,
+    fi: string
+    en: string
     sv: string
-  },
-  active?: boolean,
-  official?: boolean,
+  }
+  active?: boolean
+  official?: boolean
 }

@@ -28,6 +28,12 @@
   "headquarters": "Headquarters info",
   "judge": "Judge",
   "judges": "Judges",
+  "languages": "Judging languages",
+  "language": {
+    "fi": "finnish",
+    "sv": "swedish",
+    "en": "english"
+  },
   "location": "Location",
   "login": "Login",
   "loginFailed": "Login failed",

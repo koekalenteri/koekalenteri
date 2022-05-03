@@ -1,6 +1,7 @@
+import i18next from "i18next";
 import { Judge } from "koekalenteri-shared/model";
 import { makeAutoObservable, runInAction } from "mobx";
-import { getJudges } from "../api/judge";
+import { getJudges, putJudge } from "../api/judge";
 import { CJudge } from "./classes/CJudge";
 import { RootStore } from "./RootStore";
 
@@ -16,6 +17,10 @@ export class JudgeStore {
     this.rootStore = rootStore;
   }
 
+  get activeJudges() {
+    return this.judges.filter(judge => judge.active);
+  }
+
   async load(refresh?: boolean, signal?: AbortSignal) {
     if (this.loading) {
       return;
@@ -26,6 +31,7 @@ export class JudgeStore {
     const data = await getJudges(refresh, signal);
     runInAction(() => {
       data.forEach(json => this.updateJudge(json));
+      this.judges.sort((a, b) => a.name.localeCompare(b.name, i18next.language));
       this.loading = false;
     });
   }
@@ -46,6 +52,22 @@ export class JudgeStore {
       }
     }
     return result;
+  }
+
+  async save(judge: Judge) {
+    try {
+      runInAction(() => {
+        this.loading = true;
+      });
+      const saved = await putJudge(judge);
+      runInAction(() => {
+        this.updateJudge(saved);
+        this.loading = false;
+      });
+    } catch (e) {
+      console.error(e);
+      this.loading = false;
+    }
   }
 
   updateJudge(json: Judge) {

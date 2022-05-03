@@ -15,8 +15,8 @@ export const SearchPage = observer(function SearchPage() {
   const [filter, setFilter] = useState(deserializeFilter(searchParams));
 
   const organizers = toJS(rootStore.organizerStore.organizers);
-  const judges = toJS(rootStore.judgeStore.judges);
-  const eventTypes = rootStore.eventTypeStore.enabledEventTypes.map(et => et.eventType);
+  const judges = toJS(rootStore.judgeStore.activeJudges);
+  const eventTypes = rootStore.eventTypeStore.activeEventTypes.map(et => et.eventType);
 
   const handleChange = (filter: FilterProps) => {
     setFilter(filter);

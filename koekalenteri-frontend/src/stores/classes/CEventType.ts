@@ -1,4 +1,5 @@
-import { EventType } from "koekalenteri-shared/model";
+import i18next from "i18next";
+import { EventType, Language } from "koekalenteri-shared/model";
 import { makeAutoObservable } from "mobx";
 import { EventTypeStore } from "../EventTypeStore";
 
@@ -25,8 +26,7 @@ export class CEventType {
 
     this.active = json.active;
 
-    // TODO: use selected langauge
-    this.search = [json.eventType, json.description.fi].map(v => v.toLocaleLowerCase()).join(' ');
+    this.search = [json.eventType, json.description[i18next.language as Language]].map(v => v.toLocaleLowerCase()).join(' ');
   }
 
   toJSON(): EventType {

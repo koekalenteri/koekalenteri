@@ -33,6 +33,11 @@ const theme = createTheme({
         color: 'success'
       }
     },
+    MuiToggleButtonGroup: {
+      defaultProps: {
+        color: 'success'
+      }
+    }
   },
   palette: {
     primary: {

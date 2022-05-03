@@ -29,10 +29,12 @@ export default class CustomDynamoClient {
     this.docClient = new DynamoDB.DocumentClient(options);
   }
 
-  async readAll(): Promise<ItemList | undefined> {
+  async readAll<T>(table?: string): Promise<T[] | undefined> {
     // TODO should this be improved with a query? Or create a query version of this?
-    const data = await this.docClient.scan({ TableName: this.table }).promise();
-    return data.Items?.filter(item => !item.deletedAt);
+    const data = await this.docClient.scan({
+      TableName: table ? fromSamLocalTable(table) : this.table
+    }).promise();
+    return data.Items?.filter(item => !item.deletedAt) as T[];
   }
 
   async read<T>(key: Record<string, number|string|undefined> | null, table?: string): Promise<T | undefined> {
@@ -50,7 +52,7 @@ export default class CustomDynamoClient {
 
   async query<T>(key: DynamoDB.DocumentClient.KeyExpression, values: DynamoDB.DocumentClient.ExpressionAttributeValueMap): Promise<T[] | undefined> {
     if (!key) {
-      console.warn('CustomDynamoClient.read: no key provoded, returning undefined');
+      console.warn('CustomDynamoClient.query: no key provoded, returning undefined');
       return;
     }
     const params: DynamoDB.DocumentClient.QueryInput = {

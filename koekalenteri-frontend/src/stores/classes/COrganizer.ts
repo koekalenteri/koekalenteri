@@ -7,7 +7,7 @@ export class COrganizer {
   id: number = 0;
   name: string = "";
   search: string = "";
-  store: OrganizerStore | null = null;
+  store: OrganizerStore;
 
   constructor(store: OrganizerStore, id: number) {
     makeAutoObservable(this, {

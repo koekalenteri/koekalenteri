@@ -20,4 +20,6 @@ export type Judge = OfficialPerson & {
   district: string
   eventTypes: string[]
   languages: string[]
+  active?: boolean
+  official?: boolean
 }

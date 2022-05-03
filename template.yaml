@@ -468,10 +468,13 @@ Resources:
               Resource: '*'
         - DynamoDBCrudPolicy:
             TableName: !Ref JudgeTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref EventTypeTable
         - CloudWatchPutMetricPolicy: {}
       Environment:
         Variables:
           TABLE_NAME: !Ref JudgeTable
+          EVENT_TYPE_TABLE_NAME : !Ref EventTypeTable
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
 
       Events:
@@ -481,6 +484,33 @@ Resources:
             Path: /judge
             Method: get
             RestApiId: !Ref KoekalenteriApi
+
+  PutJudgeFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: koekalenteri-backend
+      Handler: dist/handlers/judge.putJudgeHandler
+      Layers:
+        - !Ref CommonLayer
+      Tracing: Active
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref JudgeTable
+        - CloudWatchPutMetricPolicy: {}
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref JudgeTable
+          AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
+
+      Events:
+        PutEvent:
+          Type: Api
+          Properties:
+            Path: /judge
+            Method: POST
+            RestApiId: !Ref KoekalenteriApi
+            #Auth:
+            #  Authorizer: CognitoAuthorizer
 
   GetOfficialsFunction:
     Type: AWS::Serverless::Function
