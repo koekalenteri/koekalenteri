@@ -1,5 +1,5 @@
 // Create a DocumentClient that represents the query to add an item
-import DynamoDB, { ItemList, UpdateExpression } from 'aws-sdk/clients/dynamodb';
+import DynamoDB, { UpdateExpression } from 'aws-sdk/clients/dynamodb';
 import { JsonObject } from 'koekalenteri-shared/model';
 
 function fromSamLocalTable(table: string) {
