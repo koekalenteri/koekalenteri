@@ -1,18 +1,17 @@
-import AdapterDateFns from '@mui/lab/AdapterDateFns';
-import LocalizationProvider from '@mui/lab/LocalizationProvider';
-import { SnackbarProvider } from 'notistack';
-import { Routes, Route, Navigate } from 'react-router-dom';
-import { locales, muiLocales, Language } from './i18n';
-import { EventEditPage, EventListPage, EventRegistrationPage, EventTypeListPage, EventViewPage, JudgeListPage, LoginPage, LogoutPage, OrganizerListPage, SearchPage, UsersPage } from './pages'
-import { useTranslation } from 'react-i18next';
-import { makeStyles, ThemeProvider } from '@mui/styles';
-import { createTheme } from '@mui/material/styles';
-import { ADMIN_DEFAULT, ADMIN_EDIT_EVENT, ADMIN_EVENTS, ADMIN_JUDGES, ADMIN_NEW_EVENT, ADMIN_ORGS, ADMIN_VIEW_EVENT, ADMIN_ROOT, ADMIN_USERS, ADMIN_EVENT_TYPES, ADMIN_OFFICIALS } from './config';
-import { AWSConfig } from './amplify-env';
 import { Auth } from '@aws-amplify/auth';
 import { Authenticator } from '@aws-amplify/ui-react';
 import '@aws-amplify/ui-react/styles.css';
-import { OfficialListPage } from './pages/OfficialListPage';
+import AdapterDateFns from '@mui/lab/AdapterDateFns';
+import LocalizationProvider from '@mui/lab/LocalizationProvider';
+import { createTheme } from '@mui/material/styles';
+import { makeStyles, ThemeProvider } from '@mui/styles';
+import { SnackbarProvider } from 'notistack';
+import { useTranslation } from 'react-i18next';
+import { Navigate, Route, Routes } from 'react-router-dom';
+import { AWSConfig } from './amplify-env';
+import { ADMIN_DEFAULT, ADMIN_EDIT_EVENT, ADMIN_EVENTS, ADMIN_EVENT_TYPES, ADMIN_JUDGES, ADMIN_NEW_EVENT, ADMIN_OFFICIALS, ADMIN_ORGS, ADMIN_ROOT, ADMIN_USERS, ADMIN_VIEW_EVENT } from './config';
+import { Language, locales, muiLocales } from './i18n';
+import { EventEditPage, EventListPage, EventRegistrationPage, EventTypeListPage, EventViewPage, JudgeListPage, LoginPage, LogoutPage, OfficialListPage, OrganizerListPage, SearchPage, UsersPage } from './pages';
 
 Auth.configure(AWSConfig);
 

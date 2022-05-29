@@ -1,17 +1,17 @@
 import { Box, Button, Dialog, DialogContent, DialogTitle, Grid, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { AuthPage } from './AuthPage';
-import { useStores } from '../stores';
+import { useStores } from '../../stores';
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { CollapsibleSection, LinkButton, RegistrationForm, StyledDataGrid } from '../components';
-import { ADMIN_EVENTS } from '../config';
-import { getRegistrations, putRegistration } from '../api/event';
+import { CollapsibleSection, LinkButton, RegistrationForm, StyledDataGrid } from '../../components';
+import { ADMIN_EVENTS } from '../../config';
+import { getRegistrations, putRegistration } from '../../api/event';
 import { BreedCode, ConfirmedEventEx, Registration } from 'koekalenteri-shared/model';
 import { GridColDef, GridSelectionModel } from '@mui/x-data-grid';
 import { AddCircleOutline, DeleteOutline, EditOutlined, EuroOutlined, PersonOutline } from '@mui/icons-material';
 import { format } from 'date-fns';
-import { FullPageFlex } from '../layout';
+import { FullPageFlex } from '../../layout';
 
 
 export function EventViewPage() {

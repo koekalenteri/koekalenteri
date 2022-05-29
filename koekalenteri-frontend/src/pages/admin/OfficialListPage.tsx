@@ -5,10 +5,10 @@ import { computed, toJS } from 'mobx';
 import { observer } from 'mobx-react-lite';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { QuickSearchToolbar, StyledDataGrid } from '../components';
-import { FullPageFlex } from '../layout';
-import { useStores } from '../stores';
-import { COfficial } from '../stores/classes/COfficial';
+import { QuickSearchToolbar, StyledDataGrid } from '../../components';
+import { FullPageFlex } from '../../layout';
+import { useStores } from '../../stores';
+import { COfficial } from '../../stores/classes/COfficial';
 import { AuthPage } from './AuthPage';
 
 interface OfficialColDef extends GridColDef {

@@ -5,9 +5,9 @@ import { useSnackbar } from 'notistack';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
-import { EventForm } from '../components';
-import { ADMIN_EVENTS } from '../config';
-import { useStores } from '../stores';
+import { EventForm } from '../../components';
+import { ADMIN_EVENTS } from '../../config';
+import { useStores } from '../../stores';
 import { AuthPage } from './AuthPage';
 
 export const EventEditPage = observer(function EventEditPage({create}: {create?: boolean}) {

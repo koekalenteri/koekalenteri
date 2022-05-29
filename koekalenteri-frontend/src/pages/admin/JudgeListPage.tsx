@@ -6,10 +6,10 @@ import { computed, toJS } from 'mobx';
 import { observer } from 'mobx-react-lite';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { QuickSearchToolbar, StyledDataGrid } from '../components';
-import { FullPageFlex } from '../layout';
-import { useStores } from '../stores';
-import { CJudge } from '../stores/classes/CJudge';
+import { QuickSearchToolbar, StyledDataGrid } from '../../components';
+import { FullPageFlex } from '../../layout';
+import { useStores } from '../../stores';
+import { CJudge } from '../../stores/classes/CJudge';
 import { AuthPage } from './AuthPage';
 
 interface JudgeColDef extends GridColDef {

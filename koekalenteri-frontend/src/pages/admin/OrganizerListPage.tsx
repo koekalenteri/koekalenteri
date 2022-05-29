@@ -6,9 +6,9 @@ import { computed, toJS } from 'mobx';
 import { observer } from 'mobx-react-lite';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { QuickSearchToolbar, StyledDataGrid } from '../components';
-import { FullPageFlex } from '../layout';
-import { useStores } from '../stores';
+import { QuickSearchToolbar, StyledDataGrid } from '../../components';
+import { FullPageFlex } from '../../layout';
+import { useStores } from '../../stores';
 import { AuthPage } from './AuthPage';
 
 interface OrganizerColDef extends GridColDef {

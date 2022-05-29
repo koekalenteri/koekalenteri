@@ -7,10 +7,10 @@ import { useSnackbar } from 'notistack';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { AutoButton } from '../components';
-import { ADMIN_EDIT_EVENT, ADMIN_NEW_EVENT, ADMIN_VIEW_EVENT } from '../config';
-import { EventGridContainer, FullPageFlex } from '../layout';
-import { useStores } from '../stores';
+import { AutoButton } from '../../components';
+import { ADMIN_EDIT_EVENT, ADMIN_NEW_EVENT, ADMIN_VIEW_EVENT } from '../../config';
+import { EventGridContainer, FullPageFlex } from '../../layout';
+import { useStores } from '../../stores';
 import { AuthPage } from './AuthPage';
 
 export const EventListPage = observer(function EventListPage() {
