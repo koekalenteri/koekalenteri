@@ -3,8 +3,7 @@ import { Box, Toolbar } from '@mui/material';
 import { autorun } from 'mobx';
 import { ReactNode, useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { Header } from '../../layout';
-import { SideMenu } from '../../layout/SideMenu';
+import { Header, SideMenu } from '../../layout';
 import { useSessionStarted, useStores } from '../../stores';
 
 export function AuthPage({ children, title }: { children: ReactNode, title?: string }) {
