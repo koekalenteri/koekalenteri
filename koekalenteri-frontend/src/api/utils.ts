@@ -50,11 +50,20 @@ export function rehydrateEvent(event: Partial<JsonEvent> | Partial<Event>, now =
     isEntryUpcoming = event.entryStartDate > now;
   }
 
+  let statusText: 'tentative' | 'cancelled' | 'extended' | undefined;
+  if (event.state === 'tentative' || event.state === 'cancelled') {
+    statusText = event.state;
+  }
+  if (event.entryOrigEndDate) {
+    statusText = 'extended';
+  }
+
   return {
     ...DEFAULT_EVENT,
     ...event as Partial<Event>,
     isEntryOpen,
     isEntryClosing,
-    isEntryUpcoming
+    isEntryUpcoming,
+    statusText
   };
 }

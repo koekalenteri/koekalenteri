@@ -36,6 +36,7 @@
     "endDate": "Kokeen päättymispäivä",
     "entries": "Ilmoittautumisia",
     "entryEndDate": "Ilmoittautumisen päättymispäivä",
+    "entryOrigEndDate": "Alkuperäinen ilmoittautumisen päättymispäivä",
     "entryStartDate": "Ilmoittautumisen alkamispäivä",
     "eventType": "Koemuoto",
     "headquerters": "Keskuspaikka",
@@ -63,10 +64,12 @@
       "confirmed_save": "Tapahtuma on julkaistu",
       "cancelled": "Peruttu",
       "cancelled_info": "Peruttu",
-      "cancelled_save": "Tapahtuma on peruttu"
+      "cancelled_save": "Tapahtuma on peruttu",
+      "extended_info": "Jatkettu"
     },
     "secretary": "Koesihteeri",
     "startDate": "Kokeen alkamispäivä",
+    "statusText": "",
     "state": "Tila"
   },
   "active": "Käytössä",

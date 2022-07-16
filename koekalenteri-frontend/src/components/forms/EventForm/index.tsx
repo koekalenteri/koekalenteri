@@ -2,7 +2,7 @@ import { Cancel, Save } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import { Box, Button, Paper, Stack, Theme, useMediaQuery } from '@mui/material';
 import { addDays, nextSaturday, startOfDay } from 'date-fns';
-import type { Event, EventClass, EventState, Judge, Official, Organizer } from 'koekalenteri-shared/model';
+import type { Event, EventClass, EventEx, EventState, Judge, Official, Organizer } from 'koekalenteri-shared/model';
 import { observer } from 'mobx-react-lite';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -19,7 +19,7 @@ import { requiredFields, validateEvent } from './validation';
 export type FormEventHandler = (event: Partial<Event>) => Promise<boolean>;
 export type PartialEvent = Partial<Event> & { startDate: Date, endDate: Date, classes: EventClass[], judges: number[] };
 type EventFormParams = {
-  event: Partial<Event>
+  event: Partial<EventEx>
   eventTypes: string[]
   eventTypeClasses: Record<string, string[]>
   judges: Judge[]

@@ -10,6 +10,7 @@ export interface JsonEvent extends JsonDbRecord {
   endDate?: string
   entryStartDate?: string
   entryEndDate?: string
+  entryOrigEndDate?: string
   location: string
   headquerters?: Partial<Headquarters>
   name: string
@@ -29,7 +30,8 @@ export interface JsonEvent extends JsonDbRecord {
   contactInfo?: Partial<ContactInfo>
 }
 
-export type Event = DbRecord & Replace<ReplaceOptional<Omit<JsonEvent, keyof JsonDbRecord>, 'startDate' | 'endDate' | 'entryStartDate' | 'entryEndDate', Date>, 'classes', Array<EventClass>>
+export type EventDates = 'startDate' | 'endDate' | 'entryStartDate' | 'entryEndDate' | 'entryOrigEndDate';
+export type Event = DbRecord & Replace<ReplaceOptional<Omit<JsonEvent, keyof JsonDbRecord>, EventDates, Date>, 'classes', Array<EventClass>>
 
 export type JsonEventClass = {
   class: string
@@ -68,9 +70,10 @@ export interface EventEx extends Event {
   isEntryOpen: boolean
   isEntryClosing: boolean
   isEntryUpcoming: boolean
+  statusText?: 'tentative' | 'cancelled' | 'extended'
 }
 
-export type ConfirmedEventEx = Replace<EventEx, 'startDate'|'endDate'|'entryStartDate'|'entryEndDate', Date> & {
+export type ConfirmedEventEx = Replace<EventEx, EventDates, Date> & {
   state: 'confirmed'
 }
 

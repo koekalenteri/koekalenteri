@@ -9,9 +9,6 @@
           "id": {
             "S": "07432b79-6721-48c8-be26-3035a1ba065d"
           },
-          "isEntryUpcoming": {
-            "BOOL": false
-          },
           "modifiedAt": {
             "S": "2022-02-17T10:04:56.481Z"
           },
@@ -43,17 +40,11 @@
           "createdAt": {
             "S": "2022-02-17T10:04:56.481Z"
           },
-          "isEntryOpen": {
-            "BOOL": false
-          },
           "createdBy": {
             "S": "anonymous"
           },
           "name": {
             "S": "Luonnos"
-          },
-          "isEntryClosing": {
-            "BOOL": false
           },
           "organizer": {
             "M": {
@@ -88,9 +79,6 @@
           },
           "id": {
             "S": "af4d1dc6-bf6c-49d5-afa7-e6ea52aa9cdf"
-          },
-          "isEntryUpcoming": {
-            "BOOL": true
           },
           "endDate": {
             "S": "2022-06-11T21:00:00.000Z"
@@ -206,9 +194,6 @@
           "name": {
             "S": "Minsun kesäkuun! B-koe"
           },
-          "isEntryClosing": {
-            "BOOL": false
-          },
           "state": {
             "S": "tentative"
           },
@@ -279,9 +264,6 @@
           "entryEndDate": {
             "S": "2022-05-20T21:00:00.000Z"
           },
-          "isEntryOpen": {
-            "BOOL": false
-          },
           "accountNumber": {
             "S": "FI6420012001013623"
           },
@@ -315,9 +297,6 @@
           },
           "id": {
             "S": "f2c6c56b-f193-4a2a-96f5-2af166884217"
-          },
-          "isEntryUpcoming": {
-            "BOOL": false
           },
           "modifiedAt": {
             "S": "2022-02-17T12:05:31.784Z"
@@ -353,17 +332,11 @@
           "createdAt": {
             "S": "2022-02-17T12:05:31.784Z"
           },
-          "isEntryOpen": {
-            "BOOL": false
-          },
           "createdBy": {
             "S": "anonymous"
           },
           "name": {
             "S": "Alustava NOME-B"
-          },
-          "isEntryClosing": {
-            "BOOL": false
           },
           "organizer": {
             "M": {
@@ -414,20 +387,20 @@
             }
           },
           "entryStartDate": {
-            "S": "2022-02-15T22:00:00.000Z"
+            "S": "2022-04-15T22:00:00.000Z"
           },
           "endDate": {
-            "S": "2022-04-25T00:00:00.000Z"
+            "S": "2022-07-25T00:00:00.000Z"
           },
           "modifiedAt": {
-            "S": "2022-03-25T18:21:14.127Z"
+            "S": "2022-06-25T18:21:14.127Z"
           },
           "classes": {
             "L": [
               {
                 "M": {
                   "date": {
-                    "S": "2022-04-23T21:00:00.000Z"
+                    "S": "2022-07-23T21:00:00.000Z"
                   },
                   "places": {
                     "N": "15"
@@ -453,7 +426,7 @@
               {
                 "M": {
                   "date": {
-                    "S": "2022-04-24T21:00:00.000Z"
+                    "S": "2022-07-24T21:00:00.000Z"
                   },
                   "places": {
                     "N": "15"
@@ -476,7 +449,7 @@
               {
                 "M": {
                   "date": {
-                    "S": "2022-04-24T21:00:00.000Z"
+                    "S": "2022-07-24T21:00:00.000Z"
                   },
                   "places": {
                     "N": "15"
@@ -499,7 +472,7 @@
               {
                 "M": {
                   "date": {
-                    "S": "2022-04-24T21:00:00.000Z"
+                    "S": "2022-07-24T21:00:00.000Z"
                   },
                   "places": {
                     "N": "12"
@@ -571,9 +544,6 @@
               }
             }
           },
-          "isEntryUpcoming": {
-            "BOOL": false
-          },
           "referenceNumber": {
             "S": "11041"
           },
@@ -597,9 +567,6 @@
           },
           "cost": {
             "N": "40"
-          },
-          "isEntryClosing": {
-            "BOOL": false
           },
           "eventType": {
             "S": "NOME-B"
@@ -636,13 +603,13 @@
             "S": "Nuusku"
           },
           "entryEndDate": {
+            "S": "2022-07-20T00:00:00.000Z"
+          },
+          "entryOrigEndDate": {
             "S": "2022-04-15T00:00:00.000Z"
           },
           "location": {
             "S": "Liperi"
-          },
-          "isEntryOpen": {
-            "BOOL": true
           },
           "allowOnlineEntry": {
             "BOOL": true
@@ -658,7 +625,7 @@
             ]
           },
           "startDate": {
-            "S": "2022-04-24T00:00:00.000Z"
+            "S": "2022-07-24T00:00:00.000Z"
           }
         }
       }
@@ -674,9 +641,6 @@
           },
           "allowOnlineEntry": {
             "BOOL": true
-          },
-          "isEntryUpcoming": {
-            "BOOL": false
           },
           "endDate": {
             "S": "2022-11-24T22:00:00.000Z"
@@ -713,9 +677,6 @@
           },
           "name": {
             "S": "Nuusku"
-          },
-          "isEntryClosing": {
-            "BOOL": false
           },
           "createdBy": {
             "S": "anonymous"
@@ -765,9 +726,6 @@
           },
           "createdAt": {
             "S": "2022-02-16T06:12:50.544Z"
-          },
-          "isEntryOpen": {
-            "BOOL": false
           },
           "entries": {
             "N": "10"

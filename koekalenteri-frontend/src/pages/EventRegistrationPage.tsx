@@ -80,8 +80,9 @@ function EventComponent({ event, classDate = '', className = '' }: { event: Conf
           >
             <Grid item container sm={12} md columnSpacing={1}>
               <Grid item xs={4}>{t('entryTime')}:</Grid>
-              <Grid item xs={8} sx={{ color: entryDateColor(event) }}>
+              <Grid item xs={8} sx={{ color: entryDateColor(event), '& .info': {color: 'info.dark', px: 1 }}}>
                 <b>{t('daterange', { start: event.entryStartDate, end: event.entryEndDate })}</b>&nbsp;
+                <span className="info">{event.statusText ? '(' + t(`event.states.${event.statusText}_info`) + ')' : ''}</span>
                 {event.isEntryOpen ? t('distanceLeft', { date: event.entryEndDate }) : ''}
               </Grid>
               <Grid item xs={4}>{t('event.organizer')}:</Grid>

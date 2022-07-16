@@ -42,8 +42,9 @@ export function EventInfo({ event }: { event: EventEx }) {
         <TableBody>
           <TableRow key={event.id + 'date'}>
             <TableCell component="th" scope="row">{t('entryTime')}:</TableCell>
-            <TableCell sx={{ color: entryDateColor(event) }}>
+            <TableCell sx={{ color: entryDateColor(event), '& .info': {color: 'info.dark'} }}>
               <b>{t('daterange', { start: event.entryStartDate, end: event.entryEndDate })}</b>
+              <span className="info">{event.statusText ? '(' + t(`event.states.${event.statusText}_info`) + ')' : ''}</span>
               {event.isEntryOpen ? t('distanceLeft', { date: event.entryEndDate }) : ''}
             </TableCell>
           </TableRow>
