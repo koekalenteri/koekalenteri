@@ -168,7 +168,7 @@ export function RegistrationForm({ event, className, registration, classDate, on
         },
         '& .fact input.Mui-disabled': {
           color: 'success.main',
-          '-webkit-text-fill-color': 'inherit'
+          WebkitTextFillColor: 'inherit'
         }
       }}>
         <EntryInfo
@@ -250,7 +250,7 @@ export function RegistrationForm({ event, className, registration, classDate, on
       </Box>
 
       <Stack spacing={1} direction="row" justifyContent="flex-end" sx={{ p: 1, borderTop: '1px solid', borderColor: '#bdbdbd' }}>
-        <LoadingButton color="primary" disabled={!changes || !valid} loading={saving} loadingPosition="start" startIcon={<Save />} variant="contained" onClick={saveHandler}>Tallenna</LoadingButton>
+        <LoadingButton color="primary" disabled={!changes || !valid} loading={saving} loadingPosition="start" startIcon={<Save />} variant="contained" onClick={saveHandler}>{local.id ? 'Tallenna muutokset' : 'Tallenna'}</LoadingButton>
         <Button startIcon={<Cancel />} variant="outlined" onClick={cancelHandler}>Peruuta</Button>
       </Stack>
     </Paper>

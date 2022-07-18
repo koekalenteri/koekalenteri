@@ -84,68 +84,90 @@ export const putRegistrationHandler = metricScope((metrics: MetricsLogger) =>
 
     const timestamp = new Date().toISOString();
     const username = getUsername(event);
+    const origin = event.headers['Origin'];
 
     try {
-      const item: JsonRegistration = {
-        id: uuidv4(),
-        ...JSON.parse(event.body || ""),
-        createdAt: timestamp,
-        createdBy: username,
-        modifiedAt: timestamp,
-        modifiedBy: username,
+      let existing;
+      const registration: JsonRegistration = JSON.parse(event.body || "");
+      const update = !!registration.id;
+      if (update) {
+        existing = await dynamoDB.read<JsonRegistration>({ eventId: registration.eventId, id: registration.id });
+        if (!existing) {
+          throw new Error(`Registration not found with id "${registration.id}"`);
+        }
+      } else {
+        registration.id = uuidv4();
+        registration.createdAt = timestamp;
+        registration.createdBy = username;
       }
-      const t = i18n.getFixedT(item.language);
-      if (item.id === '') {
-        item.id = uuidv4();
-      }
-      const eventKey = { eventType: item.eventType, id: item.eventId };
+
+      // modification info is always updated
+      registration.modifiedAt = timestamp;
+      registration.modifiedBy = username;
+
+      const t = i18n.getFixedT(registration.language);
+
+      const eventKey = { eventType: registration.eventType, id: registration.eventId };
       const eventTable = process.env.EVENT_TABLE_NAME || '';
       const confirmedEvent = await dynamoDB.read<JsonConfirmedEvent>(eventKey, eventTable);
       if (!confirmedEvent) {
-        throw new Error(`Event of type "${item.eventType}" not found with id "${item.eventId}"`);
+        throw new Error(`Event of type "${registration.eventType}" not found with id "${registration.eventId}"`);
       }
-      await dynamoDB.write(item);
-      const registrations = await dynamoDB.query<JsonRegistration>('eventId = :id', { ':id': item.eventId });
+
+      const data = { ...existing, ...registration };
+      await dynamoDB.write(data);
+
+      const registrations = await dynamoDB.query<JsonRegistration>('eventId = :id', { ':id': registration.eventId });
 
       const membershipPriority = (r: JsonRegistration) =>
         (confirmedEvent.allowHandlerMembershipPriority && r.handler?.membership)
         || (confirmedEvent.allowOwnerMembershipPriority && r.owner?.membership);
 
-      for (const cls of confirmedEvent.classes || []) {
+      const classes = confirmedEvent.classes || [];
+      for (const cls of classes) {
         const regsToClass = registrations?.filter(r => r.class === cls.class);
         cls.entries = regsToClass?.length;
         cls.members = regsToClass?.filter(r => membershipPriority(r)).length
       }
-      await dynamoDB.update(eventKey, 'set entries = :entries, classes = :classes', { ':entries': registrations?.length || 0, ':classes': confirmedEvent.classes }, eventTable);
+      const entries = registrations?.length || 0;
+      await dynamoDB.update(eventKey,
+        'set entries = :entries, classes = :classes',
+        {
+          ':entries': entries,
+          ':classes': classes
+        },
+        eventTable
+      );
 
-      if (item.handler?.email && item.owner?.email) {
-        const to: string[] = [item.handler.email];
-        if (item.owner.email !== item.handler.email) {
-          to.push(item.owner.email);
+      if (registration.handler?.email && registration.owner?.email) {
+        const to: string[] = [registration.handler.email];
+        if (registration.owner.email !== registration.handler.email) {
+          to.push(registration.owner.email);
         }
         const eventDate = formatDateSpan(confirmedEvent.startDate, confirmedEvent.endDate);
-        const reserveText = t(`registration.reserveChoises.${item.reserve}`);
-        const dogBreed = t(`breed:${item.dog.breedCode}`);
-        const regDates = item.dates.map(d => t('weekday', { date: d.date }) + ' ' + t(`registration.time.${d.time}`)).join(', ');
-        // TODO: link
-        const editLink = 'https://localhost:3000/registration/' + item.id;
+        const reserveText = t(`registration.reserveChoises.${registration.reserve}`);
+        const dogBreed = t(`breed:${registration.dog.breedCode}`);
+        const regDates = registration.dates.map(d => t('weekday', { date: d.date }) + ' ' + t(`registration.time.${d.time}`)).join(', ');
+        const editLink = `${origin}/registration/${registration.eventType}/${registration.eventId}/${registration.id}/edit`;
         // TODO: sender address from env / other config
         const from = "koekalenteri@koekalenteri.snj.fi";
-        const qualifyingResults = item.qualifyingResults.map(r => ({ ...r, date: lightFormat(parseISO(r.date), 'd.M.yyyy') }));
-        await sendTemplatedMail('RegistrationV2', item.language, from, to, {
+        const qualifyingResults = registration.qualifyingResults.map(r => ({ ...r, date: lightFormat(parseISO(r.date), 'd.M.yyyy') }));
+        await sendTemplatedMail('RegistrationV2', registration.language, from, to, {
+          subject: t('registration.email.subject', { context: update ? 'update' : '' }),
+          title: t('registration.email.title', { context: update ? 'update' : '' }),
           dogBreed,
           editLink,
           event: confirmedEvent,
           eventDate,
           qualifyingResults,
-          reg: item,
+          reg: registration,
           regDates,
           reserveText,
         });
       }
 
       metricsSuccess(metrics, event.requestContext, 'putRegistration');
-      return response(200, item);
+      return response(200, registration);
     } catch (err) {
       console.error(err);
       if (err instanceof Error) {

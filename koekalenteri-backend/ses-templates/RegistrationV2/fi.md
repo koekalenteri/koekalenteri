@@ -1,6 +1,6 @@
-[subject]: # (Ilmoittautumisen vahvistus: {{reg.eventType}} {{eventDate}} {{event.location}})
+[subject]: # ({{subject}}: {{reg.eventType}} {{eventDate}} {{event.location}})
 
-# Ilmoittautumisesi on otettu vastaan
+# {{title}}
 
 Alla näet ilmoittautumisesi tiedot sekä linkin, jonka avulla voit tarvittaessa tehdä muutoksia tai perua ilmoittautumisesi.
 
@@ -33,4 +33,4 @@ Varasija           :| {{reserveText}}
 
 Alla olevan linkin avulla voit vielä tehdä muutoksia ilmoittautumisen tietoihin, tai peruuttaa ilmoittautumisesi.
 
-{{editLink}}
+[Muokkaa ilmoittautumista]({{editLink}})

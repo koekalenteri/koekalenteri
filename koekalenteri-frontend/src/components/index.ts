@@ -15,3 +15,5 @@ export * from './HelpPopover';
 export * from './MiniDrawer';
 export * from './StyledDataGrid';
 export * from './QuickSearchToolbar';
+export * from './RegistrationEventInfo';
+export * from './RegistrationList';

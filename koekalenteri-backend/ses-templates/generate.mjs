@@ -9,6 +9,7 @@ import {reporter} from 'vfile-reporter'
 import {unified} from 'unified'
 import {visit, SKIP} from 'unist-util-visit'
 import tableHandler from './handlers/table.mjs'
+import link from './handlers/link.mjs'
 
 const templates = readdirSync('.', {withFileTypes: true})
   .filter(entry => entry.isDirectory() && !['samples', 'handlers'].includes(entry.name))
@@ -66,11 +67,20 @@ async function genJson(template, lang) {
         }
       });
 
+  const linkAsText = () =>
+    (tree) =>
+      visit(tree, (node) => {
+        if (node.type === 'link') {
+          node.children[0].value = node.url;
+        }
+      });
+
   const text = await unified()
     .use(remarkParse)
     .use(extractSubject)
     .use(remarkGfm)
     .use(removeTableHead)
+    .use(linkAsText)
     .use(remarkPlainText)
     .process(await read(source));
 
@@ -81,7 +91,7 @@ async function genJson(template, lang) {
     .use(remarkParse)
     .use(remarkGfm)
     .use(remarkBreaks)
-    .use(remarkHtml, {handlers: {table: tableHandler}})
+    .use(remarkHtml, {handlers: {table: tableHandler, link}})
     .process(await read(source));
 
   return {

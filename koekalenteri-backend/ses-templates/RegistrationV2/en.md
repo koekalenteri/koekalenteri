@@ -1,6 +1,6 @@
-[subject]: # (Registration confirmation: {{reg.eventType}} {{eventDate}} {{event.location}})
+[subject]: # ({{subject}}: {{reg.eventType}} {{eventDate}} {{event.location}})
 
-# Your registration has been received
+# {{title}}
 
 Below you will find the details of your registration and a link that will allow you to make changes to your registration or cancel your registration if necessary.
 
@@ -33,4 +33,4 @@ Reserve        :| {{reserveText}}
 
 You can use the link below to make changes to the registration or cancel it.
 
-{{editLink}}
+[Edit registration]({{editLink}})

@@ -25,7 +25,7 @@ export async function getRegistrations(eventId: string, signal?: AbortSignal): P
 }
 
 export async function getRegistration(eventId: string, id: string, signal?: AbortSignal): Promise<Registration | undefined> {
-  return rehydrateRegistration(await http.get<JsonRegistration>(`registration/${eventId}/${id}`, {signal}));
+  return rehydrateRegistration(await http.get<JsonRegistration>(`/registration/${eventId}/${id}`, {signal}));
 }
 
 export async function putRegistration(registration: Registration): Promise<Registration> {

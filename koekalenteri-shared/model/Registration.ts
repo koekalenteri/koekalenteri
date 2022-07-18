@@ -17,6 +17,7 @@ export type JsonRegistration = JsonDbRecord & {
   qualifyingResults: JsonQualifyingResult[]
   reserve: ReserveChoise | ''
   results?: Array<JsonTestResult & { id: string }>
+  paid?: boolean
 }
 
 export type Registration = DbRecord & {
@@ -36,6 +37,7 @@ export type Registration = DbRecord & {
   qualifyingResults: QualifyingResult[]
   reserve: ReserveChoise | ''
   results?: Array<Partial<TestResult> & { id: string }>
+  paid?: boolean
 }
 
 export type JsonQualifyingResult = JsonTestResult & { official: boolean, qualifying?: boolean };

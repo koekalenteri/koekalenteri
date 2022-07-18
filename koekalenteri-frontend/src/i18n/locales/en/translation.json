@@ -48,6 +48,14 @@
   "places": "Places",
   "qualifyingResults": "Qualifying results",
   "register": "Register",
+  "registration": {
+    "email": {
+      "subject": "Registration confirmation",
+      "subject_update": "Registration modified",
+      "title": "Your registration has been received",
+      "title_update": "Your registration has been modified"
+    }
+  },
   "result": "Result",
   "secretary": "Secretary",
   "state": "State",

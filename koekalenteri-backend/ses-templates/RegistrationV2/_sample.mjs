@@ -160,6 +160,8 @@ export default {
     agreeToTerms: true,
     agreeToPublish: true,
   },
+  subject: "Aihe",
+  title: "Otsikko",
   eventDate: "23.-23.4.2022",
   dogBreed: "Labradorinnoutaja",
   regDates: "la 23.4. aamupäivä, su 24.4. iltapäivä",
