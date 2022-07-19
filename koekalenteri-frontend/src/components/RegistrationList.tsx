@@ -2,7 +2,7 @@ import { CancelOutlined, EditOutlined, EuroOutlined, PersonOutline } from "@mui/
 import { Paper, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import { GridActionsCellItem, GridColDef, GridRowParams } from "@mui/x-data-grid";
-import { BreedCode, ConfirmedEventEx, Registration } from "koekalenteri-shared/model";
+import { BreedCode, Registration } from "koekalenteri-shared/model";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { StyledDataGrid } from "./StyledDataGrid";
@@ -23,7 +23,7 @@ interface RegistrationListColDef extends GridColDef {
   getActions?: (params: GridRowParams) => JSX.Element[]
 }
 
-export function RegistrationList({loading, event, rows}: {loading: boolean, event: ConfirmedEventEx, rows: Registration[]}) {
+export function RegistrationList({loading, rows}: {loading: boolean, rows: Registration[]}) {
   const { t } = useTranslation();
   const { t: breed } = useTranslation('breed');
   const navigate = useNavigate();

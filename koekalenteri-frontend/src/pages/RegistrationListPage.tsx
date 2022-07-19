@@ -38,16 +38,20 @@ export function RegistrationListPage() {
       <Box sx={{ p: 1, overflow: 'hidden', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
         <Toolbar variant="dense" />{/* To allocate the space for fixed header */}
         <LinkButton sx={{ mb: 1 }} to="/" text={sessionStarted ? t('goBack') : t('goHome')} />
-        {event ?
-          <>
-            <RegistrationEventInfo event={event} />
-            <RegistrationList loading={loading} event={event} rows={registration ? [registration] : []} />
-          </>
-          :
-          <CircularProgress />
-        }
+        <PageContent event={event} loading={loading} registration={registration} />
       </Box>
     </>
   )
 }
 
+function PageContent({ event, loading, registration }: { event?: ConfirmedEventEx, loading: boolean, registration?: Registration }) {
+  if (!event) {
+    return <CircularProgress />
+  }
+  return (
+    <>
+      <RegistrationEventInfo event={event} />
+      <RegistrationList loading={loading} rows={registration ? [registration] : []} />
+    </>
+  );
+}
