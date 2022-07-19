@@ -1,0 +1,1095 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders registration list page 1`] = `
+<div>
+  <header
+    class="MuiPaper-root MuiPaper-elevation MuiPaper-elevation4 MuiAppBar-root MuiAppBar-colorSecondary MuiAppBar-positionFixed mui-fixed css-19iqa5y-MuiPaper-root-MuiAppBar-root"
+  >
+    <div
+      class="MuiToolbar-root MuiToolbar-dense css-izwrv4-MuiToolbar-root"
+    >
+      <button
+        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-1ecacw7-MuiButtonBase-root-MuiIconButton-root"
+        tabindex="0"
+        type="button"
+      >
+        <svg
+          aria-hidden="true"
+          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+          data-testid="MenuIcon"
+          focusable="false"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"
+          />
+        </svg>
+        <span
+          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+        />
+      </button>
+      <a
+        class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-1flfxuu-MuiTypography-root-MuiLink-root"
+        href="/"
+      >
+        <button
+          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-oau294-MuiButtonBase-root-MuiIconButton-root"
+          tabindex="0"
+          type="button"
+        >
+          <img
+            alt="Suomen noutajakoirajärjestö"
+            height="100%"
+            src="snj-logo.png"
+          />
+          <span
+            class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+          />
+        </button>
+      </a>
+      <a
+        class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-ix55se-MuiTypography-root-MuiLink-root"
+        href="/"
+      >
+        <div
+          class="MuiTypography-root MuiTypography-h6 MuiTypography-noWrap css-1xz05ty-MuiTypography-root"
+        >
+          Koekalenteri
+        </div>
+      </a>
+      <div
+        class="MuiTypography-root MuiTypography-h6 MuiTypography-noWrap css-1mo43ab-MuiTypography-root"
+      >
+         › Ilmoittautumistiedot
+      </div>
+      <button
+        class="MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButtonBase-root  css-kva05m-MuiButtonBase-root-MuiButton-root"
+        tabindex="0"
+        type="button"
+      >
+        <span
+          class="MuiButton-startIcon MuiButton-iconSizeMedium css-1d6wzja-MuiButton-startIcon"
+        >
+          <svg
+            aria-hidden="true"
+            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+            data-testid="LanguageIcon"
+            focusable="false"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm6.93 6h-2.95c-.32-1.25-.78-2.45-1.38-3.56 1.84.63 3.37 1.91 4.33 3.56zM12 4.04c.83 1.2 1.48 2.53 1.91 3.96h-3.82c.43-1.43 1.08-2.76 1.91-3.96zM4.26 14C4.1 13.36 4 12.69 4 12s.1-1.36.26-2h3.38c-.08.66-.14 1.32-.14 2 0 .68.06 1.34.14 2H4.26zm.82 2h2.95c.32 1.25.78 2.45 1.38 3.56-1.84-.63-3.37-1.9-4.33-3.56zm2.95-8H5.08c.96-1.66 2.49-2.93 4.33-3.56C8.81 5.55 8.35 6.75 8.03 8zM12 19.96c-.83-1.2-1.48-2.53-1.91-3.96h3.82c-.43 1.43-1.08 2.76-1.91 3.96zM14.34 14H9.66c-.09-.66-.16-1.32-.16-2 0-.68.07-1.35.16-2h4.68c.09.65.16 1.32.16 2 0 .68-.07 1.34-.16 2zm.25 5.56c.6-1.11 1.06-2.31 1.38-3.56h2.95c-.96 1.65-2.49 2.93-4.33 3.56zM16.36 14c.08-.66.14-1.32.14-2 0-.68-.06-1.34-.14-2h3.38c.16.64.26 1.31.26 2s-.1 1.36-.26 2h-3.38z"
+            />
+          </svg>
+        </span>
+        <div
+          class="MuiBox-root css-130f8nx"
+        >
+          Suomeksi
+        </div>
+        <span
+          class="MuiButton-endIcon MuiButton-iconSizeMedium css-9tj150-MuiButton-endIcon"
+        >
+          <svg
+            aria-hidden="true"
+            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+            data-testid="ExpandMoreIcon"
+            focusable="false"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"
+            />
+          </svg>
+        </span>
+        <span
+          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+        />
+      </button>
+      <button
+        class="MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButtonBase-root  css-kva05m-MuiButtonBase-root-MuiButton-root"
+        tabindex="0"
+        type="button"
+      >
+        <span
+          class="MuiButton-startIcon MuiButton-iconSizeMedium css-1d6wzja-MuiButton-startIcon"
+        >
+          <svg
+            aria-hidden="true"
+            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+            data-testid="PersonOutlineIcon"
+            focusable="false"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M12 5.9c1.16 0 2.1.94 2.1 2.1s-.94 2.1-2.1 2.1S9.9 9.16 9.9 8s.94-2.1 2.1-2.1m0 9c2.97 0 6.1 1.46 6.1 2.1v1.1H5.9V17c0-.64 3.13-2.1 6.1-2.1M12 4C9.79 4 8 5.79 8 8s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 9c-2.67 0-8 1.34-8 4v3h16v-3c0-2.66-5.33-4-8-4z"
+            />
+          </svg>
+        </span>
+        <div
+          class="MuiBox-root css-130f8nx"
+        >
+          Test User
+        </div>
+        <span
+          class="MuiButton-endIcon MuiButton-iconSizeMedium css-9tj150-MuiButton-endIcon"
+        >
+          <svg
+            aria-hidden="true"
+            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+            data-testid="ExpandMoreIcon"
+            focusable="false"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"
+            />
+          </svg>
+        </span>
+        <span
+          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+        />
+      </button>
+    </div>
+  </header>
+  <div
+    class="MuiBox-root css-1dhzl1b"
+  >
+    <div
+      class="MuiToolbar-root MuiToolbar-gutters MuiToolbar-dense css-10ltm04-MuiToolbar-root"
+    />
+    <a
+      class="MuiButton-root MuiButton-text MuiButton-textInfo MuiButton-sizeSmall MuiButton-textSizeSmall MuiButtonBase-root  css-1f21x25-MuiButtonBase-root-MuiButton-root"
+      href="/"
+      tabindex="0"
+    >
+      Takaisin
+      <span
+        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+      />
+    </a>
+    <div
+      class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation2 css-g9q2hn-MuiPaper-root"
+    >
+      <h5
+        class="MuiTypography-root MuiTypography-h5 css-1pdeq72-MuiTypography-root"
+      >
+        NOME-B
+         
+        12.-13.2.2021
+         
+        test (test)
+      </h5>
+      <div
+        class="MuiBox-root css-1d8l8v2"
+      >
+        <button
+          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10frfwe-MuiButtonBase-root-MuiIconButton-root"
+          tabindex="0"
+          type="button"
+        >
+          <svg
+            aria-hidden="true"
+            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+            data-testid="KeyboardArrowDownIcon"
+            focusable="false"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"
+            />
+          </svg>
+          <span
+            class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+          />
+        </button>
+        <div
+          class="MuiBox-root css-1qbrvqz"
+        >
+          <div
+            class="MuiBox-root css-yxbw19"
+          >
+            <p
+              class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
+            >
+              Kokeen tiedot
+            </p>
+            <p
+              class="MuiFormHelperText-root css-ml08u8-MuiFormHelperText-root"
+            />
+          </div>
+          <div
+            class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-pwcg7p-MuiCollapse-root"
+            style="min-height: 0px;"
+          >
+            <div
+              class="MuiCollapse-wrapper MuiCollapse-vertical css-smkl36-MuiCollapse-wrapper"
+            >
+              <div
+                class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
+              >
+                <div
+                  class="MuiBox-root css-n2y79c"
+                >
+                  <div
+                    class="MuiGrid-root MuiGrid-container css-pusk48-MuiGrid-root"
+                  >
+                    <div
+                      class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-sm-12 MuiGrid-grid-md-true css-1gzo6kn-MuiGrid-root"
+                    >
+                      <div
+                        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-h9ezi1-MuiGrid-root"
+                      >
+                        Ilmoittautumisaika
+                        :
+                      </div>
+                      <div
+                        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-17hsjwz-MuiGrid-root"
+                      >
+                        <b>
+                          1.-12.2.2021
+                        </b>
+                         
+                        <span
+                          class="info"
+                        />
+                        
+                      </div>
+                      <div
+                        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-h9ezi1-MuiGrid-root"
+                      >
+                        Järjestäjä
+                        :
+                      </div>
+                      <div
+                        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-163n9ee-MuiGrid-root"
+                      >
+                        Test org
+                      </div>
+                      <div
+                        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-h9ezi1-MuiGrid-root"
+                      >
+                        Tuomarit
+                        :
+                      </div>
+                      <div
+                        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-163n9ee-MuiGrid-root"
+                      >
+                        223
+                      </div>
+                      <div
+                        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-h9ezi1-MuiGrid-root"
+                      >
+                        Vastaava koetoimitsija
+                        :
+                      </div>
+                      <div
+                        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-163n9ee-MuiGrid-root"
+                      >
+                        Teemu Toimitsija
+                      </div>
+                    </div>
+                    <div
+                      class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-sm-12 MuiGrid-grid-md-true css-1gzo6kn-MuiGrid-root"
+                    >
+                      <div
+                        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-h9ezi1-MuiGrid-root"
+                      >
+                        Maksutiedot
+                        :
+                      </div>
+                      <div
+                        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-163n9ee-MuiGrid-root"
+                      >
+                        Koemaksu
+                        : 
+                        123
+                         €
+                        <br />
+                        Koemaksu jäsenille
+                        : 
+                        123
+                         €
+                        <br />
+                        Tilinumero
+                        : 
+                        test
+                        <br />
+                        Viitenumero
+                        : 
+                        test
+                        <br />
+                        test
+                      </div>
+                      <div
+                        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-h9ezi1-MuiGrid-root"
+                      >
+                        Lisätiedot
+                        :
+                      </div>
+                      <div
+                        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-163n9ee-MuiGrid-root"
+                      >
+                        test
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation2 css-g9q2hn-MuiPaper-root"
+    >
+      <h5
+        class="MuiTypography-root MuiTypography-h5 css-11zemyq-MuiTypography-root"
+      >
+        Ilmoitetut koirat
+      </h5>
+      <div
+        class="MuiBox-root css-6gxhc5"
+      >
+        <div
+          aria-colcount="6"
+          aria-multiselectable="false"
+          aria-rowcount="1"
+          class="MuiDataGrid-root css-1fcf85e-MuiDataGrid-root"
+          role="grid"
+        >
+          <div>
+            <div />
+          </div>
+          <div
+            class="MuiDataGrid-main css-204u17-MuiDataGrid-main"
+          >
+            <div
+              class="MuiDataGrid-columnHeaders css-f3jnds-MuiDataGrid-columnHeaders"
+              style="min-height: 39px; max-height: 39px; line-height: 39px;"
+            >
+              <div
+                aria-rowindex="1"
+                class="MuiDataGrid-columnHeadersInner MuiDataGrid-columnHeadersInner--scrollable css-1s0hp0k-MuiDataGrid-columnHeadersInner"
+                role="row"
+                style="transform: translate3d(0px, 0px, 0px);"
+              >
+                <div
+                  aria-colindex="1"
+                  class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
+                  data-field="dog.name"
+                  role="columnheader"
+                  style="width: 0px; min-width: 0; max-width: 0;"
+                  tabindex="0"
+                >
+                  <div
+                    class="MuiDataGrid-columnHeaderDraggableContainer"
+                    draggable="false"
+                  >
+                    <div
+                      class="MuiDataGrid-columnHeaderTitleContainer"
+                    >
+                      <div
+                        class="MuiDataGrid-columnHeaderTitleContainerContent"
+                      >
+                        <div
+                          aria-label=""
+                          class="MuiDataGrid-columnHeaderTitle css-1jbbcbn-MuiDataGrid-columnHeaderTitle"
+                          data-mui-internal-clone-element="true"
+                        >
+                          Nimi
+                        </div>
+                      </div>
+                      <div
+                        class="MuiDataGrid-iconButtonContainer css-ltf0zy-MuiDataGrid-iconButtonContainer"
+                      >
+                        <button
+                          aria-label="Järjestä"
+                          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
+                          tabindex="-1"
+                          title="Järjestä"
+                          type="button"
+                        >
+                          <svg
+                            aria-hidden="true"
+                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-ptiqhd-MuiSvgIcon-root"
+                            data-testid="ArrowUpwardIcon"
+                            focusable="false"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"
+                            />
+                          </svg>
+                          <span
+                            class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                          />
+                        </button>
+                      </div>
+                    </div>
+                    <div
+                      class="MuiDataGrid-menuIcon"
+                    >
+                      <button
+                        aria-controls="mui-265"
+                        aria-haspopup="true"
+                        aria-label="Valikko"
+                        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall MuiDataGrid-menuIconButton css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
+                        id="mui-266"
+                        tabindex="-1"
+                        title="Valikko"
+                        type="button"
+                      >
+                        <svg
+                          aria-hidden="true"
+                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-ptiqhd-MuiSvgIcon-root"
+                          data-testid="TripleDotsVerticalIcon"
+                          focusable="false"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"
+                          />
+                        </svg>
+                        <span
+                          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                        />
+                      </button>
+                    </div>
+                  </div>
+                  <div
+                    class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--sideRight"
+                    style="min-height: 39px; opacity: 1;"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                      data-testid="SeparatorIcon"
+                      focusable="false"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        d="M11 19V5h2v14z"
+                      />
+                    </svg>
+                  </div>
+                </div>
+                <div
+                  aria-colindex="2"
+                  class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
+                  data-field="dog.regNo"
+                  role="columnheader"
+                  style="width: 0px; min-width: 0; max-width: 0;"
+                  tabindex="-1"
+                >
+                  <div
+                    class="MuiDataGrid-columnHeaderDraggableContainer"
+                    draggable="false"
+                  >
+                    <div
+                      class="MuiDataGrid-columnHeaderTitleContainer"
+                    >
+                      <div
+                        class="MuiDataGrid-columnHeaderTitleContainerContent"
+                      >
+                        <div
+                          aria-label=""
+                          class="MuiDataGrid-columnHeaderTitle css-1jbbcbn-MuiDataGrid-columnHeaderTitle"
+                          data-mui-internal-clone-element="true"
+                        >
+                          Rekisterinumero
+                        </div>
+                      </div>
+                      <div
+                        class="MuiDataGrid-iconButtonContainer css-ltf0zy-MuiDataGrid-iconButtonContainer"
+                      >
+                        <button
+                          aria-label="Järjestä"
+                          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
+                          tabindex="-1"
+                          title="Järjestä"
+                          type="button"
+                        >
+                          <svg
+                            aria-hidden="true"
+                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-ptiqhd-MuiSvgIcon-root"
+                            data-testid="ArrowUpwardIcon"
+                            focusable="false"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"
+                            />
+                          </svg>
+                          <span
+                            class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                          />
+                        </button>
+                      </div>
+                    </div>
+                    <div
+                      class="MuiDataGrid-menuIcon"
+                    >
+                      <button
+                        aria-controls="mui-268"
+                        aria-haspopup="true"
+                        aria-label="Valikko"
+                        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall MuiDataGrid-menuIconButton css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
+                        id="mui-269"
+                        tabindex="-1"
+                        title="Valikko"
+                        type="button"
+                      >
+                        <svg
+                          aria-hidden="true"
+                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-ptiqhd-MuiSvgIcon-root"
+                          data-testid="TripleDotsVerticalIcon"
+                          focusable="false"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"
+                          />
+                        </svg>
+                        <span
+                          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                        />
+                      </button>
+                    </div>
+                  </div>
+                  <div
+                    class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--sideRight"
+                    style="min-height: 39px; opacity: 1;"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                      data-testid="SeparatorIcon"
+                      focusable="false"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        d="M11 19V5h2v14z"
+                      />
+                    </svg>
+                  </div>
+                </div>
+                <div
+                  aria-colindex="3"
+                  class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
+                  data-field="dog.breedCode"
+                  role="columnheader"
+                  style="width: 0px; min-width: 0; max-width: 0;"
+                  tabindex="-1"
+                >
+                  <div
+                    class="MuiDataGrid-columnHeaderDraggableContainer"
+                    draggable="false"
+                  >
+                    <div
+                      class="MuiDataGrid-columnHeaderTitleContainer"
+                    >
+                      <div
+                        class="MuiDataGrid-columnHeaderTitleContainerContent"
+                      >
+                        <div
+                          aria-label=""
+                          class="MuiDataGrid-columnHeaderTitle css-1jbbcbn-MuiDataGrid-columnHeaderTitle"
+                          data-mui-internal-clone-element="true"
+                        >
+                          Rotu
+                        </div>
+                      </div>
+                      <div
+                        class="MuiDataGrid-iconButtonContainer css-ltf0zy-MuiDataGrid-iconButtonContainer"
+                      >
+                        <button
+                          aria-label="Järjestä"
+                          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
+                          tabindex="-1"
+                          title="Järjestä"
+                          type="button"
+                        >
+                          <svg
+                            aria-hidden="true"
+                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-ptiqhd-MuiSvgIcon-root"
+                            data-testid="ArrowUpwardIcon"
+                            focusable="false"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"
+                            />
+                          </svg>
+                          <span
+                            class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                          />
+                        </button>
+                      </div>
+                    </div>
+                    <div
+                      class="MuiDataGrid-menuIcon"
+                    >
+                      <button
+                        aria-controls="mui-271"
+                        aria-haspopup="true"
+                        aria-label="Valikko"
+                        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall MuiDataGrid-menuIconButton css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
+                        id="mui-272"
+                        tabindex="-1"
+                        title="Valikko"
+                        type="button"
+                      >
+                        <svg
+                          aria-hidden="true"
+                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-ptiqhd-MuiSvgIcon-root"
+                          data-testid="TripleDotsVerticalIcon"
+                          focusable="false"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"
+                          />
+                        </svg>
+                        <span
+                          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                        />
+                      </button>
+                    </div>
+                  </div>
+                  <div
+                    class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--sideRight"
+                    style="min-height: 39px; opacity: 1;"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                      data-testid="SeparatorIcon"
+                      focusable="false"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        d="M11 19V5h2v14z"
+                      />
+                    </svg>
+                  </div>
+                </div>
+                <div
+                  aria-colindex="4"
+                  class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignCenter MuiDataGrid-columnHeader--sortable"
+                  data-field="handler.membership"
+                  role="columnheader"
+                  style="width: 100px; min-width: 100px; max-width: 100px;"
+                  tabindex="-1"
+                >
+                  <div
+                    class="MuiDataGrid-columnHeaderDraggableContainer"
+                    draggable="false"
+                  >
+                    <div
+                      class="MuiDataGrid-columnHeaderTitleContainer"
+                    >
+                      <div
+                        class="MuiDataGrid-columnHeaderTitleContainerContent"
+                      >
+                        <div
+                          aria-label=""
+                          class="MuiDataGrid-columnHeaderTitle css-1jbbcbn-MuiDataGrid-columnHeaderTitle"
+                          data-mui-internal-clone-element="true"
+                        >
+                          Jäsen
+                        </div>
+                      </div>
+                      <div
+                        class="MuiDataGrid-iconButtonContainer css-ltf0zy-MuiDataGrid-iconButtonContainer"
+                      >
+                        <button
+                          aria-label="Järjestä"
+                          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
+                          tabindex="-1"
+                          title="Järjestä"
+                          type="button"
+                        >
+                          <svg
+                            aria-hidden="true"
+                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-ptiqhd-MuiSvgIcon-root"
+                            data-testid="ArrowUpwardIcon"
+                            focusable="false"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"
+                            />
+                          </svg>
+                          <span
+                            class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                          />
+                        </button>
+                      </div>
+                    </div>
+                    <div
+                      class="MuiDataGrid-menuIcon"
+                    >
+                      <button
+                        aria-controls="mui-274"
+                        aria-haspopup="true"
+                        aria-label="Valikko"
+                        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall MuiDataGrid-menuIconButton css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
+                        id="mui-275"
+                        tabindex="-1"
+                        title="Valikko"
+                        type="button"
+                      >
+                        <svg
+                          aria-hidden="true"
+                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-ptiqhd-MuiSvgIcon-root"
+                          data-testid="TripleDotsVerticalIcon"
+                          focusable="false"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"
+                          />
+                        </svg>
+                        <span
+                          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                        />
+                      </button>
+                    </div>
+                  </div>
+                  <div
+                    class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--sideRight"
+                    style="min-height: 39px; opacity: 1;"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                      data-testid="SeparatorIcon"
+                      focusable="false"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        d="M11 19V5h2v14z"
+                      />
+                    </svg>
+                  </div>
+                </div>
+                <div
+                  aria-colindex="5"
+                  class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignCenter MuiDataGrid-columnHeader--sortable"
+                  data-field="paid"
+                  role="columnheader"
+                  style="width: 100px; min-width: 100px; max-width: 100px;"
+                  tabindex="-1"
+                >
+                  <div
+                    class="MuiDataGrid-columnHeaderDraggableContainer"
+                    draggable="false"
+                  >
+                    <div
+                      class="MuiDataGrid-columnHeaderTitleContainer"
+                    >
+                      <div
+                        class="MuiDataGrid-columnHeaderTitleContainerContent"
+                      >
+                        <div
+                          aria-label=""
+                          class="MuiDataGrid-columnHeaderTitle css-1jbbcbn-MuiDataGrid-columnHeaderTitle"
+                          data-mui-internal-clone-element="true"
+                        >
+                          Maksettu
+                        </div>
+                      </div>
+                      <div
+                        class="MuiDataGrid-iconButtonContainer css-ltf0zy-MuiDataGrid-iconButtonContainer"
+                      >
+                        <button
+                          aria-label="Järjestä"
+                          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
+                          tabindex="-1"
+                          title="Järjestä"
+                          type="button"
+                        >
+                          <svg
+                            aria-hidden="true"
+                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-ptiqhd-MuiSvgIcon-root"
+                            data-testid="ArrowUpwardIcon"
+                            focusable="false"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"
+                            />
+                          </svg>
+                          <span
+                            class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                          />
+                        </button>
+                      </div>
+                    </div>
+                    <div
+                      class="MuiDataGrid-menuIcon"
+                    >
+                      <button
+                        aria-controls="mui-277"
+                        aria-haspopup="true"
+                        aria-label="Valikko"
+                        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall MuiDataGrid-menuIconButton css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
+                        id="mui-278"
+                        tabindex="-1"
+                        title="Valikko"
+                        type="button"
+                      >
+                        <svg
+                          aria-hidden="true"
+                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-ptiqhd-MuiSvgIcon-root"
+                          data-testid="TripleDotsVerticalIcon"
+                          focusable="false"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"
+                          />
+                        </svg>
+                        <span
+                          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                        />
+                      </button>
+                    </div>
+                  </div>
+                  <div
+                    class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--sideRight"
+                    style="min-height: 39px; opacity: 1;"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                      data-testid="SeparatorIcon"
+                      focusable="false"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        d="M11 19V5h2v14z"
+                      />
+                    </svg>
+                  </div>
+                </div>
+                <div
+                  aria-colindex="6"
+                  class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignCenter"
+                  data-field="actions"
+                  role="columnheader"
+                  style="width: 100px; min-width: 100px; max-width: 100px;"
+                  tabindex="-1"
+                >
+                  <div
+                    class="MuiDataGrid-columnHeaderDraggableContainer"
+                    draggable="false"
+                  >
+                    <div
+                      class="MuiDataGrid-columnHeaderTitleContainer"
+                    >
+                      <div
+                        class="MuiDataGrid-columnHeaderTitleContainerContent"
+                      >
+                        <div
+                          aria-label=""
+                          class="MuiDataGrid-columnHeaderTitle css-1jbbcbn-MuiDataGrid-columnHeaderTitle"
+                          data-mui-internal-clone-element="true"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--sideRight"
+                    style="min-height: 39px; opacity: 1;"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                      data-testid="SeparatorIcon"
+                      focusable="false"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        d="M11 19V5h2v14z"
+                      />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div
+              style="overflow: visible; height: 0px; width: 0px;"
+            >
+              <div
+                class="MuiDataGrid-virtualScroller css-1w5m2wr-MuiDataGrid-virtualScroller"
+                style="width: 0px; height: auto; margin-top: 39px; overflow-x: hidden;"
+              >
+                <div
+                  class="MuiDataGrid-virtualScrollerContent MuiDataGrid-virtualScrollerContent--overflowed css-1kwdphh-MuiDataGrid-virtualScrollerContent"
+                  style="width: auto; height: 36px; min-height: auto;"
+                >
+                  <div
+                    class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"
+                    style="transform: translate3d(0px, 0px, 0px);"
+                  >
+                    <div
+                      aria-rowindex="2"
+                      aria-selected="false"
+                      class="MuiDataGrid-row MuiDataGrid-row--lastVisible"
+                      data-id="reg1"
+                      data-rowindex="0"
+                      role="row"
+                      style="max-height: 36px; min-height: 36px;"
+                    >
+                      <div
+                        aria-colindex="1"
+                        aria-colspan="1"
+                        class="MuiDataGrid-cell--withRenderer MuiDataGrid-cell MuiDataGrid-cell--textLeft"
+                        data-colindex="0"
+                        data-field="dog.name"
+                        role="cell"
+                        style="min-width: 0; max-width: 0; min-height: 36px; max-height: 36px;"
+                        tabindex="-1"
+                      >
+                        <strong>
+                          dog name
+                        </strong>
+                      </div>
+                      <div
+                        aria-colindex="2"
+                        aria-colspan="1"
+                        class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
+                        data-colindex="1"
+                        data-field="dog.regNo"
+                        role="cell"
+                        style="min-width: 0; max-width: 0; min-height: 36px; max-height: 36px;"
+                        tabindex="-1"
+                      >
+                        <div
+                          class="MuiDataGrid-cellContent"
+                        >
+                          dog reg
+                        </div>
+                      </div>
+                      <div
+                        aria-colindex="3"
+                        aria-colspan="1"
+                        class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
+                        data-colindex="2"
+                        data-field="dog.breedCode"
+                        role="cell"
+                        style="min-width: 0; max-width: 0; min-height: 36px; max-height: 36px;"
+                        tabindex="-1"
+                      >
+                        <div
+                          class="MuiDataGrid-cellContent"
+                        />
+                      </div>
+                      <div
+                        aria-colindex="4"
+                        aria-colspan="1"
+                        class="MuiDataGrid-cell--withRenderer MuiDataGrid-cell MuiDataGrid-cell--textCenter"
+                        data-colindex="3"
+                        data-field="handler.membership"
+                        role="cell"
+                        style="min-width: 100px; max-width: 100px; min-height: 36px; max-height: 36px;"
+                        tabindex="-1"
+                      />
+                      <div
+                        aria-colindex="5"
+                        aria-colspan="1"
+                        class="MuiDataGrid-cell--withRenderer MuiDataGrid-cell MuiDataGrid-cell--textCenter"
+                        data-colindex="4"
+                        data-field="paid"
+                        role="cell"
+                        style="min-width: 100px; max-width: 100px; min-height: 36px; max-height: 36px;"
+                        tabindex="-1"
+                      />
+                      <div
+                        aria-colindex="6"
+                        aria-colspan="1"
+                        class="MuiDataGrid-cell--withRenderer MuiDataGrid-cell MuiDataGrid-cell--textCenter"
+                        data-colindex="5"
+                        data-field="actions"
+                        role="cell"
+                        style="min-width: 100px; max-width: 100px; min-height: 36px; max-height: 36px;"
+                        tabindex="-1"
+                      >
+                        <div
+                          class="MuiDataGrid-actionsCell"
+                          role="menu"
+                          tabindex="-1"
+                        >
+                          <button
+                            aria-label="Muokkaa ilmoittautumista"
+                            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorInfo MuiIconButton-sizeSmall css-tw08th-MuiButtonBase-root-MuiIconButton-root"
+                            role="menuitem"
+                            tabindex="-1"
+                            type="button"
+                          >
+                            <svg
+                              aria-hidden="true"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-ptiqhd-MuiSvgIcon-root"
+                              data-testid="EditOutlinedIcon"
+                              focusable="false"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                d="m14.06 9.02.92.92L5.92 19H5v-.92l9.06-9.06M17.66 3c-.25 0-.51.1-.7.29l-1.83 1.83 3.75 3.75 1.83-1.83c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.2-.2-.45-.29-.71-.29zm-3.6 3.19L3 17.25V21h3.75L17.81 9.94l-3.75-3.75z"
+                              />
+                            </svg>
+                            <span
+                              class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                            />
+                          </button>
+                          <button
+                            aria-label="Peru ilmoittautuminen"
+                            class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorError MuiIconButton-sizeSmall css-1vo5k3q-MuiButtonBase-root-MuiIconButton-root"
+                            disabled=""
+                            role="menuitem"
+                            tabindex="-1"
+                            type="button"
+                          >
+                            <svg
+                              aria-hidden="true"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-ptiqhd-MuiSvgIcon-root"
+                              data-testid="CancelOutlinedIcon"
+                              focusable="false"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm3.59-13L12 10.59 8.41 7 7 8.41 10.59 12 7 15.59 8.41 17 12 13.41 15.59 17 17 15.59 13.41 12 17 8.41z"
+                              />
+                            </svg>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div
+              class="Mui-resizeTriggers"
+            >
+              <div
+                class="expand-trigger"
+              >
+                <div
+                  style="width: 1px; height: 1px;"
+                />
+              </div>
+              <div
+                class="contract-trigger"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;

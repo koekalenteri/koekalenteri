@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen, waitForElementToBeRemoved, within } from '@testing-library/react';
 import App from './App';
 import { MemoryRouter } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material';
@@ -33,7 +33,7 @@ jest.mock('@mui/x-data-grid', () => {
 });
 
 function renderPath(path: string) {
-  render(
+  return render(
     <MemoryRouter initialEntries={[path]}>
       <ThemeProvider theme={theme}>
         <App />
@@ -122,4 +122,10 @@ it('renders admin eventTypes', async () => {
 it('renders logout page', async () => {
   renderPath('/logout');
   expect(await screen.findByText('Kirjaudu')).toBeInTheDocument();
+}, TIMEOUT);
+
+it('renders registration list page', async () => {
+  const { container } = renderPath('/registration/NOME-B/test2/reg1')
+  await waitForElementToBeRemoved(() => screen.queryByRole('progressbar'));
+  expect(container).toMatchSnapshot();
 }, TIMEOUT);

@@ -77,7 +77,7 @@ export function RegistrationList({loading, rows}: {loading: boolean, rows: Regis
       type: 'actions',
       getActions: (params) => [
         <GridActionsCellItem color="info" icon={<EditOutlined />} label="Muokkaa ilmoittautumista" onClick={() => onEdit(params.row)} />,
-        <GridActionsCellItem color="error" icon={<CancelOutlined />} label="Peru ilmoittautumista" disabled onClick={() => onUnregister(params.row)}/>
+        <GridActionsCellItem color="error" icon={<CancelOutlined />} label="Peru ilmoittautuminen" disabled onClick={() => onUnregister(params.row)}/>
       ]
     }
   ];
