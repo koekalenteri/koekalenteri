@@ -2,7 +2,8 @@
 
 # {{title}}
 
-Below you will find the details of your registration and a link that will allow you to make changes to your registration or cancel your registration if necessary.
+[Edit registration]({{link}}/edit)
+[Cancel registration]({{link}}/cancel)
 
 table header | is removed
 :-- | ----
@@ -31,6 +32,16 @@ Reserve        :| {{reserveText}}
 {{reg.notes}}
 {{/if}}
 
-You can use the link below to make changes to the registration or cancel it.
+You can view your registration details here: [View registration details]({{link}})
 
-[Edit registration]({{editLink}})
+Best regards,
+{{#if event.contactInfo.secretary.name ~}}
+{{event.secretary.name}}
+{{/if ~}}
+Secretary
+{{#if event.contactInfo.secretary.email ~}}
+{{event.secretary.email}}
+{{/if ~}}
+{{#if event.contactInfo.secretary.phone ~}}
+p. {{event.secretary.phone}}
+{{/if ~}}

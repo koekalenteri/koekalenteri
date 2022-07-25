@@ -2,7 +2,8 @@
 
 # {{title}}
 
-Alla näet ilmoittautumisesi tiedot sekä linkin, jonka avulla voit tarvittaessa tehdä muutoksia tai perua ilmoittautumisesi.
+[Muokkaa ilmoittautumisen tietoja]({{link}}/edit)
+[Peru ilmoittautuminen]({{link}}/cancel)
 
 table header | is removed
 :-- | ----
@@ -31,6 +32,16 @@ Varasija           :| {{reserveText}}
 {{reg.notes}}
 {{/if}}
 
-Alla olevan linkin avulla voit vielä tehdä muutoksia ilmoittautumisen tietoihin, tai peruuttaa ilmoittautumisesi.
+Voit tarkastella ilmoittautumisesi tietoja täällä: [Katso ilmoittautumisen tiedot]({{link}})
 
-[Muokkaa ilmoittautumista]({{editLink}})
+Ystävällisin terveisin,
+{{#if event.contactInfo.secretary.name ~}}
+{{event.secretary.name}}
+{{/if ~}}
+Koesihteeri
+{{#if event.contactInfo.secretary.email ~}}
+{{event.secretary.email}}
+{{/if ~}}
+{{#if event.contactInfo.secretary.phone ~}}
+p. {{event.secretary.phone}}
+{{/if ~}}

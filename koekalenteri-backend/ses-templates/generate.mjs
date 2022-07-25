@@ -71,7 +71,7 @@ async function genJson(template, lang) {
     (tree) =>
       visit(tree, (node) => {
         if (node.type === 'link') {
-          node.children[0].value = node.url;
+          node.children[0].value += ': ' + node.url;
         }
       });
 

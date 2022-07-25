@@ -148,7 +148,7 @@ export const putRegistrationHandler = metricScope((metrics: MetricsLogger) =>
         const reserveText = t(`registration.reserveChoises.${registration.reserve}`);
         const dogBreed = t(`breed:${registration.dog.breedCode}`);
         const regDates = registration.dates.map(d => t('weekday', { date: d.date }) + ' ' + t(`registration.time.${d.time}`)).join(', ');
-        const editLink = `${origin}/registration/${registration.eventType}/${registration.eventId}/${registration.id}/edit`;
+        const link = `${origin}/registration/${registration.eventType}/${registration.eventId}/${registration.id}`;
         // TODO: sender address from env / other config
         const from = "koekalenteri@koekalenteri.snj.fi";
         const qualifyingResults = registration.qualifyingResults.map(r => ({ ...r, date: lightFormat(parseISO(r.date), 'd.M.yyyy') }));
@@ -156,7 +156,7 @@ export const putRegistrationHandler = metricScope((metrics: MetricsLogger) =>
           subject: t('registration.email.subject', { context: update ? 'update' : '' }),
           title: t('registration.email.title', { context: update ? 'update' : '' }),
           dogBreed,
-          editLink,
+          link,
           event: confirmedEvent,
           eventDate,
           qualifyingResults,
