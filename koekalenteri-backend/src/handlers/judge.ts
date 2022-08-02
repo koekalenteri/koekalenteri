@@ -1,7 +1,7 @@
 import { metricScope, MetricsLogger } from "aws-embedded-metrics";
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { AWSError } from "aws-sdk";
-import { EventType, Judge } from "koekalenteri-shared/model";
+import { DbRecord, EventType, Judge } from "koekalenteri-shared/model";
 import CustomDynamoClient from "../utils/CustomDynamoClient";
 import { genericWriteHandler } from "../utils/genericHandlers";
 import KLAPI from "../utils/KLAPI";
@@ -34,13 +34,15 @@ export const getJudgesHandler = metricScope((metrics: MetricsLogger) =>
                 email: item.sähköposti,
                 phone: item.puhelin,
                 eventTypes: item.koemuodot.map(koemuoto => koemuoto.lyhenne),
-                official: true
+                official: true,
+                deletedAt: false,
+                deletedBy: '',
               });
             }
           }
         }
       }
-      const items = await dynamoDB.readAll();
+      const items = (await dynamoDB.readAll<Judge & DbRecord>())?.filter(j => !j.deletedAt);
       metricsSuccess(metrics, event.requestContext, 'getJudges');
       return response(200, items);
     } catch (err) {

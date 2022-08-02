@@ -530,10 +530,13 @@ Resources:
               Resource: '*'
         - DynamoDBCrudPolicy:
             TableName: !Ref OfficialTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref EventTypeTable
         - CloudWatchPutMetricPolicy: {}
       Environment:
         Variables:
           TABLE_NAME: !Ref OfficialTable
+          EVENT_TYPE_TABLE_NAME : !Ref EventTypeTable
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
 
       Events:
@@ -651,10 +654,16 @@ Resources:
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref EventTypeTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref JudgeTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref OfficialTable
         - CloudWatchPutMetricPolicy: {}
       Environment:
         Variables:
           TABLE_NAME: !Ref EventTypeTable
+          JUDGE_TABLE_NAME: !Ref JudgeTable
+          OFFICIAL_TABLE_NAME: !Ref OfficialTable
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
 
       Events:

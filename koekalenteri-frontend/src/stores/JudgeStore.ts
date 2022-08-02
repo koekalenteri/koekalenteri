@@ -30,6 +30,7 @@ export class JudgeStore {
     });
     const data = await getJudges(refresh, signal);
     runInAction(() => {
+      this.judges = [];
       data.forEach(json => this.updateJudge(json));
       this.judges.sort((a, b) => a.name.localeCompare(b.name, i18next.language));
       this.loading = false;

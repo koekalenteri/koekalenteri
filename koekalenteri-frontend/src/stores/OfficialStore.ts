@@ -25,6 +25,7 @@ export class OfficialStore {
     });
     const data = await getOfficials(refresh, signal);
     runInAction(() => {
+      this.officials = [];
       data.forEach(json => this.updateOfficial(json));
       this.officials.sort((a, b) => a.name.localeCompare(b.name))
       this.loading = false;

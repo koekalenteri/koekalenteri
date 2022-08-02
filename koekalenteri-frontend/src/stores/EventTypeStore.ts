@@ -43,6 +43,10 @@ export class EventTypeStore {
       const saved = await putEventType(eventType);
       runInAction(() => {
         this.updateEventType(saved);
+        if (!eventType.active) {
+          this.rootStore.judgeStore.load();
+          this.rootStore.officialStore.load();
+        }
         this.loading = false;
       });
     } catch (e) {

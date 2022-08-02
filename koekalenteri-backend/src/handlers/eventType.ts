@@ -1,9 +1,10 @@
 import { metricScope, MetricsLogger } from "aws-embedded-metrics";
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { AWSError } from "aws-sdk";
-import { EventType } from "koekalenteri-shared/model";
+import { EventType, JsonDbRecord, Judge, Official } from "koekalenteri-shared/model";
+import { v4 as uuidv4 } from 'uuid';
 import CustomDynamoClient from "../utils/CustomDynamoClient";
-import { genericWriteHandler } from "../utils/genericHandlers";
+import { authorize, getUsername } from "../utils/genericHandlers";
 import KLAPI from "../utils/KLAPI";
 import { KLKieli, KLKieliToLang } from "../utils/KLAPI_models";
 import { metricsError, metricsSuccess } from "../utils/metrics";
@@ -45,4 +46,60 @@ export const getEventTypesHandler = metricScope((metrics: MetricsLogger) =>
   }
 );
 
-export const putEventTypeHandler = genericWriteHandler(dynamoDB, 'putEventType');
+export const putEventTypeHandler = metricScope((metrics: MetricsLogger) =>
+  async (
+    event: APIGatewayProxyEvent,
+  ): Promise<APIGatewayProxyResult> => {
+    authorize(event);
+
+    const timestamp = new Date().toISOString();
+    const username = getUsername(event);
+
+    try {
+      const item = {
+        id: uuidv4(),
+        ...JSON.parse(event.body || ""),
+        createdAt: timestamp,
+        createdBy: username,
+        modifiedAt: timestamp,
+        modifiedBy: username,
+      }
+      if (item.id === '') {
+        item.id = uuidv4();
+      }
+      await dynamoDB.write(item);
+      if (!item.active) {
+        const active = (await dynamoDB.readAll<EventType>())?.filter(et => et.active) || [];
+
+        const judgeTable = process.env.JUDGE_TABLE_NAME || '';
+        const judgesToRemove = (await dynamoDB.readAll<Judge & JsonDbRecord>(judgeTable))
+          ?.filter(j => !j.deletedAt && !active.some(et => j.eventTypes?.includes(et.eventType))) || [];
+        for (const judge of judgesToRemove) {
+          await dynamoDB.write({
+            ...judge,
+            deletedAt: timestamp,
+            deletedBy: username
+          }, judgeTable);
+        }
+
+        const officialTable = process.env.OFFICIAL_TABLE_NAME || '';
+        const officialsToRemove = (await dynamoDB.readAll<Official & JsonDbRecord>(officialTable))
+          ?.filter(o => !o.deletedAt && !active.some(et => o.eventTypes?.includes(et.eventType))) || [];
+        for (const official of officialsToRemove) {
+          await dynamoDB.write({
+            ...official,
+            deletedAt: timestamp,
+            deletedBy: username
+          }, officialTable);
+        }
+      }
+      metricsSuccess(metrics, event.requestContext, 'putEventType');
+      return response(200, item);
+    } catch (err) {
+      console.log(err);
+      metricsError(metrics, event.requestContext, 'putEventType');
+      return response((err as AWSError).statusCode || 501, err);
+    }
+  }
+);
+

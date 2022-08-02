@@ -64,9 +64,9 @@ export default class CustomDynamoClient {
     return data.Items as T[];
   }
 
-  async write(Item: Record<string, unknown>): Promise<unknown> {
+  async write(Item: Record<string, unknown>, table?: string): Promise<unknown> {
     const params = {
-      TableName: this.table,
+      TableName: table ? fromSamLocalTable(table) : this.table,
       Item,
     };
     return this.docClient.put(params).promise();
