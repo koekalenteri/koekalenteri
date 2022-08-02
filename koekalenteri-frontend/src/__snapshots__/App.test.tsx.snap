@@ -301,12 +301,12 @@ exports[`renders registration list page 1`] = `
                       <div
                         class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-163n9ee-MuiGrid-root"
                       >
-                        Koemaksu
+                        Maksu
                         : 
                         123
                          €
                         <br />
-                        Koemaksu jäsenille
+                        Maksu jäsenille
                         : 
                         123
                          €
