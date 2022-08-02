@@ -40,6 +40,22 @@ export const genericReadHandler = (dynamoDB: CustomDynamoClient, name: string): 
     }
   );
 
+export function createDbRecord(event: APIGatewayProxyEvent, timestamp: string, username: string) {
+  const item = {
+    id: uuidv4(),
+    ...JSON.parse(event.body || ""),
+    createdAt: timestamp,
+    createdBy: username,
+    modifiedAt: timestamp,
+    modifiedBy: username,
+  }
+  if (item.id === '') {
+    item.id = uuidv4();
+  }
+
+  return item;
+}
+
 export const genericWriteHandler = (dynamoDB: CustomDynamoClient, name: string): (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult> =>
   metricScope((metrics: MetricsLogger) =>
     async (
@@ -51,17 +67,7 @@ export const genericWriteHandler = (dynamoDB: CustomDynamoClient, name: string):
       const username = getUsername(event);
 
       try {
-        const item = {
-          id: uuidv4(),
-          ...JSON.parse(event.body || ""),
-          createdAt: timestamp,
-          createdBy: username,
-          modifiedAt: timestamp,
-          modifiedBy: username,
-        }
-        if (item.id === '') {
-          item.id = uuidv4();
-        }
+        const item = createDbRecord(event, timestamp, username);
         await dynamoDB.write(item);
         metricsSuccess(metrics, event.requestContext, name);
         return response(200, item);
