@@ -4,6 +4,7 @@ import { observer } from 'mobx-react-lite';
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { deserializeFilter, EventFilter, serializeFilter } from '../components';
+import Version from '../components/Version';
 import { Banner, EventContainer, Header } from '../layout';
 import { useSessionStarted, useStores } from '../stores';
 import { FilterProps } from '../stores/PublicStore';
@@ -50,6 +51,7 @@ export const SearchPage = observer(function SearchPage() {
         <EventFilter organizers={organizers} judges={judges} filter={filter} eventTypes={eventTypes} onChange={handleChange} />
         <EventContainer />
       </Box>
+      <Version />
     </>
   )
 })
