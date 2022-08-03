@@ -59,7 +59,7 @@ describe('putRegistrationHandler', function() {
     });
     const data = JSON.parse(result.body);
     // compare only date part of timestamps (to avoid timing issues in tests)
-    const timestamp = new Date().toISOString().substr(0, 10);
+    const timestamp = new Date().toISOString().substring(0, 10);
     expect(data.createdBy).toEqual('TEST');
     expect(data.createdAt.substr(0, 10)).toEqual(timestamp);
     expect(data.modifiedBy).toEqual('TEST');

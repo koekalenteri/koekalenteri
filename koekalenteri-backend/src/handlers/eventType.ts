@@ -35,11 +35,11 @@ export const getEventTypesHandler = metricScope((metrics: MetricsLogger) =>
         }
       }
       const items = await dynamoDB.readAll();
-      metricsSuccess(metrics, event.requestContext, 'getEventTypesHandler');
+      metricsSuccess(metrics, event.requestContext, 'getEventTypes');
       return response(200, items);
     } catch (err) {
       console.error(err);
-      metricsError(metrics, event.requestContext, 'getEventTypesHandler');
+      metricsError(metrics, event.requestContext, 'getEventTypes');
       return response((err as AWSError).statusCode || 501, err);
     }
   }
@@ -60,7 +60,7 @@ export const putEventTypeHandler = metricScope((metrics: MetricsLogger) =>
       if (!item.active) {
         const active = (await dynamoDB.readAll<EventType>())?.filter(et => et.active) || [];
 
-        const judgeTable = process.env.JUDGE_TABLE_NAME || '';
+        const judgeTable = process.env.JUDGE_TABLE_NAME;
         const judgesToRemove = (await dynamoDB.readAll<Judge & JsonDbRecord>(judgeTable))
           ?.filter(j => !j.deletedAt && !active.some(et => j.eventTypes?.includes(et.eventType))) || [];
         for (const judge of judgesToRemove) {
@@ -71,7 +71,7 @@ export const putEventTypeHandler = metricScope((metrics: MetricsLogger) =>
           }, judgeTable);
         }
 
-        const officialTable = process.env.OFFICIAL_TABLE_NAME || '';
+        const officialTable = process.env.OFFICIAL_TABLE_NAME;
         const officialsToRemove = (await dynamoDB.readAll<Official & JsonDbRecord>(officialTable))
           ?.filter(o => !o.deletedAt && !active.some(et => o.eventTypes?.includes(et.eventType))) || [];
         for (const official of officialsToRemove) {
@@ -85,7 +85,7 @@ export const putEventTypeHandler = metricScope((metrics: MetricsLogger) =>
       metricsSuccess(metrics, event.requestContext, 'putEventType');
       return response(200, item);
     } catch (err) {
-      console.log(err);
+      console.error(err);
       metricsError(metrics, event.requestContext, 'putEventType');
       return response((err as AWSError).statusCode || 501, err);
     }
