@@ -10,7 +10,6 @@
   "daterangeEnd": "Date to",
   "daterangeStart": "Date from",
   "delete": "Delete",
-  "description": "Description",
   "distanceLeft": "{{ date, distance }} left",
   "district": "District",
   "dog": {
@@ -35,7 +34,9 @@
     "titles": "Title"
   },
   "edit": "Edit",
-  "entryOpen": "Entry open",
+  "entryEditTitle": "Edit registration",
+  "entryList": "Registration list",
+  "entryOpen": "Registration open",
   "entryTime": "Registration time",
   "entryTitle": "Register to event",
   "entryTitle_test": "Register to test",
@@ -92,7 +93,6 @@
     "statusText": ""
   },
   "eventClass": "Event class",
-  "eventClasses": "Event classes",
   "eventTime": "Event time",
   "eventType": "Event type",
   "eventType_short": "Abbreviation",
@@ -111,7 +111,6 @@
     "sv": "swedish"
   },
   "languages": "Judging languages",
-  "location": "Location",
   "login": "Login",
   "loginFailed": "Login failed",
   "logout": "Logout",
@@ -134,11 +133,62 @@
       "name": "Name",
       "phone": "Phone"
     },
+    "createdAt": "Created at",
+    "cta": {
+      "fetch": "Fetch information",
+      "helper": {
+        "fetch": "",
+        "invalid": "Invalid registration number",
+        "manual": "Input dog information manually",
+        "notfound": "No information found by registration number",
+        "update": "Dog basic info and test results was fetched from The Finnish Kennel Club API {{date, distance}} ago."
+      },
+      "invalid": "Fetch information",
+      "manual": "Change registration number",
+      "notfound": "Input dog information manually",
+      "update": "Update"
+    },
+    "dates": "Dates",
+    "datesInfo": "Select all suitable dates for your participation.",
+    "dog": "Dog information",
     "email": {
-      "subject": "Registration confirmation",
+      "subject": "Registration confirmationq",
       "subject_update": "Registration modified",
       "title": "Your registration has been received",
       "title_update": "Your registration has been modified"
+    },
+    "handler": "Handler",
+    "handlerIsMember": "Handler is a member of the organizing society",
+    "member": "Member",
+    "modified_one": "Changes saved.\nConfirmation email was sent to:\n{{to}}",
+    "modified_other": "Changes saved.\nConfirmation email was sent to:\n{{to}}",
+    "notes": "Notes",
+    "owner": "Owner",
+    "ownerHandles": "Owner handles",
+    "ownerIsMember": "Owner is a member of the organizing society",
+    "paid": "Paid",
+    "qualifyingResults": "Qualifying results",
+    "qualifyingResultsInfo": "Bases on the results, dog {{qualifies}} qualify to the selected class.",
+    "qualifyingResultsNo": "does not",
+    "qyalifyingResultsYes": "does",
+    "reserve": "Reserve",
+    "reserveChoises": {
+      "ANY": "Yes",
+      "DAY": "Yes, by day's notice",
+      "NO": "No",
+      "WEEK": "Yes, by week's notice"
+    },
+    "saved_one": "Registration saved.\nConfirmation email was sent to:\n{{to}}",
+    "saved_other": "Registration saved.\nConfirmation email was sent to:\n{{to}}",
+    "terms": {
+      "agree": "and accept them",
+      "publish": "I accept that the persons responsible for the organization of the test can process the personal data I have provided and publish them as necessary in the list of participants and test results at the test location and in publications related to the test on the internet or in other media of the association.",
+      "read": "I have read",
+      "terms": "registration terms"
+    },
+    "time": {
+      "ap": "(morning)",
+      "ip": "(evening)"
     }
   },
   "registrations": "Registrations",
