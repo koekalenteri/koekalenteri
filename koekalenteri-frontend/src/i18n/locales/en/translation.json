@@ -1,4 +1,18 @@
 {
+  "active": "Active",
+  "admin": "Administration",
+  "cancel": "Cancel",
+  "clear": "Clear",
+  "copy": "Copy",
+  "create": "Create",
+  "createEvent": "Create event",
+  "date": "Date",
+  "daterangeEnd": "Date to",
+  "daterangeStart": "Date from",
+  "delete": "Delete",
+  "description": "Description",
+  "distanceLeft": "{{ date, distance }} left",
+  "district": "District",
   "dog": {
     "breed": "Breed",
     "dam": {
@@ -12,29 +26,19 @@
       "M": "Dog"
     },
     "name": "Name",
-    "rfid": "ID marking",
     "regNo": "Registration number",
+    "rfid": "ID marking",
     "sire": {
       "name": "Sire's name",
       "titles": "Sire's title"
     },
     "titles": "Title"
   },
-  "active": "Active",
-  "admin": "Administration",
-  "cancel": "Cancel",
-  "clear": "Clear",
-  "create": "Create",
-  "copy": "Copy",
-  "createEvent": "Create event",
-  "date": "Date",
-  "daterangeEnd": "Date to",
-  "daterangeStart": "Date from",
-  "delete": "Delete",
-  "description": "Description",
-  "distanceLeft": "{{ date, distance }} left",
-  "district": "District",
   "edit": "Edit",
+  "entryOpen": "Entry open",
+  "entryTime": "Registration time",
+  "entryTitle": "Register to event",
+  "entryTitle_test": "Register to test",
   "event": {
     "accountNumber": "Account number",
     "allowHandlerMembershipPriority": "Handel membership priority",
@@ -68,36 +72,32 @@
     "paymentDetails": "Payment details",
     "places": "Places",
     "referenceNumber": "Reference number",
+    "secretary": "Secretary",
+    "startDate": "Starting date",
+    "state": "State",
     "states": {
-      "draft": "Draft",
-      "draft_save": "Event was saved as draft",
-      "tentative": "Published tentative",
-      "tentative_info": "Tentative",
-      "tentative_save": "Event was published as tentative",
-      "confirmed": "Published",
-      "confirmed_entryOpen": "Entry is open",
-      "confirmed_save": "Event was published",
       "cancelled": "Cancelled",
       "cancelled_info": "Cancelled",
       "cancelled_save": "Event was cancelled",
-      "extended_info": "Continued"
+      "confirmed": "Published",
+      "confirmed_entryOpen": "Entry is open",
+      "confirmed_save": "Event was published",
+      "draft": "Draft",
+      "draft_save": "Event was saved as draft",
+      "extended_info": "Continued",
+      "tentative": "Published tentative",
+      "tentative_info": "Tentative",
+      "tentative_save": "Event was published as tentative"
     },
-    "secretary": "Secretary",
-    "startDate": "Starting date",
-    "statusText": "",
-    "state": "State"
+    "statusText": ""
   },
-  "entryOpen": "Entry open",
-  "entryTime": "Registration time",
-  "entryTitle": "Register to event",
-  "entryTitle_test": "Register to test",
   "eventClass": "Event class",
+  "eventClasses": "Event classes",
   "eventTime": "Event time",
   "eventType": "Event type",
   "eventType_short": "Abbreviation",
   "eventTypes": "Event types",
   "events": "Events",
-  "eventClasses": "Event classes",
   "goBack": "Back",
   "goHome": "Home",
   "headquarters": "Headquarters info",
@@ -105,12 +105,12 @@
   "judge": "Judge",
   "judgeActive": "Active",
   "judges": "Judges",
-  "languages": "Judging languages",
   "language": {
+    "en": "english",
     "fi": "finnish",
-    "sv": "swedish",
-    "en": "english"
+    "sv": "swedish"
   },
+  "languages": "Judging languages",
   "location": "Location",
   "login": "Login",
   "loginFailed": "Login failed",
@@ -129,9 +129,9 @@
   "register": "Register",
   "registration": {
     "contact": {
-      "name": "Name",
       "city": "City",
       "email": "Email",
+      "name": "Name",
       "phone": "Phone"
     },
     "email": {
@@ -141,10 +141,10 @@
       "title_update": "Your registration has been modified"
     }
   },
-  "secretary": "Secretary",
-  "state": "State",
   "registrations": "Registrations",
   "searchPlaceholder": "Search...",
+  "secretary": "Secretary",
+  "state": "State",
   "testResult": {
     "date": "Date",
     "eventType": "Event type",
@@ -154,5 +154,27 @@
   },
   "toltaPlaces": "places",
   "updateData": "Update $t({{data}}) from The Finnish Kennel Club API",
-  "users": "Users"
+  "users": "Users",
+  "validation": {
+    "event": {
+      "classes": "Classes are required for \"$t(event.states.{{state}})\" state event of {{type}} type.",
+      "classesJudge": "State \"$t(event.states.{{state}})\": {{list}} $t(validation.event.classesMissing, {\"count\": {{length}} }) is missing judge.",
+      "classesMissing_one": "class",
+      "classesMissing_other": "classes",
+      "contactInfo": "State \"$t(event.states.{{state}})\": Choose at least one contact info",
+      "costMemberHigh": "Member cost can not be greater than others cost",
+      "placesClass": "State \"$t(event.states.{{state}})\": {{list}} $t(validation.event.classesMissing, {\"count\": {{length}} }) is missing places.",
+      "validationError": "State \"$t(event.states.{{state}})\": $t(event.{{field}}) is required."
+    },
+    "registration": {
+      "choose": "Choose $t(registration.{{field}},lowercase)",
+      "dogAge": "Dog must be at least {{length}} months old at test date.",
+      "dogBreed": "Breed \"$t(breed.{{type}})\" is not qualified for this test.",
+      "dogResults": "Dog is missing required results for entry.",
+      "publish": "It is mandatory to accept personal data processing tersm.",
+      "required": "$t(registration.{{field}}) is incomplete",
+      "reserve": "Select participation from reserve position",
+      "terms": "It is mandatory to accept registration terms."
+    }
+  }
 }
