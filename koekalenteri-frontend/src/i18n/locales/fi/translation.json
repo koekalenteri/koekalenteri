@@ -73,6 +73,7 @@
     "state": "Tila"
   },
   "active": "Käytössä",
+  "admin": "Ylläpito",
   "cancel": "Peruuta",
   "clear": "Tyhjennä",
   "create": "Lisää uusi",
@@ -93,6 +94,7 @@
   "deleteEventText": "Haluatko varmasti poistaa kokeen?",
   "distance": "{{ date, distance }}",
   "distanceLeft": "{{ date, distance }} jäljellä",
+  "district": "Kennelpiiri",
   "edit": "Muokkaa",
   "entryEditTitle": "Muokkaa ilmoittautumista",
   "entryOpen": "Ilmoittautuminen auki",

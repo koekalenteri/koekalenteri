@@ -54,7 +54,7 @@ export const OfficialListPage = observer(function OfficialListPage() {
     {
       field: 'district',
       flex: 1,
-      headerName: 'Kennelpiiri'
+      headerName: t('district')
     },
     {
       field: 'eventTypes',

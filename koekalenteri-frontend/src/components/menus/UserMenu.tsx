@@ -58,7 +58,7 @@ function LoggedInUserMenu() {
         onClose={handleClose}
         onClick={handleClose}
       >
-        <MenuItem onClick={() => navigate(ADMIN_ROOT)}>admin</MenuItem>
+        <MenuItem onClick={() => navigate(ADMIN_ROOT)}>{t('admin')}</MenuItem>
         <MenuItem onClick={signOut}>{t('logout')}</MenuItem>
       </Menu>
 
