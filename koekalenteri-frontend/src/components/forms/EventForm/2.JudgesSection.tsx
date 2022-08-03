@@ -8,8 +8,10 @@ import { AutocompleteSingle } from '../../AutocompleteSingle';
 import { EventClasses } from './EventClasses';
 import { FieldRequirements, validateEventField } from './validation';
 
-function filterJudges(judges: Judge[], eventJudges: number[], id: number) {
-  return judges.filter(j => j.id === id || !eventJudges.includes(j.id));
+function filterJudges(judges: Judge[], eventJudges: number[], id: number, eventType?: string) {
+  return judges
+    .filter(j => !eventType || j.eventTypes.includes(eventType))
+    .filter(j => j.id === id || !eventJudges.includes(j.id));
 }
 
 type JudgesSectionProps = {
@@ -50,7 +52,7 @@ export function JudgesSection({ event, judges, fields, onChange, onOpenChange, o
                   value={judges.find(j => j.id === id)}
                   label={title}
                   getOptionLabel={o => o?.name || ''}
-                  options={filterJudges(judges, event.judges, id)}
+                  options={filterJudges(judges, event.judges, id, event.eventType)}
                   onChange={(_e, value) => {
                     const newId = value?.id;
                     const newJudges = [...event.judges];
