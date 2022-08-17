@@ -432,11 +432,11 @@ exports[`renders registration list page 1`] = `
                       class="MuiDataGrid-menuIcon"
                     >
                       <button
-                        aria-controls="mui-265"
+                        aria-controls="mui-266"
                         aria-haspopup="true"
                         aria-label="Valikko"
                         class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall MuiDataGrid-menuIconButton css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
-                        id="mui-266"
+                        id="mui-267"
                         tabindex="-1"
                         title="Valikko"
                         type="button"
@@ -532,11 +532,11 @@ exports[`renders registration list page 1`] = `
                       class="MuiDataGrid-menuIcon"
                     >
                       <button
-                        aria-controls="mui-268"
+                        aria-controls="mui-269"
                         aria-haspopup="true"
                         aria-label="Valikko"
                         class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall MuiDataGrid-menuIconButton css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
-                        id="mui-269"
+                        id="mui-270"
                         tabindex="-1"
                         title="Valikko"
                         type="button"
@@ -632,11 +632,11 @@ exports[`renders registration list page 1`] = `
                       class="MuiDataGrid-menuIcon"
                     >
                       <button
-                        aria-controls="mui-271"
+                        aria-controls="mui-272"
                         aria-haspopup="true"
                         aria-label="Valikko"
                         class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall MuiDataGrid-menuIconButton css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
-                        id="mui-272"
+                        id="mui-273"
                         tabindex="-1"
                         title="Valikko"
                         type="button"
@@ -732,11 +732,11 @@ exports[`renders registration list page 1`] = `
                       class="MuiDataGrid-menuIcon"
                     >
                       <button
-                        aria-controls="mui-274"
+                        aria-controls="mui-275"
                         aria-haspopup="true"
                         aria-label="Valikko"
                         class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall MuiDataGrid-menuIconButton css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
-                        id="mui-275"
+                        id="mui-276"
                         tabindex="-1"
                         title="Valikko"
                         type="button"
@@ -832,11 +832,11 @@ exports[`renders registration list page 1`] = `
                       class="MuiDataGrid-menuIcon"
                     >
                       <button
-                        aria-controls="mui-277"
+                        aria-controls="mui-278"
                         aria-haspopup="true"
                         aria-label="Valikko"
                         class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall MuiDataGrid-menuIconButton css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
-                        id="mui-278"
+                        id="mui-279"
                         tabindex="-1"
                         title="Valikko"
                         type="button"

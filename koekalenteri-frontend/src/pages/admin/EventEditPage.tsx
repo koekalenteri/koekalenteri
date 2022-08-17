@@ -1,5 +1,5 @@
 import { CircularProgress } from '@mui/material';
-import { toJS } from 'mobx';
+import { autorun, toJS } from 'mobx';
 import { observer } from 'mobx-react-lite';
 import { useSnackbar } from 'notistack';
 import { useEffect, useState } from 'react';
@@ -18,9 +18,12 @@ export const EventEditPage = observer(function EventEditPage({create}: {create?:
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  useEffect(() => {
+  useEffect(() => autorun(() => {
     const abort = new AbortController();
     async function get(id: string) {
+      if (!privateStore.loaded) {
+        return;
+      }
       const result = await privateStore.get(id, abort.signal);
       privateStore.setSelectedEvent(result);
       setLoading(false);
@@ -31,14 +34,14 @@ export const EventEditPage = observer(function EventEditPage({create}: {create?:
       setLoading(false);
     }
     return () => abort.abort();
-  }, [params, privateStore]);
+  }), []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <AuthPage title={create ? t('createEvent') : 'Muokkaa tapahtumaa'}>
       {loading
         ? <CircularProgress />
         : <EventForm
-          event={toJS(! create && privateStore.selectedEvent ? privateStore.selectedEvent : privateStore.newEvent)}
+          event={toJS(!create && privateStore.selectedEvent ? privateStore.selectedEvent : privateStore.newEvent)}
           eventTypes={rootStore.eventTypeStore.activeEventTypes.map(et => et.eventType)}
           eventTypeClasses={publicStore.eventTypeClasses}
           judges={rootStore.judgeStore.activeJudges.map(j => j.toJSON())}
