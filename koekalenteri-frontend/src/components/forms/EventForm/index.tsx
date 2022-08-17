@@ -146,6 +146,7 @@ export const EventForm = observer(function EventForm({ event, judges, eventTypes
           open={open.entry}
         />
         <PaymentSection
+          errorStates={errorStates}
           event={local}
           fields={fields}
           onChange={onChange}

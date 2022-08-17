@@ -213,6 +213,8 @@
       "classesMissing_other": "classes",
       "contactInfo": "State \"$t(event.states.{{state}})\": Choose at least one contact info",
       "costMemberHigh": "Member cost can not be greater than others cost",
+      "errors": "Information is incomplete",
+      "judge": "Judge {{id}} is not available",
       "placesClass": "State \"$t(event.states.{{state}})\": {{list}} $t(validation.event.classesMissing, {\"count\": {{length}} }) is missing places.",
       "validationError": "State \"$t(event.states.{{state}})\": $t(event.{{field}}) is required."
     },

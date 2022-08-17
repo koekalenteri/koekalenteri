@@ -29,12 +29,14 @@ export const BasicInfoSection = observer(function BasicInfoSection({ event, erro
   const { t } = useTranslation();
   const [helpAnchorEl, setHelpAnchorEl] = useState<HTMLButtonElement | null>(null);
   const typeOptions = eventClassOptions(event, eventTypeClasses[event.eventType || ''] || []);
+  const error = errorStates.startDate || errorStates.endDate || errorStates.kcId || errorStates.eventType || errorStates.classes || errorStates.organizer || errorStates.location || errorStates.official || errorStates.secretary;
+  const helperText = error ? t('validation.event.errors') : '';
   const availableOfficials = useMemo(() => {
     return officials.filter(o => !event.eventType || o.eventTypes?.includes(event.eventType));
   }, [event, officials]);
 
   return (
-    <CollapsibleSection title="Kokeen perustiedot" open={open} onOpenChange={onOpenChange}>
+    <CollapsibleSection title="Kokeen perustiedot" open={open} onOpenChange={onOpenChange} error={error} helperText={helperText}>
       <Grid item container spacing={1}>
         <Grid item container spacing={1}>
           <Grid item sx={{ width: 600 }}>

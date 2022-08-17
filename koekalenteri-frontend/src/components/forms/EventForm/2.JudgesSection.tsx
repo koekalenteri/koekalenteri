@@ -1,5 +1,5 @@
 import { AddOutlined, DeleteOutline } from '@mui/icons-material';
-import { Button, FormHelperText, Grid } from '@mui/material';
+import { Button, Grid } from '@mui/material';
 import { isSameDay } from 'date-fns';
 import { Event, EventClass, Judge } from 'koekalenteri-shared/model';
 import { useTranslation } from 'react-i18next';
@@ -26,8 +26,11 @@ type JudgesSectionProps = {
 export function JudgesSection({ event, judges, fields, onChange, onOpenChange, open }: JudgesSectionProps) {
   const { t } = useTranslation();
   const list = event.judges.length ? event.judges : [0];
-  const error = fields?.required.judges && validateEventField(event, 'judges', true);
-  const helperText = error ? t(`validation.event.${error.key}`, { ...error.opts, state: fields.state.judges || 'draft' }) : '';
+  const validationError = fields?.required.judges && validateEventField(event, 'judges', true);
+  const error = !!validationError || list.some(id => !judges.find(j => j.id === id));
+  const helperText = validationError
+    ? t(`validation.event.${validationError.key}`, { ...validationError.opts, state: fields.state.judges || 'draft' })
+    : error ? t('validation.event.errors') : '';
 
   const updateJudge = (id: number | undefined, values: EventClass[]) => {
     const judge = id ? { id, name: judges.find(j => j.id === id)?.name || '' } : undefined;
@@ -41,16 +44,19 @@ export function JudgesSection({ event, judges, fields, onChange, onOpenChange, o
   }
 
   return (
-    <CollapsibleSection title={t('judges')} open={open} onOpenChange={onOpenChange}>
+    <CollapsibleSection title={t('judges')} open={open} onOpenChange={onOpenChange} error={error} helperText={helperText}>
       <Grid item container spacing={1}>
         {list.map((id, index) => {
           const title = index === 0 ? t('judgeChief') : t('judge') + ` ${index + 1}`;
+          const value = judges.find(j => j.id === id);
           return (
             <Grid key={id} item container spacing={1} alignItems="center">
               <Grid item sx={{ width: 300 }}>
                 <AutocompleteSingle
-                  value={judges.find(j => j.id === id)}
+                  value={value}
                   label={title}
+                  error={!value}
+                  helperText={!value ? `Tuomari ${id} ei ole käytettävissä` : ''}
                   getOptionLabel={o => o?.name || ''}
                   options={filterJudges(judges, event.judges, id, event.eventType)}
                   onChange={(_e, value) => {
@@ -87,7 +93,6 @@ export function JudgesSection({ event, judges, fields, onChange, onOpenChange, o
         })}
         <Grid item><Button startIcon={<AddOutlined />} onClick={() => onChange({ judges: [...event.judges].concat(0) })}>Lisää tuomari</Button></Grid>
       </Grid>
-      <FormHelperText error>{helperText}</FormHelperText>
     </CollapsibleSection>
   );
 }

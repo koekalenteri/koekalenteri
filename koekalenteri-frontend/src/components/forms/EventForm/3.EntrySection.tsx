@@ -1,6 +1,7 @@
 import { Checkbox, FormControlLabel, FormHelperText, Grid } from '@mui/material';
 import { sub } from 'date-fns';
 import { Event } from 'koekalenteri-shared/model';
+import { useTranslation } from 'react-i18next';
 import { CollapsibleSection, DateRange, PartialEvent } from '../..';
 import { EventFormPlaces } from './EventFormPlaces';
 import { FieldRequirements } from './validation';
@@ -16,9 +17,12 @@ export type EntrySectionProps = {
 }
 
 export function EntrySection(props: EntrySectionProps) {
+  const { t } = useTranslation();
   const { event, fields, helperTexts, onChange, onOpenChange, open } = props;
+  const error = helperTexts.entryStartDate || helperTexts.entryEndDate || helperTexts.places;
+  const helperText = error ? t('validation.event.errors') : '';
   return (
-    <CollapsibleSection title="Ilmoittautuminen" open={open} onOpenChange={onOpenChange}>
+    <CollapsibleSection title="Ilmoittautuminen" open={open} onOpenChange={onOpenChange} error={!!error} helperText={helperText}>
       <Grid item container spacing={1}>
         <Grid item container spacing={1}>
           <Grid item>

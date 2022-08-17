@@ -21,7 +21,7 @@ export function ContactInfoSection({ event, helperTexts, onChange, onOpenChange,
   const helperText = helperTexts.contactInfo || '';
 
   return (
-    <CollapsibleSection title={t('event.contactInfo')} open={open} onOpenChange={onOpenChange}>
+    <CollapsibleSection title={t('event.contactInfo')} open={open} onOpenChange={onOpenChange} error={!!helperText} helperText={helperText}>
       <Grid container spacing={1}>
         <Grid item container spacing={1}>
           <Grid item>
@@ -32,7 +32,6 @@ export function ContactInfoSection({ event, helperTexts, onChange, onOpenChange,
           </Grid>
         </Grid>
       </Grid>
-      <FormHelperText error>{helperText}</FormHelperText>
       <hr />
       <EventContactInfo event={event} />
     </CollapsibleSection>
