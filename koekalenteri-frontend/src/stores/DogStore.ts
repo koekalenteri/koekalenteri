@@ -52,7 +52,7 @@ export class DogStore {
 
   async load(regNo: string, refresh?: boolean, signal?: AbortSignal): Promise<Partial<Dog & DogCachedInfo>> {
     const official = await getDog(regNo, refresh, signal);
-    const local = this._data[regNo] || {};
+    const local = this._data[regNo] || { ownerHandles: true };
     return toJS({
       ...local,
       ...official

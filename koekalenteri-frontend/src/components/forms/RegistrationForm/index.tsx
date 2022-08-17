@@ -258,9 +258,9 @@ function getSectionHelperTexts(
 ): { [Property in keyof Registration]?: string } {
   return {
     breeder: `${local.breeder?.name || ''}`,
-    dog: !local.dog ? '' : `${local.dog.regNo} - ${local.dog.name}`,
-    handler: !local.handler ? '' : local.handler.name === local.owner.name ? t('registration.ownerHandles') : `${local.handler.name}`,
-    owner: !local.owner ? '' : `${local.owner.name}`,
+    dog: local.dog ? `${local.dog.regNo} - ${local.dog.name}` : '',
+    handler: local.ownerHandles ? t('registration.ownerHandles') : `${local.handler?.name || ''}`,
+    owner: `${local.owner?.name || ''}`,
     qualifyingResults: qualifies === null ? '' : t('registration.qualifyingResultsInfo', { qualifies: t(qualifies ? 'registration.qyalifyingResultsYes' : 'registration.qualifyingResultsNo') }),
   };
 }
