@@ -1,4 +1,4 @@
-import { Checkbox, FormControlLabel, FormGroup, FormHelperText, Grid } from "@mui/material";
+import { Checkbox, FormControlLabel, FormGroup, Grid } from "@mui/material";
 import { ContactInfo, Event, ShowContactInfo } from "koekalenteri-shared/model";
 import { useTranslation } from "react-i18next";
 import { CollapsibleSection, PartialEvent } from "../..";
