@@ -223,7 +223,7 @@ function bestResults(
   const filter = (r: Partial<TestResult>) => r.type === eventType && r.class === regClass && r.result?.endsWith('1');
   const officialBest: QualifyingResult[] = officialResults?.filter(filter).map(r => ({ ...r, official: true })) || [];
   const manualBest: QualifyingResult[] = manualResults?.filter(filter).map(r => ({ ...r, official: false } as QualifyingResult)) || [];
-  return officialBest.concat(manualBest).sort(byDate).slice(0, 3);
+  return officialBest.concat(manualBest).sort(byDate).slice(0, 3).map(r => r.qualifying === false ? { ...r, qualifying: undefined } : r);
 }
 
 function getNextClass(c: RegistrationClass): RegistrationClass | undefined {

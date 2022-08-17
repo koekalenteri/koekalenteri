@@ -91,7 +91,7 @@ describe('validateDog', function() {
 
       it('Should allow a dog with 2xALO1 the same year 2016..2022', function() {
         const testEvent = { eventType: 'NOME-B', startDate: new Date('2018-08-01') };
-        const NOU1 = { type: 'NOU', result: 'NOU1', class: '', date: new Date('2022-05-30'), location: 'Test', judge: 'Test Judge' };
+        const NOU1 = { type: 'NOU', result: 'NOU1', class: '', date: new Date('2015-05-30'), location: 'Test', judge: 'Test Judge' };
         const ALO1_1 = { type: 'NOME-B', result: 'ALO1', class: 'ALO', date: new Date('2016-05-30'), location: 'Test', judge: 'Test Judge' };
         const ALO1_2 = { type: 'NOME-B', result: 'ALO1', class: 'ALO', date: new Date('2018-06-15'), location: 'Test', judge: 'Test Judge' };
         expect(filterRelevantResults(testEvent, 'ALO', [NOU1, ALO1_1, ALO1_2]).qualifies)
@@ -114,6 +114,26 @@ describe('validateDog', function() {
         expect(filterRelevantResults(testEvent, 'ALO', [NOU1, AVO2]).qualifies)
           .toEqual(false);
       });
+
+      it('Should change result.qualifying from false to undefined when manual results are updated back and forth', function() {
+        const testEvent = { eventType: 'NOME-B', startDate: new Date('2018-08-01') };
+        const NOU1 = { type: 'NOU', result: 'NOU1', class: '', date: new Date('2015-05-30'), location: 'Test', judge: 'Test Judge' };
+        const ALO1_1 = { type: 'NOME-B', result: 'ALO1', class: 'ALO', date: new Date('2016-05-30'), location: 'Test', judge: 'Test Judge' };
+        const ALO1_2 = { type: 'NOME-B', result: 'ALO1', class: 'ALO', date: new Date('2018-06-15'), location: 'Test', judge: 'Test Judge' };
+        const r1 = filterRelevantResults(testEvent, 'ALO', [NOU1, ALO1_1, ALO1_2]);
+        expect(r1.qualifies).toEqual(true);
+        expect(r1.relevant.map(r => r.qualifying)).toEqual([true, undefined, undefined]);
+
+        ALO1_2.date = new Date('2017-06-15');
+        const r2 = filterRelevantResults(testEvent, 'ALO', [NOU1, ALO1_1, ALO1_2]);
+        expect(r2.qualifies).toEqual(false);
+        expect(r2.relevant.map(r => r.qualifying)).toEqual([true, false, false]);
+
+        ALO1_2.date = new Date('2018-06-16');
+        const r3 = filterRelevantResults(testEvent, 'ALO', [NOU1, ALO1_1, ALO1_2]);
+        expect(r3.qualifies).toEqual(true);
+        expect(r3.relevant.map(r => r.qualifying)).toEqual([true, undefined, undefined]);
+      })
     });
 
     describe('NOME-B - AVO', function() {

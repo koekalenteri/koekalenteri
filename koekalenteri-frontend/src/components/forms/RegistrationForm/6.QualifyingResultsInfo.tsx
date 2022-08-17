@@ -187,9 +187,9 @@ function resultBorderColor(qualifying: boolean | undefined) {
   }
 }
 
-function getResultId(result: QRWithId|QualifyingResult) {
+function getResultId(result: QRWithId | QualifyingResult) {
   if ('id' in result) {
     return result.id;
   }
-  return (result.judge || '') + result.date?.toString();
+  return uuidv4();
 }

@@ -182,7 +182,7 @@
     "saved_other": "Registration saved.\nConfirmation email was sent to:\n{{to}}",
     "terms": {
       "agree": "and accept them",
-      "publish": "I accept that the persons responsible for the organization of the test can process the personal data I have provided and publish them as necessary in the list of participants and test results at the test location and in publications related to the test on the internet or in other media of the association.",
+      "publish": "I hereby accept that the event officers can process the personal data I have provided and publish them as necessary in the list of participants and results of the event at the event location and in publications related to the event in internet or in other media of the organization.",
       "read": "I have read",
       "terms": "registration terms"
     },
