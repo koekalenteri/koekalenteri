@@ -1,5 +1,7 @@
 # AWS Simple Email Service Templates
 
+AWS uses [Handlebars](https://handlebarsjs.com/) as the templating language.
+
 ## Creating a new template
 
 1. Create a directory, the directory name is the template name, excluding language suffix.

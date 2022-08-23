@@ -90,8 +90,8 @@ export const EventListPage = observer(function EventListPage() {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>{t('cancel')}</Button>
           <Button onClick={deleteAction} autoFocus>{t('delete')}</Button>
+          <Button onClick={handleClose} variant="outlined">{t('cancel')}</Button>
         </DialogActions>
       </Dialog>
     </AuthPage>

@@ -44,6 +44,7 @@ function App() {
               <Route path="/logout" element={<LogoutPage />} />
               <Route path="/registration/:eventType/:id/:registrationId" element={<RegistrationListPage />} />
               <Route path="/registration/:eventType/:id/:registrationId/edit" element={<RegistrationPage />} />
+              <Route path="/registration/:eventType/:id/:registrationId/cancel" element={<RegistrationListPage cancel/>} />
               <Route path={ADMIN_ROOT} element={<Navigate replace to={ADMIN_DEFAULT} />} />
               <Route path={ADMIN_EVENTS} element={<EventListPage />} />
               <Route path={ADMIN_NEW_EVENT} element={<EventEditPage create />} />

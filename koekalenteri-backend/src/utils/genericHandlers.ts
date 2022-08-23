@@ -82,13 +82,18 @@ export function authorize(event: APIGatewayProxyEvent) {
   // TODO: remove unauthorized access
   console.log(event.requestContext);
 
+  const origin = getOrigin(event);
   const authorized = event.requestContext.authorizer !== null
-    || event.headers.origin === 'https://dev.koekalenteri.snj.fi'
-    || event.headers.origin === 'http://localhost:3000';
+    || origin === 'https://dev.koekalenteri.snj.fi'
+    || origin === 'http://localhost:3000';
 
   if (!authorized || event.body === null) {
     throw new Error("Unauthorized user");
   }
+}
+
+export function getOrigin(event: APIGatewayProxyEvent) {
+  return event.headers.origin || event.headers.Origin;
 }
 
 export function getUsername(event: APIGatewayProxyEvent) {

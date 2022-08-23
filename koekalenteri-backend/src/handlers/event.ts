@@ -7,7 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { i18n } from "../i18n";
 import CustomDynamoClient from "../utils/CustomDynamoClient";
 import { formatDateSpan } from "../utils/dates";
-import { authorize, genericReadAllHandler, genericReadHandler, getUsername } from "../utils/genericHandlers";
+import { authorize, genericReadAllHandler, genericReadHandler, getOrigin, getUsername } from "../utils/genericHandlers";
 import { metricsError, metricsSuccess } from "../utils/metrics";
 import { response } from "../utils/response";
 import { sendTemplatedMail } from "./email";
@@ -84,7 +84,7 @@ export const putRegistrationHandler = metricScope((metrics: MetricsLogger) =>
 
     const timestamp = new Date().toISOString();
     const username = getUsername(event);
-    const origin = event.headers.origin;
+    const origin = getOrigin(event);
 
     console.log(event.headers);
     console.log(event.requestContext);
@@ -93,11 +93,13 @@ export const putRegistrationHandler = metricScope((metrics: MetricsLogger) =>
       let existing;
       const registration: JsonRegistration = JSON.parse(event.body || "");
       const update = !!registration.id;
+      let cancel = false;
       if (update) {
         existing = await dynamoDB.read<JsonRegistration>({ eventId: registration.eventId, id: registration.id });
         if (!existing) {
           throw new Error(`Registration not found with id "${registration.id}"`);
         }
+        cancel = !existing.cancelled && !!registration.cancelled;
       } else {
         registration.id = uuidv4();
         registration.createdAt = timestamp;
@@ -155,9 +157,10 @@ export const putRegistrationHandler = metricScope((metrics: MetricsLogger) =>
         // TODO: sender address from env / other config
         const from = "koekalenteri@koekalenteri.snj.fi";
         const qualifyingResults = registration.qualifyingResults.map(r => ({ ...r, date: lightFormat(parseISO(r.date), 'd.M.yyyy') }));
+        const context = getEmailContext(update, cancel);
         await sendTemplatedMail('RegistrationV2', registration.language, from, to, {
-          subject: t('registration.email.subject', { context: update ? 'update' : '' }),
-          title: t('registration.email.title', { context: update ? 'update' : '' }),
+          subject: t('registration.email.subject', { context }),
+          title: t('registration.email.title', { context }),
           dogBreed,
           link,
           event: confirmedEvent,
@@ -181,3 +184,13 @@ export const putRegistrationHandler = metricScope((metrics: MetricsLogger) =>
     }
   }
 );
+
+function getEmailContext(update: boolean, cancel: boolean) {
+  if (cancel) {
+    return 'cancel';
+  }
+  if (update) {
+    return 'update';
+  }
+  return '';
+}

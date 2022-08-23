@@ -2,8 +2,10 @@
 
 # {{title}}
 
+{{#unless reg.cancelled ~}}
 [Muokkaa ilmoittautumisen tietoja]({{link}}/edit)
 [Peru ilmoittautuminen]({{link}}/cancel)
+{{/unless}}
 
 table header | is removed
 :-- | ----
@@ -37,11 +39,22 @@ Voit tarkastella ilmoittautumisesi tietoja täällä: [Katso ilmoittautumisen ti
 Ystävällisin terveisin,
 {{#if event.contactInfo.secretary.name ~}}
 {{event.secretary.name}}
-{{/if ~}}
 Koesihteeri
+{{/if ~}}
 {{#if event.contactInfo.secretary.email ~}}
 {{event.secretary.email}}
 {{/if ~}}
 {{#if event.contactInfo.secretary.phone ~}}
 p. {{event.secretary.phone}}
+{{/if ~}}
+
+{{#if event.contactInfo.official.name ~}}
+{{event.official.name}}
+Vastaava koetoimitsija
+{{/if ~}}
+{{#if event.contactInfo.official.email ~}}
+{{event.official.email}}
+{{/if ~}}
+{{#if event.contactInfo.official.phone ~}}
+p. {{event.official.phone}}
 {{/if ~}}

@@ -230,7 +230,7 @@ export function RegistrationForm({ event, className, registration, classDate, on
             <FormControlLabel control={<Checkbox checked={local.agreeToTerms} onChange={e => onChange({ agreeToTerms: e.target.checked })} />} label={
               <>
                 <span>{t('registration.terms.read')}</span>&nbsp;
-                <Link target="_blank" rel="noopener" href="https://yttmk.yhdistysavain.fi/noutajien-metsastyskokeet-2/ohjeistukset/kokeen-ja-tai-kilpailun-ilmoitta/">{t('registration.terms.terms')}</Link>
+                <Link target="_blank" rel="noopener" href={t('registration.terms.url')}>{t('registration.terms.terms')}</Link>
                 &nbsp;<span>{t('registration.terms.agree')}</span>
               </>
             } />

@@ -2,8 +2,10 @@
 
 # {{title}}
 
+{{#unless reg.cancelled ~}}
 [Edit registration]({{link}}/edit)
 [Cancel registration]({{link}}/cancel)
+{{/unless}}
 
 table header | is removed
 :-- | ----
@@ -37,11 +39,22 @@ You can view your registration details here: [View registration details]({{link}
 Best regards,
 {{#if event.contactInfo.secretary.name ~}}
 {{event.secretary.name}}
-{{/if ~}}
 Secretary
+{{/if ~}}
 {{#if event.contactInfo.secretary.email ~}}
 {{event.secretary.email}}
 {{/if ~}}
 {{#if event.contactInfo.secretary.phone ~}}
 p. {{event.secretary.phone}}
+{{/if ~}}
+
+{{#if event.contactInfo.official.name ~}}
+{{event.official.name}}
+Chief officer
+{{/if ~}}
+{{#if event.contactInfo.official.email ~}}
+{{event.official.email}}
+{{/if ~}}
+{{#if event.contactInfo.official.phone ~}}
+p. {{event.official.phone}}
 {{/if ~}}

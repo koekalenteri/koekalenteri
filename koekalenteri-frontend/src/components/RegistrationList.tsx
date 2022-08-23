@@ -20,20 +20,16 @@ type Leaves<T, D extends number = 10> = [D] extends [never] ? never : T extends 
 
 interface RegistrationListColDef extends GridColDef {
   field: Leaves<Registration> | 'actions'
-  getActions?: (params: GridRowParams) => JSX.Element[]
+  getActions?: (params: GridRowParams<Registration>) => JSX.Element[]
 }
 
-export function RegistrationList({loading, rows}: {loading: boolean, rows: Registration[]}) {
+export function RegistrationList({loading, rows, onUnregister}: {loading: boolean, rows: Registration[], onUnregister: (registration: Registration) => void}) {
   const { t } = useTranslation();
   const { t: breed } = useTranslation('breed');
   const navigate = useNavigate();
 
   const onEdit = (registration: Registration) => {
     navigate(`/registration/${registration.eventType}/${registration.eventId}/${registration.id}/edit`);
-  }
-
-  const onUnregister = (registration: Registration) => {
-    console.log(registration);
   }
 
   const columns: RegistrationListColDef[] = [
@@ -75,9 +71,11 @@ export function RegistrationList({loading, rows}: {loading: boolean, rows: Regis
     {
       field: 'actions',
       type: 'actions',
-      getActions: (params) => [
+      getActions: (params) => params.row.cancelled ? [
+        <Box sx={{ color: 'warning.main', textTransform: 'uppercase' }}>{t('event.states.cancelled')}</Box>,
+      ] : [
         <GridActionsCellItem color="info" icon={<EditOutlined />} label="Muokkaa ilmoittautumista" onClick={() => onEdit(params.row)} />,
-        <GridActionsCellItem color="error" icon={<CancelOutlined />} label="Peru ilmoittautuminen" disabled onClick={() => onUnregister(params.row)}/>
+        <GridActionsCellItem color="error" icon={<CancelOutlined />} label="Peru ilmoittautuminen" onClick={() => onUnregister(params.row)}/>
       ]
     }
   ];
@@ -85,7 +83,7 @@ export function RegistrationList({loading, rows}: {loading: boolean, rows: Regis
   return (
     <Paper sx={{ p: 1, mb: 1, width: '100%' }} elevation={2}>
       <Typography variant="h5">Ilmoitetut koirat</Typography>
-      <Box sx={{height: 120}}>
+      <Box sx={{height: 120, '& .cancelled': {opacity: 0.5}}}>
         <StyledDataGrid
           loading={loading}
           hideFooter={true}
@@ -94,6 +92,7 @@ export function RegistrationList({loading, rows}: {loading: boolean, rows: Regis
           disableSelectionOnClick
           rows={rows}
           getRowId={(row) => row.id}
+          getRowClassName={(params) => params.row.cancelled ? 'cancelled' : ''}
         />
       </Box>
     </Paper>

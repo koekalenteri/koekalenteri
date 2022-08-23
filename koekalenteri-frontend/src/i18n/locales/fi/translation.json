@@ -143,6 +143,15 @@
   "register": "Ilmoittaudu",
   "registration": {
     "breeder": "Kasvattajan tiedot",
+    "cancelDialog": {
+      "cta": "Peru ilmoittautuminen",
+      "done": "Ilmoittautumisesi on peruttu",
+      "title": "Ilmoittautumisen peruminen",
+      "text": "Olet perumassa koiran {{registration.dog.regNo}} {{registration.dog.name}} ilmoittautumista kokeeseen {{event.startDate, date}} {{event.eventType}} {{event.location}}",
+      "lateText": "Ilmoittautumisen voi perua koepäivänä vain ottamalla yhteyttä suoraan koesihteeriin {{event.secretary.name}} {{contact}}",
+      "confirmation": "Oletko varma, että haluat perua ilmoittautumisen?",
+      "terms": "Katso tarkemmat peruutusehdot <a href=\"$t(registration.terms.url)\" target=\"blank\">säännöistä</a>."
+    },
     "class": "Koeluokka",
     "classesDetails": "Koeluokan tiedot",
     "contact": {
@@ -171,8 +180,10 @@
     "dog": "Koiran tiedot",
     "email": {
       "subject": "Ilmoittautumisen vahvistus",
+      "subject_cancel": "Ilmoittautumisesi on peruttu",
       "subject_update": "Ilmoittautumisesi tietoja on muokattu",
       "title": "Ilmoittautumisesi on otettu vastaan",
+      "title_cancel": "Ilmoittautumisesi on peruttu",
       "title_update": "Ilmoittautumisesi tietoja on muokattu"
     },
     "handler": "Ohjaajan tiedot",
@@ -202,7 +213,8 @@
       "agree": "ja hyväksyn ne",
       "publish": "Hyväksyn, että kokeen järjestämisen vastuuhenkilöt voivat käsitellä ilmoittamiani henkilötietoja ja julkaista niitä tarpeen mukaan kokeen osallistuja- ja tulosluettelossa koepaikalla ja kokeeseen liittyvissä julkaisuissa internetissä tai muissa yhdistyksen medioissa.",
       "read": "Olen lukenut",
-      "terms": "ilmoittautumisen ehdot"
+      "terms": "ilmoittautumisen ehdot",
+      "url": "https://yttmk.yhdistysavain.fi/noutajien-metsastyskokeet-2/ohjeistukset/kokeen-ja-tai-kilpailun-ilmoitta/"
     },
     "time": {
       "ap": "(aamu)",
