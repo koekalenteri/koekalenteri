@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/bin/sh
 export JSON_PATH='__test__/environment/local/'
 cd ${JSON_PATH}
 
