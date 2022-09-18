@@ -53,6 +53,7 @@ npm run docker-init
 #### Start the dynamodb instance (once, it is persistent)
 
 ```bash
+npm run docker-init
 npm run dynamodb
 ```
 
