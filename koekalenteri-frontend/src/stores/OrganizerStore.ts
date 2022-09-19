@@ -26,6 +26,8 @@ export class OrganizerStore {
     const data = await getOrganizers(refresh, signal);
     runInAction(() => {
       data.forEach(json => this.updateOrganizer(json))
+      // Keep the organizers sorted in the store to sort only when the data changes.
+      this.organizers.sort((a,b) => a.name.localeCompare(b.name))
       this.loading = false;
     });
   }
