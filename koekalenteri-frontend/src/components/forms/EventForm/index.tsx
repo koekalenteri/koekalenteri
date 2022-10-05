@@ -69,7 +69,7 @@ export const EventForm = observer(function EventForm({ event, judges, eventTypes
   }
   const saveHandler = async () => {
     setSaving(true);
-    if (await onSave(local) === false) {
+    if ((await onSave(local)) === false) {
       setSaving(false);
     }
   }

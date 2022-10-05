@@ -1,6 +1,7 @@
 import { AddOutlined, DeleteOutline } from '@mui/icons-material';
-import { DatePicker } from '@mui/lab';
-import { Button, debounce, FormControl, Grid, InputLabel, MenuItem, Select, TextField } from '@mui/material';
+import { DatePicker } from '@mui/x-date-pickers';
+import '@mui/lab';
+import { Button, debounce, FormControl, Grid, InputLabel, MenuItem, Select, TextField, TextFieldProps } from '@mui/material';
 import { subYears } from 'date-fns';
 import { QualifyingResult, Registration, TestResult } from 'koekalenteri-shared/model';
 import { useEffect, useMemo, useState } from 'react';
@@ -118,8 +119,8 @@ export function QualifyingResultsInfo({ reg, error, helperText, onChange, onOpen
                   mask={t('datemask')}
                   maxDate={new Date()}
                   minDate={subYears(new Date(), 15)}
-                  onChange={(value) => handleChange(result, { date: value || undefined })}
-                  renderInput={(params) => <TextField {...params} error={!result.date} />}
+                  onChange={(value: any) => handleChange(result, { date: value || undefined })}
+                  renderInput={(params: JSX.IntrinsicAttributes & TextFieldProps) => <TextField {...params} error={!result.date} />}
                   value={result.date || null}
                 />
               </FormControl>

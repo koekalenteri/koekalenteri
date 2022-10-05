@@ -1,6 +1,6 @@
 import fi from 'date-fns/locale/fi';
-import AdapterDateFns from '@mui/lab/AdapterDateFns';
-import LocalizationProvider from '@mui/lab/LocalizationProvider';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import { Event, Judge, Official, Organizer } from 'koekalenteri-shared/model';
@@ -42,7 +42,7 @@ const OFFICIALS = [{
 
 const renderComponent = (event: Partial<Event>, judges: Judge[], officials: Official[], organizers: Organizer[], onSave: FormEventHandler, onCancel: FormEventHandler) => render(
   <ThemeProvider theme={theme}>
-    <LocalizationProvider dateAdapter={AdapterDateFns} locale={fi}>
+    <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={fi}>
       <EventForm
         event={event}
         eventTypes={eventTypes}

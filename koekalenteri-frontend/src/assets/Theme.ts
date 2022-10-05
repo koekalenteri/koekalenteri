@@ -1,10 +1,5 @@
 import { red } from '@mui/material/colors';
-import { createTheme, Theme, responsiveFontSizes } from '@mui/material/styles';
-
-declare module '@mui/styles/defaultTheme' {
-  // eslint-disable-next-line @typescript-eslint/no-empty-interface
-  interface DefaultTheme extends Theme {}
-}
+import { createTheme, responsiveFontSizes } from '@mui/material/styles';
 
 declare module '@mui/material/styles/createPalette' {
   interface TypeBackground {

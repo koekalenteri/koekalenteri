@@ -1,5 +1,4 @@
 import { Table, TableBody, TableRow, TableCell } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 import { format } from 'date-fns';
 import type { EventEx, EventClass } from 'koekalenteri-shared/model';
 import { useTranslation } from 'react-i18next';
@@ -7,38 +6,26 @@ import { entryDateColor } from '../utils';
 import { CostInfo, LinkButton } from '.';
 import { useStores } from '../stores';
 
-const useRowStyles = makeStyles({
-  root: {
-    '& *': {
-      borderBottom: 'unset',
-      padding: '2px 16px 2px 0'
-    },
-    '& th': {
-      width: '1%',
-      whiteSpace: 'nowrap',
-      verticalAlign: 'top'
-    },
-    '& td': {
-      whiteSpace: 'normal'
-    }
-  },
-  classes: {
-    '& th': {
-      padding: '0 8px 0 0',
-      verticalAlign: 'middle'
-    }
-  }
-});
-
 export function EventInfo({ event }: { event: EventEx }) {
   const { rootStore } = useStores();
-  const classes = useRowStyles();
   const { t } = useTranslation();
   const judgeName = (id: number) => rootStore.judgeStore.getJudge(id)?.name || '';
   const allJudgesInCalsses = event.judges.filter(j => !event.classes.find(c => c.judge?.id === j)).length === 0;
   return (
     <>
-      <Table size="small" aria-label="details" className={classes.root}>
+      <Table size="small" aria-label="details" sx={{    
+        '& *': {
+          borderBottom: 'unset',
+          padding: '2px 16px 2px 0'
+        },
+        '& th': {
+          width: '1%',
+          whiteSpace: 'nowrap',
+          verticalAlign: 'top'
+        },
+        '& td': {
+          whiteSpace: 'normal'
+        }}}>
         <TableBody>
           <TableRow key={event.id + 'date'}>
             <TableCell component="th" scope="row">{t('entryTime')}:</TableCell>
@@ -108,9 +95,13 @@ const eventClassKey = (eventId: string, eventClass: string | EventClass) =>
   eventId + 'class' + (typeof eventClass === 'string' ? eventClass : eventClass.date + eventClass.class);
 
 function EventClassTable({ event }: EventProps) {
-  const classes = useRowStyles();
   return (
-    <Table size="small" className={classes.classes}>
+    <Table size="small" sx={{
+      '& th': {
+        padding: '0 8px 0 0',
+        verticalAlign: 'middle'
+      }
+    }}>
       <TableBody>
         {event.classes.map(eventClass =>
           <EventClassTableRow key={eventClassKey(event.id, eventClass)} event={event} eventClass={eventClass} />)}

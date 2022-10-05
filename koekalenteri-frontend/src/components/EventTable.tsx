@@ -11,33 +11,12 @@ import {
   Box,
   Grid,
 } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 import { KeyboardArrowDown, KeyboardArrowRight } from '@mui/icons-material';
 import type { EventEx, EventState } from 'koekalenteri-shared/model';
 import { EventInfo, LinkButton } from '.';
 import { useTranslation } from 'react-i18next';
 import { useSessionBoolean } from '../stores';
 import { observer } from 'mobx-react-lite';
-
-const useRowStyles = makeStyles(theme => ({
-  root: {
-    '& > td': {
-      backgroundColor: theme.palette.background.form,
-      borderBottom: '2px solid white',
-      borderRadius: 4,
-      padding: '2px 0',
-      whiteSpace: 'nowrap',
-    },
-    '& div.MuiGrid-item': {
-      overflow: 'hidden'
-    },
-    '&:last-child td': { border: 0 }
-  },
-  inner: {
-    borderTop: '1px solid #BDBDBD',
-    marginLeft: '34px'
-  }
-}));
 
 function eventClasses(event: EventEx) {
   const ret: string[] = [];
@@ -51,9 +30,7 @@ function eventClasses(event: EventEx) {
 }
 
 const Row = observer(function Row({ event }: { event: EventEx }) {
-
   const [open, setOpen] = useSessionBoolean('open' + event.id, false);
-  const classes = useRowStyles();
   const { t } = useTranslation();
 
   useEffect(() => {
@@ -62,7 +39,19 @@ const Row = observer(function Row({ event }: { event: EventEx }) {
 
   return (
     <>
-      <TableRow className={classes.root}>
+      <TableRow sx={{
+        '& > td': {
+          backgroundColor: 'background.form',
+          borderBottom: '2px solid white',
+          borderRadius: 4,
+          padding: '2px 0',
+          whiteSpace: 'nowrap',
+        },
+        '& div.MuiGrid-item': {
+          overflow: 'hidden'
+        },
+        '&:last-child td': { border: 0 }        
+      }}>
         <TableCell>
           <Grid container spacing={0} alignItems="center">
             <Grid item xs={"auto"}>
@@ -84,7 +73,12 @@ const Row = observer(function Row({ event }: { event: EventEx }) {
               </Grid>
             </Grid>
           </Grid>
-          <Collapse in={open} className={classes.inner} timeout="auto" unmountOnExit sx={{ mt: 1, pt: 1 }}>
+          <Collapse in={open} sx={{
+            borderTop: '1px solid #BDBDBD',
+            ml: '34px',
+            mt: 1,
+            pt: 1
+          }} timeout="auto" unmountOnExit>
             <EventInfo event={event}></EventInfo>
           </Collapse>
         </TableCell>

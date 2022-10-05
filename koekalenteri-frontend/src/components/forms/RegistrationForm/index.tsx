@@ -108,7 +108,7 @@ export function RegistrationForm({ event, className, registration, classDate, on
   }
   const saveHandler = async () => {
     setSaving(true);
-    if (onSave && await onSave(local) === false) {
+    if (onSave && (await onSave(local)) === false) {
       setSaving(false);
     }
   }

@@ -1,6 +1,7 @@
 import { CachedOutlined } from '@mui/icons-material';
-import { DatePicker, LoadingButton } from '@mui/lab';
-import { Autocomplete, FormControl, FormHelperText, Grid, Stack, TextField } from '@mui/material';
+import { DatePicker } from '@mui/x-date-pickers';
+import { LoadingButton } from '@mui/lab';
+import { Autocomplete, FormControl, FormHelperText, Grid, Stack, TextField, TextFieldProps } from '@mui/material';
 import { differenceInMinutes, subMonths, subYears } from 'date-fns';
 import { BreedCode, Dog, DogGender, Registration } from 'koekalenteri-shared/model';
 import merge from 'lodash.merge';
@@ -164,9 +165,9 @@ export const DogInfo = observer(function DogInfo({ reg, eventDate, minDogAgeMont
               mask={t('datemask')}
               maxDate={subMonths(eventDate, minDogAgeMonths)}
               minDate={subYears(new Date(), 15)}
-              onChange={(value) => value && handleChange({ dob: value })}
+              onChange={(value: any) => value && handleChange({ dob: value })}
               openTo={'year'}
-              renderInput={(params) => <TextField {...params} />}
+              renderInput={(params: JSX.IntrinsicAttributes & TextFieldProps) => <TextField {...params} />}
               value={reg.dog.dob || null}
               views={['year', 'month', 'day']}
             />

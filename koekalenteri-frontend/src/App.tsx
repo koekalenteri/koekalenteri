@@ -1,10 +1,9 @@
 import { Auth } from '@aws-amplify/auth';
 import { Authenticator } from '@aws-amplify/ui-react';
 import '@aws-amplify/ui-react/styles.css';
-import AdapterDateFns from '@mui/lab/AdapterDateFns';
-import LocalizationProvider from '@mui/lab/LocalizationProvider';
-import { createTheme } from '@mui/material/styles';
-import { makeStyles, ThemeProvider } from '@mui/styles';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { SnackbarProvider } from 'notistack';
 import { useTranslation } from 'react-i18next';
 import { Navigate, Route, Routes } from 'react-router-dom';
@@ -15,23 +14,16 @@ import { EventEditPage, EventListPage, EventTypeListPage, EventViewPage, JudgeLi
 
 Auth.configure(AWSConfig);
 
-const useStyles = makeStyles({
-  snack: {
-    paddingTop: 38 // So snacks appear below the header
-  }
-});
-
 function App() {
   const { i18n } = useTranslation();
   const language = i18n.language as Language;
-  const classes = useStyles();
 
   return (
     <ThemeProvider theme={(outerTheme) => createTheme(outerTheme, muiLocales[language])}>
-      <LocalizationProvider dateAdapter={AdapterDateFns} locale={locales[language]}>
+      <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales[language]}>
         <SnackbarProvider
           anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-          classes={{ containerRoot: classes.snack }}
+          classes={{ containerRoot: 'snack' }}
           maxSnack={3}
         >
           <Authenticator.Provider>
