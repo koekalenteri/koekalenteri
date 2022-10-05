@@ -24,13 +24,15 @@ export function AutocompleteMulti<T>(props: AutocompleteMultiProps<T>) {
       renderInput={(inputProps) => <TextField {...inputProps} label={label} error={error} helperText={helperText} />}
       renderOption={(optionProps, option, { selected }) => (
         <li {...optionProps}>
-          <Checkbox
-            icon={<CheckBoxOutlineBlank fontSize="small" />}
-            checkedIcon={<CheckBox fontSize="small" />}
-            style={{ marginRight: 8 }}
-            checked={selected}
-          />
-          {getLabel(option)}
+          <>
+            <Checkbox
+              icon={<CheckBoxOutlineBlank fontSize="small" />}
+              checkedIcon={<CheckBox fontSize="small" />}
+              style={{ marginRight: 8 }}
+              checked={selected}
+            />
+            {getLabel(option)}
+          </>
         </li>
       )}
     />

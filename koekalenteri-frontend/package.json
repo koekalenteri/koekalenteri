@@ -1,6 +1,6 @@
 {
   "name": "koekalenteri-frontend",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "private": true,
   "dependencies": {
     "@aws-amplify/auth": "^4.4.4",
@@ -8,10 +8,10 @@
     "@emotion/react": "^11.4.1",
     "@emotion/styled": "^11.3.0",
     "@mui/icons-material": "^5.0.5",
-    "@mui/lab": "^5.0.0-alpha.47",
+    "@mui/lab": "^5.0.0-alpha.102",
     "@mui/material": "^5.0.0",
-    "@mui/styles": "^5.0.0",
     "@mui/x-data-grid": "^5.2.1",
+    "@mui/x-date-pickers": "^5.0.3",
     "aws-amplify": "^4.3.17",
     "date-fns": "^2.23.0",
     "history": "^5.0.1",
@@ -40,7 +40,7 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "lint": "eslint \"src/**/*{.ts,.tsx}\"",
-    "test": "react-scripts test",
+    "test": "react-scripts test --silent",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {

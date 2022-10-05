@@ -1,5 +1,5 @@
-import { DatePicker, PickersDay } from "@mui/lab";
-import { Box, FormControl, TextField, Theme } from "@mui/material";
+import { DatePicker, PickersDay } from '@mui/x-date-pickers';
+import { Box, FormControl, TextField, TextFieldProps, Theme } from "@mui/material";
 import { isSameDay, startOfDay } from "date-fns";
 import { useTranslation } from 'react-i18next';
 
@@ -39,7 +39,6 @@ export function DateRange({ start, end, startLabel, endLabel, defaultStart, defa
     <Box sx={{width: '100%'}}>
       <FormControl sx={{pr: 0.5, width: '50%'}}>
         <DatePicker
-          allowSameDateSelection
           defaultCalendarMonth={defaultStart}
           label={startLabel}
           value={start}
@@ -47,17 +46,15 @@ export function DateRange({ start, end, startLabel, endLabel, defaultStart, defa
           inputFormat={t('dateformat')}
           minDate={range?.start}
           maxDate={range?.end}
-          clearable={true}
           showToolbar={false}
           onChange={startChanged}
           renderDay={(date, selectedDates, props) => <PickersDay {...props} sx={dayStyle(date, selectedDates, defaultStart)} />}
-          renderInput={(params) => <TextField {...params} required={required} />}
+          renderInput={(params: JSX.IntrinsicAttributes & TextFieldProps) => <TextField {...params} required={required} />}
         />
       </FormControl>
 
       <FormControl sx={{pl: 0.5, width: '50%'}}>
         <DatePicker
-          allowSameDateSelection
           defaultCalendarMonth={defaultEnd}
           label={endLabel}
           value={end}
@@ -65,11 +62,10 @@ export function DateRange({ start, end, startLabel, endLabel, defaultStart, defa
           inputFormat={t('dateformat')}
           minDate={start ? start : range?.start}
           maxDate={range?.end}
-          clearable={true}
           showToolbar={false}
           onChange={endChanged}
           renderDay={(date, selectedDates, props) => <PickersDay {...props} sx={dayStyle(date, selectedDates, defaultEnd)} />}
-          renderInput={(params) => <TextField {...params} required={required} />}
+          renderInput={(params: JSX.IntrinsicAttributes & TextFieldProps) => <TextField {...params} required={required} />}
         />
       </FormControl>
     </Box>
