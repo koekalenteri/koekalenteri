@@ -1,3 +1,4 @@
+import i18next from "i18next";
 import { Organizer } from "koekalenteri-shared/model";
 import { makeAutoObservable, runInAction } from "mobx";
 import { getOrganizers } from "../api/organizer";
@@ -27,7 +28,7 @@ export class OrganizerStore {
     runInAction(() => {
       data.forEach(json => this.updateOrganizer(json))
       // Keep the organizers sorted in the store to sort only when the data changes.
-      this.organizers.sort((a,b) => a.name.localeCompare(b.name))
+      this.organizers.sort((a,b) => a.name.localeCompare(b.name, i18next.language))
       this.loading = false;
     });
   }

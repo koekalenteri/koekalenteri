@@ -1,3 +1,4 @@
+import i18next from "i18next";
 import { Official } from "koekalenteri-shared/model";
 import { makeAutoObservable, runInAction } from "mobx";
 import { getOfficials } from "../api/official";
@@ -27,7 +28,7 @@ export class OfficialStore {
     runInAction(() => {
       this.officials = [];
       data.forEach(json => this.updateOfficial(json));
-      this.officials.sort((a, b) => a.name.localeCompare(b.name))
+      this.officials.sort((a, b) => a.name.localeCompare(b.name, i18next.language))
       this.loading = false;
     });
   }
