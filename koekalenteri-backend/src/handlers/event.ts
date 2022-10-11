@@ -10,6 +10,7 @@ import { formatDateSpan } from "../utils/dates";
 import { authorize, genericReadAllHandler, genericReadHandler, getOrigin, getUsername } from "../utils/genericHandlers";
 import { metricsError, metricsSuccess } from "../utils/metrics";
 import { response } from "../utils/response";
+import { reverseName } from "../utils/string";
 import { sendTemplatedMail } from "./email";
 
 const dynamoDB = new CustomDynamoClient();
@@ -158,6 +159,11 @@ export const putRegistrationHandler = metricScope((metrics: MetricsLogger) =>
         const from = "koekalenteri@koekalenteri.snj.fi";
         const qualifyingResults = registration.qualifyingResults.map(r => ({ ...r, date: lightFormat(parseISO(r.date), 'd.M.yyyy') }));
         const context = getEmailContext(update, cancel);
+        
+        // Friendly name for secretary (and official) (KOE-350)
+        confirmedEvent.secretary.name = reverseName(confirmedEvent.secretary.name);
+        confirmedEvent.official.name = reverseName(confirmedEvent.official.name);
+
         await sendTemplatedMail('RegistrationV2', registration.language, from, to, {
           subject: t('registration.email.subject', { context }),
           title: t('registration.email.title', { context }),
