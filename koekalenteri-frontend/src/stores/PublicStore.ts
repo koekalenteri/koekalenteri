@@ -1,4 +1,4 @@
-import { makeAutoObservable, runInAction } from 'mobx';
+import { reaction, makeAutoObservable, runInAction } from 'mobx';
 import { getEvent, getEvents } from '../api/event';
 import type { EventEx } from 'koekalenteri-shared/model';
 
@@ -15,10 +15,16 @@ export type FilterProps = {
   organizer: number[]
 }
 
+type EventDateRange = {
+  start: Date | null,
+  end: Date | null
+}
+
 export class PublicStore {
   private _events: EventEx[] = [];
-  private _loaded = false;
-  private _loading = false;
+  public filteredEvents: EventEx[] = []
+  public loaded = false;
+  public loading = false;
 
   public eventTypeClasses: Record<string, string[]> = {
     NOU: [],
@@ -27,7 +33,6 @@ export class PublicStore {
     'NOWT': ['ALO', 'AVO', 'VOI']
   };
 
-  public filteredEvents: EventEx[] = [];
   public filter: FilterProps = {
     start: null,
     end: null,
@@ -43,36 +48,49 @@ export class PublicStore {
 
   constructor() {
     makeAutoObservable(this)
+
+    // Reload events whenever the filter date range changes.
+    // Note: This could be a plain autorun if the dates were actually passed to the fetch method.
+    reaction(
+      () => { return {
+        start: this.filter.start,
+        end: this.filter.end
+      }},
+      async (current: EventDateRange, previous: EventDateRange) => {
+        if (current.start !== previous.start || current.end !== previous.end) {
+          this.load()
+        }
+      }
+    );
   }
 
-  async setFilter(filter: FilterProps) {
-    const reload = filter.start !== this.filter.start || filter.end !== this.filter.end;
+  setFilter(filter: FilterProps) {
     this.filter = filter;
-    return reload ? this.load() : this._applyFilter();
+    this._applyFilter();
   }
 
-  get loaded() { return this._loaded }
-  get loading() { return this._loading }
-  set loading(value: boolean) {
-    this._loading = value;
-    this._loaded = !value;
+  async initialize(signal?: AbortSignal) {
+    if (!this.loaded) {
+      this.load(signal)
+    }
   }
 
   async load(signal?: AbortSignal) {
     if (this.loading) {
       return;
     }
-
-    this.loading = true;
-
+    runInAction(() => {
+      this.loading = true;
+      this.loaded = false;
+    })
     const events = await getEvents(signal);
 
     runInAction(() => {
       this._events = events.sort((a: EventEx, b: EventEx) => +new Date(a.startDate || new Date()) - +new Date(b.startDate || new Date()));
+      this._applyFilter();
+      this.loading = false;
+      this.loaded = true;
     });
-
-    this._applyFilter();
-    this.loading = false;
   }
 
   async get(eventType: string, id: string, signal?: AbortSignal) {
@@ -85,15 +103,13 @@ export class PublicStore {
 
   private _applyFilter() {
     const filter = this.filter;
-
-    runInAction(() => {
-      this.filteredEvents = this._events.filter(event => {
-        return event.state !== 'draft' && !event.deletedAt
-          && withinDateFilters(event, filter)
-          && withinSwitchFilters(event, filter)
-          && withinArrayFilters(event, filter);
-      });
+    this.filteredEvents = this._events.filter(event => {
+      return event.state !== 'draft' && !event.deletedAt
+        && withinDateFilters(event, filter)
+        && withinSwitchFilters(event, filter)
+        && withinArrayFilters(event, filter);
     });
+
   }
 }
 

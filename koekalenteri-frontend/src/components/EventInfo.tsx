@@ -5,15 +5,18 @@ import { useTranslation } from 'react-i18next';
 import { entryDateColor } from '../utils';
 import { CostInfo, LinkButton } from '.';
 import { useStores } from '../stores';
+import { observer } from 'mobx-react-lite';
+import { toJS } from 'mobx';
 
-export function EventInfo({ event }: { event: EventEx }) {
+
+export const EventInfo = observer(function EventInfo({ event }: { event: EventEx }) {
   const { rootStore } = useStores();
   const { t } = useTranslation();
   const judgeName = (id: number) => rootStore.judgeStore.getJudge(id)?.name || '';
-  const allJudgesInCalsses = event.judges.filter(j => !event.classes.find(c => c.judge?.id === j)).length === 0;
+  const haveJudgesWithoutAssignedClass = event.judges.filter(j => !event.classes.find(c => c.judge?.id === j)).length > 0;
   return (
     <>
-      <Table size="small" aria-label="details" sx={{    
+      <Table size="small" aria-label="details" sx={{
         '& *': {
           borderBottom: 'unset',
           padding: '2px 16px 2px 0'
@@ -43,8 +46,8 @@ export function EventInfo({ event }: { event: EventEx }) {
             <TableCell component="th" scope="row">{t('event.eventType')}:</TableCell>
             <TableCell>{event.eventType}</TableCell>
           </TableRow>
-          {event.classes.length ? <EventClassRow key={event.id + 'classes'} event={event} /> : ''}
-          {allJudgesInCalsses ? '' :
+          {event.classes.length !== 0 && <EventClassRow key={event.id + 'classes'} event={event} />}
+          {haveJudgesWithoutAssignedClass &&
             <>
               <TableRow key={event.id + 'judge' + event.judges[0]}>
                 <TableCell component="th" scope="row" rowSpan={event.judges.length}>{t('event.judges')}:</TableCell>
@@ -61,7 +64,7 @@ export function EventInfo({ event }: { event: EventEx }) {
           </TableRow>
           <TableRow key={event.id + 'payment'}>
             <TableCell component="th" scope="row">{t('event.paymentDetails')}:</TableCell>
-            <TableCell><CostInfo event={event} /></TableCell>
+            <TableCell><CostInfo event={toJS(event)} /></TableCell>
           </TableRow>
           <TableRow key={event.id + 'location'}>
             <TableCell component="th" scope="row">{t('event.location')}:</TableCell>
@@ -75,13 +78,13 @@ export function EventInfo({ event }: { event: EventEx }) {
       </Table>
     </>
   );
-}
+});
 
 type EventProps = {
   event: EventEx
 }
 
-function EventClassRow({ event }: EventProps) {
+const EventClassRow = observer(function EventClassRow({ event }: EventProps) {
   const { t } = useTranslation();
   return (
     <TableRow key={event.id + 'classes'}>
@@ -89,12 +92,12 @@ function EventClassRow({ event }: EventProps) {
       <TableCell><EventClassTable event={event} /></TableCell>
     </TableRow>
   );
-}
+});
 
 const eventClassKey = (eventId: string, eventClass: string | EventClass) =>
   eventId + 'class' + (typeof eventClass === 'string' ? eventClass : eventClass.date + eventClass.class);
 
-function EventClassTable({ event }: EventProps) {
+const EventClassTable = observer(function EventClassTable({ event }: EventProps) {
   return (
     <Table size="small" sx={{
       '& th': {
@@ -108,9 +111,9 @@ function EventClassTable({ event }: EventProps) {
       </TableBody>
     </Table>
   );
-}
+});
 
-function EventClassTableRow({ event, eventClass }: { event: EventEx, eventClass: EventClass }) {
+const EventClassTableRow = observer(function EventClassTableRow({ event, eventClass }: { event: EventEx, eventClass: EventClass }) {
   const { t } = useTranslation();
   const classDate = format(eventClass.date || event.startDate || new Date(), t('dateformatS'));
   const entryStatus = eventClass.places || eventClass.entries ? `${eventClass.entries || 0} / ${eventClass.places || '-'}` : '';
@@ -128,4 +131,4 @@ function EventClassTableRow({ event, eventClass }: { event: EventEx, eventClass:
       <TableCell></TableCell>
     </TableRow>
   )
-}
+});

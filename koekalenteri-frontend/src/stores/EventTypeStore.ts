@@ -17,7 +17,7 @@ export class EventTypeStore {
   }
 
   get activeEventTypes() {
-    return this.eventTypes.filter(e => e.active);
+    return this.eventTypes.filter(e => e.active).map(et => et.eventType);
   }
 
   async load(refresh?: boolean, signal?: AbortSignal) {

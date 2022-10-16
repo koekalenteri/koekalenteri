@@ -1,16 +1,16 @@
 import { observer } from 'mobx-react-lite';
 import { EventTable }  from '../components';
-import { useStores } from '../stores';
 import { CircularProgress, Grid } from '@mui/material';
+import { PublicStore } from '../stores/PublicStore';
 
-export const EventContainer = observer(function EventContainer() {
-  const { publicStore } = useStores();
-  if (publicStore.loading) {
+
+export const EventContainer = observer(function EventContainer({ store }: { store: PublicStore }) {
+  if (store.loading) {
     return (
       <Grid container justifyContent="center"><CircularProgress /></Grid>
     )
   }
   return (
-    <EventTable events={publicStore.filteredEvents} />
+    <EventTable events={store.filteredEvents} />
   )
 });

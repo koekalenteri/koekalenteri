@@ -1,6 +1,5 @@
 import { Box, FormControlLabel, Grid, Stack, Switch } from '@mui/material';
 import { Judge, Organizer } from 'koekalenteri-shared/model';
-import { observer } from 'mobx-react-lite';
 import { useTranslation } from 'react-i18next';
 import { URLSearchParamsInit } from 'react-router-dom';
 import { AutocompleteMulti, DateRange } from '.';
@@ -63,10 +62,10 @@ export function deserializeFilter(searchParams: URLSearchParams): FilterProps {
   return result;
 }
 
-export const EventFilter = observer(function EventFilter({ judges, organizers, eventTypes, filter, onChange }: EventFilterProps) {
+export const EventFilter = ({ judges, organizers, eventTypes, filter, onChange }: EventFilterProps) => {
   const { t } = useTranslation();
   const setFilter = (props: Partial<FilterProps>) => {
-    onChange && onChange(Object.assign({}, filter, props));
+    onChange && onChange({...filter, ...props});
   }
 
   return (
@@ -161,4 +160,4 @@ export const EventFilter = observer(function EventFilter({ judges, organizers, e
       </Grid>
     </Box>
   );
-});
+};
