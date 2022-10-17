@@ -1,4 +1,5 @@
 import { Box, FormControlLabel, Grid, Stack, Switch } from '@mui/material';
+import { formatISO } from 'date-fns';
 import { Judge, Organizer } from 'koekalenteri-shared/model';
 import { useTranslation } from 'react-i18next';
 import { URLSearchParamsInit } from 'react-router-dom';
@@ -14,7 +15,7 @@ type EventFilterProps = {
 }
 
 const readDate = (date: string | null) => date ? new Date(date) : null;
-const writeDate = (date: Date) => date.toISOString().slice(0, 10);
+const writeDate = (date: Date) => formatISO(date, { representation: 'date' })
 
 export function serializeFilter(filter: FilterProps): URLSearchParamsInit {
   const result: Record<string, string | string[]> = {};
