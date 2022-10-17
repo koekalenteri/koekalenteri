@@ -20,6 +20,8 @@ type EventDateRange = {
   end: Date | null
 }
 
+export const MIN_DATE = new Date(2020,0,1);
+
 export class PublicStore {
   private _events: EventEx[] = [];
   public filteredEvents: EventEx[] = []
@@ -58,6 +60,12 @@ export class PublicStore {
       }},
       async (current: EventDateRange, previous: EventDateRange) => {
         if (current.start !== previous.start || current.end !== previous.end) {
+          if ((current.start && current.start < MIN_DATE)
+            || (current.end && current.end < MIN_DATE)
+            || (current.start && current.end && current.start > current.end)) {
+            // Inhibit loading if manually date inputs are invalid
+            return;
+          }
           this.load()
         }
       }

@@ -3,7 +3,7 @@ import { Judge, Organizer } from 'koekalenteri-shared/model';
 import { useTranslation } from 'react-i18next';
 import { URLSearchParamsInit } from 'react-router-dom';
 import { AutocompleteMulti, DateRange } from '.';
-import { FilterProps } from '../stores/PublicStore';
+import { FilterProps, MIN_DATE } from '../stores/PublicStore';
 
 type EventFilterProps = {
   eventTypes: string[]
@@ -72,7 +72,14 @@ export const EventFilter = ({ judges, organizers, eventTypes, filter, onChange }
     <Box m={1}>
       <Grid container justifyContent="space-around" spacing={1}>
         <Grid item xs={12} md={6} xl={2}>
-          <DateRange start={filter.start} startLabel={t("daterangeStart")} end={filter.end} endLabel={t("daterangeEnd")} onChange={(start, end) => setFilter({ start, end })}></DateRange>
+          <DateRange
+            start={filter.start}
+            end={filter.end}
+            range={{start: MIN_DATE}}
+            startLabel={t("daterangeStart")}
+            endLabel={t("daterangeEnd")}
+            onChange={(start, end) => setFilter({ start, end })}
+          />
         </Grid>
         <Grid item xs={12} sm={6} md={4} xl>
           <AutocompleteMulti
