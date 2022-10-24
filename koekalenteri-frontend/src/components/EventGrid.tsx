@@ -92,7 +92,7 @@ export const EventGrid = observer(function EventGrid({ events }: { events: Parti
         rows={events}
         onSelectionModelChange={(newSelectionModel) => {
           const id = newSelectionModel.length === 1 ? newSelectionModel[0] : '';
-          privateStore.setSelectedEvent(events.find(e => e.id === id));
+          privateStore.selectedEvent = events.find(e => e.id === id);
         }}
         selectionModel={privateStore.selectedEvent && privateStore.selectedEvent.id ? [privateStore.selectedEvent.id] : []}
         onRowDoubleClick={() => naviage(`${ADMIN_EDIT_EVENT}/${privateStore.selectedEvent?.id}`)}

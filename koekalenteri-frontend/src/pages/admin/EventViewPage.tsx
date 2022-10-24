@@ -3,18 +3,20 @@ import { useTranslation } from 'react-i18next';
 import { AuthPage } from './AuthPage';
 import { useStores } from '../../stores';
 import { useParams } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { CollapsibleSection, LinkButton, RegistrationForm, StyledDataGrid } from '../../components';
 import { ADMIN_EVENTS } from '../../config';
 import { getRegistrations, putRegistration } from '../../api/event';
-import { BreedCode, ConfirmedEventEx, Registration } from 'koekalenteri-shared/model';
+import { BreedCode, ConfirmedEventEx, Registration, RegistrationDate } from 'koekalenteri-shared/model';
 import { GridColDef, GridSelectionModel } from '@mui/x-data-grid';
 import { AddCircleOutline, DeleteOutline, EditOutlined, EmailOutlined, EuroOutlined, FormatListBulleted, PersonOutline, ShuffleOutlined, TableChartOutlined } from '@mui/icons-material';
 import { format } from 'date-fns';
 import { FullPageFlex } from '../../layout';
+import { observer } from 'mobx-react-lite';
+import { autorun, runInAction } from 'mobx';
+import { uniqueDate } from '../../utils';
 
-
-export function EventViewPage() {
+export const EventViewPage = observer(function EventViewPage() {
   const params = useParams();
   const { t } = useTranslation();
   const { t: breed } = useTranslation('breed');
@@ -24,16 +26,19 @@ export function EventViewPage() {
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<Registration>();
 
-  useEffect(() => {
+  useEffect(() => autorun(() => {
+    // TODO: Tää on varmasti hyvin anti-pattern, lataukset pitäis hoitaa storessa
     if (!loading) {
       return;
     }
     const abort = new AbortController();
     async function get(id: string) {
       const loadedEvent = await privateStore.get(id, abort.signal);
-      if (privateStore.selectedEvent?.id !== loadedEvent?.id) {
-        privateStore.setSelectedEvent(loadedEvent);
-      }
+      runInAction(() => {
+        if (privateStore.selectedEvent?.id !== loadedEvent?.id) {
+          privateStore.selectedEvent = loadedEvent;
+        }
+      })
       const items = await getRegistrations(id, abort.signal);
       setRegistrations(items);
       setLoading(false);
@@ -44,11 +49,18 @@ export function EventViewPage() {
       setLoading(false);
     }
     return () => abort.abort();
-  }, [params, privateStore, loading]);
+  }), []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const event = (privateStore.selectedEvent || {}) as ConfirmedEventEx;
+  const event = useMemo(() => privateStore.selectedEvent || {}, [privateStore.selectedEvent])  as ConfirmedEventEx;
+  const eventDates = useMemo(() => uniqueDate(event.classes?.map(c => c.date || event.startDate) || []), [event])
 
   const entryColumns: GridColDef[] = [
+    {
+      field: 'dates',
+      headerName: '',
+      width: 32,
+      renderCell: (p) => <DateColors dates={eventDates} selected={p.row.dates} />
+    },
     {
       field: 'dog.name',
       headerName: t('dog.name'),
@@ -102,6 +114,15 @@ export function EventViewPage() {
     }
   ];
 
+  const participantColumns: GridColDef[] = [
+    ...entryColumns,
+    {
+      field: 'comment',
+      headerName: 'Kommentti',
+      width: 90
+    }
+  ]
+
   const onSave = async (registration: Registration) => {
     try {
       const saved = await putRegistration(registration);
@@ -152,6 +173,23 @@ export function EventViewPage() {
           <Button startIcon={<EditOutlined />} disabled={!selected} onClick={() => setOpen(true)}>{t('edit')}</Button>
           <Button startIcon={<DeleteOutline />} disabled>{t('delete')}</Button>
         </Stack>
+        {event.isEntryClosed &&
+        <>
+          <Typography variant='h5'>Osallistujat</Typography>
+          <StyledDataGrid
+            loading={loading}
+            autoPageSize
+            columns={participantColumns}
+            density='compact'
+            disableColumnMenu
+            rows={[]}
+            components={{
+              NoRowsOverlay: NoRowsOverlay
+            }}
+          />
+        </>
+        }
+        <Typography variant='h5'>Ilmoittautuneet</Typography>
         <StyledDataGrid
           loading={loading}
           autoPageSize
@@ -188,9 +226,21 @@ export function EventViewPage() {
       </Dialog>
     </AuthPage>
   )
+})
+
+const NoRowsOverlay = () => <Box sx={{width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', bgcolor: 'background.selected'}}>Raahaa osallistujat tähän!</Box>
+
+const DateColors = ({dates, selected} : { dates: Date[], selected: RegistrationDate[] }) => {
+  const dateColors = ['#2D9CDB', '#BB6BD9', '#F2994A', '#27AE60', '#828282', '#56CCF2']
+  const available = dates.reduce<RegistrationDate[]>((acc, date) => [...acc, {date, time: 'ap'}, {date, time: 'ip'}], [])
+  return <>{available.map((dt, index) => {
+    const color = dateColors[index % dateColors.length]
+    const isSelected = !!selected.find(s => s.date.getTime() === dt.date.getTime() && s.time === dt.time);
+    return <Box key={color} sx={{bgcolor: isSelected ? color : 'transparent', width: '6px', height: '100%'}} />
+  })}</>
 }
 
-function Title({ event }: { event: ConfirmedEventEx }) {
+const Title = observer(function Title({ event }: { event: ConfirmedEventEx }) {
   const { t } = useTranslation();
   const title = event.isEventOver
     ? t('event.states.confirmed_eventOver')
@@ -204,9 +254,9 @@ function Title({ event }: { event: ConfirmedEventEx }) {
       <Box sx={{ display: 'inline-block', mx: 2, color: '#018786' }}>{title}</Box>
     </Typography>
   );
-}
+})
 
-function InfoPanel({ event }: { event: ConfirmedEventEx }) {
+const InfoPanel = observer(function InfoPanel({ event }: { event: ConfirmedEventEx }) {
   const { t } = useTranslation();
   return (
     <TableContainer component={Paper} elevation={4} sx={{
@@ -235,4 +285,4 @@ function InfoPanel({ event }: { event: ConfirmedEventEx }) {
       </Table>
     </TableContainer>
   );
-}
+})

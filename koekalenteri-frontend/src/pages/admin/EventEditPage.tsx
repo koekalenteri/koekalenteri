@@ -27,7 +27,7 @@ export const EventEditPage = observer(function EventEditPage({create}: {create?:
         return;
       }
       const result = await privateStore.get(id, abort.signal);
-      privateStore.setSelectedEvent(result);
+      privateStore.selectedEvent = result;
       setLoading(false);
     }
     if (params.id && privateStore.selectedEvent?.id !== params.id) {
