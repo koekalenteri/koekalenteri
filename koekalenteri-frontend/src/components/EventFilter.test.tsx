@@ -1,7 +1,7 @@
 import fi from 'date-fns/locale/fi';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { fireEvent, render, within, screen, getByLabelText } from '@testing-library/react';
+import { fireEvent, render, within, screen } from '@testing-library/react';
 import { EventFilter } from './';
 import { FilterProps } from '../stores/PublicStore';
 import { Judge, Organizer } from 'koekalenteri-shared/model';

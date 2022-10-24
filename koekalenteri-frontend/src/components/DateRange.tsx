@@ -1,6 +1,6 @@
 import { DatePicker, PickersDay } from '@mui/x-date-pickers';
 import { Box, FormControl, TextField, TextFieldProps, Theme } from "@mui/material";
-import { isSameDay, startOfDay } from "date-fns";
+import { isSameDay, isValid, startOfDay } from "date-fns";
 import { useTranslation } from 'react-i18next';
 
 type DateValue = Date | null;
@@ -26,13 +26,19 @@ function dayStyle(date: Date, selected: DateValue[], defaultDate?: Date) {
   };
 }
 
+function coerceToDateValue(d: DateValue) {
+  return (d && isValid(d)) ? startOfDay(d) : null;
+}
+
 export function DateRange({ start, end, startLabel, endLabel, defaultStart, defaultEnd, range, required, onChange }: DateRangeProps) {
   const { t } = useTranslation();
   const startChanged = (date: DateValue) => {
-    onChange && onChange(date && startOfDay(date), end);
+    const d = coerceToDateValue(date);
+    onChange && onChange(d, end);
   };
   const endChanged = (date: DateValue) => {
-    onChange && onChange(start, date && startOfDay(date));
+    const d = coerceToDateValue(date);
+    onChange && onChange(start, d);
   };
 
   return (

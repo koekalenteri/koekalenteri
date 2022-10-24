@@ -1,10 +1,10 @@
 import { Box, FormControlLabel, Grid, Stack, Switch } from '@mui/material';
+import { formatISO } from 'date-fns';
 import { Judge, Organizer } from 'koekalenteri-shared/model';
-import { observer } from 'mobx-react-lite';
 import { useTranslation } from 'react-i18next';
 import { URLSearchParamsInit } from 'react-router-dom';
 import { AutocompleteMulti, DateRange } from '.';
-import { FilterProps } from '../stores/PublicStore';
+import { FilterProps, MIN_DATE } from '../stores/PublicStore';
 
 type EventFilterProps = {
   eventTypes: string[]
@@ -15,7 +15,7 @@ type EventFilterProps = {
 }
 
 const readDate = (date: string | null) => date ? new Date(date) : null;
-const writeDate = (date: Date) => date.toISOString().slice(0, 10);
+const writeDate = (date: Date) => formatISO(date, { representation: 'date' })
 
 export function serializeFilter(filter: FilterProps): URLSearchParamsInit {
   const result: Record<string, string | string[]> = {};
@@ -63,17 +63,24 @@ export function deserializeFilter(searchParams: URLSearchParams): FilterProps {
   return result;
 }
 
-export const EventFilter = observer(function EventFilter({ judges, organizers, eventTypes, filter, onChange }: EventFilterProps) {
+export const EventFilter = ({ judges, organizers, eventTypes, filter, onChange }: EventFilterProps) => {
   const { t } = useTranslation();
   const setFilter = (props: Partial<FilterProps>) => {
-    onChange && onChange(Object.assign({}, filter, props));
+    onChange && onChange({...filter, ...props});
   }
 
   return (
     <Box m={1}>
       <Grid container justifyContent="space-around" spacing={1}>
         <Grid item xs={12} md={6} xl={2}>
-          <DateRange start={filter.start} startLabel={t("daterangeStart")} end={filter.end} endLabel={t("daterangeEnd")} onChange={(start, end) => setFilter({ start, end })}></DateRange>
+          <DateRange
+            start={filter.start}
+            end={filter.end}
+            range={{start: MIN_DATE}}
+            startLabel={t("daterangeStart")}
+            endLabel={t("daterangeEnd")}
+            onChange={(start, end) => setFilter({ start, end })}
+          />
         </Grid>
         <Grid item xs={12} sm={6} md={4} xl>
           <AutocompleteMulti
@@ -161,4 +168,4 @@ export const EventFilter = observer(function EventFilter({ judges, organizers, e
       </Grid>
     </Box>
   );
-});
+};

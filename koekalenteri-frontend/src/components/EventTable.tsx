@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import {
   TableContainer,
   Paper,
@@ -33,10 +32,6 @@ const Row = observer(function Row({ event }: { event: EventEx }) {
   const [open, setOpen] = useSessionBoolean('open' + event.id, false);
   const { t } = useTranslation();
 
-  useEffect(() => {
-    sessionStorage.setItem('open' + event.id, JSON.stringify(open));
-  }, [event, open])
-
   return (
     <>
       <TableRow sx={{
@@ -50,7 +45,7 @@ const Row = observer(function Row({ event }: { event: EventEx }) {
         '& div.MuiGrid-item': {
           overflow: 'hidden'
         },
-        '&:last-child td': { border: 0 }        
+        '&:last-child td': { border: 0 }
       }}>
         <TableCell>
           <Grid container spacing={0} alignItems="center">
@@ -69,7 +64,11 @@ const Row = observer(function Row({ event }: { event: EventEx }) {
               <Grid item container xs={12} md={6} spacing={1}>
                 <Grid item xs={6} md={7}>{event.organizer?.name}</Grid>
                 <Grid item xs={3} md={2}><EventPlaces event={event} /></Grid>
-                <Grid item xs={3} md={3} textAlign="right">{event.isEntryOpen ? <LinkButton to={`/event/${event.eventType}/${event.id}`} text={t('register')} /> : <EventStateInfo state={event.state} />}</Grid>
+                <Grid item xs={3} md={3} textAlign="right">{
+                  event.isEntryOpen ?
+                    <LinkButton to={`/event/${event.eventType}/${event.id}`} text={t('register')} /> :
+                    <EventStateInfo state={event.state} />}
+                </Grid>
               </Grid>
             </Grid>
           </Grid>
@@ -108,8 +107,10 @@ const EventPlaces = observer(function EventPlaces({ event }: { event: EventEx })
 function EventStateInfo({ state }: { state: EventState }) {
   const { t } = useTranslation();
   const showInfo = state === 'tentative' || state === 'cancelled';
-  return <Box sx={{ color: 'warning.main', textTransform: 'uppercase', mr: 1 }}>{showInfo ? t(`event.states.${state}_info`) : ''}</Box>;
-}
+  return<Box sx={{ color: 'warning.main', textTransform: 'uppercase', mr: 1 }}>
+    {showInfo && t(`event.states.${state}_info`)}
+  </Box>;
+};
 
 function EmptyResult() {
   const { t } = useTranslation();
