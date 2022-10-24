@@ -187,10 +187,16 @@ export function EventViewPage() {
 
 function Title({ event }: { event: ConfirmedEventEx }) {
   const { t } = useTranslation();
+  const title = event.isEventOver
+    ? t('event.states.confirmed_eventOver')
+    : event.isEntryClosed
+      ? t('event.states.confirmed_entryClosed')
+      : t('event.states.confirmed_entryOpen');
+
   return (
     <Typography variant="h5">
       {event.eventType}, {t('daterange', { start: event.startDate, end: event.endDate })}, {event.location}
-      <Box sx={{ display: 'inline-block', mx: 2, color: '#018786' }}>{t('event.states.confirmed_entryOpen')}</Box>
+      <Box sx={{ display: 'inline-block', mx: 2, color: '#018786' }}>{title}</Box>
     </Typography>
   );
 }

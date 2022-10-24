@@ -5,6 +5,7 @@ import { MemoryRouter } from 'react-router-dom';
 import { parseISO } from 'date-fns';
 import { ThemeProvider } from '@mui/material';
 import theme from '../assets/Theme';
+import { EventEx } from 'koekalenteri-shared/model';
 
 test('It should render error text on empty result', () => {
   render(
@@ -16,7 +17,20 @@ test('It should render error text on empty result', () => {
 });
 
 test('It should render event dates', async function() {
-  const event = { ...emptyEvent, startDate: parseISO('2021-02-10'), endDate: parseISO('2021-02-11'), isEntryOpen: false, isEntryClosing: false, isEntryUpcoming: false };
+  const event: EventEx = {
+    ...emptyEvent,
+    startDate: parseISO('2021-02-10'),
+    endDate: parseISO('2021-02-11'),
+
+    isEntryUpcoming: false,
+    isEntryOpen: false,
+    isEntryClosing: false,
+    isEntryClosed: false,
+
+    isEventUpcoming: false,
+    isEventOngoing: false,
+    isEventOver: true,
+  };
   render(
     <ThemeProvider theme={theme}>
       <EventTable events={[event]} />
@@ -26,7 +40,21 @@ test('It should render event dates', async function() {
 });
 
 test('It should render registration link', async function() {
-  const event = { ...emptyEvent, id: 'eventID', eventType: 'TestType', isEntryOpen: true, isEntryClosing: false, isEntryUpcoming: false };
+  const event = {
+    ...emptyEvent,
+    id: 'eventID',
+    eventType: 'TestType',
+
+    isEntryUpcoming: false,
+    isEntryOpen: true,
+    isEntryClosing: false,
+    isEntryClosed: false,
+
+    isEventUpcoming: true,
+    isEventOngoing: false,
+    isEventOver: true,
+
+  };
   render(
     <ThemeProvider theme={theme}>
       <MemoryRouter>

@@ -67,9 +67,14 @@ export type ShowContactInfo = {
 }
 
 export interface EventEx extends Event {
+  isEntryUpcoming: boolean
   isEntryOpen: boolean
   isEntryClosing: boolean
-  isEntryUpcoming: boolean
+  isEntryClosed: boolean
+
+  isEventUpcoming: boolean
+  isEventOngoing: boolean
+  isEventOver: boolean
   statusText?: 'tentative' | 'cancelled' | 'extended'
 }
 

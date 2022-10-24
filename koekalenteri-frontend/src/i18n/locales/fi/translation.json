@@ -92,6 +92,8 @@
       "cancelled_save": "Tapahtuma on peruttu",
       "confirmed": "Julkaistu",
       "confirmed_entryOpen": "Ilmoittautuminen käynnissä",
+      "confirmed_entryClosed": "Ilmoittautuminen on päättynyt",
+      "confirmed_eventOver": "Tapahtuma on päättynyt",
       "confirmed_save": "Tapahtuma on julkaistu",
       "draft": "Luonnos",
       "draft_save": "Tapahtuma on tallennettu luonnoksena",
