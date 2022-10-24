@@ -1,4 +1,4 @@
-import { Box, Button, Dialog, DialogContent, DialogTitle, Grid, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
+import { Box, Button, Dialog, DialogContent, DialogTitle, Divider, Grid, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { AuthPage } from './AuthPage';
 import { useStores } from '../../stores';
@@ -9,7 +9,7 @@ import { ADMIN_EVENTS } from '../../config';
 import { getRegistrations, putRegistration } from '../../api/event';
 import { BreedCode, ConfirmedEventEx, Registration } from 'koekalenteri-shared/model';
 import { GridColDef, GridSelectionModel } from '@mui/x-data-grid';
-import { AddCircleOutline, DeleteOutline, EditOutlined, EuroOutlined, PersonOutline } from '@mui/icons-material';
+import { AddCircleOutline, DeleteOutline, EditOutlined, EmailOutlined, EuroOutlined, FormatListBulleted, PersonOutline, ShuffleOutlined, TableChartOutlined } from '@mui/icons-material';
 import { format } from 'date-fns';
 import { FullPageFlex } from '../../layout';
 
@@ -48,7 +48,7 @@ export function EventViewPage() {
 
   const event = (privateStore.selectedEvent || {}) as ConfirmedEventEx;
 
-  const columns: GridColDef[] = [
+  const entryColumns: GridColDef[] = [
     {
       field: 'dog.name',
       headerName: t('dog.name'),
@@ -143,6 +143,11 @@ export function EventViewPage() {
           </Grid>
         </Grid>
         <Stack direction="row" spacing={2}>
+          <Button startIcon={<FormatListBulleted />} disabled>Näytä tiedot</Button>
+          <Button startIcon={<TableChartOutlined />} disabled>Vie Exceliin</Button>
+          <Button startIcon={<EmailOutlined />} disabled>Lähetä viesti</Button>
+          <Button startIcon={<ShuffleOutlined />} disabled>Arvo kokeen osallistujat</Button>
+          <Divider orientation='vertical'></Divider>
           <Button startIcon={<AddCircleOutline />} onClick={() => { setSelected(undefined); setOpen(true); }}>{t('create')}</Button>
           <Button startIcon={<EditOutlined />} disabled={!selected} onClick={() => setOpen(true)}>{t('edit')}</Button>
           <Button startIcon={<DeleteOutline />} disabled>{t('delete')}</Button>
@@ -150,7 +155,7 @@ export function EventViewPage() {
         <StyledDataGrid
           loading={loading}
           autoPageSize
-          columns={columns}
+          columns={entryColumns}
           density='compact'
           disableColumnMenu
           rows={registrations}
