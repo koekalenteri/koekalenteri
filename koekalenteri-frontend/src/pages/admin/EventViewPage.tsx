@@ -232,11 +232,14 @@ const NoRowsOverlay = () => <Box sx={{width: '100%', height: '100%', display: 'f
 
 const Title = observer(function Title({ event }: { event: ConfirmedEventEx }) {
   const { t } = useTranslation();
-  const title = event.isEventOver
-    ? t('event.states.confirmed_eventOver')
-    : event.isEntryClosed
+  const title = useMemo(() => {
+    if (event.isEventOver) {
+      return t('event.states.confirmed_eventOver')
+    }
+    return event.isEntryClosed
       ? t('event.states.confirmed_entryClosed')
       : t('event.states.confirmed_entryOpen');
+  }, [event, t])
 
   return (
     <Typography variant="h5">
