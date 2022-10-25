@@ -1,0 +1,282 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`GroupColors given 0 dates and 0 selected 1`] = `<div />`;
+
+exports[`GroupColors given 1 dates and 0 selected 1`] = `
+<div>
+  <div
+    class="MuiBox-root css-1urbi4i"
+  />
+  <div
+    class="MuiBox-root css-1urbi4i"
+  />
+</div>
+`;
+
+exports[`GroupColors given 1 dates and 1 selected 1`] = `
+<div>
+  <div
+    class="MuiBox-root css-14hq1a2"
+  />
+  <div
+    class="MuiBox-root css-1urbi4i"
+  />
+</div>
+`;
+
+exports[`GroupColors given 1 dates and 2 selected 1`] = `
+<div>
+  <div
+    class="MuiBox-root css-14hq1a2"
+  />
+  <div
+    class="MuiBox-root css-1gwv2qh"
+  />
+</div>
+`;
+
+exports[`GroupColors given 2 dates and 0 selected 1`] = `
+<div>
+  <div
+    class="MuiBox-root css-1urbi4i"
+  />
+  <div
+    class="MuiBox-root css-1urbi4i"
+  />
+  <div
+    class="MuiBox-root css-1urbi4i"
+  />
+  <div
+    class="MuiBox-root css-1urbi4i"
+  />
+</div>
+`;
+
+exports[`GroupColors given 2 dates and 1 selected 1`] = `
+<div>
+  <div
+    class="MuiBox-root css-14hq1a2"
+  />
+  <div
+    class="MuiBox-root css-1urbi4i"
+  />
+  <div
+    class="MuiBox-root css-1urbi4i"
+  />
+  <div
+    class="MuiBox-root css-1urbi4i"
+  />
+</div>
+`;
+
+exports[`GroupColors given 2 dates and 2 selected 1`] = `
+<div>
+  <div
+    class="MuiBox-root css-14hq1a2"
+  />
+  <div
+    class="MuiBox-root css-1gwv2qh"
+  />
+  <div
+    class="MuiBox-root css-1urbi4i"
+  />
+  <div
+    class="MuiBox-root css-1urbi4i"
+  />
+</div>
+`;
+
+exports[`GroupColors given 2 dates and 3 selected 1`] = `
+<div>
+  <div
+    class="MuiBox-root css-14hq1a2"
+  />
+  <div
+    class="MuiBox-root css-1gwv2qh"
+  />
+  <div
+    class="MuiBox-root css-wd5nlm"
+  />
+  <div
+    class="MuiBox-root css-1urbi4i"
+  />
+</div>
+`;
+
+exports[`GroupColors given 2 dates and 4 selected 1`] = `
+<div>
+  <div
+    class="MuiBox-root css-14hq1a2"
+  />
+  <div
+    class="MuiBox-root css-1gwv2qh"
+  />
+  <div
+    class="MuiBox-root css-wd5nlm"
+  />
+  <div
+    class="MuiBox-root css-6m2gat"
+  />
+</div>
+`;
+
+exports[`GroupColors given 3 dates and 0 selected 1`] = `
+<div>
+  <div
+    class="MuiBox-root css-1urbi4i"
+  />
+  <div
+    class="MuiBox-root css-1urbi4i"
+  />
+  <div
+    class="MuiBox-root css-1urbi4i"
+  />
+  <div
+    class="MuiBox-root css-1urbi4i"
+  />
+  <div
+    class="MuiBox-root css-1urbi4i"
+  />
+  <div
+    class="MuiBox-root css-1urbi4i"
+  />
+</div>
+`;
+
+exports[`GroupColors given 3 dates and 1 selected 1`] = `
+<div>
+  <div
+    class="MuiBox-root css-14hq1a2"
+  />
+  <div
+    class="MuiBox-root css-1urbi4i"
+  />
+  <div
+    class="MuiBox-root css-1urbi4i"
+  />
+  <div
+    class="MuiBox-root css-1urbi4i"
+  />
+  <div
+    class="MuiBox-root css-1urbi4i"
+  />
+  <div
+    class="MuiBox-root css-1urbi4i"
+  />
+</div>
+`;
+
+exports[`GroupColors given 3 dates and 2 selected 1`] = `
+<div>
+  <div
+    class="MuiBox-root css-14hq1a2"
+  />
+  <div
+    class="MuiBox-root css-1gwv2qh"
+  />
+  <div
+    class="MuiBox-root css-1urbi4i"
+  />
+  <div
+    class="MuiBox-root css-1urbi4i"
+  />
+  <div
+    class="MuiBox-root css-1urbi4i"
+  />
+  <div
+    class="MuiBox-root css-1urbi4i"
+  />
+</div>
+`;
+
+exports[`GroupColors given 3 dates and 3 selected 1`] = `
+<div>
+  <div
+    class="MuiBox-root css-14hq1a2"
+  />
+  <div
+    class="MuiBox-root css-1gwv2qh"
+  />
+  <div
+    class="MuiBox-root css-wd5nlm"
+  />
+  <div
+    class="MuiBox-root css-1urbi4i"
+  />
+  <div
+    class="MuiBox-root css-1urbi4i"
+  />
+  <div
+    class="MuiBox-root css-1urbi4i"
+  />
+</div>
+`;
+
+exports[`GroupColors given 3 dates and 4 selected 1`] = `
+<div>
+  <div
+    class="MuiBox-root css-14hq1a2"
+  />
+  <div
+    class="MuiBox-root css-1gwv2qh"
+  />
+  <div
+    class="MuiBox-root css-wd5nlm"
+  />
+  <div
+    class="MuiBox-root css-6m2gat"
+  />
+  <div
+    class="MuiBox-root css-1urbi4i"
+  />
+  <div
+    class="MuiBox-root css-1urbi4i"
+  />
+</div>
+`;
+
+exports[`GroupColors given 3 dates and 5 selected 1`] = `
+<div>
+  <div
+    class="MuiBox-root css-14hq1a2"
+  />
+  <div
+    class="MuiBox-root css-1gwv2qh"
+  />
+  <div
+    class="MuiBox-root css-wd5nlm"
+  />
+  <div
+    class="MuiBox-root css-6m2gat"
+  />
+  <div
+    class="MuiBox-root css-zea4zm"
+  />
+  <div
+    class="MuiBox-root css-1urbi4i"
+  />
+</div>
+`;
+
+exports[`GroupColors given 3 dates and 6 selected 1`] = `
+<div>
+  <div
+    class="MuiBox-root css-14hq1a2"
+  />
+  <div
+    class="MuiBox-root css-1gwv2qh"
+  />
+  <div
+    class="MuiBox-root css-wd5nlm"
+  />
+  <div
+    class="MuiBox-root css-6m2gat"
+  />
+  <div
+    class="MuiBox-root css-zea4zm"
+  />
+  <div
+    class="MuiBox-root css-v7rqxr"
+  />
+</div>
+`;

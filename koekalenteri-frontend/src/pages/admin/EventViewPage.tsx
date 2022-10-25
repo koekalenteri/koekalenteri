@@ -4,10 +4,10 @@ import { AuthPage } from './AuthPage';
 import { useStores } from '../../stores';
 import { useParams } from 'react-router-dom';
 import { useEffect, useMemo, useState } from 'react';
-import { CollapsibleSection, LinkButton, RegistrationForm, StyledDataGrid } from '../../components';
+import { CollapsibleSection, GroupColors, LinkButton, RegistrationForm, StyledDataGrid } from '../../components';
 import { ADMIN_EVENTS } from '../../config';
 import { getRegistrations, putRegistration } from '../../api/event';
-import { BreedCode, ConfirmedEventEx, Registration, RegistrationDate } from 'koekalenteri-shared/model';
+import { BreedCode, ConfirmedEventEx, Registration } from 'koekalenteri-shared/model';
 import { GridColDef, GridSelectionModel } from '@mui/x-data-grid';
 import { AddCircleOutline, DeleteOutline, EditOutlined, EmailOutlined, EuroOutlined, FormatListBulleted, PersonOutline, ShuffleOutlined, TableChartOutlined } from '@mui/icons-material';
 import { format } from 'date-fns';
@@ -59,7 +59,7 @@ export const EventViewPage = observer(function EventViewPage() {
       field: 'dates',
       headerName: '',
       width: 32,
-      renderCell: (p) => <DateColors dates={eventDates} selected={p.row.dates} />
+      renderCell: (p) => <GroupColors dates={eventDates} selected={p.row.dates} />
     },
     {
       field: 'dog.name',
@@ -229,16 +229,6 @@ export const EventViewPage = observer(function EventViewPage() {
 })
 
 const NoRowsOverlay = () => <Box sx={{width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', bgcolor: 'background.selected'}}>Raahaa osallistujat tähän!</Box>
-
-const DateColors = ({dates, selected} : { dates: Date[], selected: RegistrationDate[] }) => {
-  const dateColors = ['#2D9CDB', '#BB6BD9', '#F2994A', '#27AE60', '#828282', '#56CCF2']
-  const available = dates.reduce<RegistrationDate[]>((acc, date) => [...acc, {date, time: 'ap'}, {date, time: 'ip'}], [])
-  return <>{available.map((dt, index) => {
-    const color = dateColors[index % dateColors.length]
-    const isSelected = !!selected.find(s => s.date.getTime() === dt.date.getTime() && s.time === dt.time);
-    return <Box key={color} sx={{bgcolor: isSelected ? color : 'transparent', width: '6px', height: '100%'}} />
-  })}</>
-}
 
 const Title = observer(function Title({ event }: { event: ConfirmedEventEx }) {
   const { t } = useTranslation();
