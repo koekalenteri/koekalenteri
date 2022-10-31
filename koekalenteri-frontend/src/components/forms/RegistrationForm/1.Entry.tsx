@@ -71,7 +71,7 @@ export function EntryInfo({ reg, event, classDate, errorStates, helperTexts, onC
             label={t("registration.dates")}
             onChange={(_e, value) => onChange({dates: value})}
             isOptionEqualToValue={(o, v) => o.date.valueOf() === v.date.valueOf() && o.time === v.time}
-            getOptionLabel={o => t('weekday', { date: o.date }) + (o.time === 'ap' ? ' (aamu)' : ' (ilta)')}
+            getOptionLabel={o => t('weekday', { date: o.date }) + ' ' + t(`registration.time.${o.time}`)}
             options={classDates}
             value={reg.dates}
           />
