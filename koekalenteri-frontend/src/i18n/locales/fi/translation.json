@@ -93,6 +93,7 @@
       "confirmed": "Julkaistu",
       "confirmed_entryOpen": "Ilmoittautuminen käynnissä",
       "confirmed_entryClosed": "Ilmoittautuminen on päättynyt",
+      "confirmed_eventOngoing": "Tapahtuma on menossa",
       "confirmed_eventOver": "Tapahtuma on päättynyt",
       "confirmed_save": "Tapahtuma on julkaistu",
       "draft": "Luonnos",

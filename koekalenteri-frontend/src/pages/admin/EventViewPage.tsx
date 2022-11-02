@@ -4,7 +4,7 @@ import { AuthPage } from './AuthPage';
 import { useStores } from '../../stores';
 import { useParams } from 'react-router-dom';
 import { useEffect, useMemo, useState } from 'react';
-import { CollapsibleSection, GroupColors, LinkButton, RegistrationForm, StyledDataGrid } from '../../components';
+import { availableGroups, CollapsibleSection, GroupColors, GROUP_COLORS, LinkButton, RegistrationForm, StyledDataGrid } from '../../components';
 import { ADMIN_EVENTS } from '../../config';
 import { getRegistrations, putRegistration } from '../../api/event';
 import { BreedCode, ConfirmedEventEx, Registration } from 'koekalenteri-shared/model';
@@ -53,6 +53,7 @@ export const EventViewPage = observer(function EventViewPage() {
 
   const event = useMemo(() => privateStore.selectedEvent || {}, [privateStore.selectedEvent])  as ConfirmedEventEx;
   const eventDates = useMemo(() => uniqueDate(event.classes?.map(c => c.date || event.startDate) || []), [event])
+  const eventGroups = useMemo(() => availableGroups(eventDates), [eventDates])
 
   const entryColumns: GridColDef[] = [
     {
@@ -176,23 +177,40 @@ export const EventViewPage = observer(function EventViewPage() {
         {event.isEntryClosed &&
         <>
           <Typography variant='h5'>Osallistujat</Typography>
-          <StyledDataGrid
-            loading={loading}
-            autoPageSize
-            columns={participantColumns}
-            density='compact'
-            disableColumnMenu
-            rows={[]}
-            components={{
-              NoRowsOverlay: NoRowsOverlay
-            }}
-          />
+          <Box sx={{height: 40, width: '100%', overflow: 'hidden'}}>
+            <StyledDataGrid
+              columns={participantColumns}
+              density='compact'
+              disableColumnMenu
+              disableVirtualization
+              hideFooter
+              rows={[]}
+              components={{
+                NoRowsOverlay: () => null
+              }}
+            />
+          </Box>
+          {eventGroups.map((group, index) =>
+            <StyledDataGrid
+              loading={loading}
+              columns={participantColumns}
+              density='compact'
+              disableColumnMenu
+              hideFooter
+              headerHeight={0}
+              rows={[]}
+              components={{
+                Header: () => <Stack direction="row" sx={{height: 24, lineHeight: '24px', bgcolor: 'secondary.main'}}><GroupColors dates={eventDates} selected={[group]} disableTooltip/><b>{t('dateshort', { date: group.date }) + ' ' + t(`registration.time.${group.time}`)}</b></Stack>,
+                NoRowsOverlay: NoRowsOverlay,
+              }}
+              sx={{'& .MuiDataGrid-virtualScrollerContent': {borderLeft: `6px solid ${GROUP_COLORS[index]}`}}}
+            />
+          )}
         </>
         }
         <Typography variant='h5'>Ilmoittautuneet</Typography>
         <StyledDataGrid
           loading={loading}
-          autoPageSize
           columns={entryColumns}
           density='compact'
           disableColumnMenu
@@ -200,6 +218,7 @@ export const EventViewPage = observer(function EventViewPage() {
           onSelectionModelChange={(selectionModel: GridSelectionModel) => setSelected(registrations.find(r => r.id === selectionModel[0]))}
           selectionModel={selected ? [selected.id] : []}
           onRowDoubleClick={() => setOpen(true)}
+          sx={{flex: eventGroups.length || 1}}
         />
       </FullPageFlex>
       <Dialog

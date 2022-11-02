@@ -1,10 +1,10 @@
 import { Box } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import { EventClass, EventEx, EventState } from 'koekalenteri-shared/model';
+import { Event, EventClass, EventEx, EventState } from 'koekalenteri-shared/model';
 import { observer } from 'mobx-react-lite';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { ADMIN_EDIT_EVENT } from '../config';
+import { ADMIN_EDIT_EVENT, ADMIN_VIEW_EVENT } from '../config';
 import { useStores } from '../stores';
 
 interface EventGridColDef extends GridColDef {
@@ -16,7 +16,7 @@ type StartEndDate = { start: Date, end: Date };
 export const EventGrid = observer(function EventGrid({ events }: { events: Partial<EventEx>[] }) {
   const { t } = useTranslation();
   const { rootStore, privateStore } = useStores();
-  const naviage = useNavigate();
+  const navigate = useNavigate();
 
   const columns: EventGridColDef[] = [
     {
@@ -72,9 +72,29 @@ export const EventGrid = observer(function EventGrid({ events }: { events: Parti
       headerName: t('event.state'),
       flex: 1,
       type: 'string',
-      valueGetter: (params) => (params.row as EventEx).isEntryOpen ? t('event.states.confirmed_entryOpen') : t(`event.states.${(params.value || 'draft') as EventState}`)
+      valueGetter: (params) => {
+        const event: EventEx = params.row;
+        if (event.isEntryOpen) {
+          return t('event.states.confirmed_entryOpen')
+        }
+        if (event.isEntryClosed) {
+          return t('event.states.confirmed_entryClosed')
+        }
+        if (event.isEventOngoing) {
+          return t('event.states.confirmed_eventOngoing')
+        }
+        if (event.isEventOver) {
+          return t('event.states.confirmed_eventOver')
+        }
+        return t(`event.states.${(params.value || 'draft') as EventState}`)
+      }
     },
   ];
+
+  const handleDoubleClick = (event?: Partial<Event>) => {
+    if (!event) return
+    navigate(`${event.entries ? ADMIN_VIEW_EVENT : ADMIN_EDIT_EVENT}/${event.id}`)
+  }
 
   return (
     <Box sx={{
@@ -95,7 +115,7 @@ export const EventGrid = observer(function EventGrid({ events }: { events: Parti
           privateStore.selectedEvent = events.find(e => e.id === id);
         }}
         selectionModel={privateStore.selectedEvent && privateStore.selectedEvent.id ? [privateStore.selectedEvent.id] : []}
-        onRowDoubleClick={() => naviage(`${ADMIN_EDIT_EVENT}/${privateStore.selectedEvent?.id}`)}
+        onRowDoubleClick={() => handleDoubleClick(privateStore.selectedEvent)}
         sx={{
           '& .MuiDataGrid-columnHeaders': {
             backgroundColor: 'background.tableHead'
