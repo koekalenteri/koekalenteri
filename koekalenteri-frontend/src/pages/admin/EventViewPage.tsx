@@ -4,10 +4,10 @@ import { AuthPage } from './AuthPage';
 import { useStores } from '../../stores';
 import { useParams } from 'react-router-dom';
 import { useEffect, useMemo, useState } from 'react';
-import { availableGroups, CollapsibleSection, GroupColors, GROUP_COLORS, LinkButton, RegistrationForm, StyledDataGrid } from '../../components';
+import { availableGroups, CollapsibleSection, GroupColors, LinkButton, RegistrationForm, StyledDataGrid } from '../../components';
 import { ADMIN_EVENTS } from '../../config';
 import { getRegistrations, putRegistration } from '../../api/event';
-import { BreedCode, ConfirmedEventEx, Registration } from 'koekalenteri-shared/model';
+import { BreedCode, ConfirmedEventEx, Registration, RegistrationDate } from 'koekalenteri-shared/model';
 import { GridColDef, GridSelectionModel } from '@mui/x-data-grid';
 import { AddCircleOutline, DeleteOutline, EditOutlined, EmailOutlined, EuroOutlined, FormatListBulleted, PersonOutline, ShuffleOutlined, TableChartOutlined } from '@mui/icons-material';
 import { format } from 'date-fns';
@@ -200,10 +200,9 @@ export const EventViewPage = observer(function EventViewPage() {
               headerHeight={0}
               rows={[]}
               components={{
-                Header: () => <Stack direction="row" sx={{height: 24, lineHeight: '24px', bgcolor: 'secondary.main'}}><GroupColors dates={eventDates} selected={[group]} disableTooltip/><b>{t('dateshort', { date: group.date }) + ' ' + t(`registration.time.${group.time}`)}</b></Stack>,
+                Header: () => <GroupHeader eventDates={eventDates} group={group} />,
                 NoRowsOverlay: NoRowsOverlay,
               }}
-              sx={{'& .MuiDataGrid-virtualScrollerContent': {borderLeft: `6px solid ${GROUP_COLORS[index]}`}}}
             />
           )}
         </>
@@ -247,7 +246,36 @@ export const EventViewPage = observer(function EventViewPage() {
   )
 })
 
-const NoRowsOverlay = () => <Box sx={{width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', bgcolor: 'background.selected'}}>Raahaa osallistujat tähän!</Box>
+interface GroupHeaderProps {
+  eventDates: Date[]
+  group: RegistrationDate
+}
+const GroupHeader = ({eventDates, group}: GroupHeaderProps) => {
+  const { t } = useTranslation();
+
+  return <Stack direction="row" sx={{
+    height: 24,
+    lineHeight: '24px',
+    bgcolor: 'secondary.main'
+  }}>
+    <GroupColors dates={eventDates} selected={[group]} disableTooltip />
+    <b>{t('dateshort', { date: group.date }) + ' ' + t(`registration.time.${group.time}`)}</b>
+  </Stack>;
+}
+
+
+const NoRowsOverlay = () => {
+  return <Box sx={{
+    width: '100%',
+    height: '100%',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    bgcolor: 'background.selected'}}
+  >
+      Raahaa osallistujat tähän!
+  </Box>
+}
 
 const Title = observer(function Title({ event }: { event: ConfirmedEventEx }) {
   const { t } = useTranslation();
