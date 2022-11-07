@@ -62,6 +62,7 @@ export const EventViewPage = ({event, registrations, loading}: Props) => {
   const { t } = useTranslation();
   const { t: breed } = useTranslation('breed');
   const [open, setOpen] = useState(false);
+  const [list, setList] = useState(registrations);
   const [selected, setSelected] = useState<Registration>();
 
   const eventDates = useMemo(() => uniqueDate(event.classes?.map(c => c.date || event.startDate)), [event])
@@ -139,12 +140,12 @@ export const EventViewPage = ({event, registrations, loading}: Props) => {
   const onSave = async (registration: Registration) => {
     try {
       const saved = await putRegistration(registration);
-      const old = registrations.find(r => r.id === saved.id);
+      const old = list.find(r => r.id === saved.id);
       if (old) {
         Object.assign(old, saved);
         setSelected(saved);
       } else {
-        registrations.concat([saved]);
+        setList(list.concat([saved]));
         event.entries++;
       }
       // TODO: update event calsses (infopanel)
@@ -226,8 +227,8 @@ export const EventViewPage = ({event, registrations, loading}: Props) => {
           columns={entryColumns}
           density='compact'
           disableColumnMenu
-          rows={registrations}
-          onSelectionModelChange={(selectionModel: GridSelectionModel) => setSelected(registrations.find(r => r.id === selectionModel[0]))}
+          rows={list}
+          onSelectionModelChange={(selectionModel: GridSelectionModel) => setSelected(list.find(r => r.id === selectionModel[0]))}
           selectionModel={selected ? [selected.id] : []}
           onRowDoubleClick={() => setOpen(true)}
           sx={{flex: eventGroups.length || 1}}
