@@ -11,6 +11,7 @@ export * from './EventFilter';
 export * from './EventGrid';
 export * from './EventInfo';
 export * from './EventTable';
+export * from './GroupColors'
 export * from './HelpPopover';
 export * from './MiniDrawer';
 export * from './StyledDataGrid';

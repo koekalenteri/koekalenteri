@@ -25,9 +25,14 @@ test('It should render event information', async function() {
       entries: 22,
       members: 2
     }],
+    isEntryUpcoming: false,
     isEntryOpen: false,
     isEntryClosing: false,
-    isEntryUpcoming: false
+    isEntryClosed: false,
+
+    isEventUpcoming: false,
+    isEventOngoing: false,
+    isEventOver: true,
   };
   render(<EventInfo event={event} />);
 

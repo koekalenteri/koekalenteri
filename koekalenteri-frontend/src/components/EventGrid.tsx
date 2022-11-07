@@ -1,11 +1,12 @@
 import { Box } from '@mui/material';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import { EventClass, EventEx, EventState } from 'koekalenteri-shared/model';
+import { GridColDef } from '@mui/x-data-grid';
+import { Event, EventClass, EventEx, EventState } from 'koekalenteri-shared/model';
 import { observer } from 'mobx-react-lite';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { ADMIN_EDIT_EVENT } from '../config';
+import { ADMIN_EDIT_EVENT, ADMIN_VIEW_EVENT } from '../config';
 import { useStores } from '../stores';
+import { StyledDataGrid } from './StyledDataGrid';
 
 interface EventGridColDef extends GridColDef {
   field: keyof EventEx | 'date'
@@ -16,7 +17,7 @@ type StartEndDate = { start: Date, end: Date };
 export const EventGrid = observer(function EventGrid({ events }: { events: Partial<EventEx>[] }) {
   const { t } = useTranslation();
   const { rootStore, privateStore } = useStores();
-  const naviage = useNavigate();
+  const navigate = useNavigate();
 
   const columns: EventGridColDef[] = [
     {
@@ -58,7 +59,7 @@ export const EventGrid = observer(function EventGrid({ events }: { events: Parti
       headerName: t('judgeChief'),
       minWidth: 100,
       flex: 1,
-      valueGetter: (params) => rootStore.judgeStore.getJudge(params.row.judges[0])?.toJSON().name
+      valueGetter: (params) => params.row.judges && rootStore.judgeStore.getJudge(params.row.judges[0])?.toJSON().name
     },
     {
       field: 'places',
@@ -72,9 +73,29 @@ export const EventGrid = observer(function EventGrid({ events }: { events: Parti
       headerName: t('event.state'),
       flex: 1,
       type: 'string',
-      valueGetter: (params) => (params.row as EventEx).isEntryOpen ? t('event.states.confirmed_entryOpen') : t(`event.states.${(params.value || 'draft') as EventState}`)
+      valueGetter: (params) => {
+        const event: EventEx = params.row;
+        if (event.isEntryOpen) {
+          return t('event.states.confirmed_entryOpen')
+        }
+        if (event.isEntryClosed) {
+          return t('event.states.confirmed_entryClosed')
+        }
+        if (event.isEventOngoing) {
+          return t('event.states.confirmed_eventOngoing')
+        }
+        if (event.isEventOver) {
+          return t('event.states.confirmed_eventOver')
+        }
+        return t(`event.states.${(params.value || 'draft') as EventState}`)
+      }
     },
   ];
+
+  const handleDoubleClick = (event?: Partial<Event>) => {
+    if (!event) return
+    navigate(`${event.entries ? ADMIN_VIEW_EVENT : ADMIN_EDIT_EVENT}/${event.id}`)
+  }
 
   return (
     <Box sx={{
@@ -84,41 +105,15 @@ export const EventGrid = observer(function EventGrid({ events }: { events: Parti
       width: '100%',
       minHeight: 300,
     }}>
-      <DataGrid
+      <StyledDataGrid
         autoPageSize
         columns={columns}
         density='compact'
         disableColumnMenu
         rows={events}
-        onSelectionModelChange={(newSelectionModel) => {
-          const id = newSelectionModel.length === 1 ? newSelectionModel[0] : '';
-          privateStore.setSelectedEvent(events.find(e => e.id === id));
-        }}
+        onSelectionModelChange={(selection) => privateStore.selectEvent(selection[0] as string || '')}
         selectionModel={privateStore.selectedEvent && privateStore.selectedEvent.id ? [privateStore.selectedEvent.id] : []}
-        onRowDoubleClick={() => naviage(`${ADMIN_EDIT_EVENT}/${privateStore.selectedEvent?.id}`)}
-        sx={{
-          '& .MuiDataGrid-columnHeaders': {
-            backgroundColor: 'background.tableHead'
-          },
-          '& .MuiDataGrid-row:nth-of-type(2n+1)': {
-            backgroundColor: 'background.oddRow'
-          },
-          '& .MuiDataGrid-cell:focus': {
-            outline: 'none'
-          },
-          '& .MuiDataGrid-row.Mui-selected': {
-            backgroundColor: 'background.selected'
-          },
-          '& .MuiDataGrid-row:hover': {
-            backgroundColor: undefined
-          },
-          '& .MuiDataGrid-row.Mui-selected:hover': {
-            backgroundColor: 'background.hover'
-          },
-          '& .MuiDataGrid-row:hover > .MuiDataGrid-cell': {
-            backgroundColor: 'background.hover'
-          }
-        }}
+        onRowDoubleClick={() => handleDoubleClick(privateStore.selectedEvent)}
       />
     </Box>
   );

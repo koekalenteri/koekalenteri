@@ -6,8 +6,8 @@ export class PrivateStore {
   private _loaded: boolean = false;
   private _loading: boolean = false;
 
-  public newEvent: Partial<Event> = {};
   public selectedEvent: Partial<Event> | undefined = undefined;
+  public newEvent: Partial<Event> = {};
 
   public events: Partial<EventEx>[] = [];
 
@@ -27,8 +27,8 @@ export class PrivateStore {
     this.newEvent = event;
   }
 
-  setSelectedEvent(event: Partial<EventEx>|undefined) {
-    this.selectedEvent = event;
+  async selectEvent(id: string, signal?: AbortSignal) {
+    this.selectedEvent = await this.get(id, signal)
   }
 
   async load(signal?: AbortSignal) {
@@ -47,7 +47,11 @@ export class PrivateStore {
     if (!this.loaded) {
       await this.load(signal);
     }
-    return this.events.find(e => e.id === id);
+    let event;
+    runInAction(() => {
+      event = this.events.find(e => e.id === id)
+    })
+    return event;
   }
 
   async putEvent(event: Partial<Event>, token?: string) {

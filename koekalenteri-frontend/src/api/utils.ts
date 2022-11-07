@@ -1,4 +1,4 @@
-import type { Event, EventEx, JsonEvent } from 'koekalenteri-shared/model';
+import type { ConfirmedEventEx, Event, EventEx, JsonEvent } from 'koekalenteri-shared/model';
 import { endOfDay, startOfDay, subDays } from 'date-fns';
 import { DEFAULT_EVENT } from './defaultEvent';
 
@@ -41,13 +41,22 @@ export function rehydrateEvent(event: Partial<JsonEvent> | Partial<Event>, now =
   let isEntryOpen = false;
   let isEntryClosing = false;
   let isEntryUpcoming = false;
+  let isEntryClosed = false;
+  let isEventUpcoming = false;
+  let isEventOngoing = false;
+  let isEventOver = false;
 
-  if (event.entryStartDate && event.entryEndDate) {
-    isEntryOpen = event.state === 'confirmed' &&
-      startOfDay(event.entryStartDate as Date) <= now &&
-      endOfDay(event.entryEndDate as Date) >= now;
-    isEntryClosing = isEntryOpen && subDays(event.entryEndDate as Date, 7) <= endOfDay(now);
-    isEntryUpcoming = event.entryStartDate > now;
+  if (event.state === 'confirmed') {
+    const confirmedEvent = event as ConfirmedEventEx;
+    isEventUpcoming = confirmedEvent.startDate > now;
+    isEntryUpcoming = confirmedEvent.entryStartDate > now;
+    isEntryOpen = startOfDay(confirmedEvent.entryStartDate) <= now &&
+      endOfDay(confirmedEvent.entryEndDate) >= now;
+    isEntryClosing = isEntryOpen && subDays(confirmedEvent.entryEndDate, 7) <= endOfDay(now);
+    isEntryClosed = endOfDay(confirmedEvent.entryEndDate) < now &&
+      startOfDay(confirmedEvent.startDate) > now;
+    isEventOngoing = confirmedEvent.startDate <= now && confirmedEvent.endDate >= now;
+    isEventOver = confirmedEvent.endDate < now;
   }
 
   let statusText: 'tentative' | 'cancelled' | 'extended' | undefined;
@@ -61,9 +70,13 @@ export function rehydrateEvent(event: Partial<JsonEvent> | Partial<Event>, now =
   return {
     ...DEFAULT_EVENT,
     ...event as Partial<Event>,
+    isEntryUpcoming,
     isEntryOpen,
     isEntryClosing,
-    isEntryUpcoming,
+    isEntryClosed,
+    isEventUpcoming,
+    isEventOngoing,
+    isEventOver,
     statusText
   };
 }
