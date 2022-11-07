@@ -10,7 +10,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { AWSConfig } from './amplify-env';
 import { ADMIN_DEFAULT, ADMIN_EDIT_EVENT, ADMIN_EVENTS, ADMIN_EVENT_TYPES, ADMIN_JUDGES, ADMIN_NEW_EVENT, ADMIN_OFFICIALS, ADMIN_ORGS, ADMIN_ROOT, ADMIN_USERS, ADMIN_VIEW_EVENT } from './config';
 import { Language, locales, muiLocales } from './i18n';
-import { EventEditPage, EventListPage, EventTypeListPage, EventViewPage, JudgeListPage, LoginPage, LogoutPage, OfficialListPage, OrganizerListPage, RegistrationListPage, RegistrationPage, SearchPage, UsersPage } from './pages';
+import { EventEditPage, EventListPage, EventTypeListPage, EventViewPageWithData, JudgeListPage, LoginPage, LogoutPage, OfficialListPage, OrganizerListPage, RegistrationListPage, RegistrationPage, SearchPage, UsersPage } from './pages';
 
 Auth.configure(AWSConfig);
 
@@ -41,8 +41,8 @@ function App() {
               <Route path={ADMIN_EVENTS} element={<EventListPage />} />
               <Route path={ADMIN_NEW_EVENT} element={<EventEditPage create />} />
               <Route path={`${ADMIN_EDIT_EVENT}/:id`} element={<EventEditPage />} />
-              <Route path={`${ADMIN_VIEW_EVENT}/:id`} element={<EventViewPage />} />
-              <Route path={`${ADMIN_VIEW_EVENT}/:id/:reistrationId`} element={<EventViewPage />} />
+              <Route path={`${ADMIN_VIEW_EVENT}/:id`} element={<EventViewPageWithData />} />
+              <Route path={`${ADMIN_VIEW_EVENT}/:id/:reistrationId`} element={<EventViewPageWithData />} />
               <Route path={ADMIN_ORGS} element={<OrganizerListPage />} />
               <Route path={ADMIN_OFFICIALS} element={<OfficialListPage />} />
               <Route path={ADMIN_USERS} element={<UsersPage />} />

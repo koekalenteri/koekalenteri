@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitForElementToBeRemoved, within } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, waitForElementToBeRemoved, within } from '@testing-library/react';
 import App from './App';
 import { MemoryRouter } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material';
@@ -67,18 +67,22 @@ it('renders event page with date selected', async () => {
 }, TIMEOUT);
 
 it('renders admin default (event) page', async () => {
-  renderPath(ADMIN_ROOT);
-  const head = await screen.findAllByText(/Tapahtumat/);
-  expect(head.length).toBe(2);
+  const { container } = renderPath(ADMIN_ROOT);
+  await screen.findAllByText(/Tapahtumat/);
+
+  expect(container).toMatchSnapshot();
 
   // Select an event, and click edit button
   const row = screen.getAllByRole('row')[1];
   const cell = within(row).getAllByRole('cell')[0];
   fireEvent.click(cell, 'click');
-  expect(row).toHaveClass('Mui-selected');
+
+  await waitFor(() => expect(row).toHaveClass('Mui-selected'))
+
   fireEvent.click(screen.getByText(/Muokkaa/));
-  const newHead = await screen.findByText(/Muokkaa tapahtumaa/);
-  expect(newHead).toBeInstanceOf(HTMLDivElement);
+  await screen.findByText(/Muokkaa tapahtumaa/);
+
+  expect(container).toMatchSnapshot('edit');
 }, TIMEOUT);
 
 it('renders admin createEvent page', async () => {

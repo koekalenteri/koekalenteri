@@ -1,11 +1,12 @@
 import { Box } from '@mui/material';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { GridColDef } from '@mui/x-data-grid';
 import { Event, EventClass, EventEx, EventState } from 'koekalenteri-shared/model';
 import { observer } from 'mobx-react-lite';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { ADMIN_EDIT_EVENT, ADMIN_VIEW_EVENT } from '../config';
 import { useStores } from '../stores';
+import { StyledDataGrid } from './StyledDataGrid';
 
 interface EventGridColDef extends GridColDef {
   field: keyof EventEx | 'date'
@@ -58,7 +59,7 @@ export const EventGrid = observer(function EventGrid({ events }: { events: Parti
       headerName: t('judgeChief'),
       minWidth: 100,
       flex: 1,
-      valueGetter: (params) => rootStore.judgeStore.getJudge(params.row.judges[0])?.toJSON().name
+      valueGetter: (params) => params.row.judges && rootStore.judgeStore.getJudge(params.row.judges[0])?.toJSON().name
     },
     {
       field: 'places',
@@ -104,41 +105,15 @@ export const EventGrid = observer(function EventGrid({ events }: { events: Parti
       width: '100%',
       minHeight: 300,
     }}>
-      <DataGrid
+      <StyledDataGrid
         autoPageSize
         columns={columns}
         density='compact'
         disableColumnMenu
         rows={events}
-        onSelectionModelChange={(newSelectionModel) => {
-          const id = newSelectionModel.length === 1 ? newSelectionModel[0] : '';
-          privateStore.selectedEvent = events.find(e => e.id === id);
-        }}
+        onSelectionModelChange={(selection) => privateStore.selectEvent(selection[0] as string || '')}
         selectionModel={privateStore.selectedEvent && privateStore.selectedEvent.id ? [privateStore.selectedEvent.id] : []}
         onRowDoubleClick={() => handleDoubleClick(privateStore.selectedEvent)}
-        sx={{
-          '& .MuiDataGrid-columnHeaders': {
-            backgroundColor: 'background.tableHead'
-          },
-          '& .MuiDataGrid-row:nth-of-type(2n+1)': {
-            backgroundColor: 'background.oddRow'
-          },
-          '& .MuiDataGrid-cell:focus': {
-            outline: 'none'
-          },
-          '& .MuiDataGrid-row.Mui-selected': {
-            backgroundColor: 'background.selected'
-          },
-          '& .MuiDataGrid-row:hover': {
-            backgroundColor: undefined
-          },
-          '& .MuiDataGrid-row.Mui-selected:hover': {
-            backgroundColor: 'background.hover'
-          },
-          '& .MuiDataGrid-row:hover > .MuiDataGrid-cell': {
-            backgroundColor: 'background.hover'
-          }
-        }}
       />
     </Box>
   );

@@ -5,8 +5,8 @@ import { Event, EventEx } from 'koekalenteri-shared/model';
 export class PrivateStore {
   private _loaded: boolean = false;
   private _loading: boolean = false;
-  private _selectedEvent: Partial<Event> | undefined = undefined;
 
+  public selectedEvent: Partial<Event> | undefined = undefined;
   public newEvent: Partial<Event> = {};
 
   public events: Partial<EventEx>[] = [];
@@ -27,9 +27,8 @@ export class PrivateStore {
     this.newEvent = event;
   }
 
-  get selectedEvent() { return this._selectedEvent }
-  set selectedEvent(event) {
-    this._selectedEvent = event;
+  async selectEvent(id: string, signal?: AbortSignal) {
+    this.selectedEvent = await this.get(id, signal)
   }
 
   async load(signal?: AbortSignal) {

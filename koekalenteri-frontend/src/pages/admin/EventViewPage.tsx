@@ -13,18 +13,14 @@ import { AddCircleOutline, DeleteOutline, EditOutlined, EmailOutlined, EuroOutli
 import { format } from 'date-fns';
 import { FullPageFlex } from '../../layout';
 import { observer } from 'mobx-react-lite';
-import { autorun, runInAction } from 'mobx';
+import { autorun } from 'mobx';
 import { uniqueDate } from '../../utils';
 
-export const EventViewPage = observer(function EventViewPage() {
+export const EventViewPageWithData = observer(function EventViewPageWithData() {
   const params = useParams();
-  const { t } = useTranslation();
-  const { t: breed } = useTranslation('breed');
   const { privateStore } = useStores();
   const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [loading, setLoading] = useState(true);
-  const [open, setOpen] = useState(false);
-  const [selected, setSelected] = useState<Registration>();
 
   useEffect(() => autorun(() => {
     // TODO: Tää on varmasti hyvin anti-pattern, lataukset pitäis hoitaa storessa
@@ -33,12 +29,8 @@ export const EventViewPage = observer(function EventViewPage() {
     }
     const abort = new AbortController();
     async function get(id: string) {
-      const loadedEvent = await privateStore.get(id, abort.signal);
-      runInAction(() => {
-        if (privateStore.selectedEvent?.id !== loadedEvent?.id) {
-          privateStore.selectedEvent = loadedEvent;
-        }
-      })
+      privateStore.selectEvent(id, abort.signal)
+      // TODO: move to a store
       const items = await getRegistrations(id, abort.signal);
       setRegistrations(items);
       setLoading(false);
@@ -51,8 +43,28 @@ export const EventViewPage = observer(function EventViewPage() {
     return () => abort.abort();
   }), []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const event = useMemo(() => privateStore.selectedEvent || {}, [privateStore.selectedEvent])  as ConfirmedEventEx;
-  const eventDates = useMemo(() => uniqueDate(event.classes?.map(c => c.date || event.startDate) || []), [event])
+  if (!privateStore.selectedEvent) {
+    return null
+  }
+
+  return (
+    <EventViewPage event={privateStore.selectedEvent as ConfirmedEventEx} registrations={registrations} loading={loading} />
+  )
+})
+
+interface Props {
+  event: ConfirmedEventEx
+  registrations: Registration[]
+  loading: boolean
+}
+
+export const EventViewPage = ({event, registrations, loading}: Props) => {
+  const { t } = useTranslation();
+  const { t: breed } = useTranslation('breed');
+  const [open, setOpen] = useState(false);
+  const [selected, setSelected] = useState<Registration>();
+
+  const eventDates = useMemo(() => uniqueDate(event.classes?.map(c => c.date || event.startDate)), [event])
   const eventGroups = useMemo(() => availableGroups(eventDates), [eventDates])
 
   const entryColumns: GridColDef[] = [
@@ -132,7 +144,7 @@ export const EventViewPage = observer(function EventViewPage() {
         Object.assign(old, saved);
         setSelected(saved);
       } else {
-        setRegistrations(registrations.concat([saved]));
+        registrations.concat([saved]);
         event.entries++;
       }
       // TODO: update event calsses (infopanel)
@@ -192,6 +204,7 @@ export const EventViewPage = observer(function EventViewPage() {
           </Box>
           {eventGroups.map((group, index) =>
             <StyledDataGrid
+              key={group.date.toDateString() + group.time}
               loading={loading}
               columns={participantColumns}
               density='compact'
@@ -244,7 +257,8 @@ export const EventViewPage = observer(function EventViewPage() {
       </Dialog>
     </AuthPage>
   )
-})
+
+}
 
 interface GroupHeaderProps {
   eventDates: Date[]
