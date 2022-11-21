@@ -27,6 +27,9 @@
             "L": [{
               "S": "NOU"
             }]
+          },
+          "active": {
+            "BOOL": true
           }
         }
       }
@@ -62,6 +65,9 @@
             }, {
               "S": "NOWT"
             }]
+          },
+          "active": {
+            "BOOL": true
           }
         }
       }
@@ -101,6 +107,9 @@
             }, {
               "S": "NOWT"
             }]
+          },
+          "active": {
+            "BOOL": true
           }
         }
       }
