@@ -70,8 +70,6 @@ it('renders admin default (event) page', async () => {
   const { container } = renderPath(ADMIN_ROOT);
   await screen.findAllByText(/Tapahtumat/);
 
-  expect(container).toMatchSnapshot();
-
   // Select an event, and click edit button
   const row = screen.getAllByRole('row')[1];
   const cell = within(row).getAllByRole('cell')[0];
