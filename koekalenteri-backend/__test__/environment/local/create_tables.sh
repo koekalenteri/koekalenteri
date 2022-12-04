@@ -38,8 +38,8 @@ aws dynamodb put-item --endpoint-url http://127.0.0.1:8000 --table-name organize
 
 aws dynamodb create-table \
   --table-name dog-table \
-  --attribute-definitions AttributeName=regNo,AttributeType=S AttributeName=id,AttributeType=N \
-  --key-schema AttributeName=regNo,KeyType=HASH AttributeName=id,KeyType=RANGE \
+  --attribute-definitions AttributeName=regNo,AttributeType=S \
+  --key-schema AttributeName=regNo,KeyType=HASH \
   --billing-mode PAY_PER_REQUEST --endpoint-url http://127.0.0.1:8000
 
 aws dynamodb batch-write-item --endpoint-url http://127.0.0.1:8000 --request-items file://dogs.json
