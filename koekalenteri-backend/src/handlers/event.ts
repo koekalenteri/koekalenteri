@@ -28,7 +28,7 @@ export const putEventHandler = metricScope((metrics: MetricsLogger) =>
       let existing;
       const item: JsonConfirmedEvent = JSON.parse(event.body || "");
       if (item.id) {
-        existing = await dynamoDB.read<JsonConfirmedEvent>({ eventType: item.eventType, id: item.id });
+        existing = await dynamoDB.read<JsonConfirmedEvent>({ id: item.id });
       } else {
         item.id = uuidv4();
         item.createdAt = timestamp;
@@ -113,7 +113,7 @@ export const putRegistrationHandler = metricScope((metrics: MetricsLogger) =>
 
       const t = i18n.getFixedT(registration.language);
 
-      const eventKey = { eventType: registration.eventType, id: registration.eventId };
+      const eventKey = { id: registration.eventId };
       const eventTable = process.env.EVENT_TABLE_NAME || '';
       const confirmedEvent = await dynamoDB.read<JsonConfirmedEvent>(eventKey, eventTable);
       if (!confirmedEvent) {
@@ -159,7 +159,7 @@ export const putRegistrationHandler = metricScope((metrics: MetricsLogger) =>
         const from = "koekalenteri@koekalenteri.snj.fi";
         const qualifyingResults = registration.qualifyingResults.map(r => ({ ...r, date: lightFormat(parseISO(r.date), 'd.M.yyyy') }));
         const context = getEmailContext(update, cancel);
-        
+
         // Friendly name for secretary (and official) (KOE-350)
         confirmedEvent.secretary.name = reverseName(confirmedEvent.secretary.name);
         confirmedEvent.official.name = reverseName(confirmedEvent.official.name);

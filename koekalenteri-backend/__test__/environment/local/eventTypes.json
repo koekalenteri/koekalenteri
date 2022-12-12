@@ -1,0 +1,176 @@
+{
+  "event-type-table": [
+    {
+      "PutRequest": {
+        "Item": {
+          "modifiedAt": {
+            "S": "2022-05-02T20:47:50.806Z"
+          },
+          "active": {
+            "BOOL": true
+          },
+          "createdAt": {
+            "S": "2022-05-02T20:47:50.806Z"
+          },
+          "eventType": {
+            "S": "NOME-A"
+          },
+          "official": {
+            "BOOL": true
+          },
+          "description": {
+            "M": {
+              "en": {
+                "S": "Field trial A for retrievers"
+              },
+              "fi": {
+                "S": "Noutajien A-metsästyskoe"
+              },
+              "sv": {
+                "S": "Jaktprov-A för retrievers"
+              }
+            }
+          },
+          "id": {
+            "S": "bd30a91c-f960-4d23-a3d3-81f53c1ab737"
+          },
+          "createdBy": {
+            "S": "anonymous"
+          },
+          "modifiedBy": {
+            "S": "anonymous"
+          }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "modifiedAt": {
+            "S": "2022-05-02T20:47:47.677Z"
+          },
+          "active": {
+            "BOOL": true
+          },
+          "createdAt": {
+            "S": "2022-05-02T20:47:47.677Z"
+          },
+          "eventType": {
+            "S": "NOME-B"
+          },
+          "official": {
+            "BOOL": true
+          },
+          "description": {
+            "M": {
+              "en": {
+                "S": "Hunting trial B for retrievers - cold game"
+              },
+              "fi": {
+                "S": "Noutajien B-metsästyskoe"
+              },
+              "sv": {
+                "S": "Jaktprov-B för retrievers"
+              }
+            }
+          },
+          "id": {
+            "S": "7693e12f-a941-4ed9-9623-e5c13578bf3f"
+          },
+          "createdBy": {
+            "S": "anonymous"
+          },
+          "modifiedBy": {
+            "S": "anonymous"
+          }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "modifiedAt": {
+            "S": "2022-05-02T20:47:46.127Z"
+          },
+          "active": {
+            "BOOL": true
+          },
+          "createdAt": {
+            "S": "2022-05-02T20:47:46.127Z"
+          },
+          "eventType": {
+            "S": "NOU"
+          },
+          "official": {
+            "BOOL": true
+          },
+          "description": {
+            "M": {
+              "en": {
+                "S": "Working ability test for retrievers"
+              },
+              "fi": {
+                "S": "Noutajien taipumuskoe"
+              },
+              "sv": {
+                "S": "Anlagsprov för retrievers"
+              }
+            }
+          },
+          "id": {
+            "S": "8ac752ec-4192-431e-9dde-f8788722698d"
+          },
+          "createdBy": {
+            "S": "anonymous"
+          },
+          "modifiedBy": {
+            "S": "anonymous"
+          }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "modifiedAt": {
+            "S": "2022-05-17T16:02:21.083Z"
+          },
+          "active": {
+            "BOOL": true
+          },
+          "createdAt": {
+            "S": "2022-05-17T16:02:21.083Z"
+          },
+          "eventType": {
+            "S": "NOWT"
+          },
+          "official": {
+            "BOOL": true
+          },
+          "description": {
+            "M": {
+              "en": {
+                "S": "Working test for retrievers"
+              },
+              "fi": {
+                "S": "Noutajien Working Test"
+              },
+              "sv": {
+                "S": "Working test för retrievers"
+              }
+            }
+          },
+          "id": {
+            "S": "e8b150ed-f8f9-494c-a645-26e25bc0acd9"
+          },
+          "createdBy": {
+            "S": "anonymous"
+          },
+          "modifiedBy": {
+            "S": "anonymous"
+          }
+        }
+      }
+    }
+  ]
+}

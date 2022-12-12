@@ -92,15 +92,11 @@ Resources:
   EventTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: !Join ['-', [event-table, 'v2', !Ref AWS::StackName]]
+      TableName: !Join ['-', [event-table, 'v3', !Ref AWS::StackName]]
       KeySchema:
-          - AttributeName: eventType
-            KeyType: HASH
           - AttributeName: id
-            KeyType: RANGE
+            KeyType: HASH
       AttributeDefinitions:
-          - AttributeName: eventType
-            AttributeType: S
           - AttributeName: id
             AttributeType: S
       Tags:
