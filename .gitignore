@@ -114,3 +114,5 @@ koekalenteri-backend/src/i18n/locales/**/*.json
 koekalenteri-backend/src/i18n/locales/**/*.ts
 
 .DS_Store
+aws/*.json
+aws/*.csv
