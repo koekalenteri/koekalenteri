@@ -1,4 +1,4 @@
-export * from './AuthPage';
+export * from './AdminHomePage';
 export * from './EventEditPage';
 export * from './EventListPage';
 export * from './EventTypeListPage';

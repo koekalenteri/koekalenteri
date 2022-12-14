@@ -9,7 +9,6 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { EventForm } from '../../components';
 import { ADMIN_EVENTS } from '../../config';
 import { useStores } from '../../stores';
-import { AuthPage } from './AuthPage';
 
 export const EventEditPage = observer(function EventEditPage({create}: {create?: boolean}) {
   const params = useParams();
@@ -20,6 +19,9 @@ export const EventEditPage = observer(function EventEditPage({create}: {create?:
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
+  /**
+   * @todo move to route loader
+   */
   useEffect(() => autorun(() => {
     const abort = new AbortController();
     async function get(id: string) {
@@ -38,7 +40,7 @@ export const EventEditPage = observer(function EventEditPage({create}: {create?:
   }), []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <AuthPage title={create ? t('createEvent') : 'Muokkaa tapahtumaa'}>
+    <>
       {loading
         ? <CircularProgress />
         : <EventForm
@@ -67,6 +69,6 @@ export const EventEditPage = observer(function EventEditPage({create}: {create?:
             return Promise.resolve(true);
           }}
         />}
-    </AuthPage>
+    </>
   )
 })

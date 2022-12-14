@@ -4,11 +4,18 @@ import banner from '../assets/banner.png';
 import { LanguageMenu, UserMenu } from '../components';
 import { Menu } from '@mui/icons-material';
 
-export function Header({title, toggleMenu}: {title?: string, toggleMenu?: () => void}) {
+interface Props {
+  title?: string,
+  toggleMenu?: () => void
+}
+
+export function Header({title, toggleMenu}: Props) {
   return (
     <AppBar position="fixed" color="secondary">
       <Toolbar variant="dense" disableGutters sx={{ width: '100%', px: 1 }}>
-        <IconButton sx={{display: {sm: 'inline-flex', md: 'none'}}} onClick={() => toggleMenu && toggleMenu()}><Menu /></IconButton>
+        {toggleMenu
+          ? <IconButton sx={{display: {sm: 'inline-flex', md: 'none'}}} onClick={() => toggleMenu && toggleMenu()}><Menu /></IconButton>
+          : null}
         <Link href="/">
           <IconButton sx={{ mx: { xs: 1, sm: 1 }, p: 0, height: 36 }}>
             <img src={logo} height="100%" alt="Suomen noutajakoirajärjestö" />

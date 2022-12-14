@@ -3,6 +3,7 @@ import { LoadingButton } from '@mui/lab';
 import { Box, Button, Paper, Stack, Theme, useMediaQuery } from '@mui/material';
 import { addDays, nextSaturday, startOfDay } from 'date-fns';
 import type { Event, EventClass, EventEx, EventState, Judge, Official, Organizer } from 'koekalenteri-shared/model';
+import { action } from 'mobx';
 import { observer } from 'mobx-react-lite';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -55,7 +56,7 @@ export const EventForm = observer(function EventForm({ event, judges, eventTypes
   });
   const valid = errors.length === 0;
   const fields = useMemo(() => requiredFields(local), [local]);
-  const onChange = (props: Partial<Event>) => {
+  const onChange = action((props: Partial<Event>) => {
     const tmp: any = {};
     Object.keys(props).forEach(k => {tmp[k] = (local as any)[k]});
     console.log('changed: ' + JSON.stringify(props), JSON.stringify(tmp));
@@ -66,7 +67,7 @@ export const EventForm = observer(function EventForm({ event, judges, eventTypes
     setErrors(validateEvent(newState));
     setLocal(newState);
     setChanges(true);
-  }
+  })
   const saveHandler = async () => {
     setSaving(true);
     if ((await onSave(local)) === false) {

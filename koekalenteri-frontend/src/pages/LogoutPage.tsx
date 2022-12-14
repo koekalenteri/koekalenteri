@@ -14,20 +14,20 @@ export function LogoutPage() {
     if (!user && !greeted) {
       navigate('/', {replace: true});
     }
-  });
+  }, [user, greeted, navigate]);
 
   useEffect(() => {
     if (user) {
       signOut();
     }
-  });
+  }, [user, signOut]);
 
   useEffect(() => {
     if (greeted) {
       enqueueSnackbar("Heippa!", { variant: 'info' });
       setGreeted(false);
     }
-  });
+  }, [greeted, enqueueSnackbar, setGreeted]);
 
   return <><p>Kirjaudutaan ulos...</p></>;
 }

@@ -5,21 +5,19 @@ import "./i18n"
 import App from './App'
 import theme from './assets/Theme'
 import reportWebVitals from './reportWebVitals'
-import { BrowserRouter } from "react-router-dom"
-
 
 const container = document.getElementById('root')
+
 if (!container) {
   throw new Error('root element not found!')
 }
+
 const root = createRoot(container)
 root.render(
   <StyledEngineProvider injectFirst>
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
+      <App />
     </ThemeProvider>
   </StyledEngineProvider>,
 )

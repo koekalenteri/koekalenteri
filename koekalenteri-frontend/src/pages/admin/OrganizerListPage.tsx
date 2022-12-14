@@ -9,7 +9,6 @@ import { useTranslation } from 'react-i18next';
 import { QuickSearchToolbar, StyledDataGrid } from '../../components';
 import { FullPageFlex } from '../../layout';
 import { useStores } from '../../stores';
-import { AuthPage } from './AuthPage';
 
 interface OrganizerColDef extends GridColDef {
   field: keyof Organizer
@@ -45,7 +44,7 @@ export const OrganizerListPage = observer(function OrganizerListPage() {
   };
 
   return (
-    <AuthPage title={t('organizations')}>
+    <>
       <FullPageFlex>
         <Stack direction="row" spacing={2}>
           <Button startIcon={<CloudSync />} onClick={refresh}>{t('updateData', { data: 'organizations' })}</Button>
@@ -70,6 +69,6 @@ export const OrganizerListPage = observer(function OrganizerListPage() {
           rows={rows}
         />
       </FullPageFlex>
-    </AuthPage>
+    </>
   )
 });

@@ -17,11 +17,13 @@ configure({
   observableRequiresReaction: notInTest
 });
 
-const rootStoreContext = createContext({
+export const stores = {
   rootStore: new RootStore(),
   publicStore: new PublicStore(),
   privateStore: new PrivateStore(),
-});
+}
+
+const rootStoreContext = createContext(stores);
 
 export const useStores = () => useContext(rootStoreContext);
 

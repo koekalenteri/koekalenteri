@@ -10,7 +10,6 @@ import { QuickSearchToolbar, StyledDataGrid } from '../../components';
 import { FullPageFlex } from '../../layout';
 import { useStores } from '../../stores';
 import { CJudge } from '../../stores/classes/CJudge';
-import { AuthPage } from './AuthPage';
 
 interface JudgeColDef extends GridColDef {
   field: keyof Judge
@@ -120,7 +119,7 @@ export const JudgeListPage = observer(function JudgeListPage() {
   };
 
   return (
-    <AuthPage title={t('judges')}>
+    <>
       <FullPageFlex>
         <Stack direction="row" spacing={2}>
           <Button startIcon={<CloudSync />} onClick={refresh}>{t('updateData', { data: 'judges' })}</Button>
@@ -145,6 +144,6 @@ export const JudgeListPage = observer(function JudgeListPage() {
           rows={rows}
         />
       </FullPageFlex>
-    </AuthPage>
+    </>
   )
 });

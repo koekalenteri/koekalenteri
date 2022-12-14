@@ -22,7 +22,7 @@ export function RegistrationListPage({cancel}: {cancel?: boolean}) {
   useEffect(() => {
     const abort = new AbortController();
     async function get(eventType: string, id: string, registrationId: string) {
-      const evt = await publicStore.get(eventType, id, abort.signal) as ConfirmedEventEx;
+      const evt = await publicStore.get(id, abort.signal) as ConfirmedEventEx;
       const reg = await getRegistration(id, registrationId, abort.signal);
       setEvent(evt);
       setRegistration(reg);

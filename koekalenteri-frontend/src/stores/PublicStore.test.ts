@@ -24,8 +24,8 @@ test('PublicStore', async () => {
   expect(store.loading).toEqual(false);
   expect(store.loaded).toEqual(false);
 
-  let evt = await store.get('type4', 'test4');
-  expect(evt.id).toEqual('test4');
+  let evt = await store.get('test4');
+  expect(evt?.id).toEqual('test4');
   expect(store.loaded).toEqual(false);
 
   // empty + defaults
@@ -36,7 +36,7 @@ test('PublicStore', async () => {
   expect(store.filteredEvents.length).toEqual(3);
 
   const first = store.filteredEvents[0];
-  evt = await store.get(first.eventType, first.id);
+  evt = await store.get(first.id);
   expect(evt).toEqual(first);
 
   await store.setFilter({ ...emptyFilter });

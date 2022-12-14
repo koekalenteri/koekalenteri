@@ -1,54 +1,32 @@
 import { Box, Button, Dialog, DialogContent, DialogTitle, Divider, Grid, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { AuthPage } from './AuthPage';
 import { useStores } from '../../stores';
-import { useParams } from 'react-router-dom';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { availableGroups, CollapsibleSection, GroupColors, LinkButton, RegistrationForm, StyledDataGrid } from '../../components';
 import { ADMIN_EVENTS } from '../../config';
-import { getRegistrations, putRegistration } from '../../api/event';
+import { putRegistration } from '../../api/event';
 import { BreedCode, ConfirmedEventEx, Registration, RegistrationDate } from 'koekalenteri-shared/model';
 import { GridColDef, GridSelectionModel } from '@mui/x-data-grid';
 import { AddCircleOutline, DeleteOutline, EditOutlined, EmailOutlined, EuroOutlined, FormatListBulleted, PersonOutline, ShuffleOutlined, TableChartOutlined } from '@mui/icons-material';
 import { format } from 'date-fns';
 import { FullPageFlex } from '../../layout';
 import { observer } from 'mobx-react-lite';
-import { autorun } from 'mobx';
 import { uniqueDate } from '../../utils';
+import { toJS } from 'mobx';
 
 export const EventViewPageWithData = observer(function EventViewPageWithData() {
-  const params = useParams();
   const { privateStore } = useStores();
-  const [registrations, setRegistrations] = useState<Registration[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => autorun(() => {
-    // TODO: Tää on varmasti hyvin anti-pattern, lataukset pitäis hoitaa storessa
-    if (!loading) {
-      return;
-    }
-    const abort = new AbortController();
-    async function get(id: string) {
-      privateStore.selectEvent(id, abort.signal)
-      // TODO: move to a store
-      const items = await getRegistrations(id, abort.signal);
-      setRegistrations(items);
-      setLoading(false);
-    }
-    if (params.id) {
-      get(params.id);
-    } else {
-      setLoading(false);
-    }
-    return () => abort.abort();
-  }), []); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!privateStore.selectedEvent) {
     return null
   }
 
   return (
-    <EventViewPage event={privateStore.selectedEvent as ConfirmedEventEx} registrations={registrations} loading={loading} />
+    <EventViewPage
+      event={toJS(privateStore.selectedEvent) as ConfirmedEventEx}
+      registrations={toJS(privateStore.selectedEventRegistrations)}
+      loading={toJS(privateStore.loading)}
+    />
   )
 })
 
@@ -162,7 +140,7 @@ export const EventViewPage = ({event, registrations, loading}: Props) => {
   }
 
   return (
-    <AuthPage>
+    <>
       <FullPageFlex>
         <Grid container justifyContent="space-between">
           <Grid item xs>
@@ -256,7 +234,7 @@ export const EventViewPage = ({event, registrations, loading}: Props) => {
           <RegistrationForm event={event} registration={selected} onSave={onSave} onCancel={onCancel} />
         </DialogContent>
       </Dialog>
-    </AuthPage>
+    </>
   )
 
 }

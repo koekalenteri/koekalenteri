@@ -1,15 +1,16 @@
-import { makeAutoObservable, runInAction } from 'mobx';
+import { makeAutoObservable, runInAction, when } from 'mobx';
 import * as eventApi from '../api/event';
-import { Event, EventEx } from 'koekalenteri-shared/model';
+import { Event, EventEx, Registration } from 'koekalenteri-shared/model';
 
 export class PrivateStore {
-  private _loaded: boolean = false;
-  private _loading: boolean = false;
+  private _loaded: boolean = false
+  private _loading: boolean = false
 
-  public selectedEvent: Partial<Event> | undefined = undefined;
-  public newEvent: Partial<Event> = {};
+  public selectedEvent: Partial<Event> | undefined = undefined
+  public selectedEventRegistrations: Registration[] = []
+  public newEvent: Partial<Event> = {}
 
-  public events: Partial<EventEx>[] = [];
+  public events: Partial<EventEx>[] = []
 
   constructor() {
     makeAutoObservable(this)
@@ -27,20 +28,32 @@ export class PrivateStore {
     this.newEvent = event;
   }
 
-  async selectEvent(id: string, signal?: AbortSignal) {
-    this.selectedEvent = await this.get(id, signal)
+  async selectEvent(id?: string, signal?: AbortSignal) {
+    await when(() => this.loaded)
+    let event: Partial<Event>|undefined
+    let regs: Registration[] = []
+    if (id) {
+      event = await this.get(id, signal)
+      if (event?.entries) {
+        regs = await eventApi.getRegistrations(id, signal)
+      }
+    }
+    runInAction(() => {
+      this.selectedEvent = event
+      this.selectedEventRegistrations = regs
+    })
   }
 
   async load(signal?: AbortSignal) {
     if (this.loading) {
-      return;
+      return when(() => this.loaded)
     }
     this.loading = true;
-    const events = await eventApi.getEvents(signal);
+    const events = await eventApi.getEvents(signal)
     runInAction(() => {
-      this.events = events;
+      this.events = events
     });
-    this.loading = false;
+    this.loading = false
   }
 
   async get(id: string, signal?: AbortSignal): Promise<Partial<Event>|undefined> {

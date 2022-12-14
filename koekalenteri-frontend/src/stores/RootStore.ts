@@ -21,13 +21,16 @@ export class RootStore {
     this.organizerStore = new OrganizerStore(this);
   }
 
-  async load() {
+  async load(signal?: AbortSignal) {
+    if (this.loading) {
+      return;
+    }
     this.loading = true;
     await Promise.allSettled([
-      this.eventTypeStore.load(),
-      this.judgeStore.load(),
-      this.officialStore.load(),
-      this.organizerStore.load(),
+      this.eventTypeStore.load(false, signal),
+      this.judgeStore.load(false, signal),
+      this.officialStore.load(false, signal),
+      this.organizerStore.load(false, signal),
     ]);
     this.loaded = true;
     this.loading = false;

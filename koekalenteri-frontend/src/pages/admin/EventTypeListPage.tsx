@@ -9,7 +9,6 @@ import { QuickSearchToolbar, StyledDataGrid } from '../../components';
 import { FullPageFlex } from '../../layout';
 import { useStores } from '../../stores';
 import { CEventType } from '../../stores/classes/CEventType';
-import { AuthPage } from './AuthPage';
 
 interface EventTypeColDef extends GridColDef {
   field: keyof CEventType
@@ -69,7 +68,7 @@ export const EventTypeListPage = observer(function EventTypeListPage()  {
   };
 
   return (
-    <AuthPage title={t('eventTypes')}>
+    <>
       <FullPageFlex>
         <Stack direction="row" spacing={2}>
           <Button startIcon={<CloudSync />} onClick={refresh}>{t('updateData', {data: 'eventTypes'})}</Button>
@@ -94,6 +93,6 @@ export const EventTypeListPage = observer(function EventTypeListPage()  {
           getRowId={(row) => row.eventType}
         />
       </FullPageFlex>
-    </AuthPage>
+    </>
   )
 })

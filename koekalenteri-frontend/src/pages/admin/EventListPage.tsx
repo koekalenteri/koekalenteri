@@ -11,7 +11,6 @@ import { AutoButton } from '../../components';
 import { ADMIN_EDIT_EVENT, ADMIN_NEW_EVENT, ADMIN_VIEW_EVENT } from '../../config';
 import { EventGridContainer, FullPageFlex } from '../../layout';
 import { useStores } from '../../stores';
-import { AuthPage } from './AuthPage';
 
 export const EventListPage = observer(function EventListPage() {
   const { t } = useTranslation();
@@ -52,7 +51,7 @@ export const EventListPage = observer(function EventListPage() {
   }
 
   return (
-    <AuthPage title={t('events')}>
+    <>
       <FullPageFlex>
         <TextField sx={{ mt: 2, width: '300px' }} size="small" label="Hae" variant="outlined" disabled />
         <div>
@@ -94,6 +93,6 @@ export const EventListPage = observer(function EventListPage() {
           <Button onClick={handleClose} variant="outlined">{t('cancel')}</Button>
         </DialogActions>
       </Dialog>
-    </AuthPage>
+    </>
   )
-});
+})

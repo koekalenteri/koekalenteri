@@ -9,7 +9,6 @@ import { QuickSearchToolbar, StyledDataGrid } from '../../components';
 import { FullPageFlex } from '../../layout';
 import { useStores } from '../../stores';
 import { COfficial } from '../../stores/classes/COfficial';
-import { AuthPage } from './AuthPage';
 
 interface OfficialColDef extends GridColDef {
   field: keyof COfficial
@@ -78,7 +77,7 @@ export const OfficialListPage = observer(function OfficialListPage() {
   };
 
   return (
-    <AuthPage title={t('officials')}>
+    <>
       <FullPageFlex>
         <Stack direction="row" spacing={2}>
           <Button startIcon={<CloudSync />} onClick={refresh}>{t('updateData', { data: 'officials' })}</Button>
@@ -109,6 +108,6 @@ export const OfficialListPage = observer(function OfficialListPage() {
           rows={rows}
         />
       </FullPageFlex>
-    </AuthPage>
+    </>
   )
 });
