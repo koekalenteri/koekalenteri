@@ -1,9 +1,10 @@
 import { Cancel, Save } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import { Box, Button, Checkbox, Collapse, FormControl, FormControlLabel, FormHelperText, Link, Paper, Stack, Theme, useMediaQuery } from '@mui/material';
+import { TFunction } from 'i18next';
 import { ConfirmedEventEx, Language, Registration } from 'koekalenteri-shared/model';
 import { useEffect, useState } from 'react';
-import { TFunction, useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import { useStores } from '../../../stores';
 import { EntryInfo, getRegistrationDates } from './1.Entry';
 import { DogInfo } from './2.Dog';
