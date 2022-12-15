@@ -707,7 +707,7 @@ exports[`renders admin default (event) page: edit 1`] = `
                                   class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-tybxm0-MuiInputBase-root-MuiOutlinedInput-root"
                                 >
                                   <div
-                                    class="MuiChip-root MuiChip-outlined Mui-disabled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-outlinedDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-1bverly-MuiChip-root"
+                                    class="MuiChip-root MuiChip-outlined Mui-disabled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-outlinedDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-ti4gqd-MuiChip-root"
                                     data-tag-index="0"
                                     tabindex="-1"
                                   >
