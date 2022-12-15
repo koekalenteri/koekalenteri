@@ -1,7 +1,7 @@
-import 'react-i18next';
+import 'i18next';
 import { fi, fiBreed } from './locales';
 
-declare module 'react-i18next' {
+declare module 'i18next' {
   interface CustomTypeOptions {
     resources: {
       translation: typeof fi

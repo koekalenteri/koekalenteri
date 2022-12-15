@@ -1,13 +1,19 @@
-import ReactDOM from 'react-dom';
-import { ThemeProvider, StyledEngineProvider, CssBaseline } from '@mui/material';
-import "./index.css";
-import "./i18n";
-import App from './App';
-import theme from './assets/Theme';
-import reportWebVitals from './reportWebVitals';
-import { BrowserRouter } from "react-router-dom";
+import { createRoot } from 'react-dom/client'
+import { ThemeProvider, StyledEngineProvider, CssBaseline } from '@mui/material'
+import "./index.css"
+import "./i18n"
+import App from './App'
+import theme from './assets/Theme'
+import reportWebVitals from './reportWebVitals'
+import { BrowserRouter } from "react-router-dom"
 
-ReactDOM.render(
+
+const container = document.getElementById('root')
+if (!container) {
+  throw new Error('root element not found!')
+}
+const root = createRoot(container)
+root.render(
   <StyledEngineProvider injectFirst>
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -16,7 +22,6 @@ ReactDOM.render(
       </BrowserRouter>
     </ThemeProvider>
   </StyledEngineProvider>,
-  document.getElementById('root')
-);
+)
 
-reportWebVitals();
+reportWebVitals()

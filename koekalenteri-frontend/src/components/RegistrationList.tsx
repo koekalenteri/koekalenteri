@@ -74,8 +74,8 @@ export function RegistrationList({loading, rows, onUnregister}: {loading: boolea
       getActions: (params) => params.row.cancelled ? [
         <Box sx={{ color: 'warning.main', textTransform: 'uppercase' }}>{t('event.states.cancelled')}</Box>,
       ] : [
-        <GridActionsCellItem color="info" icon={<EditOutlined />} label="Muokkaa ilmoittautumista" onClick={() => onEdit(params.row)} />,
-        <GridActionsCellItem color="error" icon={<CancelOutlined />} label="Peru ilmoittautuminen" onClick={() => onUnregister(params.row)}/>
+        <GridActionsCellItem color="info" icon={<EditOutlined />} label="Muokkaa ilmoittautumista" onClick={() => onEdit(params.row)} showInMenu={false} onResize={undefined} onResizeCapture={undefined} />,
+        <GridActionsCellItem color="error" icon={<CancelOutlined />} label="Peru ilmoittautuminen" onClick={() => onUnregister(params.row)} showInMenu={false} onResize={undefined} onResizeCapture={undefined} />
       ]
     }
   ];
