@@ -4,7 +4,7 @@ import { AdminHomePage } from './AdminHomePage'
 import { ADMIN_DEFAULT, ADMIN_ROOT } from '../../config';
 import { ThemeProvider } from '@mui/material';
 import theme from '../../assets/Theme';
-import { DataMemoryRouter, getHtml } from '../../test/utils';
+import { DataMemoryRouter, getHtml } from '../../test-utils/utils';
 
 describe('AdminHomePage', () => {
   it('renders the page when user is logged in', () => {

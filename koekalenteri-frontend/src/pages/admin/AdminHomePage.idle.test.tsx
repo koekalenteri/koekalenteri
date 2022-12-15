@@ -4,7 +4,7 @@ import { AdminHomePage } from './AdminHomePage'
 import { ADMIN_ROOT } from '../../config';
 import { ThemeProvider } from '@mui/material';
 import theme from '../../assets/Theme';
-import { DataMemoryRouter, getHtml } from '../../test/utils';
+import { DataMemoryRouter, getHtml } from '../../test-utils/utils';
 
 jest.mock('@aws-amplify/ui-react', () => require('./global-mocks/auth/idle'))
 
