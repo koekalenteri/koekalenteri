@@ -14,7 +14,7 @@ export function Header({title, toggleMenu}: Props) {
     <AppBar position="fixed" color="secondary">
       <Toolbar variant="dense" disableGutters sx={{ width: '100%', px: 1 }}>
         {toggleMenu
-          ? <IconButton sx={{display: {sm: 'inline-flex', md: 'none'}}} onClick={() => toggleMenu && toggleMenu()}><Menu /></IconButton>
+          ? <IconButton sx={{display: {sm: 'inline-flex', md: 'none'}}} onClick={toggleMenu}><Menu /></IconButton>
           : null}
         <Link href="/">
           <IconButton sx={{ mx: { xs: 1, sm: 1 }, p: 0, height: 36 }}>

@@ -3,7 +3,7 @@ import type { ConfirmedEventEx, Registration } from 'koekalenteri-shared/model';
 import { toJS } from 'mobx';
 import { observer } from 'mobx-react-lite';
 import { useSnackbar } from 'notistack';
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode, useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getRegistration, putRegistration } from '../api/event';
@@ -49,6 +49,7 @@ export const RegistrationPage = observer(function RegistrationPage() {
       return false;
     }
   }
+  const onClick = useCallback(() => sessionStarted ? () => navigate(-1) : undefined, [sessionStarted, navigate])
   const onCancel = async () => {
     navigate(registration ? `/registration/${registration.eventType}/${registration.eventId}/${registration.id}` : '/');
     return true;
@@ -74,7 +75,7 @@ export const RegistrationPage = observer(function RegistrationPage() {
 
   return (
     <>
-      <LinkButton sx={{ mb: 1 }} to="/" onClick={sessionStarted ? () => navigate(-1) : undefined} text={sessionStarted ? t('goBack') : t('goHome')} />
+      <LinkButton sx={{ mb: 1 }} to="/" onClick={onClick} text={sessionStarted ? t('goBack') : t('goHome')} />
       <Loader loading={loading}>
         <RegistrationEventInfo event={event} />
         <RegistrationForm event={event} registration={registration} className={params.class} classDate={params.date} onSave={onSave} onCancel={onCancel} />

@@ -6,11 +6,10 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { SnackbarProvider } from 'notistack';
 import { useTranslation } from 'react-i18next';
-import { RouterProvider } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { AWSConfig } from './amplify-env';
 import { Language, locales, muiLocales } from './i18n';
 import routes from './routes';
-import { createBrowserRouter } from 'react-router-dom';
 
 Auth.configure(AWSConfig);
 
