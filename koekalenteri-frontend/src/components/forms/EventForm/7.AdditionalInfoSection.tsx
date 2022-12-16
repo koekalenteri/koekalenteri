@@ -1,5 +1,6 @@
 import { TextField } from '@mui/material';
 import { Event } from 'koekalenteri-shared/model';
+
 import { CollapsibleSection, PartialEvent } from '../..';
 
 type AdditionalInfoSectionProps = {

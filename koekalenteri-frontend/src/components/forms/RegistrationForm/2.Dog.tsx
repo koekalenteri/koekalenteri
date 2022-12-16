@@ -1,17 +1,19 @@
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { CachedOutlined } from '@mui/icons-material';
-import { DatePicker } from '@mui/x-date-pickers';
 import { LoadingButton } from '@mui/lab';
 import { Autocomplete, FormControl, FormHelperText, Grid, Stack, TextField, TextFieldProps } from '@mui/material';
+import { DatePicker } from '@mui/x-date-pickers';
 import { differenceInMinutes, subMonths, subYears } from 'date-fns';
 import { BreedCode, Dog, DogGender, Registration } from 'koekalenteri-shared/model';
 import merge from 'lodash.merge';
 import { toJS } from 'mobx';
 import { observer } from 'mobx-react-lite';
-import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { AutocompleteSingle, CollapsibleSection } from '../..';
+
 import { useStores } from '../../../stores';
 import { DogCachedInfo } from '../../../stores/DogStore';
+import { AutocompleteSingle, CollapsibleSection } from '../..';
+
 import { validateRegNo } from './validation';
 
 export function shouldAllowRefresh(dog?: Partial<Dog>) {

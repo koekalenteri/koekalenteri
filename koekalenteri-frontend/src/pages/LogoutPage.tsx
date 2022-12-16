@@ -1,7 +1,8 @@
-import { useAuthenticator } from '@aws-amplify/ui-react';
-import { useSnackbar } from 'notistack';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuthenticator } from '@aws-amplify/ui-react';
+import { useSnackbar } from 'notistack';
+
 import { useSessionBoolean } from '../stores';
 
 export function LogoutPage() {

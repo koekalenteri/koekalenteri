@@ -1,3 +1,5 @@
+import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Cancel, Save } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import { Box, Button, Paper, Stack, Theme, useMediaQuery } from '@mui/material';
@@ -5,9 +7,9 @@ import { addDays, nextSaturday, startOfDay } from 'date-fns';
 import type { Event, EventClass, EventEx, EventState, Judge, Official, Organizer } from 'koekalenteri-shared/model';
 import { action } from 'mobx';
 import { observer } from 'mobx-react-lite';
-import { useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+
 import { AutocompleteSingle } from '../..';
+
 import { BasicInfoSection } from './1.BasicInfoSection';
 import { JudgesSection } from './2.JudgesSection';
 import { EntrySection } from './3.EntrySection';

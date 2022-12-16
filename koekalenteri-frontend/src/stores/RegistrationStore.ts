@@ -1,6 +1,8 @@
 import { Registration } from "koekalenteri-shared/model";
 import { makeAutoObservable } from "mobx";
+
 import { getRegistration, getRegistrations, putRegistration } from "../api/event";
+
 import { RootStore } from "./RootStore";
 
 export class RegistrationStore {

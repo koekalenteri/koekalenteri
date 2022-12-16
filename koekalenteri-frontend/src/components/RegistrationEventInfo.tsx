@@ -1,8 +1,10 @@
+import { useTranslation } from 'react-i18next';
 import { Grid, Paper, Typography } from '@mui/material';
 import { ConfirmedEventEx } from 'koekalenteri-shared/model';
-import { useTranslation } from 'react-i18next';
-import { CollapsibleSection, CostInfo } from '.';
+
 import { entryDateColor } from '../utils';
+
+import { CollapsibleSection, CostInfo } from '.';
 
 export function RegistrationEventInfo({ event }: { event: ConfirmedEventEx; }) {
   const { t } = useTranslation();

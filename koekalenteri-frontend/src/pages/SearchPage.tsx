@@ -1,6 +1,7 @@
+import { useSearchParams } from 'react-router-dom';
 import { toJS } from 'mobx';
 import { observer } from 'mobx-react-lite';
-import { useSearchParams } from 'react-router-dom';
+
 import { EventFilter, serializeFilter } from '../components';
 import { EventContainer } from '../layout';
 import { useStores } from '../stores';

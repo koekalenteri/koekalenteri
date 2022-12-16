@@ -1,11 +1,12 @@
+import { ReactNode, useCallback,useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useNavigate, useParams } from 'react-router-dom';
 import { CircularProgress, Container } from '@mui/material';
 import type { ConfirmedEventEx, Registration } from 'koekalenteri-shared/model';
 import { toJS } from 'mobx';
 import { observer } from 'mobx-react-lite';
 import { useSnackbar } from 'notistack';
-import { ReactNode, useEffect, useState, useCallback } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useNavigate, useParams } from 'react-router-dom';
+
 import { getRegistration, putRegistration } from '../api/event';
 import { LinkButton, RegistrationEventInfo, RegistrationForm } from '../components';
 import { useSessionStarted, useStores } from '../stores';

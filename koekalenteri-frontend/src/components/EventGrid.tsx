@@ -1,11 +1,13 @@
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { Box } from '@mui/material';
 import { GridColDef } from '@mui/x-data-grid';
 import { Event, EventClass, EventEx, EventState } from 'koekalenteri-shared/model';
 import { observer } from 'mobx-react-lite';
-import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
-import { ADMIN_EDIT_EVENT, ADMIN_VIEW_EVENT } from '../routeConfig';
+
+import { Path } from '../routeConfig';
 import { useStores } from '../stores';
+
 import { StyledDataGrid } from './StyledDataGrid';
 
 interface EventGridColDef extends GridColDef {
@@ -94,7 +96,7 @@ export const EventGrid = observer(function EventGrid({ events }: { events: Parti
 
   const handleDoubleClick = (event?: Partial<Event>) => {
     if (!event) return
-    navigate(`${event.entries ? ADMIN_VIEW_EVENT : ADMIN_EDIT_EVENT}/${event.id}`)
+    navigate(`${event.entries ? Path.admin.viewEvent : Path.admin.editEvent}/${event.id}`)
   }
 
   return (

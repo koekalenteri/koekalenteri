@@ -1,4 +1,5 @@
 import { Dog, JsonDog, TestResult } from 'koekalenteri-shared/model';
+
 import http from './http';
 import { toDate } from './utils';
 

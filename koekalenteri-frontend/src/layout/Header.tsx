@@ -1,8 +1,9 @@
-import { AppBar, Typography, IconButton, Toolbar, Link, Box } from '@mui/material';
-import logo from '../assets/snj-logo.png';
-import banner from '../assets/banner.png';
-import { LanguageMenu, UserMenu } from '../components';
 import { Menu } from '@mui/icons-material';
+import { AppBar, Box,IconButton, Link, Toolbar, Typography } from '@mui/material';
+
+import banner from '../assets/banner.png';
+import logo from '../assets/snj-logo.png';
+import { LanguageMenu, UserMenu } from '../components';
 
 interface Props {
   title?: string,

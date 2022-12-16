@@ -1,6 +1,6 @@
+import { ReactNode, useState } from 'react';
 import { KeyboardArrowDown, KeyboardArrowRight } from '@mui/icons-material';
 import { Box, Collapse, FormHelperText, IconButton, Typography } from '@mui/material';
-import { ReactNode, useState } from 'react';
 
 type CollapsibleSectionProps = {
   border?: boolean

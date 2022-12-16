@@ -1,12 +1,14 @@
-import { Table, TableBody, TableRow, TableCell } from '@mui/material';
-import { format } from 'date-fns';
-import type { EventEx, EventClass } from 'koekalenteri-shared/model';
 import { useTranslation } from 'react-i18next';
-import { entryDateColor } from '../utils';
-import { CostInfo, LinkButton } from '.';
-import { useStores } from '../stores';
-import { observer } from 'mobx-react-lite';
+import { Table, TableBody, TableCell,TableRow } from '@mui/material';
+import { format } from 'date-fns';
+import type { EventClass,EventEx } from 'koekalenteri-shared/model';
 import { toJS } from 'mobx';
+import { observer } from 'mobx-react-lite';
+
+import { useStores } from '../stores';
+import { entryDateColor } from '../utils';
+
+import { CostInfo, LinkButton } from '.';
 
 
 export const EventInfo = observer(function EventInfo({ event }: { event: EventEx }) {

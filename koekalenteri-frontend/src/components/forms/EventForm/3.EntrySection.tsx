@@ -1,8 +1,10 @@
+import { useTranslation } from 'react-i18next';
 import { Checkbox, FormControlLabel, FormHelperText, Grid } from '@mui/material';
 import { sub } from 'date-fns';
 import { Event } from 'koekalenteri-shared/model';
-import { useTranslation } from 'react-i18next';
+
 import { CollapsibleSection, DateRange, PartialEvent } from '../..';
+
 import { EventFormPlaces } from './EventFormPlaces';
 import { FieldRequirements } from './validation';
 

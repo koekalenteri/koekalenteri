@@ -1,9 +1,11 @@
-import fetchMock from 'jest-fetch-mock';
 import { parseISO } from "date-fns";
+import fetchMock from 'jest-fetch-mock';
 import type { Event } from 'koekalenteri-shared/model';
-import { emptyEvent } from './test-utils/emptyEvent';
-import { getEvents, getEvent, putEvent } from './event';
+
 import { API_BASE_URL } from "../routeConfig";
+
+import { emptyEvent } from './test-utils/emptyEvent';
+import { getEvent, getEvents, putEvent } from './event';
 import { rehydrateEvent } from './utils';
 
 fetchMock.enableMocks();

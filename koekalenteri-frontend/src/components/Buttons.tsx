@@ -1,6 +1,6 @@
-import { Box, Button, ButtonProps, IconButton, Stack, Theme, Typography, useMediaQuery } from '@mui/material';
 import { MouseEventHandler, ReactNode } from 'react';
 import { Link } from 'react-router-dom';
+import { Box, Button, ButtonProps, IconButton, Stack, Theme, Typography, useMediaQuery } from '@mui/material';
 
 export function LinkButton({ to, text, onClick, sx = {} }: { to: string, onClick?: MouseEventHandler<HTMLAnchorElement>, text: string, sx?: Record<string, any> }) {
   sx.padding = '0 8px !important';

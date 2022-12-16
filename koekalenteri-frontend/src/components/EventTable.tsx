@@ -1,21 +1,23 @@
+import { useTranslation } from 'react-i18next';
+import { KeyboardArrowDown, KeyboardArrowRight } from '@mui/icons-material';
 import {
-  TableContainer,
+  Box,
+  Collapse,
+  Grid,
+  IconButton,
   Paper,
   Table,
   TableBody,
-  TableRow,
   TableCell,
-  IconButton,
-  Collapse,
-  Box,
-  Grid,
+  TableContainer,
+  TableRow,
 } from '@mui/material';
-import { KeyboardArrowDown, KeyboardArrowRight } from '@mui/icons-material';
 import type { EventEx, EventState } from 'koekalenteri-shared/model';
-import { EventInfo, LinkButton } from '.';
-import { useTranslation } from 'react-i18next';
-import { useSessionBoolean } from '../stores';
 import { observer } from 'mobx-react-lite';
+
+import { useSessionBoolean } from '../stores';
+
+import { EventInfo, LinkButton } from '.';
 
 function eventClasses(event: EventEx) {
   const ret: string[] = [];

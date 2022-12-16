@@ -1,10 +1,12 @@
+import { useTranslation } from 'react-i18next';
 import { FormHelperText, Table, TableBody, TableCell, TableHead, TableRow, TextField, TextFieldProps } from '@mui/material';
 import { eachDayOfInterval, isSameDay } from 'date-fns';
 import { EventClass } from 'koekalenteri-shared/model';
-import { useTranslation } from 'react-i18next';
+
 import { unique } from '../../../utils';
-import { compareEventClass } from './EventClasses';
+
 import { EntrySectionProps } from './3.EntrySection';
+import { compareEventClass } from './EventClasses';
 
 export function EventFormPlaces({ event, helperTexts, onChange }: EntrySectionProps) {
   const { t } = useTranslation();

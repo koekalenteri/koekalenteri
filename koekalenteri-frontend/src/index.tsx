@@ -1,10 +1,13 @@
 import { createRoot } from 'react-dom/client'
-import { ThemeProvider, StyledEngineProvider, CssBaseline } from '@mui/material'
-import "./index.css"
+import { CssBaseline,StyledEngineProvider, ThemeProvider } from '@mui/material'
+
 import "./i18n"
-import App from './App'
+
 import theme from './assets/Theme'
+import App from './App'
 import reportWebVitals from './reportWebVitals'
+
+import "./index.css"
 
 const container = document.getElementById('root')
 

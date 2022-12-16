@@ -1,7 +1,8 @@
+import { useCallback,useState } from 'react'
+import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import { useAuthenticator } from '@aws-amplify/ui-react'
 import { Box, Toolbar } from '@mui/material'
-import { useState, useCallback } from 'react'
-import { Navigate, Outlet, useLocation } from 'react-router-dom'
+
 import { Header, SideMenu } from '../../layout'
 
 export function AdminHomePage() {

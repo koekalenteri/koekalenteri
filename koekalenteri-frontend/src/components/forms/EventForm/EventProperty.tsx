@@ -1,10 +1,12 @@
+import { ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import { HelpOutlined } from '@mui/icons-material';
 import { Autocomplete, AutocompleteProps, IconButton, TextField } from '@mui/material';
 import { Box } from '@mui/system';
 import { Event } from 'koekalenteri-shared/model';
-import { ReactNode } from 'react';
-import { useTranslation } from 'react-i18next';
+
 import { PartialEvent } from '../..';
+
 import { FieldRequirements, validateEventField } from './validation';
 
 export type EventPropertyProps<Property extends keyof PartialEvent, freeSolo extends boolean> =

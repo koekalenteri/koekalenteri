@@ -1,4 +1,5 @@
 import { add, startOfDay } from "date-fns";
+
 import { rehydrateEvent } from "./utils";
 
 describe('api/utils', function() {

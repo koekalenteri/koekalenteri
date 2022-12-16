@@ -1,6 +1,7 @@
-import { observer } from 'mobx-react-lite';
-import { EventTable }  from '../components';
 import { CircularProgress, Grid } from '@mui/material';
+import { observer } from 'mobx-react-lite';
+
+import { EventTable }  from '../components';
 import { PublicStore } from '../stores/PublicStore';
 
 

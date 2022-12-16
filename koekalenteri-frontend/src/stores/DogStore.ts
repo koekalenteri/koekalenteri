@@ -1,7 +1,9 @@
 import { DeepPartial, Dog, Registration, RegistrationBreeder, RegistrationPerson } from "koekalenteri-shared/model";
 import merge from "lodash.merge";
 import { makeAutoObservable, runInAction, toJS } from "mobx";
+
 import { getDog } from "../api/dog";
+
 import { RootStore } from "./RootStore";
 
 const STORAGE_KEY = 'dog-cache';

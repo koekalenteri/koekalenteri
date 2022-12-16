@@ -1,6 +1,6 @@
-import { prettyDOM } from "@testing-library/react";
+import { createMemoryRouter, createRoutesFromElements, RouteObject, RouterProvider } from "react-router-dom";
 import { RouterInit } from '@remix-run/router';
-import { RouteObject, createMemoryRouter, createRoutesFromElements, RouterProvider } from "react-router-dom";
+import { prettyDOM } from "@testing-library/react";
 
 /**
  * Abstraction to avoid re-writing all tests for the time being

@@ -1,4 +1,4 @@
-import { format, isValid, isSameMonth, lightFormat, isSameDay, parseISO, isSameYear, formatDistanceToNowStrict } from "date-fns";
+import { format, formatDistanceToNowStrict,isSameDay, isSameMonth, isSameYear, isValid, lightFormat, parseISO } from "date-fns";
 import { enGB as en, fi } from "date-fns/locale";
 import { Language } from "koekalenteri-shared/model";
 

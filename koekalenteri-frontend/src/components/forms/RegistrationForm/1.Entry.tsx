@@ -1,9 +1,10 @@
+import { useTranslation } from 'react-i18next';
 import { Grid } from '@mui/material';
 import { eachDayOfInterval, format } from 'date-fns';
 import { ConfirmedEventEx, Registration, RegistrationDate, ReserveChoise } from 'koekalenteri-shared/model';
-import { useTranslation } from 'react-i18next';
-import { AutocompleteMulti, AutocompleteSingle, CollapsibleSection } from '../..';
+
 import { unique, uniqueDate } from '../../../utils';
+import { AutocompleteMulti, AutocompleteSingle, CollapsibleSection } from '../..';
 
 function getClassDates(event: ConfirmedEventEx, classDate: string|undefined, regClass: string|undefined) {
   const classes = event.classes.filter(c => typeof c !== 'string' && (regClass === '' || c.class === regClass));

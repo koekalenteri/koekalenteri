@@ -1,6 +1,7 @@
-import { reaction, makeAutoObservable, runInAction, when } from 'mobx';
-import { getEvents } from '../api/event';
 import type { EventEx } from 'koekalenteri-shared/model';
+import { makeAutoObservable, reaction, runInAction, when } from 'mobx';
+
+import { getEvents } from '../api/event';
 
 export type FilterProps = {
   start: Date | null

@@ -1,5 +1,6 @@
 import { BreedCode } from 'koekalenteri-shared/model';
-import { validateDog, filterRelevantResults } from './validation';
+
+import { filterRelevantResults,validateDog } from './validation';
 
 const testDog = {
   regNo: 'test-123',

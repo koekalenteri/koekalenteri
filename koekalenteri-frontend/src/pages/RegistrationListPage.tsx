@@ -1,10 +1,11 @@
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useParams } from 'react-router-dom';
 import { Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Toolbar } from '@mui/material';
 import { isPast, isToday } from 'date-fns';
 import type { ConfirmedEventEx, Registration } from 'koekalenteri-shared/model';
 import { useSnackbar } from 'notistack';
-import { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useParams } from 'react-router-dom';
+
 import { getRegistration, putRegistration } from '../api/event';
 import { LinkButton, RegistrationEventInfo, RegistrationList } from '../components';
 import { Header } from '../layout';

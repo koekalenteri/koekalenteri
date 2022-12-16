@@ -1,6 +1,7 @@
+import { useTranslation } from "react-i18next";
 import { Grid, TextField } from "@mui/material";
 import { Event, Headquarters } from "koekalenteri-shared/model";
-import { useTranslation } from "react-i18next";
+
 import { CollapsibleSection, PartialEvent } from "../..";
 
 type HeadquartersSectionProps = {

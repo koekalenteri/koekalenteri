@@ -1,12 +1,13 @@
-import { ExpandMore, PersonOutline } from '@mui/icons-material';
-import { useTranslation } from 'react-i18next';
-import { AppBarButton } from '..';
-import { useAuthenticator } from '@aws-amplify/ui-react';
-import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { useAuthenticator } from '@aws-amplify/ui-react';
+import { ExpandMore, PersonOutline } from '@mui/icons-material';
 import { Menu, MenuItem } from '@mui/material';
-import { ADMIN_ROOT } from '../../routeConfig';
+
+import { Path } from '../../routeConfig';
 import { useSessionBoolean } from '../../stores';
+import { AppBarButton } from '..';
 
 export function UserMenu() {
   const { route } = useAuthenticator(context => [context.route]);
@@ -58,7 +59,7 @@ function LoggedInUserMenu() {
         onClose={handleClose}
         onClick={handleClose}
       >
-        <MenuItem onClick={() => navigate(ADMIN_ROOT)}>{t('admin')}</MenuItem>
+        <MenuItem onClick={() => navigate(Path.admin.root)}>{t('admin')}</MenuItem>
         <MenuItem onClick={signOut}>{t('logout')}</MenuItem>
       </Menu>
 

@@ -1,4 +1,5 @@
 import 'i18next';
+
 import { fi, fiBreed } from './locales';
 
 declare module 'i18next' {

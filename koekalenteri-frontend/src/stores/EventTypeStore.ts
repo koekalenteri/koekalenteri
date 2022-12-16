@@ -1,6 +1,8 @@
 import { EventType } from "koekalenteri-shared/model";
 import { makeAutoObservable, runInAction } from "mobx";
+
 import { getEventTypes, putEventType } from "../api/eventType";
+
 import { CEventType } from "./classes/CEventType";
 import { RootStore } from "./RootStore";
 

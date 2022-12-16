@@ -1,5 +1,6 @@
 import { addDays, parseISO, startOfDay } from 'date-fns';
 import { Event, EventEx, Registration } from 'koekalenteri-shared/model';
+
 import { emptyEvent } from '../test-utils/emptyEvent';
 import { rehydrateEvent } from '../utils';
 

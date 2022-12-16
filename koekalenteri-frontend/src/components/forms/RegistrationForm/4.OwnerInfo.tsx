@@ -1,8 +1,9 @@
+import { useTranslation } from 'react-i18next';
 import { Checkbox, FormControlLabel, FormGroup, Grid, Switch, TextField } from '@mui/material';
 import { Registration, RegistrationPerson } from 'koekalenteri-shared/model';
-import { useTranslation } from 'react-i18next';
-import { CollapsibleSection, emptyPerson } from '../..';
+
 import { useStores } from '../../../stores';
+import { CollapsibleSection, emptyPerson } from '../..';
 
 type OwnerInfoProps = {
   reg: Partial<Registration>

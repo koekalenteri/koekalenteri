@@ -1,6 +1,7 @@
-import { makeAutoObservable, runInAction, when } from 'mobx';
-import * as eventApi from '../api/event';
 import { Event, EventEx, Registration } from 'koekalenteri-shared/model';
+import { makeAutoObservable, runInAction, when } from 'mobx';
+
+import * as eventApi from '../api/event';
 
 export class PrivateStore {
   private _loaded: boolean = false

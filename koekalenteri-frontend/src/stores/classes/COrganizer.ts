@@ -1,5 +1,6 @@
 import { Organizer } from "koekalenteri-shared/model";
 import { makeAutoObservable } from "mobx";
+
 import { OrganizerStore } from "../OrganizerStore";
 
 
