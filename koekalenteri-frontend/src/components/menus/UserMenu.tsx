@@ -15,7 +15,7 @@ export function UserMenu() {
   const location = useLocation();
 
   if (route === 'idle' && greeted) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    return <Navigate to={Path.login} state={{ from: location }} replace />;
   }
 
   return route === 'authenticated' ? <LoggedInUserMenu /> : <LoginButton />;
@@ -25,9 +25,11 @@ function LoginButton() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
+  const navigateToLogin = useCallback(() => navigate(Path.login, {state: {from: location}}), [location, navigate])
+
   return (
     <>
-      <AppBarButton onClick={() => navigate('/login', {state: {from: location}})} startIcon={<PersonOutline />}>
+      <AppBarButton onClick={navigateToLogin} startIcon={<PersonOutline />}>
         {t(`login`)}
       </AppBarButton>
     </>

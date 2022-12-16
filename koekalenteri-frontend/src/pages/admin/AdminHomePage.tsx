@@ -4,6 +4,7 @@ import { useAuthenticator } from '@aws-amplify/ui-react'
 import { Box, Toolbar } from '@mui/material'
 
 import { Header, SideMenu } from '../../layout'
+import { Path } from '../../routeConfig'
 
 export function AdminHomePage() {
   const location = useLocation()
@@ -13,7 +14,7 @@ export function AdminHomePage() {
   const closeMenu = useCallback(() => setMenuOpen(false), [setMenuOpen])
   const toggleMenu = useCallback(() => setMenuOpen(!menuOpen), [setMenuOpen, menuOpen])
 
-  return (route !== 'authenticated' ? <Navigate to="/login" state={{ from: location }} replace /> :
+  return (route !== 'authenticated' ? <Navigate to={Path.login} state={{ from: location }} replace /> :
     <>
       <Header title={'Admin'} toggleMenu={toggleMenu} />
       <Box sx={{ display: 'flex', height: '100%' }}>

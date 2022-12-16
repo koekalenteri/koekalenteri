@@ -48,8 +48,8 @@ const routes: RouteObject[] = [
       },
     ]
   },
-  {path: "/login", element: <LoginPage />},
-  {path: "/logout", element: <LogoutPage />},
+  {path: Path.login, element: <LoginPage />},
+  {path: Path.logout, element: <LogoutPage />},
   {
     path: Path.admin.root,
     element: <AdminHomePage />,

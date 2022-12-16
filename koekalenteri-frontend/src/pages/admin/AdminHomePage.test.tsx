@@ -14,7 +14,7 @@ describe('AdminHomePage', () => {
       path: Path.admin.root,
       element: <AdminHomePage />
     },{
-      path: '/login',
+      path: Path.login,
       element: <>Login</>
     }]
     const { container } = render(

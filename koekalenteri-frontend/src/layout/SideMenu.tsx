@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { Accessibility, EmojiEventsOutlined, Event, Logout, PersonOutline, SupervisorAccount, Support } from '@mui/icons-material';
@@ -11,6 +12,7 @@ export function SideMenu({ open, onClose }: { open?: boolean, onClose: () => voi
   const lg = useMediaQuery((theme: Theme) => theme.breakpoints.up('lg'));
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const navigateToLogout = useCallback(() => navigate(Path.logout), [navigate])
 
   return (
     <MiniDrawer
@@ -32,9 +34,7 @@ export function SideMenu({ open, onClose }: { open?: boolean, onClose: () => voi
       </DrawerList>
       <Divider />
       <DrawerList>
-        <DrawerItem text={t('logout')} icon={<Logout />} onClick={() => {
-          navigate('/logout');
-        }} />
+        <DrawerItem text={t('logout')} icon={<Logout />} onClick={navigateToLogout} />
       </DrawerList>
     </MiniDrawer>
   );
