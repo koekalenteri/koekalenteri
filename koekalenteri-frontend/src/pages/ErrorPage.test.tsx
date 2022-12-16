@@ -36,9 +36,6 @@ describe('ErrorPage', () => {
   })
 })
 
-function ErrorThrowingComponent() {
+function ErrorThrowingComponent(): JSX.Element {
   throw new Error('TEST ERROR');
-
-  // eslint-disable-next-line no-unreachable
-  return <>ERROR THROWING COMPONENT</>
 }
