@@ -1,0 +1,39 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ErrorPage should render 404 1`] = `
+"<div>
+  <div
+    class=\\"MuiBox-root css-19703gc\\"
+  >
+    <h1
+      class=\\"MuiTypography-root MuiTypography-h1 css-2c7tpz-MuiTypography-root\\"
+    >
+      Oops
+    </h1>
+    <h2
+      class=\\"MuiTypography-root MuiTypography-h2 css-1lugpt4-MuiTypography-root\\"
+    >
+      404
+    </h2>
+    <p
+      class=\\"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root\\"
+    >
+      Not Found
+    </p>
+  </div>
+</div>"
+`;
+
+exports[`ErrorPage should render 500 1`] = `
+"<div>
+  <div
+    class=\\"MuiBox-root css-19703gc\\"
+  >
+    <h1
+      class=\\"MuiTypography-root MuiTypography-h1 css-2c7tpz-MuiTypography-root\\"
+    >
+      Oops
+    </h1>
+  </div>
+</div>"
+`;

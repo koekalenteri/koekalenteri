@@ -1,7 +1,7 @@
 import { Box, Typography } from "@mui/material";
 import { isRouteErrorResponse, useRouteError } from "react-router-dom";
 
-export  function ErrorPage() {
+export function ErrorPage() {
   return (
     <Box
       sx={{
