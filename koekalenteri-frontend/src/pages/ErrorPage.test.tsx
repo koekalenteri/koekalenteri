@@ -1,10 +1,12 @@
 import React from 'react';
-import { render } from '@testing-library/react'
 import { RouteObject } from 'react-router-dom';
-import { ErrorPage } from './ErrorPage'
 import { ThemeProvider } from '@mui/material';
+import { render } from '@testing-library/react'
+
 import theme from '../assets/Theme';
 import { DataMemoryRouter, getHtml } from '../test-utils/utils';
+
+import { ErrorPage } from './ErrorPage'
 
 describe('ErrorPage', () => {
   it('should render 404', () => {

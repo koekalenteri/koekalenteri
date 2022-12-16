@@ -1,18 +1,19 @@
-import { Box, Button, Dialog, DialogContent, DialogTitle, Divider, Grid, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
-import { useTranslation } from 'react-i18next';
-import { useStores } from '../../stores';
 import { useMemo, useState } from 'react';
-import { availableGroups, CollapsibleSection, GroupColors, LinkButton, RegistrationForm, StyledDataGrid } from '../../components';
-import { ADMIN_EVENTS } from '../../config';
-import { putRegistration } from '../../api/event';
-import { BreedCode, ConfirmedEventEx, Registration, RegistrationDate } from 'koekalenteri-shared/model';
-import { GridColDef, GridSelectionModel } from '@mui/x-data-grid';
+import { useTranslation } from 'react-i18next';
 import { AddCircleOutline, DeleteOutline, EditOutlined, EmailOutlined, EuroOutlined, FormatListBulleted, PersonOutline, ShuffleOutlined, TableChartOutlined } from '@mui/icons-material';
+import { Box, Button, Dialog, DialogContent, DialogTitle, Divider, Grid, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
+import { GridColDef, GridSelectionModel } from '@mui/x-data-grid';
 import { format } from 'date-fns';
-import { FullPageFlex } from '../../layout';
-import { observer } from 'mobx-react-lite';
-import { uniqueDate } from '../../utils';
+import { BreedCode, ConfirmedEventEx, Registration, RegistrationDate } from 'koekalenteri-shared/model';
 import { toJS } from 'mobx';
+import { observer } from 'mobx-react-lite';
+
+import { putRegistration } from '../../api/event';
+import { availableGroups, CollapsibleSection, GroupColors, LinkButton, RegistrationForm, StyledDataGrid } from '../../components';
+import { FullPageFlex } from '../../layout';
+import { Path } from '../../routeConfig';
+import { useStores } from '../../stores';
+import { uniqueDate } from '../../utils';
 
 export const EventViewPageWithData = observer(function EventViewPageWithData() {
   const { privateStore } = useStores();
@@ -144,7 +145,7 @@ export const EventViewPage = ({event, registrations, loading}: Props) => {
       <FullPageFlex>
         <Grid container justifyContent="space-between">
           <Grid item xs>
-            <LinkButton sx={{ mb: 1 }} to={ADMIN_EVENTS} text={t('goBack')} />
+            <LinkButton sx={{ mb: 1 }} to={Path.admin.events} text={t('goBack')} />
             <Title event={event} />
             <CollapsibleSection title="Kokeen tiedot" initOpen={false}>
                 Kokeen tarkat tiedot tähän...

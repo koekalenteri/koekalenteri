@@ -5,7 +5,7 @@ import { useAuthenticator } from '@aws-amplify/ui-react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { Menu, MenuItem } from '@mui/material';
-import { ADMIN_ROOT } from '../../config';
+import { ADMIN_ROOT } from '../../routeConfig';
 import { useSessionBoolean } from '../../stores';
 
 export function UserMenu() {

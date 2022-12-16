@@ -1,18 +1,20 @@
-import { render } from '@testing-library/react'
 import { Authenticator } from '@aws-amplify/ui-react';
-import { AdminHomePage } from './AdminHomePage'
-import { ADMIN_ROOT } from '../../config';
 import { ThemeProvider } from '@mui/material';
+import { render } from '@testing-library/react'
+
 import theme from '../../assets/Theme';
+import { Path } from '../../routeConfig';
 import { DataMemoryRouter, getHtml } from '../../test-utils/utils';
 
-jest.mock('@aws-amplify/ui-react', () => require('./global-mocks/auth/idle'))
+import { AdminHomePage } from './AdminHomePage'
+
+jest.mock('@aws-amplify/ui-react', () => require('../global-mocks/auth/idle'))
 
 describe('AdminHomePage', () => {
   it('should redirect to login page if user is not logged in', () => {
 
     const routes = [{
-      path: ADMIN_ROOT,
+      path: Path.admin.root,
       element: <AdminHomePage />
     },{
       path: '/login',
@@ -21,7 +23,7 @@ describe('AdminHomePage', () => {
     const { container } = render(
       <ThemeProvider theme={theme}>
         <Authenticator.Provider>
-          <DataMemoryRouter initialEntries={[ADMIN_ROOT]} routes={routes} />
+          <DataMemoryRouter initialEntries={[Path.admin.root]} routes={routes} />
         </Authenticator.Provider>
       </ThemeProvider>
     )

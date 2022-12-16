@@ -1,6 +1,6 @@
 import fetchMock from "jest-fetch-mock";
 import http from './http';
-import { API_BASE_URL } from "../config";
+import { API_BASE_URL } from "../routeConfig";
 
 fetchMock.enableMocks();
 

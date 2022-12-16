@@ -3,7 +3,7 @@ import { Divider, Theme, Toolbar, useMediaQuery } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { DrawerItem, DrawerList, MiniDrawer } from '../components/MiniDrawer';
-import { ADMIN_EVENTS, ADMIN_EVENT_TYPES, ADMIN_JUDGES, ADMIN_OFFICIALS, ADMIN_ORGS, ADMIN_USERS } from '../config';
+import { ADMIN_EVENTS, ADMIN_EVENT_TYPES, ADMIN_JUDGES, ADMIN_OFFICIALS, ADMIN_ORGS, ADMIN_USERS } from '../routeConfig';
 
 export function SideMenu({ open, onClose }: { open?: boolean, onClose: () => void }) {
   const md = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'));

@@ -1,15 +1,17 @@
-import { Auth } from '@aws-amplify/auth';
-import { Authenticator } from '@aws-amplify/ui-react';
-import '@aws-amplify/ui-react/styles.css';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { SnackbarProvider } from 'notistack';
 import { useTranslation } from 'react-i18next';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { Auth } from '@aws-amplify/auth';
+import { Authenticator } from '@aws-amplify/ui-react';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { SnackbarProvider } from 'notistack';
+
 import { AWSConfig } from './amplify-env';
 import { Language, locales, muiLocales } from './i18n';
 import routes from './routes';
+
+import '@aws-amplify/ui-react/styles.css';
 
 Auth.configure(AWSConfig);
 

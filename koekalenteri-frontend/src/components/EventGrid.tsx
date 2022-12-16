@@ -4,7 +4,7 @@ import { Event, EventClass, EventEx, EventState } from 'koekalenteri-shared/mode
 import { observer } from 'mobx-react-lite';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { ADMIN_EDIT_EVENT, ADMIN_VIEW_EVENT } from '../config';
+import { ADMIN_EDIT_EVENT, ADMIN_VIEW_EVENT } from '../routeConfig';
 import { useStores } from '../stores';
 import { StyledDataGrid } from './StyledDataGrid';
 

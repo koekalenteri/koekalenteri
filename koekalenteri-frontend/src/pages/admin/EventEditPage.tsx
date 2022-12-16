@@ -1,13 +1,14 @@
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useAuthenticator } from '@aws-amplify/ui-react';
 import { CircularProgress } from '@mui/material';
 import { autorun, toJS } from 'mobx';
 import { observer } from 'mobx-react-lite';
 import { useSnackbar } from 'notistack';
-import { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useNavigate, useParams } from 'react-router-dom';
+
 import { EventForm } from '../../components';
-import { ADMIN_EVENTS } from '../../config';
+import { Path } from '../../routeConfig';
 import { useStores } from '../../stores';
 
 export const EventEditPage = observer(function EventEditPage({create}: {create?: boolean}) {
@@ -53,7 +54,7 @@ export const EventEditPage = observer(function EventEditPage({create}: {create?:
           onSave={async (event) => {
             try {
               await privateStore.putEvent(event, user.getSignInUserSession()?.getIdToken().getJwtToken());
-              navigate(ADMIN_EVENTS);
+              navigate(Path.admin.events);
               enqueueSnackbar(t(`event.states.${event.state || 'draft'}`, { context: 'save' }), { variant: 'info' });
               return Promise.resolve(true);
             } catch (e: any) {
@@ -65,7 +66,7 @@ export const EventEditPage = observer(function EventEditPage({create}: {create?:
             if (create) {
               privateStore.newEvent = { ...event }
             }
-            navigate(ADMIN_EVENTS);
+            navigate(Path.admin.events);
             return Promise.resolve(true);
           }}
         />}

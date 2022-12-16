@@ -1,8 +1,9 @@
 import { Navigate, RouteObject } from 'react-router-dom';
-import { ADMIN_EDIT_EVENT, ADMIN_EVENTS, ADMIN_EVENT_TYPES, ADMIN_JUDGES, ADMIN_NEW_EVENT, ADMIN_OFFICIALS, ADMIN_ORGS, ADMIN_ROOT, ADMIN_USERS, ADMIN_VIEW_EVENT } from './config';
-import { AdminHomePage, ErrorPage, EventEditPage, EventListPage, EventTypeListPage, EventViewPageWithData, HomePage, JudgeListPage, LoginPage, LogoutPage, OfficialListPage, OrganizerListPage, RegistrationListPage, RegistrationPage, SearchPage, UsersPage } from './pages';
-import { stores } from './stores';
+
 import { deserializeFilter } from './components';
+import { AdminHomePage, ErrorPage, EventEditPage, EventListPage, EventTypeListPage, EventViewPageWithData, HomePage, JudgeListPage, LoginPage, LogoutPage, OfficialListPage, OrganizerListPage, RegistrationListPage, RegistrationPage, SearchPage, UsersPage } from './pages';
+import { Path } from './routeConfig';
+import { stores } from './stores';
 
 const routes: RouteObject[] = [
   {
@@ -50,7 +51,7 @@ const routes: RouteObject[] = [
   {path: "/login", element: <LoginPage />},
   {path: "/logout", element: <LogoutPage />},
   {
-    path: ADMIN_ROOT,
+    path: Path.admin.root,
     element: <AdminHomePage />,
     errorElement: <ErrorPage />,
     loader: async({request}) => {
@@ -62,47 +63,47 @@ const routes: RouteObject[] = [
     children: [
       {
         index: true,
-        element: <Navigate to={ADMIN_EVENTS} replace />
+        element: <Navigate to={Path.admin.index} replace />
       },
       {
-        path: ADMIN_EVENTS,
+        path: Path.admin.events,
         element: <EventListPage />
       },
       {
-        path: ADMIN_NEW_EVENT,
+        path: Path.admin.newEvent,
         element: <EventEditPage create />
       },
       {
-        path: `${ADMIN_EDIT_EVENT}/:id`,
+        path: `${Path.admin.editEvent}/:id`,
         element: <EventEditPage />
       },
       {
-        path: `${ADMIN_VIEW_EVENT}/:id`,
+        path: `${Path.admin.viewEvent}/:id`,
         element: <EventViewPageWithData />,
         loader: async({request, params}) => stores.privateStore.selectEvent(params.id, request.signal),
       },
       {
-        path: `${ADMIN_VIEW_EVENT}/:id/:reistrationId`,
+        path: `${Path.admin.viewEvent}/:id/:reistrationId`,
         element: <EventViewPageWithData />
       },
       {
-        path: ADMIN_ORGS,
+        path: Path.admin.orgs,
         element: <OrganizerListPage />
       },
       {
-        path: ADMIN_OFFICIALS,
+        path: Path.admin.officials,
         element: <OfficialListPage />
       },
       {
-        path: ADMIN_USERS,
+        path: Path.admin.users,
         element: <UsersPage />
       },
       {
-        path: ADMIN_JUDGES,
+        path: Path.admin.judges,
         element: <JudgeListPage />
       },
       {
-        path: ADMIN_EVENT_TYPES,
+        path: Path.admin.eventTypes,
         element: <EventTypeListPage />
       },
     ]

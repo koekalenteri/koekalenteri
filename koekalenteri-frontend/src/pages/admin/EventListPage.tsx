@@ -1,15 +1,16 @@
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { AddCircleOutline, ContentCopyOutlined, DeleteOutline, EditOutlined, FormatListNumberedOutlined } from '@mui/icons-material';
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControlLabel, Stack, Switch, TextField } from '@mui/material';
 import { Event } from 'koekalenteri-shared/model';
 import cloneDeep from 'lodash.clonedeep';
 import { observer } from 'mobx-react-lite';
 import { useSnackbar } from 'notistack';
-import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+
 import { AutoButton } from '../../components';
-import { ADMIN_EDIT_EVENT, ADMIN_NEW_EVENT, ADMIN_VIEW_EVENT } from '../../config';
 import { EventGridContainer, FullPageFlex } from '../../layout';
+import { Path } from '../../routeConfig';
 import { useStores } from '../../stores';
 
 export const EventListPage = observer(function EventListPage() {
@@ -34,7 +35,7 @@ export const EventListPage = observer(function EventListPage() {
       delete newEvent.entryStartDate;
       delete newEvent.entryEndDate;
       privateStore.setNewEvent(newEvent);
-      navigate(ADMIN_NEW_EVENT);
+      navigate(Path.admin.newEvent);
     }
   }
 
@@ -66,11 +67,11 @@ export const EventListPage = observer(function EventListPage() {
           />
         </div>
         <Stack direction="row" spacing={2}>
-          <AutoButton startIcon={<AddCircleOutline />} onClick={() => navigate(ADMIN_NEW_EVENT)} text={t('createEvent')} />
-          <AutoButton startIcon={<EditOutlined />} disabled={!privateStore.selectedEvent} onClick={() => navigate(`${ADMIN_EDIT_EVENT}/${privateStore.selectedEvent?.id}`)} text={t('edit')} />
+          <AutoButton startIcon={<AddCircleOutline />} onClick={() => navigate(Path.admin.newEvent)} text={t('createEvent')} />
+          <AutoButton startIcon={<EditOutlined />} disabled={!privateStore.selectedEvent} onClick={() => navigate(`${Path.admin.editEvent}/${privateStore.selectedEvent?.id}`)} text={t('edit')} />
           <AutoButton startIcon={<ContentCopyOutlined />} disabled={!privateStore.selectedEvent} onClick={copyAction} text={t('copy')} />
           <AutoButton startIcon={<DeleteOutline />} disabled={!privateStore.selectedEvent} onClick={() => setOpen(true)} text={t('delete')} />
-          <AutoButton startIcon={<FormatListNumberedOutlined />} disabled={!privateStore.selectedEvent || !privateStore.selectedEvent.entries} onClick={() => navigate(`${ADMIN_VIEW_EVENT}/${privateStore.selectedEvent?.id}`)} text={t('registrations')} />
+          <AutoButton startIcon={<FormatListNumberedOutlined />} disabled={!privateStore.selectedEvent || !privateStore.selectedEvent.entries} onClick={() => navigate(`${Path.admin.viewEvent}/${privateStore.selectedEvent?.id}`)} text={t('registrations')} />
         </Stack>
         <EventGridContainer />
       </FullPageFlex>
