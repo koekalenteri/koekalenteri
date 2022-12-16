@@ -1,9 +1,9 @@
-import { Navigate, RouteObject } from 'react-router-dom';
+import { Navigate, RouteObject } from 'react-router-dom'
 
-import { deserializeFilter } from './components';
-import { AdminHomePage, ErrorPage, EventEditPage, EventListPage, EventTypeListPage, EventViewPageWithData, HomePage, JudgeListPage, LoginPage, LogoutPage, OfficialListPage, OrganizerListPage, RegistrationListPage, RegistrationPage, SearchPage, UsersPage } from './pages';
-import { Path } from './routeConfig';
-import { stores } from './stores';
+import { deserializeFilter } from './components'
+import { AdminHomePage, ErrorPage, EventEditPage, EventListPage, EventTypeListPage, EventViewPageWithData, HomePage, JudgeListPage, LoginPage, LogoutPage, OfficialListPage, OrganizerListPage, RegistrationListPage, RegistrationPage, SearchPage, UsersPage } from './pages'
+import { Path } from './routeConfig'
+import { stores } from './stores'
 
 const routes: RouteObject[] = [
   {
@@ -11,9 +11,9 @@ const routes: RouteObject[] = [
     element: <HomePage />,
     errorElement: <ErrorPage />,
     loader: async({request}) => {
-      stores.rootStore.load(request.signal);
-      stores.publicStore.initialize(request.signal);
-      return true;
+      stores.rootStore.load(request.signal)
+      stores.publicStore.initialize(request.signal)
+      return true
     },
     shouldRevalidate: () => !stores.rootStore.loaded,
     children: [
@@ -21,8 +21,8 @@ const routes: RouteObject[] = [
         index: true,
         element: <SearchPage />,
         loader: async({request}) => {
-          const url = new URL(request.url);
-          stores.publicStore.setFilter(deserializeFilter(url.searchParams));
+          const url = new URL(request.url)
+          stores.publicStore.setFilter(deserializeFilter(url.searchParams))
         }
       },
       ...[
@@ -55,9 +55,9 @@ const routes: RouteObject[] = [
     element: <AdminHomePage />,
     errorElement: <ErrorPage />,
     loader: async({request}) => {
-      stores.rootStore.load(request.signal);
-      stores.privateStore.load(request.signal);
-      return true;
+      stores.rootStore.load(request.signal)
+      stores.privateStore.load(request.signal)
+      return true
     },
     shouldRevalidate: () => !stores.rootStore.loaded,
     children: [

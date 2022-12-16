@@ -1,0 +1,116 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`routes should match a snapshot 1`] = `
+Array [
+  Object {
+    "children": Array [
+      Object {
+        "element": <Memo(SearchPage) />,
+        "index": true,
+        "loader": [Function],
+      },
+      Object {
+        "element": <Memo(RegistrationPage) />,
+        "loader": [Function],
+        "path": "event/:eventType/:id/:class/:date",
+      },
+      Object {
+        "element": <Memo(RegistrationPage) />,
+        "loader": [Function],
+        "path": "event/:eventType/:id/:class",
+      },
+      Object {
+        "element": <Memo(RegistrationPage) />,
+        "loader": [Function],
+        "path": "event/:eventType/:id",
+      },
+      Object {
+        "element": <RegistrationListPage
+          cancel={true}
+        />,
+        "path": "registration/:eventType/:id/:registrationId/cancel",
+      },
+      Object {
+        "element": <Memo(RegistrationPage) />,
+        "path": "registration/:eventType/:id/:registrationId/edit",
+      },
+      Object {
+        "element": <RegistrationListPage />,
+        "path": "registration/:eventType/:id/:registrationId",
+      },
+    ],
+    "element": <HomePage />,
+    "errorElement": <ErrorPage />,
+    "loader": [Function],
+    "path": "/",
+    "shouldRevalidate": [Function],
+  },
+  Object {
+    "element": <LoginPage />,
+    "path": "/login",
+  },
+  Object {
+    "element": <LogoutPage />,
+    "path": "/logout",
+  },
+  Object {
+    "children": Array [
+      Object {
+        "element": <Navigate
+          replace={true}
+          to="/admin/event"
+        />,
+        "index": true,
+      },
+      Object {
+        "element": <Memo(EventListPage) />,
+        "path": "/admin/event",
+      },
+      Object {
+        "element": <Memo(EventEditPage)
+          create={true}
+        />,
+        "path": "/admin/event/create",
+      },
+      Object {
+        "element": <Memo(EventEditPage) />,
+        "path": "/admin/event/edit/:id",
+      },
+      Object {
+        "element": <Memo(EventViewPageWithData) />,
+        "loader": [Function],
+        "path": "/admin/event/view/:id",
+      },
+      Object {
+        "element": <Memo(EventViewPageWithData) />,
+        "path": "/admin/event/view/:id/:reistrationId",
+      },
+      Object {
+        "element": <Memo(OrganizerListPage) />,
+        "path": "/admin/organizations",
+      },
+      Object {
+        "element": <Memo(OfficialListPage) />,
+        "path": "/admin/officials",
+      },
+      Object {
+        "element": <UsersPage />,
+        "path": "/admin/users",
+      },
+      Object {
+        "element": <Memo(JudgeListPage) />,
+        "path": "/admin/judge",
+      },
+      Object {
+        "element": <Memo(EventTypeListPage) />,
+        "path": "/admin/types",
+      },
+    ],
+    "element": <AdminHomePage />,
+    "errorElement": <ErrorPage />,
+    "loader": [Function],
+    "path": "/admin",
+    "shouldRevalidate": [Function],
+  },
+]
+`;
