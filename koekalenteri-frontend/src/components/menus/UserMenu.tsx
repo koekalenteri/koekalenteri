@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useAuthenticator } from '@aws-amplify/ui-react';
@@ -41,12 +41,9 @@ function LoggedInUserMenu() {
   const navigate = useNavigate();
   const open = Boolean(anchorEl);
 
-  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
+  const handleClick = useCallback((event: React.MouseEvent<HTMLElement>) => setAnchorEl(event.currentTarget), [setAnchorEl])
+  const handleClose = useCallback(() => setAnchorEl(null), [setAnchorEl])
+  const navigateToAdmin = useCallback(() => navigate(Path.admin.root), [navigate])
 
   return (
     <>
@@ -59,7 +56,7 @@ function LoggedInUserMenu() {
         onClose={handleClose}
         onClick={handleClose}
       >
-        <MenuItem onClick={() => navigate(Path.admin.root)}>{t('admin')}</MenuItem>
+        <MenuItem onClick={navigateToAdmin}>{t('admin')}</MenuItem>
         <MenuItem onClick={signOut}>{t('logout')}</MenuItem>
       </Menu>
 
