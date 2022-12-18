@@ -1,20 +1,24 @@
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { AddCircleOutline, DeleteOutline, EditOutlined, EmailOutlined, EuroOutlined, FormatListBulleted, PersonOutline, ShuffleOutlined, TableChartOutlined } from '@mui/icons-material'
-import { Box, Button, Dialog, DialogContent, DialogTitle, Divider, Grid, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material'
+import { Box, Button, Dialog, DialogContent, DialogTitle, Divider, Grid, Stack, Typography } from '@mui/material'
 import { GridColDef, GridSelectionModel } from '@mui/x-data-grid'
-import { format } from 'date-fns'
-import { BreedCode, ConfirmedEventEx, Registration, RegistrationDate } from 'koekalenteri-shared/model'
+import { BreedCode, ConfirmedEventEx, Registration } from 'koekalenteri-shared/model'
 import { toJS } from 'mobx'
 import { observer } from 'mobx-react-lite'
 
 import { putRegistration } from '../../api/event'
-import { availableGroups, CollapsibleSection, GroupColors, LinkButton, RegistrationForm, StyledDataGrid } from '../../components'
+import { CollapsibleSection, LinkButton, RegistrationForm, StyledDataGrid } from '../../components'
 import { Path } from '../../routeConfig'
 import { useStores } from '../../stores'
 import { uniqueDate } from '../../utils'
 
 import FullPageFlex from './components/FullPageFlex'
+import GroupColors, { availableGroups } from './eventViewPage/GroupColors'
+import GroupHeader from './eventViewPage/GroupHeader'
+import InfoPanel from './eventViewPage/InfoPanel'
+import NoRowsOverlay from './eventViewPage/NoRowsOverlay'
+import Title from './eventViewPage/Title'
 
 export const EventViewPageWithData = observer(function EventViewPageWithData() {
   const { privateStore } = useStores()
@@ -240,84 +244,3 @@ export const EventViewPage = ({event, registrations, loading}: Props) => {
   )
 
 }
-
-interface GroupHeaderProps {
-  eventDates: Date[]
-  group: RegistrationDate
-}
-const GroupHeader = ({eventDates, group}: GroupHeaderProps) => {
-  const { t } = useTranslation()
-
-  return <Stack direction="row" sx={{
-    height: 24,
-    lineHeight: '24px',
-    bgcolor: 'secondary.main',
-  }}>
-    <GroupColors dates={eventDates} selected={[group]} disableTooltip />
-    <b>{t('dateshort', { date: group.date }) + ' ' + t(`registration.time.${group.time}`)}</b>
-  </Stack>
-}
-
-
-const NoRowsOverlay = () => {
-  return <Box sx={{
-    width: '100%',
-    height: '100%',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    bgcolor: 'background.selected'}}
-  >
-      Raahaa osallistujat tähän!
-  </Box>
-}
-
-const Title = observer(function Title({ event }: { event: ConfirmedEventEx }) {
-  const { t } = useTranslation()
-  const title = useMemo(() => {
-    if (event.isEventOver) {
-      return t('event.states.confirmed_eventOver')
-    }
-    return event.isEntryClosed
-      ? t('event.states.confirmed_entryClosed')
-      : t('event.states.confirmed_entryOpen')
-  }, [event, t])
-
-  return (
-    <Typography variant="h5">
-      {event.eventType}, {t('daterange', { start: event.startDate, end: event.endDate })}, {event.location}
-      <Box sx={{ display: 'inline-block', mx: 2, color: '#018786' }}>{title}</Box>
-    </Typography>
-  )
-})
-
-const InfoPanel = observer(function InfoPanel({ event }: { event: ConfirmedEventEx }) {
-  const { t } = useTranslation()
-  return (
-    <TableContainer component={Paper} elevation={4} sx={{
-      width: 256,
-      backgroundColor: 'background.selected',
-      p: 1,
-      '& .MuiTableCell-root': {py: 0, px: 1},
-    }}>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell colSpan={5}><b>Ilmoittautuneita</b></TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {event.classes?.map(c =>
-            <TableRow key={c.class + c.date?.toISOString()}>
-              <TableCell>{format(c.date || event.startDate, t('dateformatS'))}</TableCell>
-              <TableCell>{c.class}</TableCell>
-              <TableCell align="right">{c.entries}</TableCell>
-              <TableCell>Jäseniä</TableCell>
-              <TableCell align="right">{c.members}</TableCell>
-            </TableRow>,
-          )}
-        </TableBody>
-      </Table>
-    </TableContainer>
-  )
-})

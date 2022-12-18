@@ -1,8 +1,8 @@
+import React from 'react'
 import { render } from '@testing-library/react'
+import { RegistrationDate } from 'koekalenteri-shared/model'
 
-import { RegistrationDate } from '../../../koekalenteri-shared/model'
-
-import { GroupColors } from './GroupColors'
+import GroupColors from './GroupColors'
 
 describe('GroupColors', () => {
 
