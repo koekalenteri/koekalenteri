@@ -13,16 +13,20 @@ export function LoginPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    if (route === 'authenticated' && !greeted) {
+      console.log('greeting!')
+      enqueueSnackbar(`Tervetuloa, ${user?.attributes?.name || user?.attributes?.email}!`, { variant: 'info', preventDuplicate: true });
+      setGreeted(true);
+    }
+  }, [enqueueSnackbar, greeted, route, setGreeted, user?.attributes?.email, user?.attributes?.name])
+
+  useEffect(() => {
     const state: Record<string, any> = location.state as any || {};
     if (route === 'authenticated') {
-      if (!greeted) {
-        enqueueSnackbar(`Tervetuloa, ${user?.attributes?.name || user?.attributes?.email}!`, { variant: 'info' });
-        setGreeted(true);
-      } else {
-        navigate(state?.from?.pathname || '/', { replace: true });
-      }
+      console.log('navigate', state?.from?.pathname)
+      navigate(state?.from?.pathname || '/', { replace: true });
     }
-  }, [enqueueSnackbar, greeted, location.state, navigate, route, setGreeted, user?.attributes?.email, user?.attributes?.name]);
+  }, [location.state, navigate, route]);
 
   return <Authenticator socialProviders={['google', 'facebook']} loginMechanisms={['email']} />;
 }
