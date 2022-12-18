@@ -8,9 +8,10 @@ import { computed, toJS } from 'mobx'
 import { observer } from 'mobx-react-lite'
 
 import { QuickSearchToolbar, StyledDataGrid } from '../../components'
-import { FullPageFlex } from '../../layout'
 import { useStores } from '../../stores'
 import { CJudge } from '../../stores/classes/CJudge'
+
+import FullPageFlex from './components/FullPageFlex'
 
 interface JudgeColDef extends GridColDef {
   field: keyof Judge

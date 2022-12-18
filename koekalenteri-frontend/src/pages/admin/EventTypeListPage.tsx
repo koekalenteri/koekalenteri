@@ -7,9 +7,10 @@ import { computed, toJS } from 'mobx'
 import { observer } from 'mobx-react-lite'
 
 import { QuickSearchToolbar, StyledDataGrid } from '../../components'
-import { FullPageFlex } from '../../layout'
 import { useStores } from '../../stores'
 import { CEventType } from '../../stores/classes/CEventType'
+
+import FullPageFlex from './components/FullPageFlex'
 
 interface EventTypeColDef extends GridColDef {
   field: keyof CEventType

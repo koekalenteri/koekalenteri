@@ -9,9 +9,11 @@ import { observer } from 'mobx-react-lite'
 import { useSnackbar } from 'notistack'
 
 import { AutoButton } from '../../components'
-import { EventGridContainer, FullPageFlex } from '../../layout'
+import { EventGridContainer } from '../../layout'
 import { Path } from '../../routeConfig'
 import { useStores } from '../../stores'
+
+import FullPageFlex from './components/FullPageFlex'
 
 export const EventListPage = observer(function EventListPage() {
   const { t } = useTranslation()

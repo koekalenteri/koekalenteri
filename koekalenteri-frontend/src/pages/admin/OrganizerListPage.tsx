@@ -8,8 +8,9 @@ import { computed, toJS } from 'mobx'
 import { observer } from 'mobx-react-lite'
 
 import { QuickSearchToolbar, StyledDataGrid } from '../../components'
-import { FullPageFlex } from '../../layout'
 import { useStores } from '../../stores'
+
+import FullPageFlex from './components/FullPageFlex'
 
 interface OrganizerColDef extends GridColDef {
   field: keyof Organizer

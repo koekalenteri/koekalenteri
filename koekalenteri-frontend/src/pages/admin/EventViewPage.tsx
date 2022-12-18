@@ -10,10 +10,11 @@ import { observer } from 'mobx-react-lite'
 
 import { putRegistration } from '../../api/event'
 import { availableGroups, CollapsibleSection, GroupColors, LinkButton, RegistrationForm, StyledDataGrid } from '../../components'
-import { FullPageFlex } from '../../layout'
 import { Path } from '../../routeConfig'
 import { useStores } from '../../stores'
 import { uniqueDate } from '../../utils'
+
+import FullPageFlex from './components/FullPageFlex'
 
 export const EventViewPageWithData = observer(function EventViewPageWithData() {
   const { privateStore } = useStores()

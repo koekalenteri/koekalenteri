@@ -5,7 +5,7 @@ type FullPageFlexProps = {
   children?: ReactNode
 }
 
-export function FullPageFlex(props: FullPageFlexProps) {
+const FullPageFlex = (props: FullPageFlexProps) => {
   return (
     <Box sx={{ display: 'flex', p: 1, overflow: 'hidden', height: '100%', flexDirection: 'column', alignItems: 'flex-start' }}>
       <Box sx={{
@@ -20,3 +20,5 @@ export function FullPageFlex(props: FullPageFlexProps) {
     </Box>
   )
 }
+
+export default FullPageFlex
