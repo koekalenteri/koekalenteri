@@ -9,7 +9,7 @@ const routes: RouteObject[] = [
   {
     path: "/",
     element: <HomePage />,
-    //errorElement: <ErrorPage />,
+    errorElement: <ErrorPage />,
     loader: async({request}) => {
       stores.rootStore.load(request.signal)
       stores.publicStore.initialize(request.signal)
