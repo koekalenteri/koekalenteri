@@ -9,7 +9,7 @@ const routes: RouteObject[] = [
   {
     path: "/",
     element: <HomePage />,
-    errorElement: <ErrorPage />,
+    //errorElement: <ErrorPage />,
     loader: async({request}) => {
       stores.rootStore.load(request.signal)
       stores.publicStore.initialize(request.signal)
@@ -33,7 +33,10 @@ const routes: RouteObject[] = [
       ].map<RouteObject>(path => ({
         path,
         element: <RegistrationPage />,
-        loader: async({request, params}) => stores.publicStore.selectEvent(params.id, request.signal),
+        loader: async({request, params}) => {
+          stores.publicStore.selectEvent(params.id, request.signal)
+          return null
+        },
       })),
       {
         path: "registration/:eventType/:id/:registrationId/cancel",
@@ -81,7 +84,10 @@ const routes: RouteObject[] = [
       {
         path: `${Path.admin.viewEvent}/:id`,
         element: <EventViewPageWithData />,
-        loader: async({request, params}) => stores.privateStore.selectEvent(params.id, request.signal),
+        loader: async({request, params}) => {
+          stores.privateStore.selectEvent(params.id, request.signal)
+          return null
+        },
       },
       {
         path: `${Path.admin.viewEvent}/:id/:reistrationId`,
