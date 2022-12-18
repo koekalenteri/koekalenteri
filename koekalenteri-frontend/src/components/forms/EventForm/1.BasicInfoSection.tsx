@@ -1,14 +1,16 @@
+import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Grid, TextField } from '@mui/material';
 import { add, differenceInDays, eachDayOfInterval, isAfter, isSameDay, startOfDay } from 'date-fns';
 import { Event, EventClass, Official, Organizer } from 'koekalenteri-shared/model';
 import { observer } from 'mobx-react-lite';
-import { useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { PartialEvent } from '.';
+
 import { CollapsibleSection, DateRange, HelpPopover } from '../..';
+
 import { EventClasses } from './EventClasses';
 import { EventProperty } from './EventProperty';
 import { FieldRequirements } from './validation';
+import { PartialEvent } from '.';
 
 type BasicInfoSectionParams = {
   event: PartialEvent

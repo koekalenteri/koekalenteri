@@ -1,4 +1,5 @@
 import { fireEvent, render, screen, within } from '@testing-library/react';
+
 import { JudgesSection } from './2.JudgesSection';
 
 const JUDGES = [{

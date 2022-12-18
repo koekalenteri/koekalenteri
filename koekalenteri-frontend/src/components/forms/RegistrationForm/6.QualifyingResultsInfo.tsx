@@ -1,13 +1,16 @@
-import { AddOutlined, DeleteOutline } from '@mui/icons-material';
-import { DatePicker } from '@mui/x-date-pickers';
-import '@mui/lab';
-import { Button, debounce, FormControl, Grid, InputLabel, MenuItem, Select, TextField, TextFieldProps } from '@mui/material';
-import { subYears } from 'date-fns';
-import { QualifyingResult, Registration, TestResult } from 'koekalenteri-shared/model';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { AddOutlined, DeleteOutline } from '@mui/icons-material';
+import { Button, debounce, FormControl, Grid, InputLabel, MenuItem, Select, TextField, TextFieldProps } from '@mui/material';
+import { DatePicker } from '@mui/x-date-pickers';
+import { subYears } from 'date-fns';
+import { QualifyingResult, Registration, TestResult } from 'koekalenteri-shared/model';
 import { v4 as uuidv4 } from 'uuid';
+
+import '@mui/lab';
+
 import { CollapsibleSection } from '../..';
+
 import { EventResultRequirement, EventResultRequirements, EventResultRequirementsByDate, getRequirements, RegistrationClass } from './rules';
 import { objectContains } from './validation';
 

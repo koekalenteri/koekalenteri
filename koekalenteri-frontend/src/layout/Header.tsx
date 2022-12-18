@@ -1,14 +1,22 @@
-import { AppBar, Typography, IconButton, Toolbar, Link, Box } from '@mui/material';
-import logo from '../assets/snj-logo.png';
-import banner from '../assets/banner.png';
-import { LanguageMenu, UserMenu } from '../components';
 import { Menu } from '@mui/icons-material';
+import { AppBar, Box,IconButton, Link, Toolbar, Typography } from '@mui/material';
 
-export function Header({title, toggleMenu}: {title?: string, toggleMenu?: () => void}) {
+import banner from '../assets/banner.png';
+import logo from '../assets/snj-logo.png';
+import { LanguageMenu, UserMenu } from '../components';
+
+interface Props {
+  title?: string,
+  toggleMenu?: () => void
+}
+
+export function Header({title, toggleMenu}: Props) {
   return (
     <AppBar position="fixed" color="secondary">
       <Toolbar variant="dense" disableGutters sx={{ width: '100%', px: 1 }}>
-        <IconButton sx={{display: {sm: 'inline-flex', md: 'none'}}} onClick={() => toggleMenu && toggleMenu()}><Menu /></IconButton>
+        {toggleMenu
+          ? <IconButton sx={{display: {sm: 'inline-flex', md: 'none'}}} onClick={toggleMenu}><Menu /></IconButton>
+          : null}
         <Link href="/">
           <IconButton sx={{ mx: { xs: 1, sm: 1 }, p: 0, height: 36 }}>
             <img src={logo} height="100%" alt="Suomen noutajakoirajärjestö" />

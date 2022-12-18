@@ -1,5 +1,6 @@
-import type { ConfirmedEventEx, Event, EventEx, JsonEvent } from 'koekalenteri-shared/model';
 import { endOfDay, startOfDay, subDays } from 'date-fns';
+import type { ConfirmedEventEx, Event, EventEx, JsonEvent } from 'koekalenteri-shared/model';
+
 import { DEFAULT_EVENT } from './defaultEvent';
 
 // https://stackoverflow.com/a/69756175/10359775

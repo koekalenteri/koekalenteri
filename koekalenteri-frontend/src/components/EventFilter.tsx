@@ -1,10 +1,12 @@
+import { useTranslation } from 'react-i18next';
+import { URLSearchParamsInit } from 'react-router-dom';
 import { Box, FormControlLabel, Grid, Stack, Switch } from '@mui/material';
 import { formatISO } from 'date-fns';
 import { Judge, Organizer } from 'koekalenteri-shared/model';
-import { useTranslation } from 'react-i18next';
-import { URLSearchParamsInit } from 'react-router-dom';
-import { AutocompleteMulti, DateRange } from '.';
+
 import { FilterProps, MIN_DATE } from '../stores/PublicStore';
+
+import { AutocompleteMulti, DateRange } from '.';
 
 type EventFilterProps = {
   eventTypes: string[]

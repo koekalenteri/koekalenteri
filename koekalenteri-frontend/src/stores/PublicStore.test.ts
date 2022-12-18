@@ -1,4 +1,5 @@
 import { parseISO } from "date-fns";
+
 import { PublicStore } from "./PublicStore";
 
 jest.mock('../api/event');
@@ -24,9 +25,11 @@ test('PublicStore', async () => {
   expect(store.loading).toEqual(false);
   expect(store.loaded).toEqual(false);
 
-  let evt = await store.get('type4', 'test4');
-  expect(evt.id).toEqual('test4');
+  /* only gets loaded events at this time
+  let evt = await store.get('test4');
+  expect(evt?.id).toEqual('test4');
   expect(store.loaded).toEqual(false);
+  */
 
   // empty + defaults
   expect(store.filter).toEqual({ ...emptyFilter, withOpenEntry: true, withUpcomingEntry: true});
@@ -36,13 +39,13 @@ test('PublicStore', async () => {
   expect(store.filteredEvents.length).toEqual(3);
 
   const first = store.filteredEvents[0];
-  evt = await store.get(first.eventType, first.id);
+  let evt = await store.get(first.id);
   expect(evt).toEqual(first);
 
-  await store.setFilter({ ...emptyFilter });
+  store.setFilter({ ...emptyFilter });
   expect(store.filteredEvents.length).toEqual(5);
 
-  await store.setFilter({
+  store.setFilter({
     ...emptyFilter,
     start: parseISO('2021-01-01'),
     end: parseISO('2021-02-11')
@@ -50,7 +53,7 @@ test('PublicStore', async () => {
   expect(store.filteredEvents.length).toEqual(1);
   expect(store.filteredEvents[0]).toMatchObject({ id: 'test1' });
 
-  await store.setFilter({
+  store.setFilter({
     ...emptyFilter,
     start: parseISO('2021-02-13'),
     end: new Date() // the events relative to today are excluded
@@ -58,47 +61,47 @@ test('PublicStore', async () => {
   expect(store.filteredEvents.length).toEqual(1);
   expect(store.filteredEvents[0]).toMatchObject({ id: 'test2' });
 
-  await store.setFilter({
+  store.setFilter({
     ...emptyFilter,
     start: parseISO('2021-02-11'),
     end: parseISO('2021-02-12')
   });
   expect(store.filteredEvents.length).toEqual(2);
 
-  await store.setFilter({
+  store.setFilter({
     ...emptyFilter,
     eventType: ['type1']
   });
   expect(store.filteredEvents.length).toEqual(1);
   expect(store.filteredEvents[0]).toMatchObject({ id: 'test1' });
 
-  await store.setFilter({
+  store.setFilter({
     ...emptyFilter,
     eventClass: ['class1']
   });
   expect(store.filteredEvents.length).toEqual(1);
   expect(store.filteredEvents[0]).toMatchObject({ id: 'test1' });
 
-  await store.setFilter({
+  store.setFilter({
     ...emptyFilter,
     eventType: ['type2'],
     eventClass: ['class1']
   });
   expect(store.filteredEvents.length).toEqual(0);
 
-  await store.setFilter({
+  store.setFilter({
     ...emptyFilter,
     judge: [123]
   });
   expect(store.filteredEvents.length).toEqual(1);
 
-  await store.setFilter({
+  store.setFilter({
     ...emptyFilter,
     organizer: [2]
   });
   expect(store.filteredEvents.length).toEqual(1);
 
-  await store.setFilter({
+  store.setFilter({
     ...emptyFilter,
     withOpenEntry: true
   });
@@ -106,7 +109,7 @@ test('PublicStore', async () => {
   expect(store.filteredEvents[0]).toMatchObject({ id: 'test3' });
   expect(store.filteredEvents[1]).toMatchObject({ id: 'test5' });
 
-  await store.setFilter({
+  store.setFilter({
     ...emptyFilter,
     withOpenEntry: true,
     withClosingEntry: true
@@ -114,14 +117,14 @@ test('PublicStore', async () => {
   expect(store.filteredEvents.length).toEqual(1);
   expect(store.filteredEvents[0]).toMatchObject({ id: 'test5' });
 
-  await store.setFilter({
+  store.setFilter({
     ...emptyFilter,
     withUpcomingEntry: true
   });
   expect(store.filteredEvents.length).toEqual(1);
   expect(store.filteredEvents[0]).toMatchObject({ id: 'test4' });
 
-  await store.setFilter({
+  store.setFilter({
     ...emptyFilter,
     withOpenEntry: true,
     withFreePlaces: true
@@ -129,7 +132,7 @@ test('PublicStore', async () => {
   expect(store.filteredEvents.length).toEqual(1);
   expect(store.filteredEvents[0]).toMatchObject({ id: 'test5' });
 
-  await store.setFilter({
+  store.setFilter({
     ...emptyFilter,
     withOpenEntry: true,
     withUpcomingEntry: true

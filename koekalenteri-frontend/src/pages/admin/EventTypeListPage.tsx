@@ -1,15 +1,15 @@
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { CheckBoxOutlineBlankOutlined, CheckBoxOutlined, CloudSync } from '@mui/icons-material';
 import { Button, Stack, Switch } from '@mui/material';
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 import { computed, toJS } from 'mobx';
 import { observer } from 'mobx-react-lite';
-import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
+
 import { QuickSearchToolbar, StyledDataGrid } from '../../components';
 import { FullPageFlex } from '../../layout';
 import { useStores } from '../../stores';
 import { CEventType } from '../../stores/classes/CEventType';
-import { AuthPage } from './AuthPage';
 
 interface EventTypeColDef extends GridColDef {
   field: keyof CEventType
@@ -69,7 +69,7 @@ export const EventTypeListPage = observer(function EventTypeListPage()  {
   };
 
   return (
-    <AuthPage title={t('eventTypes')}>
+    <>
       <FullPageFlex>
         <Stack direction="row" spacing={2}>
           <Button startIcon={<CloudSync />} onClick={refresh}>{t('updateData', {data: 'eventTypes'})}</Button>
@@ -94,6 +94,6 @@ export const EventTypeListPage = observer(function EventTypeListPage()  {
           getRowId={(row) => row.eventType}
         />
       </FullPageFlex>
-    </AuthPage>
+    </>
   )
 })

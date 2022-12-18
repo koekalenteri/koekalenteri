@@ -1,4 +1,5 @@
 import { Event, EventEx, JsonEvent, JsonRegistration, QualifyingResult, Registration, RegistrationDate } from 'koekalenteri-shared/model';
+
 import { rehydrateDog } from './dog';
 import http from './http';
 import { rehydrateEvent } from './utils';

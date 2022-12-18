@@ -1,4 +1,5 @@
 import { EventEx } from 'koekalenteri-shared/model';
+
 import { emptyEvent } from './api/test-utils/emptyEvent';
 import {entryDateColor} from './utils';
 

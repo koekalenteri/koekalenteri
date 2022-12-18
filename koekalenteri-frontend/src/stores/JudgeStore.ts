@@ -1,7 +1,9 @@
 import i18next from "i18next";
 import { Judge } from "koekalenteri-shared/model";
 import { makeAutoObservable, runInAction } from "mobx";
+
 import { getJudges, putJudge } from "../api/judge";
+
 import { CJudge } from "./classes/CJudge";
 import { RootStore } from "./RootStore";
 

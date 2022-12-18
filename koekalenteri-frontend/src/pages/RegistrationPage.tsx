@@ -1,13 +1,14 @@
-import { Box, CircularProgress, Container, Toolbar } from '@mui/material';
-import type { ConfirmedEventEx, Registration } from 'koekalenteri-shared/model';
-import { observer } from 'mobx-react-lite';
-import { useSnackbar } from 'notistack';
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode, useCallback,useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
+import { CircularProgress, Container } from '@mui/material';
+import type { ConfirmedEventEx, Registration } from 'koekalenteri-shared/model';
+import { toJS } from 'mobx';
+import { observer } from 'mobx-react-lite';
+import { useSnackbar } from 'notistack';
+
 import { getRegistration, putRegistration } from '../api/event';
 import { LinkButton, RegistrationEventInfo, RegistrationForm } from '../components';
-import { Header } from '../layout';
 import { useSessionStarted, useStores } from '../stores';
 
 export const RegistrationPage = observer(function RegistrationPage() {
@@ -15,11 +16,11 @@ export const RegistrationPage = observer(function RegistrationPage() {
   const navigate = useNavigate();
   const params = useParams();
   const { publicStore } = useStores();
-  const [event, setEvent] = useState<ConfirmedEventEx>();
   const [loading, setLoading] = useState(true);
   const [registration, setRegistration] = useState<Registration>();
   const [sessionStarted] = useSessionStarted();
   const { t } = useTranslation();
+  const event = toJS(publicStore.selectedEvent) as ConfirmedEventEx;
 
   const onSave = async (reg: Registration) => {
     try {
@@ -49,6 +50,7 @@ export const RegistrationPage = observer(function RegistrationPage() {
       return false;
     }
   }
+  const onClick = useCallback(() => sessionStarted ? () => navigate(-1) : undefined, [sessionStarted, navigate])
   const onCancel = async () => {
     navigate(registration ? `/registration/${registration.eventType}/${registration.eventId}/${registration.id}` : '/');
     return true;
@@ -57,7 +59,6 @@ export const RegistrationPage = observer(function RegistrationPage() {
   useEffect(() => {
     const abort = new AbortController();
     async function get(eventType: string, id: string, registrationId?: string) {
-      setEvent(await publicStore.get(eventType, id, abort.signal) as ConfirmedEventEx);
       if (registrationId) {
         setRegistration(await getRegistration(id, registrationId, abort.signal));
       }
@@ -75,15 +76,11 @@ export const RegistrationPage = observer(function RegistrationPage() {
 
   return (
     <>
-      <Header title={t('entryTitle', { context: event?.eventType === 'other' ? '' : 'test' })} />
-      <Box sx={{ p: 1, overflow: 'hidden', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-        <Toolbar variant="dense" />{/* To allocate the space for fixed header */}
-        <LinkButton sx={{ mb: 1 }} to="/" text={sessionStarted ? t('goBack') : t('goHome')} />
-        <Loader loading={loading}>
-          <RegistrationEventInfo event={event} />
-          <RegistrationForm event={event} registration={registration} className={params.class} classDate={params.date} onSave={onSave} onCancel={onCancel} />
-        </Loader>
-      </Box>
+      <LinkButton sx={{ mb: 1 }} to="/" onClick={onClick} text={sessionStarted ? t('goBack') : t('goHome')} />
+      <Loader loading={loading}>
+        <RegistrationEventInfo event={event} />
+        <RegistrationForm event={event} registration={registration} className={params.class} classDate={params.date} onSave={onSave} onCancel={onCancel} />
+      </Loader>
     </>
   )
 })

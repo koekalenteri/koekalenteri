@@ -1,7 +1,7 @@
-import { Box, Stack, Tooltip } from '@mui/material';
-import { RegistrationDate } from 'koekalenteri-shared/model';
 import { ReactElement, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Box, Stack, Tooltip } from '@mui/material';
+import { RegistrationDate } from 'koekalenteri-shared/model';
 
 export const GROUP_COLORS = ['#2D9CDB', '#BB6BD9', '#F2994A', '#27AE60', '#828282', '#56CCF2']
 

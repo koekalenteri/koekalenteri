@@ -1,5 +1,7 @@
 import { render } from '@testing-library/react';
+
 import { RegistrationDate } from '../../../koekalenteri-shared/model';
+
 import { GroupColors } from './GroupColors';
 
 describe('GroupColors', () => {

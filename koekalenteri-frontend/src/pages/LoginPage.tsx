@@ -1,7 +1,8 @@
-import { Authenticator, useAuthenticator } from '@aws-amplify/ui-react';
-import { useSnackbar } from 'notistack';
 import { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { Authenticator, useAuthenticator } from '@aws-amplify/ui-react';
+import { useSnackbar } from 'notistack';
+
 import { useSessionBoolean } from '../stores';
 
 export function LoginPage() {
@@ -10,18 +11,18 @@ export function LoginPage() {
   const { enqueueSnackbar } = useSnackbar();
   const location = useLocation();
   const navigate = useNavigate();
-  const state: Record<string, any> = location.state as any || {};
 
   useEffect(() => {
+    const state: Record<string, any> = location.state as any || {};
     if (route === 'authenticated') {
       if (!greeted) {
-        enqueueSnackbar(`Tervetuloa, ${user.attributes?.name || user.attributes?.email}!`, { variant: 'info' });
+        enqueueSnackbar(`Tervetuloa, ${user?.attributes?.name || user?.attributes?.email}!`, { variant: 'info' });
         setGreeted(true);
       } else {
         navigate(state?.from?.pathname || '/', { replace: true });
       }
     }
-  });
+  }, [enqueueSnackbar, greeted, location.state, navigate, route, setGreeted, user?.attributes?.email, user?.attributes?.name]);
 
   return <Authenticator socialProviders={['google', 'facebook']} loginMechanisms={['email']} />;
 }

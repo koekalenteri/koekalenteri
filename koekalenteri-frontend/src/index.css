@@ -15,3 +15,7 @@ code {
 html, body, #root {
   height: 100%
 }
+
+.SnackbarContainer-root.snack {
+  top: 50px
+}

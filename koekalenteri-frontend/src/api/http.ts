@@ -1,4 +1,4 @@
-import { API_BASE_URL } from "../config";
+import { API_BASE_URL } from "../routeConfig";
 
 class APIError extends Error {
   status: number;

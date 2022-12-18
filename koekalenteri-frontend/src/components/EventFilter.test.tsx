@@ -1,10 +1,12 @@
-import fi from 'date-fns/locale/fi';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { fireEvent, render, within, screen } from '@testing-library/react';
-import { EventFilter } from './';
-import { FilterProps } from '../stores/PublicStore';
+import { fireEvent, render, screen,within } from '@testing-library/react';
+import fi from 'date-fns/locale/fi';
 import { Judge, Organizer } from 'koekalenteri-shared/model';
+
+import { FilterProps } from '../stores/PublicStore';
+
+import { EventFilter } from './';
 
 const judges: Judge[] = [
   {

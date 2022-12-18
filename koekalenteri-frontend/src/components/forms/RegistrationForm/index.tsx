@@ -1,11 +1,14 @@
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Cancel, Save } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import { Box, Button, Checkbox, Collapse, FormControl, FormControlLabel, FormHelperText, Link, Paper, Stack, Theme, useMediaQuery } from '@mui/material';
 import { TFunction } from 'i18next';
 import { ConfirmedEventEx, Language, Registration } from 'koekalenteri-shared/model';
-import { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { observer } from 'mobx-react-lite';
+
 import { useStores } from '../../../stores';
+
 import { EntryInfo, getRegistrationDates } from './1.Entry';
 import { DogInfo } from './2.Dog';
 import { BreederInfo } from './3.Breeder';
@@ -43,7 +46,7 @@ export const emptyPerson = {
   membership: false
 };
 
-export function RegistrationForm({ event, className, registration, classDate, onSave, onCancel }: RegistrationFormProps) {
+export const RegistrationForm = observer(function RegistrationForm({ event, className, registration, classDate, onSave, onCancel }: RegistrationFormProps) {
   const { publicStore } = useStores();
   const eventHasClasses = (publicStore.eventTypeClasses[event.eventType] || []).length > 0;
   const large = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'));
@@ -250,7 +253,7 @@ export function RegistrationForm({ event, className, registration, classDate, on
       </Stack>
     </Paper>
   );
-}
+})
 
 function getSectionHelperTexts(
   local: Registration,

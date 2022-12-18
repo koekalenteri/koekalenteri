@@ -1,6 +1,7 @@
-import { reaction, makeAutoObservable, runInAction } from 'mobx';
-import { getEvent, getEvents } from '../api/event';
 import type { EventEx } from 'koekalenteri-shared/model';
+import { makeAutoObservable, reaction, runInAction, when } from 'mobx';
+
+import { getEvents } from '../api/event';
 
 export type FilterProps = {
   start: Date | null
@@ -25,6 +26,7 @@ export const MIN_DATE = new Date(2020,0,1);
 export class PublicStore {
   private _events: EventEx[] = [];
   public filteredEvents: EventEx[] = []
+  public selectedEvent: EventEx | undefined = undefined;
   public loaded = false;
   public loading = false;
 
@@ -92,7 +94,6 @@ export class PublicStore {
       this.loaded = false;
     })
     const events = await getEvents(signal);
-
     runInAction(() => {
       this._events = events.sort((a: EventEx, b: EventEx) => +new Date(a.startDate || new Date()) - +new Date(b.startDate || new Date()));
       this._applyFilter();
@@ -101,12 +102,17 @@ export class PublicStore {
     });
   }
 
-  async get(eventType: string, id: string, signal?: AbortSignal) {
-    const cached = this._events.find(event => event.eventType === eventType && event.id === id);
-    if (cached) {
-      return cached;
-    }
-    return getEvent(eventType, id, signal);
+  async get(id: string, signal?: AbortSignal): Promise<EventEx|undefined> {
+    let event;
+    runInAction(() => {
+      event = this._events.find(e => e.id === id)
+    })
+    return event;
+  }
+
+  async selectEvent(id?: string, signal?: AbortSignal) {
+    await when(() => this.loaded)
+    this.selectedEvent = id ? await this.get(id, signal) : undefined
   }
 
   private _applyFilter() {

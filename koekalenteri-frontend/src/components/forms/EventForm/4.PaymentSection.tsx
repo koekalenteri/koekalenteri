@@ -1,10 +1,12 @@
+import { useTranslation } from "react-i18next";
 import { Grid, InputAdornment } from "@mui/material";
 import { Event } from "koekalenteri-shared/model";
-import { useTranslation } from "react-i18next";
-import { PartialEvent } from ".";
+
 import { CollapsibleSection } from "../..";
-import { FieldRequirements } from "./validation";
+
 import { EventProperty, EventPropertyProps } from "./EventProperty";
+import { FieldRequirements } from "./validation";
+import { PartialEvent } from ".";
 
 type PaymentSectionProps = {
   errorStates: { [Property in keyof Event]?: boolean }

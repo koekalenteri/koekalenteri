@@ -1,8 +1,10 @@
+import { useTranslation } from "react-i18next";
 import { Checkbox, FormControlLabel, FormGroup, Grid } from "@mui/material";
 import { ContactInfo, Event, ShowContactInfo } from "koekalenteri-shared/model";
-import { useTranslation } from "react-i18next";
+
 import { CollapsibleSection, PartialEvent } from "../..";
 import { EventContactInfo } from "../../EventContactInfo";
+
 import { FieldRequirements } from "./validation";
 
 type ContactInfoSectionParams = {

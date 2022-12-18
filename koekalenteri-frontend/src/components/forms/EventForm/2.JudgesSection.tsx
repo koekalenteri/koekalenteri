@@ -1,10 +1,12 @@
+import { useTranslation } from 'react-i18next';
 import { AddOutlined, DeleteOutline } from '@mui/icons-material';
 import { Button, Grid } from '@mui/material';
 import { isSameDay } from 'date-fns';
 import { Event, EventClass, Judge } from 'koekalenteri-shared/model';
-import { useTranslation } from 'react-i18next';
+
 import { CollapsibleSection, PartialEvent } from '../..';
 import { AutocompleteSingle } from '../../AutocompleteSingle';
+
 import { EventClasses } from './EventClasses';
 import { FieldRequirements, validateEventField } from './validation';
 

@@ -1,8 +1,9 @@
+import { useTranslation } from "react-i18next";
 import { CheckBox, CheckBoxOutlineBlank } from "@mui/icons-material";
 import { Autocomplete, AutocompleteChangeReason, Avatar, Checkbox, Chip, TextField } from "@mui/material";
 import { isSameDay } from "date-fns";
 import { Event, EventClass, EventState } from "koekalenteri-shared/model";
-import { useTranslation } from "react-i18next";
+
 import { PartialEvent } from "../..";
 
 /**

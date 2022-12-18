@@ -1,7 +1,9 @@
 import i18next from "i18next";
 import { Organizer } from "koekalenteri-shared/model";
 import { makeAutoObservable, runInAction } from "mobx";
+
 import { getOrganizers } from "../api/organizer";
+
 import { COrganizer } from "./classes/COrganizer";
 import { RootStore } from "./RootStore";
 

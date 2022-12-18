@@ -1,18 +1,21 @@
+import { useTranslation } from 'react-i18next';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { Auth } from '@aws-amplify/auth';
 import { Authenticator } from '@aws-amplify/ui-react';
-import '@aws-amplify/ui-react/styles.css';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { SnackbarProvider } from 'notistack';
-import { useTranslation } from 'react-i18next';
-import { Navigate, Route, Routes } from 'react-router-dom';
+
 import { AWSConfig } from './amplify-env';
-import { ADMIN_DEFAULT, ADMIN_EDIT_EVENT, ADMIN_EVENTS, ADMIN_EVENT_TYPES, ADMIN_JUDGES, ADMIN_NEW_EVENT, ADMIN_OFFICIALS, ADMIN_ORGS, ADMIN_ROOT, ADMIN_USERS, ADMIN_VIEW_EVENT } from './config';
 import { Language, locales, muiLocales } from './i18n';
-import { EventEditPage, EventListPage, EventTypeListPage, EventViewPageWithData, JudgeListPage, LoginPage, LogoutPage, OfficialListPage, OrganizerListPage, RegistrationListPage, RegistrationPage, SearchPage, UsersPage } from './pages';
+import routes from './routes';
+
+import '@aws-amplify/ui-react/styles.css';
 
 Auth.configure(AWSConfig);
+
+const router = createBrowserRouter(routes);
 
 function App() {
   const { i18n } = useTranslation();
@@ -24,31 +27,11 @@ function App() {
         <SnackbarProvider
           anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
           classes={{ containerRoot: 'snack' }}
+          disableWindowBlurListener
           maxSnack={3}
         >
           <Authenticator.Provider>
-            <Routes>
-              <Route path="/" element={<SearchPage />} />
-              <Route path="/event/:eventType/:id"  element={<RegistrationPage />} />
-              <Route path="/event/:eventType/:id/:class"  element={<RegistrationPage />} />
-              <Route path="/event/:eventType/:id/:class/:date" element={<RegistrationPage />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/logout" element={<LogoutPage />} />
-              <Route path="/registration/:eventType/:id/:registrationId" element={<RegistrationListPage />} />
-              <Route path="/registration/:eventType/:id/:registrationId/edit" element={<RegistrationPage />} />
-              <Route path="/registration/:eventType/:id/:registrationId/cancel" element={<RegistrationListPage cancel/>} />
-              <Route path={ADMIN_ROOT} element={<Navigate replace to={ADMIN_DEFAULT} />} />
-              <Route path={ADMIN_EVENTS} element={<EventListPage />} />
-              <Route path={ADMIN_NEW_EVENT} element={<EventEditPage create />} />
-              <Route path={`${ADMIN_EDIT_EVENT}/:id`} element={<EventEditPage />} />
-              <Route path={`${ADMIN_VIEW_EVENT}/:id`} element={<EventViewPageWithData />} />
-              <Route path={`${ADMIN_VIEW_EVENT}/:id/:reistrationId`} element={<EventViewPageWithData />} />
-              <Route path={ADMIN_ORGS} element={<OrganizerListPage />} />
-              <Route path={ADMIN_OFFICIALS} element={<OfficialListPage />} />
-              <Route path={ADMIN_USERS} element={<UsersPage />} />
-              <Route path={ADMIN_JUDGES} element={<JudgeListPage />} />
-              <Route path={ADMIN_EVENT_TYPES} element={<EventTypeListPage />} />
-            </Routes>
+            <RouterProvider router={router} />
           </Authenticator.Provider>
         </SnackbarProvider>
       </LocalizationProvider>

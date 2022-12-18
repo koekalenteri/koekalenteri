@@ -1,12 +1,13 @@
-import { ExpandMore, PersonOutline } from '@mui/icons-material';
+import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AppBarButton } from '..';
-import { useAuthenticator } from '@aws-amplify/ui-react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useAuthenticator } from '@aws-amplify/ui-react';
+import { ExpandMore, PersonOutline } from '@mui/icons-material';
 import { Menu, MenuItem } from '@mui/material';
-import { ADMIN_ROOT } from '../../config';
+
+import { Path } from '../../routeConfig';
 import { useSessionBoolean } from '../../stores';
+import { AppBarButton } from '..';
 
 export function UserMenu() {
   const { route } = useAuthenticator(context => [context.route]);
@@ -14,7 +15,7 @@ export function UserMenu() {
   const location = useLocation();
 
   if (route === 'idle' && greeted) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    return <Navigate to={Path.login} state={{ from: location }} replace />;
   }
 
   return route === 'authenticated' ? <LoggedInUserMenu /> : <LoginButton />;
@@ -24,9 +25,11 @@ function LoginButton() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
+  const navigateToLogin = useCallback(() => navigate(Path.login, {state: {from: location}}), [location, navigate])
+
   return (
     <>
-      <AppBarButton onClick={() => navigate('/login', {state: {from: location}})} startIcon={<PersonOutline />}>
+      <AppBarButton onClick={navigateToLogin} startIcon={<PersonOutline />}>
         {t(`login`)}
       </AppBarButton>
     </>
@@ -40,12 +43,9 @@ function LoggedInUserMenu() {
   const navigate = useNavigate();
   const open = Boolean(anchorEl);
 
-  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
+  const handleClick = useCallback((event: React.MouseEvent<HTMLElement>) => setAnchorEl(event.currentTarget), [setAnchorEl])
+  const handleClose = useCallback(() => setAnchorEl(null), [setAnchorEl])
+  const navigateToAdmin = useCallback(() => navigate(Path.admin.root), [navigate])
 
   return (
     <>
@@ -58,7 +58,7 @@ function LoggedInUserMenu() {
         onClose={handleClose}
         onClick={handleClose}
       >
-        <MenuItem onClick={() => navigate(ADMIN_ROOT)}>{t('admin')}</MenuItem>
+        <MenuItem onClick={navigateToAdmin}>{t('admin')}</MenuItem>
         <MenuItem onClick={signOut}>{t('logout')}</MenuItem>
       </Menu>
 

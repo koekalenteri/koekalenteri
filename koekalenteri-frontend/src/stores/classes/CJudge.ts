@@ -1,5 +1,6 @@
 import { Judge } from "koekalenteri-shared/model";
 import { makeAutoObservable } from "mobx";
+
 import { JudgeStore } from "../JudgeStore";
 
 

@@ -1,9 +1,10 @@
 import { createContext, useContext, useMemo } from "react";
-import { Setter, useLocalStorage, useSessionStorage } from './browser';
-import { PublicStore } from "./PublicStore";
-import { PrivateStore } from "./PrivateStore";
-import { RootStore } from "./RootStore";
 import { configure } from "mobx";
+
+import { Setter, useLocalStorage, useSessionStorage } from './browser';
+import { PrivateStore } from "./PrivateStore";
+import { PublicStore } from "./PublicStore";
+import { RootStore } from "./RootStore";
 
 // Make sure TS is configured properly for MobX
 if (!new class { x: any }().hasOwnProperty('x')) throw new Error('Transpiler is not configured correctly');
@@ -17,11 +18,13 @@ configure({
   observableRequiresReaction: notInTest
 });
 
-const rootStoreContext = createContext({
+export const stores = {
   rootStore: new RootStore(),
   publicStore: new PublicStore(),
   privateStore: new PrivateStore(),
-});
+}
+
+const rootStoreContext = createContext(stores);
 
 export const useStores = () => useContext(rootStoreContext);
 

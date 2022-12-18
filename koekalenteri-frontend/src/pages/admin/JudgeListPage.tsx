@@ -1,16 +1,16 @@
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { CheckBoxOutlineBlankOutlined, CheckBoxOutlined, CloudSync } from '@mui/icons-material';
 import { Button, Stack, Switch, ToggleButton, ToggleButtonGroup } from '@mui/material';
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 import { Judge } from 'koekalenteri-shared/model';
 import { computed, toJS } from 'mobx';
 import { observer } from 'mobx-react-lite';
-import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
+
 import { QuickSearchToolbar, StyledDataGrid } from '../../components';
 import { FullPageFlex } from '../../layout';
 import { useStores } from '../../stores';
 import { CJudge } from '../../stores/classes/CJudge';
-import { AuthPage } from './AuthPage';
 
 interface JudgeColDef extends GridColDef {
   field: keyof Judge
@@ -120,7 +120,7 @@ export const JudgeListPage = observer(function JudgeListPage() {
   };
 
   return (
-    <AuthPage title={t('judges')}>
+    <>
       <FullPageFlex>
         <Stack direction="row" spacing={2}>
           <Button startIcon={<CloudSync />} onClick={refresh}>{t('updateData', { data: 'judges' })}</Button>
@@ -145,6 +145,6 @@ export const JudgeListPage = observer(function JudgeListPage() {
           rows={rows}
         />
       </FullPageFlex>
-    </AuthPage>
+    </>
   )
 });

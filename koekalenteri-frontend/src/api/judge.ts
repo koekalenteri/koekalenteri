@@ -1,5 +1,6 @@
-import http from './http';
 import type { Judge } from 'koekalenteri-shared/model';
+
+import http from './http';
 
 const PATH = '/judge/';
 

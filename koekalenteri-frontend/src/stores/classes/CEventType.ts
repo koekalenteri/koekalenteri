@@ -1,6 +1,7 @@
 import i18next from "i18next";
 import { EventType, Language } from "koekalenteri-shared/model";
 import { makeAutoObservable } from "mobx";
+
 import { EventTypeStore } from "../EventTypeStore";
 
 export class CEventType {

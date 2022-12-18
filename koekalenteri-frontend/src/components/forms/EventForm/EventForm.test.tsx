@@ -1,11 +1,13 @@
-import fi from 'date-fns/locale/fi';
+import { ThemeProvider } from '@mui/material';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { fireEvent, render, screen, within } from '@testing-library/react';
-import { ThemeProvider } from '@mui/material';
+import fi from 'date-fns/locale/fi';
 import { Event, Judge, Official, Organizer } from 'koekalenteri-shared/model';
-import { EventForm, FormEventHandler } from '.';
+
 import theme from '../../../assets/Theme';
+
+import { EventForm, FormEventHandler } from '.';
 
 const eventTypes = ['TEST-A', 'TEST-B', 'TEST-C'];
 const eventTypeClasses = {

@@ -1,15 +1,15 @@
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { CloudSync } from '@mui/icons-material';
 import { Button, Stack, Theme, useMediaQuery } from '@mui/material';
 import { GridColDef } from '@mui/x-data-grid';
 import { computed, toJS } from 'mobx';
 import { observer } from 'mobx-react-lite';
-import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
+
 import { QuickSearchToolbar, StyledDataGrid } from '../../components';
 import { FullPageFlex } from '../../layout';
 import { useStores } from '../../stores';
 import { COfficial } from '../../stores/classes/COfficial';
-import { AuthPage } from './AuthPage';
 
 interface OfficialColDef extends GridColDef {
   field: keyof COfficial
@@ -78,7 +78,7 @@ export const OfficialListPage = observer(function OfficialListPage() {
   };
 
   return (
-    <AuthPage title={t('officials')}>
+    <>
       <FullPageFlex>
         <Stack direction="row" spacing={2}>
           <Button startIcon={<CloudSync />} onClick={refresh}>{t('updateData', { data: 'officials' })}</Button>
@@ -109,6 +109,6 @@ export const OfficialListPage = observer(function OfficialListPage() {
           rows={rows}
         />
       </FullPageFlex>
-    </AuthPage>
+    </>
   )
 });

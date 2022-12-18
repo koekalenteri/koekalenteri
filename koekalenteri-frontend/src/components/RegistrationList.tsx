@@ -1,10 +1,11 @@
+import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import { CancelOutlined, EditOutlined, EuroOutlined, PersonOutline } from "@mui/icons-material";
 import { Paper, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import { GridActionsCellItem, GridColDef, GridRowParams } from "@mui/x-data-grid";
 import { BreedCode, Registration } from "koekalenteri-shared/model";
-import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
+
 import { StyledDataGrid } from "./StyledDataGrid";
 
 type Join<K, P> = K extends string | number ?

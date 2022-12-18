@@ -1,6 +1,7 @@
 import { CircularProgress, Grid } from '@mui/material';
 import { toJS } from 'mobx';
 import { observer } from 'mobx-react-lite';
+
 import { EventGrid } from '../components';
 import { useStores } from '../stores';
 

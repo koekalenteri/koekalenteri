@@ -1,11 +1,13 @@
-import { render, screen } from '@testing-library/react';
-import { EventTable } from './EventTable';
-import { emptyEvent } from '../api/test-utils/emptyEvent';
 import { MemoryRouter } from 'react-router-dom';
-import { parseISO } from 'date-fns';
 import { ThemeProvider } from '@mui/material';
-import theme from '../assets/Theme';
+import { render, screen } from '@testing-library/react';
+import { parseISO } from 'date-fns';
 import { EventEx } from 'koekalenteri-shared/model';
+
+import { emptyEvent } from '../api/test-utils/emptyEvent';
+import theme from '../assets/Theme';
+
+import { EventTable } from './EventTable';
 
 test('It should render error text on empty result', () => {
   render(

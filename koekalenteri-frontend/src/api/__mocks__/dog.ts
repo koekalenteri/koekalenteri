@@ -1,4 +1,5 @@
 import { Dog } from "koekalenteri-shared/model";
+
 import { rehydrateDog } from "../dog";
 
 export async function getDog(regNo: string, refresh?: boolean, signal?: AbortSignal): Promise<Dog> {

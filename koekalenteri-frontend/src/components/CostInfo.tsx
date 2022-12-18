@@ -1,5 +1,5 @@
-import { Event } from "koekalenteri-shared/model";
 import { useTranslation } from "react-i18next";
+import { Event } from "koekalenteri-shared/model";
 
 export function CostInfo({ event }: { event: Event }) {
   const { t } = useTranslation();

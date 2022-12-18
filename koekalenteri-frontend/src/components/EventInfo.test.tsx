@@ -1,6 +1,8 @@
 import { render, screen } from '@testing-library/react';
-import { EventInfo } from './EventInfo';
+
 import { emptyEvent } from '../api/test-utils/emptyEvent';
+
+import { EventInfo } from './EventInfo';
 
 
 test('It should render event information', async function() {

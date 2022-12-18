@@ -1,7 +1,9 @@
 import { Event, EventState, ShowContactInfo } from "koekalenteri-shared/model";
-import { PartialEvent } from ".";
+
 import { unique } from "../../../utils";
 import { ValidationResult, Validators } from '../validation';
+
+import { PartialEvent } from ".";
 
 type EventCallback = (event: PartialEvent) => boolean;
 type EventFlag = boolean | EventCallback;
