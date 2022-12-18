@@ -23,6 +23,7 @@ const routes: RouteObject[] = [
         loader: async({request}) => {
           const url = new URL(request.url)
           stores.publicStore.setFilter(deserializeFilter(url.searchParams))
+          return null
         }
       },
       ...[
