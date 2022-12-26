@@ -1,7 +1,7 @@
 import { Navigate, RouteObject } from 'react-router-dom'
 
 import { deserializeFilter } from './components'
-import { AdminHomePage, ErrorPage, EventEditPage, EventListPage, EventTypeListPage, EventViewPageWithData, HomePage, JudgeListPage, LoginPage, LogoutPage, OfficialListPage, OrganizerListPage, RegistrationListPage, RegistrationPage, SearchPage, UsersPage } from './pages'
+import { AdminHomePage, ErrorPage, EventEditPage, EventListPage, EventTypeListPage, EventViewPage, HomePage, JudgeListPage, LoginPage, LogoutPage, OfficialListPage, OrganizerListPage, RegistrationListPage, RegistrationPage, SearchPage, UsersPage } from './pages'
 import { Path } from './routeConfig'
 import { stores } from './stores'
 
@@ -83,15 +83,16 @@ const routes: RouteObject[] = [
       },
       {
         path: `${Path.admin.viewEvent}/:id`,
-        element: <EventViewPageWithData />,
+        element: <EventViewPage />,
         loader: async({request, params}) => {
+
           stores.privateStore.selectEvent(params.id, request.signal)
           return null
         },
       },
       {
         path: `${Path.admin.viewEvent}/:id/:reistrationId`,
-        element: <EventViewPageWithData />,
+        element: <EventViewPage />,
       },
       {
         path: Path.admin.orgs,

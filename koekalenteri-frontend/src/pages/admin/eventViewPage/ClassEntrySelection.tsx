@@ -5,11 +5,12 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import { useTranslation } from 'react-i18next';
 import { EuroOutlined, PersonOutline } from '@mui/icons-material';
 import { Box, Typography } from '@mui/material';
-import { GridColDef, GridRowId, GridSelectionModel } from '@mui/x-data-grid';
-import { BreedCode, ConfirmedEventEx, Registration, RegistrationDate } from 'koekalenteri-shared/model';
+import { GridColDef, GridRowId } from '@mui/x-data-grid';
+import { BreedCode, Registration, RegistrationDate } from 'koekalenteri-shared/model';
+import { useRecoilState, useRecoilValue } from 'recoil';
 
 import { StyledDataGrid } from '../../../components';
-import { uniqueDate } from '../../../utils';
+import { currentEventClassRegistrationsQuery, registrationIdAtom } from '../recoil';
 
 import DragableDataGrid from './classEntrySelection/DropableDataGrid'
 import GroupColors, { availableGroups } from './classEntrySelection/GroupColors';
@@ -17,22 +18,15 @@ import GroupHeader from './classEntrySelection/GroupHeader';
 import NoRowsOverlay from './classEntrySelection/NoRowsOverlay';
 
 interface Props {
-  event: ConfirmedEventEx
-  eventClass: string
-  registrations: Registration[]
+  eventDates: Date[]
   setOpen: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-const ClassEntrySelection = ({ event, eventClass, registrations, setOpen }: Props) => {
+const ClassEntrySelection = ({ eventDates, setOpen }: Props) => {
   const { t } = useTranslation();
   const { t: breed } = useTranslation('breed');
-  const [selected, setSelected] = useState<Registration>();
-
-  const eventDates = useMemo(
-    () => uniqueDate(
-      event.classes?.filter(c => c.class === eventClass)
-        .map(c => c.date || event.startDate)
-    ), [event.classes, event.startDate, eventClass])
+  const registrations = useRecoilValue(currentEventClassRegistrationsQuery)
+  const [selectedRegistrationID, setSelectedRegistrationID] = useRecoilState(registrationIdAtom)
 
   interface RegistrationGroup extends RegistrationDate {
     key: string
@@ -110,11 +104,11 @@ const ClassEntrySelection = ({ event, eventClass, registrations, setOpen }: Prop
     }
   ]
 
-  if (!event.isEntryClosed) {
-    return null
-  }
-
   const handleDrop = (group: RegistrationGroup) => (item: { id: GridRowId }) => {
+    const reg = registrations.find(r => r.id === item.id);
+    if (reg) {
+      reg.setGroup({...group, number: 1})
+    }
     setGroupRegistrations(prev => {
       const newGroups: Record<string, Registration[]> = {}
       const keys = Object.keys(prev)
@@ -124,20 +118,17 @@ const ClassEntrySelection = ({ event, eventClass, registrations, setOpen }: Prop
         if (found) {
           newGroups[key] = prev[key].filter(r => r.id !== item.id)
           reg = found
-          console.log(key, newGroups[key].length)
         } else {
           newGroups[key] = [...prev[key]]
         }
       }
       if (!reg) {
-        console.log('not found', item, group)
         return prev
       }
       if (!(group.key in newGroups)) {
         newGroups[group.key] = []
       }
       newGroups[group.key].push(reg)
-      console.log(newGroups)
       return newGroups
     })
   }
@@ -180,8 +171,11 @@ const ClassEntrySelection = ({ event, eventClass, registrations, setOpen }: Prop
         density='compact'
         disableColumnMenu
         rows={groupRegistrations.reserve}
-        onSelectionModelChange={(selectionModel: GridSelectionModel) => setSelected(registrations.find(r => r.id === selectionModel[0]))}
-        selectionModel={selected ? [selected.id] : []}
+        onSelectionModelChange={(selection) => {
+          const value = typeof selection[0] === 'string' ? selection[0] : undefined
+          setTimeout(() => setSelectedRegistrationID(value), 0)
+        }}
+        selectionModel={selectedRegistrationID ? [selectedRegistrationID] : []}
         onRowDoubleClick={() => setOpen(true)}
         sx={{ flex: eventGroups.length || 1 }}
       />

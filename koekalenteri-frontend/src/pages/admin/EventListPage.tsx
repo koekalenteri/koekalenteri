@@ -5,15 +5,16 @@ import { AddCircleOutline, ContentCopyOutlined, DeleteOutline, EditOutlined, For
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControlLabel, Stack, Switch, TextField } from '@mui/material'
 import { Event } from 'koekalenteri-shared/model'
 import cloneDeep from 'lodash.clonedeep'
+import { toJS } from 'mobx'
 import { observer } from 'mobx-react-lite'
 import { useSnackbar } from 'notistack'
 
 import { AutoButton } from '../../components'
-import { EventGridContainer } from '../../layout'
 import { Path } from '../../routeConfig'
 import { useStores } from '../../stores'
 
 import FullPageFlex from './components/FullPageFlex'
+import EventList from './eventListPage/EventList'
 
 export const EventListPage = observer(function EventListPage() {
   const { t } = useTranslation()
@@ -75,7 +76,7 @@ export const EventListPage = observer(function EventListPage() {
           <AutoButton startIcon={<DeleteOutline />} disabled={!privateStore.selectedEvent} onClick={() => setOpen(true)} text={t('delete')} />
           <AutoButton startIcon={<FormatListNumberedOutlined />} disabled={!privateStore.selectedEvent || !privateStore.selectedEvent.entries} onClick={() => navigate(`${Path.admin.viewEvent}/${privateStore.selectedEvent?.id}`)} text={t('registrations')} />
         </Stack>
-        <EventGridContainer />
+        <EventList events={toJS(privateStore.events)}></EventList>
       </FullPageFlex>
       <Dialog
         open={open}

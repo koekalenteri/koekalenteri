@@ -1,31 +1,35 @@
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { Box } from '@mui/material'
 import { GridColDef } from '@mui/x-data-grid'
-import { Event, EventClass, EventEx, EventState } from 'koekalenteri-shared/model'
-import { observer } from 'mobx-react-lite'
+import { EventClass, EventEx, EventState } from 'koekalenteri-shared/model'
+import { useRecoilState } from 'recoil'
 
-import { Path } from '../routeConfig'
-import { useStores } from '../stores'
+import { StyledDataGrid } from '../../../components'
+import { Path } from '../../../routeConfig'
+import { eventIdAtom } from '../recoil'
 
-import { StyledDataGrid } from './StyledDataGrid'
-
-interface EventGridColDef extends GridColDef {
+interface EventListColDef extends GridColDef {
   field: keyof EventEx | 'date'
 }
 
-type StartEndDate = { start: Date, end: Date };
+type StartEndDate = { start: Date, end: Date }
 
-export const EventGrid = observer(function EventGrid({ events }: { events: Partial<EventEx>[] }) {
+interface Props {
+  events: Partial<EventEx>[]
+}
+
+const EventList = ({ events }: Props) => {
   const { t } = useTranslation()
-  const { rootStore, privateStore } = useStores()
   const navigate = useNavigate()
+  const [selectedEventID, setSelectedEventID] = useRecoilState(eventIdAtom)
 
-  const columns: EventGridColDef[] = [
+  const columns: EventListColDef[] = [
     {
       align: 'right',
       field: 'date',
-      headerName: t('date'),
+      headerName: t('date') ?? undefined,
       width: 120,
       sortComparator: (a, b) => (b as StartEndDate).start.valueOf() - (a as StartEndDate).start.valueOf(),
       valueGetter: (params) => ({ start: params.row.startDate, end: params.row.endDate }),
@@ -33,46 +37,48 @@ export const EventGrid = observer(function EventGrid({ events }: { events: Parti
     },
     {
       field: 'eventType',
-      headerName: t('event.eventType'),
+      headerName: t('event.eventType') ?? undefined,
       minWidth: 100,
     },
     {
       field: 'classes',
-      headerName: t('event.classes'),
+      headerName: t('event.classes') ?? undefined,
       minWidth: 100,
       flex: 1,
       valueGetter: (params) => ((params.row.classes || []) as Array<EventClass|string>).map(c => typeof c === 'string' ? c : c.class).join(', '),
     },
     {
       field: 'location',
-      headerName: t('event.location'),
+      headerName: t('event.location') ?? undefined,
       minWidth: 100,
       flex: 1,
     },
     {
       field: 'official',
-      headerName: t('event.official'),
+      headerName: t('event.official') ?? undefined,
       minWidth: 100,
       flex: 1,
       valueGetter: (params) => params.row.official?.name,
     },
+    /*
     {
       field: 'judges',
-      headerName: t('judgeChief'),
+      headerName: t('judgeChief') ?? undefined,
       minWidth: 100,
       flex: 1,
       valueGetter: (params) => params.row.judges && rootStore.judgeStore.getJudge(params.row.judges[0])?.toJSON().name,
     },
+    */
     {
       field: 'places',
-      headerName: t('places'),
+      headerName: t('places') ?? undefined,
       align: 'right',
       width: 80,
       valueGetter: (params) => `${params.row.entries} / ${params.row.places}`,
     },
     {
       field: 'state',
-      headerName: t('event.state'),
+      headerName: t('event.state') ?? undefined,
       flex: 1,
       type: 'string',
       valueGetter: (params) => {
@@ -94,9 +100,10 @@ export const EventGrid = observer(function EventGrid({ events }: { events: Parti
     },
   ]
 
-  const handleDoubleClick = (event?: Partial<Event>) => {
-    if (!event) return
-    navigate(`${event.entries ? Path.admin.viewEvent : Path.admin.editEvent}/${event.id}`)
+  const handleDoubleClick = () => {
+    if (!selectedEventID) return
+    // navigate(`${event.entries ? Path.admin.viewEvent : Path.admin.editEvent}/${event.id}`)
+    navigate(`${Path.admin.viewEvent}/${selectedEventID}`)
   }
 
   return (
@@ -113,10 +120,15 @@ export const EventGrid = observer(function EventGrid({ events }: { events: Parti
         density='compact'
         disableColumnMenu
         rows={events}
-        onSelectionModelChange={(selection) => privateStore.selectEvent(selection[0] as string || '')}
-        selectionModel={privateStore.selectedEvent && privateStore.selectedEvent.id ? [privateStore.selectedEvent.id] : []}
-        onRowDoubleClick={() => handleDoubleClick(privateStore.selectedEvent)}
+        onSelectionModelChange={(selection) => {
+          const value = typeof selection[0] === 'string' ? selection[0] : undefined
+          setTimeout(() => setSelectedEventID(value), 0)
+        }}
+        selectionModel={selectedEventID ? [selectedEventID] : []}
+        onRowDoubleClick={() => handleDoubleClick()}
       />
     </Box>
   )
-})
+}
+
+export default EventList

@@ -47,5 +47,9 @@ export function rehydrateRegistration(json: JsonRegistration): Registration {
     modifiedAt: new Date(json.modifiedAt),
     qualifyingResults: json.qualifyingResults.map<QualifyingResult>(r => ({ ...r, date: new Date(r.date) })),
     results: json.results?.map(r => ({ ...r, date: new Date(r.date), official: false })),
+    group: json.group && {
+      ...json.group,
+      date: new Date(json.group.date),
+    },
   }
 }

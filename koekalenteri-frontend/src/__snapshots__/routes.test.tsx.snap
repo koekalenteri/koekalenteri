@@ -77,12 +77,12 @@ Array [
         "path": "/admin/event/edit/:id",
       },
       Object {
-        "element": <Memo(EventViewPageWithData) />,
+        "element": <EventViewPage />,
         "loader": [Function],
         "path": "/admin/event/view/:id",
       },
       Object {
-        "element": <Memo(EventViewPageWithData) />,
+        "element": <EventViewPage />,
         "path": "/admin/event/view/:id/:reistrationId",
       },
       Object {

@@ -1,59 +1,43 @@
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useParams } from 'react-router-dom'
 import { AddCircleOutline, DeleteOutline, EditOutlined, EmailOutlined, FormatListBulleted, ShuffleOutlined, TableChartOutlined } from '@mui/icons-material'
-import { Box, Button, CircularProgress, Dialog, DialogContent, DialogTitle, Divider, Grid, Stack, Tab, Tabs } from '@mui/material'
-import { ConfirmedEventEx, Registration } from 'koekalenteri-shared/model'
-import { toJS } from 'mobx'
-import { observer } from 'mobx-react-lite'
+import { Box, Button, Dialog, DialogContent, DialogTitle, Divider, Grid, Stack, Tab, Tabs } from '@mui/material'
+import { Registration } from 'koekalenteri-shared/model'
+import { useRecoilState, useRecoilValue } from 'recoil'
 
-import { putRegistration } from '../../api/event'
 import { CollapsibleSection, LinkButton, RegistrationForm } from '../../components'
 import { Path } from '../../routeConfig'
-import { useStores } from '../../stores'
-import { unique } from '../../utils'
 
 import FullPageFlex from './components/FullPageFlex'
 import ClassEntrySelection from './eventViewPage/ClassEntrySelection'
 import InfoPanel from './eventViewPage/InfoPanel'
 import TabPanel from './eventViewPage/TabPanel'
 import Title from './eventViewPage/Title'
+import { currentEvent, eventClassAtom, eventIdAtom } from './recoil'
 
-export const EventViewPageWithData = observer(function EventViewPageWithData() {
-  const { privateStore } = useStores()
-
-  if (!privateStore.selectedEvent) {
-    return null
-  }
-
-  return (
-    <EventViewPage
-      event={toJS(privateStore.selectedEvent) as ConfirmedEventEx}
-      registrations={toJS(privateStore.selectedEventRegistrations)}
-      loading={toJS(privateStore.loading)}
-    />
-  )
-})
-
-interface Props {
-  event: ConfirmedEventEx
-  registrations: Registration[]
-  loading: boolean
-}
-
-export const EventViewPage = ({event, registrations, loading}: Props) => {
+const EventViewPage = () => {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
-  const [list, setList] = useState(registrations)
+  const params = useParams()
+  const [selectedEventID, setSelectedEventID] = useRecoilState(eventIdAtom)
+  const event = useRecoilValue(currentEvent)
+  const [selectedEventClass, setSelectedEventClass] = useRecoilState(eventClassAtom)
+  const activeTab = useMemo(() => event?.uniqueClasses.findIndex(c => c === selectedEventClass) ?? 0, [event?.uniqueClasses, selectedEventClass])
   const [selected, setSelected] = useState<Registration>()
-  const [activeTab, setActiveTab] = useState<number>(0)
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
-    setActiveTab(newValue)
+  useEffect(() => {
+    if (params.id && params.id !== selectedEventID) {
+      setSelectedEventID(params.id)
+    }
+  }, [params.id, selectedEventID, setSelectedEventID])
+
+  const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
+    setSelectedEventClass(event?.uniqueClasses[newValue])
   }
 
-  const uniqueClasses = unique(event.classes.map(c => c.class))
-
   const onSave = async (registration: Registration) => {
+    /*
     try {
       const saved = await putRegistration(registration)
       const old = list.find(r => r.id === saved.id)
@@ -70,14 +54,16 @@ export const EventViewPage = ({event, registrations, loading}: Props) => {
       console.error(e)
       return false
     }
+    */
+    return false
   }
   const onCancel = async () => {
     setOpen(false)
     return true
   }
 
-  if (loading) {
-    return <CircularProgress />
+  if (!event) {
+    return <>duh</>
   }
 
   return (
@@ -110,18 +96,13 @@ export const EventViewPage = ({event, registrations, loading}: Props) => {
 
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
           <Tabs value={activeTab} onChange={handleTabChange}>
-            {uniqueClasses.map(eventClass => <Tab key={`tab-${eventClass}`} id={`tab-${eventClass}`} label={eventClass}></Tab>)}
+            {event.uniqueClasses.map(eventClass => <Tab key={`tab-${eventClass}`} id={`tab-${eventClass}`} label={eventClass}></Tab>)}
           </Tabs>
         </Box>
 
-        {uniqueClasses.map((eventClass, index) =>
+        {event.uniqueClasses.map((eventClass, index) =>
           <TabPanel key={`tabPanel-${eventClass}`} index={index} activeTab={activeTab}>
-            <ClassEntrySelection
-              event={event}
-              eventClass={eventClass}
-              registrations={list.filter(r => r.class === eventClass)}
-              setOpen={setOpen}
-            />
+            <ClassEntrySelection eventDates={event.uniqueClassDates(eventClass)} setOpen={setOpen} />
           </TabPanel>,
         )}
 
@@ -152,3 +133,5 @@ export const EventViewPage = ({event, registrations, loading}: Props) => {
   )
 
 }
+
+export default EventViewPage
