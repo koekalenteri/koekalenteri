@@ -123,9 +123,9 @@ export async function getEvents(): Promise<EventEx[]> {
   });
 }
 
-export async function getEvent(eventType: string, id: string): Promise<EventEx> {
+export async function getEvent(id: string): Promise<EventEx> {
   return new Promise((resolve, reject) => {
-    const event = mockEvents.find(item => item.eventType === eventType && item.id === id);
+    const event = mockEvents.find(item => item.id === id);
     process.nextTick(() => event ? resolve(event) : reject());
   });
 }

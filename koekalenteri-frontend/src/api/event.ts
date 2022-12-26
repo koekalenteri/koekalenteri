@@ -11,8 +11,8 @@ export async function getEvents(signal?: AbortSignal): Promise<EventEx[]> {
   return jsonEvents.map(item => rehydrateEvent(item));
 }
 
-export async function getEvent(eventType: string, id: string, signal?: AbortSignal): Promise<EventEx> {
-  const jsonEvent = await http.get<JsonEvent>(`${PATH}${eventType}/${id}`, {signal});
+export async function getEvent(id: string, signal?: AbortSignal): Promise<EventEx> {
+  const jsonEvent = await http.get<JsonEvent>(`${PATH}${id}`, {signal});
   return rehydrateEvent(jsonEvent);
 }
 
