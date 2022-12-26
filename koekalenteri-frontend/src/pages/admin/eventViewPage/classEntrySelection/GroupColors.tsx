@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { Box, Stack } from '@mui/material'
 import { RegistrationDate } from 'koekalenteri-shared/model'
 
@@ -15,7 +15,7 @@ interface Props {
 }
 
 const GroupColors = ({ dates, disableTooltip = false, selected }: Props) => {
-  const available = availableGroups(dates)
+  const available = useMemo(() => availableGroups(dates), [dates])
   return (
     <GroupColorTooltip selected={selected} disabled={disableTooltip}>
       <Stack direction="row" spacing={0} sx={{ width: 36, height: '100%' }}>

@@ -7,7 +7,8 @@ const NoRowsOverlay = () => {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    bgcolor: 'background.selected'
+    bgcolor: 'background.selected',
+    opacity: 0.7
   }}
   >
     Raahaa osallistujat tähän!

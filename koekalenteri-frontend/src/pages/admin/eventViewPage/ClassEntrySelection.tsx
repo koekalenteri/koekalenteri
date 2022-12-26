@@ -1,17 +1,20 @@
 import { useMemo, useState } from 'react';
 import React from 'react';
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 import { useTranslation } from 'react-i18next';
 import { EuroOutlined, PersonOutline } from '@mui/icons-material';
 import { Box, Typography } from '@mui/material';
-import { GridColDef, GridSelectionModel } from '@mui/x-data-grid';
-import { BreedCode, ConfirmedEventEx, Registration } from 'koekalenteri-shared/model';
+import { GridColDef, GridRowId, GridSelectionModel } from '@mui/x-data-grid';
+import { BreedCode, ConfirmedEventEx, Registration, RegistrationDate } from 'koekalenteri-shared/model';
 
 import { StyledDataGrid } from '../../../components';
 import { uniqueDate } from '../../../utils';
 
-import GroupColors, { availableGroups } from './GroupColors';
-import GroupHeader from './GroupHeader';
-import NoRowsOverlay from './NoRowsOverlay';
+import DragableDataGrid from './classEntrySelection/DropableDataGrid'
+import GroupColors, { availableGroups } from './classEntrySelection/GroupColors';
+import GroupHeader from './classEntrySelection/GroupHeader';
+import NoRowsOverlay from './classEntrySelection/NoRowsOverlay';
 
 interface Props {
   event: ConfirmedEventEx
@@ -31,8 +34,12 @@ const ClassEntrySelection = ({ event, eventClass, registrations, setOpen }: Prop
         .map(c => c.date || event.startDate)
     ), [event.classes, event.startDate, eventClass])
 
-  const eventGroups = useMemo(() => availableGroups(eventDates), [eventDates])
-  const classRegistrations = useMemo(() => registrations.filter(r => r.class === eventClass), [eventClass, registrations])
+  interface RegistrationGroup extends RegistrationDate {
+    key: string
+  }
+
+  const [groupRegistrations, setGroupRegistrations] = useState<Record<string, Registration[]>>({reserve: [...registrations]})
+  const eventGroups: RegistrationGroup[] = useMemo(() => availableGroups(eventDates).map(group => ({...group, key: group.date.toISOString().slice(0,10) + '|' + group.time})) , [eventDates])
 
   const entryColumns: GridColDef[] = [
     {
@@ -107,16 +114,43 @@ const ClassEntrySelection = ({ event, eventClass, registrations, setOpen }: Prop
     return null
   }
 
+  const handleDrop = (group: RegistrationGroup) => (item: { id: GridRowId }) => {
+    setGroupRegistrations(prev => {
+      const newGroups: Record<string, Registration[]> = {}
+      const keys = Object.keys(prev)
+      let reg: Registration | undefined
+      for (const key of keys) {
+        const found = prev[key].find(r => r.id === item.id)
+        if (found) {
+          newGroups[key] = prev[key].filter(r => r.id !== item.id)
+          reg = found
+          console.log(key, newGroups[key].length)
+        } else {
+          newGroups[key] = [...prev[key]]
+        }
+      }
+      if (!reg) {
+        console.log('not found', item, group)
+        return prev
+      }
+      if (!(group.key in newGroups)) {
+        newGroups[group.key] = []
+      }
+      newGroups[group.key].push(reg)
+      console.log(newGroups)
+      return newGroups
+    })
+  }
+
   return (
-    <>
+    <DndProvider backend={HTML5Backend}>
       <Typography variant='h5'>Osallistujat</Typography>
       {/* column headers only */}
-      <Box sx={{ height: 40, width: '100%', overflow: 'hidden' }}>
+      <Box sx={{ height: 40, flexShrink: 0, width: '100%', overflow: 'hidden' }}>
         <StyledDataGrid
           columns={participantColumns}
           density='compact'
           disableColumnMenu
-          disableVirtualization
           hideFooter
           rows={[]}
           components={{
@@ -124,33 +158,34 @@ const ClassEntrySelection = ({ event, eventClass, registrations, setOpen }: Prop
           }}
         />
       </Box>
-      {eventGroups.map((group, index) =>
-        <StyledDataGrid
-          key={group.date.toDateString() + group.time}
+      {eventGroups.map((group) =>
+        <DragableDataGrid
+          key={group.key}
           columns={participantColumns}
           density='compact'
           disableColumnMenu
           hideFooter
           headerHeight={0}
-          rows={[]}
+          rows={groupRegistrations[group.key] ?? []}
           components={{
             Header: () => <GroupHeader eventDates={eventDates} group={group} />,
             NoRowsOverlay: NoRowsOverlay,
           }}
+          onDrop={handleDrop(group)}
         />
       )}
       < Typography variant='h5' > Ilmoittautuneet</Typography >
-      <StyledDataGrid
+      <DragableDataGrid
         columns={entryColumns}
         density='compact'
         disableColumnMenu
-        rows={classRegistrations}
-        onSelectionModelChange={(selectionModel: GridSelectionModel) => setSelected(classRegistrations.find(r => r.id === selectionModel[0]))}
+        rows={groupRegistrations.reserve}
+        onSelectionModelChange={(selectionModel: GridSelectionModel) => setSelected(registrations.find(r => r.id === selectionModel[0]))}
         selectionModel={selected ? [selected.id] : []}
         onRowDoubleClick={() => setOpen(true)}
         sx={{ flex: eventGroups.length || 1 }}
       />
-    </>
+    </DndProvider>
   )
 }
 

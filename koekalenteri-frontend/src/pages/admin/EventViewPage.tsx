@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { AddCircleOutline, DeleteOutline, EditOutlined, EmailOutlined, FormatListBulleted, ShuffleOutlined, TableChartOutlined } from '@mui/icons-material'
-import { Box, Button, Dialog, DialogContent, DialogTitle, Divider, Grid, Stack, Tab, Tabs } from '@mui/material'
+import { Box, Button, CircularProgress, Dialog, DialogContent, DialogTitle, Divider, Grid, Stack, Tab, Tabs } from '@mui/material'
 import { ConfirmedEventEx, Registration } from 'koekalenteri-shared/model'
 import { toJS } from 'mobx'
 import { observer } from 'mobx-react-lite'
@@ -76,6 +76,10 @@ export const EventViewPage = ({event, registrations, loading}: Props) => {
     return true
   }
 
+  if (loading) {
+    return <CircularProgress />
+  }
+
   return (
     <>
       <FullPageFlex>
@@ -115,7 +119,7 @@ export const EventViewPage = ({event, registrations, loading}: Props) => {
             <ClassEntrySelection
               event={event}
               eventClass={eventClass}
-              registrations={registrations}
+              registrations={list.filter(r => r.class === eventClass)}
               setOpen={setOpen}
             />
           </TabPanel>,

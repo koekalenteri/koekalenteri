@@ -2,9 +2,12 @@ import { useTranslation } from 'react-i18next';
 import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 import { format } from 'date-fns';
 import { ConfirmedEventEx } from 'koekalenteri-shared/model';
-import { observer } from 'mobx-react-lite';
 
-const InfoPanel = observer(function InfoPanel({ event }: { event: ConfirmedEventEx; }) {
+interface Props {
+  event: ConfirmedEventEx
+}
+
+const InfoPanel = ({ event }: Props) => {
   const { t } = useTranslation();
   return (
     <TableContainer component={Paper} elevation={4} sx={{
@@ -32,6 +35,6 @@ const InfoPanel = observer(function InfoPanel({ event }: { event: ConfirmedEvent
       </Table>
     </TableContainer>
   );
-});
+}
 
 export default InfoPanel
