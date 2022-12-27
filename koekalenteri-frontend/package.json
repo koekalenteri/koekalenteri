@@ -18,7 +18,6 @@
     "i18next": "^22.4.5",
     "i18next-browser-languagedetector": "^7.0.1",
     "identity-obj-proxy": "^3.0.0",
-    "koekalenteri-shared": "file:../koekalenteri-shared",
     "lodash.clonedeep": "^4.5.0",
     "lodash.merge": "^4.6.2",
     "mobx": "^6.2.0",
@@ -137,6 +136,7 @@
     "eslint-plugin-react": "^7.31.11",
     "eslint-plugin-simple-import-sort": "^8.0.0",
     "jest-fetch-mock": "^3.0.3",
+    "koekalenteri-shared": "file:../koekalenteri-shared",
     "typescript": "^4.6.3"
   }
 }
