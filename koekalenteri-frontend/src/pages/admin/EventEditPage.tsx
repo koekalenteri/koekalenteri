@@ -38,7 +38,7 @@ export function EventEditPage({create}: {create?: boolean}) {
   const handleSave = useCallback(async () => {
     try {
       //await putEvent(event, user.getSignInUserSession()?.getIdToken().getJwtToken())
-      setEvent(event as DecoratedEvent);
+      setEvent(event as DecoratedEvent)
       navigate(Path.admin.events)
       enqueueSnackbar(t(`event.states.${event?.state || 'draft'}`, { context: 'save' }), { variant: 'info' })
       return true
