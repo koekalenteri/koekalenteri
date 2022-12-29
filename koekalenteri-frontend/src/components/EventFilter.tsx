@@ -39,11 +39,11 @@ export function serializeFilter(input: unknown): string {
   if (eventFilter.end) {
     params.append('e', writeDate(eventFilter.end))
   }
-  eventFilter.eventClass.map(v => params.append('c', v))
-  eventFilter.eventType.map(v => params.append('t', v))
-  eventFilter.judge.map(v => params.append('j', v.toString()))
-  eventFilter.organizer.map(v => params.append('o', v.toString()))
-  bits.map(v => params.append('b', v))
+  eventFilter.eventClass.forEach(v => params.append('c', v))
+  eventFilter.eventType.forEach(v => params.append('t', v))
+  eventFilter.judge.forEach(v => params.append('j', v.toString()))
+  eventFilter.organizer.forEach(v => params.append('o', v.toString()))
+  bits.forEach(v => params.append('b', v))
   return params.toString()
 }
 

@@ -153,7 +153,8 @@
       "text": "Olet perumassa koiran {{registration.dog.regNo}} {{registration.dog.name}} ilmoittautumista kokeeseen {{event.startDate, date}} {{event.eventType}} {{event.location}}",
       "lateText": "Ilmoittautumisen voi perua koepäivänä vain ottamalla yhteyttä suoraan koesihteeriin {{event.secretary.name}} {{contact}}",
       "confirmation": "Oletko varma, että haluat perua ilmoittautumisen?",
-      "terms": "Katso tarkemmat peruutusehdot <a href=\"$t(registration.terms.url)\" target=\"blank\">säännöistä</a>."
+      "terms": "Katso tarkemmat peruutusehdot ",
+      "terms_link": "säännöistä"
     },
     "class": "Koeluokka",
     "classesDetails": "Koeluokan tiedot",

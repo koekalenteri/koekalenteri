@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
-import { Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Toolbar } from '@mui/material'
+import { Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Link, Toolbar } from '@mui/material'
 import { isPast, isToday } from 'date-fns'
 import type { ConfirmedEventEx, Registration } from 'koekalenteri-shared/model'
 import { useSnackbar } from 'notistack'
-import { RecoilState, useRecoilValue } from 'recoil'
+import { useRecoilState, useRecoilValue } from 'recoil'
 
 import { putRegistration } from '../api/event'
 import { LinkButton, RegistrationEventInfo, RegistrationList } from '../components'
@@ -104,7 +104,7 @@ function PageContent({ event, registration, cancel }: { event?: ConfirmedEventEx
             {t('registration.cancelDialog.confirmation')}
           </DialogContentText>
           <DialogContentText id="cancel-dialog-description3" sx={{py: 1}}>
-            <div dangerouslySetInnerHTML={{ __html: t('registration.cancelDialog.terms') }} />
+            {t('registration.cancelDialog.terms')}<Link href={t('registration.terms.url')}>{t('registration.cancelDialog.terms_link')}</Link>.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
@@ -114,8 +114,5 @@ function PageContent({ event, registration, cancel }: { event?: ConfirmedEventEx
       </Dialog>
     </>
   )
-}
-function useRecoilState(eventIdAtom: RecoilState<string | undefined>): [any, any] {
-  throw new Error('Function not implemented.')
 }
 
