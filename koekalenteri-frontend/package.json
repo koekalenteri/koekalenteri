@@ -53,6 +53,9 @@
       "simple-import-sort"
     ],
     "rules": {
+      "semi": ["error", "never"],
+      "comma-dangle": ["error", "always-multiline"],
+      "comma-spacing": ["error", { "before": false, "after": true }],
       "@typescript-eslint/indent": [
         "error",
         2

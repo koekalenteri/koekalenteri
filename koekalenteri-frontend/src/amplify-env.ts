@@ -8,7 +8,7 @@ export const AWSConfig = {
     domain: process.env.REACT_APP_OAUTH_DOMAIN,
     redirectSignIn: process.env.REACT_APP_REDIRECT_SIGNIN,
     redirectSignOut: process.env.REACT_APP_REDIRECT_SIGNOUT,
-    responseType: 'code'
+    responseType: 'code',
   },
   Auth: {
     // REQUIRED - Amazon Cognito Identity Pool ID
@@ -19,5 +19,5 @@ export const AWSConfig = {
     userPoolId: process.env.REACT_APP_USER_POOL_ID,
     // OPTIONAL - Amazon Cognito Web Client ID (26-char alphanumeric string)
     userPoolWebClientId: process.env.REACT_APP_CLIENT_ID,
-  }
-};
+  },
+}

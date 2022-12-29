@@ -1,8 +1,8 @@
-import { useTranslation } from "react-i18next";
-import { Event } from "koekalenteri-shared/model";
+import { useTranslation } from "react-i18next"
+import { Event } from "koekalenteri-shared/model"
 
 export function CostInfo({ event }: { event: Event }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation()
 
   return (
     <>
@@ -12,5 +12,5 @@ export function CostInfo({ event }: { event: Event }) {
       {t('event.referenceNumber')}: {event.referenceNumber}<br />
       {event.paymentDetails}
     </>
-  );
+  )
 }

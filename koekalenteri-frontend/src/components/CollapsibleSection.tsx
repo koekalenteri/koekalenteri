@@ -1,6 +1,6 @@
-import { ReactNode, useState } from 'react';
-import { KeyboardArrowDown, KeyboardArrowRight } from '@mui/icons-material';
-import { Box, Collapse, FormHelperText, IconButton, Typography } from '@mui/material';
+import { ReactNode, useState } from 'react'
+import { KeyboardArrowDown, KeyboardArrowRight } from '@mui/icons-material'
+import { Box, Collapse, FormHelperText, IconButton, Typography } from '@mui/material'
 
 type CollapsibleSectionProps = {
   border?: boolean
@@ -13,16 +13,16 @@ type CollapsibleSectionProps = {
   title: string
 }
 export function CollapsibleSection({ border = true, children, error, helperText, initOpen, onOpenChange, open, title }: CollapsibleSectionProps) {
-  const [state, setState] = useState(initOpen !== false);
-  const controlled = open !== undefined;
-  const isOpen = controlled ? open : state;
+  const [state, setState] = useState(initOpen !== false)
+  const controlled = open !== undefined
+  const isOpen = controlled ? open : state
   const toggle = () => {
-    const value = !isOpen;
+    const value = !isOpen
     if (!controlled) {
-      setState(value);
+      setState(value)
     }
     if (onOpenChange) {
-      onOpenChange(value);
+      onOpenChange(value)
     }
   }
   return (
@@ -47,5 +47,5 @@ export function CollapsibleSection({ border = true, children, error, helperText,
         </Collapse>
       </Box>
     </Box>
-  );
+  )
 }

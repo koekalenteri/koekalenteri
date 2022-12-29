@@ -1,5 +1,5 @@
-import { ReactNode } from 'react';
-import { Fade, Paper, Popover } from '@mui/material';
+import { ReactNode } from 'react'
+import { Fade, Paper, Popover } from '@mui/material'
 
 type HelpPopoverProps = {
   anchorEl: HTMLButtonElement | null
@@ -8,7 +8,7 @@ type HelpPopoverProps = {
 }
 
 export function HelpPopover({anchorEl, onClose, children}: HelpPopoverProps ) {
-  const helpOpen = Boolean(anchorEl);
+  const helpOpen = Boolean(anchorEl)
 
   return (
     <Popover
@@ -16,11 +16,11 @@ export function HelpPopover({anchorEl, onClose, children}: HelpPopoverProps ) {
       open={helpOpen}
       anchorOrigin={{
         vertical: 'center',
-        horizontal: 'center'
+        horizontal: 'center',
       }}
       transformOrigin={{
         vertical: 'top',
-        horizontal: 'left'
+        horizontal: 'left',
       }}
       TransitionComponent={Fade}
       onClose={onClose}
@@ -28,10 +28,10 @@ export function HelpPopover({anchorEl, onClose, children}: HelpPopoverProps ) {
       <Paper sx={{
         maxWidth: 400,
         p: 1,
-        backgroundColor: 'secondary.light'
+        backgroundColor: 'secondary.light',
       }}>
         {children}
       </Paper>
     </Popover>
-  );
+  )
 }

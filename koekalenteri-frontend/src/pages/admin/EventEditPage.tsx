@@ -1,44 +1,44 @@
-import { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useNavigate, useParams } from 'react-router-dom';
-import { useAuthenticator } from '@aws-amplify/ui-react';
-import { CircularProgress } from '@mui/material';
-import { autorun, toJS } from 'mobx';
-import { observer } from 'mobx-react-lite';
-import { useSnackbar } from 'notistack';
+import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { useNavigate, useParams } from 'react-router-dom'
+import { useAuthenticator } from '@aws-amplify/ui-react'
+import { CircularProgress } from '@mui/material'
+import { autorun, toJS } from 'mobx'
+import { observer } from 'mobx-react-lite'
+import { useSnackbar } from 'notistack'
 
-import { EventForm } from '../../components';
-import { Path } from '../../routeConfig';
-import { useStores } from '../../stores';
+import { EventForm } from '../../components'
+import { Path } from '../../routeConfig'
+import { useStores } from '../../stores'
 
 export const EventEditPage = observer(function EventEditPage({create}: {create?: boolean}) {
-  const params = useParams();
-  const { t } = useTranslation();
-  const { user } = useAuthenticator(context => [context.user]);
-  const { rootStore, publicStore, privateStore } = useStores();
-  const { enqueueSnackbar } = useSnackbar();
-  const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
+  const params = useParams()
+  const { t } = useTranslation()
+  const { user } = useAuthenticator(context => [context.user])
+  const { rootStore, publicStore, privateStore } = useStores()
+  const { enqueueSnackbar } = useSnackbar()
+  const [loading, setLoading] = useState(true)
+  const navigate = useNavigate()
 
   /**
    * @todo move to route loader
    */
   useEffect(() => autorun(() => {
-    const abort = new AbortController();
+    const abort = new AbortController()
     async function get(id: string) {
       if (!privateStore.loaded) {
-        return;
+        return
       }
       await privateStore.selectEvent(id, abort.signal)
-      setLoading(false);
+      setLoading(false)
     }
     if (params.id && privateStore.selectedEvent?.id !== params.id) {
-      get(params.id);
+      get(params.id)
     } else {
-      setLoading(false);
+      setLoading(false)
     }
-    return () => abort.abort();
-  }), []); // eslint-disable-line react-hooks/exhaustive-deps
+    return () => abort.abort()
+  }), []) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <>
@@ -53,21 +53,21 @@ export const EventEditPage = observer(function EventEditPage({create}: {create?:
           organizers={rootStore.organizerStore.organizers.map(o => o.toJSON())}
           onSave={async (event) => {
             try {
-              await privateStore.putEvent(event, user.getSignInUserSession()?.getIdToken().getJwtToken());
-              navigate(Path.admin.events);
-              enqueueSnackbar(t(`event.states.${event.state || 'draft'}`, { context: 'save' }), { variant: 'info' });
-              return Promise.resolve(true);
+              await privateStore.putEvent(event, user.getSignInUserSession()?.getIdToken().getJwtToken())
+              navigate(Path.admin.events)
+              enqueueSnackbar(t(`event.states.${event.state || 'draft'}`, { context: 'save' }), { variant: 'info' })
+              return Promise.resolve(true)
             } catch (e: any) {
-              enqueueSnackbar(e.message, { variant: 'error' });
-              return Promise.resolve(false);
+              enqueueSnackbar(e.message, { variant: 'error' })
+              return Promise.resolve(false)
             }
           }}
           onCancel={(event) => {
             if (create) {
               privateStore.newEvent = { ...event }
             }
-            navigate(Path.admin.events);
-            return Promise.resolve(true);
+            navigate(Path.admin.events)
+            return Promise.resolve(true)
           }}
         />}
     </>

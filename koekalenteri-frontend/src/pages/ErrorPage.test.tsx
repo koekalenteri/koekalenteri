@@ -1,10 +1,10 @@
-import React from 'react';
-import { RouteObject } from 'react-router-dom';
-import { ThemeProvider } from '@mui/material';
+import React from 'react'
+import { RouteObject } from 'react-router-dom'
+import { ThemeProvider } from '@mui/material'
 import { render } from '@testing-library/react'
 
-import theme from '../assets/Theme';
-import { DataMemoryRouter, getHtml } from '../test-utils/utils';
+import theme from '../assets/Theme'
+import { DataMemoryRouter, getHtml } from '../test-utils/utils'
 
 import { ErrorPage } from './ErrorPage'
 
@@ -13,12 +13,12 @@ describe('ErrorPage', () => {
     const routes: RouteObject[] = [{
       path: '/',
       element: <>HOME PAGE</>,
-      errorElement: <ErrorPage />
+      errorElement: <ErrorPage />,
     }]
     const { container } = render(
       <ThemeProvider theme={theme}>
         <DataMemoryRouter initialEntries={['/woot']} routes={routes} />
-      </ThemeProvider>
+      </ThemeProvider>,
     )
     expect(getHtml(container)).toMatchSnapshot()
   })
@@ -27,17 +27,17 @@ describe('ErrorPage', () => {
     const routes: RouteObject[] = [{
       path: '/',
       element: <ErrorThrowingComponent />,
-      errorElement: <ErrorPage />
+      errorElement: <ErrorPage />,
     }]
     const { container } = render(
       <ThemeProvider theme={theme}>
         <DataMemoryRouter initialEntries={['/']} routes={routes} />
-      </ThemeProvider>
+      </ThemeProvider>,
     )
     expect(getHtml(container)).toMatchSnapshot()
   })
 })
 
 function ErrorThrowingComponent(): JSX.Element {
-  throw new Error('TEST ERROR');
+  throw new Error('TEST ERROR')
 }

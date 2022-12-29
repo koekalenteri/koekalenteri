@@ -1,10 +1,10 @@
-import { useTranslation } from "react-i18next";
-import { CheckBox, CheckBoxOutlineBlank } from "@mui/icons-material";
-import { Autocomplete, AutocompleteChangeReason, Avatar, Checkbox, Chip, TextField } from "@mui/material";
-import { isSameDay } from "date-fns";
-import { Event, EventClass, EventState } from "koekalenteri-shared/model";
+import { useTranslation } from "react-i18next"
+import { CheckBox, CheckBoxOutlineBlank } from "@mui/icons-material"
+import { Autocomplete, AutocompleteChangeReason, Avatar, Checkbox, Chip, TextField } from "@mui/material"
+import { isSameDay } from "date-fns"
+import { Event, EventClass, EventState } from "koekalenteri-shared/model"
 
-import { PartialEvent } from "../..";
+import { PartialEvent } from "../.."
 
 /**
  * Callback fired when the value changes.
@@ -36,17 +36,17 @@ type EventClassesProps = {
 export const compareEventClass = (a: EventClass, b: EventClass) =>
   isSameDay(a.date || new Date(), b.date || new Date())
     ? a.class.localeCompare(b.class)
-    : (a.date?.valueOf() || 0) - (b.date?.valueOf() || 0);
+    : (a.date?.valueOf() || 0) - (b.date?.valueOf() || 0)
 
 export function EventClasses(props: EventClassesProps) {
   if (props.value) {
-    props.value.sort(compareEventClass);
+    props.value.sort(compareEventClass)
   }
 
-  const { t } = useTranslation();
-  const { classes, label, event, required, requiredState, errorStates, helperTexts, ...rest } = props;
-  const error = errorStates?.classes;
-  const helperText = helperTexts?.classes || '';
+  const { t } = useTranslation()
+  const { classes, label, event, required, requiredState, errorStates, helperTexts, ...rest } = props
+  const error = errorStates?.classes
+  const helperText = helperTexts?.classes || ''
 
   return (
     <Autocomplete
@@ -79,7 +79,7 @@ export function EventClasses(props: EventClassesProps) {
             <Avatar
               sx={{
                 fontWeight: 'bold',
-                bgcolor: isSameDay(option.date || event.startDate, event.startDate) ? 'secondary.light' : 'secondary.dark'
+                bgcolor: isSameDay(option.date || event.startDate, event.startDate) ? 'secondary.light' : 'secondary.dark',
               }}
             >
               {t('weekday', { date: option.date })}
@@ -93,5 +93,5 @@ export function EventClasses(props: EventClassesProps) {
         />
       ))}
     />
-  );
+  )
 }

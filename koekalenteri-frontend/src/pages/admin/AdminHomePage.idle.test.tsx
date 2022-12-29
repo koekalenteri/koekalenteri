@@ -1,10 +1,10 @@
-import { Authenticator } from '@aws-amplify/ui-react';
-import { ThemeProvider } from '@mui/material';
+import { Authenticator } from '@aws-amplify/ui-react'
+import { ThemeProvider } from '@mui/material'
 import { render } from '@testing-library/react'
 
-import theme from '../../assets/Theme';
-import { Path } from '../../routeConfig';
-import { DataMemoryRouter, getHtml } from '../../test-utils/utils';
+import theme from '../../assets/Theme'
+import { Path } from '../../routeConfig'
+import { DataMemoryRouter, getHtml } from '../../test-utils/utils'
 
 import { AdminHomePage } from './AdminHomePage'
 
@@ -15,17 +15,17 @@ describe('AdminHomePage', () => {
 
     const routes = [{
       path: Path.admin.root,
-      element: <AdminHomePage />
-    },{
+      element: <AdminHomePage />,
+    }, {
       path: Path.login,
-      element: <>Login</>
+      element: <>Login</>,
     }]
     const { container } = render(
       <ThemeProvider theme={theme}>
         <Authenticator.Provider>
           <DataMemoryRouter initialEntries={[Path.admin.root]} routes={routes} />
         </Authenticator.Provider>
-      </ThemeProvider>
+      </ThemeProvider>,
     )
     expect(getHtml(container)).toMatchInlineSnapshot(`
     "<div>

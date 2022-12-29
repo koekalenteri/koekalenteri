@@ -1,29 +1,29 @@
-import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { CachedOutlined } from '@mui/icons-material';
-import { LoadingButton } from '@mui/lab';
-import { Autocomplete, FormControl, FormHelperText, Grid, Stack, TextField, TextFieldProps } from '@mui/material';
-import { DatePicker } from '@mui/x-date-pickers';
-import { differenceInMinutes, subMonths, subYears } from 'date-fns';
-import { BreedCode, Dog, DogGender, Registration } from 'koekalenteri-shared/model';
-import merge from 'lodash.merge';
-import { toJS } from 'mobx';
-import { observer } from 'mobx-react-lite';
+import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { CachedOutlined } from '@mui/icons-material'
+import { LoadingButton } from '@mui/lab'
+import { Autocomplete, FormControl, FormHelperText, Grid, Stack, TextField, TextFieldProps } from '@mui/material'
+import { DatePicker } from '@mui/x-date-pickers'
+import { differenceInMinutes, subMonths, subYears } from 'date-fns'
+import { BreedCode, Dog, DogGender, Registration } from 'koekalenteri-shared/model'
+import merge from 'lodash.merge'
+import { toJS } from 'mobx'
+import { observer } from 'mobx-react-lite'
 
-import { useStores } from '../../../stores';
-import { DogCachedInfo } from '../../../stores/DogStore';
-import { AutocompleteSingle, CollapsibleSection } from '../..';
+import { useStores } from '../../../stores'
+import { DogCachedInfo } from '../../../stores/DogStore'
+import { AutocompleteSingle, CollapsibleSection } from '../..'
 
-import { validateRegNo } from './validation';
+import { validateRegNo } from './validation'
 
 export function shouldAllowRefresh(dog?: Partial<Dog>) {
   if (!dog || !dog.regNo) {
-    return false;
+    return false
   }
   if (dog.refreshDate && differenceInMinutes(new Date(), dog.refreshDate) <= 5) {
-    return false;
+    return false
   }
-  return !!dog.refreshDate;
+  return !!dog.refreshDate
 }
 
 type DogInfoProps = {
@@ -38,54 +38,54 @@ type DogInfoProps = {
 };
 
 export const DogInfo = observer(function DogInfo({ reg, eventDate, minDogAgeMonths, error, helperText, onChange, onOpenChange, open }: DogInfoProps) {
-  const { rootStore } = useStores();
-  const { t } = useTranslation();
-  const { t: breed } = useTranslation('breed');
-  const [loading, setLoading] = useState(false);
-  const [regNo, setRegNo] = useState<string>(reg.dog.regNo);
-  const [mode, setMode] = useState<'fetch' | 'manual' | 'update' | 'invalid' | 'notfound'>('fetch');
-  const allowRefresh = shouldAllowRefresh(reg.dog);
-  const disabled = mode !== 'manual';
-  const validRegNo = validateRegNo(regNo);
+  const { rootStore } = useStores()
+  const { t } = useTranslation()
+  const { t: breed } = useTranslation('breed')
+  const [loading, setLoading] = useState(false)
+  const [regNo, setRegNo] = useState<string>(reg.dog.regNo)
+  const [mode, setMode] = useState<'fetch' | 'manual' | 'update' | 'invalid' | 'notfound'>('fetch')
+  const allowRefresh = shouldAllowRefresh(reg.dog)
+  const disabled = mode !== 'manual'
+  const validRegNo = validateRegNo(regNo)
   const handleChange = (props: Partial<Dog & DogCachedInfo>, replace?: boolean) => {
     const dog = replace ? props as Dog : merge({}, reg.dog, props)
     if (props.titles || props.sire || props.dam) {
-      rootStore.dogStore.save({ dog });
+      rootStore.dogStore.save({ dog })
     }
-    onChange({ dog });
-  };
+    onChange({ dog })
+  }
   const loadDog = async (value: string, refresh?: boolean) => {
-    setRegNo(value);
+    setRegNo(value)
     if (!value || !validateRegNo(value)) {
-      return;
+      return
     }
-    setLoading(true);
-    const lookup = await rootStore.dogStore.load(value, refresh);
-    setLoading(false);
+    setLoading(true)
+    const lookup = await rootStore.dogStore.load(value, refresh)
+    setLoading(false)
     if (lookup && lookup.regNo) {
-      setRegNo(lookup.regNo);
-      const { breeder, handler, owner, ownerHandles, ...dog } = lookup;
-      onChange({ dog: dog as Dog, breeder, handler, owner, ownerHandles });
-      setMode('update');
+      setRegNo(lookup.regNo)
+      const { breeder, handler, owner, ownerHandles, ...dog } = lookup
+      onChange({ dog: dog as Dog, breeder, handler, owner, ownerHandles })
+      setMode('update')
     } else {
-      setMode('notfound');
-      handleChange({ regNo: value, name: '', results: [] }, true);
+      setMode('notfound')
+      handleChange({ regNo: value, name: '', results: [] }, true)
     }
-  };
+  }
   const buttonClick = () => {
     switch (mode) {
       case 'fetch':
-        loadDog(regNo);
-        break;
+        loadDog(regNo)
+        break
       case 'update':
-        loadDog(regNo, true);
-        break;
+        loadDog(regNo, true)
+        break
       case 'notfound':
-        setMode('manual');
-        break;
+        setMode('manual')
+        break
       default:
-        setMode('fetch');
-        break;
+        setMode('fetch')
+        break
     }
   }
   return (
@@ -99,16 +99,16 @@ export const DogInfo = observer(function DogInfo({ reg, eventDate, minDogAgeMont
           value={{ regNo } as Partial<Dog>}
           onChange={(_e, value) => value && typeof value !== 'string' && loadDog(value.regNo?.toUpperCase() || '')}
           onInputChange={(e, value) => {
-            value = value.toUpperCase();
+            value = value.toUpperCase()
             if (regNo === value) {
-              return;
+              return
             }
             if (e?.nativeEvent instanceof InputEvent && e.nativeEvent.inputType === 'insertFromPaste') {
-              loadDog(value);
+              loadDog(value)
             } else {
-              setRegNo(value);
-              onChange({ dog: { regNo: value, name: '', results: [] }, breeder: undefined, owner: undefined, handler: undefined });
-              setMode(validateRegNo(value) ? 'fetch' : 'invalid');
+              setRegNo(value)
+              onChange({ dog: { regNo: value, name: '', results: [] }, breeder: undefined, owner: undefined, handler: undefined })
+              setMode(validateRegNo(value) ? 'fetch' : 'invalid')
             }
           }}
           getOptionLabel={o => typeof o === 'string' ? o : o.regNo || ''}
@@ -228,8 +228,8 @@ export const DogInfo = observer(function DogInfo({ reg, eventDate, minDogAgeMont
         </Grid>
       </Grid>
     </CollapsibleSection>
-  );
-});
+  )
+})
 
 type TitlesAndNameProps = {
   className?: string
@@ -269,5 +269,5 @@ function TitlesAndName(props: TitlesAndNameProps) {
         />
       </Grid>
     </Grid>
-  );
+  )
 }

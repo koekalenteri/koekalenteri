@@ -1,6 +1,6 @@
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react'
 
-import { JudgesSection } from './2.JudgesSection';
+import { JudgesSection } from './2.JudgesSection'
 
 const JUDGES = [{
   id: 1,
@@ -10,7 +10,7 @@ const JUDGES = [{
   location: 'Pohjois-Karjala',
   district: 'Pohjois-Karjalan Kennelpiiri ry',
   languages: ['fi'],
-  eventTypes: ['NOWT']
+  eventTypes: ['NOWT'],
 }, {
   id: 2,
   name: 'Test Judge 2',
@@ -19,7 +19,7 @@ const JUDGES = [{
   location: 'Pohjois-Karjala',
   district: 'Pohjois-Karjalan Kennelpiiri ry',
   languages: ['fi'],
-  eventTypes: ['NOWT']
+  eventTypes: ['NOWT'],
 }, {
   id: 3,
   name: 'Test Judge 3',
@@ -28,8 +28,8 @@ const JUDGES = [{
   location: 'Pohjois-Karjala',
   district: 'Pohjois-Karjalan Kennelpiiri ry',
   languages: ['fi'],
-  eventTypes: ['NOWT']
-}];
+  eventTypes: ['NOWT'],
+}]
 
 test('It should fire onChange', async () => {
   const testEvent = {
@@ -44,43 +44,43 @@ test('It should fire onChange', async () => {
       { class: 'c1', date: new Date('2022-06-02') },
       { class: 'c2', date: new Date('2022-06-02') },
       { class: 'c3', date: new Date('2022-06-02') },
-    ]
-  };
+    ],
+  }
 
-  const changeHandler = jest.fn((props) => Object.assign(testEvent, props));
+  const changeHandler = jest.fn((props) => Object.assign(testEvent, props))
 
-  const { rerender } = render(<JudgesSection event={testEvent} judges={JUDGES} onChange={changeHandler} />);
+  const { rerender } = render(<JudgesSection event={testEvent} judges={JUDGES} onChange={changeHandler} />)
 
-  fireEvent.mouseDown(screen.getByLabelText(/Ylituomari/i));
-  fireEvent.click(within(screen.getByRole('listbox')).getByText(/Test Judge 3/i));
+  fireEvent.mouseDown(screen.getByLabelText(/Ylituomari/i))
+  fireEvent.click(within(screen.getByRole('listbox')).getByText(/Test Judge 3/i))
 
-  rerender(<JudgesSection event={testEvent} judges={JUDGES} onChange={changeHandler} />);
+  rerender(<JudgesSection event={testEvent} judges={JUDGES} onChange={changeHandler} />)
 
-  expect(changeHandler).toHaveBeenCalledTimes(1);
-  expect(testEvent.judges.length).toBe(1);
-  expect(testEvent.judges[0]).toBe(3);
+  expect(changeHandler).toHaveBeenCalledTimes(1)
+  expect(testEvent.judges.length).toBe(1)
+  expect(testEvent.judges[0]).toBe(3)
 
-  fireEvent.click(screen.getByText(/Lisää tuomari/i));
-  expect(changeHandler).toHaveBeenCalledTimes(2);
-  expect(testEvent.judges.length).toBe(2);
-  expect(testEvent.judges[1]).toBe(0);
+  fireEvent.click(screen.getByText(/Lisää tuomari/i))
+  expect(changeHandler).toHaveBeenCalledTimes(2)
+  expect(testEvent.judges.length).toBe(2)
+  expect(testEvent.judges[1]).toBe(0)
 
-  rerender(<JudgesSection event={testEvent} judges={JUDGES} onChange={changeHandler} />);
+  rerender(<JudgesSection event={testEvent} judges={JUDGES} onChange={changeHandler} />)
 
-  fireEvent.mouseDown(screen.getByLabelText(/Tuomari 2/i));
-  fireEvent.click(within(screen.getByRole('listbox')).getByText(/Test Judge 1/i));
+  fireEvent.mouseDown(screen.getByLabelText(/Tuomari 2/i))
+  fireEvent.click(within(screen.getByRole('listbox')).getByText(/Test Judge 1/i))
 
-  expect(changeHandler).toHaveBeenCalledTimes(3);
-  expect(testEvent.judges[1]).toBe(1);
+  expect(changeHandler).toHaveBeenCalledTimes(3)
+  expect(testEvent.judges[1]).toBe(1)
 
-  rerender(<JudgesSection event={testEvent} judges={JUDGES} onChange={changeHandler} />);
+  rerender(<JudgesSection event={testEvent} judges={JUDGES} onChange={changeHandler} />)
 
-  const buttons = screen.getAllByText(/Poista Tuomari/i);
-  expect(buttons.length).toBe(2);
+  const buttons = screen.getAllByText(/Poista Tuomari/i)
+  expect(buttons.length).toBe(2)
 
-  fireEvent.click(buttons[1]);
+  fireEvent.click(buttons[1])
 
-  expect(changeHandler).toHaveBeenCalledTimes(4);
-  expect(testEvent.judges.length).toBe(1);
-  expect(testEvent.judges[0]).toBe(3);
-});
+  expect(changeHandler).toHaveBeenCalledTimes(4)
+  expect(testEvent.judges.length).toBe(1)
+  expect(testEvent.judges[0]).toBe(3)
+})

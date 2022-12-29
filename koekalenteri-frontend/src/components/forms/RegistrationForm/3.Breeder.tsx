@@ -1,9 +1,9 @@
-import { useTranslation } from 'react-i18next';
-import { Grid, TextField } from '@mui/material';
-import { Registration, RegistrationBreeder } from 'koekalenteri-shared/model';
+import { useTranslation } from 'react-i18next'
+import { Grid, TextField } from '@mui/material'
+import { Registration, RegistrationBreeder } from 'koekalenteri-shared/model'
 
-import { useStores } from '../../../stores';
-import { CollapsibleSection, emptyBreeder } from '../..';
+import { useStores } from '../../../stores'
+import { CollapsibleSection, emptyBreeder } from '../..'
 
 type BreederInfoProps = {
   reg: Partial<Registration>
@@ -15,15 +15,15 @@ type BreederInfoProps = {
 };
 
 export function BreederInfo({ reg, error, helperText, onChange, onOpenChange, open }: BreederInfoProps) {
-  const { t } = useTranslation();
-  const { rootStore } = useStores();
+  const { t } = useTranslation()
+  const { rootStore } = useStores()
 
   const handleChange = (props: Partial<RegistrationBreeder>) => {
-    const breeder = { ...emptyBreeder, ...reg.breeder, ...props };
+    const breeder = { ...emptyBreeder, ...reg.breeder, ...props }
     if (reg.dog?.regNo) {
-      rootStore.dogStore.save({ dog: { ...reg.dog }, breeder });
+      rootStore.dogStore.save({ dog: { ...reg.dog }, breeder })
     }
-    onChange({ breeder });
+    onChange({ breeder })
   }
 
   return (
@@ -51,5 +51,5 @@ export function BreederInfo({ reg, error, helperText, onChange, onOpenChange, op
         </Grid>
       </Grid>
     </CollapsibleSection>
-  );
+  )
 }

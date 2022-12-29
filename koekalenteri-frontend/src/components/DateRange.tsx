@@ -1,7 +1,7 @@
-import { useTranslation } from 'react-i18next';
-import { Box, FormControl, TextField, TextFieldProps, Theme } from "@mui/material";
-import { DatePicker, PickersDay } from '@mui/x-date-pickers';
-import { isSameDay, isValid, startOfDay } from "date-fns";
+import { useTranslation } from 'react-i18next'
+import { Box, FormControl, TextField, TextFieldProps, Theme } from "@mui/material"
+import { DatePicker, PickersDay } from '@mui/x-date-pickers'
+import { isSameDay, isValid, startOfDay } from "date-fns"
 
 type DateValue = Date | null;
 
@@ -18,28 +18,28 @@ export type DateRangeProps = {
 };
 
 function dayStyle(date: Date, selected: DateValue[], defaultDate?: Date) {
-  const isSelected = selected.reduce((a, c) => a || (!!c && isSameDay(c, date)), false);
-  const isDefault = !!defaultDate && isSameDay(date, defaultDate);
-  const hilight = isDefault && !isSelected;
+  const isSelected = selected.reduce((a, c) => a || (!!c && isSameDay(c, date)), false)
+  const isDefault = !!defaultDate && isSameDay(date, defaultDate)
+  const hilight = isDefault && !isSelected
   return {
     border: hilight ? (theme: Theme) => `2px solid ${theme.palette.secondary.light}` : undefined,
-  };
+  }
 }
 
 function coerceToDateValue(d: DateValue) {
-  return (d && isValid(d)) ? startOfDay(d) : null;
+  return (d && isValid(d)) ? startOfDay(d) : null
 }
 
 export function DateRange({ start, end, startLabel, endLabel, defaultStart, defaultEnd, range, required, onChange }: DateRangeProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation()
   const startChanged = (date: DateValue) => {
-    const d = coerceToDateValue(date);
-    onChange && onChange(d, end);
-  };
+    const d = coerceToDateValue(date)
+    onChange && onChange(d, end)
+  }
   const endChanged = (date: DateValue) => {
-    const d = coerceToDateValue(date);
-    onChange && onChange(start, d);
-  };
+    const d = coerceToDateValue(date)
+    onChange && onChange(start, d)
+  }
 
   return (
     <Box sx={{width: '100%'}}>

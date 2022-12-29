@@ -1,48 +1,48 @@
-import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { CloudSync } from '@mui/icons-material';
-import { Button, Stack } from '@mui/material';
-import { GridColDef } from '@mui/x-data-grid';
-import { Organizer } from 'koekalenteri-shared/model';
-import { computed, toJS } from 'mobx';
-import { observer } from 'mobx-react-lite';
+import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { CloudSync } from '@mui/icons-material'
+import { Button, Stack } from '@mui/material'
+import { GridColDef } from '@mui/x-data-grid'
+import { Organizer } from 'koekalenteri-shared/model'
+import { computed, toJS } from 'mobx'
+import { observer } from 'mobx-react-lite'
 
-import { QuickSearchToolbar, StyledDataGrid } from '../../components';
-import { FullPageFlex } from '../../layout';
-import { useStores } from '../../stores';
+import { QuickSearchToolbar, StyledDataGrid } from '../../components'
+import { FullPageFlex } from '../../layout'
+import { useStores } from '../../stores'
 
 interface OrganizerColDef extends GridColDef {
   field: keyof Organizer
 }
 
 export const OrganizerListPage = observer(function OrganizerListPage() {
-  const [searchText, setSearchText] = useState('');
-  const { t } = useTranslation();
-  const { rootStore } = useStores();
+  const [searchText, setSearchText] = useState('')
+  const { t } = useTranslation()
+  const { rootStore } = useStores()
   const columns: OrganizerColDef[] = [
     {
       field: 'id',
-      headerName: t('id')
+      headerName: t('id'),
     },
     {
       field: 'name',
       headerName: t('name'),
-      flex: 2
-    }
-  ];
+      flex: 2,
+    },
+  ]
 
   const refresh = async () => {
-    rootStore.organizerStore.load(true);
-  };
+    rootStore.organizerStore.load(true)
+  }
 
   const rows = computed(() => {
-    const lvalue = searchText.toLocaleLowerCase();
-    return toJS(rootStore.organizerStore.organizers).filter(o => o.search.includes(lvalue));
-  }).get();
+    const lvalue = searchText.toLocaleLowerCase()
+    return toJS(rootStore.organizerStore.organizers).filter(o => o.search.includes(lvalue))
+  }).get()
 
   const requestSearch = (searchValue: string) => {
-    setSearchText(searchValue);
-  };
+    setSearchText(searchValue)
+  }
 
   return (
     <>
@@ -72,4 +72,4 @@ export const OrganizerListPage = observer(function OrganizerListPage() {
       </FullPageFlex>
     </>
   )
-});
+})

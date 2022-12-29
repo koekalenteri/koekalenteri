@@ -1,8 +1,8 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react'
 
-import { emptyEvent } from '../api/test-utils/emptyEvent';
+import { emptyEvent } from '../api/test-utils/emptyEvent'
 
-import { EventInfo } from './EventInfo';
+import { EventInfo } from './EventInfo'
 
 
 test('It should render event information', async function() {
@@ -10,7 +10,7 @@ test('It should render event information', async function() {
     ...emptyEvent,
     organizer: {
       id: 0,
-      name: 'test organization'
+      name: 'test organization',
     },
     name: 'name',
     location: 'location',
@@ -25,7 +25,7 @@ test('It should render event information', async function() {
       judge: { id: 1, name: 'Test Judge' },
       places: 11,
       entries: 22,
-      members: 2
+      members: 2,
     }],
     isEntryUpcoming: false,
     isEntryOpen: false,
@@ -35,18 +35,18 @@ test('It should render event information', async function() {
     isEventUpcoming: false,
     isEventOngoing: false,
     isEventOver: true,
-  };
-  render(<EventInfo event={event} />);
+  }
+  render(<EventInfo event={event} />)
 
   // entry dates
-  expect(screen.getByText('20.1.-4.2.2021')).toBeInTheDocument();
+  expect(screen.getByText('20.1.-4.2.2021')).toBeInTheDocument()
 
   // classes
-  expect(screen.getByText('ke 10.2.')).toBeInTheDocument();
-  expect(screen.getByText('TestClass')).toBeInTheDocument();
-  expect(screen.getByText('Test Judge')).toBeInTheDocument();
-  expect(screen.getByText('22 / 11')).toBeInTheDocument();
+  expect(screen.getByText('ke 10.2.')).toBeInTheDocument()
+  expect(screen.getByText('TestClass')).toBeInTheDocument()
+  expect(screen.getByText('Test Judge')).toBeInTheDocument()
+  expect(screen.getByText('22 / 11')).toBeInTheDocument()
 
   // description
-  expect(screen.getByText('event description text')).toBeInTheDocument();
-});
+  expect(screen.getByText('event description text')).toBeInTheDocument()
+})

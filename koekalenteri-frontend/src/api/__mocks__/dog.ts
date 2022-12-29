@@ -1,6 +1,6 @@
-import { Dog } from "koekalenteri-shared/model";
+import { Dog } from "koekalenteri-shared/model"
 
-import { rehydrateDog } from "../dog";
+import { rehydrateDog } from "../dog"
 
 export async function getDog(regNo: string, refresh?: boolean, signal?: AbortSignal): Promise<Dog> {
   return new Promise((resolve) => {
@@ -11,7 +11,7 @@ export async function getDog(regNo: string, refresh?: boolean, signal?: AbortSig
       dob: '20220101T00:00:00',
       gender: 'M',
       breedCode: '121',
-      titles: ''
-    })));
-  });
+      titles: '',
+    })))
+  })
 }

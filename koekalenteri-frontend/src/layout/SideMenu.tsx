@@ -1,17 +1,17 @@
-import { useCallback } from 'react';
-import { useTranslation } from 'react-i18next';
-import { NavLink, useNavigate } from 'react-router-dom';
-import { Accessibility, EmojiEventsOutlined, Event, Logout, PersonOutline, SupervisorAccount, Support } from '@mui/icons-material';
-import { Divider, Theme, Toolbar, useMediaQuery } from '@mui/material';
+import { useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
+import { NavLink, useNavigate } from 'react-router-dom'
+import { Accessibility, EmojiEventsOutlined, Event, Logout, PersonOutline, SupervisorAccount, Support } from '@mui/icons-material'
+import { Divider, Theme, Toolbar, useMediaQuery } from '@mui/material'
 
-import { DrawerItem, DrawerList, MiniDrawer } from '../components/MiniDrawer';
-import { Path } from '../routeConfig';
+import { DrawerItem, DrawerList, MiniDrawer } from '../components/MiniDrawer'
+import { Path } from '../routeConfig'
 
 export function SideMenu({ open, onClose }: { open?: boolean, onClose: () => void }) {
-  const md = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'));
-  const lg = useMediaQuery((theme: Theme) => theme.breakpoints.up('lg'));
-  const { t } = useTranslation();
-  const navigate = useNavigate();
+  const md = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
+  const lg = useMediaQuery((theme: Theme) => theme.breakpoints.up('lg'))
+  const { t } = useTranslation()
+  const navigate = useNavigate()
   const navigateToLogout = useCallback(() => navigate(Path.logout), [navigate])
 
   return (
@@ -19,7 +19,7 @@ export function SideMenu({ open, onClose }: { open?: boolean, onClose: () => voi
       variant={md ? 'permanent' : 'temporary'}
       open={lg || open}
       ModalProps={{
-        keepMounted: true
+        keepMounted: true,
       }}
       onClose={onClose}
     >
@@ -37,5 +37,5 @@ export function SideMenu({ open, onClose }: { open?: boolean, onClose: () => voi
         <DrawerItem text={t('logout')} icon={<Logout />} onClick={navigateToLogout} />
       </DrawerList>
     </MiniDrawer>
-  );
+  )
 }

@@ -1,2 +1,2 @@
-export * from './EventForm';
-export * from './RegistrationForm';
+export * from './EventForm'
+export * from './RegistrationForm'

@@ -1,31 +1,31 @@
-import React, { createContext, useContext, useMemo, useState } from "react";
+import React, { createContext, useContext, useMemo, useState } from "react"
 
 const AuthenticatorContext = createContext({
   route: 'idle',
   signOut: () => {
     // noop
-  }
-});
+  },
+})
 
 const mockUser: any = {
   username: 'mock_user',
   attributes: {
     name: 'Test User',
-    email: 'test@user.jest'
-  }
-};
+    email: 'test@user.jest',
+  },
+}
 
-export const useAuthenticator = () => useContext(AuthenticatorContext);
+export const useAuthenticator = () => useContext(AuthenticatorContext)
 
 export const Provider = ({ children }: { children: React.ReactNode }) => {
-  const [route, setRoute] = useState('idle');
-  const user = useMemo(() => route === 'authenticated' ? mockUser : undefined, [route]);
-  const state = useMemo(() => ({ route, user, signOut: () => setRoute('idle') }), [route, user]);
+  const [route, setRoute] = useState('idle')
+  const user = useMemo(() => route === 'authenticated' ? mockUser : undefined, [route])
+  const state = useMemo(() => ({ route, user, signOut: () => setRoute('idle') }), [route, user])
   return (
     <AuthenticatorContext.Provider value={state}>
       {children}
     </AuthenticatorContext.Provider>
-  );
+  )
 }
 
 export const Authenticator = ({ children }: { children: React.ReactNode }) => {
@@ -34,7 +34,7 @@ export const Authenticator = ({ children }: { children: React.ReactNode }) => {
       <p>MOCK AUTHENTICATOR</p>
       {children}
     </Provider>
-  );
+  )
 }
 
-Authenticator.Provider = Provider;
+Authenticator.Provider = Provider

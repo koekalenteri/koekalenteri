@@ -1,4 +1,4 @@
-import type { Event } from 'koekalenteri-shared/model';
+import type { Event } from 'koekalenteri-shared/model'
 
 export const emptyEvent: Event = {
   accountNumber: 'test',
@@ -28,22 +28,22 @@ export const emptyEvent: Event = {
     phone: '040-official',
     location: 'Suomi',
     district: 'Helsinki',
-    eventTypes: ['test']
+    eventTypes: ['test'],
   },
   secretary: {
     id: 2,
     name: 'Siiri Sihteeri',
     email: 'ei@joo.com',
     phone: '040-secretary',
-    location: 'Ruotsi'
+    location: 'Ruotsi',
   },
   organizer: {
     id: 1,
-    name: 'Suomen Noutajakoirajärjestö ry'
+    name: 'Suomen Noutajakoirajärjestö ry',
   },
   paymentDetails: 'test',
   places: 10,
   referenceNumber: 'test',
   startDate: new Date('1990-01-01'),
-  state: 'confirmed'
+  state: 'confirmed',
 }

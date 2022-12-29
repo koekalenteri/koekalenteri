@@ -1,12 +1,12 @@
-import { useTranslation } from "react-i18next";
-import { Grid, InputAdornment } from "@mui/material";
-import { Event } from "koekalenteri-shared/model";
+import { useTranslation } from "react-i18next"
+import { Grid, InputAdornment } from "@mui/material"
+import { Event } from "koekalenteri-shared/model"
 
-import { CollapsibleSection } from "../..";
+import { CollapsibleSection } from "../.."
 
-import { EventProperty, EventPropertyProps } from "./EventProperty";
-import { FieldRequirements } from "./validation";
-import { PartialEvent } from ".";
+import { EventProperty, EventPropertyProps } from "./EventProperty"
+import { FieldRequirements } from "./validation"
+import { PartialEvent } from "."
 
 type PaymentSectionProps = {
   errorStates: { [Property in keyof Event]?: boolean }
@@ -18,9 +18,9 @@ type PaymentSectionProps = {
 }
 
 export function PaymentSection({ errorStates, event, fields, onChange, open, onOpenChange }: PaymentSectionProps) {
-  const { t } = useTranslation();
-  const error = errorStates.cost || errorStates.costMember || errorStates.accountNumber || errorStates.referenceNumber;
-  const helperText = error ? t('validation.event.errors') : '';
+  const { t } = useTranslation()
+  const error = errorStates.cost || errorStates.costMember || errorStates.accountNumber || errorStates.referenceNumber
+  const helperText = error ? t('validation.event.errors') : ''
 
   return (
     <CollapsibleSection title={t('event.paymentDetails')} open={open} onOpenChange={onOpenChange} error={error} helperText={helperText}>
@@ -43,7 +43,7 @@ export function PaymentSection({ errorStates, event, fields, onChange, open, onO
         </Grid>
       </Grid>
     </CollapsibleSection>
-  );
+  )
 }
 
 type ValidatedPriceInputProps = Omit<EventPropertyProps<'cost'|'costMember', true>, 'options'>;
@@ -58,5 +58,5 @@ function EventPrice(props: ValidatedPriceInputProps) {
       endAdornment={<InputAdornment position="end" >€</InputAdornment>}
       onChange={(newProps) => props.onChange({[props.id]: +(newProps[props.id] || '')})}
     />
-  );
+  )
 }

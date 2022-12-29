@@ -1,11 +1,11 @@
-import { useTranslation } from "react-i18next";
-import { Checkbox, FormControlLabel, FormGroup, Grid } from "@mui/material";
-import { ContactInfo, Event, ShowContactInfo } from "koekalenteri-shared/model";
+import { useTranslation } from "react-i18next"
+import { Checkbox, FormControlLabel, FormGroup, Grid } from "@mui/material"
+import { ContactInfo, Event, ShowContactInfo } from "koekalenteri-shared/model"
 
-import { CollapsibleSection, PartialEvent } from "../..";
-import { EventContactInfo } from "../../EventContactInfo";
+import { CollapsibleSection, PartialEvent } from "../.."
+import { EventContactInfo } from "../../EventContactInfo"
 
-import { FieldRequirements } from "./validation";
+import { FieldRequirements } from "./validation"
 
 type ContactInfoSectionParams = {
   event: PartialEvent
@@ -18,9 +18,9 @@ type ContactInfoSectionParams = {
 };
 
 export function ContactInfoSection({ event, helperTexts, onChange, onOpenChange, open }: ContactInfoSectionParams) {
-  const { t } = useTranslation();
-  const handleChange = (props: Partial<ContactInfo>) => onChange({ contactInfo: { ...(event.contactInfo || {}), ...props } });
-  const helperText = helperTexts.contactInfo || '';
+  const { t } = useTranslation()
+  const handleChange = (props: Partial<ContactInfo>) => onChange({ contactInfo: { ...(event.contactInfo || {}), ...props } })
+  const helperText = helperTexts.contactInfo || ''
 
   return (
     <CollapsibleSection title={t('event.contactInfo')} open={open} onOpenChange={onOpenChange} error={!!helperText} helperText={helperText}>
@@ -37,12 +37,12 @@ export function ContactInfoSection({ event, helperTexts, onChange, onOpenChange,
       <hr />
       <EventContactInfo event={event} />
     </CollapsibleSection>
-  );
+  )
 }
 
 function PersonContactInfo({contact, show, onChange}: { contact: 'official'|'secretary', show?: Partial<ShowContactInfo>, onChange: (props: Partial<ContactInfo>) => void }) {
-  const { t } = useTranslation();
-  const handleChange = (props: Partial<ShowContactInfo>) => onChange({ [contact]: {...show, ...props} });
+  const { t } = useTranslation()
+  const handleChange = (props: Partial<ShowContactInfo>) => onChange({ [contact]: {...show, ...props} })
 
   return (
     <>
@@ -62,5 +62,5 @@ function PersonContactInfo({contact, show, onChange}: { contact: 'official'|'sec
         />
       </FormGroup>
     </>
-  );
+  )
 }

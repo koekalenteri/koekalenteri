@@ -1,2 +1,2 @@
-export * from './LanguageMenu';
-export * from './UserMenu';
+export * from './LanguageMenu'
+export * from './UserMenu'

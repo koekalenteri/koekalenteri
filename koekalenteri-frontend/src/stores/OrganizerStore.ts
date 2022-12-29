@@ -1,11 +1,11 @@
-import i18next from "i18next";
-import { Organizer } from "koekalenteri-shared/model";
-import { makeAutoObservable, runInAction } from "mobx";
+import i18next from "i18next"
+import { Organizer } from "koekalenteri-shared/model"
+import { makeAutoObservable, runInAction } from "mobx"
 
-import { getOrganizers } from "../api/organizer";
+import { getOrganizers } from "../api/organizer"
 
-import { COrganizer } from "./classes/COrganizer";
-import { RootStore } from "./RootStore";
+import { COrganizer } from "./classes/COrganizer"
+import { RootStore } from "./RootStore"
 
 export class OrganizerStore {
   rootStore
@@ -14,29 +14,29 @@ export class OrganizerStore {
 
   constructor(rootStore: RootStore) {
     makeAutoObservable(this, {
-      rootStore: false
+      rootStore: false,
     })
-    this.rootStore = rootStore;
+    this.rootStore = rootStore
   }
 
   async load(refresh?: boolean, signal?: AbortSignal) {
     if (this.loading) {
-      return;
+      return
     }
     runInAction(() => {
-      this.loading = true;
-    });
-    const data = await getOrganizers(refresh, signal);
+      this.loading = true
+    })
+    const data = await getOrganizers(refresh, signal)
     runInAction(() => {
       data.forEach(json => this.updateOrganizer(json))
       // Keep the organizers sorted in the store to sort only when the data changes.
-      this.organizers.sort((a,b) => a.name.localeCompare(b.name, i18next.language))
-      this.loading = false;
-    });
+      this.organizers.sort((a, b) => a.name.localeCompare(b.name, i18next.language))
+      this.loading = false
+    })
   }
 
   updateOrganizer(json: Organizer) {
-    let organizer = this.organizers.find(o => o.id === json.id);
+    let organizer = this.organizers.find(o => o.id === json.id)
     if (!organizer) {
       organizer = new COrganizer(this, json.id)
       this.organizers.push(organizer)

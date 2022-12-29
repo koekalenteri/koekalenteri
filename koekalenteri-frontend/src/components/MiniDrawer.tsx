@@ -1,7 +1,7 @@
-import { MouseEventHandler, ReactNode } from 'react';
-import { CSSObject, Drawer, List, ListItem, ListItemIcon, ListItemText, styled, Theme, Tooltip } from '@mui/material';
+import { MouseEventHandler, ReactNode } from 'react'
+import { CSSObject, Drawer, List, ListItem, ListItemIcon, ListItemText, styled, Theme, Tooltip } from '@mui/material'
 
-const drawerWidth = '256px';
+const drawerWidth = '256px'
 
 const fullMixin = (theme: Theme): CSSObject => ({
   backgroundColor: theme.palette.grey[100],
@@ -11,7 +11,7 @@ const fullMixin = (theme: Theme): CSSObject => ({
     duration: theme.transitions.duration.enteringScreen,
   }),
   overflowX: 'hidden',
-});
+})
 
 const miniMixin = (theme: Theme): CSSObject => ({
   backgroundColor: theme.palette.grey[100],
@@ -24,11 +24,11 @@ const miniMixin = (theme: Theme): CSSObject => ({
   [theme.breakpoints.up('sm')]: {
     width: `calc(${theme.spacing(7)} + 1px)`,
   },
-});
+})
 
 export const MiniDrawer = styled(Drawer)(
   ({ theme, variant, open }) => {
-    const mini = variant === 'permanent' && !open;
+    const mini = variant === 'permanent' && !open
     return {
       width: drawerWidth,
       flexShrink: 0,
@@ -44,24 +44,24 @@ export const MiniDrawer = styled(Drawer)(
       }),
       '& a': {
         textDecoration: 'none',
-        color: 'inherit'
+        color: 'inherit',
       },
       '& a.active > .MuiButtonBase-root': {
-        backgroundColor: theme.palette.background.selected
+        backgroundColor: theme.palette.background.selected,
       },
       '& .MuiButtonBase-root:hover': {
-        backgroundColor: theme.palette.background.hover
-      }
+        backgroundColor: theme.palette.background.hover,
+      },
     }
-  }
-);
+  },
+)
 
 export function DrawerList({children}: {children: ReactNode}) {
   return (
     <List>
       {children}
     </List>
-  );
+  )
 }
 
 export function DrawerItem({ text, icon, onClick }: {text: string, icon: ReactNode, onClick?: MouseEventHandler}) {
@@ -70,5 +70,5 @@ export function DrawerItem({ text, icon, onClick }: {text: string, icon: ReactNo
       <Tooltip title={text} arrow><ListItemIcon aria-label={text}>{icon}</ListItemIcon></Tooltip>
       <ListItemText primary={text} />
     </ListItem>
-  );
+  )
 }

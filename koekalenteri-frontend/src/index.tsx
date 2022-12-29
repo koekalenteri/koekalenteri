@@ -1,5 +1,5 @@
 import { createRoot } from 'react-dom/client'
-import { CssBaseline,StyledEngineProvider, ThemeProvider } from '@mui/material'
+import { CssBaseline, StyledEngineProvider, ThemeProvider } from '@mui/material'
 
 import "./i18n"
 

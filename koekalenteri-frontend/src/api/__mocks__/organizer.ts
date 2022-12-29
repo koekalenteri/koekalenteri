@@ -7,10 +7,10 @@ const mockOrganizers = [
     id: 2,
     name: "Järjestäjä 2",
   },
-];
+]
 
 export async function getOrganizers() {
   return new Promise((resolve) => {
-    process.nextTick(() => resolve(mockOrganizers));
-  });
+    process.nextTick(() => resolve(mockOrganizers))
+  })
 }

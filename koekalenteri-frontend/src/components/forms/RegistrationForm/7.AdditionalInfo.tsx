@@ -1,8 +1,8 @@
-import { useTranslation } from 'react-i18next';
-import { TextField } from '@mui/material';
-import { Registration } from 'koekalenteri-shared/model';
+import { useTranslation } from 'react-i18next'
+import { TextField } from '@mui/material'
+import { Registration } from 'koekalenteri-shared/model'
 
-import { CollapsibleSection } from '../..';
+import { CollapsibleSection } from '../..'
 
 type AdditionalInfoProps = {
   reg: Registration
@@ -12,7 +12,7 @@ type AdditionalInfoProps = {
 };
 
 export function AdditionalInfo({reg, onChange, onOpenChange, open}: AdditionalInfoProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation()
 
   return (
     <CollapsibleSection title={t('registration.notes')} open={open} onOpenChange={onOpenChange}>
@@ -24,5 +24,5 @@ export function AdditionalInfo({reg, onChange, onOpenChange, open}: AdditionalIn
         value={reg.notes}
       />
     </CollapsibleSection>
-  );
+  )
 }

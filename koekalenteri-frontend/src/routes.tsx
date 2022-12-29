@@ -24,7 +24,7 @@ const routes: RouteObject[] = [
           const url = new URL(request.url)
           stores.publicStore.setFilter(deserializeFilter(url.searchParams))
           return null
-        }
+        },
       },
       ...[
         "event/:eventType/:id/:class/:date",
@@ -40,17 +40,17 @@ const routes: RouteObject[] = [
       })),
       {
         path: "registration/:eventType/:id/:registrationId/cancel",
-        element: <RegistrationListPage cancel />
+        element: <RegistrationListPage cancel />,
       },
       {
         path: "registration/:eventType/:id/:registrationId/edit",
-        element: <RegistrationPage />
+        element: <RegistrationPage />,
       },
       {
         path: "registration/:eventType/:id/:registrationId",
-        element: <RegistrationListPage />
+        element: <RegistrationListPage />,
       },
-    ]
+    ],
   },
   {path: Path.login, element: <LoginPage />},
   {path: Path.logout, element: <LogoutPage />},
@@ -67,19 +67,19 @@ const routes: RouteObject[] = [
     children: [
       {
         index: true,
-        element: <Navigate to={Path.admin.index} replace />
+        element: <Navigate to={Path.admin.index} replace />,
       },
       {
         path: Path.admin.events,
-        element: <EventListPage />
+        element: <EventListPage />,
       },
       {
         path: Path.admin.newEvent,
-        element: <EventEditPage create />
+        element: <EventEditPage create />,
       },
       {
         path: `${Path.admin.editEvent}/:id`,
-        element: <EventEditPage />
+        element: <EventEditPage />,
       },
       {
         path: `${Path.admin.viewEvent}/:id`,
@@ -91,30 +91,30 @@ const routes: RouteObject[] = [
       },
       {
         path: `${Path.admin.viewEvent}/:id/:reistrationId`,
-        element: <EventViewPageWithData />
+        element: <EventViewPageWithData />,
       },
       {
         path: Path.admin.orgs,
-        element: <OrganizerListPage />
+        element: <OrganizerListPage />,
       },
       {
         path: Path.admin.officials,
-        element: <OfficialListPage />
+        element: <OfficialListPage />,
       },
       {
         path: Path.admin.users,
-        element: <UsersPage />
+        element: <UsersPage />,
       },
       {
         path: Path.admin.judges,
-        element: <JudgeListPage />
+        element: <JudgeListPage />,
       },
       {
         path: Path.admin.eventTypes,
-        element: <EventTypeListPage />
+        element: <EventTypeListPage />,
       },
-    ]
-  }
+    ],
+  },
 ]
 
 export default routes

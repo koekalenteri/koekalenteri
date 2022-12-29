@@ -1,4 +1,4 @@
-import type { Event } from 'koekalenteri-shared/model';
+import type { Event } from 'koekalenteri-shared/model'
 
 export const DEFAULT_EVENT: Event = {
   accountNumber: '',
@@ -21,18 +21,18 @@ export const DEFAULT_EVENT: Event = {
     phone: '',
     location: '',
     district: '',
-    eventTypes: []
+    eventTypes: [],
   },
   organizer: {
     id: 0,
-    name: ''
+    name: '',
   },
   secretary: {
     id: 0,
     name: '',
     email: '',
     phone: '',
-    location: ''
+    location: '',
   },
   paymentDetails: '',
   places: 0,
@@ -42,4 +42,4 @@ export const DEFAULT_EVENT: Event = {
   createdBy: 'unknown',
   modifiedAt: new Date(),
   modifiedBy: 'unknown',
-};
+}

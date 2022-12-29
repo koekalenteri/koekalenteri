@@ -1,9 +1,9 @@
-import { Event, EventState, ShowContactInfo } from "koekalenteri-shared/model";
+import { Event, EventState, ShowContactInfo } from "koekalenteri-shared/model"
 
-import { unique } from "../../../utils";
-import { ValidationResult, Validators } from '../validation';
+import { unique } from "../../../utils"
+import { ValidationResult, Validators } from '../validation'
 
-import { PartialEvent } from ".";
+import { PartialEvent } from "."
 
 type EventCallback = (event: PartialEvent) => boolean;
 type EventFlag = boolean | EventCallback;
@@ -23,8 +23,8 @@ const STATE_INCLUSION: Record<EventState, EventState[]> = {
   draft: ['draft'],
   tentative: ['tentative', 'draft'],
   confirmed: ['confirmed', 'tentative', 'draft'],
-  cancelled: ['cancelled']
-};
+  cancelled: ['cancelled'],
+}
 
 const REQUIRED_BY_STATE: Record<EventState, EventFlags> = {
   draft: {
@@ -32,10 +32,10 @@ const REQUIRED_BY_STATE: Record<EventState, EventFlags> = {
     endDate: true,
     eventType: true,
     organizer: true,
-    secretary: true
+    secretary: true,
   },
   tentative: {
-    location: true
+    location: true,
   },
   confirmed: {
     classes: (event: PartialEvent) => event.eventType === 'NOME-B' || event.eventType === 'NOWT',
@@ -48,61 +48,61 @@ const REQUIRED_BY_STATE: Record<EventState, EventFlags> = {
     cost: true,
     costMember: (event: PartialEvent) => !!event.costMember,
     accountNumber: true,
-    contactInfo: true
+    contactInfo: true,
   },
   cancelled: {
-  }
-};
+  },
+}
 
-const contactInfoShown = (contact?: ShowContactInfo) => !!contact && (contact.email || contact.phone);
+const contactInfoShown = (contact?: ShowContactInfo) => !!contact && (contact.email || contact.phone)
 
 const VALIDATORS: Validators<PartialEvent, 'event'> = {
   classes: (event, required) => {
     if (!required) {
-      return false;
+      return false
     }
-    const classes = event.classes;
+    const classes = event.classes
     if (!classes || !classes.length) {
-      return 'classes';
+      return 'classes'
     }
-    const list: string[] = [];
+    const list: string[] = []
     for (const c of classes) {
       if (!c.judge?.id) {
-        list.push(c.class);
+        list.push(c.class)
       }
     }
-    return list.length ? { key: 'classesJudge', opts: { field: 'classes', list, length: list.length }} : false;
+    return list.length ? { key: 'classesJudge', opts: { field: 'classes', list, length: list.length }} : false
   },
   contactInfo: (event, required) => {
-    const contactInfo = event.contactInfo;
+    const contactInfo = event.contactInfo
     if (required && !contactInfoShown(contactInfo?.official) && !contactInfoShown(contactInfo?.secretary)) {
-      return 'contactInfo';
+      return 'contactInfo'
     }
-    return false;
+    return false
   },
   cost: (event, required) => required && !event.cost,
   costMember: (event) => {
-    const cost = event.cost || 0;
+    const cost = event.cost || 0
     if (event.costMember && cost < event.costMember) {
-      return 'costMemberHigh';
+      return 'costMemberHigh'
     }
-    return false;
+    return false
   },
   judges: (event, required) => required && event.judges?.length === 0,
   places: (event, required) => {
     if (required && !event.places) {
-      return true;
+      return true
     }
-    const list: string[] = [];
+    const list: string[] = []
     if (required && event.eventType === 'NOME-B') {
       for (const c of event.classes) {
         if (!c.places) {
-          list.push(c.class);
+          list.push(c.class)
         }
       }
     }
-    return list.length ? { key: 'placesClass', opts: { field: 'places', list, length: list.length }} : false;
-  }
+    return list.length ? { key: 'placesClass', opts: { field: 'places', list, length: list.length }} : false
+  },
 }
 
 export type FieldRequirements = {
@@ -111,60 +111,60 @@ export type FieldRequirements = {
 }
 
 export function requiredFields(event: PartialEvent): FieldRequirements {
-  const states = STATE_INCLUSION[event.state || 'draft'];
+  const states = STATE_INCLUSION[event.state || 'draft']
   const result: FieldRequirements = {
     state: {},
-    required: {}
-  };
+    required: {},
+  }
   for (const state of states) {
-    const required = REQUIRED_BY_STATE[state];
+    const required = REQUIRED_BY_STATE[state]
     for (const prop in required) {
-      result.state[prop as keyof Event] = state;
-      result.required[prop as keyof Event] = resolve(required[prop as keyof Event] || false, event);
+      result.state[prop as keyof Event] = state
+      result.required[prop as keyof Event] = resolve(required[prop as keyof Event] || false, event)
     }
   }
-  return result;
+  return result
 }
 
 function resolve(value: EventFlag | undefined, event: PartialEvent): boolean {
-  return typeof value === 'function' ? value(event) : !!value;
+  return typeof value === 'function' ? value(event) : !!value
 }
 
 export function validateEventField(event: PartialEvent, field: keyof Event, required: boolean): ValidationResult<PartialEvent, 'event'> {
-  const validator = VALIDATORS[field] || (() => required && (typeof event[field] === 'undefined' || event[field] === ''));
-  const result = validator(event, required);
+  const validator = VALIDATORS[field] || (() => required && (typeof event[field] === 'undefined' || event[field] === ''))
+  const result = validator(event, required)
   if (!result) {
-    return false;
+    return false
   }
   if (result === true) {
     return {
       key: 'validationError',
-      opts: { field, state: event.state }
-    };
+      opts: { field, state: event.state },
+    }
   }
   if (typeof result === 'string') {
     return {
       key: result,
-      opts: { field, state: event.state, type: event.eventType }
-    };
+      opts: { field, state: event.state, type: event.eventType },
+    }
   }
   return {
     key: result.key,
-    opts: { state: event.state, type: event.eventType, ...result.opts }
-  };
+    opts: { state: event.state, type: event.eventType, ...result.opts },
+  }
 }
 
 export function validateEvent(event: PartialEvent) {
-  const required = requiredFields(event).required;
-  const errors = [];
-  let field: keyof Event;
-  const fields = unique(Object.keys(event).concat(Object.keys(required))) as Array<keyof Event>;
+  const required = requiredFields(event).required
+  const errors = []
+  let field: keyof Event
+  const fields = unique(Object.keys(event).concat(Object.keys(required))) as Array<keyof Event>
   for (field of fields) {
-    const result = validateEventField(event, field, !!required[field]);
+    const result = validateEventField(event, field, !!required[field])
     if (result) {
-      console.log(result);
-      errors.push(result);
+      console.log(result)
+      errors.push(result)
     }
   }
-  return errors;
+  return errors
 }

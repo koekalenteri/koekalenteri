@@ -1,5 +1,5 @@
-import { ReactNode } from "react";
-import { Box } from "@mui/material";
+import { ReactNode } from "react"
+import { Box } from "@mui/material"
 
 type FullPageFlexProps = {
   children?: ReactNode
@@ -18,5 +18,5 @@ export function FullPageFlex(props: FullPageFlexProps) {
         {props.children}
       </Box>
     </Box>
-  );
+  )
 }

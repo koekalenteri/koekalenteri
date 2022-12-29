@@ -1,22 +1,22 @@
-import { MemoryRouter } from 'react-router-dom';
-import { ThemeProvider } from '@mui/material';
-import { render, screen } from '@testing-library/react';
-import { parseISO } from 'date-fns';
-import { EventEx } from 'koekalenteri-shared/model';
+import { MemoryRouter } from 'react-router-dom'
+import { ThemeProvider } from '@mui/material'
+import { render, screen } from '@testing-library/react'
+import { parseISO } from 'date-fns'
+import { EventEx } from 'koekalenteri-shared/model'
 
-import { emptyEvent } from '../api/test-utils/emptyEvent';
-import theme from '../assets/Theme';
+import { emptyEvent } from '../api/test-utils/emptyEvent'
+import theme from '../assets/Theme'
 
-import { EventTable } from './EventTable';
+import { EventTable } from './EventTable'
 
 test('It should render error text on empty result', () => {
   render(
     <ThemeProvider theme={theme}>
       <EventTable events={[]} />
-    </ThemeProvider>
-  );
-  expect(screen.getByText(/Tekemälläsi haulla ei löytynyt tapahtumia. Poista joku hakusuodattimista./i)).toBeInTheDocument();
-});
+    </ThemeProvider>,
+  )
+  expect(screen.getByText(/Tekemälläsi haulla ei löytynyt tapahtumia. Poista joku hakusuodattimista./i)).toBeInTheDocument()
+})
 
 test('It should render event dates', async function() {
   const event: EventEx = {
@@ -32,14 +32,14 @@ test('It should render event dates', async function() {
     isEventUpcoming: false,
     isEventOngoing: false,
     isEventOver: true,
-  };
+  }
   render(
     <ThemeProvider theme={theme}>
       <EventTable events={[event]} />
-    </ThemeProvider>
-  );
-  expect(screen.getByText(/10.-11.2.2021/)).toBeInTheDocument();
-});
+    </ThemeProvider>,
+  )
+  expect(screen.getByText(/10.-11.2.2021/)).toBeInTheDocument()
+})
 
 test('It should render registration link', async function() {
   const event = {
@@ -56,12 +56,12 @@ test('It should render registration link', async function() {
     isEventOngoing: false,
     isEventOver: true,
 
-  };
+  }
   render(
     <ThemeProvider theme={theme}>
       <MemoryRouter>
         <EventTable events={[event]} />
       </MemoryRouter>
-    </ThemeProvider>);
-  expect(screen.getByRole('link')).toHaveAttribute('href', '/event/TestType/eventID');
-});
+    </ThemeProvider>)
+  expect(screen.getByRole('link')).toHaveAttribute('href', '/event/TestType/eventID')
+})

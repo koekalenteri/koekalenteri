@@ -1,5 +1,5 @@
-import { isRouteErrorResponse, useRouteError } from "react-router-dom";
-import { Box, Typography } from "@mui/material";
+import { isRouteErrorResponse, useRouteError } from "react-router-dom"
+import { Box, Typography } from "@mui/material"
 
 export function ErrorPage() {
   return (
@@ -10,7 +10,7 @@ export function ErrorPage() {
         alignItems: 'center',
         flexDirection: 'column',
         minHeight: '100vh',
-        backgroundColor: 'background.default'
+        backgroundColor: 'background.default',
       }}
     >
       <ErrorInfo />
@@ -20,7 +20,7 @@ export function ErrorPage() {
 
 function ErrorInfo() {
   const error = useRouteError()
-  console.error(error);
+  console.error(error)
 
   if (isRouteErrorResponse(error)) {
     return (

@@ -1,5 +1,5 @@
-import { CheckBox,CheckBoxOutlineBlank } from "@mui/icons-material";
-import { Autocomplete, AutocompleteProps, Checkbox, TextField } from "@mui/material";
+import { CheckBox, CheckBoxOutlineBlank } from "@mui/icons-material"
+import { Autocomplete, AutocompleteProps, Checkbox, TextField } from "@mui/material"
 
 type OmitProps = 'disableCloseOnSelect' | 'fullWidth' | 'freeSolo' | 'multiple' | 'renderInput' | 'renderOption' | 'renderTags';
 
@@ -10,8 +10,8 @@ export type AutocompleteMultiProps<T> = Omit<AutocompleteProps<T, true, false, f
 }
 
 export function AutocompleteMulti<T>(props: AutocompleteMultiProps<T>) {
-  const { error, helperText, label, ...acProps } = props;
-  const getLabel = props.getOptionLabel || ((o: T) => o);
+  const { error, helperText, label, ...acProps } = props
+  const getLabel = props.getOptionLabel || ((o: T) => o)
 
   return (
     <Autocomplete
@@ -36,5 +36,5 @@ export function AutocompleteMulti<T>(props: AutocompleteMultiProps<T>) {
         </li>
       )}
     />
-  );
+  )
 }

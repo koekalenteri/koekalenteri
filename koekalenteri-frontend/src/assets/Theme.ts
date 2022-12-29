@@ -1,5 +1,5 @@
-import { red } from '@mui/material/colors';
-import { createTheme, responsiveFontSizes } from '@mui/material/styles';
+import { red } from '@mui/material/colors'
+import { createTheme, responsiveFontSizes } from '@mui/material/styles'
 
 declare module '@mui/material/styles/createPalette' {
   interface TypeBackground {
@@ -20,19 +20,19 @@ const theme = createTheme({
       md: 900,
       lg: 1200,
       xl: 1900,
-    }
+    },
   },
   components: {
     MuiSwitch: {
       defaultProps: {
-        color: 'success'
-      }
+        color: 'success',
+      },
     },
     MuiToggleButtonGroup: {
       defaultProps: {
-        color: 'success'
-      }
-    }
+        color: 'success',
+      },
+    },
   },
   palette: {
     primary: {
@@ -57,18 +57,18 @@ const theme = createTheme({
       tableHead: '#C4C4C4',
       ok: '#c1d4c9',
       hover: '#AFC1B7',
-      selected: '#D5E1DB'
+      selected: '#D5E1DB',
     },
   },
   typography: {
     button: {
-      textTransform: "none"
+      textTransform: "none",
     },
   },
   zIndex: {
     snackbar: 1200,
-    drawer: 1000
-  }
+    drawer: 1000,
+  },
 })
 
-export default responsiveFontSizes(theme);
+export default responsiveFontSizes(theme)

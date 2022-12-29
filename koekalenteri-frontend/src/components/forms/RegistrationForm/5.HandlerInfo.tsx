@@ -1,9 +1,9 @@
-import { useTranslation } from 'react-i18next';
-import { Checkbox, FormControlLabel, Grid, TextField } from '@mui/material';
-import { Registration, RegistrationPerson } from 'koekalenteri-shared/model';
+import { useTranslation } from 'react-i18next'
+import { Checkbox, FormControlLabel, Grid, TextField } from '@mui/material'
+import { Registration, RegistrationPerson } from 'koekalenteri-shared/model'
 
-import { useStores } from '../../../stores';
-import { CollapsibleSection, emptyPerson } from '../..';
+import { useStores } from '../../../stores'
+import { CollapsibleSection, emptyPerson } from '../..'
 
 type HandlerInfoProps = {
   reg: Partial<Registration>
@@ -15,15 +15,15 @@ type HandlerInfoProps = {
 };
 
 export function HandlerInfo({ reg, error, helperText, onChange, onOpenChange, open }: HandlerInfoProps) {
-  const { t } = useTranslation();
-  const { rootStore } = useStores();
+  const { t } = useTranslation()
+  const { rootStore } = useStores()
 
   const handleChange = (props: Partial<RegistrationPerson>) => {
-    const handler = { ...emptyPerson, ...reg.handler, ...props };
+    const handler = { ...emptyPerson, ...reg.handler, ...props }
     if (reg.dog?.regNo) {
-      rootStore.dogStore.save({ dog: { ...reg.dog }, handler });
+      rootStore.dogStore.save({ dog: { ...reg.dog }, handler })
     }
-    onChange({ handler });
+    onChange({ handler })
   }
 
   return (
@@ -92,5 +92,5 @@ export function HandlerInfo({ reg, error, helperText, onChange, onOpenChange, op
         label={t('registration.handlerIsMember')}
       />
     </CollapsibleSection>
-  );
+  )
 }

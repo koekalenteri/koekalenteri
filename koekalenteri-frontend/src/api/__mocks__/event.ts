@@ -1,10 +1,10 @@
-import { addDays, parseISO, startOfDay } from 'date-fns';
-import { Event, EventEx, Registration } from 'koekalenteri-shared/model';
+import { addDays, parseISO, startOfDay } from 'date-fns'
+import { Event, EventEx, Registration } from 'koekalenteri-shared/model'
 
-import { emptyEvent } from '../test-utils/emptyEvent';
-import { rehydrateEvent } from '../utils';
+import { emptyEvent } from '../test-utils/emptyEvent'
+import { rehydrateEvent } from '../utils'
 
-const today = startOfDay(new Date());
+const today = startOfDay(new Date())
 
 const mockEvents: EventEx[] = [
   {
@@ -17,14 +17,14 @@ const mockEvents: EventEx[] = [
     entryStartDate: parseISO('2021-02-01'),
     entryEndDate: parseISO('2021-02-07'),
     judges: [123],
-    location: 'test location'
+    location: 'test location',
   },
   {
     ...emptyEvent,
     id: 'test2',
     organizer: {
       id: 2,
-      name: 'Test org'
+      name: 'Test org',
     },
     eventType: 'NOME-B',
     classes: [{ class: 'AVO' }],
@@ -73,7 +73,7 @@ const mockEvents: EventEx[] = [
     places: 10,
     entries: 9,
   },
-].map(event => rehydrateEvent(event));
+].map(event => rehydrateEvent(event))
 
 const mockRegistrations: { [key: string]: Registration[] } = {
   test2: [{
@@ -86,21 +86,21 @@ const mockRegistrations: { [key: string]: Registration[] } = {
     agreeToTerms: true,
     breeder: {
       name: 'breeder name',
-      location: 'breeder location'
+      location: 'breeder location',
     },
     handler: {
       name: 'handler name',
       email: 'handler@e.mail',
       phone: 'phone',
       location: 'handler location',
-      membership: false
+      membership: false,
     },
     owner: {
       name: 'owner name',
       email: 'owner@e.mail',
       phone: 'owner phone',
       location: 'owner location',
-      membership: false
+      membership: false,
     },
     eventId: 'test2',
     eventType: 'NOME-B',
@@ -113,63 +113,63 @@ const mockRegistrations: { [key: string]: Registration[] } = {
       results: [],
     },
     qualifyingResults: [],
-    reserve: 'ANY'
-  }]
-};
+    reserve: 'ANY',
+  }],
+}
 
 export async function getEvents(): Promise<EventEx[]> {
   return new Promise((resolve) => {
-    process.nextTick(() => resolve(mockEvents));
-  });
+    process.nextTick(() => resolve(mockEvents))
+  })
 }
 
 export async function getEvent(id: string): Promise<EventEx> {
   return new Promise((resolve, reject) => {
-    const event = mockEvents.find(item => item.id === id);
-    process.nextTick(() => event ? resolve(event) : reject());
-  });
+    const event = mockEvents.find(item => item.id === id)
+    process.nextTick(() => event ? resolve(event) : reject())
+  })
 }
 
 export async function putEvent(event: Event, token?: string): Promise<EventEx> {
   return new Promise((resolve, reject) => {
-    let fullEvent: EventEx | undefined;
+    let fullEvent: EventEx | undefined
     if (event) {
       if (!event.id) {
-        event.id = 'test' + (mockEvents.length + 1);
-        fullEvent = rehydrateEvent(event);
-        mockEvents.push(fullEvent);
+        event.id = 'test' + (mockEvents.length + 1)
+        fullEvent = rehydrateEvent(event)
+        mockEvents.push(fullEvent)
       } else {
-        fullEvent = mockEvents.find(e => e.id === event.id);
+        fullEvent = mockEvents.find(e => e.id === event.id)
         if (fullEvent) {
-          Object.assign(fullEvent, event);
-          fullEvent.modifiedAt = new Date();
-          fullEvent.modifiedBy = 'mock';
+          Object.assign(fullEvent, event)
+          fullEvent.modifiedAt = new Date()
+          fullEvent.modifiedBy = 'mock'
         }
       }
     }
-    process.nextTick(() => fullEvent ? resolve(fullEvent) : reject());
-  });
+    process.nextTick(() => fullEvent ? resolve(fullEvent) : reject())
+  })
 }
 
 export async function getRegistrations(eventId: string, _signal?: AbortSignal): Promise<Registration[]> {
   return new Promise((resolve, reject) => {
-    const event = mockEvents.find(item => item.id === eventId);
+    const event = mockEvents.find(item => item.id === eventId)
     if (!event) {
-      reject();
+      reject()
     } else {
-      process.nextTick(() => resolve(mockRegistrations[eventId] || []));
+      process.nextTick(() => resolve(mockRegistrations[eventId] || []))
     }
-  });
+  })
 }
 
 export async function getRegistration(eventId: string, id: string, _signal?: AbortSignal): Promise<Registration | undefined> {
   return new Promise((resolve, reject) => {
-    const registration = (mockRegistrations[eventId] || []).find(item => item.id === id);
+    const registration = (mockRegistrations[eventId] || []).find(item => item.id === id)
     if (!registration) {
-      reject();
+      reject()
     } else {
-      process.nextTick(() => resolve(registration));
+      process.nextTick(() => resolve(registration))
     }
-  });
+  })
 
 }

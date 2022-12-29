@@ -1,30 +1,30 @@
-import { useTranslation } from 'react-i18next';
-import { FormHelperText, Table, TableBody, TableCell, TableHead, TableRow, TextField, TextFieldProps } from '@mui/material';
-import { eachDayOfInterval, isSameDay } from 'date-fns';
-import { EventClass } from 'koekalenteri-shared/model';
+import { useTranslation } from 'react-i18next'
+import { FormHelperText, Table, TableBody, TableCell, TableHead, TableRow, TextField, TextFieldProps } from '@mui/material'
+import { eachDayOfInterval, isSameDay } from 'date-fns'
+import { EventClass } from 'koekalenteri-shared/model'
 
-import { unique } from '../../../utils';
+import { unique } from '../../../utils'
 
-import { EntrySectionProps } from './3.EntrySection';
-import { compareEventClass } from './EventClasses';
+import { EntrySectionProps } from './3.EntrySection'
+import { compareEventClass } from './EventClasses'
 
 export function EventFormPlaces({ event, helperTexts, onChange }: EntrySectionProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation()
   const days = eachDayOfInterval({
     start: event.startDate,
-    end: event.endDate
-  });
-  const uniqueClasses = unique(event.classes.map(c => c.class));
-  const classesByDays = days.map(day => ({ day, classes: event.classes.filter(c => isSameDay(c.date || event.startDate, day)) }));
+    end: event.endDate,
+  })
+  const uniqueClasses = unique(event.classes.map(c => c.class))
+  const classesByDays = days.map(day => ({ day, classes: event.classes.filter(c => isSameDay(c.date || event.startDate, day)) }))
   const handleChange = (c: EventClass) => (e: { target: { value: any; }; }) => {
-    const newClasses = [...event.classes];
-    const cls = newClasses.find(ec => compareEventClass(ec, c) === 0);
+    const newClasses = [...event.classes]
+    const cls = newClasses.find(ec => compareEventClass(ec, c) === 0)
     if (cls) {
-      cls.places = validValue(e.target.value);
+      cls.places = validValue(e.target.value)
     }
-    const total = newClasses.reduce((prev, cur) => prev + (cur?.places || 0), 0);
-    onChange({ classes: newClasses, places: total ? total : event.places });
-  };
+    const total = newClasses.reduce((prev, cur) => prev + (cur?.places || 0), 0)
+    onChange({ classes: newClasses, places: total ? total : event.places })
+  }
 
   return (
     <>
@@ -38,18 +38,18 @@ export function EventFormPlaces({ event, helperTexts, onChange }: EntrySectionPr
         </TableHead>
         <TableBody>
           {classesByDays.map(({ day, classes }) => {
-            let dayTotal = 0;
+            let dayTotal = 0
             return (
               <TableRow key={day.toISOString()}>
                 <TableCell component="th" scope="row">{t('dateshort', { date: day })}</TableCell>
                 {uniqueClasses.map(c => {
-                  const cls = classes.find(cl => cl.class === c);
-                  dayTotal += cls?.places || 0;
-                  return <TableCell key={c} align="center">{cls ? <PlacesInput value={cls.places} onChange={handleChange(cls)} /> : ''}</TableCell>;
+                  const cls = classes.find(cl => cl.class === c)
+                  dayTotal += cls?.places || 0
+                  return <TableCell key={c} align="center">{cls ? <PlacesInput value={cls.places} onChange={handleChange(cls)} /> : ''}</TableCell>
                 })}
                 <TableCell align="center"><PlacesDisplay value={dayTotal} /></TableCell>
               </TableRow>
-            );
+            )
           })}
           <TableRow>
             <TableCell component="th" scope="row">Yhteensä</TableCell>
@@ -58,18 +58,18 @@ export function EventFormPlaces({ event, helperTexts, onChange }: EntrySectionPr
               <PlacesInput
                 value={event.places || ''}
                 onChange={(e) => {
-                  let value = +e.target.value;
+                  let value = +e.target.value
                   if (value < 0) {
-                    value = 0;
+                    value = 0
                   }
                   if (value > 999) {
-                    value = 999;
+                    value = 999
                   }
-                  const newClasses = [...event.classes];
+                  const newClasses = [...event.classes]
                   for (const c of newClasses) {
-                    c.places = 0;
+                    c.places = 0
                   }
-                  onChange({ classes: newClasses, places: value });
+                  onChange({ classes: newClasses, places: value })
                 }} />
             </TableCell>
           </TableRow>
@@ -78,19 +78,19 @@ export function EventFormPlaces({ event, helperTexts, onChange }: EntrySectionPr
       <FormHelperText error>{helperTexts.places}</FormHelperText>
     </>
 
-  );
+  )
 }
 
 const validValue = (s: string) => {
-  let value = +s;
+  let value = +s
   if (value < 0) {
-    value = 0;
+    value = 0
   }
   if (value > 200) {
-    value = 200;
+    value = 200
   }
-  return value;
-};
+  return value
+}
 
 function PlacesInput(props: JSX.IntrinsicAttributes & TextFieldProps) {
   return (
@@ -101,9 +101,9 @@ function PlacesInput(props: JSX.IntrinsicAttributes & TextFieldProps) {
       size="small"
       InputProps={{ inputProps: { min: 0, max: 999, style: {textAlign: 'right', padding: 4} } }}
     >
-    </TextField>);
+    </TextField>)
 }
 
 function PlacesDisplay({ value }: { value: number }) {
-  return (<>{value === 0 ? '' : value}</>);
+  return (<>{value === 0 ? '' : value}</>)
 }

@@ -1,7 +1,7 @@
-import { Event, EventEx, Registration } from 'koekalenteri-shared/model';
-import { makeAutoObservable, runInAction, when } from 'mobx';
+import { Event, EventEx, Registration } from 'koekalenteri-shared/model'
+import { makeAutoObservable, runInAction, when } from 'mobx'
 
-import * as eventApi from '../api/event';
+import * as eventApi from '../api/event'
 
 export class PrivateStore {
   private _loaded: boolean = false
@@ -21,12 +21,12 @@ export class PrivateStore {
   get loading() { return this._loading }
 
   set loading(v) {
-    this._loading = v;
-    this._loaded = !v;
+    this._loading = v
+    this._loaded = !v
   }
 
   setNewEvent(event: Partial<Event>) {
-    this.newEvent = event;
+    this.newEvent = event
   }
 
   async selectEvent(id?: string, signal?: AbortSignal) {
@@ -49,49 +49,49 @@ export class PrivateStore {
     if (this.loading) {
       return when(() => this.loaded)
     }
-    this.loading = true;
+    this.loading = true
     const events = await eventApi.getEvents(signal)
     runInAction(() => {
       this.events = events
-    });
+    })
     this.loading = false
   }
 
   async get(id: string, signal?: AbortSignal): Promise<Partial<Event>|undefined> {
     if (!this.loaded) {
-      await this.load(signal);
+      await this.load(signal)
     }
-    let event;
+    let event
     runInAction(() => {
       event = this.events.find(e => e.id === id)
     })
-    return event;
+    return event
   }
 
   async putEvent(event: Partial<Event>, token?: string) {
-    const newEvent = !event.id;
-    const saved = await eventApi.putEvent(event, token);
+    const newEvent = !event.id
+    const saved = await eventApi.putEvent(event, token)
     if (newEvent) {
-      this.events.push(saved);
-      this.newEvent = {};
+      this.events.push(saved)
+      this.newEvent = {}
     } else {
       // Update cached instance (deleted events are not found)
-      const oldInstance = this.events.find(e => e.id === event.id);
+      const oldInstance = this.events.find(e => e.id === event.id)
       if (oldInstance) {
-        Object.assign(oldInstance, saved);
+        Object.assign(oldInstance, saved)
       }
     }
-    return saved;
+    return saved
   }
 
   async deleteEvent(event: Partial<Event>, token?: string) {
-    const index = this.events.findIndex(e => e.id === event.id);
+    const index = this.events.findIndex(e => e.id === event.id)
     if (index > -1) {
-      event.deletedAt = new Date();
-      event.deletedBy = 'user';
-      const saved = await this.putEvent(event, token);
-      this.events.splice(index, 1);
-      return saved;
+      event.deletedAt = new Date()
+      event.deletedBy = 'user'
+      const saved = await this.putEvent(event, token)
+      this.events.splice(index, 1)
+      return saved
     }
   }
 }

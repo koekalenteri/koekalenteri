@@ -1,4 +1,4 @@
-import { Judge } from "koekalenteri-shared/model";
+import { Judge } from "koekalenteri-shared/model"
 
 const mockJudges: Judge[] = [
   {
@@ -34,10 +34,10 @@ const mockJudges: Judge[] = [
     name: "Tuomari 3",
     phone: "123456787",
   },
-];
+]
 
 export async function getJudges() {
   return new Promise((resolve) => {
-    process.nextTick(() => resolve(mockJudges));
-  });
+    process.nextTick(() => resolve(mockJudges))
+  })
 }

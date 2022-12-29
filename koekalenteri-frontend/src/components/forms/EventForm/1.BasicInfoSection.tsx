@@ -1,16 +1,16 @@
-import { useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Grid, TextField } from '@mui/material';
-import { add, differenceInDays, eachDayOfInterval, isAfter, isSameDay, startOfDay } from 'date-fns';
-import { Event, EventClass, Official, Organizer } from 'koekalenteri-shared/model';
-import { observer } from 'mobx-react-lite';
+import { useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { Grid, TextField } from '@mui/material'
+import { add, differenceInDays, eachDayOfInterval, isAfter, isSameDay, startOfDay } from 'date-fns'
+import { Event, EventClass, Official, Organizer } from 'koekalenteri-shared/model'
+import { observer } from 'mobx-react-lite'
 
-import { CollapsibleSection, DateRange, HelpPopover } from '../..';
+import { CollapsibleSection, DateRange, HelpPopover } from '../..'
 
-import { EventClasses } from './EventClasses';
-import { EventProperty } from './EventProperty';
-import { FieldRequirements } from './validation';
-import { PartialEvent } from '.';
+import { EventClasses } from './EventClasses'
+import { EventProperty } from './EventProperty'
+import { FieldRequirements } from './validation'
+import { PartialEvent } from '.'
 
 type BasicInfoSectionParams = {
   event: PartialEvent
@@ -28,14 +28,14 @@ type BasicInfoSectionParams = {
 
 
 export const BasicInfoSection = observer(function BasicInfoSection({ event, errorStates, helperTexts, fields, eventTypes, eventTypeClasses, officials, open, onOpenChange, organizers, onChange }: BasicInfoSectionParams) {
-  const { t } = useTranslation();
-  const [helpAnchorEl, setHelpAnchorEl] = useState<HTMLButtonElement | null>(null);
-  const typeOptions = eventClassOptions(event, eventTypeClasses[event.eventType || ''] || []);
-  const error = errorStates.startDate || errorStates.endDate || errorStates.kcId || errorStates.eventType || errorStates.classes || errorStates.organizer || errorStates.location || errorStates.official || errorStates.secretary;
-  const helperText = error ? t('validation.event.errors') : '';
+  const { t } = useTranslation()
+  const [helpAnchorEl, setHelpAnchorEl] = useState<HTMLButtonElement | null>(null)
+  const typeOptions = eventClassOptions(event, eventTypeClasses[event.eventType || ''] || [])
+  const error = errorStates.startDate || errorStates.endDate || errorStates.kcId || errorStates.eventType || errorStates.classes || errorStates.organizer || errorStates.location || errorStates.official || errorStates.secretary
+  const helperText = error ? t('validation.event.errors') : ''
   const availableOfficials = useMemo(() => {
-    return officials.filter(o => !event.eventType || o.eventTypes?.includes(event.eventType));
-  }, [event, officials]);
+    return officials.filter(o => !event.eventType || o.eventTypes?.includes(event.eventType))
+  }, [event, officials])
 
   return (
     <CollapsibleSection title="Kokeen perustiedot" open={open} onOpenChange={onOpenChange} error={error} helperText={helperText}>
@@ -49,16 +49,16 @@ export const BasicInfoSection = observer(function BasicInfoSection({ event, erro
               end={event.endDate}
               required
               onChange={(start, end) => {
-                start = start || event.startDate;
-                end = end || event.endDate;
+                start = start || event.startDate
+                end = end || event.endDate
                 if (!isSameDay(start, event.startDate) && isSameDay(end, event.endDate)) {
                   // startDate changed and endDate remained the same => change endDate based on the previous distance between days
-                  end = add(start, { days: differenceInDays(event.endDate, event.startDate) });
+                  end = add(start, { days: differenceInDays(event.endDate, event.startDate) })
                 }
                 onChange({
                   startDate: start,
                   endDate: end,
-                  classes: updateClassDates(event, start, end)
+                  classes: updateClassDates(event, start, end),
                 })
               }
               }
@@ -150,31 +150,31 @@ export const BasicInfoSection = observer(function BasicInfoSection({ event, erro
         </Grid>
       </Grid>
     </CollapsibleSection>
-  );
-});
+  )
+})
 
 function eventClassOptions(event: PartialEvent, typeClasses: string[]) {
   const days = eachDayOfInterval({
     start: event.startDate,
-    end: event.endDate
-  });
-  const result: EventClass[] = [];
+    end: event.endDate,
+  })
+  const result: EventClass[] = []
   for (const day of days) {
     result.push(...typeClasses.map(c => ({
       class: c,
       date: day,
-    })));
+    })))
   }
-  return result;
+  return result
 }
 
 function updateClassDates(event: PartialEvent, start: Date, end: Date) {
-  const result: EventClass[] = [];
+  const result: EventClass[] = []
   for (const c of event.classes) {
-    c.date = startOfDay(add(start, { days: differenceInDays(c.date || event.startDate, event.startDate) }));
+    c.date = startOfDay(add(start, { days: differenceInDays(c.date || event.startDate, event.startDate) }))
     if (!isAfter(c.date, end)) {
-      result.push(c);
+      result.push(c)
     }
   }
-  return result;
+  return result
 }

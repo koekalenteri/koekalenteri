@@ -1,7 +1,7 @@
-import type { EventEx } from 'koekalenteri-shared/model';
-import { makeAutoObservable, reaction, runInAction, when } from 'mobx';
+import type { EventEx } from 'koekalenteri-shared/model'
+import { makeAutoObservable, reaction, runInAction, when } from 'mobx'
 
-import { getEvents } from '../api/event';
+import { getEvents } from '../api/event'
 
 export type FilterProps = {
   start: Date | null
@@ -21,21 +21,21 @@ type EventDateRange = {
   end: Date | null
 }
 
-export const MIN_DATE = new Date(2020,0,1);
+export const MIN_DATE = new Date(2020, 0, 1)
 
 export class PublicStore {
-  private _events: EventEx[] = [];
+  private _events: EventEx[] = []
   public filteredEvents: EventEx[] = []
-  public selectedEvent: EventEx | undefined = undefined;
-  public loaded = false;
-  public loading = false;
+  public selectedEvent: EventEx | undefined = undefined
+  public loaded = false
+  public loading = false
 
   public eventTypeClasses: Record<string, string[]> = {
     NOU: [],
     'NOME-B': ['ALO', 'AVO', 'VOI'],
     'NOME-A': [],
-    'NOWT': ['ALO', 'AVO', 'VOI']
-  };
+    'NOWT': ['ALO', 'AVO', 'VOI'],
+  }
 
   public filter: FilterProps = {
     start: null,
@@ -47,7 +47,7 @@ export class PublicStore {
     eventType: [],
     eventClass: [],
     judge: [],
-    organizer: []
+    organizer: [],
   }
 
   constructor() {
@@ -58,7 +58,7 @@ export class PublicStore {
     reaction(
       () => { return {
         start: this.filter.start,
-        end: this.filter.end
+        end: this.filter.end,
       }},
       async (current: EventDateRange, previous: EventDateRange) => {
         if (current.start !== previous.start || current.end !== previous.end) {
@@ -66,17 +66,17 @@ export class PublicStore {
             || (current.end && current.end < MIN_DATE)
             || (current.start && current.end && current.start > current.end)) {
             // Inhibit loading if manually date inputs are invalid
-            return;
+            return
           }
           this.load()
         }
-      }
-    );
+      },
+    )
   }
 
   setFilter(filter: FilterProps) {
-    this.filter = filter;
-    this._applyFilter();
+    this.filter = filter
+    this._applyFilter()
   }
 
   async initialize(signal?: AbortSignal) {
@@ -87,27 +87,27 @@ export class PublicStore {
 
   async load(signal?: AbortSignal) {
     if (this.loading) {
-      return;
+      return
     }
     runInAction(() => {
-      this.loading = true;
-      this.loaded = false;
+      this.loading = true
+      this.loaded = false
     })
-    const events = await getEvents(signal);
+    const events = await getEvents(signal)
     runInAction(() => {
-      this._events = events.sort((a: EventEx, b: EventEx) => +new Date(a.startDate || new Date()) - +new Date(b.startDate || new Date()));
-      this._applyFilter();
-      this.loading = false;
-      this.loaded = true;
-    });
+      this._events = events.sort((a: EventEx, b: EventEx) => +new Date(a.startDate || new Date()) - +new Date(b.startDate || new Date()))
+      this._applyFilter()
+      this.loading = false
+      this.loaded = true
+    })
   }
 
   async get(id: string, signal?: AbortSignal): Promise<EventEx|undefined> {
-    let event;
+    let event
     runInAction(() => {
       event = this._events.find(e => e.id === id)
     })
-    return event;
+    return event
   }
 
   async selectEvent(id?: string, signal?: AbortSignal) {
@@ -116,59 +116,59 @@ export class PublicStore {
   }
 
   private _applyFilter() {
-    const filter = this.filter;
+    const filter = this.filter
     this.filteredEvents = this._events.filter(event => {
       return event.state !== 'draft' && !event.deletedAt
         && withinDateFilters(event, filter)
         && withinSwitchFilters(event, filter)
-        && withinArrayFilters(event, filter);
-    });
+        && withinArrayFilters(event, filter)
+    })
 
   }
 }
 
 function withinDateFilters(event: EventEx, { start, end }: FilterProps) {
   if (start && (!event.endDate || event.endDate < start)) {
-    return false;
+    return false
   }
   if (end && (!event.startDate || event.startDate > end)) {
-    return false;
+    return false
   }
-  return true;
+  return true
 }
 
 function withinSwitchFilters(event: EventEx, { withOpenEntry, withClosingEntry, withUpcomingEntry, withFreePlaces }: FilterProps) {
-  let result;
+  let result
 
   if (withOpenEntry) {
-    result =  event.isEntryOpen;
+    result =  event.isEntryOpen
     if (withClosingEntry) {
-      result = result && event.isEntryClosing;
+      result = result && event.isEntryClosing
     }
     if (withFreePlaces) {
-      result = result && event.places > event.entries;
+      result = result && event.places > event.entries
     }
   }
 
   if (withUpcomingEntry) {
-    result = result || event.isEntryUpcoming;
+    result = result || event.isEntryUpcoming
   }
 
-  return result !== false;
+  return result !== false
 }
 
 function withinArrayFilters(event: EventEx, { eventType, eventClass, judge, organizer }: FilterProps) {
   if (eventType.length && !eventType.includes(event.eventType)) {
-    return false;
+    return false
   }
   if (eventClass.length && !eventClass.some(c => event.classes.map(cl => cl.class).includes(c))) {
-    return false;
+    return false
   }
   if (judge.length && !judge.some(j => event.judges?.includes(j))) {
-    return false;
+    return false
   }
   if (organizer.length && !organizer.includes(event.organizer?.id)) {
-    return false;
+    return false
   }
-  return true;
+  return true
 }

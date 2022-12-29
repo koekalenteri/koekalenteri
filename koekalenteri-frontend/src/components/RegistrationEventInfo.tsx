@@ -1,13 +1,13 @@
-import { useTranslation } from 'react-i18next';
-import { Grid, Paper, Typography } from '@mui/material';
-import { ConfirmedEventEx } from 'koekalenteri-shared/model';
+import { useTranslation } from 'react-i18next'
+import { Grid, Paper, Typography } from '@mui/material'
+import { ConfirmedEventEx } from 'koekalenteri-shared/model'
 
-import { entryDateColor } from '../utils';
+import { entryDateColor } from '../utils'
 
-import { CollapsibleSection, CostInfo } from '.';
+import { CollapsibleSection, CostInfo } from '.'
 
 export function RegistrationEventInfo({ event }: { event: ConfirmedEventEx; }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation()
   return (
     <Paper sx={{ p: 1, mb: 1, width: '100%' }} elevation={2}>
       <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 1 }}>
@@ -40,5 +40,5 @@ export function RegistrationEventInfo({ event }: { event: ConfirmedEventEx; }) {
         </Grid>
       </CollapsibleSection>
     </Paper>
-  );
+  )
 }

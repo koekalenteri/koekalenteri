@@ -1,12 +1,12 @@
-import { useTranslation } from 'react-i18next';
-import { URLSearchParamsInit } from 'react-router-dom';
-import { Box, FormControlLabel, Grid, Stack, Switch } from '@mui/material';
-import { formatISO } from 'date-fns';
-import { Judge, Organizer } from 'koekalenteri-shared/model';
+import { useTranslation } from 'react-i18next'
+import { URLSearchParamsInit } from 'react-router-dom'
+import { Box, FormControlLabel, Grid, Stack, Switch } from '@mui/material'
+import { formatISO } from 'date-fns'
+import { Judge, Organizer } from 'koekalenteri-shared/model'
 
-import { FilterProps, MIN_DATE } from '../stores/PublicStore';
+import { FilterProps, MIN_DATE } from '../stores/PublicStore'
 
-import { AutocompleteMulti, DateRange } from '.';
+import { AutocompleteMulti, DateRange } from '.'
 
 type EventFilterProps = {
   eventTypes: string[]
@@ -16,40 +16,40 @@ type EventFilterProps = {
   organizers: Organizer[]
 }
 
-const readDate = (date: string | null) => date ? new Date(date) : null;
+const readDate = (date: string | null) => date ? new Date(date) : null
 const writeDate = (date: Date) => formatISO(date, { representation: 'date' })
 
 export function serializeFilter(filter: FilterProps): URLSearchParamsInit {
-  const result: Record<string, string | string[]> = {};
-  const bits = [];
+  const result: Record<string, string | string[]> = {}
+  const bits = []
   if (filter.withClosingEntry) {
-    bits.push('c');
+    bits.push('c')
   }
   if (filter.withFreePlaces) {
-    bits.push('f');
+    bits.push('f')
   }
   if (filter.withOpenEntry) {
-    bits.push('o');
+    bits.push('o')
   }
   if (filter.withUpcomingEntry) {
-    bits.push('u');
+    bits.push('u')
   }
   if (filter.end) {
-    result['e'] = writeDate(filter.end);
+    result['e'] = writeDate(filter.end)
   }
-  result['c'] = filter.eventClass;
-  result['t'] = filter.eventType;
-  result['j'] = filter.judge.map(j => j.toString());
-  result['o'] = filter.organizer.map(o => o.toString());
+  result['c'] = filter.eventClass
+  result['t'] = filter.eventType
+  result['j'] = filter.judge.map(j => j.toString())
+  result['o'] = filter.organizer.map(o => o.toString())
   if (filter.start) {
-    result['s'] = writeDate(filter.start);
+    result['s'] = writeDate(filter.start)
   }
-  result['b'] = bits;
-  return result;
+  result['b'] = bits
+  return result
 }
 
 export function deserializeFilter(searchParams: URLSearchParams): FilterProps {
-  const bits = searchParams.getAll('b');
+  const bits = searchParams.getAll('b')
   const result: FilterProps = {
     end: readDate(searchParams.get('e')),
     eventClass: searchParams.getAll('c'),
@@ -61,14 +61,14 @@ export function deserializeFilter(searchParams: URLSearchParams): FilterProps {
     withFreePlaces: bits.includes('f'),
     withOpenEntry: bits.includes('o'),
     withUpcomingEntry: bits.includes('u'),
-  };
-  return result;
+  }
+  return result
 }
 
 export const EventFilter = ({ judges, organizers, eventTypes, filter, onChange }: EventFilterProps) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation()
   const setFilter = (props: Partial<FilterProps>) => {
-    onChange && onChange({...filter, ...props});
+    onChange && onChange({...filter, ...props})
   }
 
   return (
@@ -131,7 +131,7 @@ export const EventFilter = ({ judges, organizers, eventTypes, filter, onChange }
                 onChange={(_event, checked) => setFilter({
                   withOpenEntry: checked,
                   withClosingEntry: checked && filter.withClosingEntry,
-                  withFreePlaces: checked && filter.withFreePlaces
+                  withFreePlaces: checked && filter.withFreePlaces,
                 })}
               />
               <Box sx={{ display: 'inline-grid' }}>
@@ -142,7 +142,7 @@ export const EventFilter = ({ judges, organizers, eventTypes, filter, onChange }
                   label="Vielä ehdit!"
                   onChange={(_event, checked) => setFilter({
                     withOpenEntry: filter.withOpenEntry || checked,
-                    withClosingEntry: checked
+                    withClosingEntry: checked,
                   })}
                 />
                 <FormControlLabel
@@ -152,7 +152,7 @@ export const EventFilter = ({ judges, organizers, eventTypes, filter, onChange }
                   label="Vielä mahtuu"
                   onChange={(_event, checked) => setFilter({
                     withOpenEntry: filter.withOpenEntry || checked,
-                    withFreePlaces: checked
+                    withFreePlaces: checked,
                   })}
                 />
               </Box>
@@ -169,5 +169,5 @@ export const EventFilter = ({ judges, organizers, eventTypes, filter, onChange }
         </Grid>
       </Grid>
     </Box>
-  );
-};
+  )
+}

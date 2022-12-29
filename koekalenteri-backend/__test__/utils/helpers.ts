@@ -1,10 +1,10 @@
-import { APIGatewayProxyEvent } from "aws-lambda";
-import { AWSError } from "aws-sdk";
+import { APIGatewayProxyEvent } from "aws-lambda"
+import { AWSError } from "aws-sdk"
 
 const DEFAULT_OPTIONS = { method: "GET", headers: {}, query: {}, path: "/" }
 
 export function constructAPIGwEvent(message: any, options: any = DEFAULT_OPTIONS): APIGatewayProxyEvent {
-  const opts = Object.assign({}, DEFAULT_OPTIONS, options);
+  const opts = Object.assign({}, DEFAULT_OPTIONS, options)
   return {
     httpMethod: opts.method,
     path: opts.path,
@@ -22,8 +22,8 @@ export function constructAPIGwEvent(message: any, options: any = DEFAULT_OPTIONS
       authorizer: {
         name: '',
         claims: {
-          'cognito:username': options.username
-        }
+          'cognito:username': options.username,
+        },
       },
       protocol: 'http',
       httpMethod: opts.method,
@@ -42,14 +42,14 @@ export function constructAPIGwEvent(message: any, options: any = DEFAULT_OPTIONS
         user: '',
         userAgent: '',
         userArn: '',
-        sourceIp: ''
+        sourceIp: '',
       },
       path: opts.path,
       stage: '',
       requestId: '',
       requestTimeEpoch: 0,
       resourceId: '',
-      resourcePath: opts.path
+      resourcePath: opts.path,
     },
     resource: '',
   }
@@ -61,6 +61,6 @@ export function createAWSError(code: number, message: string): AWSError {
     code: '' + code,
     statusCode: code,
     message: message,
-    time: new Date()
-  };
+    time: new Date(),
+  }
 }

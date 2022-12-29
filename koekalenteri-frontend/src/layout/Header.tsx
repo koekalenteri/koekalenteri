@@ -1,9 +1,9 @@
-import { Menu } from '@mui/icons-material';
-import { AppBar, Box,IconButton, Link, Toolbar, Typography } from '@mui/material';
+import { Menu } from '@mui/icons-material'
+import { AppBar, Box, IconButton, Link, Toolbar, Typography } from '@mui/material'
 
-import banner from '../assets/banner.png';
-import logo from '../assets/snj-logo.png';
-import { LanguageMenu, UserMenu } from '../components';
+import banner from '../assets/banner.png'
+import logo from '../assets/snj-logo.png'
+import { LanguageMenu, UserMenu } from '../components'
 
 interface Props {
   title?: string,
@@ -34,7 +34,7 @@ export function Header({title, toggleMenu}: Props) {
         <UserMenu />
       </Toolbar>
     </AppBar>
-  );
+  )
 }
 
 export function Banner() {
@@ -47,5 +47,5 @@ export function Banner() {
       width: '100%',
       height: { xs: 98, sm: 148, md: 260 },
     }}></Box>
-  );
+  )
 }

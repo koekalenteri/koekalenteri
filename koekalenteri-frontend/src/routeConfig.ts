@@ -1,7 +1,7 @@
-export const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://127.0.0.1:8080';
+export const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://127.0.0.1:8080'
 
-const ADMIN_ROOT = '/admin';
-const ADMIN_EVENTS = `${ADMIN_ROOT}/event`;
+const ADMIN_ROOT = '/admin'
+const ADMIN_EVENTS = `${ADMIN_ROOT}/event`
 
 export const Path = {
   home: '/',
@@ -21,5 +21,5 @@ export const Path = {
     officials: `${ADMIN_ROOT}/officials`,
     judges: `${ADMIN_ROOT}/judge`,
     eventTypes: `${ADMIN_ROOT}/types`,
-  }
+  },
 }

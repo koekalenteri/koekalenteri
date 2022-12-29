@@ -1,9 +1,9 @@
-import { useTranslation } from 'react-i18next';
-import { Checkbox, FormControlLabel, FormGroup, Grid, Switch, TextField } from '@mui/material';
-import { Registration, RegistrationPerson } from 'koekalenteri-shared/model';
+import { useTranslation } from 'react-i18next'
+import { Checkbox, FormControlLabel, FormGroup, Grid, Switch, TextField } from '@mui/material'
+import { Registration, RegistrationPerson } from 'koekalenteri-shared/model'
 
-import { useStores } from '../../../stores';
-import { CollapsibleSection, emptyPerson } from '../..';
+import { useStores } from '../../../stores'
+import { CollapsibleSection, emptyPerson } from '../..'
 
 type OwnerInfoProps = {
   reg: Partial<Registration>
@@ -15,15 +15,15 @@ type OwnerInfoProps = {
 };
 
 export function OwnerInfo({reg, error, helperText, onChange, onOpenChange, open}: OwnerInfoProps) {
-  const { t } = useTranslation();
-  const { rootStore } = useStores();
+  const { t } = useTranslation()
+  const { rootStore } = useStores()
 
   const handleChange = (props: Partial<RegistrationPerson>) => {
-    const owner = { ...emptyPerson, ...reg.owner, ...props };
+    const owner = { ...emptyPerson, ...reg.owner, ...props }
     if (reg.dog?.regNo) {
-      rootStore.dogStore.save({ dog: { ...reg.dog }, owner });
+      rootStore.dogStore.save({ dog: { ...reg.dog }, owner })
     }
-    onChange({ owner });
+    onChange({ owner })
   }
 
   return (
@@ -96,11 +96,11 @@ export function OwnerInfo({reg, error, helperText, onChange, onOpenChange, open}
             checked={reg.ownerHandles}
             onChange={e => onChange({
               ownerHandles: e.target.checked,
-              handler: e.target.checked ? { ...emptyPerson, ...reg.owner } : { ...emptyPerson }
+              handler: e.target.checked ? { ...emptyPerson, ...reg.owner } : { ...emptyPerson },
             })}
           />
         } label={t('registration.ownerHandles')} />
       </FormGroup>
     </CollapsibleSection>
-  );
+  )
 }

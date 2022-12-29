@@ -1,23 +1,23 @@
-import { useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Cancel, Save } from '@mui/icons-material';
-import { LoadingButton } from '@mui/lab';
-import { Box, Button, Paper, Stack, Theme, useMediaQuery } from '@mui/material';
-import { addDays, nextSaturday, startOfDay } from 'date-fns';
-import type { Event, EventClass, EventEx, EventState, Judge, Official, Organizer } from 'koekalenteri-shared/model';
-import { action } from 'mobx';
-import { observer } from 'mobx-react-lite';
+import { useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { Cancel, Save } from '@mui/icons-material'
+import { LoadingButton } from '@mui/lab'
+import { Box, Button, Paper, Stack, Theme, useMediaQuery } from '@mui/material'
+import { addDays, nextSaturday, startOfDay } from 'date-fns'
+import type { Event, EventClass, EventEx, EventState, Judge, Official, Organizer } from 'koekalenteri-shared/model'
+import { action } from 'mobx'
+import { observer } from 'mobx-react-lite'
 
-import { AutocompleteSingle } from '../..';
+import { AutocompleteSingle } from '../..'
 
-import { BasicInfoSection } from './1.BasicInfoSection';
-import { JudgesSection } from './2.JudgesSection';
-import { EntrySection } from './3.EntrySection';
-import { PaymentSection } from './4.PaymentSection';
-import { HeadquartersSection } from './5.HeadquartersSection';
-import { ContactInfoSection } from './6.ContactInfoSection';
-import { AdditionalInfoSection } from './7.AdditionalInfoSection';
-import { requiredFields, validateEvent } from './validation';
+import { BasicInfoSection } from './1.BasicInfoSection'
+import { JudgesSection } from './2.JudgesSection'
+import { EntrySection } from './3.EntrySection'
+import { PaymentSection } from './4.PaymentSection'
+import { HeadquartersSection } from './5.HeadquartersSection'
+import { ContactInfoSection } from './6.ContactInfoSection'
+import { AdditionalInfoSection } from './7.AdditionalInfoSection'
+import { requiredFields, validateEvent } from './validation'
 
 export type FormEventHandler = (event: Partial<Event>) => Promise<boolean>;
 export type PartialEvent = Partial<Event> & { startDate: Date, endDate: Date, classes: EventClass[], judges: number[] };
@@ -33,20 +33,20 @@ type EventFormParams = {
 };
 
 export const EventForm = observer(function EventForm({ event, judges, eventTypes, eventTypeClasses, officials, organizers, onSave, onCancel }: EventFormParams) {
-  const md = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'));
-  const baseDate = startOfDay(addDays(Date.now(), 90));
-  const { t } = useTranslation();
+  const md = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
+  const baseDate = startOfDay(addDays(Date.now(), 90))
+  const { t } = useTranslation()
   const [local, setLocal] = useState<PartialEvent>({
     state: 'draft' as EventState,
     startDate: nextSaturday(baseDate),
     endDate: nextSaturday(baseDate),
     classes: [],
     judges: [],
-    ...event
-  });
-  const [saving, setSaving] = useState(false);
-  const [changes, setChanges] = useState(typeof local.id === 'undefined');
-  const [errors, setErrors] = useState(validateEvent(local));
+    ...event,
+  })
+  const [saving, setSaving] = useState(false)
+  const [changes, setChanges] = useState(typeof local.id === 'undefined')
+  const [errors, setErrors] = useState(validateEvent(local))
   const [open, setOpen] = useState<{[key: string]: boolean|undefined}>({
     basic: true,
     judges: md,
@@ -54,34 +54,34 @@ export const EventForm = observer(function EventForm({ event, judges, eventTypes
     payment: md,
     hq: md,
     contact: md,
-    info: md
-  });
-  const valid = errors.length === 0;
-  const fields = useMemo(() => requiredFields(local), [local]);
+    info: md,
+  })
+  const valid = errors.length === 0
+  const fields = useMemo(() => requiredFields(local), [local])
   const onChange = action((props: Partial<Event>) => {
-    const tmp: any = {};
-    Object.keys(props).forEach(k => {tmp[k] = (local as any)[k]});
-    console.log('changed: ' + JSON.stringify(props), JSON.stringify(tmp));
+    const tmp: any = {}
+    Object.keys(props).forEach(k => {tmp[k] = (local as any)[k]})
+    console.log('changed: ' + JSON.stringify(props), JSON.stringify(tmp))
     if (props.eventType && (eventTypeClasses[props.eventType] || []).length === 0) {
-      props.classes = [];
+      props.classes = []
     }
-    const newState = { ...local, ...props };
-    setErrors(validateEvent(newState));
-    setLocal(newState);
-    setChanges(true);
+    const newState = { ...local, ...props }
+    setErrors(validateEvent(newState))
+    setLocal(newState)
+    setChanges(true)
   })
   const saveHandler = async () => {
-    setSaving(true);
+    setSaving(true)
     if ((await onSave(local)) === false) {
-      setSaving(false);
+      setSaving(false)
     }
   }
-  const cancelHandler = () => onCancel(local);
+  const cancelHandler = () => onCancel(local)
   const handleOpenChange = (id: keyof typeof open, value: boolean) => {
     const newState = md
       ? {
         ...open,
-        [id]: value
+        [id]: value,
       }
       : {
         basic: false,
@@ -91,16 +91,16 @@ export const EventForm = observer(function EventForm({ event, judges, eventTypes
         hq: false,
         contact: false,
         info: false,
-        [id]: value
-      };
-    setOpen(newState);
+        [id]: value,
+      }
+    setOpen(newState)
   }
 
-  const errorStates: { [Property in keyof Event]?: boolean } = {};
-  const helperTexts: { [Property in keyof Event]?: string } = {};
+  const errorStates: { [Property in keyof Event]?: boolean } = {}
+  const helperTexts: { [Property in keyof Event]?: string } = {}
   for (const error of errors) {
-    helperTexts[error.opts.field] = t(`validation.event.${error.key}`, error.opts);
-    errorStates[error.opts.field] = true;
+    helperTexts[error.opts.field] = t(`validation.event.${error.key}`, error.opts)
+    errorStates[error.opts.field] = true
   }
 
   return (
@@ -184,5 +184,5 @@ export const EventForm = observer(function EventForm({ event, judges, eventTypes
         <Button startIcon={<Cancel />} variant="outlined" onClick={cancelHandler}>Peruuta</Button>
       </Stack>
     </Paper>
-  );
+  )
 })

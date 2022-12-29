@@ -1,25 +1,25 @@
-import { useTranslation } from 'react-i18next';
-import { Grid } from '@mui/material';
-import { eachDayOfInterval, format } from 'date-fns';
-import { ConfirmedEventEx, Registration, RegistrationDate, ReserveChoise } from 'koekalenteri-shared/model';
+import { useTranslation } from 'react-i18next'
+import { Grid } from '@mui/material'
+import { eachDayOfInterval, format } from 'date-fns'
+import { ConfirmedEventEx, Registration, RegistrationDate, ReserveChoise } from 'koekalenteri-shared/model'
 
-import { unique, uniqueDate } from '../../../utils';
-import { AutocompleteMulti, AutocompleteSingle, CollapsibleSection } from '../..';
+import { unique, uniqueDate } from '../../../utils'
+import { AutocompleteMulti, AutocompleteSingle, CollapsibleSection } from '../..'
 
 function getClassDates(event: ConfirmedEventEx, classDate: string|undefined, regClass: string|undefined) {
-  const classes = event.classes.filter(c => typeof c !== 'string' && (regClass === '' || c.class === regClass));
+  const classes = event.classes.filter(c => typeof c !== 'string' && (regClass === '' || c.class === regClass))
 
   const dates = classes.length
     ? classes.map(c => c.date || event.startDate)
-    : eachDayOfInterval({ start: event.startDate, end: event.endDate });
+    : eachDayOfInterval({ start: event.startDate, end: event.endDate })
   if (classDate) {
-    return dates.filter(d => format(d, 'dd.MM.') === classDate);
+    return dates.filter(d => format(d, 'dd.MM.') === classDate)
   }
-  return uniqueDate(dates);
+  return uniqueDate(dates)
 }
 
 export function getRegistrationDates(event: ConfirmedEventEx, classDate: string | undefined, eventClass: string): RegistrationDate[] {
-  return getClassDates(event, classDate, eventClass).flatMap((date) => [{ date, time: 'ap' }, { date, time: 'ip' }]);
+  return getClassDates(event, classDate, eventClass).flatMap((date) => [{ date, time: 'ap' }, { date, time: 'ip' }])
 }
 
 type EntryInfoProps = {
@@ -36,13 +36,13 @@ type EntryInfoProps = {
 }
 
 export function EntryInfo({ reg, event, classDate, errorStates, helperTexts, onChange, onOpenChange, open }: EntryInfoProps) {
-  const { t } = useTranslation();
-  const classDates = getRegistrationDates(event, classDate, reg.class || '');
-  const error = errorStates.class || errorStates.dates || errorStates.reserve;
-  const datesText = reg.dates.map(o => t('weekday', { date: o.date }) + ' ' + t(`registration.time.${o.time}`)).join(' / ');
-  const reserveText = reg.reserve ? t(`registration.reserveChoises.${reg.reserve}`) : '';
-  const infoText = `${reg.class || reg.eventType}, ${datesText}, ${reserveText}`;
-  const helperText = error ? t('validation.registration.required', { field: 'classesDetails' }) : infoText;
+  const { t } = useTranslation()
+  const classDates = getRegistrationDates(event, classDate, reg.class || '')
+  const error = errorStates.class || errorStates.dates || errorStates.reserve
+  const datesText = reg.dates.map(o => t('weekday', { date: o.date }) + ' ' + t(`registration.time.${o.time}`)).join(' / ')
+  const reserveText = reg.reserve ? t(`registration.reserveChoises.${reg.reserve}`) : ''
+  const infoText = `${reg.class || reg.eventType}, ${datesText}, ${reserveText}`
+  const helperText = error ? t('validation.registration.required', { field: 'classesDetails' }) : infoText
 
   return (
     <CollapsibleSection
@@ -60,7 +60,7 @@ export function EntryInfo({ reg, event, classDate, errorStates, helperTexts, onC
             error={errorStates.class}
             helperText={helperTexts.class}
             label={t("registration.class")}
-            onChange={(_e, value) => { onChange({ class: value || '' }); }}
+            onChange={(_e, value) => { onChange({ class: value || '' }) }}
             options={unique(event.classes.map(c => c.class))}
             value={reg.class}
           />
@@ -91,5 +91,5 @@ export function EntryInfo({ reg, event, classDate, errorStates, helperTexts, onC
         </Grid>
       </Grid>
     </CollapsibleSection>
-  );
+  )
 }

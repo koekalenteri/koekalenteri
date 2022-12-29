@@ -1,6 +1,6 @@
-import { useTranslation } from "react-i18next";
-import { Clear, Search } from "@mui/icons-material";
-import { Box, IconButton, TextField } from "@mui/material";
+import { useTranslation } from "react-i18next"
+import { Clear, Search } from "@mui/icons-material"
+import { Box, IconButton, TextField } from "@mui/material"
 
 interface QuickSearchToolbarProps {
   clearSearch: () => void;
@@ -9,7 +9,7 @@ interface QuickSearchToolbarProps {
 }
 
 export function QuickSearchToolbar(props: QuickSearchToolbarProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation()
 
   return (
     <Box
@@ -52,5 +52,5 @@ export function QuickSearchToolbar(props: QuickSearchToolbarProps) {
           },
         }} />
     </Box>
-  );
+  )
 }

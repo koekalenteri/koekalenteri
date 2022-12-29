@@ -1,28 +1,28 @@
-import { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { ExpandMore,Language as LanguageIcon } from '@mui/icons-material';
-import { Menu, MenuItem } from '@mui/material';
+import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { ExpandMore, Language as LanguageIcon } from '@mui/icons-material'
+import { Menu, MenuItem } from '@mui/material'
 
-import { Language, locales } from '../../i18n';
-import { useLanguage } from '../../stores';
-import { AppBarButton } from '..';
+import { Language, locales } from '../../i18n'
+import { useLanguage } from '../../stores'
+import { AppBarButton } from '..'
 
 export function LanguageMenu() {
-  const { t, i18n } = useTranslation();
-  const [language, setLanguage] = useLanguage(i18n.language);
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const open = Boolean(anchorEl);
+  const { t, i18n } = useTranslation()
+  const [language, setLanguage] = useLanguage(i18n.language)
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
+  const open = Boolean(anchorEl)
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
+    setAnchorEl(event.currentTarget)
+  }
   const handleClose = () => {
-    setAnchorEl(null);
-  };
+    setAnchorEl(null)
+  }
 
   useEffect(() => {
     if (language && i18n.language !== language) {
-      i18n.changeLanguage(language);
+      i18n.changeLanguage(language)
     }
   }, [i18n, language])
 
@@ -48,5 +48,5 @@ export function LanguageMenu() {
         ))}
       </Menu>
     </>
-  );
+  )
 }

@@ -19,7 +19,7 @@ export enum KLKieli {
 export const KLKieliToLang = {
   1: 'fi',
   2: 'sv',
-  3: 'en'
+  3: 'en',
 }
 
 export type KLKoiraParametrit = {

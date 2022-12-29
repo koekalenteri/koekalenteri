@@ -1,11 +1,11 @@
-import i18next from "i18next";
-import { Official } from "koekalenteri-shared/model";
-import { makeAutoObservable, runInAction } from "mobx";
+import i18next from "i18next"
+import { Official } from "koekalenteri-shared/model"
+import { makeAutoObservable, runInAction } from "mobx"
 
-import { getOfficials } from "../api/official";
+import { getOfficials } from "../api/official"
 
-import { COfficial } from "./classes/COfficial";
-import { RootStore } from "./RootStore";
+import { COfficial } from "./classes/COfficial"
+import { RootStore } from "./RootStore"
 
 export class OfficialStore {
   rootStore
@@ -14,43 +14,43 @@ export class OfficialStore {
 
   constructor(rootStore: RootStore) {
     makeAutoObservable(this, {
-      rootStore: false
+      rootStore: false,
     })
-    this.rootStore = rootStore;
+    this.rootStore = rootStore
   }
 
   async load(refresh?: boolean, signal?: AbortSignal) {
     if (this.loading) {
-      return;
+      return
     }
     runInAction(() => {
-      this.loading = true;
-    });
-    const data = await getOfficials(refresh, signal);
+      this.loading = true
+    })
+    const data = await getOfficials(refresh, signal)
     runInAction(() => {
-      this.officials = [];
-      data.forEach(json => this.updateOfficial(json));
+      this.officials = []
+      data.forEach(json => this.updateOfficial(json))
       this.officials.sort((a, b) => a.name.localeCompare(b.name, i18next.language))
-      this.loading = false;
-    });
+      this.loading = false
+    })
   }
 
   getOfficials(ids?: number[]): COfficial[] {
-    const result: COfficial[] = [];
+    const result: COfficial[] = []
     if (!ids || ids.length === 0) {
-      return result;
+      return result
     }
     for (const id of ids) {
-      const judge = this.officials.find(item => item.id === id);
+      const judge = this.officials.find(item => item.id === id)
       if (judge) {
-        result.push(judge);
+        result.push(judge)
       }
     }
-    return result;
+    return result
   }
 
   updateOfficial(json: Official) {
-    let official = this.officials.find(o => o.id === json.id);
+    let official = this.officials.find(o => o.id === json.id)
     if (!official) {
       official = new COfficial(this, json.id)
       this.officials.push(official)

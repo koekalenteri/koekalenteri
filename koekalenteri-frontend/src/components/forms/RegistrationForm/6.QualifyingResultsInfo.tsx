@@ -1,18 +1,18 @@
-import { useEffect, useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { AddOutlined, DeleteOutline } from '@mui/icons-material';
-import { Button, debounce, FormControl, Grid, InputLabel, MenuItem, Select, TextField, TextFieldProps } from '@mui/material';
-import { DatePicker } from '@mui/x-date-pickers';
-import { subYears } from 'date-fns';
-import { QualifyingResult, Registration, TestResult } from 'koekalenteri-shared/model';
-import { v4 as uuidv4 } from 'uuid';
+import { useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { AddOutlined, DeleteOutline } from '@mui/icons-material'
+import { Button, debounce, FormControl, Grid, InputLabel, MenuItem, Select, TextField, TextFieldProps } from '@mui/material'
+import { DatePicker } from '@mui/x-date-pickers'
+import { subYears } from 'date-fns'
+import { QualifyingResult, Registration, TestResult } from 'koekalenteri-shared/model'
+import { v4 as uuidv4 } from 'uuid'
 
-import '@mui/lab';
+import '@mui/lab'
 
-import { CollapsibleSection } from '../..';
+import { CollapsibleSection } from '../..'
 
-import { EventResultRequirement, EventResultRequirements, EventResultRequirementsByDate, getRequirements, RegistrationClass } from './rules';
-import { objectContains } from './validation';
+import { EventResultRequirement, EventResultRequirements, EventResultRequirementsByDate, getRequirements, RegistrationClass } from './rules'
+import { objectContains } from './validation'
 
 type QualifyingResultsInfoProps = {
   reg: Registration
@@ -24,32 +24,32 @@ type QualifyingResultsInfoProps = {
 }
 
 type QRWithId = Partial<QualifyingResult> & { id: string };
-const asArray = (v: EventResultRequirements | EventResultRequirement) => Array.isArray(v) ? v : [v];
+const asArray = (v: EventResultRequirements | EventResultRequirement) => Array.isArray(v) ? v : [v]
 export function QualifyingResultsInfo({ reg, error, helperText, onChange, onOpenChange, open }: QualifyingResultsInfoProps) {
-  const { t } = useTranslation();
-  const requirements = useMemo(() => getRequirements(reg.eventType, reg.class as RegistrationClass, reg.dates && reg.dates.length ? reg.dates[0].date : new Date()) || {rules: []}, [reg.eventType, reg.class, reg.dates]);
-  const [results, setResults] = useState<Array<QRWithId>>([]);
-  const sendChange = useMemo(() => debounce(onChange, 300), [onChange]);
+  const { t } = useTranslation()
+  const requirements = useMemo(() => getRequirements(reg.eventType, reg.class as RegistrationClass, reg.dates && reg.dates.length ? reg.dates[0].date : new Date()) || {rules: []}, [reg.eventType, reg.class, reg.dates])
+  const [results, setResults] = useState<Array<QRWithId>>([])
+  const sendChange = useMemo(() => debounce(onChange, 300), [onChange])
   const handleChange = (result: QRWithId, props: Partial<TestResult>) => {
-    const index = results.findIndex(r => !r.official && r.id && r.id === result.id);
+    const index = results.findIndex(r => !r.official && r.id && r.id === result.id)
     if (index >= 0) {
-      const newResults: QRWithId[] = results.slice(0);
-      newResults.splice(index, 1, { ...result, ...props });
-      setResults(newResults);
-      sendChange({ results: newResults.filter(r => !r.official) });
+      const newResults: QRWithId[] = results.slice(0)
+      newResults.splice(index, 1, { ...result, ...props })
+      setResults(newResults)
+      sendChange({ results: newResults.filter(r => !r.official) })
     }
-  };
+  }
   useEffect(() => {
-    const newResults: Array<QRWithId> = (reg.qualifyingResults || []).map(r => ({ ...r, id: getResultId(r) }));
+    const newResults: Array<QRWithId> = (reg.qualifyingResults || []).map(r => ({ ...r, id: getResultId(r) }))
     if (reg.results) {
       for (const result of reg.results) {
         if (!newResults.find(r => !r.official && r.id && r.id === result.id)) {
-          newResults.push({ ...result, official: false });
+          newResults.push({ ...result, official: false })
         }
       }
     }
-    setResults(newResults);
-  }, [reg.qualifyingResults, reg.results]);
+    setResults(newResults)
+  }, [reg.qualifyingResults, reg.results])
 
   return (
     <CollapsibleSection title={t("registration.qualifyingResults")} error={error} helperText={helperText} open={open} onOpenChange={onOpenChange}>
@@ -84,11 +84,11 @@ export function QualifyingResultsInfo({ reg, error, helperText, onChange, onOpen
                   sx={{
                     '& fieldset': {
                       borderColor: resultBorderColor(result.qualifying),
-                      borderWidth: !result.result || result.qualifying === undefined ? undefined : 2
+                      borderWidth: !result.result || result.qualifying === undefined ? undefined : 2,
                     },
                     '&.Mui-disabled .MuiOutlinedInput-notchedOutline': {
                       borderColor: resultBorderColor(result.qualifying),
-                    }
+                    },
                   }}
                   value={result.cert ? 'CERT' : result.result}
                 >
@@ -150,50 +150,50 @@ export function QualifyingResultsInfo({ reg, error, helperText, onChange, onOpen
             </Grid>
             <Grid item sx={{display: result.official ? 'none' : 'block'}}>
               <Button startIcon={<DeleteOutline />} onClick={() => onChange({
-                results: (reg.results || []).filter(r => r.id !== result.id)
+                results: (reg.results || []).filter(r => r.id !== result.id),
               })}>Poista tulos</Button>
             </Grid>
-          </Grid>
+          </Grid>,
         )}
         <Button startIcon={<AddOutlined />} onClick={() => onChange({
-          results: (reg.results || []).concat([createMissingResult(requirements, results)])
+          results: (reg.results || []).concat([createMissingResult(requirements, results)]),
         })}>Lisää tulos</Button>
       </Grid>
     </CollapsibleSection>
-  );
+  )
 }
 
 function findFirstMissing(requirements: EventResultRequirementsByDate | { rules: EventResultRequirements }, results: QRWithId[]) {
   for (const rule of requirements.rules) {
     for (const opt of asArray(rule)) {
-      const { count, ...rest } = opt;
+      const { count, ...rest } = opt
       if (results.filter(r => objectContains(r, rest)).length < count) {
-        return rest;
+        return rest
       }
     }
   }
 }
 
 function createMissingResult(requirements: EventResultRequirementsByDate | { rules: EventResultRequirements }, results: QRWithId[]) {
-  const rule = findFirstMissing(requirements, results);
+  const rule = findFirstMissing(requirements, results)
   return {
     id: uuidv4(),
-    ...rule
-  };
+    ...rule,
+  }
 }
 
 function resultBorderColor(qualifying: boolean | undefined) {
   if (qualifying === true) {
-    return 'success.light';
+    return 'success.light'
   }
   if (qualifying === false) {
-    return 'error.main';
+    return 'error.main'
   }
 }
 
 function getResultId(result: QRWithId | QualifyingResult) {
   if ('id' in result) {
-    return result.id;
+    return result.id
   }
-  return uuidv4();
+  return uuidv4()
 }

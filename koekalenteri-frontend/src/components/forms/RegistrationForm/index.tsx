@@ -1,23 +1,23 @@
-import { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Cancel, Save } from '@mui/icons-material';
-import { LoadingButton } from '@mui/lab';
-import { Box, Button, Checkbox, Collapse, FormControl, FormControlLabel, FormHelperText, Link, Paper, Stack, Theme, useMediaQuery } from '@mui/material';
-import { TFunction } from 'i18next';
-import { ConfirmedEventEx, Language, Registration } from 'koekalenteri-shared/model';
-import { observer } from 'mobx-react-lite';
+import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { Cancel, Save } from '@mui/icons-material'
+import { LoadingButton } from '@mui/lab'
+import { Box, Button, Checkbox, Collapse, FormControl, FormControlLabel, FormHelperText, Link, Paper, Stack, Theme, useMediaQuery } from '@mui/material'
+import { TFunction } from 'i18next'
+import { ConfirmedEventEx, Language, Registration } from 'koekalenteri-shared/model'
+import { observer } from 'mobx-react-lite'
 
-import { useStores } from '../../../stores';
+import { useStores } from '../../../stores'
 
-import { EntryInfo, getRegistrationDates } from './1.Entry';
-import { DogInfo } from './2.Dog';
-import { BreederInfo } from './3.Breeder';
-import { OwnerInfo } from './4.OwnerInfo';
-import { HandlerInfo } from './5.HandlerInfo';
-import { QualifyingResultsInfo } from './6.QualifyingResultsInfo';
-import { AdditionalInfo } from './7.AdditionalInfo';
-import { RegistrationClass } from './rules';
-import { filterRelevantResults, validateRegistration } from './validation';
+import { EntryInfo, getRegistrationDates } from './1.Entry'
+import { DogInfo } from './2.Dog'
+import { BreederInfo } from './3.Breeder'
+import { OwnerInfo } from './4.OwnerInfo'
+import { HandlerInfo } from './5.HandlerInfo'
+import { QualifyingResultsInfo } from './6.QualifyingResultsInfo'
+import { AdditionalInfo } from './7.AdditionalInfo'
+import { RegistrationClass } from './rules'
+import { filterRelevantResults, validateRegistration } from './validation'
 
 type FormEventHandler = (registration: Registration) => Promise<boolean>;
 type RegistrationFormProps = {
@@ -32,25 +32,25 @@ type RegistrationFormProps = {
 export const emptyDog = {
   regNo: '',
   refreshDate: undefined,
-  results: []
-};
+  results: [],
+}
 export const emptyBreeder = {
   name: '',
-  location: ''
-};
+  location: '',
+}
 export const emptyPerson = {
   name: '',
   phone: '',
   email: '',
   location: '',
-  membership: false
-};
+  membership: false,
+}
 
 export const RegistrationForm = observer(function RegistrationForm({ event, className, registration, classDate, onSave, onCancel }: RegistrationFormProps) {
-  const { publicStore } = useStores();
-  const eventHasClasses = (publicStore.eventTypeClasses[event.eventType] || []).length > 0;
-  const large = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'));
-  const { t, i18n } = useTranslation();
+  const { publicStore } = useStores()
+  const eventHasClasses = (publicStore.eventTypeClasses[event.eventType] || []).length > 0
+  const large = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
+  const { t, i18n } = useTranslation()
   const [local, setLocal] = useState<Registration>({
     eventId: event.id,
     id: '',
@@ -72,56 +72,56 @@ export const RegistrationForm = observer(function RegistrationForm({ event, clas
     createdBy: '',
     modifiedAt: new Date(),
     modifiedBy: '',
-    ...registration
-  });
-  const [qualifies, setQualifies] = useState<boolean | null>(local.id ? filterRelevantResults(event, local.class as RegistrationClass, local.dog.results).qualifies : null);
-  const [saving, setSaving] = useState(false);
-  const [changes, setChanges] = useState(local.id === '');
-  const [errors, setErrors] = useState(validateRegistration(local, event));
-  const [open, setOpen] = useState<{ [key: string]: boolean | undefined }>({});
-  const valid = errors.length === 0;
+    ...registration,
+  })
+  const [qualifies, setQualifies] = useState<boolean | null>(local.id ? filterRelevantResults(event, local.class as RegistrationClass, local.dog.results).qualifies : null)
+  const [saving, setSaving] = useState(false)
+  const [changes, setChanges] = useState(local.id === '')
+  const [errors, setErrors] = useState(validateRegistration(local, event))
+  const [open, setOpen] = useState<{ [key: string]: boolean | undefined }>({})
+  const valid = errors.length === 0
   const onChange = (props: Partial<Registration>) => {
-    console.log('Changes: ' + JSON.stringify(props));
+    console.log('Changes: ' + JSON.stringify(props))
     if (props.class && !props.dates) {
-      const allCount = getRegistrationDates(event, classDate, local.class || '').length;
-      const available = getRegistrationDates(event, classDate, props.class);
+      const allCount = getRegistrationDates(event, classDate, local.class || '').length
+      const available = getRegistrationDates(event, classDate, props.class)
       if (local.dates.length === allCount) {
-        local.dates = available;
+        local.dates = available
       } else {
-        props.dates = local.dates.filter(rd => available.find(a => a.date.valueOf() === rd.date.valueOf() && a.time === rd.time));
+        props.dates = local.dates.filter(rd => available.find(a => a.date.valueOf() === rd.date.valueOf() && a.time === rd.time))
       }
     }
     if (props.class || props.dog || props.results) {
-      const c = props.class || local.class;
-      const dog = props.dog || local.dog;
-      const filtered = filterRelevantResults(event, c as RegistrationClass, dog.results, props.results || local.results);
-      setQualifies((!dog.regNo || (eventHasClasses && !c)) ? null : filtered.qualifies);
-      props.qualifyingResults = filtered.relevant;
+      const c = props.class || local.class
+      const dog = props.dog || local.dog
+      const filtered = filterRelevantResults(event, c as RegistrationClass, dog.results, props.results || local.results)
+      setQualifies((!dog.regNo || (eventHasClasses && !c)) ? null : filtered.qualifies)
+      props.qualifyingResults = filtered.relevant
     }
     if (props.ownerHandles || (props.owner && local.ownerHandles)) {
       props.handler = { ...local.owner, ...props.owner }
     }
     if (props.ownerHandles) {
-      setOpen({ ...open, handler: true });
+      setOpen({ ...open, handler: true })
     }
-    const newState = { ...local, ...props };
-    setErrors(validateRegistration(newState, event));
-    setLocal(newState);
-    setChanges(true);
-    setSaving(false);
+    const newState = { ...local, ...props }
+    setErrors(validateRegistration(newState, event))
+    setLocal(newState)
+    setChanges(true)
+    setSaving(false)
   }
   const saveHandler = async () => {
-    setSaving(true);
+    setSaving(true)
     if (onSave && (await onSave(local)) === false) {
-      setSaving(false);
+      setSaving(false)
     }
   }
-  const cancelHandler = () => onCancel && onCancel(local);
+  const cancelHandler = () => onCancel && onCancel(local)
   const handleOpenChange = (id: keyof typeof open, value: boolean) => {
     const newState = large
       ? {
         ...open,
-        [id]: value
+        [id]: value,
       }
       : {
         entry: false,
@@ -131,15 +131,15 @@ export const RegistrationForm = observer(function RegistrationForm({ event, clas
         handler: local.ownerHandles,
         qr: false,
         info: false,
-        [id]: value
-      };
-    setOpen(newState);
+        [id]: value,
+      }
+    setOpen(newState)
   }
-  const errorStates: { [Property in keyof Registration]?: boolean } = {};
-  const helperTexts = getSectionHelperTexts(local, qualifies, t);
+  const errorStates: { [Property in keyof Registration]?: boolean } = {}
+  const helperTexts = getSectionHelperTexts(local, qualifies, t)
   for (const error of errors) {
-    helperTexts[error.opts.field] = t(`validation.registration.${error.key}`, error.opts);
-    errorStates[error.opts.field] = true;
+    helperTexts[error.opts.field] = t(`validation.registration.${error.key}`, error.opts)
+    errorStates[error.opts.field] = true
   }
 
   useEffect(() => {
@@ -150,9 +150,9 @@ export const RegistrationForm = observer(function RegistrationForm({ event, clas
       owner: large,
       handler: large,
       qr: large,
-      info: large
-    });
-  }, [large]);
+      info: large,
+    })
+  }, [large])
 
   return (
     <Paper elevation={2} sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, overflow: 'auto', maxHeight: '100%', maxWidth: '100%' }}>
@@ -162,12 +162,12 @@ export const RegistrationForm = observer(function RegistrationForm({ event, clas
         borderRadius: 1,
         bgcolor: 'background.form',
         '& .MuiInputBase-root': {
-          bgcolor: 'background.default'
+          bgcolor: 'background.default',
         },
         '& .fact input.Mui-disabled': {
           color: 'success.main',
-          WebkitTextFillColor: 'inherit'
-        }
+          WebkitTextFillColor: 'inherit',
+        },
       }}>
         <EntryInfo
           reg={local}
@@ -252,13 +252,13 @@ export const RegistrationForm = observer(function RegistrationForm({ event, clas
         <Button startIcon={<Cancel />} variant="outlined" onClick={cancelHandler}>Peruuta</Button>
       </Stack>
     </Paper>
-  );
+  )
 })
 
 function getSectionHelperTexts(
   local: Registration,
   qualifies: boolean | null,
-  t: TFunction<"translation", undefined>
+  t: TFunction<"translation", undefined>,
 ): { [Property in keyof Registration]?: string } {
   return {
     breeder: `${local.breeder?.name || ''}`,
@@ -266,5 +266,5 @@ function getSectionHelperTexts(
     handler: local.ownerHandles ? t('registration.ownerHandles') : `${local.handler?.name || ''}`,
     owner: `${local.owner?.name || ''}`,
     qualifyingResults: qualifies === null ? '' : t('registration.qualifyingResultsInfo', { qualifies: t(qualifies ? 'registration.qyalifyingResultsYes' : 'registration.qualifyingResultsNo') }),
-  };
+  }
 }

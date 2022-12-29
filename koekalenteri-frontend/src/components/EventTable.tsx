@@ -1,5 +1,5 @@
-import { useTranslation } from 'react-i18next';
-import { KeyboardArrowDown, KeyboardArrowRight } from '@mui/icons-material';
+import { useTranslation } from 'react-i18next'
+import { KeyboardArrowDown, KeyboardArrowRight } from '@mui/icons-material'
 import {
   Box,
   Collapse,
@@ -11,28 +11,28 @@ import {
   TableCell,
   TableContainer,
   TableRow,
-} from '@mui/material';
-import type { EventEx, EventState } from 'koekalenteri-shared/model';
-import { observer } from 'mobx-react-lite';
+} from '@mui/material'
+import type { EventEx, EventState } from 'koekalenteri-shared/model'
+import { observer } from 'mobx-react-lite'
 
-import { useSessionBoolean } from '../stores';
+import { useSessionBoolean } from '../stores'
 
-import { EventInfo, LinkButton } from '.';
+import { EventInfo, LinkButton } from '.'
 
 function eventClasses(event: EventEx) {
-  const ret: string[] = [];
+  const ret: string[] = []
   for (const c of event.classes) {
-    const name = typeof c === 'string' ? c : c.class;
+    const name = typeof c === 'string' ? c : c.class
     if (ret.indexOf(name) === -1) {
-      ret.push(name);
+      ret.push(name)
     }
   }
-  return ret.join(', ');
+  return ret.join(', ')
 }
 
 const Row = observer(function Row({ event }: { event: EventEx }) {
-  const [open, setOpen] = useSessionBoolean('open' + event.id, false);
-  const { t } = useTranslation();
+  const [open, setOpen] = useSessionBoolean('open' + event.id, false)
+  const { t } = useTranslation()
 
   return (
     <>
@@ -45,9 +45,9 @@ const Row = observer(function Row({ event }: { event: EventEx }) {
           whiteSpace: 'nowrap',
         },
         '& div.MuiGrid-item': {
-          overflow: 'hidden'
+          overflow: 'hidden',
         },
-        '&:last-child td': { border: 0 }
+        '&:last-child td': { border: 0 },
       }}>
         <TableCell>
           <Grid container spacing={0} alignItems="center">
@@ -78,47 +78,47 @@ const Row = observer(function Row({ event }: { event: EventEx }) {
             borderTop: '1px solid #BDBDBD',
             ml: '34px',
             mt: 1,
-            pt: 1
+            pt: 1,
           }} timeout="auto" unmountOnExit>
             <EventInfo event={event}></EventInfo>
           </Collapse>
         </TableCell>
       </TableRow>
     </>
-  );
-});
+  )
+})
 
 const EventPlaces = observer(function EventPlaces({ event }: { event: EventEx }) {
-  const { t } = useTranslation();
-  const color = event.entries > event.places ? 'warning.main' : 'text.primary';
-  let text = '';
-  let bold = false;
+  const { t } = useTranslation()
+  const color = event.entries > event.places ? 'warning.main' : 'text.primary'
+  let text = ''
+  let bold = false
   if (event.places) {
     if (event.entries) {
-      text = `${event.entries} / ${event.places}`;
-      bold = true;
+      text = `${event.entries} / ${event.places}`
+      bold = true
     } else {
-      text = event.places + ' ' + t('toltaPlaces');
+      text = event.places + ' ' + t('toltaPlaces')
     }
   }
   return (
     <Box textAlign="right" sx={{ color, fontWeight: bold ? 'bold' : 'normal' }}>{text}</Box>
-  );
-});
+  )
+})
 
 function EventStateInfo({ state }: { state: EventState }) {
-  const { t } = useTranslation();
-  const showInfo = state === 'tentative' || state === 'cancelled';
+  const { t } = useTranslation()
+  const showInfo = state === 'tentative' || state === 'cancelled'
   return<Box sx={{ color: 'warning.main', textTransform: 'uppercase', mr: 1 }}>
     {showInfo && t(`event.states.${state}_info`)}
-  </Box>;
+  </Box>
 };
 
 function EmptyResult() {
-  const { t } = useTranslation();
+  const { t } = useTranslation()
   return (
     <Box sx={{ width: '100%', textAlign: 'center', color: 'red' }}>{t('noResults')}</Box>
-  );
+  )
 }
 
 export const EventTable = observer(function EventTable({ events }: { events: EventEx[] }) {
@@ -136,4 +136,4 @@ export const EventTable = observer(function EventTable({ events }: { events: Eve
       }
     </>
   )
-});
+})

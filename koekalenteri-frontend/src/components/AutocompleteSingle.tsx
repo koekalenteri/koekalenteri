@@ -1,4 +1,4 @@
-import { Autocomplete, AutocompleteProps, TextField } from "@mui/material";
+import { Autocomplete, AutocompleteProps, TextField } from "@mui/material"
 
 type OmitProps =  'fullWidth' | 'freeSolo' | 'multiple' | 'renderInput';
 
@@ -9,7 +9,7 @@ export type AutocompleteSingleProps<T, DisableClearable extends boolean | undefi
 }
 
 export function AutocompleteSingle<T, DisableClearable extends boolean | undefined>(props: AutocompleteSingleProps<T, DisableClearable>) {
-  const { error, helperText, label, ...acProps } = props;
+  const { error, helperText, label, ...acProps } = props
 
   return (
     <Autocomplete
@@ -20,5 +20,5 @@ export function AutocompleteSingle<T, DisableClearable extends boolean | undefin
       fullWidth
       renderInput={(inputProps) => <TextField {...inputProps} label={label} error={error} helperText={helperText} />}
     />
-  );
+  )
 }

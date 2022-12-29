@@ -1,16 +1,17 @@
-import { metricScope, MetricsLogger } from "aws-embedded-metrics";
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
-import { AWSError } from "aws-sdk";
-import KLAPI from "../utils/KLAPI";
-import { metricsError, metricsSuccess } from "../utils/metrics";
-import { response } from "../utils/response";
-import CustomDynamoClient from "../utils/CustomDynamoClient";
-import { BreedCode, JsonDog, JsonTestResult } from "koekalenteri-shared/model";
-import { KLKieli } from "../utils/KLAPI_models";
+import { metricScope, MetricsLogger } from "aws-embedded-metrics"
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda"
+import { AWSError } from "aws-sdk"
+import { BreedCode, JsonDog, JsonTestResult } from "koekalenteri-shared/model"
 
-const dynamoDB = new CustomDynamoClient();
+import CustomDynamoClient from "../utils/CustomDynamoClient"
+import KLAPI from "../utils/KLAPI"
+import { KLKieli } from "../utils/KLAPI_models"
+import { metricsError, metricsSuccess } from "../utils/metrics"
+import { response } from "../utils/response"
 
-const klapi = new KLAPI();
+const dynamoDB = new CustomDynamoClient()
+
+const klapi = new KLAPI()
 
 const GENDER: Record<string, 'F' | 'M'> = {
   narttu: 'F',
@@ -18,20 +19,20 @@ const GENDER: Record<string, 'F' | 'M'> = {
   tik: 'F',
   uros: 'M',
   male: 'M',
-  hane: 'M'
-};
+  hane: 'M',
+}
 
 export const getDogHandler = metricScope((metrics: MetricsLogger) =>
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     try {
-      const regNo = event.pathParameters?.regNo?.replace('~', '/');
-      const refresh = event.queryStringParameters && 'refresh' in event.queryStringParameters;
+      const regNo = event.pathParameters?.regNo?.replace('~', '/')
+      const refresh = event.queryStringParameters && 'refresh' in event.queryStringParameters
 
-      let item = await dynamoDB.read<JsonDog>({ regNo });
-      console.log('cached: ' + JSON.stringify(item));
+      let item = await dynamoDB.read<JsonDog>({ regNo })
+      console.log('cached: ' + JSON.stringify(item))
 
       if (!item || refresh) {
-        const { status, json } = await klapi.lueKoiranPerustiedot({ Rekisterinumero: regNo, Kieli: KLKieli.Suomi });
+        const { status, json } = await klapi.lueKoiranPerustiedot({ Rekisterinumero: regNo, Kieli: KLKieli.Suomi })
 
         if (status === 200 && json) {
           // Cache
@@ -44,14 +45,14 @@ export const getDogHandler = metricScope((metrics: MetricsLogger) =>
             dob: json.syntymäaika,
             gender: GENDER[json.sukupuoli],
             titles: json.tittelit,
-            refreshDate: new Date().toISOString()
-          };
+            refreshDate: new Date().toISOString(),
+          }
 
           // Luetaan koetulokset käyttäen palautettua rekisterinumeroa.
           // Jos koiralla on useampi rekkari, niin palautettu on se mille tulokset on kirjattu.
-          const results = await klapi.lueKoiranKoetulokset({ Rekisterinumero: item.regNo, Kieli: KLKieli.Suomi });
+          const results = await klapi.lueKoiranKoetulokset({ Rekisterinumero: item.regNo, Kieli: KLKieli.Suomi })
           if (results.status === 200) {
-            const res: JsonTestResult[] = [];
+            const res: JsonTestResult[] = []
             for (const result of results.json || []) {
               res.push({
                 type: result.koemuoto,
@@ -70,22 +71,22 @@ export const getDogHandler = metricScope((metrics: MetricsLogger) =>
                 resCert: result.lisämerkinnät.substring(0, 9).toLowerCase() === 'vara sert',
               })
             }
-            item.results = res;
+            item.results = res
           } else {
-            console.error(JSON.stringify(results));
+            console.error(JSON.stringify(results))
           }
 
-          await dynamoDB.write(item);
+          await dynamoDB.write(item)
         }
       }
 
-      metricsSuccess(metrics, event.requestContext, 'getDog');
-      return response(200, item);
+      metricsSuccess(metrics, event.requestContext, 'getDog')
+      return response(200, item)
     } catch (err) {
-      console.error(err);
-      metricsError(metrics, event.requestContext, 'getDog');
-      return response((err as AWSError).statusCode || 501, err);
+      console.error(err)
+      metricsError(metrics, event.requestContext, 'getDog')
+      return response((err as AWSError).statusCode || 501, err)
     }
   }
-);
+)
 

@@ -1,4 +1,4 @@
-import { useCallback,useState } from 'react'
+import { useCallback, useState } from 'react'
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import { useAuthenticator } from '@aws-amplify/ui-react'
 import { Box, Toolbar } from '@mui/material'

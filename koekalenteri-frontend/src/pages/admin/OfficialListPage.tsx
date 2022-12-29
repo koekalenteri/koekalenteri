@@ -1,25 +1,25 @@
-import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { CloudSync } from '@mui/icons-material';
-import { Button, Stack, Theme, useMediaQuery } from '@mui/material';
-import { GridColDef } from '@mui/x-data-grid';
-import { computed, toJS } from 'mobx';
-import { observer } from 'mobx-react-lite';
+import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { CloudSync } from '@mui/icons-material'
+import { Button, Stack, Theme, useMediaQuery } from '@mui/material'
+import { GridColDef } from '@mui/x-data-grid'
+import { computed, toJS } from 'mobx'
+import { observer } from 'mobx-react-lite'
 
-import { QuickSearchToolbar, StyledDataGrid } from '../../components';
-import { FullPageFlex } from '../../layout';
-import { useStores } from '../../stores';
-import { COfficial } from '../../stores/classes/COfficial';
+import { QuickSearchToolbar, StyledDataGrid } from '../../components'
+import { FullPageFlex } from '../../layout'
+import { useStores } from '../../stores'
+import { COfficial } from '../../stores/classes/COfficial'
 
 interface OfficialColDef extends GridColDef {
   field: keyof COfficial
 }
 
 export const OfficialListPage = observer(function OfficialListPage() {
-  const [searchText, setSearchText] = useState('');
-  const large = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'));
-  const { rootStore } = useStores();
-  const { t } = useTranslation();
+  const [searchText, setSearchText] = useState('')
+  const large = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
+  const { rootStore } = useStores()
+  const { t } = useTranslation()
   const columns: OfficialColDef[] = [
     {
       field: 'name',
@@ -31,19 +31,19 @@ export const OfficialListPage = observer(function OfficialListPage() {
       field: 'id',
       flex: 0,
       headerName: t('id'),
-      width: 80
+      width: 80,
     },
     {
       field: 'location',
       flex: 0,
       headerName: t('registration.contact.city'),
-      width: 120
+      width: 120,
     },
     {
       field: 'phone',
       flex: 0,
       headerName: t('registration.contact.phone'),
-      width: 150
+      width: 150,
     },
     {
       field: 'email',
@@ -54,28 +54,28 @@ export const OfficialListPage = observer(function OfficialListPage() {
     {
       field: 'district',
       flex: 1,
-      headerName: t('district')
+      headerName: t('district'),
     },
     {
       field: 'eventTypes',
       flex: 1,
       headerName: t('eventTypes'),
-      valueGetter: (params) => params.row.eventTypes?.join(', ')
-    }
-  ];
+      valueGetter: (params) => params.row.eventTypes?.join(', '),
+    },
+  ]
 
   const refresh = async () => {
-    rootStore.officialStore.load(true);
-  };
+    rootStore.officialStore.load(true)
+  }
 
   const rows = computed(() => {
-    const lvalue = searchText.toLocaleLowerCase();
-    return toJS(rootStore.officialStore.officials).filter(o => o.search.includes(lvalue));
-  }).get();
+    const lvalue = searchText.toLocaleLowerCase()
+    return toJS(rootStore.officialStore.officials).filter(o => o.search.includes(lvalue))
+  }).get()
 
   const requestSearch = (searchValue: string) => {
-    setSearchText(searchValue);
-  };
+    setSearchText(searchValue)
+  }
 
   return (
     <>
@@ -111,4 +111,4 @@ export const OfficialListPage = observer(function OfficialListPage() {
       </FullPageFlex>
     </>
   )
-});
+})

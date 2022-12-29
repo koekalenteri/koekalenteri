@@ -1,8 +1,8 @@
-import { render } from '@testing-library/react';
+import { render } from '@testing-library/react'
 
-import { RegistrationDate } from '../../../koekalenteri-shared/model';
+import { RegistrationDate } from '../../../koekalenteri-shared/model'
 
-import { GroupColors } from './GroupColors';
+import { GroupColors } from './GroupColors'
 
 describe('GroupColors', () => {
 
@@ -11,14 +11,14 @@ describe('GroupColors', () => {
   const cases: [number, number, Date[], RegistrationDate[]][] = []
 
   for (let i = 0; i <= dates.length; i++) {
-    const d = dates.slice(0, i);
+    const d = dates.slice(0, i)
     for (let j = 0; j <= regDates.length && j <= i * 2; j++) {
       cases.push([i, j, d, regDates.slice(0, j)])
     }
   }
 
   test.each(cases)('given %p dates and %p selected', (_i, _j, d, s) => {
-    const { container } = render(<GroupColors dates={d} selected={s} />);
-    expect(container).toMatchSnapshot();
+    const { container } = render(<GroupColors dates={d} selected={s} />)
+    expect(container).toMatchSnapshot()
   })
-});
+})

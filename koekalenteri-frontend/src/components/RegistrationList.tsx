@@ -1,12 +1,12 @@
-import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
-import { CancelOutlined, EditOutlined, EuroOutlined, PersonOutline } from "@mui/icons-material";
-import { Paper, Typography } from "@mui/material";
-import { Box } from "@mui/system";
-import { GridActionsCellItem, GridColDef, GridRowParams } from "@mui/x-data-grid";
-import { BreedCode, Registration } from "koekalenteri-shared/model";
+import { useTranslation } from "react-i18next"
+import { useNavigate } from "react-router-dom"
+import { CancelOutlined, EditOutlined, EuroOutlined, PersonOutline } from "@mui/icons-material"
+import { Paper, Typography } from "@mui/material"
+import { Box } from "@mui/system"
+import { GridActionsCellItem, GridColDef, GridRowParams } from "@mui/x-data-grid"
+import { BreedCode, Registration } from "koekalenteri-shared/model"
 
-import { StyledDataGrid } from "./StyledDataGrid";
+import { StyledDataGrid } from "./StyledDataGrid"
 
 type Join<K, P> = K extends string | number ?
   P extends string | number ?
@@ -25,12 +25,12 @@ interface RegistrationListColDef extends GridColDef {
 }
 
 export function RegistrationList({loading, rows, onUnregister}: {loading: boolean, rows: Registration[], onUnregister: (registration: Registration) => void}) {
-  const { t } = useTranslation();
-  const { t: breed } = useTranslation('breed');
-  const navigate = useNavigate();
+  const { t } = useTranslation()
+  const { t: breed } = useTranslation('breed')
+  const navigate = useNavigate()
 
   const onEdit = (registration: Registration) => {
-    navigate(`/registration/${registration.eventType}/${registration.eventId}/${registration.id}/edit`);
+    navigate(`/registration/${registration.eventType}/${registration.eventId}/${registration.id}/edit`)
   }
 
   const columns: RegistrationListColDef[] = [
@@ -39,19 +39,19 @@ export function RegistrationList({loading, rows, onUnregister}: {loading: boolea
       valueGetter: (params) =>  params.row.dog.name,
       headerName: t('dog.name'),
       renderCell: (params) => <strong>{params.value}</strong>,
-      flex: 256
+      flex: 256,
     },
     {
       field: 'dog.regNo',
       valueGetter: (params) =>  params.row.dog.regNo,
       headerName: t('dog.regNo'),
-      flex: 128
+      flex: 128,
     },
     {
       field: 'dog.breedCode',
       valueGetter: (params) => breed(params.row.dog.breedCode as BreedCode),
       headerName: t('dog.breed'),
-      flex: 192
+      flex: 192,
     },
     {
       field: 'handler.membership',
@@ -59,7 +59,7 @@ export function RegistrationList({loading, rows, onUnregister}: {loading: boolea
       headerAlign: 'center',
       align: 'center',
       valueGetter: (params) => params.row.handler.membership,
-      renderCell: (params) => params.value ? <PersonOutline /> : ''
+      renderCell: (params) => params.value ? <PersonOutline /> : '',
     },
     {
       field: 'paid',
@@ -67,7 +67,7 @@ export function RegistrationList({loading, rows, onUnregister}: {loading: boolea
       headerAlign: 'center',
       align: 'center',
       valueGetter: (params) => params.row.paid,
-      renderCell: (params) => params.value ? <EuroOutlined /> : ''
+      renderCell: (params) => params.value ? <EuroOutlined /> : '',
     },
     {
       field: 'actions',
@@ -76,10 +76,10 @@ export function RegistrationList({loading, rows, onUnregister}: {loading: boolea
         <Box sx={{ color: 'warning.main', textTransform: 'uppercase' }}>{t('event.states.cancelled')}</Box>,
       ] : [
         <GridActionsCellItem color="info" icon={<EditOutlined />} label="Muokkaa ilmoittautumista" onClick={() => onEdit(params.row)} showInMenu={false} onResize={undefined} onResizeCapture={undefined} />,
-        <GridActionsCellItem color="error" icon={<CancelOutlined />} label="Peru ilmoittautuminen" onClick={() => onUnregister(params.row)} showInMenu={false} onResize={undefined} onResizeCapture={undefined} />
-      ]
-    }
-  ];
+        <GridActionsCellItem color="error" icon={<CancelOutlined />} label="Peru ilmoittautuminen" onClick={() => onUnregister(params.row)} showInMenu={false} onResize={undefined} onResizeCapture={undefined} />,
+      ],
+    },
+  ]
 
   return (
     <Paper sx={{ p: 1, mb: 1, width: '100%' }} elevation={2}>

@@ -1,7 +1,7 @@
-import { ReactElement, useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Box, Stack, Tooltip } from '@mui/material';
-import { RegistrationDate } from 'koekalenteri-shared/model';
+import { ReactElement, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
+import { Box, Stack, Tooltip } from '@mui/material'
+import { RegistrationDate } from 'koekalenteri-shared/model'
 
 export const GROUP_COLORS = ['#2D9CDB', '#BB6BD9', '#F2994A', '#27AE60', '#828282', '#56CCF2']
 
@@ -19,8 +19,8 @@ export const GroupColors = ({ dates, disableTooltip = false, selected }: Props) 
     <GroupColorTooltip selected={selected} disabled={disableTooltip}>
       <Stack direction="row" spacing={0} sx={{ width: 36, height: '100%' }}>
         {available.map((dt, index) => {
-          const color = GROUP_COLORS[index % GROUP_COLORS.length];
-          const isSelected = !!selected.find(s => s.date.getTime() === dt.date.getTime() && s.time === dt.time);
+          const color = GROUP_COLORS[index % GROUP_COLORS.length]
+          const isSelected = !!selected.find(s => s.date.getTime() === dt.date.getTime() && s.time === dt.time)
           return <Box key={color} sx={{ bgcolor: isSelected ? color : 'transparent', width: 6, height: '100%' }} />
         })}
       </Stack>
