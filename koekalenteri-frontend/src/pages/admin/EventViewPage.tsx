@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
 import { AddCircleOutline, DeleteOutline, EditOutlined, EmailOutlined, FormatListBulleted, ShuffleOutlined, TableChartOutlined } from '@mui/icons-material'
 import { Box, Button, Dialog, DialogContent, DialogTitle, Divider, Grid, Stack, Tab, Tabs } from '@mui/material'
-import { Registration } from 'koekalenteri-shared/model'
+import { ConfirmedEventEx, Registration } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
 import { CollapsibleSection, LinkButton, RegistrationForm } from '../../components'
@@ -14,16 +14,16 @@ import ClassEntrySelection from './eventViewPage/ClassEntrySelection'
 import InfoPanel from './eventViewPage/InfoPanel'
 import TabPanel from './eventViewPage/TabPanel'
 import Title from './eventViewPage/Title'
-import { currentEvent, eventClassAtom, eventIdAtom } from './recoil'
+import { adminEventIdAtom, currentAdminEvent, eventClassAtom } from './recoil'
 
 const EventViewPage = () => {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const params = useParams()
-  const [selectedEventID, setSelectedEventID] = useRecoilState(eventIdAtom)
-  const event = useRecoilValue(currentEvent)
+  const [selectedEventID, setSelectedEventID] = useRecoilState(adminEventIdAtom)
+  const event = useRecoilValue(currentAdminEvent)
   const [selectedEventClass, setSelectedEventClass] = useRecoilState(eventClassAtom)
-  const activeTab = useMemo(() => event?.uniqueClasses.findIndex(c => c === selectedEventClass) ?? 0, [event?.uniqueClasses, selectedEventClass])
+  const activeTab = useMemo(() => event?.uniqueClasses?.findIndex(c => c === selectedEventClass) ?? 0, [event?.uniqueClasses, selectedEventClass])
   const [selected, setSelected] = useState<Registration>()
 
   useEffect(() => {
@@ -33,7 +33,7 @@ const EventViewPage = () => {
   }, [params.id, selectedEventID, setSelectedEventID])
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
-    setSelectedEventClass(event?.uniqueClasses[newValue])
+    setSelectedEventClass(event?.uniqueClasses?.[newValue])
   }
 
   const onSave = async (registration: Registration) => {
@@ -96,11 +96,11 @@ const EventViewPage = () => {
 
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
           <Tabs value={activeTab} onChange={handleTabChange}>
-            {event.uniqueClasses.map(eventClass => <Tab key={`tab-${eventClass}`} id={`tab-${eventClass}`} label={eventClass}></Tab>)}
+            {event.uniqueClasses?.map(eventClass => <Tab key={`tab-${eventClass}`} id={`tab-${eventClass}`} label={eventClass}></Tab>)}
           </Tabs>
         </Box>
 
-        {event.uniqueClasses.map((eventClass, index) =>
+        {event.uniqueClasses?.map((eventClass, index) =>
           <TabPanel key={`tabPanel-${eventClass}`} index={index} activeTab={activeTab}>
             <ClassEntrySelection eventDates={event.uniqueClassDates(eventClass)} setOpen={setOpen} />
           </TabPanel>,
@@ -126,7 +126,7 @@ const EventViewPage = () => {
       >
         <DialogTitle id="reg-dialog-title">{selected ? `${selected.dog.name} / ${selected.handler.name}` : t('create')}</DialogTitle>
         <DialogContent dividers sx={{height: '100%', p: 0 }}>
-          <RegistrationForm event={event} registration={selected} onSave={onSave} onCancel={onCancel} />
+          <RegistrationForm event={event as ConfirmedEventEx} registration={selected} onSave={onSave} onCancel={onCancel} />
         </DialogContent>
       </Dialog>
     </>

@@ -1,12 +1,10 @@
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Cancel, Save } from '@mui/icons-material'
 import { LoadingButton } from '@mui/lab'
 import { Box, Button, Paper, Stack, Theme, useMediaQuery } from '@mui/material'
 import { addDays, nextSaturday, startOfDay } from 'date-fns'
 import type { Event, EventClass, EventEx, EventState, Judge, Official, Organizer } from 'koekalenteri-shared/model'
-import { action } from 'mobx'
-import { observer } from 'mobx-react-lite'
 
 import { AutocompleteSingle } from '../..'
 
@@ -19,8 +17,8 @@ import { ContactInfoSection } from './6.ContactInfoSection'
 import { AdditionalInfoSection } from './7.AdditionalInfoSection'
 import { requiredFields, validateEvent } from './validation'
 
-export type FormEventHandler = (event: Partial<Event>) => Promise<boolean>;
-export type PartialEvent = Partial<Event> & { startDate: Date, endDate: Date, classes: EventClass[], judges: number[] };
+export type FormEventHandler = (event: Partial<Event>) => Promise<boolean>
+export type PartialEvent = Partial<Event> & { startDate: Date, endDate: Date, classes: EventClass[], judges: number[] }
 type EventFormParams = {
   event: Partial<EventEx>
   eventTypes: string[]
@@ -30,9 +28,9 @@ type EventFormParams = {
   organizers: Organizer[]
   onSave: FormEventHandler
   onCancel: FormEventHandler
-};
+}
 
-export const EventForm = observer(function EventForm({ event, judges, eventTypes, eventTypeClasses, officials, organizers, onSave, onCancel }: EventFormParams) {
+export function EventForm({ event, judges, eventTypes, eventTypeClasses, officials, organizers, onSave, onCancel }: EventFormParams) {
   const md = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
   const baseDate = startOfDay(addDays(Date.now(), 90))
   const { t } = useTranslation()
@@ -58,7 +56,7 @@ export const EventForm = observer(function EventForm({ event, judges, eventTypes
   })
   const valid = errors.length === 0
   const fields = useMemo(() => requiredFields(local), [local])
-  const onChange = action((props: Partial<Event>) => {
+  const onChange = useCallback((props: Partial<Event>) => {
     const tmp: any = {}
     Object.keys(props).forEach(k => {tmp[k] = (local as any)[k]})
     console.log('changed: ' + JSON.stringify(props), JSON.stringify(tmp))
@@ -69,7 +67,7 @@ export const EventForm = observer(function EventForm({ event, judges, eventTypes
     setErrors(validateEvent(newState))
     setLocal(newState)
     setChanges(true)
-  })
+  }, [eventTypeClasses, local])
   const saveHandler = async () => {
     setSaving(true)
     if ((await onSave(local)) === false) {
@@ -185,4 +183,4 @@ export const EventForm = observer(function EventForm({ event, judges, eventTypes
       </Stack>
     </Paper>
   )
-})
+}

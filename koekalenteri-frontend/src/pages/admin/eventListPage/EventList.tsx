@@ -8,7 +8,8 @@ import { useRecoilState } from 'recoil'
 
 import { StyledDataGrid } from '../../../components'
 import { Path } from '../../../routeConfig'
-import { eventIdAtom } from '../recoil'
+import { useJudgesActions } from '../../recoil/judges'
+import { adminEventIdAtom } from '../recoil'
 
 interface EventListColDef extends GridColDef {
   field: keyof EventEx | 'date'
@@ -23,7 +24,8 @@ interface Props {
 const EventList = ({ events }: Props) => {
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const [selectedEventID, setSelectedEventID] = useRecoilState(eventIdAtom)
+  const [selectedEventID, setSelectedEventID] = useRecoilState(adminEventIdAtom)
+  const judgeActions = useJudgesActions()
 
   const columns: EventListColDef[] = [
     {
@@ -60,15 +62,13 @@ const EventList = ({ events }: Props) => {
       flex: 1,
       valueGetter: (params) => params.row.official?.name,
     },
-    /*
     {
       field: 'judges',
       headerName: t('judgeChief') ?? undefined,
       minWidth: 100,
       flex: 1,
-      valueGetter: (params) => params.row.judges && rootStore.judgeStore.getJudge(params.row.judges[0])?.toJSON().name,
+      valueGetter: (params) => params.row.judges && judgeActions.find(params.row.judges[0])?.name,
     },
-    */
     {
       field: 'places',
       headerName: t('places') ?? undefined,

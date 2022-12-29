@@ -1,20 +1,21 @@
-import { useTranslation } from 'react-i18next';
-import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
-import { format } from 'date-fns';
-import { ConfirmedEventEx } from 'koekalenteri-shared/model';
+import { useTranslation } from 'react-i18next'
+import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material'
+import { format } from 'date-fns'
+
+import { DecoratedEvent } from '../recoil'
 
 interface Props {
-  event: ConfirmedEventEx
+  event: DecoratedEvent
 }
 
 const InfoPanel = ({ event }: Props) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation()
   return (
     <TableContainer component={Paper} elevation={4} sx={{
       width: 256,
       backgroundColor: 'background.selected',
       p: 1,
-      '& .MuiTableCell-root': { py: 0, px: 1 }
+      '& .MuiTableCell-root': { py: 0, px: 1 },
     }}>
       <Table>
         <TableHead>
@@ -24,17 +25,17 @@ const InfoPanel = ({ event }: Props) => {
         </TableHead>
         <TableBody>
           {event.classes?.map(c => <TableRow key={c.class + c.date?.toISOString()}>
-            <TableCell>{format(c.date || event.startDate, t('dateformatS'))}</TableCell>
+            <TableCell>{format(c.date || event.startDate || new Date(), t('dateformatS'))}</TableCell>
             <TableCell>{c.class}</TableCell>
             <TableCell align="right">{c.entries}</TableCell>
             <TableCell>Jäseniä</TableCell>
             <TableCell align="right">{c.members}</TableCell>
-          </TableRow>
+          </TableRow>,
           )}
         </TableBody>
       </Table>
     </TableContainer>
-  );
+  )
 }
 
 export default InfoPanel

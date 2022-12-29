@@ -1,4 +1,4 @@
-import { Box } from '@mui/material';
+import { Box } from '@mui/material'
 
 const NoRowsOverlay = () => {
   return <Box sx={{
@@ -8,11 +8,11 @@ const NoRowsOverlay = () => {
     justifyContent: 'center',
     alignItems: 'center',
     bgcolor: 'background.selected',
-    opacity: 0.7
+    opacity: 0.7,
   }}
   >
     Raahaa osallistujat tähän!
-  </Box>;
-};
+  </Box>
+}
 
 export default NoRowsOverlay

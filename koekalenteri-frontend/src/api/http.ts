@@ -1,4 +1,5 @@
 import { API_BASE_URL } from "../routeConfig"
+import { parseJSON } from "../utils"
 
 class APIError extends Error {
   status: number
@@ -16,11 +17,11 @@ class APIError extends Error {
 
 async function http<T>(path: string, init: RequestInit): Promise<T> {
   const response = await fetch(API_BASE_URL + path, init)
-  const json = await response.json().catch(() => ({}))
+  const text = await response.text()
   if (!response.ok) {
-    throw new APIError(response, json)
+    throw new APIError(response, text)
   }
-  return json
+  return parseJSON(text)
 }
 
 const HTTP = {

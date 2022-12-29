@@ -5,9 +5,9 @@ import { LoadingButton } from '@mui/lab'
 import { Box, Button, Checkbox, Collapse, FormControl, FormControlLabel, FormHelperText, Link, Paper, Stack, Theme, useMediaQuery } from '@mui/material'
 import { TFunction } from 'i18next'
 import { ConfirmedEventEx, Language, Registration } from 'koekalenteri-shared/model'
-import { observer } from 'mobx-react-lite'
+import { useRecoilValue } from 'recoil'
 
-import { useStores } from '../../../stores'
+import { eventTypeClassesAtom } from '../../../pages/recoil/eventTypes'
 
 import { EntryInfo, getRegistrationDates } from './1.Entry'
 import { DogInfo } from './2.Dog'
@@ -19,7 +19,7 @@ import { AdditionalInfo } from './7.AdditionalInfo'
 import { RegistrationClass } from './rules'
 import { filterRelevantResults, validateRegistration } from './validation'
 
-type FormEventHandler = (registration: Registration) => Promise<boolean>;
+type FormEventHandler = (registration: Registration) => Promise<boolean>
 type RegistrationFormProps = {
   event: ConfirmedEventEx
   registration?: Registration
@@ -27,7 +27,7 @@ type RegistrationFormProps = {
   classDate?: string
   onSave?: FormEventHandler
   onCancel?: FormEventHandler
-};
+}
 
 export const emptyDog = {
   regNo: '',
@@ -46,9 +46,9 @@ export const emptyPerson = {
   membership: false,
 }
 
-export const RegistrationForm = observer(function RegistrationForm({ event, className, registration, classDate, onSave, onCancel }: RegistrationFormProps) {
-  const { publicStore } = useStores()
-  const eventHasClasses = (publicStore.eventTypeClasses[event.eventType] || []).length > 0
+export const RegistrationForm = ({ event, className, registration, classDate, onSave, onCancel }: RegistrationFormProps) => {
+  const eventTypeClasses = useRecoilValue(eventTypeClassesAtom)
+  const eventHasClasses = eventTypeClasses[event.eventType]?.length > 0
   const large = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
   const { t, i18n } = useTranslation()
   const [local, setLocal] = useState<Registration>({
@@ -233,9 +233,9 @@ export const RegistrationForm = observer(function RegistrationForm({ event, clas
           <FormControl error={errorStates.agreeToTerms} disabled={!!local.id}>
             <FormControlLabel control={<Checkbox checked={local.agreeToTerms} onChange={e => onChange({ agreeToTerms: e.target.checked })} />} label={
               <>
-                <span>{t('registration.terms.read')}</span>&nbsp;
+                <span>{t('registration.terms.read')}</span>&nbsp
                 <Link target="_blank" rel="noopener" href={t('registration.terms.url')}>{t('registration.terms.terms')}</Link>
-                &nbsp;<span>{t('registration.terms.agree')}</span>
+                &nbsp<span>{t('registration.terms.agree')}</span>
               </>
             } />
           </FormControl>
@@ -253,7 +253,7 @@ export const RegistrationForm = observer(function RegistrationForm({ event, clas
       </Stack>
     </Paper>
   )
-})
+}
 
 function getSectionHelperTexts(
   local: Registration,

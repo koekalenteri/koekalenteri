@@ -22,8 +22,8 @@ export type JsonRegistration = JsonDbRecord & {
   group?: JsonRegistrationGroup
 }
 
-export type RegistrationGroup = RegistrationDate & { number: number }
-export type JsonRegistrationGroup = JsonRegistrationDate & { number: number }
+export type RegistrationGroup = RegistrationDate & { number: number, key: string }
+export type JsonRegistrationGroup = JsonRegistrationDate & { number: number, key: string }
 
 export type Registration = DbRecord & {
   agreeToPublish: boolean

@@ -1,9 +1,23 @@
-import { render, screen } from '@testing-library/react'
+import { Suspense } from 'react'
+import { act, render, screen } from '@testing-library/react'
+import { RecoilRoot } from 'recoil'
 
 import { emptyEvent } from '../api/test-utils/emptyEvent'
 
 import { EventInfo } from './EventInfo'
 
+jest.mock('../api/judge')
+
+// act and advance jest timers
+function flushPromisesAndTimers(): Promise<void> {
+  return act(
+    () =>
+      new Promise<void>(resolve => {
+        setTimeout(resolve, 100)
+        jest.runAllTimers()
+      }),
+  )
+}
 
 test('It should render event information', async function() {
   const event = {
@@ -36,7 +50,14 @@ test('It should render event information', async function() {
     isEventOngoing: false,
     isEventOver: true,
   }
-  render(<EventInfo event={event} />)
+  render(
+    <RecoilRoot>
+      <Suspense fallback={<div>loading...</div>}>
+        <EventInfo event={event} />
+      </Suspense>
+    </RecoilRoot>,
+  )
+  await flushPromisesAndTimers()
 
   // entry dates
   expect(screen.getByText('20.1.-4.2.2021')).toBeInTheDocument()

@@ -12,7 +12,7 @@ type BreederInfoProps = {
   onChange: (props: Partial<Registration>) => void
   onOpenChange?: (value: boolean) => void
   open?: boolean
-};
+}
 
 export function BreederInfo({ reg, error, helperText, onChange, onOpenChange, open }: BreederInfoProps) {
   const { t } = useTranslation()

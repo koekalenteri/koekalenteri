@@ -12,7 +12,7 @@ type HandlerInfoProps = {
   onChange: (props: Partial<Registration>) => void
   onOpenChange?: (value: boolean) => void
   open?: boolean
-};
+}
 
 export function HandlerInfo({ reg, error, helperText, onChange, onOpenChange, open }: HandlerInfoProps) {
   const { t } = useTranslation()

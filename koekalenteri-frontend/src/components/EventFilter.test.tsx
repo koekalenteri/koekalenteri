@@ -4,7 +4,7 @@ import { fireEvent, render, screen, within } from '@testing-library/react'
 import fi from 'date-fns/locale/fi'
 import { Judge, Organizer } from 'koekalenteri-shared/model'
 
-import { FilterProps } from '../stores/PublicStore'
+import { FilterProps } from '../pages/recoil/events'
 
 import { EventFilter } from './'
 
@@ -85,11 +85,11 @@ test('It should fire onChange', async () => {
   expect(changeHandler).toHaveBeenCalledTimes(4)
 
   /*
-  const dateInputs = screen.getAllByLabelText('Choose date', { exact: false });
-  fireEvent.click(dateInputs[0]);
-  await screen.findByRole('dialog');
-  fireEvent.click(screen.getByLabelText('25', { exact: false }));
-  expect(changeHandler).toHaveBeenCalledTimes(5);
+  const dateInputs = screen.getAllByLabelText('Choose date', { exact: false })
+  fireEvent.click(dateInputs[0])
+  await screen.findByRole('dialog')
+  fireEvent.click(screen.getByLabelText('25', { exact: false }))
+  expect(changeHandler).toHaveBeenCalledTimes(5)
   */
 
   fireEvent.click(screen.getByLabelText(/Ilmoittautuminen auki/i))

@@ -1,29 +1,28 @@
-import { useSearchParams } from 'react-router-dom'
-import { toJS } from 'mobx'
-import { observer } from 'mobx-react-lite'
+import { useRecoilState, useRecoilValue } from 'recoil'
+import { RecoilURLSync } from 'recoil-sync'
 
-import { EventFilter, serializeFilter } from '../components'
-import { EventContainer } from '../layout'
-import { useStores } from '../stores'
-import { FilterProps } from '../stores/PublicStore'
+import { deserializeFilter, EventFilter, EventTable, serializeFilter } from '../components'
 
-export const SearchPage = observer(function SearchPage() {
-  const { rootStore, publicStore } = useStores()
-  const [, setSearchParams] = useSearchParams()
+import { eventFilterAtom, filteredEvents, filterJudgesQuery, filterOrganizersQuery } from './recoil/events'
+import { activeEventTypesQuery } from './recoil/eventTypes'
 
-  const organizers = toJS(rootStore.organizerStore.organizers)
-  const judges = rootStore.judgeStore.activeJudges.map(j => { return {...j}})
-  const eventTypes = toJS(rootStore.eventTypeStore.activeEventTypes)
-  const filter = toJS(publicStore.filter)
-
-  const handleChange = (filter: FilterProps) => {
-    setSearchParams(serializeFilter(filter))
-  }
+export function SearchPage() {
+  const organizers = useRecoilValue(filterOrganizersQuery)
+  const activeJudges = useRecoilValue(filterJudgesQuery)
+  const activeEventTypes = useRecoilValue(activeEventTypesQuery)
+  const events= useRecoilValue(filteredEvents)
+  const [filter, setFilter] = useRecoilState(eventFilterAtom)
 
   return (
-    <>
-      <EventFilter organizers={organizers} judges={judges} filter={filter} eventTypes={eventTypes} onChange={handleChange} />
-      <EventContainer store={publicStore} />
-    </>
+    <RecoilURLSync location={{ part: 'search' }} serialize={serializeFilter} deserialize={deserializeFilter}>
+      <EventFilter
+        eventTypes={activeEventTypes.map(et => et.eventType)}
+        organizers={organizers}
+        judges={activeJudges}
+        filter={filter}
+        onChange={setFilter}
+      />
+      <EventTable events={events} />
+    </RecoilURLSync>
   )
-})
+}

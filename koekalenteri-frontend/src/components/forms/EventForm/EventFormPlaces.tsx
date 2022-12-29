@@ -17,7 +17,7 @@ export function EventFormPlaces({ event, helperTexts, onChange }: EntrySectionPr
   const uniqueClasses = unique(event.classes.map(c => c.class))
   const classesByDays = days.map(day => ({ day, classes: event.classes.filter(c => isSameDay(c.date || event.startDate, day)) }))
   const handleChange = (c: EventClass) => (e: { target: { value: any; }; }) => {
-    const newClasses = [...event.classes]
+    const newClasses = event.classes.map(ec => ({...ec}))
     const cls = newClasses.find(ec => compareEventClass(ec, c) === 0)
     if (cls) {
       cls.places = validValue(e.target.value)

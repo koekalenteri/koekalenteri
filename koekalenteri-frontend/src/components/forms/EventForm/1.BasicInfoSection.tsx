@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next'
 import { Grid, TextField } from '@mui/material'
 import { add, differenceInDays, eachDayOfInterval, isAfter, isSameDay, startOfDay } from 'date-fns'
 import { Event, EventClass, Official, Organizer } from 'koekalenteri-shared/model'
-import { observer } from 'mobx-react-lite'
 
 import { CollapsibleSection, DateRange, HelpPopover } from '../..'
 
@@ -24,10 +23,10 @@ type BasicInfoSectionParams = {
   onChange: (props: Partial<Event>) => void
   open?: boolean
   onOpenChange?: (value: boolean) => void
-};
+}
 
 
-export const BasicInfoSection = observer(function BasicInfoSection({ event, errorStates, helperTexts, fields, eventTypes, eventTypeClasses, officials, open, onOpenChange, organizers, onChange }: BasicInfoSectionParams) {
+export function BasicInfoSection({ event, errorStates, helperTexts, fields, eventTypes, eventTypeClasses, officials, open, onOpenChange, organizers, onChange }: BasicInfoSectionParams) {
   const { t } = useTranslation()
   const [helpAnchorEl, setHelpAnchorEl] = useState<HTMLButtonElement | null>(null)
   const typeOptions = eventClassOptions(event, eventTypeClasses[event.eventType || ''] || [])
@@ -151,7 +150,7 @@ export const BasicInfoSection = observer(function BasicInfoSection({ event, erro
       </Grid>
     </CollapsibleSection>
   )
-})
+}
 
 function eventClassOptions(event: PartialEvent, typeClasses: string[]) {
   const days = eachDayOfInterval({

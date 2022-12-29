@@ -1,6 +1,5 @@
-import React from 'react';
 import { useDrag } from 'react-dnd'
-import { GridRow, GridRowId, GridRowProps } from '@mui/x-data-grid';
+import { GridRow, GridRowId, GridRowProps } from '@mui/x-data-grid'
 
 export interface DragItem {
   id: GridRowId
@@ -11,10 +10,10 @@ const DragableRow = (props: GridRowProps) => {
       ({
         type: 'row',
         item: { id: props.rowId },
-        collect: (monitor) => ({opacity: monitor.isDragging() ? 0.4 : 1,}),
-        end: (item) => console.log('end', item)
+        collect: (monitor) => ({opacity: monitor.isDragging() ? 0.4 : 1}),
+        end: (item) => console.log('end', item),
       }),
-    [props.rowId]
+    [props.rowId],
   )
 
   return (

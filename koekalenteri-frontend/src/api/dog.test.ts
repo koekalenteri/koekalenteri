@@ -1,21 +1,12 @@
 import fetchMock from 'jest-fetch-mock'
-import { JsonDog } from "koekalenteri-shared/model"
 
 import { API_BASE_URL } from "../routeConfig"
 
-import { getDog, rehydrateDog } from './dog'
+import { getDog  } from './dog'
 
 fetchMock.enableMocks()
 
 beforeEach(() => fetchMock.resetMocks())
-
-test('rehydrateDog', function() {
-  const dog: JsonDog = { regNo: 'abc', name: 'def', rfid: '', dob: '20210101T00:00:00', refreshDate: '20200101T00:00:00' }
-  const rdog = rehydrateDog(dog)
-
-  expect(rdog.dob).toBeInstanceOf(Date)
-  expect(rdog.refreshDate).toBeInstanceOf(Date)
-})
 
 test('getDog', async () => {
   fetchMock.mockResponse(req => req.method === 'GET'

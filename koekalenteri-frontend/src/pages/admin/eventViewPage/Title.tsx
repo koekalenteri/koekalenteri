@@ -1,9 +1,10 @@
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Box, Typography } from '@mui/material'
-import { ConfirmedEventEx } from 'koekalenteri-shared/model'
 
-function Title({ event }: { event: ConfirmedEventEx }) {
+import { DecoratedEvent } from '../recoil'
+
+function Title({ event }: { event: DecoratedEvent }) {
   const { t } = useTranslation()
   const title = useMemo(() => {
     if (event.isEventOver) {

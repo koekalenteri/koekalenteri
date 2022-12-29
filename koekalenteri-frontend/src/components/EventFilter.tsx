@@ -1,10 +1,9 @@
 import { useTranslation } from 'react-i18next'
-import { URLSearchParamsInit } from 'react-router-dom'
 import { Box, FormControlLabel, Grid, Stack, Switch } from '@mui/material'
 import { formatISO } from 'date-fns'
 import { Judge, Organizer } from 'koekalenteri-shared/model'
 
-import { FilterProps, MIN_DATE } from '../stores/PublicStore'
+import { FilterProps } from '../pages/recoil/events'
 
 import { AutocompleteMulti, DateRange } from '.'
 
@@ -16,39 +15,40 @@ type EventFilterProps = {
   organizers: Organizer[]
 }
 
-const readDate = (date: string | null) => date ? new Date(date) : null
-const writeDate = (date: Date) => formatISO(date, { representation: 'date' })
+const MIN_DATE = new Date(2020, 0, 1)
 
-export function serializeFilter(filter: FilterProps): URLSearchParamsInit {
-  const result: Record<string, string | string[]> = {}
+const readDate = (date: string | null) => date ? new Date(date) : null
+const writeDate = (date: Date | null) => date ? formatISO(date, { representation: 'date' }) : ''
+
+export function serializeFilter(input: unknown): string {
+  const {eventFilter} = input as {eventFilter: FilterProps}
+  const params = new URLSearchParams()
   const bits = []
-  if (filter.withClosingEntry) {
+  if (eventFilter.withClosingEntry) {
     bits.push('c')
   }
-  if (filter.withFreePlaces) {
+  if (eventFilter.withFreePlaces) {
     bits.push('f')
   }
-  if (filter.withOpenEntry) {
+  if (eventFilter.withOpenEntry) {
     bits.push('o')
   }
-  if (filter.withUpcomingEntry) {
+  if (eventFilter.withUpcomingEntry) {
     bits.push('u')
   }
-  if (filter.end) {
-    result['e'] = writeDate(filter.end)
+  if (eventFilter.end) {
+    params.append('e', writeDate(eventFilter.end))
   }
-  result['c'] = filter.eventClass
-  result['t'] = filter.eventType
-  result['j'] = filter.judge.map(j => j.toString())
-  result['o'] = filter.organizer.map(o => o.toString())
-  if (filter.start) {
-    result['s'] = writeDate(filter.start)
-  }
-  result['b'] = bits
-  return result
+  eventFilter.eventClass.map(v => params.append('c', v))
+  eventFilter.eventType.map(v => params.append('t', v))
+  eventFilter.judge.map(v => params.append('j', v.toString()))
+  eventFilter.organizer.map(v => params.append('o', v.toString()))
+  bits.map(v => params.append('b', v))
+  return params.toString()
 }
 
-export function deserializeFilter(searchParams: URLSearchParams): FilterProps {
+export function deserializeFilter(input: string): unknown {
+  const searchParams = new URLSearchParams(input)
   const bits = searchParams.getAll('b')
   const result: FilterProps = {
     end: readDate(searchParams.get('e')),

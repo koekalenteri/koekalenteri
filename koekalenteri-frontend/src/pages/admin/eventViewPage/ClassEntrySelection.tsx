@@ -1,21 +1,21 @@
-import { useMemo, useState } from 'react';
-import React from 'react';
-import { DndProvider } from 'react-dnd';
-import { HTML5Backend } from 'react-dnd-html5-backend';
-import { useTranslation } from 'react-i18next';
-import { EuroOutlined, PersonOutline } from '@mui/icons-material';
-import { Box, Typography } from '@mui/material';
-import { GridColDef, GridRowId } from '@mui/x-data-grid';
-import { BreedCode, Registration, RegistrationDate } from 'koekalenteri-shared/model';
-import { useRecoilState, useRecoilValue } from 'recoil';
+import { useMemo } from 'react'
+import React from 'react'
+import { DndProvider } from 'react-dnd'
+import { HTML5Backend } from 'react-dnd-html5-backend'
+import { useTranslation } from 'react-i18next'
+import { EuroOutlined, PersonOutline } from '@mui/icons-material'
+import { Box, Typography } from '@mui/material'
+import { GridColDef, GridRowId } from '@mui/x-data-grid'
+import { BreedCode, Registration, RegistrationGroup } from 'koekalenteri-shared/model'
+import { useRecoilState, useRecoilValue } from 'recoil'
 
-import { StyledDataGrid } from '../../../components';
-import { currentEventClassRegistrationsQuery, registrationIdAtom } from '../recoil';
+import { StyledDataGrid } from '../../../components'
+import { adminRegistrationIdAtom, currentEventClassRegistrationsQuery } from '../recoil'
 
 import DragableDataGrid from './classEntrySelection/DropableDataGrid'
-import GroupColors, { availableGroups } from './classEntrySelection/GroupColors';
-import GroupHeader from './classEntrySelection/GroupHeader';
-import NoRowsOverlay from './classEntrySelection/NoRowsOverlay';
+import GroupColors, { availableGroups } from './classEntrySelection/GroupColors'
+import GroupHeader from './classEntrySelection/GroupHeader'
+import NoRowsOverlay from './classEntrySelection/NoRowsOverlay'
 
 interface Props {
   eventDates: Date[]
@@ -23,43 +23,49 @@ interface Props {
 }
 
 const ClassEntrySelection = ({ eventDates, setOpen }: Props) => {
-  const { t } = useTranslation();
-  const { t: breed } = useTranslation('breed');
+  const { t } = useTranslation()
+  const { t: breed } = useTranslation('breed')
   const registrations = useRecoilValue(currentEventClassRegistrationsQuery)
-  const [selectedRegistrationID, setSelectedRegistrationID] = useRecoilState(registrationIdAtom)
+  const [selectedRegistrationID, setSelectedRegistrationID] = useRecoilState(adminRegistrationIdAtom)
 
-  interface RegistrationGroup extends RegistrationDate {
-    key: string
-  }
-
-  const [groupRegistrations, setGroupRegistrations] = useState<Record<string, Registration[]>>({reserve: [...registrations]})
-  const eventGroups: RegistrationGroup[] = useMemo(() => availableGroups(eventDates).map(group => ({...group, key: group.date.toISOString().slice(0,10) + '|' + group.time})) , [eventDates])
+  const eventGroups: RegistrationGroup[] = useMemo(() => availableGroups(eventDates).map(eventDate => ({ ...eventDate, key: eventDate.date.toISOString().slice(0, 10) + '|' + eventDate.time, number: 0 })), [eventDates])
+  const registrationsByGroup: Record<string, Registration[]> = useMemo(() => {
+    const byGroup: Record<string, Registration[]> = { reserve: [] }
+    for (const group of eventGroups) {
+      byGroup[group.key] = []
+    }
+    for (const reg of registrations) {
+      const key = reg.group?.key ?? 'reserve'
+      byGroup[key].push(reg)
+    }
+    return byGroup
+  }, [eventGroups, registrations])
 
   const entryColumns: GridColDef[] = [
     {
       field: 'dates',
       headerName: '',
       width: 32,
-      renderCell: (p) => <GroupColors dates={eventDates} selected={p.row.dates} />
+      renderCell: (p) => <GroupColors dates={eventDates} selected={p.row.dates} />,
     },
     {
       field: 'dog.name',
       headerName: t('dog.name'),
       width: 250,
       flex: 1,
-      valueGetter: (p) => p.row.dog.name
+      valueGetter: (p) => p.row.dog.name,
     },
     {
       field: 'dog.regNo',
       headerName: t('dog.regNo'),
       width: 130,
-      valueGetter: (p) => p.row.dog.regNo
+      valueGetter: (p) => p.row.dog.regNo,
     },
     {
       field: 'dob.breed',
       headerName: t('dog.breed'),
       width: 150,
-      valueGetter: (p) => breed(`${p.row.dog.breedCode as BreedCode}`)
+      valueGetter: (p) => breed(`${p.row.dog.breedCode as BreedCode}`),
     },
     {
       field: 'class',
@@ -71,66 +77,44 @@ const ClassEntrySelection = ({ eventDates, setOpen }: Props) => {
       headerName: t('registration.handler'),
       width: 150,
       flex: 1,
-      valueGetter: (p) => p.row.handler.name
+      valueGetter: (p) => p.row.handler.name,
     },
     {
       field: 'createdAt',
       headerName: t('registration.createdAt'),
       width: 140,
-      valueGetter: (p) => t('dateTimeShort', { date: p.value })
+      valueGetter: (p) => t('dateTimeShort', { date: p.value }),
     },
     {
       field: 'member',
       headerName: t('registration.member'),
       width: 60,
       align: 'center',
-      renderCell: (p) => (p.row.handler.membership ? <PersonOutline fontSize="small" /> : <></>)
+      renderCell: (p) => (p.row.handler.membership ? <PersonOutline fontSize="small" /> : <></>),
     },
     {
       field: 'paid',
       headerName: t('registration.paid'),
       width: 90,
       align: 'center',
-      renderCell: () => (<EuroOutlined fontSize="small" />)
-    }
-  ];
+      renderCell: () => (<EuroOutlined fontSize="small" />),
+    },
+  ]
 
   const participantColumns: GridColDef[] = [
     ...entryColumns,
     {
       field: 'comment',
       headerName: 'Kommentti',
-      width: 90
-    }
+      width: 90,
+    },
   ]
 
   const handleDrop = (group: RegistrationGroup) => (item: { id: GridRowId }) => {
-    const reg = registrations.find(r => r.id === item.id);
+    const reg = registrations.find(r => r.id === item.id)
     if (reg) {
-      reg.setGroup({...group, number: 1})
+      reg.setGroup({ ...group, number: 1 })
     }
-    setGroupRegistrations(prev => {
-      const newGroups: Record<string, Registration[]> = {}
-      const keys = Object.keys(prev)
-      let reg: Registration | undefined
-      for (const key of keys) {
-        const found = prev[key].find(r => r.id === item.id)
-        if (found) {
-          newGroups[key] = prev[key].filter(r => r.id !== item.id)
-          reg = found
-        } else {
-          newGroups[key] = [...prev[key]]
-        }
-      }
-      if (!reg) {
-        return prev
-      }
-      if (!(group.key in newGroups)) {
-        newGroups[group.key] = []
-      }
-      newGroups[group.key].push(reg)
-      return newGroups
-    })
   }
 
   return (
@@ -145,7 +129,7 @@ const ClassEntrySelection = ({ eventDates, setOpen }: Props) => {
           hideFooter
           rows={[]}
           components={{
-            NoRowsOverlay: () => null
+            NoRowsOverlay: () => null,
           }}
         />
       </Box>
@@ -157,20 +141,20 @@ const ClassEntrySelection = ({ eventDates, setOpen }: Props) => {
           disableColumnMenu
           hideFooter
           headerHeight={0}
-          rows={groupRegistrations[group.key] ?? []}
+          rows={registrationsByGroup[group.key] ?? []}
           components={{
             Header: () => <GroupHeader eventDates={eventDates} group={group} />,
             NoRowsOverlay: NoRowsOverlay,
           }}
           onDrop={handleDrop(group)}
-        />
+        />,
       )}
       < Typography variant='h5' > Ilmoittautuneet</Typography >
       <DragableDataGrid
         columns={entryColumns}
         density='compact'
         disableColumnMenu
-        rows={groupRegistrations.reserve}
+        rows={registrationsByGroup.reserve}
         onSelectionModelChange={(selection) => {
           const value = typeof selection[0] === 'string' ? selection[0] : undefined
           setTimeout(() => setSelectedRegistrationID(value), 0)

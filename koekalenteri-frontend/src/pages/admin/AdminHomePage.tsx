@@ -3,8 +3,10 @@ import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import { useAuthenticator } from '@aws-amplify/ui-react'
 import { Box, Toolbar } from '@mui/material'
 
-import { Header, SideMenu } from '../../layout'
 import { Path } from '../../routeConfig'
+import Header from '../components/Header'
+import LoadingIndicator from '../components/LoadingIndicator'
+import { SideMenu } from '../components/SideMenu'
 
 export function AdminHomePage() {
   const location = useLocation()
@@ -21,7 +23,7 @@ export function AdminHomePage() {
         <SideMenu open={menuOpen} onClose={closeMenu} />
         <Box sx={{ p: 1, display: 'flex', flexDirection: 'column', flexGrow: 1, overflow: 'auto' }}>
           <Toolbar variant="dense" />
-          <Suspense fallback={<div>Loading...</div>}>
+          <Suspense fallback={<LoadingIndicator />}>
             <Outlet />
           </Suspense>
         </Box>

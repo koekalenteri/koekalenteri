@@ -3,33 +3,31 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { AddCircleOutline, ContentCopyOutlined, DeleteOutline, EditOutlined, FormatListNumberedOutlined } from '@mui/icons-material'
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControlLabel, Stack, Switch, TextField } from '@mui/material'
-import { Event } from 'koekalenteri-shared/model'
-import cloneDeep from 'lodash.clonedeep'
-import { toJS } from 'mobx'
-import { observer } from 'mobx-react-lite'
-import { useSnackbar } from 'notistack'
+import { useRecoilValue } from 'recoil'
 
 import { AutoButton } from '../../components'
 import { Path } from '../../routeConfig'
-import { useStores } from '../../stores'
 
 import FullPageFlex from './components/FullPageFlex'
 import EventList from './eventListPage/EventList'
+import { adminEventIdAtom, adminEventsAtom, currentAdminEvent } from './recoil'
 
-export const EventListPage = observer(function EventListPage() {
+export const EventListPage = () => {
   const { t } = useTranslation()
-  const { privateStore } = useStores()
-  const { enqueueSnackbar } = useSnackbar()
   const [open, setOpen] = useState(false)
   const navigate = useNavigate()
+  const selectedEventID = useRecoilValue(adminEventIdAtom)
+  const selectedEvent = useRecoilValue(currentAdminEvent)
+  const events = useRecoilValue(adminEventsAtom)
 
   const handleClose = () => {
     setOpen(false)
   }
 
   const copyAction = async () => {
-    if (privateStore.selectedEvent) {
-      const newEvent: Partial<Event> = cloneDeep({ ...privateStore.selectedEvent })
+    /*
+    if (selectedEvent) {
+      const newEvent: Partial<Event> = cloneDeep({ ...selectedEvent })
       delete newEvent.id
       delete newEvent.kcId
       delete newEvent.state
@@ -37,21 +35,24 @@ export const EventListPage = observer(function EventListPage() {
       delete newEvent.endDate
       delete newEvent.entryStartDate
       delete newEvent.entryEndDate
-      privateStore.setNewEvent(newEvent)
+      asdd.setNewEvent(newEvent)
       navigate(Path.admin.newEvent)
     }
+    */
   }
 
   const deleteAction = async () => {
-    if (privateStore.selectedEvent) {
+    /*
+    if (selectedEvent) {
       setOpen(false)
       try {
-        await privateStore.deleteEvent(privateStore.selectedEvent)
+        await actions.deleteEvent(selectedEvent)
         enqueueSnackbar(t('deleteEventComplete'), { variant: 'info' })
       } catch (e: any) {
         enqueueSnackbar(e.message, { variant: 'error' })
       }
     }
+    */
   }
 
   return (
@@ -71,12 +72,12 @@ export const EventListPage = observer(function EventListPage() {
         </div>
         <Stack direction="row" spacing={2}>
           <AutoButton startIcon={<AddCircleOutline />} onClick={() => navigate(Path.admin.newEvent)} text={t('createEvent')} />
-          <AutoButton startIcon={<EditOutlined />} disabled={!privateStore.selectedEvent} onClick={() => navigate(`${Path.admin.editEvent}/${privateStore.selectedEvent?.id}`)} text={t('edit')} />
-          <AutoButton startIcon={<ContentCopyOutlined />} disabled={!privateStore.selectedEvent} onClick={copyAction} text={t('copy')} />
-          <AutoButton startIcon={<DeleteOutline />} disabled={!privateStore.selectedEvent} onClick={() => setOpen(true)} text={t('delete')} />
-          <AutoButton startIcon={<FormatListNumberedOutlined />} disabled={!privateStore.selectedEvent || !privateStore.selectedEvent.entries} onClick={() => navigate(`${Path.admin.viewEvent}/${privateStore.selectedEvent?.id}`)} text={t('registrations')} />
+          <AutoButton startIcon={<EditOutlined />} disabled={!selectedEventID} onClick={() => navigate(`${Path.admin.editEvent}/${selectedEventID}`)} text={t('edit')} />
+          <AutoButton startIcon={<ContentCopyOutlined />} disabled={!selectedEventID} onClick={copyAction} text={t('copy')} />
+          <AutoButton startIcon={<DeleteOutline />} disabled={!selectedEventID} onClick={() => setOpen(true)} text={t('delete')} />
+          <AutoButton startIcon={<FormatListNumberedOutlined />} disabled={!selectedEvent || !selectedEvent.entries} onClick={() => navigate(`${Path.admin.viewEvent}/${selectedEventID}`)} text={t('registrations')} />
         </Stack>
-        <EventList events={toJS(privateStore.events)}></EventList>
+        <EventList events={events}></EventList>
       </FullPageFlex>
       <Dialog
         open={open}
@@ -99,4 +100,4 @@ export const EventListPage = observer(function EventListPage() {
       </Dialog>
     </>
   )
-})
+}

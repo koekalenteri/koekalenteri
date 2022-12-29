@@ -1,15 +1,12 @@
-import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { CheckBoxOutlineBlankOutlined, CheckBoxOutlined, CloudSync } from '@mui/icons-material'
 import { Button, Stack, Switch, ToggleButton, ToggleButtonGroup } from '@mui/material'
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid'
 import { Judge } from 'koekalenteri-shared/model'
-import { computed, toJS } from 'mobx'
-import { observer } from 'mobx-react-lite'
+import { useRecoilState, useRecoilValue } from 'recoil'
 
 import { QuickSearchToolbar, StyledDataGrid } from '../../components'
-import { useStores } from '../../stores'
-import { CJudge } from '../../stores/classes/CJudge'
+import { filteredJudgesQuery, judgeFilterAtom, useJudgesActions } from '../recoil/judges'
 
 import FullPageFlex from './components/FullPageFlex'
 
@@ -17,27 +14,18 @@ interface JudgeColDef extends GridColDef {
   field: keyof Judge
 }
 
-export const JudgeListPage = observer(function JudgeListPage() {
-  const [searchText, setSearchText] = useState('')
+export const JudgeListPage = () => {
+  const [searchText, setSearchText] = useRecoilState(judgeFilterAtom)
   const { t } = useTranslation()
-  const { rootStore } = useStores()
-  const saveJudge = async (judge: CJudge) => {
-    try {
-      const props: any = { ...judge }
-      delete props.store
-      delete props.search
-      await judge.store.rootStore.judgeStore.save(props)
-    } catch(err) {
-      console.log(err)
-    }
-  }
+  const judges = useRecoilValue(filteredJudgesQuery)
+  const actions = useJudgesActions()
+
   const columns: JudgeColDef[] = [
     {
       field: 'active',
       headerName: t('judgeActive'),
-      renderCell: (params: GridRenderCellParams<CJudge, CJudge>) => <Switch checked={!!params.value} onChange={async (_e, checked) => {
-        params.row.active = checked
-        saveJudge(params.row)
+      renderCell: (params: GridRenderCellParams<Judge, Judge>) => <Switch checked={!!params.value} onChange={async (_e, checked) => {
+        actions.save({...params.row, active: checked})
       }} />,
       width: 90,
     },
@@ -90,13 +78,13 @@ export const JudgeListPage = observer(function JudgeListPage() {
       field: 'languages',
       flex: 0,
       headerName: t('languages'),
-      renderCell: (params: GridRenderCellParams<CJudge, CJudge>) =>
+      renderCell: (params: GridRenderCellParams<Judge, Judge>) =>
         <ToggleButtonGroup
+          color={'info'}
           value={params.value}
           fullWidth
           onChange={(_e, value) => {
-            params.row.languages = value
-            saveJudge(params.row)
+            actions.save({...params.row, languages: value})
           }}
         >
           <ToggleButton value="fi">{t('language.fi')}</ToggleButton>
@@ -107,28 +95,14 @@ export const JudgeListPage = observer(function JudgeListPage() {
     },
   ]
 
-  const refresh = async () => {
-    rootStore.judgeStore.load(true)
-  }
-
-  const rows = computed(() => {
-    const lvalue = searchText.toLocaleLowerCase()
-    return toJS(rootStore.judgeStore.judges).filter(o => o.search.includes(lvalue))
-  }).get()
-
-  const requestSearch = (searchValue: string) => {
-    setSearchText(searchValue)
-  }
-
   return (
     <>
       <FullPageFlex>
         <Stack direction="row" spacing={2}>
-          <Button startIcon={<CloudSync />} onClick={refresh}>{t('updateData', { data: 'judges' })}</Button>
+          <Button startIcon={<CloudSync />} onClick={actions.refresh}>{t('updateData', { data: 'judges' })}</Button>
         </Stack>
 
         <StyledDataGrid
-          loading={rootStore.judgeStore.loading}
           autoPageSize
           columns={columns}
           components={{ Toolbar: QuickSearchToolbar }}
@@ -136,16 +110,16 @@ export const JudgeListPage = observer(function JudgeListPage() {
             toolbar: {
               value: searchText,
               onChange: (event: React.ChangeEvent<HTMLInputElement>) =>
-                requestSearch(event.target.value),
-              clearSearch: () => requestSearch(''),
+                setSearchText(event.target.value),
+              clearSearch: () => setSearchText(''),
             },
           }}
           density='compact'
           disableColumnMenu
           disableVirtualization
-          rows={rows}
+          rows={judges}
         />
       </FullPageFlex>
     </>
   )
-})
+}

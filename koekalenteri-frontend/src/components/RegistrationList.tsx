@@ -24,7 +24,7 @@ interface RegistrationListColDef extends GridColDef {
   getActions?: (params: GridRowParams<Registration>) => JSX.Element[]
 }
 
-export function RegistrationList({loading, rows, onUnregister}: {loading: boolean, rows: Registration[], onUnregister: (registration: Registration) => void}) {
+export function RegistrationList({rows, onUnregister}: {rows: Registration[], onUnregister: (registration: Registration) => void}) {
   const { t } = useTranslation()
   const { t: breed } = useTranslation('breed')
   const navigate = useNavigate()
@@ -86,7 +86,6 @@ export function RegistrationList({loading, rows, onUnregister}: {loading: boolea
       <Typography variant="h5">Ilmoitetut koirat</Typography>
       <Box sx={{height: 120, '& .cancelled': {opacity: 0.5}}}>
         <StyledDataGrid
-          loading={loading}
           hideFooter={true}
           columns={columns}
           density='compact'

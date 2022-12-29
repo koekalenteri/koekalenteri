@@ -13,7 +13,6 @@ import {
   TableRow,
 } from '@mui/material'
 import type { EventEx, EventState } from 'koekalenteri-shared/model'
-import { observer } from 'mobx-react-lite'
 
 import { useSessionBoolean } from '../stores'
 
@@ -30,7 +29,7 @@ function eventClasses(event: EventEx) {
   return ret.join(', ')
 }
 
-const Row = observer(function Row({ event }: { event: EventEx }) {
+const Row = ({ event }: { event: EventEx }) => {
   const [open, setOpen] = useSessionBoolean('open' + event.id, false)
   const { t } = useTranslation()
 
@@ -86,9 +85,9 @@ const Row = observer(function Row({ event }: { event: EventEx }) {
       </TableRow>
     </>
   )
-})
+}
 
-const EventPlaces = observer(function EventPlaces({ event }: { event: EventEx }) {
+const EventPlaces = ({ event }: { event: EventEx }) => {
   const { t } = useTranslation()
   const color = event.entries > event.places ? 'warning.main' : 'text.primary'
   let text = ''
@@ -104,7 +103,7 @@ const EventPlaces = observer(function EventPlaces({ event }: { event: EventEx })
   return (
     <Box textAlign="right" sx={{ color, fontWeight: bold ? 'bold' : 'normal' }}>{text}</Box>
   )
-})
+}
 
 function EventStateInfo({ state }: { state: EventState }) {
   const { t } = useTranslation()
@@ -112,7 +111,7 @@ function EventStateInfo({ state }: { state: EventState }) {
   return<Box sx={{ color: 'warning.main', textTransform: 'uppercase', mr: 1 }}>
     {showInfo && t(`event.states.${state}_info`)}
   </Box>
-};
+}
 
 function EmptyResult() {
   const { t } = useTranslation()
@@ -121,7 +120,7 @@ function EmptyResult() {
   )
 }
 
-export const EventTable = observer(function EventTable({ events }: { events: EventEx[] }) {
+export function EventTable({ events }: { events: EventEx[] }) {
   return (
     <>
       {events.length ?
@@ -136,4 +135,4 @@ export const EventTable = observer(function EventTable({ events }: { events: Eve
       }
     </>
   )
-})
+}

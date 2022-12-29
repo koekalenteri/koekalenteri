@@ -5,35 +5,35 @@ import { Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, Di
 import { isPast, isToday } from 'date-fns'
 import type { ConfirmedEventEx, Registration } from 'koekalenteri-shared/model'
 import { useSnackbar } from 'notistack'
+import { RecoilState, useRecoilValue } from 'recoil'
 
-import { getRegistration, putRegistration } from '../api/event'
+import { putRegistration } from '../api/event'
 import { LinkButton, RegistrationEventInfo, RegistrationList } from '../components'
-import { Header } from '../layout'
-import { useSessionStarted, useStores } from '../stores'
+import { useSessionStarted } from '../stores'
+
+import Header from './components/Header'
+import { currentEvent, eventIdAtom } from './recoil/events'
+import { registrationIdAtom, registrationQuery } from './recoil/registration'
 
 export function RegistrationListPage({cancel}: {cancel?: boolean}) {
   const params = useParams()
-  const { publicStore } = useStores()
-  const [loading, setLoading] = useState(true)
-  const [event, setEvent] = useState<ConfirmedEventEx>()
-  const [registration, setRegistration] = useState<Registration>()
+  const [eventId, setEventId] = useRecoilState(eventIdAtom)
+  const [registrationId, setRegistrationId] = useRecoilState(registrationIdAtom)
+  const event = useRecoilValue(currentEvent) as ConfirmedEventEx | undefined
+  const registration = useRecoilValue(registrationQuery)
   const [sessionStarted] = useSessionStarted()
   const { t } = useTranslation()
 
   useEffect(() => {
-    const abort = new AbortController()
-    async function get(eventType: string, id: string, registrationId: string) {
-      const evt = await publicStore.get(id, abort.signal) as ConfirmedEventEx
-      const reg = await getRegistration(id, registrationId, abort.signal)
-      setEvent(evt)
-      setRegistration(reg)
-      setLoading(false)
+    if (params.id && params.registrationId) {
+      if (params.id !== eventId) {
+        setEventId(params.id)
+      }
+      if (params.registrationId !== registrationId) {
+        setRegistrationId(params.registrationId)
+      }
     }
-    if (params.eventType && params.id && params.registrationId) {
-      get(params.eventType, params.id, params.registrationId)
-    }
-    return () => abort.abort()
-  }, [params, publicStore])
+  }, [eventId, params, registrationId, setEventId, setRegistrationId])
 
   return (
     <>
@@ -41,13 +41,13 @@ export function RegistrationListPage({cancel}: {cancel?: boolean}) {
       <Box sx={{ p: 1, overflow: 'hidden', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
         <Toolbar variant="dense" />{/* To allocate the space for fixed header */}
         <LinkButton sx={{ mb: 1 }} to="/" text={sessionStarted ? t('goBack') : t('goHome')} />
-        <PageContent event={event} loading={loading} registration={registration} cancel={cancel}/>
+        <PageContent event={event} registration={registration} cancel={cancel}/>
       </Box>
     </>
   )
 }
 
-function PageContent({ event, loading, registration, cancel }: { event?: ConfirmedEventEx, loading: boolean, registration?: Registration, cancel?: boolean }) {
+function PageContent({ event, registration, cancel }: { event?: ConfirmedEventEx, registration?: Registration, cancel?: boolean }) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(!!cancel)
   const { enqueueSnackbar } = useSnackbar()
@@ -79,7 +79,7 @@ function PageContent({ event, loading, registration, cancel }: { event?: Confirm
   return (
     <>
       <RegistrationEventInfo event={event} />
-      <RegistrationList loading={loading} rows={registration ? [registration] : []} onUnregister={() => setOpen(true)} />
+      <RegistrationList rows={registration ? [registration] : []} onUnregister={() => setOpen(true)} />
       <Dialog
         open={open}
         onClose={handleClose}
@@ -115,3 +115,7 @@ function PageContent({ event, loading, registration, cancel }: { event?: Confirm
     </>
   )
 }
+function useRecoilState(eventIdAtom: RecoilState<string | undefined>): [any, any] {
+  throw new Error('Function not implemented.')
+}
+

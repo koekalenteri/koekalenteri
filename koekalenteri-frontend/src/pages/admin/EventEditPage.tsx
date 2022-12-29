@@ -1,75 +1,64 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
-import { useAuthenticator } from '@aws-amplify/ui-react'
-import { CircularProgress } from '@mui/material'
-import { autorun, toJS } from 'mobx'
-import { observer } from 'mobx-react-lite'
 import { useSnackbar } from 'notistack'
+import { useRecoilState, useRecoilValue } from 'recoil'
 
 import { EventForm } from '../../components'
 import { Path } from '../../routeConfig'
-import { useStores } from '../../stores'
+import { activeEventTypesQuery, eventTypeClassesAtom } from '../recoil/eventTypes'
+import { activeJudgesQuery } from '../recoil/judges'
+import { officialsAtom } from '../recoil/officials'
+import { organizersAtom } from '../recoil/organizers'
 
-export const EventEditPage = observer(function EventEditPage({create}: {create?: boolean}) {
+import { adminEventIdAtom, currentAdminEvent, DecoratedEvent } from './recoil'
+
+export function EventEditPage({create}: {create?: boolean}) {
   const params = useParams()
   const { t } = useTranslation()
-  const { user } = useAuthenticator(context => [context.user])
-  const { rootStore, publicStore, privateStore } = useStores()
   const { enqueueSnackbar } = useSnackbar()
-  const [loading, setLoading] = useState(true)
   const navigate = useNavigate()
+  const [selectedEventID, setSelectedEventID] = useRecoilState(adminEventIdAtom)
+  const [event, setEvent] = useRecoilState(currentAdminEvent)
+  const activeEventTypes = useRecoilValue(activeEventTypesQuery)
+  const activeJudges = useRecoilValue(activeJudgesQuery)
+  const eventTypeClasses = useRecoilValue(eventTypeClassesAtom)
+  const officials = useRecoilValue(officialsAtom)
+  const organizers = useRecoilValue(organizersAtom)
 
-  /**
-   * @todo move to route loader
-   */
-  useEffect(() => autorun(() => {
-    const abort = new AbortController()
-    async function get(id: string) {
-      if (!privateStore.loaded) {
-        return
-      }
-      await privateStore.selectEvent(id, abort.signal)
-      setLoading(false)
+  useEffect(() => {
+    if (create && selectedEventID) {
+      setSelectedEventID(undefined)
     }
-    if (params.id && privateStore.selectedEvent?.id !== params.id) {
-      get(params.id)
-    } else {
-      setLoading(false)
+    if (params.id && params.id !== selectedEventID) {
+      setSelectedEventID(params.id)
     }
-    return () => abort.abort()
-  }), []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [create, params.id, selectedEventID, setSelectedEventID])
 
   return (
-    <>
-      {loading
-        ? <CircularProgress />
-        : <EventForm
-          event={toJS(!create && privateStore.selectedEvent ? privateStore.selectedEvent : privateStore.newEvent)}
-          eventTypes={rootStore.eventTypeStore.activeEventTypes}
-          eventTypeClasses={publicStore.eventTypeClasses}
-          judges={rootStore.judgeStore.activeJudges.map(j => j.toJSON())}
-          officials={rootStore.officialStore.officials.map(o => o.toJSON())}
-          organizers={rootStore.organizerStore.organizers.map(o => o.toJSON())}
-          onSave={async (event) => {
-            try {
-              await privateStore.putEvent(event, user.getSignInUserSession()?.getIdToken().getJwtToken())
-              navigate(Path.admin.events)
-              enqueueSnackbar(t(`event.states.${event.state || 'draft'}`, { context: 'save' }), { variant: 'info' })
-              return Promise.resolve(true)
-            } catch (e: any) {
-              enqueueSnackbar(e.message, { variant: 'error' })
-              return Promise.resolve(false)
-            }
-          }}
-          onCancel={(event) => {
-            if (create) {
-              privateStore.newEvent = { ...event }
-            }
-            navigate(Path.admin.events)
-            return Promise.resolve(true)
-          }}
-        />}
-    </>
+    <EventForm
+      event={event ?? {}}
+      eventTypes={activeEventTypes.map(et => et.eventType)}
+      eventTypeClasses={eventTypeClasses}
+      judges={activeJudges}
+      officials={officials}
+      organizers={organizers}
+      onSave={async (event) => {
+        try {
+          //await putEvent(event, user.getSignInUserSession()?.getIdToken().getJwtToken())
+          setEvent(event as DecoratedEvent)
+          navigate(Path.admin.events)
+          enqueueSnackbar(t(`event.states.${event.state || 'draft'}`, { context: 'save' }), { variant: 'info' })
+          return true
+        } catch (e: any) {
+          enqueueSnackbar(e.message, { variant: 'error' })
+          return false
+        }
+      }}
+      onCancel={async (event) => {
+        navigate(Path.admin.events)
+        return false
+      }}
+    />
   )
-})
+}

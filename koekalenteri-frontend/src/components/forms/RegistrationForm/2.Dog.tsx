@@ -7,8 +7,6 @@ import { DatePicker } from '@mui/x-date-pickers'
 import { differenceInMinutes, subMonths, subYears } from 'date-fns'
 import { BreedCode, Dog, DogGender, Registration } from 'koekalenteri-shared/model'
 import merge from 'lodash.merge'
-import { toJS } from 'mobx'
-import { observer } from 'mobx-react-lite'
 
 import { useStores } from '../../../stores'
 import { DogCachedInfo } from '../../../stores/DogStore'
@@ -35,9 +33,9 @@ type DogInfoProps = {
   onChange: (props: Partial<Registration>) => void
   onOpenChange?: (value: boolean) => void
   open?: boolean
-};
+}
 
-export const DogInfo = observer(function DogInfo({ reg, eventDate, minDogAgeMonths, error, helperText, onChange, onOpenChange, open }: DogInfoProps) {
+export const DogInfo = ({ reg, eventDate, minDogAgeMonths, error, helperText, onChange, onOpenChange, open }: DogInfoProps) => {
   const { rootStore } = useStores()
   const { t } = useTranslation()
   const { t: breed } = useTranslation('breed')
@@ -113,7 +111,7 @@ export const DogInfo = observer(function DogInfo({ reg, eventDate, minDogAgeMont
           }}
           getOptionLabel={o => typeof o === 'string' ? o : o.regNo || ''}
           isOptionEqualToValue={(o, v) => o.regNo === v.regNo}
-          options={toJS(rootStore.dogStore.dogs)}
+          options={rootStore.dogStore.dogs}
           sx={{ minWidth: 200 }}
         />
         <Stack alignItems="flex-start">
@@ -229,7 +227,7 @@ export const DogInfo = observer(function DogInfo({ reg, eventDate, minDogAgeMont
       </Grid>
     </CollapsibleSection>
   )
-})
+}
 
 type TitlesAndNameProps = {
   className?: string

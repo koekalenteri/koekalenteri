@@ -2,8 +2,6 @@ import { createContext, useContext, useMemo } from "react"
 import { configure } from "mobx"
 
 import { Setter, useLocalStorage, useSessionStorage } from './browser'
-import { PrivateStore } from "./PrivateStore"
-import { PublicStore } from "./PublicStore"
 import { RootStore } from "./RootStore"
 
 // Make sure TS is configured properly for MobX
@@ -20,8 +18,6 @@ configure({
 
 export const stores = {
   rootStore: new RootStore(),
-  publicStore: new PublicStore(),
-  privateStore: new PrivateStore(),
 }
 
 const rootStoreContext = createContext(stores)

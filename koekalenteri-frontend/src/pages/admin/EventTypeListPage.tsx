@@ -1,25 +1,24 @@
-import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { CheckBoxOutlineBlankOutlined, CheckBoxOutlined, CloudSync } from '@mui/icons-material'
 import { Button, Stack, Switch } from '@mui/material'
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid'
-import { computed, toJS } from 'mobx'
-import { observer } from 'mobx-react-lite'
+import { EventType } from 'koekalenteri-shared/model'
+import { useRecoilState, useRecoilValue } from 'recoil'
 
 import { QuickSearchToolbar, StyledDataGrid } from '../../components'
-import { useStores } from '../../stores'
-import { CEventType } from '../../stores/classes/CEventType'
+import { eventTypeFilterAtom, filteredEventTypesQuery, useEventTypeActions } from '../recoil/eventTypes'
 
 import FullPageFlex from './components/FullPageFlex'
 
 interface EventTypeColDef extends GridColDef {
-  field: keyof CEventType
+  field: keyof EventType
 }
 
-export const EventTypeListPage = observer(function EventTypeListPage()  {
-  const [searchText, setSearchText] = useState('')
+export const EventTypeListPage = () =>  {
+  const [searchText, setSearchText] = useRecoilState(eventTypeFilterAtom)
+  const eventTypes = useRecoilValue(filteredEventTypesQuery)
+  const actions = useEventTypeActions()
   const { t, i18n } = useTranslation()
-  const { rootStore } = useStores()
   const columns: EventTypeColDef[] = [
     {
       field: 'eventType',
@@ -35,16 +34,8 @@ export const EventTypeListPage = observer(function EventTypeListPage()  {
     {
       field: 'active',
       headerName: t('active'),
-      renderCell: (params: GridRenderCellParams<CEventType, CEventType>) => <Switch checked={!!params.value} onChange={async (_e, checked) => {
-        try {
-          params.row.active = checked
-          const props: any = { ...params.row }
-          delete props.store
-          delete props.search
-          await params.row.store.rootStore.eventTypeStore.save(props)
-        } catch(err) {
-          console.log(err)
-        }
+      renderCell: (params: GridRenderCellParams<EventType, EventType>) => <Switch checked={!!params.value} onChange={async (_e, checked) => {
+        actions.save({...params.row, active: checked})
       }} />,
       width: 80,
     },
@@ -56,28 +47,14 @@ export const EventTypeListPage = observer(function EventTypeListPage()  {
     },
   ]
 
-  const refresh = async () => {
-    rootStore.eventTypeStore.load(true)
-  }
-
-  const rows = computed(() => {
-    const lvalue = searchText.toLocaleLowerCase()
-    return toJS(rootStore.eventTypeStore.eventTypes).filter(o => o.search.includes(lvalue))
-  }).get()
-
-  const requestSearch = (searchValue: string) => {
-    setSearchText(searchValue)
-  }
-
   return (
     <>
       <FullPageFlex>
         <Stack direction="row" spacing={2}>
-          <Button startIcon={<CloudSync />} onClick={refresh}>{t('updateData', {data: 'eventTypes'})}</Button>
+          <Button startIcon={<CloudSync />} onClick={actions.refresh}>{t('updateData', {data: 'eventTypes'})}</Button>
         </Stack>
 
         <StyledDataGrid
-          loading={rootStore.eventTypeStore.loading}
           autoPageSize
           columns={columns}
           components={{ Toolbar: QuickSearchToolbar }}
@@ -85,16 +62,16 @@ export const EventTypeListPage = observer(function EventTypeListPage()  {
             toolbar: {
               value: searchText,
               onChange: (event: React.ChangeEvent<HTMLInputElement>) =>
-                requestSearch(event.target.value),
-              clearSearch: () => requestSearch(''),
+                setSearchText(event.target.value),
+              clearSearch: () => setSearchText(''),
             },
           }}
           density='compact'
           disableColumnMenu
-          rows={rows}
+          rows={eventTypes}
           getRowId={(row) => row.eventType}
         />
       </FullPageFlex>
     </>
   )
-})
+}

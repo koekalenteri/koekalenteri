@@ -12,7 +12,7 @@ type OwnerInfoProps = {
   onChange: (props: Partial<Registration>) => void
   onOpenChange?: (value: boolean) => void
   open?: boolean
-};
+}
 
 export function OwnerInfo({reg, error, helperText, onChange, onOpenChange, open}: OwnerInfoProps) {
   const { t } = useTranslation()

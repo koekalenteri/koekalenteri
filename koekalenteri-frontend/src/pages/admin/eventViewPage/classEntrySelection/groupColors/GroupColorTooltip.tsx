@@ -1,8 +1,8 @@
-import type { ReactElement } from 'react';
-import { useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Tooltip } from '@mui/material';
-import type { RegistrationDate } from 'koekalenteri-shared/model';
+import type { ReactElement } from 'react'
+import { useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
+import { Tooltip } from '@mui/material'
+import type { RegistrationDate } from 'koekalenteri-shared/model'
 
 interface Props {
   children: ReactElement
@@ -12,17 +12,17 @@ interface Props {
 }
 
 const GroupColorTooltip = ({ selected, children, disabled }: Props) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation()
   const title = useMemo(() => selected.length && 'Sopivat ryhmät: ' + selected.map(s => t('weekday', { date: s.date }) + ' ' + t(`registration.time.${s.time}`)).join(', '),
-    [selected, t]);
+    [selected, t])
 
   if (disabled) {
-    return children;
+    return children
   }
 
   return <Tooltip title={title}>
     {children}
-  </Tooltip>;
-};
+  </Tooltip>
+}
 
 export default GroupColorTooltip

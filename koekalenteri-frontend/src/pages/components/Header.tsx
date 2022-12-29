@@ -1,16 +1,15 @@
 import { Menu } from '@mui/icons-material'
-import { AppBar, Box, IconButton, Link, Toolbar, Typography } from '@mui/material'
+import { AppBar, IconButton, Link, Toolbar, Typography } from '@mui/material'
 
-import banner from '../assets/banner.png'
-import logo from '../assets/snj-logo.png'
-import { LanguageMenu, UserMenu } from '../components'
+import logo from '../../assets/snj-logo.png'
+import { LanguageMenu, UserMenu } from '../../components'
 
 interface Props {
   title?: string,
   toggleMenu?: () => void
 }
 
-export function Header({title, toggleMenu}: Props) {
+const Header = ({title, toggleMenu}: Props) => {
   return (
     <AppBar position="fixed" color="secondary">
       <Toolbar variant="dense" disableGutters sx={{ width: '100%', px: 1 }}>
@@ -37,15 +36,4 @@ export function Header({title, toggleMenu}: Props) {
   )
 }
 
-export function Banner() {
-  return (
-    <Box sx={{
-      backgroundImage: `url(${banner})`,
-      backgroundRepeat: 'no-repeat',
-      backgroundPositionY: '48px',
-      backgroundSize: 'cover',
-      width: '100%',
-      height: { xs: 98, sm: 148, md: 260 },
-    }}></Box>
-  )
-}
+export default Header

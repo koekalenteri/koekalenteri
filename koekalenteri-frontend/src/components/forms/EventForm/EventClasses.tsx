@@ -40,7 +40,7 @@ export const compareEventClass = (a: EventClass, b: EventClass) =>
 
 export function EventClasses(props: EventClassesProps) {
   if (props.value) {
-    props.value.sort(compareEventClass)
+    // props.value.sort(compareEventClass);
   }
 
   const { t } = useTranslation()

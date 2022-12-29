@@ -1,6 +1,6 @@
-import React, { useRef } from "react";
-import { useDrop } from "react-dnd";
-import { DataGridProps, GridRowId } from "@mui/x-data-grid";
+import { useRef } from "react"
+import { useDrop } from "react-dnd"
+import { DataGridProps, GridRowId } from "@mui/x-data-grid"
 
 import { StyledDataGrid } from '../../../../components'
 
@@ -36,7 +36,7 @@ const DropableDataGrid = (props: Props) => {
     <div ref={ref} style={{ backgroundColor, width: '100%', height: '100%' }}>
       <StyledDataGrid {...props} components={{
         ...props.components,
-        Row: DragableRow
+        Row: DragableRow,
       }} />
     </div>
   )

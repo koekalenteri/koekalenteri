@@ -5,23 +5,19 @@ Array [
   Object {
     "children": Array [
       Object {
-        "element": <Memo(SearchPage) />,
+        "element": <SearchPage />,
         "index": true,
-        "loader": [Function],
       },
       Object {
-        "element": <Memo(RegistrationPage) />,
-        "loader": [Function],
+        "element": <RegistrationPage />,
         "path": "event/:eventType/:id/:class/:date",
       },
       Object {
-        "element": <Memo(RegistrationPage) />,
-        "loader": [Function],
+        "element": <RegistrationPage />,
         "path": "event/:eventType/:id/:class",
       },
       Object {
-        "element": <Memo(RegistrationPage) />,
-        "loader": [Function],
+        "element": <RegistrationPage />,
         "path": "event/:eventType/:id",
       },
       Object {
@@ -31,7 +27,7 @@ Array [
         "path": "registration/:eventType/:id/:registrationId/cancel",
       },
       Object {
-        "element": <Memo(RegistrationPage) />,
+        "element": <RegistrationPage />,
         "path": "registration/:eventType/:id/:registrationId/edit",
       },
       Object {
@@ -41,9 +37,7 @@ Array [
     ],
     "element": <HomePage />,
     "errorElement": <ErrorPage />,
-    "loader": [Function],
     "path": "/",
-    "shouldRevalidate": [Function],
   },
   Object {
     "element": <LoginPage />,
@@ -63,22 +57,21 @@ Array [
         "index": true,
       },
       Object {
-        "element": <Memo(EventListPage) />,
+        "element": <EventListPage />,
         "path": "/admin/event",
       },
       Object {
-        "element": <Memo(EventEditPage)
+        "element": <EventEditPage
           create={true}
         />,
         "path": "/admin/event/create",
       },
       Object {
-        "element": <Memo(EventEditPage) />,
+        "element": <EventEditPage />,
         "path": "/admin/event/edit/:id",
       },
       Object {
         "element": <EventViewPage />,
-        "loader": [Function],
         "path": "/admin/event/view/:id",
       },
       Object {
@@ -86,11 +79,11 @@ Array [
         "path": "/admin/event/view/:id/:reistrationId",
       },
       Object {
-        "element": <Memo(OrganizerListPage) />,
+        "element": <OrganizerListPage />,
         "path": "/admin/organizations",
       },
       Object {
-        "element": <Memo(OfficialListPage) />,
+        "element": <OfficialListPage />,
         "path": "/admin/officials",
       },
       Object {
@@ -98,19 +91,17 @@ Array [
         "path": "/admin/users",
       },
       Object {
-        "element": <Memo(JudgeListPage) />,
+        "element": <JudgeListPage />,
         "path": "/admin/judge",
       },
       Object {
-        "element": <Memo(EventTypeListPage) />,
+        "element": <EventTypeListPage />,
         "path": "/admin/types",
       },
     ],
     "element": <AdminHomePage />,
     "errorElement": <ErrorPage />,
-    "loader": [Function],
     "path": "/admin",
-    "shouldRevalidate": [Function],
   },
 ]
 `;
