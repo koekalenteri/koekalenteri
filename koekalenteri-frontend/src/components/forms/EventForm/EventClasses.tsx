@@ -17,7 +17,7 @@ type EventClassesOnChange = (
   event: React.SyntheticEvent,
   value: EventClass[],
   reason: AutocompleteChangeReason
-) => void;
+) => void
 
 
 type EventClassesProps = {
@@ -39,18 +39,16 @@ export const compareEventClass = (a: EventClass, b: EventClass) =>
     : (a.date?.valueOf() || 0) - (b.date?.valueOf() || 0)
 
 export function EventClasses(props: EventClassesProps) {
-  if (props.value) {
-    // props.value.sort(compareEventClass);
-  }
-
   const { t } = useTranslation()
-  const { classes, label, event, required, requiredState, errorStates, helperTexts, ...rest } = props
+  const { classes, label, event, required, requiredState, errorStates, helperTexts, value, ...rest } = props
   const error = errorStates?.classes
   const helperText = helperTexts?.classes || ''
+  const sortedValue = value?.slice().sort(compareEventClass)
 
   return (
     <Autocomplete
       {...rest}
+      value={sortedValue}
       fullWidth
       disableClearable
       disableCloseOnSelect
