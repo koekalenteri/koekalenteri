@@ -1,23 +1,20 @@
+import { ReactNode } from "react"
 import { useTranslation } from "react-i18next"
 import { Clear, Search } from "@mui/icons-material"
-import { Box, IconButton, TextField } from "@mui/material"
+import { Box, IconButton, Stack, TextField } from "@mui/material"
 
 interface QuickSearchToolbarProps {
   clearSearch: () => void;
   onChange: () => void;
   value: string;
+  children?: ReactNode
 }
 
 export function QuickSearchToolbar(props: QuickSearchToolbarProps) {
   const { t } = useTranslation()
 
   return (
-    <Box
-      sx={{
-        p: 0.5,
-        pb: 0,
-      }}
-    >
+    <Stack sx={{ p: 0.5, pb: 0 }} direction="row" justifyContent="space-between" alignItems="center" >
       <TextField
         variant="standard"
         value={props.value}
@@ -51,6 +48,7 @@ export function QuickSearchToolbar(props: QuickSearchToolbarProps) {
             borderColor: 'divider',
           },
         }} />
-    </Box>
+      {props.children}
+    </Stack>
   )
 }

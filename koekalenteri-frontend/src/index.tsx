@@ -1,3 +1,4 @@
+import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { CssBaseline, StyledEngineProvider, ThemeProvider } from '@mui/material'
 import { RecoilRoot } from 'recoil'
@@ -18,14 +19,16 @@ if (!container) {
 
 const root = createRoot(container)
 root.render(
-  <StyledEngineProvider injectFirst>
-    <ThemeProvider theme={theme}>
-      <RecoilRoot>
-        <CssBaseline />
-        <App />
-      </RecoilRoot>
-    </ThemeProvider>
-  </StyledEngineProvider>,
+  <StrictMode>
+    <StyledEngineProvider injectFirst>
+      <ThemeProvider theme={theme}>
+        <RecoilRoot>
+          <CssBaseline />
+          <App />
+        </RecoilRoot>
+      </ThemeProvider>
+    </StyledEngineProvider>
+  </StrictMode>,
 )
 
 reportWebVitals()

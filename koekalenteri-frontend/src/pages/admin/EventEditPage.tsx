@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useSnackbar } from 'notistack'
@@ -11,7 +11,7 @@ import { activeJudgesQuery } from '../recoil/judges'
 import { officialsAtom } from '../recoil/officials'
 import { organizersAtom } from '../recoil/organizers'
 
-import { adminEventIdAtom, currentAdminEvent, DecoratedEvent } from './recoil'
+import { adminEventIdAtom, currentAdminEventQuery, DecoratedEvent } from './recoil'
 
 export function EventEditPage({create}: {create?: boolean}) {
   const params = useParams()
@@ -19,7 +19,7 @@ export function EventEditPage({create}: {create?: boolean}) {
   const { enqueueSnackbar } = useSnackbar()
   const navigate = useNavigate()
   const [selectedEventID, setSelectedEventID] = useRecoilState(adminEventIdAtom)
-  const [event, setEvent] = useRecoilState(currentAdminEvent)
+  const [event, setEvent] = useRecoilState(currentAdminEventQuery)
   const activeEventTypes = useRecoilValue(activeEventTypesQuery)
   const activeJudges = useRecoilValue(activeJudgesQuery)
   const eventTypeClasses = useRecoilValue(eventTypeClassesAtom)
@@ -35,6 +35,24 @@ export function EventEditPage({create}: {create?: boolean}) {
     }
   }, [create, params.id, selectedEventID, setSelectedEventID])
 
+  const handleSave = useCallback(async () => {
+    try {
+      //await putEvent(event, user.getSignInUserSession()?.getIdToken().getJwtToken())
+      setEvent(event as DecoratedEvent);
+      navigate(Path.admin.events)
+      enqueueSnackbar(t(`event.states.${event?.state || 'draft'}`, { context: 'save' }), { variant: 'info' })
+      return true
+    } catch (e: any) {
+      enqueueSnackbar(e.message, { variant: 'error' })
+      return false
+    }
+  }, [enqueueSnackbar, event, navigate, setEvent, t])
+
+  const handleCancel = useCallback(async () => {
+    navigate(Path.admin.events)
+    return false
+  }, [navigate])
+
   return (
     <EventForm
       event={event ?? {}}
@@ -43,22 +61,8 @@ export function EventEditPage({create}: {create?: boolean}) {
       judges={activeJudges}
       officials={officials}
       organizers={organizers}
-      onSave={async (event) => {
-        try {
-          //await putEvent(event, user.getSignInUserSession()?.getIdToken().getJwtToken())
-          setEvent(event as DecoratedEvent)
-          navigate(Path.admin.events)
-          enqueueSnackbar(t(`event.states.${event.state || 'draft'}`, { context: 'save' }), { variant: 'info' })
-          return true
-        } catch (e: any) {
-          enqueueSnackbar(e.message, { variant: 'error' })
-          return false
-        }
-      }}
-      onCancel={async (event) => {
-        navigate(Path.admin.events)
-        return false
-      }}
+      onSave={handleSave}
+      onCancel={handleCancel}
     />
   )
 }

@@ -5,6 +5,7 @@ import { Authenticator } from '@aws-amplify/ui-react'
 import { createTheme, ThemeProvider } from '@mui/material/styles'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
+import { ConfirmProvider } from 'material-ui-confirm'
 import { SnackbarProvider } from 'notistack'
 
 import { AWSConfig } from './amplify-env'
@@ -30,9 +31,11 @@ function App() {
           disableWindowBlurListener
           maxSnack={3}
         >
-          <Authenticator.Provider>
-            <RouterProvider router={router} />
-          </Authenticator.Provider>
+          <ConfirmProvider>
+            <Authenticator.Provider>
+              <RouterProvider router={router} />
+            </Authenticator.Provider>
+          </ConfirmProvider>
         </SnackbarProvider>
       </LocalizationProvider>
     </ThemeProvider>

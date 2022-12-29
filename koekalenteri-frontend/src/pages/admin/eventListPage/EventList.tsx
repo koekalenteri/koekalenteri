@@ -1,15 +1,15 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
-import { Box } from '@mui/material'
+import { Box, FormControlLabel, Stack, Switch } from '@mui/material'
 import { GridColDef } from '@mui/x-data-grid'
 import { EventClass, EventEx, EventState } from 'koekalenteri-shared/model'
 import { useRecoilState } from 'recoil'
 
-import { StyledDataGrid } from '../../../components'
+import { QuickSearchToolbar, StyledDataGrid } from '../../../components'
 import { Path } from '../../../routeConfig'
 import { useJudgesActions } from '../../recoil/judges'
-import { adminEventIdAtom } from '../recoil'
+import { adminEventFilterTextAtom, adminEventIdAtom, adminShowPastEventsAtom } from '../recoil'
 
 interface EventListColDef extends GridColDef {
   field: keyof EventEx | 'date'
@@ -24,6 +24,8 @@ interface Props {
 const EventList = ({ events }: Props) => {
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const [showPast, setShowPast] = useRecoilState(adminShowPastEventsAtom)
+  const [searchText, setSearchText] = useRecoilState(adminEventFilterTextAtom)
   const [selectedEventID, setSelectedEventID] = useRecoilState(adminEventIdAtom)
   const judgeActions = useJudgesActions()
 
@@ -123,6 +125,23 @@ const EventList = ({ events }: Props) => {
         onSelectionModelChange={(selection) => {
           const value = typeof selection[0] === 'string' ? selection[0] : undefined
           setTimeout(() => setSelectedEventID(value), 0)
+        }}
+        components={{ Toolbar: QuickSearchToolbar }}
+        componentsProps={{
+          toolbar: {
+            value: searchText,
+            onChange: (event: React.ChangeEvent<HTMLInputElement>) =>
+              setSearchText(event.target.value),
+            clearSearch: () => setSearchText(''),
+            children: <FormControlLabel
+              sx={{ ml: 0, mb: 2 }}
+              checked={showPast}
+              control={<Switch />}
+              label="Näytä myös menneet tapahtumat"
+              labelPlacement="start"
+              onChange={(_event, checked) => setShowPast(checked)}
+            />,
+          },
         }}
         selectionModel={selectedEventID ? [selectedEventID] : []}
         onRowDoubleClick={() => handleDoubleClick()}

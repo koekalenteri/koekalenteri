@@ -1,5 +1,11 @@
+import { useTranslation } from "react-i18next"
+import { useAuthenticator } from "@aws-amplify/ui-react"
+import { startOfToday } from "date-fns"
+import i18next from "i18next"
 import { EventEx } from "koekalenteri-shared/model"
-import { atom, DefaultValue, selector, selectorFamily } from "recoil"
+import cloneDeep from "lodash.clonedeep"
+import { useSnackbar } from "notistack"
+import { atom, DefaultValue, selector, selectorFamily, useRecoilState, useSetRecoilState } from "recoil"
 
 import { getEvent, getEvents } from "../../../api/event"
 import { unique, uniqueDate } from "../../../utils"
@@ -10,6 +16,48 @@ export interface DecoratedEvent extends EventEx {
   uniqueClassDates: (eventClass: string) => Date[]
 }
 
+export const adminEventsAtom = atom<DecoratedEvent[]>({
+  key: 'adminEvents',
+  default: getEvents().then(events => events.map(decorateEvent)),
+  effects: [
+    logEffect,
+    storageEffect,
+  ],
+})
+
+export const adminShowPastEventsAtom = atom<boolean>({
+  key: 'adminShowPastEvents',
+  default: false,
+  effects: [
+    logEffect,
+    storageEffect,
+  ],
+})
+
+export const adminEventFilterTextAtom = atom<string>({
+  key: 'adminEventFilterText',
+  default: '',
+  effects: [
+    logEffect,
+    storageEffect,
+  ],
+})
+
+export const filteredAdminEventsQuery = selector({
+  key: 'filteredAdminEvents',
+  get: ({get}) => {
+    const events = get(adminEventsAtom)
+    const filter = get(adminEventFilterTextAtom).toLocaleLowerCase(i18next.language)
+    const showPast = get(adminShowPastEventsAtom)
+
+    return events.filter(event => {
+      return !event.deletedAt
+        && (showPast || !event.startDate || event.startDate < startOfToday())
+        && (!filter || ([event.location, event.official.name, event.secretary.name].join(' ').toLocaleLowerCase(i18next.language).includes(filter)))
+    })
+  },
+})
+
 export const adminEventIdAtom = atom<string | undefined>({
   key: 'adminEventId',
   default: undefined,
@@ -19,7 +67,7 @@ export const adminEventIdAtom = atom<string | undefined>({
   ],
 })
 
-export const currentAdminEvent = selector({
+export const currentAdminEventQuery = selector({
   key: 'currentAdminEvent',
   get: ({ get }) => {
     const eventId = get(adminEventIdAtom)
@@ -44,15 +92,6 @@ function decorateEvent(event: EventEx): DecoratedEvent {
     ),
   }
 }
-
-export const adminEventsAtom = atom<DecoratedEvent[]>({
-  key: 'adminEvents',
-  default: getEvents().then(events => events.map(decorateEvent)),
-  effects: [
-    logEffect,
-    storageEffect,
-  ],
-})
 
 export const adminEventByIdAtom = selectorFamily<DecoratedEvent | undefined, string>({
   key: 'adminEvents/eventId',
@@ -89,10 +128,50 @@ export const eventClassAtom = atom<string | undefined>({
   key: 'eventClass',
   default: selector({
     key: 'eventClass/default',
-    get: ({ get }) => get(currentAdminEvent)?.uniqueClasses?.[0],
+    get: ({ get }) => get(currentAdminEventQuery)?.uniqueClasses?.[0],
   }),
   effects: [
     logEffect,
     storageEffect,
   ],
 })
+
+export const useAdminEventActions = () => {
+  const { user } = useAuthenticator(context => [context.user])
+  const setAdminEventId = useSetRecoilState(adminEventIdAtom)
+  const [currentAdminEvent, setCurrentAdminEvent] = useRecoilState(currentAdminEventQuery)
+  const { enqueueSnackbar } = useSnackbar()
+  const { t } = useTranslation()
+
+  return {
+    copyCurrent,
+    deleteCurrent,
+  }
+
+  function copyCurrent() {
+    if (!currentAdminEvent) {
+      return
+    }
+    const copy = cloneDeep(currentAdminEvent)
+    copy.id = 'draft'
+    copy.state = 'draft'
+    delete copy.kcId
+
+    setCurrentAdminEvent(copy)
+    setAdminEventId(copy.id)
+    return copy.id
+  }
+
+  function deleteCurrent() {
+    if (!currentAdminEvent) {
+      return
+    }
+    setCurrentAdminEvent({
+      ...currentAdminEvent,
+      deletedAt: new Date(),
+      deletedBy: user.attributes?.name || user.attributes?.email,
+    })
+    enqueueSnackbar(t('deleteEventComplete'), { variant: 'info' })
+  }
+
+}

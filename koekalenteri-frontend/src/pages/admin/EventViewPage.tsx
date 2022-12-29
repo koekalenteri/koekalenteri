@@ -14,16 +14,16 @@ import ClassEntrySelection from './eventViewPage/ClassEntrySelection'
 import InfoPanel from './eventViewPage/InfoPanel'
 import TabPanel from './eventViewPage/TabPanel'
 import Title from './eventViewPage/Title'
-import { adminEventIdAtom, currentAdminEvent, eventClassAtom } from './recoil'
+import { adminEventIdAtom, currentAdminEventQuery, eventClassAtom } from './recoil'
 
 const EventViewPage = () => {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const params = useParams()
   const [selectedEventID, setSelectedEventID] = useRecoilState(adminEventIdAtom)
-  const event = useRecoilValue(currentAdminEvent)
+  const event = useRecoilValue(currentAdminEventQuery)
   const [selectedEventClass, setSelectedEventClass] = useRecoilState(eventClassAtom)
-  const activeTab = useMemo(() => event?.uniqueClasses?.findIndex(c => c === selectedEventClass) ?? 0, [event?.uniqueClasses, selectedEventClass])
+  const activeTab = useMemo(() => Math.max(event?.uniqueClasses?.findIndex(c => c === selectedEventClass) ?? 0, 0), [event?.uniqueClasses, selectedEventClass])
   const [selected, setSelected] = useState<Registration>()
 
   useEffect(() => {
