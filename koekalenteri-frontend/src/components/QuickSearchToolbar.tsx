@@ -1,7 +1,7 @@
 import { ReactNode } from "react"
 import { useTranslation } from "react-i18next"
 import { Clear, Search } from "@mui/icons-material"
-import { Box, IconButton, Stack, TextField } from "@mui/material"
+import { IconButton, Stack, TextField } from "@mui/material"
 
 interface QuickSearchToolbarProps {
   clearSearch: () => void;

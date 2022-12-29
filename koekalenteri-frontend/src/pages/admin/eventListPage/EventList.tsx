@@ -1,7 +1,7 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
-import { Box, FormControlLabel, Stack, Switch } from '@mui/material'
+import { Box, FormControlLabel, Switch } from '@mui/material'
 import { GridColDef } from '@mui/x-data-grid'
 import { EventClass, EventEx, EventState } from 'koekalenteri-shared/model'
 import { useRecoilState } from 'recoil'
