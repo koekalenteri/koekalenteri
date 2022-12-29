@@ -37,6 +37,7 @@ const mockJudges: Judge[] = [
 ]
 
 export async function getJudges() {
+  console.log('mock getJudges')
   return new Promise((resolve) => {
     process.nextTick(() => resolve(mockJudges))
   })

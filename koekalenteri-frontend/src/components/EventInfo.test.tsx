@@ -6,7 +6,9 @@ import { emptyEvent } from '../api/test-utils/emptyEvent'
 
 import { EventInfo } from './EventInfo'
 
+jest.useFakeTimers()
 jest.mock('../api/judge')
+
 
 // act and advance jest timers
 function flushPromisesAndTimers(): Promise<void> {
