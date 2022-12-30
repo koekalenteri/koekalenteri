@@ -47,6 +47,9 @@ export const useOfficialsActions = () => {
 
   function refresh() {
     getOfficials(true)
-      .then(officials => setOfficials(officials.sort((a, b) => a.name.localeCompare(b.name, i18next.language))))
+      .then(officials => {
+        const sortedOfficials = [...officials].sort((a, b) => a.name.localeCompare(b.name, i18next.language))
+        setOfficials(sortedOfficials)
+      })
   }
 }

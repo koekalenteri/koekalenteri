@@ -63,7 +63,10 @@ export const useEventTypeActions = () => {
 
   function refresh() {
     getEventTypes(true)
-      .then(eventTypes => setEventTypes(eventTypes.sort((a, b) => a.eventType.localeCompare(b.eventType, i18next.language))))
+      .then(eventTypes => {
+        const sortedEventTypes = [...eventTypes].sort((a, b) => a.eventType.localeCompare(b.eventType, i18next.language))
+        setEventTypes(sortedEventTypes)
+      })
   }
 
   async function save(eventType: EventType) {

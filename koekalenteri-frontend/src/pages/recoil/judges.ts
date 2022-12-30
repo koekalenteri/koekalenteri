@@ -58,7 +58,10 @@ export const useJudgesActions = () => {
 
   function refresh() {
     getJudges(true)
-      .then(judges => setJudges(judges.sort((a, b) => a.name.localeCompare(b.name, i18next.language))))
+      .then(judges => {
+        const sortedJudges = [...judges].sort((a, b) => a.name.localeCompare(b.name, i18next.language))
+        setJudges(sortedJudges)
+      })
   }
 
   async function save(judge: Judge) {

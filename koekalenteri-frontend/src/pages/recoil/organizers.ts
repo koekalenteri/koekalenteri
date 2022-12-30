@@ -9,11 +9,19 @@ import { logEffect, storageEffect } from './effects'
 
 export const organizersAtom = atom<Organizer[]>({
   key: 'organizers',
-  default: getOrganizers()
-    .then(orgs => orgs.sort((a, b) => a.name.localeCompare(b.name, i18next.language))),
+  default: [],
   effects: [
     logEffect,
     storageEffect,
+    ({setSelf, trigger}) => {
+      if (trigger === 'get') {
+        getOrganizers().then(organizers => {
+          const sortedOrganizers = [...organizers].sort((a, b) => a.name.localeCompare(b.name, i18next.language))
+          setSelf(sortedOrganizers)
+        })
+      }
+    },
+
   ],
 })
 
@@ -41,6 +49,9 @@ export const useOrganizersActions = () => {
 
   function refresh() {
     getOrganizers(true)
-      .then(orgs => setOrganizers(orgs.sort((a, b) => a.name.localeCompare(b.name, i18next.language))))
+      .then(organizers => {
+        const sortedOrganizers = [...organizers].sort((a, b) => a.name.localeCompare(b.name, i18next.language))
+        setOrganizers(sortedOrganizers)
+      })
   }
 }

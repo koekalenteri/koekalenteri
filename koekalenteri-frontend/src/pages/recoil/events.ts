@@ -63,8 +63,9 @@ export const filterOrganizersQuery = selector({
   key: 'filterOrganizers',
   get: ({ get }) => {
     const events = get(filteredEvents)
-    return uniqueFn<Organizer>(events.map(e => e.organizer), (a, b) => a.id === b.id)
-      .sort((a, b) => a.name.localeCompare(b.name, i18next.language))
+    const uniqueOrganizesrs = uniqueFn<Organizer>(events.map(e => e.organizer), (a, b) => a.id === b.id)
+    uniqueOrganizesrs.sort((a, b) => a.name.localeCompare(b.name, i18next.language))
+    return uniqueOrganizesrs
   },
 })
 
