@@ -82,7 +82,7 @@ export default function useEventListColumns(): EventListColDef[] {
         if (event.isEventOver) {
           return t('event.states.confirmed_eventOver')
         }
-        return t(`event.states.${(params.value || 'draft') as EventState}`)
+        return t(`event.states.${(params.value || 'draft')}`)
       },
     },
   ]

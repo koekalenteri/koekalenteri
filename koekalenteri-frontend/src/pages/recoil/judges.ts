@@ -9,10 +9,18 @@ import { logEffect, storageEffect } from './effects'
 
 export const judgesAtom = atom<Judge[]>({
   key: 'judges',
-  default: getJudges().then(judges => judges.sort((a, b) => a.name.localeCompare(b.name, i18next.language))),
+  default: [],
   effects: [
     logEffect,
     storageEffect,
+    ({setSelf, trigger}) => {
+      if (trigger === 'get') {
+        getJudges().then(judges => {
+          const sortedJudges = [...judges].sort((a, b) => a.name.localeCompare(b.name, i18next.language))
+          setSelf(sortedJudges)
+        })
+      }
+    },
   ],
 })
 

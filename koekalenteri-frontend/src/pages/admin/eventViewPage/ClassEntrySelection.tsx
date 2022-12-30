@@ -119,8 +119,10 @@ const ClassEntrySelection = ({ eventDates = [], setOpen }: Props) => {
 
   const handleSelectionModeChange = useCallback((selection: GridSelectionModel) => {
     const value = typeof selection[0] === 'string' ? selection[0] : undefined
-    setTimeout(() => setSelectedRegistrationID(value), 0)
+    setSelectedRegistrationID(value)
   }, [setSelectedRegistrationID])
+
+  const handleDoubleClick = useCallback(() => setOpen(true), [setOpen])
 
   return (
     <DndProvider backend={HTML5Backend}>
@@ -168,7 +170,7 @@ const ClassEntrySelection = ({ eventDates = [], setOpen }: Props) => {
         rows={registrationsByGroup.reserve}
         onSelectionModelChange={handleSelectionModeChange}
         selectionModel={selectedRegistrationID ? [selectedRegistrationID] : []}
-        onRowDoubleClick={() => setOpen(true)}
+        onRowDoubleClick={handleDoubleClick}
         sx={{ flex: eventGroups.length || 1 }}
       />
     </DndProvider>

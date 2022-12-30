@@ -9,10 +9,18 @@ import { logEffect, storageEffect } from './effects'
 
 export const officialsAtom = atom<Official[]>({
   key: 'officials',
-  default: getOfficials(),
+  default: [],
   effects: [
     logEffect,
     storageEffect,
+    ({setSelf, trigger}) => {
+      if (trigger === 'get') {
+        getOfficials().then(officials => {
+          const sortedOfficials = [...officials].sort((a, b) => a.name.localeCompare(b.name, i18next.language))
+          setSelf(sortedOfficials)
+        })
+      }
+    },
   ],
 })
 

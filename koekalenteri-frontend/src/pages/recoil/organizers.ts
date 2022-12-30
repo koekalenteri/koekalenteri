@@ -21,7 +21,6 @@ export const organizersAtom = atom<Organizer[]>({
         })
       }
     },
-
   ],
 })
 

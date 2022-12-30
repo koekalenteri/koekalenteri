@@ -9,10 +9,19 @@ import { logEffect, storageEffect } from './effects'
 
 export const eventTypesAtom = atom<EventType[]>({
   key: 'eventTypes',
-  default: getEventTypes(),
+  default: [],
   effects: [
     logEffect,
     storageEffect,
+    ({setSelf, trigger}) => {
+      if (trigger === 'get') {
+        getEventTypes()
+          .then(eventTypes => {
+            const sortedEventTypes = [...eventTypes].sort((a, b) => a.eventType.localeCompare(b.eventType, i18next.language))
+            setSelf(sortedEventTypes)
+          })
+      }
+    },
   ],
 })
 

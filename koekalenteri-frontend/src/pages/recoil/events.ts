@@ -12,10 +12,15 @@ import { judgesAtom } from './judges'
 
 export const eventsAtom = atom<EventEx[]>({
   key: 'events',
-  default: getEvents(),
+  default: [],
   effects: [
     logEffect,
     storageEffect,
+    ({setSelf, trigger}) => {
+      if (trigger === 'get') {
+        getEvents().then(setSelf)
+      }
+    },
   ],
 })
 
