@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
 import { AddCircleOutline, DeleteOutline, EditOutlined, EmailOutlined, FormatListBulleted, ShuffleOutlined, TableChartOutlined } from '@mui/icons-material'
@@ -32,11 +32,11 @@ const EventViewPage = () => {
     }
   }, [params.id, selectedEventID, setSelectedEventID])
 
-  const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
+  const handleTabChange = useCallback((_: React.SyntheticEvent, newValue: number) => {
     setSelectedEventClass(event?.uniqueClasses?.[newValue])
-  }
+  }, [event?.uniqueClasses, setSelectedEventClass])
 
-  const onSave = async (registration: Registration) => {
+  const onSave = useCallback(async (registration: Registration) => {
     /*
     try {
       const saved = await putRegistration(registration)
@@ -56,11 +56,12 @@ const EventViewPage = () => {
     }
     */
     return false
-  }
-  const onCancel = async () => {
+  }, [])
+
+  const onCancel = useCallback(async () => {
     setOpen(false)
     return true
-  }
+  }, [])
 
   if (!event) {
     return <>duh</>
@@ -102,7 +103,7 @@ const EventViewPage = () => {
 
         {event.uniqueClasses?.map((eventClass, index) =>
           <TabPanel key={`tabPanel-${eventClass}`} index={index} activeTab={activeTab}>
-            <ClassEntrySelection eventDates={event.uniqueClassDates(eventClass)} setOpen={setOpen} />
+            <ClassEntrySelection eventDates={event.uniqueClassDates?.[eventClass ?? []]} setOpen={setOpen} />
           </TabPanel>,
         )}
 

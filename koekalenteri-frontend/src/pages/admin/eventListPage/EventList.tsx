@@ -1,8 +1,8 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { Box, FormControlLabel, Switch } from '@mui/material'
-import { GridColDef } from '@mui/x-data-grid'
+import { GridColDef, GridSelectionModel } from '@mui/x-data-grid'
 import { EventClass, EventEx, EventState } from 'koekalenteri-shared/model'
 import { useRecoilState } from 'recoil'
 
@@ -102,11 +102,21 @@ const EventList = ({ events }: Props) => {
     },
   ]
 
-  const handleDoubleClick = () => {
+  const handleDoubleClick = useCallback(() => {
     if (!selectedEventID) return
     // navigate(`${event.entries ? Path.admin.viewEvent : Path.admin.editEvent}/${event.id}`)
     navigate(`${Path.admin.viewEvent}/${selectedEventID}`)
-  }
+  }, [navigate, selectedEventID])
+
+  const handleSelectionModeChange = useCallback((selection: GridSelectionModel) => {
+    const value = typeof selection[0] === 'string' ? selection[0] : undefined
+    setSelectedEventID(value)
+  }, [setSelectedEventID])
+
+  const onChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) =>
+    setSearchText(event.target.value), [setSearchText])
+
+  const clearSearch = useCallback(() => setSearchText(''), [setSearchText])
 
   return (
     <Box sx={{
@@ -122,17 +132,13 @@ const EventList = ({ events }: Props) => {
         density='compact'
         disableColumnMenu
         rows={events}
-        onSelectionModelChange={(selection) => {
-          const value = typeof selection[0] === 'string' ? selection[0] : undefined
-          setTimeout(() => setSelectedEventID(value), 0)
-        }}
+        onSelectionModelChange={handleSelectionModeChange}
         components={{ Toolbar: QuickSearchToolbar }}
         componentsProps={{
           toolbar: {
             value: searchText,
-            onChange: (event: React.ChangeEvent<HTMLInputElement>) =>
-              setSearchText(event.target.value),
-            clearSearch: () => setSearchText(''),
+            onChange,
+            clearSearch,
             children: <FormControlLabel
               sx={{ ml: 0, mb: 2 }}
               checked={showPast}
@@ -144,7 +150,7 @@ const EventList = ({ events }: Props) => {
           },
         }}
         selectionModel={selectedEventID ? [selectedEventID] : []}
-        onRowDoubleClick={() => handleDoubleClick()}
+        onRowDoubleClick={handleDoubleClick}
       />
     </Box>
   )

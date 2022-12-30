@@ -13,15 +13,22 @@ import { logEffect, storageEffect } from "../../recoil/effects"
 
 export interface DecoratedEvent extends EventEx {
   uniqueClasses: string[]
-  uniqueClassDates: (eventClass: string) => Date[]
+  uniqueClassDates: Record<string, Date[]>
 }
 
 export const adminEventsAtom = atom<DecoratedEvent[]>({
   key: 'adminEvents',
-  default: getEvents().then(events => events.map(decorateEvent)),
+  default: [],
   effects: [
     logEffect,
     storageEffect,
+    ({setSelf, onSet}) => {
+      getEvents().then(events => setSelf(events.map(decorateEvent)))
+
+      onSet((newValue, oldValue, isReset) => {
+        console.log('put event?', newValue, oldValue, isReset)
+      })
+    },
   ],
 })
 
@@ -82,14 +89,21 @@ export const currentAdminEventQuery = selector({
 })
 
 function decorateEvent(event: EventEx): DecoratedEvent {
+  const uniqueClasses = unique(event.classes.map(c => c.class))
+  const uniqueClassDates = uniqueClasses
+    .reduce((acc, cur) => (
+      {
+        ...acc,
+        [cur]: uniqueDate(event.classes
+          .filter(c => c.class===cur)
+          .map(c => c.date || event.startDate || new Date())),
+      }),
+    {} as Record<string, Date[]>)
+
   return {
     ...event,
-    uniqueClasses: unique(event.classes.map(c => c.class)),
-    uniqueClassDates: (eventClass: string) => uniqueDate(
-      event.classes
-        .filter(c => c.class === eventClass)
-        .map(c => c.date || event.startDate || new Date()),
-    ),
+    uniqueClasses,
+    uniqueClassDates,
   }
 }
 

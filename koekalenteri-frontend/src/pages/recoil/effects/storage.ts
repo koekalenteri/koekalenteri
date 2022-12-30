@@ -18,8 +18,7 @@ export const storageEffect: AtomEffect<any> = ({node, setSelf, onSet}) => {
   const savedValue = localStorage.getItem(node.key)
   if (savedValue !== null) {
     const parsed = parse(savedValue)
-    // Using setTimeout to avoid "Cannot update a component (`Batcher`) while rendering a different component.."
-    setTimeout(() => setSelf(parsed), 0)
+    setSelf(parsed)
   }
 
   onSet((newValue, _, isReset) => {
@@ -34,8 +33,7 @@ export const storageEffect: AtomEffect<any> = ({node, setSelf, onSet}) => {
     if (e.storageArea === localStorage && e.key === node.key) {
       const parsed = parse(e.newValue)
       console.log('storage change', e.newValue, parsed)
-      // Using setTimeout to avoid "Cannot update a component (`Batcher`) while rendering a different component.."
-      setTimeout(() => setSelf(parsed), 0)
+      setSelf(parsed)
     }
   }
 

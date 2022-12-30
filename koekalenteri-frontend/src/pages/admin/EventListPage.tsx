@@ -1,3 +1,4 @@
+import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { AddCircleOutline, ContentCopyOutlined, DeleteOutline, EditOutlined, FormatListNumberedOutlined } from '@mui/icons-material'
@@ -21,15 +22,15 @@ export const EventListPage = () => {
   const events = useRecoilValue(filteredAdminEventsQuery)
   const actions = useAdminEventActions()
 
-  const deleteAction = () => {
+  const deleteAction = useCallback(() => {
     confirm({ title: t('deleteEventTitle'), description: t('deleteEventText') }).then(() => {
       actions.deleteCurrent()
     })
-  }
+  }, [actions, confirm, t])
 
-  const createAction = () => navigate(Path.admin.newEvent)
-  const editAction = () => navigate(`${Path.admin.editEvent}/${selectedEventID}`)
-  const viewAction = () => navigate(`${Path.admin.viewEvent}/${selectedEventID}`)
+  const createAction = useCallback(() => navigate(Path.admin.newEvent), [navigate])
+  const editAction = useCallback(() => navigate(`${Path.admin.editEvent}/${selectedEventID}`), [navigate, selectedEventID])
+  const viewAction = useCallback(() => navigate(`${Path.admin.viewEvent}/${selectedEventID}`), [navigate, selectedEventID])
 
   return (
     <FullPageFlex>

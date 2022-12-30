@@ -1,3 +1,4 @@
+import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { CheckBoxOutlineBlankOutlined, CheckBoxOutlined, CloudSync } from '@mui/icons-material'
 import { Button, Stack, Switch, ToggleButton, ToggleButtonGroup } from '@mui/material'
@@ -95,6 +96,11 @@ export const JudgeListPage = () => {
     },
   ]
 
+  const onChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) =>
+    setSearchText(event.target.value), [setSearchText])
+
+  const clearSearch = useCallback(() => setSearchText(''), [setSearchText])
+
   return (
     <>
       <FullPageFlex>
@@ -109,9 +115,8 @@ export const JudgeListPage = () => {
           componentsProps={{
             toolbar: {
               value: searchText,
-              onChange: (event: React.ChangeEvent<HTMLInputElement>) =>
-                setSearchText(event.target.value),
-              clearSearch: () => setSearchText(''),
+              onChange,
+              clearSearch,
             },
           }}
           density='compact'

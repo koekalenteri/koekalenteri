@@ -1,11 +1,10 @@
-import { useMemo } from 'react'
-import React from 'react'
+import { Dispatch, SetStateAction, useCallback, useMemo } from 'react'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { useTranslation } from 'react-i18next'
 import { EuroOutlined, PersonOutline } from '@mui/icons-material'
 import { Box, Typography } from '@mui/material'
-import { GridColDef, GridRowId } from '@mui/x-data-grid'
+import { GridColDef, GridRowId, GridSelectionModel } from '@mui/x-data-grid'
 import { BreedCode, Registration, RegistrationGroup } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
@@ -19,10 +18,10 @@ import NoRowsOverlay from './classEntrySelection/NoRowsOverlay'
 
 interface Props {
   eventDates: Date[]
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>
+  setOpen: Dispatch<SetStateAction<boolean>>
 }
 
-const ClassEntrySelection = ({ eventDates, setOpen }: Props) => {
+const ClassEntrySelection = ({ eventDates = [], setOpen }: Props) => {
   const { t } = useTranslation()
   const { t: breed } = useTranslation('breed')
   const registrations = useRecoilValue(currentEventClassRegistrationsQuery)
@@ -36,6 +35,7 @@ const ClassEntrySelection = ({ eventDates, setOpen }: Props) => {
     }
     for (const reg of registrations) {
       const key = reg.group?.key ?? 'reserve'
+      byGroup[key] = byGroup[key] || [] // make sure the array exists
       byGroup[key].push(reg)
     }
     return byGroup
@@ -117,6 +117,11 @@ const ClassEntrySelection = ({ eventDates, setOpen }: Props) => {
     }
   }
 
+  const handleSelectionModeChange = useCallback((selection: GridSelectionModel) => {
+    const value = typeof selection[0] === 'string' ? selection[0] : undefined
+    setTimeout(() => setSelectedRegistrationID(value), 0)
+  }, [setSelectedRegistrationID])
+
   return (
     <DndProvider backend={HTML5Backend}>
       <Typography variant='h5'>Osallistujat</Typography>
@@ -129,7 +134,7 @@ const ClassEntrySelection = ({ eventDates, setOpen }: Props) => {
           hideFooter
           rows={[]}
           components={{
-            NoRowsOverlay: () => null,
+            NoRowsOverlay: NullComponent,
           }}
         />
       </Box>
@@ -143,8 +148,14 @@ const ClassEntrySelection = ({ eventDates, setOpen }: Props) => {
           headerHeight={0}
           rows={registrationsByGroup[group.key] ?? []}
           components={{
-            Header: () => <GroupHeader eventDates={eventDates} group={group} />,
+            Header: GroupHeader,
             NoRowsOverlay: NoRowsOverlay,
+          }}
+          componentsProps={{
+            header: {
+              eventDates: eventDates,
+              group: group,
+            },
           }}
           onDrop={handleDrop(group)}
         />,
@@ -155,16 +166,17 @@ const ClassEntrySelection = ({ eventDates, setOpen }: Props) => {
         density='compact'
         disableColumnMenu
         rows={registrationsByGroup.reserve}
-        onSelectionModelChange={(selection) => {
-          const value = typeof selection[0] === 'string' ? selection[0] : undefined
-          setTimeout(() => setSelectedRegistrationID(value), 0)
-        }}
+        onSelectionModelChange={handleSelectionModeChange}
         selectionModel={selectedRegistrationID ? [selectedRegistrationID] : []}
         onRowDoubleClick={() => setOpen(true)}
         sx={{ flex: eventGroups.length || 1 }}
       />
     </DndProvider>
   )
+}
+
+function NullComponent() {
+  return null
 }
 
 export default ClassEntrySelection
