@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next"
 import { EuroOutlined, PersonOutline } from "@mui/icons-material"
-import { GridColDef } from "@mui/x-data-grid"
-import { BreedCode } from "koekalenteri-shared/model"
+import { GridColDef, GridValueGetterParams } from "@mui/x-data-grid"
+import { BreedCode, Registration } from "koekalenteri-shared/model"
 
 import GroupColors from "./GroupColors"
 
@@ -21,7 +21,7 @@ export function useClassEntrySelectionColumns(eventDates: Date[]) {
       headerName: t('dog.name'),
       width: 250,
       flex: 1,
-      valueGetter: (p) => p.row.dog.name,
+      valueGetter: (p: GridValueGetterParams<string, Registration>) => p.row.dog.name,
     },
     {
       field: 'dog.regNo',
@@ -33,7 +33,7 @@ export function useClassEntrySelectionColumns(eventDates: Date[]) {
       field: 'dob.breed',
       headerName: t('dog.breed'),
       width: 150,
-      valueGetter: (p) => t('breed', `${p.row.dog.breedCode as BreedCode}`),
+      valueGetter: (p: GridValueGetterParams<BreedCode, Registration>) => p.row.dog?.breedCode ? t(p.row.dog.breedCode, { ns: 'breed'} ) : '',
     },
     {
       field: 'class',

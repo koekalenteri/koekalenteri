@@ -51,7 +51,7 @@ test('It should fire onChange', async () => {
 
   const { rerender } = render(<JudgesSection event={testEvent} judges={JUDGES} onChange={changeHandler} />)
 
-  fireEvent.mouseDown(screen.getByLabelText(/Ylituomari/i))
+  fireEvent.mouseDown(screen.getByLabelText('judgeChief'))
   fireEvent.click(within(screen.getByRole('listbox')).getByText(/Test Judge 3/i))
 
   rerender(<JudgesSection event={testEvent} judges={JUDGES} onChange={changeHandler} />)
@@ -67,7 +67,7 @@ test('It should fire onChange', async () => {
 
   rerender(<JudgesSection event={testEvent} judges={JUDGES} onChange={changeHandler} />)
 
-  fireEvent.mouseDown(screen.getByLabelText(/Tuomari 2/i))
+  fireEvent.mouseDown(screen.getByLabelText('judge 2'))
   fireEvent.click(within(screen.getByRole('listbox')).getByText(/Test Judge 1/i))
 
   expect(changeHandler).toHaveBeenCalledTimes(3)

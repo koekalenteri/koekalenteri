@@ -1,0 +1,229 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`EventInfo should render event information 1`] = `
+<div>
+  <table
+    aria-label="details"
+    class="MuiTable-root css-sdy3a3-MuiTable-root"
+  >
+    <tbody
+      class="MuiTableBody-root css-apqrd9-MuiTableBody-root"
+    >
+      <tr
+        class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
+      >
+        <th
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+          scope="row"
+        >
+          entryTime
+          :
+        </th>
+        <td
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-3yplw8-MuiTableCell-root"
+        >
+          <b>
+            daterange
+          </b>
+          <span
+            class="info"
+          />
+        </td>
+      </tr>
+      <tr
+        class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
+      >
+        <th
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+          scope="row"
+        >
+          event.organizer
+          :
+        </th>
+        <td
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+        >
+          test organization
+        </td>
+      </tr>
+      <tr
+        class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
+      >
+        <th
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+          scope="row"
+        >
+          event.eventType
+          :
+        </th>
+        <td
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+        >
+          test
+        </td>
+      </tr>
+      <tr
+        class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
+      >
+        <th
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+          scope="row"
+        >
+          event.classes
+          :
+        </th>
+        <td
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+        >
+          <table
+            class="MuiTable-root css-12oyadd-MuiTable-root"
+          >
+            <tbody
+              class="MuiTableBody-root css-apqrd9-MuiTableBody-root"
+            >
+              <tr
+                class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
+              >
+                <th
+                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                  scope="row"
+                >
+                  dateshort
+                </th>
+                <th
+                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                  scope="row"
+                >
+                  TestClass
+                </th>
+                <th
+                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                  scope="row"
+                >
+                  Test Judge
+                </th>
+                <th
+                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-1mozben-MuiTableCell-root"
+                  scope="row"
+                >
+                  22 / 11
+                </th>
+                <th
+                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-1mozben-MuiTableCell-root"
+                  scope="row"
+                >
+                  members
+                </th>
+                <th
+                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                  scope="row"
+                />
+                <td
+                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                />
+              </tr>
+            </tbody>
+          </table>
+        </td>
+      </tr>
+      <tr
+        class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
+      >
+        <th
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+          rowspan="1"
+          scope="row"
+        >
+          event.judges
+          :
+        </th>
+        <td
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+        />
+      </tr>
+      <tr
+        class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
+      >
+        <th
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+          scope="row"
+        >
+          event.official
+          :
+        </th>
+        <td
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+        >
+          Teemu Toimitsija
+        </td>
+      </tr>
+      <tr
+        class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
+      >
+        <th
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+          scope="row"
+        >
+          event.paymentDetails
+          :
+        </th>
+        <td
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+        >
+          event.cost
+          : 
+          123
+           €
+          <br />
+          event.costMember
+          : 
+          123
+           €
+          <br />
+          event.accountNumber
+          : 
+          test
+          <br />
+          event.referenceNumber
+          : 
+          test
+          <br />
+          test
+        </td>
+      </tr>
+      <tr
+        class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
+      >
+        <th
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+          scope="row"
+        >
+          event.location
+          :
+        </th>
+        <td
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+        >
+          location
+        </td>
+      </tr>
+      <tr
+        class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
+      >
+        <th
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+          scope="row"
+        >
+          event.description
+          :
+        </th>
+        <td
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+        >
+          event description text
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+`;

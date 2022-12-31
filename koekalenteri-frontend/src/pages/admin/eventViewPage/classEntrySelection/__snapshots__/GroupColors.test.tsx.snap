@@ -28,7 +28,7 @@ exports[`GroupColors given 1 dates and 0 selected 1`] = `
 exports[`GroupColors given 1 dates and 1 selected 1`] = `
 <div>
   <div
-    aria-label="Sopivat ryhmät: la (aamu)"
+    aria-label="Sopivat ryhmät: weekday registration.time.ap"
     class=" css-156fqfh-MuiStack-root"
     data-mui-internal-clone-element="true"
   >
@@ -45,7 +45,7 @@ exports[`GroupColors given 1 dates and 1 selected 1`] = `
 exports[`GroupColors given 1 dates and 2 selected 1`] = `
 <div>
   <div
-    aria-label="Sopivat ryhmät: la (aamu), la (ilta)"
+    aria-label="Sopivat ryhmät: weekday registration.time.ap, weekday registration.time.ip"
     class=" css-156fqfh-MuiStack-root"
     data-mui-internal-clone-element="true"
   >
@@ -84,7 +84,7 @@ exports[`GroupColors given 2 dates and 0 selected 1`] = `
 exports[`GroupColors given 2 dates and 1 selected 1`] = `
 <div>
   <div
-    aria-label="Sopivat ryhmät: la (aamu)"
+    aria-label="Sopivat ryhmät: weekday registration.time.ap"
     class=" css-156fqfh-MuiStack-root"
     data-mui-internal-clone-element="true"
   >
@@ -107,7 +107,7 @@ exports[`GroupColors given 2 dates and 1 selected 1`] = `
 exports[`GroupColors given 2 dates and 2 selected 1`] = `
 <div>
   <div
-    aria-label="Sopivat ryhmät: la (aamu), la (ilta)"
+    aria-label="Sopivat ryhmät: weekday registration.time.ap, weekday registration.time.ip"
     class=" css-156fqfh-MuiStack-root"
     data-mui-internal-clone-element="true"
   >
@@ -130,7 +130,7 @@ exports[`GroupColors given 2 dates and 2 selected 1`] = `
 exports[`GroupColors given 2 dates and 3 selected 1`] = `
 <div>
   <div
-    aria-label="Sopivat ryhmät: la (aamu), la (ilta), su (aamu)"
+    aria-label="Sopivat ryhmät: weekday registration.time.ap, weekday registration.time.ip, weekday registration.time.ap"
     class=" css-156fqfh-MuiStack-root"
     data-mui-internal-clone-element="true"
   >
@@ -153,7 +153,7 @@ exports[`GroupColors given 2 dates and 3 selected 1`] = `
 exports[`GroupColors given 2 dates and 4 selected 1`] = `
 <div>
   <div
-    aria-label="Sopivat ryhmät: la (aamu), la (ilta), su (aamu), su (ilta)"
+    aria-label="Sopivat ryhmät: weekday registration.time.ap, weekday registration.time.ip, weekday registration.time.ap, weekday registration.time.ip"
     class=" css-156fqfh-MuiStack-root"
     data-mui-internal-clone-element="true"
   >
@@ -204,7 +204,7 @@ exports[`GroupColors given 3 dates and 0 selected 1`] = `
 exports[`GroupColors given 3 dates and 1 selected 1`] = `
 <div>
   <div
-    aria-label="Sopivat ryhmät: la (aamu)"
+    aria-label="Sopivat ryhmät: weekday registration.time.ap"
     class=" css-156fqfh-MuiStack-root"
     data-mui-internal-clone-element="true"
   >
@@ -233,7 +233,7 @@ exports[`GroupColors given 3 dates and 1 selected 1`] = `
 exports[`GroupColors given 3 dates and 2 selected 1`] = `
 <div>
   <div
-    aria-label="Sopivat ryhmät: la (aamu), la (ilta)"
+    aria-label="Sopivat ryhmät: weekday registration.time.ap, weekday registration.time.ip"
     class=" css-156fqfh-MuiStack-root"
     data-mui-internal-clone-element="true"
   >
@@ -262,7 +262,7 @@ exports[`GroupColors given 3 dates and 2 selected 1`] = `
 exports[`GroupColors given 3 dates and 3 selected 1`] = `
 <div>
   <div
-    aria-label="Sopivat ryhmät: la (aamu), la (ilta), su (aamu)"
+    aria-label="Sopivat ryhmät: weekday registration.time.ap, weekday registration.time.ip, weekday registration.time.ap"
     class=" css-156fqfh-MuiStack-root"
     data-mui-internal-clone-element="true"
   >
@@ -291,7 +291,7 @@ exports[`GroupColors given 3 dates and 3 selected 1`] = `
 exports[`GroupColors given 3 dates and 4 selected 1`] = `
 <div>
   <div
-    aria-label="Sopivat ryhmät: la (aamu), la (ilta), su (aamu), su (ilta)"
+    aria-label="Sopivat ryhmät: weekday registration.time.ap, weekday registration.time.ip, weekday registration.time.ap, weekday registration.time.ip"
     class=" css-156fqfh-MuiStack-root"
     data-mui-internal-clone-element="true"
   >
@@ -320,7 +320,7 @@ exports[`GroupColors given 3 dates and 4 selected 1`] = `
 exports[`GroupColors given 3 dates and 5 selected 1`] = `
 <div>
   <div
-    aria-label="Sopivat ryhmät: la (aamu), la (ilta), su (aamu), su (ilta), ma (aamu)"
+    aria-label="Sopivat ryhmät: weekday registration.time.ap, weekday registration.time.ip, weekday registration.time.ap, weekday registration.time.ip, weekday registration.time.ap"
     class=" css-156fqfh-MuiStack-root"
     data-mui-internal-clone-element="true"
   >
@@ -349,7 +349,7 @@ exports[`GroupColors given 3 dates and 5 selected 1`] = `
 exports[`GroupColors given 3 dates and 6 selected 1`] = `
 <div>
   <div
-    aria-label="Sopivat ryhmät: la (aamu), la (ilta), su (aamu), su (ilta), ma (aamu), ma (ilta)"
+    aria-label="Sopivat ryhmät: weekday registration.time.ap, weekday registration.time.ip, weekday registration.time.ap, weekday registration.time.ip, weekday registration.time.ap, weekday registration.time.ip"
     class=" css-156fqfh-MuiStack-root"
     data-mui-internal-clone-element="true"
   >

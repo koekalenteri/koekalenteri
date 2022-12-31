@@ -113,7 +113,7 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
               </div>
               <div
                 aria-colindex="2"
-                aria-label="Nimi"
+                aria-label="dog.name"
                 aria-sort="none"
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
                 data-field="dog.name"
@@ -136,7 +136,7 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
                         class="MuiDataGrid-columnHeaderTitle css-1jbbcbn-MuiDataGrid-columnHeaderTitle"
                         data-mui-internal-clone-element="true"
                       >
-                        Nimi
+                        dog.name
                       </div>
                     </div>
                     <div
@@ -186,7 +186,7 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
               </div>
               <div
                 aria-colindex="3"
-                aria-label="Rekisterinumero"
+                aria-label="dog.regNo"
                 aria-sort="none"
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
                 data-field="dog.regNo"
@@ -209,7 +209,7 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
                         class="MuiDataGrid-columnHeaderTitle css-1jbbcbn-MuiDataGrid-columnHeaderTitle"
                         data-mui-internal-clone-element="true"
                       >
-                        Rekisterinumero
+                        dog.regNo
                       </div>
                     </div>
                     <div
@@ -412,7 +412,7 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
               </div>
               <div
                 aria-colindex="2"
-                aria-label="Nimi"
+                aria-label="dog.name"
                 aria-sort="none"
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
                 data-field="dog.name"
@@ -435,7 +435,7 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
                         class="MuiDataGrid-columnHeaderTitle css-1jbbcbn-MuiDataGrid-columnHeaderTitle"
                         data-mui-internal-clone-element="true"
                       >
-                        Nimi
+                        dog.name
                       </div>
                     </div>
                     <div
@@ -485,7 +485,7 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
               </div>
               <div
                 aria-colindex="3"
-                aria-label="Rekisterinumero"
+                aria-label="dog.regNo"
                 aria-sort="none"
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
                 data-field="dog.regNo"
@@ -508,7 +508,7 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
                         class="MuiDataGrid-columnHeaderTitle css-1jbbcbn-MuiDataGrid-columnHeaderTitle"
                         data-mui-internal-clone-element="true"
                       >
-                        Rekisterinumero
+                        dog.regNo
                       </div>
                     </div>
                     <div
@@ -815,7 +815,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
               </div>
               <div
                 aria-colindex="2"
-                aria-label="Nimi"
+                aria-label="dog.name"
                 aria-sort="none"
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
                 data-field="dog.name"
@@ -838,7 +838,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                         class="MuiDataGrid-columnHeaderTitle css-1jbbcbn-MuiDataGrid-columnHeaderTitle"
                         data-mui-internal-clone-element="true"
                       >
-                        Nimi
+                        dog.name
                       </div>
                     </div>
                     <div
@@ -888,7 +888,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
               </div>
               <div
                 aria-colindex="3"
-                aria-label="Rekisterinumero"
+                aria-label="dog.regNo"
                 aria-sort="none"
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
                 data-field="dog.regNo"
@@ -911,7 +911,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                         class="MuiDataGrid-columnHeaderTitle css-1jbbcbn-MuiDataGrid-columnHeaderTitle"
                         data-mui-internal-clone-element="true"
                       >
-                        Rekisterinumero
+                        dog.regNo
                       </div>
                     </div>
                     <div
@@ -1022,7 +1022,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
             />
           </div>
           <b>
-            la 1.1. (aamu)
+            dateshort registration.time.ap
           </b>
         </div>
       </div>
@@ -1125,7 +1125,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
               </div>
               <div
                 aria-colindex="2"
-                aria-label="Nimi"
+                aria-label="dog.name"
                 aria-sort="none"
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
                 data-field="dog.name"
@@ -1148,7 +1148,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                         class="MuiDataGrid-columnHeaderTitle css-1jbbcbn-MuiDataGrid-columnHeaderTitle"
                         data-mui-internal-clone-element="true"
                       >
-                        Nimi
+                        dog.name
                       </div>
                     </div>
                     <div
@@ -1198,7 +1198,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
               </div>
               <div
                 aria-colindex="3"
-                aria-label="Rekisterinumero"
+                aria-label="dog.regNo"
                 aria-sort="none"
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
                 data-field="dog.regNo"
@@ -1221,7 +1221,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                         class="MuiDataGrid-columnHeaderTitle css-1jbbcbn-MuiDataGrid-columnHeaderTitle"
                         data-mui-internal-clone-element="true"
                       >
-                        Rekisterinumero
+                        dog.regNo
                       </div>
                     </div>
                     <div
@@ -1332,7 +1332,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
             />
           </div>
           <b>
-            la 1.1. (ilta)
+            dateshort registration.time.ip
           </b>
         </div>
       </div>
@@ -1435,7 +1435,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
               </div>
               <div
                 aria-colindex="2"
-                aria-label="Nimi"
+                aria-label="dog.name"
                 aria-sort="none"
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
                 data-field="dog.name"
@@ -1458,7 +1458,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                         class="MuiDataGrid-columnHeaderTitle css-1jbbcbn-MuiDataGrid-columnHeaderTitle"
                         data-mui-internal-clone-element="true"
                       >
-                        Nimi
+                        dog.name
                       </div>
                     </div>
                     <div
@@ -1508,7 +1508,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
               </div>
               <div
                 aria-colindex="3"
-                aria-label="Rekisterinumero"
+                aria-label="dog.regNo"
                 aria-sort="none"
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
                 data-field="dog.regNo"
@@ -1531,7 +1531,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                         class="MuiDataGrid-columnHeaderTitle css-1jbbcbn-MuiDataGrid-columnHeaderTitle"
                         data-mui-internal-clone-element="true"
                       >
-                        Rekisterinumero
+                        dog.regNo
                       </div>
                     </div>
                     <div
@@ -1734,7 +1734,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
               </div>
               <div
                 aria-colindex="2"
-                aria-label="Nimi"
+                aria-label="dog.name"
                 aria-sort="none"
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
                 data-field="dog.name"
@@ -1757,7 +1757,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                         class="MuiDataGrid-columnHeaderTitle css-1jbbcbn-MuiDataGrid-columnHeaderTitle"
                         data-mui-internal-clone-element="true"
                       >
-                        Nimi
+                        dog.name
                       </div>
                     </div>
                     <div
@@ -1807,7 +1807,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
               </div>
               <div
                 aria-colindex="3"
-                aria-label="Rekisterinumero"
+                aria-label="dog.regNo"
                 aria-sort="none"
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
                 data-field="dog.regNo"
@@ -1830,7 +1830,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                         class="MuiDataGrid-columnHeaderTitle css-1jbbcbn-MuiDataGrid-columnHeaderTitle"
                         data-mui-internal-clone-element="true"
                       >
-                        Rekisterinumero
+                        dog.regNo
                       </div>
                     </div>
                     <div
@@ -2137,7 +2137,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
               </div>
               <div
                 aria-colindex="2"
-                aria-label="Nimi"
+                aria-label="dog.name"
                 aria-sort="none"
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
                 data-field="dog.name"
@@ -2160,7 +2160,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                         class="MuiDataGrid-columnHeaderTitle css-1jbbcbn-MuiDataGrid-columnHeaderTitle"
                         data-mui-internal-clone-element="true"
                       >
-                        Nimi
+                        dog.name
                       </div>
                     </div>
                     <div
@@ -2210,7 +2210,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
               </div>
               <div
                 aria-colindex="3"
-                aria-label="Rekisterinumero"
+                aria-label="dog.regNo"
                 aria-sort="none"
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
                 data-field="dog.regNo"
@@ -2233,7 +2233,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                         class="MuiDataGrid-columnHeaderTitle css-1jbbcbn-MuiDataGrid-columnHeaderTitle"
                         data-mui-internal-clone-element="true"
                       >
-                        Rekisterinumero
+                        dog.regNo
                       </div>
                     </div>
                     <div
@@ -2344,7 +2344,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
             />
           </div>
           <b>
-            ma 20.6. (aamu)
+            dateshort registration.time.ap
           </b>
         </div>
       </div>
@@ -2447,7 +2447,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
               </div>
               <div
                 aria-colindex="2"
-                aria-label="Nimi"
+                aria-label="dog.name"
                 aria-sort="none"
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
                 data-field="dog.name"
@@ -2470,7 +2470,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                         class="MuiDataGrid-columnHeaderTitle css-1jbbcbn-MuiDataGrid-columnHeaderTitle"
                         data-mui-internal-clone-element="true"
                       >
-                        Nimi
+                        dog.name
                       </div>
                     </div>
                     <div
@@ -2520,7 +2520,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
               </div>
               <div
                 aria-colindex="3"
-                aria-label="Rekisterinumero"
+                aria-label="dog.regNo"
                 aria-sort="none"
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
                 data-field="dog.regNo"
@@ -2543,7 +2543,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                         class="MuiDataGrid-columnHeaderTitle css-1jbbcbn-MuiDataGrid-columnHeaderTitle"
                         data-mui-internal-clone-element="true"
                       >
-                        Rekisterinumero
+                        dog.regNo
                       </div>
                     </div>
                     <div
@@ -2654,7 +2654,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
             />
           </div>
           <b>
-            ma 20.6. (ilta)
+            dateshort registration.time.ip
           </b>
         </div>
       </div>
@@ -2757,7 +2757,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
               </div>
               <div
                 aria-colindex="2"
-                aria-label="Nimi"
+                aria-label="dog.name"
                 aria-sort="none"
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
                 data-field="dog.name"
@@ -2780,7 +2780,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                         class="MuiDataGrid-columnHeaderTitle css-1jbbcbn-MuiDataGrid-columnHeaderTitle"
                         data-mui-internal-clone-element="true"
                       >
-                        Nimi
+                        dog.name
                       </div>
                     </div>
                     <div
@@ -2830,7 +2830,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
               </div>
               <div
                 aria-colindex="3"
-                aria-label="Rekisterinumero"
+                aria-label="dog.regNo"
                 aria-sort="none"
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
                 data-field="dog.regNo"
@@ -2853,7 +2853,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                         class="MuiDataGrid-columnHeaderTitle css-1jbbcbn-MuiDataGrid-columnHeaderTitle"
                         data-mui-internal-clone-element="true"
                       >
-                        Rekisterinumero
+                        dog.regNo
                       </div>
                     </div>
                     <div
@@ -3056,7 +3056,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
               </div>
               <div
                 aria-colindex="2"
-                aria-label="Nimi"
+                aria-label="dog.name"
                 aria-sort="none"
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
                 data-field="dog.name"
@@ -3079,7 +3079,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                         class="MuiDataGrid-columnHeaderTitle css-1jbbcbn-MuiDataGrid-columnHeaderTitle"
                         data-mui-internal-clone-element="true"
                       >
-                        Nimi
+                        dog.name
                       </div>
                     </div>
                     <div
@@ -3129,7 +3129,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
               </div>
               <div
                 aria-colindex="3"
-                aria-label="Rekisterinumero"
+                aria-label="dog.regNo"
                 aria-sort="none"
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
                 data-field="dog.regNo"
@@ -3152,7 +3152,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                         class="MuiDataGrid-columnHeaderTitle css-1jbbcbn-MuiDataGrid-columnHeaderTitle"
                         data-mui-internal-clone-element="true"
                       >
-                        Rekisterinumero
+                        dog.regNo
                       </div>
                     </div>
                     <div
@@ -3459,7 +3459,7 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
               </div>
               <div
                 aria-colindex="2"
-                aria-label="Nimi"
+                aria-label="dog.name"
                 aria-sort="none"
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
                 data-field="dog.name"
@@ -3482,7 +3482,7 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
                         class="MuiDataGrid-columnHeaderTitle css-1jbbcbn-MuiDataGrid-columnHeaderTitle"
                         data-mui-internal-clone-element="true"
                       >
-                        Nimi
+                        dog.name
                       </div>
                     </div>
                     <div
@@ -3532,7 +3532,7 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
               </div>
               <div
                 aria-colindex="3"
-                aria-label="Rekisterinumero"
+                aria-label="dog.regNo"
                 aria-sort="none"
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
                 data-field="dog.regNo"
@@ -3555,7 +3555,7 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
                         class="MuiDataGrid-columnHeaderTitle css-1jbbcbn-MuiDataGrid-columnHeaderTitle"
                         data-mui-internal-clone-element="true"
                       >
-                        Rekisterinumero
+                        dog.regNo
                       </div>
                     </div>
                     <div
@@ -3758,7 +3758,7 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
               </div>
               <div
                 aria-colindex="2"
-                aria-label="Nimi"
+                aria-label="dog.name"
                 aria-sort="none"
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
                 data-field="dog.name"
@@ -3781,7 +3781,7 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
                         class="MuiDataGrid-columnHeaderTitle css-1jbbcbn-MuiDataGrid-columnHeaderTitle"
                         data-mui-internal-clone-element="true"
                       >
-                        Nimi
+                        dog.name
                       </div>
                     </div>
                     <div
@@ -3831,7 +3831,7 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
               </div>
               <div
                 aria-colindex="3"
-                aria-label="Rekisterinumero"
+                aria-label="dog.regNo"
                 aria-sort="none"
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
                 data-field="dog.regNo"
@@ -3854,7 +3854,7 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
                         class="MuiDataGrid-columnHeaderTitle css-1jbbcbn-MuiDataGrid-columnHeaderTitle"
                         data-mui-internal-clone-element="true"
                       >
-                        Rekisterinumero
+                        dog.regNo
                       </div>
                     </div>
                     <div

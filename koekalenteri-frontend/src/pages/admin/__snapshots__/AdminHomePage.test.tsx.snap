@@ -85,7 +85,7 @@ exports[`AdminHomePage renders the child page content when user is logged in 1`]
         <div
           class="MuiBox-root css-130f8nx"
         >
-          Suomeksi
+          locale.fi
         </div>
         <span
           class="MuiButton-endIcon MuiButton-iconSizeMedium css-9tj150-MuiButton-endIcon"
@@ -252,7 +252,7 @@ exports[`AdminHomePage renders the page when user is logged in 1`] = `
         <div
           class="MuiBox-root css-130f8nx"
         >
-          Suomeksi
+          locale.fi
         </div>
         <span
           class="MuiButton-endIcon MuiButton-iconSizeMedium css-9tj150-MuiButton-endIcon"

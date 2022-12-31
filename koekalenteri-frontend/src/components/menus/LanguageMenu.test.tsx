@@ -14,8 +14,8 @@ test('It should render the menu', () => {
   const menu = screen.getByRole('menu')
 
   expect(menu).toBeVisible()
-  expect(within(menu).getByText(/In English/i)).toBeInTheDocument()
-  expect(within(menu).getByText(/Suomeksi/i)).toBeInTheDocument()
+  expect(within(menu).getByText('locale.en')).toBeInTheDocument()
+  expect(within(menu).getByText('locale.fi')).toBeInTheDocument()
 })
 
 test('It should change the language', () => {
@@ -26,14 +26,14 @@ test('It should change the language', () => {
   fireEvent.click(screen.getByTestId('LanguageIcon'))
   const menu = screen.getByRole('menu')
 
-  expect(within(menu).getByText(/In English/i)).not.toHaveClass('Mui-selected')
-  expect(within(menu).getByText(/Suomeksi/i)).toHaveClass('Mui-selected')
+  expect(within(menu).getByText('locale.en')).not.toHaveClass('Mui-selected')
+  expect(within(menu).getByText('locale.fi')).toHaveClass('Mui-selected')
 
-  fireEvent.click(within(menu).getByText(/In English/i))
+  fireEvent.click(within(menu).getByText('locale.en'))
 
   expect(menu).not.toBeVisible()
-  expect(within(menu).getByText(/English/i)).toHaveClass('Mui-selected')
-  expect(within(menu).getByText(/Suomeksi/i)).not.toHaveClass('Mui-selected')
+  expect(within(menu).getByText('locale.en')).toHaveClass('Mui-selected')
+  expect(within(menu).getByText('locale.fi')).not.toHaveClass('Mui-selected')
 
   expect(localStorage.getItem('i18nextLng')).toEqual('en')
 

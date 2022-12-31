@@ -53,10 +53,10 @@ const renderComponent = (filter: FilterProps, onChange?: ((filter: FilterProps) 
 test('should render', () => {
   renderComponent({ start: null, end: null, eventType: ['NOME-B'], eventClass: ['ALO'], judge: [234], organizer: [2]})
 
-  expect(screen.getByTestId(/Koemuoto/i)).toHaveTextContent(/NOME-B/i)
-  expect(screen.getByTestId(/Koeluokka/i)).toHaveTextContent(/ALO/i)
-  expect(screen.getByTestId(/Tuomari/i)).toHaveTextContent(/Tuomari 2/i)
-  expect(screen.getByTestId(/Järjestäjä/i)).toHaveTextContent(/Test org/i)
+  expect(screen.getByTestId('eventType')).toHaveTextContent(/NOME-B/i)
+  expect(screen.getByTestId('eventClass')).toHaveTextContent(/ALO/i)
+  expect(screen.getByTestId('judge')).toHaveTextContent(/Tuomari 2/i)
+  expect(screen.getByTestId('organizer')).toHaveTextContent(/Test org/i)
 })
 
 function changeAutocompleteValue(testId: string, value: string) {
@@ -72,16 +72,16 @@ test('It should fire onChange', async () => {
   const changeHandler = jest.fn()
   renderComponent({ start: null, end: null, eventType: [], eventClass: [], judge: [], organizer: [] }, changeHandler)
 
-  changeAutocompleteValue('Koemuoto', 'NOME-A')
+  changeAutocompleteValue('eventType', 'NOME-A')
   expect(changeHandler).toHaveBeenCalledTimes(1)
 
-  changeAutocompleteValue('Koeluokka', 'VOI')
+  changeAutocompleteValue('eventClass', 'VOI')
   expect(changeHandler).toHaveBeenCalledTimes(2)
 
-  changeAutocompleteValue('Tuomari', 'Tuomari 1')
+  changeAutocompleteValue('judge', 'Tuomari 1')
   expect(changeHandler).toHaveBeenCalledTimes(3)
 
-  changeAutocompleteValue('Järjestäjä', 'Järjestäjä 1')
+  changeAutocompleteValue('organizer', 'Järjestäjä 1')
   expect(changeHandler).toHaveBeenCalledTimes(4)
 
   /*
@@ -92,7 +92,7 @@ test('It should fire onChange', async () => {
   expect(changeHandler).toHaveBeenCalledTimes(5)
   */
 
-  fireEvent.click(screen.getByLabelText(/Ilmoittautuminen auki/i))
+  fireEvent.click(screen.getByLabelText('entryOpen'))
   expect(changeHandler).toHaveBeenCalledTimes(5)
 
   fireEvent.click(screen.getByLabelText(/Vielä mahtuu/i))

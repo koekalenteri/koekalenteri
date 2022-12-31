@@ -75,7 +75,7 @@ test('It should fire onSave and onCancel', async () => {
   expect(saveButton).toBeDisabled()
 
   // Make a change to enable save button
-  fireEvent.mouseDown(screen.getByLabelText(/Koemuoto/i))
+  fireEvent.mouseDown(screen.getByLabelText(/eventType/i))
   fireEvent.click(within(screen.getByRole('listbox')).getByText(/TEST-C/i))
 
   expect(saveButton).toBeEnabled()
