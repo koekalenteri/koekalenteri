@@ -43,7 +43,6 @@ export const JudgeListPage = () => {
           }}
           density='compact'
           disableColumnMenu
-          disableVirtualization
           rows={judges}
         />
       </FullPageFlex>

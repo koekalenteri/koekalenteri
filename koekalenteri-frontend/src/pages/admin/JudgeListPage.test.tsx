@@ -6,25 +6,23 @@ import { SnackbarProvider } from 'notistack'
 import { RecoilRoot } from 'recoil'
 
 import theme from '../../assets/Theme'
-import { flushPromisesAndTimers, RecoilObserver } from '../../test-utils/utils'
+import { flushPromisesAndTimers } from '../../test-utils/utils'
 
-import { EventListPage } from './EventListPage'
-import { adminEventIdAtom } from './recoil'
+import { JudgeListPage } from './JudgeListPage'
 
-jest.mock('../../api/event')
 jest.mock('../../api/judge')
 
-describe('EventListPage', () => {
+
+describe('JudgeListPage', () => {
   it('renders', async () => {
-    const onChange = jest.fn()
+
     const { container } = render(
       <ThemeProvider theme={theme}>
         <RecoilRoot>
-          <RecoilObserver node={adminEventIdAtom} onChange={onChange} />
           <MemoryRouter>
             <Suspense fallback={<div>loading...</div>}>
               <SnackbarProvider>
-                <EventListPage />
+                <JudgeListPage />
               </SnackbarProvider>
             </Suspense>
           </MemoryRouter>
@@ -34,9 +32,7 @@ describe('EventListPage', () => {
     await flushPromisesAndTimers()
     expect(container).toMatchSnapshot()
 
-    fireEvent.click(screen.getAllByRole('row')[1])
-    expect(onChange).toHaveBeenCalledTimes(2)
-    expect(onChange).toHaveBeenCalledWith(undefined)
-    expect(onChange).toHaveBeenCalledWith('test1')
+    fireEvent.click(screen.getAllByRole('row')[2])
+    expect(screen.getAllByRole('row')).toMatchSnapshot()
   })
 })

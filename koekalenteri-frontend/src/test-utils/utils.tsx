@@ -1,6 +1,9 @@
+import { useEffect } from "react"
 import { createMemoryRouter, createRoutesFromElements, RouteObject, RouterProvider } from "react-router-dom"
 import { RouterInit } from '@remix-run/router'
 import { act } from "@testing-library/react"
+import mediaQuery from 'css-mediaquery'
+import { RecoilValue, useRecoilValue } from "recoil"
 
 /**
  * Abstraction to avoid re-writing all tests for the time being
@@ -40,4 +43,21 @@ export function flushPromisesAndTimers(): Promise<void> {
         jest.runAllTimers()
       }),
   )
+}
+
+export const createMatchMedia = (width: number) => (query: string): MediaQueryList => ({
+  matches: mediaQuery.match(query, { width }),
+  media: query,
+  onchange: null,
+  addListener: jest.fn(), // deprecated
+  removeListener: jest.fn(), // deprecated
+  addEventListener: jest.fn(),
+  removeEventListener: jest.fn(),
+  dispatchEvent: jest.fn(),
+})
+
+export function RecoilObserver<T>({node, onChange}: {node: RecoilValue<T>, onChange: (value: T) => void}) {
+  const value = useRecoilValue(node)
+  useEffect(() => onChange(value), [onChange, value])
+  return null
 }

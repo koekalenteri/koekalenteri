@@ -92,7 +92,6 @@ export const OfficialListPage = () => {
           }}
           density='compact'
           disableColumnMenu
-          disableVirtualization
           rows={officials}
         />
       </FullPageFlex>

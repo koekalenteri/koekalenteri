@@ -54,7 +54,6 @@ export const OrganizerListPage = () => {
           }}
           density='compact'
           disableColumnMenu
-          disableVirtualization
           rows={organizers}
         />
       </FullPageFlex>
