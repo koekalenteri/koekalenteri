@@ -4,7 +4,7 @@ import { render } from '@testing-library/react'
 
 import theme from '../../assets/Theme'
 import { Path } from '../../routeConfig'
-import { DataMemoryRouter, getHtml } from '../../test-utils/utils'
+import { DataMemoryRouter } from '../../test-utils/utils'
 
 import { AdminHomePage } from './AdminHomePage'
 
@@ -27,10 +27,10 @@ describe('AdminHomePage', () => {
         </Authenticator.Provider>
       </ThemeProvider>,
     )
-    expect(getHtml(container)).toMatchInlineSnapshot(`
-    "<div>
-      Login
-    </div>"
-    `)
+    expect(container).toMatchInlineSnapshot(`
+<div>
+  Login
+</div>
+`)
   })
 })

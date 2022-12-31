@@ -6,7 +6,7 @@ import { SnackbarProvider } from 'notistack'
 
 import theme from '../assets/Theme'
 import { Path } from '../routeConfig'
-import { DataMemoryRouter, getHtml } from '../test-utils/utils'
+import { DataMemoryRouter } from '../test-utils/utils'
 
 import { LoginPage } from './LoginPage'
 
@@ -32,6 +32,6 @@ describe('LoginPage', () => {
         </SnackbarProvider>
       </ThemeProvider>,
     )
-    expect(getHtml(container)).toMatchSnapshot()
+    expect(container).toMatchSnapshot()
   })
 })

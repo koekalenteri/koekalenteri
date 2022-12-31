@@ -20,7 +20,9 @@ export function ErrorPage() {
 
 function ErrorInfo() {
   const error = useRouteError()
-  console.error(error)
+  if (process?.env?.NODE_ENV !== 'test') {
+    console.error(error)
+  }
 
   if (isRouteErrorResponse(error)) {
     return (

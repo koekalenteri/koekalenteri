@@ -4,7 +4,7 @@ import { render } from '@testing-library/react'
 
 import theme from '../../assets/Theme'
 import { Path } from '../../routeConfig'
-import { DataMemoryRouter, getHtml } from '../../test-utils/utils'
+import { DataMemoryRouter } from '../../test-utils/utils'
 
 import { AdminHomePage } from './AdminHomePage'
 
@@ -24,7 +24,7 @@ describe('AdminHomePage', () => {
         </Authenticator.Provider>
       </ThemeProvider>,
     )
-    expect(getHtml(container)).toMatchSnapshot()
+    expect(container).toMatchSnapshot()
   })
 
   it('renders the child page content when user is logged in', () => {
@@ -43,6 +43,6 @@ describe('AdminHomePage', () => {
         </Authenticator.Provider>
       </ThemeProvider>,
     )
-    expect(getHtml(container)).toMatchSnapshot()
+    expect(container).toMatchSnapshot()
   })
 })

@@ -1,6 +1,6 @@
 import { createMemoryRouter, createRoutesFromElements, RouteObject, RouterProvider } from "react-router-dom"
 import { RouterInit } from '@remix-run/router'
-import { prettyDOM } from "@testing-library/react"
+import { act } from "@testing-library/react"
 
 /**
  * Abstraction to avoid re-writing all tests for the time being
@@ -32,8 +32,12 @@ export function DataMemoryRouter({
   return <RouterProvider router={router} fallbackElement={fallbackElement} />
 }
 
-export function getHtml(container: HTMLElement) {
-  return prettyDOM(container, undefined, {
-    highlight: false,
-  })
+export function flushPromisesAndTimers(): Promise<void> {
+  return act(
+    () =>
+      new Promise<void>(resolve => {
+        setTimeout(resolve, 100)
+        jest.runAllTimers()
+      }),
+  )
 }

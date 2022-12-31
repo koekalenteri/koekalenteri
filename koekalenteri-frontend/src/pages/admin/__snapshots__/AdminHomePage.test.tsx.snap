@@ -1,334 +1,334 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`AdminHomePage renders the child page content when user is logged in 1`] = `
-"<div>
+<div>
   <header
-    class=\\"MuiPaper-root MuiPaper-elevation MuiPaper-elevation4 MuiAppBar-root MuiAppBar-colorSecondary MuiAppBar-positionFixed mui-fixed css-19iqa5y-MuiPaper-root-MuiAppBar-root\\"
+    class="MuiPaper-root MuiPaper-elevation MuiPaper-elevation4 MuiAppBar-root MuiAppBar-colorSecondary MuiAppBar-positionFixed mui-fixed css-19iqa5y-MuiPaper-root-MuiAppBar-root"
   >
     <div
-      class=\\"MuiToolbar-root MuiToolbar-dense css-izwrv4-MuiToolbar-root\\"
+      class="MuiToolbar-root MuiToolbar-dense css-izwrv4-MuiToolbar-root"
     >
       <button
-        class=\\"MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-1ecacw7-MuiButtonBase-root-MuiIconButton-root\\"
-        tabindex=\\"0\\"
-        type=\\"button\\"
+        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-1ecacw7-MuiButtonBase-root-MuiIconButton-root"
+        tabindex="0"
+        type="button"
       >
         <svg
-          aria-hidden=\\"true\\"
-          class=\\"MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root\\"
-          data-testid=\\"MenuIcon\\"
-          focusable=\\"false\\"
-          viewBox=\\"0 0 24 24\\"
+          aria-hidden="true"
+          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+          data-testid="MenuIcon"
+          focusable="false"
+          viewBox="0 0 24 24"
         >
           <path
-            d=\\"M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z\\"
+            d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"
           />
         </svg>
         <span
-          class=\\"MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root\\"
+          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
         />
       </button>
       <a
-        class=\\"MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-1flfxuu-MuiTypography-root-MuiLink-root\\"
-        href=\\"/\\"
+        class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-1flfxuu-MuiTypography-root-MuiLink-root"
+        href="/"
       >
         <button
-          class=\\"MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-oau294-MuiButtonBase-root-MuiIconButton-root\\"
-          tabindex=\\"0\\"
-          type=\\"button\\"
+          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-oau294-MuiButtonBase-root-MuiIconButton-root"
+          tabindex="0"
+          type="button"
         >
           <img
-            alt=\\"Suomen noutajakoirajärjestö\\"
-            height=\\"100%\\"
-            src=\\"snj-logo.png\\"
+            alt="Suomen noutajakoirajärjestö"
+            height="100%"
+            src="snj-logo.png"
           />
           <span
-            class=\\"MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root\\"
+            class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
           />
         </button>
       </a>
       <a
-        class=\\"MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-ix55se-MuiTypography-root-MuiLink-root\\"
-        href=\\"/\\"
+        class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-ix55se-MuiTypography-root-MuiLink-root"
+        href="/"
       >
         <div
-          class=\\"MuiTypography-root MuiTypography-h6 MuiTypography-noWrap css-1xz05ty-MuiTypography-root\\"
+          class="MuiTypography-root MuiTypography-h6 MuiTypography-noWrap css-1xz05ty-MuiTypography-root"
         >
           Koekalenteri
         </div>
       </a>
       <div
-        class=\\"MuiTypography-root MuiTypography-h6 MuiTypography-noWrap css-1mo43ab-MuiTypography-root\\"
+        class="MuiTypography-root MuiTypography-h6 MuiTypography-noWrap css-1mo43ab-MuiTypography-root"
       >
          › Admin
       </div>
       <button
-        class=\\"MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-kva05m-MuiButtonBase-root-MuiButton-root\\"
-        tabindex=\\"0\\"
-        type=\\"button\\"
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-kva05m-MuiButtonBase-root-MuiButton-root"
+        tabindex="0"
+        type="button"
       >
         <span
-          class=\\"MuiButton-startIcon MuiButton-iconSizeMedium css-1d6wzja-MuiButton-startIcon\\"
+          class="MuiButton-startIcon MuiButton-iconSizeMedium css-1d6wzja-MuiButton-startIcon"
         >
           <svg
-            aria-hidden=\\"true\\"
-            class=\\"MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root\\"
-            data-testid=\\"LanguageIcon\\"
-            focusable=\\"false\\"
-            viewBox=\\"0 0 24 24\\"
+            aria-hidden="true"
+            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+            data-testid="LanguageIcon"
+            focusable="false"
+            viewBox="0 0 24 24"
           >
             <path
-              d=\\"M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm6.93 6h-2.95c-.32-1.25-.78-2.45-1.38-3.56 1.84.63 3.37 1.91 4.33 3.56zM12 4.04c.83 1.2 1.48 2.53 1.91 3.96h-3.82c.43-1.43 1.08-2.76 1.91-3.96zM4.26 14C4.1 13.36 4 12.69 4 12s.1-1.36.26-2h3.38c-.08.66-.14 1.32-.14 2 0 .68.06 1.34.14 2H4.26zm.82 2h2.95c.32 1.25.78 2.45 1.38 3.56-1.84-.63-3.37-1.9-4.33-3.56zm2.95-8H5.08c.96-1.66 2.49-2.93 4.33-3.56C8.81 5.55 8.35 6.75 8.03 8zM12 19.96c-.83-1.2-1.48-2.53-1.91-3.96h3.82c-.43 1.43-1.08 2.76-1.91 3.96zM14.34 14H9.66c-.09-.66-.16-1.32-.16-2 0-.68.07-1.35.16-2h4.68c.09.65.16 1.32.16 2 0 .68-.07 1.34-.16 2zm.25 5.56c.6-1.11 1.06-2.31 1.38-3.56h2.95c-.96 1.65-2.49 2.93-4.33 3.56zM16.36 14c.08-.66.14-1.32.14-2 0-.68-.06-1.34-.14-2h3.38c.16.64.26 1.31.26 2s-.1 1.36-.26 2h-3.38z\\"
+              d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm6.93 6h-2.95c-.32-1.25-.78-2.45-1.38-3.56 1.84.63 3.37 1.91 4.33 3.56zM12 4.04c.83 1.2 1.48 2.53 1.91 3.96h-3.82c.43-1.43 1.08-2.76 1.91-3.96zM4.26 14C4.1 13.36 4 12.69 4 12s.1-1.36.26-2h3.38c-.08.66-.14 1.32-.14 2 0 .68.06 1.34.14 2H4.26zm.82 2h2.95c.32 1.25.78 2.45 1.38 3.56-1.84-.63-3.37-1.9-4.33-3.56zm2.95-8H5.08c.96-1.66 2.49-2.93 4.33-3.56C8.81 5.55 8.35 6.75 8.03 8zM12 19.96c-.83-1.2-1.48-2.53-1.91-3.96h3.82c-.43 1.43-1.08 2.76-1.91 3.96zM14.34 14H9.66c-.09-.66-.16-1.32-.16-2 0-.68.07-1.35.16-2h4.68c.09.65.16 1.32.16 2 0 .68-.07 1.34-.16 2zm.25 5.56c.6-1.11 1.06-2.31 1.38-3.56h2.95c-.96 1.65-2.49 2.93-4.33 3.56zM16.36 14c.08-.66.14-1.32.14-2 0-.68-.06-1.34-.14-2h3.38c.16.64.26 1.31.26 2s-.1 1.36-.26 2h-3.38z"
             />
           </svg>
         </span>
         <div
-          class=\\"MuiBox-root css-130f8nx\\"
+          class="MuiBox-root css-130f8nx"
         >
           Suomeksi
         </div>
         <span
-          class=\\"MuiButton-endIcon MuiButton-iconSizeMedium css-9tj150-MuiButton-endIcon\\"
+          class="MuiButton-endIcon MuiButton-iconSizeMedium css-9tj150-MuiButton-endIcon"
         >
           <svg
-            aria-hidden=\\"true\\"
-            class=\\"MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root\\"
-            data-testid=\\"ExpandMoreIcon\\"
-            focusable=\\"false\\"
-            viewBox=\\"0 0 24 24\\"
+            aria-hidden="true"
+            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+            data-testid="ExpandMoreIcon"
+            focusable="false"
+            viewBox="0 0 24 24"
           >
             <path
-              d=\\"M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z\\"
+              d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"
             />
           </svg>
         </span>
         <span
-          class=\\"MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root\\"
+          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
         />
       </button>
       <button
-        class=\\"MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-kva05m-MuiButtonBase-root-MuiButton-root\\"
-        tabindex=\\"0\\"
-        type=\\"button\\"
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-kva05m-MuiButtonBase-root-MuiButton-root"
+        tabindex="0"
+        type="button"
       >
         <span
-          class=\\"MuiButton-startIcon MuiButton-iconSizeMedium css-1d6wzja-MuiButton-startIcon\\"
+          class="MuiButton-startIcon MuiButton-iconSizeMedium css-1d6wzja-MuiButton-startIcon"
         >
           <svg
-            aria-hidden=\\"true\\"
-            class=\\"MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root\\"
-            data-testid=\\"PersonOutlineIcon\\"
-            focusable=\\"false\\"
-            viewBox=\\"0 0 24 24\\"
+            aria-hidden="true"
+            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+            data-testid="PersonOutlineIcon"
+            focusable="false"
+            viewBox="0 0 24 24"
           >
             <path
-              d=\\"M12 5.9c1.16 0 2.1.94 2.1 2.1s-.94 2.1-2.1 2.1S9.9 9.16 9.9 8s.94-2.1 2.1-2.1m0 9c2.97 0 6.1 1.46 6.1 2.1v1.1H5.9V17c0-.64 3.13-2.1 6.1-2.1M12 4C9.79 4 8 5.79 8 8s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 9c-2.67 0-8 1.34-8 4v3h16v-3c0-2.66-5.33-4-8-4z\\"
+              d="M12 5.9c1.16 0 2.1.94 2.1 2.1s-.94 2.1-2.1 2.1S9.9 9.16 9.9 8s.94-2.1 2.1-2.1m0 9c2.97 0 6.1 1.46 6.1 2.1v1.1H5.9V17c0-.64 3.13-2.1 6.1-2.1M12 4C9.79 4 8 5.79 8 8s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 9c-2.67 0-8 1.34-8 4v3h16v-3c0-2.66-5.33-4-8-4z"
             />
           </svg>
         </span>
         <div
-          class=\\"MuiBox-root css-130f8nx\\"
+          class="MuiBox-root css-130f8nx"
         >
           Test User
         </div>
         <span
-          class=\\"MuiButton-endIcon MuiButton-iconSizeMedium css-9tj150-MuiButton-endIcon\\"
+          class="MuiButton-endIcon MuiButton-iconSizeMedium css-9tj150-MuiButton-endIcon"
         >
           <svg
-            aria-hidden=\\"true\\"
-            class=\\"MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root\\"
-            data-testid=\\"ExpandMoreIcon\\"
-            focusable=\\"false\\"
-            viewBox=\\"0 0 24 24\\"
+            aria-hidden="true"
+            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+            data-testid="ExpandMoreIcon"
+            focusable="false"
+            viewBox="0 0 24 24"
           >
             <path
-              d=\\"M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z\\"
+              d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"
             />
           </svg>
         </span>
         <span
-          class=\\"MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root\\"
+          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
         />
       </button>
     </div>
   </header>
   <div
-    class=\\"MuiBox-root css-ab8yd1\\"
+    class="MuiBox-root css-ab8yd1"
   >
     <div
-      class=\\"MuiBox-root css-17swpt3\\"
+      class="MuiBox-root css-17swpt3"
     >
       <div
-        class=\\"MuiToolbar-root MuiToolbar-gutters MuiToolbar-dense css-10ltm04-MuiToolbar-root\\"
+        class="MuiToolbar-root MuiToolbar-gutters MuiToolbar-dense css-10ltm04-MuiToolbar-root"
       />
       ADMIN DEFAULT PAGE CONTENT
     </div>
   </div>
-</div>"
+</div>
 `;
 
 exports[`AdminHomePage renders the page when user is logged in 1`] = `
-"<div>
+<div>
   <header
-    class=\\"MuiPaper-root MuiPaper-elevation MuiPaper-elevation4 MuiAppBar-root MuiAppBar-colorSecondary MuiAppBar-positionFixed mui-fixed css-19iqa5y-MuiPaper-root-MuiAppBar-root\\"
+    class="MuiPaper-root MuiPaper-elevation MuiPaper-elevation4 MuiAppBar-root MuiAppBar-colorSecondary MuiAppBar-positionFixed mui-fixed css-19iqa5y-MuiPaper-root-MuiAppBar-root"
   >
     <div
-      class=\\"MuiToolbar-root MuiToolbar-dense css-izwrv4-MuiToolbar-root\\"
+      class="MuiToolbar-root MuiToolbar-dense css-izwrv4-MuiToolbar-root"
     >
       <button
-        class=\\"MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-1ecacw7-MuiButtonBase-root-MuiIconButton-root\\"
-        tabindex=\\"0\\"
-        type=\\"button\\"
+        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-1ecacw7-MuiButtonBase-root-MuiIconButton-root"
+        tabindex="0"
+        type="button"
       >
         <svg
-          aria-hidden=\\"true\\"
-          class=\\"MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root\\"
-          data-testid=\\"MenuIcon\\"
-          focusable=\\"false\\"
-          viewBox=\\"0 0 24 24\\"
+          aria-hidden="true"
+          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+          data-testid="MenuIcon"
+          focusable="false"
+          viewBox="0 0 24 24"
         >
           <path
-            d=\\"M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z\\"
+            d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"
           />
         </svg>
         <span
-          class=\\"MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root\\"
+          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
         />
       </button>
       <a
-        class=\\"MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-1flfxuu-MuiTypography-root-MuiLink-root\\"
-        href=\\"/\\"
+        class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-1flfxuu-MuiTypography-root-MuiLink-root"
+        href="/"
       >
         <button
-          class=\\"MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-oau294-MuiButtonBase-root-MuiIconButton-root\\"
-          tabindex=\\"0\\"
-          type=\\"button\\"
+          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-oau294-MuiButtonBase-root-MuiIconButton-root"
+          tabindex="0"
+          type="button"
         >
           <img
-            alt=\\"Suomen noutajakoirajärjestö\\"
-            height=\\"100%\\"
-            src=\\"snj-logo.png\\"
+            alt="Suomen noutajakoirajärjestö"
+            height="100%"
+            src="snj-logo.png"
           />
           <span
-            class=\\"MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root\\"
+            class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
           />
         </button>
       </a>
       <a
-        class=\\"MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-ix55se-MuiTypography-root-MuiLink-root\\"
-        href=\\"/\\"
+        class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-ix55se-MuiTypography-root-MuiLink-root"
+        href="/"
       >
         <div
-          class=\\"MuiTypography-root MuiTypography-h6 MuiTypography-noWrap css-1xz05ty-MuiTypography-root\\"
+          class="MuiTypography-root MuiTypography-h6 MuiTypography-noWrap css-1xz05ty-MuiTypography-root"
         >
           Koekalenteri
         </div>
       </a>
       <div
-        class=\\"MuiTypography-root MuiTypography-h6 MuiTypography-noWrap css-1mo43ab-MuiTypography-root\\"
+        class="MuiTypography-root MuiTypography-h6 MuiTypography-noWrap css-1mo43ab-MuiTypography-root"
       >
          › Admin
       </div>
       <button
-        class=\\"MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-kva05m-MuiButtonBase-root-MuiButton-root\\"
-        tabindex=\\"0\\"
-        type=\\"button\\"
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-kva05m-MuiButtonBase-root-MuiButton-root"
+        tabindex="0"
+        type="button"
       >
         <span
-          class=\\"MuiButton-startIcon MuiButton-iconSizeMedium css-1d6wzja-MuiButton-startIcon\\"
+          class="MuiButton-startIcon MuiButton-iconSizeMedium css-1d6wzja-MuiButton-startIcon"
         >
           <svg
-            aria-hidden=\\"true\\"
-            class=\\"MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root\\"
-            data-testid=\\"LanguageIcon\\"
-            focusable=\\"false\\"
-            viewBox=\\"0 0 24 24\\"
+            aria-hidden="true"
+            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+            data-testid="LanguageIcon"
+            focusable="false"
+            viewBox="0 0 24 24"
           >
             <path
-              d=\\"M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm6.93 6h-2.95c-.32-1.25-.78-2.45-1.38-3.56 1.84.63 3.37 1.91 4.33 3.56zM12 4.04c.83 1.2 1.48 2.53 1.91 3.96h-3.82c.43-1.43 1.08-2.76 1.91-3.96zM4.26 14C4.1 13.36 4 12.69 4 12s.1-1.36.26-2h3.38c-.08.66-.14 1.32-.14 2 0 .68.06 1.34.14 2H4.26zm.82 2h2.95c.32 1.25.78 2.45 1.38 3.56-1.84-.63-3.37-1.9-4.33-3.56zm2.95-8H5.08c.96-1.66 2.49-2.93 4.33-3.56C8.81 5.55 8.35 6.75 8.03 8zM12 19.96c-.83-1.2-1.48-2.53-1.91-3.96h3.82c-.43 1.43-1.08 2.76-1.91 3.96zM14.34 14H9.66c-.09-.66-.16-1.32-.16-2 0-.68.07-1.35.16-2h4.68c.09.65.16 1.32.16 2 0 .68-.07 1.34-.16 2zm.25 5.56c.6-1.11 1.06-2.31 1.38-3.56h2.95c-.96 1.65-2.49 2.93-4.33 3.56zM16.36 14c.08-.66.14-1.32.14-2 0-.68-.06-1.34-.14-2h3.38c.16.64.26 1.31.26 2s-.1 1.36-.26 2h-3.38z\\"
+              d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm6.93 6h-2.95c-.32-1.25-.78-2.45-1.38-3.56 1.84.63 3.37 1.91 4.33 3.56zM12 4.04c.83 1.2 1.48 2.53 1.91 3.96h-3.82c.43-1.43 1.08-2.76 1.91-3.96zM4.26 14C4.1 13.36 4 12.69 4 12s.1-1.36.26-2h3.38c-.08.66-.14 1.32-.14 2 0 .68.06 1.34.14 2H4.26zm.82 2h2.95c.32 1.25.78 2.45 1.38 3.56-1.84-.63-3.37-1.9-4.33-3.56zm2.95-8H5.08c.96-1.66 2.49-2.93 4.33-3.56C8.81 5.55 8.35 6.75 8.03 8zM12 19.96c-.83-1.2-1.48-2.53-1.91-3.96h3.82c-.43 1.43-1.08 2.76-1.91 3.96zM14.34 14H9.66c-.09-.66-.16-1.32-.16-2 0-.68.07-1.35.16-2h4.68c.09.65.16 1.32.16 2 0 .68-.07 1.34-.16 2zm.25 5.56c.6-1.11 1.06-2.31 1.38-3.56h2.95c-.96 1.65-2.49 2.93-4.33 3.56zM16.36 14c.08-.66.14-1.32.14-2 0-.68-.06-1.34-.14-2h3.38c.16.64.26 1.31.26 2s-.1 1.36-.26 2h-3.38z"
             />
           </svg>
         </span>
         <div
-          class=\\"MuiBox-root css-130f8nx\\"
+          class="MuiBox-root css-130f8nx"
         >
           Suomeksi
         </div>
         <span
-          class=\\"MuiButton-endIcon MuiButton-iconSizeMedium css-9tj150-MuiButton-endIcon\\"
+          class="MuiButton-endIcon MuiButton-iconSizeMedium css-9tj150-MuiButton-endIcon"
         >
           <svg
-            aria-hidden=\\"true\\"
-            class=\\"MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root\\"
-            data-testid=\\"ExpandMoreIcon\\"
-            focusable=\\"false\\"
-            viewBox=\\"0 0 24 24\\"
+            aria-hidden="true"
+            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+            data-testid="ExpandMoreIcon"
+            focusable="false"
+            viewBox="0 0 24 24"
           >
             <path
-              d=\\"M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z\\"
+              d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"
             />
           </svg>
         </span>
         <span
-          class=\\"MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root\\"
+          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
         />
       </button>
       <button
-        class=\\"MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-kva05m-MuiButtonBase-root-MuiButton-root\\"
-        tabindex=\\"0\\"
-        type=\\"button\\"
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-kva05m-MuiButtonBase-root-MuiButton-root"
+        tabindex="0"
+        type="button"
       >
         <span
-          class=\\"MuiButton-startIcon MuiButton-iconSizeMedium css-1d6wzja-MuiButton-startIcon\\"
+          class="MuiButton-startIcon MuiButton-iconSizeMedium css-1d6wzja-MuiButton-startIcon"
         >
           <svg
-            aria-hidden=\\"true\\"
-            class=\\"MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root\\"
-            data-testid=\\"PersonOutlineIcon\\"
-            focusable=\\"false\\"
-            viewBox=\\"0 0 24 24\\"
+            aria-hidden="true"
+            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+            data-testid="PersonOutlineIcon"
+            focusable="false"
+            viewBox="0 0 24 24"
           >
             <path
-              d=\\"M12 5.9c1.16 0 2.1.94 2.1 2.1s-.94 2.1-2.1 2.1S9.9 9.16 9.9 8s.94-2.1 2.1-2.1m0 9c2.97 0 6.1 1.46 6.1 2.1v1.1H5.9V17c0-.64 3.13-2.1 6.1-2.1M12 4C9.79 4 8 5.79 8 8s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 9c-2.67 0-8 1.34-8 4v3h16v-3c0-2.66-5.33-4-8-4z\\"
+              d="M12 5.9c1.16 0 2.1.94 2.1 2.1s-.94 2.1-2.1 2.1S9.9 9.16 9.9 8s.94-2.1 2.1-2.1m0 9c2.97 0 6.1 1.46 6.1 2.1v1.1H5.9V17c0-.64 3.13-2.1 6.1-2.1M12 4C9.79 4 8 5.79 8 8s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 9c-2.67 0-8 1.34-8 4v3h16v-3c0-2.66-5.33-4-8-4z"
             />
           </svg>
         </span>
         <div
-          class=\\"MuiBox-root css-130f8nx\\"
+          class="MuiBox-root css-130f8nx"
         >
           Test User
         </div>
         <span
-          class=\\"MuiButton-endIcon MuiButton-iconSizeMedium css-9tj150-MuiButton-endIcon\\"
+          class="MuiButton-endIcon MuiButton-iconSizeMedium css-9tj150-MuiButton-endIcon"
         >
           <svg
-            aria-hidden=\\"true\\"
-            class=\\"MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root\\"
-            data-testid=\\"ExpandMoreIcon\\"
-            focusable=\\"false\\"
-            viewBox=\\"0 0 24 24\\"
+            aria-hidden="true"
+            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+            data-testid="ExpandMoreIcon"
+            focusable="false"
+            viewBox="0 0 24 24"
           >
             <path
-              d=\\"M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z\\"
+              d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"
             />
           </svg>
         </span>
         <span
-          class=\\"MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root\\"
+          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
         />
       </button>
     </div>
   </header>
   <div
-    class=\\"MuiBox-root css-ab8yd1\\"
+    class="MuiBox-root css-ab8yd1"
   >
     <div
-      class=\\"MuiBox-root css-17swpt3\\"
+      class="MuiBox-root css-17swpt3"
     >
       <div
-        class=\\"MuiToolbar-root MuiToolbar-gutters MuiToolbar-dense css-10ltm04-MuiToolbar-root\\"
+        class="MuiToolbar-root MuiToolbar-gutters MuiToolbar-dense css-10ltm04-MuiToolbar-root"
       />
     </div>
   </div>
-</div>"
+</div>
 `;

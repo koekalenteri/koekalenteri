@@ -4,7 +4,7 @@ import { ThemeProvider } from '@mui/material'
 import { render } from '@testing-library/react'
 
 import theme from '../assets/Theme'
-import { DataMemoryRouter, getHtml } from '../test-utils/utils'
+import { DataMemoryRouter } from '../test-utils/utils'
 
 import { ErrorPage } from './ErrorPage'
 
@@ -20,7 +20,7 @@ describe('ErrorPage', () => {
         <DataMemoryRouter initialEntries={['/woot']} routes={routes} />
       </ThemeProvider>,
     )
-    expect(getHtml(container)).toMatchSnapshot()
+    expect(container).toMatchSnapshot()
   })
 
   it('should render 500', () => {
@@ -34,7 +34,7 @@ describe('ErrorPage', () => {
         <DataMemoryRouter initialEntries={['/']} routes={routes} />
       </ThemeProvider>,
     )
-    expect(getHtml(container)).toMatchSnapshot()
+    expect(container).toMatchSnapshot()
   })
 })
 

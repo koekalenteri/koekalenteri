@@ -1,25 +1,13 @@
 import { Suspense } from 'react'
-import { act, render, screen } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import { RecoilRoot } from 'recoil'
 
 import { emptyEvent } from '../api/test-utils/emptyEvent'
+import { flushPromisesAndTimers } from '../test-utils/utils'
 
 import { EventInfo } from './EventInfo'
 
-jest.useFakeTimers()
 jest.mock('../api/judge')
-
-
-// act and advance jest timers
-function flushPromisesAndTimers(): Promise<void> {
-  return act(
-    () =>
-      new Promise<void>(resolve => {
-        setTimeout(resolve, 100)
-        jest.runAllTimers()
-      }),
-  )
-}
 
 test('It should render event information', async function() {
   const event = {
