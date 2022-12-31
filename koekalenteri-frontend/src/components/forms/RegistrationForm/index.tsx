@@ -7,7 +7,7 @@ import { TFunction } from 'i18next'
 import { ConfirmedEventEx, Language, Registration } from 'koekalenteri-shared/model'
 import { useRecoilValue } from 'recoil'
 
-import { eventTypeClassesAtom } from '../../../pages/recoil/eventTypes'
+import { eventTypeClassesAtom } from '../../../pages/recoil'
 
 import { EntryInfo, getRegistrationDates } from './1.Entry'
 import { DogInfo } from './2.Dog'

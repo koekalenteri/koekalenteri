@@ -4,7 +4,7 @@ import { fireEvent, render, screen, within } from '@testing-library/react'
 import fi from 'date-fns/locale/fi'
 import { Judge, Organizer } from 'koekalenteri-shared/model'
 
-import { FilterProps } from '../pages/recoil/events'
+import { FilterProps } from '../pages/recoil'
 
 import { EventFilter } from './'
 

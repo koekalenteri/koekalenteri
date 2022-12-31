@@ -5,7 +5,7 @@ import { Button, Stack } from '@mui/material'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
 import { QuickSearchToolbar, StyledDataGrid } from '../../components'
-import { filteredJudgesQuery, judgeFilterAtom, useJudgesActions } from '../recoil/judges'
+import { filteredJudgesQuery, judgeFilterAtom, useJudgesActions } from '../recoil'
 
 import FullPageFlex from './components/FullPageFlex'
 import useJudgeListColumns from './judgeListPage/columns'

@@ -8,8 +8,7 @@ import { useRecoilState, useRecoilValue } from 'recoil'
 import { LinkButton, RegistrationEventInfo, RegistrationForm } from '../components'
 import { useSessionStarted } from '../stores'
 
-import { currentEvent, eventIdAtom } from './recoil/events'
-import { registrationIdAtom, registrationQuery } from './recoil/registration'
+import { currentEvent, eventIdAtom, registrationIdAtom, registrationQuery } from './recoil'
 
 export const RegistrationPage = () => {
   const navigate = useNavigate()

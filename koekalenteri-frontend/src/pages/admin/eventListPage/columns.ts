@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next"
 import { GridColDef, GridValueGetterParams } from "@mui/x-data-grid"
 import { EventClass, EventEx, EventState } from "koekalenteri-shared/model"
 
-import { useJudgesActions } from "../../recoil/judges"
+import { useJudgesActions } from "../../recoil"
 
 interface EventListColDef extends GridColDef {
   field: keyof EventEx | 'date'

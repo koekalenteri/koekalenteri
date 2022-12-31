@@ -1,32 +1,11 @@
 import { Registration, RegistrationGroup } from "koekalenteri-shared/model"
-import { atom, atomFamily, selector, selectorFamily } from "recoil"
+import { selector, selectorFamily } from "recoil"
 
-import { getRegistration, getRegistrations } from "../../../api/event"
-import { logEffect, storageEffect } from "../../recoil/effects"
+import { getRegistration } from "../../../../api/event"
+import { adminEventIdAtom, eventClassAtom } from "../events/atoms"
 
-import { adminEventIdAtom, eventClassAtom } from "./event"
+import { eventRegistrationsAtom, RegistrationWithMutators } from "./atoms"
 
-export interface RegistrationWithMutators extends Registration {
-  setGroup: (group: RegistrationGroup) => void
-}
-
-export const adminRegistrationIdAtom = atom<string | undefined>({
-  key: 'adminRegistrationId',
-  default: undefined,
-  effects: [
-    logEffect,
-    storageEffect,
-  ],
-})
-
-export const eventRegistrationsAtom = atomFamily<Registration[], string>({
-  key: 'eventRegistrations',
-  default: (eventId) => getRegistrations(eventId),
-  effects: [
-    logEffect,
-    storageEffect,
-  ],
-})
 
 export const currentEventClassRegistrationsQuery = selector<RegistrationWithMutators[]>({
   key: 'CurrentEventClassRegistrations',
@@ -35,11 +14,11 @@ export const currentEventClassRegistrationsQuery = selector<RegistrationWithMuta
     const registrations = get(currentEventRegistrationsQuery)
     return registrations.filter(r => r.class === eventClass).map(r => ({
       ...r,
-      setGroup: getCallback(({set}) => async (group: RegistrationGroup) => {
+      setGroup: getCallback(({ set }) => async (group: RegistrationGroup) => {
         const newList = [...registrations]
         const index = newList.findIndex(item => item.id === r.id)
         if (index !== -1) {
-          newList.splice(index, 1, {...r, group})
+          newList.splice(index, 1, { ...r, group })
         }
         set(currentEventRegistrationsQuery, newList)
       }),

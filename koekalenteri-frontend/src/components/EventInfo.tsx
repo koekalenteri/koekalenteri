@@ -3,7 +3,7 @@ import { Table, TableBody, TableCell, TableRow } from '@mui/material'
 import { format } from 'date-fns'
 import type { EventClass, EventEx } from 'koekalenteri-shared/model'
 
-import { useJudgesActions } from '../pages/recoil/judges'
+import { useJudgesActions } from "../pages/recoil"
 import { entryDateColor } from '../utils'
 
 import { CostInfo, LinkButton } from '.'

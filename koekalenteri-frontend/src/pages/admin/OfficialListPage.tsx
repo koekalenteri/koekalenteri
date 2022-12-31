@@ -6,8 +6,7 @@ import { Official } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
 import { QuickSearchToolbar, StyledDataGrid } from '../../components'
-import { useJudgesActions } from '../recoil/judges'
-import { filteredOfficialsQuery, officialFilterAtom } from '../recoil/officials'
+import { filteredOfficialsQuery, officialFilterAtom, useJudgesActions } from '../recoil'
 
 import FullPageFlex from './components/FullPageFlex'
 

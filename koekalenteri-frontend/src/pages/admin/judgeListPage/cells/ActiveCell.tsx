@@ -3,7 +3,8 @@ import { Switch } from '@mui/material'
 import { GridRenderCellParams } from '@mui/x-data-grid'
 import { Judge } from 'koekalenteri-shared/model'
 
-import { useJudgesActions } from '../../../recoil/judges'
+import { useJudgesActions } from '../../../recoil'
+
 
 const ActiveCell = (props: GridRenderCellParams<boolean, Judge>) => {
   const actions = useJudgesActions()

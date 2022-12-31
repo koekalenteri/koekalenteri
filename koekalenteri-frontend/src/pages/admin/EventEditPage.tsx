@@ -6,10 +6,7 @@ import { useRecoilState, useRecoilValue } from 'recoil'
 
 import { EventForm } from '../../components'
 import { Path } from '../../routeConfig'
-import { activeEventTypesQuery, eventTypeClassesAtom } from '../recoil/eventTypes'
-import { activeJudgesQuery } from '../recoil/judges'
-import { officialsAtom } from '../recoil/officials'
-import { organizersAtom } from '../recoil/organizers'
+import { activeEventTypesQuery, activeJudgesQuery, eventTypeClassesAtom, officialsAtom, organizersAtom } from '../recoil'
 
 import { adminEventIdAtom, currentAdminEventQuery, DecoratedEvent } from './recoil'
 

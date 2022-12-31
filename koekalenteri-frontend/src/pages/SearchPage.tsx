@@ -3,8 +3,8 @@ import { RecoilURLSync } from 'recoil-sync'
 
 import { deserializeFilter, EventFilter, EventTable, serializeFilter } from '../components'
 
-import { eventFilterAtom, filteredEvents, filterJudgesQuery, filterOrganizersQuery } from './recoil/events'
-import { activeEventTypesQuery } from './recoil/eventTypes'
+import { activeEventTypesQuery, eventFilterAtom, filteredEvents, filterJudgesQuery, filterOrganizersQuery } from './recoil'
+
 
 export function SearchPage() {
   const organizers = useRecoilValue(filterOrganizersQuery)

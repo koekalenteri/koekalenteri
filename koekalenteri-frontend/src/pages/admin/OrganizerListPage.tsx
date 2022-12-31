@@ -6,7 +6,7 @@ import { Organizer } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
 import { QuickSearchToolbar, StyledDataGrid } from '../../components'
-import { filteredOrganizersQuery, organizerFilterAtom, useOrganizersActions } from '../recoil/organizers'
+import { filteredOrganizersQuery, organizerFilterAtom, useOrganizersActions } from '../recoil'
 
 import FullPageFlex from './components/FullPageFlex'
 

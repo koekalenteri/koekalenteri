@@ -12,8 +12,8 @@ import { LinkButton, RegistrationEventInfo, RegistrationList } from '../componen
 import { useSessionStarted } from '../stores'
 
 import Header from './components/Header'
-import { currentEvent, eventIdAtom } from './recoil/events'
-import { registrationIdAtom, registrationQuery } from './recoil/registration'
+import { currentEvent, eventIdAtom, registrationIdAtom, registrationQuery } from './recoil'
+
 
 export function RegistrationListPage({cancel}: {cancel?: boolean}) {
   const params = useParams()

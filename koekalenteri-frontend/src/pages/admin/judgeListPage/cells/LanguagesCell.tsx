@@ -4,7 +4,7 @@ import { GridRenderCellParams } from '@mui/x-data-grid'
 import { t } from 'i18next'
 import { Judge } from 'koekalenteri-shared/model'
 
-import { useJudgesActions } from '../../../recoil/judges'
+import { useJudgesActions } from "../../../recoil"
 
 const LanguagesCell = (props: GridRenderCellParams<Judge, Judge>) => {
   const actions = useJudgesActions()
