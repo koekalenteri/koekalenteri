@@ -40,7 +40,7 @@ exports[`OfficialListPage renders 1`] = `
       <div
         aria-colcount="3"
         aria-multiselectable="false"
-        aria-rowcount="1"
+        aria-rowcount="4"
         class="MuiDataGrid-root MuiDataGrid-root--densityCompact css-6b2lsp-MuiDataGrid-root"
         role="grid"
       >
@@ -105,15 +105,6 @@ exports[`OfficialListPage renders 1`] = `
         <div
           class="MuiDataGrid-main css-204u17-MuiDataGrid-main"
         >
-          <div
-            style="height: -39px; width: 0px; position: absolute; top: 39px;"
-          >
-            <div
-              class="MuiDataGrid-overlay css-1i7cl7u-MuiDataGrid-overlay"
-            >
-              No rows
-            </div>
-          </div>
           <div
             class="MuiDataGrid-columnHeaders css-f3jnds-MuiDataGrid-columnHeaders"
             style="min-height: 39px; max-height: 39px; line-height: 39px;"
@@ -359,12 +350,187 @@ exports[`OfficialListPage renders 1`] = `
             >
               <div
                 class="MuiDataGrid-virtualScrollerContent MuiDataGrid-virtualScrollerContent--overflowed css-1kwdphh-MuiDataGrid-virtualScrollerContent"
-                style="width: auto; height: 1px; min-height: auto;"
+                style="width: auto; height: 108px; min-height: auto;"
               >
                 <div
                   class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"
-                  style="transform: translate3d(0px, undefinedpx, 0px);"
-                />
+                  style="transform: translate3d(0px, 0px, 0px);"
+                >
+                  <div
+                    aria-rowindex="2"
+                    aria-selected="false"
+                    class="MuiDataGrid-row"
+                    data-id="333"
+                    data-rowindex="0"
+                    role="row"
+                    style="max-height: 36px; min-height: 36px;"
+                  >
+                    <div
+                      aria-colindex="1"
+                      aria-colspan="1"
+                      class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
+                      data-colindex="0"
+                      data-field="name"
+                      role="cell"
+                      style="min-width: 0; max-width: 0; min-height: 36px; max-height: 36px;"
+                      tabindex="-1"
+                    >
+                      <div
+                        class="MuiDataGrid-cellContent"
+                      >
+                        Toimitsija 1
+                      </div>
+                    </div>
+                    <div
+                      aria-colindex="2"
+                      aria-colspan="1"
+                      class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
+                      data-colindex="1"
+                      data-field="phone"
+                      role="cell"
+                      style="min-width: 150px; max-width: 150px; min-height: 36px; max-height: 36px;"
+                      tabindex="-1"
+                    >
+                      <div
+                        class="MuiDataGrid-cellContent"
+                      >
+                        123456781
+                      </div>
+                    </div>
+                    <div
+                      aria-colindex="3"
+                      aria-colspan="1"
+                      class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
+                      data-colindex="2"
+                      data-field="email"
+                      role="cell"
+                      style="min-width: 0; max-width: 0; min-height: 36px; max-height: 36px;"
+                      tabindex="-1"
+                    >
+                      <div
+                        class="MuiDataGrid-cellContent"
+                      >
+                        toimari1@sposti.not
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    aria-rowindex="3"
+                    aria-selected="false"
+                    class="MuiDataGrid-row"
+                    data-id="444"
+                    data-rowindex="1"
+                    role="row"
+                    style="max-height: 36px; min-height: 36px;"
+                  >
+                    <div
+                      aria-colindex="1"
+                      aria-colspan="1"
+                      class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
+                      data-colindex="0"
+                      data-field="name"
+                      role="cell"
+                      style="min-width: 0; max-width: 0; min-height: 36px; max-height: 36px;"
+                      tabindex="-1"
+                    >
+                      <div
+                        class="MuiDataGrid-cellContent"
+                      >
+                        Toimitsija 2
+                      </div>
+                    </div>
+                    <div
+                      aria-colindex="2"
+                      aria-colspan="1"
+                      class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
+                      data-colindex="1"
+                      data-field="phone"
+                      role="cell"
+                      style="min-width: 150px; max-width: 150px; min-height: 36px; max-height: 36px;"
+                      tabindex="-1"
+                    >
+                      <div
+                        class="MuiDataGrid-cellContent"
+                      >
+                        123456782
+                      </div>
+                    </div>
+                    <div
+                      aria-colindex="3"
+                      aria-colspan="1"
+                      class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
+                      data-colindex="2"
+                      data-field="email"
+                      role="cell"
+                      style="min-width: 0; max-width: 0; min-height: 36px; max-height: 36px;"
+                      tabindex="-1"
+                    >
+                      <div
+                        class="MuiDataGrid-cellContent"
+                      >
+                        toimari2@sposti.not
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    aria-rowindex="4"
+                    aria-selected="false"
+                    class="MuiDataGrid-row MuiDataGrid-row--lastVisible"
+                    data-id="555"
+                    data-rowindex="2"
+                    role="row"
+                    style="max-height: 36px; min-height: 36px;"
+                  >
+                    <div
+                      aria-colindex="1"
+                      aria-colspan="1"
+                      class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
+                      data-colindex="0"
+                      data-field="name"
+                      role="cell"
+                      style="min-width: 0; max-width: 0; min-height: 36px; max-height: 36px;"
+                      tabindex="-1"
+                    >
+                      <div
+                        class="MuiDataGrid-cellContent"
+                      >
+                        Toimitsija 3
+                      </div>
+                    </div>
+                    <div
+                      aria-colindex="2"
+                      aria-colspan="1"
+                      class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
+                      data-colindex="1"
+                      data-field="phone"
+                      role="cell"
+                      style="min-width: 150px; max-width: 150px; min-height: 36px; max-height: 36px;"
+                      tabindex="-1"
+                    >
+                      <div
+                        class="MuiDataGrid-cellContent"
+                      >
+                        123456783
+                      </div>
+                    </div>
+                    <div
+                      aria-colindex="3"
+                      aria-colspan="1"
+                      class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
+                      data-colindex="2"
+                      data-field="email"
+                      role="cell"
+                      style="min-width: 0; max-width: 0; min-height: 36px; max-height: 36px;"
+                      tabindex="-1"
+                    >
+                      <div
+                        class="MuiDataGrid-cellContent"
+                      >
+                        toimari3@sposti.not
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -438,7 +604,7 @@ exports[`OfficialListPage renders 1`] = `
                 <p
                   class="MuiTablePagination-displayedRows css-levciy-MuiTablePagination-displayedRows"
                 >
-                  0–0 of 0
+                  1–3 of 3
                 </p>
                 <div
                   class="MuiTablePagination-actions"

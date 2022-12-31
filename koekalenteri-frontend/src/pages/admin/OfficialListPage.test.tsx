@@ -10,7 +10,7 @@ import { flushPromisesAndTimers } from '../../test-utils/utils'
 
 import { OfficialListPage } from './OfficialListPage'
 
-jest.mock('../../api/eventType')
+jest.mock('../../api/official')
 
 describe('OfficialListPage', () => {
   it('renders', async () => {
