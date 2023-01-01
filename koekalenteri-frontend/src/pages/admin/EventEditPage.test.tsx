@@ -20,8 +20,11 @@ jest.mock('../../api/judge')
 jest.mock('../../api/official')
 jest.mock('../../api/organizer')
 
+// New event gets dates relative to current date, so lets mock it.
+jest.setSystemTime(new Date('2021-04-23'))
+
 describe('EventEditPage', () => {
-  it('renders', async () => {
+  it('renders properly when creating a new wvent', async () => {
     const { i18n } = useTranslation()
     const language = i18n.language as Language
     const { container } = render(
