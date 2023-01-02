@@ -1,6 +1,7 @@
 import { Authenticator } from '@aws-amplify/ui-react'
 import { ThemeProvider } from '@mui/material'
 import { render } from '@testing-library/react'
+import { RecoilRoot } from 'recoil'
 
 import theme from '../../assets/Theme'
 import { Path } from '../../routeConfig'
@@ -20,7 +21,9 @@ describe('AdminHomePage', () => {
     const { container } = render(
       <ThemeProvider theme={theme}>
         <Authenticator.Provider>
-          <DataMemoryRouter initialEntries={[Path.admin.root]} routes={routes} />
+          <RecoilRoot>
+            <DataMemoryRouter initialEntries={[Path.admin.root]} routes={routes} />
+          </RecoilRoot>
         </Authenticator.Provider>
       </ThemeProvider>,
     )
@@ -39,7 +42,9 @@ describe('AdminHomePage', () => {
     const { container } = render(
       <ThemeProvider theme={theme}>
         <Authenticator.Provider>
-          <DataMemoryRouter initialEntries={[Path.admin.index]} routes={routes} />
+          <RecoilRoot>
+            <DataMemoryRouter initialEntries={[Path.admin.index]} routes={routes} />
+          </RecoilRoot>
         </Authenticator.Provider>
       </ThemeProvider>,
     )

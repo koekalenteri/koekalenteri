@@ -1,14 +1,23 @@
 import { fireEvent, render, screen, within } from '@testing-library/react'
+import { RecoilRoot } from 'recoil'
 
 import { LanguageMenu } from './LanguageMenu'
 
 test('It should render the button', () => {
-  render(<LanguageMenu />)
+  render(
+    <RecoilRoot>
+      <LanguageMenu />
+    </RecoilRoot>,
+  )
   expect(screen.getByTestId('LanguageIcon')).toBeInTheDocument()
 })
 
 test('It should render the menu', () => {
-  render(<LanguageMenu />)
+  render(
+    <RecoilRoot>
+      <LanguageMenu />
+    </RecoilRoot>,
+  )
 
   fireEvent.click(screen.getByTestId('LanguageIcon'))
   const menu = screen.getByRole('menu')
@@ -19,7 +28,11 @@ test('It should render the menu', () => {
 })
 
 test('It should change the language', () => {
-  render(<LanguageMenu />)
+  render(
+    <RecoilRoot>
+      <LanguageMenu />
+    </RecoilRoot>,
+  )
 
   expect(localStorage.getItem('i18nextLng')).toEqual('fi')
 
@@ -35,7 +48,7 @@ test('It should change the language', () => {
   expect(within(menu).getByText('locale.en')).toHaveClass('Mui-selected')
   expect(within(menu).getByText('locale.fi')).not.toHaveClass('Mui-selected')
 
-  expect(localStorage.getItem('i18nextLng')).toEqual('en')
+  expect(localStorage.getItem('language')).toEqual('en')
 
-  localStorage.setItem('i18nextLng', 'fi')
+  localStorage.setItem('language', 'fi')
 })
