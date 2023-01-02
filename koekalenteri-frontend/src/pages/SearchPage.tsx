@@ -1,8 +1,8 @@
 import { useRecoilState, useRecoilValue } from 'recoil'
 import { RecoilURLSync } from 'recoil-sync'
 
-import { deserializeFilter, EventFilter, EventTable, serializeFilter } from '../components'
-
+import { deserializeFilter, EventFilter, serializeFilter } from './searchPage/EventFilter'
+import { EventTable } from './searchPage/EventTable'
 import { activeEventTypesQuery, eventFilterAtom, filteredEvents, filterJudgesQuery, filterOrganizersQuery } from './recoil'
 
 

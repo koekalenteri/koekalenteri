@@ -4,10 +4,11 @@ import { CloudSync } from '@mui/icons-material'
 import { Button, Stack } from '@mui/material'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
-import { QuickSearchToolbar, StyledDataGrid } from '../../components'
+import { StyledDataGrid } from '../../components'
 import { filteredJudgesQuery, judgeFilterAtom, useJudgesActions } from '../recoil'
 
 import FullPageFlex from './components/FullPageFlex'
+import { QuickSearchToolbar } from './components/QuickSearchToolbar'
 import useJudgeListColumns from './judgeListPage/columns'
 
 export const JudgeListPage = () => {

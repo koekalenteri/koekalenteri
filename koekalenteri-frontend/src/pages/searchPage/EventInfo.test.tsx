@@ -2,12 +2,12 @@ import { Suspense } from 'react'
 import { render } from '@testing-library/react'
 import { RecoilRoot } from 'recoil'
 
-import { emptyEvent } from '../api/test-utils/emptyEvent'
-import { flushPromisesAndTimers } from '../test-utils/utils'
+import { emptyEvent } from '../../api/test-utils/emptyEvent'
+import { flushPromisesAndTimers } from '../../test-utils/utils'
 
 import { EventInfo } from './EventInfo'
 
-jest.mock('../api/judge')
+jest.mock('../../api/judge')
 
 describe('EventInfo', () => {
   it('should render event information', async function() {

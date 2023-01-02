@@ -5,10 +5,11 @@ import { GridColDef } from '@mui/x-data-grid'
 import { Official } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
-import { QuickSearchToolbar, StyledDataGrid } from '../../components'
+import { StyledDataGrid } from '../../components'
 import { filteredOfficialsQuery, officialFilterAtom, useJudgesActions } from '../recoil'
 
 import FullPageFlex from './components/FullPageFlex'
+import { QuickSearchToolbar } from './components/QuickSearchToolbar'
 
 interface OfficialColDef extends GridColDef {
   field: keyof Official

@@ -4,8 +4,8 @@ import { render, screen } from '@testing-library/react'
 import { parseISO } from 'date-fns'
 import { EventEx } from 'koekalenteri-shared/model'
 
-import { emptyEvent } from '../api/test-utils/emptyEvent'
-import theme from '../assets/Theme'
+import { emptyEvent } from '../../api/test-utils/emptyEvent'
+import theme from '../../assets/Theme'
 
 import { EventTable } from './EventTable'
 

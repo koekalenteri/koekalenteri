@@ -3,9 +3,8 @@ import { Box, FormControlLabel, Grid, Stack, Switch } from '@mui/material'
 import { formatISO } from 'date-fns'
 import { Judge, Organizer } from 'koekalenteri-shared/model'
 
-import { FilterProps } from '../pages/recoil'
-
-import { AutocompleteMulti, DateRange } from '.'
+import { AutocompleteMulti, DateRange } from '../../components'
+import { FilterProps } from '../recoil'
 
 type EventFilterProps = {
   eventTypes: string[]

@@ -9,6 +9,11 @@ import { DataMemoryRouter } from '../test-utils/utils'
 import { ErrorPage } from './ErrorPage'
 
 describe('ErrorPage', () => {
+  beforeEach(() => {
+    jest.spyOn(console, 'warn').mockImplementation(() => {})
+    jest.spyOn(console, 'error').mockImplementation(() => {})
+  })
+
   it('should render 404', () => {
     const routes: RouteObject[] = [{
       path: '/',

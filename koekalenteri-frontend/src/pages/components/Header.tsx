@@ -2,7 +2,9 @@ import { Menu } from '@mui/icons-material'
 import { AppBar, IconButton, Link, Toolbar, Typography } from '@mui/material'
 
 import logo from '../../assets/snj-logo.png'
-import { LanguageMenu, UserMenu } from '../../components'
+
+import { LanguageMenu } from './header/LanguageMenu'
+import { UserMenu } from './header/UserMenu'
 
 interface Props {
   title?: string,

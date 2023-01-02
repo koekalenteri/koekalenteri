@@ -33,6 +33,8 @@ describe('JudgeListPage', () => {
     expect(container).toMatchSnapshot()
 
     fireEvent.click(screen.getAllByRole('row')[2])
+    await flushPromisesAndTimers()
+
     expect(screen.getAllByRole('row')).toMatchSnapshot()
   })
 })

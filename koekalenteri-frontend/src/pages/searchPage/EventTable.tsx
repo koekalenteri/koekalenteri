@@ -14,9 +14,10 @@ import {
 } from '@mui/material'
 import type { EventEx, EventState } from 'koekalenteri-shared/model'
 
-import { useSessionBoolean } from '../stores'
+import { LinkButton } from '../../components'
+import { useSessionBoolean } from '../../stores'
 
-import { EventInfo, LinkButton } from '.'
+import { EventInfo } from './EventInfo'
 
 function eventClasses(event: EventEx) {
   const ret: string[] = []

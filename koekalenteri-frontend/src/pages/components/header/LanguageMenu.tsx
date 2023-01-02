@@ -2,10 +2,11 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ExpandMore, Language as LanguageIcon } from '@mui/icons-material'
 import { Menu, MenuItem } from '@mui/material'
+import { Language } from 'koekalenteri-shared/model'
 
-import { Language, locales } from '../../i18n'
-import { useLanguage } from '../../stores'
-import { AppBarButton } from '..'
+import { AppBarButton } from '../../../components'
+import { locales } from '../../../i18n'
+import { useLanguage } from '../../../stores'
 
 export function LanguageMenu() {
   const { t, i18n } = useTranslation()

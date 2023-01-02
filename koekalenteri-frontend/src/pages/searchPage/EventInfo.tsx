@@ -3,10 +3,9 @@ import { Table, TableBody, TableCell, TableRow } from '@mui/material'
 import { format } from 'date-fns'
 import type { EventClass, EventEx } from 'koekalenteri-shared/model'
 
-import { useJudgesActions } from "../pages/recoil"
-import { entryDateColor } from '../utils'
-
-import { CostInfo, LinkButton } from '.'
+import { CostInfo, LinkButton } from '../../components'
+import { entryDateColor } from '../../utils'
+import { useJudgesActions } from '../recoil'
 
 
 export const EventInfo = ({ event }: { event: EventEx }) => {

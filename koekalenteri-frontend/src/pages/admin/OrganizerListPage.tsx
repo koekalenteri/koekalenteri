@@ -5,10 +5,11 @@ import { GridColDef } from '@mui/x-data-grid'
 import { Organizer } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
-import { QuickSearchToolbar, StyledDataGrid } from '../../components'
+import { StyledDataGrid } from '../../components'
 import { filteredOrganizersQuery, organizerFilterAtom, useOrganizersActions } from '../recoil'
 
 import FullPageFlex from './components/FullPageFlex'
+import { QuickSearchToolbar } from './components/QuickSearchToolbar'
 
 interface OrganizerColDef extends GridColDef {
   field: keyof Organizer

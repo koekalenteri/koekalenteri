@@ -5,10 +5,11 @@ import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid'
 import { EventType } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
-import { QuickSearchToolbar, StyledDataGrid } from '../../components'
+import { StyledDataGrid } from '../../components'
 import { eventTypeFilterAtom, filteredEventTypesQuery, useEventTypeActions } from '../recoil'
 
 import FullPageFlex from './components/FullPageFlex'
+import { QuickSearchToolbar } from './components/QuickSearchToolbar'
 
 interface EventTypeColDef extends GridColDef {
   field: keyof EventType

@@ -35,6 +35,8 @@ describe('EventListPage', () => {
     expect(container).toMatchSnapshot()
 
     fireEvent.click(screen.getAllByRole('row')[1])
+    await flushPromisesAndTimers()
+
     expect(onChange).toHaveBeenCalledTimes(2)
     expect(onChange).toHaveBeenCalledWith(undefined)
     expect(onChange).toHaveBeenCalledWith('test1')
