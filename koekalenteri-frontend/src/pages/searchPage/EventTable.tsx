@@ -1,3 +1,4 @@
+import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { KeyboardArrowDown, KeyboardArrowRight } from '@mui/icons-material'
 import {
@@ -34,6 +35,8 @@ const Row = ({ event }: { event: EventEx }) => {
   const [open, setOpen] = useSessionBoolean('open' + event.id, false)
   const { t } = useTranslation()
 
+  const handleClick = useCallback(() => setOpen(!open), [open, setOpen])
+
   return (
     <>
       <TableRow sx={{
@@ -52,11 +55,11 @@ const Row = ({ event }: { event: EventEx }) => {
         <TableCell>
           <Grid container spacing={0} alignItems="center">
             <Grid item xs={"auto"}>
-              <IconButton aria-label="expand row" size="small" color="primary" onClick={() => setOpen(!open)}>
+              <IconButton aria-label="expand row" size="small" color="primary" onClick={handleClick}>
                 {open ? <KeyboardArrowDown /> : <KeyboardArrowRight />}
               </IconButton>
             </Grid>
-            <Grid item container xs onClick={() => setOpen(!open)}>
+            <Grid item container xs onClick={handleClick}>
               <Grid item container xs={12} md={6} justifyContent="flex-start" spacing={1}>
                 <Grid item xs={3} sx={{fontWeight: event.entryOrigEndDate ? 'bold' : 'normal'}}>{t('daterange', { start: event.startDate, end: event.endDate })}</Grid>
                 <Grid item xs={2}>{event.eventType}</Grid>

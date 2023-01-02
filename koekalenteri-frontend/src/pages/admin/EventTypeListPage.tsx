@@ -1,8 +1,7 @@
+import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { CheckBoxOutlineBlankOutlined, CheckBoxOutlined, CloudSync } from '@mui/icons-material'
-import { Button, Stack, Switch } from '@mui/material'
-import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid'
-import { EventType } from 'koekalenteri-shared/model'
+import { CloudSync } from '@mui/icons-material'
+import { Button, Stack } from '@mui/material'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
 import { StyledDataGrid } from '../../components'
@@ -10,43 +9,21 @@ import { eventTypeFilterAtom, filteredEventTypesQuery, useEventTypeActions } fro
 
 import FullPageFlex from './components/FullPageFlex'
 import { QuickSearchToolbar } from './components/QuickSearchToolbar'
+import { useEventTypeListPageColumns } from './eventTypeListPage/columns'
 
-interface EventTypeColDef extends GridColDef {
-  field: keyof EventType
-}
 
 export const EventTypeListPage = () =>  {
   const [searchText, setSearchText] = useRecoilState(eventTypeFilterAtom)
   const eventTypes = useRecoilValue(filteredEventTypesQuery)
   const actions = useEventTypeActions()
-  const { t, i18n } = useTranslation()
-  const columns: EventTypeColDef[] = [
-    {
-      field: 'eventType',
-      headerName: t('eventType', { context: 'short' }),
-    },
-    {
-      align: 'center',
-      field: 'official',
-      headerName: t('official'),
-      renderCell: (params) => params.value ? <CheckBoxOutlined /> : <CheckBoxOutlineBlankOutlined />,
-      width: 80,
-    },
-    {
-      field: 'active',
-      headerName: t('active'),
-      renderCell: (params: GridRenderCellParams<EventType, EventType>) => <Switch checked={!!params.value} onChange={async (_e, checked) => {
-        actions.save({...params.row, active: checked})
-      }} />,
-      width: 80,
-    },
-    {
-      field: 'description',
-      headerName: t('eventType'),
-      flex: 1,
-      valueGetter: (params) => params.value[i18n.language],
-    },
-  ]
+  const { t } = useTranslation()
+
+  const columns = useEventTypeListPageColumns()
+
+  const onChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) =>
+    setSearchText(event.target.value), [setSearchText])
+
+  const clearSearch = useCallback(() => setSearchText(''), [setSearchText])
 
   return (
     <>
@@ -62,9 +39,8 @@ export const EventTypeListPage = () =>  {
           componentsProps={{
             toolbar: {
               value: searchText,
-              onChange: (event: React.ChangeEvent<HTMLInputElement>) =>
-                setSearchText(event.target.value),
-              clearSearch: () => setSearchText(''),
+              onChange,
+              clearSearch,
             },
           }}
           density='compact'

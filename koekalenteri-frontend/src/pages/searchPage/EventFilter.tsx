@@ -1,9 +1,10 @@
+import { SyntheticEvent, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Box, FormControlLabel, Grid, Stack, Switch } from '@mui/material'
 import { formatISO } from 'date-fns'
 import { Judge, Organizer } from 'koekalenteri-shared/model'
 
-import { AutocompleteMulti, DateRange } from '../../components'
+import { AutocompleteMulti, DateRange, DateValue } from '../../components'
 import { FilterProps } from '../recoil'
 
 type EventFilterProps = {
@@ -66,9 +67,28 @@ export function deserializeFilter(input: string): unknown {
 
 export const EventFilter = ({ judges, organizers, eventTypes, filter, onChange }: EventFilterProps) => {
   const { t } = useTranslation()
-  const setFilter = (props: Partial<FilterProps>) => {
-    onChange && onChange({...filter, ...props})
-  }
+  const setFilter = useCallback((props: Partial<FilterProps>) => onChange && onChange({...filter, ...props}), [filter, onChange])
+  const handleDateRangeChange = useCallback((start: DateValue, end: DateValue) => setFilter({ start, end}), [setFilter])
+  const handleEventTypeChange = useCallback((event: SyntheticEvent<Element, Event>, value: string[]) => setFilter({ eventType: value }), [setFilter])
+  const handleEventClassChange = useCallback((event: SyntheticEvent<Element, Event>, value: string[]) => setFilter({ eventClass: value }), [setFilter])
+  const handleOrganizerChange = useCallback((event: SyntheticEvent<Element, Event>, value: Organizer[]) => setFilter({ organizer: value.map(v => +v.id) }), [setFilter])
+  const handleJudgeChange = useCallback((event: SyntheticEvent<Element, Event>, value: Judge[]) => setFilter({ judge: value.map(v => +v.id) }), [setFilter])
+  const handleWithEntryOpenChange = useCallback((event: SyntheticEvent<Element, Event>, checked: boolean) => setFilter({
+    withOpenEntry: checked,
+    withClosingEntry: checked && filter.withClosingEntry,
+    withFreePlaces: checked && filter.withFreePlaces,
+  }), [filter.withClosingEntry, filter.withFreePlaces, setFilter])
+  const handleWithClosingEntryChange = useCallback((event: SyntheticEvent<Element, Event>, checked: boolean) => setFilter({
+    withOpenEntry: filter.withOpenEntry || checked,
+    withClosingEntry: checked,
+  }), [filter.withOpenEntry, setFilter])
+  const handleWithFreePlacesChange = useCallback((event: SyntheticEvent<Element, Event>, checked: boolean) => setFilter({
+    withOpenEntry: filter.withOpenEntry || checked,
+    withFreePlaces: checked,
+  }), [filter.withOpenEntry, setFilter])
+  const handleWithUpcomingEntryChange = useCallback((event: SyntheticEvent<Element, Event>, checked: boolean) => setFilter({
+    withUpcomingEntry: checked,
+  }), [setFilter])
 
   return (
     <Box m={1}>
@@ -80,13 +100,13 @@ export const EventFilter = ({ judges, organizers, eventTypes, filter, onChange }
             range={{start: MIN_DATE}}
             startLabel={t("daterangeStart")}
             endLabel={t("daterangeEnd")}
-            onChange={(start, end) => setFilter({ start, end })}
+            onChange={handleDateRangeChange}
           />
         </Grid>
         <Grid item xs={12} sm={6} md={4} xl>
           <AutocompleteMulti
             label={t('eventType')}
-            onChange={(e, value) => setFilter({ eventType: value })}
+            onChange={handleEventTypeChange}
             options={eventTypes}
             value={filter.eventType}
           />
@@ -94,7 +114,7 @@ export const EventFilter = ({ judges, organizers, eventTypes, filter, onChange }
         <Grid item xs={12} sm={6} md={2} xl>
           <AutocompleteMulti
             label={t('eventClass')}
-            onChange={(e, value) => setFilter({ eventClass: value })}
+            onChange={handleEventClassChange}
             options={['ALO', 'AVO', 'VOI']}
             value={filter.eventClass}
           />
@@ -104,7 +124,7 @@ export const EventFilter = ({ judges, organizers, eventTypes, filter, onChange }
             getOptionLabel={o => o.name}
             isOptionEqualToValue={(o, v) => o.id === v.id}
             label={t('organizer')}
-            onChange={(e, value) => setFilter({ organizer: value.map(v => +v.id) })}
+            onChange={handleOrganizerChange}
             options={organizers}
             value={organizers.filter(o => filter.organizer.includes(o.id))}
           />
@@ -114,7 +134,7 @@ export const EventFilter = ({ judges, organizers, eventTypes, filter, onChange }
             getOptionLabel={o => o.name}
             isOptionEqualToValue={(o, v) => o.id === v.id}
             label={t('judge')}
-            onChange={(e, value) => setFilter({ judge: value.map(v => +v.id) })}
+            onChange={handleJudgeChange}
             options={judges}
             value={judges.filter(j => filter.judge.includes(j.id))}
           />
@@ -127,11 +147,7 @@ export const EventFilter = ({ judges, organizers, eventTypes, filter, onChange }
                 checked={filter.withOpenEntry}
                 control={<Switch />}
                 label={t('entryOpen')}
-                onChange={(_event, checked) => setFilter({
-                  withOpenEntry: checked,
-                  withClosingEntry: checked && filter.withClosingEntry,
-                  withFreePlaces: checked && filter.withFreePlaces,
-                })}
+                onChange={handleWithEntryOpenChange}
               />
               <Box sx={{ display: 'inline-grid' }}>
                 <FormControlLabel
@@ -139,20 +155,14 @@ export const EventFilter = ({ judges, organizers, eventTypes, filter, onChange }
                   checked={filter.withClosingEntry}
                   control={<Switch color="secondary" size="small" />}
                   label="Vielä ehdit!"
-                  onChange={(_event, checked) => setFilter({
-                    withOpenEntry: filter.withOpenEntry || checked,
-                    withClosingEntry: checked,
-                  })}
+                  onChange={handleWithClosingEntryChange}
                 />
                 <FormControlLabel
                   value="withFreePlaces"
                   checked={filter.withFreePlaces}
                   control={<Switch color="secondary" size="small" />}
                   label="Vielä mahtuu"
-                  onChange={(_event, checked) => setFilter({
-                    withOpenEntry: filter.withOpenEntry || checked,
-                    withFreePlaces: checked,
-                  })}
+                  onChange={handleWithFreePlacesChange}
                 />
               </Box>
             </Box>
@@ -162,7 +172,7 @@ export const EventFilter = ({ judges, organizers, eventTypes, filter, onChange }
               control={<Switch />}
               label="Ilmoittautuminen tulossa"
               labelPlacement="end"
-              onChange={(_event, checked) => setFilter({ withUpcomingEntry: checked })}
+              onChange={handleWithUpcomingEntryChange}
             />
           </Stack>
         </Grid>

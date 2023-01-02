@@ -3,7 +3,7 @@ import { Box, FormControl, TextField, TextFieldProps, Theme } from "@mui/materia
 import { DatePicker, PickersDay } from '@mui/x-date-pickers'
 import { isSameDay, isValid, startOfDay } from "date-fns"
 
-type DateValue = Date | null;
+export type DateValue = Date | null;
 
 export type DateRangeProps = {
   defaultStart?: Date

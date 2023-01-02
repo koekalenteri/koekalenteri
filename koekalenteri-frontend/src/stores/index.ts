@@ -24,7 +24,6 @@ const rootStoreContext = createContext(stores)
 
 export const useStores = () => useContext(rootStoreContext)
 
-export const useLanguage = (defaultValue: string) => useLocalStorage('i18nextLng', defaultValue)
 export const useSessionStarted = () => useSessionStorage('started', '')
 
 export const useSessionBoolean = (key: string, defaultValue: boolean): [boolean, Setter<boolean>] => {

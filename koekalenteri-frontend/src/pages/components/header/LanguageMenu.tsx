@@ -1,31 +1,24 @@
-import { useEffect, useState } from 'react'
+import { MouseEvent, useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ExpandMore, Language as LanguageIcon } from '@mui/icons-material'
-import { Menu, MenuItem } from '@mui/material'
+import { Menu } from '@mui/material'
 import { Language } from 'koekalenteri-shared/model'
+import { useRecoilValue } from 'recoil'
 
 import { AppBarButton } from '../../../components'
 import { locales } from '../../../i18n'
-import { useLanguage } from '../../../stores'
+import { languageAtom } from '../../recoil'
+
+import { LanguageMenuItem } from './languageMenu/LanguageMenuItem'
 
 export function LanguageMenu() {
-  const { t, i18n } = useTranslation()
-  const [language, setLanguage] = useLanguage(i18n.language)
+  const { t } = useTranslation()
+  const language = useRecoilValue(languageAtom)
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const open = Boolean(anchorEl)
 
-  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget)
-  }
-  const handleClose = () => {
-    setAnchorEl(null)
-  }
-
-  useEffect(() => {
-    if (language && i18n.language !== language) {
-      i18n.changeLanguage(language)
-    }
-  }, [i18n, language])
+  const handleClick = useCallback((event: MouseEvent<HTMLElement>) => setAnchorEl(event.currentTarget), [setAnchorEl])
+  const handleClose = useCallback(() => setAnchorEl(null), [setAnchorEl])
 
   return (
     <>
@@ -38,16 +31,9 @@ export function LanguageMenu() {
         onClose={handleClose}
         onClick={handleClose}
       >
-        {Object.keys(locales).map((locale) => (
-          <MenuItem
-            key={locale}
-            selected={language === locale}
-            onClick={() => setLanguage(locale)}
-          >
-            {t(`locale.${locale as Language}`)}
-          </MenuItem>
-        ))}
+        {Object.keys(locales).map((locale) => <LanguageMenuItem key={locale} locale={locale as Language} />)}
       </Menu>
     </>
   )
 }
+

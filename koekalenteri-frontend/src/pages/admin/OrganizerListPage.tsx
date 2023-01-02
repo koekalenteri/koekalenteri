@@ -1,3 +1,4 @@
+import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { CloudSync } from '@mui/icons-material'
 import { Button, Stack } from '@mui/material'
@@ -34,6 +35,11 @@ export const OrganizerListPage = () => {
     },
   ]
 
+  const onChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) =>
+    setSearchText(event.target.value), [setSearchText])
+
+  const clearSearch = useCallback(() => setSearchText(''), [setSearchText])
+
   return (
     <>
       <FullPageFlex>
@@ -48,9 +54,8 @@ export const OrganizerListPage = () => {
           componentsProps={{
             toolbar: {
               value: searchText,
-              onChange: (event: React.ChangeEvent<HTMLInputElement>) =>
-                setSearchText(event.target.value),
-              clearSearch: () => setSearchText(''),
+              onChange,
+              clearSearch,
             },
           }}
           density='compact'
