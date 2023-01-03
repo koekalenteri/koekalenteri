@@ -1,7 +1,18 @@
 import { styled, Theme } from "@mui/material"
-import { DataGrid } from "@mui/x-data-grid"
+import { DataGrid, DataGridProps } from "@mui/x-data-grid"
 
-export const StyledDataGrid = styled(DataGrid)(
+const DataGridWithDefaults = (props: DataGridProps) => {
+  return <DataGrid
+    pageSize={100}
+    rowsPerPageOptions={[]}
+    density='compact'
+    disableColumnMenu
+    {...props}
+  />
+}
+
+
+export const StyledDataGrid = styled(DataGridWithDefaults)(
   ({ theme }: { theme: Theme }) => {
     return {
       '& .MuiDataGrid-columnHeaders': {

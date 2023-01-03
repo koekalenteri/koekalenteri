@@ -67,10 +67,7 @@ export const EventListPage = () => {
         <AutoButton startIcon={<FormatListNumberedOutlined />} disabled={!selectedEvent || !selectedEvent.entries} onClick={viewAction} text={t('registrations')} />
       </Stack>
       <StyledDataGrid
-        autoPageSize
         columns={columns}
-        density='compact'
-        disableColumnMenu
         rows={events}
         onSelectionModelChange={handleSelectionModeChange}
         components={{ Toolbar: QuickSearchToolbar }}

@@ -32,7 +32,6 @@ export const JudgeListPage = () => {
         </Stack>
 
         <StyledDataGrid
-          autoPageSize
           columns={columns}
           components={{ Toolbar: QuickSearchToolbar }}
           componentsProps={{
@@ -42,8 +41,6 @@ export const JudgeListPage = () => {
               clearSearch,
             },
           }}
-          density='compact'
-          disableColumnMenu
           rows={judges}
         />
       </FullPageFlex>

@@ -33,7 +33,6 @@ export const EventTypeListPage = () =>  {
         </Stack>
 
         <StyledDataGrid
-          autoPageSize
           columns={columns}
           components={{ Toolbar: QuickSearchToolbar }}
           componentsProps={{
@@ -43,8 +42,6 @@ export const EventTypeListPage = () =>  {
               clearSearch,
             },
           }}
-          density='compact'
-          disableColumnMenu
           rows={eventTypes}
           getRowId={(row) => row.eventType}
         />

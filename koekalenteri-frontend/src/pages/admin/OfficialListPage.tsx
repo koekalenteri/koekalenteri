@@ -74,7 +74,6 @@ export const OfficialListPage = () => {
         </Stack>
 
         <StyledDataGrid
-          autoPageSize
           columns={columns}
           columnVisibilityModel={{
             district: large,
@@ -91,8 +90,6 @@ export const OfficialListPage = () => {
               clearSearch: () => setSearchText(''),
             },
           }}
-          density='compact'
-          disableColumnMenu
           rows={officials}
         />
       </FullPageFlex>

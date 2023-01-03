@@ -48,7 +48,6 @@ export const OrganizerListPage = () => {
         </Stack>
 
         <StyledDataGrid
-          autoPageSize
           columns={columns}
           components={{ Toolbar: QuickSearchToolbar }}
           componentsProps={{
@@ -58,8 +57,6 @@ export const OrganizerListPage = () => {
               clearSearch,
             },
           }}
-          density='compact'
-          disableColumnMenu
           rows={organizers}
         />
       </FullPageFlex>
