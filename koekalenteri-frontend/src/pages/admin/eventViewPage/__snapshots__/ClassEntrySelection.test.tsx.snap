@@ -1556,44 +1556,6 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
                 class="MuiTablePagination-spacer css-1psng7p-MuiTablePagination-spacer"
               />
               <p
-                class="MuiTablePagination-selectLabel css-pdct74-MuiTablePagination-selectLabel"
-                id=":r1s:"
-              >
-                Rows per page:
-              </p>
-              <div
-                class="MuiInputBase-root MuiInputBase-colorPrimary css-16c50h-MuiInputBase-root-MuiTablePagination-select"
-              >
-                <div
-                  aria-expanded="false"
-                  aria-haspopup="listbox"
-                  aria-labelledby=":r1s: :r1r:"
-                  class="MuiSelect-select MuiTablePagination-select MuiSelect-standard MuiInputBase-input css-194a1fa-MuiSelect-select-MuiInputBase-input"
-                  id=":r1r:"
-                  role="button"
-                  tabindex="0"
-                >
-                  100
-                </div>
-                <input
-                  aria-hidden="true"
-                  class="MuiSelect-nativeInput css-yf8vq0-MuiSelect-nativeInput"
-                  tabindex="-1"
-                  value="100"
-                />
-                <svg
-                  aria-hidden="true"
-                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiSelect-icon MuiTablePagination-selectIcon MuiSelect-iconStandard css-pqjvzy-MuiSvgIcon-root-MuiSelect-icon"
-                  data-testid="ArrowDropDownIcon"
-                  focusable="false"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M7 10l5 5 5-5z"
-                  />
-                </svg>
-              </div>
-              <p
                 class="MuiTablePagination-displayedRows css-levciy-MuiTablePagination-displayedRows"
               >
                 0–0 of 0
@@ -4848,44 +4810,6 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
               <div
                 class="MuiTablePagination-spacer css-1psng7p-MuiTablePagination-spacer"
               />
-              <p
-                class="MuiTablePagination-selectLabel css-pdct74-MuiTablePagination-selectLabel"
-                id=":r3n:"
-              >
-                Rows per page:
-              </p>
-              <div
-                class="MuiInputBase-root MuiInputBase-colorPrimary css-16c50h-MuiInputBase-root-MuiTablePagination-select"
-              >
-                <div
-                  aria-expanded="false"
-                  aria-haspopup="listbox"
-                  aria-labelledby=":r3n: :r3m:"
-                  class="MuiSelect-select MuiTablePagination-select MuiSelect-standard MuiInputBase-input css-194a1fa-MuiSelect-select-MuiInputBase-input"
-                  id=":r3m:"
-                  role="button"
-                  tabindex="0"
-                >
-                  100
-                </div>
-                <input
-                  aria-hidden="true"
-                  class="MuiSelect-nativeInput css-yf8vq0-MuiSelect-nativeInput"
-                  tabindex="-1"
-                  value="100"
-                />
-                <svg
-                  aria-hidden="true"
-                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiSelect-icon MuiTablePagination-selectIcon MuiSelect-iconStandard css-pqjvzy-MuiSvgIcon-root-MuiSelect-icon"
-                  data-testid="ArrowDropDownIcon"
-                  focusable="false"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M7 10l5 5 5-5z"
-                  />
-                </svg>
-              </div>
               <p
                 class="MuiTablePagination-displayedRows css-levciy-MuiTablePagination-displayedRows"
               >
@@ -8142,44 +8066,6 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                 class="MuiTablePagination-spacer css-1psng7p-MuiTablePagination-spacer"
               />
               <p
-                class="MuiTablePagination-selectLabel css-pdct74-MuiTablePagination-selectLabel"
-                id=":r7e:"
-              >
-                Rows per page:
-              </p>
-              <div
-                class="MuiInputBase-root MuiInputBase-colorPrimary css-16c50h-MuiInputBase-root-MuiTablePagination-select"
-              >
-                <div
-                  aria-expanded="false"
-                  aria-haspopup="listbox"
-                  aria-labelledby=":r7e: :r7d:"
-                  class="MuiSelect-select MuiTablePagination-select MuiSelect-standard MuiInputBase-input css-194a1fa-MuiSelect-select-MuiInputBase-input"
-                  id=":r7d:"
-                  role="button"
-                  tabindex="0"
-                >
-                  100
-                </div>
-                <input
-                  aria-hidden="true"
-                  class="MuiSelect-nativeInput css-yf8vq0-MuiSelect-nativeInput"
-                  tabindex="-1"
-                  value="100"
-                />
-                <svg
-                  aria-hidden="true"
-                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiSelect-icon MuiTablePagination-selectIcon MuiSelect-iconStandard css-pqjvzy-MuiSvgIcon-root-MuiSelect-icon"
-                  data-testid="ArrowDropDownIcon"
-                  focusable="false"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M7 10l5 5 5-5z"
-                  />
-                </svg>
-              </div>
-              <p
                 class="MuiTablePagination-displayedRows css-levciy-MuiTablePagination-displayedRows"
               >
                 0–0 of 0
@@ -9792,44 +9678,6 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
               <div
                 class="MuiTablePagination-spacer css-1psng7p-MuiTablePagination-spacer"
               />
-              <p
-                class="MuiTablePagination-selectLabel css-pdct74-MuiTablePagination-selectLabel"
-                id=":r1:"
-              >
-                Rows per page:
-              </p>
-              <div
-                class="MuiInputBase-root MuiInputBase-colorPrimary css-16c50h-MuiInputBase-root-MuiTablePagination-select"
-              >
-                <div
-                  aria-expanded="false"
-                  aria-haspopup="listbox"
-                  aria-labelledby=":r1: :r0:"
-                  class="MuiSelect-select MuiTablePagination-select MuiSelect-standard MuiInputBase-input css-194a1fa-MuiSelect-select-MuiInputBase-input"
-                  id=":r0:"
-                  role="button"
-                  tabindex="0"
-                >
-                  100
-                </div>
-                <input
-                  aria-hidden="true"
-                  class="MuiSelect-nativeInput css-yf8vq0-MuiSelect-nativeInput"
-                  tabindex="-1"
-                  value="100"
-                />
-                <svg
-                  aria-hidden="true"
-                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiSelect-icon MuiTablePagination-selectIcon MuiSelect-iconStandard css-pqjvzy-MuiSvgIcon-root-MuiSelect-icon"
-                  data-testid="ArrowDropDownIcon"
-                  focusable="false"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M7 10l5 5 5-5z"
-                  />
-                </svg>
-              </div>
               <p
                 class="MuiTablePagination-displayedRows css-levciy-MuiTablePagination-displayedRows"
               >
