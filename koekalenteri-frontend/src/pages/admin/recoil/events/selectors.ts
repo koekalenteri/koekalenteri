@@ -17,7 +17,7 @@ export const filteredAdminEventsQuery = selector({
 
     return events.filter(event => {
       return !event.deletedAt
-        && (showPast || !event.startDate || event.startDate < startOfToday())
+        && (showPast || !event.startDate || event.startDate >= startOfToday())
         && (!filter || ([event.location, event.official.name, event.secretary.name].join(' ').toLocaleLowerCase(i18next.language).includes(filter)))
     })
   },
