@@ -4,7 +4,7 @@ import { DataGrid, DataGridProps } from "@mui/x-data-grid"
 const DataGridWithDefaults = (props: DataGridProps) => {
   return <DataGrid
     pageSize={100}
-    rowsPerPageOptions={[]}
+    rowsPerPageOptions={[100]}
     density='compact'
     disableColumnMenu
     {...props}
