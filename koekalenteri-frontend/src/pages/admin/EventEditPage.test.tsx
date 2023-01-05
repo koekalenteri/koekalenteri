@@ -5,7 +5,6 @@ import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { render } from '@testing-library/react'
-import { Official, Organizer } from 'koekalenteri-shared/model'
 import { SnackbarProvider } from 'notistack'
 import { RecoilRoot, snapshot_UNSTABLE } from 'recoil'
 
@@ -14,7 +13,7 @@ import { Language, locales } from '../../i18n'
 import { flushPromisesAndTimers } from '../../test-utils/utils'
 
 import { EventEditPage } from './EventEditPage'
-import { decorateEvent, newEventAtom } from './recoil'
+import { newEventAtom } from './recoil'
 
 jest.useFakeTimers()
 
@@ -25,54 +24,25 @@ jest.mock('../../api/official')
 jest.mock('../../api/organizer')
 jest.mock('../../api/registration')
 
-// New event gets dates relative to current date, so lets mock it.
-jest.setSystemTime(new Date('2021-04-23'))
-
 describe('EventEditPage', () => {
-  it.skip('renders properly when creating a new wvent', async () => {
+  it('renders properly when creating a new event', async () => {
     const { i18n } = useTranslation()
     const language = i18n.language as Language
 
-    snapshot_UNSTABLE(({set}) => set(newEventAtom, decorateEvent({
-      accountNumber: '',
-      allowHandlerMembershipPriority: false,
-      allowOwnerMembershipPriority: false,
-      classes: [],
-      cost: 0,
-      costMember: 0,
-      createdAt: new Date(),
-      createdBy: '',
-      description: '',
-      entries: 0,
-      endDate: new Date(),
-      eventType: 'TEST-A',
-      id: '',
-      isEntryClosed: false,
-      isEntryClosing: false,
-      isEntryOpen: false,
-      isEntryUpcoming: false,
-      isEventOngoing: false,
-      isEventOver: false,
-      isEventUpcoming: false,
-      judges: [],
-      location: '',
-      modifiedBy: '',
-      modifiedAt: new Date(),
-      name: '',
-      official: {} as Official,
-      organizer: {} as Organizer,
-      paymentDetails: '',
-      places: 0,
-      referenceNumber: '',
-      secretary: {} as Official,
-      startDate: new Date(),
-      state: 'tentative',
-    })))
+    const eventDate = new Date('2021-04-23')
+    const defaultValue = await snapshot_UNSTABLE().getPromise(newEventAtom)
+    const initialValue = {
+      ...defaultValue,
+      startDate: eventDate,
+      endDate: eventDate,
+      entryStartDate: new Date('2021-03-23'),
+      entryEndDate: new Date('2021-04-09'),
+    }
 
     const { container } = render(
       <ThemeProvider theme={theme}>
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales[language]}>
-          <RecoilRoot>
+          <RecoilRoot initializeState={({set}) => set(newEventAtom, initialValue)}>
             <MemoryRouter>
               <Suspense fallback={<div>loading...</div>}>
                 <SnackbarProvider>

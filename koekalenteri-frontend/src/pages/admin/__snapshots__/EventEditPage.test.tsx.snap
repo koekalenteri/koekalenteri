@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`EventEditPage renders properly when creating a new wvent 1`] = `
+exports[`EventEditPage renders properly when creating a new event 1`] = `
 <div>
   <div
     class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation2 css-q8ljt1-MuiPaper-root"
@@ -180,13 +180,13 @@ exports[`EventEditPage renders properly when creating a new wvent 1`] = `
                                   placeholder="dd.mm.yyyy"
                                   required=""
                                   type="tel"
-                                  value="24.07.2021"
+                                  value="23.04.2021"
                                 />
                                 <div
                                   class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1laqsz7-MuiInputAdornment-root"
                                 >
                                   <button
-                                    aria-label="Choose date, selected date is Jul 24, 2021"
+                                    aria-label="Choose date, selected date is Apr 23, 2021"
                                     class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1yq5fb3-MuiButtonBase-root-MuiIconButton-root"
                                     tabindex="0"
                                     type="button"
@@ -255,13 +255,13 @@ exports[`EventEditPage renders properly when creating a new wvent 1`] = `
                                   placeholder="dd.mm.yyyy"
                                   required=""
                                   type="tel"
-                                  value="24.07.2021"
+                                  value="23.04.2021"
                                 />
                                 <div
                                   class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1laqsz7-MuiInputAdornment-root"
                                 >
                                   <button
-                                    aria-label="Choose date, selected date is Jul 24, 2021"
+                                    aria-label="Choose date, selected date is Apr 23, 2021"
                                     class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1yq5fb3-MuiButtonBase-root-MuiIconButton-root"
                                     tabindex="0"
                                     type="button"
@@ -1066,10 +1066,8 @@ exports[`EventEditPage renders properly when creating a new wvent 1`] = `
               judges
             </p>
             <p
-              class="MuiFormHelperText-root Mui-error css-9tosq5-MuiFormHelperText-root"
-            >
-              validation.event.errors
-            </p>
+              class="MuiFormHelperText-root css-ml08u8-MuiFormHelperText-root"
+            />
           </div>
           <div
             class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-bz4dnt-MuiCollapse-root"
@@ -1087,196 +1085,6 @@ exports[`EventEditPage renders properly when creating a new wvent 1`] = `
                   <div
                     class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
                   >
-                    <div
-                      class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-1bzbk8b-MuiGrid-root"
-                    >
-                      <div
-                        class="MuiGrid-root MuiGrid-item css-17sva53-MuiGrid-root"
-                      >
-                        <div
-                          class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-qm9mjt-MuiAutocomplete-root"
-                          data-testid="judgeChief"
-                        >
-                          <div
-                            class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
-                          >
-                            <label
-                              class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-error MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
-                              data-shrink="false"
-                              for=":rj:"
-                              id=":rj:-label"
-                            >
-                              judgeChief
-                            </label>
-                            <div
-                              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-error MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1hw12xa-MuiInputBase-root-MuiOutlinedInput-root"
-                            >
-                              <input
-                                aria-autocomplete="list"
-                                aria-describedby=":rj:-helper-text"
-                                aria-expanded="false"
-                                aria-invalid="true"
-                                autocapitalize="none"
-                                autocomplete="off"
-                                class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
-                                id=":rj:"
-                                role="combobox"
-                                spellcheck="false"
-                                type="text"
-                                value=""
-                              />
-                              <div
-                                class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
-                              >
-                                <button
-                                  aria-label="Open"
-                                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-                                  tabindex="-1"
-                                  title="Open"
-                                  type="button"
-                                >
-                                  <svg
-                                    aria-hidden="true"
-                                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                                    data-testid="ArrowDropDownIcon"
-                                    focusable="false"
-                                    viewBox="0 0 24 24"
-                                  >
-                                    <path
-                                      d="M7 10l5 5 5-5z"
-                                    />
-                                  </svg>
-                                  <span
-                                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                                  />
-                                </button>
-                              </div>
-                              <fieldset
-                                aria-hidden="true"
-                                class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
-                              >
-                                <legend
-                                  class="css-yjsfm1"
-                                >
-                                  <span>
-                                    judgeChief
-                                  </span>
-                                </legend>
-                              </fieldset>
-                            </div>
-                            <p
-                              class="MuiFormHelperText-root Mui-error MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-1vg31rc-MuiFormHelperText-root"
-                              id=":rj:-helper-text"
-                            >
-                              Tuomari 0 ei ole käytettävissä
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                      <div
-                        class="MuiGrid-root MuiGrid-item css-17sva53-MuiGrid-root"
-                      >
-                        <div
-                          class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-qm9mjt-MuiAutocomplete-root"
-                        >
-                          <div
-                            class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
-                          >
-                            <label
-                              class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
-                              data-shrink="false"
-                              for="class0"
-                              id="class0-label"
-                            >
-                              Arvostelee koeluokat
-                            </label>
-                            <div
-                              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1hw12xa-MuiInputBase-root-MuiOutlinedInput-root"
-                            >
-                              <input
-                                aria-autocomplete="list"
-                                aria-expanded="false"
-                                aria-invalid="false"
-                                autocapitalize="none"
-                                autocomplete="off"
-                                class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
-                                disabled=""
-                                id="class0"
-                                role="combobox"
-                                spellcheck="false"
-                                type="text"
-                                value=""
-                              />
-                              <div
-                                class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
-                              >
-                                <button
-                                  aria-label="Open"
-                                  class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-                                  disabled=""
-                                  tabindex="-1"
-                                  title="Open"
-                                  type="button"
-                                >
-                                  <svg
-                                    aria-hidden="true"
-                                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                                    data-testid="ArrowDropDownIcon"
-                                    focusable="false"
-                                    viewBox="0 0 24 24"
-                                  >
-                                    <path
-                                      d="M7 10l5 5 5-5z"
-                                    />
-                                  </svg>
-                                </button>
-                              </div>
-                              <fieldset
-                                aria-hidden="true"
-                                class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
-                              >
-                                <legend
-                                  class="css-yjsfm1"
-                                >
-                                  <span>
-                                    Arvostelee koeluokat
-                                  </span>
-                                </legend>
-                              </fieldset>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div
-                        class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
-                      >
-                        <button
-                          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-16m0f1y-MuiButtonBase-root-MuiButton-root"
-                          tabindex="0"
-                          type="button"
-                        >
-                          <span
-                            class="MuiButton-startIcon MuiButton-iconSizeMedium css-1d6wzja-MuiButton-startIcon"
-                          >
-                            <svg
-                              aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                              data-testid="DeleteOutlineIcon"
-                              focusable="false"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM8 9h8v10H8V9zm7.5-5-1-1h-5l-1 1H5v2h14V4z"
-                              />
-                            </svg>
-                          </span>
-                          Poista tuomari
-                          <span
-                            class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                          />
-                        </button>
-                      </div>
-                    </div>
                     <div
                       class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                     >
@@ -1383,10 +1191,10 @@ exports[`EventEditPage renders properly when creating a new wvent 1`] = `
                               class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
                             >
                               <label
-                                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
-                                data-shrink="false"
-                                for=":rn:"
-                                id=":rn:-label"
+                                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-19cu7oy-MuiFormLabel-root-MuiInputLabel-root"
+                                data-shrink="true"
+                                for=":rj:"
+                                id=":rj:-label"
                               >
                                 Ilmoittautumisaika alkaa
                               </label>
@@ -1396,16 +1204,16 @@ exports[`EventEditPage renders properly when creating a new wvent 1`] = `
                                 <input
                                   aria-invalid="false"
                                   class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
-                                  id=":rn:"
+                                  id=":rj:"
                                   placeholder="dd.mm.yyyy"
                                   type="tel"
-                                  value=""
+                                  value="23.03.2021"
                                 />
                                 <div
                                   class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1laqsz7-MuiInputAdornment-root"
                                 >
                                   <button
-                                    aria-label="Choose date"
+                                    aria-label="Choose date, selected date is Mar 23, 2021"
                                     class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1yq5fb3-MuiButtonBase-root-MuiIconButton-root"
                                     tabindex="0"
                                     type="button"
@@ -1431,7 +1239,7 @@ exports[`EventEditPage renders properly when creating a new wvent 1`] = `
                                   class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                                 >
                                   <legend
-                                    class="css-yjsfm1"
+                                    class="css-14lo706"
                                   >
                                     <span>
                                       Ilmoittautumisaika alkaa
@@ -1448,10 +1256,10 @@ exports[`EventEditPage renders properly when creating a new wvent 1`] = `
                               class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
                             >
                               <label
-                                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
-                                data-shrink="false"
-                                for=":ro:"
-                                id=":ro:-label"
+                                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-19cu7oy-MuiFormLabel-root-MuiInputLabel-root"
+                                data-shrink="true"
+                                for=":rk:"
+                                id=":rk:-label"
                               >
                                 Ilmoittautumisaika päättyy
                               </label>
@@ -1461,16 +1269,16 @@ exports[`EventEditPage renders properly when creating a new wvent 1`] = `
                                 <input
                                   aria-invalid="false"
                                   class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
-                                  id=":ro:"
+                                  id=":rk:"
                                   placeholder="dd.mm.yyyy"
                                   type="tel"
-                                  value=""
+                                  value="09.04.2021"
                                 />
                                 <div
                                   class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1laqsz7-MuiInputAdornment-root"
                                 >
                                   <button
-                                    aria-label="Choose date"
+                                    aria-label="Choose date, selected date is Apr 9, 2021"
                                     class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1yq5fb3-MuiButtonBase-root-MuiIconButton-root"
                                     tabindex="0"
                                     type="button"
@@ -1496,7 +1304,7 @@ exports[`EventEditPage renders properly when creating a new wvent 1`] = `
                                   class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                                 >
                                   <legend
-                                    class="css-yjsfm1"
+                                    class="css-14lo706"
                                   >
                                     <span>
                                       Ilmoittautumisaika päättyy
@@ -1579,7 +1387,7 @@ exports[`EventEditPage renders properly when creating a new wvent 1`] = `
                                     <input
                                       aria-invalid="false"
                                       class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputSizeSmall css-1n4twyu-MuiInputBase-input-MuiOutlinedInput-input"
-                                      id=":rp:"
+                                      id=":rl:"
                                       max="999"
                                       min="0"
                                       style="text-align: right; padding: 4px;"
@@ -2101,7 +1909,7 @@ exports[`EventEditPage renders properly when creating a new wvent 1`] = `
             <p
               class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
             >
-              headquarters
+              event.headquarters.title
             </p>
             <p
               class="MuiFormHelperText-root css-ml08u8-MuiFormHelperText-root"
@@ -2135,10 +1943,10 @@ exports[`EventEditPage renders properly when creating a new wvent 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="false"
-                            for=":r12:"
-                            id=":r12:-label"
+                            for=":ru:"
+                            id=":ru:-label"
                           >
-                            Nimi
+                            event.headquarters.name
                           </label>
                           <div
                             class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-govxmy-MuiInputBase-root-MuiOutlinedInput-root"
@@ -2146,7 +1954,7 @@ exports[`EventEditPage renders properly when creating a new wvent 1`] = `
                             <input
                               aria-invalid="false"
                               class="MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r12:"
+                              id=":ru:"
                               type="text"
                               value=""
                             />
@@ -2158,7 +1966,7 @@ exports[`EventEditPage renders properly when creating a new wvent 1`] = `
                                 class="css-yjsfm1"
                               >
                                 <span>
-                                  Nimi
+                                  event.headquarters.name
                                 </span>
                               </legend>
                             </fieldset>
@@ -2174,10 +1982,10 @@ exports[`EventEditPage renders properly when creating a new wvent 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="false"
-                            for=":r13:"
-                            id=":r13:-label"
+                            for=":rv:"
+                            id=":rv:-label"
                           >
-                            Katuosoite
+                            event.headquarters.address
                           </label>
                           <div
                             class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-govxmy-MuiInputBase-root-MuiOutlinedInput-root"
@@ -2185,7 +1993,7 @@ exports[`EventEditPage renders properly when creating a new wvent 1`] = `
                             <input
                               aria-invalid="false"
                               class="MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r13:"
+                              id=":rv:"
                               type="text"
                               value=""
                             />
@@ -2197,7 +2005,7 @@ exports[`EventEditPage renders properly when creating a new wvent 1`] = `
                                 class="css-yjsfm1"
                               >
                                 <span>
-                                  Katuosoite
+                                  event.headquarters.address
                                 </span>
                               </legend>
                             </fieldset>
@@ -2217,10 +2025,10 @@ exports[`EventEditPage renders properly when creating a new wvent 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="false"
-                            for=":r14:"
-                            id=":r14:-label"
+                            for=":r10:"
+                            id=":r10:-label"
                           >
-                            Postinumero
+                            event.headquarters.zipCode
                           </label>
                           <div
                             class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-govxmy-MuiInputBase-root-MuiOutlinedInput-root"
@@ -2228,7 +2036,7 @@ exports[`EventEditPage renders properly when creating a new wvent 1`] = `
                             <input
                               aria-invalid="false"
                               class="MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r14:"
+                              id=":r10:"
                               type="text"
                               value=""
                             />
@@ -2240,7 +2048,7 @@ exports[`EventEditPage renders properly when creating a new wvent 1`] = `
                                 class="css-yjsfm1"
                               >
                                 <span>
-                                  Postinumero
+                                  event.headquarters.zipCode
                                 </span>
                               </legend>
                             </fieldset>
@@ -2256,10 +2064,10 @@ exports[`EventEditPage renders properly when creating a new wvent 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="false"
-                            for=":r15:"
-                            id=":r15:-label"
+                            for=":r11:"
+                            id=":r11:-label"
                           >
-                            Postitoimipaikka
+                            event.headquarters.postalDistrict
                           </label>
                           <div
                             class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-govxmy-MuiInputBase-root-MuiOutlinedInput-root"
@@ -2267,7 +2075,7 @@ exports[`EventEditPage renders properly when creating a new wvent 1`] = `
                             <input
                               aria-invalid="false"
                               class="MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r15:"
+                              id=":r11:"
                               type="text"
                               value=""
                             />
@@ -2279,7 +2087,7 @@ exports[`EventEditPage renders properly when creating a new wvent 1`] = `
                                 class="css-yjsfm1"
                               >
                                 <span>
-                                  Postitoimipaikka
+                                  event.headquarters.postalDistrict
                                 </span>
                               </legend>
                             </fieldset>
@@ -2605,7 +2413,7 @@ exports[`EventEditPage renders properly when creating a new wvent 1`] = `
             <p
               class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
             >
-              Lisätiedot
+              event.description
             </p>
             <p
               class="MuiFormHelperText-root css-ml08u8-MuiFormHelperText-root"
@@ -2633,7 +2441,7 @@ exports[`EventEditPage renders properly when creating a new wvent 1`] = `
                       <textarea
                         aria-invalid="false"
                         class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-1sqnrkk-MuiInputBase-input-MuiOutlinedInput-input"
-                        id=":r16:"
+                        id=":r12:"
                         rows="5"
                         style="height: 0px; overflow: hidden;"
                       />
@@ -2673,7 +2481,7 @@ exports[`EventEditPage renders properly when creating a new wvent 1`] = `
       <button
         class="MuiButtonBase-root MuiButton-root MuiLoadingButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium Mui-disabled MuiButton-root MuiLoadingButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium css-1mju63u-MuiButtonBase-root-MuiButton-root-MuiLoadingButton-root"
         disabled=""
-        id=":r17:"
+        id=":r13:"
         tabindex="-1"
         type="button"
       >
