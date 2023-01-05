@@ -442,7 +442,7 @@ Resources:
         PutEvent:
           Type: Api
           Properties:
-            Path: /event/register
+            Path: /registration
             Method: POST
             RestApiId: !Ref KoekalenteriApi
 

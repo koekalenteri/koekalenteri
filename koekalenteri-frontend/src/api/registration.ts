@@ -1,6 +1,5 @@
 import { Registration } from 'koekalenteri-shared/model'
 
-import { PATH } from './event'
 import http from './http'
 
 
@@ -13,5 +12,5 @@ export async function getRegistration(eventId: string, id: string, signal?: Abor
 }
 
 export async function putRegistration(registration: Registration): Promise<Registration> {
-  return http.post<Registration, Registration>(PATH + 'register/', registration)
+  return http.post<Registration, Registration>('/registration/', registration)
 }
