@@ -6,6 +6,7 @@ import { flushPromisesAndTimers } from '../../../test-utils/utils'
 
 import ClassEntrySelection from './ClassEntrySelection'
 
+jest.useFakeTimers()
 
 describe('ClassEntrySelection', () => {
   it.each([

@@ -7,6 +7,8 @@ import { flushPromisesAndTimers } from '../../test-utils/utils'
 
 import { EventInfo } from './EventInfo'
 
+jest.useFakeTimers()
+
 jest.mock('../../api/judge')
 
 describe('EventInfo', () => {

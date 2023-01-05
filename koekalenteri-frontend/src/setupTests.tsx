@@ -7,8 +7,6 @@ import { DataGridProps } from '@mui/x-data-grid'
 import '@testing-library/jest-dom'
 import './i18n'
 
-jest.useFakeTimers()
-
 // https://github.com/mui/mui-x/issues/1151#issuecomment-1108349639
 jest.mock('@mui/x-data-grid', () => {
   const { DataGrid } = jest.requireActual('@mui/x-data-grid')

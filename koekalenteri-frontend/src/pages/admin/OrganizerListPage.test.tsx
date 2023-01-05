@@ -10,6 +10,8 @@ import { flushPromisesAndTimers } from '../../test-utils/utils'
 
 import { OrganizerListPage } from './OrganizerListPage'
 
+jest.useFakeTimers()
+
 jest.mock('../../api/organizer')
 
 describe('OrganizerListPage', () => {

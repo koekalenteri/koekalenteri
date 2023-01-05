@@ -16,6 +16,8 @@ import { flushPromisesAndTimers } from '../../test-utils/utils'
 import { EventEditPage } from './EventEditPage'
 import { decorateEvent, newEventAtom } from './recoil'
 
+jest.useFakeTimers()
+
 jest.mock('../../api/event')
 jest.mock('../../api/eventType')
 jest.mock('../../api/judge')

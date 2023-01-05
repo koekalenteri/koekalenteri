@@ -2413,7 +2413,7 @@ exports[`EventForm should render for new event 1`] = `
             <p
               class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
             >
-              Lisätiedot
+              event.description
             </p>
             <p
               class="MuiFormHelperText-root css-ml08u8-MuiFormHelperText-root"

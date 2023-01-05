@@ -10,6 +10,8 @@ import { flushPromisesAndTimers } from '../../test-utils/utils'
 
 import { EventTypeListPage } from './EventTypeListPage'
 
+jest.useFakeTimers()
+
 jest.mock('../../api/eventType')
 
 describe('EventTypeListPage', () => {

@@ -10,8 +10,9 @@ import { flushPromisesAndTimers } from '../../test-utils/utils'
 
 import { JudgeListPage } from './JudgeListPage'
 
-jest.mock('../../api/judge')
+jest.useFakeTimers()
 
+jest.mock('../../api/judge')
 
 describe('JudgeListPage', () => {
   it('renders', async () => {
