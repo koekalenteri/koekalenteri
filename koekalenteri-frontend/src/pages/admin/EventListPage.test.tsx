@@ -15,6 +15,7 @@ jest.useFakeTimers()
 
 jest.mock('../../api/event')
 jest.mock('../../api/judge')
+jest.mock('../../api/registration')
 
 describe('EventListPage', () => {
   it('renders', async () => {

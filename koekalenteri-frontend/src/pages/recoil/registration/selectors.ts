@@ -1,7 +1,7 @@
 import { Registration } from "koekalenteri-shared/model"
 import { selector } from "recoil"
 
-import { getRegistration } from "../../../api/event"
+import { getRegistration } from "../../../api/registration"
 import { eventIdAtom } from "../events/atoms"
 
 import { registrationIdAtom } from "./atoms"

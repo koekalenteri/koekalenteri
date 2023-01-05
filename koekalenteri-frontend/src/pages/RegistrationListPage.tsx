@@ -7,7 +7,7 @@ import type { ConfirmedEventEx, Registration } from 'koekalenteri-shared/model'
 import { useSnackbar } from 'notistack'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
-import { putRegistration } from '../api/event'
+import { putRegistration } from "../api/registration"
 import { LinkButton, RegistrationEventInfo, RegistrationList } from '../components'
 import { useSessionStarted } from '../stores'
 

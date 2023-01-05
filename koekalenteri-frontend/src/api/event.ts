@@ -1,9 +1,9 @@
-import { Event, EventEx, JsonEvent, Registration } from 'koekalenteri-shared/model'
+import { Event, EventEx, JsonEvent } from 'koekalenteri-shared/model'
 
 import http from './http'
 import { rehydrateEvent } from './utils'
 
-const PATH = '/event/'
+export const PATH = '/event/'
 
 export async function getEvents(signal?: AbortSignal): Promise<EventEx[]> {
   const jsonEvents = await http.get<Array<JsonEvent>>(PATH, {signal})
@@ -23,15 +23,4 @@ export async function putEvent(event: Partial<Event>, token?: string): Promise<E
   }))
 }
 
-export async function getRegistrations(eventId: string, signal?: AbortSignal): Promise<Registration[]> {
-  return http.get<Registration[]>(`/registration/${eventId}`, {signal})
-}
-
-export async function getRegistration(eventId: string, id: string, signal?: AbortSignal): Promise<Registration | undefined> {
-  return http.get<Registration>(`/registration/${eventId}/${id}`, {signal})
-}
-
-export async function putRegistration(registration: Registration): Promise<Registration> {
-  return http.post<Registration, Registration>(PATH + 'register/', registration)
-}
 

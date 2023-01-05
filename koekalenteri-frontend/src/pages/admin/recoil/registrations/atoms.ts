@@ -1,7 +1,7 @@
 import { Registration, RegistrationGroup } from "koekalenteri-shared/model"
 import { atom, atomFamily } from "recoil"
 
-import { getRegistrations } from "../../../../api/event"
+import { getRegistrations } from "../../../../api/registration"
 import { logEffect, storageEffect } from "../../../recoil"
 
 

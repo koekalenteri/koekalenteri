@@ -23,6 +23,7 @@ jest.mock('../../api/eventType')
 jest.mock('../../api/judge')
 jest.mock('../../api/official')
 jest.mock('../../api/organizer')
+jest.mock('../../api/registration')
 
 // New event gets dates relative to current date, so lets mock it.
 jest.setSystemTime(new Date('2021-04-23'))
