@@ -1,11 +1,10 @@
 
 import { EventEx } from 'koekalenteri-shared/model'
 import { atom } from 'recoil'
-import { syncEffect } from 'recoil-sync'
 
 import { logEffect, storageEffect } from '../effects'
 
-import { remoteEventsEffect } from './effects'
+import { remoteEventsEffect, urlSyncEffect } from './effects'
 
 export const eventsAtom = atom<EventEx[]>({
   key: 'events',
@@ -55,6 +54,6 @@ export const eventFilterAtom = atom<FilterProps>({
   },
   effects: [
     logEffect,
-    syncEffect({ refine: (v) => ({ type: 'success', value: v, warnings: []}) }),
+    urlSyncEffect,
   ],
 })

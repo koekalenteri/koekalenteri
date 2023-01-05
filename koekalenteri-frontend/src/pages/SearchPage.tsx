@@ -1,20 +1,26 @@
+import { useEffect } from 'react'
+import { useLocation } from 'react-router-dom'
 import { useRecoilState, useRecoilValue } from 'recoil'
-import { RecoilURLSync } from 'recoil-sync'
 
-import { deserializeFilter, EventFilter, serializeFilter } from './searchPage/EventFilter'
+import { EventFilter } from './searchPage/EventFilter'
 import { EventTable } from './searchPage/EventTable'
-import { activeEventTypesQuery, eventFilterAtom, filteredEvents, filterJudgesQuery, filterOrganizersQuery } from './recoil'
+import { activeEventTypesQuery, deserializeFilter, eventFilterAtom, filteredEvents, filterJudgesQuery, filterOrganizersQuery } from './recoil'
 
 
 export function SearchPage() {
   const organizers = useRecoilValue(filterOrganizersQuery)
   const activeJudges = useRecoilValue(filterJudgesQuery)
   const activeEventTypes = useRecoilValue(activeEventTypesQuery)
-  const events= useRecoilValue(filteredEvents)
+  const events = useRecoilValue(filteredEvents)
   const [filter, setFilter] = useRecoilState(eventFilterAtom)
+  const location = useLocation()
+
+  useEffect(() => {
+    setFilter(deserializeFilter(location.search))
+  }, [location, setFilter])
 
   return (
-    <RecoilURLSync location={{ part: 'search' }} serialize={serializeFilter} deserialize={deserializeFilter}>
+    <>
       <EventFilter
         eventTypes={activeEventTypes.map(et => et.eventType)}
         organizers={organizers}
@@ -23,6 +29,6 @@ export function SearchPage() {
         onChange={setFilter}
       />
       <EventTable events={events} />
-    </RecoilURLSync>
+    </>
   )
 }

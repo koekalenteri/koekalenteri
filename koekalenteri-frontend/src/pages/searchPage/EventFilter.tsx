@@ -1,7 +1,6 @@
 import { SyntheticEvent, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Box, FormControlLabel, Grid, Stack, Switch } from '@mui/material'
-import { formatISO } from 'date-fns'
 import { Judge, Organizer } from 'koekalenteri-shared/model'
 
 import { AutocompleteMulti, DateRange, DateValue } from '../../components'
@@ -16,54 +15,6 @@ type EventFilterProps = {
 }
 
 const MIN_DATE = new Date(2020, 0, 1)
-
-const readDate = (date: string | null) => date ? new Date(date) : null
-const writeDate = (date: Date | null) => date ? formatISO(date, { representation: 'date' }) : ''
-
-export function serializeFilter(input: unknown): string {
-  const {eventFilter} = input as {eventFilter: FilterProps}
-  const params = new URLSearchParams()
-  const bits = []
-  if (eventFilter.withClosingEntry) {
-    bits.push('c')
-  }
-  if (eventFilter.withFreePlaces) {
-    bits.push('f')
-  }
-  if (eventFilter.withOpenEntry) {
-    bits.push('o')
-  }
-  if (eventFilter.withUpcomingEntry) {
-    bits.push('u')
-  }
-  if (eventFilter.end) {
-    params.append('e', writeDate(eventFilter.end))
-  }
-  eventFilter.eventClass.forEach(v => params.append('c', v))
-  eventFilter.eventType.forEach(v => params.append('t', v))
-  eventFilter.judge.forEach(v => params.append('j', v.toString()))
-  eventFilter.organizer.forEach(v => params.append('o', v.toString()))
-  bits.forEach(v => params.append('b', v))
-  return params.toString()
-}
-
-export function deserializeFilter(input: string): unknown {
-  const searchParams = new URLSearchParams(input)
-  const bits = searchParams.getAll('b')
-  const result: FilterProps = {
-    end: readDate(searchParams.get('e')),
-    eventClass: searchParams.getAll('c'),
-    eventType: searchParams.getAll('t'),
-    judge: searchParams.getAll('j').map(j => parseInt(j)),
-    organizer: searchParams.getAll('o').map(s => parseInt(s)),
-    start: readDate(searchParams.get('s')),
-    withClosingEntry: bits.includes('c'),
-    withFreePlaces: bits.includes('f'),
-    withOpenEntry: bits.includes('o'),
-    withUpcomingEntry: bits.includes('u'),
-  }
-  return result
-}
 
 export const EventFilter = ({ judges, organizers, eventTypes, filter, onChange }: EventFilterProps) => {
   const { t } = useTranslation()

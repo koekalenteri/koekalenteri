@@ -944,7 +944,9 @@ exports[`EventListPage renders 1`] = `
                     >
                       <div
                         class="MuiDataGrid-cellContent"
-                      />
+                      >
+                        Tuomari 2
+                      </div>
                     </div>
                     <div
                       aria-colindex="7"
@@ -1080,7 +1082,9 @@ exports[`EventListPage renders 1`] = `
                     >
                       <div
                         class="MuiDataGrid-cellContent"
-                      />
+                      >
+                        Tuomari 2
+                      </div>
                     </div>
                     <div
                       aria-colindex="7"
@@ -1216,7 +1220,9 @@ exports[`EventListPage renders 1`] = `
                     >
                       <div
                         class="MuiDataGrid-cellContent"
-                      />
+                      >
+                        Tuomari 2
+                      </div>
                     </div>
                     <div
                       aria-colindex="7"
