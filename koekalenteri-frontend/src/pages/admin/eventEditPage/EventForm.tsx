@@ -175,7 +175,7 @@ export default function EventForm({ eventId, judges, eventTypes, eventTypeClasse
         />
         <HeadquartersSection
           errorStates={errorStates}
-          event={event as PartialEvent}
+          headquarters={event.headquarters}
           fields={fields}
           helperTexts={helperTexts}
           onChange={onChange}

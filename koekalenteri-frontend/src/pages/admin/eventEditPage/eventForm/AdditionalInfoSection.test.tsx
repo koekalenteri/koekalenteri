@@ -3,8 +3,6 @@ import userEvent from '@testing-library/user-event'
 
 import AdditionalInfoSection from './AdditionalInfoSection'
 
-jest.useRealTimers()
-
 describe('AdditionalInfoSection', () => {
 
   it('should render', () => {

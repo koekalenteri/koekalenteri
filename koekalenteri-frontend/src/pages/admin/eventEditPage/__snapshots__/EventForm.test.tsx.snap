@@ -1909,7 +1909,7 @@ exports[`EventForm should render for new event 1`] = `
             <p
               class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
             >
-              headquarters
+              event.headquarters.title
             </p>
             <p
               class="MuiFormHelperText-root css-ml08u8-MuiFormHelperText-root"
@@ -1946,7 +1946,7 @@ exports[`EventForm should render for new event 1`] = `
                             for=":ru:"
                             id=":ru:-label"
                           >
-                            Nimi
+                            event.headquarters.name
                           </label>
                           <div
                             class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-govxmy-MuiInputBase-root-MuiOutlinedInput-root"
@@ -1966,7 +1966,7 @@ exports[`EventForm should render for new event 1`] = `
                                 class="css-yjsfm1"
                               >
                                 <span>
-                                  Nimi
+                                  event.headquarters.name
                                 </span>
                               </legend>
                             </fieldset>
@@ -1985,7 +1985,7 @@ exports[`EventForm should render for new event 1`] = `
                             for=":rv:"
                             id=":rv:-label"
                           >
-                            Katuosoite
+                            event.headquarters.address
                           </label>
                           <div
                             class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-govxmy-MuiInputBase-root-MuiOutlinedInput-root"
@@ -2005,7 +2005,7 @@ exports[`EventForm should render for new event 1`] = `
                                 class="css-yjsfm1"
                               >
                                 <span>
-                                  Katuosoite
+                                  event.headquarters.address
                                 </span>
                               </legend>
                             </fieldset>
@@ -2028,7 +2028,7 @@ exports[`EventForm should render for new event 1`] = `
                             for=":r10:"
                             id=":r10:-label"
                           >
-                            Postinumero
+                            event.headquarters.zipCode
                           </label>
                           <div
                             class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-govxmy-MuiInputBase-root-MuiOutlinedInput-root"
@@ -2048,7 +2048,7 @@ exports[`EventForm should render for new event 1`] = `
                                 class="css-yjsfm1"
                               >
                                 <span>
-                                  Postinumero
+                                  event.headquarters.zipCode
                                 </span>
                               </legend>
                             </fieldset>
@@ -2067,7 +2067,7 @@ exports[`EventForm should render for new event 1`] = `
                             for=":r11:"
                             id=":r11:-label"
                           >
-                            Postitoimipaikka
+                            event.headquarters.postalDistrict
                           </label>
                           <div
                             class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-govxmy-MuiInputBase-root-MuiOutlinedInput-root"
@@ -2087,7 +2087,7 @@ exports[`EventForm should render for new event 1`] = `
                                 class="css-yjsfm1"
                               >
                                 <span>
-                                  Postitoimipaikka
+                                  event.headquarters.postalDistrict
                                 </span>
                               </legend>
                             </fieldset>

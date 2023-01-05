@@ -69,7 +69,13 @@
     "entryOrigEndDate": "Alkuperäinen ilmoittautumisen päättymispäivä",
     "entryStartDate": "Ilmoittautumisen alkamispäivä",
     "eventType": "Koemuoto",
-    "headquerters": "Keskuspaikka",
+    "headquarters": {
+      "address": "Katuosoite",
+      "name": "Nimi",
+      "postalDistrict": "Postitoimipaikka",
+      "title": "Keskuspaikan tiedot",
+      "zipCode": "Postinumero"
+    },
     "id": "Tunnus",
     "judges": "Tuomarit",
     "kcId": "Kennelliiton koetunnus",
@@ -113,7 +119,6 @@
   "events": "Tapahtumat",
   "goBack": "Takaisin",
   "goHome": "Etusivulle",
-  "headquarters": "Keskuspaikan tiedot",
   "id": "Tunnus",
   "judge": "Tuomari",
   "judgeActive": "Arvostelee",

@@ -59,7 +59,13 @@
     "entryOrigEndDate": "Original entry start date",
     "entryStartDate": "Entry start date",
     "eventType": "Event type",
-    "headquerters": "Headquarters",
+    "headquarters": {
+      "address": "Address",
+      "name": "Name",
+      "postalDistrict": "Postal district",
+      "title": "Headquarters",
+      "zipCode": "Postcode"
+    },
     "id": "ID",
     "judges": "Judges",
     "kcId": "Kennel Club ID",
