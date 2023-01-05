@@ -9,6 +9,10 @@ export async function getEventTypes(refresh?: boolean, signal?: AbortSignal) {
   return http.get<Array<EventType>>(PATH + qs, {signal})
 }
 
-export async function putEventType(eventType: EventType): Promise<EventType> {
-  return http.post<EventType, EventType>(PATH, eventType)
+export async function putEventType(eventType: EventType, token?: string): Promise<EventType> {
+  return http.post<EventType, EventType>(PATH, eventType, {
+    headers: {
+      Authorization: token ? `Bearer ${token}` : '',
+    },
+  })
 }
