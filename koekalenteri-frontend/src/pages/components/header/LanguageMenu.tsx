@@ -23,7 +23,7 @@ export function LanguageMenu() {
   return (
     <>
       <AppBarButton onClick={handleClick} startIcon={<LanguageIcon />} endIcon={<ExpandMore />}>
-        {t(`locale.${language as Language}`)}
+        {t(`locale.${language}`)}
       </AppBarButton>
       <Menu
         anchorEl={anchorEl}

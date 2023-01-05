@@ -21,7 +21,7 @@ export function LanguageMenuItem({ locale }: Props) {
       selected={language === locale}
       onClick={handleClick}
     >
-      {t(`locale.${locale as Language}`)}
+      {t(`locale.${locale}`)}
     </MenuItem>
   )
 }
