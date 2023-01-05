@@ -10,8 +10,8 @@ const LanguagesCell = (props: GridRenderCellParams<Judge, Judge>) => {
   const actions = useJudgesActions()
 
   const changeLanguges = useCallback(
-    (_event: React.MouseEvent<HTMLElement, MouseEvent>, checked: boolean) => {
-      actions.save({ ...props.row, active: checked })
+    (_event: React.MouseEvent<HTMLElement, MouseEvent>, languages: string[]) => {
+      actions.save({ ...props.row, languages })
     },
     [actions, props.row],
   )
