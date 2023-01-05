@@ -2,7 +2,7 @@ import { AtomEffect } from "recoil"
 
 import { parseJSON } from "../../../utils"
 
-const parse = (value: string | null) => {
+export const parseStorageJSON = (value: string | null) => {
   let parsed
   try {
     if (value !== null) {
@@ -17,7 +17,7 @@ const parse = (value: string | null) => {
 export const storageEffect: AtomEffect<any> = ({node, setSelf, onSet}) => {
   const savedValue = localStorage.getItem(node.key)
   if (savedValue !== null) {
-    const parsed = parse(savedValue)
+    const parsed = parseStorageJSON(savedValue)
     setSelf(parsed)
   }
 
@@ -31,7 +31,7 @@ export const storageEffect: AtomEffect<any> = ({node, setSelf, onSet}) => {
 
   const handleStorageChange = (e: StorageEvent) => {
     if (e.storageArea === localStorage && e.key === node.key) {
-      const parsed = parse(e.newValue)
+      const parsed = parseStorageJSON(e.newValue)
       console.log('storage change', e.newValue, parsed)
       setSelf(parsed)
     }

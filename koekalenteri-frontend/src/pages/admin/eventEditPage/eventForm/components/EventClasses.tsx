@@ -1,26 +1,13 @@
+import { SyntheticEvent } from "react"
 import { useTranslation } from "react-i18next"
 import { CheckBox, CheckBoxOutlineBlank } from "@mui/icons-material"
 import { Autocomplete, AutocompleteChangeReason, Avatar, Checkbox, Chip, TextField } from "@mui/material"
 import { isSameDay } from "date-fns"
 import { Event, EventClass, EventState } from "koekalenteri-shared/model"
 
-import { PartialEvent } from "../.."
+import { PartialEvent } from "../../EventForm"
 
-/**
- * Callback fired when the value changes.
- *
- * @param {React.SyntheticEvent} event The event source of the callback.
- * @param {T|T[]} value The new value of the component.
- * @param {string} reason One of "createOption", "selectOption", "removeOption", "blur" or "clear".
- */
-type EventClassesOnChange = (
-  event: React.SyntheticEvent,
-  value: EventClass[],
-  reason: AutocompleteChangeReason
-) => void
-
-
-type EventClassesProps = {
+interface Props {
   id: string
   event: PartialEvent
   value: EventClass[] | undefined
@@ -30,7 +17,7 @@ type EventClassesProps = {
   requiredState?: EventState
   errorStates?: { [Property in keyof Event]?: boolean }
   helperTexts?: { [Property in keyof Event]?: string }
-  onChange: EventClassesOnChange
+  onChange: (event: SyntheticEvent, value: EventClass[], reason: AutocompleteChangeReason) => void
 }
 
 export const compareEventClass = (a: EventClass, b: EventClass) =>
@@ -38,7 +25,7 @@ export const compareEventClass = (a: EventClass, b: EventClass) =>
     ? a.class.localeCompare(b.class)
     : (a.date?.valueOf() || 0) - (b.date?.valueOf() || 0)
 
-export function EventClasses(props: EventClassesProps) {
+export default function EventClasses(props: Props) {
   const { t } = useTranslation()
   const { classes, label, event, required, requiredState, errorStates, helperTexts, value, ...rest } = props
   const error = errorStates?.classes

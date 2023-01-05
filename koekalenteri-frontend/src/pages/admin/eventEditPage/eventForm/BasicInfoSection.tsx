@@ -2,35 +2,27 @@ import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Grid, TextField } from '@mui/material'
 import { add, differenceInDays, eachDayOfInterval, isAfter, isSameDay, startOfDay } from 'date-fns'
-import { Event, EventClass, Official, Organizer } from 'koekalenteri-shared/model'
+import { EventClass, Official, Organizer } from 'koekalenteri-shared/model'
 
-import { CollapsibleSection, DateRange, HelpPopover } from '../..'
+import { CollapsibleSection, DateRange, HelpPopover } from '../../../../components'
+import { PartialEvent, SectionProps } from '../EventForm'
 
-import { EventClasses } from './EventClasses'
-import { EventProperty } from './EventProperty'
-import { FieldRequirements } from './validation'
-import { PartialEvent } from '.'
+import EventClasses from './components/EventClasses'
+import EventProperty from './components/EventProperty'
 
-type BasicInfoSectionParams = {
+interface Props extends SectionProps {
   event: PartialEvent
-  errorStates: { [Property in keyof Event]?: boolean }
-  helperTexts: { [Property in keyof Event]?: string }
-  fields: FieldRequirements
   eventTypes: string[]
   eventTypeClasses: Record<string, string[]>
   officials: Official[]
   organizers: Organizer[]
-  onChange: (props: Partial<Event>) => void
-  open?: boolean
-  onOpenChange?: (value: boolean) => void
 }
 
-
-export function BasicInfoSection({ event, errorStates, helperTexts, fields, eventTypes, eventTypeClasses, officials, open, onOpenChange, organizers, onChange }: BasicInfoSectionParams) {
+export default function BasicInfoSection({ event, errorStates, helperTexts, fields, eventTypes, eventTypeClasses, officials, open, onOpenChange, organizers, onChange }: Props) {
   const { t } = useTranslation()
   const [helpAnchorEl, setHelpAnchorEl] = useState<HTMLButtonElement | null>(null)
   const typeOptions = eventClassOptions(event, eventTypeClasses[event.eventType || ''] || [])
-  const error = errorStates.startDate || errorStates.endDate || errorStates.kcId || errorStates.eventType || errorStates.classes || errorStates.organizer || errorStates.location || errorStates.official || errorStates.secretary
+  const error = errorStates?.startDate || errorStates?.endDate || errorStates?.kcId || errorStates?.eventType || errorStates?.classes || errorStates?.organizer || errorStates?.location || errorStates?.official || errorStates?.secretary
   const helperText = error ? t('validation.event.errors') : ''
   const availableOfficials = useMemo(() => {
     return officials.filter(o => !event.eventType || o.eventTypes?.includes(event.eventType))
@@ -84,10 +76,10 @@ export function BasicInfoSection({ event, errorStates, helperTexts, fields, even
             <EventClasses
               id="class"
               event={event}
-              required={fields.required.classes}
+              required={fields?.required.classes}
               errorStates={errorStates}
               helperTexts={helperTexts}
-              requiredState={fields.state.classes}
+              requiredState={fields?.state.classes}
               value={event.classes}
               classes={typeOptions}
               label={t("event.classes")}
@@ -152,7 +144,10 @@ export function BasicInfoSection({ event, errorStates, helperTexts, fields, even
   )
 }
 
-function eventClassOptions(event: PartialEvent, typeClasses: string[]) {
+function eventClassOptions(event: PartialEvent | undefined, typeClasses: string[]) {
+  if (!event?.startDate || !event?.endDate) {
+    return []
+  }
   const days = eachDayOfInterval({
     start: event.startDate,
     end: event.endDate,

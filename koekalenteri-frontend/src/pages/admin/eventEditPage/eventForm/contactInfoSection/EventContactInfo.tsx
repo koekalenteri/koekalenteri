@@ -2,7 +2,8 @@ import { useTranslation } from 'react-i18next'
 import { Grid } from '@mui/material'
 import type { Person, ShowContactInfo } from 'koekalenteri-shared/model'
 
-import { PartialEvent } from './forms/EventForm'
+import { PartialEvent } from '../../EventForm'
+
 
 export function EventContactInfo({ event }: { event: PartialEvent }) {
   return (

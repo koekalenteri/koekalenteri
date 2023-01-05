@@ -20,7 +20,7 @@ export function ErrorPage() {
 
 function ErrorInfo() {
   const error = useRouteError()
-  if (process?.env?.NODE_ENV !== 'test') {
+  if (typeof process !== 'undefined' && process.env?.NODE_ENV !== 'test') {
     console.error(error)
   }
 

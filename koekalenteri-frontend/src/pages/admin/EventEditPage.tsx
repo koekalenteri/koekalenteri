@@ -1,57 +1,42 @@
-import { useCallback, useEffect } from 'react'
+import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
+import { Event } from 'koekalenteri-shared/model'
 import { useSnackbar } from 'notistack'
-import { useRecoilState, useRecoilValue } from 'recoil'
+import { useRecoilValue } from 'recoil'
 
-import { EventForm } from '../../components'
 import { Path } from '../../routeConfig'
 import { activeEventTypesQuery, activeJudgesQuery, eventTypeClassesAtom, officialsAtom, organizersAtom } from '../recoil'
 
-import { adminEventIdAtom, currentAdminEventQuery, DecoratedEvent } from './recoil'
+import EventForm from './eventEditPage/EventForm'
+import { useAdminEventActions } from './recoil'
 
 export function EventEditPage({create}: {create?: boolean}) {
   const params = useParams()
   const { t } = useTranslation()
   const { enqueueSnackbar } = useSnackbar()
   const navigate = useNavigate()
-  const [selectedEventID, setSelectedEventID] = useRecoilState(adminEventIdAtom)
-  const [event, setEvent] = useRecoilState(currentAdminEventQuery)
   const activeEventTypes = useRecoilValue(activeEventTypesQuery)
   const activeJudges = useRecoilValue(activeJudgesQuery)
   const eventTypeClasses = useRecoilValue(eventTypeClassesAtom)
   const officials = useRecoilValue(officialsAtom)
   const organizers = useRecoilValue(organizersAtom)
 
-  useEffect(() => {
-    if (create && selectedEventID) {
-      setSelectedEventID(undefined)
-    }
-    if (params.id && params.id !== selectedEventID) {
-      setSelectedEventID(params.id)
-    }
-  }, [create, params.id, selectedEventID, setSelectedEventID])
+  const actions = useAdminEventActions()
 
-  const handleSave = useCallback(async () => {
-    try {
-      setEvent(event as DecoratedEvent)
-      navigate(Path.admin.events)
-      enqueueSnackbar(t(`event.states.${event?.state || 'draft'}`, { context: 'save' }), { variant: 'info' })
-      return true
-    } catch (e: any) {
-      enqueueSnackbar(e.message, { variant: 'error' })
-      return false
-    }
-  }, [enqueueSnackbar, event, navigate, setEvent, t])
+  const handleSave = useCallback(async (event: Partial<Event>) => {
+    actions.save(event)
+    navigate(Path.admin.events)
+    enqueueSnackbar(t(`event.states.${event?.state || 'draft'}`, { context: 'save' }), { variant: 'info' })
+  }, [actions, enqueueSnackbar, navigate, t])
 
   const handleCancel = useCallback(async () => {
     navigate(Path.admin.events)
-    return false
   }, [navigate])
 
   return (
     <EventForm
-      event={event ?? {}}
+      eventId={params.id}
       eventTypes={activeEventTypes.map(et => et.eventType)}
       eventTypeClasses={eventTypeClasses}
       judges={activeJudges}

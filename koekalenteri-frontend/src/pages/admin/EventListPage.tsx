@@ -13,7 +13,7 @@ import { Path } from '../../routeConfig'
 import FullPageFlex from './components/FullPageFlex'
 import { QuickSearchToolbar } from './components/QuickSearchToolbar'
 import useEventListColumns from './eventListPage/columns'
-import { adminEventFilterTextAtom, adminEventIdAtom, adminShowPastEventsAtom, currentAdminEventQuery, filteredAdminEventsQuery, useAdminEventActions } from './recoil'
+import { adminEventFilterTextAtom, adminEventIdAtom, adminShowPastEventsAtom, currentAdminEventSelector, filteredAdminEventsSelector, useAdminEventActions } from './recoil'
 
 export const EventListPage = () => {
   const confirm = useConfirm()
@@ -22,8 +22,8 @@ export const EventListPage = () => {
   const [showPast, setShowPast] = useRecoilState(adminShowPastEventsAtom)
   const [searchText, setSearchText] = useRecoilState(adminEventFilterTextAtom)
   const [selectedEventID, setSelectedEventID] = useRecoilState(adminEventIdAtom)
-  const selectedEvent = useRecoilValue(currentAdminEventQuery)
-  const events = useRecoilValue(filteredAdminEventsQuery)
+  const selectedEvent = useRecoilValue(currentAdminEventSelector)
+  const events = useRecoilValue(filteredAdminEventsSelector)
   const actions = useAdminEventActions()
   const columns = useEventListColumns()
 

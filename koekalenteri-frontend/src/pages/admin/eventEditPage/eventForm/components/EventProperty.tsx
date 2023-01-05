@@ -5,24 +5,23 @@ import { Autocomplete, AutocompleteProps, IconButton, TextField } from '@mui/mat
 import { Box } from '@mui/system'
 import { Event } from 'koekalenteri-shared/model'
 
-import { PartialEvent } from '../..'
-
-import { FieldRequirements, validateEventField } from './validation'
+import { PartialEvent } from '../../EventForm'
+import { FieldRequirements, validateEventField } from '../validation'
 
 export type EventPropertyProps<Property extends keyof PartialEvent, freeSolo extends boolean> =
   Omit<AutocompleteProps<PartialEvent[Property], false, false, freeSolo>, 'renderInput' | 'onChange' | 'value'> & {
     id: Property,
     event: PartialEvent,
-    fields: FieldRequirements,
+    fields?: FieldRequirements,
     onChange: (props: Partial<Event>) => void,
     helpClick?: React.MouseEventHandler<HTMLButtonElement>
     endAdornment?: ReactNode
   };
 
-export function EventProperty<Property extends keyof PartialEvent, freeSolo extends boolean>(props: EventPropertyProps<Property, freeSolo>) {
+export default function EventProperty<Property extends keyof PartialEvent, freeSolo extends boolean>(props: EventPropertyProps<Property, freeSolo>) {
   const { t } = useTranslation()
-  const { id, event, fields: { required }, helpClick, endAdornment, ...acProps } = props
-  const isRequired = required[id] || false
+  const { id, event, fields, helpClick, endAdornment, ...acProps } = props
+  const isRequired = fields?.required[id] || false
   const error = isRequired && validateEventField(event, id, true)
   const helperText = error ? t(`validation.event.${error.key}`, error.opts) : ''
   return (

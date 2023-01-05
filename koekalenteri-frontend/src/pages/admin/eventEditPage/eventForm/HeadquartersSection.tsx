@@ -1,17 +1,11 @@
 import { useTranslation } from "react-i18next"
 import { Grid, TextField } from "@mui/material"
-import { Event, Headquarters } from "koekalenteri-shared/model"
+import { Headquarters } from "koekalenteri-shared/model"
 
-import { CollapsibleSection, PartialEvent } from "../.."
+import { CollapsibleSection } from "../../../../components"
+import { SectionProps } from "../EventForm"
 
-type HeadquartersSectionProps = {
-  event: PartialEvent
-  onChange: (props: Partial<Event>) => void;
-  onOpenChange?: (value: boolean) => void
-  open?: boolean
-}
-
-export function HeadquartersSection({ event, onChange, onOpenChange, open }: HeadquartersSectionProps) {
+export default function HeadquartersSection({ event, onChange, onOpenChange, open }: SectionProps) {
   const { t } = useTranslation()
   const handleChange = (props: Partial<Headquarters>) => onChange({ headquerters: { ...(event.headquerters || {}), ...props } })
 

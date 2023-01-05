@@ -3,48 +3,51 @@ import { useTranslation } from 'react-i18next'
 import { Cancel, Save } from '@mui/icons-material'
 import { LoadingButton } from '@mui/lab'
 import { Box, Button, Paper, Stack, Theme, useMediaQuery } from '@mui/material'
-import { addDays, nextSaturday, startOfDay } from 'date-fns'
-import type { Event, EventClass, EventEx, EventState, Judge, Official, Organizer } from 'koekalenteri-shared/model'
+import type { Event, EventClass, EventState, Judge, Official, Organizer } from 'koekalenteri-shared/model'
+import { useRecoilState } from 'recoil'
 
-import { AutocompleteSingle } from '../..'
+import { AutocompleteSingle } from '../../../components'
+import { editAdminEventSelector } from '../recoil'
 
-import { BasicInfoSection } from './1.BasicInfoSection'
-import { JudgesSection } from './2.JudgesSection'
-import { EntrySection } from './3.EntrySection'
-import { PaymentSection } from './4.PaymentSection'
-import { HeadquartersSection } from './5.HeadquartersSection'
-import { ContactInfoSection } from './6.ContactInfoSection'
-import { AdditionalInfoSection } from './7.AdditionalInfoSection'
-import { requiredFields, validateEvent } from './validation'
+import AdditionalInfoSection from './eventForm/AdditionalInfoSection'
+import BasicInfoSection from './eventForm/BasicInfoSection'
+import ContactInfoSection from './eventForm/ContactInfoSection'
+import EntrySection from './eventForm/EntrySection'
+import HeadquartersSection from './eventForm/HeadquartersSection'
+import JudgesSection from './eventForm/JudgesSection'
+import PaymentSection from './eventForm/PaymentSection'
+import { FieldRequirements, requiredFields, validateEvent } from './eventForm/validation'
 
-export type FormEventHandler = (event: Partial<Event>) => Promise<boolean>
 export type PartialEvent = Partial<Event> & { startDate: Date, endDate: Date, classes: EventClass[], judges: number[] }
+
+export interface SectionProps {
+  event: PartialEvent
+  fields?: FieldRequirements
+  errorStates?: { [Property in keyof Event]?: boolean }
+  helperTexts?: { [Property in keyof Event]?: string }
+  open?: boolean
+  onChange: (event: Partial<Event>) => void
+  onOpenChange?: (value: boolean) => void
+}
+
 type EventFormParams = {
-  event: Partial<EventEx>
+  eventId?: string
   eventTypes: string[]
   eventTypeClasses: Record<string, string[]>
   judges: Judge[]
   officials: Official[]
   organizers: Organizer[]
-  onSave: FormEventHandler
-  onCancel: FormEventHandler
+  onSave: (event: Partial<Event>) => void
+  onCancel: () => void
 }
 
-export function EventForm({ event, judges, eventTypes, eventTypeClasses, officials, organizers, onSave, onCancel }: EventFormParams) {
+export default function EventForm({ eventId, judges, eventTypes, eventTypeClasses, officials, organizers, onSave, onCancel }: EventFormParams) {
   const md = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
-  const baseDate = startOfDay(addDays(Date.now(), 90))
   const { t } = useTranslation()
-  const [local, setLocal] = useState<PartialEvent>({
-    state: 'draft' as EventState,
-    startDate: nextSaturday(baseDate),
-    endDate: nextSaturday(baseDate),
-    classes: [],
-    judges: [],
-    ...event,
-  })
+  const [event, setEvent] = useRecoilState(editAdminEventSelector(eventId))
   const [saving, setSaving] = useState(false)
-  const [changes, setChanges] = useState(typeof local.id === 'undefined')
-  const [errors, setErrors] = useState(validateEvent(local))
+  const [changes, setChanges] = useState(!event?.id)
+  const [errors, setErrors] = useState(event ? validateEvent(event as PartialEvent) : [])
   const [open, setOpen] = useState<{[key: string]: boolean|undefined}>({
     basic: true,
     judges: md,
@@ -55,26 +58,36 @@ export function EventForm({ event, judges, eventTypes, eventTypeClasses, officia
     info: md,
   })
   const valid = errors.length === 0
-  const fields = useMemo(() => requiredFields(local), [local])
+  const fields = useMemo(() => requiredFields(event as PartialEvent), [event])
   const onChange = useCallback((props: Partial<Event>) => {
+    if (!event) {
+      return
+    }
     const tmp: any = {}
-    Object.keys(props).forEach(k => {tmp[k] = (local as any)[k]})
+    Object.keys(props).forEach(k => {tmp[k] = (event as any)[k]})
     console.log('changed: ' + JSON.stringify(props), JSON.stringify(tmp))
     if (props.eventType && (eventTypeClasses[props.eventType] || []).length === 0) {
       props.classes = []
     }
-    const newState = { ...local, ...props }
-    setErrors(validateEvent(newState))
-    setLocal(newState)
+    const newState = { ...event, ...props }
+    setErrors(validateEvent(newState as PartialEvent))
+    setEvent(newState)
     setChanges(true)
-  }, [eventTypeClasses, local])
+  }, [event, eventTypeClasses, setEvent])
   const saveHandler = async () => {
-    setSaving(true)
-    if ((await onSave(local)) === false) {
-      setSaving(false)
+    if (!event) {
+      return
     }
+    setSaving(true)
+    onSave(event)
+    setSaving(false)
   }
-  const cancelHandler = () => onCancel(local)
+  const cancelHandler = () => {
+    if (event) {
+      setEvent(undefined)
+    }
+    onCancel()
+  }
   const handleOpenChange = (id: keyof typeof open, value: boolean) => {
     const newState = md
       ? {
@@ -94,11 +107,15 @@ export function EventForm({ event, judges, eventTypes, eventTypeClasses, officia
     setOpen(newState)
   }
 
-  const errorStates: { [Property in keyof Event]?: boolean } = {}
-  const helperTexts: { [Property in keyof Event]?: string } = {}
+  const errorStates: { [Property in keyof PartialEvent]?: boolean } = {}
+  const helperTexts: { [Property in keyof PartialEvent]?: string } = {}
   for (const error of errors) {
     helperTexts[error.opts.field] = t(`validation.event.${error.key}`, error.opts)
     errorStates[error.opts.field] = true
+  }
+
+  if (!event) {
+    return null
   }
 
   return (
@@ -110,15 +127,15 @@ export function EventForm({ event, judges, eventTypes, eventTypeClasses, officia
           label={t('event.state')}
           onChange={(e, value) => onChange({state: value || undefined})}
           options={['draft', 'tentative', 'confirmed', 'cancelled'] as EventState[]}
-          value={local.state}
           sx={{width: 200}}
+          value={event?.state}
         />
       </Box>
 
       <Box sx={{ pb: 0.5, overflow: 'auto', bgcolor: 'background.form', '& .MuiInputBase-root': { bgcolor: 'background.default'} }}>
         <BasicInfoSection
           errorStates={errorStates}
-          event={local}
+          event={event as PartialEvent}
           eventTypeClasses={eventTypeClasses}
           eventTypes={eventTypes}
           fields={fields}
@@ -130,17 +147,19 @@ export function EventForm({ event, judges, eventTypes, eventTypeClasses, officia
           organizers={organizers}
         />
         <JudgesSection
-          event={local}
-          judges={judges}
+          errorStates={errorStates}
+          event={event as PartialEvent}
           fields={fields}
+          helperTexts={helperTexts}
+          judges={judges}
           onChange={onChange}
           onOpenChange={(value) => handleOpenChange('judges', value)}
           open={open.judges}
         />
         <EntrySection
-          event={local}
-          fields={fields}
           errorStates={errorStates}
+          event={event as PartialEvent}
+          fields={fields}
           helperTexts={helperTexts}
           onChange={onChange}
           onOpenChange={(value) => handleOpenChange('entry', value)}
@@ -148,29 +167,35 @@ export function EventForm({ event, judges, eventTypes, eventTypeClasses, officia
         />
         <PaymentSection
           errorStates={errorStates}
-          event={local}
+          event={event as PartialEvent}
           fields={fields}
           onChange={onChange}
           onOpenChange={(value) => handleOpenChange('payment', value)}
           open={open.payment}
         />
         <HeadquartersSection
-          event={local}
+          errorStates={errorStates}
+          event={event as PartialEvent}
+          fields={fields}
+          helperTexts={helperTexts}
           onChange={onChange}
           onOpenChange={(value) => handleOpenChange('hq', value)}
           open={open.hq}
         />
         <ContactInfoSection
-          event={local}
           errorStates={errorStates}
-          helperTexts={helperTexts}
+          event={event as PartialEvent}
           fields={fields}
+          helperTexts={helperTexts}
           onChange={onChange}
           onOpenChange={(value) => handleOpenChange('contact', value)}
           open={open.contact}
         />
         <AdditionalInfoSection
-          event={local}
+          errorStates={errorStates}
+          event={event as PartialEvent}
+          fields={fields}
+          helperTexts={helperTexts}
           onChange={onChange}
           onOpenChange={(value) => handleOpenChange('info', value)}
           open={open.info}

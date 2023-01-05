@@ -1,27 +1,16 @@
 import { useTranslation } from 'react-i18next'
 import { Checkbox, FormControlLabel, FormHelperText, Grid } from '@mui/material'
 import { sub } from 'date-fns'
-import { Event } from 'koekalenteri-shared/model'
 
-import { CollapsibleSection, DateRange, PartialEvent } from '../..'
+import { CollapsibleSection, DateRange } from '../../../../components'
+import { SectionProps } from '../EventForm'
 
-import { EventFormPlaces } from './EventFormPlaces'
-import { FieldRequirements } from './validation'
+import EventFormPlaces from './entrySection/EventFormPlaces'
 
-export type EntrySectionProps = {
-  event: PartialEvent
-  fields: FieldRequirements
-  errorStates: { [Property in keyof Event]?: boolean }
-  helperTexts: { [Property in keyof Event]?: string }
-  onChange: (props: Partial<Event>) => void
-  onOpenChange?: (value: boolean) => void
-  open?: boolean
-}
-
-export function EntrySection(props: EntrySectionProps) {
+export default function EntrySection(props: SectionProps) {
   const { t } = useTranslation()
   const { event, fields, helperTexts, onChange, onOpenChange, open } = props
-  const error = helperTexts.entryStartDate || helperTexts.entryEndDate || helperTexts.places
+  const error = helperTexts?.entryStartDate || helperTexts?.entryEndDate || helperTexts?.places
   const helperText = error ? t('validation.event.errors') : ''
   return (
     <CollapsibleSection title="Ilmoittautuminen" open={open} onOpenChange={onOpenChange} error={!!error} helperText={helperText}>
@@ -36,10 +25,10 @@ export function EntrySection(props: EntrySectionProps) {
               end={event.entryEndDate || null}
               defaultEnd={sub(event.startDate, { weeks: 3 })}
               range={{start: event.createdAt || sub(event.startDate, {weeks: 9}), end: event.startDate}}
-              required={fields.required.entryStartDate || fields.required.entryEndDate}
+              required={fields?.required.entryStartDate || fields?.required.entryEndDate}
               onChange={(start, end) => onChange({entryStartDate: start || undefined, entryEndDate: end || undefined})}
             />
-            <FormHelperText error>{helperTexts.entryStartDate || helperTexts.entryEndDate}</FormHelperText>
+            <FormHelperText error>{helperTexts?.entryStartDate || helperTexts?.entryEndDate}</FormHelperText>
           </Grid>
         </Grid>
         <Grid item container spacing={1}>

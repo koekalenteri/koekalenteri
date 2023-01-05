@@ -2,13 +2,14 @@ import { useTranslation } from 'react-i18next'
 import { AddOutlined, DeleteOutline } from '@mui/icons-material'
 import { Button, Grid } from '@mui/material'
 import { isSameDay } from 'date-fns'
-import { Event, EventClass, Judge } from 'koekalenteri-shared/model'
+import { EventClass, Judge } from 'koekalenteri-shared/model'
 
-import { CollapsibleSection, PartialEvent } from '../..'
-import { AutocompleteSingle } from '../../AutocompleteSingle'
+import { CollapsibleSection } from '../../../../components'
+import { AutocompleteSingle } from '../../../../components/AutocompleteSingle'
+import { SectionProps } from '../EventForm'
 
-import { EventClasses } from './EventClasses'
-import { FieldRequirements, validateEventField } from './validation'
+import EventClasses from './components/EventClasses'
+import { validateEventField } from './validation'
 
 function filterJudges(judges: Judge[], eventJudges: number[], id: number, eventType?: string) {
   return judges
@@ -16,19 +17,14 @@ function filterJudges(judges: Judge[], eventJudges: number[], id: number, eventT
     .filter(j => j.id === id || !eventJudges.includes(j.id))
 }
 
-type JudgesSectionProps = {
-  event: PartialEvent
-  fields?: FieldRequirements
+interface Props extends SectionProps {
   judges: Judge[]
-  onChange: (props: Partial<Event>) => void
-  onOpenChange?: (value: boolean) => void
-  open?: boolean
 }
 
-export function JudgesSection({ event, judges, fields, onChange, onOpenChange, open }: JudgesSectionProps) {
+export default function JudgesSection({ event, judges, fields, onChange, onOpenChange, open }: Props) {
   const { t } = useTranslation()
-  const list = event.judges.length ? event.judges : [0]
-  const validationError = fields?.required.judges && validateEventField(event, 'judges', true)
+  const list = event.judges
+  const validationError = event && fields?.required.judges && validateEventField(event, 'judges', true)
   const error = !!validationError || list.some(id => !judges.find(j => j.id === id))
   const helperText = validationError
     ? t(`validation.event.${validationError.key}`, { ...validationError.opts, state: fields.state.judges || 'draft' })
@@ -36,7 +32,7 @@ export function JudgesSection({ event, judges, fields, onChange, onOpenChange, o
 
   const updateJudge = (id: number | undefined, values: EventClass[]) => {
     const judge = id ? { id, name: judges.find(j => j.id === id)?.name || '' } : undefined
-    const isSelected = (c: EventClass) => values.find(v => isSameDay(v.date || event.startDate, c.date || event.startDate) && v.class === c.class)
+    const isSelected = (c: EventClass) => values.find(v => event && isSameDay(v.date || event.startDate, c.date || event.startDate) && v.class === c.class)
     const wasSelected = (c: EventClass) => c.judge?.id === id
     const previousOrUndefined = (c: EventClass) => wasSelected(c) ? undefined : c.judge
     return event.classes.map(c => ({

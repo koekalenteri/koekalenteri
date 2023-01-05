@@ -28,10 +28,8 @@ export function decorateEvent(event: EventEx): DecoratedEvent {
     uniqueClassDates,
   }
 }
-export const remoteAdminEventsEffect: AtomEffect<DecoratedEvent[]> = ({ setSelf, onSet }) => {
-  getEvents().then(events => setSelf(events.map(decorateEvent)))
 
-  onSet((newValue, oldValue, isReset) => {
-    console.log('put event?', newValue, oldValue, isReset)
-  })
+export const remoteAdminEventsEffect: AtomEffect<DecoratedEvent[]> = ({ setSelf }) => {
+  console.log('loading remote events...')
+  getEvents().then(events => setSelf(events.map(decorateEvent)))
 }

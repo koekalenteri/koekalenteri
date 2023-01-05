@@ -1,14 +1,16 @@
 import { useTranslation } from 'react-i18next'
-import { FormHelperText, Table, TableBody, TableCell, TableHead, TableRow, TextField, TextFieldProps } from '@mui/material'
+import { FormHelperText, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material'
 import { eachDayOfInterval, isSameDay } from 'date-fns'
 import { EventClass } from 'koekalenteri-shared/model'
 
-import { unique } from '../../../utils'
+import { unique } from '../../../../../utils'
+import { SectionProps } from '../../EventForm'
+import { compareEventClass } from '../components/EventClasses'
 
-import { EntrySectionProps } from './3.EntrySection'
-import { compareEventClass } from './EventClasses'
+import PlacesDisplay from './eventFormPlaces/PlacesDisplay'
+import PlacesInput from './eventFormPlaces/PlacesInput'
 
-export function EventFormPlaces({ event, helperTexts, onChange }: EntrySectionProps) {
+export default function EventFormPlaces({ event, helperTexts, onChange }: SectionProps) {
   const { t } = useTranslation()
   const days = eachDayOfInterval({
     start: event.startDate,
@@ -75,7 +77,7 @@ export function EventFormPlaces({ event, helperTexts, onChange }: EntrySectionPr
           </TableRow>
         </TableBody>
       </Table>
-      <FormHelperText error>{helperTexts.places}</FormHelperText>
+      <FormHelperText error>{helperTexts?.places}</FormHelperText>
     </>
 
   )
@@ -90,20 +92,4 @@ const validValue = (s: string) => {
     value = 200
   }
   return value
-}
-
-function PlacesInput(props: JSX.IntrinsicAttributes & TextFieldProps) {
-  return (
-    <TextField
-      {...props}
-      value={props.value === 0 ? '' : props.value}
-      type="number"
-      size="small"
-      InputProps={{ inputProps: { min: 0, max: 999, style: {textAlign: 'right', padding: 4} } }}
-    >
-    </TextField>)
-}
-
-function PlacesDisplay({ value }: { value: number }) {
-  return (<>{value === 0 ? '' : value}</>)
 }

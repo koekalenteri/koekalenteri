@@ -4,11 +4,11 @@ import { DefaultValue, selector, selectorFamily } from "recoil"
 
 import { getEvent } from "../../../../api/event"
 
-import { adminEventFilterTextAtom, adminEventIdAtom, adminEventsAtom, adminShowPastEventsAtom } from "./atoms"
+import { adminEditEventByIdAtom, adminEventFilterTextAtom, adminEventIdAtom, adminEventsAtom, adminShowPastEventsAtom, newEventAtom } from "./atoms"
 import { DecoratedEvent, decorateEvent } from "./effects"
 
 
-export const filteredAdminEventsQuery = selector({
+export const filteredAdminEventsSelector = selector({
   key: 'filteredAdminEvents',
   get: ({ get }) => {
     const events = get(adminEventsAtom)
@@ -23,21 +23,35 @@ export const filteredAdminEventsQuery = selector({
   },
 })
 
-export const currentAdminEventQuery = selector({
+export const currentAdminEventSelector = selector({
   key: 'currentAdminEvent',
   get: ({ get }) => {
     const eventId = get(adminEventIdAtom)
-    return eventId ? get(adminEventSelector(eventId)) : undefined
+    return eventId ? get(adminEventByIdSelector(eventId)) : undefined
   },
   set: ({ set }, newValue) => {
     if (!newValue || newValue instanceof DefaultValue) {
       return
     }
-    set(adminEventSelector(newValue.id), newValue)
+    set(adminEventByIdSelector(newValue.id), newValue)
   },
 })
 
-export const adminEventByIdAtom = selectorFamily<DecoratedEvent | undefined, string>({
+export const editAdminEventSelector = selectorFamily<DecoratedEvent | undefined, string|undefined>({
+  key: 'editAdminEvent',
+  get: (eventId) => ({ get }) => eventId ? get(adminEditEventByIdAtom(eventId)) : get(newEventAtom),
+  set: (eventId) => ({ set, reset }, newValue) => {
+    if (eventId) {
+      set(adminEditEventByIdAtom(eventId), newValue)
+    } else if (newValue) {
+      set(newEventAtom, newValue)
+    } else {
+      reset(newEventAtom)
+    }
+  },
+})
+
+export const adminEventByIdSelector = selectorFamily<DecoratedEvent | undefined, string>({
   key: 'adminEvents/eventId',
   get: (eventId) => async ({ get }) => {
     let event = get(adminEventsAtom).find(event => event.id === eventId)
@@ -60,10 +74,4 @@ export const adminEventByIdAtom = selectorFamily<DecoratedEvent | undefined, str
       return newEvents
     })
   },
-})
-
-export const adminEventSelector = selectorFamily<DecoratedEvent | undefined, string>({
-  key: 'adminEvent',
-  get: (eventId) => ({ get }) => get(adminEventByIdAtom(eventId)),
-  set: (eventId) => ({ set }, newValue) => set(adminEventByIdAtom(eventId), newValue),
 })
