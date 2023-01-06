@@ -1,4 +1,4 @@
-import { ChangeEvent, useCallback } from "react"
+import { ChangeEvent, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { Checkbox, FormControlLabel, FormGroup } from "@mui/material"
 import { ContactInfo, ShowContactInfo } from "koekalenteri-shared/model"
@@ -11,23 +11,33 @@ interface Props {
 
 export default function PersonContactInfo({ contact, show, onChange }: Props) {
   const { t } = useTranslation()
-  const handleChange = useCallback((props: Partial<ShowContactInfo>) => onChange({ [contact]: { ...show, ...props } }), [contact, onChange, show])
-  const handleNameChange = useCallback((e: ChangeEvent<HTMLInputElement>, checked: boolean) => handleChange({ name: checked }), [handleChange])
-  const handleEmailChange = useCallback((e: ChangeEvent<HTMLInputElement>, checked: boolean) => handleChange({ email: checked }), [handleChange])
-  const handlePhoneChange = useCallback((e: ChangeEvent<HTMLInputElement>, checked: boolean) => handleChange({ phone: checked }), [handleChange])
+  const [state, setState] = useState({
+    name: !!show?.name,
+    email: !!show?.email,
+    phone: !!show?.phone,
+  })
+
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const value = {
+      ...state,
+      [event.target.name]: event.target.checked,
+    }
+    setState(value)
+    onChange({ [contact]: value })
+  }
 
   return (
     <>
       {t(`event.${contact}`)}
       <FormGroup row>
         <FormControlLabel
-          control={<Checkbox checked={!!show?.name} onChange={handleNameChange} />}
+          control={<Checkbox checked={state.name} name="name" onChange={handleChange} />}
           label={t('contact.name')} />
         <FormControlLabel
-          control={<Checkbox checked={!!show?.email} onChange={handleEmailChange} />}
+          control={<Checkbox checked={state.email} name="email" onChange={handleChange} />}
           label={t('contact.email')} />
         <FormControlLabel
-          control={<Checkbox checked={!!show?.phone} onChange={handlePhoneChange} />}
+          control={<Checkbox checked={state.phone} name="phone" onChange={handleChange} />}
           label={t('contact.phone')} />
       </FormGroup>
     </>
