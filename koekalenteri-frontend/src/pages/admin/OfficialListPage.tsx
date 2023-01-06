@@ -38,19 +38,19 @@ export const OfficialListPage = () => {
     {
       field: 'location',
       flex: 0,
-      headerName: t('registration.contact.city'),
+      headerName: t('contact.city'),
       width: 120,
     },
     {
       field: 'phone',
       flex: 0,
-      headerName: t('registration.contact.phone'),
+      headerName: t('contact.phone'),
       width: 150,
     },
     {
       field: 'email',
       flex: 1,
-      headerName: t('registration.contact.email'),
+      headerName: t('contact.email'),
       minWidth: 150,
     },
     {

@@ -3,6 +3,12 @@
   "admin": "Ylläpito",
   "cancel": "Peruuta",
   "clear": "Tyhjennä",
+  "contact": {
+    "city": "Kotikunta",
+    "email": "Sähköposti",
+    "name": "Nimi",
+    "phone": "Puhelin"
+  },
   "copy": "Kopioi",
   "create": "Lisää uusi",
   "createEvent": "Uusi tapahtuma",
@@ -163,12 +169,6 @@
     },
     "class": "Koeluokka",
     "classesDetails": "Koeluokan tiedot",
-    "contact": {
-      "city": "Kotikunta",
-      "email": "Sähköposti",
-      "name": "Nimi",
-      "phone": "Puhelin"
-    },
     "createdAt": "Ilmoittautumisaika",
     "cta": {
       "fetch": "Hae tiedot",

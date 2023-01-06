@@ -2195,7 +2195,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                             <span
                               class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-ahj2mt-MuiTypography-root"
                             >
-                              Nimi
+                              contact.name
                             </span>
                           </label>
                           <label
@@ -2227,7 +2227,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                             <span
                               class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-ahj2mt-MuiTypography-root"
                             >
-                              Sähköposti
+                              contact.email
                             </span>
                           </label>
                           <label
@@ -2259,7 +2259,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                             <span
                               class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-ahj2mt-MuiTypography-root"
                             >
-                              Puhelin
+                              contact.phone
                             </span>
                           </label>
                         </div>
@@ -2300,7 +2300,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                             <span
                               class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-ahj2mt-MuiTypography-root"
                             >
-                              Nimi
+                              contact.name
                             </span>
                           </label>
                           <label
@@ -2332,7 +2332,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                             <span
                               class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-ahj2mt-MuiTypography-root"
                             >
-                              Sähköposti
+                              contact.email
                             </span>
                           </label>
                           <label
@@ -2364,7 +2364,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                             <span
                               class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-ahj2mt-MuiTypography-root"
                             >
-                              Puhelin
+                              contact.phone
                             </span>
                           </label>
                         </div>

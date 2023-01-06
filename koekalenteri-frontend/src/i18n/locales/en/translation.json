@@ -3,6 +3,12 @@
   "admin": "Administration",
   "cancel": "Cancel",
   "clear": "Clear",
+  "contact": {
+    "city": "City",
+    "email": "Email",
+    "name": "Name",
+    "phone": "Phone"
+  },
   "copy": "Copy",
   "create": "Create",
   "createEvent": "Create event",
@@ -136,12 +142,6 @@
   "places": "Places",
   "register": "Register",
   "registration": {
-    "contact": {
-      "city": "City",
-      "email": "Email",
-      "name": "Name",
-      "phone": "Phone"
-    },
     "createdAt": "Created at",
     "cta": {
       "fetch": "Fetch information",

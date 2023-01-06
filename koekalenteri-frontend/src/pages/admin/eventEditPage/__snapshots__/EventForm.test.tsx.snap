@@ -180,13 +180,13 @@ exports[`EventForm should render for new event 1`] = `
                                   placeholder="dd.mm.yyyy"
                                   required=""
                                   type="tel"
-                                  value="05.04.2023"
+                                  value="06.04.2023"
                                 />
                                 <div
                                   class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1laqsz7-MuiInputAdornment-root"
                                 >
                                   <button
-                                    aria-label="Choose date, selected date is 5. huhti 2023"
+                                    aria-label="Choose date, selected date is 6. huhti 2023"
                                     class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1yq5fb3-MuiButtonBase-root-MuiIconButton-root"
                                     tabindex="0"
                                     type="button"
@@ -255,13 +255,13 @@ exports[`EventForm should render for new event 1`] = `
                                   placeholder="dd.mm.yyyy"
                                   required=""
                                   type="tel"
-                                  value="05.04.2023"
+                                  value="06.04.2023"
                                 />
                                 <div
                                   class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1laqsz7-MuiInputAdornment-root"
                                 >
                                   <button
-                                    aria-label="Choose date, selected date is 5. huhti 2023"
+                                    aria-label="Choose date, selected date is 6. huhti 2023"
                                     class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1yq5fb3-MuiButtonBase-root-MuiIconButton-root"
                                     tabindex="0"
                                     type="button"
@@ -1207,13 +1207,13 @@ exports[`EventForm should render for new event 1`] = `
                                   id=":rj:"
                                   placeholder="dd.mm.yyyy"
                                   type="tel"
-                                  value="22.02.2023"
+                                  value="23.02.2023"
                                 />
                                 <div
                                   class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1laqsz7-MuiInputAdornment-root"
                                 >
                                   <button
-                                    aria-label="Choose date, selected date is 22. helmi 2023"
+                                    aria-label="Choose date, selected date is 23. helmi 2023"
                                     class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1yq5fb3-MuiButtonBase-root-MuiIconButton-root"
                                     tabindex="0"
                                     type="button"
@@ -1272,13 +1272,13 @@ exports[`EventForm should render for new event 1`] = `
                                   id=":rk:"
                                   placeholder="dd.mm.yyyy"
                                   type="tel"
-                                  value="15.03.2023"
+                                  value="16.03.2023"
                                 />
                                 <div
                                   class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1laqsz7-MuiInputAdornment-root"
                                 >
                                   <button
-                                    aria-label="Choose date, selected date is 15. maalis 2023"
+                                    aria-label="Choose date, selected date is 16. maalis 2023"
                                     class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1yq5fb3-MuiButtonBase-root-MuiIconButton-root"
                                     tabindex="0"
                                     type="button"
@@ -2195,7 +2195,7 @@ exports[`EventForm should render for new event 1`] = `
                             <span
                               class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-ahj2mt-MuiTypography-root"
                             >
-                              Nimi
+                              contact.name
                             </span>
                           </label>
                           <label
@@ -2227,7 +2227,7 @@ exports[`EventForm should render for new event 1`] = `
                             <span
                               class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-ahj2mt-MuiTypography-root"
                             >
-                              Sähköposti
+                              contact.email
                             </span>
                           </label>
                           <label
@@ -2259,7 +2259,7 @@ exports[`EventForm should render for new event 1`] = `
                             <span
                               class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-ahj2mt-MuiTypography-root"
                             >
-                              Puhelin
+                              contact.phone
                             </span>
                           </label>
                         </div>
@@ -2300,7 +2300,7 @@ exports[`EventForm should render for new event 1`] = `
                             <span
                               class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-ahj2mt-MuiTypography-root"
                             >
-                              Nimi
+                              contact.name
                             </span>
                           </label>
                           <label
@@ -2332,7 +2332,7 @@ exports[`EventForm should render for new event 1`] = `
                             <span
                               class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-ahj2mt-MuiTypography-root"
                             >
-                              Sähköposti
+                              contact.email
                             </span>
                           </label>
                           <label
@@ -2364,7 +2364,7 @@ exports[`EventForm should render for new event 1`] = `
                             <span
                               class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-ahj2mt-MuiTypography-root"
                             >
-                              Puhelin
+                              contact.phone
                             </span>
                           </label>
                         </div>

@@ -42,17 +42,17 @@ export default function useJudgeListColumns(): JudgeColDef[] {
     {
       field: 'location',
       flex: 1,
-      headerName: t('registration.contact.city'),
+      headerName: t('contact.city'),
     },
     {
       field: 'phone',
       flex: 1,
-      headerName: t('registration.contact.phone'),
+      headerName: t('contact.phone'),
     },
     {
       field: 'email',
       flex: 2,
-      headerName: t('registration.contact.email'),
+      headerName: t('contact.email'),
     },
     {
       field: 'district',

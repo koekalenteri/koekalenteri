@@ -413,7 +413,7 @@ exports[`JudgeListPage renders 1`] = `
                 </div>
                 <div
                   aria-colindex="5"
-                  aria-label="registration.contact.city"
+                  aria-label="contact.city"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
                   data-field="location"
@@ -436,7 +436,7 @@ exports[`JudgeListPage renders 1`] = `
                           class="MuiDataGrid-columnHeaderTitle css-1jbbcbn-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
-                          registration.contact.city
+                          contact.city
                         </div>
                       </div>
                       <div
@@ -486,7 +486,7 @@ exports[`JudgeListPage renders 1`] = `
                 </div>
                 <div
                   aria-colindex="6"
-                  aria-label="registration.contact.phone"
+                  aria-label="contact.phone"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
                   data-field="phone"
@@ -509,7 +509,7 @@ exports[`JudgeListPage renders 1`] = `
                           class="MuiDataGrid-columnHeaderTitle css-1jbbcbn-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
-                          registration.contact.phone
+                          contact.phone
                         </div>
                       </div>
                       <div
@@ -559,7 +559,7 @@ exports[`JudgeListPage renders 1`] = `
                 </div>
                 <div
                   aria-colindex="7"
-                  aria-label="registration.contact.email"
+                  aria-label="contact.email"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
                   data-field="email"
@@ -582,7 +582,7 @@ exports[`JudgeListPage renders 1`] = `
                           class="MuiDataGrid-columnHeaderTitle css-1jbbcbn-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
-                          registration.contact.email
+                          contact.email
                         </div>
                       </div>
                       <div
@@ -1941,7 +1941,7 @@ Array [
     </div>
     <div
       aria-colindex="5"
-      aria-label="registration.contact.city"
+      aria-label="contact.city"
       aria-sort="none"
       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
       data-field="location"
@@ -1964,7 +1964,7 @@ Array [
               class="MuiDataGrid-columnHeaderTitle css-1jbbcbn-MuiDataGrid-columnHeaderTitle"
               data-mui-internal-clone-element="true"
             >
-              registration.contact.city
+              contact.city
             </div>
           </div>
           <div
@@ -2014,7 +2014,7 @@ Array [
     </div>
     <div
       aria-colindex="6"
-      aria-label="registration.contact.phone"
+      aria-label="contact.phone"
       aria-sort="none"
       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
       data-field="phone"
@@ -2037,7 +2037,7 @@ Array [
               class="MuiDataGrid-columnHeaderTitle css-1jbbcbn-MuiDataGrid-columnHeaderTitle"
               data-mui-internal-clone-element="true"
             >
-              registration.contact.phone
+              contact.phone
             </div>
           </div>
           <div
@@ -2087,7 +2087,7 @@ Array [
     </div>
     <div
       aria-colindex="7"
-      aria-label="registration.contact.email"
+      aria-label="contact.email"
       aria-sort="none"
       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
       data-field="email"
@@ -2110,7 +2110,7 @@ Array [
               class="MuiDataGrid-columnHeaderTitle css-1jbbcbn-MuiDataGrid-columnHeaderTitle"
               data-mui-internal-clone-element="true"
             >
-              registration.contact.email
+              contact.email
             </div>
           </div>
           <div

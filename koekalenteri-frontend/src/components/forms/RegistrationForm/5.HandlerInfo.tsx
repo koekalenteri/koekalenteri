@@ -36,7 +36,7 @@ export function HandlerInfo({ reg, error, helperText, onChange, onOpenChange, op
               error={!reg.handler?.name}
               fullWidth
               id="handler_name"
-              label={t('registration.contact.name')}
+              label={t('contact.name')}
               name="name"
               onChange={e => handleChange({ name: e.target.value || '' })}
               value={reg.handler?.name || ''}
@@ -50,7 +50,7 @@ export function HandlerInfo({ reg, error, helperText, onChange, onOpenChange, op
               id="handler_city"
               name="city"
               onChange={e => handleChange({ location: e.target.value || '' })}
-              label={t('registration.contact.city')}
+              label={t('contact.city')}
               value={reg.handler?.location || ''}
             />
           </Grid>
@@ -62,7 +62,7 @@ export function HandlerInfo({ reg, error, helperText, onChange, onOpenChange, op
               error={!reg.handler?.email}
               fullWidth
               id="handler_email"
-              label={t('registration.contact.email')}
+              label={t('contact.email')}
               name="email"
               onChange={e => handleChange({ email: e.target.value || '' })}
               value={reg.handler?.email || ''}
@@ -74,7 +74,7 @@ export function HandlerInfo({ reg, error, helperText, onChange, onOpenChange, op
               error={!reg.handler?.phone}
               fullWidth
               id="handler_phone"
-              label={t('registration.contact.phone')}
+              label={t('contact.phone')}
               name="phone"
               onChange={e => handleChange({ phone: e.target.value || '' })}
               value={reg.handler?.phone || ''}
