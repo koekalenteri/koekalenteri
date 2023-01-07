@@ -40,6 +40,8 @@ export const EventFilter = ({ judges, organizers, eventTypes, filter, onChange }
   const handleWithUpcomingEntryChange = useCallback((event: SyntheticEvent<Element, Event>, checked: boolean) => setFilter({
     withUpcomingEntry: checked,
   }), [setFilter])
+  const getName = useCallback((o: {name: string}) => o.name, [])
+  const compareId = useCallback((o: {id: number}, v: {id: number}) => o.id === v.id, [])
 
   return (
     <Box m={1}>
@@ -72,8 +74,8 @@ export const EventFilter = ({ judges, organizers, eventTypes, filter, onChange }
         </Grid>
         <Grid item xs={12} sm={6} xl={2}>
           <AutocompleteMulti
-            getOptionLabel={o => o.name}
-            isOptionEqualToValue={(o, v) => o.id === v.id}
+            getOptionLabel={getName}
+            isOptionEqualToValue={compareId}
             label={t('organizer')}
             onChange={handleOrganizerChange}
             options={organizers}
@@ -82,8 +84,8 @@ export const EventFilter = ({ judges, organizers, eventTypes, filter, onChange }
         </Grid>
         <Grid item xs={12} sm={6} xl={2}>
           <AutocompleteMulti
-            getOptionLabel={o => o.name}
-            isOptionEqualToValue={(o, v) => o.id === v.id}
+            getOptionLabel={getName}
+            isOptionEqualToValue={compareId}
             label={t('judge')}
             onChange={handleJudgeChange}
             options={judges}
