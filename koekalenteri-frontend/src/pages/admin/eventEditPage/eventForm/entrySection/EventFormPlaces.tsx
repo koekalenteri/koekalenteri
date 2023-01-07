@@ -1,3 +1,4 @@
+import { ChangeEvent, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FormHelperText, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material'
 import { eachDayOfInterval, isSameDay } from 'date-fns'
@@ -27,6 +28,20 @@ export default function EventFormPlaces({ event, helperTexts, onChange }: Sectio
     const total = newClasses.reduce((prev, cur) => prev + (cur?.places || 0), 0)
     onChange({ classes: newClasses, places: total ? total : event.places })
   }
+  const handleInputChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+    let value = +e.target.value
+    if (value < 0) {
+      value = 0
+    }
+    if (value > 999) {
+      value = 999
+    }
+    const newClasses = [...event.classes]
+    for (const c of newClasses) {
+      c.places = 0
+    }
+    onChange({ classes: newClasses, places: value })
+  }, [event.classes, onChange])
 
   return (
     <>
@@ -59,20 +74,7 @@ export default function EventFormPlaces({ event, helperTexts, onChange }: Sectio
             <TableCell align="center">
               <PlacesInput
                 value={event.places || ''}
-                onChange={(e) => {
-                  let value = +e.target.value
-                  if (value < 0) {
-                    value = 0
-                  }
-                  if (value > 999) {
-                    value = 999
-                  }
-                  const newClasses = [...event.classes]
-                  for (const c of newClasses) {
-                    c.places = 0
-                  }
-                  onChange({ classes: newClasses, places: value })
-                }} />
+                onChange={handleInputChange} />
             </TableCell>
           </TableRow>
         </TableBody>
