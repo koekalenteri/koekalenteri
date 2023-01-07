@@ -1,4 +1,4 @@
-import { ChangeEvent, useState } from "react"
+import { ChangeEvent, useCallback, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { Checkbox, FormControlLabel, FormGroup } from "@mui/material"
 import { ShowContactInfo } from "koekalenteri-shared/model"
@@ -17,14 +17,14 @@ export default function ContactInfoSelect({ name, show, onChange }: Props) {
     phone: !!show?.phone,
   })
 
-  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     const value = {
       ...state,
       [event.target.name]: event.target.checked,
     }
     setState(value)
     onChange(name, value)
-  }
+  }, [name, onChange, state])
 
   return (
     <FormGroup row>
