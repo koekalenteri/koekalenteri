@@ -97,13 +97,6 @@ const ClassEntrySelection = ({ eventDates = [], setOpen }: Props) => {
             },
           }}
           onDrop={handleDrop(group)}
-          sx={{
-            '.reject & .header': { bgcolor: 'error.main', opacity: 0.5 },
-            '.reject & .MuiDataGrid-main': { bgcolor: 'error.main', opacity: 0.5 },
-            '.accept & .header': { bgcolor: 'success.main' },
-            '.accept.over & .MuiDataGrid-main': { bgcolor: 'background.form' },
-            '.accept & .MuiDataGrid-main': { bgcolor: 'background.ok' },
-          }}
         />,
       )}
       < Typography variant='h5' > Ilmoittautuneet</Typography >
@@ -117,11 +110,6 @@ const ClassEntrySelection = ({ eventDates = [], setOpen }: Props) => {
         selectionModel={selectedRegistrationID ? [selectedRegistrationID] : []}
         onRowDoubleClick={handleDoubleClick}
         onDrop={handleDrop()}
-        sx={{
-          '.accept & .header': { bgcolor: 'success.main' },
-          '.accept.over & .MuiDataGrid-main': { bgcolor: 'background.form' },
-          '.accept & .MuiDataGrid-main': { bgcolor: 'background.ok' },
-        }}
       />
     </DndProvider>
   )

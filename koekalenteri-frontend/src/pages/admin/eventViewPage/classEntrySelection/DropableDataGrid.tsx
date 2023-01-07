@@ -43,10 +43,21 @@ const DropableDataGrid = (props: Props) => {
 
   return (
     <div ref={ref} className={classNames.join(' ')} style={{ display: 'flex', flex: props.flex ?? 1, width: '100%', height: '100%' }}>
-      <StyledDataGrid {...props} sx={{'& .MuiDataGrid-cell:first-child': {padding: 0}}} components={{
+      <StyledDataGrid {...props} components={{
         ...props.components,
         Row: DragableRow,
-      }} />
+      }}
+      sx={[{
+        '& .MuiDataGrid-cell:first-of-type': {padding: 0},
+        '.reject & .header': { bgcolor: 'error.main', opacity: 0.5 },
+        '.reject & .MuiDataGrid-main': { bgcolor: 'error.main', opacity: 0.5 },
+        '.accept & .header': { bgcolor: 'success.main' },
+        '.accept.over & .MuiDataGrid-main': { bgcolor: 'background.form' },
+        '.accept > .MuiDataGrid-main': { bgcolor: 'background.ok' },
+      },
+      ...(Array.isArray(props.sx) ? props.sx : [props.sx]),
+      ]}
+      />
     </div>
   )
 }
