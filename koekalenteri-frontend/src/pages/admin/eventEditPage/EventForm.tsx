@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react'
+import { SyntheticEvent, useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Cancel, Save } from '@mui/icons-material'
 import { LoadingButton } from '@mui/lab'
@@ -92,7 +92,7 @@ export default function EventForm({ eventId, judges, eventTypes, eventTypeClasse
     onCancel()
   }
 
-  const handleOpenChange = (id: keyof typeof open, value: boolean) => {
+  const handleOpenChange = useCallback((id: keyof typeof open, value: boolean) => {
     const newState = md
       ? {
         ...open,
@@ -109,7 +109,16 @@ export default function EventForm({ eventId, judges, eventTypes, eventTypeClasse
         [id]: value,
       }
     setOpen(newState)
-  }
+  }, [md, open])
+  const getStateLabel = useCallback((o: EventState) => t(`event.states.${o}`), [t])
+  const handleStateChange = useCallback((event: SyntheticEvent<Element, globalThis.Event>, value: NonNullable<EventState>) => onChange({ state: value || undefined }), [onChange])
+  const handleBasicOpenChange = useCallback((value: boolean) => handleOpenChange('basic', value), [handleOpenChange])
+  const handleJudgesOpenChange = useCallback((value: boolean) => handleOpenChange('judges', value), [handleOpenChange])
+  const handleEntryOpenChange = useCallback((value: boolean) => handleOpenChange('entry', value), [handleOpenChange])
+  const handlePaymentOpenChange = useCallback((value: boolean) => handleOpenChange('payment', value), [handleOpenChange])
+  const handleHQOpenChange = useCallback((value: boolean) => handleOpenChange('hq', value), [handleOpenChange])
+  const handleContactOpenChange = useCallback((value: boolean) => handleOpenChange('contact', value), [handleOpenChange])
+  const handleInfoOpenChange = useCallback((value: boolean) => handleOpenChange('info', value), [handleOpenChange])
 
   const errorStates: { [Property in keyof PartialEvent]?: boolean } = {}
   const helperTexts: { [Property in keyof PartialEvent]?: string } = {}
@@ -127,9 +136,9 @@ export default function EventForm({ eventId, judges, eventTypes, eventTypeClasse
       <Box sx={{ p: 1 }}>
         <AutocompleteSingle
           disableClearable
-          getOptionLabel={o => t(`event.states.${o}`)}
+          getOptionLabel={getStateLabel}
           label={t('event.state')}
-          onChange={(e, value) => onChange({state: value || undefined})}
+          onChange={handleStateChange}
           options={['draft', 'tentative', 'confirmed', 'cancelled'] as EventState[]}
           sx={{width: 200}}
           value={event?.state}
@@ -146,7 +155,7 @@ export default function EventForm({ eventId, judges, eventTypes, eventTypeClasse
           helperTexts={helperTexts}
           officials={officials}
           onChange={onChange}
-          onOpenChange={(value) => handleOpenChange('basic', value)}
+          onOpenChange={handleBasicOpenChange}
           open={open.basic}
           organizers={organizers}
         />
@@ -157,7 +166,7 @@ export default function EventForm({ eventId, judges, eventTypes, eventTypeClasse
           helperTexts={helperTexts}
           judges={judges}
           onChange={onChange}
-          onOpenChange={(value) => handleOpenChange('judges', value)}
+          onOpenChange={handleJudgesOpenChange}
           open={open.judges}
         />
         <EntrySection
@@ -166,7 +175,7 @@ export default function EventForm({ eventId, judges, eventTypes, eventTypeClasse
           fields={fields}
           helperTexts={helperTexts}
           onChange={onChange}
-          onOpenChange={(value) => handleOpenChange('entry', value)}
+          onOpenChange={handleEntryOpenChange}
           open={open.entry}
         />
         <PaymentSection
@@ -174,7 +183,7 @@ export default function EventForm({ eventId, judges, eventTypes, eventTypeClasse
           event={event as PartialEvent}
           fields={fields}
           onChange={onChange}
-          onOpenChange={(value) => handleOpenChange('payment', value)}
+          onOpenChange={handlePaymentOpenChange}
           open={open.payment}
         />
         <HeadquartersSection
@@ -183,7 +192,7 @@ export default function EventForm({ eventId, judges, eventTypes, eventTypeClasse
           fields={fields}
           helperTexts={helperTexts}
           onChange={onChange}
-          onOpenChange={(value) => handleOpenChange('hq', value)}
+          onOpenChange={handleHQOpenChange}
           open={open.hq}
         />
         <ContactInfoSection
@@ -193,7 +202,7 @@ export default function EventForm({ eventId, judges, eventTypes, eventTypeClasse
           secretary={event.secretary}
           helperText={helperTexts.contactInfo}
           onChange={onChange}
-          onOpenChange={(value) => handleOpenChange('contact', value)}
+          onOpenChange={handleContactOpenChange}
           open={open.contact}
         />
         <AdditionalInfoSection
@@ -202,7 +211,7 @@ export default function EventForm({ eventId, judges, eventTypes, eventTypeClasse
           fields={fields}
           helperTexts={helperTexts}
           onChange={onChange}
-          onOpenChange={(value) => handleOpenChange('info', value)}
+          onOpenChange={handleInfoOpenChange}
           open={open.info}
         />
       </Box>
