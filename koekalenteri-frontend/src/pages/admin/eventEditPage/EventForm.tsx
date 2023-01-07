@@ -77,20 +77,21 @@ export default function EventForm({ eventId, judges, eventTypes, eventTypeClasse
     setChanges(true)
   }, [event, eventTypeClasses, setEvent, setChanges])
 
-  const saveHandler = async () => {
+  const saveHandler = useCallback(async () => {
     if (!event) {
       return
     }
     setSaving(true)
     onSave(event)
     setSaving(false)
-  }
-  const cancelHandler = () => {
+  }, [event, onSave])
+
+  const cancelHandler = useCallback(() => {
     if (event) {
       setEvent(undefined)
     }
     onCancel()
-  }
+  }, [event, onCancel, setEvent])
 
   const handleOpenChange = useCallback((id: keyof typeof open, value: boolean) => {
     const newState = md
@@ -217,7 +218,16 @@ export default function EventForm({ eventId, judges, eventTypes, eventTypeClasse
       </Box>
 
       <Stack spacing={1} direction="row" justifyContent="flex-end" sx={{p: 1, borderTop: '1px solid', borderColor: '#bdbdbd'}}>
-        <LoadingButton color="primary" disabled={!changes || !valid} loading={saving} loadingPosition="start" startIcon={<Save />} variant="contained" onClick={saveHandler}>Tallenna</LoadingButton>
+        <LoadingButton
+          color="primary"
+          disabled={!changes || !valid}
+          loading={saving}
+          loadingPosition="start"
+          startIcon={<Save />}
+          variant="contained"
+          onClick={saveHandler}>
+            Tallenna
+        </LoadingButton>
         <Button startIcon={<Cancel />} variant="outlined" onClick={cancelHandler}>Peruuta</Button>
       </Stack>
     </Paper>
