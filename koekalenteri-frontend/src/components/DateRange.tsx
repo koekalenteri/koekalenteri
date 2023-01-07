@@ -8,6 +8,7 @@ export type DateValue = Date | null;
 export type DateRangeProps = {
   defaultStart?: Date
   defaultEnd?: Date
+  disabled?: boolean
   start: DateValue
   startLabel: string
   end: DateValue
@@ -30,7 +31,7 @@ function coerceToDateValue(d: DateValue) {
   return (d && isValid(d)) ? startOfDay(d) : null
 }
 
-export function DateRange({ start, end, startLabel, endLabel, defaultStart, defaultEnd, range, required, onChange }: DateRangeProps) {
+export function DateRange({ start, end, startLabel, endLabel, defaultStart, defaultEnd, range, required, disabled, onChange }: DateRangeProps) {
   const { t } = useTranslation()
   const startChanged = (date: DateValue) => {
     const d = coerceToDateValue(date)
@@ -46,6 +47,7 @@ export function DateRange({ start, end, startLabel, endLabel, defaultStart, defa
       <FormControl sx={{pr: 0.5, width: '50%'}}>
         <DatePicker
           defaultCalendarMonth={defaultStart}
+          disabled={disabled}
           label={startLabel}
           value={start}
           mask={t('datemask')}
@@ -62,6 +64,7 @@ export function DateRange({ start, end, startLabel, endLabel, defaultStart, defa
       <FormControl sx={{pl: 0.5, width: '50%'}}>
         <DatePicker
           defaultCalendarMonth={defaultEnd}
+          disabled={disabled}
           label={endLabel}
           value={end}
           mask={t('datemask')}

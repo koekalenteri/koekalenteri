@@ -27,6 +27,7 @@ export default function BasicInfoSection({ event, errorStates, helperTexts, fiel
   const availableOfficials = useMemo(() => {
     return officials.filter(o => !event.eventType || o.eventTypes?.includes(event.eventType))
   }, [event, officials])
+  const hasEntries = (event.entries ?? 0) > 0
 
   return (
     <CollapsibleSection title="Kokeen perustiedot" open={open} onOpenChange={onOpenChange} error={error} helperText={helperText}>
@@ -39,6 +40,7 @@ export default function BasicInfoSection({ event, errorStates, helperTexts, fiel
               start={event.startDate}
               end={event.endDate}
               required
+              disabled={hasEntries}
               onChange={(start, end) => {
                 start = start || event.startDate
                 end = end || event.endDate
@@ -70,7 +72,14 @@ export default function BasicInfoSection({ event, errorStates, helperTexts, fiel
         </Grid>
         <Grid item container spacing={1}>
           <Grid item sx={{ width: 300 }}>
-            <EventProperty id="eventType" event={event} fields={fields} options={eventTypes} onChange={onChange} />
+            <EventProperty
+              id="eventType"
+              disabled={hasEntries}
+              event={event}
+              fields={fields}
+              options={eventTypes}
+              onChange={onChange}
+            />
           </Grid>
           <Grid item sx={{ width: 600 }}>
             <EventClasses
