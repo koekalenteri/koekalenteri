@@ -1,4 +1,4 @@
-import { SyntheticEvent } from "react"
+import { SyntheticEvent, useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { CheckBox, CheckBoxOutlineBlank } from "@mui/icons-material"
 import { Autocomplete, AutocompleteChangeReason, Avatar, Checkbox, Chip, TextField } from "@mui/material"
@@ -30,7 +30,10 @@ export default function EventClasses(props: Props) {
   const { classes, label, event, required, requiredState, errorStates, helperTexts, value, ...rest } = props
   const error = errorStates?.classes
   const helperText = helperTexts?.classes || ''
-  const sortedValue = value?.slice().sort(compareEventClass)
+  const sortedValue = useMemo(() => value?.slice().sort(compareEventClass), [value])
+  const groupByWeekday = useCallback((c: { date?: Date }) => t('weekday', { date: c.date }), [t])
+  const getLabel = useCallback((c: { class?: string }) => c.class ?? '', [])
+  const isEqual = useCallback((a: DeepPartial<EventClass>, b: DeepPartial<EventClass>) => compareEventClass(a, b) === 0, [])
 
   return (
     <Autocomplete
@@ -41,10 +44,10 @@ export default function EventClasses(props: Props) {
       disableCloseOnSelect
       disabled={classes.length === 0}
       multiple
-      groupBy={c => t('weekday', { date: c.date })}
+      groupBy={groupByWeekday}
       options={classes}
-      getOptionLabel={c => c.class ?? ''}
-      isOptionEqualToValue={(o, v) => compareEventClass(o, v) === 0}
+      getOptionLabel={getLabel}
+      isOptionEqualToValue={isEqual}
       renderOption={(optionProps, option, { selected }) => (
         <li {...optionProps}>
           <Checkbox
