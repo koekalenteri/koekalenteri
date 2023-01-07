@@ -1,7 +1,7 @@
-import { ComponentType, FunctionComponent, ReactNode } from 'react'
+import { ReactNode, SyntheticEvent, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HelpOutlined } from '@mui/icons-material'
-import { Autocomplete, AutocompleteProps, IconButton, TextField } from '@mui/material'
+import { Autocomplete, AutocompleteFreeSoloValueMapping, AutocompleteProps, IconButton, TextField } from '@mui/material'
 import { Box } from '@mui/system'
 import { Event } from 'koekalenteri-shared/model'
 
@@ -18,26 +18,34 @@ export type EventPropertyProps<Property extends keyof PartialEvent, freeSolo ext
     endAdornment?: ReactNode
   };
 
-const withName = <P extends object>(
-  Component: ComponentType<P>,
-  displayName: string,
-): FunctionComponent<P> =>
-  (props: P) => {
-    const Wrap = (props: P) => <Component {...props} />
-    Wrap.displayName = displayName
-    return <Wrap {...props} />
-  }
-
 export default function EventProperty<Property extends keyof PartialEvent, freeSolo extends boolean>(props: EventPropertyProps<Property, freeSolo>) {
   const { t } = useTranslation()
-  const { id, event, fields, helpClick, endAdornment, ...acProps } = props
+  const { id, event, fields, helpClick, endAdornment, onChange, ...acProps } = props
   const isRequired = fields?.required[id] || false
   const error = isRequired && validateEventField(event, id, true)
   const helperText = error ? t(`validation.event.${error.key}`, error.opts) : ''
-  const NamedAutocomplete = withName(Autocomplete<PartialEvent[Property], false, false, freeSolo>, id)
+
+  const handleChange = useCallback((
+    e: SyntheticEvent<Element, globalThis.Event>,
+    value: PartialEvent[Property] | AutocompleteFreeSoloValueMapping<freeSolo> | null,
+  ) => onChange({ [id]: value ?? undefined }), [id, onChange])
+
+  const handleInputChange = useCallback((
+    e: SyntheticEvent<Element, globalThis.Event>,
+    value: string,
+  ) => {
+    if (!props.freeSolo) {
+      return
+    }
+    const old = event[id]
+    const type = typeof old
+    if ((type === 'number' && old !== +(value ?? '')) || (type !== 'number' && old !== value)) {
+      onChange({ [id]: value })
+    }
+  }, [event, id, onChange, props.freeSolo])
 
   return (
-    <NamedAutocomplete
+    <Autocomplete
       id={id}
       {...acProps}
       value={event[id]}
@@ -59,17 +67,8 @@ export default function EventProperty<Property extends keyof PartialEvent, freeS
           </IconButton>
         </Box>
       }
-      onChange={(e, value) => props.onChange({ [id]: value || undefined })}
-      onInputChange={(e, value) => {
-        if (!props.freeSolo) {
-          return
-        }
-        const old = event[id]
-        const type = typeof old
-        if ((type === 'number' && old !== +(value || '')) || (type !== 'number' && old !== value)) {
-          props.onChange({ [id]: value })
-        }
-      }}
+      onChange={handleChange}
+      onInputChange={handleInputChange}
     />
   )
 }
