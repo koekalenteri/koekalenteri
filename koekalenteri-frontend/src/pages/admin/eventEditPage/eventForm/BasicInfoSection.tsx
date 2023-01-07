@@ -1,10 +1,10 @@
-import { useMemo, useState } from 'react'
+import { ChangeEvent, SyntheticEvent, useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Grid, TextField } from '@mui/material'
 import { add, differenceInDays, eachDayOfInterval, isAfter, isSameDay, startOfDay } from 'date-fns'
-import { EventClass, Official, Organizer } from 'koekalenteri-shared/model'
+import { DeepPartial, EventClass, Official, Organizer } from 'koekalenteri-shared/model'
 
-import { CollapsibleSection, DateRange, HelpPopover } from '../../../../components'
+import { CollapsibleSection, DateRange, DateValue, HelpPopover } from '../../../../components'
 import { PartialEvent, SectionProps } from '../EventForm'
 
 import EventClasses from './components/EventClasses'
@@ -28,6 +28,25 @@ export default function BasicInfoSection({ event, errorStates, helperTexts, fiel
     return officials.filter(o => !event.eventType || o.eventTypes?.includes(event.eventType))
   }, [event, officials])
   const hasEntries = (event.entries ?? 0) > 0
+  const handleDateChange = useCallback((start: DateValue, end: DateValue) => {
+    start = start || event.startDate
+    end = end || event.endDate
+    if (!isSameDay(start, event.startDate) && isSameDay(end, event.endDate)) {
+      // startDate changed and endDate remained the same => change endDate based on the previous distance between days
+      end = add(start, { days: differenceInDays(event.endDate, event.startDate) })
+    }
+    onChange({
+      startDate: start,
+      endDate: end,
+      classes: updateClassDates(event, start, end),
+    })
+  }, [event, onChange])
+  const openHelp = useCallback((e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => setHelpAnchorEl(e.currentTarget), [])
+  const closeHelp = useCallback(() => setHelpAnchorEl(null), [])
+  const handleClassesChange = useCallback((e: SyntheticEvent<Element, Event>, values: DeepPartial<EventClass>[]) => onChange({ classes: values }), [onChange])
+  const handleNameChange = useCallback((e: ChangeEvent<HTMLInputElement>) => onChange({ name: e.target.value }), [onChange])
+  const isEqualId = useCallback((o?: {id?: number}, v?: {id?: number}) => o?.id === v?.id, [])
+  const getName = useCallback((o?: string | {name?: string}) => typeof o === 'string' ? o : o?.name || '', [])
 
   return (
     <CollapsibleSection title="Kokeen perustiedot" open={open} onOpenChange={onOpenChange} error={error} helperText={helperText}>
@@ -41,20 +60,7 @@ export default function BasicInfoSection({ event, errorStates, helperTexts, fiel
               end={event.endDate}
               required
               disabled={hasEntries}
-              onChange={(start, end) => {
-                start = start || event.startDate
-                end = end || event.endDate
-                if (!isSameDay(start, event.startDate) && isSameDay(end, event.endDate)) {
-                  // startDate changed and endDate remained the same => change endDate based on the previous distance between days
-                  end = add(start, { days: differenceInDays(event.endDate, event.startDate) })
-                }
-                onChange({
-                  startDate: start,
-                  endDate: end,
-                  classes: updateClassDates(event, start, end),
-                })
-              }
-              }
+              onChange={handleDateChange}
             />
           </Grid>
           <Grid item sx={{ width: 300 }}>
@@ -65,9 +71,9 @@ export default function BasicInfoSection({ event, errorStates, helperTexts, fiel
               fields={fields}
               options={[]}
               onChange={onChange}
-              helpClick={(e) => setHelpAnchorEl(e.currentTarget)}
+              helpClick={openHelp}
             />
-            <HelpPopover anchorEl={helpAnchorEl} onClose={() => setHelpAnchorEl(null)}>{t('event.kcId_info')}</HelpPopover>
+            <HelpPopover anchorEl={helpAnchorEl} onClose={closeHelp}>{t('event.kcId_info')}</HelpPopover>
           </Grid>
         </Grid>
         <Grid item container spacing={1}>
@@ -92,13 +98,13 @@ export default function BasicInfoSection({ event, errorStates, helperTexts, fiel
               value={event.classes}
               classes={typeOptions}
               label={t("event.classes")}
-              onChange={(e, values) => onChange({ classes: values })}
+              onChange={handleClassesChange}
             />
           </Grid>
         </Grid>
         <Grid item container spacing={1}>
           <Grid item sx={{ width: 600 }}>
-            <TextField label="Tapahtuman nimi" fullWidth value={event.name || ''} onChange={(e) => onChange({ name: e.target.value })} />
+            <TextField label="Tapahtuman nimi" fullWidth value={event.name || ''} onChange={handleNameChange} />
           </Grid>
         </Grid>
         <Grid item container spacing={1}>
@@ -106,9 +112,9 @@ export default function BasicInfoSection({ event, errorStates, helperTexts, fiel
             <EventProperty
               event={event}
               fields={fields}
-              getOptionLabel={o => typeof o === 'string' ? o : o?.name || ''}
+              getOptionLabel={getName}
               id="organizer"
-              isOptionEqualToValue={(o, v) => o?.id === v?.id}
+              isOptionEqualToValue={isEqualId}
               onChange={onChange}
               options={organizers}
             />
@@ -129,9 +135,9 @@ export default function BasicInfoSection({ event, errorStates, helperTexts, fiel
             <EventProperty
               event={event}
               fields={fields}
-              getOptionLabel={o => typeof o === 'string' ? o : o?.name || ''}
+              getOptionLabel={getName}
               id="official"
-              isOptionEqualToValue={(o, v) => o?.id === v?.id}
+              isOptionEqualToValue={isEqualId}
               onChange={onChange}
               options={availableOfficials}
             />
@@ -140,9 +146,9 @@ export default function BasicInfoSection({ event, errorStates, helperTexts, fiel
             <EventProperty
               event={event}
               fields={fields}
-              getOptionLabel={o => typeof o === 'string' ? o : o?.name || ''}
+              getOptionLabel={getName}
               id="secretary"
-              isOptionEqualToValue={(o, v) => o?.id === v?.id}
+              isOptionEqualToValue={isEqualId}
               onChange={onChange}
               options={officials}
             />
