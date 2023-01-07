@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
 import { Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Link, Toolbar } from '@mui/material'
 import { isPast, isToday } from 'date-fns'
-import type { ConfirmedEventEx, Registration } from 'koekalenteri-shared/model'
+import type { ConfirmedEvent, Registration } from 'koekalenteri-shared/model'
 import { useSnackbar } from 'notistack'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
@@ -19,7 +19,7 @@ export function RegistrationListPage({cancel}: {cancel?: boolean}) {
   const params = useParams()
   const [eventId, setEventId] = useRecoilState(eventIdAtom)
   const [registrationId, setRegistrationId] = useRecoilState(registrationIdAtom)
-  const event = useRecoilValue(currentEvent) as ConfirmedEventEx | undefined
+  const event = useRecoilValue(currentEvent) as ConfirmedEvent | undefined
   const registration = useRecoilValue(registrationQuery)
   const [sessionStarted] = useSessionStarted()
   const { t } = useTranslation()
@@ -47,7 +47,7 @@ export function RegistrationListPage({cancel}: {cancel?: boolean}) {
   )
 }
 
-function PageContent({ event, registration, cancel }: { event?: ConfirmedEventEx, registration?: Registration, cancel?: boolean }) {
+function PageContent({ event, registration, cancel }: { event?: ConfirmedEvent, registration?: Registration, cancel?: boolean }) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(!!cancel)
   const { enqueueSnackbar } = useSnackbar()
@@ -75,7 +75,7 @@ function PageContent({ event, registration, cancel }: { event?: ConfirmedEventEx
   if (!event) {
     return <CircularProgress />
   }
-  const disableCancel = (e: ConfirmedEventEx) => isPast(e.startDate) || isToday(e.startDate)
+  const disableCancel = (e: ConfirmedEvent) => isPast(e.startDate) || isToday(e.startDate)
   return (
     <>
       <RegistrationEventInfo event={event} />

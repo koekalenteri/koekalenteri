@@ -4,7 +4,7 @@ import { Cancel, Save } from '@mui/icons-material'
 import { LoadingButton } from '@mui/lab'
 import { Box, Button, Checkbox, Collapse, FormControl, FormControlLabel, FormHelperText, Link, Paper, Stack, Theme, useMediaQuery } from '@mui/material'
 import { TFunction } from 'i18next'
-import { ConfirmedEventEx, Language, Registration } from 'koekalenteri-shared/model'
+import { ConfirmedEvent, Language, Registration } from 'koekalenteri-shared/model'
 import { useRecoilValue } from 'recoil'
 
 import { eventTypeClassesAtom } from '../../../pages/recoil'
@@ -21,7 +21,7 @@ import { filterRelevantResults, validateRegistration } from './validation'
 
 type FormEventHandler = (registration: Registration) => Promise<boolean>
 type RegistrationFormProps = {
-  event: ConfirmedEventEx
+  event: ConfirmedEvent
   registration?: Registration
   className?: string
   classDate?: string

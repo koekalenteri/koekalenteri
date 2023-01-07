@@ -1,5 +1,5 @@
 import i18next from 'i18next'
-import { EventEx, Organizer } from 'koekalenteri-shared/model'
+import { Event, Organizer } from 'koekalenteri-shared/model'
 import { selector, selectorFamily } from 'recoil'
 
 import { getEvent } from '../../../api/event'
@@ -10,12 +10,12 @@ import { eventFilterAtom, eventIdAtom, eventsAtom } from './atoms'
 import { withinArrayFilters, withinDateFilters, withinSwitchFilters } from "./filters"
 
 
-export const eventByIdAtom = selectorFamily<EventEx | undefined, string>({
+export const eventByIdAtom = selectorFamily<Event | undefined, string>({
   key: 'adminEvents/eventId',
   get: (eventId) => ({ get }) => get(eventsAtom).find(event => event.id === eventId) ?? getEvent(eventId),
 })
 
-export const eventSelector = selectorFamily<EventEx | undefined, string>({
+export const eventSelector = selectorFamily<Event | undefined, string>({
   key: 'event',
   get: (eventId) => ({ get }) => get(eventByIdAtom(eventId)),
 })

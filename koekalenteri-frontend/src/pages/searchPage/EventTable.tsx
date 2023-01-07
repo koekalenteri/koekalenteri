@@ -13,14 +13,15 @@ import {
   TableContainer,
   TableRow,
 } from '@mui/material'
-import type { EventEx, EventState } from 'koekalenteri-shared/model'
+import type { Event, EventState } from 'koekalenteri-shared/model'
 
 import { LinkButton } from '../../components'
 import { useSessionBoolean } from '../../stores'
+import { isEntryOpen } from '../../utils'
 
 import { EventInfo } from './EventInfo'
 
-function eventClasses(event: EventEx) {
+function eventClasses(event: Event) {
   const ret: string[] = []
   for (const c of event.classes) {
     const name = typeof c === 'string' ? c : c.class
@@ -31,7 +32,7 @@ function eventClasses(event: EventEx) {
   return ret.join(', ')
 }
 
-const Row = ({ event }: { event: EventEx }) => {
+const Row = ({ event }: { event: Event }) => {
   const [open, setOpen] = useSessionBoolean('open' + event.id, false)
   const { t } = useTranslation()
 
@@ -70,7 +71,7 @@ const Row = ({ event }: { event: EventEx }) => {
                 <Grid item xs={6} md={7}>{event.organizer?.name}</Grid>
                 <Grid item xs={3} md={2}><EventPlaces event={event} /></Grid>
                 <Grid item xs={3} md={3} textAlign="right">{
-                  event.isEntryOpen ?
+                  isEntryOpen(event) ?
                     <LinkButton to={`/event/${event.eventType}/${event.id}`} text={t('register')} /> :
                     <EventStateInfo state={event.state} />}
                 </Grid>
@@ -91,7 +92,7 @@ const Row = ({ event }: { event: EventEx }) => {
   )
 }
 
-const EventPlaces = ({ event }: { event: EventEx }) => {
+const EventPlaces = ({ event }: { event: Event }) => {
   const { t } = useTranslation()
   const color = event.entries > event.places ? 'warning.main' : 'text.primary'
   let text = ''
@@ -124,7 +125,7 @@ function EmptyResult() {
   )
 }
 
-export function EventTable({ events }: { events: EventEx[] }) {
+export function EventTable({ events }: { events: Event[] }) {
   return (
     <>
       {events.length ?

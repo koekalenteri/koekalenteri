@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
 import { AddCircleOutline, DeleteOutline, EditOutlined, EmailOutlined, FormatListBulleted, ShuffleOutlined, TableChartOutlined } from '@mui/icons-material'
 import { Box, Button, Dialog, DialogContent, DialogTitle, Divider, Grid, Stack, Tab, Tabs } from '@mui/material'
-import { ConfirmedEventEx, Registration } from 'koekalenteri-shared/model'
+import { ConfirmedEvent, Registration } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
 import { CollapsibleSection, LinkButton, RegistrationForm } from '../../components'
@@ -127,7 +127,7 @@ const EventViewPage = () => {
       >
         <DialogTitle id="reg-dialog-title">{selected ? `${selected.dog.name} / ${selected.handler.name}` : t('create')}</DialogTitle>
         <DialogContent dividers sx={{height: '100%', p: 0 }}>
-          <RegistrationForm event={event as ConfirmedEventEx} registration={selected} onSave={onSave} onCancel={onCancel} />
+          <RegistrationForm event={event as ConfirmedEvent} registration={selected} onSave={onSave} onCancel={onCancel} />
         </DialogContent>
       </Dialog>
     </>

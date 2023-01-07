@@ -1,4 +1,4 @@
-import { ReactNode } from 'react'
+import { ComponentType, FunctionComponent, ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HelpOutlined } from '@mui/icons-material'
 import { Autocomplete, AutocompleteProps, IconButton, TextField } from '@mui/material'
@@ -18,14 +18,26 @@ export type EventPropertyProps<Property extends keyof PartialEvent, freeSolo ext
     endAdornment?: ReactNode
   };
 
+const withName = <P extends object>(
+  Component: ComponentType<P>,
+  displayName: string,
+): FunctionComponent<P> =>
+  (props: P) => {
+    const Wrap = (props: P) => <Component {...props} />
+    Wrap.displayName = displayName
+    return <Wrap {...props} />
+  }
+
 export default function EventProperty<Property extends keyof PartialEvent, freeSolo extends boolean>(props: EventPropertyProps<Property, freeSolo>) {
   const { t } = useTranslation()
   const { id, event, fields, helpClick, endAdornment, ...acProps } = props
   const isRequired = fields?.required[id] || false
   const error = isRequired && validateEventField(event, id, true)
   const helperText = error ? t(`validation.event.${error.key}`, error.opts) : ''
+  const NamedAutocomplete = withName(Autocomplete<PartialEvent[Property], false, false, freeSolo>, id)
+
   return (
-    <Autocomplete
+    <NamedAutocomplete
       id={id}
       {...acProps}
       value={event[id]}

@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { FormHelperText, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material'
 import { eachDayOfInterval, isSameDay } from 'date-fns'
-import { EventClass } from 'koekalenteri-shared/model'
+import { DeepPartial, EventClass } from 'koekalenteri-shared/model'
 
 import { unique } from '../../../../../utils'
 import { SectionProps } from '../../EventForm'
@@ -18,7 +18,7 @@ export default function EventFormPlaces({ event, helperTexts, onChange }: Sectio
   })
   const uniqueClasses = unique(event.classes.map(c => c.class))
   const classesByDays = days.map(day => ({ day, classes: event.classes.filter(c => isSameDay(c.date || event.startDate, day)) }))
-  const handleChange = (c: EventClass) => (e: { target: { value: any; }; }) => {
+  const handleChange = (c: DeepPartial<EventClass>) => (e: { target: { value: any; }; }) => {
     const newClasses = event.classes.map(ec => ({...ec}))
     const cls = newClasses.find(ec => compareEventClass(ec, c) === 0)
     if (cls) {

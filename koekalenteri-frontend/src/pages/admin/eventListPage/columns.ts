@@ -1,11 +1,12 @@
 import { useTranslation } from "react-i18next"
 import { GridColDef, GridValueGetterParams } from "@mui/x-data-grid"
-import { EventClass, EventEx, EventState } from "koekalenteri-shared/model"
+import { Event, EventClass, EventState } from "koekalenteri-shared/model"
 
+import { getEventTitle } from "../../../hooks/useEventTitle"
 import { useJudgesActions } from "../../recoil"
 
 interface EventListColDef extends GridColDef {
-  field: keyof EventEx | 'date'
+  field: keyof Event | 'date'
 }
 
 type StartEndDate = { start: Date, end: Date }
@@ -68,22 +69,7 @@ export default function useEventListColumns(): EventListColDef[] {
       headerName: t('event.state'),
       flex: 1,
       type: 'string',
-      valueGetter: (params: GridValueGetterParams<EventState, EventEx>) => {
-        const event: EventEx = params.row
-        if (event.isEntryOpen) {
-          return t('event.states.confirmed_entryOpen')
-        }
-        if (event.isEntryClosed) {
-          return t('event.states.confirmed_entryClosed')
-        }
-        if (event.isEventOngoing) {
-          return t('event.states.confirmed_eventOngoing')
-        }
-        if (event.isEventOver) {
-          return t('event.states.confirmed_eventOver')
-        }
-        return t(`event.states.${(params.value || 'draft')}`)
-      },
+      valueGetter: (params: GridValueGetterParams<EventState, Event>) => getEventTitle(params.row, t),
     },
   ]
 }

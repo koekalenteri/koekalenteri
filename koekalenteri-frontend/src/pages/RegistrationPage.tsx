@@ -2,7 +2,7 @@ import { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
 import { CircularProgress } from '@mui/material'
-import type { ConfirmedEventEx, Registration } from 'koekalenteri-shared/model'
+import type { ConfirmedEvent, Registration } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
 import { LinkButton, RegistrationEventInfo, RegistrationForm } from '../components'
@@ -15,7 +15,7 @@ export const RegistrationPage = () => {
   const params = useParams()
   const [eventId, setEventId] = useRecoilState(eventIdAtom)
   const [registrationId, setRegistrationId] = useRecoilState(registrationIdAtom)
-  const event = useRecoilValue(currentEvent) as ConfirmedEventEx | undefined
+  const event = useRecoilValue(currentEvent) as ConfirmedEvent | undefined
   const registration = useRecoilValue(registrationQuery)
   const [sessionStarted] = useSessionStarted()
   const { t } = useTranslation()

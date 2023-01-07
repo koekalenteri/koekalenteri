@@ -3,11 +3,11 @@ import { useTranslation } from 'react-i18next'
 import { Cancel, Save } from '@mui/icons-material'
 import { LoadingButton } from '@mui/lab'
 import { Box, Button, Paper, Stack, Theme, useMediaQuery } from '@mui/material'
-import type { Event, EventClass, EventState, Judge, Official, Organizer } from 'koekalenteri-shared/model'
+import type { DeepPartial, Event, EventClass, EventState, Judge, Official, Organizer } from 'koekalenteri-shared/model'
 import { useRecoilState } from 'recoil'
 
 import { AutocompleteSingle } from '../../../components'
-import { editAdminEventSelector } from '../recoil'
+import { DecoratedEvent, editAdminEventModifiedAtom, editAdminEventSelector } from '../recoil'
 
 import AdditionalInfoSection from './eventForm/AdditionalInfoSection'
 import BasicInfoSection from './eventForm/BasicInfoSection'
@@ -18,7 +18,7 @@ import JudgesSection from './eventForm/JudgesSection'
 import PaymentSection from './eventForm/PaymentSection'
 import { FieldRequirements, requiredFields, validateEvent } from './eventForm/validation'
 
-export type PartialEvent = Partial<Event> & { startDate: Date, endDate: Date, classes: EventClass[], judges: number[] }
+export type PartialEvent = DeepPartial<Event> & { startDate: Date, endDate: Date, classes: EventClass[], judges: number[] }
 
 export interface SectionProps {
   event: PartialEvent
@@ -26,7 +26,7 @@ export interface SectionProps {
   errorStates?: { [Property in keyof Event]?: boolean }
   helperTexts?: { [Property in keyof Event]?: string }
   open?: boolean
-  onChange: (event: Partial<Event>) => void
+  onChange: (event: DeepPartial<Event>) => void
   onOpenChange?: (value: boolean) => void
 }
 
@@ -46,7 +46,7 @@ export default function EventForm({ eventId, judges, eventTypes, eventTypeClasse
   const { t } = useTranslation()
   const [event, setEvent] = useRecoilState(editAdminEventSelector(eventId))
   const [saving, setSaving] = useState(false)
-  const [changes, setChanges] = useState(!event?.id)
+  const [changes, setChanges] = useRecoilState(editAdminEventModifiedAtom(eventId))
   const [errors, setErrors] = useState(event ? validateEvent(event as PartialEvent) : [])
   const [open, setOpen] = useState<{[key: string]: boolean|undefined}>({
     basic: true,
@@ -59,21 +59,24 @@ export default function EventForm({ eventId, judges, eventTypes, eventTypeClasse
   })
   const valid = errors.length === 0
   const fields = useMemo(() => requiredFields(event as PartialEvent), [event])
-  const onChange = useCallback((props: Partial<Event>) => {
+
+  const onChange = useCallback((props: DeepPartial<Event>) => {
     if (!event) {
       return
     }
     const tmp: any = {}
-    Object.keys(props).forEach(k => {tmp[k] = (event as any)[k]})
+    const keys = Object.keys(props) as Array<keyof Event>
+    keys.forEach(k => {tmp[k] = event[k]})
     console.log('changed: ' + JSON.stringify(props), JSON.stringify(tmp))
     if (props.eventType && (eventTypeClasses[props.eventType] || []).length === 0) {
       props.classes = []
     }
-    const newState = { ...event, ...props }
-    setErrors(validateEvent(newState as PartialEvent))
-    setEvent(newState)
+    const newState = { ...event, ...props } as PartialEvent
+    setErrors(validateEvent(newState))
+    setEvent(newState as DecoratedEvent) // TODO: without typecast
     setChanges(true)
-  }, [event, eventTypeClasses, setEvent])
+  }, [event, eventTypeClasses, setEvent, setChanges])
+
   const saveHandler = async () => {
     if (!event) {
       return
@@ -88,6 +91,7 @@ export default function EventForm({ eventId, judges, eventTypes, eventTypeClasse
     }
     onCancel()
   }
+
   const handleOpenChange = (id: keyof typeof open, value: boolean) => {
     const newState = md
       ? {
@@ -183,10 +187,11 @@ export default function EventForm({ eventId, judges, eventTypes, eventTypeClasse
           open={open.hq}
         />
         <ContactInfoSection
-          errorStates={errorStates}
-          event={event as PartialEvent}
-          fields={fields}
-          helperTexts={helperTexts}
+          error={errorStates.contactInfo}
+          contactInfo={event.contactInfo}
+          official={event.official}
+          secretary={event.secretary}
+          helperText={helperTexts.contactInfo}
           onChange={onChange}
           onOpenChange={(value) => handleOpenChange('contact', value)}
           open={open.contact}

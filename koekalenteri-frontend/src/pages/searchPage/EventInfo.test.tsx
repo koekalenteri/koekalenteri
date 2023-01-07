@@ -34,14 +34,6 @@ describe('EventInfo', () => {
         entries: 22,
         members: 2,
       }],
-      isEntryUpcoming: false,
-      isEntryOpen: false,
-      isEntryClosing: false,
-      isEntryClosed: false,
-
-      isEventUpcoming: false,
-      isEventOngoing: false,
-      isEventOver: true,
     }
     const { container } = render(
       <RecoilRoot>

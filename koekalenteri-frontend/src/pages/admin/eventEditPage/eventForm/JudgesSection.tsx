@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next'
 import { AddOutlined, DeleteOutline } from '@mui/icons-material'
 import { Button, Grid } from '@mui/material'
 import { isSameDay } from 'date-fns'
-import { EventClass, Judge } from 'koekalenteri-shared/model'
+import { DeepPartial, EventClass, Judge } from 'koekalenteri-shared/model'
 
 import { CollapsibleSection } from '../../../../components'
 import { AutocompleteSingle } from '../../../../components/AutocompleteSingle'
@@ -11,7 +11,7 @@ import { SectionProps } from '../EventForm'
 import EventClasses from './components/EventClasses'
 import { validateEventField } from './validation'
 
-function filterJudges(judges: Judge[], eventJudges: number[], id: number, eventType?: string) {
+function filterJudges(judges: Judge[], eventJudges: number[], id: number | undefined, eventType?: string) {
   return judges
     .filter(j => !eventType || j.eventTypes.includes(eventType))
     .filter(j => j.id === id || !eventJudges.includes(j.id))
@@ -30,11 +30,11 @@ export default function JudgesSection({ event, judges, fields, onChange, onOpenC
     ? t(`validation.event.${validationError.key}`, { ...validationError.opts, state: fields.state.judges || 'draft' })
     : error ? t('validation.event.errors') : ''
 
-  const updateJudge = (id: number | undefined, values: EventClass[]) => {
+  const updateJudge = (id: number | undefined, values: DeepPartial<EventClass>[]) => {
     const judge = id ? { id, name: judges.find(j => j.id === id)?.name || '' } : undefined
-    const isSelected = (c: EventClass) => values.find(v => event && isSameDay(v.date || event.startDate, c.date || event.startDate) && v.class === c.class)
-    const wasSelected = (c: EventClass) => c.judge?.id === id
-    const previousOrUndefined = (c: EventClass) => wasSelected(c) ? undefined : c.judge
+    const isSelected = (c: DeepPartial<EventClass>) => values.find(v => event && isSameDay(v.date || event.startDate, c.date || event.startDate) && v.class === c.class)
+    const wasSelected = (c: DeepPartial<EventClass>) => c.judge?.id === id
+    const previousOrUndefined = (c: DeepPartial<EventClass>) => wasSelected(c) ? undefined : c.judge
     return event.classes.map(c => ({
       ...c,
       judge: isSelected(c) ? judge : previousOrUndefined(c),
@@ -66,7 +66,7 @@ export default function JudgesSection({ event, judges, fields, onChange, onOpenC
                     }
                     onChange({
                       judges: newJudges,
-                      classes: updateJudge(newId, event.classes.filter(c => c.judge && c.judge.id === oldId)),
+                      classes: updateJudge(newId, event.classes.filter(c => c.judge?.id === oldId)),
                     })
                   }}
                 />

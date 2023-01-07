@@ -66,19 +66,7 @@ export type ShowContactInfo = {
   phone: boolean
 }
 
-export interface EventEx extends Event {
-  isEntryUpcoming: boolean
-  isEntryOpen: boolean
-  isEntryClosing: boolean
-  isEntryClosed: boolean
-
-  isEventUpcoming: boolean
-  isEventOngoing: boolean
-  isEventOver: boolean
-  statusText?: 'tentative' | 'cancelled' | 'extended'
-}
-
-export type ConfirmedEventEx = Replace<EventEx, EventDates, Date> & {
+export type ConfirmedEvent = Replace<Event, EventDates, Date> & {
   state: 'confirmed'
 }
 

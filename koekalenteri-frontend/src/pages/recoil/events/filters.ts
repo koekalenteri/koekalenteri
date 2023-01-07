@@ -1,10 +1,12 @@
 import { formatISO } from 'date-fns'
-import { EventEx } from 'koekalenteri-shared/model'
+import { Event } from 'koekalenteri-shared/model'
+
+import { isEntryClosing, isEntryOpen, isEntryUpcoming } from '../../../utils'
 
 import { FilterProps } from './atoms'
 
 
-export function withinDateFilters(event: EventEx, { start, end }: FilterProps) {
+export function withinDateFilters(event: Event, { start, end }: FilterProps) {
   if (start && (!event.endDate || event.endDate < start)) {
     return false
   }
@@ -14,13 +16,13 @@ export function withinDateFilters(event: EventEx, { start, end }: FilterProps) {
   return true
 }
 
-export function withinSwitchFilters(event: EventEx, { withOpenEntry, withClosingEntry, withUpcomingEntry, withFreePlaces }: FilterProps) {
+export function withinSwitchFilters(event: Event, { withOpenEntry, withClosingEntry, withUpcomingEntry, withFreePlaces }: FilterProps) {
   let result
 
   if (withOpenEntry) {
-    result = event.isEntryOpen
+    result = isEntryOpen(event)
     if (withClosingEntry) {
-      result = result && event.isEntryClosing
+      result = result && isEntryClosing(event)
     }
     if (withFreePlaces) {
       result = result && event.places > event.entries
@@ -28,17 +30,16 @@ export function withinSwitchFilters(event: EventEx, { withOpenEntry, withClosing
   }
 
   if (withUpcomingEntry) {
-    result = result || event.isEntryUpcoming
+    result = result || isEntryUpcoming(event)
   }
 
   return result !== false
 }
 
-export function withinArrayFilters(event: EventEx, { eventType, eventClass, judge, organizer }: FilterProps) {
+export function withinArrayFilters(event: Event, { eventType, eventClass, judge, organizer }: FilterProps) {
   if (eventType.length && !eventType.includes(event.eventType)) {
     return false
   }
-  console.log(eventClass)
   if (eventClass.length && !eventClass.some(c => event.classes.map(cl => cl.class).includes(c))) {
     return false
   }

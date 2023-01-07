@@ -3,10 +3,10 @@ import fetchMock from 'jest-fetch-mock'
 import type { Event } from 'koekalenteri-shared/model'
 
 import { API_BASE_URL } from "../routeConfig"
+import { isEntryClosing, isEntryOpen, isEntryUpcoming } from "../utils"
 
 import { emptyEvent } from './test-utils/emptyEvent'
 import { getEvent, getEvents, putEvent } from './event'
-import { rehydrateEvent } from './utils'
 
 fetchMock.enableMocks()
 
@@ -69,19 +69,19 @@ test.each([
   { date: '2021-01-13 23:59', open: true, closing: true, upcoming: false },
   { date: '2021-01-14 00:00', open: false, closing: false, upcoming: false },
 ])(`When entry is 2021-01-02 to 2021-01-13, @$date: isEntryOpen: $open, isEntryClosing: $closing, isEntryUpcoming: $upcoming`, ({ date, open, closing, upcoming }) => {
-  expect(rehydrateEvent(event, parseISO(date)).isEntryOpen).toEqual(open)
-  expect(rehydrateEvent(event, parseISO(date)).isEntryClosing).toEqual(closing)
-  expect(rehydrateEvent(event, parseISO(date)).isEntryUpcoming).toEqual(upcoming)
+  expect(isEntryOpen(event, parseISO(date))).toEqual(open)
+  expect(isEntryClosing(event, parseISO(date))).toEqual(closing)
+  expect(isEntryUpcoming(event, parseISO(date))).toEqual(upcoming)
 })
 
 test('isEntryOpen with mocked date', function() {
   jest.useFakeTimers()
 
   jest.setSystemTime(parseISO('2021-01-01'))
-  expect(rehydrateEvent(event).isEntryOpen).toEqual(false)
+  expect(isEntryOpen(event)).toEqual(false)
 
   jest.setSystemTime(parseISO('2021-01-02'))
-  expect(rehydrateEvent(event).isEntryOpen).toEqual(true)
+  expect(isEntryOpen(event)).toEqual(true)
 
   jest.useRealTimers()
 })

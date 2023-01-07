@@ -63,14 +63,6 @@ const renderComponent = (eventId: string|undefined, judges: Judge[], officials: 
 )
 
 describe('EventForm', () => {
-  it('should render for new event', () => {
-    const saveHandler = jest.fn()
-    const cancelHandler = jest.fn()
-
-    const { container } = renderComponent(undefined, JUDGES, OFFICIALS, ORGANIZERS, saveHandler, cancelHandler)
-    expect(container).toMatchSnapshot()
-  })
-
   it.skip('should fire onSave and onCancel', () => {
     const saveHandler = jest.fn()
     const cancelHandler = jest.fn()

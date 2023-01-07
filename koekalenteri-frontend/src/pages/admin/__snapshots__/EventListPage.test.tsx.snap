@@ -961,7 +961,7 @@ exports[`EventListPage renders 1`] = `
                       <div
                         class="MuiDataGrid-cellContent"
                       >
-                        10 / 10
+                        7 / 10
                       </div>
                     </div>
                     <div
@@ -1237,7 +1237,7 @@ exports[`EventListPage renders 1`] = `
                       <div
                         class="MuiDataGrid-cellContent"
                       >
-                        9 / 10
+                        10 / 10
                       </div>
                     </div>
                     <div

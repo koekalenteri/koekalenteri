@@ -2,7 +2,6 @@
 
 exports[`PersonContactInfo should render 1`] = `
 <div>
-  event.official
   <div
     class="MuiFormGroup-root MuiFormGroup-row css-qfz70r-MuiFormGroup-root"
   >

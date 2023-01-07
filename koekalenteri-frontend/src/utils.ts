@@ -1,10 +1,29 @@
-import type { EventEx, JsonValue } from 'koekalenteri-shared/model'
+import { endOfDay, startOfDay, subDays } from 'date-fns'
+import type { Event, JsonValue } from 'koekalenteri-shared/model'
 
-export function entryDateColor(event: EventEx) {
-  if (!event.isEntryOpen) {
+type EventDates = {
+  startDate?: Date
+  endDate?: Date
+  entryStartDate?: Date
+  entryEndDate?: Date
+}
+
+export const isEventUpcoming = ({startDate}: EventDates, now = new Date()) => !!startDate && startDate > now
+
+export const isEntryUpcoming = ({entryStartDate}: EventDates, now = new Date()) => !!entryStartDate && entryStartDate > now
+export const isEntryOpen = ({ entryStartDate, entryEndDate }: EventDates, now = new Date()) => !!entryStartDate && !!entryEndDate && startOfDay(entryStartDate) <= now && endOfDay(entryEndDate) >= now
+export const isEntryClosing = ({ entryStartDate, entryEndDate }: EventDates, now = new Date()) => !!entryEndDate && isEntryOpen({entryStartDate, entryEndDate}, now) && subDays(entryEndDate, 7) <= endOfDay(now)
+export const isEntryClosed = ({ startDate, entryEndDate }: EventDates, now = new Date()) => !!startDate && !!entryEndDate && endOfDay(entryEndDate) < now && startOfDay(startDate) > now
+
+export const isEventOngoing = ({ startDate, endDate }: EventDates, now = new Date()) => !!startDate && !!endDate && startDate <= now && endDate >= now
+export const isEventOver = ({ startDate }: EventDates, now = new Date()) => !!startDate && startDate < now
+
+
+export function entryDateColor(event: Event) {
+  if (!isEntryOpen(event)) {
     return 'text.primary'
   }
-  return event.isEntryClosing ? 'warning.main' : 'success.main'
+  return isEntryClosing(event) ? 'warning.main' : 'success.main'
 }
 
 export function unique<T = string>(arr: T[]): T[] {

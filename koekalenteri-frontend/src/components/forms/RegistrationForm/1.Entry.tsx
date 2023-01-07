@@ -1,12 +1,12 @@
 import { useTranslation } from 'react-i18next'
 import { Grid } from '@mui/material'
 import { eachDayOfInterval, format } from 'date-fns'
-import { ConfirmedEventEx, Registration, RegistrationDate, ReserveChoise } from 'koekalenteri-shared/model'
+import { ConfirmedEvent, Registration, RegistrationDate, ReserveChoise } from 'koekalenteri-shared/model'
 
 import { unique, uniqueDate } from '../../../utils'
 import { AutocompleteMulti, AutocompleteSingle, CollapsibleSection } from '../..'
 
-function getClassDates(event: ConfirmedEventEx, classDate: string|undefined, regClass: string|undefined) {
+function getClassDates(event: ConfirmedEvent, classDate: string|undefined, regClass: string|undefined) {
   const classes = event.classes.filter(c => typeof c !== 'string' && (regClass === '' || c.class === regClass))
 
   const dates = classes.length
@@ -18,13 +18,13 @@ function getClassDates(event: ConfirmedEventEx, classDate: string|undefined, reg
   return uniqueDate(dates)
 }
 
-export function getRegistrationDates(event: ConfirmedEventEx, classDate: string | undefined, eventClass: string): RegistrationDate[] {
+export function getRegistrationDates(event: ConfirmedEvent, classDate: string | undefined, eventClass: string): RegistrationDate[] {
   return getClassDates(event, classDate, eventClass).flatMap((date) => [{ date, time: 'ap' }, { date, time: 'ip' }])
 }
 
 type EntryInfoProps = {
   reg: Registration
-  event: ConfirmedEventEx
+  event: ConfirmedEvent
   classDate?: string
   error?: boolean
   helperText?: string

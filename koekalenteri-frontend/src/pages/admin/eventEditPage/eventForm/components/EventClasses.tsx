@@ -3,27 +3,27 @@ import { useTranslation } from "react-i18next"
 import { CheckBox, CheckBoxOutlineBlank } from "@mui/icons-material"
 import { Autocomplete, AutocompleteChangeReason, Avatar, Checkbox, Chip, TextField } from "@mui/material"
 import { isSameDay } from "date-fns"
-import { Event, EventClass, EventState } from "koekalenteri-shared/model"
+import { DeepPartial, Event, EventClass, EventState } from "koekalenteri-shared/model"
 
 import { PartialEvent } from "../../EventForm"
 
 interface Props {
   id: string
   event: PartialEvent
-  value: EventClass[] | undefined
-  classes: EventClass[]
+  value: DeepPartial<EventClass>[] | undefined
+  classes: DeepPartial<EventClass>[]
   label: string
   required?: boolean
   requiredState?: EventState
   errorStates?: { [Property in keyof Event]?: boolean }
   helperTexts?: { [Property in keyof Event]?: string }
-  onChange: (event: SyntheticEvent, value: EventClass[], reason: AutocompleteChangeReason) => void
+  onChange: (event: SyntheticEvent, value: DeepPartial<EventClass>[], reason: AutocompleteChangeReason) => void
 }
 
-export const compareEventClass = (a: EventClass, b: EventClass) =>
-  isSameDay(a.date || new Date(), b.date || new Date())
-    ? a.class.localeCompare(b.class)
-    : (a.date?.valueOf() || 0) - (b.date?.valueOf() || 0)
+export const compareEventClass = (a: DeepPartial<EventClass>, b: DeepPartial<EventClass>) =>
+  isSameDay(a.date ?? new Date(), b.date ?? new Date())
+    ? a.class?.localeCompare(b.class ?? '') ?? 0
+    : (a.date?.valueOf() ?? 0) - (b.date?.valueOf() ?? 0)
 
 export default function EventClasses(props: Props) {
   const { t } = useTranslation()
@@ -43,7 +43,7 @@ export default function EventClasses(props: Props) {
       multiple
       groupBy={c => t('weekday', { date: c.date })}
       options={classes}
-      getOptionLabel={c => c.class}
+      getOptionLabel={c => c.class ?? ''}
       isOptionEqualToValue={(o, v) => compareEventClass(o, v) === 0}
       renderOption={(optionProps, option, { selected }) => (
         <li {...optionProps}>

@@ -1,16 +1,18 @@
 import { useTranslation } from 'react-i18next'
 import { Table, TableBody, TableCell, TableRow } from '@mui/material'
 import { format } from 'date-fns'
-import type { EventClass, EventEx } from 'koekalenteri-shared/model'
+import type { Event, EventClass } from 'koekalenteri-shared/model'
 
 import { CostInfo, LinkButton } from '../../components'
-import { entryDateColor } from '../../utils'
+import useEventStatus from '../../hooks/useEventStatus'
+import { entryDateColor, isEntryOpen } from '../../utils'
 import { useJudgesActions } from '../recoil'
 
 
-export const EventInfo = ({ event }: { event: EventEx }) => {
+export const EventInfo = ({ event }: { event: Event }) => {
   const { t } = useTranslation()
   const judgeActions = useJudgesActions()
+  const status = useEventStatus(event)
 
   const judgeName = (id: number) => judgeActions.find(id)?.name ?? ''
   const haveJudgesWithoutAssignedClass = event.judges.filter(j => !event.classes.find(c => c.judge?.id === j)).length > 0
@@ -35,8 +37,8 @@ export const EventInfo = ({ event }: { event: EventEx }) => {
             <TableCell component="th" scope="row">{t('entryTime')}:</TableCell>
             <TableCell sx={{ color: entryDateColor(event), '& .info': {color: 'info.dark'} }}>
               <b>{t('daterange', { start: event.entryStartDate, end: event.entryEndDate })}</b>
-              <span className="info">{event.statusText ? '(' + t(`event.states.${event.statusText}_info`) + ')' : ''}</span>
-              {event.isEntryOpen ? t('distanceLeft', { date: event.entryEndDate }) : ''}
+              <span className="info">{status}</span>
+              {isEntryOpen(event) ? t('distanceLeft', { date: event.entryEndDate }) : ''}
             </TableCell>
           </TableRow>
           <TableRow key={event.id + 'organizer'}>
@@ -82,7 +84,7 @@ export const EventInfo = ({ event }: { event: EventEx }) => {
 }
 
 type EventProps = {
-  event: EventEx
+  event: Event
 }
 
 const EventClassRow = ({ event }: EventProps) => {
@@ -114,7 +116,7 @@ const EventClassTable = ({ event }: EventProps) => {
   )
 }
 
-const EventClassTableRow = ({ event, eventClass }: { event: EventEx, eventClass: EventClass }) => {
+const EventClassTableRow = ({ event, eventClass }: { event: Event, eventClass: EventClass }) => {
   const { t } = useTranslation()
   const classDate = format(eventClass.date || event.startDate || new Date(), t('dateformatS'))
   const entryStatus = eventClass.places || eventClass.entries ? `${eventClass.entries || 0} / ${eventClass.places || '-'}` : ''
@@ -127,7 +129,7 @@ const EventClassTableRow = ({ event, eventClass }: { event: EventEx, eventClass:
       <TableCell component="th" scope="row" align="right" sx={{fontWeight: 'bold'}}>{entryStatus}</TableCell>
       <TableCell component="th" scope="row" align="right" sx={{fontWeight: 'bold'}}>{memberStatus}</TableCell>
       <TableCell component="th" scope="row">
-        {event.isEntryOpen ? <LinkButton to={`/event/${event.eventType}/${event.id}/${eventClass.class}/${classDate}`} text={t('register')} /> : ''}
+        {isEntryOpen(event) ? <LinkButton to={`/event/${event.eventType}/${event.id}/${eventClass.class}/${classDate}`} text={t('register')} /> : ''}
       </TableCell>
       <TableCell></TableCell>
     </TableRow>

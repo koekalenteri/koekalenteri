@@ -1,30 +1,12 @@
-import { EventEx } from 'koekalenteri-shared/model'
+import { eventWithEntryClosing, eventWithEntryNotYetOpen, eventWithEntryOpen } from './__mockData__/events'
+import { entryDateColor } from './utils'
 
-import { emptyEvent } from './api/test-utils/emptyEvent'
-import {entryDateColor} from './utils'
-
-describe('utils', function() {
-  describe('entryDateColor', function() {
-    it('should return proper values based on event status', function() {
-      const event: EventEx = {
-        ...emptyEvent,
-        isEntryUpcoming: false,
-        isEntryOpen: false,
-        isEntryClosing: false,
-        isEntryClosed: false,
-
-        isEventUpcoming: true,
-        isEventOngoing: false,
-        isEventOver: false,
-      }
-
-      expect(entryDateColor(event)).toEqual('text.primary')
-
-      event.isEntryOpen = true
-      expect(entryDateColor(event)).toEqual('success.main')
-
-      event.isEntryClosing = true
-      expect(entryDateColor(event)).toEqual('warning.main')
+describe('utils', function () {
+  describe('entryDateColor', function () {
+    it('should return proper values based on event status', function () {
+      expect(entryDateColor(eventWithEntryNotYetOpen)).toEqual('text.primary')
+      expect(entryDateColor(eventWithEntryOpen)).toEqual('success.main')
+      expect(entryDateColor(eventWithEntryClosing)).toEqual('warning.main')
     })
   })
 })

@@ -53,7 +53,7 @@ const REQUIRED_BY_STATE: Record<EventState, EventFlags> = {
   },
 }
 
-const contactInfoShown = (contact?: ShowContactInfo) => !!contact && (contact.email || contact.phone)
+const contactInfoShown = (contact?: Partial<ShowContactInfo>) => !!contact && (contact.email || contact.phone)
 
 const VALIDATORS: Validators<PartialEvent, 'event'> = {
   classes: (event, required) => {
@@ -161,7 +161,9 @@ export function validateEvent(event: PartialEvent) {
   for (field of fields) {
     const result = validateEventField(event, field, !!required[field])
     if (result) {
-      console.log(result)
+      if (typeof jest === 'undefined') {
+        console.log(result)
+      }
       errors.push(result)
     }
   }

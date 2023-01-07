@@ -1,5 +1,5 @@
 import { differenceInMonths, startOfYear } from 'date-fns'
-import { BreedCode, ConfirmedEventEx, Dog, Person, QualifyingResult, Registration, RegistrationBreeder, TestResult } from 'koekalenteri-shared/model'
+import { BreedCode, ConfirmedEvent, Dog, Person, QualifyingResult, Registration, RegistrationBreeder, TestResult } from 'koekalenteri-shared/model'
 
 import { ValidationResult, Validators2, WideValidationResult } from '../validation'
 
@@ -13,7 +13,7 @@ function validatePerson(person: Person | undefined) {
   return !person || !person.email || !person.name || !person.location || !person.phone
 }
 
-const VALIDATORS: Validators2<Registration, 'registration', ConfirmedEventEx> = {
+const VALIDATORS: Validators2<Registration, 'registration', ConfirmedEvent> = {
   agreeToPublish: (reg) => !reg.agreeToPublish ? 'publish' : false,
   agreeToTerms: (reg) => !reg.agreeToTerms ? 'terms' : false,
   breeder: (reg) => validateBreeder(reg.breeder) ? 'required' : false,
@@ -28,7 +28,7 @@ const VALIDATORS: Validators2<Registration, 'registration', ConfirmedEventEx> = 
   results: () => false,
 }
 
-export function validateRegistrationField(registration: Registration, field: keyof Registration, event: ConfirmedEventEx): ValidationResult<Registration, 'registration'> {
+export function validateRegistrationField(registration: Registration, field: keyof Registration, event: ConfirmedEvent): ValidationResult<Registration, 'registration'> {
   const validator = VALIDATORS[field] || ((value) => typeof value[field] === 'undefined' || value[field] === '')
   const result = validator(registration, true, event)
   if (!result) {
@@ -51,7 +51,7 @@ export function validateRegistrationField(registration: Registration, field: key
 
 const NOT_VALIDATED = ['createdAt', 'createdBy', 'modifiedAt', 'modifiedBy', 'deletedAt', 'deletedBy']
 
-export function validateRegistration(registration: Registration, event: ConfirmedEventEx) {
+export function validateRegistration(registration: Registration, event: ConfirmedEvent) {
   const errors = []
   let field: keyof Registration
   for (field in registration) {

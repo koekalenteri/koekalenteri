@@ -1,4 +1,4 @@
-import { EventEx } from 'koekalenteri-shared/model'
+import { Event } from 'koekalenteri-shared/model'
 import { AtomEffect, DefaultValue } from 'recoil'
 
 import { getEvents } from '../../../api/event'
@@ -6,7 +6,7 @@ import { getEvents } from '../../../api/event'
 import { FilterProps } from './atoms'
 import { deserializeFilter, serializeFilter } from './filters'
 
-export const remoteEventsEffect: AtomEffect<EventEx[]> = ({ setSelf, trigger }) => {
+export const remoteEventsEffect: AtomEffect<Event[]> = ({ setSelf, trigger }) => {
   if (trigger === 'get') {
     getEvents().then(setSelf)
   }
@@ -14,7 +14,6 @@ export const remoteEventsEffect: AtomEffect<EventEx[]> = ({ setSelf, trigger }) 
 
 export const urlSyncEffect: AtomEffect<FilterProps> = ({setSelf, onSet, trigger}) => {
   if (trigger === 'get') {
-    console.warn('get', window.location.origin, window.location.search)
     setSelf(deserializeFilter(window.location.search))
   }
 

@@ -1,16 +1,16 @@
-import { EventEx } from "koekalenteri-shared/model"
+import { Event } from "koekalenteri-shared/model"
 import { AtomEffect } from "recoil"
 
 import { getEvents } from "../../../../api/event"
 import { unique, uniqueDate } from "../../../../utils"
 
 
-export interface DecoratedEvent extends EventEx {
+export interface DecoratedEvent extends Event {
   uniqueClasses: string[];
   uniqueClassDates: Record<string, Date[]>;
 }
 
-export function decorateEvent(event: EventEx): DecoratedEvent {
+export function decorateEvent(event: Event): DecoratedEvent {
   const uniqueClasses = unique(event.classes.map(c => c.class))
   const uniqueClassDates = uniqueClasses
     .reduce((acc, cur) => (
@@ -30,6 +30,6 @@ export function decorateEvent(event: EventEx): DecoratedEvent {
 }
 
 export const remoteAdminEventsEffect: AtomEffect<DecoratedEvent[]> = ({ setSelf }) => {
-  console.log('loading remote events...')
+  // console.log('loading remote events...')
   getEvents().then(events => setSelf(events.map(decorateEvent)))
 }
