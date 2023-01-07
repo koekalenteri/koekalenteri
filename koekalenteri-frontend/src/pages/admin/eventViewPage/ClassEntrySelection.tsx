@@ -3,7 +3,7 @@ import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { Box, Typography } from '@mui/material'
 import { GridRowId, GridSelectionModel } from '@mui/x-data-grid'
-import { Registration, RegistrationGroup } from 'koekalenteri-shared/model'
+import { Registration, RegistrationDate, RegistrationGroup } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
 import { StyledDataGrid } from '../../../components'
@@ -20,30 +20,36 @@ interface Props {
   setOpen?: Dispatch<SetStateAction<boolean>>
 }
 
+interface RegistrationWithGroups extends Registration {
+  groups: string[]
+}
+
+export const groupKey = (rd: RegistrationDate) => rd.date.toISOString().slice(0, 10) + '-' + rd.time
+
 const ClassEntrySelection = ({ eventDates = [], setOpen }: Props) => {
   const registrations = useRecoilValue(currentEventClassRegistrationsQuery)
   const [selectedRegistrationID, setSelectedRegistrationID] = useRecoilState(adminRegistrationIdAtom)
 
-  const eventGroups: RegistrationGroup[] = useMemo(() => availableGroups(eventDates).map(eventDate => ({ ...eventDate, key: eventDate.date.toISOString().slice(0, 10) + '|' + eventDate.time, number: 0 })), [eventDates])
-  const registrationsByGroup: Record<string, Registration[]> = useMemo(() => {
-    const byGroup: Record<string, Registration[]> = { reserve: [] }
+  const eventGroups: RegistrationGroup[] = useMemo(() => availableGroups(eventDates).map(eventDate => ({ ...eventDate, key: groupKey(eventDate), number: 0 })), [eventDates])
+  const registrationsByGroup: Record<string, RegistrationWithGroups[]> = useMemo(() => {
+    const byGroup: Record<string, RegistrationWithGroups[]> = { reserve: [] }
     for (const group of eventGroups) {
       byGroup[group.key] = []
     }
     for (const reg of registrations) {
       const key = reg.group?.key ?? 'reserve'
       byGroup[key] = byGroup[key] || [] // make sure the array exists
-      byGroup[key].push(reg)
+      byGroup[key].push({...reg, groups: reg.dates.map(rd => groupKey(rd))})
     }
     return byGroup
   }, [eventGroups, registrations])
 
   const {entryColumns, participantColumns} = useClassEntrySelectionColumns(eventDates)
 
-  const handleDrop = (group: RegistrationGroup) => (item: { id: GridRowId }) => {
+  const handleDrop = (group?: RegistrationGroup) => (item: { id: GridRowId }) => {
     const reg = registrations.find(r => r.id === item.id)
     if (reg) {
-      reg.setGroup({ ...group, number: 1 })
+      reg.setGroup(group)
     }
   }
 
@@ -73,6 +79,7 @@ const ClassEntrySelection = ({ eventDates = [], setOpen }: Props) => {
       {eventGroups.map((group) =>
         <DragableDataGrid
           key={group.key}
+          group={group.key}
           columns={participantColumns}
           density='compact'
           disableColumnMenu
@@ -90,6 +97,13 @@ const ClassEntrySelection = ({ eventDates = [], setOpen }: Props) => {
             },
           }}
           onDrop={handleDrop(group)}
+          sx={{
+            '.reject & .header': { bgcolor: 'error.main', opacity: 0.5 },
+            '.reject & .MuiDataGrid-main': { bgcolor: 'error.main', opacity: 0.5 },
+            '.accept & .header': { bgcolor: 'success.main' },
+            '.accept.over & .MuiDataGrid-main': { bgcolor: 'background.form' },
+            '.accept & .MuiDataGrid-main': { bgcolor: 'background.ok' },
+          }}
         />,
       )}
       < Typography variant='h5' > Ilmoittautuneet</Typography >
@@ -97,11 +111,17 @@ const ClassEntrySelection = ({ eventDates = [], setOpen }: Props) => {
         columns={entryColumns}
         density='compact'
         disableColumnMenu
+        flex={eventGroups.length || 1}
         rows={registrationsByGroup.reserve}
         onSelectionModelChange={handleSelectionModeChange}
         selectionModel={selectedRegistrationID ? [selectedRegistrationID] : []}
         onRowDoubleClick={handleDoubleClick}
-        sx={{ flex: eventGroups.length || 1 }}
+        onDrop={handleDrop()}
+        sx={{
+          '.accept & .header': { bgcolor: 'success.main' },
+          '.accept.over & .MuiDataGrid-main': { bgcolor: 'background.form' },
+          '.accept & .MuiDataGrid-main': { bgcolor: 'background.ok' },
+        }}
       />
     </DndProvider>
   )

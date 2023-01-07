@@ -1,7 +1,6 @@
 import { Registration, RegistrationGroup } from "koekalenteri-shared/model"
-import { selector, selectorFamily } from "recoil"
+import { selector } from "recoil"
 
-import { getRegistration } from "../../../../api/registration"
 import { adminEventIdAtom, eventClassAtom } from "../events/atoms"
 
 import { eventRegistrationsAtom, RegistrationWithMutators } from "./atoms"
@@ -14,7 +13,7 @@ export const currentEventClassRegistrationsQuery = selector<RegistrationWithMuta
     const registrations = get(currentEventRegistrationsQuery)
     return registrations.filter(r => r.class === eventClass).map(r => ({
       ...r,
-      setGroup: getCallback(({ set }) => async (group: RegistrationGroup) => {
+      setGroup: getCallback(({ set }) => async (group?: RegistrationGroup) => {
         const newList = [...registrations]
         const index = newList.findIndex(item => item.id === r.id)
         if (index !== -1) {
@@ -37,22 +36,5 @@ export const currentEventRegistrationsQuery = selector<Registration[]>({
     if (currentEventId) {
       set(eventRegistrationsAtom(currentEventId), newValue)
     }
-  },
-})
-
-export const adminRegistrationQuery = selectorFamily<RegistrationWithMutators | null, string>({
-  key: 'adminRegistration',
-  get: (registrationId) => async ({ get, getCallback }) => {
-    const selectedEventId = get(adminEventIdAtom)
-    const registration = selectedEventId && await getRegistration(selectedEventId, registrationId)
-    const setGroup = getCallback(() => async (group: RegistrationGroup) => {
-      console.log('woot', group)
-    })
-    return registration
-      ? {
-        ...registration,
-        setGroup,
-      }
-      : null
   },
 })

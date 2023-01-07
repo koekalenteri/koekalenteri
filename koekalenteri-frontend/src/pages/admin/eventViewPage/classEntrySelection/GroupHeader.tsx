@@ -7,15 +7,16 @@ import GroupColors from './GroupColors'
 interface Props {
   eventDates: Date[]
   group: RegistrationDate
+  className?: string
 }
 
 const GroupHeader = ({ eventDates, group }: Props) => {
   const { t } = useTranslation()
 
-  return <Stack direction="row" sx={{
+  return <Stack direction="row" className={'header'} sx={{
     height: 24,
     lineHeight: '24px',
-    bgcolor: 'secondary.main',
+    bgcolor: 'background.ok',
   }}>
     <GroupColors dates={eventDates} selected={[group]} disableTooltip />
     <b>{t('dateshort', { date: group.date }) + ' ' + t(`registration.time.${group.time}`)}</b>

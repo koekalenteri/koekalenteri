@@ -6,7 +6,7 @@ import { logEffect, storageEffect } from "../../../recoil"
 
 
 export interface RegistrationWithMutators extends Registration {
-  setGroup: (group: RegistrationGroup) => void
+  setGroup: (group?: RegistrationGroup) => void
 }
 
 export const adminRegistrationIdAtom = atom<string | undefined>({
