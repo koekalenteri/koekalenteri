@@ -8,9 +8,9 @@ import { differenceInMinutes, subMonths, subYears } from 'date-fns'
 import { BreedCode, Dog, DogGender, Registration } from 'koekalenteri-shared/model'
 import merge from 'lodash.merge'
 
+import { AutocompleteSingle, CollapsibleSection } from '../../../components'
 import { useStores } from '../../../stores'
 import { DogCachedInfo } from '../../../stores/DogStore'
-import { AutocompleteSingle, CollapsibleSection } from '../..'
 
 import { validateRegNo } from './validation'
 

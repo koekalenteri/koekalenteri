@@ -5,9 +5,10 @@ import { CircularProgress } from '@mui/material'
 import type { ConfirmedEvent, Registration } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
-import { LinkButton, RegistrationEventInfo, RegistrationForm } from '../components'
+import { LinkButton, RegistrationEventInfo } from '../components'
 import { useSessionStarted } from '../stores'
 
+import RegistrationForm from './components/RegistrationForm'
 import { currentEvent, eventIdAtom, registrationIdAtom, registrationQuery } from './recoil'
 
 export const RegistrationPage = () => {

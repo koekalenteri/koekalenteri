@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next'
 import { TextField } from '@mui/material'
 import { Registration } from 'koekalenteri-shared/model'
 
-import { CollapsibleSection } from '../..'
+import { CollapsibleSection } from '../../../components'
 
 type AdditionalInfoProps = {
   reg: Registration

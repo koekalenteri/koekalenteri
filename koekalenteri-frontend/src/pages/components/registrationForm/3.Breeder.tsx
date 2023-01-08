@@ -2,8 +2,10 @@ import { useTranslation } from 'react-i18next'
 import { Grid, TextField } from '@mui/material'
 import { Registration, RegistrationBreeder } from 'koekalenteri-shared/model'
 
+import { CollapsibleSection } from '../../../components'
 import { useStores } from '../../../stores'
-import { CollapsibleSection, emptyBreeder } from '../..'
+import { emptyBreeder } from '../RegistrationForm'
+
 
 type BreederInfoProps = {
   reg: Partial<Registration>

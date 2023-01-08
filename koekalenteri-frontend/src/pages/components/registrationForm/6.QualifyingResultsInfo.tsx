@@ -9,7 +9,7 @@ import { v4 as uuidv4 } from 'uuid'
 
 import '@mui/lab'
 
-import { CollapsibleSection } from '../..'
+import { CollapsibleSection } from '../../../components'
 
 import { EventResultRequirement, EventResultRequirements, EventResultRequirementsByDate, getRequirements, RegistrationClass } from './rules'
 import { objectContains } from './validation'

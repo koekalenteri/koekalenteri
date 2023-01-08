@@ -4,8 +4,8 @@ import { Grid } from '@mui/material'
 import { eachDayOfInterval, format } from 'date-fns'
 import { ConfirmedEvent, Registration, RegistrationDate, ReserveChoise } from 'koekalenteri-shared/model'
 
+import { AutocompleteMulti, AutocompleteSingle, CollapsibleSection } from '../../../components'
 import { unique, uniqueDate } from '../../../utils'
-import { AutocompleteMulti, AutocompleteSingle, CollapsibleSection } from '../..'
 
 function getClassDates(event: ConfirmedEvent, classDate: string|undefined, regClass: string|undefined) {
   const classes = event.classes.filter(c => typeof c !== 'string' && (regClass === '' || c.class === regClass))

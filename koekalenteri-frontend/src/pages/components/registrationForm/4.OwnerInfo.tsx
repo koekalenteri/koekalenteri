@@ -1,11 +1,13 @@
 import { useTranslation } from 'react-i18next'
-import { Checkbox, FormControlLabel, Grid, TextField } from '@mui/material'
+import { Checkbox, FormControlLabel, FormGroup, Grid, Switch, TextField } from '@mui/material'
 import { Registration, RegistrationPerson } from 'koekalenteri-shared/model'
 
+import { CollapsibleSection } from '../../../components'
 import { useStores } from '../../../stores'
-import { CollapsibleSection, emptyPerson } from '../..'
+import { emptyPerson } from '../RegistrationForm'
 
-type HandlerInfoProps = {
+
+type OwnerInfoProps = {
   reg: Partial<Registration>
   error?: boolean
   helperText?: string
@@ -14,44 +16,44 @@ type HandlerInfoProps = {
   open?: boolean
 }
 
-export function HandlerInfo({ reg, error, helperText, onChange, onOpenChange, open }: HandlerInfoProps) {
+export function OwnerInfo({reg, error, helperText, onChange, onOpenChange, open}: OwnerInfoProps) {
   const { t } = useTranslation()
   const { rootStore } = useStores()
 
   const handleChange = (props: Partial<RegistrationPerson>) => {
-    const handler = { ...emptyPerson, ...reg.handler, ...props }
+    const owner = { ...emptyPerson, ...reg.owner, ...props }
     if (reg.dog?.regNo) {
-      rootStore.dogStore.save({ dog: { ...reg.dog }, handler })
+      rootStore.dogStore.save({ dog: { ...reg.dog }, owner })
     }
-    onChange({ handler })
+    onChange({ owner })
   }
 
   return (
-    <CollapsibleSection title={t('registration.handler')} error={error} helperText={helperText} open={open} onOpenChange={onOpenChange}>
+    <CollapsibleSection title={t('registration.owner')} error={error} helperText={helperText} open={open} onOpenChange={onOpenChange}>
       <Grid item container spacing={1}>
         <Grid item container spacing={1}>
           <Grid item sx={{ width: 300 }}>
             <TextField
               InputProps={{ autoComplete: 'name' }}
-              error={!reg.handler?.name}
+              error={!reg.owner?.name}
               fullWidth
-              id="handler_name"
+              id="owner_name"
               label={t('contact.name')}
               name="name"
               onChange={e => handleChange({ name: e.target.value || '' })}
-              value={reg.handler?.name || ''}
+              value={reg.owner?.name || ''}
             />
           </Grid>
           <Grid item sx={{ width: 300 }}>
             <TextField
               InputProps={{ autoComplete: 'address-level2' }}
-              error={!reg.handler?.location}
+              error={!reg.owner?.location}
               fullWidth
-              id="handler_city"
+              id="owner_city"
+              label={t('contact.city')}
               name="city"
               onChange={e => handleChange({ location: e.target.value || '' })}
-              label={t('contact.city')}
-              value={reg.handler?.location || ''}
+              value={reg.owner?.location || ''}
             />
           </Grid>
         </Grid>
@@ -59,38 +61,48 @@ export function HandlerInfo({ reg, error, helperText, onChange, onOpenChange, op
           <Grid item sx={{ width: 300 }}>
             <TextField
               InputProps={{ autoComplete: 'email' }}
-              error={!reg.handler?.email}
+              error={!reg.owner?.email}
               fullWidth
-              id="handler_email"
+              id="owner_email"
               label={t('contact.email')}
               name="email"
               onChange={e => handleChange({ email: e.target.value || '' })}
-              value={reg.handler?.email || ''}
+              value={reg.owner?.email || ''}
             />
           </Grid>
           <Grid item sx={{ width: 300 }}>
             <TextField
               InputProps={{ autoComplete: 'tel' }}
-              error={!reg.handler?.phone}
+              error={!reg.owner?.phone}
               fullWidth
-              id="handler_phone"
+              id="owner_phone"
               label={t('contact.phone')}
               name="phone"
               onChange={e => handleChange({ phone: e.target.value || '' })}
-              value={reg.handler?.phone || ''}
+              value={reg.owner?.phone || ''}
             />
           </Grid>
         </Grid>
       </Grid>
-      <FormControlLabel
-        control={
+      <FormGroup>
+        <FormControlLabel control={
           <Checkbox
-            checked={reg.handler?.membership}
+            checked={reg.owner?.membership}
             onChange={e => handleChange({ membership: e.target.checked })}
+          />} label={t('registration.ownerIsMember')}
+        />
+      </FormGroup>
+      <FormGroup>
+        <FormControlLabel control={
+          <Switch
+            checked={reg.ownerHandles}
+            onChange={e => onChange({
+              ownerHandles: e.target.checked,
+              handler: e.target.checked ? { ...emptyPerson, ...reg.owner } : { ...emptyPerson },
+            })}
           />
-        }
-        label={t('registration.handlerIsMember')}
-      />
+        } label={t('registration.ownerHandles')} />
+      </FormGroup>
     </CollapsibleSection>
   )
 }

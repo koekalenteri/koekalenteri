@@ -1,6 +1,6 @@
 import { Event, EventState, ShowContactInfo } from "koekalenteri-shared/model"
 
-import { ValidationResult, Validators } from '../../../../components/forms/validation'
+import { ValidationResult, Validators } from '../../../../i18n/validation'
 import { unique } from "../../../../utils"
 import { PartialEvent } from "../EventForm"
 

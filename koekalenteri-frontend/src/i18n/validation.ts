@@ -1,4 +1,4 @@
-import { ValidationErrorKey } from '../../i18n'
+import { ValidationErrorKey } from '.'
 
 export type ValidationError<T extends Record<string, any>, NS extends keyof ValidationErrorKey> = { key: keyof ValidationErrorKey[NS], opts: { field: keyof T, list?: Array<string>, length?: number, state?: string, type?: string } };
 export type ValidationResult<T extends Record<string, any>, NS extends keyof ValidationErrorKey> = false | ValidationError<T, NS>;

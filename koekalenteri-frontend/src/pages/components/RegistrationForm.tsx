@@ -7,17 +7,17 @@ import { TFunction } from 'i18next'
 import { ConfirmedEvent, Language, Registration } from 'koekalenteri-shared/model'
 import { useRecoilValue } from 'recoil'
 
-import { eventTypeClassesAtom } from '../../../pages/recoil'
+import { eventTypeClassesAtom } from '../../pages/recoil'
 
-import { EntryInfo, getRegistrationDates } from './1.Entry'
-import { DogInfo } from './2.Dog'
-import { BreederInfo } from './3.Breeder'
-import { OwnerInfo } from './4.OwnerInfo'
-import { HandlerInfo } from './5.HandlerInfo'
-import { QualifyingResultsInfo } from './6.QualifyingResultsInfo'
-import { AdditionalInfo } from './7.AdditionalInfo'
-import { RegistrationClass } from './rules'
-import { filterRelevantResults, validateRegistration } from './validation'
+import { EntryInfo, getRegistrationDates } from './registrationForm/1.Entry'
+import { DogInfo } from './registrationForm/2.Dog'
+import { BreederInfo } from './registrationForm/3.Breeder'
+import { OwnerInfo } from './registrationForm/4.OwnerInfo'
+import { HandlerInfo } from './registrationForm/5.HandlerInfo'
+import { QualifyingResultsInfo } from './registrationForm/6.QualifyingResultsInfo'
+import { AdditionalInfo } from './registrationForm/7.AdditionalInfo'
+import { RegistrationClass } from './registrationForm/rules'
+import { filterRelevantResults, validateRegistration } from './registrationForm/validation'
 
 type FormEventHandler = (registration: Registration) => Promise<boolean>
 type RegistrationFormProps = {
@@ -46,7 +46,7 @@ export const emptyPerson = {
   membership: false,
 }
 
-export const RegistrationForm = ({ event, className, registration, classDate, onSave, onCancel }: RegistrationFormProps) => {
+export default function RegistrationForm({ event, className, registration, classDate, onSave, onCancel }: RegistrationFormProps) {
   const eventTypeClasses = useRecoilValue(eventTypeClassesAtom)
   const eventHasClasses = eventTypeClasses[event.eventType]?.length > 0
   const large = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))

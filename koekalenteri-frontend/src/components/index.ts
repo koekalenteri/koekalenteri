@@ -1,5 +1,3 @@
-export * from './forms'
-
 export * from './AutocompleteMulti'
 export * from './AutocompleteSingle'
 export * from './Buttons'
