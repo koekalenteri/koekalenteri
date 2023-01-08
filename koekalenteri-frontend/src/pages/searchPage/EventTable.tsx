@@ -14,10 +14,11 @@ import {
   TableRow,
 } from '@mui/material'
 import type { Event, EventState } from 'koekalenteri-shared/model'
+import { useRecoilState } from 'recoil'
 
-import { useSessionBoolean } from '../../stores'
 import { isEntryOpen } from '../../utils'
 import LinkButton from '../components/LinkButton'
+import { openedEventAtom } from '../recoil'
 
 import { EventInfo } from './EventInfo'
 
@@ -33,7 +34,7 @@ function eventClasses(event: Event) {
 }
 
 const Row = ({ event }: { event: Event }) => {
-  const [open, setOpen] = useSessionBoolean('open' + event.id, false)
+  const [open, setOpen] = useRecoilState(openedEventAtom(event.id))
   const { t } = useTranslation()
 
   const handleClick = useCallback(() => setOpen(!open), [open, setOpen])

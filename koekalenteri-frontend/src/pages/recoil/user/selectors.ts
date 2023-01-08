@@ -6,10 +6,8 @@ export const userNameSelector = selector({
   get: async () => {
     try {
       const user = await Auth.currentAuthenticatedUser()
-      console.log(user)
       return user?.attributes?.name || user?.attributes?.email
     } catch(e) {
-      console.error(e)
       // The user is not authenticated
     }
   },

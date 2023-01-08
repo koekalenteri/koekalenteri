@@ -3,6 +3,7 @@ import { ThemeProvider } from '@mui/material'
 import { render, screen } from '@testing-library/react'
 import { parseISO } from 'date-fns'
 import { Event } from 'koekalenteri-shared/model'
+import { RecoilRoot } from 'recoil'
 
 import { eventWithEntryOpen } from '../../__mockData__/events'
 import { emptyEvent } from '../../api/test-utils/emptyEvent'
@@ -14,7 +15,9 @@ describe('EventTable', () => {
   it('should render with empty result', () => {
     const { container } = render(
       <ThemeProvider theme={theme}>
-        <EventTable events={[]} />
+        <RecoilRoot>
+          <EventTable events={[]} />
+        </RecoilRoot>
       </ThemeProvider>,
     )
     expect(container).toMatchSnapshot()
@@ -28,7 +31,9 @@ describe('EventTable', () => {
     }
     const { container } = render(
       <ThemeProvider theme={theme}>
-        <EventTable events={[event]} />
+        <RecoilRoot>
+          <EventTable events={[event]} />
+        </RecoilRoot>
       </ThemeProvider>,
     )
     expect(container).toMatchSnapshot()
@@ -38,7 +43,9 @@ describe('EventTable', () => {
     render(
       <ThemeProvider theme={theme}>
         <MemoryRouter>
-          <EventTable events={[eventWithEntryOpen]} />
+          <RecoilRoot>
+            <EventTable events={[eventWithEntryOpen]} />
+          </RecoilRoot>
         </MemoryRouter>
       </ThemeProvider>)
     expect(screen.getByRole('link')).toHaveAttribute('href', `/event/${eventWithEntryOpen.eventType}/${eventWithEntryOpen.id}`)
