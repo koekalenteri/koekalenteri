@@ -5,7 +5,9 @@ import { ConfirmedEvent } from 'koekalenteri-shared/model'
 import useEventStatus from '../hooks/useEventStatus'
 import { entryDateColor, isEntryOpen } from '../utils'
 
-import { CollapsibleSection, CostInfo } from '.'
+import { CollapsibleSection } from './CollapsibleSection'
+import { CostInfo } from './CostInfo'
+
 
 export function RegistrationEventInfo({ event }: { event: ConfirmedEvent; }) {
   const { t } = useTranslation()

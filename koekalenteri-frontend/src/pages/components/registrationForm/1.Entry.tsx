@@ -4,7 +4,9 @@ import { Grid } from '@mui/material'
 import { eachDayOfInterval, format } from 'date-fns'
 import { ConfirmedEvent, Registration, RegistrationDate, ReserveChoise } from 'koekalenteri-shared/model'
 
-import { AutocompleteMulti, AutocompleteSingle, CollapsibleSection } from '../../../components'
+import { AutocompleteMulti } from '../../../components/AutocompleteMulti'
+import { AutocompleteSingle } from '../../../components/AutocompleteSingle'
+import { CollapsibleSection } from '../../../components/CollapsibleSection'
 import { unique, uniqueDate } from '../../../utils'
 
 function getClassDates(event: ConfirmedEvent, classDate: string|undefined, regClass: string|undefined) {

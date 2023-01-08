@@ -5,7 +5,7 @@ import { Menu } from '@mui/material'
 import { Language } from 'koekalenteri-shared/model'
 import { useRecoilValue } from 'recoil'
 
-import { AppBarButton } from '../../../components'
+import { AppBarButton } from '../../../components/Buttons'
 import { locales } from '../../../i18n'
 import { languageAtom } from '../../recoil'
 

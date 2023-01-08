@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next"
 import { Grid, TextField } from "@mui/material"
 import { Headquarters } from "koekalenteri-shared/model"
 
-import { CollapsibleSection } from "../../../../components"
+import { CollapsibleSection } from "../../../../components/CollapsibleSection"
 import { SectionProps } from "../EventForm"
 
 interface Props extends Omit<SectionProps, 'event'> {

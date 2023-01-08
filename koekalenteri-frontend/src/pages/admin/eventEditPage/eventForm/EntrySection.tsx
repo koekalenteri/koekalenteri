@@ -3,7 +3,8 @@ import { useTranslation } from 'react-i18next'
 import { Checkbox, FormControlLabel, FormHelperText, Grid } from '@mui/material'
 import { sub } from 'date-fns'
 
-import { CollapsibleSection, DateRange, DateValue } from '../../../../components'
+import { CollapsibleSection } from '../../../../components/CollapsibleSection'
+import { DateRange, DateValue } from '../../../../components/DateRange'
 import { SectionProps } from '../EventForm'
 
 import EventFormPlaces from './entrySection/EventFormPlaces'

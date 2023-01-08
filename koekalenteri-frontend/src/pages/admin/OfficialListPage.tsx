@@ -5,7 +5,7 @@ import { GridColDef } from '@mui/x-data-grid'
 import { Official } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
-import { StyledDataGrid } from '../../components'
+import { StyledDataGrid } from '../../components/StyledDataGrid'
 import { filteredOfficialsQuery, officialFilterAtom, useJudgesActions } from '../recoil'
 
 import FullPageFlex from './components/FullPageFlex'

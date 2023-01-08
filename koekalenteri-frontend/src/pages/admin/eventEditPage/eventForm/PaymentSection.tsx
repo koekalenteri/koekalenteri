@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next"
 import { Grid } from "@mui/material"
 
-import { CollapsibleSection } from "../../../../components"
+import { CollapsibleSection } from "../../../../components/CollapsibleSection"
 import { SectionProps } from "../EventForm"
 
 import EventPrice from "./components/EventPrice"

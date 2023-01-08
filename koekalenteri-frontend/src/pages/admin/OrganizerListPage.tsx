@@ -6,7 +6,7 @@ import { GridColDef } from '@mui/x-data-grid'
 import { Organizer } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
-import { StyledDataGrid } from '../../components'
+import { StyledDataGrid } from '../../components/StyledDataGrid'
 import { filteredOrganizersQuery, organizerFilterAtom, useOrganizersActions } from '../recoil'
 
 import FullPageFlex from './components/FullPageFlex'

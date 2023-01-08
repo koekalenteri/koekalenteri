@@ -7,7 +7,8 @@ import { GridSelectionModel } from '@mui/x-data-grid'
 import { useConfirm } from 'material-ui-confirm'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
-import { AutoButton, StyledDataGrid } from '../../components'
+import { AutoButton } from '../../components/Buttons'
+import { StyledDataGrid } from '../../components/StyledDataGrid'
 import { Path } from '../../routeConfig'
 
 import FullPageFlex from './components/FullPageFlex'

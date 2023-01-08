@@ -4,7 +4,9 @@ import { Grid, TextField } from '@mui/material'
 import { add, differenceInDays, eachDayOfInterval, isAfter, isSameDay, startOfDay } from 'date-fns'
 import { DeepPartial, EventClass, Official, Organizer } from 'koekalenteri-shared/model'
 
-import { CollapsibleSection, DateRange, DateValue, HelpPopover } from '../../../../components'
+import { CollapsibleSection } from '../../../../components/CollapsibleSection'
+import { DateRange, DateValue } from '../../../../components/DateRange'
+import { HelpPopover } from '../../../../components/HelpPopover'
 import { PartialEvent, SectionProps } from '../EventForm'
 
 import EventClasses from './components/EventClasses'
