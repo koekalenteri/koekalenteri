@@ -52,7 +52,7 @@ export type QualifyingResult = TestResult & { official: boolean, qualifying?: bo
 
 export type JsonRegistrationDate = {
   date: string
-  time: RegistrationTime
+  time?: RegistrationTime
 }
 
 export type RegistrationDate = Replace<JsonRegistrationDate, 'date', Date>

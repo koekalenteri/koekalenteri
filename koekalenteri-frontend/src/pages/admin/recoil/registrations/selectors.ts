@@ -3,8 +3,11 @@ import { selector } from "recoil"
 
 import { adminEventIdAtom, eventClassAtom } from "../events/atoms"
 
-import { eventRegistrationsAtom, RegistrationWithMutators } from "./atoms"
+import { eventRegistrationsAtom } from "./atoms"
 
+export interface RegistrationWithMutators extends Registration {
+  setGroup: (group?: RegistrationGroup) => void
+}
 
 export const currentEventClassRegistrationsQuery = selector<RegistrationWithMutators[]>({
   key: 'CurrentEventClassRegistrations',

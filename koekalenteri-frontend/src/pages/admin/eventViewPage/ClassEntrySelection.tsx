@@ -1,14 +1,15 @@
 import { Dispatch, SetStateAction, useCallback, useMemo } from 'react'
-import { DndProvider } from 'react-dnd'
+import { DndProvider, DropTargetMonitor } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { Box, Typography } from '@mui/material'
-import { GridRowId, GridSelectionModel } from '@mui/x-data-grid'
+import { GridSelectionModel } from '@mui/x-data-grid'
 import { Registration, RegistrationDate, RegistrationGroup } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
 import { StyledDataGrid } from '../../../components'
 import { adminRegistrationIdAtom, currentEventClassRegistrationsQuery } from '../recoil'
 
+import { DragItem } from './classEntrySelection/DragableRow'
 import DragableDataGrid from './classEntrySelection/DropableDataGrid'
 import { availableGroups } from './classEntrySelection/GroupColors'
 import GroupHeader from './classEntrySelection/GroupHeader'
@@ -46,10 +47,14 @@ const ClassEntrySelection = ({ eventDates = [], setOpen }: Props) => {
 
   const {entryColumns, participantColumns} = useClassEntrySelectionColumns(eventDates)
 
-  const handleDrop = (group?: RegistrationGroup) => (item: { id: GridRowId }) => {
+  const handleDrop = (group?: RegistrationGroup) => (item: DragItem) => {
     const reg = registrations.find(r => r.id === item.id)
-    if (reg) {
+    if (reg && reg.group?.key !== group?.key) {
       reg.setGroup(group)
+    }
+    if (item.move) {
+      console.log(item.id, item.move)
+      delete item.move
     }
   }
 
@@ -94,6 +99,9 @@ const ClassEntrySelection = ({ eventDates = [], setOpen }: Props) => {
             header: {
               eventDates: eventDates,
               group: group,
+            },
+            row: {
+              groupKey: group.key,
             },
           }}
           onDrop={handleDrop(group)}

@@ -1,12 +1,12 @@
-import { useDrop } from "react-dnd"
-import { DataGridProps, GridRowId } from "@mui/x-data-grid"
+import { DropTargetMonitor, useDrop } from "react-dnd"
+import { DataGridProps } from "@mui/x-data-grid"
 
 import { StyledDataGrid } from '../../../../components'
 
 import DragableRow, { DragItem } from './DragableRow'
 
 interface Props extends DataGridProps {
-  onDrop?: (item: { id: GridRowId }) => any
+  onDrop?: (item: DragItem) => any
   group?: string
   flex?: number
 }
@@ -21,10 +21,16 @@ const DropableDataGrid = (props: Props) => {
   const [{ canDrop, isOver, isDragging }, ref] = useDrop<DragItem, void, DragCollect>(() => ({
     accept: 'row',
     canDrop: (item) => !props.group || item.groups.includes(props.group),
-    drop: props.onDrop,
+    drop: (item: DragItem, monitor: DropTargetMonitor<DragItem, void>) => {
+      if (item.move && item.move.groupKey !== props.group) {
+        // clean up possible stale move information from different group
+        delete item.move
+      }
+      props.onDrop?.(item)
+    },
     collect: (monitor) => {
       return {
-        isOver: monitor.isOver({shallow: true}),
+        isOver: monitor.isOver(),
         canDrop: monitor.canDrop(),
         isDragging: monitor.getItem() !== null,
       }
