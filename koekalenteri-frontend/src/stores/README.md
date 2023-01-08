@@ -1,3 +1,0 @@
-# Stores
-
-MobX stores
