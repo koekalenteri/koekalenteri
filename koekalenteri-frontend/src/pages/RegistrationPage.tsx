@@ -5,12 +5,10 @@ import { CircularProgress } from '@mui/material'
 import type { ConfirmedEvent, Registration } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
-import { useSessionStarted } from '../stores'
-
 import LinkButton from './components/LinkButton'
 import RegistrationEventInfo from './components/RegistrationEventInfo'
 import RegistrationForm from './components/RegistrationForm'
-import { currentEvent, eventIdAtom, registrationIdAtom, registrationQuery } from './recoil'
+import { currentEvent, eventIdAtom, registrationIdAtom, registrationQuery, spaAtom } from './recoil'
 
 export const RegistrationPage = () => {
   const navigate = useNavigate()
@@ -19,7 +17,7 @@ export const RegistrationPage = () => {
   const [registrationId, setRegistrationId] = useRecoilState(registrationIdAtom)
   const event = useRecoilValue(currentEvent) as ConfirmedEvent | undefined
   const registration = useRecoilValue(registrationQuery)
-  const [sessionStarted] = useSessionStarted()
+  const spa = useRecoilValue(spaAtom)
   const { t } = useTranslation()
 
   const onSave = async (reg: Registration) => {
@@ -52,7 +50,7 @@ export const RegistrationPage = () => {
     */
     return false
   }
-  const onClick = useCallback(() => sessionStarted ? () => navigate(-1) : undefined, [sessionStarted, navigate])
+  const onClick = useCallback(() => spa ? () => navigate(-1) : undefined, [spa, navigate])
   const onCancel = async () => {
     navigate(registration ? `/registration/${registration.eventType}/${registration.eventId}/${registration.id}` : '/')
     return true
@@ -75,7 +73,7 @@ export const RegistrationPage = () => {
 
   return (
     <>
-      <LinkButton sx={{ mb: 1 }} to="/" onClick={onClick} text={sessionStarted ? t('goBack') : t('goHome')} />
+      <LinkButton sx={{ mb: 1 }} to="/" onClick={onClick} text={spa ? t('goBack') : t('goHome')} />
       <RegistrationEventInfo event={event} />
       <RegistrationForm event={event} registration={registration} className={params.class} classDate={params.date} onSave={onSave} onCancel={onCancel} />
     </>

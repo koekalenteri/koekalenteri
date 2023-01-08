@@ -15,3 +15,8 @@ export const languageAtom = atom<Language>({
     i18nextEffect,
   ],
 })
+
+export const spaAtom = atom<boolean>({
+  key: 'spa',
+  default: false,
+})

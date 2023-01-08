@@ -1,23 +1,23 @@
 import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
-import { useRecoilState, useRecoilValue } from 'recoil'
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
 
 import { EventFilter } from './searchPage/EventFilter'
 import { EventTable } from './searchPage/EventTable'
-import { activeEventTypesQuery, deserializeFilter, eventFilterAtom, filteredEvents, filterJudgesQuery, filterOrganizersQuery } from './recoil'
+import { activeEventTypesQuery, deserializeFilter, eventFilterAtom, filteredEvents, filterJudgesQuery, filterOrganizersQuery, spaAtom } from './recoil'
 
 
 export function SearchPage() {
+  const [filter, setFilter] = useRecoilState(eventFilterAtom)
+  const setSpa = useSetRecoilState(spaAtom)
   const organizers = useRecoilValue(filterOrganizersQuery)
   const activeJudges = useRecoilValue(filterJudgesQuery)
   const activeEventTypes = useRecoilValue(activeEventTypesQuery)
   const events = useRecoilValue(filteredEvents)
-  const [filter, setFilter] = useRecoilState(eventFilterAtom)
   const location = useLocation()
 
-  useEffect(() => {
-    setFilter(deserializeFilter(location.search))
-  }, [location, setFilter])
+  useEffect(() => setSpa(true), [setSpa])
+  useEffect(() => setFilter(deserializeFilter(location.search)), [location, setFilter])
 
   return (
     <>

@@ -8,13 +8,12 @@ import { useSnackbar } from 'notistack'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
 import { putRegistration } from "../api/registration"
-import { useSessionStarted } from '../stores'
 
 import Header from './components/Header'
 import LinkButton from './components/LinkButton'
 import RegistrationEventInfo from './components/RegistrationEventInfo'
 import RegistrationList from './registrationListPage/RegistrationList'
-import { currentEvent, eventIdAtom, registrationIdAtom, registrationQuery } from './recoil'
+import { currentEvent, eventIdAtom, registrationIdAtom, registrationQuery, spaAtom } from './recoil'
 
 
 export function RegistrationListPage({cancel}: {cancel?: boolean}) {
@@ -23,7 +22,7 @@ export function RegistrationListPage({cancel}: {cancel?: boolean}) {
   const [registrationId, setRegistrationId] = useRecoilState(registrationIdAtom)
   const event = useRecoilValue(currentEvent) as ConfirmedEvent | undefined
   const registration = useRecoilValue(registrationQuery)
-  const [sessionStarted] = useSessionStarted()
+  const spa = useRecoilValue(spaAtom)
   const { t } = useTranslation()
 
   useEffect(() => {
@@ -42,7 +41,7 @@ export function RegistrationListPage({cancel}: {cancel?: boolean}) {
       <Header title={t('entryList', { context: event?.eventType === 'other' ? '' : 'test' })} />
       <Box sx={{ p: 1, overflow: 'hidden', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
         <Toolbar variant="dense" />{/* To allocate the space for fixed header */}
-        <LinkButton sx={{ mb: 1 }} to="/" text={sessionStarted ? t('goBack') : t('goHome')} />
+        <LinkButton sx={{ mb: 1 }} to="/" text={spa ? t('goBack') : t('goHome')} />
         <PageContent event={event} registration={registration} cancel={cancel}/>
       </Box>
     </>

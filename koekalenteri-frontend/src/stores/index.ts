@@ -24,8 +24,6 @@ const rootStoreContext = createContext(stores)
 
 export const useStores = () => useContext(rootStoreContext)
 
-export const useSessionStarted = () => useSessionStorage('started', '')
-
 export const useSessionBoolean = (key: string, defaultValue: boolean): [boolean, Setter<boolean>] => {
   const [stringValue, setStringValue] = useSessionStorage(key, defaultValue ? 'true' : '')
   const value = useMemo<boolean>(() => stringValue === 'true', [stringValue])
