@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, within } from '@testing-library/react'
 import { RecoilRoot } from 'recoil'
 
-import { LanguageMenu } from './LanguageMenu'
+import LanguageMenu from './LanguageMenu'
 
 test('It should render the button', () => {
   render(

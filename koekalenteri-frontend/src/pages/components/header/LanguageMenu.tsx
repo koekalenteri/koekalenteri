@@ -11,7 +11,8 @@ import { languageAtom } from '../../recoil'
 import { LanguageMenuItem } from './languageMenu/LanguageMenuItem'
 import AppBarButton from "./AppBarButton"
 
-export function LanguageMenu() {
+
+export default function LanguageMenu() {
   const { t } = useTranslation()
   const language = useRecoilValue(languageAtom)
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
