@@ -129,7 +129,6 @@
   "login": "Login",
   "loginFailed": "Login failed",
   "logout": "Logout",
-  "logoutFailed": "Logout failed",
   "members_one": "({{count}} memeber)",
   "members_other": "({{count}} members)",
   "name": "Name",

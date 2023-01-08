@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import { Menu } from '@mui/icons-material'
 import { AppBar, IconButton, Link, Toolbar, Typography } from '@mui/material'
 
@@ -31,8 +32,10 @@ const Header = ({title, toggleMenu}: Props) => {
         <Typography variant="h6" color="primary.dark" noWrap component="div" sx={{ ml: 1, flexGrow: 1, flexShrink: 10000 }}>
           {title ? ' › ' + title : ''}
         </Typography>
-        <LanguageMenu />
-        <UserMenu />
+        <Suspense>
+          <LanguageMenu />
+          <UserMenu />
+        </Suspense>
       </Toolbar>
     </AppBar>
   )

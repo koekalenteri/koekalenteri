@@ -8,7 +8,7 @@ import { RecoilRoot } from 'recoil'
 import theme from '../../assets/Theme'
 import { flushPromisesAndTimers, RecoilObserver } from '../../test-utils/utils'
 
-import { EventListPage } from './EventListPage'
+import EventListPage from './EventListPage'
 import { adminEventIdAtom } from './recoil'
 
 jest.useFakeTimers()

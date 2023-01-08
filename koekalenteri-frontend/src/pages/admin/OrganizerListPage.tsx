@@ -16,7 +16,7 @@ interface OrganizerColDef extends GridColDef {
   field: keyof Organizer
 }
 
-export const OrganizerListPage = () => {
+export default function OrganizerListPage() {
   const [searchText, setSearchText] = useRecoilState(organizerFilterAtom)
   const organizers = useRecoilValue(filteredOrganizersQuery)
   const actions = useOrganizersActions()

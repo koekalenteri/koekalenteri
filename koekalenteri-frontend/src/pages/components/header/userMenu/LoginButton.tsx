@@ -13,10 +13,8 @@ export default function LoginButton() {
   const navigateToLogin = useCallback(() => navigate(Path.login, { state: { from: location } }), [location, navigate])
 
   return (
-    <>
-      <AppBarButton onClick={navigateToLogin} startIcon={<PersonOutline />}>
-        {t(`login`)}
-      </AppBarButton>
-    </>
+    <AppBarButton onClick={navigateToLogin} startIcon={<PersonOutline />}>
+      {t(`login`)}
+    </AppBarButton>
   )
 }

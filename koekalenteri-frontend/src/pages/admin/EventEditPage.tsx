@@ -11,7 +11,7 @@ import { activeEventTypesQuery, activeJudgesQuery, eventTypeClassesAtom, officia
 import EventForm from './eventEditPage/EventForm'
 import { useAdminEventActions } from './recoil'
 
-export function EventEditPage({create}: {create?: boolean}) {
+export default function EventEditPage({create}: {create?: boolean}) {
   const params = useParams()
   const { t } = useTranslation()
   const { enqueueSnackbar } = useSnackbar()

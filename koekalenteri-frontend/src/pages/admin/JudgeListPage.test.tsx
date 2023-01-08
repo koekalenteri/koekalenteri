@@ -8,7 +8,7 @@ import { RecoilRoot } from 'recoil'
 import theme from '../../assets/Theme'
 import { flushPromisesAndTimers } from '../../test-utils/utils'
 
-import { JudgeListPage } from './JudgeListPage'
+import JudgeListPage from './JudgeListPage'
 
 jest.useFakeTimers()
 

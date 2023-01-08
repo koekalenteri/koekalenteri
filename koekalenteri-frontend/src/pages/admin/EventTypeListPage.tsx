@@ -12,7 +12,7 @@ import { QuickSearchToolbar } from './components/QuickSearchToolbar'
 import { useEventTypeListPageColumns } from './eventTypeListPage/columns'
 
 
-export const EventTypeListPage = () =>  {
+export default function EventTypeListPage() {
   const [searchText, setSearchText] = useRecoilState(eventTypeFilterAtom)
   const eventTypes = useRecoilValue(filteredEventTypesQuery)
   const actions = useEventTypeActions()

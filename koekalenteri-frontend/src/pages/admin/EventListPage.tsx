@@ -16,7 +16,7 @@ import AutoButton from "./eventListPage/AutoButton"
 import useEventListColumns from './eventListPage/columns'
 import { adminEventFilterTextAtom, adminEventIdAtom, adminShowPastEventsAtom, currentAdminEventSelector, filteredAdminEventsSelector, useAdminEventActions } from './recoil'
 
-export const EventListPage = () => {
+export default function EventListPage() {
   const confirm = useConfirm()
   const { t } = useTranslation()
   const navigate = useNavigate()

@@ -12,7 +12,7 @@ import theme from '../../assets/Theme'
 import { Language, locales } from '../../i18n'
 import { flushPromisesAndTimers } from '../../test-utils/utils'
 
-import { EventEditPage } from './EventEditPage'
+import EventEditPage from './EventEditPage'
 import { newEventAtom } from './recoil'
 
 jest.useFakeTimers()

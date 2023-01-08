@@ -1,23 +1,19 @@
-import { Navigate, useLocation } from 'react-router-dom'
-import { useAuthenticator } from '@aws-amplify/ui-react'
+import { useRecoilValue } from 'recoil'
 
-import { Path } from '../../../routeConfig'
-import { useSessionBoolean } from '../../../stores'
+import { userNameSelector } from '../../recoil'
 
 import LoggedInUserMenu from './userMenu/LoggedInUserMenu'
 import LoginButton from './userMenu/LoginButton'
 
 
 export default function UserMenu() {
-  const { route } = useAuthenticator(context => [context.route])
-  const [greeted] = useSessionBoolean('greeted', false)
-  const location = useLocation()
+  const userName = useRecoilValue(userNameSelector)
 
-  if (route === 'idle' && greeted) {
-    return <Navigate to={Path.login} state={{ from: location }} replace />
+  if (userName) {
+    return <LoggedInUserMenu userName={userName} />
   }
 
-  return route === 'authenticated' ? <LoggedInUserMenu /> : <LoginButton />
+  return <LoginButton />
 }
 
 

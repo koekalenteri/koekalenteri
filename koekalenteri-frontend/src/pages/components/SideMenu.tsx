@@ -1,10 +1,10 @@
-import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { NavLink, useNavigate } from 'react-router-dom'
+import { NavLink } from 'react-router-dom'
 import { Accessibility, EmojiEventsOutlined, Event, Logout, PersonOutline, SupervisorAccount, Support } from '@mui/icons-material'
 import { Divider, Theme, Toolbar, useMediaQuery } from '@mui/material'
 
 import { Path } from '../../routeConfig'
+import { useUserActions } from '../recoil/user/actions'
 
 import DrawerItem from "./sideMenu/DrawerItem"
 import DrawerList from "./sideMenu/DrawerList"
@@ -14,8 +14,7 @@ export function SideMenu({ open, onClose }: { open?: boolean, onClose: () => voi
   const md = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
   const lg = useMediaQuery((theme: Theme) => theme.breakpoints.up('lg'))
   const { t } = useTranslation()
-  const navigate = useNavigate()
-  const navigateToLogout = useCallback(() => navigate(Path.logout), [navigate])
+  const actions = useUserActions()
 
   return (
     <MiniDrawer
@@ -37,7 +36,7 @@ export function SideMenu({ open, onClose }: { open?: boolean, onClose: () => voi
       </DrawerList>
       <Divider />
       <DrawerList>
-        <DrawerItem text={t('logout')} icon={<Logout />} onClick={navigateToLogout} />
+        <DrawerItem text={t('logout')} icon={<Logout />} onClick={actions.signOut} />
       </DrawerList>
     </MiniDrawer>
   )

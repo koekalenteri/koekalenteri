@@ -44,7 +44,9 @@ Array [
     "path": "/login",
   },
   Object {
-    "element": <LogoutPage />,
+    "element": <Navigate
+      to="/"
+    />,
     "path": "/logout",
   },
   Object {

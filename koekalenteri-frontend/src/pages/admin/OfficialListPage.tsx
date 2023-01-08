@@ -15,7 +15,7 @@ interface OfficialColDef extends GridColDef {
   field: keyof Official
 }
 
-export const OfficialListPage = () => {
+export default function OfficialListPage() {
   const large = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
   const [searchText, setSearchText] = useRecoilState(officialFilterAtom)
   const { t } = useTranslation()

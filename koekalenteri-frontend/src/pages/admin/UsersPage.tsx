@@ -1,4 +1,4 @@
-export function UsersPage() {
+export default function UsersPage() {
   return (
     <>
       {'TODO'}

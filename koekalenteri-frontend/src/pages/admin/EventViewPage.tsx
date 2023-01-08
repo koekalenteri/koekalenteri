@@ -18,7 +18,7 @@ import TabPanel from './eventViewPage/TabPanel'
 import Title from './eventViewPage/Title'
 import { adminEventIdAtom, currentAdminEventSelector, eventClassAtom } from './recoil'
 
-const EventViewPage = () => {
+export default function EventViewPage() {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const params = useParams()
@@ -136,5 +136,3 @@ const EventViewPage = () => {
   )
 
 }
-
-export default EventViewPage

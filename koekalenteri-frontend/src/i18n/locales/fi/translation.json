@@ -143,7 +143,6 @@
   "login": "Kirjaudu",
   "loginFailed": "Kirjautuminen epäonnistui",
   "logout": "Kirjaudu ulos",
-  "logoutFailed": "Uloskirjautuminen epäonnistui",
   "members_one": "({{count}} jäsen)",
   "members_other": "({{count}} jäsentä)",
   "name": "Nimi",

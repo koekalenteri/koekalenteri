@@ -11,7 +11,7 @@ import FullPageFlex from './components/FullPageFlex'
 import { QuickSearchToolbar } from './components/QuickSearchToolbar'
 import useJudgeListColumns from './judgeListPage/columns'
 
-export const JudgeListPage = () => {
+export default function JudgeListPage() {
   const [searchText, setSearchText] = useRecoilState(judgeFilterAtom)
   const { t } = useTranslation()
   const judges = useRecoilValue(filteredJudgesQuery)
