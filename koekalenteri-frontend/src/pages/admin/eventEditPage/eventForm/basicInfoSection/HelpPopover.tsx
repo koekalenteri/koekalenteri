@@ -1,13 +1,14 @@
 import { ReactNode } from 'react'
 import { Fade, Paper, Popover } from '@mui/material'
 
-type HelpPopoverProps = {
+
+interface Props {
   anchorEl: HTMLButtonElement | null
   onClose: () => void
   children: ReactNode
 }
 
-export function HelpPopover({anchorEl, onClose, children}: HelpPopoverProps ) {
+export default function HelpPopover({anchorEl, onClose, children}: Props ) {
   const helpOpen = Boolean(anchorEl)
 
   return (

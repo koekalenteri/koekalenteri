@@ -2,7 +2,7 @@ import { ReactNode, useState } from 'react'
 import { KeyboardArrowDown, KeyboardArrowRight } from '@mui/icons-material'
 import { Box, Collapse, FormHelperText, IconButton, Typography } from '@mui/material'
 
-type CollapsibleSectionProps = {
+interface Props {
   border?: boolean
   children?: ReactNode
   error?: boolean
@@ -12,7 +12,8 @@ type CollapsibleSectionProps = {
   open?: boolean
   title: string
 }
-export function CollapsibleSection({ border = true, children, error, helperText, initOpen, onOpenChange, open, title }: CollapsibleSectionProps) {
+
+export default function CollapsibleSection({ border = true, children, error, helperText, initOpen, onOpenChange, open, title }: Props) {
   const [state, setState] = useState(initOpen !== false)
   const controlled = open !== undefined
   const isOpen = controlled ? open : state

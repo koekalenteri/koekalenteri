@@ -9,7 +9,7 @@ export type AutocompleteMultiProps<T> = Omit<AutocompleteProps<T, true, false, f
   label: string
 }
 
-export function AutocompleteMulti<T>(props: AutocompleteMultiProps<T>) {
+export default function AutocompleteMulti<T>(props: AutocompleteMultiProps<T>) {
   const { error, helperText, label, ...acProps } = props
   const getLabel = props.getOptionLabel || ((o: T) => o)
 

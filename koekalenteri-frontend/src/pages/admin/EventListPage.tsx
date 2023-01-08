@@ -7,12 +7,12 @@ import { GridSelectionModel } from '@mui/x-data-grid'
 import { useConfirm } from 'material-ui-confirm'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
-import { AutoButton } from '../../components/Buttons'
-import { StyledDataGrid } from '../../components/StyledDataGrid'
 import { Path } from '../../routeConfig'
+import StyledDataGrid from '../components/StyledDataGrid'
 
 import FullPageFlex from './components/FullPageFlex'
 import { QuickSearchToolbar } from './components/QuickSearchToolbar'
+import AutoButton from "./eventListPage/AutoButton"
 import useEventListColumns from './eventListPage/columns'
 import { adminEventFilterTextAtom, adminEventIdAtom, adminShowPastEventsAtom, currentAdminEventSelector, filteredAdminEventsSelector, useAdminEventActions } from './recoil'
 

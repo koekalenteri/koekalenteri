@@ -1,14 +1,15 @@
 import { Autocomplete, AutocompleteProps, TextField } from "@mui/material"
 
+
 type OmitProps =  'fullWidth' | 'freeSolo' | 'multiple' | 'renderInput';
 
-export type AutocompleteSingleProps<T, DisableClearable extends boolean | undefined> = Omit<AutocompleteProps<T, false, DisableClearable, false>, OmitProps> & {
+type Props<T, DisableClearable extends boolean | undefined> = Omit<AutocompleteProps<T, false, DisableClearable, false>, OmitProps> & {
   error?: boolean
   helperText?: string
   label: string
 }
 
-export function AutocompleteSingle<T, DisableClearable extends boolean | undefined>(props: AutocompleteSingleProps<T, DisableClearable>) {
+export default function AutocompleteSingle<T, DisableClearable extends boolean | undefined>(props: Props<T, DisableClearable>) {
   const { error, helperText, label, ...acProps } = props
 
   return (

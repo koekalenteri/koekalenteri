@@ -6,7 +6,7 @@ import { Box, Button, Paper, Stack, Theme, useMediaQuery } from '@mui/material'
 import type { DeepPartial, Event, EventClass, EventState, Judge, Official, Organizer } from 'koekalenteri-shared/model'
 import { useRecoilState } from 'recoil'
 
-import { AutocompleteSingle } from '../../../components/AutocompleteSingle'
+import AutocompleteSingle from '../../components/AutocompleteSingle'
 import { DecoratedEvent, editAdminEventModifiedAtom, editAdminEventSelector } from '../recoil'
 
 import AdditionalInfoSection from './eventForm/AdditionalInfoSection'

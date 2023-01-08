@@ -6,7 +6,7 @@ import { GridSelectionModel } from '@mui/x-data-grid'
 import { Registration, RegistrationDate, RegistrationGroup } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
-import { StyledDataGrid } from '../../../components/StyledDataGrid'
+import StyledDataGrid from '../../components/StyledDataGrid'
 import { adminRegistrationIdAtom, currentEventClassRegistrationsQuery } from '../recoil'
 
 import { DragItem } from './classEntrySelection/DragableRow'

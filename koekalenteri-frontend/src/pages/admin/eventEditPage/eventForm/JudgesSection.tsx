@@ -4,8 +4,8 @@ import { Button, Grid } from '@mui/material'
 import { isSameDay } from 'date-fns'
 import { DeepPartial, EventClass, Judge } from 'koekalenteri-shared/model'
 
-import { AutocompleteSingle } from '../../../../components/AutocompleteSingle'
-import { CollapsibleSection } from '../../../../components/CollapsibleSection'
+import AutocompleteSingle from '../../../components/AutocompleteSingle'
+import CollapsibleSection from '../../../components/CollapsibleSection'
 import { SectionProps } from '../EventForm'
 
 import EventClasses from './components/EventClasses'

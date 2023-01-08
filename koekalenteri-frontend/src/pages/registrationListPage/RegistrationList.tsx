@@ -6,7 +6,7 @@ import { Box } from "@mui/system"
 import { GridActionsCellItem, GridColDef, GridRowParams } from "@mui/x-data-grid"
 import { BreedCode, Registration } from "koekalenteri-shared/model"
 
-import { StyledDataGrid } from "./StyledDataGrid"
+import StyledDataGrid from "../components/StyledDataGrid"
 
 type Join<K, P> = K extends string | number ?
   P extends string | number ?
@@ -24,7 +24,7 @@ interface RegistrationListColDef extends GridColDef {
   getActions?: (params: GridRowParams<Registration>) => JSX.Element[]
 }
 
-export function RegistrationList({rows, onUnregister}: {rows: Registration[], onUnregister: (registration: Registration) => void}) {
+export default function RegistrationList({rows, onUnregister}: {rows: Registration[], onUnregister: (registration: Registration) => void}) {
   const { t } = useTranslation()
   const { t: breed } = useTranslation('breed')
   const navigate = useNavigate()

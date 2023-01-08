@@ -2,7 +2,7 @@ import { Box } from '@mui/material'
 import { lightFormat } from 'date-fns'
 import preval from 'preval.macro'
 
-import pkg from '../../package.json'
+import pkg from '../../../package.json'
 
 const buildTimestamp = preval`module.exports = new Date().getTime();` as number
 

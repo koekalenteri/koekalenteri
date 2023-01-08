@@ -8,12 +8,12 @@ import { useSnackbar } from 'notistack'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
 import { putRegistration } from "../api/registration"
-import { LinkButton } from '../components/Buttons'
-import { RegistrationEventInfo } from '../components/RegistrationEventInfo'
-import { RegistrationList } from '../components/RegistrationList'
 import { useSessionStarted } from '../stores'
 
 import Header from './components/Header'
+import LinkButton from './components/LinkButton'
+import RegistrationEventInfo from './components/RegistrationEventInfo'
+import RegistrationList from './registrationListPage/RegistrationList'
 import { currentEvent, eventIdAtom, registrationIdAtom, registrationQuery } from './recoil'
 
 

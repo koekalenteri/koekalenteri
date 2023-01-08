@@ -1,7 +1,12 @@
 import { useTranslation } from "react-i18next"
 import { Event } from "koekalenteri-shared/model"
 
-export function CostInfo({ event }: { event: Event }) {
+
+interface Props {
+  event: Event
+}
+
+export default function CostInfo({ event }: Props) {
   const { t } = useTranslation()
 
   return (

@@ -1,6 +1,7 @@
 import { styled, Theme } from "@mui/material"
 import { DataGrid, DataGridProps } from "@mui/x-data-grid"
 
+
 const DataGridWithDefaults = (props: DataGridProps) => {
   return <DataGrid
     pageSize={100}
@@ -11,8 +12,7 @@ const DataGridWithDefaults = (props: DataGridProps) => {
   />
 }
 
-
-export const StyledDataGrid = styled(DataGridWithDefaults)(
+const StyledDataGrid = styled(DataGridWithDefaults)(
   ({ theme }: { theme: Theme }) => {
     return {
       '& .MuiDataGrid-columnHeaders': {
@@ -39,3 +39,5 @@ export const StyledDataGrid = styled(DataGridWithDefaults)(
     }
   },
 )
+
+export default StyledDataGrid

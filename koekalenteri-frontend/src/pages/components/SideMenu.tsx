@@ -4,8 +4,11 @@ import { NavLink, useNavigate } from 'react-router-dom'
 import { Accessibility, EmojiEventsOutlined, Event, Logout, PersonOutline, SupervisorAccount, Support } from '@mui/icons-material'
 import { Divider, Theme, Toolbar, useMediaQuery } from '@mui/material'
 
-import { DrawerItem, DrawerList, MiniDrawer } from '../../components/MiniDrawer'
 import { Path } from '../../routeConfig'
+
+import DrawerItem from "./sideMenu/DrawerItem"
+import DrawerList from "./sideMenu/DrawerList"
+import MiniDrawer from './sideMenu/MiniDrawer'
 
 export function SideMenu({ open, onClose }: { open?: boolean, onClose: () => void }) {
   const md = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))

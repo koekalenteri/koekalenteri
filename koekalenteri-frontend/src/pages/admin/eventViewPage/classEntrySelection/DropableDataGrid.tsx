@@ -1,7 +1,7 @@
 import { DropTargetMonitor, useDrop } from "react-dnd"
 import { DataGridProps } from "@mui/x-data-grid"
 
-import { StyledDataGrid } from "../../../../components/StyledDataGrid"
+import StyledDataGrid from "../../../components/StyledDataGrid"
 
 import DragableRow, { DragItem } from './DragableRow'
 

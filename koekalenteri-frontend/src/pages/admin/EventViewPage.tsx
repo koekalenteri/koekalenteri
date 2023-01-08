@@ -6,9 +6,9 @@ import { Box, Button, Dialog, DialogContent, DialogTitle, Divider, Grid, Stack, 
 import { ConfirmedEvent, Registration } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
-import { LinkButton } from '../../components/Buttons'
-import { CollapsibleSection } from '../../components/CollapsibleSection'
 import { Path } from '../../routeConfig'
+import CollapsibleSection from '../components/CollapsibleSection'
+import LinkButton from '../components/LinkButton'
 import RegistrationForm from '../components/RegistrationForm'
 
 import FullPageFlex from './components/FullPageFlex'

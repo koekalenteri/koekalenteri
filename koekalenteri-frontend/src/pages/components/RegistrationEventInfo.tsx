@@ -2,14 +2,14 @@ import { useTranslation } from 'react-i18next'
 import { Grid, Paper, Typography } from '@mui/material'
 import { ConfirmedEvent } from 'koekalenteri-shared/model'
 
-import useEventStatus from '../hooks/useEventStatus'
-import { entryDateColor, isEntryOpen } from '../utils'
+import useEventStatus from '../../hooks/useEventStatus'
+import { entryDateColor, isEntryOpen } from '../../utils'
 
-import { CollapsibleSection } from './CollapsibleSection'
-import { CostInfo } from './CostInfo'
+import CollapsibleSection from './CollapsibleSection'
+import CostInfo from './CostInfo'
 
 
-export function RegistrationEventInfo({ event }: { event: ConfirmedEvent; }) {
+export default function RegistrationEventInfo({ event }: { event: ConfirmedEvent; }) {
   const { t } = useTranslation()
   const status = useEventStatus(event)
   return (

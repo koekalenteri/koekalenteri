@@ -31,7 +31,7 @@ function coerceToDateValue(d: DateValue) {
   return (d && isValid(d)) ? startOfDay(d) : null
 }
 
-export function DateRange({ start, end, startLabel, endLabel, defaultStart, defaultEnd, range, required, disabled, onChange }: DateRangeProps) {
+export default function DateRange({ start, end, startLabel, endLabel, defaultStart, defaultEnd, range, required, disabled, onChange }: DateRangeProps) {
   const { t } = useTranslation()
   const startChanged = (date: DateValue) => {
     const d = coerceToDateValue(date)

@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next"
 import { Grid } from "@mui/material"
 import { ContactInfo, Official, Secretary, ShowContactInfo } from "koekalenteri-shared/model"
 
-import { CollapsibleSection } from "../../../../components/CollapsibleSection"
+import CollapsibleSection from "../../../components/CollapsibleSection"
 
 import ContactInfoDisplay from "./contactInfoSection/ContactInfoDisplay"
 import ContactInfoSelect from "./contactInfoSection/ContactInfoSelect"

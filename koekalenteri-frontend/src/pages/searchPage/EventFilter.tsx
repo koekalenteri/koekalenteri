@@ -3,8 +3,8 @@ import { useTranslation } from 'react-i18next'
 import { Box, FormControlLabel, Grid, Stack, Switch } from '@mui/material'
 import { Judge, Organizer } from 'koekalenteri-shared/model'
 
-import { AutocompleteMulti } from '../../components/AutocompleteMulti'
-import { DateRange, DateValue } from '../../components/DateRange'
+import AutocompleteMulti from '../components/AutocompleteMulti'
+import DateRange, { DateValue } from '../components/DateRange'
 import { FilterProps } from '../recoil'
 
 type EventFilterProps = {

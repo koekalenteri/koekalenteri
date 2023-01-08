@@ -5,9 +5,10 @@ import { useAuthenticator } from '@aws-amplify/ui-react'
 import { ExpandMore, PersonOutline } from '@mui/icons-material'
 import { Menu, MenuItem } from '@mui/material'
 
-import { AppBarButton } from '../../../components/Buttons'
 import { Path } from '../../../routeConfig'
 import { useSessionBoolean } from '../../../stores'
+
+import AppBarButton from "./AppBarButton"
 
 
 export function UserMenu() {

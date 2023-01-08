@@ -2,8 +2,8 @@ import { useTranslation } from 'react-i18next'
 import { Checkbox, FormControlLabel, Grid, TextField } from '@mui/material'
 import { Registration, RegistrationPerson } from 'koekalenteri-shared/model'
 
-import { CollapsibleSection } from '../../../components/CollapsibleSection'
 import { useStores } from '../../../stores'
+import CollapsibleSection from '../CollapsibleSection'
 import { emptyPerson } from '../RegistrationForm'
 
 type HandlerInfoProps = {

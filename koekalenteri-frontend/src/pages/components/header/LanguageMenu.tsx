@@ -5,11 +5,11 @@ import { Menu } from '@mui/material'
 import { Language } from 'koekalenteri-shared/model'
 import { useRecoilValue } from 'recoil'
 
-import { AppBarButton } from '../../../components/Buttons'
 import { locales } from '../../../i18n'
 import { languageAtom } from '../../recoil'
 
 import { LanguageMenuItem } from './languageMenu/LanguageMenuItem'
+import AppBarButton from "./AppBarButton"
 
 export function LanguageMenu() {
   const { t } = useTranslation()

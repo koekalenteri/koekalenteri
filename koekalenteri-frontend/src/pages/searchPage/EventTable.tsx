@@ -15,9 +15,9 @@ import {
 } from '@mui/material'
 import type { Event, EventState } from 'koekalenteri-shared/model'
 
-import { LinkButton } from '../../components/Buttons'
 import { useSessionBoolean } from '../../stores'
 import { isEntryOpen } from '../../utils'
+import LinkButton from '../components/LinkButton'
 
 import { EventInfo } from './EventInfo'
 

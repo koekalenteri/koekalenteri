@@ -1,5 +1,4 @@
-import { MouseEventHandler, ReactNode } from 'react'
-import { CSSObject, Drawer, List, ListItem, ListItemIcon, ListItemText, styled, Theme, Tooltip } from '@mui/material'
+import { CSSObject, Drawer, styled, Theme } from '@mui/material'
 
 const drawerWidth = '256px'
 
@@ -26,7 +25,7 @@ const miniMixin = (theme: Theme): CSSObject => ({
   },
 })
 
-export const MiniDrawer = styled(Drawer)(
+const MiniDrawer = styled(Drawer)(
   ({ theme, variant, open }) => {
     const mini = variant === 'permanent' && !open
     return {
@@ -56,19 +55,4 @@ export const MiniDrawer = styled(Drawer)(
   },
 )
 
-export function DrawerList({children}: {children: ReactNode}) {
-  return (
-    <List>
-      {children}
-    </List>
-  )
-}
-
-export function DrawerItem({ text, icon, onClick }: {text: string, icon: ReactNode, onClick?: MouseEventHandler}) {
-  return (
-    <ListItem button key={text} onClick={onClick}>
-      <Tooltip title={text} arrow><ListItemIcon aria-label={text}>{icon}</ListItemIcon></Tooltip>
-      <ListItemText primary={text} />
-    </ListItem>
-  )
-}
+export default MiniDrawer

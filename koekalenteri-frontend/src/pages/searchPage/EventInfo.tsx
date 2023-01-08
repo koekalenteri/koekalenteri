@@ -3,10 +3,10 @@ import { Table, TableBody, TableCell, TableRow } from '@mui/material'
 import { format } from 'date-fns'
 import type { Event, EventClass } from 'koekalenteri-shared/model'
 
-import { LinkButton } from '../../components/Buttons'
-import { CostInfo } from '../../components/CostInfo'
 import useEventStatus from '../../hooks/useEventStatus'
 import { entryDateColor, isEntryOpen } from '../../utils'
+import CostInfo from '../components/CostInfo'
+import LinkButton from '../components/LinkButton'
 import { useJudgesActions } from '../recoil'
 
 

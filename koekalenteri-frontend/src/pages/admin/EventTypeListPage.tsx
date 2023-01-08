@@ -4,7 +4,7 @@ import { CloudSync } from '@mui/icons-material'
 import { Button, Stack } from '@mui/material'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
-import { StyledDataGrid } from '../../components/StyledDataGrid'
+import StyledDataGrid from '../components/StyledDataGrid'
 import { eventTypeFilterAtom, filteredEventTypesQuery, useEventTypeActions } from '../recoil'
 
 import FullPageFlex from './components/FullPageFlex'

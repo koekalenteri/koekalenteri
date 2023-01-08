@@ -7,7 +7,7 @@ import { subYears } from 'date-fns'
 import { QualifyingResult, Registration, TestResult } from 'koekalenteri-shared/model'
 import { v4 as uuidv4 } from 'uuid'
 
-import { CollapsibleSection } from '../../../components/CollapsibleSection'
+import CollapsibleSection from '../CollapsibleSection'
 
 import { EventResultRequirement, EventResultRequirements, EventResultRequirementsByDate, getRequirements, RegistrationClass } from './rules'
 import { objectContains } from './validation'
