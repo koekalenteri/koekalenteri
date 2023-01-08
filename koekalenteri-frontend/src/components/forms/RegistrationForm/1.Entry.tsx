@@ -1,3 +1,4 @@
+import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Grid } from '@mui/material'
 import { eachDayOfInterval, format } from 'date-fns'
@@ -37,9 +38,13 @@ type EntryInfoProps = {
 
 export function EntryInfo({ reg, event, classDate, errorStates, helperTexts, onChange, onOpenChange, open }: EntryInfoProps) {
   const { t } = useTranslation()
+
+  const getRegDateLabel = useCallback((o: RegistrationDate) => t('weekday', { date: o.date }) + (o.time ? (' ' + t(`registration.time.${o.time}`)) : ''), [t])
+  const getReserveChoiceLabel = useCallback((o: ReserveChoise | '') => o !== '' ? t(`registration.reserveChoises.${o}`) : '', [t])
+
   const classDates = getRegistrationDates(event, classDate, reg.class || '')
   const error = errorStates.class || errorStates.dates || errorStates.reserve
-  const datesText = reg.dates.map(o => t('weekday', { date: o.date }) + ' ' + t(`registration.time.${o.time}`)).join(' / ')
+  const datesText = reg.dates.map(getRegDateLabel).join(' / ')
   const reserveText = reg.reserve ? t(`registration.reserveChoises.${reg.reserve}`) : ''
   const infoText = `${reg.class || reg.eventType}, ${datesText}, ${reserveText}`
   const helperText = error ? t('validation.registration.required', { field: 'classesDetails' }) : infoText
@@ -72,7 +77,7 @@ export function EntryInfo({ reg, event, classDate, errorStates, helperTexts, onC
             label={t("registration.dates")}
             onChange={(_e, value) => onChange({dates: value})}
             isOptionEqualToValue={(o, v) => o.date.valueOf() === v.date.valueOf() && o.time === v.time}
-            getOptionLabel={o => t('weekday', { date: o.date }) + ' ' + t(`registration.time.${o.time}`)}
+            getOptionLabel={getRegDateLabel}
             options={classDates}
             value={reg.dates}
           />
@@ -84,7 +89,7 @@ export function EntryInfo({ reg, event, classDate, errorStates, helperTexts, onC
             helperText={helperTexts.reserve}
             label={t('registration.reserve')}
             onChange={(_e, value) => onChange({ reserve: value || undefined })}
-            getOptionLabel={o => o !== '' ? t(`registration.reserveChoises.${o}`) : ''}
+            getOptionLabel={getReserveChoiceLabel}
             options={['ANY', 'DAY', 'WEEK', 'NO'] as ReserveChoise[]}
             value={reg.reserve}
           />

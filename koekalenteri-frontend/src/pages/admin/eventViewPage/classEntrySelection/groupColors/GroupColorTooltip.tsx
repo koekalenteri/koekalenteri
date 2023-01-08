@@ -13,7 +13,7 @@ interface Props {
 
 const GroupColorTooltip = ({ selected, children, disabled }: Props) => {
   const { t } = useTranslation()
-  const title = useMemo(() => selected.length && 'Sopivat ryhmät: ' + selected.map(s => t('weekday', { date: s.date }) + ' ' + t(`registration.time.${s.time}`)).join(', '),
+  const title = useMemo(() => selected.length && 'Sopivat ryhmät: ' + selected.map(s => t('weekday', { date: s.date }) + (s.time ? (' ' + t(`registration.time.${s.time}`)) : '')).join(', '),
     [selected, t])
 
   if (disabled) {

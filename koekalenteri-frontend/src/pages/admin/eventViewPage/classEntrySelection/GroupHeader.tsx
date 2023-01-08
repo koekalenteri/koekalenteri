@@ -19,7 +19,7 @@ const GroupHeader = ({ eventDates, group }: Props) => {
     bgcolor: 'background.ok',
   }}>
     <GroupColors dates={eventDates} selected={[group]} disableTooltip />
-    <b>{t('dateshort', { date: group.date }) + ' ' + t(`registration.time.${group.time}`)}</b>
+    <b>{t('dateshort', { date: group.date }) + (group.time ? (' ' + t(`registration.time.${group.time}`)) : '')}</b>
   </Stack>
 }
 
