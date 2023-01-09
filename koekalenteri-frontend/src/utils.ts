@@ -48,4 +48,4 @@ function dateReviver(_key: string, value: JsonValue): JsonValue | Date {
   return value
 }
 
-export const parseJSON = (json: string) => JSON.parse(json, dateReviver)
+export const parseJSON = (json: string) => json && JSON.parse(json, dateReviver)
