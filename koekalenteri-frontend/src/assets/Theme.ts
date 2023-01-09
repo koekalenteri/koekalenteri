@@ -66,7 +66,7 @@ const theme = createTheme({
     },
   },
   zIndex: {
-    snackbar: 1200,
+    snackbar: 2200,
     drawer: 1000,
   },
 })
