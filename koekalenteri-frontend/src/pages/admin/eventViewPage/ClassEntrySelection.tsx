@@ -9,12 +9,12 @@ import { useRecoilState, useRecoilValue } from 'recoil'
 import StyledDataGrid from '../../components/StyledDataGrid'
 import { adminRegistrationIdAtom, currentEventClassRegistrationsQuery } from '../recoil'
 
+import { useClassEntrySelectionColumns } from './classEntrySelection/columns'
 import { DragItem } from './classEntrySelection/DragableRow'
 import DragableDataGrid from './classEntrySelection/DropableDataGrid'
 import { availableGroups } from './classEntrySelection/GroupColors'
 import GroupHeader from './classEntrySelection/GroupHeader'
 import NoRowsOverlay from './classEntrySelection/NoRowsOverlay'
-import { useClassEntrySelectionColumns } from './classEntrySelection/useClassEntrySelectionColumns'
 
 interface Props {
   eventDates?: Date[]

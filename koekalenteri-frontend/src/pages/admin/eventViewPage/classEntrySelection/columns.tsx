@@ -48,12 +48,6 @@ export function useClassEntrySelectionColumns(eventDates: Date[]) {
       valueGetter: (p) => p.row.handler.name,
     },
     {
-      field: 'createdAt',
-      headerName: t('registration.createdAt'),
-      width: 140,
-      valueGetter: (p) => t('dateTimeShort', { date: p.value }),
-    },
-    {
       field: 'member',
       headerName: t('registration.member'),
       width: 60,
