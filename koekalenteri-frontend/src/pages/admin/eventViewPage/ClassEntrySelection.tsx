@@ -91,6 +91,8 @@ const ClassEntrySelection = ({ eventDates = [], setOpen }: Props) => {
           hideFooter
           headerHeight={0}
           rows={registrationsByGroup[group.key] ?? []}
+          onSelectionModelChange={handleSelectionModeChange}
+          selectionModel={selectedRegistrationID ? [selectedRegistrationID] : []}
           components={{
             Header: GroupHeader,
             NoRowsOverlay: NoRowsOverlay,
