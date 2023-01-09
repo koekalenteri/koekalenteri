@@ -819,7 +819,7 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
       aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-root--densityCompact css-1x68bdz-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-root--densityCompact css-1d0auko-MuiDataGrid-root"
       role="grid"
     >
       <div>
@@ -2428,7 +2428,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
       aria-colcount="10"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-root--densityCompact css-1x68bdz-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-root--densityCompact css-1d0auko-MuiDataGrid-root"
       role="grid"
     >
       <div>
@@ -3250,7 +3250,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
       aria-colcount="10"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-root--densityCompact css-1x68bdz-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-root--densityCompact css-1d0auko-MuiDataGrid-root"
       role="grid"
     >
       <div>
@@ -4077,7 +4077,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
       aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-root--densityCompact css-1x68bdz-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-root--densityCompact css-1d0auko-MuiDataGrid-root"
       role="grid"
     >
       <div>
@@ -5686,7 +5686,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
       aria-colcount="10"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-root--densityCompact css-1x68bdz-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-root--densityCompact css-1d0auko-MuiDataGrid-root"
       role="grid"
     >
       <div>
@@ -6508,7 +6508,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
       aria-colcount="10"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-root--densityCompact css-1x68bdz-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-root--densityCompact css-1d0auko-MuiDataGrid-root"
       role="grid"
     >
       <div>
@@ -7335,7 +7335,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
       aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-root--densityCompact css-1x68bdz-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-root--densityCompact css-1d0auko-MuiDataGrid-root"
       role="grid"
     >
       <div>
@@ -8949,7 +8949,7 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
       aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-root--densityCompact css-1x68bdz-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-root--densityCompact css-1d0auko-MuiDataGrid-root"
       role="grid"
     >
       <div>

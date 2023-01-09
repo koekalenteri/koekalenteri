@@ -55,11 +55,7 @@ const DropableDataGrid = (props: Props) => {
       }}
       sx={[{
         '& .MuiDataGrid-cell:first-of-type': {padding: 0},
-        '.reject & .header': { bgcolor: 'error.main', opacity: 0.5 },
-        '.reject & .MuiDataGrid-main': { bgcolor: 'error.main', opacity: 0.5 },
-        '.accept & .header': { bgcolor: 'success.main' },
-        '.accept.over & .MuiDataGrid-main': { bgcolor: 'background.form' },
-        '.accept > .MuiDataGrid-main': { bgcolor: 'background.ok' },
+        '.reject & .MuiDataGrid-main': { bgcolor: 'error.main', opacity: 0.1, color: 'error.main' },
       },
       ...(Array.isArray(props.sx) ? props.sx : [props.sx]),
       ]}
