@@ -1,4 +1,4 @@
-import { StrictMode } from 'react'
+import { StrictMode, Suspense } from 'react'
 import { createRoot } from 'react-dom/client'
 import { CssBaseline, StyledEngineProvider, ThemeProvider } from '@mui/material'
 import { RecoilRoot } from 'recoil'
@@ -23,8 +23,10 @@ root.render(
     <StyledEngineProvider injectFirst>
       <ThemeProvider theme={theme}>
         <RecoilRoot>
-          <CssBaseline />
-          <App />
+          <Suspense fallback={<div>loading...</div>}>
+            <CssBaseline />
+            <App />
+          </Suspense>
         </RecoilRoot>
       </ThemeProvider>
     </StyledEngineProvider>
