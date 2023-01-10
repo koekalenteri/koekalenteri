@@ -1,31 +1,26 @@
-import { ReactNode, useCallback, useEffect, useState } from 'react'
+import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
-import { CircularProgress, Container } from '@mui/material'
-import type { ConfirmedEventEx, Registration } from 'koekalenteri-shared/model'
-import { toJS } from 'mobx'
-import { observer } from 'mobx-react-lite'
-import { useSnackbar } from 'notistack'
+import type { ConfirmedEvent, Registration } from 'koekalenteri-shared/model'
+import { useRecoilValue } from 'recoil'
 
-import { getRegistration, putRegistration } from '../api/event'
-import { LinkButton, RegistrationEventInfo, RegistrationForm } from '../components'
-import { useSessionStarted, useStores } from '../stores'
+import LinkButton from './components/LinkButton'
+import RegistrationEventInfo from './components/RegistrationEventInfo'
+import RegistrationForm from './components/RegistrationForm'
+import { eventSelector, newRegistrationAtom, spaAtom } from './recoil'
 
-export const RegistrationPage = observer(function RegistrationPage() {
-  const { enqueueSnackbar } = useSnackbar()
+export const RegistrationPage = () => {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const params = useParams()
-  const { publicStore } = useStores()
-  const [loading, setLoading] = useState(true)
-  const [registration, setRegistration] = useState<Registration>()
-  const [sessionStarted] = useSessionStarted()
-  const { t } = useTranslation()
-  const event = toJS(publicStore.selectedEvent) as ConfirmedEventEx
+  const event = useRecoilValue(eventSelector(params.id ?? '')) as ConfirmedEvent | undefined
+  const registration = useRecoilValue(newRegistrationAtom)
+  const spa = useRecoilValue(spaAtom)
 
   const onSave = async (reg: Registration) => {
+    /*
     try {
       const saved = await putRegistration(reg)
-      publicStore.load() // TODO: Use MobX properly
       if (!registration) {
         navigate('/', { replace: true })
       } else {
@@ -41,7 +36,7 @@ export const RegistrationPage = observer(function RegistrationPage() {
             count: emails.length,
             to: emails.join("\n"),
           }),
-        { variant: 'success', style: { whiteSpace: 'pre-line' } },
+        { variant: 'success', style: { whiteSpace: 'pre-line' } }
       )
 
       return true
@@ -49,45 +44,25 @@ export const RegistrationPage = observer(function RegistrationPage() {
       console.error(e)
       return false
     }
+    */
+    return false
   }
-  const onClick = useCallback(() => sessionStarted ? () => navigate(-1) : undefined, [sessionStarted, navigate])
+  const onClick = useCallback(() => spa ? () => navigate(-1) : undefined, [spa, navigate])
   const onCancel = async () => {
     navigate(registration ? `/registration/${registration.eventType}/${registration.eventId}/${registration.id}` : '/')
     return true
   }
 
-  useEffect(() => {
-    const abort = new AbortController()
-    async function get(eventType: string, id: string, registrationId?: string) {
-      if (registrationId) {
-        setRegistration(await getRegistration(id, registrationId, abort.signal))
-      }
-      setLoading(false)
-    }
-    if (params.eventType && params.id) {
-      get(params.eventType, params.id, params.registrationId)
-    }
-    return () => abort.abort()
-  }, [params, publicStore])
-
-  if (!event) {
-    return <CircularProgress />
+  if (!event || !registration) {
+    throw new Error('Event not found!')
   }
 
   return (
     <>
-      <LinkButton sx={{ mb: 1 }} to="/" onClick={onClick} text={sessionStarted ? t('goBack') : t('goHome')} />
-      <Loader loading={loading}>
-        <RegistrationEventInfo event={event} />
-        <RegistrationForm event={event} registration={registration} className={params.class} classDate={params.date} onSave={onSave} onCancel={onCancel} />
-      </Loader>
+      <LinkButton sx={{ mb: 1 }} to="/" onClick={onClick} text={spa ? t('goBack') : t('goHome')} />
+      <RegistrationEventInfo event={event} />
+      <RegistrationForm event={event} registration={registration} className={params.class} classDate={params.date} onSave={onSave} onCancel={onCancel} />
     </>
   )
-})
-
-function Loader({ loading, children }: { loading: boolean, children: ReactNode }) {
-  if (loading) {
-    return <Container><CircularProgress /></Container>
-  }
-  return <>{children}</>
 }
+

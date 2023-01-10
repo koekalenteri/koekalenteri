@@ -12,7 +12,7 @@ export interface JsonEvent extends JsonDbRecord {
   entryEndDate?: string
   entryOrigEndDate?: string
   location: string
-  headquerters?: Partial<Headquarters>
+  headquarters?: Partial<Headquarters>
   name: string
   description: string
   places: number
@@ -51,7 +51,7 @@ export type EventState = 'draft' | 'tentative' | 'confirmed' | 'cancelled';
 export type Headquarters = {
   name: string
   address: string
-  zipCode: number
+  zipCode: string
   postalDistrict: string
 }
 
@@ -66,19 +66,7 @@ export type ShowContactInfo = {
   phone: boolean
 }
 
-export interface EventEx extends Event {
-  isEntryUpcoming: boolean
-  isEntryOpen: boolean
-  isEntryClosing: boolean
-  isEntryClosed: boolean
-
-  isEventUpcoming: boolean
-  isEventOngoing: boolean
-  isEventOver: boolean
-  statusText?: 'tentative' | 'cancelled' | 'extended'
-}
-
-export type ConfirmedEventEx = Replace<EventEx, EventDates, Date> & {
+export type ConfirmedEvent = Replace<Event, EventDates, Date> & {
   state: 'confirmed'
 }
 

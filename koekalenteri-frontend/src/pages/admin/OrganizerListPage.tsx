@@ -1,24 +1,28 @@
-import { useState } from 'react'
+import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { CloudSync } from '@mui/icons-material'
 import { Button, Stack } from '@mui/material'
 import { GridColDef } from '@mui/x-data-grid'
 import { Organizer } from 'koekalenteri-shared/model'
-import { computed, toJS } from 'mobx'
-import { observer } from 'mobx-react-lite'
+import { useRecoilState, useRecoilValue } from 'recoil'
 
-import { QuickSearchToolbar, StyledDataGrid } from '../../components'
-import { FullPageFlex } from '../../layout'
-import { useStores } from '../../stores'
+import StyledDataGrid from '../components/StyledDataGrid'
+
+import FullPageFlex from './components/FullPageFlex'
+import { QuickSearchToolbar } from './components/QuickSearchToolbar'
+import { filteredOrganizersSelector, organizerFilterAtom, useOrganizersActions } from './recoil'
 
 interface OrganizerColDef extends GridColDef {
   field: keyof Organizer
 }
 
-export const OrganizerListPage = observer(function OrganizerListPage() {
-  const [searchText, setSearchText] = useState('')
+export default function OrganizerListPage() {
+  const [searchText, setSearchText] = useRecoilState(organizerFilterAtom)
+  const organizers = useRecoilValue(filteredOrganizersSelector)
+  const actions = useOrganizersActions()
+
   const { t } = useTranslation()
-  const { rootStore } = useStores()
+
   const columns: OrganizerColDef[] = [
     {
       field: 'id',
@@ -31,45 +35,31 @@ export const OrganizerListPage = observer(function OrganizerListPage() {
     },
   ]
 
-  const refresh = async () => {
-    rootStore.organizerStore.load(true)
-  }
+  const onChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) =>
+    setSearchText(event.target.value), [setSearchText])
 
-  const rows = computed(() => {
-    const lvalue = searchText.toLocaleLowerCase()
-    return toJS(rootStore.organizerStore.organizers).filter(o => o.search.includes(lvalue))
-  }).get()
-
-  const requestSearch = (searchValue: string) => {
-    setSearchText(searchValue)
-  }
+  const clearSearch = useCallback(() => setSearchText(''), [setSearchText])
 
   return (
     <>
       <FullPageFlex>
         <Stack direction="row" spacing={2}>
-          <Button startIcon={<CloudSync />} onClick={refresh}>{t('updateData', { data: 'organizations' })}</Button>
+          <Button startIcon={<CloudSync />} onClick={actions.refresh}>{t('updateData', { data: 'organizations' })}</Button>
         </Stack>
 
         <StyledDataGrid
-          loading={rootStore.organizerStore.loading}
-          autoPageSize
           columns={columns}
           components={{ Toolbar: QuickSearchToolbar }}
           componentsProps={{
             toolbar: {
               value: searchText,
-              onChange: (event: React.ChangeEvent<HTMLInputElement>) =>
-                requestSearch(event.target.value),
-              clearSearch: () => requestSearch(''),
+              onChange,
+              clearSearch,
             },
           }}
-          density='compact'
-          disableColumnMenu
-          disableVirtualization
-          rows={rows}
+          rows={organizers}
         />
       </FullPageFlex>
     </>
   )
-})
+}

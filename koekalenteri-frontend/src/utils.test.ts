@@ -1,30 +1,26 @@
-import { EventEx } from 'koekalenteri-shared/model'
+import { eventWithEntryClosing, eventWithEntryNotYetOpen, eventWithEntryOpen } from './__mockData__/events'
+import { entryDateColor, parseJSON } from './utils'
 
-import { emptyEvent } from './api/test-utils/emptyEvent'
-import {entryDateColor} from './utils'
+describe('utils', function () {
+  describe('entryDateColor', function () {
+    it('should return proper values based on event status', function () {
+      expect(entryDateColor(eventWithEntryNotYetOpen)).toEqual('text.primary')
+      expect(entryDateColor(eventWithEntryOpen)).toEqual('success.main')
+      expect(entryDateColor(eventWithEntryClosing)).toEqual('warning.main')
+    })
+  })
 
-describe('utils', function() {
-  describe('entryDateColor', function() {
-    it('should return proper values based on event status', function() {
-      const event: EventEx = {
-        ...emptyEvent,
-        isEntryUpcoming: false,
-        isEntryOpen: false,
-        isEntryClosing: false,
-        isEntryClosed: false,
+  describe('parseJSON', function() {
+    expect(parseJSON('')).toBeUndefined()
 
-        isEventUpcoming: true,
-        isEventOngoing: false,
-        isEventOver: false,
-      }
+    // @ts-expect-error invalid input
+    expect(parseJSON(null)).toBeUndefined()
 
-      expect(entryDateColor(event)).toEqual('text.primary')
+    // @ts-expect-error invalid input
+    expect(parseJSON(undefined)).toBeUndefined()
 
-      event.isEntryOpen = true
-      expect(entryDateColor(event)).toEqual('success.main')
-
-      event.isEntryClosing = true
-      expect(entryDateColor(event)).toEqual('warning.main')
+    expect(parseJSON('{"pvm":"2021-05-10T09:05:12.000Z"}')).toEqual({
+      pvm: new Date("2021-05-10T09:05:12.000Z"),
     })
   })
 })

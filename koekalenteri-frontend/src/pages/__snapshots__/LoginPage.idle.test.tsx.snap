@@ -1,9 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`LoginPage should render the login page mock when user is not logged in 1`] = `
-"<div>
+<div>
   <p>
     MOCK AUTHENTICATOR
   </p>
-</div>"
+</div>
 `;

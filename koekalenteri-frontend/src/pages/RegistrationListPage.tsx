@@ -1,53 +1,41 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
-import { Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Toolbar } from '@mui/material'
+import { Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Link, Toolbar } from '@mui/material'
 import { isPast, isToday } from 'date-fns'
-import type { ConfirmedEventEx, Registration } from 'koekalenteri-shared/model'
+import type { ConfirmedEvent, Registration } from 'koekalenteri-shared/model'
 import { useSnackbar } from 'notistack'
+import { useRecoilValue } from 'recoil'
 
-import { getRegistration, putRegistration } from '../api/event'
-import { LinkButton, RegistrationEventInfo, RegistrationList } from '../components'
-import { Header } from '../layout'
-import { useSessionStarted, useStores } from '../stores'
+import { putRegistration } from "../api/registration"
+
+import Header from './components/Header'
+import LinkButton from './components/LinkButton'
+import RegistrationEventInfo from './components/RegistrationEventInfo'
+import RegistrationList from './registrationListPage/RegistrationList'
+import { editableRegistrationSelector, eventSelector, spaAtom } from './recoil'
+
 
 export function RegistrationListPage({cancel}: {cancel?: boolean}) {
   const params = useParams()
-  const { publicStore } = useStores()
-  const [loading, setLoading] = useState(true)
-  const [event, setEvent] = useState<ConfirmedEventEx>()
-  const [registration, setRegistration] = useState<Registration>()
-  const [sessionStarted] = useSessionStarted()
+  const event = useRecoilValue(eventSelector(params.id)) as ConfirmedEvent | undefined
+  const registration = useRecoilValue(editableRegistrationSelector(params.registrationId))
+  const spa = useRecoilValue(spaAtom)
   const { t } = useTranslation()
-
-  useEffect(() => {
-    const abort = new AbortController()
-    async function get(eventType: string, id: string, registrationId: string) {
-      const evt = await publicStore.get(id, abort.signal) as ConfirmedEventEx
-      const reg = await getRegistration(id, registrationId, abort.signal)
-      setEvent(evt)
-      setRegistration(reg)
-      setLoading(false)
-    }
-    if (params.eventType && params.id && params.registrationId) {
-      get(params.eventType, params.id, params.registrationId)
-    }
-    return () => abort.abort()
-  }, [params, publicStore])
 
   return (
     <>
       <Header title={t('entryList', { context: event?.eventType === 'other' ? '' : 'test' })} />
       <Box sx={{ p: 1, overflow: 'hidden', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
         <Toolbar variant="dense" />{/* To allocate the space for fixed header */}
-        <LinkButton sx={{ mb: 1 }} to="/" text={sessionStarted ? t('goBack') : t('goHome')} />
-        <PageContent event={event} loading={loading} registration={registration} cancel={cancel}/>
+        <LinkButton sx={{ mb: 1 }} to="/" text={spa ? t('goBack') : t('goHome')} />
+        <PageContent event={event} registration={registration} cancel={cancel}/>
       </Box>
     </>
   )
 }
 
-function PageContent({ event, loading, registration, cancel }: { event?: ConfirmedEventEx, loading: boolean, registration?: Registration, cancel?: boolean }) {
+function PageContent({ event, registration, cancel }: { event?: ConfirmedEvent, registration?: Registration, cancel?: boolean }) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(!!cancel)
   const { enqueueSnackbar } = useSnackbar()
@@ -75,11 +63,11 @@ function PageContent({ event, loading, registration, cancel }: { event?: Confirm
   if (!event) {
     return <CircularProgress />
   }
-  const disableCancel = (e: ConfirmedEventEx) => isPast(e.startDate) || isToday(e.startDate)
+  const disableCancel = (e: ConfirmedEvent) => isPast(e.startDate) || isToday(e.startDate)
   return (
     <>
       <RegistrationEventInfo event={event} />
-      <RegistrationList loading={loading} rows={registration ? [registration] : []} onUnregister={() => setOpen(true)} />
+      <RegistrationList rows={registration ? [registration] : []} onUnregister={() => setOpen(true)} />
       <Dialog
         open={open}
         onClose={handleClose}
@@ -104,7 +92,7 @@ function PageContent({ event, loading, registration, cancel }: { event?: Confirm
             {t('registration.cancelDialog.confirmation')}
           </DialogContentText>
           <DialogContentText id="cancel-dialog-description3" sx={{py: 1}}>
-            <div dangerouslySetInnerHTML={{ __html: t('registration.cancelDialog.terms') }} />
+            {t('registration.cancelDialog.terms')}<Link href={t('registration.terms.url')}>{t('registration.cancelDialog.terms_link')}</Link>.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
@@ -115,3 +103,4 @@ function PageContent({ event, loading, registration, cancel }: { event?: Confirm
     </>
   )
 }
+

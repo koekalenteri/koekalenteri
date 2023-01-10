@@ -1,0 +1,61 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`useEventListColumns should match snapshot 1`] = `
+Array [
+  Object {
+    "align": "right",
+    "field": "date",
+    "headerName": "date",
+    "sortComparator": [Function],
+    "valueFormatter": [Function],
+    "valueGetter": [Function],
+    "width": 120,
+  },
+  Object {
+    "field": "eventType",
+    "headerName": "event.eventType",
+    "minWidth": 100,
+  },
+  Object {
+    "field": "classes",
+    "flex": 1,
+    "headerName": "event.classes",
+    "minWidth": 100,
+    "valueGetter": [Function],
+  },
+  Object {
+    "field": "location",
+    "flex": 1,
+    "headerName": "event.location",
+    "minWidth": 100,
+  },
+  Object {
+    "field": "official",
+    "flex": 1,
+    "headerName": "event.official",
+    "minWidth": 100,
+    "valueGetter": [Function],
+  },
+  Object {
+    "field": "judges",
+    "flex": 1,
+    "headerName": "judgeChief",
+    "minWidth": 100,
+    "valueGetter": [Function],
+  },
+  Object {
+    "align": "right",
+    "field": "places",
+    "headerName": "places",
+    "valueGetter": [Function],
+    "width": 80,
+  },
+  Object {
+    "field": "state",
+    "flex": 1,
+    "headerName": "event.state",
+    "type": "string",
+    "valueGetter": [Function],
+  },
+]
+`;

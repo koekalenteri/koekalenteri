@@ -1,6 +1,6 @@
 {
   "name": "koekalenteri-frontend",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "private": true,
   "dependencies": {
     "@aws-amplify/auth": "^5.1.0",
@@ -14,22 +14,24 @@
     "@mui/x-date-pickers": "^5.0.3",
     "aws-amplify": "^5.0.6",
     "date-fns": "^2.23.0",
-    "history": "^5.0.1",
     "i18next": "^22.4.5",
     "i18next-browser-languagedetector": "^7.0.1",
     "identity-obj-proxy": "^3.0.0",
-    "koekalenteri-shared": "file:../koekalenteri-shared",
-    "lodash.clonedeep": "^4.5.0",
     "lodash.merge": "^4.6.2",
+    "material-ui-confirm": "^3.0.7",
     "mobx": "^6.2.0",
     "mobx-react-lite": "^3.2.0",
     "notistack": "^2.0.3",
     "preval.macro": "^5.0.0",
     "react": "^18.2.0",
+    "react-dnd": "^16.0.1",
+    "react-dnd-html5-backend": "^16.0.1",
+    "react-dnd-touch-backend": "^16.0.1",
     "react-dom": "^18.2.0",
     "react-i18next": "^12.1.1",
     "react-router-dom": "^6.0.0",
     "react-scripts": "^5.0.0",
+    "recoil": "^0.7.6",
     "source-map-explorer": "^2.5.2",
     "uuid": "^9.0.0",
     "web-vitals": "^3.1.0"
@@ -40,7 +42,7 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "lint": "eslint \"src/**/*{.ts,.tsx}\"",
-    "test": "react-scripts test --silent",
+    "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -53,9 +55,21 @@
       "simple-import-sort"
     ],
     "rules": {
-      "semi": ["error", "never"],
-      "comma-dangle": ["error", "always-multiline"],
-      "comma-spacing": ["error", { "before": false, "after": true }],
+      "semi": [
+        "error",
+        "never"
+      ],
+      "comma-dangle": [
+        "error",
+        "always-multiline"
+      ],
+      "comma-spacing": [
+        "error",
+        {
+          "before": false,
+          "after": true
+        }
+      ],
       "@typescript-eslint/indent": [
         "error",
         2
@@ -64,12 +78,28 @@
         "error",
         {
           "groups": [
-            ["^react", "^@?\\w"],
-            ["^(@|components)(/.*|$)"],
-            ["^\\u0000"],
-            ["^\\.\\.(?!/?$)", "^\\.\\./?$"],
-            ["^\\./(?=.*/)(?!/?$)", "^\\.(?!/?$)", "^\\./?$"],
-            ["^.+\\.?(css)$"]
+            [
+              "^react",
+              "^@?\\w"
+            ],
+            [
+              "^(@|components)(/.*|$)"
+            ],
+            [
+              "^\\u0000"
+            ],
+            [
+              "^\\.\\.(?!/?$)",
+              "^\\.\\./?$"
+            ],
+            [
+              "^\\./(?=.*/)(?!/?$)",
+              "^\\.(?!/?$)",
+              "^\\./?$"
+            ],
+            [
+              "^.+\\.?(css)$"
+            ]
           ]
         }
       ]
@@ -96,24 +126,29 @@
     ],
     "moduleNameMapper": {
       "\\.(css|less)$": "identity-obj-proxy"
-    }
+    },
+    "transformIgnorePatterns": [
+      "node_modules/(?!(react-dnd|dnd-core|@react-dnd|react-dnd-html5-backend)/)"
+    ]
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^5.16.3",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^14.4.3",
+    "@types/css-mediaquery": "^0.1.1",
     "@types/jest": "^29.2.4",
-    "@types/lodash.clonedeep": "^4.5.6",
     "@types/lodash.merge": "^4.6.6",
     "@types/node": "^18.11.15",
     "@types/preval.macro": "^3.0.0",
     "@types/react": "^18.0.26",
     "@types/react-dom": "^18.0.9",
     "@types/uuid": "^9.0.0",
+    "css-mediaquery": "^0.1.2",
     "eslint-config-react-app": "^7.0.0",
     "eslint-plugin-react": "^7.31.11",
     "eslint-plugin-simple-import-sort": "^8.0.0",
     "jest-fetch-mock": "^3.0.3",
+    "koekalenteri-shared": "file:../koekalenteri-shared",
     "typescript": "^4.6.3"
   }
 }

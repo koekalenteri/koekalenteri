@@ -442,7 +442,7 @@ Resources:
         PutEvent:
           Type: Api
           Properties:
-            Path: /event/register
+            Path: /registration
             Method: POST
             RestApiId: !Ref KoekalenteriApi
 
@@ -505,8 +505,8 @@ Resources:
             Path: /judge
             Method: POST
             RestApiId: !Ref KoekalenteriApi
-            #Auth:
-            #  Authorizer: CognitoAuthorizer
+            Auth:
+              Authorizer: CognitoAuthorizer
 
   GetOfficialsFunction:
     Type: AWS::Serverless::Function
@@ -669,8 +669,8 @@ Resources:
             Path: /eventType
             Method: POST
             RestApiId: !Ref KoekalenteriApi
-            #Auth:
-            #  Authorizer: CognitoAuthorizer
+            Auth:
+              Authorizer: CognitoAuthorizer
 
   CommonLayer:
     Type: AWS::Serverless::LayerVersion

@@ -3,6 +3,12 @@
   "admin": "Administration",
   "cancel": "Cancel",
   "clear": "Clear",
+  "contact": {
+    "city": "City",
+    "email": "Email",
+    "name": "Name",
+    "phone": "Phone"
+  },
   "copy": "Copy",
   "create": "Create",
   "createEvent": "Create event",
@@ -59,7 +65,13 @@
     "entryOrigEndDate": "Original entry start date",
     "entryStartDate": "Entry start date",
     "eventType": "Event type",
-    "headquerters": "Headquarters",
+    "headquarters": {
+      "address": "Address",
+      "name": "Name",
+      "postalDistrict": "Postal district",
+      "title": "Headquarters",
+      "zipCode": "Postcode"
+    },
     "id": "ID",
     "judges": "Judges",
     "kcId": "Kennel Club ID",
@@ -117,7 +129,6 @@
   "login": "Login",
   "loginFailed": "Login failed",
   "logout": "Logout",
-  "logoutFailed": "Logout failed",
   "members_one": "({{count}} memeber)",
   "members_other": "({{count}} members)",
   "name": "Name",
@@ -130,12 +141,6 @@
   "places": "Places",
   "register": "Register",
   "registration": {
-    "contact": {
-      "city": "City",
-      "email": "Email",
-      "name": "Name",
-      "phone": "Phone"
-    },
     "createdAt": "Created at",
     "cta": {
       "fetch": "Fetch information",

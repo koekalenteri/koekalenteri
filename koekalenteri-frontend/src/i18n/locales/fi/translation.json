@@ -3,6 +3,12 @@
   "admin": "Ylläpito",
   "cancel": "Peruuta",
   "clear": "Tyhjennä",
+  "contact": {
+    "city": "Kotikunta",
+    "email": "Sähköposti",
+    "name": "Nimi",
+    "phone": "Puhelin"
+  },
   "copy": "Kopioi",
   "create": "Lisää uusi",
   "createEvent": "Uusi tapahtuma",
@@ -69,7 +75,13 @@
     "entryOrigEndDate": "Alkuperäinen ilmoittautumisen päättymispäivä",
     "entryStartDate": "Ilmoittautumisen alkamispäivä",
     "eventType": "Koemuoto",
-    "headquerters": "Keskuspaikka",
+    "headquarters": {
+      "address": "Katuosoite",
+      "name": "Nimi",
+      "postalDistrict": "Postitoimipaikka",
+      "title": "Keskuspaikan tiedot",
+      "zipCode": "Postinumero"
+    },
     "id": "Tunnus",
     "judges": "Tuomarit",
     "kcId": "Kennelliiton koetunnus",
@@ -113,7 +125,6 @@
   "events": "Tapahtumat",
   "goBack": "Takaisin",
   "goHome": "Etusivulle",
-  "headquarters": "Keskuspaikan tiedot",
   "id": "Tunnus",
   "judge": "Tuomari",
   "judgeActive": "Arvostelee",
@@ -132,7 +143,6 @@
   "login": "Kirjaudu",
   "loginFailed": "Kirjautuminen epäonnistui",
   "logout": "Kirjaudu ulos",
-  "logoutFailed": "Uloskirjautuminen epäonnistui",
   "members_one": "({{count}} jäsen)",
   "members_other": "({{count}} jäsentä)",
   "name": "Nimi",
@@ -153,16 +163,11 @@
       "text": "Olet perumassa koiran {{registration.dog.regNo}} {{registration.dog.name}} ilmoittautumista kokeeseen {{event.startDate, date}} {{event.eventType}} {{event.location}}",
       "lateText": "Ilmoittautumisen voi perua koepäivänä vain ottamalla yhteyttä suoraan koesihteeriin {{event.secretary.name}} {{contact}}",
       "confirmation": "Oletko varma, että haluat perua ilmoittautumisen?",
-      "terms": "Katso tarkemmat peruutusehdot <a href=\"$t(registration.terms.url)\" target=\"blank\">säännöistä</a>."
+      "terms": "Katso tarkemmat peruutusehdot ",
+      "terms_link": "säännöistä"
     },
     "class": "Koeluokka",
     "classesDetails": "Koeluokan tiedot",
-    "contact": {
-      "city": "Kotikunta",
-      "email": "Sähköposti",
-      "name": "Nimi",
-      "phone": "Puhelin"
-    },
     "createdAt": "Ilmoittautumisaika",
     "cta": {
       "fetch": "Hae tiedot",

@@ -71,7 +71,6 @@ const marshalled = AWS.DynamoDB.Converter.marshall(
       "phone": "123456782",
       "email": "toimari2@sposti.not"
     },
-    "isEntryUpcoming": false,
     "referenceNumber": "11041",
     "modifiedBy": "anonymous",
     "id": "0001",
@@ -80,7 +79,6 @@ const marshalled = AWS.DynamoDB.Converter.marshall(
     "unofficial": false,
     "kcId": "123",
     "cost": 40,
-    "isEntryClosing": false,
     "eventType": "NOME-B",
     "accountNumber": "FI46....",
     "requirePaymentBeforeEntry": false,
@@ -95,7 +93,6 @@ const marshalled = AWS.DynamoDB.Converter.marshall(
     "name": "Nuusku",
     "entryEndDate": "2022-04-15T00:00:00.000Z",
     "location": "Liperi",
-    "isEntryOpen": true,
     "allowOnlineEntry": true,
     "judges": [
       100003,

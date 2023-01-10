@@ -1,99 +1,95 @@
-import { useState } from 'react'
+import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { AddCircleOutline, ContentCopyOutlined, DeleteOutline, EditOutlined, FormatListNumberedOutlined } from '@mui/icons-material'
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControlLabel, Stack, Switch, TextField } from '@mui/material'
-import { Event } from 'koekalenteri-shared/model'
-import cloneDeep from 'lodash.clonedeep'
-import { observer } from 'mobx-react-lite'
-import { useSnackbar } from 'notistack'
+import { FormControlLabel, Stack, Switch } from '@mui/material'
+import { GridSelectionModel } from '@mui/x-data-grid'
+import { useConfirm } from 'material-ui-confirm'
+import { useRecoilState, useRecoilValue } from 'recoil'
 
-import { AutoButton } from '../../components'
-import { EventGridContainer, FullPageFlex } from '../../layout'
 import { Path } from '../../routeConfig'
-import { useStores } from '../../stores'
+import StyledDataGrid from '../components/StyledDataGrid'
 
-export const EventListPage = observer(function EventListPage() {
+import FullPageFlex from './components/FullPageFlex'
+import { QuickSearchToolbar } from './components/QuickSearchToolbar'
+import AutoButton from "./eventListPage/AutoButton"
+import useEventListColumns from './eventListPage/columns'
+import { adminEventFilterTextAtom, adminEventIdAtom, adminShowPastEventsAtom, currentAdminEventSelector, filteredAdminEventsSelector, useAdminEventActions } from './recoil'
+
+export default function EventListPage() {
+  const confirm = useConfirm()
   const { t } = useTranslation()
-  const { privateStore } = useStores()
-  const { enqueueSnackbar } = useSnackbar()
-  const [open, setOpen] = useState(false)
   const navigate = useNavigate()
+  const [showPast, setShowPast] = useRecoilState(adminShowPastEventsAtom)
+  const [searchText, setSearchText] = useRecoilState(adminEventFilterTextAtom)
+  const [selectedEventID, setSelectedEventID] = useRecoilState(adminEventIdAtom)
+  const selectedEvent = useRecoilValue(currentAdminEventSelector)
+  const events = useRecoilValue(filteredAdminEventsSelector)
+  const actions = useAdminEventActions()
+  const columns = useEventListColumns()
 
-  const handleClose = () => {
-    setOpen(false)
-  }
+  const deleteAction = useCallback(() => {
+    confirm({ title: t('deleteEventTitle'), description: t('deleteEventText') }).then(() => {
+      actions.deleteCurrent()
+    })
+  }, [actions, confirm, t])
 
-  const copyAction = async () => {
-    if (privateStore.selectedEvent) {
-      const newEvent: Partial<Event> = cloneDeep({ ...privateStore.selectedEvent })
-      delete newEvent.id
-      delete newEvent.kcId
-      delete newEvent.state
-      delete newEvent.startDate
-      delete newEvent.endDate
-      delete newEvent.entryStartDate
-      delete newEvent.entryEndDate
-      privateStore.setNewEvent(newEvent)
-      navigate(Path.admin.newEvent)
+  const createAction = useCallback(() => navigate(Path.admin.newEvent), [navigate])
+  const editAction = useCallback(() => navigate(`${Path.admin.editEvent}/${selectedEventID}`), [navigate, selectedEventID])
+  const viewAction = useCallback(() => navigate(`${Path.admin.viewEvent}/${selectedEventID}`), [navigate, selectedEventID])
+
+  const handleDoubleClick = useCallback(() => {
+    if (!selectedEvent) return
+    if (selectedEvent.entries) {
+      navigate(`${Path.admin.viewEvent}/${selectedEvent.id}`)
+    } else {
+      navigate(`${Path.admin.editEvent}/${selectedEvent.id}`)
     }
-  }
+  }, [navigate, selectedEvent])
 
-  const deleteAction = async () => {
-    if (privateStore.selectedEvent) {
-      setOpen(false)
-      try {
-        await privateStore.deleteEvent(privateStore.selectedEvent)
-        enqueueSnackbar(t('deleteEventComplete'), { variant: 'info' })
-      } catch (e: any) {
-        enqueueSnackbar(e.message, { variant: 'error' })
-      }
-    }
-  }
+  const handleSelectionModeChange = useCallback((selection: GridSelectionModel) => {
+    const value = typeof selection[0] === 'string' ? selection[0] : undefined
+    setSelectedEventID(value)
+  }, [setSelectedEventID])
+
+  const onChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) =>
+    setSearchText(event.target.value), [setSearchText])
+
+  const clearSearch = useCallback(() => setSearchText(''), [setSearchText])
+  const toggleShowPast = useCallback((_event: React.SyntheticEvent<Element, Event>, checked: boolean) => setShowPast(checked), [setShowPast])
 
   return (
-    <>
-      <FullPageFlex>
-        <TextField sx={{ mt: 2, width: '300px' }} size="small" label="Hae" variant="outlined" disabled />
-        <div>
-          <FormControlLabel
-            sx={{ ml: 0, mb: 2 }}
-            value="withUpcomingEntry"
-            checked={true}
-            disabled
-            control={<Switch />}
-            label="Näytä myös menneet tapahtumat"
-            labelPlacement="start"
-          />
-        </div>
-        <Stack direction="row" spacing={2}>
-          <AutoButton startIcon={<AddCircleOutline />} onClick={() => navigate(Path.admin.newEvent)} text={t('createEvent')} />
-          <AutoButton startIcon={<EditOutlined />} disabled={!privateStore.selectedEvent} onClick={() => navigate(`${Path.admin.editEvent}/${privateStore.selectedEvent?.id}`)} text={t('edit')} />
-          <AutoButton startIcon={<ContentCopyOutlined />} disabled={!privateStore.selectedEvent} onClick={copyAction} text={t('copy')} />
-          <AutoButton startIcon={<DeleteOutline />} disabled={!privateStore.selectedEvent} onClick={() => setOpen(true)} text={t('delete')} />
-          <AutoButton startIcon={<FormatListNumberedOutlined />} disabled={!privateStore.selectedEvent || !privateStore.selectedEvent.entries} onClick={() => navigate(`${Path.admin.viewEvent}/${privateStore.selectedEvent?.id}`)} text={t('registrations')} />
-        </Stack>
-        <EventGridContainer />
-      </FullPageFlex>
-      <Dialog
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="delete-dialog-title"
-        aria-describedby="delete-dialog-description"
-      >
-        <DialogTitle id="delete-dialog-title">
-          {t('deleteEventTitle')}
-        </DialogTitle>
-        <DialogContent>
-          <DialogContentText id="delete-dialog-description">
-            {t('deleteEventText')}
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={deleteAction} autoFocus>{t('delete')}</Button>
-          <Button onClick={handleClose} variant="outlined">{t('cancel')}</Button>
-        </DialogActions>
-      </Dialog>
-    </>
+    <FullPageFlex>
+      <Stack direction="row" spacing={2}>
+        <AutoButton startIcon={<AddCircleOutline />} onClick={createAction} text={t('createEvent')} />
+        <AutoButton startIcon={<EditOutlined />} disabled={!selectedEventID} onClick={editAction} text={t('edit')} />
+        <AutoButton startIcon={<ContentCopyOutlined />} disabled={!selectedEventID} onClick={actions.copyCurrent} text={t('copy')} />
+        <AutoButton startIcon={<DeleteOutline />} disabled={!selectedEventID} onClick={deleteAction} text={t('delete')} />
+        <AutoButton startIcon={<FormatListNumberedOutlined />} disabled={!selectedEvent || !selectedEvent.entries} onClick={viewAction} text={t('registrations')} />
+      </Stack>
+      <StyledDataGrid
+        columns={columns}
+        rows={events}
+        onSelectionModelChange={handleSelectionModeChange}
+        components={{ Toolbar: QuickSearchToolbar }}
+        componentsProps={{
+          toolbar: {
+            value: searchText,
+            onChange,
+            clearSearch,
+            children: <FormControlLabel
+              sx={{ ml: 0, mb: 2 }}
+              checked={showPast}
+              control={<Switch />}
+              label="Näytä myös menneet tapahtumat"
+              labelPlacement="start"
+              onChange={toggleShowPast}
+            />,
+          },
+        }}
+        selectionModel={selectedEventID ? [selectedEventID] : []}
+        onRowDoubleClick={handleDoubleClick}
+      />
+    </FullPageFlex>
   )
-})
+}

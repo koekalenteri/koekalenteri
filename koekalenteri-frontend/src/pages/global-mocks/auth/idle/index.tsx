@@ -38,3 +38,10 @@ export const Authenticator = ({ children }: { children: React.ReactNode }) => {
 }
 
 Authenticator.Provider = Provider
+
+export const Auth = {
+  signOut: () => undefined,
+  currentAuthenticatedUser: async () => {
+    throw new Error("The user is not authenticated")
+  },
+}

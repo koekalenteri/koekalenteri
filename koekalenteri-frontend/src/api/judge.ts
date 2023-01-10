@@ -9,6 +9,10 @@ export async function getJudges(refresh?: boolean, signal?: AbortSignal) {
   return http.get<Array<Judge>>(PATH + qs, {signal})
 }
 
-export async function putJudge(judge: Judge): Promise<Judge> {
-  return http.post<Judge, Judge>(PATH, judge)
+export async function putJudge(judge: Judge, token?: string): Promise<Judge> {
+  return http.post<Judge, Judge>(PATH, judge, {
+    headers: {
+      Authorization: token ? `Bearer ${token}` : '',
+    },
+  })
 }

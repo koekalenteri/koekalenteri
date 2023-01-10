@@ -1,75 +1,49 @@
-import { useEffect, useState } from 'react'
+import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
-import { useAuthenticator } from '@aws-amplify/ui-react'
-import { CircularProgress } from '@mui/material'
-import { autorun, toJS } from 'mobx'
-import { observer } from 'mobx-react-lite'
+import { Event } from 'koekalenteri-shared/model'
 import { useSnackbar } from 'notistack'
+import { useRecoilValue } from 'recoil'
 
-import { EventForm } from '../../components'
 import { Path } from '../../routeConfig'
-import { useStores } from '../../stores'
+import { activeEventTypesSelector, activeJudgesSelector, eventTypeClassesAtom } from '../recoil'
 
-export const EventEditPage = observer(function EventEditPage({create}: {create?: boolean}) {
+import EventForm from './eventEditPage/EventForm'
+import { officialsAtom, organizersAtom, useAdminEventActions } from './recoil'
+
+export default function EventEditPage({create}: {create?: boolean}) {
   const params = useParams()
   const { t } = useTranslation()
-  const { user } = useAuthenticator(context => [context.user])
-  const { rootStore, publicStore, privateStore } = useStores()
   const { enqueueSnackbar } = useSnackbar()
-  const [loading, setLoading] = useState(true)
   const navigate = useNavigate()
+  const activeEventTypes = useRecoilValue(activeEventTypesSelector)
+  const activeJudges = useRecoilValue(activeJudgesSelector)
+  const eventTypeClasses = useRecoilValue(eventTypeClassesAtom)
+  const officials = useRecoilValue(officialsAtom)
+  const organizers = useRecoilValue(organizersAtom)
 
-  /**
-   * @todo move to route loader
-   */
-  useEffect(() => autorun(() => {
-    const abort = new AbortController()
-    async function get(id: string) {
-      if (!privateStore.loaded) {
-        return
-      }
-      await privateStore.selectEvent(id, abort.signal)
-      setLoading(false)
-    }
-    if (params.id && privateStore.selectedEvent?.id !== params.id) {
-      get(params.id)
-    } else {
-      setLoading(false)
-    }
-    return () => abort.abort()
-  }), []) // eslint-disable-line react-hooks/exhaustive-deps
+  const actions = useAdminEventActions()
+
+  const handleSave = useCallback(async (event: Partial<Event>) => {
+    actions.save(event)
+    navigate(Path.admin.events)
+    enqueueSnackbar(t(`event.states.${event?.state || 'draft'}`, { context: 'save' }), { variant: 'info' })
+  }, [actions, enqueueSnackbar, navigate, t])
+
+  const handleCancel = useCallback(async () => {
+    navigate(Path.admin.events)
+  }, [navigate])
 
   return (
-    <>
-      {loading
-        ? <CircularProgress />
-        : <EventForm
-          event={toJS(!create && privateStore.selectedEvent ? privateStore.selectedEvent : privateStore.newEvent)}
-          eventTypes={rootStore.eventTypeStore.activeEventTypes}
-          eventTypeClasses={publicStore.eventTypeClasses}
-          judges={rootStore.judgeStore.activeJudges.map(j => j.toJSON())}
-          officials={rootStore.officialStore.officials.map(o => o.toJSON())}
-          organizers={rootStore.organizerStore.organizers.map(o => o.toJSON())}
-          onSave={async (event) => {
-            try {
-              await privateStore.putEvent(event, user.getSignInUserSession()?.getIdToken().getJwtToken())
-              navigate(Path.admin.events)
-              enqueueSnackbar(t(`event.states.${event.state || 'draft'}`, { context: 'save' }), { variant: 'info' })
-              return Promise.resolve(true)
-            } catch (e: any) {
-              enqueueSnackbar(e.message, { variant: 'error' })
-              return Promise.resolve(false)
-            }
-          }}
-          onCancel={(event) => {
-            if (create) {
-              privateStore.newEvent = { ...event }
-            }
-            navigate(Path.admin.events)
-            return Promise.resolve(true)
-          }}
-        />}
-    </>
+    <EventForm
+      eventId={params.id}
+      eventTypes={activeEventTypes.map(et => et.eventType)}
+      eventTypeClasses={eventTypeClasses}
+      judges={activeJudges}
+      officials={officials}
+      organizers={organizers}
+      onSave={handleSave}
+      onCancel={handleCancel}
+    />
   )
-})
+}

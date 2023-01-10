@@ -19,7 +19,11 @@ export type JsonRegistration = JsonDbRecord & {
   results?: Array<JsonTestResult & { id: string }>
   paid?: boolean
   cancelled?: boolean
+  group?: JsonRegistrationGroup
 }
+
+export type RegistrationGroup = RegistrationDate & { number: number, key: string }
+export type JsonRegistrationGroup = JsonRegistrationDate & { number: number, key: string }
 
 export type Registration = DbRecord & {
   agreeToPublish: boolean
@@ -40,6 +44,7 @@ export type Registration = DbRecord & {
   results?: Array<Partial<TestResult> & { id: string }>
   paid?: boolean
   cancelled?: boolean
+  group?: RegistrationGroup
 }
 
 export type JsonQualifyingResult = JsonTestResult & { official: boolean, qualifying?: boolean };
@@ -47,7 +52,7 @@ export type QualifyingResult = TestResult & { official: boolean, qualifying?: bo
 
 export type JsonRegistrationDate = {
   date: string
-  time: RegistrationTime
+  time?: RegistrationTime
 }
 
 export type RegistrationDate = Replace<JsonRegistrationDate, 'date', Date>

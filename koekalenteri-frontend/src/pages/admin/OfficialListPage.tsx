@@ -1,25 +1,27 @@
-import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { CloudSync } from '@mui/icons-material'
 import { Button, Stack, Theme, useMediaQuery } from '@mui/material'
 import { GridColDef } from '@mui/x-data-grid'
-import { computed, toJS } from 'mobx'
-import { observer } from 'mobx-react-lite'
+import { Official } from 'koekalenteri-shared/model'
+import { useRecoilState, useRecoilValue } from 'recoil'
 
-import { QuickSearchToolbar, StyledDataGrid } from '../../components'
-import { FullPageFlex } from '../../layout'
-import { useStores } from '../../stores'
-import { COfficial } from '../../stores/classes/COfficial'
+import StyledDataGrid from '../components/StyledDataGrid'
+
+import FullPageFlex from './components/FullPageFlex'
+import { QuickSearchToolbar } from './components/QuickSearchToolbar'
+import { filteredOfficialsSelector, officialFilterAtom, useOfficialsActions } from './recoil'
 
 interface OfficialColDef extends GridColDef {
-  field: keyof COfficial
+  field: keyof Official
 }
 
-export const OfficialListPage = observer(function OfficialListPage() {
-  const [searchText, setSearchText] = useState('')
+export default function OfficialListPage() {
   const large = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
-  const { rootStore } = useStores()
+  const [searchText, setSearchText] = useRecoilState(officialFilterAtom)
   const { t } = useTranslation()
+  const officials = useRecoilValue(filteredOfficialsSelector)
+  const actions = useOfficialsActions()
+
   const columns: OfficialColDef[] = [
     {
       field: 'name',
@@ -36,19 +38,19 @@ export const OfficialListPage = observer(function OfficialListPage() {
     {
       field: 'location',
       flex: 0,
-      headerName: t('registration.contact.city'),
+      headerName: t('contact.city'),
       width: 120,
     },
     {
       field: 'phone',
       flex: 0,
-      headerName: t('registration.contact.phone'),
+      headerName: t('contact.phone'),
       width: 150,
     },
     {
       field: 'email',
       flex: 1,
-      headerName: t('registration.contact.email'),
+      headerName: t('contact.email'),
       minWidth: 150,
     },
     {
@@ -64,28 +66,14 @@ export const OfficialListPage = observer(function OfficialListPage() {
     },
   ]
 
-  const refresh = async () => {
-    rootStore.officialStore.load(true)
-  }
-
-  const rows = computed(() => {
-    const lvalue = searchText.toLocaleLowerCase()
-    return toJS(rootStore.officialStore.officials).filter(o => o.search.includes(lvalue))
-  }).get()
-
-  const requestSearch = (searchValue: string) => {
-    setSearchText(searchValue)
-  }
-
   return (
     <>
       <FullPageFlex>
         <Stack direction="row" spacing={2}>
-          <Button startIcon={<CloudSync />} onClick={refresh}>{t('updateData', { data: 'officials' })}</Button>
+          <Button startIcon={<CloudSync />} onClick={actions.refresh}>{t('updateData', { data: 'officials' })}</Button>
         </Stack>
 
         <StyledDataGrid
-          autoPageSize
           columns={columns}
           columnVisibilityModel={{
             district: large,
@@ -98,17 +86,13 @@ export const OfficialListPage = observer(function OfficialListPage() {
             toolbar: {
               value: searchText,
               onChange: (event: React.ChangeEvent<HTMLInputElement>) =>
-                requestSearch(event.target.value),
-              clearSearch: () => requestSearch(''),
+                setSearchText(event.target.value),
+              clearSearch: () => setSearchText(''),
             },
           }}
-          density='compact'
-          disableColumnMenu
-          disableVirtualization
-          loading={rootStore.officialStore.loading}
-          rows={rows}
+          rows={officials}
         />
       </FullPageFlex>
     </>
   )
-})
+}

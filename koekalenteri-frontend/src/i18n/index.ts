@@ -12,16 +12,16 @@ type MuiLocalization = Localization & {
   components: {
     MuiDataGrid: {
       defaultProps: {
-        localeText: Partial<GridLocaleText>;
-      };
-    };
-  };
-};
+        localeText: Partial<GridLocaleText>
+      }
+    }
+  }
+}
 
 
 export { locales }
 export type { Language }
-export type ValidationErrorKey = typeof fi.validation;
+export type ValidationErrorKey = typeof fi.validation
 
 export const muiLocales: Record<Language, MuiLocalization> = {
   fi: { ...fiFI, ...gfiFI },

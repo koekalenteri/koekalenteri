@@ -1,5 +1,7 @@
+import { StrictMode, Suspense } from 'react'
 import { createRoot } from 'react-dom/client'
 import { CssBaseline, StyledEngineProvider, ThemeProvider } from '@mui/material'
+import { RecoilRoot } from 'recoil'
 
 import "./i18n"
 
@@ -17,12 +19,18 @@ if (!container) {
 
 const root = createRoot(container)
 root.render(
-  <StyledEngineProvider injectFirst>
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <App />
-    </ThemeProvider>
-  </StyledEngineProvider>,
+  <StrictMode>
+    <StyledEngineProvider injectFirst>
+      <ThemeProvider theme={theme}>
+        <RecoilRoot>
+          <Suspense fallback={<div>loading...</div>}>
+            <CssBaseline />
+            <App />
+          </Suspense>
+        </RecoilRoot>
+      </ThemeProvider>
+    </StyledEngineProvider>
+  </StrictMode>,
 )
 
 reportWebVitals()
