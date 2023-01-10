@@ -5,13 +5,13 @@ import { selector } from 'recoil'
 import { eventTypeFilterAtom, eventTypesAtom } from './atoms'
 
 
-export const activeEventTypesQuery = selector({
+export const activeEventTypesSelector = selector({
   key: 'activeEventTypes',
   get: ({ get }) => get(eventTypesAtom).filter(et => et.active),
 })
 
 
-export const filteredEventTypesQuery = selector({
+export const filteredEventTypesSelector = selector({
   key: 'filteredEventTypes',
   get: ({ get }) => {
     const filter = get(eventTypeFilterAtom).toLocaleLowerCase(i18next.language)

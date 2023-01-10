@@ -2,11 +2,23 @@ import { startOfToday } from "date-fns"
 import i18next from "i18next"
 import { DefaultValue, selector, selectorFamily } from "recoil"
 
-import { getEvent } from "../../../../api/event"
+import { adminEventFilterTextAtom, adminEventIdAtom, adminEventsAtom, adminShowPastEventsAtom, editableEventByIdAtom, eventStorageKey, newEventAtom } from "./atoms"
+import { DecoratedEvent } from "./effects"
 
-import { adminEditEventByIdAtom, adminEventFilterTextAtom, adminEventIdAtom, adminEventsAtom, adminShowPastEventsAtom, newEventAtom } from "./atoms"
-import { DecoratedEvent, decorateEvent } from "./effects"
 
+export const currentAdminEventSelector = selector({
+  key: 'currentAdminEvent',
+  get: ({ get }) => {
+    const eventId = get(adminEventIdAtom)
+    return eventId ? get(editableEventByIdAtom(eventId)) : undefined
+  },
+  set: ({ set }, newValue) => {
+    if (!newValue || newValue instanceof DefaultValue) {
+      return
+    }
+    set(editableEventByIdAtom(newValue.id), newValue)
+  },
+})
 
 export const filteredAdminEventsSelector = selector({
   key: 'filteredAdminEvents',
@@ -23,26 +35,15 @@ export const filteredAdminEventsSelector = selector({
   },
 })
 
-export const currentAdminEventSelector = selector({
-  key: 'currentAdminEvent',
-  get: ({ get }) => {
-    const eventId = get(adminEventIdAtom)
-    return eventId ? get(adminEventByIdSelector(eventId)) : undefined
-  },
-  set: ({ set }, newValue) => {
-    if (!newValue || newValue instanceof DefaultValue) {
-      return
-    }
-    set(adminEventByIdSelector(newValue.id), newValue)
-  },
-})
-
-export const editAdminEventSelector = selectorFamily<DecoratedEvent | undefined, string|undefined>({
-  key: 'editAdminEvent',
-  get: (eventId) => ({ get }) => eventId ? get(adminEditEventByIdAtom(eventId)) : get(newEventAtom),
+/**
+ * Abstration for new / existing event
+ */
+export const editableEventSelector = selectorFamily<DecoratedEvent | undefined, string|undefined>({
+  key: 'editableEvent',
+  get: (eventId) => ({ get }) => eventId ? get(editableEventByIdAtom(eventId)) : get(newEventAtom),
   set: (eventId) => ({ set, reset }, newValue) => {
     if (eventId) {
-      set(adminEditEventByIdAtom(eventId), newValue)
+      set(editableEventByIdAtom(eventId), newValue)
     } else if (newValue) {
       set(newEventAtom, newValue)
     } else {
@@ -51,27 +52,18 @@ export const editAdminEventSelector = selectorFamily<DecoratedEvent | undefined,
   },
 })
 
-export const adminEventByIdSelector = selectorFamily<DecoratedEvent | undefined, string>({
-  key: 'adminEvents/eventId',
-  get: (eventId) => async ({ get }) => {
-    let event = get(adminEventsAtom).find(event => event.id === eventId)
-    if (!event) {
-      const fetched = await getEvent(eventId)
-      if (fetched) {
-        event = decorateEvent(fetched)
-      }
+/**
+ * Abstraction for new / existing event modified status
+ */
+export const editableEventModifiedSelector = selectorFamily<boolean, string|undefined>({
+  key: 'editableEvent/modified',
+  get: (eventId) => ({ get }) => {
+    if (eventId) {
+      const stored = localStorage.getItem(eventStorageKey(eventId))
+      return stored !== null
+    } else {
+      const value = get(newEventAtom)
+      return !(value instanceof DefaultValue)
     }
-    return event
-  },
-  set: (eventId) => ({ set }, newValue) => {
-    if (!newValue || newValue instanceof DefaultValue) {
-      return
-    }
-    set(adminEventsAtom, oldEvents => {
-      const index = oldEvents.findIndex(item => item.id === eventId)
-      const newEvents = oldEvents.map(event => ({ ...event }))
-      newEvents.splice(index, 1, newValue)
-      return newEvents
-    })
   },
 })

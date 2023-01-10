@@ -4,7 +4,7 @@ import { selector } from 'recoil'
 import { organizerFilterAtom, organizersAtom } from './atoms'
 
 
-export const filteredOrganizersQuery = selector({
+export const filteredOrganizersSelector = selector({
   key: 'filteredOrganizers',
   get: ({ get }) => {
     const filter = get(organizerFilterAtom).toLocaleLowerCase(i18next.language)

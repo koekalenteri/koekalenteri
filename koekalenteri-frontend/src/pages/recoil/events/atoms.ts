@@ -18,7 +18,7 @@ export const eventsAtom = atom<Event[]>({
 
 export const eventIdAtom = atom<string | undefined>({
   key: 'eventId',
-  default: undefined,
+  default: '',
   effects: [
     logEffect,
     storageEffect,

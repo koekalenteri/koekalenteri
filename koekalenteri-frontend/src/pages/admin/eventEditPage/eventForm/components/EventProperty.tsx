@@ -1,4 +1,4 @@
-import { ReactNode, SyntheticEvent, useCallback } from 'react'
+import { ReactNode, SyntheticEvent, useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HelpOutlined } from '@mui/icons-material'
 import { Autocomplete, AutocompleteFreeSoloValueMapping, AutocompleteProps, IconButton, TextField } from '@mui/material'
@@ -21,6 +21,22 @@ export type EventPropertyProps<Property extends keyof PartialEvent, freeSolo ext
 export default function EventProperty<Property extends keyof PartialEvent, freeSolo extends boolean>(props: EventPropertyProps<Property, freeSolo>) {
   const { t } = useTranslation()
   const { id, event, fields, helpClick, endAdornment, onChange, ...acProps } = props
+  const getInputInitValue = useCallback((prop: string | PartialEvent[Property] | undefined) => {
+    if (prop === undefined) {
+      return ''
+    }
+    if (typeof prop === 'string') {
+      return prop
+    }
+    if (props.getOptionLabel) {
+      return props.getOptionLabel(prop)
+    }
+    if (typeof prop === 'number') {
+      return `${prop}`
+    }
+    return ''
+  }, [props])
+  const [inputValue, setInputValue] = useState(getInputInitValue(event[id]))
   const isRequired = fields?.required[id] || false
   const error = isRequired && validateEventField(event, id, true)
   const helperText = error ? t(`validation.event.${error.key}`, error.opts) : ''
@@ -28,7 +44,11 @@ export default function EventProperty<Property extends keyof PartialEvent, freeS
   const handleChange = useCallback((
     e: SyntheticEvent<Element, globalThis.Event>,
     value: PartialEvent[Property] | AutocompleteFreeSoloValueMapping<freeSolo> | null,
-  ) => onChange({ [id]: value ?? undefined }), [id, onChange])
+  ) => {
+    const valueOrUndef = value ?? undefined
+    onChange({ [id]: valueOrUndef })
+    setInputValue(getInputInitValue(valueOrUndef))
+  }, [getInputInitValue, id, onChange])
 
   const handleInputChange = useCallback((
     e: SyntheticEvent<Element, globalThis.Event>,
@@ -37,9 +57,11 @@ export default function EventProperty<Property extends keyof PartialEvent, freeS
     if (!props.freeSolo) {
       return
     }
+    setInputValue(value)
     const old = event[id]
     const type = typeof old
     if ((type === 'number' && old !== +(value ?? '')) || (type !== 'number' && old !== value)) {
+      // TODO: debounce
       onChange({ [id]: value })
     }
   }, [event, id, onChange, props.freeSolo])
@@ -48,7 +70,8 @@ export default function EventProperty<Property extends keyof PartialEvent, freeS
     <Autocomplete
       id={id}
       {...acProps}
-      value={event[id]}
+      value={event[id] ?? null}
+      inputValue={inputValue}
       renderInput={(params) =>
         <Box sx={{ display: 'flex', flex: '0 0 auto', position: 'relative' }}>
           <TextField

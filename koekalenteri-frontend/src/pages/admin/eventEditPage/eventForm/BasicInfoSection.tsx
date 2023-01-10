@@ -2,10 +2,11 @@ import { ChangeEvent, SyntheticEvent, useCallback, useMemo, useState } from 'rea
 import { useTranslation } from 'react-i18next'
 import { Grid, TextField } from '@mui/material'
 import { add, differenceInDays, eachDayOfInterval, isAfter, isSameDay, startOfDay } from 'date-fns'
-import { DeepPartial, EventClass, Official, Organizer } from 'koekalenteri-shared/model'
+import { DeepPartial, EventClass, Official, Organizer, Secretary } from 'koekalenteri-shared/model'
 
 import CollapsibleSection from '../../../components/CollapsibleSection'
 import DateRange, { DateValue } from '../../../components/DateRange'
+import { emptyPerson } from '../../../components/RegistrationForm'
 import { PartialEvent, SectionProps } from '../EventForm'
 
 import HelpPopover from './basicInfoSection/HelpPopover'
@@ -49,6 +50,16 @@ export default function BasicInfoSection({ event, errorStates, helperTexts, fiel
   const handleNameChange = useCallback((e: ChangeEvent<HTMLInputElement>) => onChange({ name: e.target.value }), [onChange])
   const isEqualId = useCallback((o?: {id?: number}, v?: {id?: number}) => o?.id === v?.id, [])
   const getName = useCallback((o?: string | {name?: string}) => typeof o === 'string' ? o : o?.name || '', [])
+  const getNameOrEmail = useCallback((o?: string | {name?: string, email?: string}) => typeof o === 'string' ? o : (o?.name || o?.email || ''), [])
+  const handleSecretaryChange = useCallback(({secretary}: {secretary?: Secretary | string}) => {
+    if (typeof secretary === 'string') {
+      if (event.secretary?.email !== secretary) {
+        onChange({secretary: {...emptyPerson, email: secretary, id: 0}})
+      }
+    } else {
+      onChange({secretary})
+    }
+  }, [event.secretary?.email, onChange])
 
   return (
     <CollapsibleSection title="Kokeen perustiedot" open={open} onOpenChange={onOpenChange} error={error} helperText={helperText}>
@@ -148,10 +159,11 @@ export default function BasicInfoSection({ event, errorStates, helperTexts, fiel
             <EventProperty
               event={event}
               fields={fields}
-              getOptionLabel={getName}
+              freeSolo
+              getOptionLabel={getNameOrEmail}
               id="secretary"
               isOptionEqualToValue={isEqualId}
-              onChange={onChange}
+              onChange={handleSecretaryChange}
               options={officials}
             />
           </Grid>
@@ -182,9 +194,9 @@ function eventClassOptions(event: PartialEvent | undefined, typeClasses: string[
 function updateClassDates(event: PartialEvent, start: Date, end: Date) {
   const result: EventClass[] = []
   for (const c of event.classes) {
-    c.date = startOfDay(add(start, { days: differenceInDays(c.date || event.startDate, event.startDate) }))
-    if (!isAfter(c.date, end)) {
-      result.push(c)
+    const date = startOfDay(add(start, { days: differenceInDays(c.date || event.startDate, event.startDate) }))
+    if (!isAfter(date, end)) {
+      result.push({...c, date})
     }
   }
   return result

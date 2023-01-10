@@ -911,7 +911,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                         class="MuiGrid-root MuiGrid-item css-twodqs-MuiGrid-root"
                       >
                         <div
-                          class="MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-1qqsdnr-MuiAutocomplete-root"
+                          class="MuiAutocomplete-root css-1qqsdnr-MuiAutocomplete-root"
                         >
                           <div
                             class="MuiBox-root css-91p3uw"
@@ -952,32 +952,6 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                   type="text"
                                   value=""
                                 />
-                                <div
-                                  class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
-                                >
-                                  <button
-                                    aria-label="Open"
-                                    class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-                                    tabindex="-1"
-                                    title="Open"
-                                    type="button"
-                                  >
-                                    <svg
-                                      aria-hidden="true"
-                                      class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                                      data-testid="ArrowDropDownIcon"
-                                      focusable="false"
-                                      viewBox="0 0 24 24"
-                                    >
-                                      <path
-                                        d="M7 10l5 5 5-5z"
-                                      />
-                                    </svg>
-                                    <span
-                                      class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                                    />
-                                  </button>
-                                </div>
                                 <fieldset
                                   aria-hidden="true"
                                   class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"

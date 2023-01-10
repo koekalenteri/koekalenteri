@@ -7,7 +7,7 @@ import { Registration, RegistrationDate, RegistrationGroup } from 'koekalenteri-
 import { useRecoilState, useRecoilValue } from 'recoil'
 
 import StyledDataGrid from '../../components/StyledDataGrid'
-import { adminRegistrationIdAtom, currentEventClassRegistrationsQuery } from '../recoil'
+import { adminRegistrationIdAtom, currentEventClassRegistrationsSelector } from '../recoil'
 
 import { useClassEntrySelectionColumns } from './classEntrySelection/columns'
 import { DragItem } from './classEntrySelection/DragableRow'
@@ -28,7 +28,7 @@ interface RegistrationWithGroups extends Registration {
 export const groupKey = (rd: RegistrationDate) => rd.date.toISOString().slice(0, 10) + '-' + rd.time
 
 const ClassEntrySelection = ({ eventDates = [], setOpen }: Props) => {
-  const registrations = useRecoilValue(currentEventClassRegistrationsQuery)
+  const registrations = useRecoilValue(currentEventClassRegistrationsSelector)
   const [selectedRegistrationID, setSelectedRegistrationID] = useRecoilState(adminRegistrationIdAtom)
 
   const eventGroups: RegistrationGroup[] = useMemo(() => availableGroups(eventDates).map(eventDate => ({ ...eventDate, key: groupKey(eventDate), number: 0 })), [eventDates])

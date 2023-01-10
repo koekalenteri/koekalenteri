@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
 import { AddCircleOutline, DeleteOutline, EditOutlined, EmailOutlined, FormatListBulleted, ShuffleOutlined, TableChartOutlined } from '@mui/icons-material'
@@ -16,49 +16,30 @@ import ClassEntrySelection from './eventViewPage/ClassEntrySelection'
 import InfoPanel from './eventViewPage/InfoPanel'
 import TabPanel from './eventViewPage/TabPanel'
 import Title from './eventViewPage/Title'
-import { adminEventIdAtom, currentAdminEventSelector, eventClassAtom } from './recoil'
+import { useAdminRegistrationActions } from './recoil/registrations/actions'
+import { currentAdminRegistrationSelector, editableEventSelector, eventClassAtom } from './recoil'
 
 export default function EventViewPage() {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const params = useParams()
-  const [selectedEventID, setSelectedEventID] = useRecoilState(adminEventIdAtom)
-  const event = useRecoilValue(currentAdminEventSelector)
+  const event = useRecoilValue(editableEventSelector(params.id))
   const [selectedEventClass, setSelectedEventClass] = useRecoilState(eventClassAtom)
   const activeTab = useMemo(() => Math.max(event?.uniqueClasses?.findIndex(c => c === selectedEventClass) ?? 0, 0), [event?.uniqueClasses, selectedEventClass])
-  const [selected, setSelected] = useState<Registration>()
-
-  useEffect(() => {
-    if (params.id && params.id !== selectedEventID) {
-      setSelectedEventID(params.id)
-    }
-  }, [params.id, selectedEventID, setSelectedEventID])
+  const selectedRegistration = useRecoilValue(currentAdminRegistrationSelector)
+  const actions = useAdminRegistrationActions()
 
   const handleTabChange = useCallback((_: React.SyntheticEvent, newValue: number) => {
     setSelectedEventClass(event?.uniqueClasses?.[newValue])
   }, [event?.uniqueClasses, setSelectedEventClass])
 
   const onSave = useCallback(async (registration: Registration) => {
-    /*
-    try {
-      const saved = await putRegistration(registration)
-      const old = list.find(r => r.id === saved.id)
-      if (old) {
-        Object.assign(old, saved)
-        setSelected(saved)
-      } else {
-        setList(list.concat([saved]))
-        event.entries++
-      }
+    if (await actions.save(registration)) {
       setOpen(false)
       return true
-    } catch (e: any) {
-      console.error(e)
-      return false
     }
-    */
     return false
-  }, [])
+  }, [actions])
 
   const onCancel = useCallback(async () => {
     setOpen(false)
@@ -92,8 +73,8 @@ export default function EventViewPage() {
           <Button startIcon={<EmailOutlined />} disabled>Lähetä viesti</Button>
           <Button startIcon={<ShuffleOutlined />} disabled>Arvo kokeen osallistujat</Button>
           <Divider orientation='vertical'></Divider>
-          <Button startIcon={<AddCircleOutline />} onClick={() => { setSelected(undefined); setOpen(true) }}>{t('create')}</Button>
-          <Button startIcon={<EditOutlined />} disabled={!selected} onClick={() => setOpen(true)}>{t('edit')}</Button>
+          <Button startIcon={<AddCircleOutline />} onClick={() => { setOpen(true) }}>{t('create')}</Button>
+          <Button startIcon={<EditOutlined />} disabled={!selectedRegistration} onClick={() => setOpen(true)}>{t('edit')}</Button>
           <Button startIcon={<DeleteOutline />} disabled>{t('delete')}</Button>
         </Stack>
 
@@ -127,9 +108,9 @@ export default function EventViewPage() {
           },
         }}
       >
-        <DialogTitle id="reg-dialog-title">{selected ? `${selected.dog.name} / ${selected.handler.name}` : t('create')}</DialogTitle>
+        <DialogTitle id="reg-dialog-title">{selectedRegistration ? `${selectedRegistration.dog.name} / ${selectedRegistration.handler.name}` : t('create')}</DialogTitle>
         <DialogContent dividers sx={{height: '100%', p: 0 }}>
-          <RegistrationForm event={event as ConfirmedEvent} registration={selected} onSave={onSave} onCancel={onCancel} />
+          <RegistrationForm event={event as ConfirmedEvent} registration={selectedRegistration} onSave={onSave} onCancel={onCancel} />
         </DialogContent>
       </Dialog>
     </>

@@ -1,19 +1,38 @@
 import { Registration } from "koekalenteri-shared/model"
-import { selector } from "recoil"
+import { DefaultValue, selectorFamily } from "recoil"
 
-import { getRegistration } from "../../../api/registration"
-import { eventIdAtom } from "../events/atoms"
-
-import { registrationIdAtom } from "./atoms"
+import { editableRegistrationByIdAtom, newRegistrationAtom, registrationStorageKey } from "./atoms"
 
 
-export const registrationQuery = selector<Registration | undefined>({
-  key: 'registration',
-  get: ({ get }) => {
-    const eventId = get(eventIdAtom)
-    const registrationId = get(registrationIdAtom)
-    if (eventId && registrationId) {
-      return getRegistration(eventId, registrationId)
+/**
+ * Abstration for new / existing registration
+ */
+export const editableRegistrationSelector = selectorFamily<Registration | undefined, string|undefined>({
+  key: 'editableRegistration',
+  get: (registrationId) => ({ get }) => registrationId ? get(editableRegistrationByIdAtom(registrationId)) : get(newRegistrationAtom),
+  set: (registrationId) => ({ set, reset }, newValue) => {
+    if (registrationId) {
+      set(editableRegistrationByIdAtom(registrationId), newValue)
+    } else if (newValue) {
+      set(newRegistrationAtom, newValue)
+    } else {
+      reset(newRegistrationAtom)
+    }
+  },
+})
+
+/**
+ * Abstraction for new / existing registration modified status
+ */
+export const editableRegistrationModifiedSelector = selectorFamily<boolean, string|undefined>({
+  key: 'editableRegistration/modified',
+  get: (registrationId) => ({ get }) => {
+    if (registrationId) {
+      const stored = localStorage.getItem(registrationStorageKey(registrationId))
+      return stored !== null
+    } else {
+      const value = get(newRegistrationAtom)
+      return !(value instanceof DefaultValue)
     }
   },
 })

@@ -6,18 +6,18 @@ import { useSnackbar } from 'notistack'
 import { useRecoilValue } from 'recoil'
 
 import { Path } from '../../routeConfig'
-import { activeEventTypesQuery, activeJudgesQuery, eventTypeClassesAtom, officialsAtom, organizersAtom } from '../recoil'
+import { activeEventTypesSelector, activeJudgesSelector, eventTypeClassesAtom } from '../recoil'
 
 import EventForm from './eventEditPage/EventForm'
-import { useAdminEventActions } from './recoil'
+import { officialsAtom, organizersAtom, useAdminEventActions } from './recoil'
 
 export default function EventEditPage({create}: {create?: boolean}) {
   const params = useParams()
   const { t } = useTranslation()
   const { enqueueSnackbar } = useSnackbar()
   const navigate = useNavigate()
-  const activeEventTypes = useRecoilValue(activeEventTypesQuery)
-  const activeJudges = useRecoilValue(activeJudgesQuery)
+  const activeEventTypes = useRecoilValue(activeEventTypesSelector)
+  const activeJudges = useRecoilValue(activeJudgesSelector)
   const eventTypeClasses = useRecoilValue(eventTypeClassesAtom)
   const officials = useRecoilValue(officialsAtom)
   const organizers = useRecoilValue(organizersAtom)

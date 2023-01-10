@@ -5,7 +5,7 @@ import { Button, Stack } from '@mui/material'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
 import StyledDataGrid from '../components/StyledDataGrid'
-import { filteredJudgesQuery, judgeFilterAtom, useJudgesActions } from '../recoil'
+import { filteredJudgesSelector, judgeFilterAtom, useJudgesActions } from '../recoil'
 
 import FullPageFlex from './components/FullPageFlex'
 import { QuickSearchToolbar } from './components/QuickSearchToolbar'
@@ -14,7 +14,7 @@ import useJudgeListColumns from './judgeListPage/columns'
 export default function JudgeListPage() {
   const [searchText, setSearchText] = useRecoilState(judgeFilterAtom)
   const { t } = useTranslation()
-  const judges = useRecoilValue(filteredJudgesQuery)
+  const judges = useRecoilValue(filteredJudgesSelector)
   const actions = useJudgesActions()
 
   const columns = useJudgeListColumns()

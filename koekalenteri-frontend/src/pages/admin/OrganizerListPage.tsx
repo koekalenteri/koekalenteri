@@ -7,10 +7,10 @@ import { Organizer } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
 import StyledDataGrid from '../components/StyledDataGrid'
-import { filteredOrganizersQuery, organizerFilterAtom, useOrganizersActions } from '../recoil'
 
 import FullPageFlex from './components/FullPageFlex'
 import { QuickSearchToolbar } from './components/QuickSearchToolbar'
+import { filteredOrganizersSelector, organizerFilterAtom, useOrganizersActions } from './recoil'
 
 interface OrganizerColDef extends GridColDef {
   field: keyof Organizer
@@ -18,7 +18,7 @@ interface OrganizerColDef extends GridColDef {
 
 export default function OrganizerListPage() {
   const [searchText, setSearchText] = useRecoilState(organizerFilterAtom)
-  const organizers = useRecoilValue(filteredOrganizersQuery)
+  const organizers = useRecoilValue(filteredOrganizersSelector)
   const actions = useOrganizersActions()
 
   const { t } = useTranslation()

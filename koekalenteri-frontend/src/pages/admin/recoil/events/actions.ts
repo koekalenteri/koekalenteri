@@ -2,7 +2,6 @@ import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router-dom"
 import { useAuthenticator } from "@aws-amplify/ui-react"
 import { Event } from "koekalenteri-shared/model"
-import cloneDeep from "lodash.clonedeep"
 import { useSnackbar } from "notistack"
 import { useRecoilState, useSetRecoilState } from "recoil"
 
@@ -33,7 +32,7 @@ export const useAdminEventActions = () => {
     if (!currentAdminEvent) {
       return
     }
-    const copy = cloneDeep(currentAdminEvent)
+    const copy = structuredClone(currentAdminEvent)
     copy.id = ''
     copy.state = 'draft'
     copy.entries = 0

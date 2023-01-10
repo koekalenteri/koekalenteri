@@ -2,7 +2,7 @@ import i18next from 'i18next'
 import { Organizer } from 'koekalenteri-shared/model'
 import { AtomEffect } from 'recoil'
 
-import { getOrganizers } from '../../../api/organizer'
+import { getOrganizers } from '../../../../api/organizer'
 
 export const remoteOrganizersEffect: AtomEffect<Organizer[]> = ({ setSelf, trigger }) => {
   if (trigger === 'get') {

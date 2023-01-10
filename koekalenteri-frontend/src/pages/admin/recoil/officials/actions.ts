@@ -1,7 +1,7 @@
 import i18next from 'i18next'
 import { useSetRecoilState } from 'recoil'
 
-import { getOfficials } from '../../../api/official'
+import { getOfficials } from '../../../../api/official'
 
 import { officialsAtom } from './atoms'
 

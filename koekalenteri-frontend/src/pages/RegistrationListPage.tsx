@@ -5,7 +5,7 @@ import { Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, Di
 import { isPast, isToday } from 'date-fns'
 import type { ConfirmedEvent, Registration } from 'koekalenteri-shared/model'
 import { useSnackbar } from 'notistack'
-import { useRecoilState, useRecoilValue } from 'recoil'
+import { useRecoilValue } from 'recoil'
 
 import { putRegistration } from "../api/registration"
 
@@ -13,28 +13,15 @@ import Header from './components/Header'
 import LinkButton from './components/LinkButton'
 import RegistrationEventInfo from './components/RegistrationEventInfo'
 import RegistrationList from './registrationListPage/RegistrationList'
-import { currentEvent, eventIdAtom, registrationIdAtom, registrationQuery, spaAtom } from './recoil'
+import { editableRegistrationSelector, eventSelector, spaAtom } from './recoil'
 
 
 export function RegistrationListPage({cancel}: {cancel?: boolean}) {
   const params = useParams()
-  const [eventId, setEventId] = useRecoilState(eventIdAtom)
-  const [registrationId, setRegistrationId] = useRecoilState(registrationIdAtom)
-  const event = useRecoilValue(currentEvent) as ConfirmedEvent | undefined
-  const registration = useRecoilValue(registrationQuery)
+  const event = useRecoilValue(eventSelector(params.id)) as ConfirmedEvent | undefined
+  const registration = useRecoilValue(editableRegistrationSelector(params.registrationId))
   const spa = useRecoilValue(spaAtom)
   const { t } = useTranslation()
-
-  useEffect(() => {
-    if (params.id && params.registrationId) {
-      if (params.id !== eventId) {
-        setEventId(params.id)
-      }
-      if (params.registrationId !== registrationId) {
-        setRegistrationId(params.registrationId)
-      }
-    }
-  }, [eventId, params, registrationId, setEventId, setRegistrationId])
 
   return (
     <>

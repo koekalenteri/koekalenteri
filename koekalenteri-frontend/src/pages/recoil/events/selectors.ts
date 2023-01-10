@@ -10,48 +10,22 @@ import { eventFilterAtom, eventIdAtom, eventsAtom } from './atoms'
 import { withinArrayFilters, withinDateFilters, withinSwitchFilters } from "./filters"
 
 
-export const eventByIdAtom = selectorFamily<Event | undefined, string>({
-  key: 'adminEvents/eventId',
+export const eventSelector = selectorFamily<Event | undefined, string|undefined>({
+  key: 'event',
+  get: (eventId) => ({ get }) => eventId ? get(eventByIdSelector(eventId)): undefined,
+})
+
+export const eventByIdSelector = selectorFamily<Event | undefined, string>({
+  key: 'event/Id',
   get: (eventId) => ({ get }) => get(eventsAtom).find(event => event.id === eventId) ?? getEvent(eventId),
 })
 
-export const eventSelector = selectorFamily<Event | undefined, string>({
-  key: 'event',
-  get: (eventId) => ({ get }) => get(eventByIdAtom(eventId)),
-})
-
-export const currentEvent = selector({
+export const currentEventSelector = selector({
   key: 'currentEvent',
-  get: ({ get }) => {
-    const eventId = get(eventIdAtom)
-    return eventId ? get(eventSelector(eventId)) : undefined
-  },
+  get: ({ get }) => get(eventSelector(get(eventIdAtom))),
 })
 
-export const filterJudgesQuery = selector({
-  key: 'filterJudges',
-  get: ({ get }) => {
-    const events = get(filteredEvents)
-    const judges = get(judgesAtom)
-    const usedJudgeIds = unique<number>(events.reduce<number[]>((acc, cur) => [...acc, ...cur.judges], []))
-
-    return judges
-      .filter(j => usedJudgeIds.includes(j.id))
-      .sort((a, b) => a.name.localeCompare(b.name, i18next.language))
-  },
-})
-
-export const filterOrganizersQuery = selector({
-  key: 'filterOrganizers',
-  get: ({ get }) => {
-    const events = get(filteredEvents)
-    const uniqueOrganizesrs = uniqueFn<Organizer>(events.map(e => e.organizer), (a, b) => a.id === b.id)
-    uniqueOrganizesrs.sort((a, b) => a.name.localeCompare(b.name, i18next.language))
-    return uniqueOrganizesrs
-  },
-})
-
-export const filteredEvents = selector({
+export const filteredEventsSelector = selector({
   key: 'filteredEvents',
   get: ({ get }) => {
     const filter = get(eventFilterAtom)
@@ -63,5 +37,28 @@ export const filteredEvents = selector({
         && withinSwitchFilters(event, filter)
         && withinArrayFilters(event, filter)
     })
+  },
+})
+
+export const filterJudgesSelector = selector({
+  key: 'filterJudges',
+  get: ({ get }) => {
+    const events = get(filteredEventsSelector)
+    const judges = get(judgesAtom)
+    const usedJudgeIds = unique<number>(events.reduce<number[]>((acc, cur) => [...acc, ...cur.judges], []))
+
+    return judges
+      .filter(j => usedJudgeIds.includes(j.id))
+      .sort((a, b) => a.name.localeCompare(b.name, i18next.language))
+  },
+})
+
+export const filterOrganizersSelector = selector({
+  key: 'filterOrganizers',
+  get: ({ get }) => {
+    const events = get(filteredEventsSelector)
+    const uniqueOrganizers = uniqueFn<Organizer>(events.map(e => e.organizer), (a, b) => a.id === b.id)
+    uniqueOrganizers.sort((a, b) => a.name.localeCompare(b.name, i18next.language))
+    return uniqueOrganizers
   },
 })

@@ -1,24 +1,21 @@
-import { useCallback, useEffect } from 'react'
+import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
-import { CircularProgress } from '@mui/material'
 import type { ConfirmedEvent, Registration } from 'koekalenteri-shared/model'
-import { useRecoilState, useRecoilValue } from 'recoil'
+import { useRecoilValue } from 'recoil'
 
 import LinkButton from './components/LinkButton'
 import RegistrationEventInfo from './components/RegistrationEventInfo'
 import RegistrationForm from './components/RegistrationForm'
-import { currentEvent, eventIdAtom, registrationIdAtom, registrationQuery, spaAtom } from './recoil'
+import { eventSelector, newRegistrationAtom, spaAtom } from './recoil'
 
 export const RegistrationPage = () => {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const params = useParams()
-  const [eventId, setEventId] = useRecoilState(eventIdAtom)
-  const [registrationId, setRegistrationId] = useRecoilState(registrationIdAtom)
-  const event = useRecoilValue(currentEvent) as ConfirmedEvent | undefined
-  const registration = useRecoilValue(registrationQuery)
+  const event = useRecoilValue(eventSelector(params.id ?? '')) as ConfirmedEvent | undefined
+  const registration = useRecoilValue(newRegistrationAtom)
   const spa = useRecoilValue(spaAtom)
-  const { t } = useTranslation()
 
   const onSave = async (reg: Registration) => {
     /*
@@ -56,19 +53,8 @@ export const RegistrationPage = () => {
     return true
   }
 
-  useEffect(() => {
-    if (params.id && params.registrationId) {
-      if (params.id !== eventId) {
-        setEventId(params.id)
-      }
-      if (params.registrationId !== registrationId) {
-        setRegistrationId(params.registrationId)
-      }
-    }
-  }, [eventId, params, registrationId, setEventId, setRegistrationId])
-
   if (!event || !registration) {
-    return <CircularProgress />
+    throw new Error('Event not found!')
   }
 
   return (

@@ -7,9 +7,10 @@ import { DatePicker } from '@mui/x-date-pickers'
 import { differenceInMinutes, subMonths, subYears } from 'date-fns'
 import { BreedCode, Dog, DogGender, Registration } from 'koekalenteri-shared/model'
 import merge from 'lodash.merge'
+import { useRecoilState, useRecoilValue } from 'recoil'
 
-import { useStores } from '../../../stores'
-import { DogCachedInfo } from '../../../stores/DogStore'
+import { dogCacheAtom, DogCachedInfo } from '../../recoil/dog'
+import { dogSelector } from '../../recoil/dog/selectors'
 import AutocompleteSingle from '../AutocompleteSingle'
 import CollapsibleSection from '../CollapsibleSection'
 
@@ -37,47 +38,28 @@ type DogInfoProps = {
 }
 
 export const DogInfo = ({ reg, eventDate, minDogAgeMonths, error, helperText, onChange, onOpenChange, open }: DogInfoProps) => {
-  const { rootStore } = useStores()
   const { t } = useTranslation()
   const { t: breed } = useTranslation('breed')
-  const [loading, setLoading] = useState(false)
   const [regNo, setRegNo] = useState<string>(reg.dog.regNo)
+  const [inputRegNo, setInputRegNo] = useState<string>(reg.dog.regNo)
   const [mode, setMode] = useState<'fetch' | 'manual' | 'update' | 'invalid' | 'notfound'>('fetch')
   const allowRefresh = shouldAllowRefresh(reg.dog)
   const disabled = mode !== 'manual'
-  const validRegNo = validateRegNo(regNo)
+  const validRegNo = validateRegNo(inputRegNo)
+  const [dog, setDog] = useRecoilState(dogSelector(validRegNo ? regNo : ''))
+  const cachedDogs = useRecoilValue(dogCacheAtom)
   const handleChange = (props: Partial<Dog & DogCachedInfo>, replace?: boolean) => {
-    const dog = replace ? props as Dog : merge({}, reg.dog, props)
-    if (props.titles || props.sire || props.dam) {
-      rootStore.dogStore.save({ dog })
-    }
+    setDog(merge({}, reg.dog, props))
     onChange({ dog })
   }
-  const loadDog = async (value: string, refresh?: boolean) => {
-    setRegNo(value)
-    if (!value || !validateRegNo(value)) {
-      return
-    }
-    setLoading(true)
-    const lookup = await rootStore.dogStore.load(value, refresh)
-    setLoading(false)
-    if (lookup && lookup.regNo) {
-      setRegNo(lookup.regNo)
-      const { breeder, handler, owner, ownerHandles, ...dog } = lookup
-      onChange({ dog: dog as Dog, breeder, handler, owner, ownerHandles })
-      setMode('update')
-    } else {
-      setMode('notfound')
-      handleChange({ regNo: value, name: '', results: [] }, true)
-    }
-  }
+
   const buttonClick = () => {
     switch (mode) {
       case 'fetch':
-        loadDog(regNo)
+        setRegNo(regNo)
         break
       case 'update':
-        loadDog(regNo, true)
+        // loadDog(regNo, true)
         break
       case 'notfound':
         setMode('manual')
@@ -94,25 +76,13 @@ export const DogInfo = ({ reg, eventDate, minDogAgeMonths, error, helperText, on
           id="txtReknro"
           disabled={!disabled}
           freeSolo
-          renderInput={(props) => <TextField {...props} error={!reg.dog.regNo} label={t('dog.regNo')} />}
-          value={{ regNo } as Partial<Dog>}
-          onChange={(_e, value) => value && typeof value !== 'string' && loadDog(value.regNo?.toUpperCase() || '')}
+          renderInput={(props) => <TextField {...props} error={!validRegNo} label={t('dog.regNo')} />}
+          value={inputRegNo}
+          onChange={(_e, value) => value && setInputRegNo(value.toUpperCase())}
           onInputChange={(e, value) => {
-            value = value.toUpperCase()
-            if (regNo === value) {
-              return
-            }
-            if (e?.nativeEvent instanceof InputEvent && e.nativeEvent.inputType === 'insertFromPaste') {
-              loadDog(value)
-            } else {
-              setRegNo(value)
-              onChange({ dog: { regNo: value, name: '', results: [] }, breeder: undefined, owner: undefined, handler: undefined })
-              setMode(validateRegNo(value) ? 'fetch' : 'invalid')
-            }
+            setInputRegNo(value.toUpperCase())
           }}
-          getOptionLabel={o => typeof o === 'string' ? o : o.regNo || ''}
-          isOptionEqualToValue={(o, v) => o.regNo === v.regNo}
-          options={rootStore.dogStore.dogs}
+          options={cachedDogs.filter?.(d => d.regNo).map(d => d.regNo)}
           sx={{ minWidth: 200 }}
         />
         <Stack alignItems="flex-start">
@@ -121,7 +91,6 @@ export const DogInfo = ({ reg, eventDate, minDogAgeMonths, error, helperText, on
             disabled={!validRegNo || (mode === 'update' && !allowRefresh)}
             startIcon={<CachedOutlined />}
             size="small"
-            loading={loading}
             variant="outlined"
             color="info"
             onClick={buttonClick}
@@ -133,12 +102,12 @@ export const DogInfo = ({ reg, eventDate, minDogAgeMonths, error, helperText, on
       <Grid container spacing={1} sx={{ mt: 0.5 }}>
         <Grid item>
           <TextField
-            className={disabled && reg.dog.rfid ? 'fact' : ''}
+            className={disabled && dog?.rfid ? 'fact' : ''}
             disabled={disabled}
             fullWidth
             label={t('dog.rfid')}
-            value={reg.dog.rfid || ''}
-            error={!disabled && !reg.dog.rfid}
+            value={dog?.rfid || ''}
+            error={!disabled && !dog?.rfid}
             onChange={(e) => handleChange({ rfid: e.target.value })}
           />
         </Grid>

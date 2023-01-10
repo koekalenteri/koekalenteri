@@ -2,7 +2,7 @@ import i18next from 'i18next'
 import { Official } from 'koekalenteri-shared/model'
 import { AtomEffect } from 'recoil'
 
-import { getOfficials } from '../../../api/official'
+import { getOfficials } from '../../../../api/official'
 
 
 export const remoteOfficialsEffect: AtomEffect<Official[]> = ({ setSelf, trigger }) => {

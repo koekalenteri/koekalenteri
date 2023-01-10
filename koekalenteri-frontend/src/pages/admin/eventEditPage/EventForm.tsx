@@ -4,10 +4,10 @@ import { Cancel, Save } from '@mui/icons-material'
 import { LoadingButton } from '@mui/lab'
 import { Box, Button, Paper, Stack, Theme, useMediaQuery } from '@mui/material'
 import type { DeepPartial, Event, EventClass, EventState, Judge, Official, Organizer } from 'koekalenteri-shared/model'
-import { useRecoilState } from 'recoil'
+import { useRecoilState, useRecoilValue } from 'recoil'
 
 import AutocompleteSingle from '../../components/AutocompleteSingle'
-import { DecoratedEvent, editAdminEventModifiedAtom, editAdminEventSelector } from '../recoil'
+import { DecoratedEvent, editableEventModifiedSelector, editableEventSelector } from '../recoil'
 
 import AdditionalInfoSection from './eventForm/AdditionalInfoSection'
 import BasicInfoSection from './eventForm/BasicInfoSection'
@@ -44,9 +44,8 @@ type EventFormParams = {
 export default function EventForm({ eventId, judges, eventTypes, eventTypeClasses, officials, organizers, onSave, onCancel }: EventFormParams) {
   const md = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
   const { t } = useTranslation()
-  const [event, setEvent] = useRecoilState(editAdminEventSelector(eventId))
+  const [event, setEvent] = useRecoilState(editableEventSelector(eventId))
   const [saving, setSaving] = useState(false)
-  const [changes, setChanges] = useRecoilState(editAdminEventModifiedAtom(eventId))
   const [errors, setErrors] = useState(event ? validateEvent(event as PartialEvent) : [])
   const [open, setOpen] = useState<{[key: string]: boolean|undefined}>({
     basic: true,
@@ -57,6 +56,7 @@ export default function EventForm({ eventId, judges, eventTypes, eventTypeClasse
     contact: md,
     info: md,
   })
+  const changes = useRecoilValue(editableEventModifiedSelector(eventId))
   const valid = errors.length === 0
   const fields = useMemo(() => requiredFields(event as PartialEvent), [event])
 
@@ -74,8 +74,7 @@ export default function EventForm({ eventId, judges, eventTypes, eventTypeClasse
     const newState = { ...event, ...props } as PartialEvent
     setErrors(validateEvent(newState))
     setEvent(newState as DecoratedEvent) // TODO: without typecast
-    setChanges(true)
-  }, [event, eventTypeClasses, setEvent, setChanges])
+  }, [event, eventTypeClasses, setEvent])
 
   const saveHandler = useCallback(async () => {
     if (!event) {

@@ -4,12 +4,12 @@ import { selector } from 'recoil'
 import { judgeFilterAtom, judgesAtom } from './atoms'
 
 
-export const activeJudgesQuery = selector({
+export const activeJudgesSelector = selector({
   key: 'activeJudges',
   get: ({ get }) => get(judgesAtom).filter(item => item.active),
 })
 
-export const filteredJudgesQuery = selector({
+export const filteredJudgesSelector = selector({
   key: 'filteredJudges',
   get: ({ get }) => {
     const filter = get(judgeFilterAtom).toLocaleLowerCase(i18next.language)

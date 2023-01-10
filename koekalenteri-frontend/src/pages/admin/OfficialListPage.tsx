@@ -6,10 +6,10 @@ import { Official } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
 import StyledDataGrid from '../components/StyledDataGrid'
-import { filteredOfficialsQuery, officialFilterAtom, useOfficialsActions } from '../recoil'
 
 import FullPageFlex from './components/FullPageFlex'
 import { QuickSearchToolbar } from './components/QuickSearchToolbar'
+import { filteredOfficialsSelector, officialFilterAtom, useOfficialsActions } from './recoil'
 
 interface OfficialColDef extends GridColDef {
   field: keyof Official
@@ -19,7 +19,7 @@ export default function OfficialListPage() {
   const large = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
   const [searchText, setSearchText] = useRecoilState(officialFilterAtom)
   const { t } = useTranslation()
-  const officials = useRecoilValue(filteredOfficialsQuery)
+  const officials = useRecoilValue(filteredOfficialsSelector)
   const actions = useOfficialsActions()
 
   const columns: OfficialColDef[] = [

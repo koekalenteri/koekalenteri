@@ -2,7 +2,7 @@
 import { Organizer } from 'koekalenteri-shared/model'
 import { atom } from 'recoil'
 
-import { logEffect, storageEffect } from '../effects'
+import { logEffect, storageEffect } from '../../../recoil/effects'
 
 import { remoteOrganizersEffect } from './effects'
 
