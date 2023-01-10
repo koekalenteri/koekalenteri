@@ -23,7 +23,7 @@
   "dateshort": "{{ date, short }}",
   "delete": "Poista",
   "deleteEventComplete": "Tapahtuma poistettu",
-  "deleteEventText": "Haluatko varmasti poistaa kokeen?",
+  "deleteEventText": "Haluatko varmasti poistaa tapahtuman?",
   "deleteEventTitle": "Varmistus",
   "distance": "{{ date, distance }}",
   "distanceLeft": "{{ date, distance }} jäljellä",
