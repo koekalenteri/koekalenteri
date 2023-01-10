@@ -56,7 +56,7 @@ export const DogInfo = ({ reg, eventDate, minDogAgeMonths, error, helperText, on
   const buttonClick = () => {
     switch (mode) {
       case 'fetch':
-        setRegNo(regNo)
+        setRegNo(inputRegNo)
         break
       case 'update':
         // loadDog(regNo, true)
