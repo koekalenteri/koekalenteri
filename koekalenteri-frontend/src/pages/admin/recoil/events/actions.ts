@@ -9,7 +9,6 @@ import { putEvent } from "../../../../api/event"
 import { Path } from "../../../../routeConfig"
 
 import { adminEventIdAtom, newEventAtom } from "./atoms"
-import { DecoratedEvent, decorateEvent } from "./effects"
 import { currentAdminEventSelector } from "./selectors"
 
 
@@ -43,12 +42,11 @@ export const useAdminEventActions = () => {
     navigate(Path.admin.newEvent)
   }
 
-  async function save(event: Partial<Event>): Promise<DecoratedEvent> {
+  async function save(event: Partial<Event>): Promise<Event> {
     const saved = await putEvent(event, user.getSignInUserSession()?.getIdToken().getJwtToken())
-    const decorated = decorateEvent(saved)
-    setAdminEventId(decorated.id)
-    setCurrentAdminEvent(decorated)
-    return decorated
+    setAdminEventId(saved.id)
+    setCurrentAdminEvent(saved)
+    return saved
   }
 
   async function deleteCurrent() {

@@ -7,6 +7,7 @@ import { ConfirmedEvent, Registration } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
 import { Path } from '../../routeConfig'
+import { uniqueClassDates, uniqueClasses } from '../../utils'
 import CollapsibleSection from '../components/CollapsibleSection'
 import LinkButton from '../components/LinkButton'
 import RegistrationForm from '../components/RegistrationForm'
@@ -24,14 +25,15 @@ export default function EventViewPage() {
   const [open, setOpen] = useState(false)
   const params = useParams()
   const event = useRecoilValue(editableEventSelector(params.id))
+  const eventClasses = useMemo(() => uniqueClasses(event), [event])
   const [selectedEventClass, setSelectedEventClass] = useRecoilState(eventClassAtom)
-  const activeTab = useMemo(() => Math.max(event?.uniqueClasses?.findIndex(c => c === selectedEventClass) ?? 0, 0), [event?.uniqueClasses, selectedEventClass])
+  const activeTab = useMemo(() => Math.max(eventClasses.findIndex(c => c === selectedEventClass) ?? 0, 0), [eventClasses, selectedEventClass])
   const selectedRegistration = useRecoilValue(currentAdminRegistrationSelector)
   const actions = useAdminRegistrationActions()
 
   const handleTabChange = useCallback((_: React.SyntheticEvent, newValue: number) => {
-    setSelectedEventClass(event?.uniqueClasses?.[newValue])
-  }, [event?.uniqueClasses, setSelectedEventClass])
+    setSelectedEventClass(eventClasses[newValue])
+  }, [eventClasses, setSelectedEventClass])
 
   const onSave = useCallback(async (registration: Registration) => {
     if (await actions.save(registration)) {
@@ -80,13 +82,13 @@ export default function EventViewPage() {
 
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
           <Tabs value={activeTab} onChange={handleTabChange}>
-            {event.uniqueClasses?.map(eventClass => <Tab key={`tab-${eventClass}`} id={`tab-${eventClass}`} label={eventClass}></Tab>)}
+            {eventClasses.map(eventClass => <Tab key={`tab-${eventClass}`} id={`tab-${eventClass}`} label={eventClass}></Tab>)}
           </Tabs>
         </Box>
 
-        {event.uniqueClasses?.map((eventClass, index) =>
+        {uniqueClasses(event).map((eventClass, index) =>
           <TabPanel key={`tabPanel-${eventClass}`} index={index} activeTab={activeTab}>
-            <ClassEntrySelection eventDates={event.uniqueClassDates?.[eventClass ?? []]} setOpen={setOpen} />
+            <ClassEntrySelection eventDates={uniqueClassDates(event, eventClass)} setOpen={setOpen} />
           </TabPanel>,
         )}
 

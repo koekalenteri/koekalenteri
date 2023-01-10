@@ -8,16 +8,18 @@ type EventDates = {
   entryEndDate?: Date
 }
 
-export const isEventUpcoming = ({startDate}: EventDates, now = new Date()) => !!startDate && startDate > now
+export const isEventUpcoming = ({ startDate }: EventDates, now = new Date()) => !!startDate && startDate > now
 
-export const isEntryUpcoming = ({entryStartDate}: EventDates, now = new Date()) => !!entryStartDate && entryStartDate > now
+export const isEntryUpcoming = ({ entryStartDate }: EventDates, now = new Date()) => !!entryStartDate && entryStartDate > now
 export const isEntryOpen = ({ entryStartDate, entryEndDate }: EventDates, now = new Date()) => !!entryStartDate && !!entryEndDate && startOfDay(entryStartDate) <= now && endOfDay(entryEndDate) >= now
-export const isEntryClosing = ({ entryStartDate, entryEndDate }: EventDates, now = new Date()) => !!entryEndDate && isEntryOpen({entryStartDate, entryEndDate}, now) && subDays(entryEndDate, 7) <= endOfDay(now)
+export const isEntryClosing = ({ entryStartDate, entryEndDate }: EventDates, now = new Date()) => !!entryEndDate && isEntryOpen({ entryStartDate, entryEndDate }, now) && subDays(entryEndDate, 7) <= endOfDay(now)
 export const isEntryClosed = ({ startDate, entryEndDate }: EventDates, now = new Date()) => !!startDate && !!entryEndDate && endOfDay(entryEndDate) < now && startOfDay(startDate) > now
 
 export const isEventOngoing = ({ startDate, endDate }: EventDates, now = new Date()) => !!startDate && !!endDate && startDate <= now && endDate >= now
 export const isEventOver = ({ startDate }: EventDates, now = new Date()) => !!startDate && startDate < now
 
+export const uniqueClasses = (event?: Event) => unique((event?.classes ?? []).map(c => c.class))
+export const uniqueClassDates = (event: Event, cls: string) => uniqueDate(event.classes.filter(c => c.class === cls).map(c => c.date || event.startDate || new Date()))
 
 export function entryDateColor(event: Event) {
   if (!isEntryOpen(event)) {

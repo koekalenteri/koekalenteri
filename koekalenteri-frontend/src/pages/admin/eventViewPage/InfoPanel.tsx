@@ -1,11 +1,11 @@
 import { useTranslation } from 'react-i18next'
 import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material'
 import { format } from 'date-fns'
+import { Event } from 'koekalenteri-shared/model'
 
-import { DecoratedEvent } from '../recoil'
 
 interface Props {
-  event: DecoratedEvent
+  event: Event
 }
 
 const InfoPanel = ({ event }: Props) => {

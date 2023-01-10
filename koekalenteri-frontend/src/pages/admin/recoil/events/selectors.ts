@@ -1,9 +1,9 @@
 import { startOfToday } from "date-fns"
 import i18next from "i18next"
+import { Event } from "koekalenteri-shared/model"
 import { DefaultValue, selector, selectorFamily } from "recoil"
 
 import { adminEventFilterTextAtom, adminEventIdAtom, adminEventsAtom, adminShowPastEventsAtom, editableEventByIdAtom, eventStorageKey, newEventAtom } from "./atoms"
-import { DecoratedEvent } from "./effects"
 
 
 export const currentAdminEventSelector = selector({
@@ -38,7 +38,7 @@ export const filteredAdminEventsSelector = selector({
 /**
  * Abstration for new / existing event
  */
-export const editableEventSelector = selectorFamily<DecoratedEvent | undefined, string|undefined>({
+export const editableEventSelector = selectorFamily<Event | undefined, string|undefined>({
   key: 'editableEvent',
   get: (eventId) => ({ get }) => eventId ? get(editableEventByIdAtom(eventId)) : get(newEventAtom),
   set: (eventId) => ({ set, reset }, newValue) => {

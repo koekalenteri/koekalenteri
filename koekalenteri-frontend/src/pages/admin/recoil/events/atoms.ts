@@ -1,13 +1,15 @@
 import { addDays, startOfDay, sub } from "date-fns"
+import { Event } from "koekalenteri-shared/model"
 import { atom, atomFamily, selector } from "recoil"
 
 import { getEvent } from "../../../../api/event"
+import { uniqueClasses } from "../../../../utils"
 import { logEffect, parseStorageJSON, storageEffect } from "../../../recoil"
 
-import { DecoratedEvent, decorateEvent, remoteAdminEventsEffect } from "./effects"
+import { remoteAdminEventsEffect } from "./effects"
 import { currentAdminEventSelector } from "./selectors"
 
-export const adminEventsAtom = atom<DecoratedEvent[]>({
+export const adminEventsAtom = atom<Event[]>({
   key: 'adminEvents',
   default: [],
   effects: [
@@ -17,7 +19,7 @@ export const adminEventsAtom = atom<DecoratedEvent[]>({
   ],
 })
 
-export const newEventAtom = atom<DecoratedEvent>({
+export const newEventAtom = atom<Event>({
   key: 'newEvent',
   default: {
     state: 'draft',
@@ -27,7 +29,7 @@ export const newEventAtom = atom<DecoratedEvent>({
     entryEndDate: sub(startOfDay(addDays(Date.now(), 90)), { weeks: 3 }),
     classes: [],
     judges: [],
-  } as unknown as DecoratedEvent,
+  } as unknown as Event,
   effects: [
     logEffect,
     storageEffect,
@@ -65,7 +67,7 @@ export const eventClassAtom = atom<string | undefined>({
   key: 'eventClass',
   default: selector({
     key: 'eventClass/default',
-    get: ({ get }) => get(currentAdminEventSelector)?.uniqueClasses?.[0],
+    get: ({ get }) => uniqueClasses(get(currentAdminEventSelector))[0],
   }),
   effects: [
     logEffect,
@@ -78,7 +80,7 @@ export const eventStorageKey = (eventId: string) => `adminEditEvent/eventId-${ev
 /**
  * Existing event editing, edits stored to local storage
  */
-export const editableEventByIdAtom = atomFamily<DecoratedEvent | undefined, string>({
+export const editableEventByIdAtom = atomFamily<Event | undefined, string>({
   key: 'editableEvent/Id',
   default: undefined,
   effects: eventId => [
@@ -90,7 +92,7 @@ export const editableEventByIdAtom = atomFamily<DecoratedEvent | undefined, stri
         const parsed = parseStorageJSON(savedValue)
         setSelf(parsed)
       } else {
-        getEvent(eventId).then(event => setSelf(decorateEvent(event)))
+        getEvent(eventId).then(setSelf)
       }
 
       onSet(async (newValue, _, isReset) => {

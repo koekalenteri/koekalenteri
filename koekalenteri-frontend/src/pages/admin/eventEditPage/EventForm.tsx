@@ -7,7 +7,7 @@ import type { DeepPartial, Event, EventClass, EventState, Judge, Official, Organ
 import { useRecoilState, useRecoilValue } from 'recoil'
 
 import AutocompleteSingle from '../../components/AutocompleteSingle'
-import { DecoratedEvent, editableEventModifiedSelector, editableEventSelector } from '../recoil'
+import { editableEventModifiedSelector, editableEventSelector } from '../recoil'
 
 import AdditionalInfoSection from './eventForm/AdditionalInfoSection'
 import BasicInfoSection from './eventForm/BasicInfoSection'
@@ -73,7 +73,7 @@ export default function EventForm({ eventId, judges, eventTypes, eventTypeClasse
     }
     const newState = { ...event, ...props } as PartialEvent
     setErrors(validateEvent(newState))
-    setEvent(newState as DecoratedEvent) // TODO: without typecast
+    setEvent(newState as Event)
   }, [event, eventTypeClasses, setEvent])
 
   const saveHandler = useCallback(async () => {

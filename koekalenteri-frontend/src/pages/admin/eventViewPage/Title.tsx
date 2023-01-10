@@ -1,10 +1,10 @@
 import { useTranslation } from 'react-i18next'
 import { Box, Typography } from '@mui/material'
+import { Event } from 'koekalenteri-shared/model'
 
 import useEventTitle from '../../../hooks/useEventTitle'
-import { DecoratedEvent } from '../recoil'
 
-export default function Title({ event }: { event: DecoratedEvent }) {
+export default function Title({ event }: { event: Event }) {
   const { t } = useTranslation()
   const title = useEventTitle(event)
 
