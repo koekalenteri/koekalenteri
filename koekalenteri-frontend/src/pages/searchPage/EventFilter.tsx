@@ -7,8 +7,9 @@ import AutocompleteMulti from '../components/AutocompleteMulti'
 import DateRange, { DateValue } from '../components/DateRange'
 import { FilterProps } from '../recoil'
 
-type EventFilterProps = {
+interface Props {
   eventTypes: string[]
+  eventClasses: string[]
   filter: FilterProps
   judges: Judge[]
   onChange?: (filter: FilterProps) => void
@@ -17,7 +18,7 @@ type EventFilterProps = {
 
 const MIN_DATE = new Date(2020, 0, 1)
 
-export const EventFilter = ({ judges, organizers, eventTypes, filter, onChange }: EventFilterProps) => {
+export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filter, onChange }: Props) => {
   const { t } = useTranslation()
   const setFilter = useCallback((props: Partial<FilterProps>) => onChange && onChange({...filter, ...props}), [filter, onChange])
   const handleDateRangeChange = useCallback((start: DateValue, end: DateValue) => setFilter({ start, end}), [setFilter])
@@ -47,7 +48,7 @@ export const EventFilter = ({ judges, organizers, eventTypes, filter, onChange }
   return (
     <Box m={1}>
       <Grid container justifyContent="space-around" spacing={1}>
-        <Grid item xs={12} md={6} xl={2}>
+        <Grid item xs={12} md={6}>
           <DateRange
             start={filter.start}
             end={filter.end}
@@ -57,7 +58,7 @@ export const EventFilter = ({ judges, organizers, eventTypes, filter, onChange }
             onChange={handleDateRangeChange}
           />
         </Grid>
-        <Grid item xs={12} sm={6} md={4} xl>
+        <Grid item xs={12} sm={6} md={4}>
           <AutocompleteMulti
             label={t('eventType')}
             onChange={handleEventTypeChange}
@@ -65,15 +66,15 @@ export const EventFilter = ({ judges, organizers, eventTypes, filter, onChange }
             value={filter.eventType}
           />
         </Grid>
-        <Grid item xs={12} sm={6} md={2} xl>
+        <Grid item xs={12} sm={6} md={2}>
           <AutocompleteMulti
             label={t('eventClass')}
             onChange={handleEventClassChange}
-            options={['ALO', 'AVO', 'VOI']}
+            options={eventClasses}
             value={filter.eventClass}
           />
         </Grid>
-        <Grid item xs={12} sm={6} xl={2}>
+        <Grid item xs={12} sm={6}>
           <AutocompleteMulti
             getOptionLabel={getName}
             isOptionEqualToValue={compareId}
@@ -83,7 +84,7 @@ export const EventFilter = ({ judges, organizers, eventTypes, filter, onChange }
             value={organizers.filter(o => filter.organizer.includes(o.id))}
           />
         </Grid>
-        <Grid item xs={12} sm={6} xl={2}>
+        <Grid item xs={12} sm={6}>
           <AutocompleteMulti
             getOptionLabel={getName}
             isOptionEqualToValue={compareId}
@@ -93,7 +94,7 @@ export const EventFilter = ({ judges, organizers, eventTypes, filter, onChange }
             value={judges.filter(j => filter.judge.includes(j.id))}
           />
         </Grid>
-        <Grid item md={12} xl={4}>
+        <Grid item md={12}>
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={0} alignItems="start" justifyContent="space-evenly">
             <Box sx={{ display: 'flex' }}>
               <FormControlLabel

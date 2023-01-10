@@ -9,7 +9,7 @@ exports[`SearchPage filters by date - no-results 1`] = `
       class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-1 css-1god2i2-MuiGrid-root"
     >
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-md-6 MuiGrid-grid-xl-2 css-g0oysl-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-11eerce-MuiGrid-root"
       >
         <div
           class="MuiBox-root css-8atqhb"
@@ -147,7 +147,7 @@ exports[`SearchPage filters by date - no-results 1`] = `
         </div>
       </div>
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-md-4 MuiGrid-grid-xl-true css-1eqldmq-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-md-4 css-bfkuk8-MuiGrid-root"
       >
         <div
           class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-qm9mjt-MuiAutocomplete-root"
@@ -223,7 +223,7 @@ exports[`SearchPage filters by date - no-results 1`] = `
         </div>
       </div>
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-md-2 MuiGrid-grid-xl-true css-1pvlel9-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-md-2 css-19qwjve-MuiGrid-root"
       >
         <div
           class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-qm9mjt-MuiAutocomplete-root"
@@ -299,7 +299,7 @@ exports[`SearchPage filters by date - no-results 1`] = `
         </div>
       </div>
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-xl-2 css-oon4sq-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-wfcdf7-MuiGrid-root"
       >
         <div
           class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-qm9mjt-MuiAutocomplete-root"
@@ -375,7 +375,7 @@ exports[`SearchPage filters by date - no-results 1`] = `
         </div>
       </div>
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-xl-2 css-oon4sq-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-wfcdf7-MuiGrid-root"
       >
         <div
           class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-qm9mjt-MuiAutocomplete-root"
@@ -451,7 +451,7 @@ exports[`SearchPage filters by date - no-results 1`] = `
         </div>
       </div>
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-md-12 MuiGrid-grid-xl-4 css-g6erl3-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-md-12 css-ejs5r2-MuiGrid-root"
       >
         <div
           class="css-1tiftik-MuiStack-root"
@@ -609,7 +609,7 @@ exports[`SearchPage filters by date 1`] = `
       class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-1 css-1god2i2-MuiGrid-root"
     >
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-md-6 MuiGrid-grid-xl-2 css-g0oysl-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-11eerce-MuiGrid-root"
       >
         <div
           class="MuiBox-root css-8atqhb"
@@ -747,7 +747,7 @@ exports[`SearchPage filters by date 1`] = `
         </div>
       </div>
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-md-4 MuiGrid-grid-xl-true css-1eqldmq-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-md-4 css-bfkuk8-MuiGrid-root"
       >
         <div
           class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-qm9mjt-MuiAutocomplete-root"
@@ -823,7 +823,7 @@ exports[`SearchPage filters by date 1`] = `
         </div>
       </div>
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-md-2 MuiGrid-grid-xl-true css-1pvlel9-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-md-2 css-19qwjve-MuiGrid-root"
       >
         <div
           class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-qm9mjt-MuiAutocomplete-root"
@@ -899,7 +899,7 @@ exports[`SearchPage filters by date 1`] = `
         </div>
       </div>
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-xl-2 css-oon4sq-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-wfcdf7-MuiGrid-root"
       >
         <div
           class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-qm9mjt-MuiAutocomplete-root"
@@ -975,7 +975,7 @@ exports[`SearchPage filters by date 1`] = `
         </div>
       </div>
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-xl-2 css-oon4sq-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-wfcdf7-MuiGrid-root"
       >
         <div
           class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-qm9mjt-MuiAutocomplete-root"
@@ -1051,7 +1051,7 @@ exports[`SearchPage filters by date 1`] = `
         </div>
       </div>
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-md-12 MuiGrid-grid-xl-4 css-g6erl3-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-md-12 css-ejs5r2-MuiGrid-root"
       >
         <div
           class="css-1tiftik-MuiStack-root"
@@ -1399,7 +1399,7 @@ exports[`SearchPage filters by date/end 1`] = `
       class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-1 css-1god2i2-MuiGrid-root"
     >
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-md-6 MuiGrid-grid-xl-2 css-g0oysl-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-11eerce-MuiGrid-root"
       >
         <div
           class="MuiBox-root css-8atqhb"
@@ -1537,7 +1537,7 @@ exports[`SearchPage filters by date/end 1`] = `
         </div>
       </div>
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-md-4 MuiGrid-grid-xl-true css-1eqldmq-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-md-4 css-bfkuk8-MuiGrid-root"
       >
         <div
           class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-qm9mjt-MuiAutocomplete-root"
@@ -1613,7 +1613,7 @@ exports[`SearchPage filters by date/end 1`] = `
         </div>
       </div>
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-md-2 MuiGrid-grid-xl-true css-1pvlel9-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-md-2 css-19qwjve-MuiGrid-root"
       >
         <div
           class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-qm9mjt-MuiAutocomplete-root"
@@ -1689,7 +1689,7 @@ exports[`SearchPage filters by date/end 1`] = `
         </div>
       </div>
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-xl-2 css-oon4sq-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-wfcdf7-MuiGrid-root"
       >
         <div
           class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-qm9mjt-MuiAutocomplete-root"
@@ -1765,7 +1765,7 @@ exports[`SearchPage filters by date/end 1`] = `
         </div>
       </div>
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-xl-2 css-oon4sq-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-wfcdf7-MuiGrid-root"
       >
         <div
           class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-qm9mjt-MuiAutocomplete-root"
@@ -1841,7 +1841,7 @@ exports[`SearchPage filters by date/end 1`] = `
         </div>
       </div>
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-md-12 MuiGrid-grid-xl-4 css-g6erl3-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-md-12 css-ejs5r2-MuiGrid-root"
       >
         <div
           class="css-1tiftik-MuiStack-root"
@@ -2189,7 +2189,7 @@ exports[`SearchPage filters by date/start 1`] = `
       class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-1 css-1god2i2-MuiGrid-root"
     >
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-md-6 MuiGrid-grid-xl-2 css-g0oysl-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-11eerce-MuiGrid-root"
       >
         <div
           class="MuiBox-root css-8atqhb"
@@ -2327,7 +2327,7 @@ exports[`SearchPage filters by date/start 1`] = `
         </div>
       </div>
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-md-4 MuiGrid-grid-xl-true css-1eqldmq-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-md-4 css-bfkuk8-MuiGrid-root"
       >
         <div
           class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-qm9mjt-MuiAutocomplete-root"
@@ -2403,7 +2403,7 @@ exports[`SearchPage filters by date/start 1`] = `
         </div>
       </div>
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-md-2 MuiGrid-grid-xl-true css-1pvlel9-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-md-2 css-19qwjve-MuiGrid-root"
       >
         <div
           class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-qm9mjt-MuiAutocomplete-root"
@@ -2479,7 +2479,7 @@ exports[`SearchPage filters by date/start 1`] = `
         </div>
       </div>
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-xl-2 css-oon4sq-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-wfcdf7-MuiGrid-root"
       >
         <div
           class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-qm9mjt-MuiAutocomplete-root"
@@ -2555,7 +2555,7 @@ exports[`SearchPage filters by date/start 1`] = `
         </div>
       </div>
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-xl-2 css-oon4sq-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-wfcdf7-MuiGrid-root"
       >
         <div
           class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-qm9mjt-MuiAutocomplete-root"
@@ -2631,7 +2631,7 @@ exports[`SearchPage filters by date/start 1`] = `
         </div>
       </div>
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-md-12 MuiGrid-grid-xl-4 css-g6erl3-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-md-12 css-ejs5r2-MuiGrid-root"
       >
         <div
           class="css-1tiftik-MuiStack-root"
@@ -3084,7 +3084,7 @@ exports[`SearchPage filters by entryOpen 1`] = `
       class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-1 css-1god2i2-MuiGrid-root"
     >
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-md-6 MuiGrid-grid-xl-2 css-g0oysl-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-11eerce-MuiGrid-root"
       >
         <div
           class="MuiBox-root css-8atqhb"
@@ -3222,7 +3222,7 @@ exports[`SearchPage filters by entryOpen 1`] = `
         </div>
       </div>
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-md-4 MuiGrid-grid-xl-true css-1eqldmq-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-md-4 css-bfkuk8-MuiGrid-root"
       >
         <div
           class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-qm9mjt-MuiAutocomplete-root"
@@ -3298,7 +3298,7 @@ exports[`SearchPage filters by entryOpen 1`] = `
         </div>
       </div>
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-md-2 MuiGrid-grid-xl-true css-1pvlel9-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-md-2 css-19qwjve-MuiGrid-root"
       >
         <div
           class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-qm9mjt-MuiAutocomplete-root"
@@ -3374,7 +3374,7 @@ exports[`SearchPage filters by entryOpen 1`] = `
         </div>
       </div>
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-xl-2 css-oon4sq-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-wfcdf7-MuiGrid-root"
       >
         <div
           class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-qm9mjt-MuiAutocomplete-root"
@@ -3450,7 +3450,7 @@ exports[`SearchPage filters by entryOpen 1`] = `
         </div>
       </div>
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-xl-2 css-oon4sq-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-wfcdf7-MuiGrid-root"
       >
         <div
           class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-qm9mjt-MuiAutocomplete-root"
@@ -3526,7 +3526,7 @@ exports[`SearchPage filters by entryOpen 1`] = `
         </div>
       </div>
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-md-12 MuiGrid-grid-xl-4 css-g6erl3-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-md-12 css-ejs5r2-MuiGrid-root"
       >
         <div
           class="css-1tiftik-MuiStack-root"
@@ -3889,7 +3889,7 @@ exports[`SearchPage filters by entryOpen and entryUpcoming 1`] = `
       class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-1 css-1god2i2-MuiGrid-root"
     >
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-md-6 MuiGrid-grid-xl-2 css-g0oysl-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-11eerce-MuiGrid-root"
       >
         <div
           class="MuiBox-root css-8atqhb"
@@ -4027,7 +4027,7 @@ exports[`SearchPage filters by entryOpen and entryUpcoming 1`] = `
         </div>
       </div>
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-md-4 MuiGrid-grid-xl-true css-1eqldmq-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-md-4 css-bfkuk8-MuiGrid-root"
       >
         <div
           class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-qm9mjt-MuiAutocomplete-root"
@@ -4103,7 +4103,7 @@ exports[`SearchPage filters by entryOpen and entryUpcoming 1`] = `
         </div>
       </div>
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-md-2 MuiGrid-grid-xl-true css-1pvlel9-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-md-2 css-19qwjve-MuiGrid-root"
       >
         <div
           class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-qm9mjt-MuiAutocomplete-root"
@@ -4179,7 +4179,7 @@ exports[`SearchPage filters by entryOpen and entryUpcoming 1`] = `
         </div>
       </div>
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-xl-2 css-oon4sq-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-wfcdf7-MuiGrid-root"
       >
         <div
           class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-qm9mjt-MuiAutocomplete-root"
@@ -4255,7 +4255,7 @@ exports[`SearchPage filters by entryOpen and entryUpcoming 1`] = `
         </div>
       </div>
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-xl-2 css-oon4sq-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-wfcdf7-MuiGrid-root"
       >
         <div
           class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-qm9mjt-MuiAutocomplete-root"
@@ -4331,7 +4331,7 @@ exports[`SearchPage filters by entryOpen and entryUpcoming 1`] = `
         </div>
       </div>
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-md-12 MuiGrid-grid-xl-4 css-g6erl3-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-md-12 css-ejs5r2-MuiGrid-root"
       >
         <div
           class="css-1tiftik-MuiStack-root"
@@ -4785,7 +4785,7 @@ exports[`SearchPage filters by entryUpcoming 1`] = `
       class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-1 css-1god2i2-MuiGrid-root"
     >
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-md-6 MuiGrid-grid-xl-2 css-g0oysl-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-11eerce-MuiGrid-root"
       >
         <div
           class="MuiBox-root css-8atqhb"
@@ -4923,7 +4923,7 @@ exports[`SearchPage filters by entryUpcoming 1`] = `
         </div>
       </div>
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-md-4 MuiGrid-grid-xl-true css-1eqldmq-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-md-4 css-bfkuk8-MuiGrid-root"
       >
         <div
           class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-qm9mjt-MuiAutocomplete-root"
@@ -4999,7 +4999,7 @@ exports[`SearchPage filters by entryUpcoming 1`] = `
         </div>
       </div>
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-md-2 MuiGrid-grid-xl-true css-1pvlel9-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-md-2 css-19qwjve-MuiGrid-root"
       >
         <div
           class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-qm9mjt-MuiAutocomplete-root"
@@ -5075,7 +5075,7 @@ exports[`SearchPage filters by entryUpcoming 1`] = `
         </div>
       </div>
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-xl-2 css-oon4sq-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-wfcdf7-MuiGrid-root"
       >
         <div
           class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-qm9mjt-MuiAutocomplete-root"
@@ -5151,7 +5151,7 @@ exports[`SearchPage filters by entryUpcoming 1`] = `
         </div>
       </div>
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-xl-2 css-oon4sq-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-wfcdf7-MuiGrid-root"
       >
         <div
           class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-qm9mjt-MuiAutocomplete-root"
@@ -5227,7 +5227,7 @@ exports[`SearchPage filters by entryUpcoming 1`] = `
         </div>
       </div>
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-md-12 MuiGrid-grid-xl-4 css-g6erl3-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-md-12 css-ejs5r2-MuiGrid-root"
       >
         <div
           class="css-1tiftik-MuiStack-root"
@@ -5484,7 +5484,7 @@ exports[`SearchPage filters by event class 1`] = `
       class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-1 css-1god2i2-MuiGrid-root"
     >
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-md-6 MuiGrid-grid-xl-2 css-g0oysl-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-11eerce-MuiGrid-root"
       >
         <div
           class="MuiBox-root css-8atqhb"
@@ -5622,7 +5622,7 @@ exports[`SearchPage filters by event class 1`] = `
         </div>
       </div>
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-md-4 MuiGrid-grid-xl-true css-1eqldmq-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-md-4 css-bfkuk8-MuiGrid-root"
       >
         <div
           class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-qm9mjt-MuiAutocomplete-root"
@@ -5698,7 +5698,7 @@ exports[`SearchPage filters by event class 1`] = `
         </div>
       </div>
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-md-2 MuiGrid-grid-xl-true css-1pvlel9-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-md-2 css-19qwjve-MuiGrid-root"
       >
         <div
           class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasClearIcon MuiAutocomplete-hasPopupIcon css-qm9mjt-MuiAutocomplete-root"
@@ -5819,7 +5819,7 @@ exports[`SearchPage filters by event class 1`] = `
         </div>
       </div>
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-xl-2 css-oon4sq-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-wfcdf7-MuiGrid-root"
       >
         <div
           class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-qm9mjt-MuiAutocomplete-root"
@@ -5895,7 +5895,7 @@ exports[`SearchPage filters by event class 1`] = `
         </div>
       </div>
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-xl-2 css-oon4sq-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-wfcdf7-MuiGrid-root"
       >
         <div
           class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-qm9mjt-MuiAutocomplete-root"
@@ -5971,7 +5971,7 @@ exports[`SearchPage filters by event class 1`] = `
         </div>
       </div>
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-md-12 MuiGrid-grid-xl-4 css-g6erl3-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-md-12 css-ejs5r2-MuiGrid-root"
       >
         <div
           class="css-1tiftik-MuiStack-root"
@@ -6228,7 +6228,7 @@ exports[`SearchPage filters by event type 1`] = `
       class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-1 css-1god2i2-MuiGrid-root"
     >
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-md-6 MuiGrid-grid-xl-2 css-g0oysl-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-11eerce-MuiGrid-root"
       >
         <div
           class="MuiBox-root css-8atqhb"
@@ -6366,7 +6366,7 @@ exports[`SearchPage filters by event type 1`] = `
         </div>
       </div>
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-md-4 MuiGrid-grid-xl-true css-1eqldmq-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-md-4 css-bfkuk8-MuiGrid-root"
       >
         <div
           class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasClearIcon MuiAutocomplete-hasPopupIcon css-qm9mjt-MuiAutocomplete-root"
@@ -6487,7 +6487,7 @@ exports[`SearchPage filters by event type 1`] = `
         </div>
       </div>
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-md-2 MuiGrid-grid-xl-true css-1pvlel9-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-md-2 css-19qwjve-MuiGrid-root"
       >
         <div
           class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-qm9mjt-MuiAutocomplete-root"
@@ -6563,7 +6563,7 @@ exports[`SearchPage filters by event type 1`] = `
         </div>
       </div>
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-xl-2 css-oon4sq-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-wfcdf7-MuiGrid-root"
       >
         <div
           class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-qm9mjt-MuiAutocomplete-root"
@@ -6639,7 +6639,7 @@ exports[`SearchPage filters by event type 1`] = `
         </div>
       </div>
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-xl-2 css-oon4sq-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-wfcdf7-MuiGrid-root"
       >
         <div
           class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-qm9mjt-MuiAutocomplete-root"
@@ -6715,7 +6715,7 @@ exports[`SearchPage filters by event type 1`] = `
         </div>
       </div>
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-md-12 MuiGrid-grid-xl-4 css-g6erl3-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-md-12 css-ejs5r2-MuiGrid-root"
       >
         <div
           class="css-1tiftik-MuiStack-root"
@@ -6972,7 +6972,7 @@ exports[`SearchPage filters by judge 1`] = `
       class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-1 css-1god2i2-MuiGrid-root"
     >
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-md-6 MuiGrid-grid-xl-2 css-g0oysl-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-11eerce-MuiGrid-root"
       >
         <div
           class="MuiBox-root css-8atqhb"
@@ -7110,7 +7110,7 @@ exports[`SearchPage filters by judge 1`] = `
         </div>
       </div>
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-md-4 MuiGrid-grid-xl-true css-1eqldmq-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-md-4 css-bfkuk8-MuiGrid-root"
       >
         <div
           class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-qm9mjt-MuiAutocomplete-root"
@@ -7186,7 +7186,7 @@ exports[`SearchPage filters by judge 1`] = `
         </div>
       </div>
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-md-2 MuiGrid-grid-xl-true css-1pvlel9-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-md-2 css-19qwjve-MuiGrid-root"
       >
         <div
           class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-qm9mjt-MuiAutocomplete-root"
@@ -7262,7 +7262,7 @@ exports[`SearchPage filters by judge 1`] = `
         </div>
       </div>
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-xl-2 css-oon4sq-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-wfcdf7-MuiGrid-root"
       >
         <div
           class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-qm9mjt-MuiAutocomplete-root"
@@ -7338,7 +7338,7 @@ exports[`SearchPage filters by judge 1`] = `
         </div>
       </div>
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-xl-2 css-oon4sq-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-wfcdf7-MuiGrid-root"
       >
         <div
           class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasClearIcon MuiAutocomplete-hasPopupIcon css-qm9mjt-MuiAutocomplete-root"
@@ -7459,7 +7459,7 @@ exports[`SearchPage filters by judge 1`] = `
         </div>
       </div>
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-md-12 MuiGrid-grid-xl-4 css-g6erl3-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-md-12 css-ejs5r2-MuiGrid-root"
       >
         <div
           class="css-1tiftik-MuiStack-root"
@@ -8003,7 +8003,7 @@ exports[`SearchPage filters by organizer 1`] = `
       class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-1 css-1god2i2-MuiGrid-root"
     >
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-md-6 MuiGrid-grid-xl-2 css-g0oysl-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-11eerce-MuiGrid-root"
       >
         <div
           class="MuiBox-root css-8atqhb"
@@ -8141,7 +8141,7 @@ exports[`SearchPage filters by organizer 1`] = `
         </div>
       </div>
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-md-4 MuiGrid-grid-xl-true css-1eqldmq-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-md-4 css-bfkuk8-MuiGrid-root"
       >
         <div
           class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-qm9mjt-MuiAutocomplete-root"
@@ -8217,7 +8217,7 @@ exports[`SearchPage filters by organizer 1`] = `
         </div>
       </div>
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-md-2 MuiGrid-grid-xl-true css-1pvlel9-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-md-2 css-19qwjve-MuiGrid-root"
       >
         <div
           class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-qm9mjt-MuiAutocomplete-root"
@@ -8293,7 +8293,7 @@ exports[`SearchPage filters by organizer 1`] = `
         </div>
       </div>
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-xl-2 css-oon4sq-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-wfcdf7-MuiGrid-root"
       >
         <div
           class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasClearIcon MuiAutocomplete-hasPopupIcon css-qm9mjt-MuiAutocomplete-root"
@@ -8414,7 +8414,7 @@ exports[`SearchPage filters by organizer 1`] = `
         </div>
       </div>
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-xl-2 css-oon4sq-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-wfcdf7-MuiGrid-root"
       >
         <div
           class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-qm9mjt-MuiAutocomplete-root"
@@ -8490,7 +8490,7 @@ exports[`SearchPage filters by organizer 1`] = `
         </div>
       </div>
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-md-12 MuiGrid-grid-xl-4 css-g6erl3-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-md-12 css-ejs5r2-MuiGrid-root"
       >
         <div
           class="css-1tiftik-MuiStack-root"
@@ -8747,7 +8747,7 @@ exports[`SearchPage renders 1`] = `
       class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-1 css-1god2i2-MuiGrid-root"
     >
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-md-6 MuiGrid-grid-xl-2 css-g0oysl-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-11eerce-MuiGrid-root"
       >
         <div
           class="MuiBox-root css-8atqhb"
@@ -8885,7 +8885,7 @@ exports[`SearchPage renders 1`] = `
         </div>
       </div>
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-md-4 MuiGrid-grid-xl-true css-1eqldmq-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-md-4 css-bfkuk8-MuiGrid-root"
       >
         <div
           class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-qm9mjt-MuiAutocomplete-root"
@@ -8961,7 +8961,7 @@ exports[`SearchPage renders 1`] = `
         </div>
       </div>
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-md-2 MuiGrid-grid-xl-true css-1pvlel9-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-md-2 css-19qwjve-MuiGrid-root"
       >
         <div
           class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-qm9mjt-MuiAutocomplete-root"
@@ -9037,7 +9037,7 @@ exports[`SearchPage renders 1`] = `
         </div>
       </div>
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-xl-2 css-oon4sq-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-wfcdf7-MuiGrid-root"
       >
         <div
           class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-qm9mjt-MuiAutocomplete-root"
@@ -9113,7 +9113,7 @@ exports[`SearchPage renders 1`] = `
         </div>
       </div>
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-xl-2 css-oon4sq-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-wfcdf7-MuiGrid-root"
       >
         <div
           class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-qm9mjt-MuiAutocomplete-root"
@@ -9189,7 +9189,7 @@ exports[`SearchPage renders 1`] = `
         </div>
       </div>
       <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-md-12 MuiGrid-grid-xl-4 css-g6erl3-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-md-12 css-ejs5r2-MuiGrid-root"
       >
         <div
           class="css-1tiftik-MuiStack-root"

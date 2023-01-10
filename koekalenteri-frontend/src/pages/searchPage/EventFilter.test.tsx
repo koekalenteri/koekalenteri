@@ -43,10 +43,11 @@ const organizers: Organizer[] = [
 ]
 
 const eventTypes = ['NOU', 'NOME-B', 'NOME-A', 'NOWT', 'NKM']
+const eventClasses = ['ALO', 'AVO', 'VOI']
 
 const renderComponent = (filter: FilterProps, onChange?: ((filter: FilterProps) => void)) => render(
   <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={fi}>
-    <EventFilter judges={judges} organizers={organizers} filter={filter} eventTypes={eventTypes} onChange={onChange}></EventFilter>
+    <EventFilter judges={judges} organizers={organizers} filter={filter} eventTypes={eventTypes} eventClasses={eventClasses} onChange={onChange}></EventFilter>
   </LocalizationProvider>,
 )
 
