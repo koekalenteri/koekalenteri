@@ -8,7 +8,7 @@ type Props = Omit<EventPropertyProps<'cost' | 'costMember', true>, 'options'>
 
 export default function EventPrice(props: Props) {
   const toString = useCallback((v?: string|number) => v?.toString() ?? '', [])
-  const handleChange = useCallback((newProps: Partial<Event>) => props.onChange({ [props.id]: +(newProps[props.id] || '') }), [props])
+  const handleChange = useCallback((newProps: Partial<Event>) => props.onChange?.({ [props.id]: +(newProps[props.id] || '') }), [props])
   return (
     <EventProperty
       {...props}

@@ -13,7 +13,7 @@ export type EventPropertyProps<Property extends keyof PartialEvent, freeSolo ext
     id: Property,
     event: PartialEvent,
     fields?: FieldRequirements,
-    onChange: (props: Partial<Event>) => void,
+    onChange?: (props: Partial<Event>) => void,
     helpClick?: React.MouseEventHandler<HTMLButtonElement>
     endAdornment?: ReactNode
   };
@@ -46,7 +46,7 @@ export default function EventProperty<Property extends keyof PartialEvent, freeS
     value: PartialEvent[Property] | AutocompleteFreeSoloValueMapping<freeSolo> | null,
   ) => {
     const valueOrUndef = value ?? undefined
-    onChange({ [id]: valueOrUndef })
+    onChange?.({ [id]: valueOrUndef })
     setInputValue(getInputInitValue(valueOrUndef))
   }, [getInputInitValue, id, onChange])
 
@@ -62,7 +62,7 @@ export default function EventProperty<Property extends keyof PartialEvent, freeS
     const type = typeof old
     if ((type === 'number' && old !== +(value ?? '')) || (type !== 'number' && old !== value)) {
       // TODO: debounce
-      onChange({ [id]: value })
+      onChange?.({ [id]: value })
     }
   }, [event, id, onChange, props.freeSolo])
 

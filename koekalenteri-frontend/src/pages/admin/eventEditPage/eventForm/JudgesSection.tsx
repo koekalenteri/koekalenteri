@@ -25,7 +25,7 @@ export default function JudgesSection({ event, judges, fields, onChange, onOpenC
   const { t } = useTranslation()
   const list = event.judges
   const validationError = event && fields?.required.judges && validateEventField(event, 'judges', true)
-  const error = !!validationError || list.some(id => !judges.find(j => j.id === id))
+  const error = !!validationError || list.some(id => id && !judges.find(j => j.id === id))
   const helperText = validationError
     ? t(`validation.event.${validationError.key}`, { ...validationError.opts, state: fields.state.judges || 'draft' })
     : error ? t('validation.event.errors') : ''
@@ -53,8 +53,8 @@ export default function JudgesSection({ event, judges, fields, onChange, onOpenC
                 <AutocompleteSingle
                   value={value}
                   label={title}
-                  error={!value}
-                  helperText={!value ? `Tuomari ${id} ei ole käytettävissä` : ''}
+                  error={!!id && !value}
+                  helperText={!!id && !value ? `Tuomari ${id} ei ole käytettävissä` : ''}
                   getOptionLabel={o => o?.name || ''}
                   options={filterJudges(judges, event.judges, id, event.eventType)}
                   onChange={(_e, value) => {
@@ -64,7 +64,7 @@ export default function JudgesSection({ event, judges, fields, onChange, onOpenC
                     if (newId) {
                       newJudges.splice(index, 0, newId)
                     }
-                    onChange({
+                    onChange?.({
                       judges: newJudges,
                       classes: updateJudge(newId, event.classes.filter(c => c.judge?.id === oldId)),
                     })
@@ -78,18 +78,18 @@ export default function JudgesSection({ event, judges, fields, onChange, onOpenC
                   value={event.classes.filter(c => c.judge && c.judge.id === id)}
                   classes={[...event.classes]}
                   label="Arvostelee koeluokat"
-                  onChange={(_e, values) => onChange({
+                  onChange={(_e, values) => onChange?.({
                     classes: updateJudge(id, values),
                   })}
                 />
               </Grid>
               <Grid item>
-                <Button startIcon={<DeleteOutline />} onClick={() => onChange({judges: event.judges.filter(j => j !== id), classes: event.classes.map(c => c.judge?.id === id ? {...c, judge: undefined} : c)})}>Poista tuomari</Button>
+                <Button startIcon={<DeleteOutline />} onClick={() => onChange?.({judges: event.judges.filter(j => j !== id), classes: event.classes.map(c => c.judge?.id === id ? {...c, judge: undefined} : c)})}>Poista tuomari</Button>
               </Grid>
             </Grid>
           )
         })}
-        <Grid item><Button startIcon={<AddOutlined />} onClick={() => onChange({ judges: [...event.judges].concat(0) })}>Lisää tuomari</Button></Grid>
+        <Grid item><Button startIcon={<AddOutlined />} onClick={() => onChange?.({ judges: [...event.judges].concat(0) })}>Lisää tuomari</Button></Grid>
       </Grid>
     </CollapsibleSection>
   )

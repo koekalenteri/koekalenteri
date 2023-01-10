@@ -11,7 +11,7 @@ export default function AdditionalInfoSection({ event, onChange, onOpenChange, o
 
   const handleChange = useCallback((e: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
     e.preventDefault()
-    onChange({ description: e.target.value })
+    onChange?.({ description: e.target.value })
   }, [onChange])
 
   return (

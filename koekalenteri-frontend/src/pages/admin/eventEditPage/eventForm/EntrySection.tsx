@@ -14,9 +14,9 @@ export default function EntrySection(props: SectionProps) {
   const { event, fields, helperTexts, onChange, onOpenChange, open } = props
   const error = helperTexts?.entryStartDate || helperTexts?.entryEndDate || helperTexts?.places
   const helperText = error ? t('validation.event.errors') : ''
-  const handleDateChange = useCallback((start: DateValue, end: DateValue) => onChange({entryStartDate: start || undefined, entryEndDate: end || undefined}), [onChange])
-  const handleOwnerMembershipChange = useCallback((e: ChangeEvent<HTMLInputElement>) => onChange({ allowOwnerMembershipPriority: e.target.checked }), [onChange])
-  const handleHandlerMembershipChange = useCallback((e: ChangeEvent<HTMLInputElement>) => onChange({ allowHandlerMembershipPriority: e.target.checked }), [onChange])
+  const handleDateChange = useCallback((start: DateValue, end: DateValue) => onChange?.({entryStartDate: start || undefined, entryEndDate: end || undefined}), [onChange])
+  const handleOwnerMembershipChange = useCallback((e: ChangeEvent<HTMLInputElement>) => onChange?.({ allowOwnerMembershipPriority: e.target.checked }), [onChange])
+  const handleHandlerMembershipChange = useCallback((e: ChangeEvent<HTMLInputElement>) => onChange?.({ allowHandlerMembershipPriority: e.target.checked }), [onChange])
 
   return (
     <CollapsibleSection title="Ilmoittautuminen" open={open} onOpenChange={onOpenChange} error={!!error} helperText={helperText}>
