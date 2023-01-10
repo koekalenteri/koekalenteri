@@ -29,7 +29,7 @@ export default function EventListPage() {
   const columns = useEventListColumns()
 
   const deleteAction = useCallback(() => {
-    confirm({ title: t('deleteEventTitle'), description: t('deleteEventText') }).then(() => {
+    confirm({ title: t('deleteEventTitle'), description: t('deleteEventText'), confirmationText: t('delete'), cancellationText: t('cancel') }).then(() => {
       actions.deleteCurrent()
     })
   }, [actions, confirm, t])
