@@ -83,7 +83,6 @@ export const editableEventByIdAtom = atomFamily<DecoratedEvent | undefined, stri
   default: undefined,
   effects: eventId => [
     ({ node, setSelf, onSet, getPromise }) => {
-      const abort = new AbortController()
       const key = eventStorageKey(eventId)
 
       const savedValue = localStorage.getItem(key)
@@ -91,7 +90,7 @@ export const editableEventByIdAtom = atomFamily<DecoratedEvent | undefined, stri
         const parsed = parseStorageJSON(savedValue)
         setSelf(parsed)
       } else {
-        getEvent(eventId, abort.signal).then(event => setSelf(decorateEvent(event)))
+        getEvent(eventId).then(event => setSelf(decorateEvent(event)))
       }
 
       onSet(async (newValue, _, isReset) => {
@@ -102,8 +101,6 @@ export const editableEventByIdAtom = atomFamily<DecoratedEvent | undefined, stri
           localStorage.setItem(key, JSON.stringify(newValue))
         }
       })
-
-      return abort.abort
     },
   ],
 })

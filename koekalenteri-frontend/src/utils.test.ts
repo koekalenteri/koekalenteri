@@ -12,8 +12,15 @@ describe('utils', function () {
 
   describe('parseJSON', function() {
     expect(parseJSON('')).toBeUndefined()
-    expect(parseJSON('{pvm:"2021-05-10T12:05:12"}')).toEqual({
-      pvm: new Date("2021-05-10T12:05:12"),
+
+    // @ts-expect-error invalid input
+    expect(parseJSON(null)).toBeUndefined()
+
+    // @ts-expect-error invalid input
+    expect(parseJSON(undefined)).toBeUndefined()
+
+    expect(parseJSON('{"pvm":"2021-05-10T09:05:12.000Z"}')).toEqual({
+      pvm: new Date("2021-05-10T09:05:12.000Z"),
     })
   })
 })

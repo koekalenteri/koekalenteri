@@ -11,7 +11,7 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
     class="MuiBox-root css-1hvfy3o"
   >
     <div
-      aria-colcount="10"
+      aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="1"
       class="MuiDataGrid-root MuiDataGrid-root--densityCompact css-fv9eus-MuiDataGrid-root"
@@ -478,79 +478,6 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
               </div>
               <div
                 aria-colindex="7"
-                aria-label="registration.createdAt"
-                aria-sort="none"
-                class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
-                data-field="createdAt"
-                role="columnheader"
-                style="height: 39px; width: 140px; min-width: 140px; max-width: 140px;"
-                tabindex="-1"
-              >
-                <div
-                  class="MuiDataGrid-columnHeaderDraggableContainer"
-                  draggable="false"
-                >
-                  <div
-                    class="MuiDataGrid-columnHeaderTitleContainer"
-                  >
-                    <div
-                      class="MuiDataGrid-columnHeaderTitleContainerContent"
-                    >
-                      <div
-                        aria-label=""
-                        class="MuiDataGrid-columnHeaderTitle css-1jbbcbn-MuiDataGrid-columnHeaderTitle"
-                        data-mui-internal-clone-element="true"
-                      >
-                        registration.createdAt
-                      </div>
-                    </div>
-                    <div
-                      class="MuiDataGrid-iconButtonContainer css-ltf0zy-MuiDataGrid-iconButtonContainer"
-                    >
-                      <button
-                        aria-label="Sort"
-                        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
-                        tabindex="-1"
-                        title="Sort"
-                        type="button"
-                      >
-                        <svg
-                          aria-hidden="true"
-                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-ptiqhd-MuiSvgIcon-root"
-                          data-testid="ArrowUpwardIcon"
-                          focusable="false"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"
-                          />
-                        </svg>
-                        <span
-                          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                        />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-                <div
-                  class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--sideRight"
-                  style="min-height: 39px; opacity: 1;"
-                >
-                  <svg
-                    aria-hidden="true"
-                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
-                    data-testid="SeparatorIcon"
-                    focusable="false"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      d="M11 19V5h2v14z"
-                    />
-                  </svg>
-                </div>
-              </div>
-              <div
-                aria-colindex="8"
                 aria-label="registration.member"
                 aria-sort="none"
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -623,7 +550,7 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
                 </div>
               </div>
               <div
-                aria-colindex="9"
+                aria-colindex="8"
                 aria-label="registration.paid"
                 aria-sort="none"
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -696,7 +623,7 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
                 </div>
               </div>
               <div
-                aria-colindex="10"
+                aria-colindex="9"
                 aria-label="Kommentti"
                 aria-sort="none"
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -816,7 +743,7 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
     style="display: flex; flex: 1; width: 100%; height: 100%;"
   >
     <div
-      aria-colcount="9"
+      aria-colcount="8"
       aria-multiselectable="false"
       aria-rowcount="1"
       class="MuiDataGrid-root MuiDataGrid-root--densityCompact css-1d0auko-MuiDataGrid-root"
@@ -1289,79 +1216,6 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
               </div>
               <div
                 aria-colindex="7"
-                aria-label="registration.createdAt"
-                aria-sort="none"
-                class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
-                data-field="createdAt"
-                role="columnheader"
-                style="height: 39px; width: 140px; min-width: 140px; max-width: 140px;"
-                tabindex="-1"
-              >
-                <div
-                  class="MuiDataGrid-columnHeaderDraggableContainer"
-                  draggable="false"
-                >
-                  <div
-                    class="MuiDataGrid-columnHeaderTitleContainer"
-                  >
-                    <div
-                      class="MuiDataGrid-columnHeaderTitleContainerContent"
-                    >
-                      <div
-                        aria-label=""
-                        class="MuiDataGrid-columnHeaderTitle css-1jbbcbn-MuiDataGrid-columnHeaderTitle"
-                        data-mui-internal-clone-element="true"
-                      >
-                        registration.createdAt
-                      </div>
-                    </div>
-                    <div
-                      class="MuiDataGrid-iconButtonContainer css-ltf0zy-MuiDataGrid-iconButtonContainer"
-                    >
-                      <button
-                        aria-label="Sort"
-                        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
-                        tabindex="-1"
-                        title="Sort"
-                        type="button"
-                      >
-                        <svg
-                          aria-hidden="true"
-                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-ptiqhd-MuiSvgIcon-root"
-                          data-testid="ArrowUpwardIcon"
-                          focusable="false"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"
-                          />
-                        </svg>
-                        <span
-                          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                        />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-                <div
-                  class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--sideRight"
-                  style="min-height: 39px; opacity: 1;"
-                >
-                  <svg
-                    aria-hidden="true"
-                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
-                    data-testid="SeparatorIcon"
-                    focusable="false"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      d="M11 19V5h2v14z"
-                    />
-                  </svg>
-                </div>
-              </div>
-              <div
-                aria-colindex="8"
                 aria-label="registration.member"
                 aria-sort="none"
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -1434,7 +1288,7 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
                 </div>
               </div>
               <div
-                aria-colindex="9"
+                aria-colindex="8"
                 aria-label="registration.paid"
                 aria-sort="none"
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -1625,7 +1479,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
     class="MuiBox-root css-1hvfy3o"
   >
     <div
-      aria-colcount="10"
+      aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="1"
       class="MuiDataGrid-root MuiDataGrid-root--densityCompact css-fv9eus-MuiDataGrid-root"
@@ -2092,79 +1946,6 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
               </div>
               <div
                 aria-colindex="7"
-                aria-label="registration.createdAt"
-                aria-sort="none"
-                class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
-                data-field="createdAt"
-                role="columnheader"
-                style="height: 39px; width: 140px; min-width: 140px; max-width: 140px;"
-                tabindex="-1"
-              >
-                <div
-                  class="MuiDataGrid-columnHeaderDraggableContainer"
-                  draggable="false"
-                >
-                  <div
-                    class="MuiDataGrid-columnHeaderTitleContainer"
-                  >
-                    <div
-                      class="MuiDataGrid-columnHeaderTitleContainerContent"
-                    >
-                      <div
-                        aria-label=""
-                        class="MuiDataGrid-columnHeaderTitle css-1jbbcbn-MuiDataGrid-columnHeaderTitle"
-                        data-mui-internal-clone-element="true"
-                      >
-                        registration.createdAt
-                      </div>
-                    </div>
-                    <div
-                      class="MuiDataGrid-iconButtonContainer css-ltf0zy-MuiDataGrid-iconButtonContainer"
-                    >
-                      <button
-                        aria-label="Sort"
-                        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
-                        tabindex="-1"
-                        title="Sort"
-                        type="button"
-                      >
-                        <svg
-                          aria-hidden="true"
-                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-ptiqhd-MuiSvgIcon-root"
-                          data-testid="ArrowUpwardIcon"
-                          focusable="false"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"
-                          />
-                        </svg>
-                        <span
-                          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                        />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-                <div
-                  class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--sideRight"
-                  style="min-height: 39px; opacity: 1;"
-                >
-                  <svg
-                    aria-hidden="true"
-                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
-                    data-testid="SeparatorIcon"
-                    focusable="false"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      d="M11 19V5h2v14z"
-                    />
-                  </svg>
-                </div>
-              </div>
-              <div
-                aria-colindex="8"
                 aria-label="registration.member"
                 aria-sort="none"
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -2237,7 +2018,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                 </div>
               </div>
               <div
-                aria-colindex="9"
+                aria-colindex="8"
                 aria-label="registration.paid"
                 aria-sort="none"
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -2310,7 +2091,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                 </div>
               </div>
               <div
-                aria-colindex="10"
+                aria-colindex="9"
                 aria-label="Kommentti"
                 aria-sort="none"
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -2425,7 +2206,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
     style="display: flex; flex: 1; width: 100%; height: 100%;"
   >
     <div
-      aria-colcount="10"
+      aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="1"
       class="MuiDataGrid-root MuiDataGrid-root--densityCompact css-1d0auko-MuiDataGrid-root"
@@ -2914,79 +2695,6 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
               </div>
               <div
                 aria-colindex="7"
-                aria-label="registration.createdAt"
-                aria-sort="none"
-                class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
-                data-field="createdAt"
-                role="columnheader"
-                style="height: 0px; width: 140px; min-width: 140px; max-width: 140px;"
-                tabindex="-1"
-              >
-                <div
-                  class="MuiDataGrid-columnHeaderDraggableContainer"
-                  draggable="false"
-                >
-                  <div
-                    class="MuiDataGrid-columnHeaderTitleContainer"
-                  >
-                    <div
-                      class="MuiDataGrid-columnHeaderTitleContainerContent"
-                    >
-                      <div
-                        aria-label=""
-                        class="MuiDataGrid-columnHeaderTitle css-1jbbcbn-MuiDataGrid-columnHeaderTitle"
-                        data-mui-internal-clone-element="true"
-                      >
-                        registration.createdAt
-                      </div>
-                    </div>
-                    <div
-                      class="MuiDataGrid-iconButtonContainer css-ltf0zy-MuiDataGrid-iconButtonContainer"
-                    >
-                      <button
-                        aria-label="Sort"
-                        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
-                        tabindex="-1"
-                        title="Sort"
-                        type="button"
-                      >
-                        <svg
-                          aria-hidden="true"
-                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-ptiqhd-MuiSvgIcon-root"
-                          data-testid="ArrowUpwardIcon"
-                          focusable="false"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"
-                          />
-                        </svg>
-                        <span
-                          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                        />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-                <div
-                  class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--sideRight"
-                  style="min-height: 0; opacity: 1;"
-                >
-                  <svg
-                    aria-hidden="true"
-                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
-                    data-testid="SeparatorIcon"
-                    focusable="false"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      d="M11 19V5h2v14z"
-                    />
-                  </svg>
-                </div>
-              </div>
-              <div
-                aria-colindex="8"
                 aria-label="registration.member"
                 aria-sort="none"
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -3059,7 +2767,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                 </div>
               </div>
               <div
-                aria-colindex="9"
+                aria-colindex="8"
                 aria-label="registration.paid"
                 aria-sort="none"
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -3132,7 +2840,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                 </div>
               </div>
               <div
-                aria-colindex="10"
+                aria-colindex="9"
                 aria-label="Kommentti"
                 aria-sort="none"
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -3247,7 +2955,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
     style="display: flex; flex: 1; width: 100%; height: 100%;"
   >
     <div
-      aria-colcount="10"
+      aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="1"
       class="MuiDataGrid-root MuiDataGrid-root--densityCompact css-1d0auko-MuiDataGrid-root"
@@ -3736,79 +3444,6 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
               </div>
               <div
                 aria-colindex="7"
-                aria-label="registration.createdAt"
-                aria-sort="none"
-                class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
-                data-field="createdAt"
-                role="columnheader"
-                style="height: 0px; width: 140px; min-width: 140px; max-width: 140px;"
-                tabindex="-1"
-              >
-                <div
-                  class="MuiDataGrid-columnHeaderDraggableContainer"
-                  draggable="false"
-                >
-                  <div
-                    class="MuiDataGrid-columnHeaderTitleContainer"
-                  >
-                    <div
-                      class="MuiDataGrid-columnHeaderTitleContainerContent"
-                    >
-                      <div
-                        aria-label=""
-                        class="MuiDataGrid-columnHeaderTitle css-1jbbcbn-MuiDataGrid-columnHeaderTitle"
-                        data-mui-internal-clone-element="true"
-                      >
-                        registration.createdAt
-                      </div>
-                    </div>
-                    <div
-                      class="MuiDataGrid-iconButtonContainer css-ltf0zy-MuiDataGrid-iconButtonContainer"
-                    >
-                      <button
-                        aria-label="Sort"
-                        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
-                        tabindex="-1"
-                        title="Sort"
-                        type="button"
-                      >
-                        <svg
-                          aria-hidden="true"
-                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-ptiqhd-MuiSvgIcon-root"
-                          data-testid="ArrowUpwardIcon"
-                          focusable="false"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"
-                          />
-                        </svg>
-                        <span
-                          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                        />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-                <div
-                  class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--sideRight"
-                  style="min-height: 0; opacity: 1;"
-                >
-                  <svg
-                    aria-hidden="true"
-                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
-                    data-testid="SeparatorIcon"
-                    focusable="false"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      d="M11 19V5h2v14z"
-                    />
-                  </svg>
-                </div>
-              </div>
-              <div
-                aria-colindex="8"
                 aria-label="registration.member"
                 aria-sort="none"
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -3881,7 +3516,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                 </div>
               </div>
               <div
-                aria-colindex="9"
+                aria-colindex="8"
                 aria-label="registration.paid"
                 aria-sort="none"
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -3954,7 +3589,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                 </div>
               </div>
               <div
-                aria-colindex="10"
+                aria-colindex="9"
                 aria-label="Kommentti"
                 aria-sort="none"
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -4074,7 +3709,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
     style="display: flex; flex: 2; width: 100%; height: 100%;"
   >
     <div
-      aria-colcount="9"
+      aria-colcount="8"
       aria-multiselectable="false"
       aria-rowcount="1"
       class="MuiDataGrid-root MuiDataGrid-root--densityCompact css-1d0auko-MuiDataGrid-root"
@@ -4547,79 +4182,6 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
               </div>
               <div
                 aria-colindex="7"
-                aria-label="registration.createdAt"
-                aria-sort="none"
-                class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
-                data-field="createdAt"
-                role="columnheader"
-                style="height: 39px; width: 140px; min-width: 140px; max-width: 140px;"
-                tabindex="-1"
-              >
-                <div
-                  class="MuiDataGrid-columnHeaderDraggableContainer"
-                  draggable="false"
-                >
-                  <div
-                    class="MuiDataGrid-columnHeaderTitleContainer"
-                  >
-                    <div
-                      class="MuiDataGrid-columnHeaderTitleContainerContent"
-                    >
-                      <div
-                        aria-label=""
-                        class="MuiDataGrid-columnHeaderTitle css-1jbbcbn-MuiDataGrid-columnHeaderTitle"
-                        data-mui-internal-clone-element="true"
-                      >
-                        registration.createdAt
-                      </div>
-                    </div>
-                    <div
-                      class="MuiDataGrid-iconButtonContainer css-ltf0zy-MuiDataGrid-iconButtonContainer"
-                    >
-                      <button
-                        aria-label="Sort"
-                        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
-                        tabindex="-1"
-                        title="Sort"
-                        type="button"
-                      >
-                        <svg
-                          aria-hidden="true"
-                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-ptiqhd-MuiSvgIcon-root"
-                          data-testid="ArrowUpwardIcon"
-                          focusable="false"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"
-                          />
-                        </svg>
-                        <span
-                          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                        />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-                <div
-                  class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--sideRight"
-                  style="min-height: 39px; opacity: 1;"
-                >
-                  <svg
-                    aria-hidden="true"
-                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
-                    data-testid="SeparatorIcon"
-                    focusable="false"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      d="M11 19V5h2v14z"
-                    />
-                  </svg>
-                </div>
-              </div>
-              <div
-                aria-colindex="8"
                 aria-label="registration.member"
                 aria-sort="none"
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -4692,7 +4254,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                 </div>
               </div>
               <div
-                aria-colindex="9"
+                aria-colindex="8"
                 aria-label="registration.paid"
                 aria-sort="none"
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -4883,7 +4445,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
     class="MuiBox-root css-1hvfy3o"
   >
     <div
-      aria-colcount="10"
+      aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="1"
       class="MuiDataGrid-root MuiDataGrid-root--densityCompact css-fv9eus-MuiDataGrid-root"
@@ -5350,79 +4912,6 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
               </div>
               <div
                 aria-colindex="7"
-                aria-label="registration.createdAt"
-                aria-sort="none"
-                class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
-                data-field="createdAt"
-                role="columnheader"
-                style="height: 39px; width: 140px; min-width: 140px; max-width: 140px;"
-                tabindex="-1"
-              >
-                <div
-                  class="MuiDataGrid-columnHeaderDraggableContainer"
-                  draggable="false"
-                >
-                  <div
-                    class="MuiDataGrid-columnHeaderTitleContainer"
-                  >
-                    <div
-                      class="MuiDataGrid-columnHeaderTitleContainerContent"
-                    >
-                      <div
-                        aria-label=""
-                        class="MuiDataGrid-columnHeaderTitle css-1jbbcbn-MuiDataGrid-columnHeaderTitle"
-                        data-mui-internal-clone-element="true"
-                      >
-                        registration.createdAt
-                      </div>
-                    </div>
-                    <div
-                      class="MuiDataGrid-iconButtonContainer css-ltf0zy-MuiDataGrid-iconButtonContainer"
-                    >
-                      <button
-                        aria-label="Sort"
-                        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
-                        tabindex="-1"
-                        title="Sort"
-                        type="button"
-                      >
-                        <svg
-                          aria-hidden="true"
-                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-ptiqhd-MuiSvgIcon-root"
-                          data-testid="ArrowUpwardIcon"
-                          focusable="false"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"
-                          />
-                        </svg>
-                        <span
-                          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                        />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-                <div
-                  class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--sideRight"
-                  style="min-height: 39px; opacity: 1;"
-                >
-                  <svg
-                    aria-hidden="true"
-                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
-                    data-testid="SeparatorIcon"
-                    focusable="false"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      d="M11 19V5h2v14z"
-                    />
-                  </svg>
-                </div>
-              </div>
-              <div
-                aria-colindex="8"
                 aria-label="registration.member"
                 aria-sort="none"
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -5495,7 +4984,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                 </div>
               </div>
               <div
-                aria-colindex="9"
+                aria-colindex="8"
                 aria-label="registration.paid"
                 aria-sort="none"
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -5568,7 +5057,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                 </div>
               </div>
               <div
-                aria-colindex="10"
+                aria-colindex="9"
                 aria-label="Kommentti"
                 aria-sort="none"
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -5683,7 +5172,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
     style="display: flex; flex: 1; width: 100%; height: 100%;"
   >
     <div
-      aria-colcount="10"
+      aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="1"
       class="MuiDataGrid-root MuiDataGrid-root--densityCompact css-1d0auko-MuiDataGrid-root"
@@ -6172,79 +5661,6 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
               </div>
               <div
                 aria-colindex="7"
-                aria-label="registration.createdAt"
-                aria-sort="none"
-                class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
-                data-field="createdAt"
-                role="columnheader"
-                style="height: 0px; width: 140px; min-width: 140px; max-width: 140px;"
-                tabindex="-1"
-              >
-                <div
-                  class="MuiDataGrid-columnHeaderDraggableContainer"
-                  draggable="false"
-                >
-                  <div
-                    class="MuiDataGrid-columnHeaderTitleContainer"
-                  >
-                    <div
-                      class="MuiDataGrid-columnHeaderTitleContainerContent"
-                    >
-                      <div
-                        aria-label=""
-                        class="MuiDataGrid-columnHeaderTitle css-1jbbcbn-MuiDataGrid-columnHeaderTitle"
-                        data-mui-internal-clone-element="true"
-                      >
-                        registration.createdAt
-                      </div>
-                    </div>
-                    <div
-                      class="MuiDataGrid-iconButtonContainer css-ltf0zy-MuiDataGrid-iconButtonContainer"
-                    >
-                      <button
-                        aria-label="Sort"
-                        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
-                        tabindex="-1"
-                        title="Sort"
-                        type="button"
-                      >
-                        <svg
-                          aria-hidden="true"
-                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-ptiqhd-MuiSvgIcon-root"
-                          data-testid="ArrowUpwardIcon"
-                          focusable="false"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"
-                          />
-                        </svg>
-                        <span
-                          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                        />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-                <div
-                  class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--sideRight"
-                  style="min-height: 0; opacity: 1;"
-                >
-                  <svg
-                    aria-hidden="true"
-                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
-                    data-testid="SeparatorIcon"
-                    focusable="false"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      d="M11 19V5h2v14z"
-                    />
-                  </svg>
-                </div>
-              </div>
-              <div
-                aria-colindex="8"
                 aria-label="registration.member"
                 aria-sort="none"
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -6317,7 +5733,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                 </div>
               </div>
               <div
-                aria-colindex="9"
+                aria-colindex="8"
                 aria-label="registration.paid"
                 aria-sort="none"
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -6390,7 +5806,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                 </div>
               </div>
               <div
-                aria-colindex="10"
+                aria-colindex="9"
                 aria-label="Kommentti"
                 aria-sort="none"
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -6505,7 +5921,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
     style="display: flex; flex: 1; width: 100%; height: 100%;"
   >
     <div
-      aria-colcount="10"
+      aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="1"
       class="MuiDataGrid-root MuiDataGrid-root--densityCompact css-1d0auko-MuiDataGrid-root"
@@ -6994,79 +6410,6 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
               </div>
               <div
                 aria-colindex="7"
-                aria-label="registration.createdAt"
-                aria-sort="none"
-                class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
-                data-field="createdAt"
-                role="columnheader"
-                style="height: 0px; width: 140px; min-width: 140px; max-width: 140px;"
-                tabindex="-1"
-              >
-                <div
-                  class="MuiDataGrid-columnHeaderDraggableContainer"
-                  draggable="false"
-                >
-                  <div
-                    class="MuiDataGrid-columnHeaderTitleContainer"
-                  >
-                    <div
-                      class="MuiDataGrid-columnHeaderTitleContainerContent"
-                    >
-                      <div
-                        aria-label=""
-                        class="MuiDataGrid-columnHeaderTitle css-1jbbcbn-MuiDataGrid-columnHeaderTitle"
-                        data-mui-internal-clone-element="true"
-                      >
-                        registration.createdAt
-                      </div>
-                    </div>
-                    <div
-                      class="MuiDataGrid-iconButtonContainer css-ltf0zy-MuiDataGrid-iconButtonContainer"
-                    >
-                      <button
-                        aria-label="Sort"
-                        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
-                        tabindex="-1"
-                        title="Sort"
-                        type="button"
-                      >
-                        <svg
-                          aria-hidden="true"
-                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-ptiqhd-MuiSvgIcon-root"
-                          data-testid="ArrowUpwardIcon"
-                          focusable="false"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"
-                          />
-                        </svg>
-                        <span
-                          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                        />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-                <div
-                  class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--sideRight"
-                  style="min-height: 0; opacity: 1;"
-                >
-                  <svg
-                    aria-hidden="true"
-                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
-                    data-testid="SeparatorIcon"
-                    focusable="false"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      d="M11 19V5h2v14z"
-                    />
-                  </svg>
-                </div>
-              </div>
-              <div
-                aria-colindex="8"
                 aria-label="registration.member"
                 aria-sort="none"
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -7139,7 +6482,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                 </div>
               </div>
               <div
-                aria-colindex="9"
+                aria-colindex="8"
                 aria-label="registration.paid"
                 aria-sort="none"
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -7212,7 +6555,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                 </div>
               </div>
               <div
-                aria-colindex="10"
+                aria-colindex="9"
                 aria-label="Kommentti"
                 aria-sort="none"
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -7332,7 +6675,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
     style="display: flex; flex: 2; width: 100%; height: 100%;"
   >
     <div
-      aria-colcount="9"
+      aria-colcount="8"
       aria-multiselectable="false"
       aria-rowcount="1"
       class="MuiDataGrid-root MuiDataGrid-root--densityCompact css-1d0auko-MuiDataGrid-root"
@@ -7805,79 +7148,6 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
               </div>
               <div
                 aria-colindex="7"
-                aria-label="registration.createdAt"
-                aria-sort="none"
-                class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
-                data-field="createdAt"
-                role="columnheader"
-                style="height: 39px; width: 140px; min-width: 140px; max-width: 140px;"
-                tabindex="-1"
-              >
-                <div
-                  class="MuiDataGrid-columnHeaderDraggableContainer"
-                  draggable="false"
-                >
-                  <div
-                    class="MuiDataGrid-columnHeaderTitleContainer"
-                  >
-                    <div
-                      class="MuiDataGrid-columnHeaderTitleContainerContent"
-                    >
-                      <div
-                        aria-label=""
-                        class="MuiDataGrid-columnHeaderTitle css-1jbbcbn-MuiDataGrid-columnHeaderTitle"
-                        data-mui-internal-clone-element="true"
-                      >
-                        registration.createdAt
-                      </div>
-                    </div>
-                    <div
-                      class="MuiDataGrid-iconButtonContainer css-ltf0zy-MuiDataGrid-iconButtonContainer"
-                    >
-                      <button
-                        aria-label="Sort"
-                        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
-                        tabindex="-1"
-                        title="Sort"
-                        type="button"
-                      >
-                        <svg
-                          aria-hidden="true"
-                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-ptiqhd-MuiSvgIcon-root"
-                          data-testid="ArrowUpwardIcon"
-                          focusable="false"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"
-                          />
-                        </svg>
-                        <span
-                          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                        />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-                <div
-                  class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--sideRight"
-                  style="min-height: 39px; opacity: 1;"
-                >
-                  <svg
-                    aria-hidden="true"
-                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
-                    data-testid="SeparatorIcon"
-                    focusable="false"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      d="M11 19V5h2v14z"
-                    />
-                  </svg>
-                </div>
-              </div>
-              <div
-                aria-colindex="8"
                 aria-label="registration.member"
                 aria-sort="none"
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -7950,7 +7220,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                 </div>
               </div>
               <div
-                aria-colindex="9"
+                aria-colindex="8"
                 aria-label="registration.paid"
                 aria-sort="none"
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -8141,7 +7411,7 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
     class="MuiBox-root css-1hvfy3o"
   >
     <div
-      aria-colcount="10"
+      aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="1"
       class="MuiDataGrid-root MuiDataGrid-root--densityCompact css-fv9eus-MuiDataGrid-root"
@@ -8608,79 +7878,6 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
               </div>
               <div
                 aria-colindex="7"
-                aria-label="registration.createdAt"
-                aria-sort="none"
-                class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
-                data-field="createdAt"
-                role="columnheader"
-                style="height: 39px; width: 140px; min-width: 140px; max-width: 140px;"
-                tabindex="-1"
-              >
-                <div
-                  class="MuiDataGrid-columnHeaderDraggableContainer"
-                  draggable="false"
-                >
-                  <div
-                    class="MuiDataGrid-columnHeaderTitleContainer"
-                  >
-                    <div
-                      class="MuiDataGrid-columnHeaderTitleContainerContent"
-                    >
-                      <div
-                        aria-label=""
-                        class="MuiDataGrid-columnHeaderTitle css-1jbbcbn-MuiDataGrid-columnHeaderTitle"
-                        data-mui-internal-clone-element="true"
-                      >
-                        registration.createdAt
-                      </div>
-                    </div>
-                    <div
-                      class="MuiDataGrid-iconButtonContainer css-ltf0zy-MuiDataGrid-iconButtonContainer"
-                    >
-                      <button
-                        aria-label="Sort"
-                        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
-                        tabindex="-1"
-                        title="Sort"
-                        type="button"
-                      >
-                        <svg
-                          aria-hidden="true"
-                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-ptiqhd-MuiSvgIcon-root"
-                          data-testid="ArrowUpwardIcon"
-                          focusable="false"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"
-                          />
-                        </svg>
-                        <span
-                          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                        />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-                <div
-                  class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--sideRight"
-                  style="min-height: 39px; opacity: 1;"
-                >
-                  <svg
-                    aria-hidden="true"
-                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
-                    data-testid="SeparatorIcon"
-                    focusable="false"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      d="M11 19V5h2v14z"
-                    />
-                  </svg>
-                </div>
-              </div>
-              <div
-                aria-colindex="8"
                 aria-label="registration.member"
                 aria-sort="none"
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -8753,7 +7950,7 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
                 </div>
               </div>
               <div
-                aria-colindex="9"
+                aria-colindex="8"
                 aria-label="registration.paid"
                 aria-sort="none"
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -8826,7 +8023,7 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
                 </div>
               </div>
               <div
-                aria-colindex="10"
+                aria-colindex="9"
                 aria-label="Kommentti"
                 aria-sort="none"
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -8946,7 +8143,7 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
     style="display: flex; flex: 1; width: 100%; height: 100%;"
   >
     <div
-      aria-colcount="9"
+      aria-colcount="8"
       aria-multiselectable="false"
       aria-rowcount="1"
       class="MuiDataGrid-root MuiDataGrid-root--densityCompact css-1d0auko-MuiDataGrid-root"
@@ -9419,79 +8616,6 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
               </div>
               <div
                 aria-colindex="7"
-                aria-label="registration.createdAt"
-                aria-sort="none"
-                class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
-                data-field="createdAt"
-                role="columnheader"
-                style="height: 39px; width: 140px; min-width: 140px; max-width: 140px;"
-                tabindex="-1"
-              >
-                <div
-                  class="MuiDataGrid-columnHeaderDraggableContainer"
-                  draggable="false"
-                >
-                  <div
-                    class="MuiDataGrid-columnHeaderTitleContainer"
-                  >
-                    <div
-                      class="MuiDataGrid-columnHeaderTitleContainerContent"
-                    >
-                      <div
-                        aria-label=""
-                        class="MuiDataGrid-columnHeaderTitle css-1jbbcbn-MuiDataGrid-columnHeaderTitle"
-                        data-mui-internal-clone-element="true"
-                      >
-                        registration.createdAt
-                      </div>
-                    </div>
-                    <div
-                      class="MuiDataGrid-iconButtonContainer css-ltf0zy-MuiDataGrid-iconButtonContainer"
-                    >
-                      <button
-                        aria-label="Sort"
-                        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
-                        tabindex="-1"
-                        title="Sort"
-                        type="button"
-                      >
-                        <svg
-                          aria-hidden="true"
-                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-ptiqhd-MuiSvgIcon-root"
-                          data-testid="ArrowUpwardIcon"
-                          focusable="false"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"
-                          />
-                        </svg>
-                        <span
-                          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                        />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-                <div
-                  class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--sideRight"
-                  style="min-height: 39px; opacity: 1;"
-                >
-                  <svg
-                    aria-hidden="true"
-                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
-                    data-testid="SeparatorIcon"
-                    focusable="false"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      d="M11 19V5h2v14z"
-                    />
-                  </svg>
-                </div>
-              </div>
-              <div
-                aria-colindex="8"
                 aria-label="registration.member"
                 aria-sort="none"
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -9564,7 +8688,7 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
                 </div>
               </div>
               <div
-                aria-colindex="9"
+                aria-colindex="8"
                 aria-label="registration.paid"
                 aria-sort="none"
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"

@@ -73,7 +73,7 @@ flowchart LR
   editableRegistrationByIdAtom-->Q{local?}
   Q--no-->eventIdAtom
   Q--no-->getRegistration
-  editableRegistrationByIdAtom-->storageEffect
+  Q--yes-->storageEffect
 
   storageEffect[(localStorage)]
 

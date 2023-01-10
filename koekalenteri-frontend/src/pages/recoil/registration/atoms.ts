@@ -57,7 +57,6 @@ export const editableRegistrationByIdAtom = atomFamily<Registration | undefined,
   default: undefined,
   effects: registrationId => [
     ({ setSelf, onSet, getPromise }) => {
-      const abort = new AbortController()
       const key = registrationStorageKey(registrationId)
 
       const savedValue = localStorage.getItem(key)
@@ -67,7 +66,7 @@ export const editableRegistrationByIdAtom = atomFamily<Registration | undefined,
       } else {
         getPromise(eventIdAtom).then(eventId => {
           if (eventId) {
-            getRegistration(eventId, registrationId, abort.signal).then(setSelf)
+            getRegistration(eventId, registrationId).then(setSelf)
           }
         })
       }
@@ -80,8 +79,6 @@ export const editableRegistrationByIdAtom = atomFamily<Registration | undefined,
           localStorage.setItem(key, JSON.stringify(newValue))
         }
       })
-
-      return abort.abort
     },
   ],
 })
