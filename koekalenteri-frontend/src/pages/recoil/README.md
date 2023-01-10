@@ -25,6 +25,8 @@ graph LR
   filterJudgesSelector-->judgesAtom
   filterJudgesSelector-->filteredEventsSelector
   filterOrganizersSelector-->filteredEventsSelector
+  filterEventTypesSelector-->filteredEventsSelector
+  filterEventClassesSelector-->filteredEventsSelector
 
   aws[(cloud)]
 ```

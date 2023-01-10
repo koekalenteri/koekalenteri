@@ -4,7 +4,7 @@ import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
 
 import { EventFilter } from './searchPage/EventFilter'
 import { EventTable } from './searchPage/EventTable'
-import { activeEventTypesSelector, deserializeFilter, eventFilterAtom, filteredEventsSelector, filterJudgesSelector, filterOrganizersSelector, spaAtom } from './recoil'
+import { deserializeFilter, eventFilterAtom, filteredEventsSelector, filterEventClassesSelector, filterEventTypesSelector, filterJudgesSelector, filterOrganizersSelector, spaAtom } from './recoil'
 
 
 export function SearchPage() {
@@ -12,7 +12,8 @@ export function SearchPage() {
   const setSpa = useSetRecoilState(spaAtom)
   const organizers = useRecoilValue(filterOrganizersSelector)
   const activeJudges = useRecoilValue(filterJudgesSelector)
-  const activeEventTypes = useRecoilValue(activeEventTypesSelector)
+  const activeEventTypes = useRecoilValue(filterEventTypesSelector)
+  const activeEventClasses = useRecoilValue(filterEventClassesSelector)
   const events = useRecoilValue(filteredEventsSelector)
   const location = useLocation()
 
@@ -22,7 +23,8 @@ export function SearchPage() {
   return (
     <>
       <EventFilter
-        eventTypes={activeEventTypes.map(et => et.eventType)}
+        eventTypes={activeEventTypes}
+        eventClasses={activeEventClasses}
         organizers={organizers}
         judges={activeJudges}
         filter={filter}

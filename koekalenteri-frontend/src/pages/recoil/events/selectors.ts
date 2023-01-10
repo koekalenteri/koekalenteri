@@ -4,6 +4,7 @@ import { selector, selectorFamily } from 'recoil'
 
 import { getEvent } from '../../../api/event'
 import { unique, uniqueFn } from '../../../utils'
+import { eventTypeClassesAtom, filteredEventTypesSelector } from '../eventTypes'
 import { judgesAtom } from '../judges/atoms'
 
 import { eventFilterAtom, eventIdAtom, eventsAtom } from './atoms'
@@ -60,5 +61,26 @@ export const filterOrganizersSelector = selector({
     const uniqueOrganizers = uniqueFn<Organizer>(events.map(e => e.organizer), (a, b) => a.id === b.id)
     uniqueOrganizers.sort((a, b) => a.name.localeCompare(b.name, i18next.language))
     return uniqueOrganizers
+  },
+})
+
+export const filterEventTypesSelector = selector({
+  key: 'filterEventTypes',
+  get: ({ get }) => {
+    const events = get(filteredEventsSelector)
+    const uniqueEventTypes = unique<string>(events.map(e => e.eventType))
+    uniqueEventTypes.sort((a, b) => a.localeCompare(b, i18next.language))
+    return uniqueEventTypes
+  },
+})
+
+export const filterEventClassesSelector = selector({
+  key: 'filterEventClasses',
+  get: ({ get }) => {
+    const eventTypes = get(filteredEventTypesSelector)
+    const eventTypeClasses = get(eventTypeClassesAtom)
+    const uniqueEventClasses = unique<string>(eventTypes.reduce<string[]>((acc, cur) => ([...acc, ...(eventTypeClasses[cur.eventType] ?? [])]), []))
+    uniqueEventClasses.sort((a, b) => a.localeCompare(b, i18next.language))
+    return uniqueEventClasses
   },
 })
