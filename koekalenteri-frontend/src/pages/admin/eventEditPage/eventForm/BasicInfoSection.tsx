@@ -38,7 +38,7 @@ export default function BasicInfoSection({ event, errorStates, helperTexts, fiel
       // startDate changed and endDate remained the same => change endDate based on the previous distance between days
       end = add(start, { days: differenceInDays(event.endDate, event.startDate) })
     }
-    onChange({
+    onChange?.({
       startDate: start,
       endDate: end,
       classes: updateClassDates(event, start, end),
@@ -46,18 +46,18 @@ export default function BasicInfoSection({ event, errorStates, helperTexts, fiel
   }, [event, onChange])
   const openHelp = useCallback((e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => setHelpAnchorEl(e.currentTarget), [])
   const closeHelp = useCallback(() => setHelpAnchorEl(null), [])
-  const handleClassesChange = useCallback((e: SyntheticEvent<Element, Event>, values: DeepPartial<EventClass>[]) => onChange({ classes: values }), [onChange])
-  const handleNameChange = useCallback((e: ChangeEvent<HTMLInputElement>) => onChange({ name: e.target.value }), [onChange])
+  const handleClassesChange = useCallback((e: SyntheticEvent<Element, Event>, values: DeepPartial<EventClass>[]) => onChange?.({ classes: values }), [onChange])
+  const handleNameChange = useCallback((e: ChangeEvent<HTMLInputElement>) => onChange?.({ name: e.target.value }), [onChange])
   const isEqualId = useCallback((o?: {id?: number}, v?: {id?: number}) => o?.id === v?.id, [])
   const getName = useCallback((o?: string | {name?: string}) => typeof o === 'string' ? o : o?.name || '', [])
   const getNameOrEmail = useCallback((o?: string | {name?: string, email?: string}) => typeof o === 'string' ? o : (o?.name || o?.email || ''), [])
   const handleSecretaryChange = useCallback(({secretary}: {secretary?: Secretary | string}) => {
     if (typeof secretary === 'string') {
       if (event.secretary?.email !== secretary) {
-        onChange({secretary: {...emptyPerson, email: secretary, id: 0}})
+        onChange?.({secretary: {...emptyPerson, email: secretary, id: 0}})
       }
     } else {
-      onChange({secretary})
+      onChange?.({secretary})
     }
   }, [event.secretary?.email, onChange])
 

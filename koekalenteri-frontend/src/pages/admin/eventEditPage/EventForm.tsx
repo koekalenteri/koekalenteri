@@ -26,7 +26,7 @@ export interface SectionProps {
   errorStates?: { [Property in keyof Event]?: boolean }
   helperTexts?: { [Property in keyof Event]?: string }
   open?: boolean
-  onChange: (event: DeepPartial<Event>) => void
+  onChange?: (event: DeepPartial<Event>) => void
   onOpenChange?: (value: boolean) => void
 }
 

@@ -32,6 +32,54 @@ const JUDGES = [{
 }]
 
 describe('JudgeSection', () => {
+  it('should render properly with one judge selected', () => {
+    const testEvent = {
+      id: 'test',
+      judges: [1],
+      startDate: new Date('2022-06-01'),
+      endDate: new Date('2022-06-02'),
+      classes: [],
+    }
+    const {container} = render(<JudgesSection event={testEvent} judges={JUDGES} />)
+    expect(container).toMatchSnapshot()
+  })
+
+  it('should render properly with two judges selected', () => {
+    const testEvent = {
+      id: 'test',
+      judges: [1, 2],
+      startDate: new Date('2022-06-01'),
+      endDate: new Date('2022-06-02'),
+      classes: [],
+    }
+    const {container} = render(<JudgesSection event={testEvent} judges={JUDGES} />)
+    expect(container).toMatchSnapshot()
+  })
+
+  it('should render properly with three judges selected', () => {
+    const testEvent = {
+      id: 'test',
+      judges: [1, 2, 3],
+      startDate: new Date('2022-06-01'),
+      endDate: new Date('2022-06-02'),
+      classes: [],
+    }
+    const {container} = render(<JudgesSection event={testEvent} judges={JUDGES} />)
+    expect(container).toMatchSnapshot()
+  })
+
+  it('should not warn about judge 0 not beign available (KOE-357)', () => {
+    const testEvent = {
+      id: 'test',
+      judges: [0],
+      startDate: new Date('2022-06-01'),
+      endDate: new Date('2022-06-02'),
+      classes: [],
+    }
+    const {container} = render(<JudgesSection event={testEvent} judges={JUDGES} />)
+    expect(container).toMatchSnapshot()
+  })
+
   it('should fire onChange', async () => {
     const testEvent = {
       id: 'test',

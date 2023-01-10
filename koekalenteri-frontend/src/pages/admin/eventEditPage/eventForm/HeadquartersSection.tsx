@@ -14,7 +14,7 @@ export default function HeadquartersSection({ headquarters, onChange, onOpenChan
   const { t } = useTranslation()
   const handleChange = useCallback((e: ChangeEvent<HTMLInputElement>, props: Partial<Headquarters>) => {
     e.preventDefault()
-    onChange({ headquarters: {...props} })
+    onChange?.({ headquarters: {...props} })
   }, [onChange])
   const handleNameChange = useCallback((e: ChangeEvent<HTMLInputElement>) => handleChange(e, { name: e.target.value }), [handleChange])
   const handleAddressChange = useCallback((e: ChangeEvent<HTMLInputElement>) => handleChange(e, { address: e.target.value }), [handleChange])

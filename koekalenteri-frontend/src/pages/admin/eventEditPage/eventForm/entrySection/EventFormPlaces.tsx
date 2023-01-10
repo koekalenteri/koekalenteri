@@ -26,7 +26,7 @@ export default function EventFormPlaces({ event, helperTexts, onChange }: Sectio
       cls.places = validValue(e.target.value)
     }
     const total = newClasses.reduce((prev, cur) => prev + (cur?.places || 0), 0)
-    onChange({ classes: newClasses, places: total ? total : event.places })
+    onChange?.({ classes: newClasses, places: total ? total : event.places })
   }
   const handleInputChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     let value = +e.target.value
@@ -40,7 +40,7 @@ export default function EventFormPlaces({ event, helperTexts, onChange }: Sectio
     for (const c of newClasses) {
       c.places = 0
     }
-    onChange({ classes: newClasses, places: value })
+    onChange?.({ classes: newClasses, places: value })
   }, [event.classes, onChange])
 
   return (
