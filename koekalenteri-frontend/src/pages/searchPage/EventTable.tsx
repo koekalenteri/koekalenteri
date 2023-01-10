@@ -95,7 +95,7 @@ const Row = ({ event }: { event: Event }) => {
 
 const EventPlaces = ({ event }: { event: Event }) => {
   const { t } = useTranslation()
-  const color = event.entries > event.places ? 'warning.main' : 'text.primary'
+  const color = (event.entries ?? 0) > event.places ? 'warning.main' : 'text.primary'
   let text = ''
   let bold = false
   if (event.places) {

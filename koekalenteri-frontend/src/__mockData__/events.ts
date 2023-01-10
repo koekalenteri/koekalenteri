@@ -29,7 +29,7 @@ export const eventWithEntryNotYetOpen = {
   entryEndDate: addDays(today, 8),
   judges: [223],
   places: 10,
-  entries: 0,
+  entries: undefined,
 }
 
 export const eventWithEntryClosing = {

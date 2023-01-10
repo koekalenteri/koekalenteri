@@ -25,7 +25,7 @@ export function withinSwitchFilters(event: Event, { withOpenEntry, withClosingEn
       result = result && isEntryClosing(event)
     }
     if (withFreePlaces) {
-      result = result && event.places > event.entries
+      result = result && event.places > (event.entries ?? 0)
     }
   }
 
