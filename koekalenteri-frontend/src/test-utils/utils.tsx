@@ -45,6 +45,10 @@ export function flushPromisesAndTimers(): Promise<void> {
   )
 }
 
+export function waitForDebounce() {
+  return act(() => new Promise(resolve => setTimeout(resolve, 150)))
+}
+
 export const createMatchMedia = (width: number) => (query: string): MediaQueryList => ({
   matches: mediaQuery.match(query, { width }),
   media: query,

@@ -20,7 +20,7 @@ describe('AdditionalInfoSection', () => {
   })
 
   it('should fire onChange', async () => {
-    const user = userEvent.setup({})
+    const user = userEvent.setup()
 
     const testEvent = {
       id: 'test',
