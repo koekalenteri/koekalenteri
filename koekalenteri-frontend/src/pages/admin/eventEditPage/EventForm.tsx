@@ -4,10 +4,9 @@ import { Cancel, Save } from '@mui/icons-material'
 import { LoadingButton } from '@mui/lab'
 import { Box, Button, Paper, Stack, Theme, useMediaQuery } from '@mui/material'
 import type { DeepPartial, Event, EventClass, EventState, Judge, Official, Organizer } from 'koekalenteri-shared/model'
-import { useRecoilState, useRecoilValue } from 'recoil'
+import {applyDiff, getDiff} from 'recursive-diff'
 
 import AutocompleteSingle from '../../components/AutocompleteSingle'
-import { editableEventModifiedSelector, editableEventSelector } from '../recoil'
 
 import AdditionalInfoSection from './eventForm/AdditionalInfoSection'
 import BasicInfoSection from './eventForm/BasicInfoSection'
@@ -30,23 +29,23 @@ export interface SectionProps {
   onOpenChange?: (value: boolean) => void
 }
 
-type EventFormParams = {
-  eventId?: string
+interface Props {
+  event: PartialEvent
   eventTypes: string[]
   eventTypeClasses: Record<string, string[]>
   judges: Judge[]
   officials: Official[]
   organizers: Organizer[]
-  onSave: (event: Partial<Event>) => void
-  onCancel: () => void
+  changes?: boolean
+  onSave?: () => void
+  onCancel?: () => void
+  onChange?: (event: Event) => void
 }
 
-export default function EventForm({ eventId, judges, eventTypes, eventTypeClasses, officials, organizers, onSave, onCancel }: EventFormParams) {
+export default function EventForm({ event, judges, eventTypes, eventTypeClasses, officials, organizers, changes, onSave, onCancel, onChange }: Props) {
   const md = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
   const { t } = useTranslation()
-  const [event, setEvent] = useRecoilState(editableEventSelector(eventId))
-  const [saving, setSaving] = useState(false)
-  const [errors, setErrors] = useState(event ? validateEvent(event as PartialEvent) : [])
+  const [errors, setErrors] = useState(event ? validateEvent(event) : [])
   const [open, setOpen] = useState<{[key: string]: boolean|undefined}>({
     basic: true,
     judges: md,
@@ -56,41 +55,19 @@ export default function EventForm({ eventId, judges, eventTypes, eventTypeClasse
     contact: md,
     info: md,
   })
-  const changes = useRecoilValue(editableEventModifiedSelector(eventId))
   const valid = errors.length === 0
-  const fields = useMemo(() => requiredFields(event as PartialEvent), [event])
+  const fields = useMemo(() => requiredFields(event), [event])
 
-  const onChange = useCallback((props: DeepPartial<Event>) => {
+  const handleChange = useCallback((props: DeepPartial<Event>) => {
     if (!event) {
       return
     }
-    const tmp: any = {}
-    const keys = Object.keys(props) as Array<keyof Event>
-    keys.forEach(k => {tmp[k] = event[k]})
-    console.log('changed: ' + JSON.stringify(props), JSON.stringify(tmp))
-    if (props.eventType && (eventTypeClasses[props.eventType] || []).length === 0) {
-      props.classes = []
-    }
-    const newState = { ...event, ...props } as PartialEvent
+    const diff = getDiff({}, props)
+    const newState = applyDiff(structuredClone(event), diff) as Event
+    console.log('change', {changes: props, diff}, newState.places)
     setErrors(validateEvent(newState))
-    setEvent(newState as Event)
-  }, [event, eventTypeClasses, setEvent])
-
-  const saveHandler = useCallback(async () => {
-    if (!event) {
-      return
-    }
-    setSaving(true)
-    onSave(event)
-    setSaving(false)
-  }, [event, onSave])
-
-  const cancelHandler = useCallback(() => {
-    if (event) {
-      setEvent(undefined)
-    }
-    onCancel()
-  }, [event, onCancel, setEvent])
+    onChange?.(newState)
+  }, [event, onChange])
 
   const handleOpenChange = useCallback((id: keyof typeof open, value: boolean) => {
     const newState = md
@@ -111,7 +88,7 @@ export default function EventForm({ eventId, judges, eventTypes, eventTypeClasse
     setOpen(newState)
   }, [md, open])
   const getStateLabel = useCallback((o: EventState) => t(`event.states.${o}`), [t])
-  const handleStateChange = useCallback((event: SyntheticEvent<Element, globalThis.Event>, value: NonNullable<EventState>) => onChange({ state: value || undefined }), [onChange])
+  const handleStateChange = useCallback((event: SyntheticEvent<Element, globalThis.Event>, value: NonNullable<EventState>) => handleChange({ state: value || undefined }), [handleChange])
   const handleBasicOpenChange = useCallback((value: boolean) => handleOpenChange('basic', value), [handleOpenChange])
   const handleJudgesOpenChange = useCallback((value: boolean) => handleOpenChange('judges', value), [handleOpenChange])
   const handleEntryOpenChange = useCallback((value: boolean) => handleOpenChange('entry', value), [handleOpenChange])
@@ -125,10 +102,6 @@ export default function EventForm({ eventId, judges, eventTypes, eventTypeClasse
   for (const error of errors) {
     helperTexts[error.opts.field] = t(`validation.event.${error.key}`, error.opts)
     errorStates[error.opts.field] = true
-  }
-
-  if (!event) {
-    return null
   }
 
   return (
@@ -148,41 +121,41 @@ export default function EventForm({ eventId, judges, eventTypes, eventTypeClasse
       <Box sx={{ pb: 0.5, overflow: 'auto', bgcolor: 'background.form', '& .MuiInputBase-root': { bgcolor: 'background.default'} }}>
         <BasicInfoSection
           errorStates={errorStates}
-          event={event as PartialEvent}
+          event={event}
           eventTypeClasses={eventTypeClasses}
           eventTypes={eventTypes}
           fields={fields}
           helperTexts={helperTexts}
           officials={officials}
-          onChange={onChange}
+          onChange={handleChange}
           onOpenChange={handleBasicOpenChange}
           open={open.basic}
           organizers={organizers}
         />
         <JudgesSection
           errorStates={errorStates}
-          event={event as PartialEvent}
+          event={event}
           fields={fields}
           helperTexts={helperTexts}
           judges={judges}
-          onChange={onChange}
+          onChange={handleChange}
           onOpenChange={handleJudgesOpenChange}
           open={open.judges}
         />
         <EntrySection
           errorStates={errorStates}
-          event={event as PartialEvent}
+          event={event}
           fields={fields}
           helperTexts={helperTexts}
-          onChange={onChange}
+          onChange={handleChange}
           onOpenChange={handleEntryOpenChange}
           open={open.entry}
         />
         <PaymentSection
           errorStates={errorStates}
-          event={event as PartialEvent}
+          event={event}
           fields={fields}
-          onChange={onChange}
+          onChange={handleChange}
           onOpenChange={handlePaymentOpenChange}
           open={open.payment}
         />
@@ -191,7 +164,7 @@ export default function EventForm({ eventId, judges, eventTypes, eventTypeClasse
           headquarters={event.headquarters}
           fields={fields}
           helperTexts={helperTexts}
-          onChange={onChange}
+          onChange={handleChange}
           onOpenChange={handleHQOpenChange}
           open={open.hq}
         />
@@ -201,7 +174,7 @@ export default function EventForm({ eventId, judges, eventTypes, eventTypeClasse
           official={event.official}
           secretary={event.secretary}
           helperText={helperTexts.contactInfo}
-          onChange={onChange}
+          onChange={handleChange}
           onOpenChange={handleContactOpenChange}
           open={open.contact}
         />
@@ -210,7 +183,7 @@ export default function EventForm({ eventId, judges, eventTypes, eventTypeClasse
           event={event as PartialEvent}
           fields={fields}
           helperTexts={helperTexts}
-          onChange={onChange}
+          onChange={handleChange}
           onOpenChange={handleInfoOpenChange}
           open={open.info}
         />
@@ -220,14 +193,13 @@ export default function EventForm({ eventId, judges, eventTypes, eventTypeClasse
         <LoadingButton
           color="primary"
           disabled={!changes || !valid}
-          loading={saving}
           loadingPosition="start"
           startIcon={<Save />}
           variant="contained"
-          onClick={saveHandler}>
+          onClick={onSave}>
             Tallenna
         </LoadingButton>
-        <Button startIcon={<Cancel />} variant="outlined" onClick={cancelHandler}>Peruuta</Button>
+        <Button startIcon={<Cancel />} variant="outlined" onClick={onCancel}>Peruuta</Button>
       </Stack>
     </Paper>
   )

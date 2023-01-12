@@ -63,9 +63,7 @@ Array [
         "path": "/admin/event",
       },
       Object {
-        "element": <EventEditPage
-          create={true}
-        />,
+        "element": <EventCreatePage />,
         "path": "/admin/event/create",
       },
       Object {

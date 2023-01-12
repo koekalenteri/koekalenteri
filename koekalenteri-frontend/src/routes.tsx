@@ -1,6 +1,7 @@
 import { Navigate, RouteObject } from 'react-router-dom'
 
 import AdminHomePage from './pages/admin/AdminHomePage'
+import EventCreatePage from './pages/admin/EventCreatePage'
 import EventEditPage from './pages/admin/EventEditPage'
 import EventListPage from './pages/admin/EventListPage'
 import EventTypeListPage from './pages/admin/EventTypeListPage'
@@ -66,7 +67,7 @@ const routes: RouteObject[] = [
       },
       {
         path: Path.admin.newEvent,
-        element: <EventEditPage create />,
+        element: <EventCreatePage />,
       },
       {
         path: `${Path.admin.editEvent}/:id`,

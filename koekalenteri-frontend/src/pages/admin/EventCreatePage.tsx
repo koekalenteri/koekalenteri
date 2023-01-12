@@ -1,19 +1,17 @@
-import { useCallback, useState } from 'react'
+import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { Event } from 'koekalenteri-shared/model'
 import { useSnackbar } from 'notistack'
 import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
-import { getDiff } from 'recursive-diff'
 
 import { Path } from '../../routeConfig'
 import { activeEventTypesSelector, activeJudgesSelector, eventTypeClassesAtom } from '../recoil'
 
 import EventForm from './eventEditPage/EventForm'
-import { adminEventSelector, editableEventByIdAtom, officialsAtom, organizersAtom, useAdminEventActions } from './recoil'
+import { newEventAtom, officialsAtom, organizersAtom, useAdminEventActions } from './recoil'
 
-export default function EventEditPage() {
-  const {id: eventId = ''} = useParams()
+export default function EventCreatePage() {
   const { t } = useTranslation()
   const { enqueueSnackbar } = useSnackbar()
   const navigate = useNavigate()
@@ -24,17 +22,12 @@ export default function EventEditPage() {
   const organizers = useRecoilValue(organizersAtom)
 
   const actions = useAdminEventActions()
-  const storedEvent = useRecoilValue(adminEventSelector(eventId))
-  const [event, setEvent] = useRecoilState(editableEventByIdAtom(eventId))
-  const resetEvent = useResetRecoilState(editableEventByIdAtom(eventId))
-  const [changes, setChanges] = useState<boolean>(getDiff(storedEvent, event).length > 0)
+  const [event, setEvent] = useRecoilState(newEventAtom)
+  const resetEvent = useResetRecoilState(newEventAtom)
 
   const handleChange = useCallback((newState: Event) => {
-    const diff = getDiff(storedEvent, newState)
-    console.log('changes', diff)
-    setChanges(diff.length > 0)
     setEvent(newState)
-  }, [setEvent, storedEvent])
+  }, [setEvent])
 
   const handleSave = useCallback(async () => {
     if (!event) {
@@ -51,14 +44,10 @@ export default function EventEditPage() {
     navigate(Path.admin.events)
   }, [navigate, resetEvent])
 
-  if (!event) {
-    return <div>event not found</div>
-  }
-
   return (
     <EventForm
       event={event}
-      changes={changes}
+      changes={true}
       eventTypes={activeEventTypes.map(et => et.eventType)}
       eventTypeClasses={eventTypeClasses}
       judges={activeJudges}

@@ -18,13 +18,13 @@ import InfoPanel from './eventViewPage/InfoPanel'
 import TabPanel from './eventViewPage/TabPanel'
 import Title from './eventViewPage/Title'
 import { useAdminRegistrationActions } from './recoil/registrations/actions'
-import { currentAdminRegistrationSelector, editableEventSelector, eventClassAtom } from './recoil'
+import { currentAdminRegistrationSelector, editableEventByIdAtom, eventClassAtom } from './recoil'
 
 export default function EventViewPage() {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const params = useParams()
-  const event = useRecoilValue(editableEventSelector(params.id))
+  const event = useRecoilValue(editableEventByIdAtom(params.id ?? ''))
   const eventClasses = useMemo(() => uniqueClasses(event), [event])
   const [selectedEventClass, setSelectedEventClass] = useRecoilState(eventClassAtom)
   const activeTab = useMemo(() => Math.max(eventClasses.findIndex(c => c === selectedEventClass) ?? 0, 0), [eventClasses, selectedEventClass])

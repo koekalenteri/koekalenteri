@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next"
 import { Grid } from "@mui/material"
-import { ContactInfo, Official, Secretary, ShowContactInfo } from "koekalenteri-shared/model"
+import { ContactInfo, DeepPartial, Official, Secretary, ShowContactInfo } from "koekalenteri-shared/model"
 
 import CollapsibleSection from "../../../components/CollapsibleSection"
 
@@ -8,20 +8,20 @@ import ContactInfoDisplay from "./contactInfoSection/ContactInfoDisplay"
 import ContactInfoSelect from "./contactInfoSection/ContactInfoSelect"
 
 interface Props {
-  contactInfo?: Partial<ContactInfo>
-  official?: Partial<Official>
+  contactInfo?: DeepPartial<ContactInfo>
+  official?: DeepPartial<Official>
   secretary?: Partial<Secretary>
   error?: boolean
   helperText?: string
   open?: boolean
-  onChange: (changes: {contactInfo: Partial<ContactInfo>}) => void
+  onChange: (changes: {contactInfo: DeepPartial<ContactInfo>}) => void
   onOpenChange?: (value: boolean) => void
 }
 
 
 export default function ContactInfoSection({ contactInfo, official, secretary, helperText, onChange, onOpenChange, open }: Props) {
   const { t } = useTranslation()
-  const handleChange = (name: string, props: ShowContactInfo) => onChange({
+  const handleChange = (name: string, props: Partial<ShowContactInfo>) => onChange({
     contactInfo: {
       ...contactInfo,
       [name]: props,

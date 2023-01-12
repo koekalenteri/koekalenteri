@@ -62,5 +62,4 @@ export const useAdminEventActions = () => {
 
     enqueueSnackbar(t('deleteEventComplete'), { variant: 'info' })
   }
-
 }

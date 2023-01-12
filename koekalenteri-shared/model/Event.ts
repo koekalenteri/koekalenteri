@@ -6,8 +6,8 @@ export interface JsonEvent extends JsonDbRecord {
   organizer: Organizer
   eventType: string
   classes: Array<JsonEventClass>
-  startDate?: string
-  endDate?: string
+  startDate: string
+  endDate: string
   entryStartDate?: string
   entryEndDate?: string
   entryOrigEndDate?: string

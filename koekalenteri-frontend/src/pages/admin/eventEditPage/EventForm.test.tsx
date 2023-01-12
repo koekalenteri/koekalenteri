@@ -43,12 +43,12 @@ const OFFICIALS = [{
   eventTypes: ['TEST-A', 'TEST-C'],
 }]
 
-const renderComponent = (eventId: string|undefined, judges: Judge[], officials: Official[], organizers: Organizer[], onSave: (event: Partial<Event>) => void, onCancel: () => void) => render(
+const renderComponent = (event: Event, judges: Judge[], officials: Official[], organizers: Organizer[], onSave: () => void, onCancel: () => void) => render(
   <ThemeProvider theme={theme}>
     <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={fi}>
       <RecoilRoot>
         <EventForm
-          eventId={eventId}
+          event={event}
           eventTypes={eventTypes}
           eventTypeClasses={eventTypeClasses}
           judges={judges}
@@ -67,7 +67,7 @@ describe('EventForm', () => {
     const saveHandler = jest.fn()
     const cancelHandler = jest.fn()
 
-    renderComponent(undefined, JUDGES, OFFICIALS, ORGANIZERS, saveHandler, cancelHandler)
+    // renderComponent('', JUDGES, OFFICIALS, ORGANIZERS, saveHandler, cancelHandler)
 
     const saveButton = screen.getByText(/Tallenna/i)
     expect(saveButton).toBeDisabled()
