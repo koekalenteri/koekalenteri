@@ -17,6 +17,7 @@ export const emptyEvent: Event = {
   eventType: 'test',
   id: 'test',
   judges: [123],
+  kcId: 123456,
   location: 'test',
   modifiedAt: new Date('1989-01-02'),
   modifiedBy: 'test',
