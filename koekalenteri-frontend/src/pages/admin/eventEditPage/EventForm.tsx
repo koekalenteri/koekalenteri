@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Cancel, Save } from '@mui/icons-material'
 import { LoadingButton } from '@mui/lab'
 import { Box, Button, Paper, Stack, Theme, useMediaQuery } from '@mui/material'
-import type { DeepPartial, Event, EventClass, EventState, Judge, Official, Organizer } from 'koekalenteri-shared/model'
+import type { DeepPartial, Event, EventState, Judge, Official, Organizer } from 'koekalenteri-shared/model'
 import {applyDiff, getDiff} from 'recursive-diff'
 
 import AutocompleteSingle from '../../components/AutocompleteSingle'
@@ -17,7 +17,7 @@ import JudgesSection from './eventForm/JudgesSection'
 import PaymentSection from './eventForm/PaymentSection'
 import { FieldRequirements, requiredFields, validateEvent } from './eventForm/validation'
 
-export type PartialEvent = DeepPartial<Event> & { startDate: Date, endDate: Date, classes: EventClass[], judges: number[] }
+export type PartialEvent = DeepPartial<Event>
 
 export interface SectionProps {
   event: PartialEvent
