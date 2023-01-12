@@ -3,20 +3,46 @@ import i18next from "i18next"
 import { Event } from "koekalenteri-shared/model"
 import { DefaultValue, selector, selectorFamily } from "recoil"
 
-import { adminEventFilterTextAtom, adminEventIdAtom, adminEventsAtom, adminShowPastEventsAtom, editableEventByIdAtom, eventStorageKey, newEventAtom } from "./atoms"
+import { adminEventFilterTextAtom, adminEventIdAtom, adminEventsAtom, adminShowPastEventsAtom, newEventAtom } from "./atoms"
 
+
+export const adminEventSelector = selectorFamily<Event | undefined, string|undefined>({
+  key: 'adminEventSelector',
+  get: eventId => ({get}) => {
+    if (!eventId) {
+      return get(newEventAtom)
+    }
+    const events = get(adminEventsAtom)
+    return events.find(e => e.id === eventId)
+  },
+  set: eventId => ({get, set}, value) => {
+    if (!value || value instanceof DefaultValue) {
+      return
+    }
+    const events = get(adminEventsAtom)
+    const index = events.findIndex(e => e.id === eventId)
+    const newEvents = [...events]
+    const insert = index === -1
+    newEvents.splice(insert ? newEvents.length : index, insert ? 0 : 1, value)
+    set(adminEventsAtom, newEvents)
+  },
+})
 
 export const currentAdminEventSelector = selector({
   key: 'currentAdminEvent',
   get: ({ get }) => {
     const eventId = get(adminEventIdAtom)
-    return eventId ? get(editableEventByIdAtom(eventId)) : undefined
+    return eventId ? get(adminEventSelector(eventId)) : undefined
   },
-  set: ({ set }, newValue) => {
+  set: ({ get, set }, newValue) => {
     if (!newValue || newValue instanceof DefaultValue) {
       return
     }
-    set(editableEventByIdAtom(newValue.id), newValue)
+    const eventId = get(adminEventIdAtom)
+    if (!eventId) {
+      return
+    }
+    set(adminEventSelector(eventId), newValue)
   },
 })
 
@@ -32,38 +58,5 @@ export const filteredAdminEventsSelector = selector({
         && (showPast || !event.startDate || event.startDate >= startOfToday())
         && (!filter || ([event.location, event.official.name, event.secretary.name].join(' ').toLocaleLowerCase(i18next.language).includes(filter)))
     })
-  },
-})
-
-/**
- * Abstration for new / existing event
- */
-export const editableEventSelector = selectorFamily<Event | undefined, string|undefined>({
-  key: 'editableEvent',
-  get: (eventId) => ({ get }) => eventId ? get(editableEventByIdAtom(eventId)) : get(newEventAtom),
-  set: (eventId) => ({ set, reset }, newValue) => {
-    if (eventId) {
-      set(editableEventByIdAtom(eventId), newValue)
-    } else if (newValue) {
-      set(newEventAtom, newValue)
-    } else {
-      reset(newEventAtom)
-    }
-  },
-})
-
-/**
- * Abstraction for new / existing event modified status
- */
-export const editableEventModifiedSelector = selectorFamily<boolean, string|undefined>({
-  key: 'editableEvent/modified',
-  get: (eventId) => ({ get }) => {
-    if (eventId) {
-      const stored = localStorage.getItem(eventStorageKey(eventId))
-      return stored !== null
-    } else {
-      const value = get(newEventAtom)
-      return !(value instanceof DefaultValue)
-    }
   },
 })

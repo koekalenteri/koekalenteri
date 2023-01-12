@@ -6,56 +6,48 @@ import fi from 'date-fns/locale/fi'
 import { Event, Judge, Official, Organizer } from 'koekalenteri-shared/model'
 import { RecoilRoot } from 'recoil'
 
+import { eventWithStaticDates } from '../../../__mockData__/events'
 import theme from '../../../assets/Theme'
 
 import EventForm from './EventForm'
 
-const eventTypes = ['TEST-A', 'TEST-B', 'TEST-C']
+const eventTypes = [eventWithStaticDates.eventType, 'TEST-B', 'TEST-C']
 const eventTypeClasses = {
-  'TEST-A': ['A', 'B', 'C'],
+  [eventWithStaticDates.eventType]: [eventWithStaticDates.classes[0].class, 'B', 'C'],
   'TEST-B': ['B', 'C'],
   'TEST-C': [],
 }
 
 const JUDGES = [{
-  id: 1,
+  id: eventWithStaticDates.judges[0],
   name: 'Test Judge',
   email: 'joo@ei.com',
   phone: '0700-judge',
   location: 'Pohjois-Karjala',
   district: 'Pohjois-Karjalan Kennelpiiri ry',
   languages: ['fi'],
-  eventTypes: ['TEST-A', 'TEST-C'],
+  eventTypes: [eventWithStaticDates.eventType, 'TEST-C'],
 }]
 
-const ORGANIZERS = [{
-  id: 1,
-  name: 'SNJ r.y',
-}]
+const OFFICIALS = [eventWithStaticDates.official]
+const ORGANIZERS = [eventWithStaticDates.organizer]
 
-const OFFICIALS = [{
-  id: 1000,
-  name: 'Teemu Toimitsija',
-  email: 'joo@ei.com',
-  phone: '0700-official',
-  location: 'Perähikiä',
-  district: 'Hikiä',
-  eventTypes: ['TEST-A', 'TEST-C'],
-}]
 
-const renderComponent = (eventId: string|undefined, judges: Judge[], officials: Official[], organizers: Organizer[], onSave: (event: Partial<Event>) => void, onCancel: () => void) => render(
+const renderComponent = (event: Event, judges: Judge[], officials: Official[], organizers: Organizer[], onSave?: () => void, onCancel?: () => void, onChange?: () => void) => render(
   <ThemeProvider theme={theme}>
     <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={fi}>
       <RecoilRoot>
         <EventForm
-          eventId={eventId}
+          event={event}
           eventTypes={eventTypes}
           eventTypeClasses={eventTypeClasses}
           judges={judges}
           officials={officials}
           organizers={organizers}
+          changes
           onSave={onSave}
           onCancel={onCancel}
+          onChange={onChange}
         />
       </RecoilRoot>
     </LocalizationProvider>
@@ -63,19 +55,24 @@ const renderComponent = (eventId: string|undefined, judges: Judge[], officials: 
 )
 
 describe('EventForm', () => {
-  it.skip('should fire onSave and onCancel', () => {
+  it('should render', () => {
+    const { container } = renderComponent(eventWithStaticDates, JUDGES, OFFICIALS, ORGANIZERS)
+    expect(container).toMatchSnapshot()
+  })
+
+  it.skip('should fire onSave and onCancel', async () => {
     const saveHandler = jest.fn()
     const cancelHandler = jest.fn()
+    const changeHandler = jest.fn()
 
-    renderComponent(undefined, JUDGES, OFFICIALS, ORGANIZERS, saveHandler, cancelHandler)
+    renderComponent(eventWithStaticDates, JUDGES, OFFICIALS, ORGANIZERS, saveHandler, cancelHandler, changeHandler)
 
     const saveButton = screen.getByText(/Tallenna/i)
-    expect(saveButton).toBeDisabled()
+    // expect(saveButton).toBeDisabled()
 
     // Make a change to enable save button
     fireEvent.mouseDown(screen.getByLabelText(/eventType/i))
     fireEvent.click(within(screen.getByRole('listbox')).getByText(/TEST-C/i))
-
     expect(saveButton).toBeEnabled()
 
     fireEvent.click(saveButton)

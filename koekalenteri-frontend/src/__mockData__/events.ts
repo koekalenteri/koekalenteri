@@ -1,8 +1,21 @@
-import { addDays, startOfDay } from "date-fns"
+import { addDays, parseISO, startOfDay } from "date-fns"
 
 import { emptyEvent } from "../api/test-utils/emptyEvent"
 
 const today = startOfDay(new Date())
+
+export const eventWithStaticDates = {
+  ...emptyEvent,
+  id: 'test1',
+  eventType: 'type1',
+  classes: [{ class: 'class1' }],
+  startDate: parseISO('2021-02-10'),
+  endDate: parseISO('2021-02-11'),
+  entryStartDate: parseISO('2021-02-01'),
+  entryEndDate: parseISO('2021-02-07'),
+  judges: [123],
+  location: 'test location',
+}
 
 export const eventWithEntryOpen = {
   ...emptyEvent,

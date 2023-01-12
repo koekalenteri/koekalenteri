@@ -20,7 +20,7 @@ export default function EventFormPlaces({ event, helperTexts, onChange }: Sectio
   const uniqueClasses = unique(event.classes.map(c => c.class))
   const classesByDays = days.map(day => ({ day, classes: event.classes.filter(c => isSameDay(c.date || event.startDate, day)) }))
   const handleChange = (c: DeepPartial<EventClass>) => (e: { target: { value: any; }; }) => {
-    const newClasses = event.classes.map(ec => ({...ec}))
+    const newClasses = event.classes.map(ec => structuredClone(ec))
     const cls = newClasses.find(ec => compareEventClass(ec, c) === 0)
     if (cls) {
       cls.places = validValue(e.target.value)
@@ -36,12 +36,13 @@ export default function EventFormPlaces({ event, helperTexts, onChange }: Sectio
     if (value > 999) {
       value = 999
     }
-    const newClasses = [...event.classes]
-    for (const c of newClasses) {
-      c.places = 0
+    const newClasses = event.classes.map(ec => structuredClone(ec))
+    const diff = value - (event.places ?? 0)
+    if (newClasses.length && diff) {
+      newClasses[0].places = (newClasses[0].places ?? 0) + diff
     }
     onChange?.({ classes: newClasses, places: value })
-  }, [event.classes, onChange])
+  }, [event.classes, event.places, onChange])
 
   return (
     <>

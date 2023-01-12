@@ -13,26 +13,19 @@ graph LR
   adminEventFilterTextAtom-->storageEffect
   adminEventIdAtom-->storageEffect
   eventClassAtom-->storageEffect
-  editableEventByIdAtom-->Q{local?}
-  Q--no-->getEvent[/getEvent/]-->aws
-  Q--yes-->storageEffect
+  editableEventByIdAtom-->storageEffect
 
   storageEffect[(localStorage)]
   remoteAdminEventsEffect-->getEvents[/getEvents/]-->aws
+
+  adminEventSelector-->newEventAtom
+  adminEventSelector-->adminEventsAtom
 
   currentAdminEventSelector-->editableEventByIdAtom
 
   filteredAdminEventsSelector-->adminEventsAtom
   filteredAdminEventsSelector-->adminEventFilterTextAtom
   filteredAdminEventsSelector-->adminShowPastEventsAtom
-
-  editableEventSelector-->Q1{eventId?}
-  Q1--yes-->editableEventByIdAtom
-  Q1--no-->newEventAtom
-
-  editableEventModifiedSelector-->Q2{eventId?}
-  Q2--no-->newEventAtom
-  Q2--yes-->storageEffect
 
   aws[(cloud)]
 ```

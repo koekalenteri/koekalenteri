@@ -6,8 +6,8 @@ export interface JsonEvent extends JsonDbRecord {
   organizer: Organizer
   eventType: string
   classes: Array<JsonEventClass>
-  startDate?: string
-  endDate?: string
+  startDate: string
+  endDate: string
   entryStartDate?: string
   entryEndDate?: string
   entryOrigEndDate?: string
@@ -30,8 +30,23 @@ export interface JsonEvent extends JsonDbRecord {
   contactInfo?: Partial<ContactInfo>
 }
 
-export type EventDates = 'startDate' | 'endDate' | 'entryStartDate' | 'entryEndDate' | 'entryOrigEndDate';
-export type Event = DbRecord & Replace<ReplaceOptional<Omit<JsonEvent, keyof JsonDbRecord>, EventDates, Date>, 'classes', Array<EventClass>>
+export type EventRequiredDates = 'startDate' | 'endDate'
+export type EventOptionalDates = 'entryStartDate' | 'entryEndDate' | 'entryOrigEndDate'
+export type EventDates =  EventRequiredDates | EventOptionalDates
+export type Event = DbRecord &
+  Replace<
+    Replace<
+      ReplaceOptional<
+        Omit<JsonEvent, keyof JsonDbRecord>,
+        EventOptionalDates,
+        Date
+      >,
+      EventRequiredDates,
+      Date
+    >,
+    'classes',
+    Array<EventClass>
+  >
 
 export type JsonEventClass = {
   class: string

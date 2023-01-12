@@ -2,12 +2,11 @@ import { addDays, startOfDay, sub } from "date-fns"
 import { Event } from "koekalenteri-shared/model"
 import { atom, atomFamily, selector } from "recoil"
 
-import { getEvent } from "../../../../api/event"
 import { uniqueClasses } from "../../../../utils"
-import { logEffect, parseStorageJSON, storageEffect } from "../../../recoil"
+import { logEffect, storageEffect } from "../../../recoil"
 
 import { remoteAdminEventsEffect } from "./effects"
-import { currentAdminEventSelector } from "./selectors"
+import { adminEventSelector, currentAdminEventSelector } from "./selectors"
 
 export const adminEventsAtom = atom<Event[]>({
   key: 'adminEvents',
@@ -75,34 +74,14 @@ export const eventClassAtom = atom<string | undefined>({
   ],
 })
 
-export const eventStorageKey = (eventId: string) => `adminEditEvent/eventId-${eventId}`
-
 /**
  * Existing event editing, edits stored to local storage
  */
 export const editableEventByIdAtom = atomFamily<Event | undefined, string>({
   key: 'editableEvent/Id',
-  default: undefined,
-  effects: eventId => [
-    ({ node, setSelf, onSet, getPromise }) => {
-      const key = eventStorageKey(eventId)
-
-      const savedValue = localStorage.getItem(key)
-      if (savedValue !== null) {
-        const parsed = parseStorageJSON(savedValue)
-        setSelf(parsed)
-      } else {
-        getEvent(eventId).then(setSelf)
-      }
-
-      onSet(async (newValue, _, isReset) => {
-        if (isReset || newValue === null || newValue === undefined) {
-          localStorage.removeItem(key)
-          setSelf(undefined)
-        } else {
-          localStorage.setItem(key, JSON.stringify(newValue))
-        }
-      })
-    },
+  default: adminEventSelector,
+  effects: [
+    logEffect,
+    storageEffect,
   ],
 })

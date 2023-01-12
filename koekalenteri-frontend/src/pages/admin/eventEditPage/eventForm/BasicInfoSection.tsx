@@ -53,13 +53,13 @@ export default function BasicInfoSection({ event, errorStates, helperTexts, fiel
   const getNameOrEmail = useCallback((o?: string | {name?: string, email?: string}) => typeof o === 'string' ? o : (o?.name || o?.email || ''), [])
   const handleSecretaryChange = useCallback(({secretary}: {secretary?: Secretary | string}) => {
     if (typeof secretary === 'string') {
-      if (event.secretary?.email !== secretary) {
+      if (event.secretary?.name !== secretary && event.secretary?.email !== secretary) {
         onChange?.({secretary: {...emptyPerson, email: secretary, id: 0}})
       }
     } else {
       onChange?.({secretary})
     }
-  }, [event.secretary?.email, onChange])
+  }, [event.secretary?.email, event.secretary?.name, onChange])
 
   return (
     <CollapsibleSection title="Kokeen perustiedot" open={open} onOpenChange={onOpenChange} error={error} helperText={helperText}>

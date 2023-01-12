@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`EventEditPage renders properly 1`] = `
+exports[`EventEditPage renders properly when creating a new event 1`] = `
 <div>
   <div
     class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation2 css-q8ljt1-MuiPaper-root"
@@ -180,13 +180,13 @@ exports[`EventEditPage renders properly 1`] = `
                                   placeholder="dd.mm.yyyy"
                                   required=""
                                   type="tel"
-                                  value="12.04.2023"
+                                  value="23.04.2021"
                                 />
                                 <div
                                   class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1laqsz7-MuiInputAdornment-root"
                                 >
                                   <button
-                                    aria-label="Choose date, selected date is Apr 12, 2023"
+                                    aria-label="Choose date, selected date is Apr 23, 2021"
                                     class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1yq5fb3-MuiButtonBase-root-MuiIconButton-root"
                                     tabindex="0"
                                     type="button"
@@ -255,13 +255,13 @@ exports[`EventEditPage renders properly 1`] = `
                                   placeholder="dd.mm.yyyy"
                                   required=""
                                   type="tel"
-                                  value="12.04.2023"
+                                  value="23.04.2021"
                                 />
                                 <div
                                   class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1laqsz7-MuiInputAdornment-root"
                                 >
                                   <button
-                                    aria-label="Choose date, selected date is Apr 12, 2023"
+                                    aria-label="Choose date, selected date is Apr 23, 2021"
                                     class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1yq5fb3-MuiButtonBase-root-MuiIconButton-root"
                                     tabindex="0"
                                     type="button"
@@ -1181,13 +1181,13 @@ exports[`EventEditPage renders properly 1`] = `
                                   id=":rj:"
                                   placeholder="dd.mm.yyyy"
                                   type="tel"
-                                  value="01.03.2023"
+                                  value="23.03.2021"
                                 />
                                 <div
                                   class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1laqsz7-MuiInputAdornment-root"
                                 >
                                   <button
-                                    aria-label="Choose date, selected date is Mar 1, 2023"
+                                    aria-label="Choose date, selected date is Mar 23, 2021"
                                     class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1yq5fb3-MuiButtonBase-root-MuiIconButton-root"
                                     tabindex="0"
                                     type="button"
@@ -1246,13 +1246,13 @@ exports[`EventEditPage renders properly 1`] = `
                                   id=":rk:"
                                   placeholder="dd.mm.yyyy"
                                   type="tel"
-                                  value="22.03.2023"
+                                  value="09.04.2021"
                                 />
                                 <div
                                   class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1laqsz7-MuiInputAdornment-root"
                                 >
                                   <button
-                                    aria-label="Choose date, selected date is Mar 22, 2023"
+                                    aria-label="Choose date, selected date is Apr 9, 2021"
                                     class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1yq5fb3-MuiButtonBase-root-MuiIconButton-root"
                                     tabindex="0"
                                     type="button"

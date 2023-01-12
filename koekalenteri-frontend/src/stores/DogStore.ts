@@ -1,5 +1,4 @@
 import { DeepPartial, Dog, Registration, RegistrationBreeder, RegistrationPerson } from "koekalenteri-shared/model"
-import merge from "lodash.merge"
 import { makeAutoObservable, runInAction, toJS } from "mobx"
 
 import { getDog } from "../api/dog"
@@ -62,6 +61,7 @@ export class DogStore {
   }
 
   save(reg: DeepPartial<Registration>) {
+    /*
     const regNo = reg.dog?.regNo
     if (regNo) {
       const record = merge(this._data[regNo] || {},
@@ -85,6 +85,7 @@ export class DogStore {
       }
       this._save()
     }
+    */
   }
 }
 

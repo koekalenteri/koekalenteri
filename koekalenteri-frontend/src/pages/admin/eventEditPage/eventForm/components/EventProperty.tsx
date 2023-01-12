@@ -67,7 +67,13 @@ export default function EventProperty<Property extends keyof PartialEvent, freeS
     }
     const old = event[id]
     const type = typeof old
-    if ((type === 'number' && old !== +(inputDebouncedValue ?? '')) || (type !== 'number' && old !== inputDebouncedValue)) {
+    if (type === 'undefined' && inputDebouncedValue === '') {
+      return
+    }
+    if (
+      (type === 'number' && (old ?? 0) !== +(inputDebouncedValue ?? ''))
+      || (type !== 'number' && old !== inputDebouncedValue)
+    ) {
       onChange?.({ [id]: inputDebouncedValue })
     }
 

@@ -62,7 +62,7 @@ export default function useEventListColumns(): EventListColDef[] {
       headerName: t('places'),
       align: 'right',
       width: 80,
-      valueGetter: (params) => `${params.row.entries ?? 0} / ${params.row.places}`,
+      valueGetter: (params) => `${params.row.entries ?? '0'} / ${params.row.places ?? '0'}`,
     },
     {
       field: 'state',

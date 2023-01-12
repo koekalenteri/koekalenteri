@@ -6,8 +6,8 @@ import { Autocomplete, FormControl, FormHelperText, Grid, Stack, TextField, Text
 import { DatePicker } from '@mui/x-date-pickers'
 import { differenceInMinutes, subMonths, subYears } from 'date-fns'
 import { BreedCode, Dog, DogGender, Registration } from 'koekalenteri-shared/model'
-import merge from 'lodash.merge'
 import { useRecoilState, useRecoilValue } from 'recoil'
+import { applyDiff, getDiff } from 'recursive-diff'
 
 import { dogCacheAtom, DogCachedInfo } from '../../recoil/dog'
 import { dogSelector } from '../../recoil/dog/selectors'
@@ -49,7 +49,11 @@ export const DogInfo = ({ reg, eventDate, minDogAgeMonths, error, helperText, on
   const [dog, setDog] = useRecoilState(dogSelector(validRegNo ? regNo : ''))
   const cachedDogs = useRecoilValue(dogCacheAtom)
   const handleChange = (props: Partial<Dog & DogCachedInfo>, replace?: boolean) => {
-    setDog(merge({}, reg.dog, props))
+    const diff = getDiff({}, props)
+    const newState = applyDiff(structuredClone(reg.dog), diff) as Dog
+    console.log('change', {changes: props, diff})
+
+    setDog(newState)
     onChange({ dog })
   }
 
