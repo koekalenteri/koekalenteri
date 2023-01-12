@@ -180,7 +180,7 @@ export default function EventForm({ event, judges, eventTypes, eventTypeClasses,
         />
         <AdditionalInfoSection
           errorStates={errorStates}
-          event={event as PartialEvent}
+          event={event}
           fields={fields}
           helperTexts={helperTexts}
           onChange={handleChange}
