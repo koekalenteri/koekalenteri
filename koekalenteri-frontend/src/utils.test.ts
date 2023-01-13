@@ -21,6 +21,7 @@ describe('utils', () => {
       expect(parseJSON('{"pvm":"2021-05-10T09:05:12.000Z"}')).toEqual({
         pvm: new Date("2021-05-10T09:05:12.000Z"),
       })
+      expect(parseJSON('{"date":"2021-05-10T00:00:00"}').date).toBeInstanceOf(Date)
     })
   })
 

@@ -35,7 +35,7 @@ export const uniqueFn = <T>(arr: T[], cmp: (a: T, b: T) => boolean): T[] => arr.
 export const uniqueDate = (arr: Date[]) => [...new Set<number>(arr.map(d => d.valueOf()))].map(v => new Date(v))
 
 function dateReviver(_key: string, value: JsonValue): JsonValue | Date {
-  if (typeof value === 'string' && /^\d{4}-[01]\d-[0-3]\dT[012]\d(?::[0-6]\d){2}\.\d{3}Z$/.test(value)) {
+  if (typeof value === 'string' && /^\d{4}-(?:0[1-9]|1[0-2])-(?:[0-2][1-9]|[1-3]0|3[01])T(?:[0-1][0-9]|2[0-3])(?::[0-6]\d)(?::[0-6]\d)?(?:\.\d{3})?(?:[+-][0-2]\d:[0-5]\d|Z)?$/.test(value)) {
     const date = new Date(value)
     if (!isNaN(+date)) {
       return date
