@@ -1,6 +1,6 @@
 {
   "name": "koekalenteri-frontend",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "private": true,
   "dependencies": {
     "@aws-amplify/auth": "^5.1.0",
@@ -18,8 +18,6 @@
     "i18next-browser-languagedetector": "^7.0.1",
     "identity-obj-proxy": "^3.0.0",
     "material-ui-confirm": "^3.0.7",
-    "mobx": "^6.2.0",
-    "mobx-react-lite": "^3.2.0",
     "notistack": "^2.0.3",
     "preval.macro": "^5.0.0",
     "react": "^18.2.0",

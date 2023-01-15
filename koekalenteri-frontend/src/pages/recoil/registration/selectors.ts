@@ -1,38 +1,21 @@
 import { Registration } from "koekalenteri-shared/model"
 import { DefaultValue, selectorFamily } from "recoil"
 
-import { editableRegistrationByIdAtom, newRegistrationAtom, registrationStorageKey } from "./atoms"
+import { newRegistrationAtom, registrationByIdAtom } from "./atoms"
 
 
-/**
- * Abstration for new / existing registration
- */
-export const editableRegistrationSelector = selectorFamily<Registration | undefined, string|undefined>({
-  key: 'editableRegistration',
-  get: (registrationId) => ({ get }) => registrationId ? get(editableRegistrationByIdAtom(registrationId)) : get(newRegistrationAtom),
-  set: (registrationId) => ({ set, reset }, newValue) => {
-    if (registrationId) {
-      set(editableRegistrationByIdAtom(registrationId), newValue)
-    } else if (newValue) {
-      set(newRegistrationAtom, newValue)
-    } else {
-      reset(newRegistrationAtom)
+export const registrationSelector = selectorFamily<Registration | undefined, string | undefined>({
+  key: 'adminEventSelector',
+  get: id => ({get}) => {
+    if (!id) {
+      return get(newRegistrationAtom)
     }
+    return get(registrationByIdAtom(id))
   },
-})
-
-/**
- * Abstraction for new / existing registration modified status
- */
-export const editableRegistrationModifiedSelector = selectorFamily<boolean, string|undefined>({
-  key: 'editableRegistration/modified',
-  get: (registrationId) => ({ get }) => {
-    if (registrationId) {
-      const stored = localStorage.getItem(registrationStorageKey(registrationId))
-      return stored !== null
-    } else {
-      const value = get(newRegistrationAtom)
-      return !(value instanceof DefaultValue)
+  set: id => ({get, set}, value) => {
+    if (!id || !value || value instanceof DefaultValue) {
+      return
     }
+    set(registrationByIdAtom(id), value)
   },
 })

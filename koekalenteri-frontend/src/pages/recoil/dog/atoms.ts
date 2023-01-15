@@ -7,14 +7,17 @@ import { remoteDogEffect } from "./effects"
 
 export type DogCachedInfo = {
   breeder: RegistrationBreeder,
+  dog: Dog,
   handler: RegistrationPerson,
   owner: RegistrationPerson,
   ownerHandles: boolean,
 }
 
-export const dogCacheAtom = atom<Partial<Dog & DogCachedInfo>[]>({
-  key: 'dog-cachex',
-  default: [],
+type DogCache = Record<string, Partial<DogCachedInfo>>
+
+export const dogCacheAtom = atom<DogCache>({
+  key: 'dog-cache',
+  default: {},
   effects: [
     storageEffect,
   ],

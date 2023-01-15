@@ -35,17 +35,17 @@ export default function EventListPage() {
   }, [actions, confirm, t])
 
   const createAction = useCallback(() => navigate(Path.admin.newEvent), [navigate])
-  const editAction = useCallback(() => navigate(`${Path.admin.editEvent}/${selectedEventID}`), [navigate, selectedEventID])
-  const viewAction = useCallback(() => navigate(`${Path.admin.viewEvent}/${selectedEventID}`), [navigate, selectedEventID])
+  const editAction = useCallback(() => navigate(Path.admin.editEvent(selectedEventID)), [navigate, selectedEventID])
+  const viewAction = useCallback(() => navigate(Path.admin.viewEvent(selectedEventID)), [navigate, selectedEventID])
 
   const handleDoubleClick = useCallback(() => {
     if (!selectedEvent) return
     if (selectedEvent.entries) {
-      navigate(`${Path.admin.viewEvent}/${selectedEvent.id}`)
+      viewAction()
     } else {
-      navigate(`${Path.admin.editEvent}/${selectedEvent.id}`)
+      editAction()
     }
-  }, [navigate, selectedEvent])
+  }, [editAction, selectedEvent, viewAction])
 
   const handleSelectionModeChange = useCallback((selection: GridSelectionModel) => {
     const value = typeof selection[0] === 'string' ? selection[0] : undefined

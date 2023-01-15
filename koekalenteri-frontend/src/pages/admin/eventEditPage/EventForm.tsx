@@ -1,4 +1,4 @@
-import { SyntheticEvent, useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Cancel, Save } from '@mui/icons-material'
 import { LoadingButton } from '@mui/lab'
@@ -88,7 +88,7 @@ export default function EventForm({ event, judges, eventTypes, eventTypeClasses,
     setOpen(newState)
   }, [md, open])
   const getStateLabel = useCallback((o: EventState) => t(`event.states.${o}`), [t])
-  const handleStateChange = useCallback((event: SyntheticEvent<Element, globalThis.Event>, value: NonNullable<EventState>) => handleChange({ state: value || undefined }), [handleChange])
+  const handleStateChange = useCallback((value: NonNullable<EventState>) => handleChange({ state: value || undefined }), [handleChange])
   const handleBasicOpenChange = useCallback((value: boolean) => handleOpenChange('basic', value), [handleOpenChange])
   const handleJudgesOpenChange = useCallback((value: boolean) => handleOpenChange('judges', value), [handleOpenChange])
   const handleEntryOpenChange = useCallback((value: boolean) => handleOpenChange('entry', value), [handleOpenChange])

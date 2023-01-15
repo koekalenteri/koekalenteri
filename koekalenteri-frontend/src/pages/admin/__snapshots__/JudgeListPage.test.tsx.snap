@@ -53,7 +53,7 @@ exports[`JudgeListPage renders 1`] = `
                 class="MuiFormControl-root MuiTextField-root css-1pupl87-MuiFormControl-root-MuiTextField-root"
               >
                 <div
-                  class="MuiInputBase-root MuiInput-root MuiInput-underline MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd css-7zu4ic-MuiInputBase-root-MuiInput-root"
+                  class="MuiInputBase-root MuiInput-root MuiInput-underline MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd css-dlnixt-MuiInputBase-root-MuiInput-root"
                 >
                   <svg
                     aria-hidden="true"

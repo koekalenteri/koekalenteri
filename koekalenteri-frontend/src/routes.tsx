@@ -13,8 +13,9 @@ import UsersPage from './pages/admin/UsersPage'
 import { ErrorPage } from './pages/ErrorPage'
 import { HomePage } from './pages/HomePage'
 import { LoginPage } from './pages/LoginPage'
+import RegistrationCreatePage from './pages/RegistrationCreatePage'
+import RegistrationEditPage from './pages/RegistrationEditPage'
 import { RegistrationListPage } from './pages/RegistrationListPage'
-import { RegistrationPage } from './pages/RegistrationPage'
 import { SearchPage } from './pages/SearchPage'
 import { Path } from './routeConfig'
 
@@ -34,7 +35,7 @@ const routes: RouteObject[] = [
         "event/:eventType/:id",
       ].map<RouteObject>(path => ({
         path,
-        element: <RegistrationPage />,
+        element: <RegistrationCreatePage />,
       })),
       {
         path: "registration/:eventType/:id/:registrationId/cancel",
@@ -42,7 +43,7 @@ const routes: RouteObject[] = [
       },
       {
         path: "registration/:eventType/:id/:registrationId/edit",
-        element: <RegistrationPage />,
+        element: <RegistrationEditPage />,
       },
       {
         path: "registration/:eventType/:id/:registrationId",
@@ -70,15 +71,11 @@ const routes: RouteObject[] = [
         element: <EventCreatePage />,
       },
       {
-        path: `${Path.admin.editEvent}/:id`,
+        path: Path.admin.editEvent(':id'),
         element: <EventEditPage />,
       },
       {
-        path: `${Path.admin.viewEvent}/:id`,
-        element: <EventViewPage />,
-      },
-      {
-        path: `${Path.admin.viewEvent}/:id/:reistrationId`,
+        path: Path.admin.viewEvent(':id'),
         element: <EventViewPage />,
       },
       {

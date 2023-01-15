@@ -9,15 +9,15 @@ Array [
         "index": true,
       },
       Object {
-        "element": <RegistrationPage />,
+        "element": <RegistrationCreatePage />,
         "path": "event/:eventType/:id/:class/:date",
       },
       Object {
-        "element": <RegistrationPage />,
+        "element": <RegistrationCreatePage />,
         "path": "event/:eventType/:id/:class",
       },
       Object {
-        "element": <RegistrationPage />,
+        "element": <RegistrationCreatePage />,
         "path": "event/:eventType/:id",
       },
       Object {
@@ -27,7 +27,7 @@ Array [
         "path": "registration/:eventType/:id/:registrationId/cancel",
       },
       Object {
-        "element": <RegistrationPage />,
+        "element": <RegistrationEditPage />,
         "path": "registration/:eventType/:id/:registrationId/edit",
       },
       Object {
@@ -73,10 +73,6 @@ Array [
       Object {
         "element": <EventViewPage />,
         "path": "/admin/event/view/:id",
-      },
-      Object {
-        "element": <EventViewPage />,
-        "path": "/admin/event/view/:id/:reistrationId",
       },
       Object {
         "element": <OrganizerListPage />,

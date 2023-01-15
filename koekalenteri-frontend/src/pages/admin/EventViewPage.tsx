@@ -112,7 +112,7 @@ export default function EventViewPage() {
       >
         <DialogTitle id="reg-dialog-title">{selectedRegistration ? `${selectedRegistration.dog.name} / ${selectedRegistration.handler.name}` : t('create')}</DialogTitle>
         <DialogContent dividers sx={{height: '100%', p: 0 }}>
-          <RegistrationForm event={event as ConfirmedEvent} registration={selectedRegistration} onSave={onSave} onCancel={onCancel} />
+          {/*<RegistrationForm event={event as ConfirmedEvent} registration={selectedRegistration} onSave={onSave} onCancel={onCancel} />*/}
         </DialogContent>
       </Dialog>
     </>

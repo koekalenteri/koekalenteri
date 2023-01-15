@@ -14,6 +14,7 @@ graph LR
   adminEventIdAtom-->storageEffect
   eventClassAtom-->storageEffect
   editableEventByIdAtom-->storageEffect
+  editableEventByIdAtom-->adminEventSelector
 
   storageEffect[(localStorage)]
   remoteAdminEventsEffect-->getEvents[/getEvents/]-->aws
@@ -22,6 +23,7 @@ graph LR
   adminEventSelector-->adminEventsAtom
 
   currentAdminEventSelector-->editableEventByIdAtom
+  currentAdminEventSelector-->adminEventIdAtom
 
   filteredAdminEventsSelector-->adminEventsAtom
   filteredAdminEventsSelector-->adminEventFilterTextAtom

@@ -1,13 +1,14 @@
+import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Checkbox, FormControlLabel, FormGroup, Grid, Switch, TextField } from '@mui/material'
 import { Registration, RegistrationPerson } from 'koekalenteri-shared/model'
 
-import { useStores } from '../../../stores'
 import CollapsibleSection from '../CollapsibleSection'
-import { emptyPerson } from '../RegistrationForm'
+
+import { useDogCache } from './hooks/useDogCache'
 
 
-type OwnerInfoProps = {
+interface Props {
   reg: Partial<Registration>
   error?: boolean
   helperText?: string
@@ -16,17 +17,14 @@ type OwnerInfoProps = {
   open?: boolean
 }
 
-export function OwnerInfo({reg, error, helperText, onChange, onOpenChange, open}: OwnerInfoProps) {
+export function OwnerInfo({reg, error, helperText, onChange, onOpenChange, open}: Props) {
   const { t } = useTranslation()
-  const { rootStore } = useStores()
+  const [, setCache] = useDogCache(reg.dog?.regNo, 'owner')
 
-  const handleChange = (props: Partial<RegistrationPerson>) => {
-    const owner = { ...emptyPerson, ...reg.owner, ...props }
-    if (reg.dog?.regNo) {
-      rootStore.dogStore.save({ dog: { ...reg.dog }, owner })
-    }
+  const handleChange = useCallback((props: Partial<RegistrationPerson>) => {
+    const owner = setCache(props)
     onChange({ owner })
-  }
+  }, [onChange, setCache])
 
   return (
     <CollapsibleSection title={t('registration.owner')} error={error} helperText={helperText} open={open} onOpenChange={onOpenChange}>
@@ -87,7 +85,7 @@ export function OwnerInfo({reg, error, helperText, onChange, onOpenChange, open}
       <FormGroup>
         <FormControlLabel control={
           <Checkbox
-            checked={reg.owner?.membership}
+            checked={reg.owner?.membership ?? false}
             onChange={e => handleChange({ membership: e.target.checked })}
           />} label={t('registration.ownerIsMember')}
         />
@@ -98,7 +96,6 @@ export function OwnerInfo({reg, error, helperText, onChange, onOpenChange, open}
             checked={reg.ownerHandles}
             onChange={e => onChange({
               ownerHandles: e.target.checked,
-              handler: e.target.checked ? { ...emptyPerson, ...reg.owner } : { ...emptyPerson },
             })}
           />
         } label={t('registration.ownerHandles')} />
