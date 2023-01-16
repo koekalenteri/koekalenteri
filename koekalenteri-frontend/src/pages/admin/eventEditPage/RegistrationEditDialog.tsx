@@ -16,7 +16,6 @@ interface Props {
 }
 
 export default function RegistraionEditDialog({open, onClose}: Props) {
-  const { t } = useTranslation()
   const registrationId = useRecoilValue(adminRegistrationIdAtom) ?? ''
   const [savedRegistration, setSavedRegistration] = useRecoilState(registrationByIdAtom(registrationId))
   const [registration, setRegistration] = useRecoilState(editableRegistrationByIdAtom(registrationId))
