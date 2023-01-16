@@ -26,7 +26,6 @@ export default function RegistrationEditPage() {
   const handleChange = useCallback((newState: Registration) => {
     const diff = getDiff(registration, newState)
     if (diff.length) {
-      console.log(diff, newState.breeder)
       setRegistration(newState)
     }
   }, [registration, setRegistration])
@@ -39,7 +38,7 @@ export default function RegistrationEditPage() {
     setSavedRegistration(saved)
     resetRegistration()
     navigate(-1)
-  }, [actions, event, navigate, registration, resetRegistration])
+  }, [actions, event, navigate, registration, resetRegistration, setSavedRegistration])
 
   const handleCancel = useCallback(async () => {
     resetRegistration()

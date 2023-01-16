@@ -4,6 +4,7 @@ import { useSnackbar } from "notistack"
 
 import { putRegistration } from "../../../api/registration"
 
+
 export function useRegistrationActions() {
   const { t } = useTranslation()
   const { enqueueSnackbar } = useSnackbar()

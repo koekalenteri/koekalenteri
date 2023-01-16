@@ -31,7 +31,6 @@ export default function RegistrationCreatePage() {
 
     const diff = getDiff(registration, newState)
     if (diff.length) {
-      console.log(diff, newState.breeder)
       setRegistration(newState)
     }
   }, [event, registration, setRegistration])
