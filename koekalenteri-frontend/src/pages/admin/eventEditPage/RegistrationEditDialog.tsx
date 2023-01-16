@@ -1,5 +1,4 @@
 import { useCallback, useMemo } from "react"
-import { useTranslation } from "react-i18next"
 import { Dialog, DialogContent, DialogTitle } from "@mui/material"
 import { ConfirmedEvent, Registration } from "koekalenteri-shared/model"
 import { useRecoilState, useRecoilValue, useResetRecoilState } from "recoil"
