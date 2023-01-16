@@ -55,7 +55,27 @@ describe('EventProperty', () => {
       await waitForDebounce()
 
       expect(onChange).toHaveBeenCalledTimes(2)
-      expect(onChange).toHaveBeenLastCalledWith({ modifiedBy: '' })
+      expect(onChange).toHaveBeenLastCalledWith({ modifiedBy: undefined })
+    })
+
+    it('should be clearable with options', async () => {
+      const user = userEvent.setup()
+      const onChange = jest.fn()
+
+      render(<EventProperty id={'eventType'} options={['NOME-A', 'NOME-B', 'NOWT']} event={testEvent} freeSolo onChange={onChange}/>)
+      const input = screen.getByRole('combobox')
+      await user.type(input, 'NOWT')
+      await waitForDebounce()
+
+      expect(onChange).toHaveBeenCalledTimes(1)
+      expect(onChange).toHaveBeenCalledWith({ eventType: 'NOWT' })
+
+      await user.clear(input)
+      await waitForDebounce()
+
+      expect(onChange).toHaveBeenCalledTimes(2)
+      expect(onChange).toHaveBeenLastCalledWith({ eventType: undefined })
+
     })
   })
 

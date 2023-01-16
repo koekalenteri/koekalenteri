@@ -106,7 +106,7 @@ exports[`OfficialListPage renders 1`] = `
           class="MuiDataGrid-main css-204u17-MuiDataGrid-main"
         >
           <div
-            class="MuiDataGrid-columnHeaders css-f3jnds-MuiDataGrid-columnHeaders"
+            class="MuiDataGrid-columnHeaders css-z8fhq1-MuiDataGrid-columnHeaders"
             style="min-height: 39px; max-height: 39px; line-height: 39px;"
           >
             <div

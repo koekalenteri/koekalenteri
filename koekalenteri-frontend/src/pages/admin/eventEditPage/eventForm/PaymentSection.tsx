@@ -17,10 +17,10 @@ export default function PaymentSection({ errorStates, event, fields, onChange, o
       <Grid container spacing={1}>
         <Grid item container spacing={1}>
           <Grid item sx={{width: 200}}>
-            <EventPrice id="cost" event={event} fields={fields} onChange={onChange} />
+            <EventPrice id="cost" options={[30, 35, 40, 45]} event={event} fields={fields} onChange={onChange} />
           </Grid>
           <Grid item sx={{width: 200}}>
-            <EventPrice id="costMember" event={event} fields={fields} onChange={onChange} />
+            <EventPrice id="costMember" options={[30, 35, 40, 45]} event={event} fields={fields} onChange={onChange} />
           </Grid>
         </Grid>
         <Grid item container spacing={1}>
