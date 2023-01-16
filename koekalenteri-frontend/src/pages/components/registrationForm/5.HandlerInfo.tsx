@@ -1,10 +1,11 @@
+import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Checkbox, FormControlLabel, Grid, TextField } from '@mui/material'
 import { Registration, RegistrationPerson } from 'koekalenteri-shared/model'
 
-import { useStores } from '../../../stores'
 import CollapsibleSection from '../CollapsibleSection'
-import { emptyPerson } from '../RegistrationForm'
+
+import { useDogCache } from './hooks/useDogCache'
 
 type HandlerInfoProps = {
   reg: Partial<Registration>
@@ -17,15 +18,12 @@ type HandlerInfoProps = {
 
 export function HandlerInfo({ reg, error, helperText, onChange, onOpenChange, open }: HandlerInfoProps) {
   const { t } = useTranslation()
-  const { rootStore } = useStores()
+  const [, setCache] = useDogCache(reg.dog?.regNo, 'handler')
 
-  const handleChange = (props: Partial<RegistrationPerson>) => {
-    const handler = { ...emptyPerson, ...reg.handler, ...props }
-    if (reg.dog?.regNo) {
-      rootStore.dogStore.save({ dog: { ...reg.dog }, handler })
-    }
+  const handleChange = useCallback((props: Partial<RegistrationPerson>) => {
+    const handler = setCache(props)
     onChange({ handler })
-  }
+  }, [onChange, setCache])
 
   return (
     <CollapsibleSection title={t('registration.handler')} error={error} helperText={helperText} open={open} onOpenChange={onOpenChange}>
@@ -49,9 +47,9 @@ export function HandlerInfo({ reg, error, helperText, onChange, onOpenChange, op
               error={!reg.handler?.location}
               fullWidth
               id="handler_city"
+              label={t('contact.city')}
               name="city"
               onChange={e => handleChange({ location: e.target.value || '' })}
-              label={t('contact.city')}
               value={reg.handler?.location || ''}
             />
           </Grid>
@@ -86,7 +84,7 @@ export function HandlerInfo({ reg, error, helperText, onChange, onOpenChange, op
       <FormControlLabel
         control={
           <Checkbox
-            checked={reg.handler?.membership}
+            checked={reg.handler?.membership ?? false}
             onChange={e => handleChange({ membership: e.target.checked })}
           />
         }

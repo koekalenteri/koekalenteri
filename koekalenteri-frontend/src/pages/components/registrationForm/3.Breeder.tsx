@@ -1,10 +1,11 @@
+import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Grid, TextField } from '@mui/material'
 import { Registration, RegistrationBreeder } from 'koekalenteri-shared/model'
 
-import { useStores } from '../../../stores'
 import CollapsibleSection from '../CollapsibleSection'
-import { emptyBreeder } from '../RegistrationForm'
+
+import { useDogCache } from './hooks/useDogCache'
 
 
 type BreederInfoProps = {
@@ -18,15 +19,12 @@ type BreederInfoProps = {
 
 export function BreederInfo({ reg, error, helperText, onChange, onOpenChange, open }: BreederInfoProps) {
   const { t } = useTranslation()
-  const { rootStore } = useStores()
+  const [, setCache] = useDogCache(reg.dog?.regNo, 'breeder')
 
-  const handleChange = (props: Partial<RegistrationBreeder>) => {
-    const breeder = { ...emptyBreeder, ...reg.breeder, ...props }
-    if (reg.dog?.regNo) {
-      rootStore.dogStore.save({ dog: { ...reg.dog }, breeder })
-    }
+  const handleChange = useCallback((props: Partial<RegistrationBreeder>) => {
+    const breeder = setCache(props)
     onChange({ breeder })
-  }
+  }, [onChange, setCache])
 
   return (
     <CollapsibleSection title={t('registration.breeder')} error={error} helperText={helperText} open={open} onOpenChange={onOpenChange}>
@@ -37,7 +35,7 @@ export function BreederInfo({ reg, error, helperText, onChange, onOpenChange, op
             id="breeder_name"
             sx={{ width: 300 }}
             label="Nimi"
-            value={reg.breeder?.name || ''}
+            value={reg.breeder?.name ?? ''}
             onChange={e => handleChange({ name: e.target.value || '' })}
           />
         </Grid>

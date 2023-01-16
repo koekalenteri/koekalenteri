@@ -71,21 +71,15 @@ graph LR
 ```mermaid
 flowchart LR
   registrationIdAtom
+  registrationByIdAtom-->getRegistration
   newRegistrationAtom-->storageEffect
-  editableRegistrationByIdAtom-->Q{local?}
-  Q--no-->eventIdAtom
-  Q--no-->getRegistration
-  Q--yes-->storageEffect
+  editableRegistrationByIdAtom-->storageEffect
+  editableRegistrationByIdAtom-->registrationSelector
 
   storageEffect[(localStorage)]
 
-  editableRegistrationSelector-->Q1{registrationId?}
-  Q1--yes-->editableRegistrationByIdAtom
-  Q1--no-->newRegistrationAtom
-
-  editableRegistrationModifiedSelector-->Q2{registrationId?}
-  Q2--no-->newRegistrationAtom
-  Q2--yes-->storageEffect
+  registrationSelector-->newRegistrationAtom
+  registrationSelector-->registrationByIdAtom
 
   getRegistration[/getRegistration/]-->aws[(cloud)]
 ```

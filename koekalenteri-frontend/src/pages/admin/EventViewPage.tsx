@@ -1,23 +1,21 @@
-import { useCallback, useMemo, useState } from 'react'
+import { Suspense, useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
 import { AddCircleOutline, DeleteOutline, EditOutlined, EmailOutlined, FormatListBulleted, ShuffleOutlined, TableChartOutlined } from '@mui/icons-material'
-import { Box, Button, Dialog, DialogContent, DialogTitle, Divider, Grid, Stack, Tab, Tabs } from '@mui/material'
-import { ConfirmedEvent, Registration } from 'koekalenteri-shared/model'
+import { Box, Button, Divider, Grid, Stack, Tab, Tabs } from '@mui/material'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
 import { Path } from '../../routeConfig'
 import { uniqueClassDates, uniqueClasses } from '../../utils'
 import CollapsibleSection from '../components/CollapsibleSection'
 import LinkButton from '../components/LinkButton'
-import RegistrationForm from '../components/RegistrationForm'
 
 import FullPageFlex from './components/FullPageFlex'
+import RegistraionEditDialog from './eventEditPage/RegistrationEditDialog'
 import ClassEntrySelection from './eventViewPage/ClassEntrySelection'
 import InfoPanel from './eventViewPage/InfoPanel'
 import TabPanel from './eventViewPage/TabPanel'
 import Title from './eventViewPage/Title'
-import { useAdminRegistrationActions } from './recoil/registrations/actions'
 import { currentAdminRegistrationSelector, editableEventByIdAtom, eventClassAtom } from './recoil'
 
 export default function EventViewPage() {
@@ -29,23 +27,13 @@ export default function EventViewPage() {
   const [selectedEventClass, setSelectedEventClass] = useRecoilState(eventClassAtom)
   const activeTab = useMemo(() => Math.max(eventClasses.findIndex(c => c === selectedEventClass) ?? 0, 0), [eventClasses, selectedEventClass])
   const selectedRegistration = useRecoilValue(currentAdminRegistrationSelector)
-  const actions = useAdminRegistrationActions()
 
   const handleTabChange = useCallback((_: React.SyntheticEvent, newValue: number) => {
     setSelectedEventClass(eventClasses[newValue])
   }, [eventClasses, setSelectedEventClass])
 
-  const onSave = useCallback(async (registration: Registration) => {
-    if (await actions.save(registration)) {
-      setOpen(false)
-      return true
-    }
-    return false
-  }, [actions])
-
-  const onCancel = useCallback(async () => {
+  const handleClose = useCallback(() => {
     setOpen(false)
-    return true
   }, [])
 
   if (!event) {
@@ -91,30 +79,10 @@ export default function EventViewPage() {
             <ClassEntrySelection eventDates={uniqueClassDates(event, eventClass)} setOpen={setOpen} />
           </TabPanel>,
         )}
-
+        <Suspense>
+          <RegistraionEditDialog open={open} onClose={handleClose}/>
+        </Suspense>
       </FullPageFlex>
-      <Dialog
-        fullWidth
-        maxWidth='lg'
-        open={open}
-        onClose={() => setOpen(false)}
-        aria-labelledby="reg-dialog-title"
-        PaperProps={{
-          sx: {
-            m: 1,
-            maxHeight: 'calc(100% - 16px)',
-            width: 'calc(100% - 16px)',
-            '& .MuiDialogTitle-root': {
-              fontSize: '1rem',
-            },
-          },
-        }}
-      >
-        <DialogTitle id="reg-dialog-title">{selectedRegistration ? `${selectedRegistration.dog.name} / ${selectedRegistration.handler.name}` : t('create')}</DialogTitle>
-        <DialogContent dividers sx={{height: '100%', p: 0 }}>
-          <RegistrationForm event={event as ConfirmedEvent} registration={selectedRegistration} onSave={onSave} onCancel={onCancel} />
-        </DialogContent>
-      </Dialog>
     </>
   )
 

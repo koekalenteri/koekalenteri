@@ -9,12 +9,12 @@ export const Path = {
   logout: '/logout',
   admin: {
     root: ADMIN_ROOT,
-    index: `${ADMIN_ROOT}/event`,
+    index: `${ADMIN_EVENTS}`,
 
-    events: `${ADMIN_ROOT}/event`,
+    events: `${ADMIN_EVENTS}`,
     newEvent: `${ADMIN_EVENTS}/create`,
-    editEvent: `${ADMIN_EVENTS}/edit`,
-    viewEvent: `${ADMIN_EVENTS}/view`,
+    editEvent: (id: string = ':id') => `${ADMIN_EVENTS}/edit/${id}`,
+    viewEvent: (id: string = ':id') => `${ADMIN_EVENTS}/view/${id}`,
 
     orgs: `${ADMIN_ROOT}/organizations`,
     users: `${ADMIN_ROOT}/users`,

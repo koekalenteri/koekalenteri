@@ -1,10 +1,11 @@
 import { Registration } from "koekalenteri-shared/model"
 import { atom, atomFamily } from "recoil"
 
-import { getRegistration } from "../../../api/registration"
 import { emptyBreeder, emptyDog, emptyPerson } from "../../components/RegistrationForm"
-import { logEffect, parseStorageJSON, storageEffect } from "../effects"
-import { eventIdAtom } from "../events"
+import { logEffect, storageEffect } from "../effects"
+
+import { remoteRegistrationEffect } from "./effects"
+import { registrationSelector } from "./selectors"
 
 
 export const registrationIdAtom = atom<string | undefined>({
@@ -15,9 +16,6 @@ export const registrationIdAtom = atom<string | undefined>({
   ],
 })
 
-/**
- * new Registration, temporarily stored to local storage
- */
 export const newRegistrationAtom = atom<Registration | undefined>({
   key: 'newRegistration',
   default: {
@@ -46,40 +44,22 @@ export const newRegistrationAtom = atom<Registration | undefined>({
   ],
 })
 
-
-export const registrationStorageKey = (registrationId: string) => `editableRegistration/Id-${registrationId}`
-
-/**
- * Existing registration editing, edits stored to local storage
- */
-export const editableRegistrationByIdAtom = atomFamily<Registration | undefined, string>({
-  key: 'editableRegistration/Id',
+export const registrationByIdAtom = atomFamily<Registration | undefined, string>({
+  key: 'registration/id',
   default: undefined,
-  effects: registrationId => [
-    ({ setSelf, onSet, getPromise }) => {
-      const key = registrationStorageKey(registrationId)
+  effects: [
+    logEffect,
+    storageEffect,
+    remoteRegistrationEffect,
+  ],
+})
 
-      const savedValue = localStorage.getItem(key)
-      if (savedValue !== null) {
-        const parsed = parseStorageJSON(savedValue)
-        setSelf(parsed)
-      } else {
-        getPromise(eventIdAtom).then(eventId => {
-          if (eventId) {
-            getRegistration(eventId, registrationId).then(setSelf)
-          }
-        })
-      }
-
-      onSet(async (newValue, _, isReset) => {
-        if (isReset || newValue === null || newValue === undefined) {
-          localStorage.removeItem(key)
-          setSelf(undefined)
-        } else {
-          localStorage.setItem(key, JSON.stringify(newValue))
-        }
-      })
-    },
+export const editableRegistrationByIdAtom = atomFamily<Registration | undefined, string | undefined>({
+  key: 'editableRegistration/Id',
+  default: registrationSelector,
+  effects: [
+    logEffect,
+    storageEffect,
   ],
 })
 

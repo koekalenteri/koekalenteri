@@ -2,7 +2,7 @@ import { Dispatch, SetStateAction, useCallback, useMemo } from 'react'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { Box, Typography } from '@mui/material'
-import { GridSelectionModel } from '@mui/x-data-grid'
+import { GridCallbackDetails, GridSelectionModel } from '@mui/x-data-grid'
 import { Registration, RegistrationDate, RegistrationGroup } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
@@ -58,10 +58,13 @@ const ClassEntrySelection = ({ eventDates = [], setOpen }: Props) => {
     }
   }
 
-  const handleSelectionModeChange = useCallback((selection: GridSelectionModel) => {
+  const handleSelectionModeChange = useCallback((selection: GridSelectionModel, details: GridCallbackDetails) => {
     const value = typeof selection[0] === 'string' ? selection[0] : undefined
-    setSelectedRegistrationID(value)
-  }, [setSelectedRegistrationID])
+    if (value) {
+      const reg = registrations.find(r => r.id === value)
+      setSelectedRegistrationID(reg?.id)
+    }
+  }, [registrations, setSelectedRegistrationID])
 
   const handleDoubleClick = useCallback(() => setOpen?.(true), [setOpen])
 

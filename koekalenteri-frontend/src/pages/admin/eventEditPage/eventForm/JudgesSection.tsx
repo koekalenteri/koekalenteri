@@ -57,7 +57,7 @@ export default function JudgesSection({ event, judges, fields, onChange, onOpenC
                   helperText={!!id && !value ? `Tuomari ${id} ei ole käytettävissä` : ''}
                   getOptionLabel={o => o?.name || ''}
                   options={filterJudges(judges, event.judges, id, event.eventType)}
-                  onChange={(_e, value) => {
+                  onChange={(value) => {
                     const newId = value?.id
                     const newJudges = [...event.judges]
                     const oldId = newJudges.splice(index, 1)[0]

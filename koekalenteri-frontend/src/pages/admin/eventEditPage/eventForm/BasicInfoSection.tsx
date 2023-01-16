@@ -83,6 +83,7 @@ export default function BasicInfoSection({ event, errorStates, helperTexts, fiel
               event={event}
               fields={fields}
               options={[]}
+              getOptionLabel={o => o === undefined ? '' : `${o}`}
               onChange={onChange}
               helpClick={openHelp}
             />
