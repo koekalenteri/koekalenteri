@@ -27,7 +27,7 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
           style="height: -39px; width: 0px; position: absolute; top: 39px;"
         />
         <div
-          class="MuiDataGrid-columnHeaders css-f3jnds-MuiDataGrid-columnHeaders"
+          class="MuiDataGrid-columnHeaders css-z8fhq1-MuiDataGrid-columnHeaders"
           style="min-height: 39px; max-height: 39px; line-height: 39px;"
         >
           <div
@@ -765,7 +765,7 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
           </div>
         </div>
         <div
-          class="MuiDataGrid-columnHeaders css-f3jnds-MuiDataGrid-columnHeaders"
+          class="MuiDataGrid-columnHeaders css-z8fhq1-MuiDataGrid-columnHeaders"
           style="min-height: 39px; max-height: 39px; line-height: 39px;"
         >
           <div
@@ -1495,7 +1495,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
           style="height: -39px; width: 0px; position: absolute; top: 39px;"
         />
         <div
-          class="MuiDataGrid-columnHeaders css-f3jnds-MuiDataGrid-columnHeaders"
+          class="MuiDataGrid-columnHeaders css-z8fhq1-MuiDataGrid-columnHeaders"
           style="min-height: 39px; max-height: 39px; line-height: 39px;"
         >
           <div
@@ -2244,7 +2244,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
           </div>
         </div>
         <div
-          class="MuiDataGrid-columnHeaders css-f3jnds-MuiDataGrid-columnHeaders"
+          class="MuiDataGrid-columnHeaders css-z8fhq1-MuiDataGrid-columnHeaders"
           style="min-height: 0; max-height: 0; line-height: 0px;"
         >
           <div
@@ -2993,7 +2993,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
           </div>
         </div>
         <div
-          class="MuiDataGrid-columnHeaders css-f3jnds-MuiDataGrid-columnHeaders"
+          class="MuiDataGrid-columnHeaders css-z8fhq1-MuiDataGrid-columnHeaders"
           style="min-height: 0; max-height: 0; line-height: 0px;"
         >
           <div
@@ -3731,7 +3731,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
           </div>
         </div>
         <div
-          class="MuiDataGrid-columnHeaders css-f3jnds-MuiDataGrid-columnHeaders"
+          class="MuiDataGrid-columnHeaders css-z8fhq1-MuiDataGrid-columnHeaders"
           style="min-height: 39px; max-height: 39px; line-height: 39px;"
         >
           <div
@@ -4461,7 +4461,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
           style="height: -39px; width: 0px; position: absolute; top: 39px;"
         />
         <div
-          class="MuiDataGrid-columnHeaders css-f3jnds-MuiDataGrid-columnHeaders"
+          class="MuiDataGrid-columnHeaders css-z8fhq1-MuiDataGrid-columnHeaders"
           style="min-height: 39px; max-height: 39px; line-height: 39px;"
         >
           <div
@@ -5210,7 +5210,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
           </div>
         </div>
         <div
-          class="MuiDataGrid-columnHeaders css-f3jnds-MuiDataGrid-columnHeaders"
+          class="MuiDataGrid-columnHeaders css-z8fhq1-MuiDataGrid-columnHeaders"
           style="min-height: 0; max-height: 0; line-height: 0px;"
         >
           <div
@@ -5959,7 +5959,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
           </div>
         </div>
         <div
-          class="MuiDataGrid-columnHeaders css-f3jnds-MuiDataGrid-columnHeaders"
+          class="MuiDataGrid-columnHeaders css-z8fhq1-MuiDataGrid-columnHeaders"
           style="min-height: 0; max-height: 0; line-height: 0px;"
         >
           <div
@@ -6697,7 +6697,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
           </div>
         </div>
         <div
-          class="MuiDataGrid-columnHeaders css-f3jnds-MuiDataGrid-columnHeaders"
+          class="MuiDataGrid-columnHeaders css-z8fhq1-MuiDataGrid-columnHeaders"
           style="min-height: 39px; max-height: 39px; line-height: 39px;"
         >
           <div
@@ -7427,7 +7427,7 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
           style="height: -39px; width: 0px; position: absolute; top: 39px;"
         />
         <div
-          class="MuiDataGrid-columnHeaders css-f3jnds-MuiDataGrid-columnHeaders"
+          class="MuiDataGrid-columnHeaders css-z8fhq1-MuiDataGrid-columnHeaders"
           style="min-height: 39px; max-height: 39px; line-height: 39px;"
         >
           <div
@@ -8165,7 +8165,7 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
           </div>
         </div>
         <div
-          class="MuiDataGrid-columnHeaders css-f3jnds-MuiDataGrid-columnHeaders"
+          class="MuiDataGrid-columnHeaders css-z8fhq1-MuiDataGrid-columnHeaders"
           style="min-height: 39px; max-height: 39px; line-height: 39px;"
         >
           <div
