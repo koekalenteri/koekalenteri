@@ -31,8 +31,10 @@ export interface JsonEvent extends JsonDbRecord {
 }
 
 export type EventRequiredDates = 'startDate' | 'endDate'
-export type EventOptionalDates = 'entryStartDate' | 'entryEndDate' | 'entryOrigEndDate'
+export type EventEntryDates = 'entryStartDate' | 'entryEndDate'
+export type EventOptionalDates = EventEntryDates | 'entryOrigEndDate'
 export type EventDates =  EventRequiredDates | EventOptionalDates
+export type ConfirmedEventRequiredDates = EventRequiredDates | EventEntryDates
 export type Event = DbRecord &
   Replace<
     Replace<
@@ -81,7 +83,7 @@ export type ShowContactInfo = {
   phone: boolean
 }
 
-export type ConfirmedEvent = Replace<Event, EventDates, Date> & {
+export type ConfirmedEvent = Replace<Event, ConfirmedEventRequiredDates, Date> & {
   state: 'confirmed'
 }
 

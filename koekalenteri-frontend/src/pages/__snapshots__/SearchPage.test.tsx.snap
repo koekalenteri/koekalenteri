@@ -1250,13 +1250,11 @@ exports[`SearchPage filters by date 1`] = `
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-1rl1j2j-MuiGrid-root"
                   >
-                    type1
+                    NOU
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-1rl1j2j-MuiGrid-root"
-                  >
-                    class1
-                  </div>
+                  />
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-5 css-1ek8k2z-MuiGrid-root"
                   >
@@ -2040,13 +2038,11 @@ exports[`SearchPage filters by date/end 1`] = `
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-1rl1j2j-MuiGrid-root"
                   >
-                    type1
+                    NOU
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-1rl1j2j-MuiGrid-root"
-                  >
-                    class1
-                  </div>
+                  />
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-5 css-1ek8k2z-MuiGrid-root"
                   >
@@ -9388,13 +9384,11 @@ exports[`SearchPage renders 1`] = `
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-1rl1j2j-MuiGrid-root"
                   >
-                    type1
+                    NOU
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-1rl1j2j-MuiGrid-root"
-                  >
-                    class1
-                  </div>
+                  />
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-5 css-1ek8k2z-MuiGrid-root"
                   >
