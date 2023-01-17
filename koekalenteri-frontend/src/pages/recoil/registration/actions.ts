@@ -11,6 +11,9 @@ export function useRegistrationActions() {
 
   return {
     save: async (reg: Registration) => {
+      if (reg.ownerHandles) {
+        reg.handler = {...reg.owner}
+      }
       const saved = await putRegistration(reg)
       const emails = [saved.handler.email]
       if (saved.owner.email !== saved.handler.email) {

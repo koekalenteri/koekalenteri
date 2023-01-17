@@ -8,9 +8,14 @@ import { currentEventRegistrationsSelector } from "./selectors"
 export const useAdminRegistrationActions = () => {
   const [adminRegistrations, setAdminRegistrations] = useRecoilState(currentEventRegistrationsSelector)
   return {
-    async save(registration: Registration) {
+    async save(reg: Registration) {
       const regs = [...adminRegistrations]
-      const saved = await putRegistration(registration)
+
+      if (reg.ownerHandles) {
+        reg.handler = {...reg.owner}
+      }
+      const saved = await putRegistration(reg)
+
       const index = regs.findIndex(r => r.id === saved.id)
       const insert = index === -1
       regs.splice(insert ? regs.length : index, insert ? 0 : 1, saved)

@@ -20,7 +20,7 @@ const VALIDATORS: Validators2<Registration, 'registration', ConfirmedEvent> = {
   class: (reg, _req, evt) => evt.classes.length > 0 && !reg.class,
   dates: (reg) => reg.dates.length === 0,
   dog: (reg, _req, evt) => validateDog(evt, reg),
-  handler: (reg) => validatePerson(reg.handler) ? 'required' : false,
+  handler: (reg) => !reg.ownerHandles && validatePerson(reg.handler) ? 'required' : false,
   id: () => false,
   notes: () => false,
   owner: (reg) => validatePerson(reg.owner) ? 'required' : false,
