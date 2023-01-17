@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Cancel, Save } from '@mui/icons-material'
 import { Box, Button, Checkbox, Collapse, FormControl, FormControlLabel, FormHelperText, Link, Paper, Stack, Theme, useMediaQuery } from '@mui/material'
 import { TFunction } from 'i18next'
-import { ConfirmedEvent, DeepPartial, Registration } from 'koekalenteri-shared/model'
+import { ConfirmedEvent, DeepPartial, Registration, TestResult } from 'koekalenteri-shared/model'
 import { applyDiff, getDiff } from 'recursive-diff'
 
 import { EntryInfo } from './registrationForm/1.Entry'
@@ -50,22 +50,28 @@ export default function RegistrationForm({ event, className, registration, class
   //const eventTypeClasses = useRecoilValue(eventTypeClassesAtom)
   //const eventHasClasses = useMemo(() => eventTypeClasses[event.eventType]?.length > 0, [event.eventType, eventTypeClasses])
   const large = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
-  const relevantResults = useMemo(() => filterRelevantResults(event, registration.class as RegistrationClass, registration.dog?.results ?? []), [event, registration.class, registration.dog.results])
+  const relevantResults = useMemo(() => filterRelevantResults(event, registration.class as RegistrationClass, registration.dog?.results ?? [], registration.results),
+    [event, registration.class, registration.dog?.results, registration.results])
   const qualifies = relevantResults.qualifies
   const [errors, setErrors] = useState(validateRegistration(registration, event))
   const [open, setOpen] = useState<{ [key: string]: boolean | undefined }>({})
   const valid = errors.length === 0
 
   const handleChange = useCallback((props: DeepPartial<Registration>) => {
-    const diff = getDiff({}, {...props, qualifyingResults: relevantResults.relevant})
+    if (props.class || props.results || props.dog?.results) {
+      const cls = props.class ?? registration.class
+      const dogResults = props.dog?.results ?? registration.dog.results ?? []
+      const results = props.results ?? registration.results ?? []
+      props.qualifyingResults = filterRelevantResults(event, cls as RegistrationClass, dogResults as TestResult[], results).relevant
+    }
+    const diff = getDiff({}, props)
     if (diff.length) {
       const newState = applyDiff(structuredClone(registration), diff) as Registration
       console.log('change', {changes: props, diff})
       setErrors(validateRegistration(newState, event))
       onChange?.(newState)
     }
-  }, [event, onChange, registration, relevantResults])
-
+  }, [event, onChange, registration])
 
   /*
   const onChange = (props: Partial<Registration>) => {
@@ -79,24 +85,12 @@ export default function RegistrationForm({ event, className, registration, class
         props.dates = registration.dates.filter(rd => available.find(a => a.date.valueOf() === rd.date.valueOf() && a.time === rd.time))
       }
     }
-    if (props.class || props.dog || props.results) {
-      const c = props.class || registration.class
-      const dog = props.dog || registration.dog
-      const filtered = filterRelevantResults(event, c as RegistrationClass, dog.results, props.results || registration.results)
-      setQualifies((!dog.regNo || (eventHasClasses && !c)) ? null : filtered.qualifies)
-      props.qualifyingResults = filtered.relevant
-    }
     if (props.ownerHandles || (props.owner && registration.ownerHandles)) {
       props.handler = { ...registration.owner, ...props.owner }
     }
     if (props.ownerHandles) {
       setOpen({ ...open, handler: true })
     }
-    const newState = { ...local, ...props }
-    setErrors(validateRegistration(newState, event))
-    setLocal(newState)
-    setChanges(true)
-    setSaving(false)
   }
   */
 
