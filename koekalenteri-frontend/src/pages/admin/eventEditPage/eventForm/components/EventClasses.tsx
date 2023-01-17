@@ -5,11 +5,9 @@ import { Autocomplete, AutocompleteChangeReason, Avatar, Checkbox, Chip, TextFie
 import { isSameDay } from "date-fns"
 import { DeepPartial, Event, EventClass, EventState } from "koekalenteri-shared/model"
 
-import { PartialEvent } from "../../EventForm"
-
 interface Props {
   id: string
-  event: PartialEvent
+  eventStartDate: Date
   value: DeepPartial<EventClass>[] | undefined
   classes: DeepPartial<EventClass>[]
   label: string
@@ -17,7 +15,8 @@ interface Props {
   requiredState?: EventState
   errorStates?: { [Property in keyof Event]?: boolean }
   helperTexts?: { [Property in keyof Event]?: string }
-  onChange: (event: SyntheticEvent, value: DeepPartial<EventClass>[], reason: AutocompleteChangeReason) => void
+  showCount?: boolean
+  onChange?: (event: SyntheticEvent, value: DeepPartial<EventClass>[], reason: AutocompleteChangeReason) => void
 }
 
 export const compareEventClass = (a: DeepPartial<EventClass>, b: DeepPartial<EventClass>) =>
@@ -27,7 +26,7 @@ export const compareEventClass = (a: DeepPartial<EventClass>, b: DeepPartial<Eve
 
 export default function EventClasses(props: Props) {
   const { t } = useTranslation()
-  const { classes, label, event, required, requiredState, errorStates, helperTexts, value, ...rest } = props
+  const { classes, label, eventStartDate, required, requiredState, errorStates, helperTexts, value, showCount, ...rest } = props
   const error = errorStates?.classes
   const helperText = helperTexts?.classes || ''
   const sortedValue = useMemo(() => value?.slice().sort(compareEventClass), [value])
@@ -67,16 +66,16 @@ export default function EventClasses(props: Props) {
             <Avatar
               sx={{
                 fontWeight: 'bold',
-                bgcolor: isSameDay(option.date || event.startDate, event.startDate) ? 'secondary.light' : 'secondary.dark',
+                bgcolor: isSameDay(option.date || eventStartDate, eventStartDate) ? 'secondary.light' : 'secondary.dark',
               }}
             >
               {t('weekday', { date: option.date })}
             </Avatar>
           }
-          label={option.class}
+          label={(option.class ?? '') + (showCount && Array.isArray(option.judge) && option.judge.length > 1 ? ` x${option.judge.length}` : '')}
           onDelete={undefined}
           size="small"
-          sx={{bgcolor: option.judge?.id ? 'background.ok' : 'transparent'}}
+          sx={{bgcolor: (Array.isArray(option.judge) ? option.judge.length : option.judge?.id) ? 'background.ok' : 'transparent'}}
           variant={option.judge ? "filled" : "outlined"}
         />
       ))}

@@ -66,7 +66,7 @@ const VALIDATORS: Validators<PartialEvent, 'event'> = {
     }
     const list: string[] = []
     for (const c of classes) {
-      if (!c.judge?.id) {
+      if (Array.isArray(c.judge) ? !c.judge.length : !c.judge?.id) {
         list.push(c.class)
       }
     }
