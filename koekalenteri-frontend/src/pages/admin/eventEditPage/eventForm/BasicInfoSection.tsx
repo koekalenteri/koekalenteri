@@ -104,7 +104,7 @@ export default function BasicInfoSection({ event, errorStates, helperTexts, fiel
           <Grid item sx={{ width: 600 }}>
             <EventClasses
               id="class"
-              event={event}
+              eventStartDate={event.startDate}
               required={fields?.required.classes}
               errorStates={errorStates}
               helperTexts={helperTexts}
@@ -112,6 +112,7 @@ export default function BasicInfoSection({ event, errorStates, helperTexts, fiel
               value={event.classes}
               classes={typeOptions}
               label={t("event.classes")}
+              showCount
               onChange={handleClassesChange}
             />
           </Grid>

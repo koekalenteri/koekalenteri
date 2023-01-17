@@ -50,13 +50,15 @@ export type Event = DbRecord &
     Array<EventClass>
   >
 
+export type ClassJudge = {
+  id: number
+  name: string
+}
+
 export type JsonEventClass = {
   class: string
   date?: string
-  judge?: {
-    id: number,
-    name: string
-  },
+  judge?: ClassJudge | ClassJudge[],
   places?: number
   entries?: number
   members?: number

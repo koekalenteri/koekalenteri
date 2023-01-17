@@ -16,7 +16,7 @@ export const EventInfo = ({ event }: { event: Event }) => {
   const status = useEventStatus(event)
 
   const judgeName = (id: number) => judgeActions.find(id)?.name ?? ''
-  const haveJudgesWithoutAssignedClass = event.judges.filter(j => !event.classes.find(c => c.judge?.id === j)).length > 0
+  const haveJudgesWithoutAssignedClass = event.judges.filter(j => !event.classes.find(c => Array.isArray(c.judge) ? c.judge.find(cj => cj.id === j) : c.judge?.id === j)).length > 0
 
   return (
     <>
@@ -122,11 +122,12 @@ const EventClassTableRow = ({ event, eventClass }: { event: Event, eventClass: E
   const classDate = format(eventClass.date || event.startDate || new Date(), t('dateformatS'))
   const entryStatus = eventClass.places || eventClass.entries ? `${eventClass.entries || 0} / ${eventClass.places || '-'}` : ''
   const memberStatus = eventClass.members ? t('members', {count: eventClass.members}) : ''
+  const judgeNames = Array.isArray(eventClass.judge) ? eventClass.judge.map(j => j.name).join(', ') : eventClass.judge?.name
   return (
     <TableRow>
       <TableCell component="th" scope="row">{t('dateshort', { date: eventClass.date })}</TableCell>
       <TableCell component="th" scope="row">{eventClass.class}</TableCell>
-      <TableCell component="th" scope="row">{eventClass.judge?.name}</TableCell>
+      <TableCell component="th" scope="row">{judgeNames}</TableCell>
       <TableCell component="th" scope="row" align="right" sx={{fontWeight: 'bold'}}>{entryStatus}</TableCell>
       <TableCell component="th" scope="row" align="right" sx={{fontWeight: 'bold'}}>{memberStatus}</TableCell>
       <TableCell component="th" scope="row">
