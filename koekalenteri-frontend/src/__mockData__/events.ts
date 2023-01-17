@@ -1,14 +1,15 @@
 import { addDays, parseISO, startOfDay } from "date-fns"
+import { ConfirmedEvent } from "koekalenteri-shared/model"
 
 import { emptyEvent } from "../api/test-utils/emptyEvent"
 
 const today = startOfDay(new Date())
 
-export const eventWithStaticDates = {
+export const eventWithStaticDates: ConfirmedEvent = {
   ...emptyEvent,
   id: 'test1',
-  eventType: 'type1',
-  classes: [{ class: 'class1' }],
+  eventType: 'NOU',
+  classes: [],
   startDate: parseISO('2021-02-10'),
   endDate: parseISO('2021-02-11'),
   entryStartDate: parseISO('2021-02-01'),
@@ -16,6 +17,20 @@ export const eventWithStaticDates = {
   judges: [123],
   location: 'test location',
 }
+
+export const eventWithStaticDatesAndClass: ConfirmedEvent = {
+  ...emptyEvent,
+  id: 'test1',
+  eventType: 'NOME-B',
+  classes: [{ class: 'ALO' }],
+  startDate: parseISO('2021-02-10'),
+  endDate: parseISO('2021-02-11'),
+  entryStartDate: parseISO('2021-02-01'),
+  entryEndDate: parseISO('2021-02-07'),
+  judges: [123],
+  location: 'test location',
+}
+
 
 export const eventWithEntryOpen = {
   ...emptyEvent,

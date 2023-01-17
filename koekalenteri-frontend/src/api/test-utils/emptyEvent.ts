@@ -1,6 +1,6 @@
-import type { Event } from 'koekalenteri-shared/model'
+import type { ConfirmedEvent } from 'koekalenteri-shared/model'
 
-export const emptyEvent: Event = {
+export const emptyEvent: ConfirmedEvent = {
   accountNumber: 'test',
   allowHandlerMembershipPriority: true,
   allowOwnerMembershipPriority: true,
@@ -46,5 +46,5 @@ export const emptyEvent: Event = {
   places: 10,
   referenceNumber: 'test',
   startDate: new Date('1990-01-01'),
-  state: 'confirmed',
+  state: 'confirmed' as const,
 }

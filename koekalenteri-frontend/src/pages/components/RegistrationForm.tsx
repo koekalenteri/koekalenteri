@@ -50,7 +50,7 @@ export default function RegistrationForm({ event, className, registration, class
   //const eventTypeClasses = useRecoilValue(eventTypeClassesAtom)
   //const eventHasClasses = useMemo(() => eventTypeClasses[event.eventType]?.length > 0, [event.eventType, eventTypeClasses])
   const large = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
-  const relevantResults = useMemo(() => filterRelevantResults(event, registration.class as RegistrationClass, registration.dog.results), [event, registration.class, registration.dog.results])
+  const relevantResults = useMemo(() => filterRelevantResults(event, registration.class as RegistrationClass, registration.dog?.results ?? []), [event, registration.class, registration.dog.results])
   const qualifies = relevantResults.qualifies
   const [errors, setErrors] = useState(validateRegistration(registration, event))
   const [open, setOpen] = useState<{ [key: string]: boolean | undefined }>({})
@@ -221,9 +221,9 @@ export default function RegistrationForm({ event, className, registration, class
           <FormControl error={errorStates.agreeToTerms} disabled={!!registration.id}>
             <FormControlLabel control={<Checkbox checked={registration.agreeToTerms} onChange={e => handleChange({ agreeToTerms: e.target.checked })} />} label={
               <>
-                <span>{t('registration.terms.read')}</span>&nbsp
+                <span>{t('registration.terms.read')}</span>&nbsp;
                 <Link target="_blank" rel="noopener" href={t('registration.terms.url')}>{t('registration.terms.terms')}</Link>
-                &nbsp<span>{t('registration.terms.agree')}</span>
+                &nbsp;<span>{t('registration.terms.agree')}</span>
               </>
             } />
           </FormControl>
