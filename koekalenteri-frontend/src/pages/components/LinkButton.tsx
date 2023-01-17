@@ -10,9 +10,14 @@ interface Props {
 }
 
 export default function LinkButton({ to, text, onClick, sx = {} }: Props) {
+  const handleClick: MouseEventHandler<HTMLAnchorElement> = (e) => {
+    e.stopPropagation()
+    onClick?.(e)
+  }
   sx.padding = '0 8px !important'
+
   return (
-    <Button size="small" color="info" sx={sx} component={onClick ? Button : Link} to={to} onClick={onClick}>{text}</Button>
+    <Button size="small" color="info" sx={sx} component={Link} to={to} onClick={handleClick}>{text}</Button>
   )
 }
 

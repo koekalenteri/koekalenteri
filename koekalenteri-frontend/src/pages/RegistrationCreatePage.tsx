@@ -50,7 +50,7 @@ export default function RegistrationCreatePage() {
     return true
   }, [navigate, resetRegistration])
 
-  const handleClick = useCallback(() => spa ? () => navigate(-1) : undefined, [spa, navigate])
+  const handleClick = useCallback(() => spa ? navigate(-1) : undefined, [spa, navigate])
 
   if (!event || !registration) {
     throw new Error('Event not found!')
@@ -58,7 +58,7 @@ export default function RegistrationCreatePage() {
 
   return (
     <>
-      <LinkButton sx={{ mb: 1 }} to="/" onClick={handleClick} text={spa ? t('goBack') : t('goHome')} />
+      <LinkButton sx={{ mb: 1 }} to="/" onClick={handleClick} text={spa ? t('goBackToSearch') : t('goHome')} />
       <RegistrationEventInfo event={event} />
       <RegistrationForm
         changes
