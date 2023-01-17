@@ -115,7 +115,7 @@ function validateDogBreed(event: {eventType: string}, dog: {breedCode?: BreedCod
   }
 }
 
-type RelevantResults = { relevant: QualifyingResult[], qualifies: boolean };
+export type RelevantResults = { relevant: QualifyingResult[], qualifies: boolean };
 
 const byDate = (a: TestResult, b: TestResult) => new Date(a.date).valueOf() - new Date(b.date).valueOf()
 export function filterRelevantResults(
