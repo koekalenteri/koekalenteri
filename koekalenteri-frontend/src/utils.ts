@@ -20,7 +20,7 @@ export const isEventOver = ({ startDate }: EventDates, now = new Date()) => !!st
 
 export const eventDates = (event: Event) => event.classes.length ? uniqueDate(event.classes.map(c => c.date ?? event.startDate)) : eachDayOfInterval({ start: event.startDate, end: event.endDate })
 export const uniqueClasses = (event?: Event) => unique((event?.classes ?? []).map(c => c.class))
-export const uniqueClassDates = (event: Event, cls: string) => uniqueDate(event.classes.filter(c => c.class === cls).map(c => c.date ?? event.startDate))
+export const uniqueClassDates = (event: Event, cls: string) => cls === event.eventType ? eventDates(event) : uniqueDate(event.classes.filter(c => c.class === cls).map(c => c.date ?? event.startDate))
 export const registrationDates = (event: Event, cls?: string) => (cls ? uniqueClassDates(event, cls) : eventDates(event)).flatMap<RegistrationDate>(date => [{ date, time: 'ap' }, { date, time: 'ip' }])
 
 export function entryDateColor(event: Event) {
