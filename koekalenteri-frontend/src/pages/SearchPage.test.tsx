@@ -42,7 +42,7 @@ describe('SearchPage', () => {
   it('renders', async () => {
     const { container } = renderPage('', locales.fi)
     await flushPromisesAndTimers()
-    expect(screen.getAllByRole('row').length).toEqual(5)
+    expect(screen.getAllByRole('row').length).toEqual(6)
     expect(container).toMatchSnapshot()
   })
 
@@ -58,7 +58,7 @@ describe('SearchPage', () => {
     const { container } = renderPage('/?e=2021-03-01', locales.fi)
     await flushPromisesAndTimers()
     expect(screen.getByRole('textbox', {name: 'daterangeEnd'})).toHaveValue('01.03.2021')
-    expect(screen.getAllByRole('row').length).toEqual(2)
+    expect(screen.getAllByRole('row').length).toEqual(3)
     expect(container).toMatchSnapshot()
   })
 
@@ -67,7 +67,7 @@ describe('SearchPage', () => {
     await flushPromisesAndTimers()
     expect(screen.getByRole('textbox', {name: 'daterangeStart'})).toHaveValue('01.01.2021')
     expect(screen.getByRole('textbox', {name: 'daterangeEnd'})).toHaveValue('01.03.2021')
-    expect(screen.getAllByRole('row').length).toEqual(2)
+    expect(screen.getAllByRole('row').length).toEqual(3)
     expect(container).toMatchSnapshot()
   })
 
@@ -84,7 +84,7 @@ describe('SearchPage', () => {
     const { container } = renderPage('/?t=NOME-B', locales.fi)
     await flushPromisesAndTimers()
     expect(screen.getByRole('button', {name: 'NOME-B'})).toBeInTheDocument()
-    expect(screen.getAllByRole('row').length).toEqual(1)
+    expect(screen.getAllByRole('row').length).toEqual(2)
     expect(container).toMatchSnapshot()
   })
 

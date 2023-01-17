@@ -1,4 +1,4 @@
-import { Suspense, useCallback, useMemo, useState } from 'react'
+import { Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
 import { AddCircleOutline, DeleteOutline, EditOutlined, EmailOutlined, FormatListBulleted, ShuffleOutlined, TableChartOutlined } from '@mui/icons-material'
@@ -23,7 +23,13 @@ export default function EventViewPage() {
   const [open, setOpen] = useState(false)
   const params = useParams()
   const event = useRecoilValue(editableEventByIdAtom(params.id ?? ''))
-  const eventClasses = useMemo(() => uniqueClasses(event), [event])
+  const eventClasses = useMemo(() => {
+    const classes = uniqueClasses(event)
+    if (event && !classes.length) {
+      return [event.eventType]
+    }
+    return classes
+  }, [event])
   const [selectedEventClass, setSelectedEventClass] = useRecoilState(eventClassAtom)
   const activeTab = useMemo(() => Math.max(eventClasses.findIndex(c => c === selectedEventClass) ?? 0, 0), [eventClasses, selectedEventClass])
   const selectedRegistration = useRecoilValue(currentAdminRegistrationSelector)
@@ -35,6 +41,12 @@ export default function EventViewPage() {
   const handleClose = useCallback(() => {
     setOpen(false)
   }, [])
+
+  useEffect(() => {
+    if (selectedEventClass && !eventClasses.includes(selectedEventClass)) {
+      setSelectedEventClass(eventClasses[0])
+    }
+  }, [eventClasses, selectedEventClass, setSelectedEventClass])
 
   if (!event) {
     return <>duh</>
@@ -74,11 +86,12 @@ export default function EventViewPage() {
           </Tabs>
         </Box>
 
-        {uniqueClasses(event).map((eventClass, index) =>
+        {eventClasses.map((eventClass, index) =>
           <TabPanel key={`tabPanel-${eventClass}`} index={index} activeTab={activeTab}>
             <ClassEntrySelection eventDates={uniqueClassDates(event, eventClass)} setOpen={setOpen} />
           </TabPanel>,
         )}
+
         <Suspense>
           <RegistraionEditDialog open={open} onClose={handleClose}/>
         </Suspense>

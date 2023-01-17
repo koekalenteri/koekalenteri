@@ -1,11 +1,12 @@
 import { parseISO } from 'date-fns'
 import { Event } from 'koekalenteri-shared/model'
 
-import { eventWithEntryClosing, eventWithEntryNotYetOpen, eventWithEntryOpen, eventWithStaticDates } from '../../__mockData__/events'
+import { eventWithEntryClosing, eventWithEntryNotYetOpen, eventWithEntryOpen, eventWithStaticDates, eventWithStaticDatesAndClass } from '../../__mockData__/events'
 import { emptyEvent } from '../test-utils/emptyEvent'
 
 export const mockEvents: Event[] = [
   eventWithStaticDates,
+  eventWithStaticDatesAndClass,
   {
     ...emptyEvent,
     id: 'test2',

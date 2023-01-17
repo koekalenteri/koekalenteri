@@ -28,7 +28,7 @@ export const currentEventClassRegistrationsSelector = selector<RegistrationWithM
   get: ({ get, getCallback }) => {
     const eventClass = get(eventClassAtom)
     const registrations = get(currentEventRegistrationsSelector)
-    return registrations.filter(r => r.class === eventClass).map(r => ({
+    return registrations.filter(r => r.class === eventClass || r.eventType === eventClass).map(r => ({
       ...r,
       setGroup: getCallback(({ set }) => async (group?: RegistrationGroup) => {
         const newList = [...registrations]

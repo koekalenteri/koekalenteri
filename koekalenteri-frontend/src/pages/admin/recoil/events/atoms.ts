@@ -66,7 +66,10 @@ export const eventClassAtom = atom<string | undefined>({
   key: 'eventClass',
   default: selector({
     key: 'eventClass/default',
-    get: ({ get }) => uniqueClasses(get(currentAdminEventSelector))[0],
+    get: ({ get }) => {
+      const event = get(currentAdminEventSelector)
+      return uniqueClasses(event)[0] ?? event?.eventType
+    },
   }),
   effects: [
     logEffect,
