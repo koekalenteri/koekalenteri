@@ -4,8 +4,10 @@ export const useTranslation = () => {
   return {
     t: (str: string) => {
       switch(str) {
-        case 'dateformat': return 'dd.MM.yyyy'
-        case 'dateformatS': return 'dd.MM.'
+        case 'dateFormat.long': return 'dd.MM.yyyy'
+        case 'dateFormat.short': return 'dd.MM.'
+        case 'dateFormat.wdshort': return 'wd d.M.'
+        case 'dateFormat.weekday': return 'weekday'
         case 'datemask': return "__.__.____"
         default: return str
       }

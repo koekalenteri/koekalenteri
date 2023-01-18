@@ -51,7 +51,7 @@ export default function DateRange({ start, end, startLabel, endLabel, defaultSta
           label={startLabel}
           value={start}
           mask={t('datemask')}
-          inputFormat={t('dateformat')}
+          inputFormat={t('dateFormat.long')}
           minDate={range?.start}
           maxDate={range?.end}
           showToolbar={false}
@@ -68,7 +68,7 @@ export default function DateRange({ start, end, startLabel, endLabel, defaultSta
           label={endLabel}
           value={end}
           mask={t('datemask')}
-          inputFormat={t('dateformat')}
+          inputFormat={t('dateFormat.long')}
           minDate={start ? start : range?.start}
           maxDate={range?.end}
           showToolbar={false}

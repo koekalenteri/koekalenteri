@@ -115,7 +115,7 @@ export function QualifyingResultsInfo({ reg, error, helperText, onChange, onOpen
               <FormControl sx={{ width: 150 }}>
                 <DatePicker
                   disabled={result.official}
-                  inputFormat={t('dateformat')}
+                  inputFormat={t('dateFormat.long')}
                   label={t("testResult.date")}
                   mask={t('datemask')}
                   maxDate={new Date()}
