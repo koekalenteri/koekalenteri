@@ -5,9 +5,11 @@ import { Autocomplete, AutocompleteChangeReason, Avatar, Checkbox, Chip, TextFie
 import { isSameDay } from "date-fns"
 import { DeepPartial, Event, EventClass, EventState } from "koekalenteri-shared/model"
 
+
 interface Props {
   id: string
   eventStartDate: Date
+  eventEndDate: Date
   value: DeepPartial<EventClass>[] | undefined
   classes: DeepPartial<EventClass>[]
   label: string
@@ -26,13 +28,14 @@ export const compareEventClass = (a: DeepPartial<EventClass>, b: DeepPartial<Eve
 
 export default function EventClasses(props: Props) {
   const { t } = useTranslation()
-  const { classes, label, eventStartDate, required, requiredState, errorStates, helperTexts, value, showCount, ...rest } = props
+  const { classes, label, eventStartDate, eventEndDate, required, requiredState, errorStates, helperTexts, value, showCount, ...rest } = props
   const error = errorStates?.classes
   const helperText = helperTexts?.classes || ''
   const sortedValue = useMemo(() => value?.slice().sort(compareEventClass), [value])
   const groupByWeekday = useCallback((c: { date?: Date }) => t('dateFormat.wdshort', { date: c.date }), [t])
   const getLabel = useCallback((c: { class?: string }) => c.class ?? '', [])
   const isEqual = useCallback((a: DeepPartial<EventClass>, b: DeepPartial<EventClass>) => compareEventClass(a, b) === 0, [])
+  const groupBy = !isSameDay(eventStartDate, eventEndDate)
 
   return (
     <Autocomplete
@@ -44,7 +47,7 @@ export default function EventClasses(props: Props) {
       disabled={classes.length === 0}
       disablePortal
       multiple
-      groupBy={groupByWeekday}
+      groupBy={groupBy ? groupByWeekday : undefined}
       options={classes}
       getOptionLabel={getLabel}
       isOptionEqualToValue={isEqual}
@@ -63,7 +66,7 @@ export default function EventClasses(props: Props) {
       renderTags={(tagValue, getTagProps) => tagValue.map((option, index) => (
         <Chip
           {...getTagProps({ index })}
-          avatar={
+          avatar={groupBy ?
             <Avatar
               sx={{
                 fontWeight: 'bold',
@@ -71,7 +74,7 @@ export default function EventClasses(props: Props) {
               }}
             >
               {t('dateFormat.weekday', { date: option.date })}
-            </Avatar>
+            </Avatar> : undefined
           }
           label={(option.class ?? '') + (showCount && Array.isArray(option.judge) && option.judge.length > 1 ? ` x${option.judge.length}` : '')}
           onDelete={undefined}

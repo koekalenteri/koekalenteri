@@ -22,7 +22,7 @@ export const eventWithStaticDatesAndClass: ConfirmedEvent = {
   ...emptyEvent,
   id: 'test1-b',
   eventType: 'NOME-B',
-  classes: [{ class: 'ALO' }],
+  classes: [{ class: 'ALO', date: parseISO('2021-02-10') }, { class: 'ALO', date: parseISO('2021-02-11') }],
   startDate: parseISO('2021-02-10'),
   endDate: parseISO('2021-02-11'),
   entryStartDate: parseISO('2021-02-01'),
