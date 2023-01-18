@@ -25,7 +25,7 @@ const InfoPanel = ({ event }: Props) => {
         </TableHead>
         <TableBody>
           {event.classes?.map(c => <TableRow key={c.class + c.date?.toISOString()}>
-            <TableCell>{format(c.date || event.startDate || new Date(), t('dateformatS'))}</TableCell>
+            <TableCell>{format(c.date || event.startDate || new Date(), t('dateFormat.short'))}</TableCell>
             <TableCell>{c.class}</TableCell>
             <TableCell align="right">{c.entries}</TableCell>
             <TableCell>Jäseniä</TableCell>

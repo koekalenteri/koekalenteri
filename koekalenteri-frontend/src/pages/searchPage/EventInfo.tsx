@@ -119,7 +119,7 @@ const EventClassTable = ({ event }: EventProps) => {
 
 const EventClassTableRow = ({ event, eventClass }: { event: Event, eventClass: EventClass }) => {
   const { t } = useTranslation()
-  const classDate = format(eventClass.date || event.startDate || new Date(), t('dateformatS'))
+  const classDate = format(eventClass.date || event.startDate || new Date(), t('dateFormat.short'))
   const entryStatus = eventClass.places || eventClass.entries ? `${eventClass.entries || 0} / ${eventClass.places || '-'}` : ''
   const memberStatus = eventClass.members ? t('members', {count: eventClass.members}) : ''
   const judgeNames = Array.isArray(eventClass.judge) ? eventClass.judge.map(j => j.name).join(', ') : eventClass.judge?.name

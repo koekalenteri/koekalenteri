@@ -30,7 +30,7 @@ export default function EventClasses(props: Props) {
   const error = errorStates?.classes
   const helperText = helperTexts?.classes || ''
   const sortedValue = useMemo(() => value?.slice().sort(compareEventClass), [value])
-  const groupByWeekday = useCallback((c: { date?: Date }) => t('weekday', { date: c.date }), [t])
+  const groupByWeekday = useCallback((c: { date?: Date }) => t('dateFormat.wdshort', { date: c.date }), [t])
   const getLabel = useCallback((c: { class?: string }) => c.class ?? '', [])
   const isEqual = useCallback((a: DeepPartial<EventClass>, b: DeepPartial<EventClass>) => compareEventClass(a, b) === 0, [])
 
@@ -42,6 +42,7 @@ export default function EventClasses(props: Props) {
       disableClearable
       disableCloseOnSelect
       disabled={classes.length === 0}
+      disablePortal
       multiple
       groupBy={groupByWeekday}
       options={classes}
@@ -69,7 +70,7 @@ export default function EventClasses(props: Props) {
                 bgcolor: isSameDay(option.date || eventStartDate, eventStartDate) ? 'secondary.light' : 'secondary.dark',
               }}
             >
-              {t('weekday', { date: option.date })}
+              {t('dateFormat.weekday', { date: option.date })}
             </Avatar>
           }
           label={(option.class ?? '') + (showCount && Array.isArray(option.judge) && option.judge.length > 1 ? ` x${option.judge.length}` : '')}

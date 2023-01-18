@@ -14,8 +14,12 @@
   "createEvent": "Uusi tapahtuma",
   "date": "Aika",
   "dateTimeShort": "{{ date, dtshort }}",
-  "dateformat": "dd.MM.yyyy",
-  "dateformatS": "dd.MM.",
+  "dateFormat": {
+    "long": "dd.MM.yyyy",
+    "short": "dd.MM.",
+    "weekday": "{{ date, weekday }}",
+    "wdshort": "{{ date, short }}"
+  },
   "datemask": "__.__.____",
   "daterange": "{{ start, datespan(end: undefined) }}",
   "daterangeEnd": "Aikaväli päättyen",
@@ -265,6 +269,5 @@
       "reserve": "Valitse osallistutko varasijalta",
       "terms": "Ilmoittautumisen ehtojen hyväksyminen on pakollista."
     }
-  },
-  "weekday": "{{ date, weekday }}"
+  }
 }

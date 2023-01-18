@@ -1,5 +1,6 @@
 
-import { render } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { parseISO } from 'date-fns'
 
 import EventClasses from './EventClasses'
@@ -47,4 +48,26 @@ describe('EventClasses', () => {
     />)
     expect(container).toMatchSnapshot()
   })
+
+  it('should render with classes and values, open', async () => {
+    const user = userEvent.setup()
+
+    const { container } = render(<EventClasses
+      id={''}
+      eventStartDate={date}
+      value={[
+        {class: 'ALO', date, judge: {id: 1, name: 'Test Judge'}},
+        {class: 'AVO', date, judge: [{id: 1, name: 'Test Judge'}, {id: 2, name: 'Test Judge2'}]},
+      ]}
+      classes={[{class: 'ALO', date}, {class: 'AVO', date}]}
+      label={''}
+      showCount
+    />)
+
+    const input = screen.getByRole('combobox')
+    await user.type(input, '{ArrowDown}')
+
+    expect(container).toMatchSnapshot()
+  })
+
 })

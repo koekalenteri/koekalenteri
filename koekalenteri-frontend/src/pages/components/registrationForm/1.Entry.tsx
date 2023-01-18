@@ -25,7 +25,7 @@ type EntryInfoProps = {
 export function EntryInfo({ reg, event, classDate, className, errorStates, helperTexts, onChange, onOpenChange, open }: EntryInfoProps) {
   const { t } = useTranslation()
 
-  const getRegDateLabel = useCallback((o: RegistrationDate) => t('weekday', { date: o.date }) + (o.time ? (' ' + t(`registration.time.${o.time}`)) : ''), [t])
+  const getRegDateLabel = useCallback((o: RegistrationDate) => t('dateFormat.weekday', { date: o.date }) + (o.time ? (' ' + t(`registration.time.${o.time}`)) : ''), [t])
   const getReserveChoiceLabel = useCallback((o: ReserveChoise | '') => o !== '' ? t(`registration.reserveChoises.${o}`) : '', [t])
 
   const classes = uniqueClasses(event)

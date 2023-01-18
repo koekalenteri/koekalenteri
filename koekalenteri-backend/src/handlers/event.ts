@@ -155,7 +155,7 @@ export const putRegistrationHandler = metricScope((metrics: MetricsLogger) =>
         const eventDate = formatDateSpan(confirmedEvent.startDate, confirmedEvent.endDate)
         const reserveText = t(`registration.reserveChoises.${registration.reserve}`)
         const dogBreed = t(`breed:${registration.dog.breedCode}`)
-        const regDates = registration.dates.map(d => t('weekday', { date: d.date }) + (d.time ? (' ' + t(`registration.time.${d.time}`)) : '')).join(', ')
+        const regDates = registration.dates.map(d => t('dateFormat.weekday', { date: d.date }) + (d.time ? (' ' + t(`registration.time.${d.time}`)) : '')).join(', ')
         const link = `${origin}/registration/${registration.eventType}/${registration.eventId}/${registration.id}`
         // TODO: sender address from env / other config
         const from = "koekalenteri@koekalenteri.snj.fi"
