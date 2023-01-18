@@ -94,6 +94,7 @@ export default function JudgesSection({ event, judges, fields, onChange, onOpenC
                 <EventClasses
                   id={`class${index}`}
                   eventStartDate={event.startDate}
+                  eventEndDate={event.endDate}
                   value={filterClassesByJudgeId(event.classes, id)}
                   classes={[...event.classes]}
                   label="Arvostelee koeluokat"

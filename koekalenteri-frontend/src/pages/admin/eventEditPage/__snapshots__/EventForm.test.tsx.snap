@@ -580,7 +580,23 @@ exports[`EventForm should render 1`] = `
                                 <div
                                   class="MuiAvatar-root MuiAvatar-circular MuiAvatar-colorDefault MuiChip-avatar MuiChip-avatarSmall MuiChip-avatarColorDefault css-y9emw0-MuiAvatar-root"
                                 >
-                                  weekday
+                                  ke
+                                </div>
+                                <span
+                                  class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
+                                >
+                                  ALO
+                                </span>
+                              </div>
+                              <div
+                                class="MuiChip-root MuiChip-outlined MuiChip-sizeSmall MuiChip-colorDefault MuiChip-outlinedDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-ti4gqd-MuiChip-root"
+                                data-tag-index="1"
+                                tabindex="-1"
+                              >
+                                <div
+                                  class="MuiAvatar-root MuiAvatar-circular MuiAvatar-colorDefault MuiChip-avatar MuiChip-avatarSmall MuiChip-avatarColorDefault css-f29i27-MuiAvatar-root"
+                                >
+                                  to
                                 </div>
                                 <span
                                   class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
@@ -1808,7 +1824,40 @@ exports[`EventForm should render 1`] = `
                               </th>
                               <td
                                 class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignCenter MuiTableCell-sizeSmall css-vtdehq-MuiTableCell-root"
-                              />
+                              >
+                                <div
+                                  class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+                                >
+                                  <div
+                                    class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-sizeSmall css-18jsfs7-MuiInputBase-root-MuiOutlinedInput-root"
+                                  >
+                                    <input
+                                      aria-invalid="false"
+                                      class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputSizeSmall css-1n4twyu-MuiInputBase-input-MuiOutlinedInput-input"
+                                      id=":rq:"
+                                      max="999"
+                                      min="0"
+                                      style="text-align: right; padding: 4px;"
+                                      type="number"
+                                      value=""
+                                    />
+                                    <fieldset
+                                      aria-hidden="true"
+                                      class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
+                                    >
+                                      <legend
+                                        class="css-ihdtdm"
+                                      >
+                                        <span
+                                          class="notranslate"
+                                        >
+                                          ​
+                                        </span>
+                                      </legend>
+                                    </fieldset>
+                                  </div>
+                                </div>
+                              </td>
                               <td
                                 class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignCenter MuiTableCell-sizeSmall css-vtdehq-MuiTableCell-root"
                               />
@@ -1837,7 +1886,7 @@ exports[`EventForm should render 1`] = `
                                     <input
                                       aria-invalid="false"
                                       class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputSizeSmall css-1n4twyu-MuiInputBase-input-MuiOutlinedInput-input"
-                                      id=":rq:"
+                                      id=":rr:"
                                       max="999"
                                       min="0"
                                       style="text-align: right; padding: 4px;"
@@ -2531,8 +2580,8 @@ exports[`EventForm should render 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="false"
-                            for=":r13:"
-                            id=":r13:-label"
+                            for=":r14:"
+                            id=":r14:-label"
                           >
                             event.headquarters.name
                           </label>
@@ -2542,7 +2591,7 @@ exports[`EventForm should render 1`] = `
                             <input
                               aria-invalid="false"
                               class="MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r13:"
+                              id=":r14:"
                               type="text"
                               value=""
                             />
@@ -2570,8 +2619,8 @@ exports[`EventForm should render 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="false"
-                            for=":r14:"
-                            id=":r14:-label"
+                            for=":r15:"
+                            id=":r15:-label"
                           >
                             event.headquarters.address
                           </label>
@@ -2581,7 +2630,7 @@ exports[`EventForm should render 1`] = `
                             <input
                               aria-invalid="false"
                               class="MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r14:"
+                              id=":r15:"
                               type="text"
                               value=""
                             />
@@ -2613,8 +2662,8 @@ exports[`EventForm should render 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="false"
-                            for=":r15:"
-                            id=":r15:-label"
+                            for=":r16:"
+                            id=":r16:-label"
                           >
                             event.headquarters.zipCode
                           </label>
@@ -2624,7 +2673,7 @@ exports[`EventForm should render 1`] = `
                             <input
                               aria-invalid="false"
                               class="MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r15:"
+                              id=":r16:"
                               type="text"
                               value=""
                             />
@@ -2652,8 +2701,8 @@ exports[`EventForm should render 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="false"
-                            for=":r16:"
-                            id=":r16:-label"
+                            for=":r17:"
+                            id=":r17:-label"
                           >
                             event.headquarters.postalDistrict
                           </label>
@@ -2663,7 +2712,7 @@ exports[`EventForm should render 1`] = `
                             <input
                               aria-invalid="false"
                               class="MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r16:"
+                              id=":r17:"
                               type="text"
                               value=""
                             />
@@ -3037,7 +3086,7 @@ exports[`EventForm should render 1`] = `
                       <textarea
                         aria-invalid="false"
                         class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-1sqnrkk-MuiInputBase-input-MuiOutlinedInput-input"
-                        id=":r17:"
+                        id=":r18:"
                         rows="5"
                         style="height: 0px; overflow: hidden;"
                       >
@@ -3079,7 +3128,7 @@ exports[`EventForm should render 1`] = `
       <button
         class="MuiButtonBase-root MuiButton-root MuiLoadingButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium Mui-disabled MuiButton-root MuiLoadingButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium css-1mju63u-MuiButtonBase-root-MuiButton-root-MuiLoadingButton-root"
         disabled=""
-        id=":r18:"
+        id=":r19:"
         tabindex="-1"
         type="button"
       >

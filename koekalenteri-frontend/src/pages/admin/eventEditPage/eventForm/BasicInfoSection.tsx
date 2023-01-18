@@ -105,6 +105,7 @@ export default function BasicInfoSection({ event, errorStates, helperTexts, fiel
             <EventClasses
               id="class"
               eventStartDate={event.startDate}
+              eventEndDate={event.endDate}
               required={fields?.required.classes}
               errorStates={errorStates}
               helperTexts={helperTexts}
