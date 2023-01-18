@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom'
 import { Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Link, Toolbar } from '@mui/material'
 import { isPast, isToday } from 'date-fns'
 import type { ConfirmedEvent } from 'koekalenteri-shared/model'
-import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
+import { useRecoilState, useRecoilValue } from 'recoil'
 
 import Header from './components/Header'
 import LinkButton from './components/LinkButton'
@@ -19,7 +19,6 @@ export function RegistrationListPage({cancel}: {cancel?: boolean}) {
   const [eventId, setEventId] = useRecoilState(eventIdAtom)
   const event = useRecoilValue(currentEventSelector) as ConfirmedEvent | undefined
   const [registration, setRegistration] = useRecoilState(registrationSelector(params.registrationId))
-  const resetRegistration = useResetRecoilState(registrationSelector(params.registrationId))
   const spa = useRecoilValue(spaAtom)
   const { t } = useTranslation()
   const [open, setOpen] = useState(!!cancel)
@@ -39,9 +38,8 @@ export function RegistrationListPage({cancel}: {cancel?: boolean}) {
   useEffect(() => {
     if (params.id !== eventId) {
       setEventId(params.id)
-      resetRegistration()
     }
-  }, [eventId, params.id, resetRegistration, setEventId])
+  }, [eventId, params.id, setEventId])
 
   useEffect(() => {
     if (open && registration?.cancelled) {
@@ -50,7 +48,11 @@ export function RegistrationListPage({cancel}: {cancel?: boolean}) {
   }, [open, registration])
 
   if (!event || !registration) {
-    return <CircularProgress />
+    return <>
+      <CircularProgress />
+      {!event ? 'no event' : ''}
+      {!registration ? 'no registration' : ''}
+    </>
   }
 
   return (

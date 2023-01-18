@@ -38,7 +38,7 @@ export function formatDateSpan(start: Date | string, lng: string | undefined, { 
   return lightFormat(start, 'd.M.yyyy') + '-' + lightFormat(end, 'd.M.yyyy')
 }
 
-export function formatDistance(date: Date, lng: string | undefined): string {
+export function formatDistance(date?: Date, lng?: string): string {
   const locale = locales[lng as Language]
-  return formatDistanceToNowStrict(date, { locale })
+  return formatDistanceToNowStrict(date ?? new Date(), { locale })
 }

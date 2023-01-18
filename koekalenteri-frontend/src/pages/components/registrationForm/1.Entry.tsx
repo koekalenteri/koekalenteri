@@ -1,6 +1,7 @@
-import { useCallback } from 'react'
+import { SyntheticEvent, useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Grid } from '@mui/material'
+import { format, isSameDay } from 'date-fns'
 import { ConfirmedEvent, Registration, RegistrationDate, ReserveChoise } from 'koekalenteri-shared/model'
 
 import { registrationDates, uniqueClasses } from '../../../utils'
@@ -17,7 +18,7 @@ type EntryInfoProps = {
   helperText?: string
   errorStates: { [Property in keyof Registration]?: boolean }
   helperTexts: { [Property in keyof Registration]?: string }
-  onChange: (props: Partial<Registration>) => void
+  onChange?: (props: Partial<Registration>) => void
   onOpenChange?: (value: boolean) => void
   open?: boolean
 }
@@ -36,6 +37,33 @@ export function EntryInfo({ reg, event, classDate, className, errorStates, helpe
   const infoText = `${reg.class || reg.eventType}, ${datesText}, ${reserveText}`
   const helperText = error ? t('validation.registration.required', { field: 'classesDetails' }) : infoText
 
+  useEffect(() => {
+    const changes: Partial<Registration> = {}
+    if (className && reg.class !== className) {
+      changes.class = className
+    } else if (reg.class && !classes.includes(reg.class)) {
+      changes.class = classes.length === 1 ? classes[0] : undefined
+    } else if (!reg.class && classes.length) {
+      changes.class = classes[0]
+    }
+
+    const cdates = changes.class ? registrationDates(event, changes.class) : dates
+    const ddates = classDate ? cdates.filter(d => format(d.date, 'dd.MM.') === classDate) : cdates
+    const rdates = reg.dates.filter(rd => ddates.find(d => isSameDay(d.date, rd.date) && d.time === rd.time))
+    if (!rdates.length || rdates.length !== reg.dates.length) {
+      changes.dates = ddates
+    }
+
+    if (Object.keys(changes).length) {
+      onChange?.(changes)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const handleClassChange = useCallback((value: string) => onChange?.({ class: value }), [onChange])
+  const handleDatesChange = useCallback((_e: SyntheticEvent<Element, Event>, value: RegistrationDate[]) => onChange?.({ dates: value }), [onChange])
+  const handleReserveChange = useCallback((value: '' | ReserveChoise) => onChange?.({ reserve: value || undefined }), [onChange])
+
   return (
     <CollapsibleSection
       title={t('registration.class')}
@@ -52,7 +80,7 @@ export function EntryInfo({ reg, event, classDate, className, errorStates, helpe
             error={errorStates.class}
             helperText={helperTexts.class}
             label={t("registration.class")}
-            onChange={(value) => { onChange({ class: value }) }}
+            onChange={handleClassChange}
             options={classes}
             value={reg.class ?? className}
           />
@@ -62,7 +90,7 @@ export function EntryInfo({ reg, event, classDate, className, errorStates, helpe
             error={errorStates.dates}
             helperText={t("registration.datesInfo")}
             label={t("registration.dates")}
-            onChange={(_e, value) => onChange({ dates: value })}
+            onChange={handleDatesChange}
             isOptionEqualToValue={(o, v) => o.date.valueOf() === v.date.valueOf() && o.time === v.time}
             getOptionLabel={getRegDateLabel}
             options={dates}
@@ -75,7 +103,7 @@ export function EntryInfo({ reg, event, classDate, className, errorStates, helpe
             error={errorStates.reserve}
             helperText={helperTexts.reserve}
             label={t('registration.reserve')}
-            onChange={(value) => onChange({ reserve: value || undefined })}
+            onChange={handleReserveChange}
             getOptionLabel={getReserveChoiceLabel}
             options={['ANY', 'DAY', 'WEEK', 'NO'] as ReserveChoise[]}
             value={reg.reserve}

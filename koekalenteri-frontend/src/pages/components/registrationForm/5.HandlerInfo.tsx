@@ -5,7 +5,7 @@ import { Registration, RegistrationPerson } from 'koekalenteri-shared/model'
 
 import CollapsibleSection from '../CollapsibleSection'
 
-import { useDogCache } from './hooks/useDogCache'
+import { useDogCacheKey } from './hooks/useDogCache'
 
 type HandlerInfoProps = {
   reg: Partial<Registration>
@@ -18,7 +18,7 @@ type HandlerInfoProps = {
 
 export function HandlerInfo({ reg, error, helperText, onChange, onOpenChange, open }: HandlerInfoProps) {
   const { t } = useTranslation()
-  const [, setCache] = useDogCache(reg.dog?.regNo, 'handler')
+  const [, setCache] = useDogCacheKey(reg.dog?.regNo, 'handler')
 
   const handleChange = useCallback((props: Partial<RegistrationPerson>) => {
     const handler = setCache(props)

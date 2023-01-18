@@ -9,7 +9,13 @@ export const remoteDogEffect: AtomEffect<Dog|undefined> = ({ node, setSelf, trig
   if (trigger === 'get') {
     const regNo = getParamFromFamilyKey(node.key)
     if (regNo) {
-      getDog(regNo).then(setSelf)
+      getDog(regNo).then(dog => {
+        // Make sure the dog has an results array, so changes can be detected properly
+        if (dog && !dog.results) {
+          dog.results = []
+        }
+        setSelf(dog)
+      })
     }
   }
 }

@@ -5,7 +5,7 @@ import { Registration, RegistrationBreeder } from 'koekalenteri-shared/model'
 
 import CollapsibleSection from '../CollapsibleSection'
 
-import { useDogCache } from './hooks/useDogCache'
+import { useDogCacheKey } from './hooks/useDogCache'
 
 
 type BreederInfoProps = {
@@ -19,7 +19,7 @@ type BreederInfoProps = {
 
 export function BreederInfo({ reg, error, helperText, onChange, onOpenChange, open }: BreederInfoProps) {
   const { t } = useTranslation()
-  const [, setCache] = useDogCache(reg.dog?.regNo, 'breeder')
+  const [, setCache] = useDogCacheKey(reg.dog?.regNo, 'breeder')
 
   const handleChange = useCallback((props: Partial<RegistrationBreeder>) => {
     const breeder = setCache(props)

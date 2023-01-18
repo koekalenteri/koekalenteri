@@ -386,9 +386,9 @@ exports[`RegistrationForm renders 1`] = `
               registration.dog
             </p>
             <p
-              class="MuiFormHelperText-root Mui-error css-9tosq5-MuiFormHelperText-root"
+              class="MuiFormHelperText-root css-9tosq5-MuiFormHelperText-root"
             >
-              validation.registration.required
+              TESTDOG-10 - Dog Name
             </p>
           </div>
           <div

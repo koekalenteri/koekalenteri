@@ -5,7 +5,7 @@ import { Registration, RegistrationPerson } from 'koekalenteri-shared/model'
 
 import CollapsibleSection from '../CollapsibleSection'
 
-import { useDogCache } from './hooks/useDogCache'
+import { useDogCacheKey } from './hooks/useDogCache'
 
 
 interface Props {
@@ -19,11 +19,14 @@ interface Props {
 
 export function OwnerInfo({reg, error, helperText, onChange, onOpenChange, open}: Props) {
   const { t } = useTranslation()
-  const [, setCache] = useDogCache(reg.dog?.regNo, 'owner')
+  const [, setCache] = useDogCacheKey(reg.dog?.regNo, 'owner')
 
-  const handleChange = useCallback((props: Partial<RegistrationPerson>) => {
-    const owner = setCache(props)
-    onChange({ owner })
+  const handleChange = useCallback((props: Partial<RegistrationPerson & { ownerHandles : boolean }>) => {
+    const cached = setCache(props)
+    if (cached) {
+      const {ownerHandles, ...owner} = cached
+      onChange({ owner, ownerHandles })
+    }
   }, [onChange, setCache])
 
   return (
@@ -94,9 +97,7 @@ export function OwnerInfo({reg, error, helperText, onChange, onOpenChange, open}
         <FormControlLabel control={
           <Switch
             checked={reg.ownerHandles}
-            onChange={e => onChange({
-              ownerHandles: e.target.checked,
-            })}
+            onChange={e => handleChange({ ownerHandles: e.target.checked })}
           />
         } label={t('registration.ownerHandles')} />
       </FormGroup>

@@ -9,8 +9,7 @@ export type DogCachedInfo = {
   breeder: RegistrationBreeder,
   dog: Dog,
   handler: RegistrationPerson,
-  owner: RegistrationPerson,
-  ownerHandles: boolean,
+  owner: RegistrationPerson & { ownerHandles: boolean },
 }
 
 type DogCache = Record<string, Partial<DogCachedInfo>>

@@ -35,8 +35,9 @@ export const newRegistrationAtom = atom<Registration | undefined>({
     language: 'fi',
     notes: '',
     owner: {...emptyPerson},
+    ownerHandles: true,
     qualifyingResults: [],
-    reserve: '',
+    reserve: 'ANY',
   },
   effects: [
     logEffect,

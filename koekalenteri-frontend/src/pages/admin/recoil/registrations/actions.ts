@@ -10,12 +10,7 @@ export const useAdminRegistrationActions = () => {
   return {
     async save(reg: Registration) {
       const regs = [...adminRegistrations]
-
-      if (reg.ownerHandles) {
-        reg.handler = {...reg.owner}
-      }
-      const saved = await putRegistration(reg)
-
+      const saved = await putRegistration(reg.ownerHandles ? {...reg, handler: {...reg.owner}} : reg)
       const index = regs.findIndex(r => r.id === saved.id)
       const insert = index === -1
       regs.splice(insert ? regs.length : index, insert ? 0 : 1, saved)
