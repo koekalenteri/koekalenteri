@@ -10,7 +10,7 @@ type HookResult = [Partial<DogCachedInfo> | undefined, Setter]
 
 export function useDogCache(regNo: string = ''): HookResult {
   const [cache, setCache] = useRecoilState(dogCacheAtom)
-  const cached = useMemo(() => cache?.[regNo], [cache, regNo])
+  const cached = useMemo(() => regNo ? cache?.[regNo] : undefined, [cache, regNo])
   const setCached = useCallback<Setter>((props) => {
     if (!regNo) {
       return

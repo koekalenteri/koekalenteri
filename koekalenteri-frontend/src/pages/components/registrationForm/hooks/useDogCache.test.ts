@@ -21,4 +21,20 @@ describe('useDogCache', () => {
     })
     expect(localStorage.setItem).toHaveBeenCalledWith('dog-cache', '{"test":{"dog":{"dam":{"name":"Test Dam"}}}}')
   })
+
+  it('should not write to localStorage with undefined key', () => {
+    const { result: { current: [, setCache] } } = renderHook(() => useDogCache(), { wrapper: RecoilRoot })
+    act(() => {
+      setCache({ dog: { dam: { name: 'Test Dam' } } })
+    })
+    expect(localStorage.setItem).not.toHaveBeenCalled()
+  })
+
+  it('should not write to localStorage with empty key', () => {
+    const { result: { current: [, setCache] } } = renderHook(() => useDogCache(''), { wrapper: RecoilRoot })
+    act(() => {
+      setCache({ dog: { dam: { name: 'Test Dam' } } })
+    })
+    expect(localStorage.setItem).not.toHaveBeenCalled()
+  })
 })
