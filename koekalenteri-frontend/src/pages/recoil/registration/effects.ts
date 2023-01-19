@@ -1,17 +1,27 @@
-import { Registration } from "koekalenteri-shared/model"
-import { AtomEffect } from "recoil"
+import { Registration } from 'koekalenteri-shared/model'
+import { AtomEffect } from 'recoil'
 
-import { getRegistration } from "../../../api/registration"
-import { getParamFromFamilyKey } from "../effects"
-import { eventIdAtom } from "../events"
+import { getRegistration } from '../../../api/registration'
+import { getParamFromFamilyKey } from '../effects'
+import { eventIdAtom } from '../events'
 
-export const remoteRegistrationEffect: AtomEffect<Registration | undefined> = ({ node, getPromise, setSelf, trigger }) => {
+let loaded: string|undefined
+
+export const remoteRegistrationEffect: AtomEffect<Registration | undefined> = ({ getPromise, node, setSelf, trigger }) => {
+  const load = async () => {
+    const eventId = await getPromise(eventIdAtom)
+    if (!eventId || loaded === eventId) {
+      return
+    }
+    loaded = eventId
+    const registrationId = getParamFromFamilyKey(node.key)
+    const registration = await getRegistration(eventId, registrationId)
+    if (registration) {
+      setSelf(registration)
+    }
+  }
+
   if (trigger === 'get') {
-    getPromise(eventIdAtom).then(eventId => {
-      const registrationId = getParamFromFamilyKey(node.key)
-      if (eventId && registrationId) {
-        getRegistration(eventId, registrationId).then(setSelf)
-      }
-    })
+    load()
   }
 }

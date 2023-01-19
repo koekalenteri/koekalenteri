@@ -2,23 +2,28 @@ import i18next from 'i18next'
 import { Event, Organizer } from 'koekalenteri-shared/model'
 import { selector, selectorFamily } from 'recoil'
 
-import { getEvent } from '../../../api/event'
 import { unique, uniqueFn } from '../../../utils'
 import { eventTypeClassesAtom, filteredEventTypesSelector } from '../eventTypes'
 import { judgesAtom } from '../judges/atoms'
 
 import { eventFilterAtom, eventIdAtom, eventsAtom } from './atoms'
-import { withinArrayFilters, withinDateFilters, withinSwitchFilters } from "./filters"
+import { withinArrayFilters, withinDateFilters, withinSwitchFilters } from './filters'
 
 
 export const eventSelector = selectorFamily<Event | undefined, string|undefined>({
   key: 'event',
-  get: (eventId) => ({ get }) => eventId ? get(eventByIdSelector(eventId)): undefined,
+  get: (eventId) => ({ get }) => {
+    if (!eventId) {
+      return
+    }
+    // get from the eventsAtom
+    return get(eventByIdSelector(eventId))
+  },
 })
 
 export const eventByIdSelector = selectorFamily<Event | undefined, string>({
   key: 'event/Id',
-  get: (eventId) => ({ get }) => get(eventsAtom).find(event => event.id === eventId) ?? getEvent(eventId),
+  get: (eventId) => ({ get }) => get(eventsAtom).find(event => event.id === eventId),
 })
 
 export const currentEventSelector = selector({

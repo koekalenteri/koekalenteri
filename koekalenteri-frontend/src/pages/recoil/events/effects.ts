@@ -6,13 +6,20 @@ import { getEvents } from '../../../api/event'
 import { FilterProps } from './atoms'
 import { deserializeFilter, serializeFilter } from './filters'
 
+let loaded = false
+
 export const remoteEventsEffect: AtomEffect<Event[]> = ({ setSelf, trigger }) => {
-  if (trigger === 'get') {
-    getEvents().then(setSelf)
+  const load = async() => {
+    loaded = true
+    const events = await getEvents()
+    setSelf(events)
+  }
+  if (trigger === 'get' && !loaded) {
+    load()
   }
 }
 
-export const urlSyncEffect: AtomEffect<FilterProps> = ({setSelf, onSet, trigger}) => {
+export const urlSyncEffect: AtomEffect<FilterProps> = ({onSet, setSelf, trigger}) => {
   if (trigger === 'get') {
     setSelf(deserializeFilter(window.location.search))
   }
