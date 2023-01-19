@@ -1,8 +1,9 @@
 import { Registration } from 'koekalenteri-shared/model'
 import { atom, atomFamily } from 'recoil'
 
-import { getRegistrations } from '../../../../api/registration'
 import { logEffect, storageEffect } from '../../../recoil'
+
+import { remoteRegistrationsEffect } from './effects'
 
 
 export const adminRegistrationIdAtom = atom<string | undefined>({
@@ -16,9 +17,8 @@ export const adminRegistrationIdAtom = atom<string | undefined>({
 
 export const eventRegistrationsAtom = atomFamily<Registration[], string>({
   key: 'eventRegistrations',
-  default: (eventId) => getRegistrations(eventId),
   effects: [
     logEffect,
-    storageEffect,
+    remoteRegistrationsEffect,
   ],
 })

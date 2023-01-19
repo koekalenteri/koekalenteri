@@ -388,7 +388,7 @@ exports[`RegistrationForm renders 1`] = `
             <p
               class="MuiFormHelperText-root css-9tosq5-MuiFormHelperText-root"
             >
-              TESTDOG-10 - Dog Name
+              TESTDOG-10 - Dog Name 10
             </p>
           </div>
           <div

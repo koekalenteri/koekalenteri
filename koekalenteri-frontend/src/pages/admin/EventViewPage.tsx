@@ -16,7 +16,7 @@ import ClassEntrySelection from './eventViewPage/ClassEntrySelection'
 import InfoPanel from './eventViewPage/InfoPanel'
 import TabPanel from './eventViewPage/TabPanel'
 import Title from './eventViewPage/Title'
-import { currentAdminRegistrationSelector, editableEventByIdAtom, eventClassAtom } from './recoil'
+import { currentAdminRegistrationSelector, currentEventClassRegistrationsSelector, editableEventByIdAtom, eventClassAtom } from './recoil'
 
 export default function EventViewPage() {
   const { t } = useTranslation()
@@ -33,6 +33,7 @@ export default function EventViewPage() {
   const [selectedEventClass, setSelectedEventClass] = useRecoilState(eventClassAtom)
   const activeTab = useMemo(() => Math.max(eventClasses.findIndex(c => c === selectedEventClass) ?? 0, 0), [eventClasses, selectedEventClass])
   const selectedRegistration = useRecoilValue(currentAdminRegistrationSelector)
+  const registrations = useRecoilValue(currentEventClassRegistrationsSelector)
 
   const handleTabChange = useCallback((_: React.SyntheticEvent, newValue: number) => {
     setSelectedEventClass(eventClasses[newValue])
@@ -88,7 +89,11 @@ export default function EventViewPage() {
 
         {eventClasses.map((eventClass, index) =>
           <TabPanel key={`tabPanel-${eventClass}`} index={index} activeTab={activeTab}>
-            <ClassEntrySelection eventDates={uniqueClassDates(event, eventClass)} setOpen={setOpen} />
+            <ClassEntrySelection
+              eventDates={uniqueClassDates(event, eventClass)}
+              registrations={registrations}
+              setOpen={setOpen}
+            />
           </TabPanel>,
         )}
 
