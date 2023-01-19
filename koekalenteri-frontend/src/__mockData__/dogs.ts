@@ -1,7 +1,7 @@
-import { subMonths } from "date-fns"
-import { Dog } from "koekalenteri-shared/model"
+import { subMonths } from 'date-fns'
+import { Dog } from 'koekalenteri-shared/model'
 
-import { eventWithStaticDates } from "./events"
+import { eventWithStaticDates } from './events'
 
 export const registrationDogAged10MonthsAndNoResults: Dog = {
   regNo: 'TESTDOG-10',
@@ -11,15 +11,15 @@ export const registrationDogAged10MonthsAndNoResults: Dog = {
   refreshDate: eventWithStaticDates.entryStartDate,
   rfid: '1234567890123456',
   name: 'Dog Name',
-  titles: "Dog titles",
+  titles: 'Dog titles',
   callingName: 'Test',
   sire: {
-    name: "Sire Name",
-    titles: "Sire titles",
+    name: 'Sire Name',
+    titles: 'Sire titles',
   },
   dam: {
-    name: "Dam Name",
-    titles: "Dam titles",
+    name: 'Dam Name',
+    titles: 'Dam titles',
   },
   results: [],
 }

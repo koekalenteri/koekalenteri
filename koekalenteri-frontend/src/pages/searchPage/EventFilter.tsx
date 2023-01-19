@@ -53,8 +53,8 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
             start={filter.start}
             end={filter.end}
             range={{start: MIN_DATE}}
-            startLabel={t("daterangeStart")}
-            endLabel={t("daterangeEnd")}
+            startLabel={t('daterangeStart')}
+            endLabel={t('daterangeEnd')}
             onChange={handleDateRangeChange}
           />
         </Grid>

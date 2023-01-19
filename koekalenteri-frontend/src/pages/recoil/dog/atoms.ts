@@ -1,9 +1,9 @@
-import { Dog, RegistrationBreeder, RegistrationPerson } from "koekalenteri-shared/model"
-import { atom, atomFamily } from "recoil"
+import { Dog, RegistrationBreeder, RegistrationPerson } from 'koekalenteri-shared/model'
+import { atom, atomFamily } from 'recoil'
 
-import { storageEffect } from "../effects/storage"
+import { storageEffect } from '../effects/storage'
 
-import { remoteDogEffect } from "./effects"
+import { remoteDogEffect } from './effects'
 
 export type DogCachedInfo = {
   breeder: RegistrationBreeder,

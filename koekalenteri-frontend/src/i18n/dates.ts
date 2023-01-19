@@ -1,6 +1,6 @@
-import { format, formatDistanceToNowStrict, isSameDay, isSameMonth, isSameYear, isValid, lightFormat, parseISO } from "date-fns"
-import { enGB as en, fi } from "date-fns/locale"
-import { Language } from "koekalenteri-shared/model"
+import { format, formatDistanceToNowStrict, isSameDay, isSameMonth, isSameYear, isValid, lightFormat, parseISO } from 'date-fns'
+import { enGB as en, fi } from 'date-fns/locale'
+import { Language } from 'koekalenteri-shared/model'
 
 export const locales: Record<Language, Locale> = { en, fi }
 

@@ -112,7 +112,7 @@ export default function BasicInfoSection({ event, errorStates, helperTexts, fiel
               requiredState={fields?.state.classes}
               value={event.classes}
               classes={typeOptions}
-              label={t("event.classes")}
+              label={t('event.classes')}
               showCount
               onChange={handleClassesChange}
             />

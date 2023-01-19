@@ -50,16 +50,16 @@ export function QualifyingResultsInfo({ reg, error, helperText, onChange, onOpen
   }, [reg.qualifyingResults, reg.results])
 
   return (
-    <CollapsibleSection title={t("registration.qualifyingResults")} error={error} helperText={helperText} open={open} onOpenChange={onOpenChange}>
+    <CollapsibleSection title={t('registration.qualifyingResults')} error={error} helperText={helperText} open={open} onOpenChange={onOpenChange}>
       <Grid item container spacing={1}>
         {results.map(result =>
           <Grid key={getResultId(result)} item container spacing={1} alignItems="center">
             <Grid item>
               <FormControl sx={{ width: 120 }}>
-                <InputLabel id="type-label">{t("testResult.eventType")}</InputLabel>
+                <InputLabel id="type-label">{t('testResult.eventType')}</InputLabel>
                 <Select
                   disabled={result.official}
-                  label={t("testResult.eventType")}
+                  label={t('testResult.eventType')}
                   labelId="type-label"
                   onChange={(e) => handleChange(result, {type: e.target.value})}
                   value={result.type}
@@ -73,10 +73,10 @@ export function QualifyingResultsInfo({ reg, error, helperText, onChange, onOpen
             </Grid>
             <Grid item>
               <FormControl sx={{ width: 120 }}>
-                <InputLabel id="result-label">{t("testResult.result")}</InputLabel>
+                <InputLabel id="result-label">{t('testResult.result')}</InputLabel>
                 <Select
                   disabled={result.official}
-                  label={t("testResult.result")}
+                  label={t('testResult.result')}
                   labelId="result-label"
                   onChange={(e) => handleChange(result, {result: e.target.value, class: e.target.value.slice(0, -1)})}
                   sx={{
@@ -116,7 +116,7 @@ export function QualifyingResultsInfo({ reg, error, helperText, onChange, onOpen
                 <DatePicker
                   disabled={result.official}
                   inputFormat={t('dateFormat.long')}
-                  label={t("testResult.date")}
+                  label={t('testResult.date')}
                   mask={t('datemask')}
                   maxDate={new Date()}
                   minDate={subYears(new Date(), 15)}
@@ -130,7 +130,7 @@ export function QualifyingResultsInfo({ reg, error, helperText, onChange, onOpen
               <TextField
                 disabled={result.official}
                 error={!result.location}
-                label={t("testResult.location")}
+                label={t('testResult.location')}
                 sx={{ width: 170 }}
                 onChange={(e) => handleChange(result, { location: e.target.value })}
                 value={result.location}
@@ -140,7 +140,7 @@ export function QualifyingResultsInfo({ reg, error, helperText, onChange, onOpen
               <TextField
                 disabled={result.official}
                 error={!result.judge}
-                label={t("testResult.judge")}
+                label={t('testResult.judge')}
                 sx={{ width: 180 }}
                 onChange={(e) => handleChange(result, { judge: e.target.value })}
                 value={result.judge}

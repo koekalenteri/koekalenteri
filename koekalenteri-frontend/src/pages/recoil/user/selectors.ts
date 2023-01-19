@@ -1,5 +1,5 @@
-import { Auth } from "@aws-amplify/auth"
-import { selector } from "recoil"
+import { Auth } from '@aws-amplify/auth'
+import { selector } from 'recoil'
 
 export const userNameSelector = selector({
   key: 'userName',

@@ -21,7 +21,7 @@ import { Path } from './routeConfig'
 
 const routes: RouteObject[] = [
   {
-    path: "/",
+    path: '/',
     element: <HomePage />,
     errorElement: <ErrorPage />,
     children: [
@@ -30,23 +30,23 @@ const routes: RouteObject[] = [
         element: <SearchPage />,
       },
       ...[
-        "event/:eventType/:id/:class/:date",
-        "event/:eventType/:id/:class",
-        "event/:eventType/:id",
+        'event/:eventType/:id/:class/:date',
+        'event/:eventType/:id/:class',
+        'event/:eventType/:id',
       ].map<RouteObject>(path => ({
         path,
         element: <RegistrationCreatePage />,
       })),
       {
-        path: "registration/:eventType/:id/:registrationId/cancel",
+        path: 'registration/:eventType/:id/:registrationId/cancel',
         element: <RegistrationListPage cancel />,
       },
       {
-        path: "registration/:eventType/:id/:registrationId/edit",
+        path: 'registration/:eventType/:id/:registrationId/edit',
         element: <RegistrationEditPage />,
       },
       {
-        path: "registration/:eventType/:id/:registrationId",
+        path: 'registration/:eventType/:id/:registrationId',
         element: <RegistrationListPage />,
       },
     ],

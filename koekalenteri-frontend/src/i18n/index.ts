@@ -1,12 +1,12 @@
-import { initReactI18next } from "react-i18next"
+import { initReactI18next } from 'react-i18next'
 import { enUS, fiFI, Localization } from '@mui/material/locale'
-import { enUS as genUS, fiFI as gfiFI, GridLocaleText } from "@mui/x-data-grid"
-import i18n from "i18next"
-import LanguageDetector from "i18next-browser-languagedetector"
-import { Language } from "koekalenteri-shared/model"
+import { enUS as genUS, fiFI as gfiFI, GridLocaleText } from '@mui/x-data-grid'
+import i18n from 'i18next'
+import LanguageDetector from 'i18next-browser-languagedetector'
+import { Language } from 'koekalenteri-shared/model'
 
-import { formatDate, formatDateSpan, formatDistance, locales } from "./dates"
-import { en, enBreed, fi, fiBreed } from "./locales"
+import { formatDate, formatDateSpan, formatDistance, locales } from './dates'
+import { en, enBreed, fi, fiBreed } from './locales'
 
 type MuiLocalization = Localization & {
   components: {

@@ -1,6 +1,6 @@
 import fetchMock from 'jest-fetch-mock'
 
-import { API_BASE_URL } from "../routeConfig"
+import { API_BASE_URL } from '../routeConfig'
 
 import { getDog  } from './dog'
 

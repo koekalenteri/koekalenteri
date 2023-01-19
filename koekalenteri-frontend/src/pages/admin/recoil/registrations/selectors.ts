@@ -1,9 +1,9 @@
-import { Registration, RegistrationGroup } from "koekalenteri-shared/model"
-import { selector } from "recoil"
+import { Registration, RegistrationGroup } from 'koekalenteri-shared/model'
+import { selector } from 'recoil'
 
-import { adminEventIdAtom, eventClassAtom } from "../events/atoms"
+import { adminEventIdAtom, eventClassAtom } from '../events/atoms'
 
-import { adminRegistrationIdAtom, eventRegistrationsAtom } from "./atoms"
+import { adminRegistrationIdAtom, eventRegistrationsAtom } from './atoms'
 
 export interface RegistrationWithMutators extends Registration {
   setGroup: (group?: RegistrationGroup) => void

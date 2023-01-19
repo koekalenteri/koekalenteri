@@ -1,5 +1,5 @@
-import { isRouteErrorResponse, useRouteError } from "react-router-dom"
-import { Box, Typography } from "@mui/material"
+import { isRouteErrorResponse, useRouteError } from 'react-router-dom'
+import { Box, Typography } from '@mui/material'
 
 export function ErrorPage() {
   return (

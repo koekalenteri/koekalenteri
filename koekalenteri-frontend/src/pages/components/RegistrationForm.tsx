@@ -218,7 +218,7 @@ export default function RegistrationForm({ event, className, registration, class
 function getSectionHelperTexts(
   registration: Registration,
   qualifies: boolean | null,
-  t: TFunction<"translation", undefined>,
+  t: TFunction<'translation', undefined>,
 ): { [Property in keyof Registration]?: string } {
   return {
     breeder: `${registration.breeder?.name || ''}`,

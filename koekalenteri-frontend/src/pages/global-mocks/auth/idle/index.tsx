@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useMemo, useState } from "react"
+import React, { createContext, useContext, useMemo, useState } from 'react'
 
 const AuthenticatorContext = createContext({
   route: 'idle',
@@ -42,6 +42,6 @@ Authenticator.Provider = Provider
 export const Auth = {
   signOut: () => undefined,
   currentAuthenticatedUser: async () => {
-    throw new Error("The user is not authenticated")
+    throw new Error('The user is not authenticated')
   },
 }

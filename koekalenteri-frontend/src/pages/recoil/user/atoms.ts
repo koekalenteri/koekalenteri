@@ -45,7 +45,7 @@ export const openedEventAtom = atomFamily<boolean, string>({
 
       window.addEventListener('storage', handleStorageChange)
 
-      return () => window.removeEventListener("storage", handleStorageChange)
+      return () => window.removeEventListener('storage', handleStorageChange)
     },
   ],
 })

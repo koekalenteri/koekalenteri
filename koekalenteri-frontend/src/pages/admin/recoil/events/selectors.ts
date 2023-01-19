@@ -1,9 +1,9 @@
-import { startOfToday } from "date-fns"
-import i18next from "i18next"
-import { Event } from "koekalenteri-shared/model"
-import { DefaultValue, selector, selectorFamily } from "recoil"
+import { startOfToday } from 'date-fns'
+import i18next from 'i18next'
+import { Event } from 'koekalenteri-shared/model'
+import { DefaultValue, selector, selectorFamily } from 'recoil'
 
-import { adminEventFilterTextAtom, adminEventIdAtom, adminEventsAtom, adminShowPastEventsAtom, newEventAtom } from "./atoms"
+import { adminEventFilterTextAtom, adminEventIdAtom, adminEventsAtom, adminShowPastEventsAtom, newEventAtom } from './atoms'
 
 
 export const adminEventSelector = selectorFamily<Event | undefined, string|undefined>({

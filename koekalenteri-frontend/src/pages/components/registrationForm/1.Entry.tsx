@@ -79,7 +79,7 @@ export function EntryInfo({ reg, event, classDate, className, errorStates, helpe
             disableClearable
             error={errorStates.class}
             helperText={helperTexts.class}
-            label={t("registration.class")}
+            label={t('registration.class')}
             onChange={handleClassChange}
             options={classes}
             value={reg.class ?? className}
@@ -88,8 +88,8 @@ export function EntryInfo({ reg, event, classDate, className, errorStates, helpe
         <Grid item>
           <AutocompleteMulti
             error={errorStates.dates}
-            helperText={t("registration.datesInfo")}
-            label={t("registration.dates")}
+            helperText={t('registration.datesInfo')}
+            label={t('registration.dates')}
             onChange={handleDatesChange}
             isOptionEqualToValue={(o, v) => o.date.valueOf() === v.date.valueOf() && o.time === v.time}
             getOptionLabel={getRegDateLabel}

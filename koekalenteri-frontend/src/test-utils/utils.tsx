@@ -1,9 +1,9 @@
-import { useEffect } from "react"
-import { createMemoryRouter, createRoutesFromElements, RouteObject, RouterProvider } from "react-router-dom"
+import { useEffect } from 'react'
+import { createMemoryRouter, createRoutesFromElements, RouteObject, RouterProvider } from 'react-router-dom'
 import { RouterInit } from '@remix-run/router'
-import { act } from "@testing-library/react"
+import { act } from '@testing-library/react'
 import mediaQuery from 'css-mediaquery'
-import { RecoilValue, useRecoilValue } from "recoil"
+import { RecoilValue, useRecoilValue } from 'recoil'
 
 /**
  * Abstraction to avoid re-writing all tests for the time being
@@ -18,10 +18,10 @@ export function DataMemoryRouter({
   initialIndex,
   routes,
 }: {
-  basename?: RouterInit["basename"];
+  basename?: RouterInit['basename'];
   children?: React.ReactNode | React.ReactNode[];
   fallbackElement?: React.ReactNode;
-  hydrationData?: RouterInit["hydrationData"];
+  hydrationData?: RouterInit['hydrationData'];
   initialEntries?: string[];
   initialIndex?: number;
   routes?: RouteObject[];

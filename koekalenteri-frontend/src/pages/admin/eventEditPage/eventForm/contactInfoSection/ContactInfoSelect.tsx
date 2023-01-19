@@ -1,7 +1,7 @@
-import { ChangeEvent, useCallback, useState } from "react"
-import { useTranslation } from "react-i18next"
-import { Checkbox, FormControlLabel, FormGroup } from "@mui/material"
-import { ShowContactInfo } from "koekalenteri-shared/model"
+import { ChangeEvent, useCallback, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { Checkbox, FormControlLabel, FormGroup } from '@mui/material'
+import { ShowContactInfo } from 'koekalenteri-shared/model'
 
 interface Props {
   name: string

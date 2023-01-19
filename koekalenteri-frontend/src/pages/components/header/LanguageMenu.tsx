@@ -9,7 +9,7 @@ import { locales } from '../../../i18n'
 import { languageAtom } from '../../recoil'
 
 import { LanguageMenuItem } from './languageMenu/LanguageMenuItem'
-import AppBarButton from "./AppBarButton"
+import AppBarButton from './AppBarButton'
 
 
 export default function LanguageMenu() {

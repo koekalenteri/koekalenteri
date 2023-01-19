@@ -1,4 +1,4 @@
-import { EventType } from "koekalenteri-shared/model"
+import { EventType } from 'koekalenteri-shared/model'
 
 const mockEventTypes: EventType[] = [
   {

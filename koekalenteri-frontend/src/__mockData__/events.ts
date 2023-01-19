@@ -1,7 +1,7 @@
-import { addDays, parseISO, startOfDay } from "date-fns"
-import { ConfirmedEvent } from "koekalenteri-shared/model"
+import { addDays, parseISO, startOfDay } from 'date-fns'
+import { ConfirmedEvent } from 'koekalenteri-shared/model'
 
-import { emptyEvent } from "../api/test-utils/emptyEvent"
+import { emptyEvent } from '../api/test-utils/emptyEvent'
 
 const today = startOfDay(new Date())
 

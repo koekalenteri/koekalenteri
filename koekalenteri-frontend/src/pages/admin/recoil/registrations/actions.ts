@@ -1,9 +1,9 @@
-import { Registration } from "koekalenteri-shared/model"
-import { useRecoilState } from "recoil"
+import { Registration } from 'koekalenteri-shared/model'
+import { useRecoilState } from 'recoil'
 
-import { putRegistration } from "../../../../api/registration"
+import { putRegistration } from '../../../../api/registration'
 
-import { currentEventRegistrationsSelector } from "./selectors"
+import { currentEventRegistrationsSelector } from './selectors'
 
 export const useAdminRegistrationActions = () => {
   const [adminRegistrations, setAdminRegistrations] = useRecoilState(currentEventRegistrationsSelector)

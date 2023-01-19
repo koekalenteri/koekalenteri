@@ -1,9 +1,9 @@
-import { useTranslation } from "react-i18next"
-import { EuroOutlined, PersonOutline } from "@mui/icons-material"
-import { GridColDef, GridValueGetterParams } from "@mui/x-data-grid"
-import { BreedCode, Registration } from "koekalenteri-shared/model"
+import { useTranslation } from 'react-i18next'
+import { EuroOutlined, PersonOutline } from '@mui/icons-material'
+import { GridColDef, GridValueGetterParams } from '@mui/x-data-grid'
+import { BreedCode, Registration } from 'koekalenteri-shared/model'
 
-import GroupColors from "./GroupColors"
+import GroupColors from './GroupColors'
 
 
 export function useClassEntrySelectionColumns(eventDates: Date[]) {

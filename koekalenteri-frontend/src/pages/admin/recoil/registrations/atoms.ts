@@ -1,8 +1,8 @@
-import { Registration } from "koekalenteri-shared/model"
-import { atom, atomFamily } from "recoil"
+import { Registration } from 'koekalenteri-shared/model'
+import { atom, atomFamily } from 'recoil'
 
-import { getRegistrations } from "../../../../api/registration"
-import { logEffect, storageEffect } from "../../../recoil"
+import { getRegistrations } from '../../../../api/registration'
+import { logEffect, storageEffect } from '../../../recoil'
 
 
 export const adminRegistrationIdAtom = atom<string | undefined>({
