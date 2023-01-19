@@ -1,12 +1,12 @@
-import { addDays, startOfDay, sub } from "date-fns"
-import { Event } from "koekalenteri-shared/model"
-import { atom, atomFamily, selector } from "recoil"
+import { addDays, startOfDay, sub } from 'date-fns'
+import { Event } from 'koekalenteri-shared/model'
+import { atom, atomFamily, selector } from 'recoil'
 
-import { uniqueClasses } from "../../../../utils"
-import { logEffect, storageEffect } from "../../../recoil"
+import { uniqueClasses } from '../../../../utils'
+import { logEffect, storageEffect } from '../../../recoil'
 
-import { remoteAdminEventsEffect } from "./effects"
-import { adminEventSelector, currentAdminEventSelector } from "./selectors"
+import { remoteAdminEventsEffect } from './effects'
+import { adminEventSelector, currentAdminEventSelector } from './selectors'
 
 export const adminEventsAtom = atom<Event[]>({
   key: 'adminEvents',

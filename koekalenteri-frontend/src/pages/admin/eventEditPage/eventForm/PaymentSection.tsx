@@ -1,11 +1,11 @@
-import { useTranslation } from "react-i18next"
-import { Grid } from "@mui/material"
+import { useTranslation } from 'react-i18next'
+import { Grid } from '@mui/material'
 
-import CollapsibleSection from "../../../components/CollapsibleSection"
-import { SectionProps } from "../EventForm"
+import CollapsibleSection from '../../../components/CollapsibleSection'
+import { SectionProps } from '../EventForm'
 
-import EventPrice from "./components/EventPrice"
-import EventProperty from "./components/EventProperty"
+import EventPrice from './components/EventPrice'
+import EventProperty from './components/EventProperty'
 
 export default function PaymentSection({ errorStates, event, fields, onChange, open, onOpenChange }: SectionProps) {
   const { t } = useTranslation()

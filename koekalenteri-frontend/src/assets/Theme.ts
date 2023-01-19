@@ -62,7 +62,7 @@ const theme = createTheme({
   },
   typography: {
     button: {
-      textTransform: "none",
+      textTransform: 'none',
     },
   },
   zIndex: {

@@ -2,9 +2,9 @@ import { useTranslation } from 'react-i18next'
 import { GridColDef } from '@mui/x-data-grid'
 import { Judge } from 'koekalenteri-shared/model'
 
-import ActiveCell from "./cells/ActiveCell"
+import ActiveCell from './cells/ActiveCell'
 import LanguagesCell from './cells/LanguagesCell'
-import OfficialCell from "./cells/OfficialCell"
+import OfficialCell from './cells/OfficialCell'
 
 interface JudgeColDef extends GridColDef {
   field: keyof Judge

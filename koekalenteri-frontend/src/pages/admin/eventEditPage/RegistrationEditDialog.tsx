@@ -1,13 +1,13 @@
-import { useCallback, useMemo } from "react"
-import { Dialog, DialogContent, DialogTitle } from "@mui/material"
-import { ConfirmedEvent, Registration } from "koekalenteri-shared/model"
-import { useRecoilState, useRecoilValue, useResetRecoilState } from "recoil"
-import { getDiff } from "recursive-diff"
+import { useCallback, useMemo } from 'react'
+import { Dialog, DialogContent, DialogTitle } from '@mui/material'
+import { ConfirmedEvent, Registration } from 'koekalenteri-shared/model'
+import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
+import { getDiff } from 'recursive-diff'
 
-import RegistrationForm from "../../components/RegistrationForm"
-import { editableRegistrationByIdAtom, eventSelector, registrationByIdAtom } from "../../recoil"
-import { adminRegistrationIdAtom } from "../recoil"
-import { useAdminRegistrationActions } from "../recoil/registrations/actions"
+import RegistrationForm from '../../components/RegistrationForm'
+import { editableRegistrationByIdAtom, eventSelector, registrationByIdAtom } from '../../recoil'
+import { adminRegistrationIdAtom } from '../recoil'
+import { useAdminRegistrationActions } from '../recoil/registrations/actions'
 
 interface Props {
   open: boolean

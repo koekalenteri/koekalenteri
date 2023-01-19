@@ -1,11 +1,11 @@
-import { Registration } from "koekalenteri-shared/model"
-import { atom, atomFamily } from "recoil"
+import { Registration } from 'koekalenteri-shared/model'
+import { atom, atomFamily } from 'recoil'
 
-import { emptyBreeder, emptyDog, emptyPerson } from "../../components/RegistrationForm"
-import { logEffect, storageEffect } from "../effects"
+import { emptyBreeder, emptyDog, emptyPerson } from '../../components/RegistrationForm'
+import { logEffect, storageEffect } from '../effects'
 
-import { remoteRegistrationEffect } from "./effects"
-import { registrationSelector } from "./selectors"
+import { remoteRegistrationEffect } from './effects'
+import { registrationSelector } from './selectors'
 
 
 export const registrationIdAtom = atom<string | undefined>({
@@ -35,8 +35,9 @@ export const newRegistrationAtom = atom<Registration | undefined>({
     language: 'fi',
     notes: '',
     owner: {...emptyPerson},
+    ownerHandles: true,
     qualifyingResults: [],
-    reserve: '',
+    reserve: 'ANY',
   },
   effects: [
     logEffect,

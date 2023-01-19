@@ -1,23 +1,23 @@
-import { useTranslation } from "react-i18next"
-import { useNavigate } from "react-router-dom"
-import { CancelOutlined, EditOutlined, EuroOutlined, PersonOutline } from "@mui/icons-material"
-import { Paper, Typography } from "@mui/material"
-import { Box } from "@mui/system"
-import { GridActionsCellItem, GridColDef, GridRowParams } from "@mui/x-data-grid"
-import { BreedCode, Registration } from "koekalenteri-shared/model"
+import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
+import { CancelOutlined, EditOutlined, EuroOutlined, PersonOutline } from '@mui/icons-material'
+import { Paper, Typography } from '@mui/material'
+import { Box } from '@mui/system'
+import { GridActionsCellItem, GridColDef, GridRowParams } from '@mui/x-data-grid'
+import { BreedCode, Registration } from 'koekalenteri-shared/model'
 
-import StyledDataGrid from "../components/StyledDataGrid"
+import StyledDataGrid from '../components/StyledDataGrid'
 
 type Join<K, P> = K extends string | number ?
   P extends string | number ?
-  `${K}${"" extends P ? "" : "."}${P}`
+  `${K}${'' extends P ? '' : '.'}${P}`
     : never : never;
 
 type Prev = [never, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
   11, 12, 13, 14, 15, 16, 17, 18, 19, 20, ...0[]]
 
 type Leaves<T, D extends number = 10> = [D] extends [never] ? never : T extends object ?
-  { [K in keyof T]-?: Join<K, Leaves<T[K], Prev[D]>> }[keyof T] : "";
+  { [K in keyof T]-?: Join<K, Leaves<T[K], Prev[D]>> }[keyof T] : '';
 
 interface RegistrationListColDef extends GridColDef {
   field: Leaves<Registration> | 'actions'
@@ -75,8 +75,8 @@ export default function RegistrationList({rows, onUnregister}: {rows: Registrati
       getActions: (params) => params.row.cancelled ? [
         <Box sx={{ color: 'warning.main', textTransform: 'uppercase' }}>{t('event.states.cancelled')}</Box>,
       ] : [
-        <GridActionsCellItem color="info" icon={<EditOutlined />} label="Muokkaa ilmoittautumista" onClick={() => onEdit(params.row)} showInMenu={false} onResize={undefined} onResizeCapture={undefined} />,
-        <GridActionsCellItem color="error" icon={<CancelOutlined />} label="Peru ilmoittautuminen" onClick={() => onUnregister(params.row)} showInMenu={false} onResize={undefined} onResizeCapture={undefined} />,
+        <GridActionsCellItem color="info" icon={<EditOutlined />} label="Muokkaa ilmoittautumista" onClick={() => onEdit(params.row)} />,
+        <GridActionsCellItem color="error" icon={<CancelOutlined />} label="Peru ilmoittautuminen" onClick={() => onUnregister(params.row)} />,
       ],
     },
   ]

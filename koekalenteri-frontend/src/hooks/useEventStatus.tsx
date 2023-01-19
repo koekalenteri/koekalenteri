@@ -1,5 +1,5 @@
-import { useTranslation } from "react-i18next"
-import { Event } from "koekalenteri-shared/model"
+import { useTranslation } from 'react-i18next'
+import { Event } from 'koekalenteri-shared/model'
 
 function getStatusKey(event: Event) {
   if (event.state === 'tentative' || event.state === 'cancelled') {

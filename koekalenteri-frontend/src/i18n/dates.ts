@@ -1,6 +1,6 @@
-import { format, formatDistanceToNowStrict, isSameDay, isSameMonth, isSameYear, isValid, lightFormat, parseISO } from "date-fns"
-import { enGB as en, fi } from "date-fns/locale"
-import { Language } from "koekalenteri-shared/model"
+import { format, formatDistanceToNowStrict, isSameDay, isSameMonth, isSameYear, isValid, lightFormat, parseISO } from 'date-fns'
+import { enGB as en, fi } from 'date-fns/locale'
+import { Language } from 'koekalenteri-shared/model'
 
 export const locales: Record<Language, Locale> = { en, fi }
 
@@ -38,7 +38,7 @@ export function formatDateSpan(start: Date | string, lng: string | undefined, { 
   return lightFormat(start, 'd.M.yyyy') + '-' + lightFormat(end, 'd.M.yyyy')
 }
 
-export function formatDistance(date: Date, lng: string | undefined): string {
+export function formatDistance(date?: Date, lng?: string): string {
   const locale = locales[lng as Language]
-  return formatDistanceToNowStrict(date, { locale })
+  return formatDistanceToNowStrict(date ?? new Date(), { locale })
 }

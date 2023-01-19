@@ -3,13 +3,13 @@ import { createRoot } from 'react-dom/client'
 import { CssBaseline, StyledEngineProvider, ThemeProvider } from '@mui/material'
 import { RecoilRoot } from 'recoil'
 
-import "./i18n"
+import './i18n'
 
 import theme from './assets/Theme'
 import App from './App'
 import reportWebVitals from './reportWebVitals'
 
-import "./index.css"
+import './index.css'
 
 const container = document.getElementById('root')
 

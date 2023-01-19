@@ -56,7 +56,7 @@ const Row = ({ event }: { event: Event }) => {
       }}>
         <TableCell>
           <Grid container spacing={0} alignItems="center">
-            <Grid item xs={"auto"}>
+            <Grid item xs={'auto'}>
               <IconButton aria-label="expand row" size="small" color="primary" onClick={handleClick}>
                 {open ? <KeyboardArrowDown /> : <KeyboardArrowRight />}
               </IconButton>

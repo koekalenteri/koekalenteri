@@ -1,5 +1,5 @@
-import { styled, Theme } from "@mui/material"
-import { DataGrid, DataGridProps } from "@mui/x-data-grid"
+import { styled, Theme } from '@mui/material'
+import { DataGrid, DataGridProps } from '@mui/x-data-grid'
 
 
 const DataGridWithDefaults = (props: DataGridProps) => {

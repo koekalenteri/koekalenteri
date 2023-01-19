@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { PersonOutline } from '@mui/icons-material'
 
 import { Path } from '../../../../routeConfig'
-import AppBarButton from "../AppBarButton"
+import AppBarButton from '../AppBarButton'
 
 export default function LoginButton() {
   const { t } = useTranslation()

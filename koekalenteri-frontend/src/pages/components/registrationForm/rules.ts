@@ -1,4 +1,4 @@
-import { TestResult } from "koekalenteri-shared/model"
+import { TestResult } from 'koekalenteri-shared/model'
 
 export type EventResultRequirement = Partial<TestResult> & { count: number, excludeCurrentYear?: boolean };
 export type EventResultRequirements = Array<EventResultRequirement>;

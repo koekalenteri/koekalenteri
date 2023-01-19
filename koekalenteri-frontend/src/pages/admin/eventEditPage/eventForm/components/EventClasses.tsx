@@ -1,9 +1,9 @@
-import { SyntheticEvent, useCallback, useMemo } from "react"
-import { useTranslation } from "react-i18next"
-import { CheckBox, CheckBoxOutlineBlank } from "@mui/icons-material"
-import { Autocomplete, AutocompleteChangeReason, Avatar, Checkbox, Chip, TextField } from "@mui/material"
-import { isSameDay } from "date-fns"
-import { DeepPartial, Event, EventClass, EventState } from "koekalenteri-shared/model"
+import { SyntheticEvent, useCallback, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
+import { CheckBox, CheckBoxOutlineBlank } from '@mui/icons-material'
+import { Autocomplete, AutocompleteChangeReason, Avatar, Checkbox, Chip, TextField } from '@mui/material'
+import { isSameDay } from 'date-fns'
+import { DeepPartial, Event, EventClass, EventState } from 'koekalenteri-shared/model'
 
 
 interface Props {
@@ -80,7 +80,7 @@ export default function EventClasses(props: Props) {
           onDelete={undefined}
           size="small"
           sx={{bgcolor: (Array.isArray(option.judge) ? option.judge.length : option.judge?.id) ? 'background.ok' : 'transparent'}}
-          variant={option.judge ? "filled" : "outlined"}
+          variant={option.judge ? 'filled' : 'outlined'}
         />
       ))}
     />

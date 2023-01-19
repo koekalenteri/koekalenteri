@@ -1,8 +1,8 @@
-import { useTranslation } from "react-i18next"
-import { Registration } from "koekalenteri-shared/model"
-import { useSnackbar } from "notistack"
+import { useTranslation } from 'react-i18next'
+import { Registration } from 'koekalenteri-shared/model'
+import { useSnackbar } from 'notistack'
 
-import { putRegistration } from "../../../api/registration"
+import { putRegistration } from '../../../api/registration'
 
 
 export function useRegistrationActions() {
@@ -11,10 +11,8 @@ export function useRegistrationActions() {
 
   return {
     save: async (reg: Registration) => {
-      if (reg.ownerHandles) {
-        reg.handler = {...reg.owner}
-      }
-      const saved = await putRegistration(reg)
+
+      const saved = await putRegistration(reg.ownerHandles ? {...reg, handler: {...reg.owner}} : reg)
       const emails = [saved.handler.email]
       if (saved.owner.email !== saved.handler.email) {
         emails.push(saved.owner.email)
@@ -23,7 +21,7 @@ export function useRegistrationActions() {
         t(reg.id ? 'registration.modified' : 'registration.saved',
           {
             count: emails.length,
-            to: emails.join("\n"),
+            to: emails.join('\n'),
           }),
         { variant: 'success', style: { whiteSpace: 'pre-line' } },
       )

@@ -1,4 +1,4 @@
-import i18n from "i18next"
+import i18n from 'i18next'
 import { Language } from 'koekalenteri-shared/model'
 import { AtomEffect } from 'recoil'
 

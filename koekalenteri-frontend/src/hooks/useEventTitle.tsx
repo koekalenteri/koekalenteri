@@ -1,10 +1,10 @@
-import { useTranslation } from "react-i18next"
-import { TFunction } from "i18next"
-import { Event } from "koekalenteri-shared/model"
+import { useTranslation } from 'react-i18next'
+import { TFunction } from 'i18next'
+import { Event } from 'koekalenteri-shared/model'
 
-import { isEntryClosed, isEntryOpen, isEventOngoing, isEventOver } from "../utils"
+import { isEntryClosed, isEntryOpen, isEventOngoing, isEventOver } from '../utils'
 
-export function getEventTitle(event: Event, t: TFunction<"translation", undefined, "translation">) {
+export function getEventTitle(event: Event, t: TFunction<'translation', undefined, 'translation'>) {
   if (event.state === 'confirmed') {
     if (isEventOver(event)) {
       return t('event.states.confirmed_eventOver')

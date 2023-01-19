@@ -1,31 +1,31 @@
-import { useCallback, useMemo } from "react"
-import { DeepPartial } from "koekalenteri-shared/model"
-import { useRecoilState } from "recoil"
-import { applyDiff, getDiff } from "recursive-diff"
+import { useCallback, useMemo } from 'react'
+import { DeepPartial } from 'koekalenteri-shared/model'
+import { useRecoilState } from 'recoil'
+import { applyDiff, getDiff } from 'recursive-diff'
 
-import { dogCacheAtom, DogCachedInfo } from "../../../recoil/dog"
+import { dogCacheAtom, DogCachedInfo } from '../../../recoil/dog'
 
-type CacheKey = keyof DogCachedInfo
-type Setter<K extends CacheKey> = (props: DeepPartial<DogCachedInfo[K]>) => DogCachedInfo[K] | undefined
-type HookResult<K extends CacheKey> = [DogCachedInfo[K] | undefined, Setter<K>]
+type Setter = (props: DeepPartial<DogCachedInfo>) => DogCachedInfo | undefined
+type HookResult = [Partial<DogCachedInfo> | undefined, Setter]
 
-export function useDogCache<K extends CacheKey> (regNo: string = '', key: K): HookResult<K> {
+export function useDogCache(regNo: string = ''): HookResult {
   const [cache, setCache] = useRecoilState(dogCacheAtom)
-  const cached = useMemo(() => cache[regNo], [cache, regNo])
-  const setCached = useCallback<Setter<K>>((props) => {
+  const cached = useMemo(() => regNo ? cache?.[regNo] : undefined, [cache, regNo])
+  const setCached = useCallback<Setter>((props) => {
     if (!regNo) {
       return
     }
     const diff = getDiff({}, props)
     if (diff.length) {
       const newState = cached ? structuredClone(cached) : {}
-      const result = newState[key] = applyDiff(newState[key] ?? {}, diff)
+      const result = applyDiff(newState, diff)
       const newCache = {...cache}
       newCache[regNo] = newState
       setCache(newCache)
       return result
     }
-  }, [cache, cached, key, regNo, setCache])
+  }, [cache, cached, regNo, setCache])
 
-  return [cached?.[key], setCached]
+  return [cached, setCached]
 }
+

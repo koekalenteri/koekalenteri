@@ -6,8 +6,8 @@ import { Divider, Theme, Toolbar, useMediaQuery } from '@mui/material'
 import { Path } from '../../routeConfig'
 import { useUserActions } from '../recoil/user/actions'
 
-import DrawerItem from "./sideMenu/DrawerItem"
-import DrawerList from "./sideMenu/DrawerList"
+import DrawerItem from './sideMenu/DrawerItem'
+import DrawerList from './sideMenu/DrawerList'
 import MiniDrawer from './sideMenu/MiniDrawer'
 
 export function SideMenu({ open, onClose }: { open?: boolean, onClose: () => void }) {

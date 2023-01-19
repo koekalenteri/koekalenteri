@@ -1,7 +1,7 @@
-import { Registration } from "koekalenteri-shared/model"
+import { Registration } from 'koekalenteri-shared/model'
 
-import { registrationDogAged10MonthsAndNoResults } from "./dogs"
-import { eventWithStaticDates } from "./events"
+import { registrationDogAged10MonthsAndNoResults } from './dogs'
+import { eventWithStaticDates } from './events'
 
 export const registrationWithStaticDates: Registration = {
   id: 'minimal-registration',

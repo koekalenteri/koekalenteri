@@ -6,7 +6,7 @@ import { Menu, MenuItem } from '@mui/material'
 
 import { Path } from '../../../../routeConfig'
 import { useUserActions } from '../../../recoil/user/actions'
-import AppBarButton from "../AppBarButton"
+import AppBarButton from '../AppBarButton'
 
 
 interface Props {

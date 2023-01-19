@@ -47,8 +47,6 @@ export const emptyPerson = {
 
 export default function RegistrationForm({ event, className, registration, classDate, changes, onSave, onCancel, onChange }: Props) {
   const { t } = useTranslation()
-  //const eventTypeClasses = useRecoilValue(eventTypeClassesAtom)
-  //const eventHasClasses = useMemo(() => eventTypeClasses[event.eventType]?.length > 0, [event.eventType, eventTypeClasses])
   const large = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
   const relevantResults = useMemo(() => filterRelevantResults(event, registration.class as RegistrationClass, registration.dog?.results ?? [], registration.results),
     [event, registration.class, registration.dog?.results, registration.results])
@@ -62,37 +60,17 @@ export default function RegistrationForm({ event, className, registration, class
       const cls = props.class ?? registration.class
       const dogResults = props.dog?.results ?? registration.dog.results ?? []
       const results = props.results ?? registration.results ?? []
+      console.debug({cls, dogResults, results})
       props.qualifyingResults = filterRelevantResults(event, cls as RegistrationClass, dogResults as TestResult[], results).relevant
     }
     const diff = getDiff({}, props)
     if (diff.length) {
       const newState = applyDiff(structuredClone(registration), diff) as Registration
-      console.log('change', {changes: props, diff})
+      console.debug('change', {changes: props, diff})
       setErrors(validateRegistration(newState, event))
       onChange?.(newState)
     }
   }, [event, onChange, registration])
-
-  /*
-  const onChange = (props: Partial<Registration>) => {
-    console.log('Changes: ' + JSON.stringify(props))
-    if (props.class && !props.dates) {
-      const allCount = getRegistrationDates(event, classDate, registration.class || '').length
-      const available = getRegistrationDates(event, classDate, props.class)
-      if (registration.dates.length === allCount) {
-        registration.dates = available
-      } else {
-        props.dates = registration.dates.filter(rd => available.find(a => a.date.valueOf() === rd.date.valueOf() && a.time === rd.time))
-      }
-    }
-    if (props.ownerHandles || (props.owner && registration.ownerHandles)) {
-      props.handler = { ...registration.owner, ...props.owner }
-    }
-    if (props.ownerHandles) {
-      setOpen({ ...open, handler: true })
-    }
-  }
-  */
 
   const handleOpenChange = useCallback((id: keyof typeof open, value: boolean) => {
     const newState = large
@@ -240,7 +218,7 @@ export default function RegistrationForm({ event, className, registration, class
 function getSectionHelperTexts(
   registration: Registration,
   qualifies: boolean | null,
-  t: TFunction<"translation", undefined>,
+  t: TFunction<'translation', undefined>,
 ): { [Property in keyof Registration]?: string } {
   return {
     breeder: `${registration.breeder?.name || ''}`,

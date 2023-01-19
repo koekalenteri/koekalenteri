@@ -1,7 +1,7 @@
-import { Registration } from "koekalenteri-shared/model"
-import { DefaultValue, selectorFamily } from "recoil"
+import { Registration } from 'koekalenteri-shared/model'
+import { DefaultValue, selectorFamily } from 'recoil'
 
-import { newRegistrationAtom, registrationByIdAtom } from "./atoms"
+import { newRegistrationAtom, registrationByIdAtom } from './atoms'
 
 
 export const registrationSelector = selectorFamily<Registration | undefined, string | undefined>({

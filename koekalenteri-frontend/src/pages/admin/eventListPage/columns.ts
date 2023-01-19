@@ -1,9 +1,9 @@
-import { useTranslation } from "react-i18next"
-import { GridColDef, GridValueGetterParams } from "@mui/x-data-grid"
-import { Event, EventClass, EventState } from "koekalenteri-shared/model"
+import { useTranslation } from 'react-i18next'
+import { GridColDef, GridValueGetterParams } from '@mui/x-data-grid'
+import { Event, EventClass, EventState } from 'koekalenteri-shared/model'
 
-import { getEventTitle } from "../../../hooks/useEventTitle"
-import { useJudgesActions } from "../../recoil"
+import { getEventTitle } from '../../../hooks/useEventTitle'
+import { useJudgesActions } from '../../recoil'
 
 interface EventListColDef extends GridColDef {
   field: keyof Event | 'date'

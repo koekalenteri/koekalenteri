@@ -1,6 +1,6 @@
-import { AtomEffect } from "recoil"
+import { AtomEffect } from 'recoil'
 
-import { parseJSON } from "../../../utils"
+import { parseJSON } from '../../../utils'
 
 export const parseStorageJSON = (value: string | null) => {
   let parsed
@@ -39,7 +39,7 @@ export const storageEffect: AtomEffect<any> = ({node, setSelf, onSet}) => {
 
   window.addEventListener('storage', handleStorageChange)
 
-  return () => window.removeEventListener("storage", handleStorageChange)
+  return () => window.removeEventListener('storage', handleStorageChange)
 }
 
 export function stringStorageEffect<T extends string>(defaultValue: string): AtomEffect<T> {
@@ -67,6 +67,6 @@ export function stringStorageEffect<T extends string>(defaultValue: string): Ato
 
     window.addEventListener('storage', handleStorageChange)
 
-    return () => window.removeEventListener("storage", handleStorageChange)
+    return () => window.removeEventListener('storage', handleStorageChange)
   }
 }

@@ -1,20 +1,20 @@
-import { Suspense } from "react"
-import { ThemeProvider } from "@mui/material"
-import { LocalizationProvider } from "@mui/x-date-pickers"
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns"
-import { render } from "@testing-library/react"
-import { SnackbarProvider } from "notistack"
-import { RecoilRoot } from "recoil"
+import { Suspense } from 'react'
+import { ThemeProvider } from '@mui/material'
+import { LocalizationProvider } from '@mui/x-date-pickers'
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
+import { render } from '@testing-library/react'
+import { SnackbarProvider } from 'notistack'
+import { RecoilRoot } from 'recoil'
 
 import 'core-js/stable/structured-clone'
 
-import { eventWithStaticDates } from "../../__mockData__/events"
-import { registrationWithStaticDates } from "../../__mockData__/registrations"
+import { eventWithStaticDates } from '../../__mockData__/events'
+import { registrationWithStaticDates } from '../../__mockData__/registrations'
 import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
-import { createMatchMedia } from "../../test-utils/utils"
+import { createMatchMedia } from '../../test-utils/utils'
 
-import RegistrationForm from "./RegistrationForm"
+import RegistrationForm from './RegistrationForm'
 
 jest.useFakeTimers()
 jest.mock('../../api/event')

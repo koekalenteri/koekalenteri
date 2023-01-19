@@ -1,6 +1,6 @@
-import { Dog } from "koekalenteri-shared/model"
+import { Dog } from 'koekalenteri-shared/model'
 
-import { registrationDogAged10MonthsAndNoResults } from "../../__mockData__/dogs"
+import { registrationDogAged10MonthsAndNoResults } from '../../__mockData__/dogs'
 
 const defaultDog = (regNo: string): Dog => ({
   regNo,

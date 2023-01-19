@@ -12,7 +12,7 @@ import StyledDataGrid from '../components/StyledDataGrid'
 
 import FullPageFlex from './components/FullPageFlex'
 import { QuickSearchToolbar } from './components/QuickSearchToolbar'
-import AutoButton from "./eventListPage/AutoButton"
+import AutoButton from './eventListPage/AutoButton'
 import useEventListColumns from './eventListPage/columns'
 import { adminEventFilterTextAtom, adminEventIdAtom, adminShowPastEventsAtom, currentAdminEventSelector, filteredAdminEventsSelector, useAdminEventActions } from './recoil'
 

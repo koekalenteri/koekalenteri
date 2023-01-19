@@ -15,6 +15,7 @@ import { useDogActions } from '../../recoil/dog/actions'
 import { cachedDogRegNumbersSelector } from '../../recoil/dog/selectors'
 import AutocompleteSingle from '../AutocompleteSingle'
 import CollapsibleSection from '../CollapsibleSection'
+import { emptyDog } from '../RegistrationForm'
 
 import { useDogCache } from './hooks/useDogCache'
 import { validateRegNo } from './validation'
@@ -49,25 +50,24 @@ export const DogInfo = ({ reg, eventDate, minDogAgeMonths, error, helperText, on
   const disabled = mode !== 'manual'
   const validRegNo = validateRegNo(debouncedRegNo)
   const officialDog = useRecoilValue(dogAtom(debouncedRegNo))
-  const [cache, setCache] = useDogCache(debouncedRegNo, 'dog')
+  const [cache, setCache] = useDogCache(debouncedRegNo)
   const debouncedCache = useDebouncedValue(cache)
   const allowRefresh = shouldAllowRefresh(officialDog)
   const cachedRegNos = useRecoilValue(cachedDogRegNumbersSelector)
   const actions = useDogActions(debouncedRegNo)
   const dog = useMemo(() => {
-    const value = structuredClone(debouncedCache ?? {}) as Dog
+    const value = structuredClone(debouncedCache?.dog ?? emptyDog) as Dog
     const diff = getDiff(value, officialDog).filter(d => d.op !== 'delete')
-    console.log(diff)
     if (diff.length) {
+      console.debug('dog changes', diff)
       applyDiff(value, diff)
     }
     return value
-  }, [debouncedCache, officialDog])
+  }, [debouncedCache?.dog, officialDog])
 
-  const handleChange = useCallback((props: Partial<Dog & DogCachedInfo>, replace?: boolean) => {
-    console.log(props)
-    setCache(props)
-  }, [setCache])
+  const handleChange = useCallback((props: Partial<Dog & DogCachedInfo>) => {
+    setCache({...cache, dog: {...cache?.dog, ...props}})
+  }, [cache, setCache])
 
   useEffect(() => {
     if (validRegNo) {
@@ -78,15 +78,24 @@ export const DogInfo = ({ reg, eventDate, minDogAgeMonths, error, helperText, on
   }, [officialDog, validRegNo])
 
   useEffect(() => {
-    if (!dog) {
+    if (!dog.regNo) {
       return
     }
     const diff = getDiff(reg.dog, dog)
     if (diff.length) {
       const changes: Partial<Registration> = { dog: dog }
+      if (reg.dog.regNo !== dog.regNo) {
+        changes.breeder = cache?.breeder
+        changes.handler = cache?.handler
+        changes.owner = cache?.owner
+        changes.ownerHandles = cache?.owner?.ownerHandles ?? true
+        if (!cache) {
+          setCache({ owner: { ownerHandles: true }})
+        }
+      }
       onChange?.(changes)
     }
-  }, [dog, onChange, reg, reg.dog])
+  }, [cache, dog, onChange, reg, reg.dog, setCache])
 
   async function buttonClick() {
     switch (mode) {
@@ -112,12 +121,12 @@ export const DogInfo = ({ reg, eventDate, minDogAgeMonths, error, helperText, on
           disabled={!disabled}
           freeSolo
           renderInput={(props) => <TextField {...props} error={!validRegNo} label={t('dog.regNo')} />}
-          value={inputRegNo}
+          value={inputRegNo ?? ''}
           onChange={(_e, value) => value && setInputRegNo(value.toUpperCase())}
           onInputChange={(e, value) => {
             setInputRegNo(value.toUpperCase())
           }}
-          options={cachedRegNos}
+          options={cachedRegNos ?? []}
           sx={{ minWidth: 200 }}
         />
         <Stack alignItems="flex-start">

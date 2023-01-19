@@ -1,5 +1,5 @@
-import { API_BASE_URL } from "../routeConfig"
-import { parseJSON } from "../utils"
+import { API_BASE_URL } from '../routeConfig'
+import { parseJSON } from '../utils'
 
 class APIError extends Error {
   status: number
