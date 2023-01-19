@@ -4,10 +4,10 @@ import { HTML5Backend } from 'react-dnd-html5-backend'
 import { Box, Typography } from '@mui/material'
 import { GridCallbackDetails, GridSelectionModel } from '@mui/x-data-grid'
 import { Registration, RegistrationDate, RegistrationGroup } from 'koekalenteri-shared/model'
-import { useRecoilState, useRecoilValue } from 'recoil'
+import { useRecoilState } from 'recoil'
 
 import StyledDataGrid from '../../components/StyledDataGrid'
-import { adminRegistrationIdAtom, currentEventClassRegistrationsSelector } from '../recoil'
+import { adminRegistrationIdAtom, RegistrationWithMutators } from '../recoil'
 
 import { useClassEntrySelectionColumns } from './classEntrySelection/columns'
 import { DragItem } from './classEntrySelection/DragableRow'
@@ -18,6 +18,7 @@ import NoRowsOverlay from './classEntrySelection/NoRowsOverlay'
 
 interface Props {
   eventDates?: Date[]
+  registrations?: RegistrationWithMutators[]
   setOpen?: Dispatch<SetStateAction<boolean>>
 }
 
@@ -25,11 +26,17 @@ interface RegistrationWithGroups extends Registration {
   groups: string[]
 }
 
+const listKey = (reg: Registration) => {
+  if (reg.cancelled) {
+    return 'cancelled'
+  }
+  return reg.group?.key ?? 'reserve'
+}
 export const groupKey = (rd: RegistrationDate) => rd.date.toISOString().slice(0, 10) + '-' + rd.time
 
-const ClassEntrySelection = ({ eventDates = [], setOpen }: Props) => {
-  const registrations = useRecoilValue(currentEventClassRegistrationsSelector)
+const ClassEntrySelection = ({ eventDates = [], registrations = [], setOpen }: Props) => {
   const [selectedRegistrationID, setSelectedRegistrationID] = useRecoilState(adminRegistrationIdAtom)
+  const {entryColumns, participantColumns} = useClassEntrySelectionColumns(eventDates)
 
   const eventGroups: RegistrationGroup[] = useMemo(() => availableGroups(eventDates).map(eventDate => ({ ...eventDate, key: groupKey(eventDate), number: 0 })), [eventDates])
   const registrationsByGroup: Record<string, RegistrationWithGroups[]> = useMemo(() => {
@@ -38,14 +45,12 @@ const ClassEntrySelection = ({ eventDates = [], setOpen }: Props) => {
       byGroup[group.key] = []
     }
     for (const reg of registrations) {
-      const key = reg.group?.key ?? 'reserve'
+      const key = listKey(reg)
       byGroup[key] = byGroup[key] || [] // make sure the array exists
       byGroup[key].push({...reg, groups: reg.dates.map(rd => groupKey(rd))})
     }
     return byGroup
   }, [eventGroups, registrations])
-
-  const {entryColumns, participantColumns} = useClassEntrySelectionColumns(eventDates)
 
   const handleDrop = (group?: RegistrationGroup) => (item: DragItem) => {
     const reg = registrations.find(r => r.id === item.id)
@@ -89,8 +94,6 @@ const ClassEntrySelection = ({ eventDates = [], setOpen }: Props) => {
           key={group.key}
           group={group.key}
           columns={participantColumns}
-          density='compact'
-          disableColumnMenu
           hideFooter
           headerHeight={0}
           rows={registrationsByGroup[group.key] ?? []}
@@ -112,11 +115,9 @@ const ClassEntrySelection = ({ eventDates = [], setOpen }: Props) => {
           onDrop={handleDrop(group)}
         />,
       )}
-      < Typography variant='h5' > Ilmoittautuneet</Typography >
+      <Typography variant='h5'>Ilmoittautuneet</Typography>
       <DragableDataGrid
         columns={entryColumns}
-        density='compact'
-        disableColumnMenu
         flex={eventGroups.length || 1}
         rows={registrationsByGroup.reserve}
         onSelectionModelChange={handleSelectionModeChange}
@@ -124,6 +125,16 @@ const ClassEntrySelection = ({ eventDates = [], setOpen }: Props) => {
         onRowDoubleClick={handleDoubleClick}
         onDrop={handleDrop()}
       />
+      {registrationsByGroup.cancelled?.length ?
+        <>
+          <Typography variant='h5'>Peruneet</Typography>
+          <StyledDataGrid
+            columns={entryColumns}
+            rows={registrationsByGroup.cancelled}
+          />
+        </>
+        : null
+      }
     </DndProvider>
   )
 }

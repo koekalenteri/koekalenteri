@@ -1,6 +1,6 @@
 import { SSM } from 'aws-sdk'
 import type { JsonArray, JsonObject } from 'koekalenteri-shared/model'
-import fetch from 'node-fetch'
+import fetch from 'node-fetch-native'
 
 import type {
   KLAPIConfig, KLAPIResult, KLArvo, KLKennelpiiri, KLKoeHenkilö, KLKoemuodonTarkenne, KLKoemuodonTulos,

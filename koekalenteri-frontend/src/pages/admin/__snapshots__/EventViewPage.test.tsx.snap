@@ -4145,7 +4145,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
         <h5
           class="MuiTypography-root MuiTypography-h5 css-11zemyq-MuiTypography-root"
         >
-           Ilmoittautuneet
+          Ilmoittautuneet
         </h5>
         <div
           class=""
@@ -8974,7 +8974,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
         <h5
           class="MuiTypography-root MuiTypography-h5 css-11zemyq-MuiTypography-root"
         >
-           Ilmoittautuneet
+          Ilmoittautuneet
         </h5>
         <div
           class=""

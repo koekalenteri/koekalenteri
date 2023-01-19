@@ -24,7 +24,7 @@ export const currentEventRegistrationsSelector = selector<Registration[]>({
 })
 
 export const currentEventClassRegistrationsSelector = selector<RegistrationWithMutators[]>({
-  key: 'CurrentEventClassRegistrations',
+  key: 'currentEventClassRegistrations',
   get: ({ get, getCallback }) => {
     const eventClass = get(eventClassAtom)
     const registrations = get(currentEventRegistrationsSelector)
