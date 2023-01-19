@@ -5,7 +5,7 @@ import { Registration, RegistrationBreeder } from 'koekalenteri-shared/model'
 
 import CollapsibleSection from '../CollapsibleSection'
 
-import { useDogCacheKey } from './hooks/useDogCache'
+import { useDogCacheKey } from './hooks/useDogCacheKey'
 
 
 type BreederInfoProps = {
