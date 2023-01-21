@@ -4,9 +4,9 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { Event } from 'koekalenteri-shared/model'
 import { useSnackbar } from 'notistack'
 import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
-import { getDiff } from 'recursive-diff'
 
 import { Path } from '../../routeConfig'
+import { hasChanges } from '../../utils'
 import { activeEventTypesSelector, activeJudgesSelector, eventTypeClassesAtom } from '../recoil'
 
 import EventForm from './eventEditPage/EventForm'
@@ -27,12 +27,10 @@ export default function EventEditPage() {
   const storedEvent = useRecoilValue(adminEventSelector(eventId))
   const [event, setEvent] = useRecoilState(editableEventByIdAtom(eventId))
   const resetEvent = useResetRecoilState(editableEventByIdAtom(eventId))
-  const [changes, setChanges] = useState<boolean>(getDiff(storedEvent, event).length > 0)
+  const [changes, setChanges] = useState<boolean>(hasChanges(storedEvent, event))
 
   const handleChange = useCallback((newState: Event) => {
-    const diff = getDiff(storedEvent, newState)
-    console.log('changes', diff)
-    setChanges(diff.length > 0)
+    setChanges(hasChanges(storedEvent, newState))
     setEvent(newState)
   }, [setEvent, storedEvent])
 

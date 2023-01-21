@@ -3,7 +3,8 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
 import type { ConfirmedEvent, Registration } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
-import { getDiff } from 'recursive-diff'
+
+import { hasChanges } from '../utils'
 
 import LinkButton from './components/LinkButton'
 import RegistrationEventInfo from './components/RegistrationEventInfo'
@@ -21,11 +22,10 @@ export default function RegistrationEditPage() {
   const resetRegistration = useResetRecoilState(editableRegistrationByIdAtom(params.registrationId))
   const spa = useRecoilValue(spaAtom)
   const actions = useRegistrationActions()
-  const changes = useMemo(() => !!savedRegistration && getDiff(savedRegistration, registration).length > 0, [registration, savedRegistration])
+  const changes = useMemo(() => !!savedRegistration && hasChanges(savedRegistration, registration), [registration, savedRegistration])
 
   const handleChange = useCallback((newState: Registration) => {
-    const diff = getDiff(registration, newState)
-    if (diff.length) {
+    if (hasChanges(registration, newState)) {
       setRegistration(newState)
     }
   }, [registration, setRegistration])

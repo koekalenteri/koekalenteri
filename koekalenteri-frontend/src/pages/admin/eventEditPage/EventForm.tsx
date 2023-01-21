@@ -4,8 +4,8 @@ import { Cancel, Save } from '@mui/icons-material'
 import { LoadingButton } from '@mui/lab'
 import { Box, Button, Paper, Stack, Theme, useMediaQuery } from '@mui/material'
 import type { DeepPartial, Event, EventClass, EventState, Judge, Official, Organizer } from 'koekalenteri-shared/model'
-import {applyDiff, getDiff} from 'recursive-diff'
 
+import { merge } from '../../../utils'
 import AutocompleteSingle from '../../components/AutocompleteSingle'
 
 import AdditionalInfoSection from './eventForm/AdditionalInfoSection'
@@ -30,7 +30,7 @@ export interface SectionProps {
 }
 
 interface Props {
-  event: PartialEvent
+  event: Event
   eventTypes: string[]
   eventTypeClasses: Record<string, string[]>
   judges: Judge[]
@@ -62,9 +62,7 @@ export default function EventForm({ event, judges, eventTypes, eventTypeClasses,
     if (!event) {
       return
     }
-    const diff = getDiff({}, props)
-    const newState = applyDiff(structuredClone(event), diff) as Event
-    console.log('change', {changes: props, diff}, newState.places)
+    const newState = merge<Event>(event, props)
     setErrors(validateEvent(newState))
     onChange?.(newState)
   }, [event, onChange])

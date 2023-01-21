@@ -3,7 +3,8 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
 import type { ConfirmedEvent, Registration } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
-import { getDiff } from 'recursive-diff'
+
+import { hasChanges } from '../utils'
 
 import LinkButton from './components/LinkButton'
 import RegistrationEventInfo from './components/RegistrationEventInfo'
@@ -29,8 +30,7 @@ export default function RegistrationCreatePage() {
       }
     }
 
-    const diff = getDiff(registration, newState)
-    if (diff.length) {
+    if (hasChanges(registration, newState)) {
       setRegistration(newState)
     }
   }, [event, registration, setRegistration])

@@ -12,7 +12,7 @@ export type DogCachedInfo = {
   owner: RegistrationPerson & { ownerHandles: boolean },
 }
 
-type DogCache = Record<string, Partial<DogCachedInfo>>
+export type DogCache = Record<string, Partial<DogCachedInfo>>
 
 export const dogCacheAtom = atom<DogCache>({
   key: 'dog-cache',

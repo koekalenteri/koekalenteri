@@ -2,8 +2,8 @@ import { useCallback, useMemo } from 'react'
 import { Dialog, DialogContent, DialogTitle } from '@mui/material'
 import { ConfirmedEvent, Registration } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
-import { getDiff } from 'recursive-diff'
 
+import { hasChanges } from '../../../utils'
 import RegistrationForm from '../../components/RegistrationForm'
 import { editableRegistrationByIdAtom, eventSelector, registrationByIdAtom } from '../../recoil'
 import { adminRegistrationIdAtom } from '../recoil'
@@ -21,11 +21,10 @@ export default function RegistraionEditDialog({open, onClose}: Props) {
   const event = useRecoilValue(eventSelector(registration?.eventId))
   const resetRegistration = useResetRecoilState(editableRegistrationByIdAtom(registrationId))
   const actions = useAdminRegistrationActions()
-  const changes = useMemo(() => !!savedRegistration && getDiff(savedRegistration, registration).length > 0, [registration, savedRegistration])
+  const changes = useMemo(() => !!savedRegistration && hasChanges(savedRegistration, registration), [registration, savedRegistration])
 
   const handleChange = useCallback((newState: Registration) => {
-    const diff = getDiff(registration, newState)
-    if (diff.length) {
+    if (hasChanges(registration, newState)) {
       setRegistration(newState)
     }
   }, [registration, setRegistration])
