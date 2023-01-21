@@ -66,7 +66,7 @@ export default function EventViewPage() {
               Filttereitä tähän...
           </Grid>
           <Grid item xs="auto">
-            <InfoPanel event={event} />
+            <InfoPanel event={event} registrations={registrations} />
           </Grid>
         </Grid>
 
