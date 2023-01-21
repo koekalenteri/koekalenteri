@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Grid, TextField } from '@mui/material'
-import { Registration, RegistrationBreeder } from 'koekalenteri-shared/model'
+import { DeepPartial, Registration, RegistrationBreeder } from 'koekalenteri-shared/model'
 
 import CollapsibleSection from '../CollapsibleSection'
 
@@ -9,10 +9,10 @@ import { useDogCacheKey } from './hooks/useDogCacheKey'
 
 
 type BreederInfoProps = {
-  reg: Partial<Registration>
+  reg: DeepPartial<Registration>
   error?: boolean
   helperText?: string
-  onChange: (props: Partial<Registration>) => void
+  onChange: (props: DeepPartial<Registration>) => void
   onOpenChange?: (value: boolean) => void
   open?: boolean
 }

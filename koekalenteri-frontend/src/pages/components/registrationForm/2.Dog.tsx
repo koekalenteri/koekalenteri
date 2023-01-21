@@ -5,11 +5,11 @@ import { LoadingButton } from '@mui/lab'
 import { Autocomplete, FormControl, FormHelperText, Grid, Stack, TextField, TextFieldProps } from '@mui/material'
 import { DatePicker } from '@mui/x-date-pickers'
 import { differenceInMinutes, subMonths, subYears } from 'date-fns'
-import { BreedCode, Dog, DogGender, Registration } from 'koekalenteri-shared/model'
+import { BreedCode, DeepPartial, Dog, DogGender, Registration } from 'koekalenteri-shared/model'
 import { useRecoilValue } from 'recoil'
-import { applyDiff, getDiff } from 'recursive-diff'
 
 import { useDebouncedValue } from '../../../hooks/useDebouncedValue'
+import { hasChanges, merge } from '../../../utils'
 import { dogAtom, DogCachedInfo } from '../../recoil/dog'
 import { useDogActions } from '../../recoil/dog/actions'
 import { cachedDogRegNumbersSelector } from '../../recoil/dog/selectors'
@@ -31,12 +31,12 @@ export function shouldAllowRefresh(dog?: Partial<Dog>) {
 }
 
 interface Props {
-  reg: Registration
+  reg: DeepPartial<Registration>
   eventDate: Date
   minDogAgeMonths: number
   error?: boolean
   helperText?: string
-  onChange: (props: Partial<Registration>) => void
+  onChange: (props: DeepPartial<Registration>) => void
   onOpenChange?: (value: boolean) => void
   open?: boolean
 }
@@ -44,7 +44,7 @@ interface Props {
 export const DogInfo = ({ reg, eventDate, minDogAgeMonths, error, helperText, onChange, onOpenChange, open }: Props) => {
   const { t } = useTranslation()
   const { t: breed } = useTranslation('breed')
-  const [inputRegNo, setInputRegNo] = useState<string>(reg.dog.regNo)
+  const [inputRegNo, setInputRegNo] = useState<string>(reg?.dog?.regNo ?? '')
   const debouncedRegNo = useDebouncedValue(inputRegNo)
   const [mode, setMode] = useState<'fetch' | 'manual' | 'update' | 'invalid' | 'notfound'>('update')
   const disabled = mode !== 'manual'
@@ -55,15 +55,9 @@ export const DogInfo = ({ reg, eventDate, minDogAgeMonths, error, helperText, on
   const allowRefresh = shouldAllowRefresh(officialDog)
   const cachedRegNos = useRecoilValue(cachedDogRegNumbersSelector)
   const actions = useDogActions(debouncedRegNo)
-  const dog = useMemo(() => {
-    const value = structuredClone(debouncedCache?.dog ?? emptyDog) as Dog
-    const diff = getDiff(value, officialDog).filter(d => d.op !== 'delete')
-    if (diff.length) {
-      console.debug('dog changes', diff)
-      applyDiff(value, diff)
-    }
-    return value
-  }, [debouncedCache?.dog, officialDog])
+
+  // @ts-ignore
+  const dog = useMemo(() => merge<Dog>(debouncedCache?.dog ?? emptyDog, officialDog ?? {}), [debouncedCache?.dog, officialDog])
 
   const handleChange = useCallback((props: Partial<Dog & DogCachedInfo>) => {
     setCache({...cache, dog: {...cache?.dog, ...props}})
@@ -81,10 +75,10 @@ export const DogInfo = ({ reg, eventDate, minDogAgeMonths, error, helperText, on
     if (!dog.regNo) {
       return
     }
-    const diff = getDiff(reg.dog, dog)
-    if (diff.length) {
-      const changes: Partial<Registration> = { dog: dog }
-      if (reg.dog.regNo !== dog.regNo) {
+
+    if (hasChanges(reg.dog, dog)) {
+      const changes: DeepPartial<Registration> = { dog: dog }
+      if (reg?.dog?.regNo !== dog.regNo) {
         changes.breeder = cache?.breeder
         changes.handler = cache?.handler
         changes.owner = cache?.owner

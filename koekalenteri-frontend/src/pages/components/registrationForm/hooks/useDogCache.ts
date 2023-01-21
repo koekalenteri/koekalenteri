@@ -1,29 +1,23 @@
 import { useCallback, useMemo } from 'react'
 import { DeepPartial } from 'koekalenteri-shared/model'
 import { useRecoilState } from 'recoil'
-import { applyDiff, getDiff } from 'recursive-diff'
 
-import { dogCacheAtom, DogCachedInfo } from '../../../recoil/dog'
+import { isEmpty, merge } from '../../../../utils'
+import { DogCache, dogCacheAtom, DogCachedInfo } from '../../../recoil/dog'
 
-type Setter = (props: DeepPartial<DogCachedInfo>) => DogCachedInfo | undefined
-type HookResult = [Partial<DogCachedInfo> | undefined, Setter]
+type Setter = (props: DeepPartial<DogCachedInfo>) => DeepPartial<DogCachedInfo> | undefined
+type HookResult = [DeepPartial<DogCachedInfo> | undefined, Setter]
 
 export function useDogCache(regNo: string = ''): HookResult {
   const [cache, setCache] = useRecoilState(dogCacheAtom)
   const cached = useMemo(() => regNo ? cache?.[regNo] : undefined, [cache, regNo])
   const setCached = useCallback<Setter>((props) => {
-    if (!regNo) {
+    if (!regNo || isEmpty(props)) {
       return
     }
-    const diff = getDiff({}, props)
-    if (diff.length) {
-      const newState = cached ? structuredClone(cached) : {}
-      const result = applyDiff(newState, diff)
-      const newCache = {...cache}
-      newCache[regNo] = newState
-      setCache(newCache)
-      return result
-    }
+    const result = cached ? merge(cached, props) : props
+    setCache(merge<DogCache>(cache, { [regNo]: result }))
+    return result
   }, [cache, cached, regNo, setCache])
 
   return [cached, setCached]

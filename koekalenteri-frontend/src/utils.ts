@@ -1,5 +1,6 @@
 import { eachDayOfInterval, endOfDay, startOfDay, subDays } from 'date-fns'
-import { Event, JsonValue, RegistrationDate } from 'koekalenteri-shared/model'
+import { diff } from 'deep-object-diff'
+import { DeepPartial, Event, JsonValue, RegistrationDate } from 'koekalenteri-shared/model'
 
 type EventDates = {
   startDate?: Date
@@ -45,3 +46,32 @@ function dateReviver(_key: string, value: JsonValue): JsonValue | Date {
 }
 
 export const parseJSON = (json: string) => json ? JSON.parse(json, dateReviver) : undefined
+
+
+export type AnyObject = Record<string, unknown>
+export type EmptyObject = Record<string, never>
+export type Entries<T> = {
+  [K in keyof T]: [K, T[K]];
+}[keyof T][];
+
+export const isEmpty = (o: AnyObject): o is EmptyObject => Object.keys(o).length === 0
+export const isObject = (o: unknown): o is AnyObject => o !== null && Object.prototype.toString.call(o) === '[object Object]'
+export const isEmptyObject = (o: unknown): o is EmptyObject => isObject(o) && isEmpty(o)
+export const hasChanges = (a: AnyObject|undefined, b: AnyObject|undefined): boolean => !isEmptyObject(diff(a ?? {}, b ?? {}))
+export const clone = <T extends AnyObject>(a: T): T => Object.assign({}, a)
+export const merge = <T>(a: T, b: DeepPartial<T>): T => {
+  const result = isObject(a) ? clone(a) : {} as T
+  if (!isObject(b)) {
+    return result
+  }
+  for (const [key, value] of Object.entries(b) as Entries<T>) {
+    if (isObject(value)) {
+      const old = result[key]
+      // @ts-expect-error Argument of type 'T[keyof T] & AnyObject' is not assignable to parameter of type 'DeepPartial<T[keyof T] & AnyObject>'
+      result[key] = isObject(old) ? merge(old, value) : value
+    } else {
+      result[key] = value
+    }
+  }
+  return result
+}
