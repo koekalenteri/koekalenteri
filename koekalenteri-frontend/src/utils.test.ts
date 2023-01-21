@@ -1,7 +1,7 @@
 import { Event, EventClass } from 'koekalenteri-shared/model'
 
 import { eventWithEntryClosing, eventWithEntryNotYetOpen, eventWithEntryOpen } from './__mockData__/events'
-import { AnyObject, clone, entryDateColor, isEmpty, isObject, merge, parseJSON, registrationDates } from './utils'
+import { AnyObject, clone, entryDateColor, hasChanges, isEmpty, isObject, merge, parseJSON, registrationDates } from './utils'
 
 describe('utils', () => {
   describe('entryDateColor', () => {
@@ -90,6 +90,21 @@ describe('utils', () => {
     })
     it('should return false for non-empty object', () => {
       expect(isEmpty({ notEmpty: 1 })).toEqual(false)
+    })
+  })
+
+  describe('hasChanges', () => {
+    it('should return true when there are changes', () => {
+      expect(hasChanges({ a: 'same' }, { a: 'different' })).toEqual(true)
+      expect(hasChanges({ a: 'same' }, {})).toEqual(true)
+      expect(hasChanges({ a: 'same' }, { b: 'same' })).toEqual(true)
+      expect(hasChanges({ a: 'same' }, { a: 'same', b: undefined })).toEqual(true)
+      expect(hasChanges({}, { a: 'different' })).toEqual(true)
+    })
+
+    it('should return false when objects are equal', () => {
+      expect(hasChanges({}, {})).toEqual(false)
+      expect(hasChanges({ a: 'same' }, { a: 'same' })).toEqual(false)
     })
   })
 
