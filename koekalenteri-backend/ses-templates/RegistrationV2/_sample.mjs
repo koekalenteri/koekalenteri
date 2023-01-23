@@ -163,4 +163,4 @@ export default {
   dogBreed: "Labradorinnoutaja",
   regDates: "la 23.4. aamupäivä, su 24.4. iltapäivä",
   link: "https://localhost/somewhere/edit/that",
-};
+}

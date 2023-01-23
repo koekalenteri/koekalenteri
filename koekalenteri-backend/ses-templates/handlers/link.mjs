@@ -1,4 +1,4 @@
-import {all} from './table.mjs'
+import { all } from './table.mjs'
 
 /**
  * @type {Handler}
@@ -6,7 +6,7 @@ import {all} from './table.mjs'
  */
 export default function link(h, node) {
   /** @type {Properties} */
-  const props = {href: node.url}
+  const props = { href: node.url }
 
   if (node.title !== null && node.title !== undefined) {
     props.title = node.title

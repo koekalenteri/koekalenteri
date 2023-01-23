@@ -102,7 +102,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
           class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-auto css-kcsfla-MuiGrid-root"
         >
           <div
-            class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation4 MuiTableContainer-root css-525bbl-MuiPaper-root-MuiTableContainer-root"
+            class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation4 MuiTableContainer-root css-1tn7x7z-MuiPaper-root-MuiTableContainer-root"
           >
             <table
               class="MuiTable-root css-rqglhn-MuiTable-root"
@@ -119,7 +119,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                     scope="col"
                   >
                     <b>
-                      Ilmoittautuneita
+                      Ilmoittautuneet
                     </b>
                   </th>
                 </tr>
@@ -133,24 +133,8 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                   <td
                     class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
                   >
-                    10.02.
+                    • osallistujat
                   </td>
-                  <td
-                    class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
-                  >
-                    ALO
-                  </td>
-                  <td
-                    class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
-                  />
-                  <td
-                    class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
-                  >
-                    Jäseniä
-                  </td>
-                  <td
-                    class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
-                  />
                 </tr>
                 <tr
                   class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
@@ -158,24 +142,25 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                   <td
                     class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
                   >
-                    11.02.
-                  </td>
-                  <td
-                    class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
-                  >
-                    ALO
+                    • varasijalla
                   </td>
                   <td
                     class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
-                  />
-                  <td
-                    class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
                   >
-                    Jäseniä
+                    0
                   </td>
                   <td
                     class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
-                  />
+                  >
+                    <button
+                      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall css-1ke4pnb-MuiButtonBase-root-MuiButton-root"
+                      disabled=""
+                      tabindex="-1"
+                      type="button"
+                    >
+                      LÄHETÄ VARASIJAILMOITUS
+                    </button>
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -232,9 +217,8 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
           Vie Exceliin
         </button>
         <button
-          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-16m0f1y-MuiButtonBase-root-MuiButton-root"
-          disabled=""
-          tabindex="-1"
+          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-16m0f1y-MuiButtonBase-root-MuiButton-root"
+          tabindex="0"
           type="button"
         >
           <span
@@ -253,6 +237,9 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
             </svg>
           </span>
           Lähetä viesti
+          <span
+            class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+          />
         </button>
         <button
           class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-16m0f1y-MuiButtonBase-root-MuiButton-root"
@@ -4982,7 +4969,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
           class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-auto css-kcsfla-MuiGrid-root"
         >
           <div
-            class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation4 MuiTableContainer-root css-525bbl-MuiPaper-root-MuiTableContainer-root"
+            class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation4 MuiTableContainer-root css-1tn7x7z-MuiPaper-root-MuiTableContainer-root"
           >
             <table
               class="MuiTable-root css-rqglhn-MuiTable-root"
@@ -4999,14 +4986,50 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                     scope="col"
                   >
                     <b>
-                      Ilmoittautuneita
+                      Ilmoittautuneet
                     </b>
                   </th>
                 </tr>
               </thead>
               <tbody
                 class="MuiTableBody-root css-apqrd9-MuiTableBody-root"
-              />
+              >
+                <tr
+                  class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                >
+                  <td
+                    class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                  >
+                    • osallistujat
+                  </td>
+                </tr>
+                <tr
+                  class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                >
+                  <td
+                    class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                  >
+                    • varasijalla
+                  </td>
+                  <td
+                    class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
+                  >
+                    0
+                  </td>
+                  <td
+                    class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
+                  >
+                    <button
+                      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall css-1ke4pnb-MuiButtonBase-root-MuiButton-root"
+                      disabled=""
+                      tabindex="-1"
+                      type="button"
+                    >
+                      LÄHETÄ VARASIJAILMOITUS
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
             </table>
           </div>
         </div>
@@ -5061,9 +5084,8 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
           Vie Exceliin
         </button>
         <button
-          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-16m0f1y-MuiButtonBase-root-MuiButton-root"
-          disabled=""
-          tabindex="-1"
+          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-16m0f1y-MuiButtonBase-root-MuiButton-root"
+          tabindex="0"
           type="button"
         >
           <span
@@ -5082,6 +5104,9 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
             </svg>
           </span>
           Lähetä viesti
+          <span
+            class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+          />
         </button>
         <button
           class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-16m0f1y-MuiButtonBase-root-MuiButton-root"

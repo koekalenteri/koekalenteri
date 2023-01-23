@@ -1,5 +1,5 @@
-import {u} from 'unist-builder'
-import {pointStart, pointEnd} from 'unist-util-position'
+import { u } from 'unist-builder'
+import { pointEnd, pointStart } from 'unist-util-position'
 
 const own = {}.hasOwnProperty
 
@@ -21,7 +21,7 @@ export default function tableHandler(h, node) {
       const cell = row[cellIndex]
       const name = cellIndex === 0 ? 'th' : 'td'
       out.push(
-        h(cell, name, {align: align[cellIndex]}, cell ? all(h, cell) : [])
+        h(cell, name, { align: align[cellIndex] }, cell ? all(h, cell) : [])
       )
     }
 
@@ -37,7 +37,7 @@ export default function tableHandler(h, node) {
           ? h(
             {
               start: pointStart(result[1]),
-              end: pointEnd(result[result.length - 1])
+              end: pointEnd(result[result.length - 1]),
             },
             'tbody',
             wrap(result.slice(1), true)
@@ -125,13 +125,13 @@ export function one(h, node, parent) {
   } else {
     fn = h.unknownHandler
   }
-  node.value = node.value.replace(/:$/, '');
+  node.value = node.value.replace(/:$/, '')
 
   return (typeof fn === 'function' ? fn : unknown)(h, node, parent)
 }
 
 function returnNode(h, node) {
-  return 'children' in node ? {...node, children: all(h, node)} : node
+  return 'children' in node ? { ...node, children: all(h, node) } : node
 }
 
 function unknown(h, node) {
