@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { Button, Paper, Table, TableBody, tableBodyClasses, TableCell, TableContainer, TableHead, TableRow } from '@mui/material'
+import { Button, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material'
 import { Event, Registration } from 'koekalenteri-shared/model'
 
 import { eventDates } from '../../../utils'

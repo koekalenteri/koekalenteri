@@ -14,6 +14,7 @@ import FullPageFlex from './components/FullPageFlex'
 import RegistraionEditDialog from './eventEditPage/RegistrationEditDialog'
 import ClassEntrySelection from './eventViewPage/ClassEntrySelection'
 import InfoPanel from './eventViewPage/InfoPanel'
+import SendMessageDialog from './eventViewPage/SendMessageDialog'
 import TabPanel from './eventViewPage/TabPanel'
 import Title from './eventViewPage/Title'
 import { currentAdminRegistrationSelector, currentEventClassRegistrationsSelector, editableEventByIdAtom, eventClassAtom } from './recoil'
@@ -21,6 +22,8 @@ import { currentAdminRegistrationSelector, currentEventClassRegistrationsSelecto
 export default function EventViewPage() {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
+  const [msgDlgOpen, setMsgDlgOpen] = useState(false)
+
   const params = useParams()
   const event = useRecoilValue(editableEventByIdAtom(params.id ?? ''))
   const eventClasses = useMemo(() => {
@@ -42,6 +45,9 @@ export default function EventViewPage() {
   const handleClose = useCallback(() => {
     setOpen(false)
   }, [])
+
+  function openMsgDlg() { setMsgDlgOpen(true) }
+  function closeMsgDlg() { setMsgDlgOpen(false) }
 
   useEffect(() => {
     if (selectedEventClass && !eventClasses.includes(selectedEventClass)) {
@@ -73,7 +79,7 @@ export default function EventViewPage() {
         <Stack direction="row" spacing={2}>
           <Button startIcon={<FormatListBulleted />} disabled>Näytä tiedot</Button>
           <Button startIcon={<TableChartOutlined />} disabled>Vie Exceliin</Button>
-          <Button startIcon={<EmailOutlined />} disabled>Lähetä viesti</Button>
+          <Button startIcon={<EmailOutlined />} onClick={openMsgDlg}>Lähetä viesti</Button>
           <Button startIcon={<ShuffleOutlined />} disabled>Arvo kokeen osallistujat</Button>
           <Divider orientation='vertical'></Divider>
           <Button startIcon={<AddCircleOutline />} onClick={() => { setOpen(true) }}>{t('create')}</Button>
@@ -99,6 +105,7 @@ export default function EventViewPage() {
 
         <Suspense>
           <RegistraionEditDialog open={open} onClose={handleClose}/>
+          <SendMessageDialog open={msgDlgOpen} onClose={closeMsgDlg} event={event} />
         </Suspense>
       </FullPageFlex>
     </>
