@@ -1,5 +1,3 @@
-import { Replace, ReplaceOptional } from ".";
-
 export interface JsonDog extends DogName {
   regNo: string
   callingName?: string
