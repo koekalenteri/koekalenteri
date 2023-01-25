@@ -1,8 +1,7 @@
 
-import { render, screen } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
+import { screen } from '@testing-library/react'
 
-import { waitForDebounce } from '../../../../../test-utils/utils'
+import { renderWithUserEvents, waitForDebounce } from '../../../../../test-utils/utils'
 import { PartialEvent } from '../../EventForm'
 
 import EventPrice from './EventPrice'
@@ -20,10 +19,9 @@ const testEvent: PartialEvent = {
 
 describe('EventPrice', () => {
   it('should be clearable with options', async () => {
-    const user = userEvent.setup()
     const onChange = jest.fn()
 
-    render(<EventPrice id={'cost'} options={[10, 20]} event={testEvent} onChange={onChange}/>)
+    const { user } = renderWithUserEvents(<EventPrice id={'cost'} options={[10, 20]} event={testEvent} onChange={onChange} />)
     const input = screen.getByRole('combobox')
     await user.type(input, '5')
     await waitForDebounce()

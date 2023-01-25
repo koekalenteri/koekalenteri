@@ -1,3 +1,4 @@
+import { useAuthenticator } from '@aws-amplify/ui-react'
 import i18next from 'i18next'
 import { EventType } from 'koekalenteri-shared/model'
 import { useRecoilState } from 'recoil'
@@ -8,6 +9,7 @@ import { eventTypesAtom } from './atoms'
 
 
 export const useEventTypeActions = () => {
+  const { user } = useAuthenticator(context => [context.user])
   const [eventTypes, setEventTypes] = useRecoilState(eventTypesAtom)
 
   return {
@@ -28,7 +30,7 @@ export const useEventTypeActions = () => {
     if (index === -1) {
       throw new Error(`EventType ${eventType.eventType} not found!`)
     }
-    const saved = await putEventType(eventType)
+    const saved = await putEventType(eventType, user.getSignInUserSession()?.getIdToken().getJwtToken())
     const newEventTypes = eventTypes.map<EventType>(j => ({ ...j }))
     newEventTypes.splice(index, 1, saved)
     setEventTypes(newEventTypes)

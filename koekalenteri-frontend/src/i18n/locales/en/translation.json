@@ -144,6 +144,8 @@
   "registration": {
     "createdAt": "Created at",
     "cta": {
+      "addResult": "Add result",
+      "deleteResult": "Remove result",
       "fetch": "Fetch information",
       "helper": {
         "fetch": "",

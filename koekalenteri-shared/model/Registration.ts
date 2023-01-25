@@ -1,6 +1,6 @@
 import { DbRecord, Dog, JsonDbRecord, JsonDog, JsonTestResult, Language, Person, Replace, TestResult } from ".";
 
-export type JsonRegistration = JsonDbRecord & {
+export interface JsonRegistration extends JsonDbRecord {
   agreeToPublish: boolean
   agreeToTerms: boolean
   breeder: RegistrationBreeder
@@ -22,10 +22,10 @@ export type JsonRegistration = JsonDbRecord & {
   group?: JsonRegistrationGroup
 }
 
-export type RegistrationGroup = RegistrationDate & { number: number, key: string }
-export type JsonRegistrationGroup = JsonRegistrationDate & { number: number, key: string }
+export interface RegistrationGroup extends RegistrationDate { number: number, key: string }
+export interface JsonRegistrationGroup extends JsonRegistrationDate { number: number, key: string }
 
-export type Registration = DbRecord & {
+export interface Registration extends DbRecord {
   agreeToPublish: boolean
   agreeToTerms: boolean
   breeder: RegistrationBreeder
@@ -47,22 +47,22 @@ export type Registration = DbRecord & {
   group?: RegistrationGroup
 }
 
-export type JsonQualifyingResult = JsonTestResult & { official: boolean, qualifying?: boolean };
-export type QualifyingResult = TestResult & { official: boolean, qualifying?: boolean };
+export interface JsonQualifyingResult extends JsonTestResult { official: boolean, qualifying?: boolean };
+export interface QualifyingResult extends TestResult { official: boolean, qualifying?: boolean };
 
-export type JsonRegistrationDate = {
+export interface JsonRegistrationDate {
   date: string
   time?: RegistrationTime
 }
 
-export type RegistrationDate = Replace<JsonRegistrationDate, 'date', Date>
+export interface RegistrationDate extends Replace<JsonRegistrationDate, 'date', Date> { }
 
 export type RegistrationTime = 'ap' | 'ip'
 
-export type RegistrationPerson = Person & {
+export interface RegistrationPerson extends Person {
   membership: boolean
 }
 
-export type RegistrationBreeder = Omit<Person, 'email' | 'phone'>;
+export interface RegistrationBreeder extends Omit<Person, 'email' | 'phone'> { }
 
 export type ReserveChoise = 'ANY' | 'DAY' | 'WEEK' | 'NO'
