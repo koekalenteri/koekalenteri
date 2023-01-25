@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
 import { Headquarters } from 'koekalenteri-shared/model'
+
+import { renderWithUserEvents } from '../../../../test-utils/utils'
 
 import HeadquartersSection from './HeadquartersSection'
 
@@ -26,15 +27,13 @@ describe('HeadquartersSection', () => {
   })
 
   it('should fire onChange', async () => {
-    const user = userEvent.setup({})
-
     const testHQ: Partial<Headquarters> = {}
 
     const changeHandler = jest.fn((props) => {
       Object.assign(testHQ, props.headquarters)
     })
 
-    render(<HeadquartersSection headquarters={testHQ} onChange={changeHandler} open />)
+    const { user } = renderWithUserEvents(<HeadquartersSection headquarters={testHQ} onChange={changeHandler} open />)
 
     expect(changeHandler).toHaveBeenCalledTimes(0)
 

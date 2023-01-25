@@ -57,7 +57,7 @@ export type Entries<T> = {
 export const isEmpty = (o: AnyObject): o is EmptyObject => Object.keys(o).length === 0
 export const isObject = (o: unknown): o is AnyObject => o !== null && Object.prototype.toString.call(o) === '[object Object]'
 export const isEmptyObject = (o: unknown): o is EmptyObject => isObject(o) && isEmpty(o)
-export const hasChanges = (a: AnyObject|undefined, b: AnyObject|undefined): boolean => !isEmptyObject(diff(a ?? {}, b ?? {}))
+export const hasChanges = (a: object | undefined, b: object | undefined): boolean => !isEmptyObject(diff(a ?? {}, b ?? {}))
 export const clone = <T extends AnyObject>(a: T): T => Object.assign({}, a)
 export const merge = <T>(a: T, b: DeepPartial<T>): T => {
   const result = isObject(a) ? clone(a) : {} as T

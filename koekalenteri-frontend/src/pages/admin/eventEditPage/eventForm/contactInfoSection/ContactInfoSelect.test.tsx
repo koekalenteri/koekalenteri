@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
+
+import { renderWithUserEvents } from '../../../../../test-utils/utils'
 
 import ContactInfoSelect from './ContactInfoSelect'
 
@@ -12,16 +13,15 @@ describe('PersonContactInfo', () => {
   })
 
   it('should fire onChange when uncontrolled', async () => {
-    const user = userEvent.setup()
     const changeHandler = jest.fn()
 
-    render(<ContactInfoSelect name="uncontrolled" onChange={changeHandler} />)
+    const { user } = renderWithUserEvents(<ContactInfoSelect name="uncontrolled" onChange={changeHandler} />)
 
     expect(changeHandler).toHaveBeenCalledTimes(0)
 
-    const nameInput = screen.getByRole('checkbox', {name: 'contact.name'})
-    const emailInput = screen.getByRole('checkbox', {name: 'contact.email'})
-    const phoneInput = screen.getByRole('checkbox', {name: 'contact.phone'})
+    const nameInput = screen.getByRole('checkbox', { name: 'contact.name' })
+    const emailInput = screen.getByRole('checkbox', { name: 'contact.email' })
+    const phoneInput = screen.getByRole('checkbox', { name: 'contact.phone' })
 
     expect(nameInput).not.toBeChecked()
     expect(emailInput).not.toBeChecked()
@@ -71,17 +71,16 @@ describe('PersonContactInfo', () => {
   })
 
   it('should fire onChange when controlled', async () => {
-    const user = userEvent.setup()
     const state = {}
     const changeHandler = jest.fn((props) => Object.assign(state, props))
 
-    render(<ContactInfoSelect name="controlled" show={state} onChange={changeHandler} />)
+    const { user } = renderWithUserEvents(<ContactInfoSelect name="controlled" show={state} onChange={changeHandler} />)
 
     expect(changeHandler).toHaveBeenCalledTimes(0)
 
-    const nameInput = screen.getByRole('checkbox', {name: 'contact.name'})
-    const emailInput = screen.getByRole('checkbox', {name: 'contact.email'})
-    const phoneInput = screen.getByRole('checkbox', {name: 'contact.phone'})
+    const nameInput = screen.getByRole('checkbox', { name: 'contact.name' })
+    const emailInput = screen.getByRole('checkbox', { name: 'contact.email' })
+    const phoneInput = screen.getByRole('checkbox', { name: 'contact.phone' })
 
     expect(nameInput).not.toBeChecked()
     expect(emailInput).not.toBeChecked()

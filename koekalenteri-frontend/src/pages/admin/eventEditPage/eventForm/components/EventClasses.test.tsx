@@ -1,7 +1,8 @@
 
 import { render, screen } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
 import { parseISO } from 'date-fns'
+
+import { renderWithUserEvents } from '../../../../../test-utils/utils'
 
 import EventClasses from './EventClasses'
 
@@ -20,7 +21,7 @@ describe('EventClasses', () => {
       eventStartDate={date}
       eventEndDate={date}
       value={undefined}
-      classes={[{class: 'ALO'}, {class: 'AVO'}]}
+      classes={[{ class: 'ALO' }, { class: 'AVO' }]}
       label={''}
     />)
     expect(container).toMatchSnapshot()
@@ -31,8 +32,8 @@ describe('EventClasses', () => {
       id={''}
       eventStartDate={date}
       eventEndDate={date}
-      value={[{class: 'ALO', date, judge: {id: 1, name: 'Test Judge'}}]}
-      classes={[{class: 'ALO', date}, {class: 'AVO', date}]}
+      value={[{ class: 'ALO', date, judge: { id: 1, name: 'Test Judge' } }]}
+      classes={[{ class: 'ALO', date }, { class: 'AVO', date }]}
       label={''} />)
     expect(container).toMatchSnapshot()
   })
@@ -43,10 +44,10 @@ describe('EventClasses', () => {
       eventStartDate={date}
       eventEndDate={date}
       value={[
-        {class: 'ALO', date, judge: {id: 1, name: 'Test Judge'}},
-        {class: 'AVO', date, judge: [{id: 1, name: 'Test Judge'}, {id: 2, name: 'Test Judge2'}]},
+        { class: 'ALO', date, judge: { id: 1, name: 'Test Judge' } },
+        { class: 'AVO', date, judge: [{ id: 1, name: 'Test Judge' }, { id: 2, name: 'Test Judge2' }] },
       ]}
-      classes={[{class: 'ALO', date}, {class: 'AVO', date}]}
+      classes={[{ class: 'ALO', date }, { class: 'AVO', date }]}
       label={''}
       showCount
     />)
@@ -54,17 +55,15 @@ describe('EventClasses', () => {
   })
 
   it('should render with classes and values, open', async () => {
-    const user = userEvent.setup()
-
-    const { container } = render(<EventClasses
+    const { container, user } = renderWithUserEvents(<EventClasses
       id={''}
       eventStartDate={date}
       eventEndDate={date}
       value={[
-        {class: 'ALO', date, judge: {id: 1, name: 'Test Judge'}},
-        {class: 'AVO', date, judge: [{id: 1, name: 'Test Judge'}, {id: 2, name: 'Test Judge2'}]},
+        { class: 'ALO', date, judge: { id: 1, name: 'Test Judge' } },
+        { class: 'AVO', date, judge: [{ id: 1, name: 'Test Judge' }, { id: 2, name: 'Test Judge2' }] },
       ]}
-      classes={[{class: 'ALO', date}, {class: 'AVO', date}]}
+      classes={[{ class: 'ALO', date }, { class: 'AVO', date }]}
       label={''}
       showCount
     />)
@@ -76,17 +75,15 @@ describe('EventClasses', () => {
   })
 
   it('should render with classes and values for 2 day event, open', async () => {
-    const user = userEvent.setup()
-
-    const { container } = render(<EventClasses
+    const { container, user } = renderWithUserEvents(<EventClasses
       id={''}
       eventStartDate={date}
       eventEndDate={date2}
       value={[
-        {class: 'ALO', date, judge: {id: 1, name: 'Test Judge'}},
-        {class: 'AVO', date, judge: [{id: 1, name: 'Test Judge'}, {id: 2, name: 'Test Judge2'}]},
+        { class: 'ALO', date, judge: { id: 1, name: 'Test Judge' } },
+        { class: 'AVO', date, judge: [{ id: 1, name: 'Test Judge' }, { id: 2, name: 'Test Judge2' }] },
       ]}
-      classes={[{class: 'ALO', date}, {class: 'AVO', date}, {class: 'AVO', date: date2}]}
+      classes={[{ class: 'ALO', date }, { class: 'AVO', date }, { class: 'AVO', date: date2 }]}
       label={''}
       showCount
     />)

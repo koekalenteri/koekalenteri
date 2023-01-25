@@ -37,13 +37,13 @@ export default class CustomDynamoClient {
     return data.Items?.filter(item => !item.deletedAt) as T[]
   }
 
-  async read<T>(key: Record<string, number|string|undefined> | null, table?: string): Promise<T | undefined> {
+  async read<T>(key: Record<string, number | string | undefined> | null, table?: string): Promise<T | undefined> {
     if (!key) {
       console.warn('CustomDynamoClient.read: no key provoded, returning undefined')
       return
     }
     const params = {
-      TableName : table ? fromSamLocalTable(table) : this.table,
+      TableName: table ? fromSamLocalTable(table) : this.table,
       Key: key,
     }
     const data = await this.docClient.get(params).promise()
@@ -56,7 +56,7 @@ export default class CustomDynamoClient {
       return
     }
     const params: DynamoDB.DocumentClient.QueryInput = {
-      TableName : this.table,
+      TableName: this.table,
       KeyConditionExpression: key,
       ExpressionAttributeValues: values,
     }
@@ -64,7 +64,7 @@ export default class CustomDynamoClient {
     return data.Items as T[]
   }
 
-  async write(Item: Record<string, unknown>, table?: string): Promise<unknown> {
+  async write(Item: object, table?: string): Promise<unknown> {
     const params = {
       TableName: table ? fromSamLocalTable(table) : this.table,
       Item,

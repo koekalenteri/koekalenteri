@@ -1,22 +1,22 @@
-export type Person = {
+export interface Person {
   name: string
   email: string
   phone: string
   location: string
 }
 
-export type OfficialPerson = Person & {
+export interface OfficialPerson extends Person {
   id: number
 }
 
-export type Secretary = OfficialPerson;
+export interface Secretary extends OfficialPerson { }
 
-export type Official = OfficialPerson & {
+export interface Official extends OfficialPerson {
   district: string
   eventTypes: string[]
 }
 
-export type Judge = OfficialPerson & {
+export interface Judge extends OfficialPerson {
   district: string
   eventTypes: string[]
   languages: string[]

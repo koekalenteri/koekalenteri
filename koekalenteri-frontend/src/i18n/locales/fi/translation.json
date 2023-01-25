@@ -175,6 +175,8 @@
     "classesDetails": "Koeluokan tiedot",
     "createdAt": "Ilmoittautumisaika",
     "cta": {
+      "addResult": "Lisää tulos",
+      "deleteResult": "Poista tulos",
       "fetch": "Hae tiedot",
       "helper": {
         "fetch": "",

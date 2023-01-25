@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
+
+import { renderWithUserEvents } from '../../../../test-utils/utils'
 
 import AdditionalInfoSection from './AdditionalInfoSection'
 
@@ -20,8 +21,6 @@ describe('AdditionalInfoSection', () => {
   })
 
   it('should fire onChange', async () => {
-    const user = userEvent.setup()
-
     const testEvent = {
       id: 'test',
       judges: [],
@@ -31,7 +30,7 @@ describe('AdditionalInfoSection', () => {
     }
     const changeHandler = jest.fn((props) => Object.assign(testEvent, props))
 
-    render(<AdditionalInfoSection event={testEvent} onChange={changeHandler} open />)
+    const { user } = renderWithUserEvents(<AdditionalInfoSection event={testEvent} onChange={changeHandler} open />)
 
     expect(changeHandler).toHaveBeenCalledTimes(0)
 

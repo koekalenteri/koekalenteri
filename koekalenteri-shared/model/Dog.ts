@@ -1,6 +1,4 @@
-import { Replace, ReplaceOptional } from ".";
-
-export type JsonDog = DogName & {
+export interface JsonDog extends DogName {
   regNo: string
   callingName?: string
   rfid?: string
@@ -9,20 +7,24 @@ export type JsonDog = DogName & {
   gender?: DogGender
   refreshDate?: string
   results?: JsonTestResult[]
-  sire?: DogName,
+  sire?: DogName
   dam?: DogName
 }
 
-export type Dog = Replace<ReplaceOptional<JsonDog, 'dob' | 'refreshDate', Date>, 'results', TestResult[] | undefined>;
+export interface Dog extends Omit<JsonDog, 'dob' | 'refreshDate' | 'results'> {
+  dob?: Date
+  refreshDate?: Date
+  results: TestResult[]
+}
 
-export type DogName = {
-  name?: string,
+export interface DogName {
+  name?: string
   titles?: string
 }
 
 export type DogGender = 'F' | 'M'
 
-export type JsonTestResult = {
+export interface JsonTestResult {
   type: string
   class: string
   date: string
@@ -37,7 +39,9 @@ export type JsonTestResult = {
   resCert?: boolean
 }
 
-export type TestResult = Replace<JsonTestResult, 'date', Date>
+export interface TestResult extends Omit<JsonTestResult, 'date'> {
+  date: Date
+}
 
 export type RetrieverBreedCode = '110' | '111' | '121' | '122' | '263' | '312';
 export type BreedCode = '1' | '2' | '3' | '4' | '5' | '6' | '8' | '9' | '10' | '11' | '12' |

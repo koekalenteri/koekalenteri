@@ -1,7 +1,10 @@
 import { useEffect } from 'react'
 import { createMemoryRouter, createRoutesFromElements, RouteObject, RouterProvider } from 'react-router-dom'
 import { RouterInit } from '@remix-run/router'
-import { act } from '@testing-library/react'
+import { act, render, RenderOptions, RenderResult } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { Options } from '@testing-library/user-event/dist/types/options'
+import { UserEvent } from '@testing-library/user-event/dist/types/setup/setup'
 import mediaQuery from 'css-mediaquery'
 import { RecoilValue, useRecoilValue } from 'recoil'
 
@@ -60,8 +63,19 @@ export const createMatchMedia = (width: number) => (query: string): MediaQueryLi
   dispatchEvent: jest.fn(),
 })
 
-export function RecoilObserver<T>({node, onChange}: {node: RecoilValue<T>, onChange: (value: T) => void}) {
+export function RecoilObserver<T>({ node, onChange }: { node: RecoilValue<T>, onChange: (value: T) => void }) {
   const value = useRecoilValue(node)
   useEffect(() => onChange(value), [onChange, value])
   return null
+}
+
+export function renderWithUserEvents(
+  ui: React.ReactElement,
+  options?: Omit<RenderOptions, 'queries'>,
+  userEventOptions?: Options,
+): RenderResult & { user: UserEvent } {
+  return {
+    user: userEvent.setup(userEventOptions),
+    ...render(ui, options),
+  }
 }
