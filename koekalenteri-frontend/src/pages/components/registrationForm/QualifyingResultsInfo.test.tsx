@@ -5,7 +5,7 @@ import { render, screen } from '@testing-library/react'
 import { fi } from 'date-fns/locale'
 import { Registration } from 'koekalenteri-shared/model'
 
-import { registrationWithStaticDates, registrationWithStaticDatesAndClass } from '../../../__mockData__/registrations'
+import { registrationWithManualResults, registrationWithStaticDates, registrationWithStaticDatesAndClass } from '../../../__mockData__/registrations'
 
 import QualifyingResultsInfo from './QualifyingResultsInfo'
 
@@ -23,6 +23,14 @@ describe('QualifyingResultsInfo', () => {
 
     expect(registrationWithStaticDatesAndClass.eventType).toEqual('NOME-B')
     expect(registrationWithStaticDatesAndClass.class).toEqual('ALO')
+    expect(container).toMatchSnapshot()
+  })
+
+  it('should render a NOME-B AVO registraton with manual results', () => {
+    const { container } = render(<QualifyingResultsInfo reg={registrationWithManualResults} />, { wrapper: Provider })
+
+    expect(registrationWithManualResults.eventType).toEqual('NOME-B')
+    expect(registrationWithManualResults.class).toEqual('AVO')
     expect(container).toMatchSnapshot()
   })
 

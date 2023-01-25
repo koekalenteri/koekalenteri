@@ -52,6 +52,28 @@ export const registrationWithStaticDatesAndClass: Registration = {
   dog: registrationDogAged28MonthsWithNOUResult,
 }
 
+export const registrationWithManualResults: Registration = {
+  ...registrationWithStaticDatesAndClass,
+  class: 'AVO',
+  results: [{
+    id: 'manual-result-1',
+    type: 'NOME-B',
+    class: 'ALO',
+    result: 'ALO1',
+    date: registrationWithStaticDatesAndClass.createdAt,
+    judge: 'Manual Judge',
+    location: 'Somewhere',
+  }, {
+    id: 'manual-result-2',
+    type: 'NOME-B',
+    class: 'ALO',
+    result: 'ALO1',
+    date: registrationWithStaticDatesAndClass.createdAt,
+    judge: 'Manual Judge 2',
+    location: 'Somewhere Else',
+  }],
+}
+
 export const registrationWithStaticDatesCancelled: Registration = {
   ...registrationWithStaticDates,
 
