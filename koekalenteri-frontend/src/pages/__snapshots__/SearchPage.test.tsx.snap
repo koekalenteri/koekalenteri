@@ -157,7 +157,7 @@ exports[`SearchPage filters by date - no-results 1`] = `
             class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
           >
             <label
-              class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
+              class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
               data-shrink="false"
               for=":r1a:"
               id=":r1a:-label"
@@ -165,7 +165,7 @@ exports[`SearchPage filters by date - no-results 1`] = `
               eventType
             </label>
             <div
-              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1hw12xa-MuiInputBase-root-MuiOutlinedInput-root"
+              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1hw12xa-MuiInputBase-root-MuiOutlinedInput-root"
             >
               <input
                 aria-autocomplete="list"
@@ -173,7 +173,8 @@ exports[`SearchPage filters by date - no-results 1`] = `
                 aria-invalid="false"
                 autocapitalize="none"
                 autocomplete="off"
-                class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
+                class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
+                disabled=""
                 id=":r1a:"
                 role="combobox"
                 spellcheck="false"
@@ -185,7 +186,8 @@ exports[`SearchPage filters by date - no-results 1`] = `
               >
                 <button
                   aria-label="Open"
-                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                  class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                  disabled=""
                   tabindex="-1"
                   title="Open"
                   type="button"
@@ -201,9 +203,6 @@ exports[`SearchPage filters by date - no-results 1`] = `
                       d="M7 10l5 5 5-5z"
                     />
                   </svg>
-                  <span
-                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                  />
                 </button>
               </div>
               <fieldset
@@ -233,7 +232,7 @@ exports[`SearchPage filters by date - no-results 1`] = `
             class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
           >
             <label
-              class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
+              class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
               data-shrink="false"
               for=":r1c:"
               id=":r1c:-label"
@@ -241,7 +240,7 @@ exports[`SearchPage filters by date - no-results 1`] = `
               eventClass
             </label>
             <div
-              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1hw12xa-MuiInputBase-root-MuiOutlinedInput-root"
+              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1hw12xa-MuiInputBase-root-MuiOutlinedInput-root"
             >
               <input
                 aria-autocomplete="list"
@@ -249,7 +248,8 @@ exports[`SearchPage filters by date - no-results 1`] = `
                 aria-invalid="false"
                 autocapitalize="none"
                 autocomplete="off"
-                class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
+                class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
+                disabled=""
                 id=":r1c:"
                 role="combobox"
                 spellcheck="false"
@@ -261,7 +261,8 @@ exports[`SearchPage filters by date - no-results 1`] = `
               >
                 <button
                   aria-label="Open"
-                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                  class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                  disabled=""
                   tabindex="-1"
                   title="Open"
                   type="button"
@@ -277,9 +278,6 @@ exports[`SearchPage filters by date - no-results 1`] = `
                       d="M7 10l5 5 5-5z"
                     />
                   </svg>
-                  <span
-                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                  />
                 </button>
               </div>
               <fieldset
@@ -309,7 +307,7 @@ exports[`SearchPage filters by date - no-results 1`] = `
             class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
           >
             <label
-              class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
+              class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
               data-shrink="false"
               for=":r1e:"
               id=":r1e:-label"
@@ -317,7 +315,7 @@ exports[`SearchPage filters by date - no-results 1`] = `
               organizer
             </label>
             <div
-              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1hw12xa-MuiInputBase-root-MuiOutlinedInput-root"
+              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1hw12xa-MuiInputBase-root-MuiOutlinedInput-root"
             >
               <input
                 aria-autocomplete="list"
@@ -325,7 +323,8 @@ exports[`SearchPage filters by date - no-results 1`] = `
                 aria-invalid="false"
                 autocapitalize="none"
                 autocomplete="off"
-                class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
+                class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
+                disabled=""
                 id=":r1e:"
                 role="combobox"
                 spellcheck="false"
@@ -337,7 +336,8 @@ exports[`SearchPage filters by date - no-results 1`] = `
               >
                 <button
                   aria-label="Open"
-                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                  class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                  disabled=""
                   tabindex="-1"
                   title="Open"
                   type="button"
@@ -353,9 +353,6 @@ exports[`SearchPage filters by date - no-results 1`] = `
                       d="M7 10l5 5 5-5z"
                     />
                   </svg>
-                  <span
-                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                  />
                 </button>
               </div>
               <fieldset
@@ -385,7 +382,7 @@ exports[`SearchPage filters by date - no-results 1`] = `
             class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
           >
             <label
-              class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
+              class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
               data-shrink="false"
               for=":r1g:"
               id=":r1g:-label"
@@ -393,7 +390,7 @@ exports[`SearchPage filters by date - no-results 1`] = `
               judge
             </label>
             <div
-              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1hw12xa-MuiInputBase-root-MuiOutlinedInput-root"
+              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1hw12xa-MuiInputBase-root-MuiOutlinedInput-root"
             >
               <input
                 aria-autocomplete="list"
@@ -401,7 +398,8 @@ exports[`SearchPage filters by date - no-results 1`] = `
                 aria-invalid="false"
                 autocapitalize="none"
                 autocomplete="off"
-                class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
+                class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
+                disabled=""
                 id=":r1g:"
                 role="combobox"
                 spellcheck="false"
@@ -413,7 +411,8 @@ exports[`SearchPage filters by date - no-results 1`] = `
               >
                 <button
                   aria-label="Open"
-                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                  class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                  disabled=""
                   tabindex="-1"
                   title="Open"
                   type="button"
@@ -429,9 +428,6 @@ exports[`SearchPage filters by date - no-results 1`] = `
                       d="M7 10l5 5 5-5z"
                     />
                   </svg>
-                  <span
-                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                  />
                 </button>
               </div>
               <fieldset
@@ -3008,12 +3004,12 @@ exports[`SearchPage filters by date/start 1`] = `
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-1rl1j2j-MuiGrid-root"
                   >
-                    type3
+                    NOWT
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-1rl1j2j-MuiGrid-root"
                   >
-                    class3
+                    VOI
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-5 css-1ek8k2z-MuiGrid-root"
@@ -3044,7 +3040,7 @@ exports[`SearchPage filters by date/start 1`] = `
                   >
                     <a
                       class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textInfo MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-root MuiButton-text MuiButton-textInfo MuiButton-sizeSmall MuiButton-textSizeSmall css-1w4bsrr-MuiButtonBase-root-MuiButton-root"
-                      href="/event/type3/test3"
+                      href="/event/NOWT/test3"
                       tabindex="0"
                     >
                       register
@@ -3904,12 +3900,12 @@ exports[`SearchPage filters by entryOpen 1`] = `
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-1rl1j2j-MuiGrid-root"
                   >
-                    type3
+                    NOWT
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-1rl1j2j-MuiGrid-root"
                   >
-                    class3
+                    VOI
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-5 css-1ek8k2z-MuiGrid-root"
@@ -3940,7 +3936,7 @@ exports[`SearchPage filters by entryOpen 1`] = `
                   >
                     <a
                       class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textInfo MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-root MuiButton-text MuiButton-textInfo MuiButton-sizeSmall MuiButton-textSizeSmall css-1w4bsrr-MuiButtonBase-root-MuiButton-root"
-                      href="/event/type3/test3"
+                      href="/event/NOWT/test3"
                       tabindex="0"
                     >
                       register
@@ -4709,12 +4705,12 @@ exports[`SearchPage filters by entryOpen and entryUpcoming 1`] = `
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-1rl1j2j-MuiGrid-root"
                   >
-                    type3
+                    NOWT
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-1rl1j2j-MuiGrid-root"
                   >
-                    class3
+                    VOI
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-5 css-1ek8k2z-MuiGrid-root"
@@ -4745,7 +4741,7 @@ exports[`SearchPage filters by entryOpen and entryUpcoming 1`] = `
                   >
                     <a
                       class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textInfo MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-root MuiButton-text MuiButton-textInfo MuiButton-sizeSmall MuiButton-textSizeSmall css-1w4bsrr-MuiButtonBase-root-MuiButton-root"
-                      href="/event/type3/test3"
+                      href="/event/NOWT/test3"
                       tabindex="0"
                     >
                       register
@@ -8018,12 +8014,12 @@ exports[`SearchPage filters by judge 1`] = `
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-1rl1j2j-MuiGrid-root"
                   >
-                    type3
+                    NOWT
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-1rl1j2j-MuiGrid-root"
                   >
-                    class3
+                    VOI
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-5 css-1ek8k2z-MuiGrid-root"
@@ -8054,7 +8050,7 @@ exports[`SearchPage filters by judge 1`] = `
                   >
                     <a
                       class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textInfo MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-root MuiButton-text MuiButton-textInfo MuiButton-sizeSmall MuiButton-textSizeSmall css-1w4bsrr-MuiButtonBase-root-MuiButton-root"
-                      href="/event/type3/test3"
+                      href="/event/NOWT/test3"
                       tabindex="0"
                     >
                       register
@@ -9928,12 +9924,12 @@ exports[`SearchPage renders 1`] = `
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-1rl1j2j-MuiGrid-root"
                   >
-                    type3
+                    NOWT
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-1rl1j2j-MuiGrid-root"
                   >
-                    class3
+                    VOI
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-5 css-1ek8k2z-MuiGrid-root"
@@ -9964,7 +9960,7 @@ exports[`SearchPage renders 1`] = `
                   >
                     <a
                       class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textInfo MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-root MuiButton-text MuiButton-textInfo MuiButton-sizeSmall MuiButton-textSizeSmall css-1w4bsrr-MuiButtonBase-root-MuiButton-root"
-                      href="/event/type3/test3"
+                      href="/event/NOWT/test3"
                       tabindex="0"
                     >
                       register

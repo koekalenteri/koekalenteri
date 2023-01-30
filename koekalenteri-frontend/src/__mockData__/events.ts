@@ -35,8 +35,8 @@ export const eventWithStaticDatesAndClass: ConfirmedEvent = {
 export const eventWithEntryOpen = {
   ...emptyEvent,
   id: 'test3',
-  eventType: 'type3',
-  classes: [{ class: 'class3' }],
+  eventType: 'NOWT',
+  classes: [{ class: 'VOI' }],
   startDate: addDays(today, 14),
   endDate: addDays(today, 15),
   entryStartDate: today, // entry starts today

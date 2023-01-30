@@ -1,9 +1,8 @@
 import i18next from 'i18next'
-import { Event, Organizer } from 'koekalenteri-shared/model'
+import { Event, EventClass, Organizer } from 'koekalenteri-shared/model'
 import { selector, selectorFamily } from 'recoil'
 
 import { unique, uniqueFn } from '../../../utils'
-import { eventTypeClassesAtom, filteredEventTypesSelector } from '../eventTypes'
 import { judgesAtom } from '../judges/atoms'
 
 import { eventFilterAtom, eventIdAtom, eventsAtom } from './atoms'
@@ -82,9 +81,8 @@ export const filterEventTypesSelector = selector({
 export const filterEventClassesSelector = selector({
   key: 'filterEventClasses',
   get: ({ get }) => {
-    const eventTypes = get(filteredEventTypesSelector)
-    const eventTypeClasses = get(eventTypeClassesAtom)
-    const uniqueEventClasses = unique<string>(eventTypes.reduce<string[]>((acc, cur) => ([...acc, ...(eventTypeClasses[cur.eventType] ?? [])]), []))
+    const events = get(filteredEventsSelector)
+    const uniqueEventClasses = unique<string>(events.reduce<EventClass[]>((acc, cur) => [...acc, ...cur.classes], []).map(ec => ec.class))
     uniqueEventClasses.sort((a, b) => a.localeCompare(b, i18next.language))
     return uniqueEventClasses
   },
