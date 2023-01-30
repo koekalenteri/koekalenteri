@@ -881,7 +881,7 @@ exports[`EventListPage renders 1`] = `
                       <div
                         class="MuiDataGrid-cellContent"
                       >
-                        type3
+                        NOWT
                       </div>
                     </div>
                     <div
@@ -897,7 +897,7 @@ exports[`EventListPage renders 1`] = `
                       <div
                         class="MuiDataGrid-cellContent"
                       >
-                        class3
+                        VOI
                       </div>
                     </div>
                     <div

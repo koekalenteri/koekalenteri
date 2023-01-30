@@ -10,12 +10,13 @@ export type AutocompleteMultiProps<T> = Omit<AutocompleteProps<T, true, false, f
 }
 
 export default function AutocompleteMulti<T>(props: AutocompleteMultiProps<T>) {
-  const { error, helperText, label, ...acProps } = props
+  const { error, helperText, label, disabled, ...acProps } = props
   const getLabel = props.getOptionLabel || ((o: T) => o)
 
   return (
     <Autocomplete
       autoHighlight
+      disabled={disabled || acProps.options.length === 0}
       data-testid={label}
       {...acProps}
       disableCloseOnSelect
