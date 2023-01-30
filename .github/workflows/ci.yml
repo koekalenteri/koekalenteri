@@ -9,7 +9,35 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          cache: npm
+      - name: Build and Test
+        run: |
+          cd koekalenteri-backend
+          npm ci
+          npm run lint
+          npm run build
+          npm test -- --coverage
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          cache: npm
+      - name: Build and Test
+        run: |
+          cd koekalenteri-frontend
+          npm ci
+          npm run lint
+          npm run build
+          npm test -- --coverage
+  sonar:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -18,20 +46,6 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           cache: npm
-      - name: Build and Test BE
-        run: |
-          cd koekalenteri-backend
-          npm ci
-          npm run lint
-          npm run build
-          npm test -- --coverage
-      - name: Build and Test FE
-        run: |
-          cd koekalenteri-frontend
-          npm ci
-          npm run lint
-          npm run build
-          npm test -- --coverage
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         env:
