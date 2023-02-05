@@ -90,7 +90,6 @@ function toPlainText(node: Node) {
   return one(node)
 }
 function one(node: Node): string {
-  //console.warn(node);
   return (
     (node &&
       typeof node === 'object' &&
