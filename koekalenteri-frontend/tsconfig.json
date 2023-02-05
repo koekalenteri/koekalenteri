@@ -14,7 +14,7 @@
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
     "noErrorTruncation": true,
-    "module": "esnext",
+    "module": "es2020",
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,

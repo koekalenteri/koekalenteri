@@ -1,5 +1,6 @@
-const AWS = require('aws-sdk');
-const {writeFileSync} = require('fs');
+/* eslint-disable @typescript-eslint/no-var-requires */
+const AWS = require('aws-sdk')
+const {writeFileSync} = require('fs')
 
 const marshalled = AWS.DynamoDB.Converter.marshall(
   {
@@ -8,8 +9,8 @@ const marshalled = AWS.DynamoDB.Converter.marshall(
       "secretary": {
         "name": true,
         "phone": true,
-        "email": true
-      }
+        "email": true,
+      },
     },
     "entryStartDate": "2022-02-15T22:00:00.000Z",
     "endDate": "2022-04-25T00:00:00.000Z",
@@ -21,37 +22,37 @@ const marshalled = AWS.DynamoDB.Converter.marshall(
         "entries": 2,
         "judge": {
           "name": "Tuomari 3",
-          "id": 100003
+          "id": 100003,
         },
-        "class": "ALO"
+        "class": "ALO",
       },
       {
         "date": "2022-04-24T21:00:00.000Z",
         "places": 15,
         "judge": {
           "name": "Tuomari 3",
-          "id": 100003
+          "id": 100003,
         },
-        "class": "ALO"
+        "class": "ALO",
       },
       {
         "date": "2022-04-24T21:00:00.000Z",
         "places": 15,
         "judge": {
           "name": "Tuomari 3",
-          "id": 100003
+          "id": 100003,
         },
-        "class": "AVO"
+        "class": "AVO",
       },
       {
         "date": "2022-04-24T21:00:00.000Z",
         "places": 12,
         "judge": {
           "name": "Tuomari 1",
-          "id": 100001
+          "id": 100001,
         },
-        "class": "VOI"
-      }
+        "class": "VOI",
+      },
     ],
     "allowOwnerMembershipPriority": true,
     "description": "Pietun pysti jaossa ALO-luokassa",
@@ -60,7 +61,7 @@ const marshalled = AWS.DynamoDB.Converter.marshall(
       "location": "Turku",
       "id": 333,
       "phone": "123456783",
-      "email": "toimari3@sposti.not"
+      "email": "toimari3@sposti.not",
     },
     "allowOnlinePayment": true,
     "createdAt": "2022-03-25T18:21:14.127Z",
@@ -69,7 +70,7 @@ const marshalled = AWS.DynamoDB.Converter.marshall(
       "location": "Tampere",
       "id": 222,
       "phone": "123456782",
-      "email": "toimari2@sposti.not"
+      "email": "toimari2@sposti.not",
     },
     "referenceNumber": "11041",
     "modifiedBy": "anonymous",
@@ -88,7 +89,7 @@ const marshalled = AWS.DynamoDB.Converter.marshall(
     "createdBy": "anonymous",
     "organizer": {
       "name": "Järjestäjä 1",
-      "id": 1
+      "id": 1,
     },
     "name": "Nuusku",
     "entryEndDate": "2022-04-15T00:00:00.000Z",
@@ -96,10 +97,10 @@ const marshalled = AWS.DynamoDB.Converter.marshall(
     "allowOnlineEntry": true,
     "judges": [
       100003,
-      100001
+      100001,
     ],
-    "startDate": "2022-04-24T00:00:00.000Z"
+    "startDate": "2022-04-24T00:00:00.000Z",
   }
-);
+)
 
-writeFileSync('./marshalled.json', JSON.stringify(marshalled));
+writeFileSync('./marshalled.json', JSON.stringify(marshalled))

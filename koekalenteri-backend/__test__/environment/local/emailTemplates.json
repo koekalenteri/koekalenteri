@@ -1,0 +1,19 @@
+{
+  "email-templates-table": [
+    {
+      "PutRequest": {
+        "Item": {
+          "id": {
+            "S": "registration"
+          },
+          "en": {
+            "S": "[subject]: # ({{subject}}: {{reg.eventType}} {{eventDate}} {{event.location}})\n\n# {{title}}\n\n{{#unless reg.cancelled ~}}\n[Edit registration]({{link}}/edit)\n[Cancel registration]({{link}}/cancel)\n{{/unless}}\n\ntable header | is removed\n:-- | ----\nEvent          :| {{reg.eventType}} {{eventDate}} {{event.location}} {{#if event.name}}({{event.name}}){{/if}}\nClass          :| {{reg.class}}\nDog            :| {{reg.dog.regNo}} {{reg.dog.name}}\nIdentification :| {{reg.dog.rfid}}\nBreed          :| {{dogBreed}}\nOwne           :| {{reg.owner.name}}\nHometown       :| {{reg.owner.location}}\nEmail          :| {{reg.owner.email}}\nHandler        :| {{reg.handler.name}}\nHometown       :| {{reg.handler.location}}\nEmail          :| {{reg.handler.email}}\nPhone          :| {{reg.handler.phone}}\nTimes          :| {{regDates}}\nReserve        :| {{reserveText}}\n\n**Qualifying results**\n{{#each qualifyingResults}}\n{{this.type}} {{this.result}}, {{this.date}}, {{this.location}}, {{this.judge}}\n{{/each}}\n{{#if reg.notes}}\n\n**Notes**\n{{reg.notes}}\n{{/if}}\n\nYou can view your registration details here: [View registration details]({{link}})\n\nBest regards,\n{{#if event.contactInfo.secretary.name ~}}\n{{event.secretary.name}}\nSecretary\n{{/if ~}}\n{{#if event.contactInfo.secretary.email ~}}\n{{event.secretary.email}}\n{{/if ~}}\n{{#if event.contactInfo.secretary.phone ~}}\np. {{event.secretary.phone}}\n{{/if ~}}\n\n{{#if event.contactInfo.official.name ~}}\n{{event.official.name}}\nChief officer\n{{/if ~}}\n{{#if event.contactInfo.official.email ~}}\n{{event.official.email}}\n{{/if ~}}\n{{#if event.contactInfo.official.phone ~}}\np. {{event.official.phone}}\n{{/if ~}}"
+          },
+          "fi": {
+            "S": "[subject]: # ({{subject}}: {{reg.eventType}} {{eventDate}} {{event.location}})\n\n# {{title}}\n\n{{#unless reg.cancelled ~}}\n[Muokkaa ilmoittautumisen tietoja]({{link}}/edit)\n[Peru ilmoittautuminen]({{link}}/cancel)\n{{/unless}}\n\ntable header | is removed\n:-- | ----\nKoe                :| {{reg.eventType}} {{eventDate}} {{event.location}} {{#if event.name}}({{event.name}}){{/if}}\nLuokka             :| {{reg.class}}\nKoira              :| {{reg.dog.regNo}} {{reg.dog.name}}\nTunnistusmerkintä  :| {{reg.dog.rfid}}\nRotu               :| {{dogBreed}}\nOmistaja           :| {{reg.owner.name}}\nKotipaikka         :| {{reg.owner.location}}\nSähköposti         :| {{reg.owner.email}}\nOhjaaja            :| {{reg.handler.name}}\nKotipaikka         :| {{reg.handler.location}}\nSähköposti         :| {{reg.handler.email}}\nPuhelin            :| {{reg.handler.phone}}\nToivottu ajankohta :| {{regDates}}\nVarasija           :| {{reserveText}}\n\n**Koeluokkaan oikeuttavat tulokset**\n{{#each qualifyingResults}}\n{{this.type}} {{this.result}}, {{this.date}}, {{this.location}}, {{this.judge}}\n{{/each}}\n{{#if reg.notes}}\n\n**Lisätietoja**\n{{reg.notes}}\n{{/if}}\n\nVoit tarkastella ilmoittautumisesi tietoja täällä: [Katso ilmoittautumisen tiedot]({{link}})\n\nYstävällisin terveisin,\n{{#if event.contactInfo.secretary.name ~}}\n{{event.secretary.name}}\nKoesihteeri\n{{/if ~}}\n{{#if event.contactInfo.secretary.email ~}}\n{{event.secretary.email}}\n{{/if ~}}\n{{#if event.contactInfo.secretary.phone ~}}\np. {{event.secretary.phone}}\n{{/if ~}}\n\n{{#if event.contactInfo.official.name ~}}\n{{event.official.name}}\nVastaava koetoimitsija\n{{/if ~}}\n{{#if event.contactInfo.official.email ~}}\n{{event.official.email}}\n{{/if ~}}\n{{#if even\t.contactInfo.official.phone ~}}\np. {{event.official.phone}}\n{{/if ~}}\n"
+          }
+        }
+      }
+    }
+  ]
+}

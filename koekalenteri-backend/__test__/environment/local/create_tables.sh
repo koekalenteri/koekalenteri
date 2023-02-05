@@ -59,3 +59,11 @@ aws dynamodb create-table \
   --billing-mode PAY_PER_REQUEST --endpoint-url http://127.0.0.1:8000
 
 aws dynamodb batch-write-item --endpoint-url http://127.0.0.1:8000 --request-items file://eventTypes.json
+
+aws dynamodb create-table \
+  --table-name email-templates-table \
+  --attribute-definitions AttributeName=id,AttributeType=S \
+  --key-schema AttributeName=id,KeyType=HASH \
+  --billing-mode PAY_PER_REQUEST --endpoint-url http://127.0.0.1:8000
+
+aws dynamodb batch-write-item --endpoint-url http://127.0.0.1:8000 --request-items file://emailTemplates.json

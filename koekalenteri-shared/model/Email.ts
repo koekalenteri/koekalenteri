@@ -1,0 +1,20 @@
+import { DbRecord, JsonDbRecord } from "./Database"
+
+export interface SESTemplate {
+  TemplateName: string
+  SubjectPart?: string
+  TextPart?: string
+  HtmlPart?: string
+}
+
+export interface EmailTemplate extends DbRecord {
+  id: string
+  fi: string
+  en: string
+  ses?: {
+    fi: SESTemplate
+    en: SESTemplate
+  }
+}
+
+export type JsonEmailTemplate = Omit<EmailTemplate, keyof DbRecord> & JsonDbRecord

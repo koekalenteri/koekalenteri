@@ -51,7 +51,7 @@ export const getJudgesHandler = metricScope((metrics: MetricsLogger) =>
       metricsError(metrics, event.requestContext, 'getJudges')
       return response((err as AWSError).statusCode || 501, err)
     }
-  }
+  },
 )
 
 export const putJudgeHandler = genericWriteHandler(dynamoDB, 'putJudge')

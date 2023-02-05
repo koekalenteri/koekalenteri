@@ -1,5 +1,10 @@
+
 module.exports = {
-  preset: 'ts-jest',
+  transform: {
+    // '^.+\\.test\\.ts$': 'babel-jest',
+    '^.+\\.ts$': ['<rootDir>/jest.transform.js'],
+  },
+  extensionsToTreatAsEsm: ['.ts'],
   testEnvironment: 'node',
   modulePathIgnorePatterns: [
     "<rootDir>/.aws-sam",
@@ -7,5 +12,4 @@ module.exports = {
     "<rootDir>/__tests__/utils",
     "<rootDir>/__tests__/global-setup.js",
   ],
-  clearMocks: true,
-};
+}

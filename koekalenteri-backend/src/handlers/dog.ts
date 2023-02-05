@@ -37,7 +37,7 @@ export const getDogHandler = metricScope((metrics: MetricsLogger) =>
         if (status === 200 && json) {
           // Cache
           item = {
-            ...item, // keep refined info on refresh
+            ...item, // keep refined info on refres
             regNo: json.rekisterinumero,
             name: json.nimi,
             rfid: json.tunnistusmerkintä,
@@ -87,6 +87,6 @@ export const getDogHandler = metricScope((metrics: MetricsLogger) =>
       metricsError(metrics, event.requestContext, 'getDog')
       return response((err as AWSError).statusCode || 501, err)
     }
-  }
+  },
 )
 

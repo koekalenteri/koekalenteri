@@ -1,5 +1,6 @@
 // Create a DocumentClient that represents the query to add an item
-import DynamoDB, { UpdateExpression } from 'aws-sdk/clients/dynamodb'
+import AWS from 'aws-sdk'
+import type { UpdateExpression } from 'aws-sdk/clients/dynamodb.js'
 import { JsonObject } from 'koekalenteri-shared/model'
 
 function fromSamLocalTable(table: string) {
@@ -10,10 +11,10 @@ function fromSamLocalTable(table: string) {
 
 export default class CustomDynamoClient {
   table: string
-  docClient: DynamoDB.DocumentClient
+  docClient: AWS.DynamoDB.DocumentClient
 
   constructor() {
-    const options: DynamoDB.DocumentClient.DocumentClientOptions & DynamoDB.Types.ClientConfiguration = {}
+    const options: AWS.DynamoDB.DocumentClient.DocumentClientOptions & AWS.DynamoDB.Types.ClientConfiguration = {}
 
     this.table = process.env.TABLE_NAME || ""
 
@@ -26,7 +27,7 @@ export default class CustomDynamoClient {
       console.info('SAM LOCAL DynamoDB: endpoint=' + options.endpoint + ', table: ' + this.table)
     }
 
-    this.docClient = new DynamoDB.DocumentClient(options)
+    this.docClient = new AWS.DynamoDB.DocumentClient(options)
   }
 
   async readAll<T>(table?: string): Promise<T[] | undefined> {
@@ -34,7 +35,7 @@ export default class CustomDynamoClient {
     const data = await this.docClient.scan({
       TableName: table ? fromSamLocalTable(table) : this.table,
     }).promise()
-    return data.Items?.filter(item => !item.deletedAt) as T[]
+    return data.Items?.filter((item: any) => !item.deletedAt) as T[]
   }
 
   async read<T>(key: Record<string, number | string | undefined> | null, table?: string): Promise<T | undefined> {
@@ -50,12 +51,12 @@ export default class CustomDynamoClient {
     return data.Item as T
   }
 
-  async query<T>(key: DynamoDB.DocumentClient.KeyExpression, values: DynamoDB.DocumentClient.ExpressionAttributeValueMap): Promise<T[] | undefined> {
+  async query<T>(key: AWS.DynamoDB.DocumentClient.KeyExpression, values: AWS.DynamoDB.DocumentClient.ExpressionAttributeValueMap): Promise<T[] | undefined> {
     if (!key) {
       console.warn('CustomDynamoClient.query: no key provoded, returning undefined')
       return
     }
-    const params: DynamoDB.DocumentClient.QueryInput = {
+    const params: AWS.DynamoDB.DocumentClient.QueryInput = {
       TableName: this.table,
       KeyConditionExpression: key,
       ExpressionAttributeValues: values,
@@ -72,8 +73,8 @@ export default class CustomDynamoClient {
     return this.docClient.put(params).promise()
   }
 
-  async update(key: DynamoDB.DocumentClient.Key, expression: UpdateExpression, values: JsonObject, table?: string) {
-    const params: DynamoDB.DocumentClient.UpdateItemInput = {
+  async update(key: AWS.DynamoDB.DocumentClient.Key, expression: UpdateExpression, values: JsonObject, table?: string) {
+    const params: AWS.DynamoDB.DocumentClient.UpdateItemInput = {
       TableName: table ? fromSamLocalTable(table) : this.table,
       Key: key,
       UpdateExpression: expression,

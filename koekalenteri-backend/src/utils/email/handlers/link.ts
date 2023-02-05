@@ -1,12 +1,12 @@
-import { all } from './table.mjs'
+import { all } from './table'
 
 /**
  * @type {Handler}
  * @param {Link} node
  */
-export default function link(h, node) {
+export default function link(h: any, node: any) {
   /** @type {Properties} */
-  const props = { href: node.url }
+  const props: any = { href: node.url }
 
   if (node.title !== null && node.title !== undefined) {
     props.title = node.title

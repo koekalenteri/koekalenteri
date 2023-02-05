@@ -1,15 +1,16 @@
+import {jest} from '@jest/globals'
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda"
-import { DocumentClient } from "aws-sdk/clients/dynamodb"
+import AWS from 'aws-sdk'
 
 import { defaultJSONHeaders } from "./headers"
 import { constructAPIGwEvent, createAWSError } from "./helpers"
 
 export const genericReadAllTest = (handler: (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult>) =>
   (): void => {
-    let scanSpy: jest.SpyInstance
+    let scanSpy
 
     beforeAll(() => {
-      scanSpy = jest.spyOn(DocumentClient.prototype, 'scan')
+      scanSpy = jest.spyOn(AWS.DynamoDB.DocumentClient.prototype, 'scan')
     })
 
     afterAll(() => {
@@ -69,10 +70,10 @@ export const genericReadAllTest = (handler: (event: APIGatewayProxyEvent) => Pro
 
 export const genericReadTest = (handler: (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult>) =>
   (): void => {
-    let getSpy: jest.SpyInstance
+    let getSpy
 
     beforeAll(() => {
-      getSpy = jest.spyOn(DocumentClient.prototype, 'get')
+      getSpy = jest.spyOn(AWS.DynamoDB.DocumentClient.prototype, 'get')
     })
 
     afterAll(() => {
@@ -131,10 +132,10 @@ export const genericReadTest = (handler: (event: APIGatewayProxyEvent) => Promis
 
 export const genericWriteTest = (handler: (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult>) =>
   (): void => {
-    let putSpy: jest.SpyInstance
+    let putSpy
 
     beforeAll(() => {
-      putSpy = jest.spyOn(DocumentClient.prototype, 'put')
+      putSpy = jest.spyOn(AWS.DynamoDB.DocumentClient.prototype, 'put')
     })
 
     afterAll(() => {

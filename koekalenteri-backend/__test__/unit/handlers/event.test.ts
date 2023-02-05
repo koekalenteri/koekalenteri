@@ -1,4 +1,5 @@
-import { DocumentClient } from 'aws-sdk/clients/dynamodb'
+import {jest} from '@jest/globals'
+import AWS from 'aws-sdk'
 
 import { getEventHandler, getEventsHandler, putEventHandler, putRegistrationHandler } from '../../../src/handlers/event'
 import { genericReadAllTest, genericReadTest, genericWriteTest } from '../../utils/genericTests'
@@ -18,16 +19,16 @@ describe('Test getEventHandler (generic)', genericReadTest(getEventHandler))
 describe('Test putEventHandler (generic)', genericWriteTest(putEventHandler))
 
 describe('putRegistrationHandler', function() {
-  let putSpy: jest.SpyInstance
-  let getSpy: jest.SpyInstance
-  let querySpy: jest.SpyInstance
-  let updateSpy: jest.SpyInstance
+  let putSpy
+  let getSpy
+  let querySpy
+  let updateSpy
 
   beforeAll(() => {
-    putSpy = jest.spyOn(DocumentClient.prototype, 'put')
-    getSpy = jest.spyOn(DocumentClient.prototype, 'get')
-    querySpy = jest.spyOn(DocumentClient.prototype, 'query')
-    updateSpy = jest.spyOn(DocumentClient.prototype, 'update')
+    putSpy = jest.spyOn(AWS.DynamoDB.DocumentClient.prototype, 'put')
+    getSpy = jest.spyOn(AWS.DynamoDB.DocumentClient.prototype, 'get')
+    querySpy = jest.spyOn(AWS.DynamoDB.DocumentClient.prototype, 'query')
+    updateSpy = jest.spyOn(AWS.DynamoDB.DocumentClient.prototype, 'update')
   })
 
   afterAll(() => {

@@ -43,7 +43,7 @@ export const getEventTypesHandler = metricScope((metrics: MetricsLogger) =>
       metricsError(metrics, event.requestContext, 'getEventTypes')
       return response((err as AWSError).statusCode || 501, err)
     }
-  }
+  },
 )
 
 export const putEventTypeHandler = metricScope((metrics: MetricsLogger) =>
@@ -90,6 +90,6 @@ export const putEventTypeHandler = metricScope((metrics: MetricsLogger) =>
       metricsError(metrics, event.requestContext, 'putEventType')
       return response((err as AWSError).statusCode || 501, err)
     }
-  }
+  },
 )
 

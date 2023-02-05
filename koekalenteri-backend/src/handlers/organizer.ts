@@ -30,6 +30,6 @@ export const getOrganizersHandler = metricScope((metrics: MetricsLogger) =>
       metricsError(metrics, event.requestContext, 'getOrganizers')
       return response((err as AWSError).statusCode || 501, err)
     }
-  }
+  },
 )
 

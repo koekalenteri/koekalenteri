@@ -1,4 +1,4 @@
-import { SSM } from 'aws-sdk'
+import AWS from 'aws-sdk'
 import type { JsonArray, JsonObject } from 'koekalenteri-shared/model'
 import fetch from 'node-fetch-native'
 
@@ -8,9 +8,9 @@ import type {
   KLKoetapahtumaParametrit, KLKoetulos, KLKoetulosParametrit, KLKoira, KLKoiraParametrit,
   KLPaikkakunta, KLParametritParametrit, KLRodutParametrit, KLRotu,   KLRoturyhmä, KLRoturyhmätParametrit,
   KLYhdistys, KLYhdistysParametrit,
-} from './KLAPI_models'
+} from './KLAPI_models.js'
 
-const ssm = new SSM()
+const ssm = new AWS.SSM()
 
 type ValuesOf<T extends string[]> = T[number];
 type ParamsFromKeys<T extends string[]> = { [key in ValuesOf<T>]: string };

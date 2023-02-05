@@ -5,7 +5,7 @@ import { lightFormat, parseISO } from "date-fns"
 import { JsonConfirmedEvent, JsonRegistration } from "koekalenteri-shared/model"
 import { v4 as uuidv4 } from 'uuid'
 
-import { i18n } from "../i18n"
+import { i18n } from "../i18n/index"
 import CustomDynamoClient from "../utils/CustomDynamoClient"
 import { formatDateSpan } from "../utils/dates"
 import { authorize, genericReadAllHandler, genericReadHandler, getOrigin, getUsername } from "../utils/genericHandlers"
@@ -60,7 +60,7 @@ export const putEventHandler = metricScope((metrics: MetricsLogger) =>
       metricsError(metrics, event.requestContext, 'putEvent')
       return response((err as AWSError).statusCode || 501, err)
     }
-  }
+  },
 )
 
 export const getRegistrationsHandler = metricScope((metrics: MetricsLogger) =>
@@ -75,7 +75,7 @@ export const getRegistrationsHandler = metricScope((metrics: MetricsLogger) =>
       metricsError(metrics, event.requestContext, 'getRegistrations')
       return response((err as AWSError).statusCode || 501, err)
     }
-  }
+  },
 )
 
 export const getRegistrationHandler = genericReadHandler(dynamoDB, 'getRegistration')
@@ -144,7 +144,7 @@ export const putRegistrationHandler = metricScope((metrics: MetricsLogger) =>
           ':entries': entries,
           ':classes': classes,
         },
-        eventTable
+        eventTable,
       )
 
       if (registration.handler?.email && registration.owner?.email) {
@@ -190,7 +190,7 @@ export const putRegistrationHandler = metricScope((metrics: MetricsLogger) =>
       metricsError(metrics, event.requestContext, 'putRegistration')
       return response((err as AWSError).statusCode || 501, err)
     }
-  }
+  },
 )
 
 function getEmailContext(update: boolean, cancel: boolean) {

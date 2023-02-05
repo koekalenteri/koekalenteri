@@ -3,7 +3,7 @@ import { pointEnd, pointStart } from 'unist-util-position'
 
 const own = {}.hasOwnProperty
 
-export default function tableHandler(h, node) {
+export default function tableHandler(h: any, node: any) {
   const rows = node.children
   let index = -1
   const align = node.align || []
@@ -21,7 +21,7 @@ export default function tableHandler(h, node) {
       const cell = row[cellIndex]
       const name = cellIndex === 0 ? 'th' : 'td'
       out.push(
-        h(cell, name, { align: align[cellIndex] }, cell ? all(h, cell) : [])
+        h(cell, name, { align: align[cellIndex] }, cell ? all(h, cell) : []),
       )
     }
 
@@ -40,16 +40,16 @@ export default function tableHandler(h, node) {
               end: pointEnd(result[result.length - 1]),
             },
             'tbody',
-            wrap(result.slice(1), true)
+            wrap(result.slice(1), true),
           )
-          : []
+          : [],
       ),
-      true
-    )
+      true,
+    ),
   )
 }
 
-export function wrap(nodes, loose) {
+export function wrap(nodes: any, loose: any) {
   /** @type {Array<Content>} */
   const result = []
   let index = -1
@@ -70,7 +70,7 @@ export function wrap(nodes, loose) {
   return result
 }
 
-export function all(h, parent) {
+export function all(h: any, parent: any) {
   /** @type {Array<Content>} */
   const values = []
 
@@ -108,7 +108,7 @@ export function all(h, parent) {
   return values
 }
 
-export function one(h, node, parent) {
+export function one(h: any, node: any, parent: any) {
   const type = node && node.type
   /** @type {Handler} */
   let fn
@@ -130,11 +130,11 @@ export function one(h, node, parent) {
   return (typeof fn === 'function' ? fn : unknown)(h, node, parent)
 }
 
-function returnNode(h, node) {
+function returnNode(h: any, node: any) {
   return 'children' in node ? { ...node, children: all(h, node) } : node
 }
 
-function unknown(h, node) {
+function unknown(h: any, node: any) {
   const data = node.data || {}
 
   if (
