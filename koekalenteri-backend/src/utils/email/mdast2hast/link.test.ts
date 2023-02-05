@@ -6,8 +6,8 @@ import { linkHandler } from './link'
 
 
 describe('linkHandler', () => {
-  it('calls handler for "a" selector', () => {
-    const h = jest.fn<State>()
+  it('calls handler for "a" selector without title', () => {
+    const h = jest.fn()
     const node: Link = {
       url: 'url',
       type: 'link',
@@ -15,5 +15,17 @@ describe('linkHandler', () => {
     }
     linkHandler(h as unknown as State, node)
     expect(h).toHaveBeenCalledWith(node, 'a', {href: 'url'}, [])
+  })
+
+  it('calls handler for "a" selector with title', () => {
+    const h = jest.fn()
+    const node: Link = {
+      url: 'url',
+      title: 'title',
+      type: 'link',
+      children: [],
+    }
+    linkHandler(h as unknown as State, node)
+    expect(h).toHaveBeenCalledWith(node, 'a', {href: 'url', title: 'title'}, [])
   })
 })
