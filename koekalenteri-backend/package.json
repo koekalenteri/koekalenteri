@@ -5,7 +5,7 @@
     "type": "module",
     "main": "index.js",
     "scripts": {
-        "test": "NODE_OPTIONS=\"--experimental-vm-modules --no-warnings\" jest --silent",
+        "test": "NODE_OPTIONS=\"--experimental-vm-modules --no-warnings\" jest --silent --no-cache",
         "prebuild": "node copy_i18n.mjs",
         "build": "node build.js",
         "prewatch": "node copy_i18n.mjs",
