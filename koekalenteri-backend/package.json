@@ -5,7 +5,7 @@
     "type": "module",
     "main": "index.js",
     "scripts": {
-        "test": "NODE_OPTIONS=\"--experimental-vm-modules --no-warnings\" jest --silent --no-cache",
+        "test": "NODE_OPTIONS=\"--experimental-vm-modules --no-warnings\" jest --silent",
         "prebuild": "node copy_i18n.mjs",
         "build": "node build.js",
         "prewatch": "node copy_i18n.mjs",
@@ -48,7 +48,6 @@
         "@types/uuid": "^9.0.0",
         "@typescript-eslint/eslint-plugin": "^5.2.0",
         "@typescript-eslint/parser": "^5.2.0",
-        "es-jest": "^2.1.0",
         "esbuild": "^0.17.5",
         "eslint": "^8.1.0",
         "eslint-config-prettier": "^8.3.0",

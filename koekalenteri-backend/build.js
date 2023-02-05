@@ -1,6 +1,6 @@
 import * as esbuild from 'esbuild'
 import { readdirSync, statSync } from 'fs'
-import { join, resolve } from 'path'
+import { join } from 'path'
 
 function getEntryPoints(dir, ext) {
   const result = []

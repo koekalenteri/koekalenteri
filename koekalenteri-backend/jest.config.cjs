@@ -1,14 +1,13 @@
 
 module.exports = {
   transform: {
-    '^.+\\.ts$': '<rootDir>/jest.transform.js',
+    '.+\\.ts$': '<rootDir>/jest.transform.js',
   },
+  coverageProvider: 'v8',
   extensionsToTreatAsEsm: ['.ts'],
   testEnvironment: 'node',
-  modulePathIgnorePatterns: [
-    "<rootDir>/.aws-sam",
-    "<rootDir>/__tests__/fixtures",
-    "<rootDir>/__tests__/utils",
-    "<rootDir>/__tests__/global-setup.js",
+  coveragePathIgnorePatterns: [
+    "node_modules",
+    "<rootDir>/__test__",
   ],
 }
