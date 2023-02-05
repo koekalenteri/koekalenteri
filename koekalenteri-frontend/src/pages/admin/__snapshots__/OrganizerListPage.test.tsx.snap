@@ -304,6 +304,7 @@ exports[`OrganizerListPage renders 1`] = `
                     >
                       <div
                         class="MuiDataGrid-cellContent"
+                        title="1"
                       >
                         1
                       </div>
@@ -320,6 +321,7 @@ exports[`OrganizerListPage renders 1`] = `
                     >
                       <div
                         class="MuiDataGrid-cellContent"
+                        title="Järjestäjä 1"
                       >
                         Järjestäjä 1
                       </div>
@@ -346,6 +348,7 @@ exports[`OrganizerListPage renders 1`] = `
                     >
                       <div
                         class="MuiDataGrid-cellContent"
+                        title="2"
                       >
                         2
                       </div>
@@ -362,6 +365,7 @@ exports[`OrganizerListPage renders 1`] = `
                     >
                       <div
                         class="MuiDataGrid-cellContent"
+                        title="Järjestäjä 2"
                       >
                         Järjestäjä 2
                       </div>

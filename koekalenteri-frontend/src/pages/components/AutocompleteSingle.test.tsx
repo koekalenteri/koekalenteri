@@ -94,13 +94,14 @@ describe('AutocompleteSingle', () => {
   })
 
   describe('when options are objects', () => {
+    const getName = (o: {name: string}|string) => typeof o === 'string' ? o : o.name
     it('should render with minimal information', () => {
       const { container } = render(<AutocompleteSingle id='test-minimal' options={[{ name: 'A' }, { name: 'B' }]} label={'test-label'} />)
       expect(container).toMatchSnapshot()
     })
 
     it('should render with selected option', () => {
-      render(<AutocompleteSingle id='test-option' options={[{ name: 'A' }, { name: 'B' }]} label={'test-label'} value={{ name: 'B' }} getOptionLabel={o => o.name} />)
+      render(<AutocompleteSingle id='test-option' options={[{ name: 'A' }, { name: 'B' }]} label={'test-label'} value={{ name: 'B' }} getOptionLabel={getName} />)
       expect(screen.getByRole('combobox')).toMatchInlineSnapshot(`
 <input
   aria-autocomplete="list"
@@ -119,7 +120,7 @@ describe('AutocompleteSingle', () => {
     })
 
     it('should render with missing selected option', () => {
-      render(<AutocompleteSingle id='test-option-missing' options={[{ name: 'A' }, { name: 'B' }]} label={'test-label'} value={{ name: 'C' }} getOptionLabel={o => o.name} />)
+      render(<AutocompleteSingle id='test-option-missing' options={[{ name: 'A' }, { name: 'B' }]} label={'test-label'} value={{ name: 'C' }} getOptionLabel={getName} />)
       expect(screen.getByRole('combobox')).toMatchInlineSnapshot(`
 <input
   aria-autocomplete="list"
@@ -138,19 +139,19 @@ describe('AutocompleteSingle', () => {
     })
 
     it('should render helperText', () => {
-      const { container } = render(<AutocompleteSingle id='test-helperText' options={[{ name: 'test-a' }, { name: 'test-b' }]} label={'test-label'} helperText={'helper text'} getOptionLabel={o => o.name} />)
+      const { container } = render(<AutocompleteSingle id='test-helperText' options={[{ name: 'test-a' }, { name: 'test-b' }]} label={'test-label'} helperText={'helper text'} getOptionLabel={getName} />)
       expect(container).toMatchSnapshot()
     })
 
     it('should render helperText with error state', () => {
-      const { container } = render(<AutocompleteSingle id='test-helperTest-error' options={[{ name: 'test-a' }, { name: 'test-b' }]} label={'test-label'} helperText={'helper text'} error getOptionLabel={o => o.name} />)
+      const { container } = render(<AutocompleteSingle id='test-helperTest-error' options={[{ name: 'test-a' }, { name: 'test-b' }]} label={'test-label'} helperText={'helper text'} error getOptionLabel={getName} />)
       expect(container).toMatchSnapshot()
     })
 
     it('should call onChange', async () => {
 
       const onChange = jest.fn()
-      const { user } = renderWithUserEvents(<AutocompleteSingle id='test-onChange' options={[{ name: 'test-a' }, { name: 'test-b' }]} label={'test-label'} getOptionLabel={o => o.name} onChange={onChange} />)
+      const { user } = renderWithUserEvents(<AutocompleteSingle id='test-onChange' options={[{ name: 'test-a' }, { name: 'test-b' }]} label={'test-label'} getOptionLabel={getName} onChange={onChange} />)
 
       const input = screen.getByRole('combobox')
       await user.type(input, 'b{ArrowDown}{Enter}')

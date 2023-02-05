@@ -377,6 +377,7 @@ exports[`OfficialListPage renders 1`] = `
                     >
                       <div
                         class="MuiDataGrid-cellContent"
+                        title="Toimitsija 1"
                       >
                         Toimitsija 1
                       </div>
@@ -393,6 +394,7 @@ exports[`OfficialListPage renders 1`] = `
                     >
                       <div
                         class="MuiDataGrid-cellContent"
+                        title="123456781"
                       >
                         123456781
                       </div>
@@ -409,6 +411,7 @@ exports[`OfficialListPage renders 1`] = `
                     >
                       <div
                         class="MuiDataGrid-cellContent"
+                        title="toimari1@sposti.not"
                       >
                         toimari1@sposti.not
                       </div>
@@ -435,6 +438,7 @@ exports[`OfficialListPage renders 1`] = `
                     >
                       <div
                         class="MuiDataGrid-cellContent"
+                        title="Toimitsija 2"
                       >
                         Toimitsija 2
                       </div>
@@ -451,6 +455,7 @@ exports[`OfficialListPage renders 1`] = `
                     >
                       <div
                         class="MuiDataGrid-cellContent"
+                        title="123456782"
                       >
                         123456782
                       </div>
@@ -467,6 +472,7 @@ exports[`OfficialListPage renders 1`] = `
                     >
                       <div
                         class="MuiDataGrid-cellContent"
+                        title="toimari2@sposti.not"
                       >
                         toimari2@sposti.not
                       </div>
@@ -493,6 +499,7 @@ exports[`OfficialListPage renders 1`] = `
                     >
                       <div
                         class="MuiDataGrid-cellContent"
+                        title="Toimitsija 3"
                       >
                         Toimitsija 3
                       </div>
@@ -509,6 +516,7 @@ exports[`OfficialListPage renders 1`] = `
                     >
                       <div
                         class="MuiDataGrid-cellContent"
+                        title="123456783"
                       >
                         123456783
                       </div>
@@ -525,6 +533,7 @@ exports[`OfficialListPage renders 1`] = `
                     >
                       <div
                         class="MuiDataGrid-cellContent"
+                        title="toimari3@sposti.not"
                       >
                         toimari3@sposti.not
                       </div>

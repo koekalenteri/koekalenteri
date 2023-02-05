@@ -864,6 +864,7 @@ exports[`EventListPage renders 1`] = `
                     >
                       <div
                         class="MuiDataGrid-cellContent"
+                        title="daterange"
                       >
                         daterange
                       </div>
@@ -880,6 +881,7 @@ exports[`EventListPage renders 1`] = `
                     >
                       <div
                         class="MuiDataGrid-cellContent"
+                        title="NOWT"
                       >
                         NOWT
                       </div>
@@ -896,6 +898,7 @@ exports[`EventListPage renders 1`] = `
                     >
                       <div
                         class="MuiDataGrid-cellContent"
+                        title="VOI"
                       >
                         VOI
                       </div>
@@ -912,6 +915,7 @@ exports[`EventListPage renders 1`] = `
                     >
                       <div
                         class="MuiDataGrid-cellContent"
+                        title="test"
                       >
                         test
                       </div>
@@ -928,6 +932,7 @@ exports[`EventListPage renders 1`] = `
                     >
                       <div
                         class="MuiDataGrid-cellContent"
+                        title="Teemu Toimitsija"
                       >
                         Teemu Toimitsija
                       </div>
@@ -944,6 +949,7 @@ exports[`EventListPage renders 1`] = `
                     >
                       <div
                         class="MuiDataGrid-cellContent"
+                        title="Tuomari 2"
                       >
                         Tuomari 2
                       </div>
@@ -960,6 +966,7 @@ exports[`EventListPage renders 1`] = `
                     >
                       <div
                         class="MuiDataGrid-cellContent"
+                        title="7 / 10"
                       >
                         7 / 10
                       </div>
@@ -976,6 +983,7 @@ exports[`EventListPage renders 1`] = `
                     >
                       <div
                         class="MuiDataGrid-cellContent"
+                        title="event.states.confirmed_entryOpen"
                       >
                         event.states.confirmed_entryOpen
                       </div>
@@ -1002,6 +1010,7 @@ exports[`EventListPage renders 1`] = `
                     >
                       <div
                         class="MuiDataGrid-cellContent"
+                        title="daterange"
                       >
                         daterange
                       </div>
@@ -1018,6 +1027,7 @@ exports[`EventListPage renders 1`] = `
                     >
                       <div
                         class="MuiDataGrid-cellContent"
+                        title="type4"
                       >
                         type4
                       </div>
@@ -1034,6 +1044,7 @@ exports[`EventListPage renders 1`] = `
                     >
                       <div
                         class="MuiDataGrid-cellContent"
+                        title="class4"
                       >
                         class4
                       </div>
@@ -1050,6 +1061,7 @@ exports[`EventListPage renders 1`] = `
                     >
                       <div
                         class="MuiDataGrid-cellContent"
+                        title="test"
                       >
                         test
                       </div>
@@ -1066,6 +1078,7 @@ exports[`EventListPage renders 1`] = `
                     >
                       <div
                         class="MuiDataGrid-cellContent"
+                        title="Teemu Toimitsija"
                       >
                         Teemu Toimitsija
                       </div>
@@ -1082,6 +1095,7 @@ exports[`EventListPage renders 1`] = `
                     >
                       <div
                         class="MuiDataGrid-cellContent"
+                        title="Tuomari 2"
                       >
                         Tuomari 2
                       </div>
@@ -1098,6 +1112,7 @@ exports[`EventListPage renders 1`] = `
                     >
                       <div
                         class="MuiDataGrid-cellContent"
+                        title="0 / 10"
                       >
                         0 / 10
                       </div>
@@ -1114,6 +1129,7 @@ exports[`EventListPage renders 1`] = `
                     >
                       <div
                         class="MuiDataGrid-cellContent"
+                        title="event.states.confirmed"
                       >
                         event.states.confirmed
                       </div>
@@ -1140,6 +1156,7 @@ exports[`EventListPage renders 1`] = `
                     >
                       <div
                         class="MuiDataGrid-cellContent"
+                        title="daterange"
                       >
                         daterange
                       </div>
@@ -1156,6 +1173,7 @@ exports[`EventListPage renders 1`] = `
                     >
                       <div
                         class="MuiDataGrid-cellContent"
+                        title="type5"
                       >
                         type5
                       </div>
@@ -1172,6 +1190,7 @@ exports[`EventListPage renders 1`] = `
                     >
                       <div
                         class="MuiDataGrid-cellContent"
+                        title="class5"
                       >
                         class5
                       </div>
@@ -1188,6 +1207,7 @@ exports[`EventListPage renders 1`] = `
                     >
                       <div
                         class="MuiDataGrid-cellContent"
+                        title="test"
                       >
                         test
                       </div>
@@ -1204,6 +1224,7 @@ exports[`EventListPage renders 1`] = `
                     >
                       <div
                         class="MuiDataGrid-cellContent"
+                        title="Teemu Toimitsija"
                       >
                         Teemu Toimitsija
                       </div>
@@ -1220,6 +1241,7 @@ exports[`EventListPage renders 1`] = `
                     >
                       <div
                         class="MuiDataGrid-cellContent"
+                        title="Tuomari 2"
                       >
                         Tuomari 2
                       </div>
@@ -1236,6 +1258,7 @@ exports[`EventListPage renders 1`] = `
                     >
                       <div
                         class="MuiDataGrid-cellContent"
+                        title="10 / 10"
                       >
                         10 / 10
                       </div>
@@ -1252,6 +1275,7 @@ exports[`EventListPage renders 1`] = `
                     >
                       <div
                         class="MuiDataGrid-cellContent"
+                        title="event.states.confirmed_entryOpen"
                       >
                         event.states.confirmed_entryOpen
                       </div>
