@@ -1,8 +1,7 @@
 
 module.exports = {
   transform: {
-    // '^.+\\.test\\.ts$': 'babel-jest',
-    '^.+\\.ts$': ['<rootDir>/jest.transform.js'],
+    '^.+\\.ts$': '<rootDir>/jest.transform.js',
   },
   extensionsToTreatAsEsm: ['.ts'],
   testEnvironment: 'node',
