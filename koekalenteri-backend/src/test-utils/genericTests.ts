@@ -7,7 +7,7 @@ import { constructAPIGwEvent, createAWSError } from "./helpers"
 
 export const genericReadAllTest = (handler: (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult>) =>
   (): void => {
-    let scanSpy
+    let scanSpy: any
 
     beforeAll(() => {
       scanSpy = jest.spyOn(AWS.DynamoDB.DocumentClient.prototype, 'scan')
@@ -21,7 +21,9 @@ export const genericReadAllTest = (handler: (event: APIGatewayProxyEvent) => Pro
       const items = [{ id: 'id1' }, { id: 'id2' }]
 
       scanSpy.mockReturnValue({
-        promise: () => Promise.resolve({ Items: items }),
+        promise: () => Promise.resolve({
+          Items: items,
+        }),
       })
 
       const event = constructAPIGwEvent({}, { method: 'GET' })
@@ -70,7 +72,7 @@ export const genericReadAllTest = (handler: (event: APIGatewayProxyEvent) => Pro
 
 export const genericReadTest = (handler: (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult>) =>
   (): void => {
-    let getSpy
+    let getSpy: any
 
     beforeAll(() => {
       getSpy = jest.spyOn(AWS.DynamoDB.DocumentClient.prototype, 'get')
@@ -132,7 +134,7 @@ export const genericReadTest = (handler: (event: APIGatewayProxyEvent) => Promis
 
 export const genericWriteTest = (handler: (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult>) =>
   (): void => {
-    let putSpy
+    let putSpy: any
 
     beforeAll(() => {
       putSpy = jest.spyOn(AWS.DynamoDB.DocumentClient.prototype, 'put')
@@ -145,7 +147,7 @@ export const genericWriteTest = (handler: (event: APIGatewayProxyEvent) => Promi
     it('should return put data', async () => {
       let item
 
-      putSpy.mockImplementation((params) => {
+      putSpy.mockImplementation((params: any) => {
         item = params.Item
         return {
           promise: () => Promise.resolve(),

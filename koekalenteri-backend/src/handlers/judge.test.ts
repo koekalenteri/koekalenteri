@@ -1,6 +1,7 @@
-import { getJudgesHandler } from '../../../src/handlers/judge'
-import { capitalize } from '../../../src/utils/string'
-import { genericReadAllTest } from '../../utils/genericTests'
+import { genericReadAllTest } from '../test-utils/genericTests'
+import { capitalize } from '../utils/string'
+
+import { getJudgesHandler } from './judge'
 
 describe('Test getJudgesHandler (generic)', genericReadAllTest(getJudgesHandler))
 

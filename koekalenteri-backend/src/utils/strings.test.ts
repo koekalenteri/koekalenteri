@@ -1,4 +1,4 @@
-import {capitalize, reverseName} from '../../../src/utils/string'
+import {capitalize, reverseName} from './string'
 
 test('capitalize', function() {
   expect(capitalize('')).toEqual('')

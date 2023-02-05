@@ -1,10 +1,12 @@
 import {jest} from '@jest/globals'
 import AWS from 'aws-sdk'
 
-import { getEventHandler, getEventsHandler, putEventHandler, putRegistrationHandler } from '../../../src/handlers/event'
-import { genericReadAllTest, genericReadTest, genericWriteTest } from '../../utils/genericTests'
-import { defaultJSONHeaders } from '../../utils/headers'
-import { constructAPIGwEvent, createAWSError } from '../../utils/helpers'
+import { genericReadAllTest, genericReadTest, genericWriteTest } from '../test-utils/genericTests'
+import { defaultJSONHeaders } from '../test-utils/headers'
+import { constructAPIGwEvent, createAWSError } from '../test-utils/helpers'
+
+import { getEventHandler, getEventsHandler, putEventHandler } from './event'
+import { putRegistrationHandler } from './registration'
 
 jest.mock('aws-sdk/clients/ses', () => {
   const mSES = {
@@ -19,10 +21,10 @@ describe('Test getEventHandler (generic)', genericReadTest(getEventHandler))
 describe('Test putEventHandler (generic)', genericWriteTest(putEventHandler))
 
 describe('putRegistrationHandler', function() {
-  let putSpy
-  let getSpy
-  let querySpy
-  let updateSpy
+  let putSpy: any
+  let getSpy: any
+  let querySpy: any
+  let updateSpy: any
 
   beforeAll(() => {
     putSpy = jest.spyOn(AWS.DynamoDB.DocumentClient.prototype, 'put')
@@ -41,7 +43,7 @@ describe('putRegistrationHandler', function() {
   it('should return put data', async () => {
     let item
 
-    putSpy.mockImplementation((params) => {
+    putSpy.mockImplementation((params: any) => {
       item = params.Item
       return {
         promise: () => Promise.resolve(),

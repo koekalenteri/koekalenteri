@@ -15,7 +15,11 @@ const ses = new AWS.SES()
 
 const stackName = process.env.AWS_SAM_LOCAL ? 'local' : process.env.STACK_NAME ?? 'local'
 
-export async function sendTemplatedMail(template: string, language: Language, from: string, to: string[], data: Record<string, unknown>) {
+export enum EmailTemplate {
+  REGISTRATION = 'registration',
+}
+
+export async function sendTemplatedMail(template: EmailTemplate, language: Language, from: string, to: string[], data: Record<string, unknown>) {
   const params: SendTemplatedEmailRequest = {
     ConfigurationSetName: 'Koekalenteri',
     Destination: {

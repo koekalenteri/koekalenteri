@@ -1,9 +1,10 @@
 import {jest} from '@jest/globals'
 import AWS from 'aws-sdk'
 
-import { getEventTypesHandler, putEventTypeHandler } from '../../../src/handlers/eventType'
-import { genericReadAllTest } from '../../utils/genericTests'
-import { constructAPIGwEvent } from '../../utils/helpers'
+import { genericReadAllTest } from '../test-utils/genericTests'
+import { constructAPIGwEvent } from '../test-utils/helpers'
+
+import { getEventTypesHandler, putEventTypeHandler } from './eventType'
 
 describe('getEventTypesHandler (generic)', genericReadAllTest(getEventTypesHandler))
 
