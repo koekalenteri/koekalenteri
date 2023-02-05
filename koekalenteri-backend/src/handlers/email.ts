@@ -5,7 +5,7 @@ import type { SendTemplatedEmailRequest, Template } from 'aws-sdk/clients/ses'
 import { JsonEmailTemplate, Language } from 'koekalenteri-shared/model'
 
 import CustomDynamoClient from '../utils/CustomDynamoClient'
-import { genJson } from '../utils/email/genJson'
+import { markdownToTemplate } from '../utils/email/markdown'
 import { authorize, genericReadAllHandler, getUsername } from '../utils/genericHandlers'
 import { metricsError, metricsSuccess } from '../utils/metrics'
 import { response } from '../utils/response'
@@ -55,8 +55,8 @@ export const putTemplateHandler = metricScope((metrics: MetricsLogger) =>
 
       // Generate SES compatible template for all languages
       data.ses = {
-        fi: await genJson(`${item.id}-${stackName}-fi`, data.fi),
-        en: await genJson(`${item.id}-${stackName}-en`, data.en),
+        fi: await markdownToTemplate(`${item.id}-${stackName}-fi`, data.fi),
+        en: await markdownToTemplate(`${item.id}-${stackName}-en`, data.en),
       }
 
       updateOrCreateTemplate(data.ses.fi)

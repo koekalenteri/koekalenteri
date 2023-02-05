@@ -1,19 +1,21 @@
+import { Element, ElementContent } from 'hast'
+import { Table } from 'mdast'
+import { MdastNodes } from 'mdast-util-to-hast/lib'
+import { Handler, HFields, HFunctionProps, MdastContent, MdastParents, State } from 'mdast-util-to-hast/lib/state'
 import { u } from 'unist-builder'
 import { pointEnd, pointStart } from 'unist-util-position'
 
 const own = {}.hasOwnProperty
 
-export default function tableHandler(h: any, node: any) {
+export function tableHandler(h: State, node: Table) {
   const rows = node.children
   let index = -1
   const align = node.align || []
-  /** @type {Array<Element>} */
-  const result = []
+  const result: Element[] = []
 
   while (++index < rows.length) {
     const row = rows[index].children
-    /** @type {Array<Content>} */
-    const out = []
+    const out: Element[] = []
     let cellIndex = -1
     const length = node.align ? align.length : row.length
 
@@ -32,16 +34,15 @@ export default function tableHandler(h: any, node: any) {
     node,
     'table',
     wrap(
-      [].concat(
-        result[1]
-          ? h(
-            {
-              start: pointStart(result[1]),
-              end: pointEnd(result[result.length - 1]),
-            },
-            'tbody',
-            wrap(result.slice(1), true),
-          )
+      ([] as Element[]).concat(
+        result.length > 1 ? h(
+          {
+            start: pointStart(result[1]),
+            end: pointEnd(result[result.length - 1]),
+          },
+          'tbody',
+          wrap(result.slice(1), true),
+        )
           : [],
       ),
       true,
@@ -49,9 +50,8 @@ export default function tableHandler(h: any, node: any) {
   )
 }
 
-export function wrap(nodes: any, loose: any) {
-  /** @type {Array<Content>} */
-  const result = []
+export function wrap(nodes: Element[], loose: boolean) {
+  const result: ElementContent[] = []
   let index = -1
 
   if (loose) {
@@ -70,9 +70,8 @@ export function wrap(nodes: any, loose: any) {
   return result
 }
 
-export function all(h: any, parent: any) {
-  /** @type {Array<Content>} */
-  const values = []
+export function all(h: HFunctionProps, parent: MdastParents) {
+  const values: ElementContent[] = []
 
   if ('children' in parent) {
     const nodes = parent.children
@@ -108,33 +107,37 @@ export function all(h: any, parent: any) {
   return values
 }
 
-export function one(h: any, node: any, parent: any) {
+export function one(h: HFunctionProps|HFields, node: MdastContent, parent: MdastParents) {
   const type = node && node.type
-  /** @type {Handler} */
-  let fn
+  let fn: Handler = unknown
 
   // Fail on non-nodes.
   if (!type) {
     throw new Error('Expected node, got `' + node + '`')
   }
 
-  if (own.call(h.handlers, type)) {
-    fn = h.handlers[type]
-  } else if (h.passThrough && h.passThrough.includes(type)) {
-    fn = returnNode
-  } else {
-    fn = h.unknownHandler
+  if ('handlers' in h) {
+    if (own.call(h.handlers, type)) {
+      fn = h.handlers[type] ?? unknown
+    } else if (h.passThrough && h.passThrough.includes(type)) {
+      fn = returnNode
+    } else {
+      fn = h.unknownHandler
+    }
   }
-  node.value = node.value.replace(/:$/, '')
 
-  return (typeof fn === 'function' ? fn : unknown)(h, node, parent)
+  if ('value' in node) {
+    node.value = node.value.replace(/:$/, '')
+  }
+
+  return fn(h as State, node, parent)
 }
 
-function returnNode(h: any, node: any) {
+function returnNode(h: State, node: MdastNodes): any {
   return 'children' in node ? { ...node, children: all(h, node) } : node
 }
 
-function unknown(h: any, node: any) {
+function unknown(h: State, node: any): any {
   const data = node.data || {}
 
   if (
