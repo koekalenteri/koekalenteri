@@ -37,7 +37,7 @@ describe('markdown', () => {
       expect(await markdownToTemplate('testTemplateName', '[subject]: # (test)\n# content')).toEqual({
         TemplateName: 'testTemplateName',
         SubjectPart: 'test',
-        TextPart: 'content\n',
+        TextPart: 'content\n\n',
         HtmlPart: '<h1>content</h1>\n',
       })
     })
