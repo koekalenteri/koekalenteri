@@ -1,5 +1,4 @@
 import { Template } from 'aws-sdk/clients/ses'
-import Handlebars from 'handlebars'
 import { Root } from 'mdast'
 import remarkBreaks from 'remark-breaks'
 import remarkGfm from 'remark-gfm'
@@ -33,8 +32,6 @@ export async function markdownToTemplate(templateName: string, source: string): 
     .use(linkAsText)
     .use(remarkPlainText)
     .process(source)
-
-  Handlebars.precompile(String(text), { strict: true })
 
   const html = await unified()
     .use(remarkParse)
