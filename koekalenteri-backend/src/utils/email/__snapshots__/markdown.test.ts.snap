@@ -1,0 +1,164 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`markdown markdownToHtml should convert a template 1`] = `
+"<h1>{{title}}</h1>
+<p>{{#unless reg.cancelled ~}}<br>
+<a href="{{link}}/edit">Edit registration</a><br>
+<a href="{{link}}/cancel">Cancel registration</a><br>
+{{/unless}}</p>
+<table>
+<tbody>
+<tr>
+<th align="left">Event          </th>
+<td>{{reg.eventType}} {{eventDate}} {{event.location}} {{#if event.name}}({{event.name}}){{/if}}</td>
+</tr>
+<tr>
+<th align="left">Class          </th>
+<td>{{reg.class}}</td>
+</tr>
+<tr>
+<th align="left">Dog            </th>
+<td>{{reg.dog.regNo}} {{reg.dog.name}}</td>
+</tr>
+<tr>
+<th align="left">Identification </th>
+<td>{{reg.dog.rfid}}</td>
+</tr>
+<tr>
+<th align="left">Breed          </th>
+<td>{{dogBreed}}</td>
+</tr>
+<tr>
+<th align="left">Owne           </th>
+<td>{{reg.owner.name}}</td>
+</tr>
+<tr>
+<th align="left">Hometown       </th>
+<td>{{reg.owner.location}}</td>
+</tr>
+<tr>
+<th align="left">Email          </th>
+<td>{{reg.owner.email}}</td>
+</tr>
+<tr>
+<th align="left">Handler        </th>
+<td>{{reg.handler.name}}</td>
+</tr>
+<tr>
+<th align="left">Hometown       </th>
+<td>{{reg.handler.location}}</td>
+</tr>
+<tr>
+<th align="left">Email          </th>
+<td>{{reg.handler.email}}</td>
+</tr>
+<tr>
+<th align="left">Phone          </th>
+<td>{{reg.handler.phone}}</td>
+</tr>
+<tr>
+<th align="left">Times          </th>
+<td>{{regDates}}</td>
+</tr>
+<tr>
+<th align="left">Reserve        </th>
+<td>{{reserveText}}</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Qualifying results</strong><br>
+{{#each qualifyingResults}}<br>
+{{this.type}} {{this.result}}, {{this.date}}, {{this.location}}, {{this.judge}}<br>
+{{/each}}<br>
+{{#if reg.notes}}</p>
+<p><strong>Notes</strong><br>
+{{reg.notes}}<br>
+{{/if}}</p>
+<p>You can view your registration details here: <a href="{{link}}">View registration details</a></p>
+<p>Best regards,<br>
+{{#if event.contactInfo.secretary.name ~}}<br>
+{{event.secretary.name}}<br>
+Secretary<br>
+{{/if ~}}<br>
+{{#if event.contactInfo.secretary.email ~}}<br>
+{{event.secretary.email}}<br>
+{{/if ~}}<br>
+{{#if event.contactInfo.secretary.phone ~}}<br>
+p. {{event.secretary.phone}}<br>
+{{/if ~}}</p>
+<p>{{#if event.contactInfo.official.name ~}}<br>
+{{event.official.name}}<br>
+Chief officer<br>
+{{/if ~}}<br>
+{{#if event.contactInfo.official.email ~}}<br>
+{{event.official.email}}<br>
+{{/if ~}}<br>
+{{#if event.contactInfo.official.phone ~}}<br>
+p. {{event.official.phone}}<br>
+{{/if ~}}</p>
+"
+`;
+
+exports[`markdown markdownToText should convert a template 1`] = `
+{
+  "subject": "{{subject}}: {{reg.eventType}} {{eventDate}} {{event.location}}",
+  "text": "{{title}}
+
+{{#unless reg.cancelled ~}}
+Edit registration: {{link}}/edit
+Cancel registration: {{link}}/cancel
+{{/unless}}
+
+Event          : {{reg.eventType}} {{eventDate}} {{event.location}} {{#if event.name}}({{event.name}}){{/if}}
+Class          : {{reg.class}}
+Dog            : {{reg.dog.regNo}} {{reg.dog.name}}
+Identification : {{reg.dog.rfid}}
+Breed          : {{dogBreed}}
+Owne           : {{reg.owner.name}}
+Hometown       : {{reg.owner.location}}
+Email          : {{reg.owner.email}}
+Handler        : {{reg.handler.name}}
+Hometown       : {{reg.handler.location}}
+Email          : {{reg.handler.email}}
+Phone          : {{reg.handler.phone}}
+Times          : {{regDates}}
+Reserve        : {{reserveText}}
+
+Qualifying results
+{{#each qualifyingResults}}
+{{this.type}} {{this.result}}, {{this.date}}, {{this.location}}, {{this.judge}}
+{{/each}}
+{{#if reg.notes}}
+
+Notes
+{{reg.notes}}
+{{/if}}
+
+You can view your registration details here: View registration details: {{link}}
+
+Best regards,
+{{#if event.contactInfo.secretary.name ~}}
+{{event.secretary.name}}
+Secretary
+{{/if ~}}
+{{#if event.contactInfo.secretary.email ~}}
+{{event.secretary.email}}
+{{/if ~}}
+{{#if event.contactInfo.secretary.phone ~}}
+p. {{event.secretary.phone}}
+{{/if ~}}
+
+{{#if event.contactInfo.official.name ~}}
+{{event.official.name}}
+Chief officer
+{{/if ~}}
+{{#if event.contactInfo.official.email ~}}
+{{event.official.email}}
+{{/if ~}}
+{{#if event.contactInfo.official.phone ~}}
+p. {{event.official.phone}}
+{{/if ~}}
+
+",
+}
+`;

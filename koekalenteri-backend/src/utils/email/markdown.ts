@@ -15,9 +15,22 @@ import { removeTableHead } from './mdast2text/table'
 
 
 export async function markdownToTemplate(templateName: string, source: string): Promise<Template> {
+
+  const {text, subject} = await markdownToText(source)
+  const html = await markdownToHtml(source)
+
+  return {
+    TemplateName: templateName,
+    SubjectPart: subject,
+    TextPart: String(text),
+    HtmlPart: String(html),
+  }
+}
+
+export async function markdownToText(source: string): Promise<{subject: string, text: string}> {
   let subject = ''
   const extractSubject: Plugin<void[], string, Root> = () => (tree: any) => visit(tree, (node, index, parent) => {
-    if (subject === '' && node.type === 'definition') {
+    if (subject === '' && node.type === 'definition' && node.title) {
       subject = node.title
       parent.children.splice(index, 1)
       return [SKIP, index]
@@ -33,6 +46,10 @@ export async function markdownToTemplate(templateName: string, source: string): 
     .use(remarkPlainText)
     .process(source)
 
+  return {subject, text: String(text)}
+}
+
+export async function markdownToHtml(source: string): Promise<string> {
   const html = await unified()
     .use(remarkParse)
     .use(remarkGfm)
@@ -40,11 +57,5 @@ export async function markdownToTemplate(templateName: string, source: string): 
     .use(remarkHtml, { handlers: { table: tableHandler, link: linkHandler } })
     .process(source)
 
-  return {
-    TemplateName: templateName,
-    SubjectPart: subject,
-    TextPart: String(text),
-    HtmlPart: String(html),
-  }
+  return String(html)
 }
-
