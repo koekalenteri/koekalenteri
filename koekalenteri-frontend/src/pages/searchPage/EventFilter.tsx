@@ -42,8 +42,9 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
   const handleWithUpcomingEntryChange = useCallback((event: SyntheticEvent<Element, Event>, checked: boolean) => setFilter({
     withUpcomingEntry: checked,
   }), [setFilter])
-  const getName = useCallback((o: {name: string}) => o.name, [])
-  const compareId = useCallback((o: {id: number}, v: {id: number}) => o.id === v.id, [])
+  const getName = useCallback((o?: {name?: string}) => o?.name ?? '', [])
+  const getString = useCallback((o?: string) => o ?? '', [])
+  const compareId = useCallback((o?: {id?: number}, v?: {id?: number}) => o?.id === v?.id, [])
 
   return (
     <Box m={1}>
@@ -60,6 +61,7 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
           <AutocompleteMulti
+            getOptionLabel={getString}
             label={t('eventType')}
             onChange={handleEventTypeChange}
             options={eventTypes}
@@ -68,6 +70,7 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
         </Grid>
         <Grid item xs={12} sm={6} md={2}>
           <AutocompleteMulti
+            getOptionLabel={getString}
             label={t('eventClass')}
             onChange={handleEventClassChange}
             options={eventClasses}
