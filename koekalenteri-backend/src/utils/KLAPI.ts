@@ -1,5 +1,5 @@
 import type { JsonArray, JsonObject } from 'koekalenteri-shared/model'
-import fetch from 'node-fetch-native'
+import fetch from 'node-fetch'
 
 import type {
   KLAPIConfig, KLAPIResult, KLArvo, KLKennelpiiri, KLKoeHenkilö, KLKoemuodonTarkenne, KLKoemuodonTulos,
