@@ -750,8 +750,9 @@ Resources:
             - Sid: SESTemplatesPolicy
               Effect: Allow
               Action:
+              - ses:getTemplate
               - ses:createTemplate
-              - ses:updateTemplace
+              - ses:updateTemplate
               Resource: '*'
       Environment:
         Variables:
