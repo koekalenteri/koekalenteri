@@ -10,7 +10,7 @@
         "build": "node build.js",
         "prewatch": "node copy_i18n.mjs",
         "watch": "node build.js --watch",
-        "lint": "eslint \"src/**/*.ts\" \"__test__/**/*.ts\"",
+        "lint": "eslint \"src/**/*.ts\"",
         "create-tables": "run-script-os",
         "create-tables:nix": "./__test__/environment/local/create_tables.sh",
         "create-tables:win32": "cd ./__test__/environment/local/ && @powershell -NoProfile -ExecutionPolicy Unrestricted -Command ./create_tables.ps1",
