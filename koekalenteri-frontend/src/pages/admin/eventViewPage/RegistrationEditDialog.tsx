@@ -66,7 +66,7 @@ export default function RegistraionEditDialog({open, onClose}: Props) {
         },
       }}
     >
-      <DialogTitle id="reg-dialog-title">{`${registration.dog.name} / ${registration.handler.name}`}</DialogTitle>
+      <DialogTitle id="reg-dialog-title">{`${registration?.dog?.name} / ${registration?.handler?.name}`}</DialogTitle>
       <DialogContent dividers sx={{height: '100%', p: 0 }}>
         <RegistrationForm
           event={event as ConfirmedEvent}
