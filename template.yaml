@@ -382,7 +382,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: koekalenteri-backend
-      Handler: dist/handlers/event.getRegistrationsHandler
+      Handler: dist/handlers/registration.getRegistrationsHandler
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -412,7 +412,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: koekalenteri-backend
-      Handler: dist/handlers/event.getRegistrationHandler
+      Handler: dist/handlers/registration.getRegistrationHandler
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -439,7 +439,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: koekalenteri-backend
-      Handler: dist/handlers/event.putRegistrationHandler
+      Handler: dist/handlers/registration.putRegistrationHandler
       Layers:
         - !Ref CommonLayer
       Tracing: Active
