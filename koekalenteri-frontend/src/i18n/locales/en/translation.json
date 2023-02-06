@@ -40,6 +40,10 @@
     "titles": "Title"
   },
   "edit": "Edit",
+  "emailTemplate": {
+    "registration": "Confirmation"
+  },
+  "emailTemplates": "Messages",
   "entryEditTitle": "Edit registration",
   "entryList": "Registration list",
   "entryOpen": "Registration open",
@@ -204,8 +208,11 @@
   },
   "registrations": "Registrations",
   "searchPlaceholder": "Search...",
-  "secretary": "Secretary",
-  "state": "State",
+  "size": {
+    "fi": "Koko suomeksi",
+    "en": "Koko englanniksi"
+  },
+  "templateId": "Message name",
   "testResult": {
     "date": "Date",
     "eventType": "Event type",

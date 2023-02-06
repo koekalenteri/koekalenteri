@@ -54,6 +54,10 @@
     "titles": "Tittelit"
   },
   "edit": "Muokkaa",
+  "emailTemplates": "Viestit",
+  "emailTemplate": {
+    "registration": "Vahvistusviesti"
+  },
   "entryEditTitle": "Muokkaa ilmoittautumista",
   "entryList": "Ilmoittautumistiedot",
   "entryOpen": "Ilmoittautuminen auki",
@@ -237,7 +241,12 @@
     }
   },
   "registrations": "Ilmoittautumiset",
+  "size": {
+    "fi": "Koko suomeksi",
+    "en": "Koko englanniksi"
+  },
   "searchPlaceholder": "Hae...",
+  "templateId": "Viestin nimi",
   "testResult": {
     "date": "Aika",
     "eventType": "Koemuoto",

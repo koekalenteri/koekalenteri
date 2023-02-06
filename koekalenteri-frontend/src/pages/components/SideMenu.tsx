@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { NavLink } from 'react-router-dom'
-import { Accessibility, EmojiEventsOutlined, Event, Logout, PersonOutline, SupervisorAccount, Support } from '@mui/icons-material'
+import { Accessibility, EmojiEventsOutlined, Event, Logout, MailOutline, PersonOutline, SupervisorAccount, Support } from '@mui/icons-material'
 import { Divider, Theme, Toolbar, useMediaQuery } from '@mui/material'
 
 import { Path } from '../../routeConfig'
@@ -33,6 +33,7 @@ export function SideMenu({ open, onClose }: { open?: boolean, onClose: () => voi
         <NavLink to={Path.admin.officials}><DrawerItem text={t('officials')} icon={<SupervisorAccount />} /></NavLink>
         <NavLink to={Path.admin.eventTypes}><DrawerItem text={t('eventTypes')} icon={<EmojiEventsOutlined />} /></NavLink>
         <NavLink to={Path.admin.users}><DrawerItem text={t('users')} icon={<PersonOutline />} /></NavLink>
+        <NavLink to={Path.admin.emailTemplates}><DrawerItem text={t('emailTemplates')} icon={<MailOutline />} /></NavLink>
       </DrawerList>
       <Divider />
       <DrawerList>

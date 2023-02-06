@@ -2,10 +2,15 @@
   "extends": "@tsconfig/node16/tsconfig.json",
   "compilerOptions": {
     "sourceMap": true,
+    "target": "es2022",
+    "module": "es2022",
     "moduleResolution": "node",
     "outDir": "./dist",
     "resolveJsonModule": true,
     "rootDir": "./src",
+    "declaration": false,
+    "isolatedModules": true,
+    "allowSyntheticDefaultImports": true,
   },
-  "include": ["src/**/*.ts", "src/**/*.js"]
+  "include": ["src/**/*.ts"]
 }

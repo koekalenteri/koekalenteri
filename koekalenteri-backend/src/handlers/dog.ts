@@ -8,10 +8,11 @@ import KLAPI from "../utils/KLAPI"
 import { KLKieli } from "../utils/KLAPI_models"
 import { metricsError, metricsSuccess } from "../utils/metrics"
 import { response } from "../utils/response"
+import { getKLAPIConfig } from "../utils/secrets"
 
 const dynamoDB = new CustomDynamoClient()
 
-const klapi = new KLAPI()
+const klapi = new KLAPI(getKLAPIConfig)
 
 const GENDER: Record<string, 'F' | 'M'> = {
   narttu: 'F',
@@ -37,7 +38,7 @@ export const getDogHandler = metricScope((metrics: MetricsLogger) =>
         if (status === 200 && json) {
           // Cache
           item = {
-            ...item, // keep refined info on refresh
+            ...item, // keep refined info on refres
             regNo: json.rekisterinumero,
             name: json.nimi,
             rfid: json.tunnistusmerkintä,
@@ -67,8 +68,8 @@ export const getDogHandler = metricScope((metrics: MetricsLogger) =>
                 points: result.pisteet,
                 rank: result.sijoitus,
 
-                cert: result.lisämerkinnät.substring(0, 5).toLowerCase() === 'cert ',
-                resCert: result.lisämerkinnät.substring(0, 9).toLowerCase() === 'vara sert',
+                cert: result.lisämerkinnät.slice(0, 5).toLowerCase() === 'cert ',
+                resCert: result.lisämerkinnät.slice(0, 9).toLowerCase() === 'vara sert',
               })
             }
             item.results = res
@@ -87,6 +88,6 @@ export const getDogHandler = metricScope((metrics: MetricsLogger) =>
       metricsError(metrics, event.requestContext, 'getDog')
       return response((err as AWSError).statusCode || 501, err)
     }
-  }
+  },
 )
 

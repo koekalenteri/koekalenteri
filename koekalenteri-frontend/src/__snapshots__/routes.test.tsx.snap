@@ -94,6 +94,10 @@ Array [
         "element": <EventTypeListPage />,
         "path": "/admin/types",
       },
+      Object {
+        "element": <EmailTemplateListPage />,
+        "path": "/admin/templates",
+      },
     ],
     "element": <AdminHomePage />,
     "errorElement": <ErrorPage />,

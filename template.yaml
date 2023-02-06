@@ -249,6 +249,25 @@ Resources:
       SSESpecification:
         SSEEnabled: false
 
+  EmailTemplatesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Join ['-', [email-templates-table, !Ref AWS::StackName]]
+      KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+      AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+      Tags:
+        - Key: Env
+          Value: !Ref AWS::StackName
+        - Key: Label
+          Value: "koekalenteri"
+      BillingMode: PAY_PER_REQUEST
+      SSESpecification:
+        SSEEnabled: false
+
   # TODO Rest of table definitions, maybe split tables into separate file?
 
   # API declaration
@@ -291,6 +310,7 @@ Resources:
         - CloudWatchPutMetricPolicy: {}
       Environment:
         Variables:
+          STACK_NAME: !Ref AWS::StackName
           TABLE_NAME: !Ref EventTable
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
           USE_DYNAMODB_LOCAL: "0"
@@ -318,6 +338,7 @@ Resources:
         - CloudWatchPutMetricPolicy: {}
       Environment:
         Variables:
+          STACK_NAME: !Ref AWS::StackName
           TABLE_NAME: !Ref EventTable
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
 
@@ -343,6 +364,7 @@ Resources:
         - CloudWatchPutMetricPolicy: {}
       Environment:
         Variables:
+          STACK_NAME: !Ref AWS::StackName
           TABLE_NAME: !Ref EventTable
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
 
@@ -373,12 +395,13 @@ Resources:
 
       Environment:
         Variables:
+          STACK_NAME: !Ref AWS::StackName
           TABLE_NAME: !Ref EventRegistrationTable
           EVENT_TABLE_NAME : !Ref EventTable
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
 
       Events:
-        GetEvent:
+        GetRegistration:
           Type: Api
           Properties:
             Path: /registration/{eventId}
@@ -400,6 +423,7 @@ Resources:
 
       Environment:
         Variables:
+          STACK_NAME: !Ref AWS::StackName
           TABLE_NAME: !Ref EventRegistrationTable
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
 
@@ -434,12 +458,13 @@ Resources:
 
       Environment:
         Variables:
+          STACK_NAME: !Ref AWS::StackName
           TABLE_NAME: !Ref EventRegistrationTable
           EVENT_TABLE_NAME : !Ref EventTable
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
 
       Events:
-        PutEvent:
+        PutRegistration:
           Type: Api
           Properties:
             Path: /registration
@@ -469,6 +494,7 @@ Resources:
         - CloudWatchPutMetricPolicy: {}
       Environment:
         Variables:
+          STACK_NAME: !Ref AWS::StackName
           TABLE_NAME: !Ref JudgeTable
           EVENT_TYPE_TABLE_NAME : !Ref EventTypeTable
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
@@ -495,11 +521,12 @@ Resources:
         - CloudWatchPutMetricPolicy: {}
       Environment:
         Variables:
+          STACK_NAME: !Ref AWS::StackName
           TABLE_NAME: !Ref JudgeTable
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
 
       Events:
-        PutEvent:
+        PutJudge:
           Type: Api
           Properties:
             Path: /judge
@@ -531,6 +558,7 @@ Resources:
         - CloudWatchPutMetricPolicy: {}
       Environment:
         Variables:
+          STACK_NAME: !Ref AWS::StackName
           TABLE_NAME: !Ref OfficialTable
           EVENT_TYPE_TABLE_NAME : !Ref EventTypeTable
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
@@ -564,6 +592,7 @@ Resources:
         - CloudWatchPutMetricPolicy: {}
       Environment:
         Variables:
+          STACK_NAME: !Ref AWS::StackName
           TABLE_NAME: !Ref OrganizerTable
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
 
@@ -596,11 +625,12 @@ Resources:
             TableName: !Ref DogTable
       Environment:
         Variables:
+          STACK_NAME: !Ref AWS::StackName
           TABLE_NAME: !Ref DogTable
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
 
       Events:
-        getDog:
+        GetDog:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
             Path: /dog/{regNo}
@@ -628,11 +658,12 @@ Resources:
             TableName: !Ref EventTypeTable
       Environment:
         Variables:
+          STACK_NAME: !Ref AWS::StackName
           TABLE_NAME: !Ref EventTypeTable
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
 
       Events:
-        getDog:
+        GetEventTypes:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
             Path: /eventType
@@ -657,16 +688,75 @@ Resources:
         - CloudWatchPutMetricPolicy: {}
       Environment:
         Variables:
+          STACK_NAME: !Ref AWS::StackName
           TABLE_NAME: !Ref EventTypeTable
           JUDGE_TABLE_NAME: !Ref JudgeTable
           OFFICIAL_TABLE_NAME: !Ref OfficialTable
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
 
       Events:
-        PutEvent:
+        PutEventType:
           Type: Api
           Properties:
             Path: /eventType
+            Method: POST
+            RestApiId: !Ref KoekalenteriApi
+            Auth:
+              Authorizer: CognitoAuthorizer
+
+  GetEmailTemplatesFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: koekalenteri-backend
+      Handler: dist/handlers/email.getTemplatesHandler
+      Layers:
+        - !Ref CommonLayer
+      Tracing: Active
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref EmailTemplatesTable
+        - CloudWatchPutMetricPolicy: {}
+      Environment:
+        Variables:
+          STACK_NAME: !Ref AWS::StackName
+          TABLE_NAME: !Ref EmailTemplatesTable
+          AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
+          USE_DYNAMODB_LOCAL: "0"
+          DYNAMODB_LOCAL_URI: ""
+
+      Events:
+        GetEmailTemplates:
+          Type: Api
+          Properties:
+            Path: /admin/email-templates
+            Method: get
+            RestApiId: !Ref KoekalenteriApi
+            Auth:
+              Authorizer: CognitoAuthorizer
+
+  PutEmailTemplateFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: koekalenteri-backend
+      Handler: dist/handlers/email.putTemplateHandler
+      Layers:
+        - !Ref CommonLayer
+      Tracing: Active
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EmailTemplatesTable
+        - CloudWatchPutMetricPolicy: {}
+      Environment:
+        Variables:
+          STACK_NAME: !Ref AWS::StackName
+          TABLE_NAME: !Ref EmailTemplatesTable
+          AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
+
+      Events:
+        PutEmailTemplate:
+          Type: Api
+          Properties:
+            Path: /admin/email-templates
             Method: POST
             RestApiId: !Ref KoekalenteriApi
             Auth:

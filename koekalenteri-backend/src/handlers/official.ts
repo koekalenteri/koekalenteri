@@ -8,10 +8,11 @@ import KLAPI from "../utils/KLAPI"
 import { KLKieli } from "../utils/KLAPI_models"
 import { metricsError, metricsSuccess } from "../utils/metrics"
 import { response } from "../utils/response"
+import { getKLAPIConfig } from "../utils/secrets"
 import { capitalize } from "../utils/string"
 
 const dynamoDB = new CustomDynamoClient()
-const klapi = new KLAPI()
+const klapi = new KLAPI(getKLAPIConfig)
 
 export const getOfficialsHandler = metricScope((metrics: MetricsLogger) =>
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
@@ -51,6 +52,6 @@ export const getOfficialsHandler = metricScope((metrics: MetricsLogger) =>
       metricsError(metrics, event.requestContext, 'getOfficials')
       return response((err as AWSError).statusCode || 501, err)
     }
-  }
+  },
 )
 

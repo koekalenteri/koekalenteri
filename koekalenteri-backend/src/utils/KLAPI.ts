@@ -1,6 +1,5 @@
-import { SSM } from 'aws-sdk'
 import type { JsonArray, JsonObject } from 'koekalenteri-shared/model'
-import fetch from 'node-fetch-native'
+import fetch from 'node-fetch'
 
 import type {
   KLAPIConfig, KLAPIResult, KLArvo, KLKennelpiiri, KLKoeHenkilö, KLKoemuodonTarkenne, KLKoemuodonTulos,
@@ -8,22 +7,7 @@ import type {
   KLKoetapahtumaParametrit, KLKoetulos, KLKoetulosParametrit, KLKoira, KLKoiraParametrit,
   KLPaikkakunta, KLParametritParametrit, KLRodutParametrit, KLRotu,   KLRoturyhmä, KLRoturyhmätParametrit,
   KLYhdistys, KLYhdistysParametrit,
-} from './KLAPI_models'
-
-const ssm = new SSM()
-
-type ValuesOf<T extends string[]> = T[number];
-type ParamsFromKeys<T extends string[]> = { [key in ValuesOf<T>]: string };
-
-async function getSSMParams(names: string[]): Promise<ParamsFromKeys<typeof names>> {
-  const result = await ssm.getParameters({ Names: names }).promise()
-  const values: ParamsFromKeys<typeof names> = {}
-  const params = result.Parameters || []
-  for (const name of names) {
-    values[name] = params.find(p => p.Name === name)?.Value || ''
-  }
-  return values
-}
+} from './KLAPI_models.js'
 
 function toURLParams(params: Record<string, string | number | undefined> = {}): Record<string, string> {
   const result: Record<string, string> = {}
@@ -42,17 +26,14 @@ function toURLParams(params: Record<string, string | number | undefined> = {}): 
 }
 export default class KLAPI {
   private _config?: KLAPIConfig
+  private _loadConfig: () => Promise<KLAPIConfig>
+
+  public constructor(loadConfig: () => Promise<KLAPIConfig>) {
+    this._loadConfig = loadConfig
+  }
 
   private async _getConfig(): Promise<KLAPIConfig> {
-    if (!this._config) {
-      this._config = await getSSMParams(['KL_API_URL', 'KL_API_UID', 'KL_API_PWD']) as KLAPIConfig
-    }
-
-    if (!this._config.KL_API_URL) {
-      throw new Error('Missing KLAPI Config!')
-    }
-
-    return this._config
+    return this._config || (this._config = await this._loadConfig())
   }
 
   private async get<T extends JsonObject | JsonArray>(path: string, params?: Record<string, string | number | undefined>): KLAPIResult<T> {

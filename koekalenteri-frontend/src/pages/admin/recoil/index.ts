@@ -1,3 +1,4 @@
+export * from './emailTemplates'
 export * from './events'
 export * from './officials'
 export * from './organizers'

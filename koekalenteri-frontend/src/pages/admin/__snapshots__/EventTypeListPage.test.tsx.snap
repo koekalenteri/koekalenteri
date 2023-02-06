@@ -450,6 +450,7 @@ exports[`EventTypeListPage renders 1`] = `
                     >
                       <div
                         class="MuiDataGrid-cellContent"
+                        title="TEST1"
                       >
                         TEST1
                       </div>

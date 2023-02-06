@@ -1,6 +1,7 @@
 import { Navigate, RouteObject } from 'react-router-dom'
 
 import AdminHomePage from './pages/admin/AdminHomePage'
+import EmailTemplateListPage from './pages/admin/EmailTemplateListPage'
 import EventCreatePage from './pages/admin/EventCreatePage'
 import EventEditPage from './pages/admin/EventEditPage'
 import EventListPage from './pages/admin/EventListPage'
@@ -97,6 +98,10 @@ const routes: RouteObject[] = [
       {
         path: Path.admin.eventTypes,
         element: <EventTypeListPage />,
+      },
+      {
+        path: Path.admin.emailTemplates,
+        element: <EmailTemplateListPage />,
       },
     ],
   },

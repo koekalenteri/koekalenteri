@@ -21,5 +21,6 @@ export const Path = {
     officials: `${ADMIN_ROOT}/officials`,
     judges: `${ADMIN_ROOT}/judge`,
     eventTypes: `${ADMIN_ROOT}/types`,
+    emailTemplates: `${ADMIN_ROOT}/templates`,
   },
 }

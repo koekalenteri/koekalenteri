@@ -23,7 +23,7 @@ export const genericReadAllHandler = (dynamoDB: CustomDynamoClient, name: string
         metricsError(metrics, event.requestContext, name)
         return response((err as AWSError).statusCode || 501, err)
       }
-    }
+    },
   )
 
 export const genericReadHandler = (dynamoDB: CustomDynamoClient, name: string): (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult> =>
@@ -39,7 +39,7 @@ export const genericReadHandler = (dynamoDB: CustomDynamoClient, name: string): 
         metricsError(metrics, event.requestContext, name)
         return response((err as AWSError).statusCode || 501, err)
       }
-    }
+    },
   )
 
 export function createDbRecord(event: APIGatewayProxyEvent, timestamp: string, username: string) {
@@ -77,7 +77,7 @@ export const genericWriteHandler = (dynamoDB: CustomDynamoClient, name: string):
         metricsError(metrics, event.requestContext, name)
         return response((err as AWSError).statusCode || 501, err)
       }
-    }
+    },
   )
 
 export function authorize(event: APIGatewayProxyEvent) {

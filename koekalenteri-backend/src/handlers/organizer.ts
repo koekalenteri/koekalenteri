@@ -7,9 +7,10 @@ import KLAPI from "../utils/KLAPI"
 import { KLYhdistysRajaus } from "../utils/KLAPI_models"
 import { metricsError, metricsSuccess } from "../utils/metrics"
 import { response } from "../utils/response"
+import { getKLAPIConfig } from "../utils/secrets"
 
 const dynamoDB = new CustomDynamoClient()
-const klapi = new KLAPI()
+const klapi = new KLAPI(getKLAPIConfig)
 
 export const getOrganizersHandler = metricScope((metrics: MetricsLogger) =>
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
@@ -30,6 +31,6 @@ export const getOrganizersHandler = metricScope((metrics: MetricsLogger) =>
       metricsError(metrics, event.requestContext, 'getOrganizers')
       return response((err as AWSError).statusCode || 501, err)
     }
-  }
+  },
 )
 
