@@ -164,11 +164,11 @@ export const genericWriteTest = (handler: (event: APIGatewayProxyEvent) => Promi
       })
       const data = JSON.parse(result.body)
       // compare only date part of timestamps (to avoid timing issues in tests)
-      const timestamp = new Date().toISOString().substr(0, 10)
+      const timestamp = new Date().toISOString().slice(0, 10)
       expect(data.createdBy).toEqual('TEST')
-      expect(data.createdAt.substr(0, 10)).toEqual(timestamp)
+      expect(data.createdAt.slice(0, 10)).toEqual(timestamp)
       expect(data.modifiedBy).toEqual('TEST')
-      expect(data.modifiedAt.substr(0, 10)).toEqual(timestamp)
+      expect(data.modifiedAt.slice(0, 10)).toEqual(timestamp)
     })
 
     it('should catch AWSError', async () => {

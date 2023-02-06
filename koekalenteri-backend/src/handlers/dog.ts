@@ -68,8 +68,8 @@ export const getDogHandler = metricScope((metrics: MetricsLogger) =>
                 points: result.pisteet,
                 rank: result.sijoitus,
 
-                cert: result.lisämerkinnät.substring(0, 5).toLowerCase() === 'cert ',
-                resCert: result.lisämerkinnät.substring(0, 9).toLowerCase() === 'vara sert',
+                cert: result.lisämerkinnät.slice(0, 5).toLowerCase() === 'cert ',
+                resCert: result.lisämerkinnät.slice(0, 9).toLowerCase() === 'vara sert',
               })
             }
             item.results = res
