@@ -80,11 +80,16 @@ export const putTemplateHandler = metricScope((metrics: MetricsLogger) =>
 
 async function updateOrCreateTemplate(template: Template) {
   try {
-    await ses.updateTemplate({Template: template}).promise()
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+    const res = await ses.updateTemplate({Template: template}).promise()
+    console.info(res)
   } catch(e: any) {
     if (e.code !== 'TemplateDoesNotExist') {
+      console.error(e)
       throw e
     }
-    await ses.createTemplate({Template: template}).promise()
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+    const res = await ses.createTemplate({Template: template}).promise()
+    console.info(res)
   }
 }
