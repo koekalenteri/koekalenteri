@@ -8,10 +8,11 @@ import KLAPI from "../utils/KLAPI"
 import { KLKieli } from "../utils/KLAPI_models"
 import { metricsError, metricsSuccess } from "../utils/metrics"
 import { response } from "../utils/response"
+import { getKLAPIConfig } from "../utils/secrets"
 
 const dynamoDB = new CustomDynamoClient()
 
-const klapi = new KLAPI()
+const klapi = new KLAPI(getKLAPIConfig)
 
 const GENDER: Record<string, 'F' | 'M'> = {
   narttu: 'F',
