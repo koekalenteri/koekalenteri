@@ -63,8 +63,8 @@ export const putTemplateHandler = metricScope((metrics: MetricsLogger) =>
         en: await markdownToTemplate(`${item.id}-${stackName}-en`, data.en),
       }
 
-      updateOrCreateTemplate(data.ses.fi)
-      updateOrCreateTemplate(data.ses.en)
+      await updateOrCreateTemplate(data.ses.fi)
+      await updateOrCreateTemplate(data.ses.en)
 
       await dynamoDB.write(data)
 
