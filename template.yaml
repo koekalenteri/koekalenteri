@@ -731,8 +731,8 @@ Resources:
             Path: /admin/email-templates
             Method: get
             RestApiId: !Ref KoekalenteriApi
-            Auth:
-              Authorizer: CognitoAuthorizer
+            #Auth:
+            #  Authorizer: CognitoAuthorizer
 
   PutEmailTemplateFunction:
     Type: AWS::Serverless::Function
@@ -759,8 +759,8 @@ Resources:
             Path: /admin/email-templates
             Method: POST
             RestApiId: !Ref KoekalenteriApi
-            Auth:
-              Authorizer: CognitoAuthorizer
+            #Auth:
+            #  Authorizer: CognitoAuthorizer
 
   CommonLayer:
     Type: AWS::Serverless::LayerVersion
