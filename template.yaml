@@ -746,6 +746,13 @@ Resources:
         - DynamoDBCrudPolicy:
             TableName: !Ref EmailTemplatesTable
         - CloudWatchPutMetricPolicy: {}
+        - Statement:
+            - Sid: SESTemplatesPolicy
+              Effect: Allow
+              Action:
+              - ses:createTemplate
+              - ses:updateTemplace
+              Resource: '*'
       Environment:
         Variables:
           STACK_NAME: !Ref AWS::StackName
