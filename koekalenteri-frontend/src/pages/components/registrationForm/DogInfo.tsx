@@ -36,7 +36,7 @@ interface Props {
   minDogAgeMonths: number
   error?: boolean
   helperText?: string
-  onChange: (props: DeepPartial<Registration>) => void
+  onChange?: (props: DeepPartial<Registration>) => void
   onOpenChange?: (value: boolean) => void
   open?: boolean
 }

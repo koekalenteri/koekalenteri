@@ -1,0 +1,694 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`DogInfo should render 1`] = `
+<div>
+  <div
+    class="MuiBox-root css-z0stvt"
+  >
+    <button
+      class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-2rshpx-MuiButtonBase-root-MuiIconButton-root"
+      tabindex="0"
+      type="button"
+    >
+      <svg
+        aria-hidden="true"
+        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+        data-testid="KeyboardArrowDownIcon"
+        focusable="false"
+        viewBox="0 0 24 24"
+      >
+        <path
+          d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"
+        />
+      </svg>
+      <span
+        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+      />
+    </button>
+    <div
+      class="MuiBox-root css-1qbrvqz"
+    >
+      <div
+        class="MuiBox-root css-yxbw19"
+      >
+        <p
+          class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
+        >
+          registration.dog
+        </p>
+        <p
+          class="MuiFormHelperText-root css-gorocw-MuiFormHelperText-root"
+        />
+      </div>
+      <div
+        class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-pwcg7p-MuiCollapse-root"
+        style="min-height: 0px;"
+      >
+        <div
+          class="MuiCollapse-wrapper MuiCollapse-vertical css-smkl36-MuiCollapse-wrapper"
+        >
+          <div
+            class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
+          >
+            <div
+              class="MuiBox-root css-n2y79c"
+            >
+              <div
+                class="css-1xsbkb6-MuiStack-root"
+              >
+                <div
+                  class="MuiAutocomplete-root MuiAutocomplete-hasClearIcon css-1ocfefj-MuiAutocomplete-root"
+                >
+                  <div
+                    class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                  >
+                    <label
+                      class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-1sumxir-MuiFormLabel-root-MuiInputLabel-root"
+                      data-shrink="true"
+                      for="txtReknro"
+                      id="txtReknro-label"
+                    >
+                      dog.regNo
+                    </label>
+                    <div
+                      class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-154xyx0-MuiInputBase-root-MuiOutlinedInput-root"
+                    >
+                      <input
+                        aria-autocomplete="list"
+                        aria-expanded="false"
+                        aria-invalid="false"
+                        autocapitalize="none"
+                        autocomplete="off"
+                        class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
+                        id="txtReknro"
+                        role="combobox"
+                        spellcheck="false"
+                        type="text"
+                        value="TESTDOG-0010"
+                      />
+                      <div
+                        class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                      >
+                        <button
+                          aria-label="Clear"
+                          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-clearIndicator css-1glvl0p-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-clearIndicator"
+                          tabindex="-1"
+                          title="Clear"
+                          type="button"
+                        >
+                          <svg
+                            aria-hidden="true"
+                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-ptiqhd-MuiSvgIcon-root"
+                            data-testid="CloseIcon"
+                            focusable="false"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+                            />
+                          </svg>
+                          <span
+                            class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                          />
+                        </button>
+                      </div>
+                      <fieldset
+                        aria-hidden="true"
+                        class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
+                      >
+                        <legend
+                          class="css-14lo706"
+                        >
+                          <span>
+                            dog.regNo
+                          </span>
+                        </legend>
+                      </fieldset>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="css-1a69w1n-MuiStack-root"
+                >
+                  <p
+                    class="MuiFormHelperText-root css-1d1r5q-MuiFormHelperText-root"
+                  >
+                    registration.cta.helper.update
+                  </p>
+                  <button
+                    class="MuiButtonBase-root MuiButton-root MuiLoadingButton-root MuiButton-outlined MuiButton-outlinedInfo MuiButton-sizeSmall MuiButton-outlinedSizeSmall MuiButton-root MuiLoadingButton-root MuiButton-outlined MuiButton-outlinedInfo MuiButton-sizeSmall MuiButton-outlinedSizeSmall css-3nt2w4-MuiButtonBase-root-MuiButton-root-MuiLoadingButton-root"
+                    id=":r2:"
+                    tabindex="0"
+                    type="button"
+                  >
+                    <span
+                      class="MuiButton-startIcon MuiButton-iconSizeSmall css-y6rp3m-MuiButton-startIcon"
+                    >
+                      <svg
+                        aria-hidden="true"
+                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                        data-testid="CachedOutlinedIcon"
+                        focusable="false"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          d="m19 8-4 4h3c0 3.31-2.69 6-6 6-1.01 0-1.97-.25-2.8-.7l-1.46 1.46C8.97 19.54 10.43 20 12 20c4.42 0 8-3.58 8-8h3l-4-4zM6 12c0-3.31 2.69-6 6-6 1.01 0 1.97.25 2.8.7l1.46-1.46C15.03 4.46 13.57 4 12 4c-4.42 0-8 3.58-8 8H1l4 4 4-4H6z"
+                        />
+                      </svg>
+                    </span>
+                    registration.cta.update
+                    <span
+                      class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                    />
+                  </button>
+                </div>
+              </div>
+              <div
+                class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-1 css-1su9uck-MuiGrid-root"
+              >
+                <div
+                  class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+                >
+                  <div
+                    class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root fact css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                  >
+                    <label
+                      class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-1sumxir-MuiFormLabel-root-MuiInputLabel-root"
+                      data-shrink="true"
+                      for=":r3:"
+                      id=":r3:-label"
+                    >
+                      dog.rfid
+                    </label>
+                    <div
+                      class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl css-md26zr-MuiInputBase-root-MuiOutlinedInput-root"
+                    >
+                      <input
+                        aria-invalid="false"
+                        class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
+                        disabled=""
+                        id=":r3:"
+                        type="text"
+                        value="1234567890123456"
+                      />
+                      <fieldset
+                        aria-hidden="true"
+                        class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
+                      >
+                        <legend
+                          class="css-14lo706"
+                        >
+                          <span>
+                            dog.rfid
+                          </span>
+                        </legend>
+                      </fieldset>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="MuiGrid-root MuiGrid-item css-6zx0md-MuiGrid-root"
+                >
+                  <div
+                    class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon fact css-qm9mjt-MuiAutocomplete-root"
+                    data-testid="dog.breed"
+                  >
+                    <div
+                      class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                    >
+                      <label
+                        class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-1sumxir-MuiFormLabel-root-MuiInputLabel-root"
+                        data-shrink="true"
+                        for=":r4:"
+                        id=":r4:-label"
+                      >
+                        dog.breed
+                      </label>
+                      <div
+                        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-154xyx0-MuiInputBase-root-MuiOutlinedInput-root"
+                      >
+                        <input
+                          aria-autocomplete="list"
+                          aria-expanded="false"
+                          aria-invalid="false"
+                          autocapitalize="none"
+                          autocomplete="off"
+                          class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
+                          disabled=""
+                          id=":r4:"
+                          role="combobox"
+                          spellcheck="false"
+                          type="text"
+                          value="110"
+                        />
+                        <div
+                          class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                        >
+                          <button
+                            aria-label="Open"
+                            class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                            disabled=""
+                            tabindex="-1"
+                            title="Open"
+                            type="button"
+                          >
+                            <svg
+                              aria-hidden="true"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                              data-testid="ArrowDropDownIcon"
+                              focusable="false"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                d="M7 10l5 5 5-5z"
+                              />
+                            </svg>
+                          </button>
+                        </div>
+                        <fieldset
+                          aria-hidden="true"
+                          class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
+                        >
+                          <legend
+                            class="css-14lo706"
+                          >
+                            <span>
+                              dog.breed
+                            </span>
+                          </legend>
+                        </fieldset>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-auto css-1wrgmsj-MuiGrid-root"
+                >
+                  <div
+                    class="MuiFormControl-root fact css-1mtwmd6-MuiFormControl-root"
+                  >
+                    <div
+                      class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+                    >
+                      <label
+                        class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-1sumxir-MuiFormLabel-root-MuiInputLabel-root"
+                        data-shrink="true"
+                        for=":r6:"
+                        id=":r6:-label"
+                      >
+                        dog.dob
+                      </label>
+                      <div
+                        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-formControl MuiInputBase-adornedEnd css-o9k5xi-MuiInputBase-root-MuiOutlinedInput-root"
+                      >
+                        <input
+                          aria-invalid="false"
+                          class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
+                          disabled=""
+                          id=":r6:"
+                          placeholder="dd.mm.yyyy"
+                          type="tel"
+                          value="10.04.2020"
+                        />
+                        <div
+                          class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1laqsz7-MuiInputAdornment-root"
+                        >
+                          <button
+                            aria-label="Choose date, selected date is 10. huhti 2020"
+                            class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1yq5fb3-MuiButtonBase-root-MuiIconButton-root"
+                            disabled=""
+                            tabindex="-1"
+                            type="button"
+                          >
+                            <svg
+                              aria-hidden="true"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                              data-testid="CalendarIcon"
+                              focusable="false"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"
+                              />
+                            </svg>
+                          </button>
+                        </div>
+                        <fieldset
+                          aria-hidden="true"
+                          class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
+                        >
+                          <legend
+                            class="css-14lo706"
+                          >
+                            <span>
+                              dog.dob
+                            </span>
+                          </legend>
+                        </fieldset>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-auto css-qynxsl-MuiGrid-root"
+                >
+                  <div
+                    class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon fact css-qm9mjt-MuiAutocomplete-root"
+                    data-testid="dog.gender"
+                  >
+                    <div
+                      class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                    >
+                      <label
+                        class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-1sumxir-MuiFormLabel-root-MuiInputLabel-root"
+                        data-shrink="true"
+                        for=":r7:"
+                        id=":r7:-label"
+                      >
+                        dog.gender
+                      </label>
+                      <div
+                        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-154xyx0-MuiInputBase-root-MuiOutlinedInput-root"
+                      >
+                        <input
+                          aria-autocomplete="list"
+                          aria-expanded="false"
+                          aria-invalid="false"
+                          autocapitalize="none"
+                          autocomplete="off"
+                          class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
+                          disabled=""
+                          id=":r7:"
+                          role="combobox"
+                          spellcheck="false"
+                          type="text"
+                          value="dog.gender_choises.M"
+                        />
+                        <div
+                          class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                        >
+                          <button
+                            aria-label="Open"
+                            class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                            disabled=""
+                            tabindex="-1"
+                            title="Open"
+                            type="button"
+                          >
+                            <svg
+                              aria-hidden="true"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                              data-testid="ArrowDropDownIcon"
+                              focusable="false"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                d="M7 10l5 5 5-5z"
+                              />
+                            </svg>
+                          </button>
+                        </div>
+                        <fieldset
+                          aria-hidden="true"
+                          class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
+                        >
+                          <legend
+                            class="css-14lo706"
+                          >
+                            <span>
+                              dog.gender
+                            </span>
+                          </legend>
+                        </fieldset>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
+                >
+                  <div
+                    class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
+                  >
+                    <div
+                      class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+                    >
+                      <div
+                        class="MuiFormControl-root MuiTextField-root fact css-9ahdq0-MuiFormControl-root-MuiTextField-root"
+                      >
+                        <label
+                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-1sumxir-MuiFormLabel-root-MuiInputLabel-root"
+                          data-shrink="true"
+                          for="dog_titles"
+                          id="dog_titles-label"
+                        >
+                          dog.titles
+                        </label>
+                        <div
+                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-9ddj71-MuiInputBase-root-MuiOutlinedInput-root"
+                        >
+                          <input
+                            aria-invalid="false"
+                            class="MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
+                            id="dog_titles"
+                            type="text"
+                            value="Dog titles"
+                          />
+                          <fieldset
+                            aria-hidden="true"
+                            class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
+                          >
+                            <legend
+                              class="css-14lo706"
+                            >
+                              <span>
+                                dog.titles
+                              </span>
+                            </legend>
+                          </fieldset>
+                        </div>
+                      </div>
+                    </div>
+                    <div
+                      class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+                    >
+                      <div
+                        class="MuiFormControl-root MuiTextField-root fact css-1m77des-MuiFormControl-root-MuiTextField-root"
+                      >
+                        <label
+                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-1sumxir-MuiFormLabel-root-MuiInputLabel-root"
+                          data-shrink="true"
+                          for="dog_name"
+                          id="dog_name-label"
+                        >
+                          dog.name
+                        </label>
+                        <div
+                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-formControl css-9ddj71-MuiInputBase-root-MuiOutlinedInput-root"
+                        >
+                          <input
+                            aria-invalid="false"
+                            class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
+                            disabled=""
+                            id="dog_name"
+                            type="text"
+                            value="Dog Name 10"
+                          />
+                          <fieldset
+                            aria-hidden="true"
+                            class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
+                          >
+                            <legend
+                              class="css-14lo706"
+                            >
+                              <span>
+                                dog.name
+                              </span>
+                            </legend>
+                          </fieldset>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
+                >
+                  <div
+                    class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
+                  >
+                    <div
+                      class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+                    >
+                      <div
+                        class="MuiFormControl-root MuiTextField-root css-9ahdq0-MuiFormControl-root-MuiTextField-root"
+                      >
+                        <label
+                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-1sumxir-MuiFormLabel-root-MuiInputLabel-root"
+                          data-shrink="true"
+                          for="sire_titles"
+                          id="sire_titles-label"
+                        >
+                          dog.sire.titles
+                        </label>
+                        <div
+                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-9ddj71-MuiInputBase-root-MuiOutlinedInput-root"
+                        >
+                          <input
+                            aria-invalid="false"
+                            class="MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
+                            id="sire_titles"
+                            type="text"
+                            value="Sire titles"
+                          />
+                          <fieldset
+                            aria-hidden="true"
+                            class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
+                          >
+                            <legend
+                              class="css-14lo706"
+                            >
+                              <span>
+                                dog.sire.titles
+                              </span>
+                            </legend>
+                          </fieldset>
+                        </div>
+                      </div>
+                    </div>
+                    <div
+                      class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+                    >
+                      <div
+                        class="MuiFormControl-root MuiTextField-root css-1m77des-MuiFormControl-root-MuiTextField-root"
+                      >
+                        <label
+                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-1sumxir-MuiFormLabel-root-MuiInputLabel-root"
+                          data-shrink="true"
+                          for="sire_name"
+                          id="sire_name-label"
+                        >
+                          dog.sire.name
+                        </label>
+                        <div
+                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-9ddj71-MuiInputBase-root-MuiOutlinedInput-root"
+                        >
+                          <input
+                            aria-invalid="false"
+                            class="MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
+                            id="sire_name"
+                            type="text"
+                            value="Sire Name"
+                          />
+                          <fieldset
+                            aria-hidden="true"
+                            class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
+                          >
+                            <legend
+                              class="css-14lo706"
+                            >
+                              <span>
+                                dog.sire.name
+                              </span>
+                            </legend>
+                          </fieldset>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
+                >
+                  <div
+                    class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
+                  >
+                    <div
+                      class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+                    >
+                      <div
+                        class="MuiFormControl-root MuiTextField-root css-9ahdq0-MuiFormControl-root-MuiTextField-root"
+                      >
+                        <label
+                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-1sumxir-MuiFormLabel-root-MuiInputLabel-root"
+                          data-shrink="true"
+                          for="dam_titles"
+                          id="dam_titles-label"
+                        >
+                          dog.dam.titles
+                        </label>
+                        <div
+                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-9ddj71-MuiInputBase-root-MuiOutlinedInput-root"
+                        >
+                          <input
+                            aria-invalid="false"
+                            class="MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
+                            id="dam_titles"
+                            type="text"
+                            value="Dam titles"
+                          />
+                          <fieldset
+                            aria-hidden="true"
+                            class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
+                          >
+                            <legend
+                              class="css-14lo706"
+                            >
+                              <span>
+                                dog.dam.titles
+                              </span>
+                            </legend>
+                          </fieldset>
+                        </div>
+                      </div>
+                    </div>
+                    <div
+                      class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+                    >
+                      <div
+                        class="MuiFormControl-root MuiTextField-root css-1m77des-MuiFormControl-root-MuiTextField-root"
+                      >
+                        <label
+                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-1sumxir-MuiFormLabel-root-MuiInputLabel-root"
+                          data-shrink="true"
+                          for="dam_name"
+                          id="dam_name-label"
+                        >
+                          dog.dam.name
+                        </label>
+                        <div
+                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-9ddj71-MuiInputBase-root-MuiOutlinedInput-root"
+                        >
+                          <input
+                            aria-invalid="false"
+                            class="MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
+                            id="dam_name"
+                            type="text"
+                            value="Dam Name"
+                          />
+                          <fieldset
+                            aria-hidden="true"
+                            class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
+                          >
+                            <legend
+                              class="css-14lo706"
+                            >
+                              <span>
+                                dog.dam.name
+                              </span>
+                            </legend>
+                          </fieldset>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
