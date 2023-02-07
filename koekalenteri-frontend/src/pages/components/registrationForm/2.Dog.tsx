@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { SyntheticEvent, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { CachedOutlined } from '@mui/icons-material'
 import { LoadingButton } from '@mui/lab'
@@ -57,11 +57,18 @@ export const DogInfo = ({ reg, eventDate, minDogAgeMonths, error, helperText, on
   const actions = useDogActions(debouncedRegNo)
 
   // @ts-ignore
-  const dog = useMemo(() => merge<Dog>(debouncedCache?.dog ?? emptyDog, officialDog ?? {}), [debouncedCache?.dog, officialDog])
+  const dog = useMemo(() => merge<Dog>(cache?.dog ?? emptyDog, officialDog ?? {}), [cache?.dog, officialDog])
+  const debouncedDog = useDebouncedValue(dog)
 
   const handleChange = useCallback((props: Partial<Dog & DogCachedInfo>) => {
     setCache({...cache, dog: {...cache?.dog, ...props}})
   }, [cache, setCache])
+
+  const handleRegNoChange = useCallback((event: SyntheticEvent<Element, Event>, value: string | null) => {
+    if (value !== null) {
+      setInputRegNo(value.toUpperCase())
+    }
+  }, [])
 
   useEffect(() => {
     if (validRegNo) {
@@ -72,24 +79,25 @@ export const DogInfo = ({ reg, eventDate, minDogAgeMonths, error, helperText, on
   }, [officialDog, validRegNo])
 
   useEffect(() => {
-    if (!dog.regNo) {
+    if (debouncedDog.regNo !== inputRegNo) {
       return
     }
 
-    if (hasChanges(reg.dog, dog)) {
-      const changes: DeepPartial<Registration> = { dog: dog }
-      if (reg?.dog?.regNo !== dog.regNo) {
-        changes.breeder = cache?.breeder
-        changes.handler = cache?.handler
-        changes.owner = cache?.owner
-        changes.ownerHandles = cache?.owner?.ownerHandles ?? true
-        if (!cache) {
+    if (hasChanges(reg?.dog, debouncedDog)) {
+      const changes: DeepPartial<Registration> = { dog: debouncedDog }
+      if (reg?.dog?.regNo !== debouncedDog.regNo) {
+        changes.breeder = debouncedCache?.breeder
+        changes.handler = debouncedCache?.handler
+        changes.owner = debouncedCache?.owner
+        changes.ownerHandles = debouncedCache?.owner?.ownerHandles ?? true
+        changes.results = []
+        if (!debouncedCache) {
           setCache({ owner: { ownerHandles: true }})
         }
       }
       onChange?.(changes)
     }
-  }, [cache, dog, onChange, reg, reg.dog, setCache])
+  }, [debouncedCache, debouncedDog, inputRegNo, onChange, reg.dog, setCache])
 
   async function buttonClick() {
     switch (mode) {
@@ -116,10 +124,8 @@ export const DogInfo = ({ reg, eventDate, minDogAgeMonths, error, helperText, on
           freeSolo
           renderInput={(props) => <TextField {...props} error={!validRegNo} label={t('dog.regNo')} />}
           value={inputRegNo ?? ''}
-          onChange={(_e, value) => value && setInputRegNo(value.toUpperCase())}
-          onInputChange={(e, value) => {
-            setInputRegNo(value.toUpperCase())
-          }}
+          onChange={handleRegNoChange}
+          onInputChange={handleRegNoChange}
           options={cachedRegNos ?? []}
           sx={{ minWidth: 200 }}
         />

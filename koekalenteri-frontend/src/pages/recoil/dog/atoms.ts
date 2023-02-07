@@ -1,4 +1,4 @@
-import { Dog, RegistrationBreeder, RegistrationPerson } from 'koekalenteri-shared/model'
+import { Dog, ManualTestResult, RegistrationBreeder, RegistrationPerson } from 'koekalenteri-shared/model'
 import { atom, atomFamily } from 'recoil'
 
 import { storageEffect } from '../effects/storage'
@@ -10,6 +10,7 @@ export type DogCachedInfo = {
   dog: Dog,
   handler: RegistrationPerson,
   owner: RegistrationPerson & { ownerHandles: boolean },
+  results: ManualTestResult[]
 }
 
 export type DogCache = Record<string, Partial<DogCachedInfo>>

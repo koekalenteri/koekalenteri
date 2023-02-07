@@ -24,6 +24,10 @@ export interface JsonRegistration extends JsonDbRecord {
 
 export interface RegistrationGroup extends RegistrationDate { number: number, key: string }
 export interface JsonRegistrationGroup extends JsonRegistrationDate { number: number, key: string }
+export interface ManualTestResult extends QualifyingResult {
+  id: string
+  regNo: string
+}
 
 export interface Registration extends DbRecord {
   agreeToPublish: boolean
@@ -41,7 +45,7 @@ export interface Registration extends DbRecord {
   ownerHandles?: boolean
   qualifyingResults: QualifyingResult[]
   reserve: ReserveChoise | ''
-  results?: Array<Partial<TestResult> & { id: string }>
+  results?: Array<ManualTestResult>
   paid?: boolean
   cancelled?: boolean
   group?: RegistrationGroup

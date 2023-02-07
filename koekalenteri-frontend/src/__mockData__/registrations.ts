@@ -57,6 +57,8 @@ export const registrationWithManualResults: Registration = {
   class: 'AVO',
   results: [{
     id: 'manual-result-1',
+    regNo: registrationWithStaticDatesAndClass.dog.regNo,
+    official: false,
     type: 'NOME-B',
     class: 'ALO',
     result: 'ALO1',
@@ -65,6 +67,8 @@ export const registrationWithManualResults: Registration = {
     location: 'Somewhere',
   }, {
     id: 'manual-result-2',
+    regNo: registrationWithStaticDatesAndClass.dog.regNo,
+    official: false,
     type: 'NOME-B',
     class: 'ALO',
     result: 'ALO1',

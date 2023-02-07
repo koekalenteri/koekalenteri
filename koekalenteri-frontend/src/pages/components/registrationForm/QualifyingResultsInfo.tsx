@@ -4,7 +4,7 @@ import { AddOutlined, DeleteOutline } from '@mui/icons-material'
 import { Button, debounce, FormControl, Grid, TextField, TextFieldProps } from '@mui/material'
 import { DatePicker } from '@mui/x-date-pickers'
 import { subYears } from 'date-fns'
-import { QualifyingResult, Registration, TestResult } from 'koekalenteri-shared/model'
+import { ManualTestResult, QualifyingResult, Registration, TestResult } from 'koekalenteri-shared/model'
 import { v4 as uuidv4 } from 'uuid'
 
 import { unique } from '../../../utils'
@@ -23,17 +23,16 @@ type QualifyingResultsInfoProps = {
   open?: boolean
 }
 
-type QRWithId = Partial<QualifyingResult> & { id: string };
 const asArray = (v: EventResultRequirements | EventResultRequirement) => Array.isArray(v) ? v : [v]
 
 export default function QualifyingResultsInfo({ reg, error, helperText, onChange, onOpenChange, open }: QualifyingResultsInfoProps) {
   const { t } = useTranslation()
   const requirements = useMemo(() => getRequirements(reg.eventType, reg.class as RegistrationClass, reg.dates && reg.dates.length ? reg.dates[0].date : new Date()), [reg.eventType, reg.class, reg.dates])
-  const disableResultInput = !requirements?.rules.length
+  const disableResultInput = !requirements?.rules.length || !reg.dog?.regNo
   const sendChange = useMemo(() => onChange && debounce(onChange, 300), [onChange])
 
   const results = useMemo(() => {
-    const newResults: Array<QRWithId> = (reg.qualifyingResults || []).map(r => ({ ...r, id: getResultId(r) }))
+    const newResults: Array<ManualTestResult> = (reg.qualifyingResults || []).map(r => ({ ...r, id: getResultId(r), regNo: reg.dog.regNo }))
     if (reg.results) {
       for (const result of reg.results) {
         if (!newResults.find(r => !r.official && r.id && r.id === result.id)) {
@@ -42,17 +41,17 @@ export default function QualifyingResultsInfo({ reg, error, helperText, onChange
       }
     }
     return newResults
-  }, [reg.qualifyingResults, reg.results])
+  }, [reg.qualifyingResults, reg.results, reg.dog])
 
-  const handleChange = (result: QRWithId, props: Partial<TestResult>) => {
+  const handleChange = (result: ManualTestResult, props: Partial<TestResult>) => {
     const index = results.findIndex(r => !r.official && r.id && r.id === result.id)
     if (index >= 0) {
-      const newResults: QRWithId[] = results.slice(0)
+      const newResults: ManualTestResult[] = results.slice(0)
       newResults.splice(index, 1, { ...result, ...props })
       sendChange?.({ results: newResults.filter(r => !r.official) })
     }
   }
-  const handleAddResult = () => onChange?.({ results: (reg.results || []).concat([createMissingResult(requirements, results)]) })
+  const handleAddResult = () => onChange?.({ results: (reg.results || []).concat([createMissingResult(requirements, results, reg.dog.regNo)]) })
 
   return (
     <CollapsibleSection title={t('registration.qualifyingResults')} error={error} helperText={helperText} open={open} onOpenChange={onOpenChange}>
@@ -138,7 +137,7 @@ export default function QualifyingResultsInfo({ reg, error, helperText, onChange
   )
 }
 
-function findFirstMissing(requirements: EventResultRequirementsByDate | undefined, results: QRWithId[]) {
+function findFirstMissing(requirements: EventResultRequirementsByDate | undefined, results: QualifyingResult[]) {
   if (!requirements) {
     return []
   }
@@ -166,10 +165,19 @@ function availableResults(requirements?: EventResultRequirementsByDate) {
   return unique(requirements.rules.flatMap(rule => asArray(rule).map(opt => opt.cert ? 'CERT' : opt.result)))
 }
 
-function createMissingResult(requirements: EventResultRequirementsByDate | undefined, results: QRWithId[]) {
+function createMissingResult(requirements: EventResultRequirementsByDate | undefined, results: ManualTestResult[], regNo: string): ManualTestResult {
   const rule = findFirstMissing(requirements, results)
   return {
     id: uuidv4(),
+    regNo,
+    date: new Date(),
+    official: false,
+    qualifying: true,
+    type: '',
+    judge: '',
+    location: '',
+    result: '',
+    class: '',
     ...rule,
   }
 }
@@ -183,7 +191,7 @@ function resultBorderColor(qualifying: boolean | undefined) {
   }
 }
 
-function getResultId(result: QRWithId | QualifyingResult) {
+function getResultId(result: ManualTestResult | QualifyingResult) {
   if ('id' in result) {
     return result.id
   }
