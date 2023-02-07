@@ -44,7 +44,17 @@ const mockRegistration: Registration = {
   ownerHandles: false,
   qualifyingResults: [],
   reserve: '',
-  results: [{id: 'result-id'}],
+  results: [{
+    id: 'result-id',
+    regNo: 'test-reg',
+    date: new Date(),
+    official: false,
+    type: 'test-type',
+    class: 'test-class',
+    result: 'test-result',
+    location: 'test-location',
+    judge: 'test-judge',
+  }],
   paid: true,
   cancelled: false,
 }

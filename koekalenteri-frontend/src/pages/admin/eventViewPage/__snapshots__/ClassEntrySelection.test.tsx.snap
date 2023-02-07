@@ -11801,9 +11801,9 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                     >
                       <div
                         class="MuiDataGrid-cellContent"
-                        title="TESTDOG-10"
+                        title="TESTDOG-0010"
                       >
-                        TESTDOG-10
+                        TESTDOG-0010
                       </div>
                     </div>
                     <div
@@ -12669,9 +12669,9 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 >
                   <div
                     class="MuiDataGrid-cellContent"
-                    title="TESTDOG-20"
+                    title="TESTDOG-0020"
                   >
-                    TESTDOG-20
+                    TESTDOG-0020
                   </div>
                 </div>
                 <div

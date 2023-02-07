@@ -4,7 +4,7 @@ import { Dog } from 'koekalenteri-shared/model'
 import { eventWithStaticDates } from './events'
 
 export const registrationDogAged10MonthsAndNoResults: Dog = {
-  regNo: 'TESTDOG-10',
+  regNo: 'TESTDOG-0010',
   breedCode: '110',
   gender: 'M',
   dob: subMonths(eventWithStaticDates.startDate, 10),
@@ -25,7 +25,7 @@ export const registrationDogAged10MonthsAndNoResults: Dog = {
 }
 
 export const registrationDogAged20MonthsAndNoResults: Dog = {
-  regNo: 'TESTDOG-20',
+  regNo: 'TESTDOG-0020',
   breedCode: '110',
   gender: 'M',
   dob: subMonths(eventWithStaticDates.startDate, 20),
@@ -46,7 +46,7 @@ export const registrationDogAged20MonthsAndNoResults: Dog = {
 }
 
 export const registrationDogAged28MonthsWithNOUResult: Dog = {
-  regNo: 'TESTDOG-20',
+  regNo: 'TESTDOG-0030',
   breedCode: '110',
   gender: 'M',
   dob: subMonths(eventWithStaticDates.startDate, 28),

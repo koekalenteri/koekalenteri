@@ -9,11 +9,11 @@ import { ConfirmedEvent, DeepPartial, Registration, TestResult } from 'koekalent
 import { hasChanges, merge } from '../../utils'
 
 import { EntryInfo } from './registrationForm/1.Entry'
-import { DogInfo } from './registrationForm/2.Dog'
 import { BreederInfo } from './registrationForm/3.Breeder'
 import { OwnerInfo } from './registrationForm/4.OwnerInfo'
 import { HandlerInfo } from './registrationForm/5.HandlerInfo'
 import { AdditionalInfo } from './registrationForm/7.AdditionalInfo'
+import { DogInfo } from './registrationForm/DogInfo'
 import QualifyingResultsInfo from './registrationForm/QualifyingResultsInfo'
 import { RegistrationClass } from './registrationForm/rules'
 import { filterRelevantResults, validateRegistration } from './registrationForm/validation'
