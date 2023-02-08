@@ -1,3 +1,4 @@
+import { startOfDay } from 'date-fns'
 import { Event, EventState, ShowContactInfo } from 'koekalenteri-shared/model'
 
 import { ValidationResult, Validators } from '../../../../i18n/validation'
@@ -102,6 +103,8 @@ const VALIDATORS: Validators<PartialEvent, 'event'> = {
     }
     return list.length ? { key: 'placesClass', opts: { field: 'places', list, length: list.length }} : false
   },
+  startDate: (event, required) => required && event.startDate < startOfDay(new Date()) ? 'startDate' : false,
+  endDate: (event, required) => required && event.endDate < startOfDay(new Date()) ? 'endDate' : false,
 }
 
 export type FieldRequirements = {

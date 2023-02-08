@@ -11,9 +11,13 @@ export type DateRangeProps = {
   disabled?: boolean
   start: DateValue
   startLabel: string
+  startError?: boolean
+  startHelperText?: string
   end: DateValue
   endLabel: string
-  range?: {start?: Date, end?: Date}
+  endError?: boolean
+  endHelperText?: string
+  range?: { start?: Date, end?: Date }
   required?: boolean
   onChange?: (start: DateValue, end: DateValue) => void
 };
@@ -31,7 +35,14 @@ function coerceToDateValue(d: DateValue) {
   return (d && isValid(d)) ? startOfDay(d) : null
 }
 
-export default function DateRange({ start, end, startLabel, endLabel, defaultStart, defaultEnd, range, required, disabled, onChange }: DateRangeProps) {
+export default function DateRange({
+  start, end,
+  startLabel, endLabel,
+  startError, endError,
+  startHelperText, endHelperText,
+  defaultStart, defaultEnd,
+  range, required, disabled, onChange,
+}: DateRangeProps) {
   const { t } = useTranslation()
   const startChanged = (date: DateValue) => {
     const d = coerceToDateValue(date)
@@ -43,8 +54,8 @@ export default function DateRange({ start, end, startLabel, endLabel, defaultSta
   }
 
   return (
-    <Box sx={{width: '100%'}}>
-      <FormControl sx={{pr: 0.5, width: '50%'}}>
+    <Box sx={{ width: '100%' }}>
+      <FormControl sx={{ pr: 0.5, width: '50%' }}>
         <DatePicker
           defaultCalendarMonth={defaultStart}
           disabled={disabled}
@@ -57,11 +68,11 @@ export default function DateRange({ start, end, startLabel, endLabel, defaultSta
           showToolbar={false}
           onChange={startChanged}
           renderDay={(date, selectedDates, props) => <PickersDay {...props} sx={dayStyle(date, selectedDates, defaultStart)} />}
-          renderInput={(params: JSX.IntrinsicAttributes & TextFieldProps) => <TextField {...params} required={required} />}
+          renderInput={(params: JSX.IntrinsicAttributes & TextFieldProps) => <TextField {...params} required={required} error={startError} helperText={startHelperText} />}
         />
       </FormControl>
 
-      <FormControl sx={{pl: 0.5, width: '50%'}}>
+      <FormControl sx={{ pl: 0.5, width: '50%' }}>
         <DatePicker
           defaultCalendarMonth={defaultEnd}
           disabled={disabled}
@@ -74,7 +85,7 @@ export default function DateRange({ start, end, startLabel, endLabel, defaultSta
           showToolbar={false}
           onChange={endChanged}
           renderDay={(date, selectedDates, props) => <PickersDay {...props} sx={dayStyle(date, selectedDates, defaultEnd)} />}
-          renderInput={(params: JSX.IntrinsicAttributes & TextFieldProps) => <TextField {...params} required={required} />}
+          renderInput={(params: JSX.IntrinsicAttributes & TextFieldProps) => <TextField {...params} required={required} error={endError} helperText={endHelperText} />}
         />
       </FormControl>
     </Box>
