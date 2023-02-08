@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { useAuthenticator } from '@aws-amplify/ui-react'
+import { addDays, differenceInDays } from 'date-fns'
 import { Event } from 'koekalenteri-shared/model'
 import { useSnackbar } from 'notistack'
 import { useRecoilState, useSetRecoilState } from 'recoil'
@@ -8,7 +9,7 @@ import { useRecoilState, useSetRecoilState } from 'recoil'
 import { putEvent } from '../../../../api/event'
 import { Path } from '../../../../routeConfig'
 
-import { adminEventIdAtom, newEventAtom } from './atoms'
+import { adminEventIdAtom, newEventAtom, newEventEntryEndDate, newEventEntryStartDate, newEventStartDate } from './atoms'
 import { currentAdminEventSelector } from './selectors'
 
 
@@ -33,9 +34,17 @@ export const useAdminEventActions = () => {
     }
     const copy = structuredClone(currentAdminEvent)
     copy.id = ''
+    copy.name = 'Kopio - ' + (copy.name ?? '')
     copy.state = 'draft'
     copy.entries = 0
     copy.classes.forEach(c => c.entries = c.members = 0)
+
+    const days = differenceInDays(copy.endDate, copy.startDate)
+    copy.startDate = newEventStartDate
+    copy.endDate = addDays(newEventStartDate, days)
+    copy.entryStartDate = newEventEntryStartDate
+    copy.entryEndDate = newEventEntryEndDate
+
     delete copy.kcId
 
     setNewEvent(copy)

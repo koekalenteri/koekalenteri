@@ -156,7 +156,7 @@ exports[`EventForm should render 1`] = `
                               class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
                             >
                               <label
-                                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled Mui-required MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-19cu7oy-MuiFormLabel-root-MuiInputLabel-root"
+                                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-error MuiFormLabel-filled Mui-required MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-19cu7oy-MuiFormLabel-root-MuiInputLabel-root"
                                 data-shrink="true"
                                 for=":r2:"
                                 id=":r2:-label"
@@ -164,17 +164,18 @@ exports[`EventForm should render 1`] = `
                                 event.startDate
                                 <span
                                   aria-hidden="true"
-                                  class="MuiFormLabel-asterisk MuiInputLabel-asterisk css-dqj5rd-MuiFormLabel-asterisk"
+                                  class="MuiFormLabel-asterisk MuiInputLabel-asterisk Mui-error css-dqj5rd-MuiFormLabel-asterisk"
                                 >
                                    
                                   *
                                 </span>
                               </label>
                               <div
-                                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-adornedEnd css-1o9ytj0-MuiInputBase-root-MuiOutlinedInput-root"
+                                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-error MuiInputBase-formControl MuiInputBase-adornedEnd css-1o9ytj0-MuiInputBase-root-MuiOutlinedInput-root"
                               >
                                 <input
-                                  aria-invalid="false"
+                                  aria-describedby=":r2:-helper-text"
+                                  aria-invalid="true"
                                   class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
                                   id=":r2:"
                                   placeholder="dd.mm.yyyy"
@@ -222,6 +223,12 @@ exports[`EventForm should render 1`] = `
                                   </legend>
                                 </fieldset>
                               </div>
+                              <p
+                                class="MuiFormHelperText-root Mui-error MuiFormHelperText-sizeMedium MuiFormHelperText-contained MuiFormHelperText-filled Mui-required css-1vg31rc-MuiFormHelperText-root"
+                                id=":r2:-helper-text"
+                              >
+                                validation.event.startDate
+                              </p>
                             </div>
                           </div>
                           <div
@@ -231,7 +238,7 @@ exports[`EventForm should render 1`] = `
                               class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
                             >
                               <label
-                                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled Mui-required MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-19cu7oy-MuiFormLabel-root-MuiInputLabel-root"
+                                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-error MuiFormLabel-filled Mui-required MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-19cu7oy-MuiFormLabel-root-MuiInputLabel-root"
                                 data-shrink="true"
                                 for=":r3:"
                                 id=":r3:-label"
@@ -239,17 +246,18 @@ exports[`EventForm should render 1`] = `
                                 event.endDate
                                 <span
                                   aria-hidden="true"
-                                  class="MuiFormLabel-asterisk MuiInputLabel-asterisk css-dqj5rd-MuiFormLabel-asterisk"
+                                  class="MuiFormLabel-asterisk MuiInputLabel-asterisk Mui-error css-dqj5rd-MuiFormLabel-asterisk"
                                 >
                                    
                                   *
                                 </span>
                               </label>
                               <div
-                                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-adornedEnd css-1o9ytj0-MuiInputBase-root-MuiOutlinedInput-root"
+                                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-error MuiInputBase-formControl MuiInputBase-adornedEnd css-1o9ytj0-MuiInputBase-root-MuiOutlinedInput-root"
                               >
                                 <input
-                                  aria-invalid="false"
+                                  aria-describedby=":r3:-helper-text"
+                                  aria-invalid="true"
                                   class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
                                   id=":r3:"
                                   placeholder="dd.mm.yyyy"
@@ -297,6 +305,12 @@ exports[`EventForm should render 1`] = `
                                   </legend>
                                 </fieldset>
                               </div>
+                              <p
+                                class="MuiFormHelperText-root Mui-error MuiFormHelperText-sizeMedium MuiFormHelperText-contained MuiFormHelperText-filled Mui-required css-1vg31rc-MuiFormHelperText-root"
+                                id=":r3:-helper-text"
+                              >
+                                validation.event.endDate
+                              </p>
                             </div>
                           </div>
                         </div>

@@ -70,7 +70,11 @@ export default function BasicInfoSection({ event, errorStates, helperTexts, fiel
               startLabel={t('event.startDate')}
               endLabel={t('event.endDate')}
               start={event.startDate}
+              startError={errorStates?.startDate}
+              startHelperText={helperTexts?.startDate}
               end={event.endDate}
+              endError={errorStates?.endDate}
+              endHelperText={helperTexts?.endDate}
               required
               disabled={hasEntries}
               onChange={handleDateChange}
