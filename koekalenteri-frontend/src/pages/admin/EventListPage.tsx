@@ -77,10 +77,11 @@ export default function EventListPage() {
             value: searchText,
             onChange,
             clearSearch,
+            columnSelector: true,
             children: <FormControlLabel
-              sx={{ ml: 0, mb: 2 }}
+              sx={{ m: 0 }}
               checked={showPast}
-              control={<Switch />}
+              control={<Switch size='small' />}
               label="Näytä myös menneet tapahtumat"
               labelPlacement="start"
               onChange={toggleShowPast}

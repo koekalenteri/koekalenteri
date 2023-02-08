@@ -24,11 +24,13 @@ export default function useEventListColumns(): EventListColDef[] {
       sortComparator: (a, b) => (b as StartEndDate).start.valueOf() - (a as StartEndDate).start.valueOf(),
       valueGetter: (params) => ({ start: params.row.startDate, end: params.row.endDate }),
       valueFormatter: ({value}) => t('daterange', value as StartEndDate),
+      hideable: false,
     },
     {
       field: 'eventType',
       headerName: t('event.eventType'),
       minWidth: 100,
+      hideable: false,
     },
     {
       field: 'classes',
@@ -38,10 +40,23 @@ export default function useEventListColumns(): EventListColDef[] {
       valueGetter: (params) => ((params.row.classes || []) as Array<EventClass|string>).map(c => typeof c === 'string' ? c : c.class).join(', '),
     },
     {
+      field: 'name',
+      headerName: t('event.name'),
+      minWidth: 100,
+      flex: 1,
+    },
+    {
       field: 'location',
       headerName: t('event.location'),
       minWidth: 100,
       flex: 1,
+    },
+    {
+      field: 'secretary',
+      headerName: t('event.secretary'),
+      minWidth: 100,
+      flex: 1,
+      valueGetter: (params) => params.row.secretary?.name,
     },
     {
       field: 'official',
@@ -70,6 +85,7 @@ export default function useEventListColumns(): EventListColDef[] {
       flex: 1,
       type: 'string',
       valueGetter: (params: GridValueGetterParams<EventState, Event>) => getEventTitle(params.row, t),
+      hideable: false,
     },
   ]
 }
