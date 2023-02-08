@@ -1,4 +1,4 @@
-import { addDays, startOfDay, sub } from 'date-fns'
+import { addDays, nextSaturday, startOfDay, sub } from 'date-fns'
 import { Event } from 'koekalenteri-shared/model'
 import { atom, atomFamily, selector } from 'recoil'
 
@@ -18,14 +18,18 @@ export const adminEventsAtom = atom<Event[]>({
   ],
 })
 
+export const newEventStartDate = startOfDay(nextSaturday(addDays(Date.now(), 90)))
+export const newEventEntryStartDate = sub(newEventStartDate, { weeks: 6 })
+export const newEventEntryEndDate = sub(newEventStartDate, { weeks: 3 })
+
 export const newEventAtom = atom<Event>({
   key: 'newEvent',
   default: {
     state: 'draft',
-    startDate: startOfDay(addDays(Date.now(), 90)),
-    endDate: startOfDay(addDays(Date.now(), 90)),
-    entryStartDate: sub(startOfDay(addDays(Date.now(), 90)), { weeks: 6 }),
-    entryEndDate: sub(startOfDay(addDays(Date.now(), 90)), { weeks: 3 }),
+    startDate: newEventStartDate,
+    endDate: newEventStartDate,
+    entryStartDate: newEventEntryStartDate,
+    entryEndDate: newEventEntryEndDate,
     classes: [],
     judges: [],
   } as unknown as Event,
