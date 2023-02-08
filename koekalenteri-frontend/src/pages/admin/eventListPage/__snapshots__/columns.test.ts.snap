@@ -6,6 +6,7 @@ Array [
     "align": "right",
     "field": "date",
     "headerName": "date",
+    "hideable": false,
     "sortComparator": [Function],
     "valueFormatter": [Function],
     "valueGetter": [Function],
@@ -14,6 +15,7 @@ Array [
   Object {
     "field": "eventType",
     "headerName": "event.eventType",
+    "hideable": false,
     "minWidth": 100,
   },
   Object {
@@ -24,10 +26,23 @@ Array [
     "valueGetter": [Function],
   },
   Object {
+    "field": "name",
+    "flex": 1,
+    "headerName": "event.name",
+    "minWidth": 100,
+  },
+  Object {
     "field": "location",
     "flex": 1,
     "headerName": "event.location",
     "minWidth": 100,
+  },
+  Object {
+    "field": "secretary",
+    "flex": 1,
+    "headerName": "event.secretary",
+    "minWidth": 100,
+    "valueGetter": [Function],
   },
   Object {
     "field": "official",
@@ -54,6 +69,7 @@ Array [
     "field": "state",
     "flex": 1,
     "headerName": "event.state",
+    "hideable": false,
     "type": "string",
     "valueGetter": [Function],
   },
