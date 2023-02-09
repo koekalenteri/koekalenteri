@@ -23,6 +23,7 @@ jest.mock('../../api/judge')
 jest.mock('../../api/official')
 jest.mock('../../api/organizer')
 jest.mock('../../api/registration')
+jest.mock('../../api/email')
 
 describe('EventViewPage', () => {
   it('renders properly for event without classes', async () => {
