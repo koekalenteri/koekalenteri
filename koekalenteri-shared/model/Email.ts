@@ -1,5 +1,7 @@
 import { DbRecord, JsonDbRecord } from "./Database"
 
+export type EmailTemplateId = 'registration'
+
 export interface SESTemplate {
   TemplateName: string
   SubjectPart?: string
@@ -8,7 +10,7 @@ export interface SESTemplate {
 }
 
 export interface EmailTemplate extends DbRecord {
-  id: string
+  id: EmailTemplateId
   fi: string
   en: string
   ses?: {

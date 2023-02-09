@@ -105,7 +105,7 @@ export default function EventViewPage() {
 
         <Suspense>
           <RegistraionEditDialog open={open} onClose={handleClose}/>
-          <SendMessageDialog open={msgDlgOpen} onClose={closeMsgDlg} event={event} />
+          <SendMessageDialog registrations={selectedRegistration ? [selectedRegistration] : []} open={msgDlgOpen} onClose={closeMsgDlg} event={event} />
         </Suspense>
       </FullPageFlex>
     </>
