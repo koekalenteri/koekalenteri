@@ -18,6 +18,7 @@ export const useTranslation = () => {
       }
     },
     i18n: {
+      language: 'fi',
       changeLanguage: () => new Promise(() => {}),
     },
   }
