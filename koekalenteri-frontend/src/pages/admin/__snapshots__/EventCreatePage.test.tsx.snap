@@ -187,7 +187,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                   class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1laqsz7-MuiInputAdornment-root"
                                 >
                                   <button
-                                    aria-label="Choose date, selected date is Apr 23, 2021"
+                                    aria-label="Choose date, selected date is 23. huhti 2021"
                                     class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1yq5fb3-MuiButtonBase-root-MuiIconButton-root"
                                     tabindex="0"
                                     type="button"
@@ -269,7 +269,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                   class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1laqsz7-MuiInputAdornment-root"
                                 >
                                   <button
-                                    aria-label="Choose date, selected date is Apr 23, 2021"
+                                    aria-label="Choose date, selected date is 23. huhti 2021"
                                     class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1yq5fb3-MuiButtonBase-root-MuiIconButton-root"
                                     tabindex="0"
                                     type="button"
@@ -1201,7 +1201,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                   class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1laqsz7-MuiInputAdornment-root"
                                 >
                                   <button
-                                    aria-label="Choose date, selected date is Mar 23, 2021"
+                                    aria-label="Choose date, selected date is 23. maalis 2021"
                                     class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1yq5fb3-MuiButtonBase-root-MuiIconButton-root"
                                     tabindex="0"
                                     type="button"
@@ -1266,7 +1266,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                   class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1laqsz7-MuiInputAdornment-root"
                                 >
                                   <button
-                                    aria-label="Choose date, selected date is Apr 9, 2021"
+                                    aria-label="Choose date, selected date is 9. huhti 2021"
                                     class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1yq5fb3-MuiButtonBase-root-MuiIconButton-root"
                                     tabindex="0"
                                     type="button"

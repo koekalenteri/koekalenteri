@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { CheckBox } from '@mui/icons-material'
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, FormGroup, FormLabel, Paper, Stack, TextField, Typography } from '@mui/material'
@@ -49,6 +49,14 @@ export default function SendMessageDialog({ event, registrations, templateId, op
 
     }
   }, [event, registrations, t])
+
+  useEffect(() => {
+    if (templateId && templates?.length) {
+      if (templateId !== selectedTemplate?.id) {
+        setSelectedTemplate(templates.find(t => t.id === templateId))
+      }
+    }
+  }, [templates, templateId, selectedTemplate])
 
   const handleTemplateChange = (value: EmailTemplate | null) => setSelectedTemplate(value ?? undefined)
   const preview = useMemo(() => {
