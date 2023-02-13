@@ -56,7 +56,8 @@
   "edit": "Muokkaa",
   "emailTemplates": "Viestit",
   "emailTemplate": {
-    "registration": "Vahvistusviesti"
+    "registration": "Vahvistusviesti",
+    "reserve": "Varasijailmoitus"
   },
   "entryEditTitle": "Muokkaa ilmoittautumista",
   "entryList": "Ilmoittautumistiedot",

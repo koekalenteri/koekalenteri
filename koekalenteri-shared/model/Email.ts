@@ -1,6 +1,6 @@
 import { DbRecord, JsonDbRecord } from "./Database"
 
-export type EmailTemplateId = 'registration'
+export type EmailTemplateId =  'registration' | 'reserve'
 
 export interface SESTemplate {
   TemplateName: string
