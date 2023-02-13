@@ -8,7 +8,7 @@ aws dynamodb create-table \
   --key-schema AttributeName=id,KeyType=HASH \
   --billing-mode PAY_PER_REQUEST --endpoint-url http://127.0.0.1:8000
 
-aws dynamodb batch-write-item --endpoint-url http://127.0.0.1:8000 --request-items file://events.json
+aws dynamodb batch-write-item --endpoint-url http://127.0.0.1:8000 --request-items file://events.json --no-paginate --color on --output text
 
 aws dynamodb create-table \
   --table-name judge-table \
@@ -16,7 +16,7 @@ aws dynamodb create-table \
   --key-schema AttributeName=id,KeyType=HASH \
   --billing-mode PAY_PER_REQUEST --endpoint-url http://127.0.0.1:8000
 
-aws dynamodb batch-write-item --endpoint-url http://127.0.0.1:8000 --request-items file://judges.json
+aws dynamodb batch-write-item --endpoint-url http://127.0.0.1:8000 --request-items file://judges.json --no-paginate --color on --output text
 
 aws dynamodb create-table \
   --table-name official-table \
@@ -42,7 +42,7 @@ aws dynamodb create-table \
   --key-schema AttributeName=regNo,KeyType=HASH \
   --billing-mode PAY_PER_REQUEST --endpoint-url http://127.0.0.1:8000
 
-aws dynamodb batch-write-item --endpoint-url http://127.0.0.1:8000 --request-items file://dogs.json
+aws dynamodb batch-write-item --endpoint-url http://127.0.0.1:8000 --request-items file://dogs.json --no-paginate --color on --output text
 
 aws dynamodb create-table \
   --table-name event-registration-table \
@@ -50,7 +50,7 @@ aws dynamodb create-table \
   --key-schema AttributeName=eventId,KeyType=HASH AttributeName=id,KeyType=RANGE \
   --billing-mode PAY_PER_REQUEST --endpoint-url http://127.0.0.1:8000
 
-aws dynamodb batch-write-item --endpoint-url http://127.0.0.1:8000 --request-items file://registrations.json
+aws dynamodb batch-write-item --endpoint-url http://127.0.0.1:8000 --request-items file://registrations.json --no-paginate --color on --output text
 
 aws dynamodb create-table \
   --table-name event-type-table \
@@ -58,7 +58,7 @@ aws dynamodb create-table \
   --key-schema AttributeName=eventType,KeyType=HASH \
   --billing-mode PAY_PER_REQUEST --endpoint-url http://127.0.0.1:8000
 
-aws dynamodb batch-write-item --endpoint-url http://127.0.0.1:8000 --request-items file://eventTypes.json
+aws dynamodb batch-write-item --endpoint-url http://127.0.0.1:8000 --request-items file://eventTypes.json --no-paginate --color on --output text
 
 aws dynamodb create-table \
   --table-name email-templates-table \
@@ -66,4 +66,4 @@ aws dynamodb create-table \
   --key-schema AttributeName=id,KeyType=HASH \
   --billing-mode PAY_PER_REQUEST --endpoint-url http://127.0.0.1:8000
 
-aws dynamodb batch-write-item --endpoint-url http://127.0.0.1:8000 --request-items file://emailTemplates.json
+aws dynamodb batch-write-item --endpoint-url http://127.0.0.1:8000 --request-items file://emailTemplates.json --no-paginate --color on --output text
