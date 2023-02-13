@@ -262,6 +262,7 @@
     "event": {
       "startDate": "Alkamispäivä ei voi olla menneisyydessä",
       "endDate": "Päättymispäivä ei voi olla menneisyydessä",
+      "effectiveRules": "Voimassa olevat säännöt: {{date, date}}",
       "classes": "Koeluokat on vaadittu tieto \"$t(event.states.{{state}})\" -tilassa olevalle {{type}}-tapahtumalle",
       "classesJudge": "Tila \"$t(event.states.{{state}})\": {{list}} $t(validation.event.classesMissing, {\"count\": {{length}} }) puuttuu tuomari.",
       "classesMissing_one": "koeluokalta",

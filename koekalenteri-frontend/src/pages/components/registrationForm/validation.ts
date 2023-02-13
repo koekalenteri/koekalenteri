@@ -2,8 +2,7 @@ import { differenceInMonths, startOfYear } from 'date-fns'
 import { BreedCode, ConfirmedEvent, Dog, Person, QualifyingResult, Registration, RegistrationBreeder, TestResult } from 'koekalenteri-shared/model'
 
 import { ValidationResult, Validators2, WideValidationResult } from '../../../i18n/validation'
-
-import { EventRequirement, EventResultRequirement, EventResultRequirements, EventResultRequirementsByDate, getRequirements, RegistrationClass, REQUIREMENTS } from './rules'
+import { EventRequirement, EventResultRequirement, EventResultRequirements, EventResultRequirementsByDate, getRequirements, RegistrationClass, REQUIREMENTS } from '../../../rules'
 
 function validateBreeder(breeder: RegistrationBreeder | undefined) {
   return !breeder || !breeder.name || !breeder.location

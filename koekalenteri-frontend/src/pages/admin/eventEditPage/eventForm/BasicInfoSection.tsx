@@ -4,6 +4,7 @@ import { Grid, TextField } from '@mui/material'
 import { add, differenceInDays, eachDayOfInterval, isAfter, isSameDay, startOfDay } from 'date-fns'
 import { DeepPartial, EventClass, Official, Organizer, Secretary } from 'koekalenteri-shared/model'
 
+import { getRuleDate } from '../../../../rules'
 import CollapsibleSection from '../../../components/CollapsibleSection'
 import DateRange, { DateValue } from '../../../components/DateRange'
 import { emptyPerson } from '../../../components/RegistrationForm'
@@ -15,20 +16,20 @@ import EventProperty from './components/EventProperty'
 
 interface Props extends SectionProps {
   event: PartialEvent
-  eventTypes: string[]
-  eventTypeClasses: Record<string, string[]>
-  officials: Official[]
-  organizers: Organizer[]
+  eventTypes?: string[]
+  eventTypeClasses?: Record<string, string[]>
+  officials?: Official[]
+  organizers?: Organizer[]
 }
 
 export default function BasicInfoSection({ event, errorStates, helperTexts, fields, eventTypes, eventTypeClasses, officials, open, onOpenChange, organizers, onChange }: Props) {
   const { t } = useTranslation()
   const [helpAnchorEl, setHelpAnchorEl] = useState<HTMLButtonElement | null>(null)
-  const typeOptions = eventClassOptions(event, eventTypeClasses[event.eventType || ''] || [])
+  const typeOptions = eventClassOptions(event, eventTypeClasses?.[event.eventType ?? ''] ?? [])
   const error = errorStates?.startDate || errorStates?.endDate || errorStates?.kcId || errorStates?.eventType || errorStates?.classes || errorStates?.organizer || errorStates?.location || errorStates?.official || errorStates?.secretary
-  const helperText = error ? t('validation.event.errors') : ''
+  const helperText = error ? t('validation.event.errors') : t('validation.event.effectiveRules', { date: new Date(getRuleDate(event.startDate)) })
   const availableOfficials = useMemo(() => {
-    return officials.filter(o => !event.eventType || o.eventTypes?.includes(event.eventType))
+    return officials?.filter(o => !event.eventType || o.eventTypes?.includes(event.eventType)) ?? []
   }, [event, officials])
   const hasEntries = (event.entries ?? 0) > 0
   const handleDateChange = useCallback((start: DateValue, end: DateValue) => {
@@ -101,7 +102,7 @@ export default function BasicInfoSection({ event, errorStates, helperTexts, fiel
               disabled={hasEntries}
               event={event}
               fields={fields}
-              options={eventTypes}
+              options={eventTypes ?? []}
               onChange={onChange}
             />
           </Grid>
@@ -136,7 +137,7 @@ export default function BasicInfoSection({ event, errorStates, helperTexts, fiel
               id="organizer"
               isOptionEqualToValue={isEqualId}
               onChange={onChange}
-              options={organizers}
+              options={organizers ?? []}
             />
           </Grid>
           <Grid item sx={{ width: 300 }}>
@@ -171,7 +172,7 @@ export default function BasicInfoSection({ event, errorStates, helperTexts, fiel
               id="secretary"
               isOptionEqualToValue={isEqualId}
               onChange={handleSecretaryChange}
-              options={officials}
+              options={officials ?? []}
             />
           </Grid>
         </Grid>
