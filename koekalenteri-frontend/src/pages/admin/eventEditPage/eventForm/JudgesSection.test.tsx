@@ -80,6 +80,19 @@ describe('JudgeSection', () => {
     expect(container).toMatchSnapshot()
   })
 
+  it('should hide classes for NOWT event (KOE-317)', () => {
+    const testEvent = {
+      id: 'test',
+      eventType: 'NOWT',
+      judges: [0],
+      startDate: new Date('2022-06-01'),
+      endDate: new Date('2022-06-02'),
+      classes: [{class: 'AVO'}],
+    }
+    const {container} = render(<JudgesSection event={testEvent} judges={JUDGES} />)
+    expect(container).toMatchSnapshot()
+  })
+
   it('should fire onChange', async () => {
     const testEvent = {
       id: 'test',

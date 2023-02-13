@@ -1,5 +1,284 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`JudgeSection should hide classes for NOWT event (KOE-317) 1`] = `
+<div>
+  <div
+    class="MuiBox-root css-z0stvt"
+  >
+    <button
+      class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-2rshpx-MuiButtonBase-root-MuiIconButton-root"
+      tabindex="0"
+      type="button"
+    >
+      <svg
+        aria-hidden="true"
+        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+        data-testid="KeyboardArrowDownIcon"
+        focusable="false"
+        viewBox="0 0 24 24"
+      >
+        <path
+          d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"
+        />
+      </svg>
+      <span
+        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+      />
+    </button>
+    <div
+      class="MuiBox-root css-1qbrvqz"
+    >
+      <div
+        class="MuiBox-root css-yxbw19"
+      >
+        <p
+          class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
+        >
+          judges
+        </p>
+        <p
+          class="MuiFormHelperText-root css-gorocw-MuiFormHelperText-root"
+        />
+      </div>
+      <div
+        class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-pwcg7p-MuiCollapse-root"
+        style="min-height: 0px;"
+      >
+        <div
+          class="MuiCollapse-wrapper MuiCollapse-vertical css-smkl36-MuiCollapse-wrapper"
+        >
+          <div
+            class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
+          >
+            <div
+              class="MuiBox-root css-n2y79c"
+            >
+              <div
+                class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
+              >
+                <div
+                  class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-1bzbk8b-MuiGrid-root"
+                >
+                  <div
+                    class="MuiGrid-root MuiGrid-item css-17sva53-MuiGrid-root"
+                  >
+                    <div
+                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-qm9mjt-MuiAutocomplete-root"
+                      data-testid="judgeChief"
+                    >
+                      <div
+                        class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                      >
+                        <label
+                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-14s5rfu-MuiFormLabel-root-MuiInputLabel-root"
+                          data-shrink="false"
+                          for=":rs:"
+                          id=":rs:-label"
+                        >
+                          judgeChief
+                        </label>
+                        <div
+                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-154xyx0-MuiInputBase-root-MuiOutlinedInput-root"
+                        >
+                          <input
+                            aria-autocomplete="list"
+                            aria-expanded="false"
+                            aria-invalid="false"
+                            autocapitalize="none"
+                            autocomplete="off"
+                            class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
+                            id=":rs:"
+                            role="combobox"
+                            spellcheck="false"
+                            type="text"
+                            value=""
+                          />
+                          <div
+                            class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                          >
+                            <button
+                              aria-label="Open"
+                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                              tabindex="-1"
+                              title="Open"
+                              type="button"
+                            >
+                              <svg
+                                aria-hidden="true"
+                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                data-testid="ArrowDropDownIcon"
+                                focusable="false"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  d="M7 10l5 5 5-5z"
+                                />
+                              </svg>
+                              <span
+                                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                              />
+                            </button>
+                          </div>
+                          <fieldset
+                            aria-hidden="true"
+                            class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
+                          >
+                            <legend
+                              class="css-yjsfm1"
+                            >
+                              <span>
+                                judgeChief
+                              </span>
+                            </legend>
+                          </fieldset>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-item css-1khyezo-MuiGrid-root"
+                  >
+                    <div
+                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-qm9mjt-MuiAutocomplete-root"
+                    >
+                      <div
+                        class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                      >
+                        <label
+                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-14s5rfu-MuiFormLabel-root-MuiInputLabel-root"
+                          data-shrink="false"
+                          for="class0"
+                          id="class0-label"
+                        >
+                          Arvostelee koeluokat
+                        </label>
+                        <div
+                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-154xyx0-MuiInputBase-root-MuiOutlinedInput-root"
+                        >
+                          <input
+                            aria-autocomplete="list"
+                            aria-expanded="false"
+                            aria-invalid="false"
+                            autocapitalize="none"
+                            autocomplete="off"
+                            class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
+                            id="class0"
+                            role="combobox"
+                            spellcheck="false"
+                            type="text"
+                            value=""
+                          />
+                          <div
+                            class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                          >
+                            <button
+                              aria-label="Open"
+                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                              tabindex="-1"
+                              title="Open"
+                              type="button"
+                            >
+                              <svg
+                                aria-hidden="true"
+                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                data-testid="ArrowDropDownIcon"
+                                focusable="false"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  d="M7 10l5 5 5-5z"
+                                />
+                              </svg>
+                              <span
+                                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                              />
+                            </button>
+                          </div>
+                          <fieldset
+                            aria-hidden="true"
+                            class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
+                          >
+                            <legend
+                              class="css-yjsfm1"
+                            >
+                              <span>
+                                Arvostelee koeluokat
+                              </span>
+                            </legend>
+                          </fieldset>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+                  >
+                    <button
+                      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-1e6y48t-MuiButtonBase-root-MuiButton-root"
+                      tabindex="0"
+                      type="button"
+                    >
+                      <span
+                        class="MuiButton-startIcon MuiButton-iconSizeMedium css-1d6wzja-MuiButton-startIcon"
+                      >
+                        <svg
+                          aria-hidden="true"
+                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                          data-testid="DeleteOutlineIcon"
+                          focusable="false"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM8 9h8v10H8V9zm7.5-5-1-1h-5l-1 1H5v2h14V4z"
+                          />
+                        </svg>
+                      </span>
+                      Poista tuomari
+                      <span
+                        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                      />
+                    </button>
+                  </div>
+                </div>
+                <div
+                  class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+                >
+                  <button
+                    class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-1e6y48t-MuiButtonBase-root-MuiButton-root"
+                    tabindex="0"
+                    type="button"
+                  >
+                    <span
+                      class="MuiButton-startIcon MuiButton-iconSizeMedium css-1d6wzja-MuiButton-startIcon"
+                    >
+                      <svg
+                        aria-hidden="true"
+                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                        data-testid="AddOutlinedIcon"
+                        focusable="false"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"
+                        />
+                      </svg>
+                    </span>
+                    Lisää tuomari
+                    <span
+                      class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                    />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
 exports[`JudgeSection should not warn about judge 0 not beign available (KOE-357) 1`] = `
 <div>
   <div

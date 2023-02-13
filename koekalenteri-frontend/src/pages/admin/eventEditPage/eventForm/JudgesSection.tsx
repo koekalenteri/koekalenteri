@@ -17,8 +17,8 @@ function filterJudges(judges: Judge[], eventJudges: number[], id: number | undef
     .filter(j => j.id === id || !eventJudges.includes(j.id))
 }
 
-function filterClassesByJudgeId(classes: EventClass[], id?: number) {
-  return classes.filter(c => Array.isArray(c.judge) ? c.judge.find(j => j.id === id) : c.judge && c.judge.id === id)
+function filterClassesByJudgeId(classes?: EventClass[], id?: number) {
+  return classes?.filter(c => Array.isArray(c.judge) ? c.judge.find(j => j.id === id) : c.judge && c.judge.id === id)
 }
 
 function hasJudge(c: DeepPartial<EventClass>, id?: number) {
@@ -52,9 +52,9 @@ export default function JudgesSection({ event, judges, fields, onChange, onOpenC
     const a = makeArray(j)
     return a.filter(cj => cj.id !== id)
   }
-  const updateJudge = (id: number | undefined, values: DeepPartial<EventClass>[]) => {
-    const isSelected = (c: DeepPartial<EventClass>) => values.find(v => event && isSameDay(v.date || event.startDate, c.date || event.startDate) && v.class === c.class)
-    return event.classes.map(c => ({
+  const updateJudge = (id: number | undefined, values?: DeepPartial<EventClass>[]) => {
+    const isSelected = (c: DeepPartial<EventClass>) => values?.find(v => event && isSameDay(v.date || event.startDate, c.date || event.startDate) && v.class === c.class)
+    return event.classes?.map(c => ({
       ...c,
       judge: isSelected(c) ? selectJudge(c.judge, id) : removeJudge(c.judge, id),
     }))
@@ -90,7 +90,7 @@ export default function JudgesSection({ event, judges, fields, onChange, onOpenC
                   }}
                 />
               </Grid>
-              <Grid item sx={{ width: 300 }}>
+              <Grid item sx={{ width: 300 }} display={event.eventType === 'NOWT' ? 'NONE' : undefined}>
                 <EventClasses
                   id={`class${index}`}
                   eventStartDate={event.startDate}

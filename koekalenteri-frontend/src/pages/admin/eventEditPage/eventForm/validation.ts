@@ -65,6 +65,10 @@ const VALIDATORS: Validators<PartialEvent, 'event'> = {
     if (!classes || !classes.length) {
       return 'classes'
     }
+    if (event.eventType === 'NOWT') {
+      // KOE-317 classes are required, but judges don't have to be assigned to classes
+      return false
+    }
     const list: string[] = []
     for (const c of classes) {
       if (Array.isArray(c.judge) ? !c.judge.length : !c.judge?.id) {
@@ -88,7 +92,12 @@ const VALIDATORS: Validators<PartialEvent, 'event'> = {
     }
     return false
   },
-  judges: (event, required) => required && event.judges?.length === 0,
+  judges: (event, required) => {
+    // KOE-317 NOWT-test has to have at least 2 judges per class
+    const minCount = event.eventType === 'NOWT' ? event.classes?.length * 2 : 1
+    return required && event.judges?.length < minCount ? { key: 'judgeCount', opts: { field: 'judges', length: minCount }} : false
+  },
+
   places: (event, required) => {
     if (required && !event.places) {
       return true
