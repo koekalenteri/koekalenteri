@@ -270,6 +270,9 @@
       "costMemberHigh": "Jäsenten maksu ei saa olla muiden maksua suurempi",
       "errors": "Tiedot ovat puutteelliset",
       "judge": "Tuomari {{id}} ei ole käytettävissä",
+      "judges_one": "tuomari",
+      "judges_other": "tuomaria",
+      "judgeCount": "{{type}}: Vähintään {{length}} $t(validation.event.judges, {\"count\": {{length}} }) tarvitaan",
       "placesClass": "Tila \"$t(event.states.{{state}})\": {{list}} $t(validation.event.classesMissing, {\"count\": {{length}} }) puuttuu koepaikat.",
       "validationError": "Tila \"$t(event.states.{{state}})\": $t(event.{{field}}) on vaadittu tieto."
     },

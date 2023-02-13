@@ -36,6 +36,7 @@ export default function EventClasses(props: Props) {
   const getLabel = useCallback((c: { class?: string }) => c.class ?? '', [])
   const isEqual = useCallback((a: DeepPartial<EventClass>, b: DeepPartial<EventClass>) => compareEventClass(a, b) === 0, [])
   const groupBy = !isSameDay(eventStartDate, eventEndDate)
+  const hasJudge = useCallback((option: DeepPartial<EventClass>) => Array.isArray(option.judge) ? option.judge.length : option.judge?.id, [])
 
   return (
     <Autocomplete
@@ -79,8 +80,8 @@ export default function EventClasses(props: Props) {
           label={(option.class ?? '') + (showCount && Array.isArray(option.judge) && option.judge.length > 1 ? ` x${option.judge.length}` : '')}
           onDelete={undefined}
           size="small"
-          sx={{bgcolor: (Array.isArray(option.judge) ? option.judge.length : option.judge?.id) ? 'background.ok' : 'transparent'}}
-          variant={option.judge ? 'filled' : 'outlined'}
+          sx={{bgcolor: hasJudge(option) ? 'background.ok' : 'transparent'}}
+          variant={hasJudge(option) ? 'filled' : 'outlined'}
         />
       ))}
     />
