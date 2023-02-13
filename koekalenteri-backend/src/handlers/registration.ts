@@ -79,7 +79,8 @@ export const putRegistrationHandler = metricScope((metrics: MetricsLogger) =>
       const data = { ...existing, ...registration }
       await dynamoDB.write(data)
 
-      const registrations = await dynamoDB.query<JsonRegistration>('eventId = :id', { ':id': registration.eventId })
+      const allRegistrations = await dynamoDB.query<JsonRegistration>('eventId = :id', { ':id': registration.eventId })
+      const registrations = allRegistrations?.filter(r => !r.cancelled)
 
       const membershipPriority = (r: JsonRegistration) => (confirmedEvent.allowHandlerMembershipPriority && r.handler?.membership)
         || (confirmedEvent.allowOwnerMembershipPriority && r.owner?.membership)

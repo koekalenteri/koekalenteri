@@ -10,12 +10,20 @@ interface Props {
   registrations: Registration[]
 }
 
+function getRegClass(reg: Registration): string {
+  if (reg.cancelled) return 'cancelled'
+  if (reg.group) {
+    return reg.class ?? reg.eventType
+  }
+  return 'reserve'
+}
+
 const InfoPanel = ({ event, registrations }: Props) => {
   const dates = useMemo(() => eventDates(event), [event])
   const registrationsByClass: Record<string, number> = useMemo(() => {
     const byClass: Record<string, number> = { reserve: 0 }
     for (const reg of registrations) {
-      const c = reg.group ? reg.class ?? reg.eventType : 'reserve'
+      const c = getRegClass(reg)
       if (!(c in byClass)) {
         byClass[c] = 0
       }
@@ -41,7 +49,7 @@ const InfoPanel = ({ event, registrations }: Props) => {
           <TableRow>
             <TableCell>• osallistujat</TableCell>
           </TableRow>
-          {Object.keys(registrationsByClass).filter(c => c !== 'reserve').map(c => (
+          {Object.keys(registrationsByClass).filter(c => c !== 'reserve' && c !== 'cancelled').map(c => (
             <TableRow>
               <TableCell align="right">{c}</TableCell>
               <TableCell align="right">{registrationsByClass[c]}</TableCell>
@@ -53,6 +61,13 @@ const InfoPanel = ({ event, registrations }: Props) => {
             <TableCell align="right">{registrationsByClass.reserve ?? 0}</TableCell>
             <TableCell align="right"><Button size="small" sx={{fontSize: '0.5rem'}} disabled={registrationsByClass.reserve === 0}>LÄHETÄ&nbsp;VARASIJAILMOITUS</Button></TableCell>
           </TableRow>
+          {!registrationsByClass.cancelled ? null :
+            <TableRow>
+              <TableCell>• peruneet</TableCell>
+              <TableCell align="right">{registrationsByClass.cancelled}</TableCell>
+              <TableCell align="right">&nbsp;</TableCell>
+            </TableRow>
+          }
         </TableBody>
       </Table>
     </TableContainer>
