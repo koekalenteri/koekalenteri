@@ -49,9 +49,9 @@ describe('BasicInfoSection', () => {
     expect(input).toHaveValue('')
 
     await user.type(input, '123')
-    expect(input).toHaveValue('123')
-
     await waitForDebounce()
+
+    expect(input).toHaveValue('123')
     expect(changeHandler).toHaveBeenCalledTimes(1)
     expect(changeHandler).toHaveBeenLastCalledWith({ kcId: '123' })
   })
