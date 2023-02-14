@@ -1,28 +1,31 @@
+import { parseISO } from 'date-fns'
 import { TestResult } from 'koekalenteri-shared/model'
 
-export type EventResultRequirement = Partial<TestResult> & { count: number, excludeCurrentYear?: boolean };
-export type EventResultRequirements = Array<EventResultRequirement>;
+export type EventResultRequirement = Partial<TestResult> & { count: number, excludeCurrentYear?: boolean }
+export type EventResultRequirements = Array<EventResultRequirement>
 
-export type RULE_DATES = {
-  '1977-01-01': true,
-  '1986-01-01': true,
-  '1991-01-01': true,
-  '1999-01-01': true,
-  '2006-04-01': true,
-  '2009-01-01': true,
-  '2016-04-01': true
-};
+export enum RULE_DATES {
+  '1977-01-01',
+  '1986-01-01',
+  '1991-01-01',
+  '1999-01-01',
+  '2006-04-01',
+  '2009-01-01',
+  '2016-04-01',
+  '2023-04-15'
+}
+export type RuleDate = keyof typeof RULE_DATES
 
-export type RegistrationClass = 'ALO' | 'AVO' | 'VOI' | undefined;
+export type RegistrationClass = 'ALO' | 'AVO' | 'VOI' | undefined
 
 export type EventRequirement = {
   age?: number
   breedCode?: Array<string>
-  results?: {[Property in keyof RULE_DATES]?: EventResultRequirements | Array<EventResultRequirements>}
-};
+  results?: {[Property in RuleDate]?: EventResultRequirements | Array<EventResultRequirements>}
+}
 
 export type EventResultRequirementsByDate = {
-  date: keyof RULE_DATES
+  date: RuleDate
   rules: EventResultRequirements | Array<EventResultRequirements>
 }
 
@@ -36,13 +39,13 @@ export type EventClassRequirement = {
   ALO?: EventRequirement
   AVO?: EventRequirement
   VOI?: EventRequirement
-};
+}
 
-function getRuleDate(date: Date | string, available: Array<keyof RULE_DATES>) {
+export function getRuleDate(date: Date | string, available: RuleDate[] = Object.keys(RULE_DATES) as RuleDate[]) {
   if (typeof date === 'string') {
     date = new Date(date)
   }
-  const asDates = available.map(v => new Date(v))
+  const asDates = available.map(v => parseISO(v))
   for (let i = 0; i < asDates.length; i++) {
     if (i > 0 && asDates[i] > date) {
       return available[i - 1]
@@ -58,7 +61,7 @@ export function getRequirements(eventType: string, regClass: RegistrationClass |
   let results: EventResultRequirementsByDate | undefined
   if (requirements.results) {
     const resultRequirements = requirements.results
-    const ruleDates = Object.keys(resultRequirements) as Array<keyof RULE_DATES>
+    const ruleDates = Object.keys(resultRequirements) as Array<RuleDate>
     const ruleDate = getRuleDate(date, ruleDates)
     results = {
       date: ruleDate,
@@ -86,6 +89,7 @@ export const REQUIREMENTS: { [key: string]: EventRequirement | EventClassRequire
         '2006-04-01': [{ type: 'NOME-B', result: 'ALO1', count: 1 }],
         '2009-01-01': [{ type: 'NOME-B', result: 'ALO1', count: 1 }],
         '2016-04-01': [{ type: 'NOME-B', result: 'ALO1', count: 2 }],
+        '2023-04-15': [{ type: 'NOME-B', result: 'ALO1', count: 1 }],
       },
     },
     VOI: {
@@ -95,6 +99,7 @@ export const REQUIREMENTS: { [key: string]: EventRequirement | EventClassRequire
         '2006-04-01': [{ type: 'NOME-B', result: 'AVO1', count: 1 }],
         '2009-01-01': [{ type: 'NOME-B', result: 'AVO1', count: 2 }],
         '2016-04-01': [{ type: 'NOME-B', result: 'AVO1', count: 2 }],
+        '2023-04-15': [{ type: 'NOME-B', result: 'AVO1', count: 1 }],
       },
     },
   },
@@ -104,6 +109,7 @@ export const REQUIREMENTS: { [key: string]: EventRequirement | EventClassRequire
         '2006-04-01': [{ type: 'NOU', result: 'NOU1', count: 1 }],
         '2009-01-01': [{ type: 'NOU', result: 'NOU1', count: 1 }],
         '2016-04-01': [{ type: 'NOU', result: 'NOU1', count: 1 }],
+        '2023-04-15': [{ type: 'NOU', result: 'NOU1', count: 1 }],
       },
     },
     AVO: {
@@ -111,6 +117,7 @@ export const REQUIREMENTS: { [key: string]: EventRequirement | EventClassRequire
         '2006-04-01': [{ type: 'NOWT', result: 'ALO1', count: 1 }],
         '2009-01-01': [{ type: 'NOWT', result: 'ALO1', count: 1 }],
         '2016-04-01': [{ type: 'NOWT', result: 'ALO1', count: 1 }],
+        '2023-04-15': [{ type: 'NOWT', result: 'ALO1', count: 1 }],
       },
     },
     VOI: {
@@ -118,6 +125,7 @@ export const REQUIREMENTS: { [key: string]: EventRequirement | EventClassRequire
         '2006-04-01': [{ type: 'NOWT', result: 'AVO1', count: 1 }],
         '2009-01-01': [{ type: 'NOWT', result: 'AVO1', count: 1 }],
         '2016-04-01': [{ type: 'NOWT', result: 'AVO1', count: 1 }],
+        '2023-04-15': [{ type: 'NOWT', result: 'AVO1', count: 1 }],
       },
     },
   },
@@ -131,11 +139,19 @@ export const REQUIREMENTS: { [key: string]: EventRequirement | EventClassRequire
         [{ type: 'NOME-B', result: 'AVO1', count: 2 }],
         [{ type: 'NOWT', result: 'AVO1', count: 2 }],
       ],
+      '2023-04-15': [
+        [{ type: 'NOME-B', result: 'AVO1', count: 1 }],
+        [{ type: 'NOWT', result: 'AVO1', count: 1 }],
+      ],
     },
   },
   NKM: {
     results: {
       '2016-04-01': [
+        [{ type: 'NOME-B', result: 'VOI1', count: 2 }],
+        [{ type: 'NOWT', cert: true, count: 2 }],
+      ],
+      '2023-04-15': [
         [{ type: 'NOME-B', result: 'VOI1', count: 2 }],
         [{ type: 'NOWT', cert: true, count: 2 }],
       ],

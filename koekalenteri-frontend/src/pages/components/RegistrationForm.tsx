@@ -6,6 +6,7 @@ import { diff } from 'deep-object-diff'
 import { TFunction } from 'i18next'
 import { ConfirmedEvent, DeepPartial, Registration, TestResult } from 'koekalenteri-shared/model'
 
+import { RegistrationClass } from '../../rules'
 import { hasChanges, merge } from '../../utils'
 
 import { EntryInfo } from './registrationForm/1.Entry'
@@ -15,7 +16,6 @@ import { HandlerInfo } from './registrationForm/5.HandlerInfo'
 import { AdditionalInfo } from './registrationForm/7.AdditionalInfo'
 import { DogInfo } from './registrationForm/DogInfo'
 import QualifyingResultsInfo from './registrationForm/QualifyingResultsInfo'
-import { RegistrationClass } from './registrationForm/rules'
 import { filterRelevantResults, validateRegistration } from './registrationForm/validation'
 
 

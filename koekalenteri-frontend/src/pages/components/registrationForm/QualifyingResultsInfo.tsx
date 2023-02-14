@@ -7,11 +7,11 @@ import { subYears } from 'date-fns'
 import { ManualTestResult, QualifyingResult, Registration, TestResult } from 'koekalenteri-shared/model'
 import { v4 as uuidv4 } from 'uuid'
 
+import { EventResultRequirement, EventResultRequirements, EventResultRequirementsByDate, getRequirements, RegistrationClass } from '../../../rules'
 import { unique } from '../../../utils'
 import AutocompleteSingle from '../AutocompleteSingle'
 import CollapsibleSection from '../CollapsibleSection'
 
-import { EventResultRequirement, EventResultRequirements, EventResultRequirementsByDate, getRequirements, RegistrationClass } from './rules'
 import { objectContains } from './validation'
 
 type QualifyingResultsInfoProps = {
