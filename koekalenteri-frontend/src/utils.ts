@@ -65,6 +65,9 @@ export const merge = <T>(a: T, b: DeepPartial<T>): T => {
     return result
   }
   for (const [key, value] of Object.entries(b) as Entries<T>) {
+    if (key === 'results') {
+      console.log(key, value, result[key])
+    }
     if (isObject(value)) {
       const old = result[key]
       // @ts-expect-error Argument of type 'T[keyof T] & AnyObject' is not assignable to parameter of type 'DeepPartial<T[keyof T] & AnyObject>'

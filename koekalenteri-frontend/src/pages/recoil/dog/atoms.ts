@@ -1,11 +1,10 @@
 import { Dog, ManualTestResult, RegistrationBreeder, RegistrationPerson } from 'koekalenteri-shared/model'
 import { atom, atomFamily } from 'recoil'
 
+import { logEffect } from '../effects'
 import { storageEffect } from '../effects/storage'
 
-import { remoteDogEffect } from './effects'
-
-export type DogCachedInfo = {
+export interface DogCachedInfo {
   breeder: RegistrationBreeder,
   dog: Dog,
   handler: RegistrationPerson,
@@ -27,6 +26,6 @@ export const dogAtom = atomFamily<Dog|undefined, string>({
   key: 'dog/regNo',
   default: undefined,
   effects: [
-    remoteDogEffect,
+    logEffect,
   ],
 })

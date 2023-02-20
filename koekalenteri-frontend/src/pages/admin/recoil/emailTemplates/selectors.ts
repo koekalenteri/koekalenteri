@@ -4,7 +4,7 @@ import { selectorFamily } from 'recoil'
 import { emailTemplatesAtom } from './atoms'
 
 export const templateSelector = selectorFamily<EmailTemplate | undefined, string|undefined>({
-  key: 'adminEventSelector',
+  key: 'templateSelector',
   get: templateId => ({get}) => {
     if (!templateId) {
       return undefined

@@ -4,10 +4,10 @@ import { HTML5Backend } from 'react-dnd-html5-backend'
 import { Box, Typography } from '@mui/material'
 import { GridCallbackDetails, GridSelectionModel } from '@mui/x-data-grid'
 import { Registration, RegistrationDate, RegistrationGroup } from 'koekalenteri-shared/model'
-import { useRecoilState } from 'recoil'
+import { SetterOrUpdater } from 'recoil'
 
 import StyledDataGrid from '../../components/StyledDataGrid'
-import { adminRegistrationIdAtom, RegistrationWithMutators } from '../recoil'
+import { RegistrationWithMutators } from '../recoil'
 
 import { useClassEntrySelectionColumns } from './classEntrySelection/columns'
 import { DragItem } from './classEntrySelection/DragableRow'
@@ -20,6 +20,8 @@ interface Props {
   eventDates?: Date[]
   registrations?: RegistrationWithMutators[]
   setOpen?: Dispatch<SetStateAction<boolean>>
+  selectedRegistrationId?: string
+  setSelectedRegistrationId?: SetterOrUpdater<string|undefined>
 }
 
 interface RegistrationWithGroups extends Registration {
@@ -34,9 +36,8 @@ const listKey = (reg: Registration) => {
 }
 export const groupKey = (rd: RegistrationDate) => rd.date.toISOString().slice(0, 10) + '-' + rd.time
 
-const ClassEntrySelection = ({ eventDates = [], registrations = [], setOpen }: Props) => {
-  const [selectedRegistrationID, setSelectedRegistrationID] = useRecoilState(adminRegistrationIdAtom)
-  const {entryColumns, participantColumns} = useClassEntrySelectionColumns(eventDates)
+const ClassEntrySelection = ({ eventDates = [], registrations = [], setOpen, selectedRegistrationId, setSelectedRegistrationId }: Props) => {
+  const {cancelledColumns, entryColumns, participantColumns} = useClassEntrySelectionColumns(eventDates)
 
   const eventGroups: RegistrationGroup[] = useMemo(() => availableGroups(eventDates).map(eventDate => ({ ...eventDate, key: groupKey(eventDate), number: 0 })), [eventDates])
   const registrationsByGroup: Record<string, RegistrationWithGroups[]> = useMemo(() => {
@@ -67,15 +68,15 @@ const ClassEntrySelection = ({ eventDates = [], registrations = [], setOpen }: P
     const value = typeof selection[0] === 'string' ? selection[0] : undefined
     if (value) {
       const reg = registrations.find(r => r.id === value)
-      setSelectedRegistrationID(reg?.id)
+      setSelectedRegistrationId?.(reg?.id)
     }
-  }, [registrations, setSelectedRegistrationID])
+  }, [registrations, setSelectedRegistrationId])
 
   const handleDoubleClick = useCallback(() => setOpen?.(true), [setOpen])
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <Typography variant='h5'>Osallistujat</Typography>
+      <Typography variant='h6'>Osallistujat</Typography>
       {/* column headers only */}
       <Box sx={{ height: 40, flexShrink: 0, width: '100%', overflow: 'hidden' }}>
         <StyledDataGrid
@@ -99,7 +100,8 @@ const ClassEntrySelection = ({ eventDates = [], registrations = [], setOpen }: P
           headerHeight={0}
           rows={registrationsByGroup[group.key] ?? []}
           onSelectionModelChange={handleSelectionModeChange}
-          selectionModel={selectedRegistrationID ? [selectedRegistrationID] : []}
+          selectionModel={selectedRegistrationId ? [selectedRegistrationId] : []}
+          onRowDoubleClick={handleDoubleClick}
           components={{
             Header: GroupHeader,
             NoRowsOverlay: NoRowsOverlay,
@@ -116,27 +118,28 @@ const ClassEntrySelection = ({ eventDates = [], registrations = [], setOpen }: P
           onDrop={handleDrop(group)}
         />,
       )}
-      <Typography variant='h5'>Ilmoittautuneet</Typography>
+      <Typography variant='h6'>Ilmoittautuneet</Typography>
       <DragableDataGrid
         autoHeight
         columns={entryColumns}
         hideFooter
         rows={registrationsByGroup.reserve}
         onSelectionModelChange={handleSelectionModeChange}
-        selectionModel={selectedRegistrationID ? [selectedRegistrationID] : []}
+        selectionModel={selectedRegistrationId ? [selectedRegistrationId] : []}
         onRowDoubleClick={handleDoubleClick}
         onDrop={handleDrop()}
       />
       {registrationsByGroup.cancelled?.length ?
         <>
-          <Typography variant='h5'>Peruneet</Typography>
+          <Typography variant='h6'>Peruneet</Typography>
           <StyledDataGrid
             autoHeight
-            columns={entryColumns}
+            columns={cancelledColumns}
             hideFooter
             rows={registrationsByGroup.cancelled}
             onSelectionModelChange={handleSelectionModeChange}
-            selectionModel={selectedRegistrationID ? [selectedRegistrationID] : []}
+            selectionModel={selectedRegistrationId ? [selectedRegistrationId] : []}
+            onRowDoubleClick={handleDoubleClick}
           />
         </>
         : null

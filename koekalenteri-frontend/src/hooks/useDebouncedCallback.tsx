@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef } from 'react'
 
-export default function useDebouncedCallback<T extends (...args: any[]) => ReturnType<T>>(callback: T, wait = 100): ((...args: Parameters<T>) => unknown) {
+export default function useDebouncedCallback<T extends (...args: any[]) => ReturnType<T>>(callback?: T, wait = 100): ((...args: Parameters<T>) => unknown) {
   const timeout = useRef<number | undefined>()
   const cb = useRef(callback)
   cb.current = callback
@@ -14,7 +14,7 @@ export default function useDebouncedCallback<T extends (...args: any[]) => Retur
     clearTimeout(timeout.current)
     timeout.current = window.setTimeout(() => {
       timeout.current = undefined
-      cb.current.apply(null, args)
+      cb.current?.apply(null, args)
     }, wait)
   }, [wait])
 }

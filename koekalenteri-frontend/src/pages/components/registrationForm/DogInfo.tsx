@@ -1,4 +1,4 @@
-import { SyntheticEvent, useCallback, useEffect, useMemo, useState } from 'react'
+import { SyntheticEvent, useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { CachedOutlined } from '@mui/icons-material'
 import { LoadingButton } from '@mui/lab'
@@ -8,19 +8,17 @@ import { differenceInMinutes, subMonths, subYears } from 'date-fns'
 import { BreedCode, DeepPartial, Dog, DogGender, Registration } from 'koekalenteri-shared/model'
 import { useRecoilValue } from 'recoil'
 
-import { useDebouncedValue } from '../../../hooks/useDebouncedValue'
-import { hasChanges, merge } from '../../../utils'
-import { dogAtom, DogCachedInfo } from '../../recoil/dog'
-import { useDogActions } from '../../recoil/dog/actions'
+import { hasChanges } from '../../../utils'
+import { DogCachedInfo, useDogActions } from '../../recoil/dog'
 import { cachedDogRegNumbersSelector } from '../../recoil/dog/selectors'
 import AutocompleteSingle from '../AutocompleteSingle'
 import CollapsibleSection from '../CollapsibleSection'
-import { emptyDog } from '../RegistrationForm'
 
+import { TitlesAndName } from './dogInfo/TitlesAndName'
 import { useDogCache } from './hooks/useDogCache'
 import { validateRegNo } from './validation'
 
-export function shouldAllowRefresh(dog?: Partial<Dog>) {
+export function shouldAllowRefresh(dog?: DeepPartial<Dog>) {
   if (!dog || !dog.regNo) {
     return false
   }
@@ -45,41 +43,117 @@ export const DogInfo = ({ reg, eventDate, minDogAgeMonths, error, helperText, on
   const { t } = useTranslation()
   const { t: breed } = useTranslation('breed')
   const [inputRegNo, setInputRegNo] = useState<string>(reg?.dog?.regNo ?? '')
-  const debouncedRegNo = useDebouncedValue(inputRegNo)
-  const [mode, setMode] = useState<'fetch' | 'manual' | 'update' | 'invalid' | 'notfound'>('update')
+  //const debouncedRegNo = useDebouncedValue(inputRegNo)
+  const [mode, setMode] = useState<'fetch' | 'manual' | 'update' | 'invalid' | 'notfound'>(inputRegNo ? 'update' : 'fetch')
   const disabled = mode !== 'manual'
-  const validRegNo = validateRegNo(debouncedRegNo)
-  const officialDog = useRecoilValue(dogAtom(debouncedRegNo))
-  const [cache, setCache] = useDogCache(debouncedRegNo)
-  const debouncedCache = useDebouncedValue(cache)
-  const allowRefresh = shouldAllowRefresh(officialDog)
+  const validRegNo = validateRegNo(inputRegNo)
+  //const [officialDog, setOfficialDog] = useState<Dog|undefined>()
+  const [cache, setCache] = useDogCache(inputRegNo)
+  const [loading, setLoading] = useState(false)
+  //const debouncedCache = useDebouncedValue(cache)
+  const allowRefresh = shouldAllowRefresh(reg?.dog)
   const cachedRegNos = useRecoilValue(cachedDogRegNumbersSelector)
-  const actions = useDogActions(debouncedRegNo)
+  const actions = useDogActions(inputRegNo)
+
+  /*
+  useEffect(() => {
+    if (inputRegNo !== reg?.dog?.regNo) {
+      setInputRegNo(reg?.dog?.regNo ?? '')
+      setMode(reg?.dog?.regNo ? 'update' : 'fetch')
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reg?.dog?.regNo])
+  */
 
   // @ts-ignore
-  const dog = useMemo(() => merge<Dog>(cache?.dog ?? emptyDog, officialDog ?? {}), [cache?.dog, officialDog])
-  const debouncedDog = useDebouncedValue(dog)
+  //const dog = useMemo(() => merge<Dog>(reg.dog ?? emptyDog, officialDog ?? {}), [officialDog, reg?.dog])
+  //const debouncedDog = useDebouncedValue(dog)
 
   const handleChange = useCallback((props: Partial<Dog & DogCachedInfo>) => {
-    setCache({...cache, dog: {...cache?.dog, ...props}})
-  }, [cache, setCache])
+    console.debug('handleChange', cache?.dog?.regNo, props, cache)
+    const dog = {...cache?.dog, ...props}
+    setCache({...cache, dog})
+    onChange?.({dog})
+  }, [cache, onChange, setCache])
+
+  const updateDog = useCallback((cache?: DeepPartial<DogCachedInfo>) => {
+    const {refreshDate, ...dog} = cache?.dog ?? {}
+    if (hasChanges(reg?.dog, dog)) {
+      const changes: DeepPartial<Registration> = { dog: cache?.dog }
+      if (reg?.dog?.regNo !== cache?.dog?.regNo) {
+        changes.breeder = cache?.breeder
+        changes.handler = cache?.handler
+        changes.owner = cache?.owner
+        changes.ownerHandles = cache?.owner?.ownerHandles ?? true
+        changes.results = []
+        if (!cache) {
+          setCache({ owner: { ownerHandles: true }})
+        }
+      } else if (reg?.dog?.titles && changes.dog && reg.dog.titles.startsWith(changes.dog.titles ?? '')) {
+        // let's not overwrite updated titles
+        changes.dog = { ...changes.dog, titles: reg.dog.titles }
+      }
+      console.log(changes)
+      onChange?.(changes)
+    }
+  }, [onChange, reg?.dog, setCache])
+
+  const buttonClick = useCallback(async () => {
+    setLoading(true)
+    switch (mode) {
+      case 'fetch':
+        const dog = await actions.fetch()
+        updateDog(dog)
+        setMode(dog ? 'update' : 'notfound')
+        break
+      case 'update':
+        updateDog(await actions.refresh())
+        break
+      case 'notfound':
+        setMode('manual')
+        break
+      default:
+        setMode('fetch')
+        break
+    }
+    setLoading(false)
+  }, [actions, mode, updateDog])
 
   const handleRegNoChange = useCallback((event: SyntheticEvent<Element, Event>, value: string | null) => {
-    if (value !== null) {
-      setInputRegNo(value.toUpperCase())
+    if (value !== null && value !== inputRegNo) {
+      console.log('handleRegNoChange', buttonClick, cachedRegNos, inputRegNo, value)
+      const upper = value.toLocaleUpperCase()
+      setInputRegNo(upper)
+      setMode('fetch')
     }
-  }, [])
+  }, [buttonClick, cachedRegNos, inputRegNo])
+
+  useEffect(() => {
+    if (inputRegNo !== reg.dog?.regNo) {
+      console.log(`"${reg.dog?.regNo}" => "${inputRegNo}"`)
+      if (validRegNo || inputRegNo === '') {
+        buttonClick()
+      }
+    }
+  }, [buttonClick, inputRegNo, reg.dog?.regNo, validRegNo])
+
+  /*
+  useEffect(() => {
+    if (debouncedRegNo === inputRegNo && mode === 'fetch' && validRegNo && cachedRegNos.includes(debouncedRegNo)) {
+      buttonClick()
+    }
+  }, [buttonClick, cachedRegNos, debouncedRegNo, inputRegNo, mode, validRegNo])
 
   useEffect(() => {
     if (validRegNo) {
-      setMode(officialDog ? 'update' : 'notfound')
+      setMode(officialDog || reg?.dog?.regNo === inputRegNo ? 'update' : 'notfound')
     } else {
       setMode('fetch')
     }
-  }, [officialDog, validRegNo])
+  }, [inputRegNo, officialDog, reg?.dog?.regNo, validRegNo])
 
   useEffect(() => {
-    if (debouncedDog.regNo !== inputRegNo) {
+    if (debouncedDog.regNo !== inputRegNo || mode === 'fetch' || mode === 'notfound') {
       return
     }
 
@@ -97,24 +171,9 @@ export const DogInfo = ({ reg, eventDate, minDogAgeMonths, error, helperText, on
       }
       onChange?.(changes)
     }
-  }, [debouncedCache, debouncedDog, inputRegNo, onChange, reg.dog, setCache])
+  }, [debouncedCache, debouncedDog, inputRegNo, mode, onChange, reg?.dog, setCache])
+  */
 
-  async function buttonClick() {
-    switch (mode) {
-      case 'fetch':
-        // setRegNo(inputRegNo)
-        break
-      case 'update':
-        await actions.refresh()
-        break
-      case 'notfound':
-        setMode('manual')
-        break
-      default:
-        setMode('fetch')
-        break
-    }
-  }
   return (
     <CollapsibleSection title={t('registration.dog')} error={error} helperText={helperText} open={open} onOpenChange={onOpenChange}>
       <Stack direction="row" spacing={1} alignItems="flex-end">
@@ -130,9 +189,10 @@ export const DogInfo = ({ reg, eventDate, minDogAgeMonths, error, helperText, on
           sx={{ minWidth: 200 }}
         />
         <Stack alignItems="flex-start">
-          <FormHelperText error={mode === 'notfound' || mode === 'invalid'}>{t(`registration.cta.helper.${mode}`, { date: dog?.refreshDate })}</FormHelperText>
+          <FormHelperText error={mode === 'notfound' || mode === 'invalid'}>{t(`registration.cta.helper.${mode}`, { date: reg?.dog?.refreshDate })}</FormHelperText>
           <LoadingButton
             disabled={!validRegNo || (mode === 'update' && !allowRefresh)}
+            loading={loading}
             startIcon={<CachedOutlined />}
             size="small"
             variant="outlined"
@@ -146,31 +206,31 @@ export const DogInfo = ({ reg, eventDate, minDogAgeMonths, error, helperText, on
       <Grid container spacing={1} sx={{ mt: 0.5 }}>
         <Grid item>
           <TextField
-            className={disabled && dog?.rfid ? 'fact' : ''}
+            className={disabled && reg?.dog?.rfid ? 'fact' : ''}
             disabled={disabled}
             fullWidth
             label={t('dog.rfid')}
-            value={dog?.rfid || ''}
-            error={!disabled && !dog?.rfid}
+            value={reg?.dog?.rfid || ''}
+            error={!disabled && !reg?.dog?.rfid}
             onChange={(e) => handleChange({ rfid: e.target.value })}
           />
         </Grid>
         <Grid item sx={{ width: 280 }}>
           <AutocompleteSingle<BreedCode | '', true>
-            className={disabled && dog?.breedCode ? 'fact' : ''}
+            className={disabled && reg?.dog?.breedCode ? 'fact' : ''}
             disableClearable
             disabled={disabled}
-            error={!disabled && !dog?.breedCode}
+            error={!disabled && !reg?.dog?.breedCode}
             getOptionLabel={(o) => o ? breed(o) : ''}
             isOptionEqualToValue={(o, v) => o === v}
             label={t('dog.breed')}
             onChange={(value) => handleChange({ breedCode: value ? value : undefined })}
             options={['122', '111', '121', '312', '110', '263']}
-            value={dog?.breedCode}
+            value={reg?.dog?.breedCode}
           />
         </Grid>
         <Grid item xs={'auto'}>
-          <FormControl sx={{ width: 146 }} className={disabled && dog?.dob ? 'fact' : ''}>
+          <FormControl sx={{ width: 146 }} className={disabled && reg?.dog?.dob ? 'fact' : ''}>
             <DatePicker
               defaultCalendarMonth={subYears(new Date(), 2)}
               disabled={disabled}
@@ -182,35 +242,36 @@ export const DogInfo = ({ reg, eventDate, minDogAgeMonths, error, helperText, on
               onChange={(value: any) => value && handleChange({ dob: value })}
               openTo={'year'}
               renderInput={(params: JSX.IntrinsicAttributes & TextFieldProps) => <TextField {...params} />}
-              value={dog?.dob || null}
+              value={reg?.dog?.dob || null}
               views={['year', 'month', 'day']}
             />
           </FormControl>
         </Grid>
         <Grid item xs={'auto'} sx={{ minWidth: 128 }}>
           <AutocompleteSingle<DogGender | '', true>
-            className={disabled && dog?.gender ? 'fact' : ''}
+            className={disabled && reg?.dog?.gender ? 'fact' : ''}
             disableClearable
             disabled={disabled}
-            error={!disabled && !dog?.gender}
+            error={!disabled && !reg?.dog?.gender}
             getOptionLabel={o => o ? t(`dog.gender_choises.${o}`) : ''}
             isOptionEqualToValue={(o, v) => o === v}
             label={t('dog.gender')}
             onChange={(value) => handleChange({ gender: value ? value : undefined })}
             options={['F', 'M'] as DogGender[]}
-            value={dog?.gender || ''}
+            value={reg?.dog?.gender || ''}
           />
         </Grid>
         <Grid item container spacing={1}>
           <TitlesAndName
-            className={disabled && dog?.breedCode ? 'fact' : ''}
+            className={disabled && reg?.dog?.breedCode ? 'fact' : ''}
             disabledTitle={disabled && mode !== 'update'}
             disabledName={disabled}
             id="dog"
-            name={dog?.name}
+            name={reg?.dog?.name}
             nameLabel={t('dog.name')}
             onChange={props => handleChange(props)}
-            titles={dog?.titles}
+            regNo={reg?.dog?.regNo}
+            titles={reg?.dog?.titles}
             titlesLabel={t('dog.titles')}
           />
         </Grid>
@@ -219,10 +280,11 @@ export const DogInfo = ({ reg, eventDate, minDogAgeMonths, error, helperText, on
             disabledTitle={disabled && mode !== 'update'}
             disabledName={disabled && mode !== 'update'}
             id="sire"
-            name={dog?.sire?.name}
+            name={reg?.dog?.sire?.name}
             nameLabel={t('dog.sire.name')}
             onChange={props => handleChange({ sire: props })}
-            titles={dog?.sire?.titles}
+            regNo={reg?.dog?.regNo}
+            titles={reg?.dog?.sire?.titles}
             titlesLabel={t('dog.sire.titles')}
           />
         </Grid>
@@ -231,10 +293,11 @@ export const DogInfo = ({ reg, eventDate, minDogAgeMonths, error, helperText, on
             disabledTitle={disabled && mode !== 'update'}
             disabledName={disabled && mode !== 'update'}
             id="dam"
-            name={dog?.dam?.name}
+            name={reg?.dog?.dam?.name}
             nameLabel={t('dog.dam.name')}
             onChange={props => handleChange({ dam: props })}
-            titles={dog?.dam?.titles}
+            regNo={reg?.dog?.regNo}
+            titles={reg?.dog?.dam?.titles}
             titlesLabel={t('dog.dam.titles')}
           />
         </Grid>
@@ -243,44 +306,4 @@ export const DogInfo = ({ reg, eventDate, minDogAgeMonths, error, helperText, on
   )
 }
 
-type TitlesAndNameProps = {
-  className?: string
-  disabledName: boolean
-  disabledTitle: boolean
-  id: string
-  name?: string
-  nameLabel: string
-  onChange: (props: { titles?: string, name?: string }) => void
-  titles?: string
-  titlesLabel: string
-}
-function TitlesAndName(props: TitlesAndNameProps) {
 
-  return (
-    <Grid item container spacing={1}>
-      <Grid item>
-        <TextField
-          className={props.className}
-          disabled={props.disabledTitle}
-          id={`${props.id}_titles`}
-          label={props.titlesLabel}
-          onChange={(e) => props.onChange({ name: props.name, titles: e.target.value.toLocaleUpperCase() })}
-          sx={{ width: 300 }}
-          value={props.titles || ''}
-        />
-      </Grid>
-      <Grid item>
-        <TextField
-          className={props.className}
-          disabled={props.disabledName}
-          error={!props.disabledName && !props.name}
-          id={`${props.id}_name`}
-          label={props.nameLabel}
-          onChange={(e) => props.onChange({ name: e.target.value.toLocaleUpperCase(), titles: props.titles })}
-          sx={{ width: 450 }}
-          value={props.name || ''}
-        />
-      </Grid>
-    </Grid>
-  )
-}

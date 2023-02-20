@@ -7,7 +7,6 @@ import { useRecoilState, useRecoilValue } from 'recoil'
 
 import { Path } from '../../routeConfig'
 import { uniqueClassDates, uniqueClasses } from '../../utils'
-import CollapsibleSection from '../components/CollapsibleSection'
 import LinkButton from '../components/LinkButton'
 
 import FullPageFlex from './components/FullPageFlex'
@@ -17,7 +16,7 @@ import RegistraionEditDialog from './eventViewPage/RegistrationEditDialog'
 import SendMessageDialog from './eventViewPage/SendMessageDialog'
 import TabPanel from './eventViewPage/TabPanel'
 import Title from './eventViewPage/Title'
-import { currentAdminRegistrationSelector, currentEventClassRegistrationsSelector, editableEventByIdAtom, eventClassAtom } from './recoil'
+import { adminRegistrationIdAtom, currentEventClassRegistrationsSelector, editableEventByIdAtom, eventClassAtom } from './recoil'
 
 export default function EventViewPage() {
   const { t } = useTranslation()
@@ -35,7 +34,7 @@ export default function EventViewPage() {
   }, [event])
   const [selectedEventClass, setSelectedEventClass] = useRecoilState(eventClassAtom)
   const activeTab = useMemo(() => Math.max(eventClasses.findIndex(c => c === selectedEventClass) ?? 0, 0), [eventClasses, selectedEventClass])
-  const selectedRegistration = useRecoilValue(currentAdminRegistrationSelector)
+  const [selectedRegistrationId, setSelectedRegistrationId] = useRecoilState(adminRegistrationIdAtom)
   const registrations = useRecoilValue(currentEventClassRegistrationsSelector)
 
   const handleTabChange = useCallback((_: React.SyntheticEvent, newValue: number) => {
@@ -66,10 +65,6 @@ export default function EventViewPage() {
           <Grid item xs>
             <LinkButton sx={{ mb: 1 }} to={Path.admin.events} text={t('goBack')} />
             <Title event={event} />
-            <CollapsibleSection title="Kokeen tiedot" initOpen={false}>
-                Kokeen tarkat tiedot tähän...
-            </CollapsibleSection>
-              Filttereitä tähän...
           </Grid>
           <Grid item xs="auto">
             <InfoPanel event={event} registrations={registrations} />
@@ -83,7 +78,9 @@ export default function EventViewPage() {
           <Button startIcon={<ShuffleOutlined />} disabled>Arvo kokeen osallistujat</Button>
           <Divider orientation='vertical'></Divider>
           <Button startIcon={<AddCircleOutline />} onClick={() => { setOpen(true) }}>{t('create')}</Button>
-          <Button startIcon={<EditOutlined />} disabled={!selectedRegistration} onClick={() => setOpen(true)}>{t('edit')}</Button>
+          <Button startIcon={<EditOutlined />} disabled={!selectedRegistrationId} onClick={() => {
+            setOpen(true)
+          }}>{t('edit')}</Button>
           <Button startIcon={<DeleteOutline />} disabled>{t('delete')}</Button>
         </Stack>
 
@@ -99,13 +96,17 @@ export default function EventViewPage() {
               eventDates={uniqueClassDates(event, eventClass)}
               registrations={registrations}
               setOpen={setOpen}
+              selectedRegistrationId={selectedRegistrationId}
+              setSelectedRegistrationId={setSelectedRegistrationId}
             />
           </TabPanel>,
         )}
 
         <Suspense>
-          <RegistraionEditDialog open={open} onClose={handleClose}/>
-          <SendMessageDialog registrations={selectedRegistration ? [selectedRegistration] : []} open={msgDlgOpen} onClose={closeMsgDlg} event={event} />
+          <RegistraionEditDialog registrationId={open ? selectedRegistrationId ?? '' : ''} open={open} onClose={handleClose}/>
+        </Suspense>
+        <Suspense>
+          <SendMessageDialog registrations={registrations} open={msgDlgOpen} onClose={closeMsgDlg} event={event} />
         </Suspense>
       </FullPageFlex>
     </>

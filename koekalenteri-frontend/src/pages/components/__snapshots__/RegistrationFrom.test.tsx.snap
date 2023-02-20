@@ -482,9 +482,9 @@ exports[`RegistrationForm renders 1`] = `
                       class="css-1a69w1n-MuiStack-root"
                     >
                       <p
-                        class="MuiFormHelperText-root Mui-error css-w5l3sh-MuiFormHelperText-root"
+                        class="MuiFormHelperText-root css-w5l3sh-MuiFormHelperText-root"
                       >
-                        registration.cta.helper.notfound
+                        registration.cta.helper.update
                       </p>
                       <button
                         class="MuiButtonBase-root MuiButton-root MuiLoadingButton-root MuiButton-outlined MuiButton-outlinedInfo MuiButton-sizeSmall MuiButton-outlinedSizeSmall MuiButton-root MuiLoadingButton-root MuiButton-outlined MuiButton-outlinedInfo MuiButton-sizeSmall MuiButton-outlinedSizeSmall css-1pa956v-MuiButtonBase-root-MuiButton-root-MuiLoadingButton-root"
@@ -507,7 +507,7 @@ exports[`RegistrationForm renders 1`] = `
                             />
                           </svg>
                         </span>
-                        registration.cta.notfound
+                        registration.cta.update
                         <span
                           class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
                         />
@@ -521,11 +521,11 @@ exports[`RegistrationForm renders 1`] = `
                       class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                     >
                       <div
-                        class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                        class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root fact css-wb57ya-MuiFormControl-root-MuiTextField-root"
                       >
                         <label
-                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
-                          data-shrink="false"
+                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-19cu7oy-MuiFormLabel-root-MuiInputLabel-root"
+                          data-shrink="true"
                           for=":r9:"
                           id=":r9:-label"
                         >
@@ -540,14 +540,14 @@ exports[`RegistrationForm renders 1`] = `
                             disabled=""
                             id=":r9:"
                             type="text"
-                            value=""
+                            value="1234567890123456"
                           />
                           <fieldset
                             aria-hidden="true"
                             class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                           >
                             <legend
-                              class="css-yjsfm1"
+                              class="css-14lo706"
                             >
                               <span>
                                 dog.rfid
@@ -561,15 +561,15 @@ exports[`RegistrationForm renders 1`] = `
                       class="MuiGrid-root MuiGrid-item css-6zx0md-MuiGrid-root"
                     >
                       <div
-                        class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-qm9mjt-MuiAutocomplete-root"
+                        class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon fact css-qm9mjt-MuiAutocomplete-root"
                         data-testid="dog.breed"
                       >
                         <div
                           class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                         >
                           <label
-                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
-                            data-shrink="false"
+                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-19cu7oy-MuiFormLabel-root-MuiInputLabel-root"
+                            data-shrink="true"
                             for=":ra:"
                             id=":ra:-label"
                           >
@@ -590,7 +590,7 @@ exports[`RegistrationForm renders 1`] = `
                               role="combobox"
                               spellcheck="false"
                               type="text"
-                              value=""
+                              value="110"
                             />
                             <div
                               class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
@@ -621,7 +621,7 @@ exports[`RegistrationForm renders 1`] = `
                               class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                             >
                               <legend
-                                class="css-yjsfm1"
+                                class="css-14lo706"
                               >
                                 <span>
                                   dog.breed
@@ -636,14 +636,14 @@ exports[`RegistrationForm renders 1`] = `
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-auto css-kcsfla-MuiGrid-root"
                     >
                       <div
-                        class="MuiFormControl-root css-1mtwmd6-MuiFormControl-root"
+                        class="MuiFormControl-root fact css-1mtwmd6-MuiFormControl-root"
                       >
                         <div
                           class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
                         >
                           <label
-                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
-                            data-shrink="false"
+                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-19cu7oy-MuiFormLabel-root-MuiInputLabel-root"
+                            data-shrink="true"
                             for=":rc:"
                             id=":rc:-label"
                           >
@@ -654,21 +654,21 @@ exports[`RegistrationForm renders 1`] = `
                           >
                             <input
                               aria-invalid="false"
-                              aria-label="Choose date"
+                              aria-label="Choose date, selected date is 10. huhti 2020"
                               aria-readonly="true"
                               class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-readOnly css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
                               disabled=""
                               id=":rc:"
                               readonly=""
                               type="text"
-                              value=""
+                              value="10.04.2020"
                             />
                             <fieldset
                               aria-hidden="true"
                               class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                             >
                               <legend
-                                class="css-yjsfm1"
+                                class="css-14lo706"
                               >
                                 <span>
                                   dog.dob
@@ -683,15 +683,15 @@ exports[`RegistrationForm renders 1`] = `
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-auto css-61jx83-MuiGrid-root"
                     >
                       <div
-                        class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-qm9mjt-MuiAutocomplete-root"
+                        class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon fact css-qm9mjt-MuiAutocomplete-root"
                         data-testid="dog.gender"
                       >
                         <div
                           class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                         >
                           <label
-                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
-                            data-shrink="false"
+                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-19cu7oy-MuiFormLabel-root-MuiInputLabel-root"
+                            data-shrink="true"
                             for=":re:"
                             id=":re:-label"
                           >
@@ -712,7 +712,7 @@ exports[`RegistrationForm renders 1`] = `
                               role="combobox"
                               spellcheck="false"
                               type="text"
-                              value=""
+                              value="dog.gender_choises.M"
                             />
                             <div
                               class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
@@ -743,7 +743,7 @@ exports[`RegistrationForm renders 1`] = `
                               class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                             >
                               <legend
-                                class="css-yjsfm1"
+                                class="css-14lo706"
                               >
                                 <span>
                                   dog.gender
@@ -764,33 +764,32 @@ exports[`RegistrationForm renders 1`] = `
                           class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                         >
                           <div
-                            class="MuiFormControl-root MuiTextField-root css-9ahdq0-MuiFormControl-root-MuiTextField-root"
+                            class="MuiFormControl-root MuiTextField-root fact css-9ahdq0-MuiFormControl-root-MuiTextField-root"
                           >
                             <label
-                              class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
-                              data-shrink="false"
+                              class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-19cu7oy-MuiFormLabel-root-MuiInputLabel-root"
+                              data-shrink="true"
                               for="dog_titles"
                               id="dog_titles-label"
                             >
                               dog.titles
                             </label>
                             <div
-                              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-formControl css-18jsfs7-MuiInputBase-root-MuiOutlinedInput-root"
+                              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-18jsfs7-MuiInputBase-root-MuiOutlinedInput-root"
                             >
                               <input
                                 aria-invalid="false"
-                                class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
-                                disabled=""
+                                class="MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
                                 id="dog_titles"
                                 type="text"
-                                value=""
+                                value="Dog titles"
                               />
                               <fieldset
                                 aria-hidden="true"
                                 class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                               >
                                 <legend
-                                  class="css-yjsfm1"
+                                  class="css-14lo706"
                                 >
                                   <span>
                                     dog.titles
@@ -804,11 +803,11 @@ exports[`RegistrationForm renders 1`] = `
                           class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                         >
                           <div
-                            class="MuiFormControl-root MuiTextField-root css-1m77des-MuiFormControl-root-MuiTextField-root"
+                            class="MuiFormControl-root MuiTextField-root fact css-1m77des-MuiFormControl-root-MuiTextField-root"
                           >
                             <label
-                              class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
-                              data-shrink="false"
+                              class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-19cu7oy-MuiFormLabel-root-MuiInputLabel-root"
+                              data-shrink="true"
                               for="dog_name"
                               id="dog_name-label"
                             >
@@ -823,14 +822,14 @@ exports[`RegistrationForm renders 1`] = `
                                 disabled=""
                                 id="dog_name"
                                 type="text"
-                                value=""
+                                value="Dog Name 10"
                               />
                               <fieldset
                                 aria-hidden="true"
                                 class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                               >
                                 <legend
-                                  class="css-yjsfm1"
+                                  class="css-14lo706"
                                 >
                                   <span>
                                     dog.name
@@ -855,30 +854,29 @@ exports[`RegistrationForm renders 1`] = `
                             class="MuiFormControl-root MuiTextField-root css-9ahdq0-MuiFormControl-root-MuiTextField-root"
                           >
                             <label
-                              class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
-                              data-shrink="false"
+                              class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-19cu7oy-MuiFormLabel-root-MuiInputLabel-root"
+                              data-shrink="true"
                               for="sire_titles"
                               id="sire_titles-label"
                             >
                               dog.sire.titles
                             </label>
                             <div
-                              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-formControl css-18jsfs7-MuiInputBase-root-MuiOutlinedInput-root"
+                              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-18jsfs7-MuiInputBase-root-MuiOutlinedInput-root"
                             >
                               <input
                                 aria-invalid="false"
-                                class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
-                                disabled=""
+                                class="MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
                                 id="sire_titles"
                                 type="text"
-                                value=""
+                                value="Sire titles"
                               />
                               <fieldset
                                 aria-hidden="true"
                                 class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                               >
                                 <legend
-                                  class="css-yjsfm1"
+                                  class="css-14lo706"
                                 >
                                   <span>
                                     dog.sire.titles
@@ -895,30 +893,29 @@ exports[`RegistrationForm renders 1`] = `
                             class="MuiFormControl-root MuiTextField-root css-1m77des-MuiFormControl-root-MuiTextField-root"
                           >
                             <label
-                              class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
-                              data-shrink="false"
+                              class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-19cu7oy-MuiFormLabel-root-MuiInputLabel-root"
+                              data-shrink="true"
                               for="sire_name"
                               id="sire_name-label"
                             >
                               dog.sire.name
                             </label>
                             <div
-                              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-formControl css-18jsfs7-MuiInputBase-root-MuiOutlinedInput-root"
+                              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-18jsfs7-MuiInputBase-root-MuiOutlinedInput-root"
                             >
                               <input
                                 aria-invalid="false"
-                                class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
-                                disabled=""
+                                class="MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
                                 id="sire_name"
                                 type="text"
-                                value=""
+                                value="Sire Name"
                               />
                               <fieldset
                                 aria-hidden="true"
                                 class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                               >
                                 <legend
-                                  class="css-yjsfm1"
+                                  class="css-14lo706"
                                 >
                                   <span>
                                     dog.sire.name
@@ -943,30 +940,29 @@ exports[`RegistrationForm renders 1`] = `
                             class="MuiFormControl-root MuiTextField-root css-9ahdq0-MuiFormControl-root-MuiTextField-root"
                           >
                             <label
-                              class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
-                              data-shrink="false"
+                              class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-19cu7oy-MuiFormLabel-root-MuiInputLabel-root"
+                              data-shrink="true"
                               for="dam_titles"
                               id="dam_titles-label"
                             >
                               dog.dam.titles
                             </label>
                             <div
-                              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-formControl css-18jsfs7-MuiInputBase-root-MuiOutlinedInput-root"
+                              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-18jsfs7-MuiInputBase-root-MuiOutlinedInput-root"
                             >
                               <input
                                 aria-invalid="false"
-                                class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
-                                disabled=""
+                                class="MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
                                 id="dam_titles"
                                 type="text"
-                                value=""
+                                value="Dam titles"
                               />
                               <fieldset
                                 aria-hidden="true"
                                 class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                               >
                                 <legend
-                                  class="css-yjsfm1"
+                                  class="css-14lo706"
                                 >
                                   <span>
                                     dog.dam.titles
@@ -983,30 +979,29 @@ exports[`RegistrationForm renders 1`] = `
                             class="MuiFormControl-root MuiTextField-root css-1m77des-MuiFormControl-root-MuiTextField-root"
                           >
                             <label
-                              class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
-                              data-shrink="false"
+                              class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-19cu7oy-MuiFormLabel-root-MuiInputLabel-root"
+                              data-shrink="true"
                               for="dam_name"
                               id="dam_name-label"
                             >
                               dog.dam.name
                             </label>
                             <div
-                              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-formControl css-18jsfs7-MuiInputBase-root-MuiOutlinedInput-root"
+                              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl css-18jsfs7-MuiInputBase-root-MuiOutlinedInput-root"
                             >
                               <input
                                 aria-invalid="false"
-                                class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
-                                disabled=""
+                                class="MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
                                 id="dam_name"
                                 type="text"
-                                value=""
+                                value="Dam Name"
                               />
                               <fieldset
                                 aria-hidden="true"
                                 class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                               >
                                 <legend
-                                  class="css-yjsfm1"
+                                  class="css-14lo706"
                                 >
                                   <span>
                                     dog.dam.name

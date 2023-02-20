@@ -4,6 +4,7 @@ import { atom, atomFamily } from 'recoil'
 import { logEffect, storageEffect } from '../../../recoil'
 
 import { remoteRegistrationsEffect } from './effects'
+import { currentAdminEventRegistrationSelector } from './selectors'
 
 
 export const adminRegistrationIdAtom = atom<string | undefined>({
@@ -20,5 +21,14 @@ export const eventRegistrationsAtom = atomFamily<Registration[], string>({
   effects: [
     logEffect,
     remoteRegistrationsEffect,
+  ],
+})
+
+export const editableCurrentAdminEventRegistrationByIdAtom = atomFamily<Registration | undefined, string>({
+  key: 'editableCurrentAdminEventRegistration/Id',
+  default: currentAdminEventRegistrationSelector,
+  effects: [
+    logEffect,
+    storageEffect,
   ],
 })

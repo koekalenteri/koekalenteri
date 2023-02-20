@@ -15,7 +15,7 @@ import CollapsibleSection from '../CollapsibleSection'
 import { objectContains } from './validation'
 
 type QualifyingResultsInfoProps = {
-  reg: Registration
+  reg: Partial<Registration>
   error?: boolean
   helperText?: string
   onChange?: (props: Partial<Registration>) => void
@@ -27,12 +27,16 @@ const asArray = (v: EventResultRequirements | EventResultRequirement) => Array.i
 
 export default function QualifyingResultsInfo({ reg, error, helperText, onChange, onOpenChange, open }: QualifyingResultsInfoProps) {
   const { t } = useTranslation()
-  const requirements = useMemo(() => getRequirements(reg.eventType, reg.class as RegistrationClass, reg.dates && reg.dates.length ? reg.dates[0].date : new Date()), [reg.eventType, reg.class, reg.dates])
+  const requirements = useMemo(() => getRequirements(reg.eventType ?? '', reg.class as RegistrationClass, reg.dates && reg.dates.length ? reg.dates[0].date : new Date()), [reg.eventType, reg.class, reg.dates])
   const disableResultInput = !requirements?.rules.length || !reg.dog?.regNo
   const sendChange = useMemo(() => onChange && debounce(onChange, 300), [onChange])
 
   const results = useMemo(() => {
-    const newResults: Array<ManualTestResult> = (reg.qualifyingResults || []).map(r => ({ ...r, id: getResultId(r), regNo: reg.dog.regNo }))
+    const regNo = reg.dog?.regNo
+    if (!regNo) {
+      return []
+    }
+    const newResults: Array<ManualTestResult> = (reg.qualifyingResults || []).map(r => ({ ...r, id: getResultId(r), regNo }))
     if (reg.results) {
       for (const result of reg.results) {
         if (!newResults.find(r => !r.official && r.id && r.id === result.id)) {
@@ -51,7 +55,7 @@ export default function QualifyingResultsInfo({ reg, error, helperText, onChange
       sendChange?.({ results: newResults.filter(r => !r.official) })
     }
   }
-  const handleAddResult = () => onChange?.({ results: (reg.results || []).concat([createMissingResult(requirements, results, reg.dog.regNo)]) })
+  const handleAddResult = () => onChange?.({ results: (reg.results || []).concat([createMissingResult(requirements, results, reg.dog?.regNo ?? '')]) })
 
   return (
     <CollapsibleSection title={t('registration.qualifyingResults')} error={error} helperText={helperText} open={open} onOpenChange={onOpenChange}>
