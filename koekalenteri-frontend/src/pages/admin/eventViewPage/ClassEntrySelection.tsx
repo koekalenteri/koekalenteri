@@ -91,6 +91,7 @@ const ClassEntrySelection = ({ eventDates = [], registrations = [], setOpen }: P
       </Box>
       {eventGroups.map((group) =>
         <DragableDataGrid
+          autoHeight
           key={group.key}
           group={group.key}
           columns={participantColumns}
@@ -117,8 +118,9 @@ const ClassEntrySelection = ({ eventDates = [], registrations = [], setOpen }: P
       )}
       <Typography variant='h5'>Ilmoittautuneet</Typography>
       <DragableDataGrid
+        autoHeight
         columns={entryColumns}
-        flex={eventGroups.length || 1}
+        hideFooter
         rows={registrationsByGroup.reserve}
         onSelectionModelChange={handleSelectionModeChange}
         selectionModel={selectedRegistrationID ? [selectedRegistrationID] : []}
@@ -129,8 +131,12 @@ const ClassEntrySelection = ({ eventDates = [], registrations = [], setOpen }: P
         <>
           <Typography variant='h5'>Peruneet</Typography>
           <StyledDataGrid
+            autoHeight
             columns={entryColumns}
+            hideFooter
             rows={registrationsByGroup.cancelled}
+            onSelectionModelChange={handleSelectionModeChange}
+            selectionModel={selectedRegistrationID ? [selectedRegistrationID] : []}
           />
         </>
         : null

@@ -746,7 +746,7 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
       aria-colcount="8"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-root--densityCompact css-1d0auko-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-1d0auko-MuiDataGrid-root"
       role="grid"
     >
       <div>
@@ -756,7 +756,7 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
         class="MuiDataGrid-main css-204u17-MuiDataGrid-main"
       >
         <div
-          style="height: -39px; width: 0px; position: absolute; top: 39px;"
+          style="height: auto; width: 0px; position: absolute; top: 39px; bottom: 0px;"
         >
           <div
             class="MuiDataGrid-overlay css-c1gd0l-MuiDataGrid-overlay"
@@ -1364,15 +1364,15 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
           </div>
         </div>
         <div
-          style="overflow: visible; height: 0px; width: 0px;"
+          style="overflow: visible; width: 0px;"
         >
           <div
             class="MuiDataGrid-virtualScroller css-1w5m2wr-MuiDataGrid-virtualScroller"
-            style="width: 0px; height: auto; margin-top: 39px; overflow-x: hidden;"
+            style="width: 0px; height: auto; margin-top: 39px; overflow-x: hidden; overflow-y: hidden;"
           >
             <div
-              class="MuiDataGrid-virtualScrollerContent MuiDataGrid-virtualScrollerContent--overflowed css-1kwdphh-MuiDataGrid-virtualScrollerContent"
-              style="width: auto; height: 1px; min-height: auto;"
+              class="MuiDataGrid-virtualScrollerContent css-1kwdphh-MuiDataGrid-virtualScrollerContent"
+              style="width: auto; height: 72px; min-height: auto;"
             >
               <div
                 class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"
@@ -1394,73 +1394,6 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
           <div
             class="contract-trigger"
           />
-        </div>
-      </div>
-      <div>
-        <div
-          class="MuiDataGrid-footerContainer css-17jjc08-MuiDataGrid-footerContainer"
-        >
-          <div />
-          <div
-            class="MuiTablePagination-root css-rtrcn9-MuiTablePagination-root"
-          >
-            <div
-              class="MuiToolbar-root MuiToolbar-gutters MuiToolbar-regular MuiTablePagination-toolbar css-78c6dr-MuiToolbar-root-MuiTablePagination-toolbar"
-            >
-              <div
-                class="MuiTablePagination-spacer css-1psng7p-MuiTablePagination-spacer"
-              />
-              <p
-                class="MuiTablePagination-displayedRows css-levciy-MuiTablePagination-displayedRows"
-              >
-                0–0 of 0
-              </p>
-              <div
-                class="MuiTablePagination-actions"
-              >
-                <button
-                  aria-label="Go to previous page"
-                  class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorInherit MuiIconButton-sizeMedium css-zylse7-MuiButtonBase-root-MuiIconButton-root"
-                  disabled=""
-                  tabindex="-1"
-                  title="Go to previous page"
-                  type="button"
-                >
-                  <svg
-                    aria-hidden="true"
-                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                    data-testid="KeyboardArrowLeftIcon"
-                    focusable="false"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      d="M15.41 16.09l-4.58-4.59 4.58-4.59L14 5.5l-6 6 6 6z"
-                    />
-                  </svg>
-                </button>
-                <button
-                  aria-label="Go to next page"
-                  class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorInherit MuiIconButton-sizeMedium css-zylse7-MuiButtonBase-root-MuiIconButton-root"
-                  disabled=""
-                  tabindex="-1"
-                  title="Go to next page"
-                  type="button"
-                >
-                  <svg
-                    aria-hidden="true"
-                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                    data-testid="KeyboardArrowRightIcon"
-                    focusable="false"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      d="M8.59 16.34l4.58-4.59-4.58-4.59L10 5.75l6 6-6 6z"
-                    />
-                  </svg>
-                </button>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>
@@ -2209,7 +2142,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
       aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-root--densityCompact css-1d0auko-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-1d0auko-MuiDataGrid-root"
       role="grid"
     >
       <div>
@@ -2235,7 +2168,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
         class="MuiDataGrid-main css-204u17-MuiDataGrid-main"
       >
         <div
-          style="height: 0px; width: 0px; position: absolute; top: 0px;"
+          style="height: auto; width: 0px; position: absolute; top: 0px; bottom: 0px;"
         >
           <div
             class="no-rows MuiBox-root css-1jpcp03"
@@ -2916,15 +2849,15 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
           </div>
         </div>
         <div
-          style="overflow: visible; height: 0px; width: 0px;"
+          style="overflow: visible; width: 0px;"
         >
           <div
             class="MuiDataGrid-virtualScroller css-1w5m2wr-MuiDataGrid-virtualScroller"
-            style="width: 0px; height: auto; margin-top: 0px; overflow-x: hidden;"
+            style="width: 0px; height: auto; margin-top: 0px; overflow-x: hidden; overflow-y: hidden;"
           >
             <div
-              class="MuiDataGrid-virtualScrollerContent MuiDataGrid-virtualScrollerContent--overflowed css-1kwdphh-MuiDataGrid-virtualScrollerContent"
-              style="width: auto; height: 1px; min-height: auto;"
+              class="MuiDataGrid-virtualScrollerContent css-1kwdphh-MuiDataGrid-virtualScrollerContent"
+              style="width: auto; height: 72px; min-height: auto;"
             >
               <div
                 class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"
@@ -2958,7 +2891,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
       aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-root--densityCompact css-1d0auko-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-1d0auko-MuiDataGrid-root"
       role="grid"
     >
       <div>
@@ -2984,7 +2917,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
         class="MuiDataGrid-main css-204u17-MuiDataGrid-main"
       >
         <div
-          style="height: 0px; width: 0px; position: absolute; top: 0px;"
+          style="height: auto; width: 0px; position: absolute; top: 0px; bottom: 0px;"
         >
           <div
             class="no-rows MuiBox-root css-1jpcp03"
@@ -3665,15 +3598,15 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
           </div>
         </div>
         <div
-          style="overflow: visible; height: 0px; width: 0px;"
+          style="overflow: visible; width: 0px;"
         >
           <div
             class="MuiDataGrid-virtualScroller css-1w5m2wr-MuiDataGrid-virtualScroller"
-            style="width: 0px; height: auto; margin-top: 0px; overflow-x: hidden;"
+            style="width: 0px; height: auto; margin-top: 0px; overflow-x: hidden; overflow-y: hidden;"
           >
             <div
-              class="MuiDataGrid-virtualScrollerContent MuiDataGrid-virtualScrollerContent--overflowed css-1kwdphh-MuiDataGrid-virtualScrollerContent"
-              style="width: auto; height: 1px; min-height: auto;"
+              class="MuiDataGrid-virtualScrollerContent css-1kwdphh-MuiDataGrid-virtualScrollerContent"
+              style="width: auto; height: 72px; min-height: auto;"
             >
               <div
                 class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"
@@ -3706,13 +3639,13 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
   </h5>
   <div
     class=""
-    style="display: flex; flex: 2; width: 100%; height: 100%;"
+    style="display: flex; flex: 1; width: 100%; height: 100%;"
   >
     <div
       aria-colcount="8"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-root--densityCompact css-1d0auko-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-1d0auko-MuiDataGrid-root"
       role="grid"
     >
       <div>
@@ -3722,7 +3655,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
         class="MuiDataGrid-main css-204u17-MuiDataGrid-main"
       >
         <div
-          style="height: -39px; width: 0px; position: absolute; top: 39px;"
+          style="height: auto; width: 0px; position: absolute; top: 39px; bottom: 0px;"
         >
           <div
             class="MuiDataGrid-overlay css-c1gd0l-MuiDataGrid-overlay"
@@ -4330,15 +4263,15 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
           </div>
         </div>
         <div
-          style="overflow: visible; height: 0px; width: 0px;"
+          style="overflow: visible; width: 0px;"
         >
           <div
             class="MuiDataGrid-virtualScroller css-1w5m2wr-MuiDataGrid-virtualScroller"
-            style="width: 0px; height: auto; margin-top: 39px; overflow-x: hidden;"
+            style="width: 0px; height: auto; margin-top: 39px; overflow-x: hidden; overflow-y: hidden;"
           >
             <div
-              class="MuiDataGrid-virtualScrollerContent MuiDataGrid-virtualScrollerContent--overflowed css-1kwdphh-MuiDataGrid-virtualScrollerContent"
-              style="width: auto; height: 1px; min-height: auto;"
+              class="MuiDataGrid-virtualScrollerContent css-1kwdphh-MuiDataGrid-virtualScrollerContent"
+              style="width: auto; height: 72px; min-height: auto;"
             >
               <div
                 class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"
@@ -4360,73 +4293,6 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
           <div
             class="contract-trigger"
           />
-        </div>
-      </div>
-      <div>
-        <div
-          class="MuiDataGrid-footerContainer css-17jjc08-MuiDataGrid-footerContainer"
-        >
-          <div />
-          <div
-            class="MuiTablePagination-root css-rtrcn9-MuiTablePagination-root"
-          >
-            <div
-              class="MuiToolbar-root MuiToolbar-gutters MuiToolbar-regular MuiTablePagination-toolbar css-78c6dr-MuiToolbar-root-MuiTablePagination-toolbar"
-            >
-              <div
-                class="MuiTablePagination-spacer css-1psng7p-MuiTablePagination-spacer"
-              />
-              <p
-                class="MuiTablePagination-displayedRows css-levciy-MuiTablePagination-displayedRows"
-              >
-                0–0 of 0
-              </p>
-              <div
-                class="MuiTablePagination-actions"
-              >
-                <button
-                  aria-label="Go to previous page"
-                  class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorInherit MuiIconButton-sizeMedium css-zylse7-MuiButtonBase-root-MuiIconButton-root"
-                  disabled=""
-                  tabindex="-1"
-                  title="Go to previous page"
-                  type="button"
-                >
-                  <svg
-                    aria-hidden="true"
-                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                    data-testid="KeyboardArrowLeftIcon"
-                    focusable="false"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      d="M15.41 16.09l-4.58-4.59 4.58-4.59L14 5.5l-6 6 6 6z"
-                    />
-                  </svg>
-                </button>
-                <button
-                  aria-label="Go to next page"
-                  class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorInherit MuiIconButton-sizeMedium css-zylse7-MuiButtonBase-root-MuiIconButton-root"
-                  disabled=""
-                  tabindex="-1"
-                  title="Go to next page"
-                  type="button"
-                >
-                  <svg
-                    aria-hidden="true"
-                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                    data-testid="KeyboardArrowRightIcon"
-                    focusable="false"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      d="M8.59 16.34l4.58-4.59-4.58-4.59L10 5.75l6 6-6 6z"
-                    />
-                  </svg>
-                </button>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>
@@ -5175,7 +5041,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
       aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-root--densityCompact css-1d0auko-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-1d0auko-MuiDataGrid-root"
       role="grid"
     >
       <div>
@@ -5201,7 +5067,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
         class="MuiDataGrid-main css-204u17-MuiDataGrid-main"
       >
         <div
-          style="height: 0px; width: 0px; position: absolute; top: 0px;"
+          style="height: auto; width: 0px; position: absolute; top: 0px; bottom: 0px;"
         >
           <div
             class="no-rows MuiBox-root css-1jpcp03"
@@ -5882,15 +5748,15 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
           </div>
         </div>
         <div
-          style="overflow: visible; height: 0px; width: 0px;"
+          style="overflow: visible; width: 0px;"
         >
           <div
             class="MuiDataGrid-virtualScroller css-1w5m2wr-MuiDataGrid-virtualScroller"
-            style="width: 0px; height: auto; margin-top: 0px; overflow-x: hidden;"
+            style="width: 0px; height: auto; margin-top: 0px; overflow-x: hidden; overflow-y: hidden;"
           >
             <div
-              class="MuiDataGrid-virtualScrollerContent MuiDataGrid-virtualScrollerContent--overflowed css-1kwdphh-MuiDataGrid-virtualScrollerContent"
-              style="width: auto; height: 1px; min-height: auto;"
+              class="MuiDataGrid-virtualScrollerContent css-1kwdphh-MuiDataGrid-virtualScrollerContent"
+              style="width: auto; height: 72px; min-height: auto;"
             >
               <div
                 class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"
@@ -5924,7 +5790,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
       aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-root--densityCompact css-1d0auko-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-1d0auko-MuiDataGrid-root"
       role="grid"
     >
       <div>
@@ -5950,7 +5816,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
         class="MuiDataGrid-main css-204u17-MuiDataGrid-main"
       >
         <div
-          style="height: 0px; width: 0px; position: absolute; top: 0px;"
+          style="height: auto; width: 0px; position: absolute; top: 0px; bottom: 0px;"
         >
           <div
             class="no-rows MuiBox-root css-1jpcp03"
@@ -6631,15 +6497,15 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
           </div>
         </div>
         <div
-          style="overflow: visible; height: 0px; width: 0px;"
+          style="overflow: visible; width: 0px;"
         >
           <div
             class="MuiDataGrid-virtualScroller css-1w5m2wr-MuiDataGrid-virtualScroller"
-            style="width: 0px; height: auto; margin-top: 0px; overflow-x: hidden;"
+            style="width: 0px; height: auto; margin-top: 0px; overflow-x: hidden; overflow-y: hidden;"
           >
             <div
-              class="MuiDataGrid-virtualScrollerContent MuiDataGrid-virtualScrollerContent--overflowed css-1kwdphh-MuiDataGrid-virtualScrollerContent"
-              style="width: auto; height: 1px; min-height: auto;"
+              class="MuiDataGrid-virtualScrollerContent css-1kwdphh-MuiDataGrid-virtualScrollerContent"
+              style="width: auto; height: 72px; min-height: auto;"
             >
               <div
                 class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"
@@ -6672,13 +6538,13 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
   </h5>
   <div
     class=""
-    style="display: flex; flex: 2; width: 100%; height: 100%;"
+    style="display: flex; flex: 1; width: 100%; height: 100%;"
   >
     <div
       aria-colcount="8"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-root--densityCompact css-1d0auko-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-1d0auko-MuiDataGrid-root"
       role="grid"
     >
       <div>
@@ -6688,7 +6554,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
         class="MuiDataGrid-main css-204u17-MuiDataGrid-main"
       >
         <div
-          style="height: -39px; width: 0px; position: absolute; top: 39px;"
+          style="height: auto; width: 0px; position: absolute; top: 39px; bottom: 0px;"
         >
           <div
             class="MuiDataGrid-overlay css-c1gd0l-MuiDataGrid-overlay"
@@ -7296,15 +7162,15 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
           </div>
         </div>
         <div
-          style="overflow: visible; height: 0px; width: 0px;"
+          style="overflow: visible; width: 0px;"
         >
           <div
             class="MuiDataGrid-virtualScroller css-1w5m2wr-MuiDataGrid-virtualScroller"
-            style="width: 0px; height: auto; margin-top: 39px; overflow-x: hidden;"
+            style="width: 0px; height: auto; margin-top: 39px; overflow-x: hidden; overflow-y: hidden;"
           >
             <div
-              class="MuiDataGrid-virtualScrollerContent MuiDataGrid-virtualScrollerContent--overflowed css-1kwdphh-MuiDataGrid-virtualScrollerContent"
-              style="width: auto; height: 1px; min-height: auto;"
+              class="MuiDataGrid-virtualScrollerContent css-1kwdphh-MuiDataGrid-virtualScrollerContent"
+              style="width: auto; height: 72px; min-height: auto;"
             >
               <div
                 class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"
@@ -7326,73 +7192,6 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
           <div
             class="contract-trigger"
           />
-        </div>
-      </div>
-      <div>
-        <div
-          class="MuiDataGrid-footerContainer css-17jjc08-MuiDataGrid-footerContainer"
-        >
-          <div />
-          <div
-            class="MuiTablePagination-root css-rtrcn9-MuiTablePagination-root"
-          >
-            <div
-              class="MuiToolbar-root MuiToolbar-gutters MuiToolbar-regular MuiTablePagination-toolbar css-78c6dr-MuiToolbar-root-MuiTablePagination-toolbar"
-            >
-              <div
-                class="MuiTablePagination-spacer css-1psng7p-MuiTablePagination-spacer"
-              />
-              <p
-                class="MuiTablePagination-displayedRows css-levciy-MuiTablePagination-displayedRows"
-              >
-                0–0 of 0
-              </p>
-              <div
-                class="MuiTablePagination-actions"
-              >
-                <button
-                  aria-label="Go to previous page"
-                  class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorInherit MuiIconButton-sizeMedium css-zylse7-MuiButtonBase-root-MuiIconButton-root"
-                  disabled=""
-                  tabindex="-1"
-                  title="Go to previous page"
-                  type="button"
-                >
-                  <svg
-                    aria-hidden="true"
-                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                    data-testid="KeyboardArrowLeftIcon"
-                    focusable="false"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      d="M15.41 16.09l-4.58-4.59 4.58-4.59L14 5.5l-6 6 6 6z"
-                    />
-                  </svg>
-                </button>
-                <button
-                  aria-label="Go to next page"
-                  class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorInherit MuiIconButton-sizeMedium css-zylse7-MuiButtonBase-root-MuiIconButton-root"
-                  disabled=""
-                  tabindex="-1"
-                  title="Go to next page"
-                  type="button"
-                >
-                  <svg
-                    aria-hidden="true"
-                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                    data-testid="KeyboardArrowRightIcon"
-                    focusable="false"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      d="M8.59 16.34l4.58-4.59-4.58-4.59L10 5.75l6 6-6 6z"
-                    />
-                  </svg>
-                </button>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>
@@ -8146,7 +7945,7 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
       aria-colcount="8"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-root--densityCompact css-1d0auko-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-1d0auko-MuiDataGrid-root"
       role="grid"
     >
       <div>
@@ -8156,7 +7955,7 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
         class="MuiDataGrid-main css-204u17-MuiDataGrid-main"
       >
         <div
-          style="height: -39px; width: 0px; position: absolute; top: 39px;"
+          style="height: auto; width: 0px; position: absolute; top: 39px; bottom: 0px;"
         >
           <div
             class="MuiDataGrid-overlay css-c1gd0l-MuiDataGrid-overlay"
@@ -8764,15 +8563,15 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
           </div>
         </div>
         <div
-          style="overflow: visible; height: 0px; width: 0px;"
+          style="overflow: visible; width: 0px;"
         >
           <div
             class="MuiDataGrid-virtualScroller css-1w5m2wr-MuiDataGrid-virtualScroller"
-            style="width: 0px; height: auto; margin-top: 39px; overflow-x: hidden;"
+            style="width: 0px; height: auto; margin-top: 39px; overflow-x: hidden; overflow-y: hidden;"
           >
             <div
-              class="MuiDataGrid-virtualScrollerContent MuiDataGrid-virtualScrollerContent--overflowed css-1kwdphh-MuiDataGrid-virtualScrollerContent"
-              style="width: auto; height: 1px; min-height: auto;"
+              class="MuiDataGrid-virtualScrollerContent css-1kwdphh-MuiDataGrid-virtualScrollerContent"
+              style="width: auto; height: 72px; min-height: auto;"
             >
               <div
                 class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"
@@ -8794,73 +8593,6 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
           <div
             class="contract-trigger"
           />
-        </div>
-      </div>
-      <div>
-        <div
-          class="MuiDataGrid-footerContainer css-17jjc08-MuiDataGrid-footerContainer"
-        >
-          <div />
-          <div
-            class="MuiTablePagination-root css-rtrcn9-MuiTablePagination-root"
-          >
-            <div
-              class="MuiToolbar-root MuiToolbar-gutters MuiToolbar-regular MuiTablePagination-toolbar css-78c6dr-MuiToolbar-root-MuiTablePagination-toolbar"
-            >
-              <div
-                class="MuiTablePagination-spacer css-1psng7p-MuiTablePagination-spacer"
-              />
-              <p
-                class="MuiTablePagination-displayedRows css-levciy-MuiTablePagination-displayedRows"
-              >
-                0–0 of 0
-              </p>
-              <div
-                class="MuiTablePagination-actions"
-              >
-                <button
-                  aria-label="Go to previous page"
-                  class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorInherit MuiIconButton-sizeMedium css-zylse7-MuiButtonBase-root-MuiIconButton-root"
-                  disabled=""
-                  tabindex="-1"
-                  title="Go to previous page"
-                  type="button"
-                >
-                  <svg
-                    aria-hidden="true"
-                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                    data-testid="KeyboardArrowLeftIcon"
-                    focusable="false"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      d="M15.41 16.09l-4.58-4.59 4.58-4.59L14 5.5l-6 6 6 6z"
-                    />
-                  </svg>
-                </button>
-                <button
-                  aria-label="Go to next page"
-                  class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorInherit MuiIconButton-sizeMedium css-zylse7-MuiButtonBase-root-MuiIconButton-root"
-                  disabled=""
-                  tabindex="-1"
-                  title="Go to next page"
-                  type="button"
-                >
-                  <svg
-                    aria-hidden="true"
-                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                    data-testid="KeyboardArrowRightIcon"
-                    focusable="false"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      d="M8.59 16.34l4.58-4.59-4.58-4.59L10 5.75l6 6-6 6z"
-                    />
-                  </svg>
-                </button>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>
@@ -9609,7 +9341,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
       aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-root--densityCompact css-1d0auko-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-1d0auko-MuiDataGrid-root"
       role="grid"
     >
       <div>
@@ -9635,7 +9367,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
         class="MuiDataGrid-main css-204u17-MuiDataGrid-main"
       >
         <div
-          style="height: 0px; width: 0px; position: absolute; top: 0px;"
+          style="height: auto; width: 0px; position: absolute; top: 0px; bottom: 0px;"
         >
           <div
             class="no-rows MuiBox-root css-1jpcp03"
@@ -10316,15 +10048,15 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
           </div>
         </div>
         <div
-          style="overflow: visible; height: 0px; width: 0px;"
+          style="overflow: visible; width: 0px;"
         >
           <div
             class="MuiDataGrid-virtualScroller css-1w5m2wr-MuiDataGrid-virtualScroller"
-            style="width: 0px; height: auto; margin-top: 0px; overflow-x: hidden;"
+            style="width: 0px; height: auto; margin-top: 0px; overflow-x: hidden; overflow-y: hidden;"
           >
             <div
-              class="MuiDataGrid-virtualScrollerContent MuiDataGrid-virtualScrollerContent--overflowed css-1kwdphh-MuiDataGrid-virtualScrollerContent"
-              style="width: auto; height: 1px; min-height: auto;"
+              class="MuiDataGrid-virtualScrollerContent css-1kwdphh-MuiDataGrid-virtualScrollerContent"
+              style="width: auto; height: 72px; min-height: auto;"
             >
               <div
                 class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"
@@ -10358,7 +10090,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
       aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-root--densityCompact css-1d0auko-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-1d0auko-MuiDataGrid-root"
       role="grid"
     >
       <div>
@@ -10384,7 +10116,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
         class="MuiDataGrid-main css-204u17-MuiDataGrid-main"
       >
         <div
-          style="height: 0px; width: 0px; position: absolute; top: 0px;"
+          style="height: auto; width: 0px; position: absolute; top: 0px; bottom: 0px;"
         >
           <div
             class="no-rows MuiBox-root css-1jpcp03"
@@ -11065,15 +10797,15 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
           </div>
         </div>
         <div
-          style="overflow: visible; height: 0px; width: 0px;"
+          style="overflow: visible; width: 0px;"
         >
           <div
             class="MuiDataGrid-virtualScroller css-1w5m2wr-MuiDataGrid-virtualScroller"
-            style="width: 0px; height: auto; margin-top: 0px; overflow-x: hidden;"
+            style="width: 0px; height: auto; margin-top: 0px; overflow-x: hidden; overflow-y: hidden;"
           >
             <div
-              class="MuiDataGrid-virtualScrollerContent MuiDataGrid-virtualScrollerContent--overflowed css-1kwdphh-MuiDataGrid-virtualScrollerContent"
-              style="width: auto; height: 1px; min-height: auto;"
+              class="MuiDataGrid-virtualScrollerContent css-1kwdphh-MuiDataGrid-virtualScrollerContent"
+              style="width: auto; height: 72px; min-height: auto;"
             >
               <div
                 class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"
@@ -11106,13 +10838,13 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
   </h5>
   <div
     class=""
-    style="display: flex; flex: 2; width: 100%; height: 100%;"
+    style="display: flex; flex: 1; width: 100%; height: 100%;"
   >
     <div
       aria-colcount="8"
       aria-multiselectable="false"
       aria-rowcount="2"
-      class="MuiDataGrid-root MuiDataGrid-root--densityCompact css-1d0auko-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-1d0auko-MuiDataGrid-root"
       role="grid"
     >
       <div>
@@ -11721,14 +11453,14 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
           </div>
         </div>
         <div
-          style="overflow: visible; height: 0px; width: 0px;"
+          style="overflow: visible; width: 0px;"
         >
           <div
             class="MuiDataGrid-virtualScroller css-1w5m2wr-MuiDataGrid-virtualScroller"
-            style="width: 0px; height: auto; margin-top: 39px; overflow-x: hidden;"
+            style="width: 0px; height: auto; margin-top: 39px; overflow-x: hidden; overflow-y: hidden;"
           >
             <div
-              class="MuiDataGrid-virtualScrollerContent MuiDataGrid-virtualScrollerContent--overflowed css-1kwdphh-MuiDataGrid-virtualScrollerContent"
+              class="MuiDataGrid-virtualScrollerContent css-1kwdphh-MuiDataGrid-virtualScrollerContent"
               style="width: auto; height: 36px; min-height: auto;"
             >
               <div
@@ -11907,73 +11639,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
           />
         </div>
       </div>
-      <div>
-        <div
-          class="MuiDataGrid-footerContainer css-17jjc08-MuiDataGrid-footerContainer"
-        >
-          <div />
-          <div
-            class="MuiTablePagination-root css-rtrcn9-MuiTablePagination-root"
-          >
-            <div
-              class="MuiToolbar-root MuiToolbar-gutters MuiToolbar-regular MuiTablePagination-toolbar css-78c6dr-MuiToolbar-root-MuiTablePagination-toolbar"
-            >
-              <div
-                class="MuiTablePagination-spacer css-1psng7p-MuiTablePagination-spacer"
-              />
-              <p
-                class="MuiTablePagination-displayedRows css-levciy-MuiTablePagination-displayedRows"
-              >
-                1–1 of 1
-              </p>
-              <div
-                class="MuiTablePagination-actions"
-              >
-                <button
-                  aria-label="Go to previous page"
-                  class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorInherit MuiIconButton-sizeMedium css-zylse7-MuiButtonBase-root-MuiIconButton-root"
-                  disabled=""
-                  tabindex="-1"
-                  title="Go to previous page"
-                  type="button"
-                >
-                  <svg
-                    aria-hidden="true"
-                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                    data-testid="KeyboardArrowLeftIcon"
-                    focusable="false"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      d="M15.41 16.09l-4.58-4.59 4.58-4.59L14 5.5l-6 6 6 6z"
-                    />
-                  </svg>
-                </button>
-                <button
-                  aria-label="Go to next page"
-                  class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorInherit MuiIconButton-sizeMedium css-zylse7-MuiButtonBase-root-MuiIconButton-root"
-                  disabled=""
-                  tabindex="-1"
-                  title="Go to next page"
-                  type="button"
-                >
-                  <svg
-                    aria-hidden="true"
-                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                    data-testid="KeyboardArrowRightIcon"
-                    focusable="false"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      d="M8.59 16.34l4.58-4.59-4.58-4.59L10 5.75l6 6-6 6z"
-                    />
-                  </svg>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   </div>
   <h5
@@ -11985,7 +11650,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
     aria-colcount="8"
     aria-multiselectable="false"
     aria-rowcount="2"
-    class="MuiDataGrid-root MuiDataGrid-root--densityCompact css-fv9eus-MuiDataGrid-root"
+    class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-fv9eus-MuiDataGrid-root"
     role="grid"
   >
     <div>
@@ -12594,14 +12259,14 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
         </div>
       </div>
       <div
-        style="overflow: visible; height: 0px; width: 0px;"
+        style="overflow: visible; width: 0px;"
       >
         <div
           class="MuiDataGrid-virtualScroller css-1w5m2wr-MuiDataGrid-virtualScroller"
-          style="width: 0px; height: auto; margin-top: 39px; overflow-x: hidden;"
+          style="width: 0px; height: auto; margin-top: 39px; overflow-x: hidden; overflow-y: hidden;"
         >
           <div
-            class="MuiDataGrid-virtualScrollerContent MuiDataGrid-virtualScrollerContent--overflowed css-1kwdphh-MuiDataGrid-virtualScrollerContent"
+            class="MuiDataGrid-virtualScrollerContent css-1kwdphh-MuiDataGrid-virtualScrollerContent"
             style="width: auto; height: 36px; min-height: auto;"
           >
             <div
@@ -12772,73 +12437,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
         <div
           class="contract-trigger"
         />
-      </div>
-    </div>
-    <div>
-      <div
-        class="MuiDataGrid-footerContainer css-17jjc08-MuiDataGrid-footerContainer"
-      >
-        <div />
-        <div
-          class="MuiTablePagination-root css-rtrcn9-MuiTablePagination-root"
-        >
-          <div
-            class="MuiToolbar-root MuiToolbar-gutters MuiToolbar-regular MuiTablePagination-toolbar css-78c6dr-MuiToolbar-root-MuiTablePagination-toolbar"
-          >
-            <div
-              class="MuiTablePagination-spacer css-1psng7p-MuiTablePagination-spacer"
-            />
-            <p
-              class="MuiTablePagination-displayedRows css-levciy-MuiTablePagination-displayedRows"
-            >
-              1–1 of 1
-            </p>
-            <div
-              class="MuiTablePagination-actions"
-            >
-              <button
-                aria-label="Go to previous page"
-                class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorInherit MuiIconButton-sizeMedium css-zylse7-MuiButtonBase-root-MuiIconButton-root"
-                disabled=""
-                tabindex="-1"
-                title="Go to previous page"
-                type="button"
-              >
-                <svg
-                  aria-hidden="true"
-                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                  data-testid="KeyboardArrowLeftIcon"
-                  focusable="false"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M15.41 16.09l-4.58-4.59 4.58-4.59L14 5.5l-6 6 6 6z"
-                  />
-                </svg>
-              </button>
-              <button
-                aria-label="Go to next page"
-                class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorInherit MuiIconButton-sizeMedium css-zylse7-MuiButtonBase-root-MuiIconButton-root"
-                disabled=""
-                tabindex="-1"
-                title="Go to next page"
-                type="button"
-              >
-                <svg
-                  aria-hidden="true"
-                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                  data-testid="KeyboardArrowRightIcon"
-                  focusable="false"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M8.59 16.34l4.58-4.59-4.58-4.59L10 5.75l6 6-6 6z"
-                  />
-                </svg>
-              </button>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   </div>
