@@ -45,8 +45,8 @@ export const newRegistrationAtom = atom<Registration | undefined>({
   ],
 })
 
-export const registrationByIdAtom = atomFamily<Registration | undefined, string>({
-  key: 'registration/id',
+export const registrationByIdsAtom = atomFamily<Registration | undefined, string>({
+  key: 'registration/ids',
   default: undefined,
   effects: [
     logEffect,
@@ -55,8 +55,8 @@ export const registrationByIdAtom = atomFamily<Registration | undefined, string>
   ],
 })
 
-export const editableRegistrationByIdAtom = atomFamily<Registration | undefined, string | undefined>({
-  key: 'editableRegistration/Id',
+export const editableRegistrationByIdsAtom = atomFamily<Registration | undefined, string | undefined>({
+  key: 'editableRegistration/ids',
   default: registrationSelector,
   effects: [
     logEffect,

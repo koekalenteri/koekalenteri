@@ -1,7 +1,7 @@
 import { Registration } from 'koekalenteri-shared/model'
 import { DefaultValue, selectorFamily } from 'recoil'
 
-import { registrationByIdAtom } from './atoms'
+import { registrationByIdsAtom } from './atoms'
 
 
 export const registrationSelector = selectorFamily<Registration | undefined, string | undefined>({
@@ -10,12 +10,12 @@ export const registrationSelector = selectorFamily<Registration | undefined, str
     if (!id) {
       return
     }
-    return get(registrationByIdAtom(id))
+    return get(registrationByIdsAtom(id))
   },
   set: id => ({set}, value) => {
     if (!id || !value || value instanceof DefaultValue) {
       return
     }
-    set(registrationByIdAtom(id), value)
+    set(registrationByIdsAtom(id), value)
   },
 })

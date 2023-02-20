@@ -10,16 +10,17 @@ import LinkButton from './components/LinkButton'
 import RegistrationEventInfo from './components/RegistrationEventInfo'
 import RegistrationForm from './components/RegistrationForm'
 import { useRegistrationActions } from './recoil/registration/actions'
-import { editableRegistrationByIdAtom, eventSelector, registrationByIdAtom, spaAtom } from './recoil'
+import { editableRegistrationByIdsAtom, eventSelector, registrationByIdsAtom, spaAtom } from './recoil'
 
 export default function RegistrationEditPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const params = useParams()
   const event = useRecoilValue(eventSelector(params.id ?? '')) as ConfirmedEvent | undefined
-  const [savedRegistration, setSavedRegistration] = useRecoilState(registrationByIdAtom(params.registrationId ?? ''))
-  const [registration, setRegistration] = useRecoilState(editableRegistrationByIdAtom(params.registrationId))
-  const resetRegistration = useResetRecoilState(editableRegistrationByIdAtom(params.registrationId))
+  const ids = `${params.id ?? ''}:${params.registrationId ?? ''}`
+  const [savedRegistration, setSavedRegistration] = useRecoilState(registrationByIdsAtom(ids))
+  const [registration, setRegistration] = useRecoilState(editableRegistrationByIdsAtom(ids))
+  const resetRegistration = useResetRecoilState(editableRegistrationByIdsAtom(ids))
   const spa = useRecoilValue(spaAtom)
   const actions = useRegistrationActions()
   const changes = useMemo(() => !!savedRegistration && hasChanges(savedRegistration, registration), [registration, savedRegistration])
