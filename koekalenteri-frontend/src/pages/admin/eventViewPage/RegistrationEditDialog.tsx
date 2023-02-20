@@ -1,29 +1,34 @@
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { Dialog, DialogContent, DialogTitle } from '@mui/material'
+import { diff } from 'deep-object-diff'
 import { ConfirmedEvent, Registration } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
 
 import { hasChanges } from '../../../utils'
 import RegistrationForm from '../../components/RegistrationForm'
-import { editableRegistrationByIdAtom, eventSelector, registrationByIdAtom } from '../../recoil'
-import { adminRegistrationIdAtom } from '../recoil'
+import { currentAdminEventSelector, currentAdminRegistrationSelector, editableCurrentAdminEventRegistrationByIdAtom } from '../recoil'
 import { useAdminRegistrationActions } from '../recoil/registrations/actions'
 
 interface Props {
   open: boolean
+  registrationId: string
   onClose?: () => void
 }
 
-export default function RegistraionEditDialog({open, onClose}: Props) {
-  const registrationId = useRecoilValue(adminRegistrationIdAtom) ?? ''
-  const [savedRegistration, setSavedRegistration] = useRecoilState(registrationByIdAtom(registrationId))
-  const [registration, setRegistration] = useRecoilState(editableRegistrationByIdAtom(registrationId))
-  const event = useRecoilValue(eventSelector(registration?.eventId))
-  const resetRegistration = useResetRecoilState(editableRegistrationByIdAtom(registrationId))
+export default function RegistraionEditDialog({registrationId, open, onClose}: Props) {
+  const event = useRecoilValue(currentAdminEventSelector)
+  const savedRegistration = useRecoilValue(currentAdminRegistrationSelector)
+  const [registration, setRegistration] = useRecoilState(editableCurrentAdminEventRegistrationByIdAtom(registrationId))
+  const resetRegistration = useResetRecoilState(editableCurrentAdminEventRegistrationByIdAtom(registrationId))
   const actions = useAdminRegistrationActions()
-  const changes = useMemo(() => !!savedRegistration && hasChanges(savedRegistration, registration), [registration, savedRegistration])
+  const changes = useMemo(() => !!registration && !!savedRegistration && hasChanges(savedRegistration, registration), [registration, savedRegistration])
+
+  useEffect(() => {
+    resetRegistration()
+  }, [registrationId, savedRegistration, resetRegistration])
 
   const handleChange = useCallback((newState: Registration) => {
+    console.log('diff', diff(registration ?? {}, newState))
     if (hasChanges(registration, newState)) {
       setRegistration(newState)
     }
@@ -33,11 +38,10 @@ export default function RegistraionEditDialog({open, onClose}: Props) {
     if (!registration || !event) {
       return
     }
-    const saved = await actions.save(registration)
-    setSavedRegistration(saved)
+    await actions.save(registration)
     resetRegistration()
     onClose?.()
-  }, [actions, event, onClose, registration, resetRegistration, setSavedRegistration])
+  }, [actions, event, onClose, registration, resetRegistration])
 
   const handleCancel = useCallback(async () => {
     resetRegistration()

@@ -5,7 +5,7 @@ import { registrationByIdAtom } from './atoms'
 
 
 export const registrationSelector = selectorFamily<Registration | undefined, string | undefined>({
-  key: 'adminEventSelector',
+  key: 'registrationSelector',
   get: id => ({get}) => {
     if (!id) {
       return

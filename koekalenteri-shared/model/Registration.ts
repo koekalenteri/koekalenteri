@@ -48,6 +48,7 @@ export interface Registration extends DbRecord {
   results?: Array<ManualTestResult>
   paid?: boolean
   cancelled?: boolean
+  cancelReason?: string
   group?: RegistrationGroup
 }
 

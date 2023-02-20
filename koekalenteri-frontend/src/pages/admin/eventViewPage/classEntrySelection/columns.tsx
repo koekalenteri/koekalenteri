@@ -72,5 +72,14 @@ export function useClassEntrySelectionColumns(eventDates: Date[]) {
     },
   ]
 
-  return {entryColumns, participantColumns}
+  const cancelledColumns: GridColDef[] = [
+    ...participantColumns,
+    {
+      field: 'cancelReason',
+      headerName: 'Perumisen syy',
+      width: 90,
+    },
+  ]
+
+  return {cancelledColumns, entryColumns, participantColumns}
 }

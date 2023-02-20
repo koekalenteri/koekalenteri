@@ -1,5 +1,5 @@
 import { Registration, RegistrationGroup } from 'koekalenteri-shared/model'
-import { selector } from 'recoil'
+import { selector, selectorFamily } from 'recoil'
 
 import { adminEventIdAtom, eventClassAtom } from '../events/atoms'
 
@@ -42,10 +42,21 @@ export const currentEventClassRegistrationsSelector = selector<RegistrationWithM
   },
 })
 
-export const currentAdminRegistrationSelector = selector<Registration|undefined>({
+export const currentAdminRegistrationSelector = selector<Registration | undefined>({
   key: 'currentAdminRegistration',
-  get: ({get}) => {
+  get: ({ get }) => {
     const registrationId = get(adminRegistrationIdAtom)
-    return get(currentEventClassRegistrationsSelector).find(r => r.id === registrationId)
+    return get(currentEventRegistrationsSelector).find(r => r.id === registrationId)
+  },
+})
+
+export const currentAdminEventRegistrationSelector = selectorFamily<Registration | undefined, string | undefined>({
+  key: 'currentAdminEventRegistrationSelector',
+  get: registrationId => ({ get }) => {
+    if (!registrationId) {
+      return
+    }
+    const registrations = get(currentEventRegistrationsSelector)
+    return registrations.find(r => r.id === registrationId)
   },
 })

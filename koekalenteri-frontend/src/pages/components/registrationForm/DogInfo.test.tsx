@@ -56,6 +56,7 @@ describe('DogInfo', () => {
     expect(input).toHaveValue('TESTDOG-0010')
 
     await user.clear(input)
+    expect(input).toHaveValue('')
     expect(changeHandler).toHaveBeenLastCalledWith(expect.objectContaining({ dog: expect.objectContaining({ regNo: '' }), ownerHandles: true, results: [] }))
 
     await user.type(input, newDog.regNo)

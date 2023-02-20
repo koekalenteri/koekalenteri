@@ -80,11 +80,11 @@ const excludeByYear = (result: Partial<TestResult>, date: Date) => result.date &
 
 export function validateDog(
   event: { eventType: string, startDate: Date },
-  reg: { class?: string, dog: Dog, results?: Partial<TestResult>[] },
+  reg: { class?: string, dog?: Dog, results?: Partial<TestResult>[] },
 ): WideValidationResult<Registration, 'registration'>
 {
   const dog = reg.dog
-  if (!dog.regNo || !dog.name || !dog.rfid) {
+  if (!dog?.regNo || !dog?.name || !dog?.rfid) {
     return 'required'
   }
   const breedCode = validateDogBreed(event, dog)
