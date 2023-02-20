@@ -96,12 +96,7 @@ test('It should fire onChange', async () => {
   fireEvent.click(screen.getByLabelText('entryOpen'))
   expect(changeHandler).toHaveBeenCalledTimes(5)
 
-  fireEvent.click(screen.getByLabelText(/Vielä mahtuu/i))
+  fireEvent.click(screen.getByLabelText(/Ilmoittautuminen tulossa/i))
   expect(changeHandler).toHaveBeenCalledTimes(6)
 
-  fireEvent.click(screen.getByLabelText(/Ilmoittautuminen tulossa/i))
-  expect(changeHandler).toHaveBeenCalledTimes(7)
-
-  fireEvent.click(screen.getByLabelText(/Vielä ehdit!/i))
-  expect(changeHandler).toHaveBeenCalledTimes(8)
 })

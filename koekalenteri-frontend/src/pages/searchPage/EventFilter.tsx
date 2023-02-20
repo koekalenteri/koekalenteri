@@ -31,14 +31,6 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
     withClosingEntry: checked && filter.withClosingEntry,
     withFreePlaces: checked && filter.withFreePlaces,
   }), [filter.withClosingEntry, filter.withFreePlaces, setFilter])
-  const handleWithClosingEntryChange = useCallback((event: SyntheticEvent<Element, Event>, checked: boolean) => setFilter({
-    withOpenEntry: filter.withOpenEntry || checked,
-    withClosingEntry: checked,
-  }), [filter.withOpenEntry, setFilter])
-  const handleWithFreePlacesChange = useCallback((event: SyntheticEvent<Element, Event>, checked: boolean) => setFilter({
-    withOpenEntry: filter.withOpenEntry || checked,
-    withFreePlaces: checked,
-  }), [filter.withOpenEntry, setFilter])
   const handleWithUpcomingEntryChange = useCallback((event: SyntheticEvent<Element, Event>, checked: boolean) => setFilter({
     withUpcomingEntry: checked,
   }), [setFilter])
@@ -107,22 +99,6 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
                 label={t('entryOpen')}
                 onChange={handleWithEntryOpenChange}
               />
-              <Box sx={{ display: 'inline-grid' }}>
-                <FormControlLabel
-                  value="withClosingEntry"
-                  checked={filter.withClosingEntry}
-                  control={<Switch color="secondary" size="small" />}
-                  label="Vielä ehdit!"
-                  onChange={handleWithClosingEntryChange}
-                />
-                <FormControlLabel
-                  value="withFreePlaces"
-                  checked={filter.withFreePlaces}
-                  control={<Switch color="secondary" size="small" />}
-                  label="Vielä mahtuu"
-                  onChange={handleWithFreePlacesChange}
-                />
-              </Box>
             </Box>
             <FormControlLabel
               value="withUpcomingEntry"
