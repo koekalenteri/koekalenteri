@@ -50,7 +50,7 @@ const InfoPanel = ({ event, registrations }: Props) => {
             <TableCell>• osallistujat</TableCell>
           </TableRow>
           {Object.keys(registrationsByClass).filter(c => c !== 'reserve' && c !== 'cancelled').map(c => (
-            <TableRow>
+            <TableRow key={c}>
               <TableCell align="right">{c}</TableCell>
               <TableCell align="right">{registrationsByClass[c]}</TableCell>
               <TableCell align="right"><Button size="small" sx={{fontSize: '0.5rem'}}>LÄHETÄ&nbsp;KOEPAIKKAILMOITUS</Button></TableCell>

@@ -7,6 +7,7 @@ import DragableRow, { DragItem } from './DragableRow'
 
 interface Props extends DataGridProps {
   onDrop?: (item: DragItem) => any
+  onReject?: (item: DragItem) => any
   group?: string
   flex?: number
 }
@@ -18,21 +19,26 @@ interface DragCollect {
 }
 
 const DropableDataGrid = (props: Props) => {
+  const getCanDrop = (item?: DragItem) => !props.group || !!item?.groups.includes(props.group)
   const [{ canDrop, isOver, isDragging }, ref] = useDrop<DragItem, void, DragCollect>(() => ({
     accept: 'row',
-    canDrop: (item) => !props.group || item.groups.includes(props.group),
     drop: (item: DragItem, monitor: DropTargetMonitor<DragItem, void>) => {
-      if (item.move && item.move.groupKey !== props.group) {
-        // clean up possible stale move information from different group
-        delete item.move
+      if (getCanDrop(item)) {
+        if (item.move && item.move.groupKey !== props.group) {
+          // clean up possible stale move information from different group
+          delete item.move
+        }
+        props.onDrop?.(item)
+      } else {
+        props.onReject?.(item)
       }
-      props.onDrop?.(item)
     },
     collect: (monitor) => {
+      const item = monitor.getItem()
       return {
         isOver: monitor.isOver(),
-        canDrop: monitor.canDrop(),
-        isDragging: monitor.getItem() !== null,
+        canDrop: getCanDrop(item),
+        isDragging: item !== null,
       }
     },
   }), [props.onDrop])
