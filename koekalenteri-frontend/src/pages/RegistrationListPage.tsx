@@ -11,14 +11,13 @@ import LinkButton from './components/LinkButton'
 import RegistrationEventInfo from './components/RegistrationEventInfo'
 import { useRegistrationActions } from './recoil/registration/actions'
 import RegistrationList from './registrationListPage/RegistrationList'
-import { currentEventSelector, eventIdAtom, registrationSelector, spaAtom } from './recoil'
+import { currentEventSelector, registrationSelector, spaAtom } from './recoil'
 
 
 export function RegistrationListPage({cancel}: {cancel?: boolean}) {
   const params = useParams()
-  const [eventId, setEventId] = useRecoilState(eventIdAtom)
   const event = useRecoilValue(currentEventSelector) as ConfirmedEvent | undefined
-  const [registration, setRegistration] = useRecoilState(registrationSelector(params.registrationId))
+  const [registration, setRegistration] = useRecoilState(registrationSelector(`${params.id ?? ''}:${params.registrationId ?? ''}`))
   const spa = useRecoilValue(spaAtom)
   const { t } = useTranslation()
   const [open, setOpen] = useState(!!cancel)
@@ -36,23 +35,13 @@ export function RegistrationListPage({cancel}: {cancel?: boolean}) {
   const handleClose = useCallback(() => setOpen(false), [])
 
   useEffect(() => {
-    if (params.id !== eventId) {
-      setEventId(params.id)
-    }
-  }, [eventId, params.id, setEventId])
-
-  useEffect(() => {
     if (open && registration?.cancelled) {
       setOpen(false)
     }
   }, [open, registration])
 
   if (!event || !registration) {
-    return <>
-      <CircularProgress />
-      {!event ? 'no event' : ''}
-      {!registration ? 'no registration' : ''}
-    </>
+    return <CircularProgress />
   }
 
   return (
