@@ -1,6 +1,6 @@
 {
   "name": "koekalenteri-frontend",
-  "version": "0.5.14",
+  "version": "0.5.15",
   "private": true,
   "dependencies": {
     "@aws-amplify/auth": "^5.1.0",
@@ -144,7 +144,7 @@
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^5.16.3",
-    "@testing-library/react": "^13.4.0",
+    "@testing-library/react": "^14.0.0",
     "@testing-library/user-event": "^14.4.3",
     "@types/css-mediaquery": "^0.1.1",
     "@types/jest": "^29.2.4",

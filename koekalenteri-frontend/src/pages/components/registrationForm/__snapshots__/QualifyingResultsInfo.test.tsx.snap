@@ -63,7 +63,7 @@ exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
                     class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                   >
                     <div
-                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-r7d7so-MuiAutocomplete-root"
+                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-qz56on-MuiAutocomplete-root"
                       data-testid="testResult.eventType"
                     >
                       <div
@@ -138,7 +138,7 @@ exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
                     class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                   >
                     <div
-                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1wijyiz-MuiAutocomplete-root"
+                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-110j9u8-MuiAutocomplete-root"
                       data-testid="testResult.result"
                     >
                       <div
@@ -485,7 +485,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                     class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                   >
                     <div
-                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-r7d7so-MuiAutocomplete-root"
+                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-qz56on-MuiAutocomplete-root"
                       data-testid="testResult.eventType"
                     >
                       <div
@@ -560,7 +560,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                     class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                   >
                     <div
-                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1wijyiz-MuiAutocomplete-root"
+                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-110j9u8-MuiAutocomplete-root"
                       data-testid="testResult.result"
                     >
                       <div
@@ -816,7 +816,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                     class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                   >
                     <div
-                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-r7d7so-MuiAutocomplete-root"
+                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-qz56on-MuiAutocomplete-root"
                       data-testid="testResult.eventType"
                     >
                       <div
@@ -892,7 +892,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                     class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                   >
                     <div
-                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1wijyiz-MuiAutocomplete-root"
+                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-110j9u8-MuiAutocomplete-root"
                       data-testid="testResult.result"
                     >
                       <div
@@ -1148,7 +1148,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                     class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                   >
                     <div
-                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-r7d7so-MuiAutocomplete-root"
+                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-qz56on-MuiAutocomplete-root"
                       data-testid="testResult.eventType"
                     >
                       <div
@@ -1224,7 +1224,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                     class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                   >
                     <div
-                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1wijyiz-MuiAutocomplete-root"
+                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-110j9u8-MuiAutocomplete-root"
                       data-testid="testResult.result"
                     >
                       <div
