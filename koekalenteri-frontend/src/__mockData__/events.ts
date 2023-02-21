@@ -73,3 +73,17 @@ export const eventWithEntryClosing = {
   places: 10,
   entries: 10,
 }
+
+export const eventWithEntryClosed: ConfirmedEvent = {
+  ...emptyEvent,
+  id: 'testEntryClosed',
+  eventType: 'NOME-B',
+  classes: [{ class: 'ALO', places: 3, entries: 2 }, { class: 'AVO', places: 1, entries: 2 }],
+  places: 4,
+  entries: 4,
+  startDate: addDays(today, 7),
+  endDate: addDays(today, 7),
+  entryStartDate: addDays(today, -14),
+  entryEndDate: addDays(today, -28),
+  judges: [123, 223],
+}

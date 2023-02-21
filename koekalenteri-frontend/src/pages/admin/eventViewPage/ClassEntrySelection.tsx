@@ -4,6 +4,7 @@ import { HTML5Backend } from 'react-dnd-html5-backend'
 import { Box, Typography } from '@mui/material'
 import { GridCallbackDetails, GridSelectionModel } from '@mui/x-data-grid'
 import { Registration, RegistrationDate, RegistrationGroup } from 'koekalenteri-shared/model'
+import { useSnackbar } from 'notistack'
 import { SetterOrUpdater } from 'recoil'
 
 import StyledDataGrid from '../../components/StyledDataGrid'
@@ -37,6 +38,7 @@ const listKey = (reg: Registration) => {
 export const groupKey = (rd: RegistrationDate) => rd.date.toISOString().slice(0, 10) + '-' + rd.time
 
 const ClassEntrySelection = ({ eventDates = [], registrations = [], setOpen, selectedRegistrationId, setSelectedRegistrationId }: Props) => {
+  const { enqueueSnackbar } = useSnackbar()
   const {cancelledColumns, entryColumns, participantColumns} = useClassEntrySelectionColumns(eventDates)
 
   const eventGroups: RegistrationGroup[] = useMemo(() => availableGroups(eventDates).map(eventDate => ({ ...eventDate, key: groupKey(eventDate), number: 0 })), [eventDates])
@@ -61,6 +63,13 @@ const ClassEntrySelection = ({ eventDates = [], registrations = [], setOpen, sel
     if (item.move) {
       console.log(item.id, item.move)
       delete item.move
+    }
+  }
+
+  const handleReject = (item: DragItem) => {
+    const reg = registrations.find(r => r.id === item.id)
+    if (reg) {
+      enqueueSnackbar(`Koira, ${reg.dog.name} ei ole ilmoittautunut tähän ryhmään`, { variant: 'error' })
     }
   }
 
@@ -116,6 +125,7 @@ const ClassEntrySelection = ({ eventDates = [], registrations = [], setOpen, sel
             },
           }}
           onDrop={handleDrop(group)}
+          onReject={handleReject}
         />,
       )}
       <Typography variant='h6'>Ilmoittautuneet</Typography>

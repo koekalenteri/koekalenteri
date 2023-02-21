@@ -739,7 +739,7 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
     Ilmoittautuneet
   </h6>
   <div
-    class=""
+    class="accept"
     style="display: flex; flex: 1; width: 100%; height: 100%;"
   >
     <div
@@ -3638,7 +3638,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
     Ilmoittautuneet
   </h6>
   <div
-    class=""
+    class="accept"
     style="display: flex; flex: 1; width: 100%; height: 100%;"
   >
     <div
@@ -6537,7 +6537,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
     Ilmoittautuneet
   </h6>
   <div
-    class=""
+    class="accept"
     style="display: flex; flex: 1; width: 100%; height: 100%;"
   >
     <div
@@ -7938,7 +7938,7 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
     Ilmoittautuneet
   </h6>
   <div
-    class=""
+    class="accept"
     style="display: flex; flex: 1; width: 100%; height: 100%;"
   >
     <div
@@ -10837,7 +10837,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
     Ilmoittautuneet
   </h6>
   <div
-    class=""
+    class="accept"
     style="display: flex; flex: 1; width: 100%; height: 100%;"
   >
     <div
