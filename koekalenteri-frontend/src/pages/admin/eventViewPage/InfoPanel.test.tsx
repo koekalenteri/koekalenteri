@@ -1,4 +1,5 @@
 import { render } from '@testing-library/react'
+import { Registration } from 'koekalenteri-shared/model'
 
 import { eventWithEntryClosed, eventWithStaticDates } from '../../../__mockData__/events'
 import { registrationsToEventWithEntryClosed } from '../../../__mockData__/registrations'
@@ -6,6 +7,11 @@ import { registrationsToEventWithEntryClosed } from '../../../__mockData__/regis
 import { groupKey } from './ClassEntrySelection'
 import InfoPanel from './InfoPanel'
 
+function getGroupKey(r: Registration, i: number) {
+  if (r.cancelled) return 'cancelled'
+  if (i === 0) return 'reserve'
+  return groupKey(r.dates[0])
+}
 
 describe('InfoPanel>', () => {
   it('renders with no registrations', () => {
@@ -26,7 +32,7 @@ describe('InfoPanel>', () => {
       group: {
         ...r.dates[0],
         number: i,
-        key: r.cancelled ? 'cancelled' : i === 0 ? 'reserve' : groupKey(r.dates[0]),
+        key: getGroupKey(r, i),
       },
     }))} />)
 
