@@ -69,6 +69,69 @@ export const genericReadAllTest = (handler: (event: APIGatewayProxyEvent) => Pro
     })
   }
 
+export const genericQueryTest = (handler: (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult>) =>
+  (): void => {
+    let querySpy: any
+
+    beforeAll(() => {
+      querySpy = jest.spyOn(AWS.DynamoDB.DocumentClient.prototype, 'query')
+    })
+
+    afterAll(() => {
+      querySpy.mockRestore()
+    })
+
+    it('should return mocked data', async () => {
+      const items = [{ id: 'id1' }, { id: 'id2' }]
+
+      querySpy.mockReturnValue({
+        promise: () => Promise.resolve({
+          Items: items,
+        }),
+      })
+
+      const event = constructAPIGwEvent({}, { method: 'GET' })
+      const result = await handler(event)
+
+      expect(result).toEqual({
+        statusCode: 200,
+        headers: defaultJSONHeaders,
+        body: JSON.stringify(items),
+      })
+    })
+
+    it('should catch AWSError', async () => {
+      const error = createAWSError(500, 'Test error')
+      querySpy.mockImplementation(() => {
+        throw error
+      })
+
+      const event = constructAPIGwEvent({}, { method: 'GET' })
+      const result = await handler(event)
+
+      expect(result).toEqual({
+        statusCode: 500,
+        headers: defaultJSONHeaders,
+        body: JSON.stringify(error),
+      })
+    })
+
+    it('should catch Error', async () => {
+      const error = new Error('Test error')
+      querySpy.mockImplementation(() => {
+        throw error
+      })
+
+      const event = constructAPIGwEvent({}, { method: 'GET' })
+      const result = await handler(event)
+
+      expect(result).toEqual({
+        statusCode: 501,
+        headers: defaultJSONHeaders,
+        body: JSON.stringify(error),
+      })
+    })
+  }
 
 export const genericReadTest = (handler: (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult>) =>
   (): void => {
