@@ -8,7 +8,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { i18n } from "../i18n/index"
 import CustomDynamoClient from "../utils/CustomDynamoClient"
 import { formatDateSpan } from "../utils/dates"
-import { genericReadHandler, getOrigin, getUsername } from "../utils/genericHandlers"
+import { getOrigin, getUsername } from "../utils/genericHandlers"
 import { metricsError, metricsSuccess } from "../utils/metrics"
 import { response } from "../utils/response"
 import { reverseName } from "../utils/string"
@@ -17,22 +17,24 @@ import { EmailTemplate, sendTemplatedMail } from "./email"
 
 export const dynamoDB = new CustomDynamoClient()
 
-export const getRegistrationsHandler = metricScope((metrics: MetricsLogger) =>
+export const getRegistrationHandler =  metricScope((metrics: MetricsLogger) =>
   async (
     event: APIGatewayProxyEvent,
   ): Promise<APIGatewayProxyResult> => {
     try {
-      const items = await dynamoDB.query<JsonRegistration>('eventId = :eventId', { ':eventId': event.pathParameters?.eventId })
-      metricsSuccess(metrics, event.requestContext, 'getRegistrations')
-      return response(200, items)
-    } catch (err: unknown) {
-      metricsError(metrics, event.requestContext, 'getRegistrations')
+      const item = await dynamoDB.read<JsonRegistration>(event.pathParameters)
+      if (item) {
+        // Make sure not to leak group information to user
+        delete item.group
+      }
+      metricsSuccess(metrics, event.requestContext, 'getRegistration')
+      return response(200, item)
+    } catch (err) {
+      metricsError(metrics, event.requestContext, 'getRegistration')
       return response((err as AWSError).statusCode || 501, err)
     }
   },
 )
-
-export const getRegistrationHandler = genericReadHandler(dynamoDB, 'getRegistration')
 
 export const putRegistrationHandler = metricScope((metrics: MetricsLogger) =>
   async (
@@ -94,6 +96,7 @@ export const putRegistrationHandler = metricScope((metrics: MetricsLogger) =>
       const entries = registrations?.length || 0
       await dynamoDB.update(eventKey,
         'set entries = :entries, classes = :classes',
+        {},
         {
           ':entries': entries,
           ':classes': classes,
