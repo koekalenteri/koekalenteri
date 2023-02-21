@@ -501,7 +501,7 @@ Resources:
   PutRegistrationGroupFunctionLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: !Join ['/', ['/aws/lambda', !Ref AWS::StackName, !Ref PutRegistrationGroupFunction]]
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref PutRegistrationGroupFunction]]
       RetentionInDays: 30
 
   GetJudgesFunction:
