@@ -12,6 +12,7 @@ export const remoteEventsEffect: AtomEffect<Event[]> = ({ setSelf, trigger }) =>
   const load = async() => {
     loaded = true
     const events = await getEvents()
+    events.sort((a, b) => a.startDate.valueOf() - b.startDate.valueOf())
     setSelf(events)
   }
   if (trigger === 'get' && !loaded) {
