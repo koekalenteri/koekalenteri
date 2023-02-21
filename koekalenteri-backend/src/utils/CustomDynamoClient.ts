@@ -35,7 +35,7 @@ export default class CustomDynamoClient {
     const data = await this.docClient.scan({
       TableName: table ? fromSamLocalTable(table) : this.table,
     }).promise()
-    return data.Items?.filter((item: any) => !item.deletedAt) as T[]
+    return data.Items?.filter((item: JsonObject) => !item.deletedAt) as T[]
   }
 
   async read<T>(key: Record<string, number | string | undefined> | null, table?: string): Promise<T | undefined> {
@@ -73,11 +73,12 @@ export default class CustomDynamoClient {
     return this.docClient.put(params).promise()
   }
 
-  async update(key: AWS.DynamoDB.DocumentClient.Key, expression: UpdateExpression, values: JsonObject, table?: string) {
+  async update(key: AWS.DynamoDB.DocumentClient.Key, expression: UpdateExpression, names: {[key: string]: string}, values: JsonObject, table?: string) {
     const params: AWS.DynamoDB.DocumentClient.UpdateItemInput = {
       TableName: table ? fromSamLocalTable(table) : this.table,
       Key: key,
       UpdateExpression: expression,
+      ExpressionAttributeNames: names,
       ExpressionAttributeValues: values,
     }
     return this.docClient.update(params).promise()

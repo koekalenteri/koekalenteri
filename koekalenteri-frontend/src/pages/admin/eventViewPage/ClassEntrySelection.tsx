@@ -9,6 +9,7 @@ import { SetterOrUpdater } from 'recoil'
 
 import StyledDataGrid from '../../components/StyledDataGrid'
 import { RegistrationWithMutators } from '../recoil'
+import { useAdminRegistrationActions } from '../recoil/registrations/actions'
 
 import { useClassEntrySelectionColumns } from './classEntrySelection/columns'
 import { DragItem } from './classEntrySelection/DragableRow'
@@ -40,6 +41,7 @@ export const groupKey = (rd: RegistrationDate) => rd.date.toISOString().slice(0,
 const ClassEntrySelection = ({ eventDates = [], registrations = [], setOpen, selectedRegistrationId, setSelectedRegistrationId }: Props) => {
   const { enqueueSnackbar } = useSnackbar()
   const {cancelledColumns, entryColumns, participantColumns} = useClassEntrySelectionColumns(eventDates)
+  const actions = useAdminRegistrationActions()
 
   const eventGroups: RegistrationGroup[] = useMemo(() => availableGroups(eventDates).map(eventDate => ({ ...eventDate, key: groupKey(eventDate), number: 0 })), [eventDates])
   const registrationsByGroup: Record<string, RegistrationWithGroups[]> = useMemo(() => {
@@ -58,7 +60,8 @@ const ClassEntrySelection = ({ eventDates = [], registrations = [], setOpen, sel
   const handleDrop = (group?: RegistrationGroup) => (item: DragItem) => {
     const reg = registrations.find(r => r.id === item.id)
     if (reg && reg.group?.key !== group?.key) {
-      reg.setGroup(group)
+      reg.setGroup(group) // set the group to cache for faster ui update
+      actions.saveGroup({...reg, group})
     }
     if (item.move) {
       console.log(item.id, item.move)

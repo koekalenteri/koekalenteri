@@ -65,5 +65,4 @@ export async function getRegistration(eventId: string, id: string, _signal?: Abo
       process.nextTick(() => resolve(registration))
     }
   })
-
 }

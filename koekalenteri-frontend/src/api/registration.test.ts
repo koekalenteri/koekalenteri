@@ -3,7 +3,7 @@ import { Registration } from 'koekalenteri-shared/model'
 
 import { API_BASE_URL } from '../routeConfig'
 
-import { getRegistration, getRegistrations, putRegistration } from './registration'
+import { getRegistration, getRegistrations, putRegistration, putRegistrationGroup } from './registration'
 
 const mockRegistration: Registration = {
   id: 'test-registration-id',
@@ -72,7 +72,7 @@ test('getRegistrations', async () => {
 
   expect(result.length).toEqual(1)
   expect(fetchMock.mock.calls.length).toEqual(1)
-  expect(fetchMock.mock.calls[0][0]).toEqual(API_BASE_URL + '/registration/test-id')
+  expect(fetchMock.mock.calls[0][0]).toEqual(API_BASE_URL + '/admin/registration/test-id')
 })
 
 test('getRegistration', async () => {
@@ -95,5 +95,16 @@ test('putRegistration', async() => {
   const result = await putRegistration(mockRegistration)
   expect(fetchMock.mock.calls.length).toEqual(1)
   expect(fetchMock.mock.calls[0][0]).toEqual(API_BASE_URL + '/registration/')
+  expect(result.id).not.toBeUndefined()
+})
+
+test('putRegistrationGroup', async() => {
+  fetchMock.mockResponse(req => req.method === 'POST'
+    ? Promise.resolve(JSON.stringify(mockRegistration))
+    : Promise.reject(new Error(`${req.method} !== 'POST'`)))
+
+  const result = await putRegistrationGroup(mockRegistration)
+  expect(fetchMock.mock.calls.length).toEqual(1)
+  expect(fetchMock.mock.calls[0][0]).toEqual(API_BASE_URL + '/admin/registration/test-id/test-registration-id')
   expect(result.id).not.toBeUndefined()
 })
