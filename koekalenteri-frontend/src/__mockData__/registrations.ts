@@ -1,7 +1,37 @@
 import { Registration } from 'koekalenteri-shared/model'
 
 import { registrationDogAged10MonthsAndNoResults, registrationDogAged20MonthsAndNoResults, registrationDogAged28MonthsWithNOUResult } from './dogs'
-import { eventWithStaticDates, eventWithStaticDatesAndClass } from './events'
+import { eventWithEntryClosed, eventWithStaticDates, eventWithStaticDatesAndClass } from './events'
+
+
+const mockRegistrationDefaults = {
+  createdBy: 'anonymous',
+  modifiedBy: 'anonymous',
+  agreeToPublish: true,
+  agreeToTerms: true,
+  breeder: {
+    name: 'Breeder Name',
+    location: 'Breeder Location',
+  },
+  handler: {
+    name: 'Handler Name',
+    location: 'Handler Location',
+    email: 'handler@exmaple.com',
+    phone: '0700-handler',
+    membership: false,
+  },
+  owner: {
+    name: 'Owner Name',
+    location: 'Owner Location',
+    email: 'owner@exmaple.com',
+    phone: '0700-owner',
+    membership: false,
+  },
+  language: 'fi' as const,
+  notes: 'additional notes',
+  qualifyingResults: [],
+  reserve: 'ANY' as const,
+}
 
 export const registrationWithStaticDates: Registration = {
   id: 'nou-registration',
@@ -85,3 +115,65 @@ export const registrationWithStaticDatesCancelled: Registration = {
   cancelled: true,
   dog: registrationDogAged20MonthsAndNoResults,
 }
+
+
+export const registrationsToEventWithEntryClosed: Registration[] = [
+  {
+    ...mockRegistrationDefaults,
+    id: eventWithEntryClosed.id + '1',
+    eventId: eventWithEntryClosed.id,
+    eventType: eventWithEntryClosed.eventType,
+    class: 'ALO',
+    dates: [{ date: eventWithEntryClosed.startDate, time: 'ap' }],
+    dog: registrationDogAged28MonthsWithNOUResult,
+    createdAt: eventWithEntryClosed.entryStartDate,
+    modifiedAt: eventWithEntryClosed.entryEndDate,
+  },
+  {
+    ...mockRegistrationDefaults,
+    id: eventWithEntryClosed.id + '2',
+    eventId: eventWithEntryClosed.id,
+    eventType: eventWithEntryClosed.eventType,
+    class: 'ALO',
+    dates: [{ date: eventWithEntryClosed.startDate, time: 'ap' }, { date: eventWithEntryClosed.startDate, time: 'ip' }],
+    dog: registrationDogAged28MonthsWithNOUResult,
+    createdAt: eventWithEntryClosed.entryStartDate,
+    modifiedAt: eventWithEntryClosed.entryEndDate,
+  },
+  {
+    ...mockRegistrationDefaults,
+    id: eventWithEntryClosed.id + '3',
+    eventId: eventWithEntryClosed.id,
+    eventType: eventWithEntryClosed.eventType,
+    class: 'AVO',
+    dates: [{ date: eventWithEntryClosed.startDate, time: 'ap' }],
+    dog: registrationDogAged28MonthsWithNOUResult,
+    createdAt: eventWithEntryClosed.entryStartDate,
+    modifiedAt: eventWithEntryClosed.entryEndDate,
+  },
+  {
+    ...mockRegistrationDefaults,
+    id: eventWithEntryClosed.id + '4',
+    eventId: eventWithEntryClosed.id,
+    eventType: eventWithEntryClosed.eventType,
+    class: 'AVO',
+    dates: [{ date: eventWithEntryClosed.startDate, time: 'ip' }],
+    dog: registrationDogAged28MonthsWithNOUResult,
+    createdAt: eventWithEntryClosed.entryStartDate,
+    modifiedAt: eventWithEntryClosed.entryEndDate,
+  },
+  {
+    ...mockRegistrationDefaults,
+    id: eventWithEntryClosed.id + '5',
+    eventId: eventWithEntryClosed.id,
+    eventType: eventWithEntryClosed.eventType,
+    class: 'ALO',
+    dates: [{ date: eventWithEntryClosed.startDate, time: 'ip' }],
+    dog: registrationDogAged28MonthsWithNOUResult,
+    createdAt: eventWithEntryClosed.entryStartDate,
+    modifiedAt: eventWithEntryClosed.entryEndDate,
+    cancelled: true,
+    cancelReason: 'koska mä voin',
+  },
+
+]

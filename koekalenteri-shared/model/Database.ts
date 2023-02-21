@@ -1,6 +1,4 @@
-import { Replace, ReplaceOptional } from ".";
-
-export type JsonDbRecord = {
+export interface JsonDbRecord {
   id: string
   createdAt: string
   createdBy: string
@@ -10,4 +8,8 @@ export type JsonDbRecord = {
   modifiedBy: string
 }
 
-export type DbRecord = ReplaceOptional<Replace<JsonDbRecord, 'createdAt' | 'modifiedAt', Date>, 'deletedAt', Date>
+export interface DbRecord extends Omit<JsonDbRecord, 'createdAt' | 'modifiedAt' | 'deletedAt'> {
+  createdAt: Date,
+  modifiedAt: Date,
+  deletedAt?: Date,
+}
