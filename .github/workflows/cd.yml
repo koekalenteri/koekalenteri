@@ -55,7 +55,7 @@ jobs:
           echo "The branch is $BRANCH"
       - name: SAM Build
         run: |
-          sam build
+          sam build --debug
       - name: SAM Deploy
         run: |
           # Create S3 Bucket to store code
