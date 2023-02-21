@@ -498,6 +498,12 @@ Resources:
             Method: POST
             RestApiId: !Ref KoekalenteriApi
 
+  PutRegistrationGroupFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref AWS::StackName, !Ref PutRegistrationGroupFunction]]
+      RetentionInDays: 30
+
   GetJudgesFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
