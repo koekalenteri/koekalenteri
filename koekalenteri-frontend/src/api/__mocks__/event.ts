@@ -1,11 +1,12 @@
 import { parseISO } from 'date-fns'
 import { Event } from 'koekalenteri-shared/model'
 
-import { eventWithEntryClosing, eventWithEntryNotYetOpen, eventWithEntryOpen, eventWithStaticDates, eventWithStaticDatesAndClass } from '../../__mockData__/events'
+import { eventWithEntryClosed, eventWithEntryClosing, eventWithEntryNotYetOpen, eventWithEntryOpen, eventWithStaticDates, eventWithStaticDatesAndClass } from '../../__mockData__/events'
 import { emptyEvent } from '../test-utils/emptyEvent'
 
 export const mockEvents: Event[] = [
   eventWithStaticDates,
+  eventWithEntryClosed, // in between the static dates for simulating unordered api response
   eventWithStaticDatesAndClass,
   {
     ...emptyEvent,

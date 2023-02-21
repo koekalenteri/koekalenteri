@@ -42,6 +42,6 @@ describe('EventListPage', () => {
 
     expect(onChange).toHaveBeenCalledTimes(2)
     expect(onChange).toHaveBeenCalledWith(undefined)
-    expect(onChange).toHaveBeenCalledWith('test3')
+    expect(onChange).toHaveBeenCalledWith('testEntryClosed')
   })
 })
