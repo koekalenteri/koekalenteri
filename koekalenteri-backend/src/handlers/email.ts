@@ -26,7 +26,7 @@ export async function sendReceipt(registration: JsonRegistration, date: string) 
   if (registration.owner.email !== registration.handler.email) {
     to.push(registration.owner.email);
   }
-  return undefined /*
+  return undefined /* TODO
   return sendTemplatedMail('PaymentReceipt', registration.language, from, to, {
     subject: t('registration.email.subject', { context }),
     title: t('registration.email.title', { context }),
