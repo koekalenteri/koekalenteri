@@ -6,7 +6,7 @@ import { diff } from 'deep-object-diff'
 import { TFunction } from 'i18next'
 import { ConfirmedEvent, DeepPartial, Registration, TestResult } from 'koekalenteri-shared/model'
 
-import { RegistrationClass } from '../../rules'
+import { getRequirements, RegistrationClass } from '../../rules'
 import { hasChanges, merge } from '../../utils'
 
 import { EntryInfo } from './registrationForm/1.Entry'
@@ -54,6 +54,12 @@ export default function RegistrationForm({ event, className, registration, class
   const [errors, setErrors] = useState(validateRegistration(registration, event))
   const [open, setOpen] = useState<{ [key: string]: boolean | undefined }>({})
   const valid = errors.length === 0 && qualifies
+
+  const requirements = useMemo(() => getRequirements(
+    registration.eventType ?? '',
+    registration.class as RegistrationClass,
+    registration.dates && registration.dates.length ? registration.dates[0].date : new Date(),
+  ), [registration.eventType, registration.class, registration.dates])
 
   const handleChange = useCallback((props: DeepPartial<Registration>) => {
     if (props.class || props.results || props.dog?.results) {
@@ -176,7 +182,10 @@ export default function RegistrationForm({ event, className, registration, class
           />
         </Collapse>
         <QualifyingResultsInfo
-          reg={registration}
+          regNo={registration.dog?.regNo}
+          requirements={requirements}
+          results={registration.results}
+          qualifyingResults={registration.qualifyingResults}
           error={!qualifies}
           helperText={helperTexts.qualifyingResults}
           onChange={handleChange}
