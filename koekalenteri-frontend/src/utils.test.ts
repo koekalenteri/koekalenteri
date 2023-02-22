@@ -172,6 +172,7 @@ describe('utils', () => {
       'äö@domain.com',
       'too.many.parts.in.user.name@domain.com',
       'user@too.many.parts.in.domain.name',
+      'user@localhost', // no dot in domain part
     ])('should return false for %p', (value) => {
       expect(validEmail(value)).toEqual(false)
     })
