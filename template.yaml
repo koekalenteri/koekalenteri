@@ -820,11 +820,11 @@ Resources:
               - ssm:GetParameter
               Resource: '*'
         - DynamoDBCrudPolicy:
-            TableName: !Ref RegistrationTable
+            TableName: !Ref EventRegistrationTable
         - CloudWatchPutMetricPolicy: {}
       Environment:
         Variables:
-          TABLE_NAME: !Ref RegistrationTable
+          TABLE_NAME: !Ref EventRegistrationTable
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
 
       Events:
