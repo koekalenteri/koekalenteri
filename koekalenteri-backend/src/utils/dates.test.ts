@@ -23,7 +23,7 @@ test('formatDateSpan', () => {
 describe('currentFinnishTime', () => {
   beforeAll(() => {
     jest.useFakeTimers()
-    jest.setSystemTime(new Date(2020, 3, 1, 10, 20, 30))
+    jest.setSystemTime(new Date("2020-04-01T10:20:30Z"))
   })
 
   afterAll(() => {
@@ -31,6 +31,6 @@ describe('currentFinnishTime', () => {
   })
 
   it('formats correctly', () => {
-    expect(currentFinnishTime()).toEqual('2020-04-01T10:20:30+03:00')
+    expect(currentFinnishTime()).toEqual('2020-04-01T13:20:30+03:00')
   })
 })
