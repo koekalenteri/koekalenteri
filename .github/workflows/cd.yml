@@ -35,7 +35,6 @@ jobs:
           sam validate
       - name: Configure variables
         shell: bash
-        id: vars
         env:
           REPO: ${{ github.repository }}
           HASH: ${{ github.sha }}
@@ -47,29 +46,29 @@ jobs:
           ENVIRONMENT=$REPOSITORY-$BRANCH
           # In this step we are setting variables and persistenting them
           # into the environment so that they can be utilized in other steps
-          echo "::set-output name=branch::$BRANCH"
-          echo "::set-output name=repository::$REPOSITORY"
-          echo "::set-output name=environment::$ENVIRONMENT"
+          echo "branch=$BRANCH" >> $GITHUB_ENV
+          echo "repository=$REPOSITORY" >> $GITHUB_ENV
+          echo "environment=$ENVIRONMENT" >> $GITHUB_ENV
           # Output variables to ensure their values are set correctly when ran
-          echo "The repository is $REPOSITORY"
-          echo "The environment is $ENVIRONMENT"
-          echo "The branch is $BRANCH"
+          echo "The repository is ${{ env.repository }}"
+          echo "The environment is ${{ env.environment }}"
+          echo "The branch is ${{ env.branch }}"
       - name: SAM Build
         run: |
           sam build
       - name: SAM Deploy
         run: |
           # Create S3 Bucket to store code
-          aws s3api head-bucket --bucket "${{ steps.vars.outputs.environment }}" 2>/dev/null \
-            || aws s3 mb s3://${{ steps.vars.outputs.environment }}
+          aws s3api head-bucket --bucket "${{ env.environment }}" 2>/dev/null \
+            || aws s3 mb s3://${{ env.environment }}
           # Run SAM Deploy
           sam deploy --template-file .aws-sam/build/template.yaml \
-            --stack-name ${{ steps.vars.outputs.environment }} \
-            --s3-bucket ${{ steps.vars.outputs.environment }} \
+            --stack-name ${{ env.environment }} \
+            --s3-bucket ${{ env.environment }} \
             --parameter-overrides \
-              'ParameterKey=StageNameParam,ParameterValue=${{ steps.vars.outputs.branch }} \
+              'ParameterKey=StageNameParam,ParameterValue=${{ env.branch }} \
               ParameterKey=Repository,ParameterValue=https://github.com/${{ github.repository }} \
               ParameterKey=OauthToken,ParameterValue=${{ secrets.AWS_OAUTH_TOKEN }}
-              ParameterKey=Branch,ParameterValue=${{ steps.vars.outputs.branch }}' \
+              ParameterKey=Branch,ParameterValue=${{ env.branch }}' \
             --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
             --no-confirm-changeset --no-fail-on-empty-changeset
