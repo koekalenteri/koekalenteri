@@ -3,13 +3,20 @@ import { BreedCode, ConfirmedEvent, Dog, Person, QualifyingResult, Registration,
 
 import { ValidationResult, Validators2, WideValidationResult } from '../../../i18n/validation'
 import { EventRequirement, EventResultRequirement, EventResultRequirements, EventResultRequirementsByDate, getRequirements, RegistrationClass, REQUIREMENTS } from '../../../rules'
+import { validEmail } from '../../../utils'
 
 function validateBreeder(breeder: RegistrationBreeder | undefined) {
   return !breeder || !breeder.name || !breeder.location
 }
 
-function validatePerson(person: Person | undefined) {
-  return !person || !person.email || !person.name || !person.location || !person.phone
+export function validatePerson(person: Person | undefined) {
+  if (!person || !person.email || !person.name || !person.location || !person.phone) {
+    return 'required'
+  }
+  if (!validEmail(person.email)) {
+    return 'email'
+  }
+  return false
 }
 
 const VALIDATORS: Validators2<Registration, 'registration', ConfirmedEvent> = {
@@ -19,10 +26,10 @@ const VALIDATORS: Validators2<Registration, 'registration', ConfirmedEvent> = {
   class: (reg, _req, evt) => evt.classes.length > 0 && !reg.class,
   dates: (reg) => reg.dates.length === 0,
   dog: (reg, _req, evt) => validateDog(evt, reg),
-  handler: (reg) => !reg.ownerHandles && validatePerson(reg.handler) ? 'required' : false,
+  handler: (reg) => reg.ownerHandles ? false : validatePerson(reg.handler),
   id: () => false,
   notes: () => false,
-  owner: (reg) => validatePerson(reg.owner) ? 'required' : false,
+  owner: (reg) => validatePerson(reg.owner),
   reserve: (reg) => !reg.reserve ? 'reserve' : false,
   results: () => false,
 }

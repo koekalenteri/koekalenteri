@@ -1,6 +1,7 @@
 import { eachDayOfInterval, endOfDay, startOfDay, subDays } from 'date-fns'
 import { diff } from 'deep-object-diff'
 import { DeepPartial, Event, JsonValue, RegistrationDate } from 'koekalenteri-shared/model'
+import { toASCII } from 'punycode'
 
 type EventDates = {
   startDate?: Date
@@ -77,4 +78,26 @@ export const merge = <T>(a: T, b: DeepPartial<T>): T => {
     }
   }
   return result
+}
+
+const USEREXP = /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+){0,4}$/i
+const DOMAINEXP = /^(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.){1,4}[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/i
+export const validEmail = (email: string) => {
+  const parts = email.split('@')
+
+  if (parts.length !== 2) {
+    return false
+  }
+
+  const [user, domain] = parts
+  if (user.match(USEREXP) === null) {
+    return false
+  }
+
+  const asciiDomain = toASCII(domain) // allow internationalized domain name
+  if (asciiDomain.match(DOMAINEXP) === null) {
+    return false
+  }
+
+  return true
 }
