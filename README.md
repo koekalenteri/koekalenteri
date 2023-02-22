@@ -11,7 +11,7 @@ The following tools must be installed:
 * [AWS CLI](https://aws.amazon.com/cli/)
 * [AWS SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html)
 * [Docker](https://www.docker.com/get-started)
-* [Node.js 14+](https://nodejs.org/)
+* [Node.js 16+](https://nodejs.org/)
 
 All scripts assume that you have a well configured CLI with the necessary AWS profile set, see [AWS profile creation](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-profiles.html). It is recommended to name this profile as *koekalenteri* – at least all scripts and examples here assume this setup.
 

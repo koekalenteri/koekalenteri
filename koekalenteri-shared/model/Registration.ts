@@ -17,8 +17,10 @@ export interface JsonRegistration extends JsonDbRecord {
   qualifyingResults: JsonQualifyingResult[]
   reserve: ReserveChoise | ''
   results?: Array<JsonTestResult & { id: string }>
-  paid?: boolean
   cancelled?: boolean
+  receiptSent?: boolean
+  paidAt?: Date
+  paymentStatus?: PaymentStatus
   group?: JsonRegistrationGroup
 }
 
@@ -46,8 +48,10 @@ export interface Registration extends DbRecord {
   qualifyingResults: QualifyingResult[]
   reserve: ReserveChoise | ''
   results?: Array<ManualTestResult>
-  paid?: boolean
   cancelled?: boolean
+  receiptSent?: boolean
+  paidAt?: Date
+  paymentStatus?: PaymentStatus
   cancelReason?: string
   group?: RegistrationGroup
 }
@@ -71,3 +75,5 @@ export interface RegistrationPerson extends Person {
 export interface RegistrationBreeder extends Omit<Person, 'email' | 'phone'> { }
 
 export type ReserveChoise = 'ANY' | 'DAY' | 'WEEK' | 'NO'
+
+export type PaymentStatus = 'SUCCESS' | 'CANCEL' | 'PENDING'

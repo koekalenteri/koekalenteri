@@ -1,13 +1,13 @@
-import type { JsonArray, JsonObject } from 'koekalenteri-shared/model'
-import fetch from 'node-fetch'
-
+import fetch from 'node-fetch';
+import type { JsonArray, JsonObject } from 'koekalenteri-shared/model';
+import { getSSMParams } from './environment';
 import type {
   KLAPIConfig, KLAPIResult, KLArvo, KLKennelpiiri, KLKoeHenkilö, KLKoemuodonTarkenne, KLKoemuodonTulos,
   KLKoemuodotParametrit, KLKoemuoto, KLKoemuotoParametrit, KLKoetapahtuma,
   KLKoetapahtumaParametrit, KLKoetulos, KLKoetulosParametrit, KLKoira, KLKoiraParametrit,
-  KLPaikkakunta, KLParametritParametrit, KLRodutParametrit, KLRotu,   KLRoturyhmä, KLRoturyhmätParametrit,
-  KLYhdistys, KLYhdistysParametrit,
-} from './KLAPI_models.js'
+  KLPaikkakunta, KLParametritParametrit, KLRodutParametrit, KLRotu, KLRoturyhmätParametrit,
+  KLRoturyhmä, KLYhdistys, KLYhdistysParametrit
+} from './KLAPI_models';
 
 function toURLParams(params: Record<string, string | number | undefined> = {}): Record<string, string> {
   const result: Record<string, string> = {}

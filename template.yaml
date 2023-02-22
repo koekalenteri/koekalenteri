@@ -803,6 +803,40 @@ Resources:
             #Auth:
             #  Authorizer: CognitoAuthorizer
 
+  PutEventTypeFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: koekalenteri-backend
+      Handler: dist/handlers/paymentHandler.paymentConfirm
+      Layers:
+        - !Ref CommonLayer
+      Tracing: Active
+      Policies:
+        - Statement:
+            - Sid: SSMGetParameterPolicy
+              Effect: Allow
+              Action:
+              - ssm:GetParameters
+              - ssm:GetParameter
+              Resource: '*'
+        - DynamoDBCrudPolicy:
+            TableName: !Ref RegistrationTable
+        - CloudWatchPutMetricPolicy: {}
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref RegistrationTable
+          AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
+
+      Events:
+        PutEvent:
+          Type: Api
+          Properties:
+            Path: /payment/confirm
+            Method: POST
+            RestApiId: !Ref KoekalenteriApi
+            #Auth:
+            #  Authorizer: CognitoAuthorizer
+
   CommonLayer:
     Type: AWS::Serverless::LayerVersion
     Properties:
