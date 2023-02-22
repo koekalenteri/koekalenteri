@@ -43,34 +43,16 @@ export const DogInfo = ({ reg, eventDate, minDogAgeMonths, error, helperText, on
   const { t } = useTranslation()
   const { t: breed } = useTranslation('breed')
   const [inputRegNo, setInputRegNo] = useState<string>(reg?.dog?.regNo ?? '')
-  //const debouncedRegNo = useDebouncedValue(inputRegNo)
   const [mode, setMode] = useState<'fetch' | 'manual' | 'update' | 'invalid' | 'notfound'>(inputRegNo ? 'update' : 'fetch')
   const disabled = mode !== 'manual'
   const validRegNo = validateRegNo(inputRegNo)
-  //const [officialDog, setOfficialDog] = useState<Dog|undefined>()
   const [cache, setCache] = useDogCache(inputRegNo)
   const [loading, setLoading] = useState(false)
-  //const debouncedCache = useDebouncedValue(cache)
   const allowRefresh = shouldAllowRefresh(reg?.dog)
   const cachedRegNos = useRecoilValue(cachedDogRegNumbersSelector)
   const actions = useDogActions(inputRegNo)
 
-  /*
-  useEffect(() => {
-    if (inputRegNo !== reg?.dog?.regNo) {
-      setInputRegNo(reg?.dog?.regNo ?? '')
-      setMode(reg?.dog?.regNo ? 'update' : 'fetch')
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [reg?.dog?.regNo])
-  */
-
-  // @ts-ignore
-  //const dog = useMemo(() => merge<Dog>(reg.dog ?? emptyDog, officialDog ?? {}), [officialDog, reg?.dog])
-  //const debouncedDog = useDebouncedValue(dog)
-
   const handleChange = useCallback((props: Partial<Dog & DogCachedInfo>) => {
-    console.debug('handleChange', cache?.dog?.regNo, props, cache)
     const dog = {...cache?.dog, ...props}
     setCache({...cache, dog})
     onChange?.({dog})
@@ -93,7 +75,6 @@ export const DogInfo = ({ reg, eventDate, minDogAgeMonths, error, helperText, on
         // let's not overwrite updated titles
         changes.dog = { ...changes.dog, titles: reg.dog.titles }
       }
-      console.log(changes)
       onChange?.(changes)
     }
   }, [onChange, reg?.dog, setCache])
@@ -121,58 +102,19 @@ export const DogInfo = ({ reg, eventDate, minDogAgeMonths, error, helperText, on
 
   const handleRegNoChange = useCallback((event: SyntheticEvent<Element, Event>, value: string | null) => {
     if (value !== null && value !== inputRegNo) {
-      console.log('handleRegNoChange', buttonClick, cachedRegNos, inputRegNo, value)
       const upper = value.toLocaleUpperCase()
       setInputRegNo(upper)
       setMode('fetch')
     }
-  }, [buttonClick, cachedRegNos, inputRegNo])
+  }, [inputRegNo])
 
   useEffect(() => {
     if (inputRegNo !== reg.dog?.regNo) {
-      console.log(`"${reg.dog?.regNo}" => "${inputRegNo}"`)
       if (validRegNo || inputRegNo === '') {
         buttonClick()
       }
     }
   }, [buttonClick, inputRegNo, reg.dog?.regNo, validRegNo])
-
-  /*
-  useEffect(() => {
-    if (debouncedRegNo === inputRegNo && mode === 'fetch' && validRegNo && cachedRegNos.includes(debouncedRegNo)) {
-      buttonClick()
-    }
-  }, [buttonClick, cachedRegNos, debouncedRegNo, inputRegNo, mode, validRegNo])
-
-  useEffect(() => {
-    if (validRegNo) {
-      setMode(officialDog || reg?.dog?.regNo === inputRegNo ? 'update' : 'notfound')
-    } else {
-      setMode('fetch')
-    }
-  }, [inputRegNo, officialDog, reg?.dog?.regNo, validRegNo])
-
-  useEffect(() => {
-    if (debouncedDog.regNo !== inputRegNo || mode === 'fetch' || mode === 'notfound') {
-      return
-    }
-
-    if (hasChanges(reg?.dog, debouncedDog)) {
-      const changes: DeepPartial<Registration> = { dog: debouncedDog }
-      if (reg?.dog?.regNo !== debouncedDog.regNo) {
-        changes.breeder = debouncedCache?.breeder
-        changes.handler = debouncedCache?.handler
-        changes.owner = debouncedCache?.owner
-        changes.ownerHandles = debouncedCache?.owner?.ownerHandles ?? true
-        changes.results = []
-        if (!debouncedCache) {
-          setCache({ owner: { ownerHandles: true }})
-        }
-      }
-      onChange?.(changes)
-    }
-  }, [debouncedCache, debouncedDog, inputRegNo, mode, onChange, reg?.dog, setCache])
-  */
 
   return (
     <CollapsibleSection title={t('registration.dog')} error={error} helperText={helperText} open={open} onOpenChange={onOpenChange}>

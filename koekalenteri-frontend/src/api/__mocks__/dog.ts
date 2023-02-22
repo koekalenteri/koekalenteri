@@ -20,10 +20,8 @@ const mockDogs: Dog[] = [
 ]
 
 export async function getDog(regNo: string, refresh?: boolean, signal?: AbortSignal): Promise<Dog> {
-  console.debug('MOCK getDog', regNo, refresh, signal)
   return new Promise((resolve) => {
     const dog = mockDogs.find(d => d.regNo === regNo) ?? defaultDog(regNo)
-    console.debug('returning dog', dog)
     process.nextTick(() => resolve(dog))
   })
 }
