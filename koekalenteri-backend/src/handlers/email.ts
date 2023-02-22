@@ -2,7 +2,7 @@ import { metricScope, MetricsLogger } from 'aws-embedded-metrics'
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import AWS from 'aws-sdk'
 import type { SendTemplatedEmailRequest, Template } from 'aws-sdk/clients/ses'
-import { JsonRegistration, Language } from 'koekalenteri-shared/model'
+import { JsonEmailTemplate, JsonRegistration, Language } from 'koekalenteri-shared/model'
 
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { markdownToTemplate } from '../utils/email/markdown'
