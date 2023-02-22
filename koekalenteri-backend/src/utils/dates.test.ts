@@ -1,4 +1,6 @@
-import { formatDateSpan } from './dates'
+import {jest} from '@jest/globals'
+
+import { currentFinnishTime, formatDateSpan } from './dates'
 
 test('formatDateSpan', () => {
   const tests = [
@@ -16,4 +18,19 @@ test('formatDateSpan', () => {
     expect(formatDateSpan(test.start, new Date(test.end))).toEqual(test.result)
     expect(formatDateSpan(new Date(test.start), new Date(test.end))).toEqual(test.result)
   }
+})
+
+describe('currentFinnishTime', () => {
+  beforeAll(() => {
+    jest.useFakeTimers()
+    jest.setSystemTime(new Date(2020, 3, 1))
+  })
+
+  afterAll(() => {
+    jest.useRealTimers()
+  })
+
+  it('formats correctly', () => {
+    expect(currentFinnishTime()).toEqual('2020-04-01T00:00:00+03:00')
+  })
 })

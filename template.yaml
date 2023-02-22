@@ -803,7 +803,7 @@ Resources:
             #Auth:
             #  Authorizer: CognitoAuthorizer
 
-  PutEventTypeFunction:
+  PaymentConfirmFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: koekalenteri-backend

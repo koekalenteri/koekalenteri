@@ -14,7 +14,7 @@ const dynamoDB = new CustomDynamoClient()
 const ses = new AWS.SES()
 
 // TODO: sender address from env / other config
-const from = "koekalenteri@koekalenteri.snj.fi";
+const from = "koekalenteri@koekalenteri.snj.fi"
 const stackName = process.env.AWS_SAM_LOCAL ? 'local' : process.env.STACK_NAME ?? 'local'
 
 export enum EmailTemplate {
@@ -22,9 +22,9 @@ export enum EmailTemplate {
 }
 
 export async function sendReceipt(registration: JsonRegistration, date: string) {
-  const to: string[] = [registration.handler.email];
+  const to: string[] = [registration.handler.email]
   if (registration.owner.email !== registration.handler.email) {
-    to.push(registration.owner.email);
+    to.push(registration.owner.email)
   }
   return undefined /* TODO
   return sendTemplatedMail('PaymentReceipt', registration.language, from, to, {

@@ -15,6 +15,6 @@ export const redirect = (body: unknown, url: string): APIGatewayProxyResult => (
   headers: {
     'Access-Control-Allow-Origin': '*',
     'Content-Type': 'application/json',
-    'Location': url
+    'Location': url,
   },
 })
