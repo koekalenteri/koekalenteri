@@ -80,8 +80,8 @@ export const merge = <T>(a: T, b: DeepPartial<T>): T => {
   return result
 }
 
-const USEREXP = /^[a-z0-9!#$%&'*+-/=?^_`{|}~]+(?:\.[a-z0-9!#$%&'*+-/=?^_`{|}~]+)*$/i
-const DOMAINEXP = /^(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/i
+const USEREXP = /^[a-z0-9!#$%&'*+-/=?^_`{|}~]{1,5}(?:\.[a-z0-9!#$%&'*+-/=?^_`{|}~]+)*$/i
+const DOMAINEXP = /^(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.){1,5}[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/i
 export const validEmail = (email: string) => {
   const parts = email.split('@')
 
