@@ -1,7 +1,7 @@
 import { Event, EventClass } from 'koekalenteri-shared/model'
 
 import { eventWithEntryClosing, eventWithEntryNotYetOpen, eventWithEntryOpen } from './__mockData__/events'
-import { AnyObject, clone, entryDateColor, hasChanges, isEmpty, isObject, merge, parseJSON, registrationDates } from './utils'
+import { AnyObject, clone, entryDateColor, hasChanges, isEmpty, isObject, merge, parseJSON, registrationDates, validEmail } from './utils'
 
 describe('utils', () => {
   describe('entryDateColor', () => {
@@ -148,5 +148,31 @@ describe('utils', () => {
       expect(merge(a, value)).toEqual(a)
       expect(merge(value, a)).toEqual(a)
     })
+  })
+
+  describe('validEmail', () => {
+    it.each([
+      'user@domain.com',
+      'user.name@domain.fi',
+      'long.user.name@long.domain.name.blog',
+      'user@äö.com',
+    ])('should return true for %p', (value) => {
+      expect(validEmail(value)).toEqual(true)
+    })
+    it.each([
+      '',
+      '@',
+      'a@b',
+      'user@-domain.com',
+      'user@domain.com-',
+      'user@.domain.com',
+      'user@domain.com.',
+      'user name@domain.com',
+      'something@something',
+      'äö@domain.com',
+    ])('should return false for %p', (value) => {
+      expect(validEmail(value)).toEqual(false)
+    })
+
   })
 })

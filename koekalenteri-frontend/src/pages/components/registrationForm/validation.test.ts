@@ -1,6 +1,6 @@
-import { BreedCode } from 'koekalenteri-shared/model'
+import { BreedCode, Person } from 'koekalenteri-shared/model'
 
-import { filterRelevantResults, validateDog } from './validation'
+import { filterRelevantResults, validateDog, validatePerson } from './validation'
 
 const testDog = {
   regNo: 'test-123',
@@ -10,6 +10,13 @@ const testDog = {
   results: [],
   sire: { titles: '', name: 'Sire' },
   dam: { titles: '', name: 'Dam' },
+}
+
+const testPerson: Person = {
+  name: 'Matti Meikäläinen',
+  email: 'email@domain.com',
+  phone: '0401234567',
+  location: 'Helsinki',
 }
 
 describe('validateDog', function() {
@@ -374,5 +381,24 @@ describe('validateDog', function() {
           .toEqual(false)
       })
     })
+  })
+})
+
+describe('validatePerson', () => {
+  it ('should require name', () => {
+    expect(validatePerson({...testPerson, name: ''})).toEqual('required')
+  })
+
+  it ('should require and validate email', () => {
+    expect(validatePerson({...testPerson, email: ''})).toEqual('required')
+    expect(validatePerson({...testPerson, email: '-@a'})).toEqual('email')
+  })
+
+  it ('should require phone', () => {
+    expect(validatePerson({...testPerson, phone: ''})).toEqual('required')
+  })
+
+  it ('should require locaton', () => {
+    expect(validatePerson({...testPerson, location: ''})).toEqual('required')
   })
 })
