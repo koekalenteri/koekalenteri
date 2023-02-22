@@ -170,6 +170,8 @@ describe('utils', () => {
       'user name@domain.com',
       'something@something',
       'äö@domain.com',
+      'too.many.parts.in.user.name@domain.com',
+      'user@too.many.parts.in.domain.name',
     ])('should return false for %p', (value) => {
       expect(validEmail(value)).toEqual(false)
     })
