@@ -99,10 +99,5 @@ export const validEmail = (email: string) => {
     return false
   }
 
-  // this is not RFC, but lets require a dot in the domain part anyway
-  if (!asciiDomain.includes('.')) {
-    return false
-  }
-
   return true
 }
