@@ -62,7 +62,7 @@ export default function RegistrationList({rows, onUnregister}: {rows: Registrati
       renderCell: (params) => params.value ? <PersonOutline /> : '',
     },
     {
-      field: 'paid',
+      field: 'paymentStatus',
       headerName: t('registration.paid'),
       headerAlign: 'center',
       align: 'center',

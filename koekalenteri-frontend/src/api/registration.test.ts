@@ -55,7 +55,7 @@ const mockRegistration: Registration = {
     location: 'test-location',
     judge: 'test-judge',
   }],
-  paid: true,
+  paymentStatus: 'SUCCESS',
   cancelled: false,
 }
 
