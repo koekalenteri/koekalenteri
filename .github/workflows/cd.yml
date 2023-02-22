@@ -49,15 +49,15 @@ jobs:
           echo "branch=$BRANCH" >> $GITHUB_ENV
           echo "repository=$REPOSITORY" >> $GITHUB_ENV
           echo "environment=$ENVIRONMENT" >> $GITHUB_ENV
-          # Output variables to ensure their values are set correctly when ran
-          echo "The repository is ${{ env.repository }}"
-          echo "The environment is ${{ env.environment }}"
-          echo "The branch is ${{ env.branch }}"
       - name: SAM Build
         run: |
           sam build
       - name: SAM Deploy
         run: |
+          # Output variables to ensure their values are set correctly when ran
+          echo "The repository is ${{ env.repository }}"
+          echo "The environment is ${{ env.environment }}"
+          echo "The branch is ${{ env.branch }}"
           # Create S3 Bucket to store code
           aws s3api head-bucket --bucket "${{ env.environment }}" 2>/dev/null \
             || aws s3 mb s3://${{ env.environment }}
