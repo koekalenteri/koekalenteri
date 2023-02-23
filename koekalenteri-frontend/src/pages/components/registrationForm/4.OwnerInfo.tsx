@@ -19,15 +19,15 @@ interface Props {
 
 export function OwnerInfo({reg, error, helperText, onChange, onOpenChange, open}: Props) {
   const { t } = useTranslation()
-  const [, setCache] = useDogCacheKey(reg.dog?.regNo, 'owner')
+  const [cache, setCache] = useDogCacheKey(reg.dog?.regNo, 'owner')
 
   const handleChange = useCallback((props: Partial<RegistrationPerson & { ownerHandles : boolean }>) => {
-    const cached = setCache(props)
+    const cached = setCache({...cache, ...props})
     if (cached) {
       const {ownerHandles, ...owner} = cached
       onChange({ owner, ownerHandles })
     }
-  }, [onChange, setCache])
+  }, [cache, onChange, setCache])
 
   return (
     <CollapsibleSection title={t('registration.owner')} error={error} helperText={helperText} open={open} onOpenChange={onOpenChange}>

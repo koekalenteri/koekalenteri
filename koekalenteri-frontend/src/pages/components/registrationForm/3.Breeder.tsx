@@ -19,12 +19,12 @@ type BreederInfoProps = {
 
 export function BreederInfo({ reg, error, helperText, onChange, onOpenChange, open }: BreederInfoProps) {
   const { t } = useTranslation()
-  const [, setCache] = useDogCacheKey(reg.dog?.regNo, 'breeder')
+  const [cache, setCache] = useDogCacheKey(reg.dog?.regNo, 'breeder')
 
   const handleChange = useCallback((props: Partial<RegistrationBreeder>) => {
-    const breeder = setCache(props)
+    const breeder = setCache({...cache, ...props})
     onChange({ breeder })
-  }, [onChange, setCache])
+  }, [cache, onChange, setCache])
 
   return (
     <CollapsibleSection title={t('registration.breeder')} error={error} helperText={helperText} open={open} onOpenChange={onOpenChange}>

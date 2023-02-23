@@ -32,7 +32,6 @@ interface Props {
 
 export const emptyDog = {
   regNo: '',
-  refreshDate: undefined,
   results: [],
 }
 export const emptyBreeder = {
@@ -61,7 +60,7 @@ export default function RegistrationForm({ event, className, registration, class
     registration.dates && registration.dates.length ? registration.dates[0].date : new Date(),
   ), [registration.eventType, registration.class, registration.dates])
 
-  const handleChange = useCallback((props: DeepPartial<Registration>) => {
+  const handleChange = useCallback((props: DeepPartial<Registration>, replace?: boolean) => {
     if (props.class || props.results || props.dog?.results) {
       const cls = props.class ?? registration.class
       const dogResults = props.dog?.results ?? registration.dog.results ?? []
@@ -70,7 +69,7 @@ export default function RegistrationForm({ event, className, registration, class
       props.qualifyingResults = filtered.relevant
       setQualifies(filtered.qualifies)
     }
-    const newState = merge<Registration>(registration, props)
+    const newState = replace ? Object.assign({}, registration, props) : merge<Registration>(registration, props)
     if (hasChanges(registration, newState)) {
       console.debug('change', {changes: props, diff: diff(registration, newState)})
       setErrors(validateRegistration(newState, event))

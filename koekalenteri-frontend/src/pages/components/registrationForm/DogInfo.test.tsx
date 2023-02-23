@@ -57,14 +57,14 @@ describe('DogInfo', () => {
 
     await user.clear(input)
     expect(input).toHaveValue('')
-    expect(changeHandler).toHaveBeenLastCalledWith(expect.objectContaining({ dog: expect.objectContaining({ regNo: '' }), ownerHandles: true, results: [] }))
+    expect(changeHandler).toHaveBeenLastCalledWith(expect.objectContaining({ dog: expect.objectContaining({ regNo: '' }), ownerHandles: true, results: [] }), true)
 
     await user.type(input, newDog.regNo)
     expect(input).toHaveValue(newDog.regNo)
     await waitForDebounce()
     await waitForDebounce() // TODO: too much debouncing?
 
-    expect(changeHandler).toHaveBeenLastCalledWith(expect.objectContaining({ dog: registrationDogAged20MonthsAndNoResults }))
+    expect(changeHandler).toHaveBeenLastCalledWith(expect.objectContaining({ dog: registrationDogAged20MonthsAndNoResults }), true)
   })
 
 })

@@ -20,5 +20,9 @@ describe('useDogCache', () => {
       setCache({ name: 'Breeder Name'})
     })
     expect(localStorage.setItem).toHaveBeenCalledWith('dog-cache', '{"test":{"breeder":{"name":"Breeder Name"}}}')
+    act(() => {
+      setCache({ location: 'Breeder Location'})
+    })
+    expect(localStorage.setItem).toHaveBeenCalledWith('dog-cache', '{"test":{"breeder":{"location":"Breeder Location"}}}')
   })
 })
