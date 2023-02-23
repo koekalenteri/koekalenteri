@@ -95,8 +95,11 @@ export const putRegistrationHandler = metricScope((metrics: MetricsLogger) =>
       }
       const entries = registrations?.length || 0
       await dynamoDB.update(eventKey,
-        'set entries = :entries, classes = :classes',
-        {},
+        'set #entries = :entries, #classes = :classes',
+        {
+          '#entries': 'entries',
+          '#classes': 'classes',
+        },
         {
           ':entries': entries,
           ':classes': classes,
