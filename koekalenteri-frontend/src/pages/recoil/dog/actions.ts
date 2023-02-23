@@ -1,17 +1,19 @@
-import { DeepPartial } from 'koekalenteri-shared/model'
+import { diff } from 'deep-object-diff'
+import { DeepPartial, Dog } from 'koekalenteri-shared/model'
 import { useRecoilState } from 'recoil'
 
 import { getDog } from '../../../api/dog'
-import { merge } from '../../../utils'
+import { hasChanges, merge } from '../../../utils'
 import { emptyDog } from '../../components/RegistrationForm'
 import { useDogCache } from '../../components/registrationForm/hooks/useDogCache'
 
 import { dogAtom, DogCachedInfo } from './atoms'
 
+const INIT_CACHE: DeepPartial<DogCachedInfo> = { owner: { ownerHandles: true }}
 
 export function useDogActions(regNo: string) {
   const [dog, setDog] = useRecoilState(dogAtom(regNo))
-  const [cache] = useDogCache(regNo)
+  const [cache, setCache] = useDogCache(regNo)
 
   return {
     fetch: async() => {
@@ -19,7 +21,7 @@ export function useDogActions(regNo: string) {
         return {dog: undefined}
       }
       if (dog?.regNo === regNo) {
-        return merge<DeepPartial<DogCachedInfo>>(cache ?? {}, {dog})
+        return applyCache(regNo, cache, dog)
       }
       const fetched = await getDog(regNo)
       if (fetched?.regNo === regNo) {
@@ -27,7 +29,7 @@ export function useDogActions(regNo: string) {
           fetched.results = []
         }
         setDog(fetched)
-        return merge<DeepPartial<DogCachedInfo>>(cache ?? {}, {dog: fetched})
+        return applyCache(regNo, cache, fetched)
       }
     },
     refresh: async () => {
@@ -40,8 +42,45 @@ export function useDogActions(regNo: string) {
           updated.results = []
         }
         setDog(updated)
-        return merge<DeepPartial<DogCachedInfo>>(cache ?? {}, {dog: updated})
+        return applyCache(regNo, cache, updated)
       }
     },
+    updateCache: (props: DeepPartial<DogCachedInfo>) => {
+      const newCache = merge(cache ?? INIT_CACHE, props)
+      const newCacheDog = diff(dog ?? {}, newCache.dog ?? {})
+      if (hasChanges(newCache?.dog, newCacheDog)) {
+        console.log({newCacheDog})
+        newCache.dog = newCacheDog
+      }
+      setCache(newCache)
+      return applyCache(regNo, newCache, dog)
+    },
   }
+}
+
+export function applyCache(regNo: string, cache?: DeepPartial<DogCachedInfo>, dog?: Dog) {
+  const result: DeepPartial<DogCachedInfo> = { ...cache, dog }
+
+  if (dog) {
+    // when we have some official info
+    result.dog = merge<DeepPartial<Dog>>({
+      dam: {
+        name: cache?.dog?.dam?.name,
+        titles: cache?.dog?.dam?.titles,
+      },
+      sire: {
+        name: cache?.dog?.sire?.name,
+        titles: cache?.dog?.sire?.titles,
+      },
+    }, dog)
+
+    // titles is the only thing that overwrites official information, when the official info is empty
+    if (!result.dog.titles && cache?.dog?.titles) {
+      result.dog.titles = cache.dog.titles
+    }
+  } else {
+    result.dog = Object.assign({}, cache?.dog ?? {}, { regNo })
+  }
+
+  return result
 }

@@ -782,7 +782,7 @@ exports[`RegistrationForm renders 1`] = `
                                 class="MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
                                 id="dog_titles"
                                 type="text"
-                                value="Dog titles"
+                                value="DOG TITLES"
                               />
                               <fieldset
                                 aria-hidden="true"
@@ -822,7 +822,7 @@ exports[`RegistrationForm renders 1`] = `
                                 disabled=""
                                 id="dog_name"
                                 type="text"
-                                value="Dog Name 10"
+                                value="DOG NAME 10"
                               />
                               <fieldset
                                 aria-hidden="true"
@@ -869,7 +869,7 @@ exports[`RegistrationForm renders 1`] = `
                                 class="MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
                                 id="sire_titles"
                                 type="text"
-                                value="Sire titles"
+                                value="SIRE TITLES"
                               />
                               <fieldset
                                 aria-hidden="true"
@@ -908,7 +908,7 @@ exports[`RegistrationForm renders 1`] = `
                                 class="MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
                                 id="sire_name"
                                 type="text"
-                                value="Sire Name"
+                                value="SIRE NAME"
                               />
                               <fieldset
                                 aria-hidden="true"
@@ -955,7 +955,7 @@ exports[`RegistrationForm renders 1`] = `
                                 class="MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
                                 id="dam_titles"
                                 type="text"
-                                value="Dam titles"
+                                value="DAM TITLES"
                               />
                               <fieldset
                                 aria-hidden="true"
@@ -994,7 +994,7 @@ exports[`RegistrationForm renders 1`] = `
                                 class="MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
                                 id="dam_name"
                                 type="text"
-                                value="Dam Name"
+                                value="DAM NAME"
                               />
                               <fieldset
                                 aria-hidden="true"

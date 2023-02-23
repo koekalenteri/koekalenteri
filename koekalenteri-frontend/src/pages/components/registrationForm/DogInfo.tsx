@@ -15,7 +15,6 @@ import AutocompleteSingle from '../AutocompleteSingle'
 import CollapsibleSection from '../CollapsibleSection'
 
 import { TitlesAndName } from './dogInfo/TitlesAndName'
-import { useDogCache } from './hooks/useDogCache'
 import { validateRegNo } from './validation'
 
 export function shouldAllowRefresh(dog?: DeepPartial<Dog>) {
@@ -34,7 +33,7 @@ interface Props {
   minDogAgeMonths: number
   error?: boolean
   helperText?: string
-  onChange?: (props: DeepPartial<Registration>) => void
+  onChange?: (props: DeepPartial<Registration>, replace?: boolean) => void
   onOpenChange?: (value: boolean) => void
   open?: boolean
 }
@@ -46,21 +45,24 @@ export const DogInfo = ({ reg, eventDate, minDogAgeMonths, error, helperText, on
   const [mode, setMode] = useState<'fetch' | 'manual' | 'update' | 'invalid' | 'notfound'>(inputRegNo ? 'update' : 'fetch')
   const disabled = mode !== 'manual'
   const validRegNo = validateRegNo(inputRegNo)
-  const [cache, setCache] = useDogCache(inputRegNo)
   const [loading, setLoading] = useState(false)
   const allowRefresh = shouldAllowRefresh(reg?.dog)
   const cachedRegNos = useRecoilValue(cachedDogRegNumbersSelector)
   const actions = useDogActions(inputRegNo)
 
-  const handleChange = useCallback((props: Partial<Dog & DogCachedInfo>) => {
-    const dog = {...cache?.dog, ...props}
-    setCache({...cache, dog})
-    onChange?.({dog})
-  }, [cache, onChange, setCache])
+  const handleChange = useCallback((props: DeepPartial<DogCachedInfo>) => {
+    console.log('handleChange', {props})
+    const cache = actions.updateCache(props)
+    onChange?.({ dog: cache.dog })
+  }, [actions, onChange])
 
   const updateDog = useCallback((cache?: DeepPartial<DogCachedInfo>) => {
-    const {refreshDate, ...dog} = cache?.dog ?? {}
-    if (hasChanges(reg?.dog, dog)) {
+    // ignore refreshDate changes
+    const { refreshDate, ...dog } = cache?.dog ?? {}
+    const { refreshDate: oldRefreshDate, ...oldDog } = reg?.dog ?? {}
+
+    let replace = false
+    if (hasChanges(oldDog, dog)) {
       const changes: DeepPartial<Registration> = { dog: cache?.dog }
       if (reg?.dog?.regNo !== cache?.dog?.regNo) {
         changes.breeder = cache?.breeder
@@ -68,24 +70,19 @@ export const DogInfo = ({ reg, eventDate, minDogAgeMonths, error, helperText, on
         changes.owner = cache?.owner
         changes.ownerHandles = cache?.owner?.ownerHandles ?? true
         changes.results = []
-        if (!cache) {
-          setCache({ owner: { ownerHandles: true }})
-        }
-      } else if (reg?.dog?.titles && changes.dog && reg.dog.titles.startsWith(changes.dog.titles ?? '')) {
-        // let's not overwrite updated titles
-        changes.dog = { ...changes.dog, titles: reg.dog.titles }
+        replace = true
       }
-      onChange?.(changes)
+      onChange?.(changes, replace)
     }
-  }, [onChange, reg?.dog, setCache])
+  }, [onChange, reg?.dog])
 
   const buttonClick = useCallback(async () => {
     setLoading(true)
     switch (mode) {
       case 'fetch':
-        const dog = await actions.fetch()
-        updateDog(dog)
-        setMode(dog ? 'update' : 'notfound')
+        const cache = await actions.fetch()
+        updateDog(cache)
+        setMode(cache ? 'update' : 'notfound')
         break
       case 'update':
         updateDog(await actions.refresh())
@@ -109,7 +106,7 @@ export const DogInfo = ({ reg, eventDate, minDogAgeMonths, error, helperText, on
   }, [inputRegNo])
 
   useEffect(() => {
-    if (inputRegNo !== reg.dog?.regNo) {
+    if (inputRegNo !== reg.dog?.regNo ?? '') {
       if (validRegNo || inputRegNo === '') {
         buttonClick()
       }
@@ -154,7 +151,7 @@ export const DogInfo = ({ reg, eventDate, minDogAgeMonths, error, helperText, on
             label={t('dog.rfid')}
             value={reg?.dog?.rfid || ''}
             error={!disabled && !reg?.dog?.rfid}
-            onChange={(e) => handleChange({ rfid: e.target.value })}
+            onChange={(e) => handleChange({ dog: { rfid: e.target.value } })}
           />
         </Grid>
         <Grid item sx={{ width: 280 }}>
@@ -166,7 +163,7 @@ export const DogInfo = ({ reg, eventDate, minDogAgeMonths, error, helperText, on
             getOptionLabel={(o) => o ? breed(o) : ''}
             isOptionEqualToValue={(o, v) => o === v}
             label={t('dog.breed')}
-            onChange={(value) => handleChange({ breedCode: value ? value : undefined })}
+            onChange={(value) => handleChange({ dog: { breedCode: value ? value : undefined } })}
             options={['122', '111', '121', '312', '110', '263']}
             value={reg?.dog?.breedCode}
           />
@@ -181,7 +178,7 @@ export const DogInfo = ({ reg, eventDate, minDogAgeMonths, error, helperText, on
               mask={t('datemask')}
               maxDate={subMonths(eventDate, minDogAgeMonths)}
               minDate={subYears(new Date(), 15)}
-              onChange={(value: any) => value && handleChange({ dob: value })}
+              onChange={(value: any) => value && handleChange({ dog: { dob: value } })}
               openTo={'year'}
               renderInput={(params: JSX.IntrinsicAttributes & TextFieldProps) => <TextField {...params} />}
               value={reg?.dog?.dob || null}
@@ -198,7 +195,7 @@ export const DogInfo = ({ reg, eventDate, minDogAgeMonths, error, helperText, on
             getOptionLabel={o => o ? t(`dog.gender_choises.${o}`) : ''}
             isOptionEqualToValue={(o, v) => o === v}
             label={t('dog.gender')}
-            onChange={(value) => handleChange({ gender: value ? value : undefined })}
+            onChange={(value) => handleChange({ dog: { gender: value ? value : undefined } })}
             options={['F', 'M'] as DogGender[]}
             value={reg?.dog?.gender || ''}
           />
@@ -206,39 +203,36 @@ export const DogInfo = ({ reg, eventDate, minDogAgeMonths, error, helperText, on
         <Grid item container spacing={1}>
           <TitlesAndName
             className={disabled && reg?.dog?.breedCode ? 'fact' : ''}
-            disabledTitle={disabled && mode !== 'update'}
+            disabledTitles={disabled && mode !== 'update'}
             disabledName={disabled}
             id="dog"
             name={reg?.dog?.name}
             nameLabel={t('dog.name')}
-            onChange={props => handleChange(props)}
-            regNo={reg?.dog?.regNo}
+            onChange={props => handleChange({ dog: props })}
             titles={reg?.dog?.titles}
             titlesLabel={t('dog.titles')}
           />
         </Grid>
         <Grid item container spacing={1}>
           <TitlesAndName
-            disabledTitle={disabled && mode !== 'update'}
+            disabledTitles={disabled && mode !== 'update'}
             disabledName={disabled && mode !== 'update'}
             id="sire"
             name={reg?.dog?.sire?.name}
             nameLabel={t('dog.sire.name')}
-            onChange={props => handleChange({ sire: props })}
-            regNo={reg?.dog?.regNo}
+            onChange={props => handleChange({ dog: { sire: props } })}
             titles={reg?.dog?.sire?.titles}
             titlesLabel={t('dog.sire.titles')}
           />
         </Grid>
         <Grid item container spacing={1}>
           <TitlesAndName
-            disabledTitle={disabled && mode !== 'update'}
+            disabledTitles={disabled && mode !== 'update'}
             disabledName={disabled && mode !== 'update'}
             id="dam"
             name={reg?.dog?.dam?.name}
             nameLabel={t('dog.dam.name')}
-            onChange={props => handleChange({ dam: props })}
-            regNo={reg?.dog?.regNo}
+            onChange={props => handleChange({ dog: { dam: props } })}
             titles={reg?.dog?.dam?.titles}
             titlesLabel={t('dog.dam.titles')}
           />

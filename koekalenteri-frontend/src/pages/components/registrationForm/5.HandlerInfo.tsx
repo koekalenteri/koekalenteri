@@ -18,12 +18,12 @@ type HandlerInfoProps = {
 
 export function HandlerInfo({ reg, error, helperText, onChange, onOpenChange, open }: HandlerInfoProps) {
   const { t } = useTranslation()
-  const [, setCache] = useDogCacheKey(reg.dog?.regNo, 'handler')
+  const [cache, setCache] = useDogCacheKey(reg.dog?.regNo, 'handler')
 
   const handleChange = useCallback((props: Partial<RegistrationPerson>) => {
-    const handler = setCache(props)
+    const handler = setCache({...cache, ...props})
     onChange({ handler })
-  }, [onChange, setCache])
+  }, [cache, onChange, setCache])
 
   return (
     <CollapsibleSection title={t('registration.handler')} error={error} helperText={helperText} open={open} onOpenChange={onOpenChange}>
