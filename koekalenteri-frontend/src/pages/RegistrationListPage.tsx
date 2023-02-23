@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useTranslation } from 'react-i18next'
+import { Trans, useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
 import { Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Link, Toolbar } from '@mui/material'
 import { isPast, isToday } from 'date-fns'
@@ -76,7 +76,9 @@ export function RegistrationListPage({cancel}: {cancel?: boolean}) {
               {t('registration.cancelDialog.confirmation')}
             </DialogContentText>
             <DialogContentText id="cancel-dialog-description3" sx={{py: 1}}>
-              {t('registration.cancelDialog.terms')}<Link href={t('registration.terms.url')}>{t('registration.cancelDialog.terms_link')}</Link>.
+              <Trans t={t} i18nKey="registration.cancelDialog.terms">
+                Katso tarkemmat peruutusehdot <Link target="_blank" rel="noopener" href="https://yttmk.yhdistysavain.fi/noutajien-metsastyskokeet-2/ohjeistukset/kokeen-ja-tai-kilpailun-ilmoitta/">säännöistä</Link>.
+              </Trans>
             </DialogContentText>
           </DialogContent>
           <DialogActions>

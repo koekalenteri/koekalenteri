@@ -10,7 +10,6 @@ export const mockRegistrations: { [key: string]: Registration[] } = {
     createdBy: 'some user',
     modifiedAt: parseISO('2021-02-01'),
     modifiedBy: 'some user',
-    agreeToPublish: true,
     agreeToTerms: true,
     breeder: {
       name: 'breeder name',

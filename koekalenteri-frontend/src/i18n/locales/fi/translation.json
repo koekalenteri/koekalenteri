@@ -173,8 +173,7 @@
       "text": "Olet perumassa koiran {{registration.dog.regNo}} {{registration.dog.name}} ilmoittautumista kokeeseen {{event.startDate, date}} {{event.eventType}} {{event.location}}",
       "lateText": "Ilmoittautumisen voi perua koepäivänä vain ottamalla yhteyttä suoraan koesihteeriin {{event.secretary.name}} {{contact}}",
       "confirmation": "Oletko varma, että haluat perua ilmoittautumisen?",
-      "terms": "Katso tarkemmat peruutusehdot ",
-      "terms_link": "säännöistä"
+      "terms": "Katso tarkemmat peruutusehdot <1>säännöistä</1>"
     },
     "class": "Koeluokka",
     "classesDetails": "Koeluokan tiedot",
@@ -229,13 +228,7 @@
     },
     "saved_one": "Ilmoittautuminen on tallennettu.\nVahvistus on lähetetty sähköpostiosoitteeseen:\n{{to}}",
     "saved_other": "Ilmoittautuminen on tallennettu.\nVahvistus on lähetetty sähköpostiosoitteisiin:\n{{to}}",
-    "terms": {
-      "agree": "ja hyväksyn ne",
-      "publish": "Hyväksyn, että kokeen järjestämisen vastuuhenkilöt voivat käsitellä ilmoittamiani henkilötietoja ja julkaista niitä tarpeen mukaan kokeen osallistuja- ja tulosluettelossa koepaikalla ja kokeeseen liittyvissä julkaisuissa internetissä tai muissa yhdistyksen medioissa.",
-      "read": "Olen lukenut",
-      "terms": "ilmoittautumisen ehdot",
-      "url": "https://yttmk.yhdistysavain.fi/noutajien-metsastyskokeet-2/ohjeistukset/kokeen-ja-tai-kilpailun-ilmoitta/"
-    },
+    "terms": "Hyväksyn <1>ilmoittautumisen ehdot</1> ja <1>tietosuojaselosteen</1>.",
     "time": {
       "ap": "(aamu)",
       "ip": "(ilta)"
@@ -284,10 +277,9 @@
       "dogBreed": "Rodulla \"$t(breed.{{type}})\" ei ole osallistumisoikeutta kokeeseen.",
       "dogResults": "Tulosten perusteella koiralla ei ole oikeutta osallistua valittuun koeluokkaan.",
       "email": "Sähköpostosoite on virheellinen",
-      "publish": "Henkilötietojen käsittelyn hyväksyminen on pakollista.",
       "required": "$t(registration.{{field}}) ovat puutteelliset",
       "reserve": "Valitse osallistutko varasijalta",
-      "terms": "Ilmoittautumisen ehtojen hyväksyminen on pakollista."
+      "terms": "Ilmoittautumisen ehtojen ja tietosuojaselosteen hyväksyminen on pakollista."
     }
   }
 }

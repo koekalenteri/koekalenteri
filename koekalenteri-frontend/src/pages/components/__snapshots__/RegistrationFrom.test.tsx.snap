@@ -1963,62 +1963,24 @@ exports[`RegistrationForm renders 1`] = `
             <span
               class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label Mui-disabled css-ahj2mt-MuiTypography-root"
             >
-              <span>
-                registration.terms.read
-              </span>
-               
+              Hyväksyn 
               <a
                 class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-1flfxuu-MuiTypography-root-MuiLink-root"
-                href="registration.terms.url"
+                href="https://yttmk.yhdistysavain.fi/noutajien-metsastyskokeet-2/ohjeistukset/kokeen-ja-tai-kilpailun-ilmoitta/"
                 rel="noopener"
                 target="_blank"
               >
-                registration.terms.terms
+                ilmoittautmisen ehdot
               </a>
-               
-              <span>
-                registration.terms.agree
-              </span>
-            </span>
-          </label>
-        </div>
-        <p
-          class="MuiFormHelperText-root Mui-error css-w5l3sh-MuiFormHelperText-root"
-        />
-        <div
-          class="MuiFormControl-root css-1nrlq1o-MuiFormControl-root"
-        >
-          <label
-            class="MuiFormControlLabel-root Mui-disabled MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
-          >
-            <span
-              aria-disabled="true"
-              class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary css-1tsrs4w-MuiButtonBase-root-MuiCheckbox-root"
-              tabindex="-1"
-            >
-              <input
-                checked=""
-                class="PrivateSwitchBase-input css-1m9pwf3"
-                data-indeterminate="false"
-                disabled=""
-                type="checkbox"
-              />
-              <svg
-                aria-hidden="true"
-                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                data-testid="CheckBoxIcon"
-                focusable="false"
-                viewBox="0 0 24 24"
+               ja 
+              <a
+                class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-1flfxuu-MuiTypography-root-MuiLink-root"
+                href="https://www.snj.fi/snj/tietosuojaseloste/"
+                rel="noopener"
+                target="_blank"
               >
-                <path
-                  d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
-                />
-              </svg>
-            </span>
-            <span
-              class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label Mui-disabled css-ahj2mt-MuiTypography-root"
-            >
-              registration.terms.publish
+                tietosuojaselosteen
+              </a>
             </span>
           </label>
         </div>

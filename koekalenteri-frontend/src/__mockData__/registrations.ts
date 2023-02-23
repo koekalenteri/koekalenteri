@@ -7,7 +7,6 @@ import { eventWithEntryClosed, eventWithStaticDates, eventWithStaticDatesAndClas
 const mockRegistrationDefaults = {
   createdBy: 'anonymous',
   modifiedBy: 'anonymous',
-  agreeToPublish: true,
   agreeToTerms: true,
   breeder: {
     name: 'Breeder Name',
@@ -41,7 +40,6 @@ export const registrationWithStaticDates: Registration = {
   modifiedAt: eventWithStaticDates.entryStartDate,
   createdBy: 'anonymous',
   modifiedBy: 'anonymous',
-  agreeToPublish: true,
   agreeToTerms: true,
   dates: [{ date: eventWithStaticDates.startDate, time: 'ap' }],
   breeder: {
