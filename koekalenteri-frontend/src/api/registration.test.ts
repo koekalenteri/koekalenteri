@@ -11,7 +11,6 @@ const mockRegistration: Registration = {
   createdBy: 'test-user',
   modifiedAt: new Date(),
   modifiedBy: 'test-user',
-  agreeToPublish: true,
   agreeToTerms: true,
   breeder: {
     name: 'test-breeder',

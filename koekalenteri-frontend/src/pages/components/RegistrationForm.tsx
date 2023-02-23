@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useTranslation } from 'react-i18next'
+import { Trans, useTranslation } from 'react-i18next'
 import { Cancel, Save } from '@mui/icons-material'
 import { Box, Button, Checkbox, Collapse, FormControl, FormControlLabel, FormHelperText, Link, Paper, Stack, Theme, useMediaQuery } from '@mui/material'
 import { diff } from 'deep-object-diff'
@@ -200,18 +200,12 @@ export default function RegistrationForm({ event, className, registration, class
         <Box sx={{ m: 1, mt: 2, ml: 4, borderTop: '1px solid #bdbdbd' }}>
           <FormControl error={errorStates.agreeToTerms} disabled={!!registration.id}>
             <FormControlLabel control={<Checkbox checked={registration.agreeToTerms} onChange={e => handleChange({ agreeToTerms: e.target.checked })} />} label={
-              <>
-                <span>{t('registration.terms.read')}</span>&nbsp;
-                <Link target="_blank" rel="noopener" href={t('registration.terms.url')}>{t('registration.terms.terms')}</Link>
-                &nbsp;<span>{t('registration.terms.agree')}</span>
-              </>
+              <Trans t={t} i18nKey="registration.terms">
+                Hyväksyn <Link target="_blank" rel="noopener" href="https://yttmk.yhdistysavain.fi/noutajien-metsastyskokeet-2/ohjeistukset/kokeen-ja-tai-kilpailun-ilmoitta/">ilmoittautmisen ehdot</Link> ja <Link target="_blank" rel="noopener" href="https://www.snj.fi/snj/tietosuojaseloste/">tietosuojaselosteen</Link>
+              </Trans>
             } />
           </FormControl>
           <FormHelperText error>{helperTexts.agreeToTerms}</FormHelperText>
-          <FormControl error={errorStates.agreeToPublish} disabled={!!registration.id}>
-            <FormControlLabel control={<Checkbox checked={registration.agreeToPublish} onChange={e => handleChange({ agreeToPublish: e.target.checked })} />} label={t('registration.terms.publish')} />
-          </FormControl>
-          <FormHelperText error>{helperTexts.agreeToPublish}</FormHelperText>
         </Box>
       </Box>
 

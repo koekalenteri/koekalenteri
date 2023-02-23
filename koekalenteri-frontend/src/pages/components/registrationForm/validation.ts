@@ -20,7 +20,6 @@ export function validatePerson(person: Person | undefined) {
 }
 
 const VALIDATORS: Validators2<Registration, 'registration', ConfirmedEvent> = {
-  agreeToPublish: (reg) => !reg.agreeToPublish ? 'publish' : false,
   agreeToTerms: (reg) => !reg.agreeToTerms ? 'terms' : false,
   breeder: (reg) => validateBreeder(reg.breeder) ? 'required' : false,
   class: (reg, _req, evt) => evt.classes.length > 0 && !reg.class,

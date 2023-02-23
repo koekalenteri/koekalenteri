@@ -1,7 +1,6 @@
 import { DbRecord, Dog, JsonDbRecord, JsonDog, JsonTestResult, Language, Person, Replace, TestResult } from ".";
 
 export interface JsonRegistration extends JsonDbRecord {
-  agreeToPublish: boolean
   agreeToTerms: boolean
   breeder: RegistrationBreeder
   class?: string
@@ -32,7 +31,6 @@ export interface ManualTestResult extends QualifyingResult {
 }
 
 export interface Registration extends DbRecord {
-  agreeToPublish: boolean
   agreeToTerms: boolean
   breeder: RegistrationBreeder
   class?: string

@@ -24,7 +24,6 @@ export const newRegistrationAtom = atom<Registration | undefined>({
     createdBy: 'anonymous',
     modifiedAt: new Date(),
     modifiedBy: 'anonymous',
-    agreeToPublish: false,
     agreeToTerms: false,
     breeder: {...emptyBreeder},
     dates: [],
