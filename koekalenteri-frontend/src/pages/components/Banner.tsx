@@ -8,7 +8,7 @@ const Banner = () => {
     <Box sx={{
       backgroundImage: `url(${banner})`,
       backgroundRepeat: 'no-repeat',
-      backgroundPositionY: '48px',
+      backgroundPositionY: '36px',
       backgroundSize: 'cover',
       width: '100%',
       height: { xs: 98, sm: 148, md: 260 },

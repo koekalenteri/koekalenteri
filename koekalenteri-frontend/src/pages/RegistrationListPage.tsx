@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
-import { Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Link, Toolbar } from '@mui/material'
+import { Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Link } from '@mui/material'
 import { isPast, isToday } from 'date-fns'
 import type { ConfirmedEvent } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue } from 'recoil'
@@ -47,8 +47,7 @@ export function RegistrationListPage({cancel}: {cancel?: boolean}) {
   return (
     <>
       <Header title={t('entryList', { context: event?.eventType === 'other' ? '' : 'test' })} />
-      <Box sx={{ p: 1, overflow: 'hidden', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-        <Toolbar variant="dense" />{/* To allocate the space for fixed header */}
+      <Box sx={{ p: 1, overflow: 'hidden', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', mt: '36px' }}>
         <LinkButton sx={{ mb: 1 }} to="/" text={spa ? t('goBack') : t('goHome')} />
         <RegistrationEventInfo event={event} />
         <RegistrationList rows={registration ? [registration] : []} onUnregister={() => setOpen(true)} />
