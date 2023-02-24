@@ -1,6 +1,6 @@
 import { Suspense, useCallback, useState } from 'react'
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
-import { Box, Toolbar } from '@mui/material'
+import { Box } from '@mui/material'
 import { useRecoilValue } from 'recoil'
 
 import { Path } from '../../routeConfig'
@@ -23,11 +23,10 @@ export default function AdminHomePage() {
 
   return (
     <>
-      <Header title={'Admin'} toggleMenu={toggleMenu} />
+      <Header toggleMenu={toggleMenu} />
       <Box sx={{ display: 'flex', height: '100%' }}>
         <SideMenu open={menuOpen} onClose={closeMenu} />
-        <Box sx={{ p: 1, display: 'flex', flexDirection: 'column', flexGrow: 1, overflow: 'auto' }}>
-          <Toolbar variant="dense" />
+        <Box sx={{ p: 1, display: 'flex', flexDirection: 'column', flexGrow: 1, overflow: 'auto', mt: '36px' }}>
           <Suspense fallback={<LoadingIndicator />}>
             <Outlet />
           </Suspense>

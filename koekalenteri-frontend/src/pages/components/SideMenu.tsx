@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { NavLink } from 'react-router-dom'
 import { Accessibility, EmojiEventsOutlined, Event, Logout, MailOutline, PersonOutline, SupervisorAccount, Support } from '@mui/icons-material'
-import { Divider, Theme, Toolbar, useMediaQuery } from '@mui/material'
+import { Box, Divider, Theme, useMediaQuery } from '@mui/material'
 
 import { Path } from '../../routeConfig'
 import { useUserActions } from '../recoil/user/actions'
@@ -25,7 +25,7 @@ export function SideMenu({ open, onClose }: { open?: boolean, onClose: () => voi
       }}
       onClose={onClose}
     >
-      <Toolbar variant='dense' />
+      <Box sx={{height: '36px'}} />
       <DrawerList>
         <NavLink to={Path.admin.events}><DrawerItem text={t('events')} icon={<Event />} /></NavLink>
         <NavLink to={Path.admin.orgs}><DrawerItem text={t('organizations')} icon={<Support />} /></NavLink>

@@ -6,7 +6,7 @@ exports[`AdminHomePage renders the child page content when user is logged in 1`]
     class="MuiPaper-root MuiPaper-elevation MuiPaper-elevation4 MuiAppBar-root MuiAppBar-colorSecondary MuiAppBar-positionFixed mui-fixed css-19iqa5y-MuiPaper-root-MuiAppBar-root"
   >
     <div
-      class="MuiToolbar-root MuiToolbar-dense css-izwrv4-MuiToolbar-root"
+      class="MuiToolbar-root MuiToolbar-dense css-1njp2ce-MuiToolbar-root"
     >
       <button
         class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-1ecacw7-MuiButtonBase-root-MuiIconButton-root"
@@ -48,20 +48,28 @@ exports[`AdminHomePage renders the child page content when user is logged in 1`]
         </button>
       </a>
       <a
-        class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-ix55se-MuiTypography-root-MuiLink-root"
+        class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-9z0oyi-MuiTypography-root-MuiLink-root"
         href="/"
       >
         <div
-          class="MuiTypography-root MuiTypography-h6 MuiTypography-noWrap css-1xz05ty-MuiTypography-root"
+          class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-noWrap css-mpfifn-MuiTypography-root"
         >
           Koekalenteri
         </div>
       </a>
+      <a
+        class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-1vwq5f4-MuiTypography-root-MuiLink-root"
+        href="/admin/event"
+      >
+        <div
+          class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-noWrap css-mpfifn-MuiTypography-root"
+        >
+          Ylläpito
+        </div>
+      </a>
       <div
         class="MuiTypography-root MuiTypography-h6 MuiTypography-noWrap css-1mo43ab-MuiTypography-root"
-      >
-         › Admin
-      </div>
+      />
       <button
         class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-kva05m-MuiButtonBase-root-MuiButton-root"
         tabindex="0"
@@ -156,11 +164,8 @@ exports[`AdminHomePage renders the child page content when user is logged in 1`]
     class="MuiBox-root css-ab8yd1"
   >
     <div
-      class="MuiBox-root css-17swpt3"
+      class="MuiBox-root css-f1a6ef"
     >
-      <div
-        class="MuiToolbar-root MuiToolbar-gutters MuiToolbar-dense css-10ltm04-MuiToolbar-root"
-      />
       ADMIN DEFAULT PAGE CONTENT
     </div>
   </div>
@@ -173,7 +178,7 @@ exports[`AdminHomePage renders the page when user is logged in 1`] = `
     class="MuiPaper-root MuiPaper-elevation MuiPaper-elevation4 MuiAppBar-root MuiAppBar-colorSecondary MuiAppBar-positionFixed mui-fixed css-19iqa5y-MuiPaper-root-MuiAppBar-root"
   >
     <div
-      class="MuiToolbar-root MuiToolbar-dense css-izwrv4-MuiToolbar-root"
+      class="MuiToolbar-root MuiToolbar-dense css-1njp2ce-MuiToolbar-root"
     >
       <button
         class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-1ecacw7-MuiButtonBase-root-MuiIconButton-root"
@@ -215,20 +220,28 @@ exports[`AdminHomePage renders the page when user is logged in 1`] = `
         </button>
       </a>
       <a
-        class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-ix55se-MuiTypography-root-MuiLink-root"
+        class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-9z0oyi-MuiTypography-root-MuiLink-root"
         href="/"
       >
         <div
-          class="MuiTypography-root MuiTypography-h6 MuiTypography-noWrap css-1xz05ty-MuiTypography-root"
+          class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-noWrap css-mpfifn-MuiTypography-root"
         >
           Koekalenteri
         </div>
       </a>
+      <a
+        class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-1vwq5f4-MuiTypography-root-MuiLink-root"
+        href="/admin/event"
+      >
+        <div
+          class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-noWrap css-mpfifn-MuiTypography-root"
+        >
+          Ylläpito
+        </div>
+      </a>
       <div
         class="MuiTypography-root MuiTypography-h6 MuiTypography-noWrap css-1mo43ab-MuiTypography-root"
-      >
-         › Admin
-      </div>
+      />
       <button
         class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-kva05m-MuiButtonBase-root-MuiButton-root"
         tabindex="0"
@@ -323,12 +336,8 @@ exports[`AdminHomePage renders the page when user is logged in 1`] = `
     class="MuiBox-root css-ab8yd1"
   >
     <div
-      class="MuiBox-root css-17swpt3"
-    >
-      <div
-        class="MuiToolbar-root MuiToolbar-gutters MuiToolbar-dense css-10ltm04-MuiToolbar-root"
-      />
-    </div>
+      class="MuiBox-root css-f1a6ef"
+    />
   </div>
 </div>
 `;

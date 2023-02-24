@@ -1,6 +1,6 @@
 {
   "name": "koekalenteri-frontend",
-  "version": "0.5.16",
+  "version": "0.5.17",
   "private": true,
   "dependencies": {
     "@aws-amplify/auth": "^5.1.0",
