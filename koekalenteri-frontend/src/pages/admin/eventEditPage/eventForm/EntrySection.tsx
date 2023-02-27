@@ -55,7 +55,6 @@ export default function EntrySection(props: SectionProps) {
         </Grid>
         <Grid item container spacing={1}>
           <Grid item>
-            Koepaikkojen määrä
             <EventFormPlaces {...props} />
           </Grid>
         </Grid>
