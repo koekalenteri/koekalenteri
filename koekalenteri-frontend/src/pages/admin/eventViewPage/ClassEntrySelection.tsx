@@ -72,7 +72,7 @@ const ClassEntrySelection = ({ eventDates = [], registrations = [], setOpen, sel
   const handleReject = (item: DragItem) => {
     const reg = registrations.find(r => r.id === item.id)
     if (reg) {
-      enqueueSnackbar(`Koira, ${reg.dog.name} ei ole ilmoittautunut tähän ryhmään`, { variant: 'error' })
+      enqueueSnackbar(`Koira ${reg.dog.name} ei ole ilmoittautunut tähän ryhmään`, { variant: 'error' })
     }
   }
 
