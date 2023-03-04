@@ -3,7 +3,8 @@ import { DeepPartial } from 'koekalenteri-shared/model'
 import { useRecoilState } from 'recoil'
 
 import { isEmpty } from '../../../../utils'
-import { dogCacheAtom, DogCachedInfo } from '../../../recoil/dog'
+import { DogCache, dogCacheAtom, DogCachedInfo } from '../../../recoil/dog'
+import { validateRegNo } from '../validation'
 
 type Setter = (props: DeepPartial<DogCachedInfo>) => DeepPartial<DogCachedInfo> | undefined
 type HookResult = [DeepPartial<DogCachedInfo> | undefined, Setter]
@@ -18,15 +19,26 @@ export function useDogCache(regNo: string = ''): HookResult {
   const cached = useMemo(() => (regNo ? cache?.[regNo] : undefined), [cache, regNo])
   const setCached = useCallback<Setter>(
     (props) => {
-      if (!regNo || isEmpty(props)) {
+      if (!validateRegNo(regNo) || isEmpty(props)) {
         return
       }
       const result = cached ? Object.assign({}, cached, props) : props
-      setCache(Object.assign({}, cache, { [regNo]: result }))
+      setCache(Object.assign({}, filterInvalid(cache), { [regNo]: result }))
       return result
     },
     [cache, cached, regNo, setCache]
   )
 
   return [cached, setCached]
+}
+
+export function filterInvalid(cache?: DogCache): DogCache {
+  const result: DogCache = {}
+  if (!cache) {
+    return result
+  }
+  for (const regNo of Object.keys(cache).filter(validateRegNo)) {
+    result[regNo] = cache[regNo]
+  }
+  return result
 }

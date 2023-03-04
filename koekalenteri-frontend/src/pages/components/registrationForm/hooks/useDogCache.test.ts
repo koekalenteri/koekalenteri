@@ -2,7 +2,9 @@ import { act } from 'react-dom/test-utils'
 import { renderHook } from '@testing-library/react'
 import { RecoilRoot } from 'recoil'
 
-import { useDogCache } from './useDogCache'
+import { DogCache } from '../../../recoil/dog'
+
+import { filterInvalid, useDogCache } from './useDogCache'
 
 jest.useFakeTimers()
 jest.spyOn(Storage.prototype, 'setItem')
@@ -19,11 +21,11 @@ describe('useDogCache', () => {
       result: {
         current: [, setCache],
       },
-    } = renderHook(() => useDogCache('test'), { wrapper: RecoilRoot })
+    } = renderHook(() => useDogCache('TEST1234'), { wrapper: RecoilRoot })
     act(() => {
       setCache({ dog: { dam: { name: 'Test Dam' } } })
     })
-    expect(localStorage.setItem).toHaveBeenCalledWith('dog-cache', '{"test":{"dog":{"dam":{"name":"Test Dam"}}}}')
+    expect(localStorage.setItem).toHaveBeenCalledWith('dog-cache', '{"TEST1234":{"dog":{"dam":{"name":"Test Dam"}}}}')
   })
 
   it('should not write to localStorage with undefined key', () => {
@@ -48,5 +50,17 @@ describe('useDogCache', () => {
       setCache({ dog: { dam: { name: 'Test Dam' } } })
     })
     expect(localStorage.setItem).not.toHaveBeenCalled()
+  })
+})
+
+describe('filterInvalid', () => {
+  it('should return cache object with invalid entries removed', () => {
+    const invalidCache: DogCache = {
+      asdf: {},
+      'FI123456/12': {},
+      'FI123456/12 ': {},
+      ' FI123456/12': {},
+    }
+    expect(filterInvalid(invalidCache)).toEqual({ 'FI123456/12': {} })
   })
 })

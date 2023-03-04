@@ -1,6 +1,6 @@
 import { BreedCode, Person } from 'koekalenteri-shared/model'
 
-import { filterRelevantResults, validateDog, validatePerson } from './validation'
+import { filterRelevantResults, validateDog, validatePerson, validateRegNo } from './validation'
 
 const testDog = {
   regNo: 'test-123',
@@ -18,6 +18,35 @@ const testPerson: Person = {
   phone: '0401234567',
   location: 'Helsinki',
 }
+
+describe('validRegNo', () => {
+  it.each([
+    'CLP/LR/ 36170',
+    'DK04329/2016',
+    'DK18979/2018',
+    'DRC -L 1822362',
+    'DRC-L 1620751',
+    'FI44076/17',
+    'KCAS 03997505',
+    'KCAU1583901',
+    'KCREG AW01372609',
+    'LO1752937',
+    'LOE 2442557',
+    'LOF 266115/28299',
+    'LOF259519/34993',
+    'MET .LABR.968/17',
+    'NHSB3168346',
+    'ÖHZB LR 12568',
+    'SE39992/2017',
+    'SHSB 742304',
+  ])('should return true for %p', (regNo) => {
+    expect(validateRegNo(regNo)).toEqual(true)
+  })
+
+  it.each(['', 'A1', ' FI44076/17', 'FI44076/17 '])('should return false for %p', (regNo) => {
+    expect(validateRegNo(regNo)).toEqual(false)
+  })
+})
 
 describe('validateDog', () => {
   it('Should validate registration number', function () {
