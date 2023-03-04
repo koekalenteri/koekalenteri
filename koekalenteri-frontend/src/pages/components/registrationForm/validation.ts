@@ -263,7 +263,7 @@ function getNextClass(c: RegistrationClass): RegistrationClass | undefined {
   }
 }
 
-const RE = new RegExp(/^[A-Z\-/.]{2,9}[0-9/]{4,12}$/)
+const RE = new RegExp(/^[A-ZÖ]{2}[A-Z\-/ .]{0,8}[0-9/]{4,12}$/)
 export function validateRegNo(input: string): boolean {
   return RE.test(input)
 }

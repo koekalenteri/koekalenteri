@@ -10,7 +10,7 @@ jest.spyOn(Storage.prototype, 'getItem')
 
 describe('useDogCache', () => {
   it('should read from localStorage', () => {
-    renderHook(() => useDogCacheKey('test', 'breeder'), { wrapper: RecoilRoot })
+    renderHook(() => useDogCacheKey('TEST1234', 'breeder'), { wrapper: RecoilRoot })
     expect(localStorage.getItem).toHaveBeenCalledWith('dog-cache')
   })
 
@@ -19,17 +19,17 @@ describe('useDogCache', () => {
       result: {
         current: [, setCache],
       },
-    } = renderHook(() => useDogCacheKey('test', 'breeder'), { wrapper: RecoilRoot })
+    } = renderHook(() => useDogCacheKey('TEST2222', 'breeder'), { wrapper: RecoilRoot })
     act(() => {
       setCache({ name: 'Breeder Name' })
     })
-    expect(localStorage.setItem).toHaveBeenCalledWith('dog-cache', '{"test":{"breeder":{"name":"Breeder Name"}}}')
+    expect(localStorage.setItem).toHaveBeenCalledWith('dog-cache', '{"TEST2222":{"breeder":{"name":"Breeder Name"}}}')
     act(() => {
       setCache({ location: 'Breeder Location' })
     })
     expect(localStorage.setItem).toHaveBeenCalledWith(
       'dog-cache',
-      '{"test":{"breeder":{"location":"Breeder Location"}}}'
+      '{"TEST2222":{"breeder":{"location":"Breeder Location"}}}'
     )
   })
 })
