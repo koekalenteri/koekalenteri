@@ -5,7 +5,7 @@ import useDebouncedCallback from '../../../../../../hooks/useDebouncedCallback'
 
 interface Props extends Omit<StandardTextFieldProps, 'onChange'> {
   value?: number
-  onChange: (value: number) => void
+  onChange?: (value: number) => void
 }
 
 export default function PlacesInput(props: Props) {
