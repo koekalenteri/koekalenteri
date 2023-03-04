@@ -47,9 +47,12 @@ export default function EmailTemplateListPage() {
     setSelectedTemplateId(value)
   }
   const handleTabChange = (event: SyntheticEvent, value: number) => setSelectedTab(value)
-  const handleChange = useCallback((newState: EmailTemplate) => {
-    setTemplate(newState)
-  }, [setTemplate])
+  const handleChange = useCallback(
+    (newState: EmailTemplate) => {
+      setTemplate(newState)
+    },
+    [setTemplate]
+  )
 
   const handleSave = useCallback(async () => {
     if (!template) {
@@ -76,36 +79,38 @@ export default function EmailTemplateListPage() {
               rows={emailTemplates}
             />
           </Box>
-          <Paper sx={{display: 'flex', p: 1, flex: 2, flexFlow: 'column'}} elevation={4}>
-            {template ? <>
-              <Tabs value={selectedTab}onChange={handleTabChange} sx={{flex: 0}}>
-                <Tab label={t('locale.fi')} id='fi'></Tab>
-                <Tab label={t('locale.en')} id='en'></Tab>
-              </Tabs>
-              <TemplateEditor template={template} language="fi" hidden={selectedTab !== 0} onChange={handleChange} />
-              <TemplateEditor template={template} language="en" hidden={selectedTab !== 1} onChange={handleChange} />
-              <Box flex={0}>
-                <Stack spacing={1} direction="row" justifyContent="flex-end" sx={{py: 1, borderTop: '1px solid', borderColor: '#bdbdbd'}}>
-                  <Button
-                    color="primary"
-                    disabled={!changes}
-                    startIcon={<Save />}
-                    variant="contained"
-                    onClick={handleSave}
+          <Paper sx={{ display: 'flex', p: 1, flex: 2, flexFlow: 'column' }} elevation={4}>
+            {template ? (
+              <>
+                <Tabs value={selectedTab} onChange={handleTabChange} sx={{ flex: 0 }}>
+                  <Tab label={t('locale.fi')} id="fi"></Tab>
+                  <Tab label={t('locale.en')} id="en"></Tab>
+                </Tabs>
+                <TemplateEditor template={template} language="fi" hidden={selectedTab !== 0} onChange={handleChange} />
+                <TemplateEditor template={template} language="en" hidden={selectedTab !== 1} onChange={handleChange} />
+                <Box flex={0}>
+                  <Stack
+                    spacing={1}
+                    direction="row"
+                    justifyContent="flex-end"
+                    sx={{ py: 1, borderTop: '1px solid', borderColor: '#bdbdbd' }}
                   >
-                    Tallenna
-                  </Button>
-                  <Button
-                    startIcon={<Cancel />}
-                    disabled={!changes}
-                    variant="outlined"
-                    onClick={handleCancel}
-                  >
-                    Peruuta
-                  </Button>
-                </Stack>
-              </Box>
-            </> : null}
+                    <Button
+                      color="primary"
+                      disabled={!changes}
+                      startIcon={<Save />}
+                      variant="contained"
+                      onClick={handleSave}
+                    >
+                      Tallenna
+                    </Button>
+                    <Button startIcon={<Cancel />} disabled={!changes} variant="outlined" onClick={handleCancel}>
+                      Peruuta
+                    </Button>
+                  </Stack>
+                </Box>
+              </>
+            ) : null}
           </Paper>
         </Stack>
       </FullPageFlex>

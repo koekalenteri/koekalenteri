@@ -7,6 +7,6 @@ declare module 'i18next' {
     resources: {
       translation: typeof fi
       breed: typeof fiBreed
-    };
-  };
+    }
+  }
 }

@@ -11,11 +11,7 @@ import { adminEventSelector, currentAdminEventSelector } from './selectors'
 export const adminEventsAtom = atom<Event[]>({
   key: 'adminEvents',
   default: [],
-  effects: [
-    logEffect,
-    storageEffect,
-    remoteAdminEventsEffect,
-  ],
+  effects: [logEffect, storageEffect, remoteAdminEventsEffect],
 })
 
 export const newEventStartDate = startOfDay(nextSaturday(addDays(Date.now(), 90)))
@@ -33,37 +29,25 @@ export const newEventAtom = atom<Event>({
     classes: [],
     judges: [],
   } as unknown as Event,
-  effects: [
-    logEffect,
-    storageEffect,
-  ],
+  effects: [logEffect, storageEffect],
 })
 
 export const adminShowPastEventsAtom = atom<boolean>({
   key: 'adminShowPastEvents',
   default: false,
-  effects: [
-    logEffect,
-    storageEffect,
-  ],
+  effects: [logEffect, storageEffect],
 })
 
 export const adminEventFilterTextAtom = atom<string>({
   key: 'adminEventFilterText',
   default: '',
-  effects: [
-    logEffect,
-    storageEffect,
-  ],
+  effects: [logEffect, storageEffect],
 })
 
 export const adminEventIdAtom = atom<string | undefined>({
   key: 'adminEventId',
   default: undefined,
-  effects: [
-    logEffect,
-    storageEffect,
-  ],
+  effects: [logEffect, storageEffect],
 })
 
 export const eventClassAtom = atom<string | undefined>({
@@ -75,10 +59,7 @@ export const eventClassAtom = atom<string | undefined>({
       return uniqueClasses(event)[0] ?? event?.eventType
     },
   }),
-  effects: [
-    logEffect,
-    storageEffect,
-  ],
+  effects: [logEffect, storageEffect],
 })
 
 /**
@@ -87,8 +68,5 @@ export const eventClassAtom = atom<string | undefined>({
 export const editableEventByIdAtom = atomFamily<Event | undefined, string>({
   key: 'editableEvent/Id',
   default: adminEventSelector,
-  effects: [
-    logEffect,
-    storageEffect,
-  ],
+  effects: [logEffect, storageEffect],
 })

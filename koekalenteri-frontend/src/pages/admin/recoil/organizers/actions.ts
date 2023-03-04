@@ -5,7 +5,6 @@ import { getOrganizers } from '../../../../api/organizer'
 
 import { organizersAtom } from './atoms'
 
-
 export const useOrganizersActions = () => {
   const setOrganizers = useSetRecoilState(organizersAtom)
 
@@ -14,10 +13,9 @@ export const useOrganizersActions = () => {
   }
 
   function refresh() {
-    getOrganizers(true)
-      .then(organizers => {
-        const sortedOrganizers = [...organizers].sort((a, b) => a.name.localeCompare(b.name, i18next.language))
-        setOrganizers(sortedOrganizers)
-      })
+    getOrganizers(true).then((organizers) => {
+      const sortedOrganizers = [...organizers].sort((a, b) => a.name.localeCompare(b.name, i18next.language))
+      setOrganizers(sortedOrganizers)
+    })
   }
 }

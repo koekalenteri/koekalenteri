@@ -1,7 +1,18 @@
 import { Event, EventClass } from 'koekalenteri-shared/model'
 
 import { eventWithEntryClosing, eventWithEntryNotYetOpen, eventWithEntryOpen } from './__mockData__/events'
-import { AnyObject, clone, entryDateColor, hasChanges, isEmpty, isObject, merge, parseJSON, registrationDates, validEmail } from './utils'
+import {
+  AnyObject,
+  clone,
+  entryDateColor,
+  hasChanges,
+  isEmpty,
+  isObject,
+  merge,
+  parseJSON,
+  registrationDates,
+  validEmail,
+} from './utils'
 
 describe('utils', () => {
   describe('entryDateColor', () => {
@@ -39,10 +50,12 @@ describe('utils', () => {
       const event = {
         startDate: new Date(2020, 1, 1),
         endDate: new Date(2020, 1, 3),
-        classes: [{
-          class: 'ALO',
-          date: new Date(2020, 1, 2),
-        }],
+        classes: [
+          {
+            class: 'ALO',
+            date: new Date(2020, 1, 2),
+          },
+        ],
       } as Event
       expect(registrationDates(event).length).toEqual(2)
     })
@@ -51,27 +64,28 @@ describe('utils', () => {
       const event = {
         startDate: new Date(2020, 1, 1),
         endDate: new Date(2020, 1, 3),
-        classes: [{
-          class: 'ALO',
-          date: new Date(2020, 1, 1),
-        },
-        {
-          class: 'ALO',
-          date: new Date(2020, 1, 2),
-        },
-        {
-          class: 'ALO',
-          date: new Date(2020, 1, 3),
-        },
-        {
-          class: 'VOI',
-          date: new Date(2020, 1, 3),
-        }],
+        classes: [
+          {
+            class: 'ALO',
+            date: new Date(2020, 1, 1),
+          },
+          {
+            class: 'ALO',
+            date: new Date(2020, 1, 2),
+          },
+          {
+            class: 'ALO',
+            date: new Date(2020, 1, 3),
+          },
+          {
+            class: 'VOI',
+            date: new Date(2020, 1, 3),
+          },
+        ],
       } as Event
       expect(registrationDates(event, 'ALO').length).toEqual(6)
       expect(registrationDates(event, 'VOI').length).toEqual(2)
     })
-
   })
 
   describe('isObject', () => {
@@ -110,7 +124,7 @@ describe('utils', () => {
 
   describe('clone', () => {
     it('should create a shallow copy of the object', () => {
-      const obj = {a: 1, b: { value: 2 }}
+      const obj = { a: 1, b: { value: 2 } }
       const copy = clone(obj)
       expect(copy).not.toBe(obj)
       expect(copy).toEqual(obj)
@@ -151,14 +165,12 @@ describe('utils', () => {
   })
 
   describe('validEmail', () => {
-    it.each([
-      'user@domain.com',
-      'user.name@domain.fi',
-      'long.user.name@long.domain.name.blog',
-      'user@äö.com',
-    ])('should return true for %p', (value) => {
-      expect(validEmail(value)).toEqual(true)
-    })
+    it.each(['user@domain.com', 'user.name@domain.fi', 'long.user.name@long.domain.name.blog', 'user@äö.com'])(
+      'should return true for %p',
+      (value) => {
+        expect(validEmail(value)).toEqual(true)
+      }
+    )
     it.each([
       '',
       '@',
@@ -176,6 +188,5 @@ describe('utils', () => {
     ])('should return false for %p', (value) => {
       expect(validEmail(value)).toEqual(false)
     })
-
   })
 })

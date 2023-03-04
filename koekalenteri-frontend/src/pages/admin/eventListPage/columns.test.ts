@@ -1,12 +1,12 @@
 import useEventListColumns from './columns'
 
 jest.mock('react-i18next', () => ({
-  useTranslation: () => ({t: (k: string) => k}),
+  useTranslation: () => ({ t: (k: string) => k }),
 }))
 
 jest.mock('../../recoil/judges/actions', () => ({
   useJudgesActions: () => ({
-    find: (id: number) => ({id, name: `Judge ${id}`}),
+    find: (id: number) => ({ id, name: `Judge ${id}` }),
   }),
 }))
 

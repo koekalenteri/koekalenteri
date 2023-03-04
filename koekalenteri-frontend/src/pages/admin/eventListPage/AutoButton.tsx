@@ -11,10 +11,18 @@ export default function AutoButton(props: Props) {
   if (sm) {
     return (
       <Stack>
-        <IconButton color="primary" {...rest}>{startIcon || endIcon}</IconButton>
-        <Typography variant="caption" noWrap sx={{ textAlign: 'center', width: 56, overflow: 'hidden' }}>{text}</Typography>
+        <IconButton color="primary" {...rest}>
+          {startIcon || endIcon}
+        </IconButton>
+        <Typography variant="caption" noWrap sx={{ textAlign: 'center', width: 56, overflow: 'hidden' }}>
+          {text}
+        </Typography>
       </Stack>
     )
   }
-  return <Button color="primary" {...rest} startIcon={startIcon} endIcon={endIcon}>{text}</Button>
+  return (
+    <Button color="primary" {...rest} startIcon={startIcon} endIcon={endIcon}>
+      {text}
+    </Button>
+  )
 }

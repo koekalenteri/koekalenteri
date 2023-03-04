@@ -6,28 +6,58 @@ import { TitlesAndName } from './TitlesAndName'
 
 describe('TitlesAndName', () => {
   it('should render with minimal properties', () => {
-    const { container } = render(<TitlesAndName id='id' nameLabel='name label' titlesLabel='titles label' />)
+    const { container } = render(<TitlesAndName id="id" nameLabel="name label" titlesLabel="titles label" />)
     expect(container).toMatchSnapshot()
   })
 
   it('should render with disabled name', () => {
-    const { container } = render(<TitlesAndName id='id' nameLabel='name label' titlesLabel='titles label' name='name' titles='titles' disabledName />)
+    const { container } = render(
+      <TitlesAndName
+        id="id"
+        nameLabel="name label"
+        titlesLabel="titles label"
+        name="name"
+        titles="titles"
+        disabledName
+      />
+    )
     expect(container).toMatchSnapshot()
   })
 
   it('should render with disabled titles', () => {
-    const { container } = render(<TitlesAndName id='id' nameLabel='name label' titlesLabel='titles label' name='name' titles='titles' disabledTitles />)
+    const { container } = render(
+      <TitlesAndName
+        id="id"
+        nameLabel="name label"
+        titlesLabel="titles label"
+        name="name"
+        titles="titles"
+        disabledTitles
+      />
+    )
     expect(container).toMatchSnapshot()
   })
 
   it('should render with disabled name and titles', () => {
-    const { container } = render(<TitlesAndName id='id' nameLabel='name label' titlesLabel='titles label' name='name' titles='titles' disabledName disabledTitles />)
+    const { container } = render(
+      <TitlesAndName
+        id="id"
+        nameLabel="name label"
+        titlesLabel="titles label"
+        name="name"
+        titles="titles"
+        disabledName
+        disabledTitles
+      />
+    )
     expect(container).toMatchSnapshot()
   })
 
   it('should not call onChange on initial values', async () => {
     const onChange = jest.fn()
-    render(<TitlesAndName id='test' nameLabel='name' titlesLabel='titles' name='name' titles='titles' onChange={onChange} />)
+    render(
+      <TitlesAndName id="test" nameLabel="name" titlesLabel="titles" name="name" titles="titles" onChange={onChange} />
+    )
 
     await waitForDebounce()
     expect(onChange).not.toHaveBeenCalled()
@@ -41,7 +71,9 @@ describe('TitlesAndName', () => {
 
   it('should provide both values in onChange event', async () => {
     const onChange = jest.fn()
-    const { user } = renderWithUserEvents(<TitlesAndName id='test' nameLabel='name' titlesLabel='titles' name='name' titles='titles' onChange={onChange} />)
+    const { user } = renderWithUserEvents(
+      <TitlesAndName id="test" nameLabel="name" titlesLabel="titles" name="name" titles="titles" onChange={onChange} />
+    )
 
     const name = screen.getByRole('textbox', { name: 'name' })
     const titles = screen.getByRole('textbox', { name: 'titles' })
@@ -57,12 +89,14 @@ describe('TitlesAndName', () => {
   })
 
   it('should reset local state when re-rendered with new values', async () => {
-    const { user, rerender } = renderWithUserEvents(<TitlesAndName id='test' nameLabel='name' titlesLabel='titles' name='name' titles='titles' />)
+    const { user, rerender } = renderWithUserEvents(
+      <TitlesAndName id="test" nameLabel="name" titlesLabel="titles" name="name" titles="titles" />
+    )
     const name = screen.getByRole('textbox', { name: 'name' })
     const titles = screen.getByRole('textbox', { name: 'titles' })
     await user.type(name, ' changed')
     expect(name).toHaveValue('NAME CHANGED')
-    rerender(<TitlesAndName id='test' nameLabel='name' titlesLabel='titles' name='new name' titles='new titles' />)
+    rerender(<TitlesAndName id="test" nameLabel="name" titlesLabel="titles" name="new name" titles="new titles" />)
     await waitForDebounce()
     expect(name).toHaveValue('NEW NAME')
     expect(titles).toHaveValue('NEW TITLES')
@@ -70,7 +104,9 @@ describe('TitlesAndName', () => {
 
   it('should not call onChange after unmounted', async () => {
     const onChange = jest.fn()
-    const { user, unmount } = renderWithUserEvents(<TitlesAndName id='test' nameLabel='name' titlesLabel='titles' name='name' titles='titles' onChange={onChange} />)
+    const { user, unmount } = renderWithUserEvents(
+      <TitlesAndName id="test" nameLabel="name" titlesLabel="titles" name="name" titles="titles" onChange={onChange} />
+    )
     const name = screen.getByRole('textbox', { name: 'name' })
     await user.type(name, ' changed')
     expect(name).toHaveValue('NAME CHANGED')

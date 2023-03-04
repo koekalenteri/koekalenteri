@@ -9,7 +9,7 @@ import { deserializeFilter, serializeFilter } from './filters'
 let loaded = false
 
 export const remoteEventsEffect: AtomEffect<Event[]> = ({ setSelf, trigger }) => {
-  const load = async() => {
+  const load = async () => {
     loaded = true
     const events = await getEvents()
     events.sort((a, b) => a.startDate.valueOf() - b.startDate.valueOf())
@@ -20,7 +20,7 @@ export const remoteEventsEffect: AtomEffect<Event[]> = ({ setSelf, trigger }) =>
   }
 }
 
-export const urlSyncEffect: AtomEffect<FilterProps> = ({onSet, setSelf, trigger}) => {
+export const urlSyncEffect: AtomEffect<FilterProps> = ({ onSet, setSelf, trigger }) => {
   if (trigger === 'get') {
     setSelf(deserializeFilter(window.location.search))
   }
@@ -32,6 +32,6 @@ export const urlSyncEffect: AtomEffect<FilterProps> = ({onSet, setSelf, trigger}
       return
     }
     const newUrl = window.location.origin + window.location.pathname + '?' + newSearch
-    window.history.pushState({path: newUrl}, '', newUrl)
+    window.history.pushState({ path: newUrl }, '', newUrl)
   })
 }

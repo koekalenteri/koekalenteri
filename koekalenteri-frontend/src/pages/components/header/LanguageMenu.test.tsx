@@ -7,7 +7,7 @@ test('It should render the button', () => {
   render(
     <RecoilRoot>
       <LanguageMenu />
-    </RecoilRoot>,
+    </RecoilRoot>
   )
   expect(screen.getByTestId('LanguageIcon')).toBeInTheDocument()
 })
@@ -16,7 +16,7 @@ test('It should render the menu', () => {
   render(
     <RecoilRoot>
       <LanguageMenu />
-    </RecoilRoot>,
+    </RecoilRoot>
   )
 
   fireEvent.click(screen.getByTestId('LanguageIcon'))
@@ -31,7 +31,7 @@ test('It should change the language', () => {
   render(
     <RecoilRoot>
       <LanguageMenu />
-    </RecoilRoot>,
+    </RecoilRoot>
   )
 
   expect(localStorage.getItem('i18nextLng')).toEqual('fi')

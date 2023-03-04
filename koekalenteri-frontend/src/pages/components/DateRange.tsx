@@ -3,7 +3,7 @@ import { Box, FormControl, TextField, TextFieldProps, Theme } from '@mui/materia
 import { DatePicker, PickersDay } from '@mui/x-date-pickers'
 import { isSameDay, isValid, startOfDay } from 'date-fns'
 
-export type DateValue = Date | null;
+export type DateValue = Date | null
 
 export type DateRangeProps = {
   defaultStart?: Date
@@ -17,10 +17,10 @@ export type DateRangeProps = {
   endLabel: string
   endError?: boolean
   endHelperText?: string
-  range?: { start?: Date, end?: Date }
+  range?: { start?: Date; end?: Date }
   required?: boolean
   onChange?: (start: DateValue, end: DateValue) => void
-};
+}
 
 function dayStyle(date: Date, selected: DateValue[], defaultDate?: Date) {
   const isSelected = selected.reduce((a, c) => a || (!!c && isSameDay(c, date)), false)
@@ -32,16 +32,24 @@ function dayStyle(date: Date, selected: DateValue[], defaultDate?: Date) {
 }
 
 function coerceToDateValue(d: DateValue) {
-  return (d && isValid(d)) ? startOfDay(d) : null
+  return d && isValid(d) ? startOfDay(d) : null
 }
 
 export default function DateRange({
-  start, end,
-  startLabel, endLabel,
-  startError, endError,
-  startHelperText, endHelperText,
-  defaultStart, defaultEnd,
-  range, required, disabled, onChange,
+  start,
+  end,
+  startLabel,
+  endLabel,
+  startError,
+  endError,
+  startHelperText,
+  endHelperText,
+  defaultStart,
+  defaultEnd,
+  range,
+  required,
+  disabled,
+  onChange,
 }: DateRangeProps) {
   const { t } = useTranslation()
   const startChanged = (date: DateValue) => {
@@ -67,8 +75,12 @@ export default function DateRange({
           maxDate={range?.end}
           showToolbar={false}
           onChange={startChanged}
-          renderDay={(date, selectedDates, props) => <PickersDay {...props} sx={dayStyle(date, selectedDates, defaultStart)} />}
-          renderInput={(params: JSX.IntrinsicAttributes & TextFieldProps) => <TextField {...params} required={required} error={startError} helperText={startHelperText} />}
+          renderDay={(date, selectedDates, props) => (
+            <PickersDay {...props} sx={dayStyle(date, selectedDates, defaultStart)} />
+          )}
+          renderInput={(params: JSX.IntrinsicAttributes & TextFieldProps) => (
+            <TextField {...params} required={required} error={startError} helperText={startHelperText} />
+          )}
         />
       </FormControl>
 
@@ -84,8 +96,12 @@ export default function DateRange({
           maxDate={range?.end}
           showToolbar={false}
           onChange={endChanged}
-          renderDay={(date, selectedDates, props) => <PickersDay {...props} sx={dayStyle(date, selectedDates, defaultEnd)} />}
-          renderInput={(params: JSX.IntrinsicAttributes & TextFieldProps) => <TextField {...params} required={required} error={endError} helperText={endHelperText} />}
+          renderDay={(date, selectedDates, props) => (
+            <PickersDay {...props} sx={dayStyle(date, selectedDates, defaultEnd)} />
+          )}
+          renderInput={(params: JSX.IntrinsicAttributes & TextFieldProps) => (
+            <TextField {...params} required={required} error={endError} helperText={endHelperText} />
+          )}
         />
       </FormControl>
     </Box>

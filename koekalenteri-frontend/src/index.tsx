@@ -30,7 +30,7 @@ root.render(
         </RecoilRoot>
       </ThemeProvider>
     </StyledEngineProvider>
-  </StrictMode>,
+  </StrictMode>
 )
 
 reportWebVitals()

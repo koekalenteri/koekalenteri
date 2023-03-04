@@ -25,9 +25,12 @@ export default function EventCreatePage() {
   const [event, setEvent] = useRecoilState(newEventAtom)
   const resetEvent = useResetRecoilState(newEventAtom)
 
-  const handleChange = useCallback((newState: Event) => {
-    setEvent(newState)
-  }, [setEvent])
+  const handleChange = useCallback(
+    (newState: Event) => {
+      setEvent(newState)
+    },
+    [setEvent]
+  )
 
   const handleSave = useCallback(async () => {
     if (!event) {
@@ -48,7 +51,7 @@ export default function EventCreatePage() {
     <EventForm
       event={event}
       changes={true}
-      eventTypes={activeEventTypes.map(et => et.eventType)}
+      eventTypes={activeEventTypes.map((et) => et.eventType)}
       eventTypeClasses={eventTypeClasses}
       judges={activeJudges}
       officials={officials}

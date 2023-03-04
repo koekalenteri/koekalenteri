@@ -1,7 +1,7 @@
 import { parseISO } from 'date-fns'
 import { TestResult } from 'koekalenteri-shared/model'
 
-export type EventResultRequirement = Partial<TestResult> & { count: number, excludeCurrentYear?: boolean }
+export type EventResultRequirement = Partial<TestResult> & { count: number; excludeCurrentYear?: boolean }
 export type EventResultRequirements = Array<EventResultRequirement>
 
 export enum RULE_DATES {
@@ -12,7 +12,7 @@ export enum RULE_DATES {
   '2006-04-01',
   '2009-01-01',
   '2016-04-01',
-  '2023-04-15'
+  '2023-04-15',
 }
 export type RuleDate = keyof typeof RULE_DATES
 
@@ -21,7 +21,7 @@ export type RegistrationClass = 'ALO' | 'AVO' | 'VOI' | undefined
 export type EventRequirement = {
   age?: number
   breedCode?: Array<string>
-  results?: {[Property in RuleDate]?: EventResultRequirements | Array<EventResultRequirements>}
+  results?: { [Property in RuleDate]?: EventResultRequirements | Array<EventResultRequirements> }
 }
 
 export type EventResultRequirementsByDate = {
@@ -45,7 +45,7 @@ export function getRuleDate(date: Date | string, available: RuleDate[] = Object.
   if (typeof date === 'string') {
     date = new Date(date)
   }
-  const asDates = available.map(v => parseISO(v))
+  const asDates = available.map((v) => parseISO(v))
   for (let i = 0; i < asDates.length; i++) {
     if (i > 0 && asDates[i] > date) {
       return available[i - 1]
@@ -131,30 +131,15 @@ export const REQUIREMENTS: { [key: string]: EventRequirement | EventClassRequire
   },
   'NOME-A': {
     results: {
-      '2009-01-01': [
-        [{ type: 'NOME-B', result: 'AVO1', count: 1 }],
-        [{ type: 'NOWT', result: 'AVO1', count: 1 }],
-      ],
-      '2016-04-01': [
-        [{ type: 'NOME-B', result: 'AVO1', count: 2 }],
-        [{ type: 'NOWT', result: 'AVO1', count: 2 }],
-      ],
-      '2023-04-15': [
-        [{ type: 'NOME-B', result: 'AVO1', count: 1 }],
-        [{ type: 'NOWT', result: 'AVO1', count: 1 }],
-      ],
+      '2009-01-01': [[{ type: 'NOME-B', result: 'AVO1', count: 1 }], [{ type: 'NOWT', result: 'AVO1', count: 1 }]],
+      '2016-04-01': [[{ type: 'NOME-B', result: 'AVO1', count: 2 }], [{ type: 'NOWT', result: 'AVO1', count: 2 }]],
+      '2023-04-15': [[{ type: 'NOME-B', result: 'AVO1', count: 1 }], [{ type: 'NOWT', result: 'AVO1', count: 1 }]],
     },
   },
   NKM: {
     results: {
-      '2016-04-01': [
-        [{ type: 'NOME-B', result: 'VOI1', count: 2 }],
-        [{ type: 'NOWT', cert: true, count: 2 }],
-      ],
-      '2023-04-15': [
-        [{ type: 'NOME-B', result: 'VOI1', count: 2 }],
-        [{ type: 'NOWT', cert: true, count: 2 }],
-      ],
+      '2016-04-01': [[{ type: 'NOME-B', result: 'VOI1', count: 2 }], [{ type: 'NOWT', cert: true, count: 2 }]],
+      '2023-04-15': [[{ type: 'NOME-B', result: 'VOI1', count: 2 }], [{ type: 'NOWT', cert: true, count: 2 }]],
     },
   },
 }

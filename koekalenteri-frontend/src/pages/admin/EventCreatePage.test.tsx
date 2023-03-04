@@ -42,7 +42,7 @@ describe('EventEditPage', () => {
     const { container } = render(
       <ThemeProvider theme={theme}>
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales[language]}>
-          <RecoilRoot initializeState={({set}) => set(newEventAtom, initialValue)}>
+          <RecoilRoot initializeState={({ set }) => set(newEventAtom, initialValue)}>
             <MemoryRouter>
               <Suspense fallback={<div>loading...</div>}>
                 <SnackbarProvider>
@@ -52,7 +52,7 @@ describe('EventEditPage', () => {
             </MemoryRouter>
           </RecoilRoot>
         </LocalizationProvider>
-      </ThemeProvider>,
+      </ThemeProvider>
     )
     await flushPromisesAndTimers()
     expect(container).toMatchSnapshot()

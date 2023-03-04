@@ -1,7 +1,15 @@
 import { Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
-import { AddCircleOutline, DeleteOutline, EditOutlined, EmailOutlined, FormatListBulleted, ShuffleOutlined, TableChartOutlined } from '@mui/icons-material'
+import {
+  AddCircleOutline,
+  DeleteOutline,
+  EditOutlined,
+  EmailOutlined,
+  FormatListBulleted,
+  ShuffleOutlined,
+  TableChartOutlined,
+} from '@mui/icons-material'
 import { Box, Button, Divider, Grid, Stack, Tab, Tabs } from '@mui/material'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
@@ -16,7 +24,12 @@ import RegistraionEditDialog from './eventViewPage/RegistrationEditDialog'
 import SendMessageDialog from './eventViewPage/SendMessageDialog'
 import TabPanel from './eventViewPage/TabPanel'
 import Title from './eventViewPage/Title'
-import { adminRegistrationIdAtom, currentEventClassRegistrationsSelector, editableEventByIdAtom, eventClassAtom } from './recoil'
+import {
+  adminRegistrationIdAtom,
+  currentEventClassRegistrationsSelector,
+  editableEventByIdAtom,
+  eventClassAtom,
+} from './recoil'
 
 export default function EventViewPage() {
   const { t } = useTranslation()
@@ -33,20 +46,30 @@ export default function EventViewPage() {
     return classes
   }, [event])
   const [selectedEventClass, setSelectedEventClass] = useRecoilState(eventClassAtom)
-  const activeTab = useMemo(() => Math.max(eventClasses.findIndex(c => c === selectedEventClass) ?? 0, 0), [eventClasses, selectedEventClass])
+  const activeTab = useMemo(
+    () => Math.max(eventClasses.findIndex((c) => c === selectedEventClass) ?? 0, 0),
+    [eventClasses, selectedEventClass]
+  )
   const [selectedRegistrationId, setSelectedRegistrationId] = useRecoilState(adminRegistrationIdAtom)
   const registrations = useRecoilValue(currentEventClassRegistrationsSelector)
 
-  const handleTabChange = useCallback((_: React.SyntheticEvent, newValue: number) => {
-    setSelectedEventClass(eventClasses[newValue])
-  }, [eventClasses, setSelectedEventClass])
+  const handleTabChange = useCallback(
+    (_: React.SyntheticEvent, newValue: number) => {
+      setSelectedEventClass(eventClasses[newValue])
+    },
+    [eventClasses, setSelectedEventClass]
+  )
 
   const handleClose = useCallback(() => {
     setOpen(false)
   }, [])
 
-  function openMsgDlg() { setMsgDlgOpen(true) }
-  function closeMsgDlg() { setMsgDlgOpen(false) }
+  function openMsgDlg() {
+    setMsgDlgOpen(true)
+  }
+  function closeMsgDlg() {
+    setMsgDlgOpen(false)
+  }
 
   useEffect(() => {
     if (selectedEventClass && !eventClasses.includes(selectedEventClass)) {
@@ -72,25 +95,50 @@ export default function EventViewPage() {
         </Grid>
 
         <Stack direction="row" spacing={2}>
-          <Button startIcon={<FormatListBulleted />} disabled>Näytä tiedot</Button>
-          <Button startIcon={<TableChartOutlined />} disabled>Vie Exceliin</Button>
-          <Button startIcon={<EmailOutlined />} onClick={openMsgDlg}>Lähetä viesti</Button>
-          <Button startIcon={<ShuffleOutlined />} disabled>Arvo kokeen osallistujat</Button>
-          <Divider orientation='vertical'></Divider>
-          <Button startIcon={<AddCircleOutline />} onClick={() => { setOpen(true) }}>{t('create')}</Button>
-          <Button startIcon={<EditOutlined />} disabled={!selectedRegistrationId} onClick={() => {
-            setOpen(true)
-          }}>{t('edit')}</Button>
-          <Button startIcon={<DeleteOutline />} disabled>{t('delete')}</Button>
+          <Button startIcon={<FormatListBulleted />} disabled>
+            Näytä tiedot
+          </Button>
+          <Button startIcon={<TableChartOutlined />} disabled>
+            Vie Exceliin
+          </Button>
+          <Button startIcon={<EmailOutlined />} onClick={openMsgDlg}>
+            Lähetä viesti
+          </Button>
+          <Button startIcon={<ShuffleOutlined />} disabled>
+            Arvo kokeen osallistujat
+          </Button>
+          <Divider orientation="vertical"></Divider>
+          <Button
+            startIcon={<AddCircleOutline />}
+            onClick={() => {
+              setOpen(true)
+            }}
+          >
+            {t('create')}
+          </Button>
+          <Button
+            startIcon={<EditOutlined />}
+            disabled={!selectedRegistrationId}
+            onClick={() => {
+              setOpen(true)
+            }}
+          >
+            {t('edit')}
+          </Button>
+          <Button startIcon={<DeleteOutline />} disabled>
+            {t('delete')}
+          </Button>
         </Stack>
 
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
           <Tabs value={activeTab} onChange={handleTabChange}>
-            {eventClasses.map(eventClass => <Tab key={`tab-${eventClass}`} id={`tab-${eventClass}`} label={eventClass}></Tab>)}
+            {eventClasses.map((eventClass) => (
+              <Tab key={`tab-${eventClass}`} id={`tab-${eventClass}`} label={eventClass}></Tab>
+            ))}
           </Tabs>
         </Box>
 
-        {eventClasses.map((eventClass, index) =>
+        {eventClasses.map((eventClass, index) => (
           <TabPanel key={`tabPanel-${eventClass}`} index={index} activeTab={activeTab}>
             <ClassEntrySelection
               eventDates={uniqueClassDates(event, eventClass)}
@@ -99,11 +147,15 @@ export default function EventViewPage() {
               selectedRegistrationId={selectedRegistrationId}
               setSelectedRegistrationId={setSelectedRegistrationId}
             />
-          </TabPanel>,
-        )}
+          </TabPanel>
+        ))}
 
         <Suspense>
-          <RegistraionEditDialog registrationId={open ? selectedRegistrationId ?? '' : ''} open={open} onClose={handleClose}/>
+          <RegistraionEditDialog
+            registrationId={open ? selectedRegistrationId ?? '' : ''}
+            open={open}
+            onClose={handleClose}
+          />
         </Suspense>
         <Suspense>
           <SendMessageDialog registrations={registrations} open={msgDlgOpen} onClose={closeMsgDlg} event={event} />
@@ -111,5 +163,4 @@ export default function EventViewPage() {
       </FullPageFlex>
     </>
   )
-
 }

@@ -5,7 +5,6 @@ import { BreedCode, Registration } from 'koekalenteri-shared/model'
 
 import GroupColors from './GroupColors'
 
-
 export function useClassEntrySelectionColumns(eventDates: Date[]) {
   const { t } = useTranslation()
 
@@ -33,7 +32,8 @@ export function useClassEntrySelectionColumns(eventDates: Date[]) {
       field: 'dob.breed',
       headerName: t('dog.breed'),
       width: 150,
-      valueGetter: (p: GridValueGetterParams<BreedCode, Registration>) => p.row.dog?.breedCode ? t(p.row.dog.breedCode, { ns: 'breed'} ) : '',
+      valueGetter: (p: GridValueGetterParams<BreedCode, Registration>) =>
+        p.row.dog?.breedCode ? t(p.row.dog.breedCode, { ns: 'breed' }) : '',
     },
     {
       field: 'class',
@@ -59,7 +59,7 @@ export function useClassEntrySelectionColumns(eventDates: Date[]) {
       headerName: t('registration.paid'),
       width: 90,
       align: 'center',
-      renderCell: () => (<EuroOutlined fontSize="small" />),
+      renderCell: () => <EuroOutlined fontSize="small" />,
     },
   ]
 
@@ -81,5 +81,5 @@ export function useClassEntrySelectionColumns(eventDates: Date[]) {
     },
   ]
 
-  return {cancelledColumns, entryColumns, participantColumns}
+  return { cancelledColumns, entryColumns, participantColumns }
 }

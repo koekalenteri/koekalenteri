@@ -4,26 +4,23 @@ import { useSnackbar } from 'notistack'
 
 import { putRegistration } from '../../../api/registration'
 
-
 export function useRegistrationActions() {
   const { t } = useTranslation()
   const { enqueueSnackbar } = useSnackbar()
 
   return {
     save: async (reg: Registration) => {
-
-      const saved = await putRegistration(reg.ownerHandles ? {...reg, handler: {...reg.owner}} : reg)
+      const saved = await putRegistration(reg.ownerHandles ? { ...reg, handler: { ...reg.owner } } : reg)
       const emails = [saved.handler.email]
       if (saved.owner.email !== saved.handler.email) {
         emails.push(saved.owner.email)
       }
       enqueueSnackbar(
-        t(reg.id ? 'registration.modified' : 'registration.saved',
-          {
-            count: emails.length,
-            to: emails.join('\n'),
-          }),
-        { variant: 'success', style: { whiteSpace: 'pre-line' } },
+        t(reg.id ? 'registration.modified' : 'registration.saved', {
+          count: emails.length,
+          to: emails.join('\n'),
+        }),
+        { variant: 'success', style: { whiteSpace: 'pre-line' } }
       )
       return saved
     },

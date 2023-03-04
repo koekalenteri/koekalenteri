@@ -10,4 +10,3 @@ export const Auth = {
   signOut: () => undefined,
   currentAuthenticatedUser: async () => mockUser,
 }
-

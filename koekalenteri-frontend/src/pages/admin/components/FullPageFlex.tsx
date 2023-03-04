@@ -7,14 +7,25 @@ type FullPageFlexProps = {
 
 const FullPageFlex = (props: FullPageFlexProps) => {
   return (
-    <Box sx={{ display: 'flex', p: 1, overflow: 'hidden', height: '100%', flexDirection: 'column', alignItems: 'flex-start' }}>
-      <Box sx={{
+    <Box
+      sx={{
         display: 'flex',
+        p: 1,
+        overflow: 'hidden',
+        height: '100%',
         flexDirection: 'column',
-        flexGrow: 1,
-        width: '100%',
-        minHeight: 600,
-      }}>
+        alignItems: 'flex-start',
+      }}
+    >
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          flexGrow: 1,
+          width: '100%',
+          minHeight: 600,
+        }}
+      >
         {props.children}
       </Box>
     </Box>

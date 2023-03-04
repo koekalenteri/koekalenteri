@@ -11,7 +11,7 @@ export const useEmailTemplatesActions = () => {
     async save(template: EmailTemplate) {
       const templates = [...emailTemplates]
       const saved = await putEmailTemplate(template)
-      const index = templates.findIndex(i => i.id === saved.id)
+      const index = templates.findIndex((i) => i.id === saved.id)
       templates.splice(index, 1, saved)
       setEmailTemplates(templates)
       return saved

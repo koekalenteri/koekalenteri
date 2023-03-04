@@ -28,17 +28,19 @@ export const currentEventClassRegistrationsSelector = selector<RegistrationWithM
   get: ({ get, getCallback }) => {
     const eventClass = get(eventClassAtom)
     const registrations = get(currentEventRegistrationsSelector)
-    return registrations.filter(r => r.class === eventClass || r.eventType === eventClass).map(r => ({
-      ...r,
-      setGroup: getCallback(({ set }) => async (group?: RegistrationGroup) => {
-        const newList = [...registrations]
-        const index = newList.findIndex(item => item.id === r.id)
-        if (index !== -1) {
-          newList.splice(index, 1, { ...r, group })
-        }
-        set(currentEventRegistrationsSelector, newList)
-      }),
-    }))
+    return registrations
+      .filter((r) => r.class === eventClass || r.eventType === eventClass)
+      .map((r) => ({
+        ...r,
+        setGroup: getCallback(({ set }) => async (group?: RegistrationGroup) => {
+          const newList = [...registrations]
+          const index = newList.findIndex((item) => item.id === r.id)
+          if (index !== -1) {
+            newList.splice(index, 1, { ...r, group })
+          }
+          set(currentEventRegistrationsSelector, newList)
+        }),
+      }))
   },
 })
 
@@ -46,17 +48,19 @@ export const currentAdminRegistrationSelector = selector<Registration | undefine
   key: 'currentAdminRegistration',
   get: ({ get }) => {
     const registrationId = get(adminRegistrationIdAtom)
-    return get(currentEventRegistrationsSelector).find(r => r.id === registrationId)
+    return get(currentEventRegistrationsSelector).find((r) => r.id === registrationId)
   },
 })
 
 export const currentAdminEventRegistrationSelector = selectorFamily<Registration | undefined, string | undefined>({
   key: 'currentAdminEventRegistrationSelector',
-  get: registrationId => ({ get }) => {
-    if (!registrationId) {
-      return
-    }
-    const registrations = get(currentEventRegistrationsSelector)
-    return registrations.find(r => r.id === registrationId)
-  },
+  get:
+    (registrationId) =>
+    ({ get }) => {
+      if (!registrationId) {
+        return
+      }
+      const registrations = get(currentEventRegistrationsSelector)
+      return registrations.find((r) => r.id === registrationId)
+    },
 })

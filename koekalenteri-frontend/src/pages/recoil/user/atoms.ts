@@ -1,4 +1,3 @@
-
 import { Language } from 'koekalenteri-shared/model'
 import { atom, atomFamily } from 'recoil'
 
@@ -9,11 +8,7 @@ import { i18nextEffect } from './effects'
 export const languageAtom = atom<Language>({
   key: 'language',
   default: 'fi',
-  effects: [
-    logEffect,
-    stringStorageEffect<Language>('fi'),
-    i18nextEffect,
-  ],
+  effects: [logEffect, stringStorageEffect<Language>('fi'), i18nextEffect],
 })
 
 export const spaAtom = atom<boolean>({

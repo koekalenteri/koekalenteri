@@ -5,7 +5,6 @@ import { userNameSelector } from '../../recoil'
 import LoggedInUserMenu from './userMenu/LoggedInUserMenu'
 import LoginButton from './userMenu/LoginButton'
 
-
 export default function UserMenu() {
   const userName = useRecoilValue(userNameSelector)
 
@@ -15,5 +14,3 @@ export default function UserMenu() {
 
   return <LoginButton />
 }
-
-

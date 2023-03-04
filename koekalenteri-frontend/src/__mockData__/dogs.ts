@@ -63,12 +63,14 @@ export const registrationDogAged28MonthsWithNOUResult: Dog = {
     name: 'Dam Name',
     titles: 'Dam titles',
   },
-  results: [{
-    date: subMonths(eventWithStaticDates.startDate, 1),
-    location: 'test location',
-    type: 'NOU',
-    class: '',
-    result: 'NOU1',
-    judge: 'test judge',
-  }],
+  results: [
+    {
+      date: subMonths(eventWithStaticDates.startDate, 1),
+      location: 'test location',
+      type: 'NOU',
+      class: '',
+      result: 'NOU1',
+      judge: 'test judge',
+    },
+  ],
 }

@@ -25,34 +25,32 @@ const miniMixin = (theme: Theme): CSSObject => ({
   },
 })
 
-const MiniDrawer = styled(Drawer)(
-  ({ theme, variant, open }) => {
-    const mini = variant === 'permanent' && !open
-    return {
-      width: drawerWidth,
-      flexShrink: 0,
-      whiteSpace: 'nowrap',
-      boxSizing: 'border-box',
-      ...(!mini && {
-        ...fullMixin(theme),
-        '& .MuiDrawer-paper': fullMixin(theme),
-      }),
-      ...(mini && {
-        ...miniMixin(theme),
-        '& .MuiDrawer-paper': miniMixin(theme),
-      }),
-      '& a': {
-        textDecoration: 'none',
-        color: 'inherit',
-      },
-      '& a.active > .MuiButtonBase-root': {
-        backgroundColor: theme.palette.background.selected,
-      },
-      '& .MuiButtonBase-root:hover': {
-        backgroundColor: theme.palette.background.hover,
-      },
-    }
-  },
-)
+const MiniDrawer = styled(Drawer)(({ theme, variant, open }) => {
+  const mini = variant === 'permanent' && !open
+  return {
+    width: drawerWidth,
+    flexShrink: 0,
+    whiteSpace: 'nowrap',
+    boxSizing: 'border-box',
+    ...(!mini && {
+      ...fullMixin(theme),
+      '& .MuiDrawer-paper': fullMixin(theme),
+    }),
+    ...(mini && {
+      ...miniMixin(theme),
+      '& .MuiDrawer-paper': miniMixin(theme),
+    }),
+    '& a': {
+      textDecoration: 'none',
+      color: 'inherit',
+    },
+    '& a.active > .MuiButtonBase-root': {
+      backgroundColor: theme.palette.background.selected,
+    },
+    '& .MuiButtonBase-root:hover': {
+      backgroundColor: theme.palette.background.hover,
+    },
+  }
+})
 
 export default MiniDrawer

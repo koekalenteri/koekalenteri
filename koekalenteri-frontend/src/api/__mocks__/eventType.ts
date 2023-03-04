@@ -2,7 +2,8 @@ import { EventType } from 'koekalenteri-shared/model'
 
 const mockEventTypes: EventType[] = [
   {
-    eventType: 'TEST1', description: {
+    eventType: 'TEST1',
+    description: {
       fi: 'TEST1 tapahtymatyyppi',
       en: 'TEST1 event type',
       sv: 'TEST1 åå',

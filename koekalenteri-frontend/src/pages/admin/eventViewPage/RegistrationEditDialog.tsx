@@ -6,7 +6,11 @@ import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
 
 import { hasChanges } from '../../../utils'
 import RegistrationForm from '../../components/RegistrationForm'
-import { currentAdminEventSelector, currentAdminRegistrationSelector, editableCurrentAdminEventRegistrationByIdAtom } from '../recoil'
+import {
+  currentAdminEventSelector,
+  currentAdminRegistrationSelector,
+  editableCurrentAdminEventRegistrationByIdAtom,
+} from '../recoil'
 import { useAdminRegistrationActions } from '../recoil/registrations/actions'
 
 interface Props {
@@ -15,24 +19,30 @@ interface Props {
   onClose?: () => void
 }
 
-export default function RegistraionEditDialog({registrationId, open, onClose}: Props) {
+export default function RegistraionEditDialog({ registrationId, open, onClose }: Props) {
   const event = useRecoilValue(currentAdminEventSelector)
   const savedRegistration = useRecoilValue(currentAdminRegistrationSelector)
   const [registration, setRegistration] = useRecoilState(editableCurrentAdminEventRegistrationByIdAtom(registrationId))
   const resetRegistration = useResetRecoilState(editableCurrentAdminEventRegistrationByIdAtom(registrationId))
   const actions = useAdminRegistrationActions()
-  const changes = useMemo(() => !!registration && !!savedRegistration && hasChanges(savedRegistration, registration), [registration, savedRegistration])
+  const changes = useMemo(
+    () => !!registration && !!savedRegistration && hasChanges(savedRegistration, registration),
+    [registration, savedRegistration]
+  )
 
   useEffect(() => {
     resetRegistration()
   }, [registrationId, savedRegistration, resetRegistration])
 
-  const handleChange = useCallback((newState: Registration) => {
-    console.log('diff', diff(registration ?? {}, newState))
-    if (hasChanges(registration, newState)) {
-      setRegistration(newState)
-    }
-  }, [registration, setRegistration])
+  const handleChange = useCallback(
+    (newState: Registration) => {
+      console.log('diff', diff(registration ?? {}, newState))
+      if (hasChanges(registration, newState)) {
+        setRegistration(newState)
+      }
+    },
+    [registration, setRegistration]
+  )
 
   const handleSave = useCallback(async () => {
     if (!registration || !event) {
@@ -55,7 +65,7 @@ export default function RegistraionEditDialog({registrationId, open, onClose}: P
   return (
     <Dialog
       fullWidth
-      maxWidth='lg'
+      maxWidth="lg"
       open={open}
       onClose={onClose}
       aria-labelledby="reg-dialog-title"
@@ -71,7 +81,7 @@ export default function RegistraionEditDialog({registrationId, open, onClose}: P
       }}
     >
       <DialogTitle id="reg-dialog-title">{`${registration?.dog?.name} / ${registration?.handler?.name}`}</DialogTitle>
-      <DialogContent dividers sx={{height: '100%', p: 0 }}>
+      <DialogContent dividers sx={{ height: '100%', p: 0 }}>
         <RegistrationForm
           event={event as ConfirmedEvent}
           registration={registration}

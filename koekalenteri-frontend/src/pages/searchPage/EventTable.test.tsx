@@ -18,12 +18,12 @@ describe('EventTable', () => {
         <RecoilRoot>
           <EventTable events={[]} />
         </RecoilRoot>
-      </ThemeProvider>,
+      </ThemeProvider>
     )
     expect(container).toMatchSnapshot()
   })
 
-  it('should render', async function() {
+  it('should render', async function () {
     const event: Event = {
       ...emptyEvent,
       startDate: parseISO('2021-02-10'),
@@ -34,12 +34,12 @@ describe('EventTable', () => {
         <RecoilRoot>
           <EventTable events={[event]} />
         </RecoilRoot>
-      </ThemeProvider>,
+      </ThemeProvider>
     )
     expect(container).toMatchSnapshot()
   })
 
-  it('should render registration link', async function() {
+  it('should render registration link', async function () {
     render(
       <ThemeProvider theme={theme}>
         <MemoryRouter>
@@ -47,7 +47,11 @@ describe('EventTable', () => {
             <EventTable events={[eventWithEntryOpen]} />
           </RecoilRoot>
         </MemoryRouter>
-      </ThemeProvider>)
-    expect(screen.getByRole('link')).toHaveAttribute('href', `/event/${eventWithEntryOpen.eventType}/${eventWithEntryOpen.id}`)
+      </ThemeProvider>
+    )
+    expect(screen.getByRole('link')).toHaveAttribute(
+      'href',
+      `/event/${eventWithEntryOpen.eventType}/${eventWithEntryOpen.id}`
+    )
   })
 })

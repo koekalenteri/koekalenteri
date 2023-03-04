@@ -8,13 +8,13 @@ export const parseStorageJSON = (value: string | null) => {
     if (value !== null) {
       parsed = parseJSON(value)
     }
-  } catch(e) {
+  } catch (e) {
     console.warn('JSON parse error', e)
   }
   return parsed
 }
 
-export const storageEffect: AtomEffect<any> = ({node, setSelf, onSet}) => {
+export const storageEffect: AtomEffect<any> = ({ node, setSelf, onSet }) => {
   const savedValue = localStorage.getItem(node.key)
   if (savedValue !== null) {
     const parsed = parseStorageJSON(savedValue)
@@ -43,7 +43,7 @@ export const storageEffect: AtomEffect<any> = ({node, setSelf, onSet}) => {
 }
 
 export function stringStorageEffect<T extends string>(defaultValue: string): AtomEffect<T> {
-  return ({node, setSelf, onSet}) => {
+  return ({ node, setSelf, onSet }) => {
     const savedValue = localStorage.getItem(node.key)
     if (savedValue !== null) {
       setSelf(savedValue as T)

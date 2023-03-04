@@ -1,4 +1,3 @@
-
 import { EmailTemplate } from 'koekalenteri-shared/model'
 import { atom, atomFamily } from 'recoil'
 
@@ -10,18 +9,11 @@ import { templateSelector } from './selectors'
 export const emailTemplatesAtom = atom<EmailTemplate[]>({
   key: 'emailTemplates',
   default: [],
-  effects: [
-    logEffect,
-    storageEffect,
-    remoteEmailTemplatesEffect,
-  ],
+  effects: [logEffect, storageEffect, remoteEmailTemplatesEffect],
 })
 
-export const editableTemplateByIdAtom = atomFamily<EmailTemplate | undefined, string|undefined>({
+export const editableTemplateByIdAtom = atomFamily<EmailTemplate | undefined, string | undefined>({
   key: 'editableEmailTemplate/Id',
   default: templateSelector,
-  effects: [
-    logEffect,
-    storageEffect,
-  ],
+  effects: [logEffect, storageEffect],
 })

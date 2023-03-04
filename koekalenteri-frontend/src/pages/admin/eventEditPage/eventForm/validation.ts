@@ -5,18 +5,18 @@ import { ValidationResult, Validators } from '../../../../i18n/validation'
 import { unique } from '../../../../utils'
 import { PartialEvent } from '../EventForm'
 
-type EventCallback = (event: PartialEvent) => boolean;
-type EventFlag = boolean | EventCallback;
+type EventCallback = (event: PartialEvent) => boolean
+type EventFlag = boolean | EventCallback
 type EventFlags = Partial<{
-  [Property in keyof Event]: EventFlag;
+  [Property in keyof Event]: EventFlag
 }>
 
 type RequiredFieldState = Partial<{
-  [Property in keyof Event]: EventState;
+  [Property in keyof Event]: EventState
 }>
 
 type RequiredFields = Partial<{
-  [Property in keyof Event]: boolean;
+  [Property in keyof Event]: boolean
 }>
 
 const STATE_INCLUSION: Record<EventState, EventState[]> = {
@@ -50,8 +50,7 @@ const REQUIRED_BY_STATE: Record<EventState, EventFlags> = {
     accountNumber: true,
     contactInfo: true,
   },
-  cancelled: {
-  },
+  cancelled: {},
 }
 
 const contactInfoShown = (contact?: Partial<ShowContactInfo>) => !!contact && (contact.email || contact.phone)
@@ -75,7 +74,7 @@ const VALIDATORS: Validators<PartialEvent, 'event'> = {
         list.push(c.class)
       }
     }
-    return list.length ? { key: 'classesJudge', opts: { field: 'classes', list, length: list.length }} : false
+    return list.length ? { key: 'classesJudge', opts: { field: 'classes', list, length: list.length } } : false
   },
   contactInfo: (event, required) => {
     const contactInfo = event.contactInfo
@@ -95,7 +94,9 @@ const VALIDATORS: Validators<PartialEvent, 'event'> = {
   judges: (event, required) => {
     // KOE-317 NOWT-test has to have at least 2 judges per class
     const minCount = event.eventType === 'NOWT' ? event.classes?.length * 2 : 1
-    return required && event.judges?.length < minCount ? { key: 'judgeCount', opts: { field: 'judges', length: minCount }} : false
+    return required && event.judges?.length < minCount
+      ? { key: 'judgeCount', opts: { field: 'judges', length: minCount } }
+      : false
   },
 
   places: (event, required) => {
@@ -110,14 +111,14 @@ const VALIDATORS: Validators<PartialEvent, 'event'> = {
         }
       }
     }
-    return list.length ? { key: 'placesClass', opts: { field: 'places', list, length: list.length }} : false
+    return list.length ? { key: 'placesClass', opts: { field: 'places', list, length: list.length } } : false
   },
-  startDate: (event, required) => required && event.startDate < startOfDay(new Date()) ? 'startDate' : false,
-  endDate: (event, required) => required && event.endDate < startOfDay(new Date()) ? 'endDate' : false,
+  startDate: (event, required) => (required && event.startDate < startOfDay(new Date()) ? 'startDate' : false),
+  endDate: (event, required) => (required && event.endDate < startOfDay(new Date()) ? 'endDate' : false),
 }
 
 export type FieldRequirements = {
-  state: RequiredFieldState,
+  state: RequiredFieldState
   required: RequiredFields
 }
 
@@ -141,8 +142,13 @@ function resolve(value: EventFlag | undefined, event: PartialEvent): boolean {
   return typeof value === 'function' ? value(event) : !!value
 }
 
-export function validateEventField(event: PartialEvent, field: keyof Event, required: boolean): ValidationResult<PartialEvent, 'event'> {
-  const validator = VALIDATORS[field] || (() => required && (typeof event[field] === 'undefined' || event[field] === ''))
+export function validateEventField(
+  event: PartialEvent,
+  field: keyof Event,
+  required: boolean
+): ValidationResult<PartialEvent, 'event'> {
+  const validator =
+    VALIDATORS[field] || (() => required && (typeof event[field] === 'undefined' || event[field] === ''))
   const result = validator(event, required)
   if (!result) {
     return false

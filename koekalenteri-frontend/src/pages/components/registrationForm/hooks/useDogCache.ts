@@ -15,16 +15,18 @@ type HookResult = [DeepPartial<DogCachedInfo> | undefined, Setter]
  */
 export function useDogCache(regNo: string = ''): HookResult {
   const [cache, setCache] = useRecoilState(dogCacheAtom)
-  const cached = useMemo(() => regNo ? cache?.[regNo] : undefined, [cache, regNo])
-  const setCached = useCallback<Setter>((props) => {
-    if (!regNo || isEmpty(props)) {
-      return
-    }
-    const result = cached ? Object.assign({}, cached, props) : props
-    setCache(Object.assign({}, cache, { [regNo]: result }))
-    return result
-  }, [cache, cached, regNo, setCache])
+  const cached = useMemo(() => (regNo ? cache?.[regNo] : undefined), [cache, regNo])
+  const setCached = useCallback<Setter>(
+    (props) => {
+      if (!regNo || isEmpty(props)) {
+        return
+      }
+      const result = cached ? Object.assign({}, cached, props) : props
+      setCache(Object.assign({}, cache, { [regNo]: result }))
+      return result
+    },
+    [cache, cached, regNo, setCache]
+  )
 
   return [cached, setCached]
 }
-

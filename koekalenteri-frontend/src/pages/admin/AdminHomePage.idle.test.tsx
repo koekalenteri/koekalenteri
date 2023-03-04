@@ -17,14 +17,16 @@ jest.mock('@aws-amplify/ui-react', () => require('../global-mocks/auth/idle'))
 
 describe('AdminHomePage', () => {
   it('should redirect to login page if user is not logged in', async () => {
-
-    const routes = [{
-      path: Path.admin.root,
-      element: <AdminHomePage />,
-    }, {
-      path: Path.login,
-      element: <>Login</>,
-    }]
+    const routes = [
+      {
+        path: Path.admin.root,
+        element: <AdminHomePage />,
+      },
+      {
+        path: Path.login,
+        element: <>Login</>,
+      },
+    ]
     const { container } = render(
       <ThemeProvider theme={theme}>
         <RecoilRoot>
@@ -36,7 +38,7 @@ describe('AdminHomePage', () => {
             </Authenticator.Provider>
           </SnackbarProvider>
         </RecoilRoot>
-      </ThemeProvider>,
+      </ThemeProvider>
     )
 
     await flushPromisesAndTimers()

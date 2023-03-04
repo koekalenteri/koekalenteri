@@ -1,7 +1,14 @@
 import { CheckBox, CheckBoxOutlineBlank } from '@mui/icons-material'
 import { Autocomplete, AutocompleteProps, Checkbox, TextField } from '@mui/material'
 
-type OmitProps = 'disableCloseOnSelect' | 'fullWidth' | 'freeSolo' | 'multiple' | 'renderInput' | 'renderOption' | 'renderTags';
+type OmitProps =
+  | 'disableCloseOnSelect'
+  | 'fullWidth'
+  | 'freeSolo'
+  | 'multiple'
+  | 'renderInput'
+  | 'renderOption'
+  | 'renderTags'
 
 export type AutocompleteMultiProps<T> = Omit<AutocompleteProps<T, true, false, false>, OmitProps> & {
   error?: boolean

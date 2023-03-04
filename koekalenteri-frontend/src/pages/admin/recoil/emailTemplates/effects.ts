@@ -4,18 +4,14 @@ import { AtomEffect } from 'recoil'
 
 import { getEmailTemplates } from '../../../../api/email'
 
-const templateIds: EmailTemplateId[] = [
-  'registration',
-  'reserve',
-]
-
+const templateIds: EmailTemplateId[] = ['registration', 'reserve']
 
 export const remoteEmailTemplatesEffect: AtomEffect<EmailTemplate[]> = ({ setSelf, trigger }) => {
   if (trigger === 'get') {
-    getEmailTemplates().then(emailTemplates => {
+    getEmailTemplates().then((emailTemplates) => {
       if (emailTemplates.length < templateIds.length) {
         for (const id of templateIds) {
-          if (!emailTemplates.find(t => t.id === id)) {
+          if (!emailTemplates.find((t) => t.id === id)) {
             emailTemplates.push({
               createdAt: new Date(),
               createdBy: '',

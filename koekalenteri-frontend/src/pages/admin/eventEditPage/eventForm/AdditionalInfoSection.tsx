@@ -5,14 +5,16 @@ import { TextField } from '@mui/material'
 import CollapsibleSection from '../../../components/CollapsibleSection'
 import { SectionProps } from '../EventForm'
 
-
 export default function AdditionalInfoSection({ event, onChange, onOpenChange, open }: SectionProps) {
   const { t } = useTranslation()
 
-  const handleChange = useCallback((e: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
-    e.preventDefault()
-    onChange?.({ description: e.target.value })
-  }, [onChange])
+  const handleChange = useCallback(
+    (e: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+      e.preventDefault()
+      onChange?.({ description: e.target.value })
+    },
+    [onChange]
+  )
 
   return (
     <CollapsibleSection title={t('event.description')} open={open} onOpenChange={onOpenChange}>

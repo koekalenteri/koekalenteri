@@ -1963,7 +1963,8 @@ exports[`RegistrationForm renders 1`] = `
             <span
               class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label Mui-disabled css-ahj2mt-MuiTypography-root"
             >
-              Hyväksyn 
+              Hyväksyn
+               
               <a
                 class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-1flfxuu-MuiTypography-root-MuiLink-root"
                 href="https://yttmk.yhdistysavain.fi/noutajien-metsastyskokeet-2/ohjeistukset/kokeen-ja-tai-kilpailun-ilmoitta/"
@@ -1972,7 +1973,9 @@ exports[`RegistrationForm renders 1`] = `
               >
                 ilmoittautmisen ehdot
               </a>
-               ja 
+               
+              ja
+               
               <a
                 class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-1flfxuu-MuiTypography-root-MuiLink-root"
                 href="https://www.snj.fi/snj/tietosuojaseloste/"

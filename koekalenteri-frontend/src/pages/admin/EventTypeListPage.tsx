@@ -11,7 +11,6 @@ import FullPageFlex from './components/FullPageFlex'
 import { QuickSearchToolbar } from './components/QuickSearchToolbar'
 import { useEventTypeListPageColumns } from './eventTypeListPage/columns'
 
-
 export default function EventTypeListPage() {
   const [searchText, setSearchText] = useRecoilState(eventTypeFilterAtom)
   const eventTypes = useRecoilValue(filteredEventTypesSelector)
@@ -20,8 +19,10 @@ export default function EventTypeListPage() {
 
   const columns = useEventTypeListPageColumns()
 
-  const onChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) =>
-    setSearchText(event.target.value), [setSearchText])
+  const onChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => setSearchText(event.target.value),
+    [setSearchText]
+  )
 
   const clearSearch = useCallback(() => setSearchText(''), [setSearchText])
 
@@ -29,7 +30,9 @@ export default function EventTypeListPage() {
     <>
       <FullPageFlex>
         <Stack direction="row" spacing={2}>
-          <Button startIcon={<CloudSync />} onClick={actions.refresh}>{t('updateData', {data: 'eventTypes'})}</Button>
+          <Button startIcon={<CloudSync />} onClick={actions.refresh}>
+            {t('updateData', { data: 'eventTypes' })}
+          </Button>
         </Stack>
 
         <StyledDataGrid

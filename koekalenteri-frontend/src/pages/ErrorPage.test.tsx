@@ -15,29 +15,33 @@ describe('ErrorPage', () => {
   })
 
   it('should render 404', () => {
-    const routes: RouteObject[] = [{
-      path: '/',
-      element: <>HOME PAGE</>,
-      errorElement: <ErrorPage />,
-    }]
+    const routes: RouteObject[] = [
+      {
+        path: '/',
+        element: <>HOME PAGE</>,
+        errorElement: <ErrorPage />,
+      },
+    ]
     const { container } = render(
       <ThemeProvider theme={theme}>
         <DataMemoryRouter initialEntries={['/woot']} routes={routes} />
-      </ThemeProvider>,
+      </ThemeProvider>
     )
     expect(container).toMatchSnapshot()
   })
 
   it('should render 500', () => {
-    const routes: RouteObject[] = [{
-      path: '/',
-      element: <ErrorThrowingComponent />,
-      errorElement: <ErrorPage />,
-    }]
+    const routes: RouteObject[] = [
+      {
+        path: '/',
+        element: <ErrorThrowingComponent />,
+        errorElement: <ErrorPage />,
+      },
+    ]
     const { container } = render(
       <ThemeProvider theme={theme}>
         <DataMemoryRouter initialEntries={['/']} routes={routes} />
-      </ThemeProvider>,
+      </ThemeProvider>
     )
     expect(container).toMatchSnapshot()
   })

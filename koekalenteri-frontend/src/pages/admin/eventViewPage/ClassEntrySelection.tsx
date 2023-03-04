@@ -23,7 +23,7 @@ interface Props {
   registrations?: RegistrationWithMutators[]
   setOpen?: Dispatch<SetStateAction<boolean>>
   selectedRegistrationId?: string
-  setSelectedRegistrationId?: SetterOrUpdater<string|undefined>
+  setSelectedRegistrationId?: SetterOrUpdater<string | undefined>
 }
 
 interface RegistrationWithGroups extends Registration {
@@ -38,12 +38,21 @@ const listKey = (reg: Registration) => {
 }
 export const groupKey = (rd: RegistrationDate) => rd.date.toISOString().slice(0, 10) + '-' + rd.time
 
-const ClassEntrySelection = ({ eventDates = [], registrations = [], setOpen, selectedRegistrationId, setSelectedRegistrationId }: Props) => {
+const ClassEntrySelection = ({
+  eventDates = [],
+  registrations = [],
+  setOpen,
+  selectedRegistrationId,
+  setSelectedRegistrationId,
+}: Props) => {
   const { enqueueSnackbar } = useSnackbar()
-  const {cancelledColumns, entryColumns, participantColumns} = useClassEntrySelectionColumns(eventDates)
+  const { cancelledColumns, entryColumns, participantColumns } = useClassEntrySelectionColumns(eventDates)
   const actions = useAdminRegistrationActions()
 
-  const eventGroups: RegistrationGroup[] = useMemo(() => availableGroups(eventDates).map(eventDate => ({ ...eventDate, key: groupKey(eventDate), number: 0 })), [eventDates])
+  const eventGroups: RegistrationGroup[] = useMemo(
+    () => availableGroups(eventDates).map((eventDate) => ({ ...eventDate, key: groupKey(eventDate), number: 0 })),
+    [eventDates]
+  )
   const registrationsByGroup: Record<string, RegistrationWithGroups[]> = useMemo(() => {
     const byGroup: Record<string, RegistrationWithGroups[]> = { reserve: [] }
     for (const group of eventGroups) {
@@ -52,16 +61,16 @@ const ClassEntrySelection = ({ eventDates = [], registrations = [], setOpen, sel
     for (const reg of registrations) {
       const key = listKey(reg)
       byGroup[key] = byGroup[key] || [] // make sure the array exists
-      byGroup[key].push({...reg, groups: reg.dates.map(rd => groupKey(rd))})
+      byGroup[key].push({ ...reg, groups: reg.dates.map((rd) => groupKey(rd)) })
     }
     return byGroup
   }, [eventGroups, registrations])
 
   const handleDrop = (group?: RegistrationGroup) => (item: DragItem) => {
-    const reg = registrations.find(r => r.id === item.id)
+    const reg = registrations.find((r) => r.id === item.id)
     if (reg && reg.group?.key !== group?.key) {
       reg.setGroup(group) // set the group to cache for faster ui update
-      actions.saveGroup({...reg, group})
+      actions.saveGroup({ ...reg, group })
     }
     if (item.move) {
       console.log(item.id, item.move)
@@ -70,30 +79,33 @@ const ClassEntrySelection = ({ eventDates = [], registrations = [], setOpen, sel
   }
 
   const handleReject = (item: DragItem) => {
-    const reg = registrations.find(r => r.id === item.id)
+    const reg = registrations.find((r) => r.id === item.id)
     if (reg) {
       enqueueSnackbar(`Koira ${reg.dog.name} ei ole ilmoittautunut tähän ryhmään`, { variant: 'error' })
     }
   }
 
-  const handleSelectionModeChange = useCallback((selection: GridSelectionModel, details: GridCallbackDetails) => {
-    const value = typeof selection[0] === 'string' ? selection[0] : undefined
-    if (value) {
-      const reg = registrations.find(r => r.id === value)
-      setSelectedRegistrationId?.(reg?.id)
-    }
-  }, [registrations, setSelectedRegistrationId])
+  const handleSelectionModeChange = useCallback(
+    (selection: GridSelectionModel, details: GridCallbackDetails) => {
+      const value = typeof selection[0] === 'string' ? selection[0] : undefined
+      if (value) {
+        const reg = registrations.find((r) => r.id === value)
+        setSelectedRegistrationId?.(reg?.id)
+      }
+    },
+    [registrations, setSelectedRegistrationId]
+  )
 
   const handleDoubleClick = useCallback(() => setOpen?.(true), [setOpen])
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <Typography variant='h6'>Osallistujat</Typography>
+      <Typography variant="h6">Osallistujat</Typography>
       {/* column headers only */}
       <Box sx={{ height: 40, flexShrink: 0, width: '100%', overflow: 'hidden' }}>
         <StyledDataGrid
           columns={participantColumns}
-          density='compact'
+          density="compact"
           disableColumnMenu
           hideFooter
           rows={[]}
@@ -102,7 +114,7 @@ const ClassEntrySelection = ({ eventDates = [], registrations = [], setOpen, sel
           }}
         />
       </Box>
-      {eventGroups.map((group) =>
+      {eventGroups.map((group) => (
         <DragableDataGrid
           autoHeight
           key={group.key}
@@ -129,9 +141,9 @@ const ClassEntrySelection = ({ eventDates = [], registrations = [], setOpen, sel
           }}
           onDrop={handleDrop(group)}
           onReject={handleReject}
-        />,
-      )}
-      <Typography variant='h6'>Ilmoittautuneet</Typography>
+        />
+      ))}
+      <Typography variant="h6">Ilmoittautuneet</Typography>
       <DragableDataGrid
         autoHeight
         columns={entryColumns}
@@ -142,9 +154,9 @@ const ClassEntrySelection = ({ eventDates = [], registrations = [], setOpen, sel
         onRowDoubleClick={handleDoubleClick}
         onDrop={handleDrop()}
       />
-      {registrationsByGroup.cancelled?.length ?
+      {registrationsByGroup.cancelled?.length ? (
         <>
-          <Typography variant='h6'>Peruneet</Typography>
+          <Typography variant="h6">Peruneet</Typography>
           <StyledDataGrid
             autoHeight
             columns={cancelledColumns}
@@ -155,8 +167,7 @@ const ClassEntrySelection = ({ eventDates = [], registrations = [], setOpen, sel
             onRowDoubleClick={handleDoubleClick}
           />
         </>
-        : null
-      }
+      ) : null}
     </DndProvider>
   )
 }

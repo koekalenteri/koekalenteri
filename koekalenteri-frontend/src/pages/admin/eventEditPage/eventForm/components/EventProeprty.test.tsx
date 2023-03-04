@@ -34,14 +34,18 @@ describe('EventProperty', () => {
     })
 
     it('should render with undefined property and options', () => {
-      const { container } = render(<EventProperty id={'eventType'} options={['test-a', 'test-b']} event={testEvent} freeSolo />)
+      const { container } = render(
+        <EventProperty id={'eventType'} options={['test-a', 'test-b']} event={testEvent} freeSolo />
+      )
       expect(container).toMatchSnapshot()
     })
 
     it('should fire onChange with no options', async () => {
       const onChange = jest.fn()
 
-      const { user } = renderWithUserEvents(<EventProperty id={'modifiedBy'} options={[]} event={testEvent} freeSolo onChange={onChange} />)
+      const { user } = renderWithUserEvents(
+        <EventProperty id={'modifiedBy'} options={[]} event={testEvent} freeSolo onChange={onChange} />
+      )
       const input = screen.getByRole('combobox')
       await user.type(input, 'input test')
       await waitForDebounce()
@@ -59,7 +63,15 @@ describe('EventProperty', () => {
     it('should be clearable with options', async () => {
       const onChange = jest.fn()
 
-      const { user } = renderWithUserEvents(<EventProperty id={'eventType'} options={['NOME-A', 'NOME-B', 'NOWT']} event={testEvent} freeSolo onChange={onChange} />)
+      const { user } = renderWithUserEvents(
+        <EventProperty
+          id={'eventType'}
+          options={['NOME-A', 'NOME-B', 'NOWT']}
+          event={testEvent}
+          freeSolo
+          onChange={onChange}
+        />
+      )
       const input = screen.getByRole('combobox')
       await user.type(input, 'NOWT')
       await waitForDebounce()
@@ -72,7 +84,6 @@ describe('EventProperty', () => {
 
       expect(onChange).toHaveBeenCalledTimes(2)
       expect(onChange).toHaveBeenLastCalledWith({ eventType: undefined })
-
     })
   })
 
@@ -90,7 +101,9 @@ describe('EventProperty', () => {
     it('should display options when typing and fire onChange when selecting an option or clearing input', async () => {
       const onChange = jest.fn()
 
-      const { container, user } = renderWithUserEvents(<EventProperty id={'eventType'} options={['test-a', 'test-b']} event={testEvent} onChange={onChange} />)
+      const { container, user } = renderWithUserEvents(
+        <EventProperty id={'eventType'} options={['test-a', 'test-b']} event={testEvent} onChange={onChange} />
+      )
       expect(container).toMatchSnapshot()
 
       const input = screen.getByRole('combobox')

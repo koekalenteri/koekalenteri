@@ -23,11 +23,28 @@ type EntryInfoProps = {
   open?: boolean
 }
 
-export function EntryInfo({ reg, event, classDate, className, errorStates, helperTexts, onChange, onOpenChange, open }: EntryInfoProps) {
+export function EntryInfo({
+  reg,
+  event,
+  classDate,
+  className,
+  errorStates,
+  helperTexts,
+  onChange,
+  onOpenChange,
+  open,
+}: EntryInfoProps) {
   const { t } = useTranslation()
 
-  const getRegDateLabel = useCallback((o: RegistrationDate) => t('dateFormat.weekday', { date: o.date }) + (o.time ? (' ' + t(`registration.time.${o.time}`)) : ''), [t])
-  const getReserveChoiceLabel = useCallback((o: ReserveChoise | '') => o !== '' ? t(`registration.reserveChoises.${o}`) : '', [t])
+  const getRegDateLabel = useCallback(
+    (o: RegistrationDate) =>
+      t('dateFormat.weekday', { date: o.date }) + (o.time ? ' ' + t(`registration.time.${o.time}`) : ''),
+    [t]
+  )
+  const getReserveChoiceLabel = useCallback(
+    (o: ReserveChoise | '') => (o !== '' ? t(`registration.reserveChoises.${o}`) : ''),
+    [t]
+  )
 
   const classes = uniqueClasses(event)
   const dates = registrationDates(event, reg.class)
@@ -48,8 +65,8 @@ export function EntryInfo({ reg, event, classDate, className, errorStates, helpe
     }
 
     const cdates = changes.class ? registrationDates(event, changes.class) : dates
-    const ddates = classDate ? cdates.filter(d => format(d.date, 'dd.MM.') === classDate) : cdates
-    const rdates = reg.dates.filter(rd => ddates.find(d => isSameDay(d.date, rd.date) && d.time === rd.time))
+    const ddates = classDate ? cdates.filter((d) => format(d.date, 'dd.MM.') === classDate) : cdates
+    const rdates = reg.dates.filter((rd) => ddates.find((d) => isSameDay(d.date, rd.date) && d.time === rd.time))
     if (!rdates.length || rdates.length !== reg.dates.length) {
       changes.dates = ddates
     }
@@ -57,12 +74,18 @@ export function EntryInfo({ reg, event, classDate, className, errorStates, helpe
     if (Object.keys(changes).length) {
       onChange?.(changes)
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const handleClassChange = useCallback((value: string) => onChange?.({ class: value }), [onChange])
-  const handleDatesChange = useCallback((_e: SyntheticEvent<Element, Event>, value: RegistrationDate[]) => onChange?.({ dates: value }), [onChange])
-  const handleReserveChange = useCallback((value: '' | ReserveChoise) => onChange?.({ reserve: value || undefined }), [onChange])
+  const handleDatesChange = useCallback(
+    (_e: SyntheticEvent<Element, Event>, value: RegistrationDate[]) => onChange?.({ dates: value }),
+    [onChange]
+  )
+  const handleReserveChange = useCallback(
+    (value: '' | ReserveChoise) => onChange?.({ reserve: value || undefined }),
+    [onChange]
+  )
 
   return (
     <CollapsibleSection

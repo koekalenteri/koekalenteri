@@ -7,7 +7,6 @@ import { locales } from '../../../../i18n'
 import BasicInfoSection from './BasicInfoSection'
 
 describe('BasicInfoSection', () => {
-
   it('should render', () => {
     const testEvent = {
       id: 'test',
@@ -21,7 +20,7 @@ describe('BasicInfoSection', () => {
     const { container } = render(
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
         <BasicInfoSection event={testEvent} onChange={changeHandler} open />
-      </LocalizationProvider>,
+      </LocalizationProvider>
     )
     expect(container).toMatchSnapshot()
   })

@@ -11,7 +11,6 @@ import AutocompleteSingle from '../../AutocompleteSingle'
 
 import { availableResults, availableTypes, resultBorderColor } from './utils'
 
-
 interface Props {
   result: ManualTestResult
   requirements?: EventResultRequirementsByDate
@@ -19,11 +18,14 @@ interface Props {
   onRemove?: (result: ManualTestResult) => void
 }
 
-export default function QualifyingResultRow({result, requirements, onChange, onRemove}: Props) {
+export default function QualifyingResultRow({ result, requirements, onChange, onRemove }: Props) {
   const { t } = useTranslation()
-  const handleChange = useCallback((result: ManualTestResult, props: Partial<TestResult>) => {
-    onChange?.(result, props)
-  }, [onChange])
+  const handleChange = useCallback(
+    (result: ManualTestResult, props: Partial<TestResult>) => {
+      onChange?.(result, props)
+    },
+    [onChange]
+  )
   const handleRemove = useCallback(() => onRemove?.(result), [onRemove, result])
 
   return (
@@ -45,7 +47,13 @@ export default function QualifyingResultRow({result, requirements, onChange, onR
           disableClearable
           options={availableResults(requirements)}
           label={t('testResult.result')}
-          onChange={(value) => handleChange(result, { result: value === 'CERT' ? 'VOI1' : value, cert: value === 'CERT', class: value.slice(0, -1) })}
+          onChange={(value) =>
+            handleChange(result, {
+              result: value === 'CERT' ? 'VOI1' : value,
+              cert: value === 'CERT',
+              class: value.slice(0, -1),
+            })
+          }
           sx={{
             width: 128,
             '& fieldset': {
@@ -69,7 +77,9 @@ export default function QualifyingResultRow({result, requirements, onChange, onR
             maxDate={new Date()}
             minDate={subYears(new Date(), 15)}
             onChange={(value: any) => handleChange(result, { date: value || undefined })}
-            renderInput={(params: JSX.IntrinsicAttributes & TextFieldProps) => <TextField {...params} error={!result.date} />}
+            renderInput={(params: JSX.IntrinsicAttributes & TextFieldProps) => (
+              <TextField {...params} error={!result.date} />
+            )}
             value={result.date || null}
           />
         </FormControl>
@@ -95,14 +105,10 @@ export default function QualifyingResultRow({result, requirements, onChange, onR
         />
       </Grid>
       <Grid item sx={{ display: result.official ? 'none' : 'block' }}>
-        <Button
-          startIcon={<DeleteOutline />}
-          onClick={handleRemove}
-        >
+        <Button startIcon={<DeleteOutline />} onClick={handleRemove}>
           {t('registration.cta.deleteResult')}
         </Button>
       </Grid>
     </Grid>
   )
 }
-

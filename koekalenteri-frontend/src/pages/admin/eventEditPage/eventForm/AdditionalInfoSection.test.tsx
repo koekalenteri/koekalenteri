@@ -5,7 +5,6 @@ import { renderWithUserEvents } from '../../../../test-utils/utils'
 import AdditionalInfoSection from './AdditionalInfoSection'
 
 describe('AdditionalInfoSection', () => {
-
   it('should render', () => {
     const testEvent = {
       id: 'test',

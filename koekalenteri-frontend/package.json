@@ -56,9 +56,13 @@
     ],
     "plugins": [
       "react",
-      "simple-import-sort"
+      "simple-import-sort",
+      "prettier"
     ],
     "rules": {
+      "prettier/prettier": "error",
+      "arrow-body-style": "off",
+      "prefer-arrow-callback": "off",
       "semi": [
         "error",
         "never"
@@ -71,10 +75,6 @@
           "allowTemplateLiterals": true
         }
       ],
-      "comma-dangle": [
-        "error",
-        "always-multiline"
-      ],
       "comma-spacing": [
         "error",
         {
@@ -82,10 +82,7 @@
           "after": true
         }
       ],
-      "@typescript-eslint/indent": [
-        "error",
-        2
-      ],
+      "@typescript-eslint/indent": "off",
       "simple-import-sort/imports": [
         "error",
         {
@@ -157,10 +154,12 @@
     "core-js": "^3.27.1",
     "css-mediaquery": "^0.1.2",
     "eslint-config-react-app": "^7.0.0",
+    "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-react": "^7.31.11",
     "eslint-plugin-simple-import-sort": "^10.0.0",
     "jest-fetch-mock": "^3.0.3",
     "koekalenteri-shared": "file:../koekalenteri-shared",
+    "prettier": "^2.8.4",
     "typescript": "^4.6.3"
   }
 }

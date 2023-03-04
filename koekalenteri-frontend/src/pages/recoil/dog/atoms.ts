@@ -5,10 +5,10 @@ import { logEffect } from '../effects'
 import { storageEffect } from '../effects/storage'
 
 export interface DogCachedInfo {
-  breeder: RegistrationBreeder,
-  dog: Dog,
-  handler: RegistrationPerson,
-  owner: RegistrationPerson & { ownerHandles: boolean },
+  breeder: RegistrationBreeder
+  dog: Dog
+  handler: RegistrationPerson
+  owner: RegistrationPerson & { ownerHandles: boolean }
   results: ManualTestResult[]
 }
 
@@ -17,15 +17,11 @@ export type DogCache = Record<string, Partial<DogCachedInfo>>
 export const dogCacheAtom = atom<DogCache>({
   key: 'dog-cache',
   default: {},
-  effects: [
-    storageEffect,
-  ],
+  effects: [storageEffect],
 })
 
-export const dogAtom = atomFamily<Dog|undefined, string>({
+export const dogAtom = atomFamily<Dog | undefined, string>({
   key: 'dog/regNo',
   default: undefined,
-  effects: [
-    logEffect,
-  ],
+  effects: [logEffect],
 })

@@ -20,23 +20,49 @@ const MIN_DATE = new Date(2020, 0, 1)
 
 export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filter, onChange }: Props) => {
   const { t } = useTranslation()
-  const setFilter = useCallback((props: Partial<FilterProps>) => onChange && onChange({...filter, ...props}), [filter, onChange])
-  const handleDateRangeChange = useCallback((start: DateValue, end: DateValue) => setFilter({ start, end}), [setFilter])
-  const handleEventTypeChange = useCallback((event: SyntheticEvent<Element, Event>, value: string[]) => setFilter({ eventType: value }), [setFilter])
-  const handleEventClassChange = useCallback((event: SyntheticEvent<Element, Event>, value: string[]) => setFilter({ eventClass: value }), [setFilter])
-  const handleOrganizerChange = useCallback((event: SyntheticEvent<Element, Event>, value: Organizer[]) => setFilter({ organizer: value.map(v => +v.id) }), [setFilter])
-  const handleJudgeChange = useCallback((event: SyntheticEvent<Element, Event>, value: Judge[]) => setFilter({ judge: value.map(v => +v.id) }), [setFilter])
-  const handleWithEntryOpenChange = useCallback((event: SyntheticEvent<Element, Event>, checked: boolean) => setFilter({
-    withOpenEntry: checked,
-    withClosingEntry: checked && filter.withClosingEntry,
-    withFreePlaces: checked && filter.withFreePlaces,
-  }), [filter.withClosingEntry, filter.withFreePlaces, setFilter])
-  const handleWithUpcomingEntryChange = useCallback((event: SyntheticEvent<Element, Event>, checked: boolean) => setFilter({
-    withUpcomingEntry: checked,
-  }), [setFilter])
-  const getName = useCallback((o?: {name?: string}) => o?.name ?? '', [])
+  const setFilter = useCallback(
+    (props: Partial<FilterProps>) => onChange && onChange({ ...filter, ...props }),
+    [filter, onChange]
+  )
+  const handleDateRangeChange = useCallback(
+    (start: DateValue, end: DateValue) => setFilter({ start, end }),
+    [setFilter]
+  )
+  const handleEventTypeChange = useCallback(
+    (event: SyntheticEvent<Element, Event>, value: string[]) => setFilter({ eventType: value }),
+    [setFilter]
+  )
+  const handleEventClassChange = useCallback(
+    (event: SyntheticEvent<Element, Event>, value: string[]) => setFilter({ eventClass: value }),
+    [setFilter]
+  )
+  const handleOrganizerChange = useCallback(
+    (event: SyntheticEvent<Element, Event>, value: Organizer[]) => setFilter({ organizer: value.map((v) => +v.id) }),
+    [setFilter]
+  )
+  const handleJudgeChange = useCallback(
+    (event: SyntheticEvent<Element, Event>, value: Judge[]) => setFilter({ judge: value.map((v) => +v.id) }),
+    [setFilter]
+  )
+  const handleWithEntryOpenChange = useCallback(
+    (event: SyntheticEvent<Element, Event>, checked: boolean) =>
+      setFilter({
+        withOpenEntry: checked,
+        withClosingEntry: checked && filter.withClosingEntry,
+        withFreePlaces: checked && filter.withFreePlaces,
+      }),
+    [filter.withClosingEntry, filter.withFreePlaces, setFilter]
+  )
+  const handleWithUpcomingEntryChange = useCallback(
+    (event: SyntheticEvent<Element, Event>, checked: boolean) =>
+      setFilter({
+        withUpcomingEntry: checked,
+      }),
+    [setFilter]
+  )
+  const getName = useCallback((o?: { name?: string }) => o?.name ?? '', [])
   const getString = useCallback((o?: string) => o ?? '', [])
-  const compareId = useCallback((o?: {id?: number}, v?: {id?: number}) => o?.id === v?.id, [])
+  const compareId = useCallback((o?: { id?: number }, v?: { id?: number }) => o?.id === v?.id, [])
 
   return (
     <Box m={1}>
@@ -45,7 +71,7 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
           <DateRange
             start={filter.start}
             end={filter.end}
-            range={{start: MIN_DATE}}
+            range={{ start: MIN_DATE }}
             startLabel={t('daterangeStart')}
             endLabel={t('daterangeEnd')}
             onChange={handleDateRangeChange}
@@ -76,7 +102,7 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
             label={t('organizer')}
             onChange={handleOrganizerChange}
             options={organizers}
-            value={organizers.filter(o => filter.organizer.includes(o.id))}
+            value={organizers.filter((o) => filter.organizer.includes(o.id))}
           />
         </Grid>
         <Grid item xs={12} sm={6}>
@@ -86,7 +112,7 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
             label={t('judge')}
             onChange={handleJudgeChange}
             options={judges}
-            value={judges.filter(j => filter.judge.includes(j.id))}
+            value={judges.filter((j) => filter.judge.includes(j.id))}
           />
         </Grid>
         <Grid item md={12}>

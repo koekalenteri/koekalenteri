@@ -9,7 +9,7 @@ interface EventListColDef extends GridColDef {
   field: keyof Event | 'date'
 }
 
-type StartEndDate = { start: Date, end: Date }
+type StartEndDate = { start: Date; end: Date }
 
 export default function useEventListColumns(): EventListColDef[] {
   const { t } = useTranslation()
@@ -23,7 +23,7 @@ export default function useEventListColumns(): EventListColDef[] {
       width: 120,
       sortComparator: (a, b) => (b as StartEndDate).start.valueOf() - (a as StartEndDate).start.valueOf(),
       valueGetter: (params) => ({ start: params.row.startDate, end: params.row.endDate }),
-      valueFormatter: ({value}) => t('daterange', value as StartEndDate),
+      valueFormatter: ({ value }) => t('daterange', value as StartEndDate),
       hideable: false,
     },
     {
@@ -37,7 +37,10 @@ export default function useEventListColumns(): EventListColDef[] {
       headerName: t('event.classes'),
       minWidth: 100,
       flex: 1,
-      valueGetter: (params) => ((params.row.classes || []) as Array<EventClass|string>).map(c => typeof c === 'string' ? c : c.class).join(', '),
+      valueGetter: (params) =>
+        ((params.row.classes || []) as Array<EventClass | string>)
+          .map((c) => (typeof c === 'string' ? c : c.class))
+          .join(', '),
     },
     {
       field: 'name',

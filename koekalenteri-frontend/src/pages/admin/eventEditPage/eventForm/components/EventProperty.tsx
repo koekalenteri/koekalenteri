@@ -9,17 +9,21 @@ import useDebouncedCallback from '../../../../../hooks/useDebouncedCallback'
 import { PartialEvent } from '../../EventForm'
 import { FieldRequirements, validateEventField } from '../validation'
 
-export type EventPropertyProps<Property extends keyof PartialEvent, freeSolo extends boolean> =
-  Omit<AutocompleteProps<PartialEvent[Property], false, false, freeSolo>, 'renderInput' | 'onChange' | 'value'> & {
-    id: Property,
-    event: PartialEvent,
-    fields?: FieldRequirements,
-    onChange?: (props: Partial<Event>) => void,
-    helpClick?: React.MouseEventHandler<HTMLButtonElement>
-    endAdornment?: ReactNode
-  };
+export type EventPropertyProps<Property extends keyof PartialEvent, freeSolo extends boolean> = Omit<
+  AutocompleteProps<PartialEvent[Property], false, false, freeSolo>,
+  'renderInput' | 'onChange' | 'value'
+> & {
+  id: Property
+  event: PartialEvent
+  fields?: FieldRequirements
+  onChange?: (props: Partial<Event>) => void
+  helpClick?: React.MouseEventHandler<HTMLButtonElement>
+  endAdornment?: ReactNode
+}
 
-export default function EventProperty<Property extends keyof PartialEvent, freeSolo extends boolean>(props: EventPropertyProps<Property, freeSolo>) {
+export default function EventProperty<Property extends keyof PartialEvent, freeSolo extends boolean>(
+  props: EventPropertyProps<Property, freeSolo>
+) {
   const { t } = useTranslation()
   const { id, event, fields, helpClick, endAdornment, onChange, ...acProps } = props
   const getInputInitValue = (prop: string | PartialEvent[Property] | null) => {
@@ -44,16 +48,19 @@ export default function EventProperty<Property extends keyof PartialEvent, freeS
   const error = isRequired && validateEventField(event, id, true)
   const helperText = error ? t(`validation.event.${error.key}`, error.opts) : ''
 
-  const handleChange = useCallback((
-    e: SyntheticEvent<Element, globalThis.Event>,
-    value: PartialEvent[Property] | AutocompleteFreeSoloValueMapping<freeSolo> | null,
-  ) => {
-    if (!acProps.options.length) {
-      return
-    }
-    const valueOrUndef = value ?? undefined
-    onChange?.({ [id]: valueOrUndef })
-  }, [acProps.options.length, id, onChange])
+  const handleChange = useCallback(
+    (
+      e: SyntheticEvent<Element, globalThis.Event>,
+      value: PartialEvent[Property] | AutocompleteFreeSoloValueMapping<freeSolo> | null
+    ) => {
+      if (!acProps.options.length) {
+        return
+      }
+      const valueOrUndef = value ?? undefined
+      onChange?.({ [id]: valueOrUndef })
+    },
+    [acProps.options.length, id, onChange]
+  )
 
   const debouncedonChange = useDebouncedCallback((value) => {
     if (!props.freeSolo) {
@@ -62,13 +69,13 @@ export default function EventProperty<Property extends keyof PartialEvent, freeS
     onChange?.({ [id]: value === '' ? undefined : value })
   })
 
-  const handleInputChange = useCallback((
-    e: SyntheticEvent<Element, globalThis.Event>,
-    value: string,
-  ) => {
-    setInputValue(value)
-    debouncedonChange(value)
-  }, [debouncedonChange])
+  const handleInputChange = useCallback(
+    (e: SyntheticEvent<Element, globalThis.Event>, value: string) => {
+      setInputValue(value)
+      debouncedonChange(value)
+    },
+    [debouncedonChange]
+  )
 
   return (
     <Autocomplete
@@ -76,7 +83,7 @@ export default function EventProperty<Property extends keyof PartialEvent, freeS
       {...acProps}
       value={fixedValue}
       inputValue={inputValue}
-      renderInput={(params) =>
+      renderInput={(params) => (
         <Box sx={{ display: 'flex', flex: '0 0 auto', position: 'relative' }}>
           <TextField
             {...params}
@@ -86,14 +93,19 @@ export default function EventProperty<Property extends keyof PartialEvent, freeS
             helperText={helperText}
             InputProps={{
               ...params.InputProps,
-              endAdornment: <>{endAdornment}{params.InputProps.endAdornment}</>,
+              endAdornment: (
+                <>
+                  {endAdornment}
+                  {params.InputProps.endAdornment}
+                </>
+              ),
             }}
           />
           <IconButton onClick={helpClick} sx={{ display: helpClick ? 'flex' : 'none', margin: 'auto' }}>
             <HelpOutlined />
           </IconButton>
         </Box>
-      }
+      )}
       onChange={handleChange}
       onInputChange={handleInputChange}
     />

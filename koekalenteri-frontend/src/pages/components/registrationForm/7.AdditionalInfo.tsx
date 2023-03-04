@@ -4,15 +4,14 @@ import { Registration } from 'koekalenteri-shared/model'
 
 import CollapsibleSection from '../CollapsibleSection'
 
-
 type AdditionalInfoProps = {
   reg: Registration
   onChange: (props: Partial<Registration>) => void
   onOpenChange?: (value: boolean) => void
   open?: boolean
-};
+}
 
-export function AdditionalInfo({reg, onChange, onOpenChange, open}: AdditionalInfoProps) {
+export function AdditionalInfo({ reg, onChange, onOpenChange, open }: AdditionalInfoProps) {
   const { t } = useTranslation()
 
   return (

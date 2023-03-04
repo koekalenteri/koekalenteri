@@ -8,6 +8,6 @@ export default function PlacesInput(props: JSX.IntrinsicAttributes & TextFieldPr
       type="number"
       size="small"
       InputProps={{ inputProps: { min: 0, max: 999, style: { textAlign: 'right', padding: 4 } } }}
-    >
-    </TextField>)
+    ></TextField>
+  )
 }

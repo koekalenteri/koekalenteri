@@ -16,11 +16,7 @@ export function LanguageMenuItem({ locale }: Props) {
   const handleClick = useCallback(() => setLanguage(locale), [locale, setLanguage])
 
   return (
-    <MenuItem
-      key={locale}
-      selected={language === locale}
-      onClick={handleClick}
-    >
+    <MenuItem key={locale} selected={language === locale} onClick={handleClick}>
       {t(`locale.${locale}`)}
     </MenuItem>
   )

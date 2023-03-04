@@ -2,34 +2,38 @@ import { fireEvent, render, screen, within } from '@testing-library/react'
 
 import JudgesSection from './JudgesSection'
 
-const JUDGES = [{
-  id: 1,
-  name: 'Test Judge 1',
-  email: 'joo@ei.com',
-  phone: '0700-judge',
-  location: 'Pohjois-Karjala',
-  district: 'Pohjois-Karjalan Kennelpiiri ry',
-  languages: ['fi'],
-  eventTypes: ['NOWT'],
-}, {
-  id: 2,
-  name: 'Test Judge 2',
-  email: 'joo2@ei.com',
-  phone: '0700-judge2',
-  location: 'Pohjois-Karjala',
-  district: 'Pohjois-Karjalan Kennelpiiri ry',
-  languages: ['fi'],
-  eventTypes: ['NOWT'],
-}, {
-  id: 3,
-  name: 'Test Judge 3',
-  email: 'joo3@ei.com',
-  phone: '0700-judge3',
-  location: 'Pohjois-Karjala',
-  district: 'Pohjois-Karjalan Kennelpiiri ry',
-  languages: ['fi'],
-  eventTypes: ['NOWT'],
-}]
+const JUDGES = [
+  {
+    id: 1,
+    name: 'Test Judge 1',
+    email: 'joo@ei.com',
+    phone: '0700-judge',
+    location: 'Pohjois-Karjala',
+    district: 'Pohjois-Karjalan Kennelpiiri ry',
+    languages: ['fi'],
+    eventTypes: ['NOWT'],
+  },
+  {
+    id: 2,
+    name: 'Test Judge 2',
+    email: 'joo2@ei.com',
+    phone: '0700-judge2',
+    location: 'Pohjois-Karjala',
+    district: 'Pohjois-Karjalan Kennelpiiri ry',
+    languages: ['fi'],
+    eventTypes: ['NOWT'],
+  },
+  {
+    id: 3,
+    name: 'Test Judge 3',
+    email: 'joo3@ei.com',
+    phone: '0700-judge3',
+    location: 'Pohjois-Karjala',
+    district: 'Pohjois-Karjalan Kennelpiiri ry',
+    languages: ['fi'],
+    eventTypes: ['NOWT'],
+  },
+]
 
 describe('JudgeSection', () => {
   it('should render properly with one judge selected', () => {
@@ -40,7 +44,7 @@ describe('JudgeSection', () => {
       endDate: new Date('2022-06-02'),
       classes: [],
     }
-    const {container} = render(<JudgesSection event={testEvent} judges={JUDGES} />)
+    const { container } = render(<JudgesSection event={testEvent} judges={JUDGES} />)
     expect(container).toMatchSnapshot()
   })
 
@@ -52,7 +56,7 @@ describe('JudgeSection', () => {
       endDate: new Date('2022-06-02'),
       classes: [],
     }
-    const {container} = render(<JudgesSection event={testEvent} judges={JUDGES} />)
+    const { container } = render(<JudgesSection event={testEvent} judges={JUDGES} />)
     expect(container).toMatchSnapshot()
   })
 
@@ -64,7 +68,7 @@ describe('JudgeSection', () => {
       endDate: new Date('2022-06-02'),
       classes: [],
     }
-    const {container} = render(<JudgesSection event={testEvent} judges={JUDGES} />)
+    const { container } = render(<JudgesSection event={testEvent} judges={JUDGES} />)
     expect(container).toMatchSnapshot()
   })
 
@@ -76,7 +80,7 @@ describe('JudgeSection', () => {
       endDate: new Date('2022-06-02'),
       classes: [],
     }
-    const {container} = render(<JudgesSection event={testEvent} judges={JUDGES} />)
+    const { container } = render(<JudgesSection event={testEvent} judges={JUDGES} />)
     expect(container).toMatchSnapshot()
   })
 
@@ -87,9 +91,9 @@ describe('JudgeSection', () => {
       judges: [0],
       startDate: new Date('2022-06-01'),
       endDate: new Date('2022-06-02'),
-      classes: [{class: 'AVO'}],
+      classes: [{ class: 'AVO' }],
     }
-    const {container} = render(<JudgesSection event={testEvent} judges={JUDGES} />)
+    const { container } = render(<JudgesSection event={testEvent} judges={JUDGES} />)
     expect(container).toMatchSnapshot()
   })
 

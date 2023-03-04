@@ -5,7 +5,6 @@ import { renderWithUserEvents } from '../../../../../test-utils/utils'
 import ContactInfoSelect from './ContactInfoSelect'
 
 describe('PersonContactInfo', () => {
-
   it('should render', () => {
     const changeHandler = jest.fn()
     const { container } = render(<ContactInfoSelect name="official" onChange={changeHandler} />)

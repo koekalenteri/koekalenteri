@@ -22,18 +22,21 @@ export default function RegistrationCreatePage() {
   const spa = useRecoilValue(spaAtom)
   const actions = useRegistrationActions()
 
-  const handleChange = useCallback((newState: Registration) => {
-    if (event) {
-      if (newState.eventId !== event.id || newState.eventType !== event.eventType) {
-        newState.eventId = event.id
-        newState.eventType = event.eventType
+  const handleChange = useCallback(
+    (newState: Registration) => {
+      if (event) {
+        if (newState.eventId !== event.id || newState.eventType !== event.eventType) {
+          newState.eventId = event.id
+          newState.eventType = event.eventType
+        }
       }
-    }
 
-    if (hasChanges(registration, newState)) {
-      setRegistration(newState)
-    }
-  }, [event, registration, setRegistration])
+      if (hasChanges(registration, newState)) {
+        setRegistration(newState)
+      }
+    },
+    [event, registration, setRegistration]
+  )
 
   const handleSave = useCallback(async () => {
     if (!registration || !event) {
@@ -50,7 +53,7 @@ export default function RegistrationCreatePage() {
     return true
   }, [navigate, resetRegistration])
 
-  const handleClick = useCallback(() => spa ? navigate(-1) : undefined, [spa, navigate])
+  const handleClick = useCallback(() => (spa ? navigate(-1) : undefined), [spa, navigate])
 
   if (!event || !registration) {
     throw new Error('Event not found!')
@@ -73,4 +76,3 @@ export default function RegistrationCreatePage() {
     </>
   )
 }
-

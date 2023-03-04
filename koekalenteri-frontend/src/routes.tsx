@@ -30,14 +30,12 @@ const routes: RouteObject[] = [
         index: true,
         element: <SearchPage />,
       },
-      ...[
-        'event/:eventType/:id/:class/:date',
-        'event/:eventType/:id/:class',
-        'event/:eventType/:id',
-      ].map<RouteObject>(path => ({
-        path,
-        element: <RegistrationCreatePage />,
-      })),
+      ...['event/:eventType/:id/:class/:date', 'event/:eventType/:id/:class', 'event/:eventType/:id'].map<RouteObject>(
+        (path) => ({
+          path,
+          element: <RegistrationCreatePage />,
+        })
+      ),
       {
         path: 'registration/:eventType/:id/:registrationId/cancel',
         element: <RegistrationListPage cancel />,
@@ -52,8 +50,8 @@ const routes: RouteObject[] = [
       },
     ],
   },
-  {path: Path.login, element: <LoginPage />},
-  {path: Path.logout, element: <Navigate to='/' />},
+  { path: Path.login, element: <LoginPage /> },
+  { path: Path.logout, element: <Navigate to="/" /> },
   {
     path: Path.admin.root,
     element: <AdminHomePage />,

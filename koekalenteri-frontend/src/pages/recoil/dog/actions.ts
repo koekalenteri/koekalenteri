@@ -9,16 +9,16 @@ import { useDogCache } from '../../components/registrationForm/hooks/useDogCache
 
 import { dogAtom, DogCachedInfo } from './atoms'
 
-const INIT_CACHE: DeepPartial<DogCachedInfo> = { owner: { ownerHandles: true }}
+const INIT_CACHE: DeepPartial<DogCachedInfo> = { owner: { ownerHandles: true } }
 
 export function useDogActions(regNo: string) {
   const [dog, setDog] = useRecoilState(dogAtom(regNo))
   const [cache, setCache] = useDogCache(regNo)
 
   return {
-    fetch: async() => {
+    fetch: async () => {
       if (!regNo) {
-        return {dog: undefined}
+        return { dog: undefined }
       }
       if (dog?.regNo === regNo) {
         return applyCache(regNo, cache, dog)
@@ -34,7 +34,7 @@ export function useDogActions(regNo: string) {
     },
     refresh: async () => {
       if (!regNo) {
-        return {dog: emptyDog}
+        return { dog: emptyDog }
       }
       const updated = await getDog(regNo, true)
       if (updated.regNo === regNo) {
@@ -49,7 +49,7 @@ export function useDogActions(regNo: string) {
       const newCache = merge(cache ?? INIT_CACHE, props)
       const newCacheDog = diff(dog ?? {}, newCache.dog ?? {})
       if (hasChanges(newCache?.dog, newCacheDog)) {
-        console.log({newCacheDog})
+        console.log({ newCacheDog })
         newCache.dog = newCacheDog
       }
       setCache(newCache)
@@ -63,16 +63,19 @@ export function applyCache(regNo: string, cache?: DeepPartial<DogCachedInfo>, do
 
   if (dog) {
     // when we have some official info
-    result.dog = merge<DeepPartial<Dog>>({
-      dam: {
-        name: cache?.dog?.dam?.name,
-        titles: cache?.dog?.dam?.titles,
+    result.dog = merge<DeepPartial<Dog>>(
+      {
+        dam: {
+          name: cache?.dog?.dam?.name,
+          titles: cache?.dog?.dam?.titles,
+        },
+        sire: {
+          name: cache?.dog?.sire?.name,
+          titles: cache?.dog?.sire?.titles,
+        },
       },
-      sire: {
-        name: cache?.dog?.sire?.name,
-        titles: cache?.dog?.sire?.titles,
-      },
-    }, dog)
+      dog
+    )
 
     // titles is the only thing that overwrites official information, when the official info is empty
     if (!result.dog.titles && cache?.dog?.titles) {

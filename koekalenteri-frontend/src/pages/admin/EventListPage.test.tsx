@@ -32,7 +32,7 @@ describe('EventListPage', () => {
             </Suspense>
           </MemoryRouter>
         </RecoilRoot>
-      </ThemeProvider>,
+      </ThemeProvider>
     )
     await flushPromisesAndTimers()
     expect(container).toMatchSnapshot()

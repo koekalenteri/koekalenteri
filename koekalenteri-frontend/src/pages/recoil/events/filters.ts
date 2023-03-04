@@ -5,7 +5,6 @@ import { isEntryClosing, isEntryOpen, isEntryUpcoming } from '../../../utils'
 
 import { FilterProps } from './atoms'
 
-
 export function withinDateFilters(event: Event, { start, end }: FilterProps) {
   if (start && (!event.endDate || event.endDate < start)) {
     return false
@@ -16,7 +15,10 @@ export function withinDateFilters(event: Event, { start, end }: FilterProps) {
   return true
 }
 
-export function withinSwitchFilters(event: Event, { withOpenEntry, withClosingEntry, withUpcomingEntry, withFreePlaces }: FilterProps) {
+export function withinSwitchFilters(
+  event: Event,
+  { withOpenEntry, withClosingEntry, withUpcomingEntry, withFreePlaces }: FilterProps
+) {
   let result
 
   if (withOpenEntry) {
@@ -40,10 +42,10 @@ export function withinArrayFilters(event: Event, { eventType, eventClass, judge,
   if (eventType.length && !eventType.includes(event.eventType)) {
     return false
   }
-  if (eventClass.length && !eventClass.some(c => event.classes.map(cl => cl.class).includes(c))) {
+  if (eventClass.length && !eventClass.some((c) => event.classes.map((cl) => cl.class).includes(c))) {
     return false
   }
-  if (judge.length && !judge.some(j => event.judges?.includes(j))) {
+  if (judge.length && !judge.some((j) => event.judges?.includes(j))) {
     return false
   }
   if (organizer.length && !organizer.includes(event.organizer?.id)) {
@@ -52,8 +54,8 @@ export function withinArrayFilters(event: Event, { eventType, eventClass, judge,
   return true
 }
 
-const readDate = (date: string | null) => date ? new Date(date) : null
-const writeDate = (date: Date | null) => date ? formatISO(date, { representation: 'date' }) : ''
+const readDate = (date: string | null) => (date ? new Date(date) : null)
+const writeDate = (date: Date | null) => (date ? formatISO(date, { representation: 'date' }) : '')
 
 export function serializeFilter(eventFilter: FilterProps): string {
   const params = new URLSearchParams()
@@ -76,11 +78,11 @@ export function serializeFilter(eventFilter: FilterProps): string {
   if (eventFilter.end) {
     params.append('e', writeDate(eventFilter.end))
   }
-  eventFilter.eventClass.forEach(v => params.append('c', v))
-  eventFilter.eventType.forEach(v => params.append('t', v))
-  eventFilter.judge.forEach(v => params.append('j', v.toString()))
-  eventFilter.organizer.forEach(v => params.append('o', v.toString()))
-  bits.forEach(v => params.append('b', v))
+  eventFilter.eventClass.forEach((v) => params.append('c', v))
+  eventFilter.eventType.forEach((v) => params.append('t', v))
+  eventFilter.judge.forEach((v) => params.append('j', v.toString()))
+  eventFilter.organizer.forEach((v) => params.append('o', v.toString()))
+  bits.forEach((v) => params.append('b', v))
 
   return params.toString()
 }
@@ -92,8 +94,8 @@ export function deserializeFilter(input: string) {
     end: readDate(searchParams.get('e')),
     eventClass: searchParams.getAll('c'),
     eventType: searchParams.getAll('t'),
-    judge: searchParams.getAll('j').map(j => parseInt(j)),
-    organizer: searchParams.getAll('o').map(s => parseInt(s)),
+    judge: searchParams.getAll('j').map((j) => parseInt(j)),
+    organizer: searchParams.getAll('o').map((s) => parseInt(s)),
     start: readDate(searchParams.get('s')),
     withClosingEntry: bits.includes('c'),
     withFreePlaces: bits.includes('f'),

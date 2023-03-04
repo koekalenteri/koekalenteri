@@ -13,14 +13,20 @@ interface Props {
 const GroupHeader = ({ eventDates, group }: Props) => {
   const { t } = useTranslation()
 
-  return <Stack direction="row" className={'header'} sx={{
-    height: 24,
-    lineHeight: '24px',
-    bgcolor: 'background.ok',
-  }}>
-    <GroupColors dates={eventDates} selected={[group]} disableTooltip />
-    <b>{t('dateshort', { date: group.date }) + (group.time ? (' ' + t(`registration.time.${group.time}`)) : '')}</b>
-  </Stack>
+  return (
+    <Stack
+      direction="row"
+      className={'header'}
+      sx={{
+        height: 24,
+        lineHeight: '24px',
+        bgcolor: 'background.ok',
+      }}
+    >
+      <GroupColors dates={eventDates} selected={[group]} disableTooltip />
+      <b>{t('dateshort', { date: group.date }) + (group.time ? ' ' + t(`registration.time.${group.time}`) : '')}</b>
+    </Stack>
+  )
 }
 
 export default GroupHeader

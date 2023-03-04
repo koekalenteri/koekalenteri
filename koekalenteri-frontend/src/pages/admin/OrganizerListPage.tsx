@@ -35,8 +35,10 @@ export default function OrganizerListPage() {
     },
   ]
 
-  const onChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) =>
-    setSearchText(event.target.value), [setSearchText])
+  const onChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => setSearchText(event.target.value),
+    [setSearchText]
+  )
 
   const clearSearch = useCallback(() => setSearchText(''), [setSearchText])
 
@@ -44,7 +46,9 @@ export default function OrganizerListPage() {
     <>
       <FullPageFlex>
         <Stack direction="row" spacing={2}>
-          <Button startIcon={<CloudSync />} onClick={actions.refresh}>{t('updateData', { data: 'organizations' })}</Button>
+          <Button startIcon={<CloudSync />} onClick={actions.refresh}>
+            {t('updateData', { data: 'organizations' })}
+          </Button>
         </Stack>
 
         <StyledDataGrid

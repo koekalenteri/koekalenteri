@@ -1,4 +1,3 @@
-
 import { Event } from 'koekalenteri-shared/model'
 import { atom } from 'recoil'
 
@@ -9,20 +8,13 @@ import { remoteEventsEffect, urlSyncEffect } from './effects'
 export const eventsAtom = atom<Event[]>({
   key: 'events',
   default: [],
-  effects: [
-    logEffect,
-    storageEffect,
-    remoteEventsEffect,
-  ],
+  effects: [logEffect, storageEffect, remoteEventsEffect],
 })
 
 export const eventIdAtom = atom<string | undefined>({
   key: 'eventId',
   default: '',
-  effects: [
-    logEffect,
-    storageEffect,
-  ],
+  effects: [logEffect, storageEffect],
 })
 
 export type FilterProps = {
@@ -52,8 +44,5 @@ export const eventFilterAtom = atom<FilterProps>({
     judge: [],
     organizer: [],
   },
-  effects: [
-    logEffect,
-    urlSyncEffect,
-  ],
+  effects: [logEffect, urlSyncEffect],
 })

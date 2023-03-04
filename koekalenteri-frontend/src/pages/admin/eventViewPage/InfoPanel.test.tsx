@@ -21,20 +21,27 @@ describe('InfoPanel>', () => {
   })
 
   it('renders with event with closed entry and registrations', () => {
-    const { container } = render(<InfoPanel event={eventWithEntryClosed} registrations={registrationsToEventWithEntryClosed} />)
+    const { container } = render(
+      <InfoPanel event={eventWithEntryClosed} registrations={registrationsToEventWithEntryClosed} />
+    )
 
     expect(container).toMatchSnapshot()
   })
 
   it('renders with event with closed entry and registrations with groups', () => {
-    const { container } = render(<InfoPanel event={eventWithEntryClosed} registrations={registrationsToEventWithEntryClosed.map((r, i) => ({
-      ...r,
-      group: {
-        ...r.dates[0],
-        number: i,
-        key: getGroupKey(r, i),
-      },
-    }))} />)
+    const { container } = render(
+      <InfoPanel
+        event={eventWithEntryClosed}
+        registrations={registrationsToEventWithEntryClosed.map((r, i) => ({
+          ...r,
+          group: {
+            ...r.dates[0],
+            number: i,
+            key: getGroupKey(r, i),
+          },
+        }))}
+      />
+    )
 
     expect(container).toMatchSnapshot()
   })

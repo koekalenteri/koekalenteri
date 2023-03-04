@@ -17,26 +17,32 @@ export default function ContactInfoSelect({ name, show, onChange }: Props) {
     phone: !!show?.phone,
   })
 
-  const handleChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
-    const value = {
-      ...state,
-      [event.target.name]: event.target.checked,
-    }
-    setState(value)
-    onChange(name, value)
-  }, [name, onChange, state])
+  const handleChange = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => {
+      const value = {
+        ...state,
+        [event.target.name]: event.target.checked,
+      }
+      setState(value)
+      onChange(name, value)
+    },
+    [name, onChange, state]
+  )
 
   return (
     <FormGroup row>
       <FormControlLabel
         control={<Checkbox checked={state.name} name="name" onChange={handleChange} />}
-        label={t('contact.name')} />
+        label={t('contact.name')}
+      />
       <FormControlLabel
         control={<Checkbox checked={state.email} name="email" onChange={handleChange} />}
-        label={t('contact.email')} />
+        label={t('contact.email')}
+      />
       <FormControlLabel
         control={<Checkbox checked={state.phone} name="phone" onChange={handleChange} />}
-        label={t('contact.phone')} />
+        label={t('contact.phone')}
+      />
     </FormGroup>
   )
 }

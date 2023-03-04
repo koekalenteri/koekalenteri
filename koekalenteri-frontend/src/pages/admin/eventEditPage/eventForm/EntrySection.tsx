@@ -14,12 +14,28 @@ export default function EntrySection(props: SectionProps) {
   const { event, fields, helperTexts, onChange, onOpenChange, open } = props
   const error = helperTexts?.entryStartDate || helperTexts?.entryEndDate || helperTexts?.places
   const helperText = error ? t('validation.event.errors') : ''
-  const handleDateChange = useCallback((start: DateValue, end: DateValue) => onChange?.({entryStartDate: start || undefined, entryEndDate: end || undefined}), [onChange])
-  const handleOwnerMembershipChange = useCallback((e: ChangeEvent<HTMLInputElement>) => onChange?.({ allowOwnerMembershipPriority: e.target.checked }), [onChange])
-  const handleHandlerMembershipChange = useCallback((e: ChangeEvent<HTMLInputElement>) => onChange?.({ allowHandlerMembershipPriority: e.target.checked }), [onChange])
+  const handleDateChange = useCallback(
+    (start: DateValue, end: DateValue) =>
+      onChange?.({ entryStartDate: start || undefined, entryEndDate: end || undefined }),
+    [onChange]
+  )
+  const handleOwnerMembershipChange = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => onChange?.({ allowOwnerMembershipPriority: e.target.checked }),
+    [onChange]
+  )
+  const handleHandlerMembershipChange = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => onChange?.({ allowHandlerMembershipPriority: e.target.checked }),
+    [onChange]
+  )
 
   return (
-    <CollapsibleSection title="Ilmoittautuminen" open={open} onOpenChange={onOpenChange} error={!!error} helperText={helperText}>
+    <CollapsibleSection
+      title="Ilmoittautuminen"
+      open={open}
+      onOpenChange={onOpenChange}
+      error={!!error}
+      helperText={helperText}
+    >
       <Grid item container spacing={1}>
         <Grid item container spacing={1}>
           <Grid item>
@@ -27,10 +43,10 @@ export default function EntrySection(props: SectionProps) {
               startLabel="Ilmoittautumisaika alkaa"
               endLabel="Ilmoittautumisaika päättyy"
               start={event.entryStartDate || null}
-              defaultStart={sub(event.startDate, {weeks: 6})}
+              defaultStart={sub(event.startDate, { weeks: 6 })}
               end={event.entryEndDate || null}
               defaultEnd={sub(event.startDate, { weeks: 3 })}
-              range={{start: event.createdAt || sub(event.startDate, {weeks: 9}), end: event.startDate}}
+              range={{ start: event.createdAt || sub(event.startDate, { weeks: 9 }), end: event.startDate }}
               required={fields?.required.entryStartDate || fields?.required.entryEndDate}
               onChange={handleDateChange}
             />
@@ -47,19 +63,13 @@ export default function EntrySection(props: SectionProps) {
           <Grid item>
             <FormControlLabel
               control={
-                <Checkbox
-                  checked={!!event.allowOwnerMembershipPriority}
-                  onChange={handleOwnerMembershipChange}
-                />
+                <Checkbox checked={!!event.allowOwnerMembershipPriority} onChange={handleOwnerMembershipChange} />
               }
               label="Omistaja jäsenet etusijalla"
             />
             <FormControlLabel
               control={
-                <Checkbox
-                  checked={!!event.allowHandlerMembershipPriority}
-                  onChange={handleHandlerMembershipChange}
-                />
+                <Checkbox checked={!!event.allowHandlerMembershipPriority} onChange={handleHandlerMembershipChange} />
               }
               label="Ohjaaja jäsenet etusijalla"
             />

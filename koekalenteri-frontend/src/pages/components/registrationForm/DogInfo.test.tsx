@@ -27,7 +27,7 @@ describe('DogInfo', () => {
             <DogInfo reg={registrationWithStaticDates} eventDate={eventDate} minDogAgeMonths={0} />
           </Suspense>
         </RecoilRoot>
-      </LocalizationProvider>,
+      </LocalizationProvider>
     )
     await waitForDebounce()
     await waitForDebounce() // TODO: too much debouncing?
@@ -47,7 +47,7 @@ describe('DogInfo', () => {
             <DogInfo reg={reg} eventDate={eventDate} minDogAgeMonths={15} onChange={changeHandler} />
           </Suspense>
         </RecoilRoot>
-      </LocalizationProvider>,
+      </LocalizationProvider>
     )
 
     expect(changeHandler).toHaveBeenCalledTimes(0)
@@ -57,14 +57,19 @@ describe('DogInfo', () => {
 
     await user.clear(input)
     expect(input).toHaveValue('')
-    expect(changeHandler).toHaveBeenLastCalledWith(expect.objectContaining({ dog: expect.objectContaining({ regNo: '' }), ownerHandles: true, results: [] }), true)
+    expect(changeHandler).toHaveBeenLastCalledWith(
+      expect.objectContaining({ dog: expect.objectContaining({ regNo: '' }), ownerHandles: true, results: [] }),
+      true
+    )
 
     await user.type(input, newDog.regNo)
     expect(input).toHaveValue(newDog.regNo)
     await waitForDebounce()
     await waitForDebounce() // TODO: too much debouncing?
 
-    expect(changeHandler).toHaveBeenLastCalledWith(expect.objectContaining({ dog: registrationDogAged20MonthsAndNoResults }), true)
+    expect(changeHandler).toHaveBeenLastCalledWith(
+      expect.objectContaining({ dog: registrationDogAged20MonthsAndNoResults }),
+      true
+    )
   })
-
 })

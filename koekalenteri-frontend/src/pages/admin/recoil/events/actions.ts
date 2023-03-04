@@ -9,12 +9,17 @@ import { useRecoilState, useSetRecoilState } from 'recoil'
 import { putEvent } from '../../../../api/event'
 import { Path } from '../../../../routeConfig'
 
-import { adminEventIdAtom, newEventAtom, newEventEntryEndDate, newEventEntryStartDate, newEventStartDate } from './atoms'
+import {
+  adminEventIdAtom,
+  newEventAtom,
+  newEventEntryEndDate,
+  newEventEntryStartDate,
+  newEventStartDate,
+} from './atoms'
 import { currentAdminEventSelector } from './selectors'
 
-
 export const useAdminEventActions = () => {
-  const { user } = useAuthenticator(context => [context.user])
+  const { user } = useAuthenticator((context) => [context.user])
   const setAdminEventId = useSetRecoilState(adminEventIdAtom)
   const [currentAdminEvent, setCurrentAdminEvent] = useRecoilState(currentAdminEventSelector)
   const setNewEvent = useSetRecoilState(newEventAtom)
@@ -37,7 +42,7 @@ export const useAdminEventActions = () => {
     copy.name = 'Kopio - ' + (copy.name ?? '')
     copy.state = 'draft'
     copy.entries = 0
-    copy.classes.forEach(c => c.entries = c.members = 0)
+    copy.classes.forEach((c) => (c.entries = c.members = 0))
 
     const days = differenceInDays(copy.endDate, copy.startDate)
     copy.startDate = newEventStartDate
