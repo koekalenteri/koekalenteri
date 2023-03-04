@@ -83,15 +83,21 @@ export default function RegistrationList({
       type: 'actions',
       getActions: (params) =>
         params.row.cancelled
-          ? [<Box sx={{ color: 'warning.main', textTransform: 'uppercase' }}>{t('event.states.cancelled')}</Box>]
+          ? [
+              <Box key="cancelled" sx={{ color: 'warning.main', textTransform: 'uppercase' }}>
+                {t('event.states.cancelled')}
+              </Box>,
+            ]
           : [
               <GridActionsCellItem
+                key="edit"
                 color="info"
                 icon={<EditOutlined />}
                 label="Muokkaa ilmoittautumista"
                 onClick={() => onEdit(params.row)}
               />,
               <GridActionsCellItem
+                key="cancel"
                 color="error"
                 icon={<CancelOutlined />}
                 label="Peru ilmoittautuminen"
