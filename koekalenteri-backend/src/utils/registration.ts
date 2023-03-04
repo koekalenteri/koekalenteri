@@ -1,7 +1,7 @@
 import { lightFormat, parseISO } from "date-fns"
 import { JsonConfirmedEvent, JsonRegistration } from "koekalenteri-shared/model"
 
-import { i18n } from "../i18n"
+import { i18n } from "../i18n/index"
 
 import { formatDateSpan } from "./dates"
 import { reverseName } from "./string"
