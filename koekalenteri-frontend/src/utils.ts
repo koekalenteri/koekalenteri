@@ -52,16 +52,22 @@ export const uniqueFn = <T>(arr: T[], cmp: (a: T, b: T) => boolean): T[] =>
   arr.filter((c, i, a) => a.findIndex((f) => cmp(f, c)) === i)
 export const uniqueDate = (arr: Date[]) => [...new Set<number>(arr.map((d) => d.valueOf()))].map((v) => new Date(v))
 
-const DATE_RE = /^\d{4}-(?:0[1-9]|1[0-2])-(?:[0-2][1-9]|[1-3]0|3[01])§/
+const DATE_RE = /^\d{4}-(?:0[1-9]|1[0-2])-(?:[0-2][1-9]|[1-3]0|3[01])$/
 const TIME_RE = /^(?:[0-1]\d|2[0-3])(?::[0-6]\d)(?::[0-6]\d)?(?:\.\d{3})?(?:[+-][0-2]\d:[0-5]\d|Z)?$/
+
+export const isDateString = (value: unknown): value is string => {
+  if (typeof value !== 'string') {
+    return false
+  }
+  const [date, time] = value.split('T')
+  return DATE_RE.test(date) && TIME_RE.test(time)
+}
+
 function dateReviver(_key: string, value: JsonValue): JsonValue | Date {
-  if (typeof value === 'string') {
-    const [date, time] = value.split('T')
-    if (DATE_RE.test(date) && TIME_RE.test(time)) {
-      const dateObj = new Date(value)
-      if (!isNaN(+dateObj)) {
-        return dateObj
-      }
+  if (isDateString(value)) {
+    const dateObj = new Date(value)
+    if (!isNaN(+dateObj)) {
+      return dateObj
     }
   }
   return value
@@ -71,7 +77,7 @@ export const parseJSON = (json: string) => (json ? JSON.parse(json, dateReviver)
 
 export type AnyObject = Record<string, unknown>
 export type EmptyObject = Record<string, never>
-export type Entries<T> = {
+export type Entries<T extends AnyObject> = {
   [K in keyof T]: [K, T[K]]
 }[keyof T][]
 
@@ -82,7 +88,7 @@ export const isEmptyObject = (o: unknown): o is EmptyObject => isObject(o) && is
 export const hasChanges = (a: object | undefined, b: object | undefined): boolean =>
   !isEmptyObject(diff(a ?? {}, b ?? {}))
 export const clone = <T extends AnyObject>(a: T): T => Object.assign({}, a)
-export const merge = <T>(a: T, b: DeepPartial<T>): T => {
+export const merge = <T extends AnyObject>(a: T, b: DeepPartial<T>): T => {
   const result = isObject(a) ? clone(a) : ({} as T)
   if (!isObject(b)) {
     return result
@@ -97,6 +103,27 @@ export const merge = <T>(a: T, b: DeepPartial<T>): T => {
     }
   }
   return result
+}
+export const assignDeep = <T extends AnyObject>(a: T, ...rest: DeepPartial<T>[]): void => {
+  if (!isObject(a)) {
+    return
+  }
+  for (const next of rest) {
+    for (const [key, value] of Object.entries(next) as Entries<T>) {
+      if (isObject(value)) {
+        const old = a[key]
+        if (isObject(old)) {
+          // @ts-expect-error Argument of type 'T[keyof T] & AnyObject' is not assignable to parameter of type 'DeepPartial<T[keyof T] & AnyObject>'
+          assignDeep(old, value)
+        } else {
+          // @ts-expect-error Argument of type 'T[keyof T] & AnyObject' is not assignable to parameter of type 'DeepPartial<T[keyof T] & AnyObject>'
+          a[key] = merge({}, value)
+        }
+      } else {
+        Object.assign(a, value)
+      }
+    }
+  }
 }
 
 const USEREXP = /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+){0,4}$/i
