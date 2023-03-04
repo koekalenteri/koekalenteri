@@ -16,5 +16,4 @@ describe('PlacesDisplay', () => {
   </div>
   `)
   })
-
 })

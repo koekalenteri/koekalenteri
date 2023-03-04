@@ -104,27 +104,6 @@ export const merge = <T extends AnyObject>(a: T, b: DeepPartial<T>): T => {
   }
   return result
 }
-export const assignDeep = <T extends AnyObject>(a: T, ...rest: DeepPartial<T>[]): void => {
-  if (!isObject(a)) {
-    return
-  }
-  for (const next of rest) {
-    for (const [key, value] of Object.entries(next) as Entries<T>) {
-      if (isObject(value)) {
-        const old = a[key]
-        if (isObject(old)) {
-          // @ts-expect-error Argument of type 'T[keyof T] & AnyObject' is not assignable to parameter of type 'DeepPartial<T[keyof T] & AnyObject>'
-          assignDeep(old, value)
-        } else {
-          // @ts-expect-error Argument of type 'T[keyof T] & AnyObject' is not assignable to parameter of type 'DeepPartial<T[keyof T] & AnyObject>'
-          a[key] = merge({}, value)
-        }
-      } else {
-        Object.assign(a, value)
-      }
-    }
-  }
-}
 
 const USEREXP = /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+){0,4}$/i
 const DOMAINEXP = /^(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.){1,4}[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/i

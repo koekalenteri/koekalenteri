@@ -9,7 +9,7 @@ interface Props extends Omit<StandardTextFieldProps, 'onChange'> {
 }
 
 export default function PlacesInput(props: Props) {
-  const [value, setValue] = useState(props.value)
+  const [value, setValue] = useState(props.value ?? 0)
 
   const dispatchChange = useDebouncedCallback((value: number) => props.onChange?.(value))
   const handleChange = useCallback<ChangeEventHandler<HTMLInputElement>>(
@@ -27,7 +27,7 @@ export default function PlacesInput(props: Props) {
   )
 
   useEffect(() => {
-    setValue(props.value)
+    setValue(props.value ?? 0)
   }, [props.value])
 
   return (

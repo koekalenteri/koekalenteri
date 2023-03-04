@@ -6,8 +6,6 @@ import { render } from '@testing-library/react'
 import { SnackbarProvider } from 'notistack'
 import { RecoilRoot } from 'recoil'
 
-import 'core-js/stable/structured-clone'
-
 import { eventWithStaticDates } from '../../__mockData__/events'
 import { registrationWithStaticDates } from '../../__mockData__/registrations'
 import theme from '../../assets/Theme'
