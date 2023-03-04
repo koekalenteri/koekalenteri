@@ -15,6 +15,12 @@ describe('PlacesInput', () => {
     expect(container).toMatchSnapshot()
   })
 
+  it('should rerender with new value', () => {
+    const { container, rerender } = render(<PlacesInput value={11} />)
+    rerender(<PlacesInput value={22} />)
+    expect(container).toMatchSnapshot()
+  })
+
   it('should call onChange', async () => {
     const onChange = jest.fn()
     const { user } = renderWithUserEvents(<PlacesInput value={123} onChange={onChange} />)
