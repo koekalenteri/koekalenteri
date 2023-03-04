@@ -4,8 +4,16 @@ import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
 
 import { EventFilter } from './searchPage/EventFilter'
 import { EventTable } from './searchPage/EventTable'
-import { deserializeFilter, eventFilterAtom, filteredEventsSelector, filterEventClassesSelector, filterEventTypesSelector, filterJudgesSelector, filterOrganizersSelector, spaAtom } from './recoil'
-
+import {
+  deserializeFilter,
+  eventFilterAtom,
+  filteredEventsSelector,
+  filterEventClassesSelector,
+  filterEventTypesSelector,
+  filterJudgesSelector,
+  filterOrganizersSelector,
+  spaAtom,
+} from './recoil'
 
 export function SearchPage() {
   const [filter, setFilter] = useRecoilState(eventFilterAtom)

@@ -7,7 +7,6 @@ import CollapsibleSection from '../CollapsibleSection'
 
 import { useDogCacheKey } from './hooks/useDogCacheKey'
 
-
 type BreederInfoProps = {
   reg: DeepPartial<Registration>
   error?: boolean
@@ -21,13 +20,22 @@ export function BreederInfo({ reg, error, helperText, onChange, onOpenChange, op
   const { t } = useTranslation()
   const [cache, setCache] = useDogCacheKey(reg.dog?.regNo, 'breeder')
 
-  const handleChange = useCallback((props: Partial<RegistrationBreeder>) => {
-    const breeder = setCache({...cache, ...props})
-    onChange({ breeder })
-  }, [cache, onChange, setCache])
+  const handleChange = useCallback(
+    (props: Partial<RegistrationBreeder>) => {
+      const breeder = setCache({ ...cache, ...props })
+      onChange({ breeder })
+    },
+    [cache, onChange, setCache]
+  )
 
   return (
-    <CollapsibleSection title={t('registration.breeder')} error={error} helperText={helperText} open={open} onOpenChange={onOpenChange}>
+    <CollapsibleSection
+      title={t('registration.breeder')}
+      error={error}
+      helperText={helperText}
+      open={open}
+      onOpenChange={onOpenChange}
+    >
       <Grid item container spacing={1}>
         <Grid item>
           <TextField
@@ -36,7 +44,7 @@ export function BreederInfo({ reg, error, helperText, onChange, onOpenChange, op
             sx={{ width: 300 }}
             label="Nimi"
             value={reg.breeder?.name ?? ''}
-            onChange={e => handleChange({ name: e.target.value || '' })}
+            onChange={(e) => handleChange({ name: e.target.value || '' })}
           />
         </Grid>
         <Grid item>
@@ -46,7 +54,7 @@ export function BreederInfo({ reg, error, helperText, onChange, onOpenChange, op
             sx={{ width: 300 }}
             label="Kotikunta"
             value={reg.breeder?.location || ''}
-            onChange={e => handleChange({ location: e.target.value || '' })}
+            onChange={(e) => handleChange({ location: e.target.value || '' })}
           />
         </Grid>
       </Grid>

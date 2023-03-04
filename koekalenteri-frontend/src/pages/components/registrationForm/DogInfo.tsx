@@ -38,11 +38,22 @@ interface Props {
   open?: boolean
 }
 
-export const DogInfo = ({ reg, eventDate, minDogAgeMonths, error, helperText, onChange, onOpenChange, open }: Props) => {
+export const DogInfo = ({
+  reg,
+  eventDate,
+  minDogAgeMonths,
+  error,
+  helperText,
+  onChange,
+  onOpenChange,
+  open,
+}: Props) => {
   const { t } = useTranslation()
   const { t: breed } = useTranslation('breed')
   const [inputRegNo, setInputRegNo] = useState<string>(reg?.dog?.regNo ?? '')
-  const [mode, setMode] = useState<'fetch' | 'manual' | 'update' | 'invalid' | 'notfound'>(inputRegNo ? 'update' : 'fetch')
+  const [mode, setMode] = useState<'fetch' | 'manual' | 'update' | 'invalid' | 'notfound'>(
+    inputRegNo ? 'update' : 'fetch'
+  )
   const disabled = mode !== 'manual'
   const validRegNo = validateRegNo(inputRegNo)
   const [loading, setLoading] = useState(false)
@@ -50,31 +61,37 @@ export const DogInfo = ({ reg, eventDate, minDogAgeMonths, error, helperText, on
   const cachedRegNos = useRecoilValue(cachedDogRegNumbersSelector)
   const actions = useDogActions(inputRegNo)
 
-  const handleChange = useCallback((props: DeepPartial<DogCachedInfo>) => {
-    console.log('handleChange', {props})
-    const cache = actions.updateCache(props)
-    onChange?.({ dog: cache.dog })
-  }, [actions, onChange])
+  const handleChange = useCallback(
+    (props: DeepPartial<DogCachedInfo>) => {
+      console.log('handleChange', { props })
+      const cache = actions.updateCache(props)
+      onChange?.({ dog: cache.dog })
+    },
+    [actions, onChange]
+  )
 
-  const updateDog = useCallback((cache?: DeepPartial<DogCachedInfo>) => {
-    // ignore refreshDate changes
-    const { refreshDate, ...dog } = cache?.dog ?? {}
-    const { refreshDate: oldRefreshDate, ...oldDog } = reg?.dog ?? {}
+  const updateDog = useCallback(
+    (cache?: DeepPartial<DogCachedInfo>) => {
+      // ignore refreshDate changes
+      const { refreshDate, ...dog } = cache?.dog ?? {}
+      const { refreshDate: oldRefreshDate, ...oldDog } = reg?.dog ?? {}
 
-    let replace = false
-    if (hasChanges(oldDog, dog)) {
-      const changes: DeepPartial<Registration> = { dog: cache?.dog }
-      if (reg?.dog?.regNo !== cache?.dog?.regNo) {
-        changes.breeder = cache?.breeder
-        changes.handler = cache?.handler
-        changes.owner = cache?.owner
-        changes.ownerHandles = cache?.owner?.ownerHandles ?? true
-        changes.results = []
-        replace = true
+      let replace = false
+      if (hasChanges(oldDog, dog)) {
+        const changes: DeepPartial<Registration> = { dog: cache?.dog }
+        if (reg?.dog?.regNo !== cache?.dog?.regNo) {
+          changes.breeder = cache?.breeder
+          changes.handler = cache?.handler
+          changes.owner = cache?.owner
+          changes.ownerHandles = cache?.owner?.ownerHandles ?? true
+          changes.results = []
+          replace = true
+        }
+        onChange?.(changes, replace)
       }
-      onChange?.(changes, replace)
-    }
-  }, [onChange, reg?.dog])
+    },
+    [onChange, reg?.dog]
+  )
 
   const buttonClick = useCallback(async () => {
     setLoading(true)
@@ -97,13 +114,16 @@ export const DogInfo = ({ reg, eventDate, minDogAgeMonths, error, helperText, on
     setLoading(false)
   }, [actions, mode, updateDog])
 
-  const handleRegNoChange = useCallback((event: SyntheticEvent<Element, Event>, value: string | null) => {
-    if (value !== null && value !== inputRegNo) {
-      const upper = value.toLocaleUpperCase()
-      setInputRegNo(upper)
-      setMode('fetch')
-    }
-  }, [inputRegNo])
+  const handleRegNoChange = useCallback(
+    (event: SyntheticEvent<Element, Event>, value: string | null) => {
+      if (value !== null && value !== inputRegNo) {
+        const upper = value.toLocaleUpperCase()
+        setInputRegNo(upper)
+        setMode('fetch')
+      }
+    },
+    [inputRegNo]
+  )
 
   useEffect(() => {
     if (inputRegNo !== reg.dog?.regNo ?? '') {
@@ -114,7 +134,13 @@ export const DogInfo = ({ reg, eventDate, minDogAgeMonths, error, helperText, on
   }, [buttonClick, inputRegNo, reg.dog?.regNo, validRegNo])
 
   return (
-    <CollapsibleSection title={t('registration.dog')} error={error} helperText={helperText} open={open} onOpenChange={onOpenChange}>
+    <CollapsibleSection
+      title={t('registration.dog')}
+      error={error}
+      helperText={helperText}
+      open={open}
+      onOpenChange={onOpenChange}
+    >
       <Stack direction="row" spacing={1} alignItems="flex-end">
         <Autocomplete
           id="txtReknro"
@@ -128,7 +154,9 @@ export const DogInfo = ({ reg, eventDate, minDogAgeMonths, error, helperText, on
           sx={{ minWidth: 200 }}
         />
         <Stack alignItems="flex-start">
-          <FormHelperText error={mode === 'notfound' || mode === 'invalid'}>{t(`registration.cta.helper.${mode}`, { date: reg?.dog?.refreshDate })}</FormHelperText>
+          <FormHelperText error={mode === 'notfound' || mode === 'invalid'}>
+            {t(`registration.cta.helper.${mode}`, { date: reg?.dog?.refreshDate })}
+          </FormHelperText>
           <LoadingButton
             disabled={!validRegNo || (mode === 'update' && !allowRefresh)}
             loading={loading}
@@ -160,7 +188,7 @@ export const DogInfo = ({ reg, eventDate, minDogAgeMonths, error, helperText, on
             disableClearable
             disabled={disabled}
             error={!disabled && !reg?.dog?.breedCode}
-            getOptionLabel={(o) => o ? breed(o) : ''}
+            getOptionLabel={(o) => (o ? breed(o) : '')}
             isOptionEqualToValue={(o, v) => o === v}
             label={t('dog.breed')}
             onChange={(value) => handleChange({ dog: { breedCode: value ? value : undefined } })}
@@ -192,7 +220,7 @@ export const DogInfo = ({ reg, eventDate, minDogAgeMonths, error, helperText, on
             disableClearable
             disabled={disabled}
             error={!disabled && !reg?.dog?.gender}
-            getOptionLabel={o => o ? t(`dog.gender_choises.${o}`) : ''}
+            getOptionLabel={(o) => (o ? t(`dog.gender_choises.${o}`) : '')}
             isOptionEqualToValue={(o, v) => o === v}
             label={t('dog.gender')}
             onChange={(value) => handleChange({ dog: { gender: value ? value : undefined } })}
@@ -208,7 +236,7 @@ export const DogInfo = ({ reg, eventDate, minDogAgeMonths, error, helperText, on
             id="dog"
             name={reg?.dog?.name}
             nameLabel={t('dog.name')}
-            onChange={props => handleChange({ dog: props })}
+            onChange={(props) => handleChange({ dog: props })}
             titles={reg?.dog?.titles}
             titlesLabel={t('dog.titles')}
           />
@@ -220,7 +248,7 @@ export const DogInfo = ({ reg, eventDate, minDogAgeMonths, error, helperText, on
             id="sire"
             name={reg?.dog?.sire?.name}
             nameLabel={t('dog.sire.name')}
-            onChange={props => handleChange({ dog: { sire: props } })}
+            onChange={(props) => handleChange({ dog: { sire: props } })}
             titles={reg?.dog?.sire?.titles}
             titlesLabel={t('dog.sire.titles')}
           />
@@ -232,7 +260,7 @@ export const DogInfo = ({ reg, eventDate, minDogAgeMonths, error, helperText, on
             id="dam"
             name={reg?.dog?.dam?.name}
             nameLabel={t('dog.dam.name')}
-            onChange={props => handleChange({ dog: { dam: props } })}
+            onChange={(props) => handleChange({ dog: { dam: props } })}
             titles={reg?.dog?.dam?.titles}
             titlesLabel={t('dog.dam.titles')}
           />
@@ -241,5 +269,3 @@ export const DogInfo = ({ reg, eventDate, minDogAgeMonths, error, helperText, on
     </CollapsibleSection>
   )
 }
-
-

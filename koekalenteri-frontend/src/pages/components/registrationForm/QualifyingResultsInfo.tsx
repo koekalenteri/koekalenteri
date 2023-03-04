@@ -22,8 +22,17 @@ type QualifyingResultsInfoProps = {
   open?: boolean
 }
 
-
-export default function QualifyingResultsInfo({ regNo, results, requirements, qualifyingResults, error, helperText, onChange, onOpenChange, open }: QualifyingResultsInfoProps) {
+export default function QualifyingResultsInfo({
+  regNo,
+  results,
+  requirements,
+  qualifyingResults,
+  error,
+  helperText,
+  onChange,
+  onOpenChange,
+  open,
+}: QualifyingResultsInfoProps) {
   const { t } = useTranslation()
   const disableResultInput = !requirements?.rules.length || !regNo
 
@@ -31,10 +40,14 @@ export default function QualifyingResultsInfo({ regNo, results, requirements, qu
     if (!regNo) {
       return []
     }
-    const newResults: Array<ManualTestResult> = (qualifyingResults || []).map(r => ({ ...r, id: getResultId(r), regNo }))
+    const newResults: Array<ManualTestResult> = (qualifyingResults || []).map((r) => ({
+      ...r,
+      id: getResultId(r),
+      regNo,
+    }))
     if (results) {
       for (const result of results) {
-        if (!newResults.find(r => !r.official && r.id && r.id === result.id)) {
+        if (!newResults.find((r) => !r.official && r.id && r.id === result.id)) {
           newResults.push({ ...result, official: false })
         }
       }
@@ -42,42 +55,54 @@ export default function QualifyingResultsInfo({ regNo, results, requirements, qu
     return newResults
   }, [qualifyingResults, results, regNo])
 
-  const handleChange = useCallback((result: ManualTestResult, props: Partial<TestResult>) => {
-    const index = qualifying.findIndex(r => !r.official && r.id && r.id === result.id)
-    if (index >= 0) {
-      const newResults: ManualTestResult[] = qualifying.slice(0)
-      newResults.splice(index, 1, { ...result, ...props })
-      onChange?.({ results: newResults.filter(r => !r.official) })
-    }
-  }, [onChange, qualifying])
+  const handleChange = useCallback(
+    (result: ManualTestResult, props: Partial<TestResult>) => {
+      const index = qualifying.findIndex((r) => !r.official && r.id && r.id === result.id)
+      if (index >= 0) {
+        const newResults: ManualTestResult[] = qualifying.slice(0)
+        newResults.splice(index, 1, { ...result, ...props })
+        onChange?.({ results: newResults.filter((r) => !r.official) })
+      }
+    },
+    [onChange, qualifying]
+  )
 
-  const handleAddResult = useCallback(() => onChange?.({
-    results: [...(results ?? []), createMissingResult(requirements, qualifying, regNo ?? '')],
-  }), [onChange, results, requirements, qualifying, regNo])
+  const handleAddResult = useCallback(
+    () =>
+      onChange?.({
+        results: [...(results ?? []), createMissingResult(requirements, qualifying, regNo ?? '')],
+      }),
+    [onChange, results, requirements, qualifying, regNo]
+  )
 
-  const handleRemoveResult = useCallback((result: ManualTestResult) => {
-    onChange?.({
-      results: (results ?? []).filter(r => r.id !== result.id),
-    })
-  }, [onChange, results])
+  const handleRemoveResult = useCallback(
+    (result: ManualTestResult) => {
+      onChange?.({
+        results: (results ?? []).filter((r) => r.id !== result.id),
+      })
+    },
+    [onChange, results]
+  )
 
   return (
-    <CollapsibleSection title={t('registration.qualifyingResults')} error={error} helperText={helperText} open={open} onOpenChange={onOpenChange}>
+    <CollapsibleSection
+      title={t('registration.qualifyingResults')}
+      error={error}
+      helperText={helperText}
+      open={open}
+      onOpenChange={onOpenChange}
+    >
       <Grid item container spacing={1}>
-        {qualifying.map((result, index) =>
+        {qualifying.map((result, index) => (
           <QualifyingResultRow
             key={getResultId(result)}
             result={result}
             requirements={requirements}
             onChange={handleChange}
             onRemove={handleRemoveResult}
-          />,
-        )}
-        <Button
-          startIcon={<AddOutlined />}
-          disabled={disableResultInput}
-          onClick={handleAddResult}
-        >
+          />
+        ))}
+        <Button startIcon={<AddOutlined />} disabled={disableResultInput} onClick={handleAddResult}>
           {t('registration.cta.addResult')}
         </Button>
       </Grid>

@@ -5,7 +5,6 @@ import { Judge } from 'koekalenteri-shared/model'
 
 import { useJudgesActions } from '../../../recoil'
 
-
 const ActiveCell = (props: GridRenderCellParams<boolean, Judge>) => {
   const actions = useJudgesActions()
 
@@ -13,7 +12,7 @@ const ActiveCell = (props: GridRenderCellParams<boolean, Judge>) => {
     async (_event: ChangeEvent<HTMLInputElement>, checked: boolean) => {
       actions.save({ ...props.row, active: checked })
     },
-    [actions, props.row],
+    [actions, props.row]
   )
 
   return <Switch checked={!!props.value} onChange={toggleActive} />

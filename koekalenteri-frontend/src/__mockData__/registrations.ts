@@ -1,8 +1,11 @@
 import { Registration } from 'koekalenteri-shared/model'
 
-import { registrationDogAged10MonthsAndNoResults, registrationDogAged20MonthsAndNoResults, registrationDogAged28MonthsWithNOUResult } from './dogs'
+import {
+  registrationDogAged10MonthsAndNoResults,
+  registrationDogAged20MonthsAndNoResults,
+  registrationDogAged28MonthsWithNOUResult,
+} from './dogs'
 import { eventWithEntryClosed, eventWithStaticDates, eventWithStaticDatesAndClass } from './events'
-
 
 const mockRegistrationDefaults = {
   createdBy: 'anonymous',
@@ -76,34 +79,37 @@ export const registrationWithStaticDatesAndClass: Registration = {
   class: 'ALO',
   createdAt: eventWithStaticDatesAndClass.entryStartDate,
   modifiedAt: eventWithStaticDatesAndClass.entryStartDate,
-  qualifyingResults: registrationDogAged28MonthsWithNOUResult.results.map(r => ({ ...r, official: true })),
+  qualifyingResults: registrationDogAged28MonthsWithNOUResult.results.map((r) => ({ ...r, official: true })),
   dog: registrationDogAged28MonthsWithNOUResult,
 }
 
 export const registrationWithManualResults: Registration = {
   ...registrationWithStaticDatesAndClass,
   class: 'AVO',
-  results: [{
-    id: 'manual-result-1',
-    regNo: registrationWithStaticDatesAndClass.dog.regNo,
-    official: false,
-    type: 'NOME-B',
-    class: 'ALO',
-    result: 'ALO1',
-    date: registrationWithStaticDatesAndClass.createdAt,
-    judge: 'Manual Judge',
-    location: 'Somewhere',
-  }, {
-    id: 'manual-result-2',
-    regNo: registrationWithStaticDatesAndClass.dog.regNo,
-    official: false,
-    type: 'NOME-B',
-    class: 'ALO',
-    result: 'ALO1',
-    date: registrationWithStaticDatesAndClass.createdAt,
-    judge: 'Manual Judge 2',
-    location: 'Somewhere Else',
-  }],
+  results: [
+    {
+      id: 'manual-result-1',
+      regNo: registrationWithStaticDatesAndClass.dog.regNo,
+      official: false,
+      type: 'NOME-B',
+      class: 'ALO',
+      result: 'ALO1',
+      date: registrationWithStaticDatesAndClass.createdAt,
+      judge: 'Manual Judge',
+      location: 'Somewhere',
+    },
+    {
+      id: 'manual-result-2',
+      regNo: registrationWithStaticDatesAndClass.dog.regNo,
+      official: false,
+      type: 'NOME-B',
+      class: 'ALO',
+      result: 'ALO1',
+      date: registrationWithStaticDatesAndClass.createdAt,
+      judge: 'Manual Judge 2',
+      location: 'Somewhere Else',
+    },
+  ],
 }
 
 export const registrationWithStaticDatesCancelled: Registration = {
@@ -134,7 +140,10 @@ export const registrationsToEventWithEntryClosed: Registration[] = [
     ...registrationToEventWithEntryClosedBase,
     id: eventWithEntryClosed.id + '2',
     class: 'ALO',
-    dates: [{ date: eventWithEntryClosed.startDate, time: 'ap' }, { date: eventWithEntryClosed.startDate, time: 'ip' }],
+    dates: [
+      { date: eventWithEntryClosed.startDate, time: 'ap' },
+      { date: eventWithEntryClosed.startDate, time: 'ip' },
+    ],
   },
   {
     ...registrationToEventWithEntryClosedBase,

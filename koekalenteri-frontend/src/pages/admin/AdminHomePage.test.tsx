@@ -15,13 +15,16 @@ jest.useFakeTimers()
 
 describe('AdminHomePage', () => {
   it('renders the page when user is logged in', async () => {
-    const routes = [{
-      path: Path.admin.root,
-      element: <AdminHomePage />,
-    }, {
-      path: Path.login,
-      element: <>Login</>,
-    }]
+    const routes = [
+      {
+        path: Path.admin.root,
+        element: <AdminHomePage />,
+      },
+      {
+        path: Path.login,
+        element: <>Login</>,
+      },
+    ]
     const { container } = render(
       <ThemeProvider theme={theme}>
         <RecoilRoot>
@@ -33,7 +36,7 @@ describe('AdminHomePage', () => {
             </Authenticator.Provider>
           </SnackbarProvider>
         </RecoilRoot>
-      </ThemeProvider>,
+      </ThemeProvider>
     )
 
     await flushPromisesAndTimers()
@@ -41,17 +44,22 @@ describe('AdminHomePage', () => {
   })
 
   it('renders the child page content when user is logged in', async () => {
-    const routes = [{
-      path: Path.admin.root,
-      element: <AdminHomePage />,
-      children: [{
-        path: Path.admin.index,
-        element: <>ADMIN DEFAULT PAGE CONTENT</>,
-      }],
-    }, {
-      path: Path.login,
-      element: <>Login</>,
-    }]
+    const routes = [
+      {
+        path: Path.admin.root,
+        element: <AdminHomePage />,
+        children: [
+          {
+            path: Path.admin.index,
+            element: <>ADMIN DEFAULT PAGE CONTENT</>,
+          },
+        ],
+      },
+      {
+        path: Path.login,
+        element: <>Login</>,
+      },
+    ]
     const { container } = render(
       <ThemeProvider theme={theme}>
         <RecoilRoot>
@@ -63,7 +71,7 @@ describe('AdminHomePage', () => {
             </Authenticator.Provider>
           </SnackbarProvider>
         </RecoilRoot>
-      </ThemeProvider>,
+      </ThemeProvider>
     )
 
     await flushPromisesAndTimers()

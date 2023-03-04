@@ -27,7 +27,7 @@ describe('OfficialListPage', () => {
             </Suspense>
           </MemoryRouter>
         </RecoilRoot>
-      </ThemeProvider>,
+      </ThemeProvider>
     )
     await flushPromisesAndTimers()
     expect(container).toMatchSnapshot()

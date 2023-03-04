@@ -6,7 +6,7 @@ import { getJudges } from '../../../api/judge'
 
 export const remoteJudgesEffect: AtomEffect<Judge[]> = ({ setSelf, trigger }) => {
   if (trigger === 'get') {
-    getJudges().then(judges => {
+    getJudges().then((judges) => {
       const sortedJudges = [...judges].sort((a, b) => a.name.localeCompare(b.name, i18next.language))
       setSelf(sortedJudges)
     })

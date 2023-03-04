@@ -1,7 +1,3 @@
 export default function UsersPage() {
-  return (
-    <>
-      {'TODO'}
-    </>
-  )
+  return <>{'TODO'}</>
 }

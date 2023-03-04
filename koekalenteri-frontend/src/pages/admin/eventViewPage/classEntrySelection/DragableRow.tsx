@@ -7,7 +7,7 @@ export interface DragItem {
   id: GridRowId
   index: number
   groupKey?: string
-  groups: string[],
+  groups: string[]
   move?: MoveTarget
 }
 
@@ -21,7 +21,7 @@ interface Props extends GridRowProps {
   groupKey?: string
 }
 
-const DragableRow = ({groupKey, ...props}: Props) => {
+const DragableRow = ({ groupKey, ...props }: Props) => {
   const ref = useRef<HTMLDivElement>(null)
   const [{ handlerId }, drop] = useDrop<DragItem, void, { handlerId: Identifier | null }>({
     accept: 'row',
@@ -45,8 +45,10 @@ const DragableRow = ({groupKey, ...props}: Props) => {
       const hoverClientY = (clientOffset as XYCoord).y - hoverBoundingRect.top
       const position = hoverClientY < hoverMiddleY ? 'before' : 'after'
       if (sameGroup) {
-        if ((position === 'before' && dragIndex === hoverIndex - 1) ||
-            (position === 'after' && dragIndex === hoverIndex + 1)) {
+        if (
+          (position === 'before' && dragIndex === hoverIndex - 1) ||
+          (position === 'after' && dragIndex === hoverIndex + 1)
+        ) {
           delete item.move
           return
         }
@@ -58,16 +60,16 @@ const DragableRow = ({groupKey, ...props}: Props) => {
     },
   })
 
-  const [{opacity}, drag] = useDrag<DragItem, void, {opacity: number}>({
+  const [{ opacity }, drag] = useDrag<DragItem, void, { opacity: number }>({
     type: 'row',
     item: { id: props.rowId, groups: props.row?.groups, index: props.index, groupKey: groupKey },
-    collect: (monitor) => ({opacity: monitor.isDragging() ? 0.4 : 1}),
+    collect: (monitor) => ({ opacity: monitor.isDragging() ? 0.4 : 1 }),
   })
 
   drag(drop(ref))
   return (
-    <div ref={ref} style={{opacity}} data-handler-id={handlerId}>
-      <GridRow  {...props}/>
+    <div ref={ref} style={{ opacity }} data-handler-id={handlerId}>
+      <GridRow {...props} />
     </div>
   )
 }

@@ -45,14 +45,22 @@ const organizers: Organizer[] = [
 const eventTypes = ['NOU', 'NOME-B', 'NOME-A', 'NOWT', 'NKM']
 const eventClasses = ['ALO', 'AVO', 'VOI']
 
-const renderComponent = (filter: FilterProps, onChange?: ((filter: FilterProps) => void)) => render(
-  <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={fi}>
-    <EventFilter judges={judges} organizers={organizers} filter={filter} eventTypes={eventTypes} eventClasses={eventClasses} onChange={onChange}></EventFilter>
-  </LocalizationProvider>,
-)
+const renderComponent = (filter: FilterProps, onChange?: (filter: FilterProps) => void) =>
+  render(
+    <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={fi}>
+      <EventFilter
+        judges={judges}
+        organizers={organizers}
+        filter={filter}
+        eventTypes={eventTypes}
+        eventClasses={eventClasses}
+        onChange={onChange}
+      ></EventFilter>
+    </LocalizationProvider>
+  )
 
 test('should render', () => {
-  renderComponent({ start: null, end: null, eventType: ['NOME-B'], eventClass: ['ALO'], judge: [234], organizer: [2]})
+  renderComponent({ start: null, end: null, eventType: ['NOME-B'], eventClass: ['ALO'], judge: [234], organizer: [2] })
 
   expect(screen.getByTestId('eventType')).toHaveTextContent(/NOME-B/i)
   expect(screen.getByTestId('eventClass')).toHaveTextContent(/ALO/i)
@@ -98,5 +106,4 @@ test('It should fire onChange', async () => {
 
   fireEvent.click(screen.getByLabelText(/Ilmoittautuminen tulossa/i))
   expect(changeHandler).toHaveBeenCalledTimes(6)
-
 })

@@ -13,9 +13,11 @@ describe('http', () => {
 
   describe('get', () => {
     it('should specify "GET" as method', async () => {
-      fetchMock.mockResponse(req => req.method === 'GET'
-        ? Promise.resolve(JSON.stringify('ok'))
-        : Promise.reject(new Error(`${req.method} !== 'GET'`)))
+      fetchMock.mockResponse((req) =>
+        req.method === 'GET'
+          ? Promise.resolve(JSON.stringify('ok'))
+          : Promise.reject(new Error(`${req.method} !== 'GET'`))
+      )
 
       const json = await http.get('/test/')
 
@@ -36,9 +38,11 @@ describe('http', () => {
 
   describe('post', () => {
     it('should specify "POST" as method', async () => {
-      fetchMock.mockResponse(req => req.method === 'POST'
-        ? Promise.resolve(JSON.stringify('ok'))
-        : Promise.reject(new Error(`${req.method} !== 'POST'`)))
+      fetchMock.mockResponse((req) =>
+        req.method === 'POST'
+          ? Promise.resolve(JSON.stringify('ok'))
+          : Promise.reject(new Error(`${req.method} !== 'POST'`))
+      )
 
       const json = await http.post('/test/', {})
 
@@ -59,9 +63,11 @@ describe('http', () => {
 
   describe('put', () => {
     it('should specify "POST" as method', async () => {
-      fetchMock.mockResponse(req => req.method === 'PUT'
-        ? Promise.resolve(JSON.stringify('ok'))
-        : Promise.reject(new Error(`${req.method} !== 'PUT'`)))
+      fetchMock.mockResponse((req) =>
+        req.method === 'PUT'
+          ? Promise.resolve(JSON.stringify('ok'))
+          : Promise.reject(new Error(`${req.method} !== 'PUT'`))
+      )
 
       const json = await http.put('/test/', {})
 
@@ -82,9 +88,11 @@ describe('http', () => {
 
   describe('delete', () => {
     it('should specify "DELETE" as method', async () => {
-      fetchMock.mockResponse(req => req.method === 'DELETE'
-        ? Promise.resolve(JSON.stringify('ok'))
-        : Promise.reject(new Error(`${req.method} !== 'DELETE'`)))
+      fetchMock.mockResponse((req) =>
+        req.method === 'DELETE'
+          ? Promise.resolve(JSON.stringify('ok'))
+          : Promise.reject(new Error(`${req.method} !== 'DELETE'`))
+      )
 
       const json = await http.delete('/test/', {})
 

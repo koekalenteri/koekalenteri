@@ -41,12 +41,14 @@ describe('ContactInfoSection', () => {
 
   it.each(variants)('renders with %j', (contactInfo: ContactInfo) => {
     const changeHandler = jest.fn()
-    const { container } = render(<ContactInfoSection
-      contactInfo={contactInfo}
-      official={official}
-      secretary={secretary}
-      onChange={changeHandler}
-    />)
+    const { container } = render(
+      <ContactInfoSection
+        contactInfo={contactInfo}
+        official={official}
+        secretary={secretary}
+        onChange={changeHandler}
+      />
+    )
     expect(container).toMatchSnapshot()
   })
 })

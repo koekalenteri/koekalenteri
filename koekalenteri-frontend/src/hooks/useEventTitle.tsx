@@ -20,7 +20,7 @@ export function getEventTitle(event: Event, t: TFunction<'translation', undefine
     }
   }
 
-  return t(`event.states.${(event.state || 'draft')}`)
+  return t(`event.states.${event.state || 'draft'}`)
 }
 
 export default function useEventTitle(event: Event) {

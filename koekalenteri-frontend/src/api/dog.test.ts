@@ -2,16 +2,18 @@ import fetchMock from 'jest-fetch-mock'
 
 import { API_BASE_URL } from '../routeConfig'
 
-import { getDog  } from './dog'
+import { getDog } from './dog'
 
 fetchMock.enableMocks()
 
 beforeEach(() => fetchMock.resetMocks())
 
 test('getDog', async () => {
-  fetchMock.mockResponse(req => req.method === 'GET'
-    ? Promise.resolve(JSON.stringify({regNo: 'testReg'}))
-    : Promise.reject(new Error(`${req.method} !== 'GET'`)))
+  fetchMock.mockResponse((req) =>
+    req.method === 'GET'
+      ? Promise.resolve(JSON.stringify({ regNo: 'testReg' }))
+      : Promise.reject(new Error(`${req.method} !== 'GET'`))
+  )
 
   const dog = await getDog('testReg')
 

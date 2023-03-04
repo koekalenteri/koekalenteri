@@ -15,7 +15,11 @@ describe('useDogCache', () => {
   })
 
   it('should write to localStorage', () => {
-    const { result: { current: [, setCache] } } = renderHook(() => useDogCache('test'), { wrapper: RecoilRoot })
+    const {
+      result: {
+        current: [, setCache],
+      },
+    } = renderHook(() => useDogCache('test'), { wrapper: RecoilRoot })
     act(() => {
       setCache({ dog: { dam: { name: 'Test Dam' } } })
     })
@@ -23,7 +27,11 @@ describe('useDogCache', () => {
   })
 
   it('should not write to localStorage with undefined key', () => {
-    const { result: { current: [, setCache] } } = renderHook(() => useDogCache(), { wrapper: RecoilRoot })
+    const {
+      result: {
+        current: [, setCache],
+      },
+    } = renderHook(() => useDogCache(), { wrapper: RecoilRoot })
     act(() => {
       setCache({ dog: { dam: { name: 'Test Dam' } } })
     })
@@ -31,7 +39,11 @@ describe('useDogCache', () => {
   })
 
   it('should not write to localStorage with empty key', () => {
-    const { result: { current: [, setCache] } } = renderHook(() => useDogCache(''), { wrapper: RecoilRoot })
+    const {
+      result: {
+        current: [, setCache],
+      },
+    } = renderHook(() => useDogCache(''), { wrapper: RecoilRoot })
     act(() => {
       setCache({ dog: { dam: { name: 'Test Dam' } } })
     })

@@ -27,10 +27,12 @@ jest.mock('../../api/email')
 
 describe('EventViewPage', () => {
   it('renders properly for event without classes', async () => {
-    const routes: RouteObject[] = [{
-      path: Path.admin.viewEvent(),
-      element: <EventViewPage />,
-    }]
+    const routes: RouteObject[] = [
+      {
+        path: Path.admin.viewEvent(),
+        element: <EventViewPage />,
+      },
+    ]
 
     const { container } = render(
       <ThemeProvider theme={theme}>
@@ -43,17 +45,19 @@ describe('EventViewPage', () => {
             </Suspense>
           </RecoilRoot>
         </LocalizationProvider>
-      </ThemeProvider>,
+      </ThemeProvider>
     )
     await flushPromisesAndTimers()
     expect(container).toMatchSnapshot()
   })
 
   it('renders properly for event with classes', async () => {
-    const routes: RouteObject[] = [{
-      path: Path.admin.viewEvent(),
-      element: <EventViewPage />,
-    }]
+    const routes: RouteObject[] = [
+      {
+        path: Path.admin.viewEvent(),
+        element: <EventViewPage />,
+      },
+    ]
 
     const { container } = render(
       <ThemeProvider theme={theme}>
@@ -61,12 +65,15 @@ describe('EventViewPage', () => {
           <RecoilRoot>
             <Suspense fallback={<div>loading...</div>}>
               <SnackbarProvider>
-                <DataMemoryRouter initialEntries={[Path.admin.viewEvent(eventWithStaticDatesAndClass.id)]} routes={routes} />
+                <DataMemoryRouter
+                  initialEntries={[Path.admin.viewEvent(eventWithStaticDatesAndClass.id)]}
+                  routes={routes}
+                />
               </SnackbarProvider>
             </Suspense>
           </RecoilRoot>
         </LocalizationProvider>
-      </ThemeProvider>,
+      </ThemeProvider>
     )
     await flushPromisesAndTimers()
     expect(container).toMatchSnapshot()

@@ -13,16 +13,11 @@ const LanguagesCell = (props: GridRenderCellParams<Judge, Judge>) => {
     (_event: React.MouseEvent<HTMLElement, MouseEvent>, languages: string[]) => {
       actions.save({ ...props.row, languages })
     },
-    [actions, props.row],
+    [actions, props.row]
   )
 
   return (
-    <ToggleButtonGroup
-      color={'info'}
-      value={props.value}
-      fullWidth
-      onChange={changeLanguges}
-    >
+    <ToggleButtonGroup color={'info'} value={props.value} fullWidth onChange={changeLanguges}>
       <ToggleButton value="fi">{t('language.fi')}</ToggleButton>
       <ToggleButton value="sv">{t('language.sv')}</ToggleButton>
       <ToggleButton value="en">{t('language.en')}</ToggleButton>

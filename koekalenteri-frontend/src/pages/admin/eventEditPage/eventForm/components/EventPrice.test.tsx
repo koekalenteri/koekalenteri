@@ -1,4 +1,3 @@
-
 import { screen } from '@testing-library/react'
 
 import { renderWithUserEvents, waitForDebounce } from '../../../../../test-utils/utils'
@@ -21,7 +20,9 @@ describe('EventPrice', () => {
   it('should be clearable with options', async () => {
     const onChange = jest.fn()
 
-    const { user } = renderWithUserEvents(<EventPrice id={'cost'} options={[10, 20]} event={testEvent} onChange={onChange} />)
+    const { user } = renderWithUserEvents(
+      <EventPrice id={'cost'} options={[10, 20]} event={testEvent} onChange={onChange} />
+    )
     const input = screen.getByRole('combobox')
     await user.type(input, '5')
     await waitForDebounce()

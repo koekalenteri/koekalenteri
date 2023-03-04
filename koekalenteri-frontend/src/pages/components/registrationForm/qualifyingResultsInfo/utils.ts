@@ -1,4 +1,3 @@
-
 import { ManualTestResult, QualifyingResult } from 'koekalenteri-shared/model'
 import { v4 as uuidv4 } from 'uuid'
 
@@ -6,7 +5,7 @@ import { EventResultRequirement, EventResultRequirements, EventResultRequirement
 import { unique } from '../../../../utils'
 import { objectContains } from '../validation'
 
-const asArray = (v: EventResultRequirements | EventResultRequirement) => Array.isArray(v) ? v : [v]
+const asArray = (v: EventResultRequirements | EventResultRequirement) => (Array.isArray(v) ? v : [v])
 
 function findFirstMissing(requirements: EventResultRequirementsByDate | undefined, results: QualifyingResult[]) {
   if (!requirements) {
@@ -15,7 +14,7 @@ function findFirstMissing(requirements: EventResultRequirementsByDate | undefine
   for (const rule of requirements.rules) {
     for (const opt of asArray(rule)) {
       const { count, ...rest } = opt
-      if (results.filter(r => objectContains(r, rest)).length < count) {
+      if (results.filter((r) => objectContains(r, rest)).length < count) {
         return rest
       }
     }
@@ -26,17 +25,21 @@ export function availableTypes(requirements?: EventResultRequirementsByDate) {
   if (!requirements) {
     return []
   }
-  return unique(requirements.rules.flatMap(rule => asArray(rule).map(opt => opt.type)))
+  return unique(requirements.rules.flatMap((rule) => asArray(rule).map((opt) => opt.type)))
 }
 
 export function availableResults(requirements?: EventResultRequirementsByDate) {
   if (!requirements) {
     return []
   }
-  return unique(requirements.rules.flatMap(rule => asArray(rule).map(opt => opt.cert ? 'CERT' : opt.result)))
+  return unique(requirements.rules.flatMap((rule) => asArray(rule).map((opt) => (opt.cert ? 'CERT' : opt.result))))
 }
 
-export function createMissingResult(requirements: EventResultRequirementsByDate | undefined, results: ManualTestResult[], regNo: string): ManualTestResult {
+export function createMissingResult(
+  requirements: EventResultRequirementsByDate | undefined,
+  results: ManualTestResult[],
+  regNo: string
+): ManualTestResult {
   const rule = findFirstMissing(requirements, results)
   return {
     id: uuidv4(),

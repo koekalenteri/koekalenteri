@@ -42,7 +42,7 @@ describe('RegistrationForm', () => {
             </Suspense>
           </RecoilRoot>
         </LocalizationProvider>
-      </ThemeProvider>,
+      </ThemeProvider>
     )
     expect(container).toMatchSnapshot()
   })

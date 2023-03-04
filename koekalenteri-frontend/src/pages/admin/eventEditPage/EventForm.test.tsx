@@ -18,41 +18,51 @@ const eventTypeClasses = {
   'TEST-C': [],
 }
 
-const JUDGES = [{
-  id: eventWithStaticDatesAndClass.judges[0],
-  name: 'Test Judge',
-  email: 'joo@ei.com',
-  phone: '0700-judge',
-  location: 'Pohjois-Karjala',
-  district: 'Pohjois-Karjalan Kennelpiiri ry',
-  languages: ['fi'],
-  eventTypes: [eventWithStaticDatesAndClass.eventType, 'TEST-C'],
-}]
+const JUDGES = [
+  {
+    id: eventWithStaticDatesAndClass.judges[0],
+    name: 'Test Judge',
+    email: 'joo@ei.com',
+    phone: '0700-judge',
+    location: 'Pohjois-Karjala',
+    district: 'Pohjois-Karjalan Kennelpiiri ry',
+    languages: ['fi'],
+    eventTypes: [eventWithStaticDatesAndClass.eventType, 'TEST-C'],
+  },
+]
 
 const OFFICIALS = [eventWithStaticDatesAndClass.official]
 const ORGANIZERS = [eventWithStaticDatesAndClass.organizer]
 
-
-const renderComponent = (event: Event, judges: Judge[], officials: Official[], organizers: Organizer[], onSave?: () => void, onCancel?: () => void, onChange?: () => void) => render(
-  <ThemeProvider theme={theme}>
-    <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={fi}>
-      <RecoilRoot>
-        <EventForm
-          event={event}
-          eventTypes={eventTypes}
-          eventTypeClasses={eventTypeClasses}
-          judges={judges}
-          officials={officials}
-          organizers={organizers}
-          changes
-          onSave={onSave}
-          onCancel={onCancel}
-          onChange={onChange}
-        />
-      </RecoilRoot>
-    </LocalizationProvider>
-  </ThemeProvider>,
-)
+const renderComponent = (
+  event: Event,
+  judges: Judge[],
+  officials: Official[],
+  organizers: Organizer[],
+  onSave?: () => void,
+  onCancel?: () => void,
+  onChange?: () => void
+) =>
+  render(
+    <ThemeProvider theme={theme}>
+      <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={fi}>
+        <RecoilRoot>
+          <EventForm
+            event={event}
+            eventTypes={eventTypes}
+            eventTypeClasses={eventTypeClasses}
+            judges={judges}
+            officials={officials}
+            organizers={organizers}
+            changes
+            onSave={onSave}
+            onCancel={onCancel}
+            onChange={onChange}
+          />
+        </RecoilRoot>
+      </LocalizationProvider>
+    </ThemeProvider>
+  )
 
 describe('EventForm', () => {
   it('should render', () => {
@@ -65,7 +75,15 @@ describe('EventForm', () => {
     const cancelHandler = jest.fn()
     const changeHandler = jest.fn()
 
-    renderComponent(eventWithStaticDatesAndClass, JUDGES, OFFICIALS, ORGANIZERS, saveHandler, cancelHandler, changeHandler)
+    renderComponent(
+      eventWithStaticDatesAndClass,
+      JUDGES,
+      OFFICIALS,
+      ORGANIZERS,
+      saveHandler,
+      cancelHandler,
+      changeHandler
+    )
 
     const saveButton = screen.getByText(/Tallenna/i)
     // expect(saveButton).toBeDisabled()

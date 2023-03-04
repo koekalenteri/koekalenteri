@@ -70,7 +70,9 @@ export default function OfficialListPage() {
     <>
       <FullPageFlex>
         <Stack direction="row" spacing={2}>
-          <Button startIcon={<CloudSync />} onClick={actions.refresh}>{t('updateData', { data: 'officials' })}</Button>
+          <Button startIcon={<CloudSync />} onClick={actions.refresh}>
+            {t('updateData', { data: 'officials' })}
+          </Button>
         </Stack>
 
         <StyledDataGrid
@@ -85,8 +87,7 @@ export default function OfficialListPage() {
           componentsProps={{
             toolbar: {
               value: searchText,
-              onChange: (event: React.ChangeEvent<HTMLInputElement>) =>
-                setSearchText(event.target.value),
+              onChange: (event: React.ChangeEvent<HTMLInputElement>) => setSearchText(event.target.value),
               clearSearch: () => setSearchText(''),
             },
           }}

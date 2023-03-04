@@ -16,7 +16,6 @@ jest.mock('../../api/judge')
 
 describe('JudgeListPage', () => {
   it('renders', async () => {
-
     const { container } = render(
       <ThemeProvider theme={theme}>
         <RecoilRoot>
@@ -28,7 +27,7 @@ describe('JudgeListPage', () => {
             </Suspense>
           </MemoryRouter>
         </RecoilRoot>
-      </ThemeProvider>,
+      </ThemeProvider>
     )
     await flushPromisesAndTimers()
     expect(container).toMatchSnapshot()

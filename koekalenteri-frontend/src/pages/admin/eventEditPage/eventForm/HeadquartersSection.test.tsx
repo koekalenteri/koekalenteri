@@ -13,7 +13,6 @@ const testRenderHQ: Headquarters = {
 }
 
 describe('HeadquartersSection', () => {
-
   it('should render open', () => {
     const changeHandler = jest.fn()
     const { container } = render(<HeadquartersSection headquarters={testRenderHQ} onChange={changeHandler} open />)
@@ -22,7 +21,9 @@ describe('HeadquartersSection', () => {
 
   it('should render collapsed', () => {
     const changeHandler = jest.fn()
-    const { container } = render(<HeadquartersSection headquarters={testRenderHQ} onChange={changeHandler} open={false} />)
+    const { container } = render(
+      <HeadquartersSection headquarters={testRenderHQ} onChange={changeHandler} open={false} />
+    )
     expect(container).toMatchSnapshot()
   })
 
@@ -65,6 +66,5 @@ describe('HeadquartersSection', () => {
     expect(districtInput).toHaveValue('Jyväskylä')
     expect(changeHandler).toHaveBeenCalledTimes(36)
     expect(changeHandler).toHaveBeenLastCalledWith({ headquarters: { postalDistrict: 'Jyväskylä' } })
-
   })
 })

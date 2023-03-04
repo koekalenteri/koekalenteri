@@ -11,7 +11,6 @@ import { languageAtom } from '../../recoil'
 import { LanguageMenuItem } from './languageMenu/LanguageMenuItem'
 import AppBarButton from './AppBarButton'
 
-
 export default function LanguageMenu() {
   const { t } = useTranslation()
   const language = useRecoilValue(languageAtom)
@@ -26,15 +25,11 @@ export default function LanguageMenu() {
       <AppBarButton onClick={handleClick} startIcon={<LanguageIcon />} endIcon={<ExpandMore />}>
         {t(`locale.${language}`)}
       </AppBarButton>
-      <Menu
-        anchorEl={anchorEl}
-        open={open}
-        onClose={handleClose}
-        onClick={handleClose}
-      >
-        {Object.keys(locales).map((locale) => <LanguageMenuItem key={locale} locale={locale as Language} />)}
+      <Menu anchorEl={anchorEl} open={open} onClose={handleClose} onClick={handleClose}>
+        {Object.keys(locales).map((locale) => (
+          <LanguageMenuItem key={locale} locale={locale as Language} />
+        ))}
       </Menu>
     </>
   )
 }
-

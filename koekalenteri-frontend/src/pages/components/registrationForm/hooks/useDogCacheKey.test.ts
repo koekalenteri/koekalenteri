@@ -15,14 +15,21 @@ describe('useDogCache', () => {
   })
 
   it('should write to localStorage', () => {
-    const { result: { current: [, setCache] } } = renderHook(() => useDogCacheKey('test', 'breeder'), { wrapper: RecoilRoot })
+    const {
+      result: {
+        current: [, setCache],
+      },
+    } = renderHook(() => useDogCacheKey('test', 'breeder'), { wrapper: RecoilRoot })
     act(() => {
-      setCache({ name: 'Breeder Name'})
+      setCache({ name: 'Breeder Name' })
     })
     expect(localStorage.setItem).toHaveBeenCalledWith('dog-cache', '{"test":{"breeder":{"name":"Breeder Name"}}}')
     act(() => {
-      setCache({ location: 'Breeder Location'})
+      setCache({ location: 'Breeder Location' })
     })
-    expect(localStorage.setItem).toHaveBeenCalledWith('dog-cache', '{"test":{"breeder":{"location":"Breeder Location"}}}')
+    expect(localStorage.setItem).toHaveBeenCalledWith(
+      'dog-cache',
+      '{"test":{"breeder":{"location":"Breeder Location"}}}'
+    )
   })
 })

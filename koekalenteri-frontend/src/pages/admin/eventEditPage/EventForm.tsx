@@ -17,7 +17,12 @@ import JudgesSection from './eventForm/JudgesSection'
 import PaymentSection from './eventForm/PaymentSection'
 import { FieldRequirements, requiredFields, validateEvent } from './eventForm/validation'
 
-export type PartialEvent = DeepPartial<Event> & { startDate: Date, endDate: Date, classes: EventClass[], judges: number[] }
+export type PartialEvent = DeepPartial<Event> & {
+  startDate: Date
+  endDate: Date
+  classes: EventClass[]
+  judges: number[]
+}
 
 export interface SectionProps {
   event: PartialEvent
@@ -42,11 +47,22 @@ interface Props {
   onChange?: (event: Event) => void
 }
 
-export default function EventForm({ event, judges, eventTypes, eventTypeClasses, officials, organizers, changes, onSave, onCancel, onChange }: Props) {
+export default function EventForm({
+  event,
+  judges,
+  eventTypes,
+  eventTypeClasses,
+  officials,
+  organizers,
+  changes,
+  onSave,
+  onCancel,
+  onChange,
+}: Props) {
   const md = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
   const { t } = useTranslation()
   const [errors, setErrors] = useState(event ? validateEvent(event) : [])
-  const [open, setOpen] = useState<{[key: string]: boolean|undefined}>({
+  const [open, setOpen] = useState<{ [key: string]: boolean | undefined }>({
     basic: true,
     judges: md,
     entry: md,
@@ -58,41 +74,56 @@ export default function EventForm({ event, judges, eventTypes, eventTypeClasses,
   const valid = errors.length === 0
   const fields = useMemo(() => requiredFields(event), [event])
 
-  const handleChange = useCallback((props: DeepPartial<Event>) => {
-    if (!event) {
-      return
-    }
-    const newState = merge<Event>(event, props)
-    setErrors(validateEvent(newState))
-    onChange?.(newState)
-  }, [event, onChange])
+  const handleChange = useCallback(
+    (props: DeepPartial<Event>) => {
+      if (!event) {
+        return
+      }
+      const newState = merge<Event>(event, props)
+      setErrors(validateEvent(newState))
+      onChange?.(newState)
+    },
+    [event, onChange]
+  )
 
-  const handleOpenChange = useCallback((id: keyof typeof open, value: boolean) => {
-    const newState = md
-      ? {
-        ...open,
-        [id]: value,
-      }
-      : {
-        basic: false,
-        judges: false,
-        entry: false,
-        payment: false,
-        hq: false,
-        contact: false,
-        info: false,
-        [id]: value,
-      }
-    setOpen(newState)
-  }, [md, open])
+  const handleOpenChange = useCallback(
+    (id: keyof typeof open, value: boolean) => {
+      const newState = md
+        ? {
+            ...open,
+            [id]: value,
+          }
+        : {
+            basic: false,
+            judges: false,
+            entry: false,
+            payment: false,
+            hq: false,
+            contact: false,
+            info: false,
+            [id]: value,
+          }
+      setOpen(newState)
+    },
+    [md, open]
+  )
   const getStateLabel = useCallback((o: EventState) => t(`event.states.${o}`), [t])
-  const handleStateChange = useCallback((value: NonNullable<EventState>) => handleChange({ state: value || undefined }), [handleChange])
+  const handleStateChange = useCallback(
+    (value: NonNullable<EventState>) => handleChange({ state: value || undefined }),
+    [handleChange]
+  )
   const handleBasicOpenChange = useCallback((value: boolean) => handleOpenChange('basic', value), [handleOpenChange])
   const handleJudgesOpenChange = useCallback((value: boolean) => handleOpenChange('judges', value), [handleOpenChange])
   const handleEntryOpenChange = useCallback((value: boolean) => handleOpenChange('entry', value), [handleOpenChange])
-  const handlePaymentOpenChange = useCallback((value: boolean) => handleOpenChange('payment', value), [handleOpenChange])
+  const handlePaymentOpenChange = useCallback(
+    (value: boolean) => handleOpenChange('payment', value),
+    [handleOpenChange]
+  )
   const handleHQOpenChange = useCallback((value: boolean) => handleOpenChange('hq', value), [handleOpenChange])
-  const handleContactOpenChange = useCallback((value: boolean) => handleOpenChange('contact', value), [handleOpenChange])
+  const handleContactOpenChange = useCallback(
+    (value: boolean) => handleOpenChange('contact', value),
+    [handleOpenChange]
+  )
   const handleInfoOpenChange = useCallback((value: boolean) => handleOpenChange('info', value), [handleOpenChange])
 
   const errorStates: { [Property in keyof PartialEvent]?: boolean } = {}
@@ -103,7 +134,17 @@ export default function EventForm({ event, judges, eventTypes, eventTypeClasses,
   }
 
   return (
-    <Paper elevation={2} sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, overflow: 'auto', maxHeight: '100%', maxWidth: '100%' }}>
+    <Paper
+      elevation={2}
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        flexGrow: 1,
+        overflow: 'auto',
+        maxHeight: '100%',
+        maxWidth: '100%',
+      }}
+    >
       <Box sx={{ p: 1 }}>
         <AutocompleteSingle
           disableClearable
@@ -111,12 +152,19 @@ export default function EventForm({ event, judges, eventTypes, eventTypeClasses,
           label={t('event.state')}
           onChange={handleStateChange}
           options={['draft', 'tentative', 'confirmed', 'cancelled'] as EventState[]}
-          sx={{width: 200}}
+          sx={{ width: 200 }}
           value={event?.state}
         />
       </Box>
 
-      <Box sx={{ pb: 0.5, overflow: 'auto', bgcolor: 'background.form', '& .MuiInputBase-root': { bgcolor: 'background.default'} }}>
+      <Box
+        sx={{
+          pb: 0.5,
+          overflow: 'auto',
+          bgcolor: 'background.form',
+          '& .MuiInputBase-root': { bgcolor: 'background.default' },
+        }}
+      >
         <BasicInfoSection
           errorStates={errorStates}
           event={event}
@@ -187,17 +235,25 @@ export default function EventForm({ event, judges, eventTypes, eventTypeClasses,
         />
       </Box>
 
-      <Stack spacing={1} direction="row" justifyContent="flex-end" sx={{p: 1, borderTop: '1px solid', borderColor: '#bdbdbd'}}>
+      <Stack
+        spacing={1}
+        direction="row"
+        justifyContent="flex-end"
+        sx={{ p: 1, borderTop: '1px solid', borderColor: '#bdbdbd' }}
+      >
         <LoadingButton
           color="primary"
           disabled={!changes || !valid}
           loadingPosition="start"
           startIcon={<Save />}
           variant="contained"
-          onClick={onSave}>
-            Tallenna
+          onClick={onSave}
+        >
+          Tallenna
         </LoadingButton>
-        <Button startIcon={<Cancel />} variant="outlined" onClick={onCancel}>Peruuta</Button>
+        <Button startIcon={<Cancel />} variant="outlined" onClick={onCancel}>
+          Peruuta
+        </Button>
       </Stack>
     </Paper>
   )

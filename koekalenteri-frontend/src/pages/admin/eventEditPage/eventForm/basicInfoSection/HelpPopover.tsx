@@ -1,14 +1,13 @@
 import { ReactNode } from 'react'
 import { Fade, Paper, Popover } from '@mui/material'
 
-
 interface Props {
   anchorEl: HTMLButtonElement | null
   onClose: () => void
   children: ReactNode
 }
 
-export default function HelpPopover({anchorEl, onClose, children}: Props ) {
+export default function HelpPopover({ anchorEl, onClose, children }: Props) {
   const helpOpen = Boolean(anchorEl)
 
   return (
@@ -26,11 +25,13 @@ export default function HelpPopover({anchorEl, onClose, children}: Props ) {
       TransitionComponent={Fade}
       onClose={onClose}
     >
-      <Paper sx={{
-        maxWidth: 400,
-        p: 1,
-        backgroundColor: 'secondary.light',
-      }}>
+      <Paper
+        sx={{
+          maxWidth: 400,
+          p: 1,
+          backgroundColor: 'secondary.light',
+        }}
+      >
         {children}
       </Paper>
     </Popover>

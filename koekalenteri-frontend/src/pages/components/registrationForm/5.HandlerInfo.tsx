@@ -20,13 +20,22 @@ export function HandlerInfo({ reg, error, helperText, onChange, onOpenChange, op
   const { t } = useTranslation()
   const [cache, setCache] = useDogCacheKey(reg.dog?.regNo, 'handler')
 
-  const handleChange = useCallback((props: Partial<RegistrationPerson>) => {
-    const handler = setCache({...cache, ...props})
-    onChange({ handler })
-  }, [cache, onChange, setCache])
+  const handleChange = useCallback(
+    (props: Partial<RegistrationPerson>) => {
+      const handler = setCache({ ...cache, ...props })
+      onChange({ handler })
+    },
+    [cache, onChange, setCache]
+  )
 
   return (
-    <CollapsibleSection title={t('registration.handler')} error={error} helperText={helperText} open={open} onOpenChange={onOpenChange}>
+    <CollapsibleSection
+      title={t('registration.handler')}
+      error={error}
+      helperText={helperText}
+      open={open}
+      onOpenChange={onOpenChange}
+    >
       <Grid item container spacing={1}>
         <Grid item container spacing={1}>
           <Grid item sx={{ width: 300 }}>
@@ -37,7 +46,7 @@ export function HandlerInfo({ reg, error, helperText, onChange, onOpenChange, op
               id="handler_name"
               label={t('contact.name')}
               name="name"
-              onChange={e => handleChange({ name: e.target.value || '' })}
+              onChange={(e) => handleChange({ name: e.target.value || '' })}
               value={reg.handler?.name || ''}
             />
           </Grid>
@@ -49,7 +58,7 @@ export function HandlerInfo({ reg, error, helperText, onChange, onOpenChange, op
               id="handler_city"
               label={t('contact.city')}
               name="city"
-              onChange={e => handleChange({ location: e.target.value || '' })}
+              onChange={(e) => handleChange({ location: e.target.value || '' })}
               value={reg.handler?.location || ''}
             />
           </Grid>
@@ -63,7 +72,7 @@ export function HandlerInfo({ reg, error, helperText, onChange, onOpenChange, op
               id="handler_email"
               label={t('contact.email')}
               name="email"
-              onChange={e => handleChange({ email: e.target.value || '' })}
+              onChange={(e) => handleChange({ email: e.target.value || '' })}
               value={reg.handler?.email || ''}
             />
           </Grid>
@@ -75,7 +84,7 @@ export function HandlerInfo({ reg, error, helperText, onChange, onOpenChange, op
               id="handler_phone"
               label={t('contact.phone')}
               name="phone"
-              onChange={e => handleChange({ phone: e.target.value || '' })}
+              onChange={(e) => handleChange({ phone: e.target.value || '' })}
               value={reg.handler?.phone || ''}
             />
           </Grid>
@@ -85,7 +94,7 @@ export function HandlerInfo({ reg, error, helperText, onChange, onOpenChange, op
         control={
           <Checkbox
             checked={reg.handler?.membership ?? false}
-            onChange={e => handleChange({ membership: e.target.checked })}
+            onChange={(e) => handleChange({ membership: e.target.checked })}
           />
         }
         label={t('registration.handlerIsMember')}

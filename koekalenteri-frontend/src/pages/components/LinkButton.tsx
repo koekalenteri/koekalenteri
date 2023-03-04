@@ -17,8 +17,8 @@ export default function LinkButton({ to, text, onClick, sx = {} }: Props) {
   sx.padding = '0 8px !important'
 
   return (
-    <Button size="small" color="info" sx={sx} component={Link} to={to} onClick={handleClick}>{text}</Button>
+    <Button size="small" color="info" sx={sx} component={Link} to={to} onClick={handleClick}>
+      {text}
+    </Button>
   )
 }
-
-

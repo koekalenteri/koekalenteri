@@ -23,13 +23,19 @@ export default function RegistrationEditPage() {
   const resetRegistration = useResetRecoilState(editableRegistrationByIdsAtom(ids))
   const spa = useRecoilValue(spaAtom)
   const actions = useRegistrationActions()
-  const changes = useMemo(() => !!savedRegistration && hasChanges(savedRegistration, registration), [registration, savedRegistration])
+  const changes = useMemo(
+    () => !!savedRegistration && hasChanges(savedRegistration, registration),
+    [registration, savedRegistration]
+  )
 
-  const handleChange = useCallback((newState: Registration) => {
-    if (hasChanges(registration, newState)) {
-      setRegistration(newState)
-    }
-  }, [registration, setRegistration])
+  const handleChange = useCallback(
+    (newState: Registration) => {
+      if (hasChanges(registration, newState)) {
+        setRegistration(newState)
+      }
+    },
+    [registration, setRegistration]
+  )
 
   const handleSave = useCallback(async () => {
     if (!registration || !event) {
@@ -47,7 +53,7 @@ export default function RegistrationEditPage() {
     return true
   }, [navigate, resetRegistration])
 
-  const handleClick = useCallback(() => spa ? () => navigate(-1) : undefined, [spa, navigate])
+  const handleClick = useCallback(() => (spa ? () => navigate(-1) : undefined), [spa, navigate])
 
   if (!event || !registration) {
     throw new Error('Event not found!')
@@ -70,4 +76,3 @@ export default function RegistrationEditPage() {
     </>
   )
 }
-

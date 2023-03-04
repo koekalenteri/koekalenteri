@@ -18,7 +18,6 @@ type MuiLocalization = Localization & {
   }
 }
 
-
 export { locales }
 export type { Language }
 export type ValidationErrorKey = typeof fi.validation
@@ -27,7 +26,6 @@ export const muiLocales: Record<Language, MuiLocalization> = {
   fi: { ...fiFI, ...gfiFI },
   en: { ...enUS, ...genUS },
 }
-
 
 i18n
   .use(LanguageDetector)
@@ -53,5 +51,5 @@ i18n.services.formatter?.add('short', formatDate('eeeeee d.M.'))
 i18n.services.formatter?.add('weekday', formatDate('eeeeee'))
 i18n.services.formatter?.add('datespan', formatDateSpan)
 i18n.services.formatter?.add('distance', formatDistance)
-i18n.services.formatter?.add('lowercase', value => value.toLowerCase())
+i18n.services.formatter?.add('lowercase', (value) => value.toLowerCase())
 i18n.services.formatter?.add('date', formatDate('d.M.yyyy'))

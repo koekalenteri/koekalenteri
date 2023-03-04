@@ -1,6 +1,10 @@
 import { Dog } from 'koekalenteri-shared/model'
 
-import { registrationDogAged10MonthsAndNoResults, registrationDogAged20MonthsAndNoResults, registrationDogAged28MonthsWithNOUResult } from '../../__mockData__/dogs'
+import {
+  registrationDogAged10MonthsAndNoResults,
+  registrationDogAged20MonthsAndNoResults,
+  registrationDogAged28MonthsWithNOUResult,
+} from '../../__mockData__/dogs'
 
 const defaultDog = (regNo: string): Dog => ({
   regNo,
@@ -21,7 +25,7 @@ const mockDogs: Dog[] = [
 
 export async function getDog(regNo: string, refresh?: boolean, signal?: AbortSignal): Promise<Dog> {
   return new Promise((resolve) => {
-    const dog = mockDogs.find(d => d.regNo === regNo) ?? defaultDog(regNo)
+    const dog = mockDogs.find((d) => d.regNo === regNo) ?? defaultDog(regNo)
     process.nextTick(() => resolve(dog))
   })
 }

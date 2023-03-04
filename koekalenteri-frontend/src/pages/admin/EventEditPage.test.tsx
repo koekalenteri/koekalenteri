@@ -30,10 +30,12 @@ describe('EventEditPage', () => {
     const { i18n } = useTranslation()
     const language = i18n.language as Language
 
-    const routes: RouteObject[] = [{
-      path: Path.admin.editEvent(),
-      element: <EventEditPage />,
-    }]
+    const routes: RouteObject[] = [
+      {
+        path: Path.admin.editEvent(),
+        element: <EventEditPage />,
+      },
+    ]
 
     const { container } = render(
       <ThemeProvider theme={theme}>
@@ -46,7 +48,7 @@ describe('EventEditPage', () => {
             </Suspense>
           </RecoilRoot>
         </LocalizationProvider>
-      </ThemeProvider>,
+      </ThemeProvider>
     )
     await flushPromisesAndTimers()
     expect(container).toMatchSnapshot()

@@ -5,7 +5,6 @@ import { EventType } from 'koekalenteri-shared/model'
 
 import { useEventTypeActions } from '../../../recoil'
 
-
 const ActiveCell = (props: GridRenderCellParams<boolean, EventType>) => {
   const actions = useEventTypeActions()
 
@@ -13,7 +12,7 @@ const ActiveCell = (props: GridRenderCellParams<boolean, EventType>) => {
     async (_event: ChangeEvent<HTMLInputElement>, checked: boolean) => {
       actions.save({ ...props.row, active: checked })
     },
-    [actions, props.row],
+    [actions, props.row]
   )
 
   return <Switch checked={!!props.value} onChange={toggleActive} />

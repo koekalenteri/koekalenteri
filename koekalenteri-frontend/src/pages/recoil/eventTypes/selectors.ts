@@ -4,12 +4,10 @@ import { selector } from 'recoil'
 
 import { eventTypeFilterAtom, eventTypesAtom } from './atoms'
 
-
 export const activeEventTypesSelector = selector({
   key: 'activeEventTypes',
-  get: ({ get }) => get(eventTypesAtom).filter(et => et.active),
+  get: ({ get }) => get(eventTypesAtom).filter((et) => et.active),
 })
-
 
 export const filteredEventTypesSelector = selector({
   key: 'filteredEventTypes',
@@ -20,9 +18,11 @@ export const filteredEventTypesSelector = selector({
     if (!filter) {
       return list
     }
-    return list.filter(eventType => [eventType.eventType, eventType.description[i18next.language as Language]]
-      .join(' ')
-      .toLocaleLowerCase(i18next.language)
-      .includes(filter))
+    return list.filter((eventType) =>
+      [eventType.eventType, eventType.description[i18next.language as Language]]
+        .join(' ')
+        .toLocaleLowerCase(i18next.language)
+        .includes(filter)
+    )
   },
 })

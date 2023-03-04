@@ -10,10 +10,16 @@ import { hasChanges } from '../../utils'
 import { activeEventTypesSelector, activeJudgesSelector, eventTypeClassesAtom } from '../recoil'
 
 import EventForm from './eventEditPage/EventForm'
-import { adminEventSelector, editableEventByIdAtom, officialsAtom, organizersAtom, useAdminEventActions } from './recoil'
+import {
+  adminEventSelector,
+  editableEventByIdAtom,
+  officialsAtom,
+  organizersAtom,
+  useAdminEventActions,
+} from './recoil'
 
 export default function EventEditPage() {
-  const {id: eventId = ''} = useParams()
+  const { id: eventId = '' } = useParams()
   const { t } = useTranslation()
   const { enqueueSnackbar } = useSnackbar()
   const navigate = useNavigate()
@@ -29,10 +35,13 @@ export default function EventEditPage() {
   const resetEvent = useResetRecoilState(editableEventByIdAtom(eventId))
   const [changes, setChanges] = useState<boolean>(hasChanges(storedEvent, event))
 
-  const handleChange = useCallback((newState: Event) => {
-    setChanges(hasChanges(storedEvent, newState))
-    setEvent(newState)
-  }, [setEvent, storedEvent])
+  const handleChange = useCallback(
+    (newState: Event) => {
+      setChanges(hasChanges(storedEvent, newState))
+      setEvent(newState)
+    },
+    [setEvent, storedEvent]
+  )
 
   const handleSave = useCallback(async () => {
     if (!event) {
@@ -57,7 +66,7 @@ export default function EventEditPage() {
     <EventForm
       event={event}
       changes={changes}
-      eventTypes={activeEventTypes.map(et => et.eventType)}
+      eventTypes={activeEventTypes.map((et) => et.eventType)}
       eventTypeClasses={eventTypeClasses}
       judges={activeJudges}
       officials={officials}

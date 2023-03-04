@@ -7,13 +7,10 @@ import { logEffect, storageEffect } from '../effects'
 import { remoteRegistrationEffect } from './effects'
 import { registrationSelector } from './selectors'
 
-
 export const registrationIdAtom = atom<string | undefined>({
   key: 'registrationId',
   default: '',
-  effects: [
-    logEffect,
-  ],
+  effects: [logEffect],
 })
 
 export const newRegistrationAtom = atom<Registration | undefined>({
@@ -25,42 +22,30 @@ export const newRegistrationAtom = atom<Registration | undefined>({
     modifiedAt: new Date(),
     modifiedBy: 'anonymous',
     agreeToTerms: false,
-    breeder: {...emptyBreeder},
+    breeder: { ...emptyBreeder },
     dates: [],
-    dog: {...emptyDog},
+    dog: { ...emptyDog },
     eventId: '',
     eventType: '',
-    handler: {...emptyPerson},
+    handler: { ...emptyPerson },
     language: 'fi',
     notes: '',
-    owner: {...emptyPerson},
+    owner: { ...emptyPerson },
     ownerHandles: true,
     qualifyingResults: [],
     reserve: 'ANY',
   },
-  effects: [
-    logEffect,
-    storageEffect,
-  ],
+  effects: [logEffect, storageEffect],
 })
 
 export const registrationByIdsAtom = atomFamily<Registration | undefined, string>({
   key: 'registration/ids',
   default: undefined,
-  effects: [
-    logEffect,
-    storageEffect,
-    remoteRegistrationEffect,
-  ],
+  effects: [logEffect, storageEffect, remoteRegistrationEffect],
 })
 
 export const editableRegistrationByIdsAtom = atomFamily<Registration | undefined, string | undefined>({
   key: 'editableRegistration/ids',
   default: registrationSelector,
-  effects: [
-    logEffect,
-    storageEffect,
-  ],
+  effects: [logEffect, storageEffect],
 })
-
-

@@ -7,9 +7,8 @@ import { getEventTypes, putEventType } from '../../../api/eventType'
 
 import { eventTypesAtom } from './atoms'
 
-
 export const useEventTypeActions = () => {
-  const { user } = useAuthenticator(context => [context.user])
+  const { user } = useAuthenticator((context) => [context.user])
   const [eventTypes, setEventTypes] = useRecoilState(eventTypesAtom)
 
   return {
@@ -18,20 +17,19 @@ export const useEventTypeActions = () => {
   }
 
   function refresh() {
-    getEventTypes(true)
-      .then(eventTypes => {
-        const sortedEventTypes = [...eventTypes].sort((a, b) => a.eventType.localeCompare(b.eventType, i18next.language))
-        setEventTypes(sortedEventTypes)
-      })
+    getEventTypes(true).then((eventTypes) => {
+      const sortedEventTypes = [...eventTypes].sort((a, b) => a.eventType.localeCompare(b.eventType, i18next.language))
+      setEventTypes(sortedEventTypes)
+    })
   }
 
   async function save(eventType: EventType) {
-    const index = eventTypes.findIndex(j => j.eventType === eventType.eventType)
+    const index = eventTypes.findIndex((j) => j.eventType === eventType.eventType)
     if (index === -1) {
       throw new Error(`EventType ${eventType.eventType} not found!`)
     }
     const saved = await putEventType(eventType, user.getSignInUserSession()?.getIdToken().getJwtToken())
-    const newEventTypes = eventTypes.map<EventType>(j => ({ ...j }))
+    const newEventTypes = eventTypes.map<EventType>((j) => ({ ...j }))
     newEventTypes.splice(index, 1, saved)
     setEventTypes(newEventTypes)
   }

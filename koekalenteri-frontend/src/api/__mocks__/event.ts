@@ -1,7 +1,14 @@
 import { parseISO } from 'date-fns'
 import { Event } from 'koekalenteri-shared/model'
 
-import { eventWithEntryClosed, eventWithEntryClosing, eventWithEntryNotYetOpen, eventWithEntryOpen, eventWithStaticDates, eventWithStaticDatesAndClass } from '../../__mockData__/events'
+import {
+  eventWithEntryClosed,
+  eventWithEntryClosing,
+  eventWithEntryNotYetOpen,
+  eventWithEntryOpen,
+  eventWithStaticDates,
+  eventWithStaticDatesAndClass,
+} from '../../__mockData__/events'
 import { emptyEvent } from '../test-utils/emptyEvent'
 
 export const mockEvents: Event[] = [
@@ -36,25 +43,25 @@ export async function getEvents(): Promise<Event[]> {
 
 export async function getEvent(id: string): Promise<Event> {
   return new Promise((resolve, reject) => {
-    const event = mockEvents.find(item => item.id === id)
-    process.nextTick(() => event ? resolve(event) : reject())
+    const event = mockEvents.find((item) => item.id === id)
+    process.nextTick(() => (event ? resolve(event) : reject()))
   })
 }
 
 export async function putEvent(event: Event, token?: string): Promise<Event> {
   return new Promise((resolve, reject) => {
-    let existing: Event|undefined = event
+    let existing: Event | undefined = event
     if (!event.id) {
       event.id = 'test' + (mockEvents.length + 1)
       mockEvents.push(event)
     } else {
-      existing = mockEvents.find(e => e.id === event.id)
+      existing = mockEvents.find((e) => e.id === event.id)
       if (existing) {
         Object.assign(existing, event)
         existing.modifiedAt = new Date()
         existing.modifiedBy = 'mock'
       }
     }
-    process.nextTick(() => existing ? resolve(existing) : reject())
+    process.nextTick(() => (existing ? resolve(existing) : reject()))
   })
 }

@@ -8,7 +8,6 @@ import { Path } from '../../../../routeConfig'
 import { useUserActions } from '../../../recoil/user/actions'
 import AppBarButton from '../AppBarButton'
 
-
 interface Props {
   userName: string
 }
@@ -19,7 +18,10 @@ export default function LoggedInUserMenu({ userName }: Props) {
   const navigate = useNavigate()
   const actions = useUserActions()
 
-  const handleClick = useCallback((event: React.MouseEvent<HTMLElement>) => setAnchorEl(event.currentTarget), [setAnchorEl])
+  const handleClick = useCallback(
+    (event: React.MouseEvent<HTMLElement>) => setAnchorEl(event.currentTarget),
+    [setAnchorEl]
+  )
   const handleClose = useCallback(() => setAnchorEl(null), [setAnchorEl])
   const navigateToAdmin = useCallback(() => navigate(Path.admin.root), [navigate])
 
@@ -28,16 +30,10 @@ export default function LoggedInUserMenu({ userName }: Props) {
       <AppBarButton onClick={handleClick} startIcon={<PersonOutline />} endIcon={<ExpandMore />}>
         {userName}
       </AppBarButton>
-      <Menu
-        anchorEl={anchorEl}
-        open={!!anchorEl}
-        onClose={handleClose}
-        onClick={handleClose}
-      >
+      <Menu anchorEl={anchorEl} open={!!anchorEl} onClose={handleClose} onClick={handleClose}>
         <MenuItem onClick={navigateToAdmin}>{t('admin')}</MenuItem>
         <MenuItem onClick={actions.signOut}>{t('logout')}</MenuItem>
       </Menu>
-
     </>
   )
 }

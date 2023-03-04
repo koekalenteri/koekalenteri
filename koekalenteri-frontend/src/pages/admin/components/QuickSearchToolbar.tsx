@@ -16,9 +16,9 @@ export function QuickSearchToolbar(props: QuickSearchToolbarProps) {
   const { t } = useTranslation()
 
   return (
-    <Stack sx={{ p: 0.5, pb: 0 }} direction="row" justifyContent="space-between" alignItems="center" >
-      {props.columnSelector ? <GridToolbarColumnsButton /> : null }
-      <GridToolbarContainer sx={{p:0}}>
+    <Stack sx={{ p: 0.5, pb: 0 }} direction="row" justifyContent="space-between" alignItems="center">
+      {props.columnSelector ? <GridToolbarColumnsButton /> : null}
+      <GridToolbarContainer sx={{ p: 0 }}>
         <TextField
           variant="standard"
           value={props.value}
@@ -51,11 +51,10 @@ export function QuickSearchToolbar(props: QuickSearchToolbarProps) {
               borderBottom: 1,
               borderColor: 'divider',
             },
-          }} />
+          }}
+        />
       </GridToolbarContainer>
-      <GridToolbarContainer sx={{p:0, width: '30vw'}}>
-        {props.children ?? ' '}
-      </GridToolbarContainer>
+      <GridToolbarContainer sx={{ p: 0, width: '30vw' }}>{props.children ?? ' '}</GridToolbarContainer>
     </Stack>
   )
 }

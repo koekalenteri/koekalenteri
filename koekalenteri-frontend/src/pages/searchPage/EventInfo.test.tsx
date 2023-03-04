@@ -12,7 +12,7 @@ jest.useFakeTimers()
 jest.mock('../../api/judge')
 
 describe('EventInfo', () => {
-  it('should render event information', async function() {
+  it('should render event information', async function () {
     const event = {
       ...emptyEvent,
       organizer: {
@@ -26,21 +26,23 @@ describe('EventInfo', () => {
       entryStartDate: new Date('2021-01-20'),
       entryEndDate: new Date('2021-02-04'),
       description: 'event description text',
-      classes: [{
-        date: new Date('2021-02-10'),
-        class: 'TestClass',
-        judge: { id: 1, name: 'Test Judge' },
-        places: 11,
-        entries: 22,
-        members: 2,
-      }],
+      classes: [
+        {
+          date: new Date('2021-02-10'),
+          class: 'TestClass',
+          judge: { id: 1, name: 'Test Judge' },
+          places: 11,
+          entries: 22,
+          members: 2,
+        },
+      ],
     }
     const { container } = render(
       <RecoilRoot>
         <Suspense fallback={<div>loading...</div>}>
           <EventInfo event={event} />
         </Suspense>
-      </RecoilRoot>,
+      </RecoilRoot>
     )
     await flushPromisesAndTimers()
 

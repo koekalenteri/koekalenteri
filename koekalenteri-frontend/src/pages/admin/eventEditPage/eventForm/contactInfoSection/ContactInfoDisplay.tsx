@@ -15,10 +15,18 @@ export default function ContactInfoDisplay({ contact, person, show }: Props) {
   }
   return (
     <Grid item container direction="row" justifyContent="space-around">
-      <Grid item xs><b>{t(`event.${contact}`)}</b></Grid>
-      <Grid item xs>{show?.name ? person.name : ''}</Grid>
-      <Grid item xs>{show?.email ? person.email : ''}</Grid>
-      <Grid item xs>{show?.phone ? person.phone : ''}</Grid>
+      <Grid item xs>
+        <b>{t(`event.${contact}`)}</b>
+      </Grid>
+      <Grid item xs>
+        {show?.name ? person.name : ''}
+      </Grid>
+      <Grid item xs>
+        {show?.email ? person.email : ''}
+      </Grid>
+      <Grid item xs>
+        {show?.phone ? person.phone : ''}
+      </Grid>
     </Grid>
   )
 }
