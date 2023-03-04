@@ -840,6 +840,12 @@ Resources:
             #Auth:
             #  Authorizer: CognitoAuthorizer
 
+  SendRegistrationMessagesFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref SendRegistrationMessagesFunction]]
+      RetentionInDays: 30
+
 
   PaymentConfirmFunction:
     Type: AWS::Serverless::Function

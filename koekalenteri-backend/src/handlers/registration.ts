@@ -4,7 +4,6 @@ import { AWSError } from "aws-sdk"
 import { JsonConfirmedEvent, JsonRegistration } from "koekalenteri-shared/model"
 import { v4 as uuidv4 } from 'uuid'
 
-import { i18n } from "../i18n/index"
 import CustomDynamoClient from "../utils/CustomDynamoClient"
 import { getOrigin, getUsername } from "../utils/genericHandlers"
 import { metricsError, metricsSuccess } from "../utils/metrics"
@@ -66,8 +65,6 @@ export const putRegistrationHandler = metricScope((metrics: MetricsLogger) =>
       // modification info is always updated
       registration.modifiedAt = timestamp
       registration.modifiedBy = username
-
-      const t = i18n.getFixedT(registration.language)
 
       const eventKey = { id: registration.eventId }
       const eventTable = process.env.EVENT_TABLE_NAME || ''
