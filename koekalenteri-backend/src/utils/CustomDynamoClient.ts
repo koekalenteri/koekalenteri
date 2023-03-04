@@ -53,7 +53,7 @@ export default class CustomDynamoClient {
 
   async query<T>(key: AWS.DynamoDB.DocumentClient.KeyExpression, values: AWS.DynamoDB.DocumentClient.ExpressionAttributeValueMap): Promise<T[] | undefined> {
     if (!key) {
-      console.warn('CustomDynamoClient.query: no key provoded, returning undefined')
+      console.warn('CustomDynamoClient.query: no key provided, returning undefined')
       return
     }
     const params: AWS.DynamoDB.DocumentClient.QueryInput = {

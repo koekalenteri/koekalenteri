@@ -1,7 +1,8 @@
-import { Suspense } from 'react'
+import { ReactNode, Suspense } from 'react'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { render, screen } from '@testing-library/react'
+import { SnackbarProvider } from 'notistack'
 import { RecoilRoot } from 'recoil'
 
 import { registrationDogAged20MonthsAndNoResults } from '../../../__mockData__/dogs'
@@ -16,21 +17,26 @@ const eventDate = registrationWithStaticDates.dates[0].date
 
 jest.mock('../../../api/dog')
 jest.mock('../../../api/registration')
-jest.setTimeout(10000)
+
+function Wrapper(props: { children?: ReactNode }) {
+  return (
+    <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
+      <RecoilRoot>
+        <SnackbarProvider>
+          <Suspense fallback={<div>loading...</div>}>{props.children}</Suspense>
+        </SnackbarProvider>
+      </RecoilRoot>
+    </LocalizationProvider>
+  )
+}
 
 describe('DogInfo', () => {
   it('should render', async () => {
     const { container } = render(
-      <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
-        <RecoilRoot>
-          <Suspense fallback={<div>loading...</div>}>
-            <DogInfo reg={registrationWithStaticDates} eventDate={eventDate} minDogAgeMonths={0} />
-          </Suspense>
-        </RecoilRoot>
-      </LocalizationProvider>
+      <DogInfo reg={registrationWithStaticDates} eventDate={eventDate} minDogAgeMonths={0} />,
+      { wrapper: Wrapper }
     )
     await waitForDebounce()
-    await waitForDebounce() // TODO: too much debouncing?
 
     expect(container).toMatchSnapshot()
   })
@@ -41,13 +47,8 @@ describe('DogInfo', () => {
     const newDog = registrationDogAged20MonthsAndNoResults
 
     const { user } = renderWithUserEvents(
-      <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
-        <RecoilRoot>
-          <Suspense fallback={<div>loading...</div>}>
-            <DogInfo reg={reg} eventDate={eventDate} minDogAgeMonths={15} onChange={changeHandler} />
-          </Suspense>
-        </RecoilRoot>
-      </LocalizationProvider>
+      <DogInfo reg={reg} eventDate={eventDate} minDogAgeMonths={15} onChange={changeHandler} />,
+      { wrapper: Wrapper }
     )
 
     expect(changeHandler).toHaveBeenCalledTimes(0)
@@ -58,14 +59,19 @@ describe('DogInfo', () => {
     await user.clear(input)
     expect(input).toHaveValue('')
     expect(changeHandler).toHaveBeenLastCalledWith(
-      expect.objectContaining({ dog: expect.objectContaining({ regNo: '' }), ownerHandles: true, results: [] }),
+      expect.objectContaining({
+        dog: undefined,
+        owner: undefined,
+        handler: undefined,
+        ownerHandles: true,
+        results: [],
+      }),
       true
     )
 
     await user.type(input, newDog.regNo)
     expect(input).toHaveValue(newDog.regNo)
     await waitForDebounce()
-    await waitForDebounce() // TODO: too much debouncing?
 
     expect(changeHandler).toHaveBeenLastCalledWith(
       expect.objectContaining({ dog: registrationDogAged20MonthsAndNoResults }),
