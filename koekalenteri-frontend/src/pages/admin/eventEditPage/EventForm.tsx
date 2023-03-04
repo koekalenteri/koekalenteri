@@ -17,7 +17,7 @@ import JudgesSection from './eventForm/JudgesSection'
 import PaymentSection from './eventForm/PaymentSection'
 import { FieldRequirements, requiredFields, validateEvent } from './eventForm/validation'
 
-export type PartialEvent = DeepPartial<Event> & {
+export interface PartialEvent extends DeepPartial<Event> {
   startDate: Date
   endDate: Date
   classes: EventClass[]

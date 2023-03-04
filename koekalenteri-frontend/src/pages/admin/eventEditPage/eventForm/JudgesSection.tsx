@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { AddOutlined, DeleteOutline } from '@mui/icons-material'
 import { Button, Grid } from '@mui/material'
@@ -34,13 +35,23 @@ interface Props extends SectionProps {
 export default function JudgesSection({ event, judges, fields, onChange, onOpenChange, open }: Props) {
   const { t } = useTranslation()
   const list = event.judges
-  const validationError = event && fields?.required.judges && validateEventField(event, 'judges', true)
-  const error = !!validationError || list.some((id) => id && !judges.find((j) => j.id === id))
-  const helperText = validationError
-    ? t(`validation.event.${validationError.key}`, { ...validationError.opts, state: fields.state.judges || 'draft' })
-    : error
-    ? t('validation.event.errors')
-    : ''
+  const validationError = useMemo(
+    () => event && fields?.required.judges && validateEventField(event, 'judges', true),
+    [event, fields?.required.judges]
+  )
+  const error = useMemo(
+    () => !!validationError || list.some((id) => id && !judges.find((j) => j.id === id)),
+    [judges, list, validationError]
+  )
+  const helperText = useMemo(() => {
+    if (validationError) {
+      return t(`validation.event.${validationError.key}`, {
+        ...validationError.opts,
+        state: fields?.state?.judges ?? 'draft',
+      })
+    }
+    return error ? t('validation.event.errors') : ''
+  }, [error, fields?.state?.judges, t, validationError])
 
   const toArray = (j?: DeepPartial<ClassJudge>): DeepPartial<ClassJudge[]> => (j ? [j] : [])
   const makeArray = (j?: DeepPartial<ClassJudge | ClassJudge[]>) => (Array.isArray(j) ? [...j] : toArray(j))

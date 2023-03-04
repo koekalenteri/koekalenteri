@@ -6,6 +6,7 @@ import {
   clone,
   entryDateColor,
   hasChanges,
+  isDateString,
   isEmpty,
   isObject,
   merge,
@@ -20,6 +21,33 @@ describe('utils', () => {
       expect(entryDateColor(eventWithEntryNotYetOpen)).toEqual('text.primary')
       expect(entryDateColor(eventWithEntryOpen)).toEqual('success.main')
       expect(entryDateColor(eventWithEntryClosing)).toEqual('warning.main')
+    })
+  })
+
+  describe('isDateString', () => {
+    it.each(['2016-09-18T17:34:02.666Z', '2021-05-10T09:05:12.000Z', '2016-12-31T23:59:60+00:00', '2018-06-19T04:06Z'])(
+      'should return true for valid date string: %p',
+      (dateStr) => {
+        expect(isDateString(dateStr)).toEqual(true)
+      }
+    )
+    it.each([
+      null,
+      undefined,
+      false,
+      true,
+      [],
+      {},
+      '',
+      '1T2',
+      new Date(),
+      '2021-13-10T09:05:12.000Z',
+      '2021-11-32T09:05:12.000Z',
+      '2021-01-10T24:05:12.000Z',
+      '2021-01-10T23:70:12.000Z',
+      '2021-01-10T23:00:70.000Z',
+    ])('should return false for anythings not ISO8601 compatible: %p', (value) => {
+      expect(isDateString(value)).toEqual(false)
     })
   })
 
@@ -158,8 +186,10 @@ describe('utils', () => {
       expect(merge(Object.create(null), a)).toEqual({ value: 'string' })
     })
     it.each([true, false, undefined, null, 1, 'string', [1, 2, 3]])('should merge with %p', (value) => {
-      const a: unknown = { obj: true }
+      const a: AnyObject = { obj: true }
+      // @ts-expect-error
       expect(merge(a, value)).toEqual(a)
+      // @ts-expect-error
       expect(merge(value, a)).toEqual(a)
     })
   })

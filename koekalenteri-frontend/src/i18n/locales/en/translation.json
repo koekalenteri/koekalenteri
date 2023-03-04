@@ -195,7 +195,7 @@
     },
     "saved_one": "Registration saved.\nConfirmation email was sent to:\n{{to}}",
     "saved_other": "Registration saved.\nConfirmation email was sent to:\n{{to}}",
-    "terms": "I accept the <1>registration terms</1> and the <1>data protection statement</1>.",
+    "terms": "I accept the <2>registration terms</2> and the <6>data protection statement</6>.",
     "time": {
       "ap": "(morning)",
       "ip": "(evening)"
