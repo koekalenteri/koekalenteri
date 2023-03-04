@@ -803,6 +803,44 @@ Resources:
             #Auth:
             #  Authorizer: CognitoAuthorizer
 
+  SendRegistrationMessagesFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: koekalenteri-backend
+      Handler: dist/handlers/admin/registration.sendMessagesHandler
+      Layers:
+        - !Ref CommonLayer
+      Tracing: Active
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EventRegistrationTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EventTable
+        - CloudWatchPutMetricPolicy: {}
+        - Statement:
+            - Sid: SESSendEmailPolicy
+              Effect: Allow
+              Action:
+              - ses:sendTemplatedEmail
+              Resource: '*'
+      Environment:
+        Variables:
+          STACK_NAME: !Ref AWS::StackName
+          TABLE_NAME: !Ref EventRegistrationTable
+          EVENT_TABLE_NAME : !Ref EventTable
+          AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
+
+      Events:
+        PutEmailTemplate:
+          Type: Api
+          Properties:
+            Path: /admin/email-send
+            Method: POST
+            RestApiId: !Ref KoekalenteriApi
+            #Auth:
+            #  Authorizer: CognitoAuthorizer
+
+
   PaymentConfirmFunction:
     Type: AWS::Serverless::Function
     Properties:

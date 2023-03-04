@@ -47,6 +47,14 @@ export default function EventListPage() {
       description: t('deleteEventText'),
       confirmationText: t('delete'),
       cancellationText: t('cancel'),
+      cancellationButtonProps: { variant: 'outlined' },
+      confirmationButtonProps: { autoFocus: true, variant: 'contained' },
+      dialogActionsProps: {
+        sx: {
+          flexDirection: 'row-reverse',
+          justifyContent: 'flex-start',
+        },
+      },
     }).then(() => {
       actions.deleteCurrent()
     })

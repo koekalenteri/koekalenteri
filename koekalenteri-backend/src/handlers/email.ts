@@ -2,7 +2,7 @@ import { metricScope, MetricsLogger } from 'aws-embedded-metrics'
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import AWS from 'aws-sdk'
 import type { SendTemplatedEmailRequest, Template } from 'aws-sdk/clients/ses'
-import { JsonEmailTemplate, JsonRegistration, Language } from 'koekalenteri-shared/model'
+import { EmailTemplateId, JsonEmailTemplate, JsonRegistration, Language } from 'koekalenteri-shared/model'
 
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { markdownToTemplate } from '../utils/email/markdown'
@@ -16,10 +16,6 @@ const ses = new AWS.SES()
 // TODO: sender address from env / other config
 const from = "koekalenteri@koekalenteri.snj.fi"
 const stackName = process.env.AWS_SAM_LOCAL ? 'local' : process.env.STACK_NAME ?? 'local'
-
-export enum EmailTemplate {
-  REGISTRATION = 'registration',
-}
 
 export async function sendReceipt(registration: JsonRegistration, date: string) {
   const to: string[] = [registration.handler.email]
@@ -41,7 +37,7 @@ export async function sendReceipt(registration: JsonRegistration, date: string) 
   }) */
 }
 
-export async function sendTemplatedMail(template: EmailTemplate, language: Language, from: string, to: string[], data: Record<string, unknown>) {
+export async function sendTemplatedMail(template: EmailTemplateId, language: Language, from: string, to: string[], data: Record<string, unknown>) {
   const params: SendTemplatedEmailRequest = {
     ConfigurationSetName: 'Koekalenteri',
     Destination: {
