@@ -33,7 +33,7 @@ export const getDogHandler = metricScope((metrics: MetricsLogger) =>
       console.log('cached: ' + JSON.stringify(item))
 
       if (!item || refresh) {
-        const { status, json } = await klapi.lueKoiranPerustiedot({ Rekisterinumero: regNo, Kieli: KLKieli.Suomi })
+        const { status, json, error } = await klapi.lueKoiranPerustiedot({ Rekisterinumero: regNo, Kieli: KLKieli.Suomi })
 
         if (status === 200 && json) {
           // Cache
@@ -78,6 +78,9 @@ export const getDogHandler = metricScope((metrics: MetricsLogger) =>
           }
 
           await dynamoDB.write(item)
+        } else {
+          metricsError(metrics, event.requestContext, 'getDog')
+          return response(status, 'Upstream error: ' + error)
         }
       }
 
@@ -90,4 +93,3 @@ export const getDogHandler = metricScope((metrics: MetricsLogger) =>
     }
   },
 )
-

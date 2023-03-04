@@ -18,14 +18,19 @@ class APIError extends Error {
 async function http<T>(path: string, init: RequestInit): Promise<T> {
   const url = API_BASE_URL + path
   // console.debug(`fetch: ${url}`, init)
-  const response = await fetch(url, init)
-  const text = await response.text()
-  if (!response.ok) {
-    throw new APIError(response, text)
+  try {
+    const response = await fetch(url, init)
+    const text = await response.text()
+    if (!response.ok) {
+      throw new APIError(response, text)
+    }
+    const parsed = parseJSON(text)
+    // console.debug('response', parsed)
+    return parsed
+  } catch (err) {
+    console.error(err)
+    throw err
   }
-  const parsed = parseJSON(text)
-  // console.debug('response', parsed)
-  return parsed
 }
 
 const HTTP = {

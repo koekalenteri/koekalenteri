@@ -1,5 +1,6 @@
 import { diff } from 'deep-object-diff'
 import { DeepPartial, Dog } from 'koekalenteri-shared/model'
+import { useSnackbar } from 'notistack'
 import { useRecoilState } from 'recoil'
 
 import { getDog } from '../../../api/dog'
@@ -14,6 +15,7 @@ const INIT_CACHE: DeepPartial<DogCachedInfo> = { owner: { ownerHandles: true } }
 export function useDogActions(regNo: string) {
   const [dog, setDog] = useRecoilState(dogAtom(regNo))
   const [cache, setCache] = useDogCache(regNo)
+  const { enqueueSnackbar } = useSnackbar()
 
   return {
     fetch: async () => {
@@ -23,26 +25,35 @@ export function useDogActions(regNo: string) {
       if (dog?.regNo === regNo) {
         return applyCache(regNo, cache, dog)
       }
-      const fetched = await getDog(regNo)
-      if (fetched?.regNo === regNo) {
-        if (!fetched.results) {
-          fetched.results = []
+      try {
+        const fetched = await getDog(regNo)
+        if (fetched?.regNo === regNo) {
+          if (!fetched.results) {
+            fetched.results = []
+          }
+          setDog(fetched)
+          return applyCache(regNo, cache, fetched)
         }
-        setDog(fetched)
-        return applyCache(regNo, cache, fetched)
+      } catch (err) {
+        enqueueSnackbar('Koiran tietojen haku epäonnistui 😞', { variant: 'error' })
       }
     },
     refresh: async () => {
       if (!regNo) {
         return { dog: emptyDog }
       }
-      const updated = await getDog(regNo, true)
-      if (updated.regNo === regNo) {
-        if (!updated.results) {
-          updated.results = []
+      try {
+        const updated = await getDog(regNo, true)
+        if (updated.regNo === regNo) {
+          if (!updated.results) {
+            updated.results = []
+          }
+          setDog(updated)
+          return applyCache(regNo, cache, updated)
         }
-        setDog(updated)
-        return applyCache(regNo, cache, updated)
+      } catch (err) {
+        enqueueSnackbar('Koiran tietojen päivitys epäonnistui 😞', { variant: 'error' })
+        return applyCache(regNo, cache, dog)
       }
     },
     updateCache: (props: DeepPartial<DogCachedInfo>) => {

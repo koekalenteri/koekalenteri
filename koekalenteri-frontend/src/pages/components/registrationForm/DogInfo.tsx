@@ -94,32 +94,39 @@ export const DogInfo = ({
   )
 
   const buttonClick = useCallback(async () => {
+    if (loading) {
+      return
+    }
     setLoading(true)
+    let delay = 10
     switch (mode) {
       case 'fetch':
         const cache = await actions.fetch()
         updateDog(cache)
         setMode(cache ? 'update' : 'notfound')
+        delay = 500
         break
       case 'update':
         updateDog(await actions.refresh())
+        delay = 500
         break
       case 'notfound':
         setMode('manual')
         break
       default:
+        setInputRegNo('')
         setMode('fetch')
         break
     }
-    setLoading(false)
-  }, [actions, mode, updateDog])
+    setTimeout(() => setLoading(false), delay)
+  }, [actions, loading, mode, updateDog])
 
   const handleRegNoChange = useCallback(
     (event: SyntheticEvent<Element, Event>, value: string | null) => {
       if (value !== null && value !== inputRegNo) {
         const upper = value.toLocaleUpperCase()
-        setInputRegNo(upper)
         setMode('fetch')
+        setInputRegNo(upper)
       }
     },
     [inputRegNo]
@@ -127,11 +134,11 @@ export const DogInfo = ({
 
   useEffect(() => {
     if (inputRegNo !== reg.dog?.regNo ?? '') {
-      if (validRegNo || inputRegNo === '') {
+      if ((validRegNo && mode === 'fetch') || inputRegNo === '') {
         buttonClick()
       }
     }
-  }, [buttonClick, inputRegNo, reg.dog?.regNo, validRegNo])
+  }, [buttonClick, inputRegNo, mode, reg.dog?.regNo, validRegNo])
 
   return (
     <CollapsibleSection
