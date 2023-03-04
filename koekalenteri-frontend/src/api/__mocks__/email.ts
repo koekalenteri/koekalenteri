@@ -1,4 +1,4 @@
-import type { EmailTemplate } from 'koekalenteri-shared/model'
+import type { EmailTemplate, RegistrationMessage } from 'koekalenteri-shared/model'
 
 import { parseJSON } from '../../utils'
 
@@ -15,5 +15,9 @@ export async function getEmailTemplates(signal?: AbortSignal) {
 }
 
 export async function putEmailTemplate(template: EmailTemplate, signal?: AbortSignal) {
+  throw new Error('not implemented')
+}
+
+export async function sendTemplatedEmail(message: RegistrationMessage, signal?: AbortSignal) {
   throw new Error('not implemented')
 }

@@ -1,5 +1,7 @@
+import { ReactNode } from 'react'
 import { render } from '@testing-library/react'
 import { Registration } from 'koekalenteri-shared/model'
+import { SnackbarProvider } from 'notistack'
 import { RecoilRoot } from 'recoil'
 
 import { eventWithStaticDates } from '../../../__mockData__/events'
@@ -11,17 +13,25 @@ import SendMessageDialog from './SendMessageDialog'
 jest.useFakeTimers()
 jest.mock('../../../api/email')
 
+function Wrapper(props: { children?: ReactNode }) {
+  return (
+    <RecoilRoot>
+      <SnackbarProvider>{props.children}</SnackbarProvider>
+    </RecoilRoot>
+  )
+}
+
 describe('SendMessageDialog', () => {
   it('renders hidden when open is false', () => {
     const { container } = render(<SendMessageDialog registrations={[]} open={false} event={eventWithStaticDates} />, {
-      wrapper: RecoilRoot,
+      wrapper: Wrapper,
     })
     expect(container).toMatchSnapshot()
   })
 
   it('renders with minimal parameters', async () => {
     const { container } = render(<SendMessageDialog registrations={[]} open={true} event={eventWithStaticDates} />, {
-      wrapper: RecoilRoot,
+      wrapper: Wrapper,
     })
     await flushPromisesAndTimers()
     expect(container).toMatchSnapshot()
@@ -37,7 +47,7 @@ describe('SendMessageDialog', () => {
         event={eventWithStaticDates}
         templateId="registration"
       />,
-      { wrapper: RecoilRoot }
+      { wrapper: Wrapper }
     )
     await flushPromisesAndTimers()
     await flushPromisesAndTimers()

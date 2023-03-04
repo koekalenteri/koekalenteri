@@ -1,4 +1,4 @@
-import type { EmailTemplate } from 'koekalenteri-shared/model'
+import type { EmailTemplate, RegistrationMessage } from 'koekalenteri-shared/model'
 
 import http from './http'
 
@@ -10,4 +10,8 @@ export async function getEmailTemplates(signal?: AbortSignal) {
 
 export async function putEmailTemplate(template: EmailTemplate, signal?: AbortSignal) {
   return http.post<EmailTemplate, EmailTemplate>(PATH, template, { signal })
+}
+
+export async function sendTemplatedEmail(message: RegistrationMessage, signal?: AbortSignal) {
+  return http.post<RegistrationMessage, number>('/admin/email-send', message, { signal })
 }

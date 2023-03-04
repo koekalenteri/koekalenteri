@@ -1,12 +1,13 @@
 import { useMemo } from 'react'
 import { Button, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material'
-import { Event, Registration } from 'koekalenteri-shared/model'
+import { EmailTemplateId, Event, Registration } from 'koekalenteri-shared/model'
 
 import { eventDates } from '../../../utils'
 
 interface Props {
   event: Event
   registrations: Registration[]
+  onOpenMessageDialog?: (recipients: Registration[], templateId?: EmailTemplateId) => void
 }
 
 function getRegClass(reg: Registration): string {
@@ -17,16 +18,16 @@ function getRegClass(reg: Registration): string {
   return 'reserve'
 }
 
-const InfoPanel = ({ event, registrations }: Props) => {
+const InfoPanel = ({ event, registrations, onOpenMessageDialog }: Props) => {
   const dates = useMemo(() => eventDates(event), [event])
-  const registrationsByClass: Record<string, number> = useMemo(() => {
-    const byClass: Record<string, number> = { reserve: 0 }
+  const registrationsByClass: Record<string, Registration[]> = useMemo(() => {
+    const byClass: Record<string, Registration[]> = { reserve: [] }
     for (const reg of registrations) {
       const c = getRegClass(reg)
       if (!(c in byClass)) {
-        byClass[c] = 0
+        byClass[c] = []
       }
-      byClass[c]++
+      byClass[c].push(reg)
     }
     return byClass
   }, [registrations])
@@ -59,9 +60,9 @@ const InfoPanel = ({ event, registrations }: Props) => {
             .map((c) => (
               <TableRow key={c}>
                 <TableCell align="right">{c}</TableCell>
-                <TableCell align="right">{registrationsByClass[c]}</TableCell>
+                <TableCell align="right">{registrationsByClass[c].length}</TableCell>
                 <TableCell align="right">
-                  <Button size="small" sx={{ fontSize: '0.5rem' }}>
+                  <Button size="small" sx={{ fontSize: '0.5rem' }} disabled={registrationsByClass[c].length === 0}>
                     LÄHETÄ&nbsp;KOEPAIKKAILMOITUS
                   </Button>
                 </TableCell>
@@ -69,9 +70,14 @@ const InfoPanel = ({ event, registrations }: Props) => {
             ))}
           <TableRow>
             <TableCell>• varasijalla</TableCell>
-            <TableCell align="right">{registrationsByClass.reserve ?? 0}</TableCell>
+            <TableCell align="right">{registrationsByClass.reserve.length ?? 0}</TableCell>
             <TableCell align="right">
-              <Button size="small" sx={{ fontSize: '0.5rem' }} disabled={registrationsByClass.reserve === 0}>
+              <Button
+                size="small"
+                sx={{ fontSize: '0.5rem' }}
+                disabled={registrationsByClass.reserve.length === 0}
+                onClick={() => onOpenMessageDialog?.(registrationsByClass.reserve, 'reserve')}
+              >
                 LÄHETÄ&nbsp;VARASIJAILMOITUS
               </Button>
             </TableCell>
@@ -79,7 +85,7 @@ const InfoPanel = ({ event, registrations }: Props) => {
           {!registrationsByClass.cancelled ? null : (
             <TableRow>
               <TableCell>• peruneet</TableCell>
-              <TableCell align="right">{registrationsByClass.cancelled}</TableCell>
+              <TableCell align="right">{registrationsByClass.cancelled.length}</TableCell>
               <TableCell align="right">&nbsp;</TableCell>
             </TableRow>
           )}

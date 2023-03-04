@@ -20,3 +20,11 @@ export interface EmailTemplate extends DbRecord {
 }
 
 export type JsonEmailTemplate = Omit<EmailTemplate, keyof DbRecord> & JsonDbRecord
+
+export interface RegistrationMessage {
+  template: EmailTemplateId
+  eventId: string
+  from: string
+  registrationIds: string[]
+  text: string
+}

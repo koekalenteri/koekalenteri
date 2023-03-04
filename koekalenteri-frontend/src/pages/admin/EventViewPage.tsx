@@ -11,6 +11,7 @@ import {
   TableChartOutlined,
 } from '@mui/icons-material'
 import { Box, Button, Divider, Grid, Stack, Tab, Tabs } from '@mui/material'
+import { EmailTemplateId, Registration } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
 import { Path } from '../../routeConfig'
@@ -52,6 +53,8 @@ export default function EventViewPage() {
   )
   const [selectedRegistrationId, setSelectedRegistrationId] = useRecoilState(adminRegistrationIdAtom)
   const registrations = useRecoilValue(currentEventClassRegistrationsSelector)
+  const [recipientRegistrations, setRecipientRegistrations] = useState<Registration[]>([])
+  const [messageTemplateId, setMessageTemplateId] = useState<EmailTemplateId>()
 
   const handleTabChange = useCallback(
     (_: React.SyntheticEvent, newValue: number) => {
@@ -69,6 +72,12 @@ export default function EventViewPage() {
   }
   function closeMsgDlg() {
     setMsgDlgOpen(false)
+  }
+
+  const handleOpenMsgDialog = (recipients: Registration[], templateId?: EmailTemplateId) => {
+    setRecipientRegistrations(recipients)
+    setMessageTemplateId(templateId)
+    setMsgDlgOpen(true)
   }
 
   useEffect(() => {
@@ -90,7 +99,7 @@ export default function EventViewPage() {
             <Title event={event} />
           </Grid>
           <Grid item xs="auto">
-            <InfoPanel event={event} registrations={registrations} />
+            <InfoPanel event={event} registrations={registrations} onOpenMessageDialog={handleOpenMsgDialog} />
           </Grid>
         </Grid>
 
@@ -158,7 +167,13 @@ export default function EventViewPage() {
           />
         </Suspense>
         <Suspense>
-          <SendMessageDialog registrations={registrations} open={msgDlgOpen} onClose={closeMsgDlg} event={event} />
+          <SendMessageDialog
+            registrations={recipientRegistrations}
+            templateId={messageTemplateId}
+            open={msgDlgOpen}
+            onClose={closeMsgDlg}
+            event={event}
+          />
         </Suspense>
       </FullPageFlex>
     </>

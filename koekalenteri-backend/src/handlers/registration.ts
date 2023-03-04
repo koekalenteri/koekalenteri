@@ -1,19 +1,17 @@
 import { metricScope, MetricsLogger } from "aws-embedded-metrics"
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda"
 import { AWSError } from "aws-sdk"
-import { lightFormat, parseISO } from "date-fns"
 import { JsonConfirmedEvent, JsonRegistration } from "koekalenteri-shared/model"
 import { v4 as uuidv4 } from 'uuid'
 
 import { i18n } from "../i18n/index"
 import CustomDynamoClient from "../utils/CustomDynamoClient"
-import { formatDateSpan } from "../utils/dates"
 import { getOrigin, getUsername } from "../utils/genericHandlers"
 import { metricsError, metricsSuccess } from "../utils/metrics"
+import { emailTo, registrationEmailTemplateData } from "../utils/registration"
 import { response } from "../utils/response"
-import { reverseName } from "../utils/string"
 
-import { EmailTemplate, sendTemplatedMail } from "./email"
+import { sendTemplatedMail } from "./email"
 
 export const dynamoDB = new CustomDynamoClient()
 
@@ -108,36 +106,13 @@ export const putRegistrationHandler = metricScope((metrics: MetricsLogger) =>
       )
 
       if (registration.handler?.email && registration.owner?.email) {
-        const to: string[] = [registration.handler.email]
-        if (registration.owner.email !== registration.handler.email) {
-          to.push(registration.owner.email)
-        }
-        const eventDate = formatDateSpan(confirmedEvent.startDate, confirmedEvent.endDate)
-        const reserveText = t(`registration.reserveChoises.${registration.reserve}`)
-        const dogBreed = t(`breed:${registration.dog.breedCode}`)
-        const regDates = registration.dates.map(d => t('dateFormat.weekday', { date: d.date }) + (d.time ? (' ' + t(`registration.time.${d.time}`)) : '')).join(', ')
-        const link = `${origin}/registration/${registration.eventType}/${registration.eventId}/${registration.id}`
         // TODO: sender address from env / other config
         const from = "koekalenteri@koekalenteri.snj.fi"
-        const qualifyingResults = registration.qualifyingResults.map(r => ({ ...r, date: lightFormat(parseISO(r.date), 'd.M.yyyy') }))
+        const to = emailTo(registration)
         const context = getEmailContext(update, cancel)
+        const data = registrationEmailTemplateData(registration, confirmedEvent, origin, context)
 
-        // Friendly name for secretary (and official) (KOE-350)
-        confirmedEvent.secretary.name = reverseName(confirmedEvent.secretary.name)
-        confirmedEvent.official.name = reverseName(confirmedEvent.official.name)
-
-        await sendTemplatedMail(EmailTemplate.REGISTRATION, registration.language, from, to, {
-          subject: t('registration.email.subject', { context }),
-          title: t('registration.email.title', { context }),
-          dogBreed,
-          link,
-          event: confirmedEvent,
-          eventDate,
-          qualifyingResults,
-          reg: registration,
-          regDates,
-          reserveText,
-        })
+        await sendTemplatedMail('registration', registration.language, from, to, data)
       }
 
       metricsSuccess(metrics, event.requestContext, 'putRegistration')
@@ -152,6 +127,7 @@ export const putRegistrationHandler = metricScope((metrics: MetricsLogger) =>
     }
   },
 )
+
 function getEmailContext(update: boolean, cancel: boolean) {
   if (cancel) {
     return 'cancel'
