@@ -54,7 +54,7 @@ const ClassEntrySelection = ({
     [eventDates]
   )
   const registrationsByGroup: Record<string, RegistrationWithGroups[]> = useMemo(() => {
-    const byGroup: Record<string, RegistrationWithGroups[]> = { reserve: [] }
+    const byGroup: Record<string, RegistrationWithGroups[]> = { cancelled: [], reserve: [] }
     for (const group of eventGroups) {
       byGroup[group.key] = []
     }
@@ -66,11 +66,11 @@ const ClassEntrySelection = ({
     return byGroup
   }, [eventGroups, registrations])
 
-  const handleDrop = (group?: RegistrationGroup) => (item: DragItem) => {
+  const handleDrop = (group: RegistrationGroup) => (item: DragItem) => {
     const reg = registrations.find((r) => r.id === item.id)
     if (reg && reg.group?.key !== group?.key) {
       reg.setGroup(group) // set the group to cache for faster ui update
-      actions.saveGroup({ ...reg, group })
+      actions.saveGroup({ ...reg, group, cancelled: group.key === 'cancelled' })
     }
     if (item.move) {
       console.log(item.id, item.move)
@@ -152,22 +152,19 @@ const ClassEntrySelection = ({
         onSelectionModelChange={handleSelectionModeChange}
         selectionModel={selectedRegistrationId ? [selectedRegistrationId] : []}
         onRowDoubleClick={handleDoubleClick}
-        onDrop={handleDrop()}
+        onDrop={handleDrop({ key: 'reserve' })}
       />
-      {registrationsByGroup.cancelled?.length ? (
-        <>
-          <Typography variant="h6">Peruneet</Typography>
-          <StyledDataGrid
-            autoHeight
-            columns={cancelledColumns}
-            hideFooter
-            rows={registrationsByGroup.cancelled}
-            onSelectionModelChange={handleSelectionModeChange}
-            selectionModel={selectedRegistrationId ? [selectedRegistrationId] : []}
-            onRowDoubleClick={handleDoubleClick}
-          />
-        </>
-      ) : null}
+      <Typography variant="h6">Peruneet</Typography>
+      <DragableDataGrid
+        autoHeight
+        columns={cancelledColumns}
+        hideFooter
+        rows={registrationsByGroup.cancelled}
+        onSelectionModelChange={handleSelectionModeChange}
+        selectionModel={selectedRegistrationId ? [selectedRegistrationId] : []}
+        onRowDoubleClick={handleDoubleClick}
+        onDrop={handleDrop({ key: 'cancelled' })}
+      />
     </DndProvider>
   )
 }

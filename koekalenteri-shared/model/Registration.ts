@@ -23,7 +23,7 @@ export interface JsonRegistration extends JsonDbRecord {
   group?: JsonRegistrationGroup
 }
 
-export interface RegistrationGroup extends RegistrationDate { number: number, key: string }
+export interface RegistrationGroup extends Partial<RegistrationDate> { number?: number, key: string }
 export interface JsonRegistrationGroup extends JsonRegistrationDate { number: number, key: string }
 export interface ManualTestResult extends QualifyingResult {
   id: string
