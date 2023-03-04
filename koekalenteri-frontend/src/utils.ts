@@ -77,7 +77,7 @@ export const parseJSON = (json: string) => (json ? JSON.parse(json, dateReviver)
 
 export type AnyObject = Record<string, unknown>
 export type EmptyObject = Record<string, never>
-export type Entries<T extends AnyObject> = {
+export type Entries<T> = {
   [K in keyof T]: [K, T[K]]
 }[keyof T][]
 
@@ -88,7 +88,7 @@ export const isEmptyObject = (o: unknown): o is EmptyObject => isObject(o) && is
 export const hasChanges = (a: object | undefined, b: object | undefined): boolean =>
   !isEmptyObject(diff(a ?? {}, b ?? {}))
 export const clone = <T extends AnyObject>(a: T): T => Object.assign({}, a)
-export const merge = <T extends AnyObject>(a: T, b: DeepPartial<T>): T => {
+export const merge = <T>(a: T, b: DeepPartial<T>): T => {
   const result = isObject(a) ? clone(a) : ({} as T)
   if (!isObject(b)) {
     return result

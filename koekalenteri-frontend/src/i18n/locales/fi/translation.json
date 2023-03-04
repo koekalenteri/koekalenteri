@@ -228,7 +228,7 @@
     },
     "saved_one": "Ilmoittautuminen on tallennettu.\nVahvistus on lähetetty sähköpostiosoitteeseen:\n{{to}}",
     "saved_other": "Ilmoittautuminen on tallennettu.\nVahvistus on lähetetty sähköpostiosoitteisiin:\n{{to}}",
-    "terms": "Hyväksyn <1>ilmoittautumisen ehdot</1> ja <3>tietosuojaselosteen</3>.",
+    "terms": "Hyväksyn <2>ilmoittautumisen ehdot</2> ja <6>tietosuojaselosteen</6>.",
     "time": {
       "ap": "(aamu)",
       "ip": "(ilta)"
