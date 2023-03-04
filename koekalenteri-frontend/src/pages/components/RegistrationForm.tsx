@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { Cancel, Save } from '@mui/icons-material'
+import { LoadingButton } from '@mui/lab'
 import {
   Box,
   Button,
@@ -26,7 +27,7 @@ import { EntryInfo } from './registrationForm/1.Entry'
 import { BreederInfo } from './registrationForm/3.Breeder'
 import { OwnerInfo } from './registrationForm/4.OwnerInfo'
 import { HandlerInfo } from './registrationForm/5.HandlerInfo'
-import { AdditionalInfo } from './registrationForm/7.AdditionalInfo'
+import { AdditionalInfo } from './registrationForm/AdditionalInfo'
 import { DogInfo } from './registrationForm/DogInfo'
 import QualifyingResultsInfo from './registrationForm/QualifyingResultsInfo'
 import { filterRelevantResults, validateRegistration } from './registrationForm/validation'
@@ -80,6 +81,7 @@ export default function RegistrationForm({
   )
   const [errors, setErrors] = useState(validateRegistration(registration, event))
   const [open, setOpen] = useState<{ [key: string]: boolean | undefined }>({})
+  const [saving, setSaving] = useState(false)
   const valid = errors.length === 0 && qualifies
 
   const requirements = useMemo(
@@ -133,6 +135,11 @@ export default function RegistrationForm({
     },
     [large, open, registration.ownerHandles]
   )
+
+  const handleSave = useCallback(async () => {
+    setSaving(true)
+    onSave?.()
+  }, [onSave])
 
   const [helperTexts, errorStates] = useMemo(() => {
     const states: { [Property in keyof Registration]?: boolean } = {}
@@ -242,7 +249,7 @@ export default function RegistrationForm({
           open={open.qr}
         />
         <AdditionalInfo
-          reg={registration}
+          notes={registration.notes}
           onChange={handleChange}
           onOpenChange={(value) => handleOpenChange('info', value)}
           open={open.info}
@@ -284,9 +291,16 @@ export default function RegistrationForm({
         justifyContent="flex-end"
         sx={{ p: 1, borderTop: '1px solid', borderColor: '#bdbdbd' }}
       >
-        <Button color="primary" disabled={!changes || !valid} startIcon={<Save />} variant="contained" onClick={onSave}>
+        <LoadingButton
+          color="primary"
+          disabled={!changes || !valid}
+          loading={saving}
+          onClick={handleSave}
+          startIcon={<Save />}
+          variant="contained"
+        >
           {registration.id ? 'Tallenna muutokset' : 'Tallenna'}
-        </Button>
+        </LoadingButton>
         <Button startIcon={<Cancel />} variant="outlined" onClick={onCancel}>
           Peruuta
         </Button>
