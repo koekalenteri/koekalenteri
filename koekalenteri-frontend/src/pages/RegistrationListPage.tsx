@@ -57,7 +57,7 @@ export function RegistrationListPage({ cancel }: { cancel?: boolean }) {
 
   return (
     <>
-      <Header title={t('entryList', { context: event?.eventType === 'other' ? '' : 'test' })} />
+      <Header />
       <Box
         sx={{
           p: 1,

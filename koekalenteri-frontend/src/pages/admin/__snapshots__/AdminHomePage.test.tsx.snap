@@ -67,9 +67,6 @@ exports[`AdminHomePage renders the child page content when user is logged in 1`]
           Ylläpito
         </div>
       </a>
-      <div
-        class="MuiTypography-root MuiTypography-h6 MuiTypography-noWrap css-1mo43ab-MuiTypography-root"
-      />
       <button
         class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-kva05m-MuiButtonBase-root-MuiButton-root"
         tabindex="0"
@@ -239,9 +236,6 @@ exports[`AdminHomePage renders the page when user is logged in 1`] = `
           Ylläpito
         </div>
       </a>
-      <div
-        class="MuiTypography-root MuiTypography-h6 MuiTypography-noWrap css-1mo43ab-MuiTypography-root"
-      />
       <button
         class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-kva05m-MuiButtonBase-root-MuiButton-root"
         tabindex="0"
