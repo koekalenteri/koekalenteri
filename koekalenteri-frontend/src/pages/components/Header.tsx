@@ -11,11 +11,10 @@ import LanguageMenu from './header/LanguageMenu'
 import UserMenu from './header/UserMenu'
 
 interface Props {
-  title?: string
   toggleMenu?: () => void
 }
 
-const Header = ({ title, toggleMenu }: Props) => {
+const Header = ({ toggleMenu }: Props) => {
   const userName = useRecoilValue(userNameSelector)
   const inAdmin = !!toggleMenu
   const linkBorder = userName ? '2px solid #000' : undefined
@@ -54,15 +53,6 @@ const Header = ({ title, toggleMenu }: Props) => {
             Ylläpito
           </Typography>
         </Link>
-        <Typography
-          variant="h6"
-          color="primary.dark"
-          noWrap
-          component="div"
-          sx={{ ml: 1, flexGrow: 1, flexShrink: 10000 }}
-        >
-          {title ? ' › ' + title : ''}
-        </Typography>
         <Suspense>
           <LanguageMenu />
           <UserMenu />
