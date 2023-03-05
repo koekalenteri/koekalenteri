@@ -53,6 +53,13 @@ const Header = ({ toggleMenu }: Props) => {
             Ylläpito
           </Typography>
         </Link>
+        <Typography
+          variant="h6"
+          color="primary.dark"
+          noWrap
+          component="div"
+          sx={{ ml: 1, flexGrow: 1, flexShrink: 10000 }}
+        ></Typography>
         <Suspense>
           <LanguageMenu />
           <UserMenu />
