@@ -43,7 +43,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
           class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-auto css-kcsfla-MuiGrid-root"
         >
           <div
-            class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation4 MuiTableContainer-root css-1tn7x7z-MuiPaper-root-MuiTableContainer-root"
+            class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation4 MuiTableContainer-root css-1finojq-MuiPaper-root-MuiTableContainer-root"
           >
             <table
               class="MuiTable-root css-rqglhn-MuiTable-root"
@@ -73,8 +73,49 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                 >
                   <td
                     class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                    colspan="3"
                   >
-                    • osallistujat
+                    <span
+                      class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-g98qyn-MuiTypography-root"
+                    >
+                      • osallistujat
+                    </span>
+                  </td>
+                </tr>
+                <tr
+                  class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                >
+                  <td
+                    class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                  >
+                    <span
+                      class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-53bho8-MuiTypography-root"
+                    >
+                      ALO
+                    </span>
+                  </td>
+                  <td
+                    class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
+                  >
+                    <span
+                      class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-bcc4ko-MuiTypography-root"
+                    >
+                      0
+                       / 
+                      10
+                    </span>
+                  </td>
+                  <td
+                    class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
+                  >
+                    <button
+                      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall css-1ke4pnb-MuiButtonBase-root-MuiButton-root"
+                      disabled=""
+                      tabindex="-1"
+                      type="button"
+                    >
+                      LÄHETÄ KOEPAIKKAILMOITUS
+                    </button>
                   </td>
                 </tr>
                 <tr
@@ -82,13 +123,35 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                 >
                   <td
                     class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                    colspan="3"
                   >
-                    • varasijalla
+                    <span
+                      class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-g98qyn-MuiTypography-root"
+                    >
+                      • varasijalla
+                    </span>
+                  </td>
+                </tr>
+                <tr
+                  class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                >
+                  <td
+                    class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                  >
+                    <span
+                      class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-53bho8-MuiTypography-root"
+                    >
+                      ALO
+                    </span>
                   </td>
                   <td
                     class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
                   >
-                    0
+                    <span
+                      class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-bcc4ko-MuiTypography-root"
+                    >
+                      0
+                    </span>
                   </td>
                   <td
                     class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
@@ -296,13 +359,32 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
             >
               <button
                 aria-selected="true"
-                class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary Mui-selected css-12hoemi-MuiButtonBase-root-MuiTab-root"
+                class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary Mui-selected css-ttp10v-MuiButtonBase-root-MuiTab-root"
                 id="tab-ALO"
                 role="tab"
                 tabindex="0"
                 type="button"
               >
-                ALO
+                <div
+                  class="MuiBox-root css-70qvj9"
+                >
+                  <div
+                    class="MuiBox-root css-1bhivts"
+                  >
+                    ALO
+                  </div>
+                  <div
+                    class="MuiBox-root css-neyg89"
+                  >
+                    <span
+                      class="MuiTypography-root MuiTypography-caption css-1nx6u1m-MuiTypography-root"
+                    >
+                      0
+                       / 
+                      10
+                    </span>
+                  </div>
+                </div>
                 <span
                   class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
                 />
@@ -5595,7 +5677,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
           class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-auto css-kcsfla-MuiGrid-root"
         >
           <div
-            class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation4 MuiTableContainer-root css-1tn7x7z-MuiPaper-root-MuiTableContainer-root"
+            class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation4 MuiTableContainer-root css-1finojq-MuiPaper-root-MuiTableContainer-root"
           >
             <table
               class="MuiTable-root css-rqglhn-MuiTable-root"
@@ -5625,8 +5707,49 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                 >
                   <td
                     class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                    colspan="3"
                   >
-                    • osallistujat
+                    <span
+                      class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-g98qyn-MuiTypography-root"
+                    >
+                      • osallistujat
+                    </span>
+                  </td>
+                </tr>
+                <tr
+                  class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                >
+                  <td
+                    class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                  >
+                    <span
+                      class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-53bho8-MuiTypography-root"
+                    >
+                      NOU
+                    </span>
+                  </td>
+                  <td
+                    class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
+                  >
+                    <span
+                      class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-bcc4ko-MuiTypography-root"
+                    >
+                      0
+                       / 
+                      10
+                    </span>
+                  </td>
+                  <td
+                    class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
+                  >
+                    <button
+                      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall css-1ke4pnb-MuiButtonBase-root-MuiButton-root"
+                      disabled=""
+                      tabindex="-1"
+                      type="button"
+                    >
+                      LÄHETÄ KOEPAIKKAILMOITUS
+                    </button>
                   </td>
                 </tr>
                 <tr
@@ -5634,13 +5757,35 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                 >
                   <td
                     class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                    colspan="3"
                   >
-                    • varasijalla
+                    <span
+                      class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-g98qyn-MuiTypography-root"
+                    >
+                      • varasijalla
+                    </span>
+                  </td>
+                </tr>
+                <tr
+                  class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                >
+                  <td
+                    class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                  >
+                    <span
+                      class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-53bho8-MuiTypography-root"
+                    >
+                      NOU
+                    </span>
                   </td>
                   <td
                     class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
                   >
-                    0
+                    <span
+                      class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-bcc4ko-MuiTypography-root"
+                    >
+                      0
+                    </span>
                   </td>
                   <td
                     class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
@@ -5848,13 +5993,32 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
             >
               <button
                 aria-selected="true"
-                class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary Mui-selected css-12hoemi-MuiButtonBase-root-MuiTab-root"
+                class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary Mui-selected css-ttp10v-MuiButtonBase-root-MuiTab-root"
                 id="tab-NOU"
                 role="tab"
                 tabindex="0"
                 type="button"
               >
-                NOU
+                <div
+                  class="MuiBox-root css-70qvj9"
+                >
+                  <div
+                    class="MuiBox-root css-1bhivts"
+                  >
+                    NOU
+                  </div>
+                  <div
+                    class="MuiBox-root css-neyg89"
+                  >
+                    <span
+                      class="MuiTypography-root MuiTypography-caption css-1nx6u1m-MuiTypography-root"
+                    >
+                      0
+                       / 
+                      10
+                    </span>
+                  </div>
+                </div>
                 <span
                   class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
                 />

@@ -1,8 +1,17 @@
-import { useMemo } from 'react'
-import { Button, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material'
+import {
+  Button,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Typography,
+} from '@mui/material'
 import { EmailTemplateId, Event, Registration } from 'koekalenteri-shared/model'
 
-import { eventDates } from '../../../utils'
+import useEventRegistrationInfo from '../../../hooks/useEventRegistrationsInfo'
 
 interface Props {
   event: Event
@@ -10,34 +19,15 @@ interface Props {
   onOpenMessageDialog?: (recipients: Registration[], templateId?: EmailTemplateId) => void
 }
 
-function getRegClass(reg: Registration): string {
-  if (reg.cancelled) return 'cancelled'
-  if (reg.group) {
-    return reg.class ?? reg.eventType
-  }
-  return 'reserve'
-}
-
 const InfoPanel = ({ event, registrations, onOpenMessageDialog }: Props) => {
-  const dates = useMemo(() => eventDates(event), [event])
-  const registrationsByClass: Record<string, Registration[]> = useMemo(() => {
-    const byClass: Record<string, Registration[]> = { reserve: [] }
-    for (const reg of registrations) {
-      const c = getRegClass(reg)
-      if (!(c in byClass)) {
-        byClass[c] = []
-      }
-      byClass[c].push(reg)
-    }
-    return byClass
-  }, [registrations])
+  const { dates, reserveByClass, numbersByClass } = useEventRegistrationInfo(event, registrations)
 
   return (
     <TableContainer
       component={Paper}
       elevation={4}
       sx={{
-        width: 300,
+        width: 320,
         backgroundColor: 'background.selected',
         p: 1,
         '& .MuiTableCell-root': { py: 0, px: 1 },
@@ -53,42 +43,66 @@ const InfoPanel = ({ event, registrations, onOpenMessageDialog }: Props) => {
         </TableHead>
         <TableBody>
           <TableRow>
-            <TableCell>• osallistujat</TableCell>
+            <TableCell colSpan={3}>
+              <Typography variant="caption" noWrap>
+                • osallistujat
+              </Typography>
+            </TableCell>
           </TableRow>
-          {Object.keys(registrationsByClass)
-            .filter((c) => c !== 'reserve' && c !== 'cancelled')
-            .map((c) => (
+          {Object.entries(numbersByClass).map(([c, nums]) => {
+            return (
               <TableRow key={c}>
-                <TableCell align="right">{c}</TableCell>
-                <TableCell align="right">{registrationsByClass[c].length}</TableCell>
+                <TableCell align="left">
+                  <Typography variant="caption" noWrap fontWeight="bold" ml={2}>
+                    {c}
+                  </Typography>
+                </TableCell>
                 <TableCell align="right">
-                  <Button size="small" sx={{ fontSize: '0.5rem' }} disabled={registrationsByClass[c].length === 0}>
+                  <Typography variant="caption" noWrap color={nums.invalid ? 'error' : 'info.dark'}>
+                    {nums.participants} / {nums.places}
+                  </Typography>
+                </TableCell>
+                <TableCell align="right">
+                  <Button size="small" sx={{ fontSize: '0.5rem' }} disabled={nums.participants === 0 || nums.invalid}>
                     LÄHETÄ&nbsp;KOEPAIKKAILMOITUS
                   </Button>
                 </TableCell>
               </TableRow>
-            ))}
+            )
+          })}
           <TableRow>
-            <TableCell>• varasijalla</TableCell>
-            <TableCell align="right">{registrationsByClass.reserve.length ?? 0}</TableCell>
-            <TableCell align="right">
-              <Button
-                size="small"
-                sx={{ fontSize: '0.5rem' }}
-                disabled={registrationsByClass.reserve.length === 0}
-                onClick={() => onOpenMessageDialog?.(registrationsByClass.reserve, 'reserve')}
-              >
-                LÄHETÄ&nbsp;VARASIJAILMOITUS
-              </Button>
+            <TableCell colSpan={3}>
+              <Typography variant="caption" noWrap>
+                • varasijalla
+              </Typography>
             </TableCell>
           </TableRow>
-          {!registrationsByClass.cancelled ? null : (
-            <TableRow>
-              <TableCell>• peruneet</TableCell>
-              <TableCell align="right">{registrationsByClass.cancelled.length}</TableCell>
-              <TableCell align="right">&nbsp;</TableCell>
-            </TableRow>
-          )}
+          {Object.entries(numbersByClass).map(([c, nums]) => {
+            return (
+              <TableRow key={c}>
+                <TableCell align="left">
+                  <Typography variant="caption" noWrap fontWeight="bold" ml={2}>
+                    {c}
+                  </Typography>
+                </TableCell>
+                <TableCell align="right">
+                  <Typography variant="caption" noWrap color="info.dark">
+                    {nums.reserve}
+                  </Typography>
+                </TableCell>
+                <TableCell align="right">
+                  <Button
+                    size="small"
+                    sx={{ fontSize: '0.5rem' }}
+                    disabled={nums.reserve === 0}
+                    onClick={() => onOpenMessageDialog?.(reserveByClass[c], 'reserve')}
+                  >
+                    LÄHETÄ&nbsp;VARASIJAILMOITUS
+                  </Button>
+                </TableCell>
+              </TableRow>
+            )
+          })}
         </TableBody>
       </Table>
     </TableContainer>
