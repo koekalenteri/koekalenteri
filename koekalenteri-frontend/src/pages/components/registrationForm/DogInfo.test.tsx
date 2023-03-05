@@ -53,14 +53,14 @@ describe('DogInfo', () => {
 
     expect(changeHandler).toHaveBeenCalledTimes(0)
 
-    const input = screen.getByLabelText('dog.regNo')
+    const input = screen.getByRole('combobox', { name: 'dog.regNo' })
     expect(input).toHaveValue('TESTDOG-0010')
 
     await user.clear(input)
     expect(input).toHaveValue('')
     expect(changeHandler).toHaveBeenLastCalledWith(
       expect.objectContaining({
-        dog: undefined,
+        dog: expect.objectContaining({ regNo: '' }),
         owner: undefined,
         handler: undefined,
         ownerHandles: true,
@@ -71,11 +71,10 @@ describe('DogInfo', () => {
 
     await user.type(input, newDog.regNo)
     expect(input).toHaveValue(newDog.regNo)
-    await waitForDebounce()
 
-    expect(changeHandler).toHaveBeenLastCalledWith(
-      expect.objectContaining({ dog: registrationDogAged20MonthsAndNoResults }),
-      true
-    )
+    const button = screen.getByRole('button', { name: 'registration.cta.fetch' })
+    await user.click(button)
+
+    expect(changeHandler).toHaveBeenLastCalledWith(expect.objectContaining({ dog: newDog }), true)
   })
 })

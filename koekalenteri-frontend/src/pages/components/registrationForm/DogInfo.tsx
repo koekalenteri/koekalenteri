@@ -51,7 +51,7 @@ export const DogInfo = ({
   const { t } = useTranslation()
   const { t: breed } = useTranslation('breed')
   const [inputRegNo, setInputRegNo] = useState<string>(reg?.dog?.regNo ?? '')
-  const [mode, setMode] = useState<'fetch' | 'manual' | 'update' | 'invalid' | 'notfound'>(
+  const [mode, setMode] = useState<'fetch' | 'manual' | 'update' | 'invalid' | 'notfound' | 'autofetch'>(
     inputRegNo ? 'update' : 'fetch'
   )
   const disabled = mode !== 'manual'
@@ -100,6 +100,7 @@ export const DogInfo = ({
     setLoading(true)
     let delay = 10
     switch (mode) {
+      case 'autofetch':
       case 'fetch':
         const cache = await actions.fetch()
         updateDog(cache)
@@ -124,17 +125,24 @@ export const DogInfo = ({
   const handleRegNoChange = useCallback(
     (event: SyntheticEvent<Element, Event>, value: string | null) => {
       if (value !== null && value !== inputRegNo) {
-        const upper = value.toLocaleUpperCase()
-        setMode('fetch')
+        const upper = value.toLocaleUpperCase().trim()
         setInputRegNo(upper)
+        setMode('fetch')
       }
     },
     [inputRegNo]
   )
+  const handleRegNoSelect = useCallback(
+    (event: SyntheticEvent<Element, Event>, value: string | null) => {
+      handleRegNoChange(event, value)
+      setMode('autofetch')
+    },
+    [handleRegNoChange]
+  )
 
   useEffect(() => {
     if (inputRegNo !== reg.dog?.regNo ?? '') {
-      if ((validRegNo && mode === 'fetch') || inputRegNo === '') {
+      if ((validRegNo && mode === 'autofetch') || inputRegNo === '') {
         buttonClick()
       }
     }
@@ -155,7 +163,8 @@ export const DogInfo = ({
           freeSolo
           renderInput={(props) => <TextField {...props} error={!validRegNo} label={t('dog.regNo')} />}
           value={inputRegNo ?? ''}
-          onChange={handleRegNoChange}
+          inputValue={inputRegNo ?? ''}
+          onChange={handleRegNoSelect}
           onInputChange={handleRegNoChange}
           options={cachedRegNos ?? []}
           sx={{ minWidth: 200 }}

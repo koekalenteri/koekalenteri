@@ -55,6 +55,16 @@ const REQUIRED_BY_STATE: Record<EventState, EventFlags> = {
 
 const contactInfoShown = (contact?: Partial<ShowContactInfo>) => !!contact && (contact.email || contact.phone)
 
+const getMinJudgeCount = (event: PartialEvent) => {
+  if (event.eventType === 'NOWT') {
+    return event.classes?.length ?? 1
+  }
+  if (event.eventType === 'NOME-A') {
+    return 2
+  }
+  return 1
+}
+
 const VALIDATORS: Validators<PartialEvent, 'event'> = {
   classes: (event, required) => {
     if (!required) {
@@ -92,7 +102,7 @@ const VALIDATORS: Validators<PartialEvent, 'event'> = {
     return false
   },
   judges: (event, required) => {
-    const minCount = event.eventType === 'NOWT' ? event.classes?.length : 1
+    const minCount = getMinJudgeCount(event)
     return required && event.judges?.filter((j) => j > 0).length < minCount
       ? { key: 'judgeCount', opts: { field: 'judges', length: minCount } }
       : false

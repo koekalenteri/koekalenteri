@@ -20,7 +20,7 @@ export function useDogActions(regNo: string) {
   return {
     fetch: async () => {
       if (!regNo) {
-        return { dog: undefined }
+        return { dog: emptyDog }
       }
       if (dog?.regNo === regNo) {
         return applyCache(regNo, cache, dog)

@@ -180,9 +180,11 @@
     "createdAt": "Ilmoittautumisaika",
     "cta": {
       "addResult": "Lisää tulos",
+      "autofetch": "Hae tiedot",
       "deleteResult": "Poista tulos",
       "fetch": "Hae tiedot",
       "helper": {
+        "autofetch": "",
         "fetch": "",
         "invalid": "Virheellinen rekisterinumero",
         "manual": "Syötä koiran tiedot manuaalisesti",
