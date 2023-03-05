@@ -131,14 +131,13 @@ export default function SendMessageDialog({ event, registrations, templateId, op
       sendTemplatedEmail({
         template: templateId,
         eventId: event.id,
-        from: event.secretary.email,
         registrationIds: registrations.map<string>((r) => r.id),
         text,
       })
         .catch((error: Error) => enqueueSnackbar('Viestin lähetys epäonnistui 💩', { variant: 'error' }))
         .then(() => setSending(false))
     })
-  }, [confirm, enqueueSnackbar, event.id, event.secretary.email, registrations, t, templateId, text])
+  }, [confirm, enqueueSnackbar, event.id, registrations, t, templateId, text])
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="lg">

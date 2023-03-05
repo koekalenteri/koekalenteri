@@ -8,7 +8,7 @@ import { getOrigin } from "../../utils/genericHandlers"
 import { metricsError, metricsSuccess } from "../../utils/metrics"
 import { emailTo, registrationEmailTemplateData } from "../../utils/registration"
 import { response } from "../../utils/response"
-import { sendTemplatedMail } from "../email"
+import { EMAIL_FROM, sendTemplatedMail } from "../email"
 
 export const dynamoDB = new CustomDynamoClient()
 
@@ -74,7 +74,7 @@ export const sendMessagesHandler = metricScope((metrics: MetricsLogger) =>
 
     try {
       const message: RegistrationMessage = JSON.parse(event.body ?? '')
-      const { template, from, eventId, registrationIds, text } = message
+      const { template, eventId, registrationIds, text } = message
 
       const eventRegistrations = await dynamoDB.query<JsonRegistration>('eventId = :eventId', { ':eventId': eventId })
       const registrations = eventRegistrations?.filter(r => registrationIds.includes(r.id))
@@ -93,7 +93,7 @@ export const sendMessagesHandler = metricScope((metrics: MetricsLogger) =>
       for (const registration of registrations) {
         const to = emailTo(registration)
         const data = registrationEmailTemplateData(registration, confirmedEvent, origin, '')
-        await sendTemplatedMail(template, registration.language, from, to, { ...data, text })
+        await sendTemplatedMail(template, registration.language, EMAIL_FROM, to, { ...data, text })
       }
 
       metricsSuccess(metrics, event.requestContext, 'putRegistrationGroup')

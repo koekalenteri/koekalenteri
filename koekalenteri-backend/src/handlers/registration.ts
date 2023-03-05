@@ -10,7 +10,7 @@ import { metricsError, metricsSuccess } from "../utils/metrics"
 import { emailTo, registrationEmailTemplateData } from "../utils/registration"
 import { response } from "../utils/response"
 
-import { sendTemplatedMail } from "./email"
+import { EMAIL_FROM, sendTemplatedMail } from "./email"
 
 export const dynamoDB = new CustomDynamoClient()
 
@@ -103,13 +103,11 @@ export const putRegistrationHandler = metricScope((metrics: MetricsLogger) =>
       )
 
       if (registration.handler?.email && registration.owner?.email) {
-        // TODO: sender address from env / other config
-        const from = "koekalenteri@koekalenteri.snj.fi"
         const to = emailTo(registration)
         const context = getEmailContext(update, cancel)
         const data = registrationEmailTemplateData(registration, confirmedEvent, origin, context)
 
-        await sendTemplatedMail('registration', registration.language, from, to, data)
+        await sendTemplatedMail('registration', registration.language, EMAIL_FROM, to, data)
       }
 
       metricsSuccess(metrics, event.requestContext, 'putRegistration')

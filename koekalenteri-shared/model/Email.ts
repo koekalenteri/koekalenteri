@@ -24,7 +24,6 @@ export type JsonEmailTemplate = Omit<EmailTemplate, keyof DbRecord> & JsonDbReco
 export interface RegistrationMessage {
   template: EmailTemplateId
   eventId: string
-  from: string
   registrationIds: string[]
   text: string
 }

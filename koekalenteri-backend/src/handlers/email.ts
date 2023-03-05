@@ -14,7 +14,7 @@ const dynamoDB = new CustomDynamoClient()
 const ses = new AWS.SES()
 
 // TODO: sender address from env / other config
-const from = "koekalenteri@koekalenteri.snj.fi"
+export const EMAIL_FROM = "koekalenteri@koekalenteri.snj.fi"
 const stackName = process.env.AWS_SAM_LOCAL ? 'local' : process.env.STACK_NAME ?? 'local'
 
 export async function sendReceipt(registration: JsonRegistration, date: string) {
