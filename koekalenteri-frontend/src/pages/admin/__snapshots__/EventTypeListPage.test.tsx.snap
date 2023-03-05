@@ -9,7 +9,7 @@ exports[`EventTypeListPage renders 1`] = `
       class="MuiBox-root css-daoll4"
     >
       <div
-        class="css-e53awj-MuiStack-root"
+        class="MuiStack-root css-e53awj-MuiStack-root"
       >
         <button
           class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-16m0f1y-MuiButtonBase-root-MuiButton-root"
@@ -47,7 +47,7 @@ exports[`EventTypeListPage renders 1`] = `
         <div>
           <div>
             <div
-              class="css-npa03k-MuiStack-root"
+              class="MuiStack-root css-npa03k-MuiStack-root"
             >
               <div
                 class="MuiDataGrid-toolbarContainer css-qdjmts-MuiDataGrid-toolbarContainer"

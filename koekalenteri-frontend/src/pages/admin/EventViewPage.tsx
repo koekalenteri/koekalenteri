@@ -10,12 +10,13 @@ import {
   ShuffleOutlined,
   TableChartOutlined,
 } from '@mui/icons-material'
-import { Box, Button, Divider, Grid, Stack, Tab, Tabs } from '@mui/material'
+import { Box, Button, Divider, Grid, Stack, Tab, Tabs, Typography } from '@mui/material'
 import { EmailTemplateId, Registration } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
+import useEventRegistrationInfo from '../../hooks/useEventRegistrationsInfo'
 import { Path } from '../../routeConfig'
-import { uniqueClassDates, uniqueClasses } from '../../utils'
+import { uniqueClassDates } from '../../utils'
 import LinkButton from '../components/LinkButton'
 
 import FullPageFlex from './components/FullPageFlex'
@@ -28,6 +29,7 @@ import Title from './eventViewPage/Title'
 import {
   adminRegistrationIdAtom,
   currentEventClassRegistrationsSelector,
+  currentEventRegistrationsSelector,
   editableEventByIdAtom,
   eventClassAtom,
 } from './recoil'
@@ -39,22 +41,19 @@ export default function EventViewPage() {
 
   const params = useParams()
   const event = useRecoilValue(editableEventByIdAtom(params.id ?? ''))
-  const eventClasses = useMemo(() => {
-    const classes = uniqueClasses(event)
-    if (event && !classes.length) {
-      return [event.eventType]
-    }
-    return classes
-  }, [event])
+
   const [selectedEventClass, setSelectedEventClass] = useRecoilState(eventClassAtom)
+  const [selectedRegistrationId, setSelectedRegistrationId] = useRecoilState(adminRegistrationIdAtom)
+  const allRegistrations = useRecoilValue(currentEventRegistrationsSelector)
+  const registrations = useRecoilValue(currentEventClassRegistrationsSelector)
+  const [recipientRegistrations, setRecipientRegistrations] = useState<Registration[]>([])
+  const [messageTemplateId, setMessageTemplateId] = useState<EmailTemplateId>()
+  const { eventClasses, numbersByClass } = useEventRegistrationInfo(event, allRegistrations)
+
   const activeTab = useMemo(
     () => Math.max(eventClasses.findIndex((c) => c === selectedEventClass) ?? 0, 0),
     [eventClasses, selectedEventClass]
   )
-  const [selectedRegistrationId, setSelectedRegistrationId] = useRecoilState(adminRegistrationIdAtom)
-  const registrations = useRecoilValue(currentEventClassRegistrationsSelector)
-  const [recipientRegistrations, setRecipientRegistrations] = useState<Registration[]>([])
-  const [messageTemplateId, setMessageTemplateId] = useState<EmailTemplateId>()
 
   const handleTabChange = useCallback(
     (_: React.SyntheticEvent, newValue: number) => {
@@ -86,6 +85,12 @@ export default function EventViewPage() {
     }
   }, [eventClasses, selectedEventClass, setSelectedEventClass])
 
+  const progressColor = (value: number) => {
+    if (value === 100) return 'green'
+    if (value > 100) return 'red'
+    return 'blue'
+  }
+
   if (!event) {
     return <>duh</>
   }
@@ -99,7 +104,7 @@ export default function EventViewPage() {
             <Title event={event} />
           </Grid>
           <Grid item xs="auto">
-            <InfoPanel event={event} registrations={registrations} onOpenMessageDialog={handleOpenMsgDialog} />
+            <InfoPanel event={event} registrations={allRegistrations} onOpenMessageDialog={handleOpenMsgDialog} />
           </Grid>
         </Grid>
 
@@ -142,7 +147,33 @@ export default function EventViewPage() {
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
           <Tabs value={activeTab} onChange={handleTabChange}>
             {eventClasses.map((eventClass) => (
-              <Tab key={`tab-${eventClass}`} id={`tab-${eventClass}`} label={eventClass}></Tab>
+              <Tab
+                key={`tab-${eventClass}`}
+                id={`tab-${eventClass}`}
+                sx={{ borderLeft: '1px solid', borderLeftColor: 'divider' }}
+                label={
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Box sx={{ width: '100%', mr: 1 }}>{eventClass}</Box>
+                    <Box
+                      sx={{
+                        minWidth: 50,
+                        textAlign: 'end',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'flex-end',
+                        columnGap: 1,
+                      }}
+                    >
+                      <Typography
+                        variant="caption"
+                        sx={{ color: progressColor(numbersByClass[eventClass]?.value || 0) }}
+                      >
+                        {numbersByClass[eventClass]?.participants ?? 0} / {numbersByClass[eventClass]?.places}
+                      </Typography>
+                    </Box>
+                  </Box>
+                }
+              ></Tab>
             ))}
           </Tabs>
         </Box>

@@ -6,10 +6,10 @@ exports[`EventFormPlaces should render with classes 1`] = `
     class="MuiBox-root css-18pzlwv"
   >
     <div
-      class="css-3jt9ux-MuiStack-root"
+      class="MuiStack-root css-3jt9ux-MuiStack-root"
     >
       <div
-        class="css-3xtvj9-MuiStack-root"
+        class="MuiStack-root css-3xtvj9-MuiStack-root"
       >
         <h6
           class="MuiTypography-root MuiTypography-subtitle1 css-10wpov9-MuiTypography-root"
@@ -246,10 +246,10 @@ exports[`EventFormPlaces should render with minimal information 1`] = `
     class="MuiBox-root css-18pzlwv"
   >
     <div
-      class="css-3jt9ux-MuiStack-root"
+      class="MuiStack-root css-3jt9ux-MuiStack-root"
     >
       <div
-        class="css-3xtvj9-MuiStack-root"
+        class="MuiStack-root css-3xtvj9-MuiStack-root"
       >
         <h6
           class="MuiTypography-root MuiTypography-subtitle1 css-10wpov9-MuiTypography-root"

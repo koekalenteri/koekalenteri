@@ -25,11 +25,16 @@ export const isEventOngoing = ({ startDate, endDate }: EventDates, now = new Dat
   !!startDate && !!endDate && startDate <= now && endDate >= now
 export const isEventOver = ({ startDate }: EventDates, now = new Date()) => !!startDate && startDate < now
 
-export const eventDates = (event: Event) =>
-  event.classes.length
+export const eventDates = (event?: Event) => {
+  if (!event) return []
+  return event.classes.length
     ? uniqueDate(event.classes.map((c) => c.date ?? event.startDate))
     : eachDayOfInterval({ start: event.startDate, end: event.endDate })
+}
+
 export const uniqueClasses = (event?: Event) => unique((event?.classes ?? []).map((c) => c.class))
+export const classPlaces = (event: Event | undefined, cls: string) =>
+  (event?.classes ?? []).filter((c) => c.class === cls).reduce((acc, cur) => acc + (cur.places ?? 0), 0)
 export const uniqueClassDates = (event: Event, cls: string) =>
   cls === event.eventType
     ? eventDates(event)
