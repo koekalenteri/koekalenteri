@@ -3,7 +3,7 @@
 exports[`GroupColors given 0 dates and 0 selected 1`] = `
 <div>
   <div
-    class=" css-156fqfh-MuiStack-root"
+    class="MuiStack-root css-156fqfh-MuiStack-root"
     data-mui-internal-clone-element="true"
   />
 </div>
@@ -12,7 +12,7 @@ exports[`GroupColors given 0 dates and 0 selected 1`] = `
 exports[`GroupColors given 1 dates and 0 selected 1`] = `
 <div>
   <div
-    class=" css-156fqfh-MuiStack-root"
+    class="MuiStack-root css-156fqfh-MuiStack-root"
     data-mui-internal-clone-element="true"
   >
     <div
@@ -29,7 +29,7 @@ exports[`GroupColors given 1 dates and 1 selected 1`] = `
 <div>
   <div
     aria-label="Sopivat ryhmät: la registration.time.ap"
-    class=" css-156fqfh-MuiStack-root"
+    class="MuiStack-root css-156fqfh-MuiStack-root"
     data-mui-internal-clone-element="true"
   >
     <div
@@ -46,7 +46,7 @@ exports[`GroupColors given 1 dates and 2 selected 1`] = `
 <div>
   <div
     aria-label="Sopivat ryhmät: la registration.time.ap, la registration.time.ip"
-    class=" css-156fqfh-MuiStack-root"
+    class="MuiStack-root css-156fqfh-MuiStack-root"
     data-mui-internal-clone-element="true"
   >
     <div
@@ -62,7 +62,7 @@ exports[`GroupColors given 1 dates and 2 selected 1`] = `
 exports[`GroupColors given 2 dates and 0 selected 1`] = `
 <div>
   <div
-    class=" css-156fqfh-MuiStack-root"
+    class="MuiStack-root css-156fqfh-MuiStack-root"
     data-mui-internal-clone-element="true"
   >
     <div
@@ -85,7 +85,7 @@ exports[`GroupColors given 2 dates and 1 selected 1`] = `
 <div>
   <div
     aria-label="Sopivat ryhmät: la registration.time.ap"
-    class=" css-156fqfh-MuiStack-root"
+    class="MuiStack-root css-156fqfh-MuiStack-root"
     data-mui-internal-clone-element="true"
   >
     <div
@@ -108,7 +108,7 @@ exports[`GroupColors given 2 dates and 2 selected 1`] = `
 <div>
   <div
     aria-label="Sopivat ryhmät: la registration.time.ap, la registration.time.ip"
-    class=" css-156fqfh-MuiStack-root"
+    class="MuiStack-root css-156fqfh-MuiStack-root"
     data-mui-internal-clone-element="true"
   >
     <div
@@ -131,7 +131,7 @@ exports[`GroupColors given 2 dates and 3 selected 1`] = `
 <div>
   <div
     aria-label="Sopivat ryhmät: la registration.time.ap, la registration.time.ip, su registration.time.ap"
-    class=" css-156fqfh-MuiStack-root"
+    class="MuiStack-root css-156fqfh-MuiStack-root"
     data-mui-internal-clone-element="true"
   >
     <div
@@ -154,7 +154,7 @@ exports[`GroupColors given 2 dates and 4 selected 1`] = `
 <div>
   <div
     aria-label="Sopivat ryhmät: la registration.time.ap, la registration.time.ip, su registration.time.ap, su registration.time.ip"
-    class=" css-156fqfh-MuiStack-root"
+    class="MuiStack-root css-156fqfh-MuiStack-root"
     data-mui-internal-clone-element="true"
   >
     <div
@@ -176,7 +176,7 @@ exports[`GroupColors given 2 dates and 4 selected 1`] = `
 exports[`GroupColors given 3 dates and 0 selected 1`] = `
 <div>
   <div
-    class=" css-156fqfh-MuiStack-root"
+    class="MuiStack-root css-156fqfh-MuiStack-root"
     data-mui-internal-clone-element="true"
   >
     <div
@@ -205,7 +205,7 @@ exports[`GroupColors given 3 dates and 1 selected 1`] = `
 <div>
   <div
     aria-label="Sopivat ryhmät: la registration.time.ap"
-    class=" css-156fqfh-MuiStack-root"
+    class="MuiStack-root css-156fqfh-MuiStack-root"
     data-mui-internal-clone-element="true"
   >
     <div
@@ -234,7 +234,7 @@ exports[`GroupColors given 3 dates and 2 selected 1`] = `
 <div>
   <div
     aria-label="Sopivat ryhmät: la registration.time.ap, la registration.time.ip"
-    class=" css-156fqfh-MuiStack-root"
+    class="MuiStack-root css-156fqfh-MuiStack-root"
     data-mui-internal-clone-element="true"
   >
     <div
@@ -263,7 +263,7 @@ exports[`GroupColors given 3 dates and 3 selected 1`] = `
 <div>
   <div
     aria-label="Sopivat ryhmät: la registration.time.ap, la registration.time.ip, su registration.time.ap"
-    class=" css-156fqfh-MuiStack-root"
+    class="MuiStack-root css-156fqfh-MuiStack-root"
     data-mui-internal-clone-element="true"
   >
     <div
@@ -292,7 +292,7 @@ exports[`GroupColors given 3 dates and 4 selected 1`] = `
 <div>
   <div
     aria-label="Sopivat ryhmät: la registration.time.ap, la registration.time.ip, su registration.time.ap, su registration.time.ip"
-    class=" css-156fqfh-MuiStack-root"
+    class="MuiStack-root css-156fqfh-MuiStack-root"
     data-mui-internal-clone-element="true"
   >
     <div
@@ -321,7 +321,7 @@ exports[`GroupColors given 3 dates and 5 selected 1`] = `
 <div>
   <div
     aria-label="Sopivat ryhmät: la registration.time.ap, la registration.time.ip, su registration.time.ap, su registration.time.ip, ma registration.time.ap"
-    class=" css-156fqfh-MuiStack-root"
+    class="MuiStack-root css-156fqfh-MuiStack-root"
     data-mui-internal-clone-element="true"
   >
     <div
@@ -350,7 +350,7 @@ exports[`GroupColors given 3 dates and 6 selected 1`] = `
 <div>
   <div
     aria-label="Sopivat ryhmät: la registration.time.ap, la registration.time.ip, su registration.time.ap, su registration.time.ip, ma registration.time.ap, ma registration.time.ip"
-    class=" css-156fqfh-MuiStack-root"
+    class="MuiStack-root css-156fqfh-MuiStack-root"
     data-mui-internal-clone-element="true"
   >
     <div

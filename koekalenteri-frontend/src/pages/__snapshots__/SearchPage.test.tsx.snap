@@ -21,7 +21,7 @@ exports[`SearchPage filters by date - no-results 1`] = `
               class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
             >
               <label
-                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-19cu7oy-MuiFormLabel-root-MuiInputLabel-root"
+                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
                 data-shrink="true"
                 for=":r18:"
                 id=":r18:-label"
@@ -86,7 +86,7 @@ exports[`SearchPage filters by date - no-results 1`] = `
               class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
             >
               <label
-                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-19cu7oy-MuiFormLabel-root-MuiInputLabel-root"
+                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
                 data-shrink="true"
                 for=":r19:"
                 id=":r19:-label"
@@ -450,7 +450,7 @@ exports[`SearchPage filters by date - no-results 1`] = `
         class="MuiGrid-root MuiGrid-item MuiGrid-grid-md-12 css-ejs5r2-MuiGrid-root"
       >
         <div
-          class="css-1tiftik-MuiStack-root"
+          class="MuiStack-root css-1tiftik-MuiStack-root"
         >
           <div
             class="MuiBox-root css-k008qs"
@@ -551,7 +551,7 @@ exports[`SearchPage filters by date 1`] = `
               class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
             >
               <label
-                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-19cu7oy-MuiFormLabel-root-MuiInputLabel-root"
+                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
                 data-shrink="true"
                 for=":ru:"
                 id=":ru:-label"
@@ -616,7 +616,7 @@ exports[`SearchPage filters by date 1`] = `
               class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
             >
               <label
-                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-19cu7oy-MuiFormLabel-root-MuiInputLabel-root"
+                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
                 data-shrink="true"
                 for=":rv:"
                 id=":rv:-label"
@@ -984,7 +984,7 @@ exports[`SearchPage filters by date 1`] = `
         class="MuiGrid-root MuiGrid-item MuiGrid-grid-md-12 css-ejs5r2-MuiGrid-root"
       >
         <div
-          class="css-1tiftik-MuiStack-root"
+          class="MuiStack-root css-1tiftik-MuiStack-root"
         >
           <div
             class="MuiBox-root css-k008qs"
@@ -1429,7 +1429,7 @@ exports[`SearchPage filters by date/end 1`] = `
               class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
             >
               <label
-                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-19cu7oy-MuiFormLabel-root-MuiInputLabel-root"
+                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
                 data-shrink="true"
                 for=":rl:"
                 id=":rl:-label"
@@ -1797,7 +1797,7 @@ exports[`SearchPage filters by date/end 1`] = `
         class="MuiGrid-root MuiGrid-item MuiGrid-grid-md-12 css-ejs5r2-MuiGrid-root"
       >
         <div
-          class="css-1tiftik-MuiStack-root"
+          class="MuiStack-root css-1tiftik-MuiStack-root"
         >
           <div
             class="MuiBox-root css-k008qs"
@@ -2177,7 +2177,7 @@ exports[`SearchPage filters by date/start 1`] = `
               class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
             >
               <label
-                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-19cu7oy-MuiFormLabel-root-MuiInputLabel-root"
+                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
                 data-shrink="true"
                 for=":ra:"
                 id=":ra:-label"
@@ -2610,7 +2610,7 @@ exports[`SearchPage filters by date/start 1`] = `
         class="MuiGrid-root MuiGrid-item MuiGrid-grid-md-12 css-ejs5r2-MuiGrid-root"
       >
         <div
-          class="css-1tiftik-MuiStack-root"
+          class="MuiStack-root css-1tiftik-MuiStack-root"
         >
           <div
             class="MuiBox-root css-k008qs"
@@ -3530,7 +3530,7 @@ exports[`SearchPage filters by entryOpen 1`] = `
         class="MuiGrid-root MuiGrid-item MuiGrid-grid-md-12 css-ejs5r2-MuiGrid-root"
       >
         <div
-          class="css-1tiftik-MuiStack-root"
+          class="MuiStack-root css-1tiftik-MuiStack-root"
         >
           <div
             class="MuiBox-root css-k008qs"
@@ -4269,7 +4269,7 @@ exports[`SearchPage filters by entryOpen and entryUpcoming 1`] = `
         class="MuiGrid-root MuiGrid-item MuiGrid-grid-md-12 css-ejs5r2-MuiGrid-root"
       >
         <div
-          class="css-1tiftik-MuiStack-root"
+          class="MuiStack-root css-1tiftik-MuiStack-root"
         >
           <div
             class="MuiBox-root css-k008qs"
@@ -5099,7 +5099,7 @@ exports[`SearchPage filters by entryUpcoming 1`] = `
         class="MuiGrid-root MuiGrid-item MuiGrid-grid-md-12 css-ejs5r2-MuiGrid-root"
       >
         <div
-          class="css-1tiftik-MuiStack-root"
+          class="MuiStack-root css-1tiftik-MuiStack-root"
         >
           <div
             class="MuiBox-root css-k008qs"
@@ -5511,7 +5511,7 @@ exports[`SearchPage filters by event class 1`] = `
             class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
           >
             <label
-              class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-19cu7oy-MuiFormLabel-root-MuiInputLabel-root"
+              class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
               data-shrink="true"
               for=":r20:"
               id=":r20:-label"
@@ -5777,7 +5777,7 @@ exports[`SearchPage filters by event class 1`] = `
         class="MuiGrid-root MuiGrid-item MuiGrid-grid-md-12 css-ejs5r2-MuiGrid-root"
       >
         <div
-          class="css-1tiftik-MuiStack-root"
+          class="MuiStack-root css-1tiftik-MuiStack-root"
         >
           <div
             class="MuiBox-root css-k008qs"
@@ -6204,7 +6204,7 @@ exports[`SearchPage filters by event type 1`] = `
             class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
           >
             <label
-              class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-19cu7oy-MuiFormLabel-root-MuiInputLabel-root"
+              class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
               data-shrink="true"
               for=":r1k:"
               id=":r1k:-label"
@@ -6546,7 +6546,7 @@ exports[`SearchPage filters by event type 1`] = `
         class="MuiGrid-root MuiGrid-item MuiGrid-grid-md-12 css-ejs5r2-MuiGrid-root"
       >
         <div
-          class="css-1tiftik-MuiStack-root"
+          class="MuiStack-root css-1tiftik-MuiStack-root"
         >
           <div
             class="MuiBox-root css-k008qs"
@@ -7292,7 +7292,7 @@ exports[`SearchPage filters by judge 1`] = `
             class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
           >
             <label
-              class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-19cu7oy-MuiFormLabel-root-MuiInputLabel-root"
+              class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
               data-shrink="true"
               for=":r2o:"
               id=":r2o:-label"
@@ -7406,7 +7406,7 @@ exports[`SearchPage filters by judge 1`] = `
         class="MuiGrid-root MuiGrid-item MuiGrid-grid-md-12 css-ejs5r2-MuiGrid-root"
       >
         <div
-          class="css-1tiftik-MuiStack-root"
+          class="MuiStack-root css-1tiftik-MuiStack-root"
         >
           <div
             class="MuiBox-root css-k008qs"
@@ -8272,7 +8272,7 @@ exports[`SearchPage filters by organizer 1`] = `
             class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
           >
             <label
-              class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-19cu7oy-MuiFormLabel-root-MuiInputLabel-root"
+              class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
               data-shrink="true"
               for=":r2c:"
               id=":r2c:-label"
@@ -8462,7 +8462,7 @@ exports[`SearchPage filters by organizer 1`] = `
         class="MuiGrid-root MuiGrid-item MuiGrid-grid-md-12 css-ejs5r2-MuiGrid-root"
       >
         <div
-          class="css-1tiftik-MuiStack-root"
+          class="MuiStack-root css-1tiftik-MuiStack-root"
         >
           <div
             class="MuiBox-root css-k008qs"
@@ -9095,7 +9095,7 @@ exports[`SearchPage renders 1`] = `
         class="MuiGrid-root MuiGrid-item MuiGrid-grid-md-12 css-ejs5r2-MuiGrid-root"
       >
         <div
-          class="css-1tiftik-MuiStack-root"
+          class="MuiStack-root css-1tiftik-MuiStack-root"
         >
           <div
             class="MuiBox-root css-k008qs"

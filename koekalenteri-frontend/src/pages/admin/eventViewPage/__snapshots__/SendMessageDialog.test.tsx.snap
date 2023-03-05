@@ -40,7 +40,7 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
           class="MuiDialogContent-root css-ypiqx9-MuiDialogContent-root"
         >
           <div
-            class="css-q9mojd-MuiStack-root"
+            class="MuiStack-root css-q9mojd-MuiStack-root"
           >
             <div
               class="MuiBox-root css-126n10b"
@@ -155,7 +155,7 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
                     class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                   >
                     <label
-                      class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-1sumxir-MuiFormLabel-root-MuiInputLabel-root"
+                      class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-1jy569b-MuiFormLabel-root-MuiInputLabel-root"
                       data-shrink="true"
                       for=":r7:"
                       id=":r7:-label"
@@ -785,7 +785,7 @@ exports[`SendMessageDialog renders with minimal parameters 1`] = `
           class="MuiDialogContent-root css-ypiqx9-MuiDialogContent-root"
         >
           <div
-            class="css-q9mojd-MuiStack-root"
+            class="MuiStack-root css-q9mojd-MuiStack-root"
           >
             <div
               class="MuiBox-root css-126n10b"

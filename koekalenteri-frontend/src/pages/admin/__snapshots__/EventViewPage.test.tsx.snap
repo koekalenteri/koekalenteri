@@ -172,7 +172,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
         </div>
       </div>
       <div
-        class="css-e53awj-MuiStack-root"
+        class="MuiStack-root css-e53awj-MuiStack-root"
       >
         <button
           class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-16m0f1y-MuiButtonBase-root-MuiButton-root"
@@ -1145,10 +1145,10 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
           >
             <div>
               <div
-                class="header css-sf7yvk-MuiStack-root"
+                class="MuiStack-root header css-sf7yvk-MuiStack-root"
               >
                 <div
-                  class="css-156fqfh-MuiStack-root"
+                  class="MuiStack-root css-156fqfh-MuiStack-root"
                 >
                   <div
                     class="MuiBox-root css-14hq1a2"
@@ -1900,10 +1900,10 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
           >
             <div>
               <div
-                class="header css-sf7yvk-MuiStack-root"
+                class="MuiStack-root header css-sf7yvk-MuiStack-root"
               >
                 <div
-                  class="css-156fqfh-MuiStack-root"
+                  class="MuiStack-root css-156fqfh-MuiStack-root"
                 >
                   <div
                     class="MuiBox-root css-1urbi4i"
@@ -2655,10 +2655,10 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
           >
             <div>
               <div
-                class="header css-sf7yvk-MuiStack-root"
+                class="MuiStack-root header css-sf7yvk-MuiStack-root"
               >
                 <div
-                  class="css-156fqfh-MuiStack-root"
+                  class="MuiStack-root css-156fqfh-MuiStack-root"
                 >
                   <div
                     class="MuiBox-root css-1urbi4i"
@@ -3410,10 +3410,10 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
           >
             <div>
               <div
-                class="header css-sf7yvk-MuiStack-root"
+                class="MuiStack-root header css-sf7yvk-MuiStack-root"
               >
                 <div
-                  class="css-156fqfh-MuiStack-root"
+                  class="MuiStack-root css-156fqfh-MuiStack-root"
                 >
                   <div
                     class="MuiBox-root css-1urbi4i"
@@ -5806,7 +5806,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
         </div>
       </div>
       <div
-        class="css-e53awj-MuiStack-root"
+        class="MuiStack-root css-e53awj-MuiStack-root"
       >
         <button
           class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-16m0f1y-MuiButtonBase-root-MuiButton-root"
@@ -6779,10 +6779,10 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
           >
             <div>
               <div
-                class="header css-sf7yvk-MuiStack-root"
+                class="MuiStack-root header css-sf7yvk-MuiStack-root"
               >
                 <div
-                  class="css-156fqfh-MuiStack-root"
+                  class="MuiStack-root css-156fqfh-MuiStack-root"
                 >
                   <div
                     class="MuiBox-root css-14hq1a2"
@@ -7534,10 +7534,10 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
           >
             <div>
               <div
-                class="header css-sf7yvk-MuiStack-root"
+                class="MuiStack-root header css-sf7yvk-MuiStack-root"
               >
                 <div
-                  class="css-156fqfh-MuiStack-root"
+                  class="MuiStack-root css-156fqfh-MuiStack-root"
                 >
                   <div
                     class="MuiBox-root css-1urbi4i"
@@ -8289,10 +8289,10 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
           >
             <div>
               <div
-                class="header css-sf7yvk-MuiStack-root"
+                class="MuiStack-root header css-sf7yvk-MuiStack-root"
               >
                 <div
-                  class="css-156fqfh-MuiStack-root"
+                  class="MuiStack-root css-156fqfh-MuiStack-root"
                 >
                   <div
                     class="MuiBox-root css-1urbi4i"
@@ -9044,10 +9044,10 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
           >
             <div>
               <div
-                class="header css-sf7yvk-MuiStack-root"
+                class="MuiStack-root header css-sf7yvk-MuiStack-root"
               >
                 <div
-                  class="css-156fqfh-MuiStack-root"
+                  class="MuiStack-root css-156fqfh-MuiStack-root"
                 >
                   <div
                     class="MuiBox-root css-1urbi4i"

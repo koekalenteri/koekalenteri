@@ -16,7 +16,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
           class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
         >
           <label
-            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-19cu7oy-MuiFormLabel-root-MuiInputLabel-root"
+            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
             data-shrink="true"
             for=":r0:"
             id=":r0:-label"
@@ -156,7 +156,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                               class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
                             >
                               <label
-                                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-error MuiFormLabel-filled Mui-required MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-19cu7oy-MuiFormLabel-root-MuiInputLabel-root"
+                                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-error MuiFormLabel-filled Mui-required MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
                                 data-shrink="true"
                                 for=":r2:"
                                 id=":r2:-label"
@@ -217,7 +217,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                   >
                                     <span>
                                       event.startDate
-                                       
+                                       
                                       *
                                     </span>
                                   </legend>
@@ -238,7 +238,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                               class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
                             >
                               <label
-                                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-error MuiFormLabel-filled Mui-required MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-19cu7oy-MuiFormLabel-root-MuiInputLabel-root"
+                                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-error MuiFormLabel-filled Mui-required MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
                                 data-shrink="true"
                                 for=":r3:"
                                 id=":r3:-label"
@@ -299,7 +299,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                   >
                                     <span>
                                       event.endDate
-                                       
+                                       
                                       *
                                     </span>
                                   </legend>
@@ -472,7 +472,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                   >
                                     <span>
                                       event.eventType
-                                       
+                                       
                                       *
                                     </span>
                                   </legend>
@@ -709,7 +709,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                   >
                                     <span>
                                       event.organizer
-                                       
+                                       
                                       *
                                     </span>
                                   </legend>
@@ -975,7 +975,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                   >
                                     <span>
                                       event.secretary
-                                       
+                                       
                                       *
                                     </span>
                                   </legend>
@@ -1179,7 +1179,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                               class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
                             >
                               <label
-                                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-19cu7oy-MuiFormLabel-root-MuiInputLabel-root"
+                                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
                                 data-shrink="true"
                                 for=":rj:"
                                 id=":rj:-label"
@@ -1244,7 +1244,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                               class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
                             >
                               <label
-                                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-19cu7oy-MuiFormLabel-root-MuiInputLabel-root"
+                                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
                                 data-shrink="true"
                                 for=":rk:"
                                 id=":rk:-label"
@@ -1318,10 +1318,10 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                           class="MuiBox-root css-18pzlwv"
                         >
                           <div
-                            class="css-3jt9ux-MuiStack-root"
+                            class="MuiStack-root css-3jt9ux-MuiStack-root"
                           >
                             <div
-                              class="css-3xtvj9-MuiStack-root"
+                              class="MuiStack-root css-3xtvj9-MuiStack-root"
                             >
                               <h6
                                 class="MuiTypography-root MuiTypography-subtitle1 css-10wpov9-MuiTypography-root"
@@ -2518,7 +2518,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
       </div>
     </div>
     <div
-      class="css-14nu51i-MuiStack-root"
+      class="MuiStack-root css-14nu51i-MuiStack-root"
     >
       <button
         class="MuiButtonBase-root MuiButton-root MuiLoadingButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium Mui-disabled MuiButton-root MuiLoadingButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium css-1mju63u-MuiButtonBase-root-MuiButton-root-MuiLoadingButton-root"
