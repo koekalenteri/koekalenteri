@@ -92,9 +92,8 @@ const VALIDATORS: Validators<PartialEvent, 'event'> = {
     return false
   },
   judges: (event, required) => {
-    // KOE-317 NOWT-test has to have at least 2 judges per class
-    const minCount = event.eventType === 'NOWT' ? event.classes?.length * 2 : 1
-    return required && event.judges?.length < minCount
+    const minCount = event.eventType === 'NOWT' ? event.classes?.length : 1
+    return required && event.judges?.filter((j) => j > 0).length < minCount
       ? { key: 'judgeCount', opts: { field: 'judges', length: minCount } }
       : false
   },
