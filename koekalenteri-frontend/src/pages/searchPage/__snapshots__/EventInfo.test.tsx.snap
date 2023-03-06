@@ -37,38 +37,6 @@ exports[`EventInfo should render event information 1`] = `
           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
           scope="row"
         >
-          event.organizer
-          :
-        </th>
-        <td
-          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-        >
-          test organization
-        </td>
-      </tr>
-      <tr
-        class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
-      >
-        <th
-          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-          scope="row"
-        >
-          event.eventType
-          :
-        </th>
-        <td
-          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-        >
-          test
-        </td>
-      </tr>
-      <tr
-        class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
-      >
-        <th
-          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-          scope="row"
-        >
           event.classes
           :
         </th>
@@ -191,22 +159,6 @@ exports[`EventInfo should render event information 1`] = `
           test
           <br />
           test
-        </td>
-      </tr>
-      <tr
-        class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
-      >
-        <th
-          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-          scope="row"
-        >
-          event.location
-          :
-        </th>
-        <td
-          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-        >
-          location
         </td>
       </tr>
       <tr
