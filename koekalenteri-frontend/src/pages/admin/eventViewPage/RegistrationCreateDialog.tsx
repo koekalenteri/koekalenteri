@@ -1,33 +1,25 @@
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect } from 'react'
 import { Dialog, DialogContent, DialogTitle } from '@mui/material'
 import { ConfirmedEvent, Event, Registration } from 'koekalenteri-shared/model'
-import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
+import { useRecoilState, useResetRecoilState } from 'recoil'
 
 import { hasChanges } from '../../../utils'
 import RegistrationForm from '../../components/RegistrationForm'
-import { currentAdminRegistrationSelector, editableCurrentAdminEventRegistrationByIdAtom } from '../recoil'
+import { newRegistrationAtom } from '../../recoil'
 import { useAdminRegistrationActions } from '../recoil/registrations/actions'
 
 interface Props {
   event: Event
-  onClose?: () => void
+  eventClass?: string
   open: boolean
   registrationId: string
+  onClose?: () => void
 }
 
-export default function RegistrationEditDialog({ event, registrationId, open, onClose }: Props) {
-  const savedRegistration = useRecoilValue(currentAdminRegistrationSelector)
-  const [registration, setRegistration] = useRecoilState(editableCurrentAdminEventRegistrationByIdAtom(registrationId))
-  const resetRegistration = useResetRecoilState(editableCurrentAdminEventRegistrationByIdAtom(registrationId))
+export default function RegistrationCreateDialog({ event, eventClass, open, onClose }: Props) {
+  const [registration, setRegistration] = useRecoilState(newRegistrationAtom)
+  const resetRegistration = useResetRecoilState(newRegistrationAtom)
   const actions = useAdminRegistrationActions()
-  const changes = useMemo(
-    () => !!registration && !!savedRegistration && hasChanges(savedRegistration, registration),
-    [registration, savedRegistration]
-  )
-
-  useEffect(() => {
-    resetRegistration()
-  }, [registrationId, savedRegistration, resetRegistration])
 
   const handleChange = useCallback(
     (newState: Registration) => {
@@ -51,6 +43,19 @@ export default function RegistrationEditDialog({ event, registrationId, open, on
     resetRegistration()
     onClose?.()
   }, [onClose, resetRegistration])
+
+  useEffect(() => {
+    if (!registration) {
+      return
+    }
+    if (
+      registration.eventId !== event.id ||
+      registration.eventType !== event.eventType ||
+      (eventClass && registration.class !== eventClass)
+    ) {
+      setRegistration({ ...registration, eventId: event.id, eventType: event.eventType, class: eventClass })
+    }
+  }, [registration, event, setRegistration, eventClass])
 
   const handlerName = registration?.ownerHandles ? registration.owner?.name : registration?.handler?.name
 
@@ -84,7 +89,7 @@ export default function RegistrationEditDialog({ event, registrationId, open, on
           onSave={handleSave}
           onCancel={handleCancel}
           onChange={handleChange}
-          changes={changes}
+          changes
         />
       </DialogContent>
     </Dialog>
