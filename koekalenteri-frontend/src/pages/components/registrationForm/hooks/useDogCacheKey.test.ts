@@ -4,7 +4,6 @@ import { RecoilRoot } from 'recoil'
 
 import { useDogCacheKey } from './useDogCacheKey'
 
-jest.useFakeTimers()
 jest.spyOn(Storage.prototype, 'setItem')
 jest.spyOn(Storage.prototype, 'getItem')
 

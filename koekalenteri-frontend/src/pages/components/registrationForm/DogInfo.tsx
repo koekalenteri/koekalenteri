@@ -72,10 +72,8 @@ export const DogInfo = ({
 
   const updateDog = useCallback(
     (cache?: DeepPartial<DogCachedInfo>) => {
-      // ignore refreshDate changes
-      const { refreshDate, ...dog } = cache?.dog ?? {}
-      const { refreshDate: oldRefreshDate, ...oldDog } = reg?.dog ?? {}
-
+      const dog = cache?.dog ?? {}
+      const oldDog = reg?.dog ?? {}
       let replace = false
       if (hasChanges(oldDog, dog)) {
         const changes: DeepPartial<Registration> = { dog: cache?.dog }
