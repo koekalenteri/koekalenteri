@@ -1,5 +1,6 @@
 import i18next from 'i18next'
-import { selector } from 'recoil'
+import { Judge } from 'koekalenteri-shared/model'
+import { selector, selectorFamily } from 'recoil'
 
 import { judgeFilterAtom, judgesAtom } from './atoms'
 
@@ -24,4 +25,14 @@ export const filteredJudgesSelector = selector({
         .includes(filter)
     )
   },
+})
+
+export const judgesByIdsSelector = selectorFamily<Judge[], number[]>({
+  key: 'judgesByIds',
+  get:
+    (ids) =>
+    ({ get }) => {
+      const list = get(judgesAtom)
+      return list.filter((j) => ids.includes(j.id))
+    },
 })

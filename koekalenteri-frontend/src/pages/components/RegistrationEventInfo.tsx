@@ -1,9 +1,11 @@
 import { useTranslation } from 'react-i18next'
 import { Grid, Paper, Typography } from '@mui/material'
 import { ConfirmedEvent } from 'koekalenteri-shared/model'
+import { useRecoilValue } from 'recoil'
 
 import useEventStatus from '../../hooks/useEventStatus'
 import { entryDateColor } from '../../utils'
+import { judgesByIdsSelector } from '../recoil'
 
 import CollapsibleSection from './CollapsibleSection'
 import CostInfo from './CostInfo'
@@ -11,6 +13,8 @@ import CostInfo from './CostInfo'
 export default function RegistrationEventInfo({ event }: { event: ConfirmedEvent }) {
   const { t } = useTranslation()
   const status = useEventStatus(event)
+  const judges = useRecoilValue(judgesByIdsSelector(event.judges))
+
   return (
     <Paper sx={{ p: 1, mb: 1, width: '100%' }} elevation={2}>
       <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 1 }}>
@@ -42,7 +46,7 @@ export default function RegistrationEventInfo({ event }: { event: ConfirmedEvent
               {t('event.judges')}:
             </Grid>
             <Grid item xs={8}>
-              {event.judges[0]}
+              {judges.map((j) => j.name).join(', ')}
             </Grid>
             <Grid item xs={4}>
               {t('event.official')}:
