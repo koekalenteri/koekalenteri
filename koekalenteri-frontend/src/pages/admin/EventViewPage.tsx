@@ -22,7 +22,8 @@ import LinkButton from '../components/LinkButton'
 import FullPageFlex from './components/FullPageFlex'
 import ClassEntrySelection from './eventViewPage/ClassEntrySelection'
 import InfoPanel from './eventViewPage/InfoPanel'
-import RegistraionEditDialog from './eventViewPage/RegistrationEditDialog'
+import RegistrationCreateDialog from './eventViewPage/RegistrationCreateDialog'
+import RegistrationEditDialog from './eventViewPage/RegistrationEditDialog'
 import SendMessageDialog from './eventViewPage/SendMessageDialog'
 import TabPanel from './eventViewPage/TabPanel'
 import Title from './eventViewPage/Title'
@@ -37,6 +38,7 @@ import {
 export default function EventViewPage() {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
+  const [createOpen, setCreateOpen] = useState(false)
   const [msgDlgOpen, setMsgDlgOpen] = useState(false)
 
   const params = useParams()
@@ -62,9 +64,8 @@ export default function EventViewPage() {
     [eventClasses, setSelectedEventClass]
   )
 
-  const handleClose = useCallback(() => {
-    setOpen(false)
-  }, [])
+  const handleClose = useCallback(() => setOpen(false), [])
+  const handleCreateClose = useCallback(() => setCreateOpen(false), [])
 
   function openMsgDlg() {
     setMsgDlgOpen(true)
@@ -125,7 +126,7 @@ export default function EventViewPage() {
           <Button
             startIcon={<AddCircleOutline />}
             onClick={() => {
-              setOpen(true)
+              setCreateOpen(true)
             }}
           >
             {t('create')}
@@ -191,19 +192,29 @@ export default function EventViewPage() {
         ))}
 
         <Suspense>
-          <RegistraionEditDialog
-            registrationId={open ? selectedRegistrationId ?? '' : ''}
-            open={open}
+          <RegistrationEditDialog
+            event={event}
             onClose={handleClose}
+            open={open}
+            registrationId={open ? selectedRegistrationId ?? '' : ''}
+          />
+        </Suspense>
+        <Suspense>
+          <RegistrationCreateDialog
+            event={event}
+            eventClass={selectedEventClass !== event.eventType ? selectedEventClass : undefined}
+            onClose={handleCreateClose}
+            open={createOpen}
+            registrationId={open ? selectedRegistrationId ?? '' : ''}
           />
         </Suspense>
         <Suspense>
           <SendMessageDialog
+            event={event}
+            onClose={closeMsgDlg}
+            open={msgDlgOpen}
             registrations={recipientRegistrations}
             templateId={messageTemplateId}
-            open={msgDlgOpen}
-            onClose={closeMsgDlg}
-            event={event}
           />
         </Suspense>
       </FullPageFlex>
