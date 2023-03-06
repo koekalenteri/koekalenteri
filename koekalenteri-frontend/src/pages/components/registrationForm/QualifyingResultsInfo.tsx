@@ -89,7 +89,7 @@ export default function QualifyingResultsInfo({
       title={t('registration.qualifyingResults')}
       error={error}
       helperText={helperText}
-      open={open}
+      open={open && !!regNo}
       onOpenChange={onOpenChange}
     >
       <Grid item container spacing={1}>

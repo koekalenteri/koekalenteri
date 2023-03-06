@@ -148,6 +148,10 @@ export default function RegistrationForm({
       texts[error.opts.field] = t(`validation.registration.${error.key}`, error.opts)
       states[error.opts.field] = true
     }
+    if (!registration.dog.regNo) {
+      texts.breeder = texts.owner = texts.qualifyingResults = 'Valitse ensin koira'
+      states.breeder = states.owner = states.qualifyingResults = true
+    }
     return [texts, states]
   }, [errors, qualifies, registration, t])
 

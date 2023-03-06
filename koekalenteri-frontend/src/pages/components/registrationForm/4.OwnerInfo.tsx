@@ -36,7 +36,7 @@ export function OwnerInfo({ reg, error, helperText, onChange, onOpenChange, open
       title={t('registration.owner')}
       error={error}
       helperText={helperText}
-      open={open}
+      open={open && !!reg.dog?.regNo}
       onOpenChange={onOpenChange}
     >
       <Grid item container spacing={1}>

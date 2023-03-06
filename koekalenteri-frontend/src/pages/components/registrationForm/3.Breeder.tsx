@@ -33,7 +33,7 @@ export function BreederInfo({ reg, error, helperText, onChange, onOpenChange, op
       title={t('registration.breeder')}
       error={error}
       helperText={helperText}
-      open={open}
+      open={open && !!reg.dog?.regNo}
       onOpenChange={onOpenChange}
     >
       <Grid item container spacing={1}>
