@@ -74,17 +74,7 @@ const VALIDATORS: Validators<PartialEvent, 'event'> = {
     if (!classes || !classes.length) {
       return 'classes'
     }
-    if (event.eventType === 'NOWT') {
-      // KOE-317 classes are required, but judges don't have to be assigned to classes
-      return false
-    }
-    const list: string[] = []
-    for (const c of classes) {
-      if (Array.isArray(c.judge) ? !c.judge.length : !c.judge?.id) {
-        list.push(c.class)
-      }
-    }
-    return list.length ? { key: 'classesJudge', opts: { field: 'classes', list, length: list.length } } : false
+    return false
   },
   contactInfo: (event, required) => {
     const contactInfo = event.contactInfo
@@ -102,10 +92,27 @@ const VALIDATORS: Validators<PartialEvent, 'event'> = {
     return false
   },
   judges: (event, required) => {
+    if (!required) {
+      return false
+    }
+
     const minCount = getMinJudgeCount(event)
-    return required && event.judges?.filter((j) => j > 0).length < minCount
-      ? { key: 'judgeCount', opts: { field: 'judges', length: minCount } }
-      : false
+    if (event.judges?.filter((j) => j > 0).length < minCount) {
+      return { key: 'judgeCount', opts: { field: 'judges', length: minCount } }
+    }
+
+    if (event.eventType === 'NOWT') {
+      // KOE-317 classes are required, but judges don't have to be assigned to classes
+      return false
+    }
+
+    const list: string[] = []
+    for (const c of event.classes) {
+      if (Array.isArray(c.judge) ? !c.judge.length : !c.judge?.id) {
+        list.push(c.class)
+      }
+    }
+    return list.length ? { key: 'classesJudge', opts: { field: 'judges', list, length: list.length } } : false
   },
 
   places: (event, required) => {
