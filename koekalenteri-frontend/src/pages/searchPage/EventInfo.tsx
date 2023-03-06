@@ -52,18 +52,6 @@ export const EventInfo = ({ event }: { event: Event }) => {
               {isEntryOpen(event) ? t('distanceLeft', { date: event.entryEndDate }) : ''}
             </TableCell>
           </TableRow>
-          <TableRow key={event.id + 'organizer'}>
-            <TableCell component="th" scope="row">
-              {t('event.organizer')}:
-            </TableCell>
-            <TableCell>{event.organizer?.name}</TableCell>
-          </TableRow>
-          <TableRow key={event.id + 'eventType'}>
-            <TableCell component="th" scope="row">
-              {t('event.eventType')}:
-            </TableCell>
-            <TableCell>{event.eventType}</TableCell>
-          </TableRow>
           {event.classes.length !== 0 && <EventClassRow key={event.id + 'classes'} event={event} />}
           {haveJudgesWithoutAssignedClass && (
             <>
@@ -94,18 +82,14 @@ export const EventInfo = ({ event }: { event: Event }) => {
               <CostInfo event={event} />
             </TableCell>
           </TableRow>
-          <TableRow key={event.id + 'location'}>
-            <TableCell component="th" scope="row">
-              {t('event.location')}:
-            </TableCell>
-            <TableCell>{event.location}</TableCell>
-          </TableRow>
-          <TableRow key={event.id + 'description'}>
-            <TableCell component="th" scope="row">
-              {t('event.description')}:
-            </TableCell>
-            <TableCell>{event.description}</TableCell>
-          </TableRow>
+          {event.description ? (
+            <TableRow key={event.id + 'description'}>
+              <TableCell component="th" scope="row">
+                {t('event.description')}:
+              </TableCell>
+              <TableCell>{event.description}</TableCell>
+            </TableRow>
+          ) : null}
         </TableBody>
       </Table>
     </>
