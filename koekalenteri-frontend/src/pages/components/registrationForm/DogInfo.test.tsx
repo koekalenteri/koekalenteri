@@ -77,4 +77,35 @@ describe('DogInfo', () => {
 
     expect(changeHandler).toHaveBeenLastCalledWith(expect.objectContaining({ dog: newDog }), true)
   })
+
+  it('should automatically fetch when selecting from cached dogs', async () => {
+    const reg = {}
+    const changeHandler = jest.fn((props) => Object.assign(reg, props))
+
+    jest.spyOn(Storage.prototype, 'getItem').mockImplementation((key: string) => {
+      if (key === 'dog-cache') {
+        return JSON.stringify({ 'TESTDOG-0020': {} })
+      }
+      return null
+    })
+
+    const { user } = renderWithUserEvents(
+      <DogInfo reg={reg} eventDate={eventDate} minDogAgeMonths={15} onChange={changeHandler} />,
+      { wrapper: Wrapper }
+    )
+
+    expect(changeHandler).toHaveBeenCalledTimes(0)
+
+    const input = screen.getByRole('combobox', { name: 'dog.regNo' })
+    expect(input).toHaveValue('')
+    await user.type(input, 't{ArrowDown}{Enter}')
+    expect(input).toHaveValue('TESTDOG-0020')
+    await waitForDebounce()
+    await waitForDebounce()
+
+    expect(changeHandler).toHaveBeenLastCalledWith(
+      expect.objectContaining({ dog: registrationDogAged20MonthsAndNoResults }),
+      true
+    )
+  })
 })
