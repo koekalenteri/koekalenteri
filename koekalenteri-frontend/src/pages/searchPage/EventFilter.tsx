@@ -66,7 +66,7 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
 
   return (
     <Box m={1}>
-      <Grid container justifyContent="space-around" spacing={1}>
+      <Grid container justifyContent="start" spacing={1}>
         <Grid item xs={12} md={6}>
           <DateRange
             start={filter.start}
@@ -116,16 +116,14 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
           />
         </Grid>
         <Grid item md={12}>
-          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={0} alignItems="start" justifyContent="space-evenly">
-            <Box sx={{ display: 'flex' }}>
-              <FormControlLabel
-                value="withOpenEntry"
-                checked={filter.withOpenEntry}
-                control={<Switch />}
-                label={t('entryOpen')}
-                onChange={handleWithEntryOpenChange}
-              />
-            </Box>
+          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={0} alignItems="start" justifyContent="start">
+            <FormControlLabel
+              value="withOpenEntry"
+              checked={filter.withOpenEntry}
+              control={<Switch />}
+              label={t('entryOpen')}
+              onChange={handleWithEntryOpenChange}
+            />
             <FormControlLabel
               value="withUpcomingEntry"
               checked={filter.withUpcomingEntry}

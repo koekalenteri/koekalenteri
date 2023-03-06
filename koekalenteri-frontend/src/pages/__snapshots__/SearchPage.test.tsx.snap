@@ -6,7 +6,7 @@ exports[`SearchPage filters by date - no-results 1`] = `
     class="MuiBox-root css-1ynyhby"
   >
     <div
-      class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-1 css-1god2i2-MuiGrid-root"
+      class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-1 css-n0zgdy-MuiGrid-root"
     >
       <div
         class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-11eerce-MuiGrid-root"
@@ -450,43 +450,39 @@ exports[`SearchPage filters by date - no-results 1`] = `
         class="MuiGrid-root MuiGrid-item MuiGrid-grid-md-12 css-ejs5r2-MuiGrid-root"
       >
         <div
-          class="MuiStack-root css-1tiftik-MuiStack-root"
+          class="MuiStack-root css-1lba0i6-MuiStack-root"
         >
-          <div
-            class="MuiBox-root css-k008qs"
+          <label
+            class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
           >
-            <label
-              class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
+            <span
+              class="MuiSwitch-root MuiSwitch-sizeMedium css-julti5-MuiSwitch-root"
             >
               <span
-                class="MuiSwitch-root MuiSwitch-sizeMedium css-julti5-MuiSwitch-root"
+                class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-1xvpzln-MuiButtonBase-root-MuiSwitch-switchBase"
               >
+                <input
+                  class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"
+                  type="checkbox"
+                  value="withOpenEntry"
+                />
                 <span
-                  class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-1xvpzln-MuiButtonBase-root-MuiSwitch-switchBase"
-                >
-                  <input
-                    class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"
-                    type="checkbox"
-                    value="withOpenEntry"
-                  />
-                  <span
-                    class="MuiSwitch-thumb css-jsexje-MuiSwitch-thumb"
-                  />
-                  <span
-                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                  />
-                </span>
+                  class="MuiSwitch-thumb css-jsexje-MuiSwitch-thumb"
+                />
                 <span
-                  class="MuiSwitch-track css-1yjjitx-MuiSwitch-track"
+                  class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
                 />
               </span>
               <span
-                class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-ahj2mt-MuiTypography-root"
-              >
-                entryOpen
-              </span>
-            </label>
-          </div>
+                class="MuiSwitch-track css-1yjjitx-MuiSwitch-track"
+              />
+            </span>
+            <span
+              class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-ahj2mt-MuiTypography-root"
+            >
+              entryOpen
+            </span>
+          </label>
           <label
             class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
           >
@@ -536,7 +532,7 @@ exports[`SearchPage filters by date 1`] = `
     class="MuiBox-root css-1ynyhby"
   >
     <div
-      class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-1 css-1god2i2-MuiGrid-root"
+      class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-1 css-n0zgdy-MuiGrid-root"
     >
       <div
         class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-11eerce-MuiGrid-root"
@@ -984,43 +980,39 @@ exports[`SearchPage filters by date 1`] = `
         class="MuiGrid-root MuiGrid-item MuiGrid-grid-md-12 css-ejs5r2-MuiGrid-root"
       >
         <div
-          class="MuiStack-root css-1tiftik-MuiStack-root"
+          class="MuiStack-root css-1lba0i6-MuiStack-root"
         >
-          <div
-            class="MuiBox-root css-k008qs"
+          <label
+            class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
           >
-            <label
-              class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
+            <span
+              class="MuiSwitch-root MuiSwitch-sizeMedium css-julti5-MuiSwitch-root"
             >
               <span
-                class="MuiSwitch-root MuiSwitch-sizeMedium css-julti5-MuiSwitch-root"
+                class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-1xvpzln-MuiButtonBase-root-MuiSwitch-switchBase"
               >
+                <input
+                  class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"
+                  type="checkbox"
+                  value="withOpenEntry"
+                />
                 <span
-                  class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-1xvpzln-MuiButtonBase-root-MuiSwitch-switchBase"
-                >
-                  <input
-                    class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"
-                    type="checkbox"
-                    value="withOpenEntry"
-                  />
-                  <span
-                    class="MuiSwitch-thumb css-jsexje-MuiSwitch-thumb"
-                  />
-                  <span
-                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                  />
-                </span>
+                  class="MuiSwitch-thumb css-jsexje-MuiSwitch-thumb"
+                />
                 <span
-                  class="MuiSwitch-track css-1yjjitx-MuiSwitch-track"
+                  class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
                 />
               </span>
               <span
-                class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-ahj2mt-MuiTypography-root"
-              >
-                entryOpen
-              </span>
-            </label>
-          </div>
+                class="MuiSwitch-track css-1yjjitx-MuiSwitch-track"
+              />
+            </span>
+            <span
+              class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-ahj2mt-MuiTypography-root"
+            >
+              entryOpen
+            </span>
+          </label>
           <label
             class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
           >
@@ -1349,7 +1341,7 @@ exports[`SearchPage filters by date/end 1`] = `
     class="MuiBox-root css-1ynyhby"
   >
     <div
-      class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-1 css-1god2i2-MuiGrid-root"
+      class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-1 css-n0zgdy-MuiGrid-root"
     >
       <div
         class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-11eerce-MuiGrid-root"
@@ -1797,43 +1789,39 @@ exports[`SearchPage filters by date/end 1`] = `
         class="MuiGrid-root MuiGrid-item MuiGrid-grid-md-12 css-ejs5r2-MuiGrid-root"
       >
         <div
-          class="MuiStack-root css-1tiftik-MuiStack-root"
+          class="MuiStack-root css-1lba0i6-MuiStack-root"
         >
-          <div
-            class="MuiBox-root css-k008qs"
+          <label
+            class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
           >
-            <label
-              class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
+            <span
+              class="MuiSwitch-root MuiSwitch-sizeMedium css-julti5-MuiSwitch-root"
             >
               <span
-                class="MuiSwitch-root MuiSwitch-sizeMedium css-julti5-MuiSwitch-root"
+                class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-1xvpzln-MuiButtonBase-root-MuiSwitch-switchBase"
               >
+                <input
+                  class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"
+                  type="checkbox"
+                  value="withOpenEntry"
+                />
                 <span
-                  class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-1xvpzln-MuiButtonBase-root-MuiSwitch-switchBase"
-                >
-                  <input
-                    class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"
-                    type="checkbox"
-                    value="withOpenEntry"
-                  />
-                  <span
-                    class="MuiSwitch-thumb css-jsexje-MuiSwitch-thumb"
-                  />
-                  <span
-                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                  />
-                </span>
+                  class="MuiSwitch-thumb css-jsexje-MuiSwitch-thumb"
+                />
                 <span
-                  class="MuiSwitch-track css-1yjjitx-MuiSwitch-track"
+                  class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
                 />
               </span>
               <span
-                class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-ahj2mt-MuiTypography-root"
-              >
-                entryOpen
-              </span>
-            </label>
-          </div>
+                class="MuiSwitch-track css-1yjjitx-MuiSwitch-track"
+              />
+            </span>
+            <span
+              class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-ahj2mt-MuiTypography-root"
+            >
+              entryOpen
+            </span>
+          </label>
           <label
             class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
           >
@@ -2162,7 +2150,7 @@ exports[`SearchPage filters by date/start 1`] = `
     class="MuiBox-root css-1ynyhby"
   >
     <div
-      class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-1 css-1god2i2-MuiGrid-root"
+      class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-1 css-n0zgdy-MuiGrid-root"
     >
       <div
         class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-11eerce-MuiGrid-root"
@@ -2610,43 +2598,39 @@ exports[`SearchPage filters by date/start 1`] = `
         class="MuiGrid-root MuiGrid-item MuiGrid-grid-md-12 css-ejs5r2-MuiGrid-root"
       >
         <div
-          class="MuiStack-root css-1tiftik-MuiStack-root"
+          class="MuiStack-root css-1lba0i6-MuiStack-root"
         >
-          <div
-            class="MuiBox-root css-k008qs"
+          <label
+            class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
           >
-            <label
-              class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
+            <span
+              class="MuiSwitch-root MuiSwitch-sizeMedium css-julti5-MuiSwitch-root"
             >
               <span
-                class="MuiSwitch-root MuiSwitch-sizeMedium css-julti5-MuiSwitch-root"
+                class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-1xvpzln-MuiButtonBase-root-MuiSwitch-switchBase"
               >
+                <input
+                  class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"
+                  type="checkbox"
+                  value="withOpenEntry"
+                />
                 <span
-                  class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-1xvpzln-MuiButtonBase-root-MuiSwitch-switchBase"
-                >
-                  <input
-                    class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"
-                    type="checkbox"
-                    value="withOpenEntry"
-                  />
-                  <span
-                    class="MuiSwitch-thumb css-jsexje-MuiSwitch-thumb"
-                  />
-                  <span
-                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                  />
-                </span>
+                  class="MuiSwitch-thumb css-jsexje-MuiSwitch-thumb"
+                />
                 <span
-                  class="MuiSwitch-track css-1yjjitx-MuiSwitch-track"
+                  class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
                 />
               </span>
               <span
-                class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-ahj2mt-MuiTypography-root"
-              >
-                entryOpen
-              </span>
-            </label>
-          </div>
+                class="MuiSwitch-track css-1yjjitx-MuiSwitch-track"
+              />
+            </span>
+            <span
+              class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-ahj2mt-MuiTypography-root"
+            >
+              entryOpen
+            </span>
+          </label>
           <label
             class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
           >
@@ -3082,7 +3066,7 @@ exports[`SearchPage filters by entryOpen 1`] = `
     class="MuiBox-root css-1ynyhby"
   >
     <div
-      class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-1 css-1god2i2-MuiGrid-root"
+      class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-1 css-n0zgdy-MuiGrid-root"
     >
       <div
         class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-11eerce-MuiGrid-root"
@@ -3530,43 +3514,39 @@ exports[`SearchPage filters by entryOpen 1`] = `
         class="MuiGrid-root MuiGrid-item MuiGrid-grid-md-12 css-ejs5r2-MuiGrid-root"
       >
         <div
-          class="MuiStack-root css-1tiftik-MuiStack-root"
+          class="MuiStack-root css-1lba0i6-MuiStack-root"
         >
-          <div
-            class="MuiBox-root css-k008qs"
+          <label
+            class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
           >
-            <label
-              class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
+            <span
+              class="MuiSwitch-root MuiSwitch-sizeMedium css-julti5-MuiSwitch-root"
             >
               <span
-                class="MuiSwitch-root MuiSwitch-sizeMedium css-julti5-MuiSwitch-root"
+                class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-checked css-1xvpzln-MuiButtonBase-root-MuiSwitch-switchBase"
               >
+                <input
+                  class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"
+                  type="checkbox"
+                  value="withOpenEntry"
+                />
                 <span
-                  class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-checked css-1xvpzln-MuiButtonBase-root-MuiSwitch-switchBase"
-                >
-                  <input
-                    class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"
-                    type="checkbox"
-                    value="withOpenEntry"
-                  />
-                  <span
-                    class="MuiSwitch-thumb css-jsexje-MuiSwitch-thumb"
-                  />
-                  <span
-                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                  />
-                </span>
+                  class="MuiSwitch-thumb css-jsexje-MuiSwitch-thumb"
+                />
                 <span
-                  class="MuiSwitch-track css-1yjjitx-MuiSwitch-track"
+                  class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
                 />
               </span>
               <span
-                class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-ahj2mt-MuiTypography-root"
-              >
-                entryOpen
-              </span>
-            </label>
-          </div>
+                class="MuiSwitch-track css-1yjjitx-MuiSwitch-track"
+              />
+            </span>
+            <span
+              class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-ahj2mt-MuiTypography-root"
+            >
+              entryOpen
+            </span>
+          </label>
           <label
             class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
           >
@@ -3821,7 +3801,7 @@ exports[`SearchPage filters by entryOpen and entryUpcoming 1`] = `
     class="MuiBox-root css-1ynyhby"
   >
     <div
-      class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-1 css-1god2i2-MuiGrid-root"
+      class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-1 css-n0zgdy-MuiGrid-root"
     >
       <div
         class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-11eerce-MuiGrid-root"
@@ -4269,44 +4249,40 @@ exports[`SearchPage filters by entryOpen and entryUpcoming 1`] = `
         class="MuiGrid-root MuiGrid-item MuiGrid-grid-md-12 css-ejs5r2-MuiGrid-root"
       >
         <div
-          class="MuiStack-root css-1tiftik-MuiStack-root"
+          class="MuiStack-root css-1lba0i6-MuiStack-root"
         >
-          <div
-            class="MuiBox-root css-k008qs"
+          <label
+            class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
           >
-            <label
-              class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
+            <span
+              class="MuiSwitch-root MuiSwitch-sizeMedium css-julti5-MuiSwitch-root"
             >
               <span
-                class="MuiSwitch-root MuiSwitch-sizeMedium css-julti5-MuiSwitch-root"
+                class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-checked css-1xvpzln-MuiButtonBase-root-MuiSwitch-switchBase"
               >
+                <input
+                  checked=""
+                  class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"
+                  type="checkbox"
+                  value="withOpenEntry"
+                />
                 <span
-                  class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-checked css-1xvpzln-MuiButtonBase-root-MuiSwitch-switchBase"
-                >
-                  <input
-                    checked=""
-                    class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"
-                    type="checkbox"
-                    value="withOpenEntry"
-                  />
-                  <span
-                    class="MuiSwitch-thumb css-jsexje-MuiSwitch-thumb"
-                  />
-                  <span
-                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                  />
-                </span>
+                  class="MuiSwitch-thumb css-jsexje-MuiSwitch-thumb"
+                />
                 <span
-                  class="MuiSwitch-track css-1yjjitx-MuiSwitch-track"
+                  class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
                 />
               </span>
               <span
-                class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-ahj2mt-MuiTypography-root"
-              >
-                entryOpen
-              </span>
-            </label>
-          </div>
+                class="MuiSwitch-track css-1yjjitx-MuiSwitch-track"
+              />
+            </span>
+            <span
+              class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-ahj2mt-MuiTypography-root"
+            >
+              entryOpen
+            </span>
+          </label>
           <label
             class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
           >
@@ -4651,7 +4627,7 @@ exports[`SearchPage filters by entryUpcoming 1`] = `
     class="MuiBox-root css-1ynyhby"
   >
     <div
-      class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-1 css-1god2i2-MuiGrid-root"
+      class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-1 css-n0zgdy-MuiGrid-root"
     >
       <div
         class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-11eerce-MuiGrid-root"
@@ -5099,43 +5075,39 @@ exports[`SearchPage filters by entryUpcoming 1`] = `
         class="MuiGrid-root MuiGrid-item MuiGrid-grid-md-12 css-ejs5r2-MuiGrid-root"
       >
         <div
-          class="MuiStack-root css-1tiftik-MuiStack-root"
+          class="MuiStack-root css-1lba0i6-MuiStack-root"
         >
-          <div
-            class="MuiBox-root css-k008qs"
+          <label
+            class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
           >
-            <label
-              class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
+            <span
+              class="MuiSwitch-root MuiSwitch-sizeMedium css-julti5-MuiSwitch-root"
             >
               <span
-                class="MuiSwitch-root MuiSwitch-sizeMedium css-julti5-MuiSwitch-root"
+                class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-1xvpzln-MuiButtonBase-root-MuiSwitch-switchBase"
               >
+                <input
+                  class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"
+                  type="checkbox"
+                  value="withOpenEntry"
+                />
                 <span
-                  class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-1xvpzln-MuiButtonBase-root-MuiSwitch-switchBase"
-                >
-                  <input
-                    class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"
-                    type="checkbox"
-                    value="withOpenEntry"
-                  />
-                  <span
-                    class="MuiSwitch-thumb css-jsexje-MuiSwitch-thumb"
-                  />
-                  <span
-                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                  />
-                </span>
+                  class="MuiSwitch-thumb css-jsexje-MuiSwitch-thumb"
+                />
                 <span
-                  class="MuiSwitch-track css-1yjjitx-MuiSwitch-track"
+                  class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
                 />
               </span>
               <span
-                class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-ahj2mt-MuiTypography-root"
-              >
-                entryOpen
-              </span>
-            </label>
-          </div>
+                class="MuiSwitch-track css-1yjjitx-MuiSwitch-track"
+              />
+            </span>
+            <span
+              class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-ahj2mt-MuiTypography-root"
+            >
+              entryOpen
+            </span>
+          </label>
           <label
             class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
           >
@@ -5284,7 +5256,7 @@ exports[`SearchPage filters by event class 1`] = `
     class="MuiBox-root css-1ynyhby"
   >
     <div
-      class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-1 css-1god2i2-MuiGrid-root"
+      class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-1 css-n0zgdy-MuiGrid-root"
     >
       <div
         class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-11eerce-MuiGrid-root"
@@ -5777,43 +5749,39 @@ exports[`SearchPage filters by event class 1`] = `
         class="MuiGrid-root MuiGrid-item MuiGrid-grid-md-12 css-ejs5r2-MuiGrid-root"
       >
         <div
-          class="MuiStack-root css-1tiftik-MuiStack-root"
+          class="MuiStack-root css-1lba0i6-MuiStack-root"
         >
-          <div
-            class="MuiBox-root css-k008qs"
+          <label
+            class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
           >
-            <label
-              class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
+            <span
+              class="MuiSwitch-root MuiSwitch-sizeMedium css-julti5-MuiSwitch-root"
             >
               <span
-                class="MuiSwitch-root MuiSwitch-sizeMedium css-julti5-MuiSwitch-root"
+                class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-1xvpzln-MuiButtonBase-root-MuiSwitch-switchBase"
               >
+                <input
+                  class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"
+                  type="checkbox"
+                  value="withOpenEntry"
+                />
                 <span
-                  class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-1xvpzln-MuiButtonBase-root-MuiSwitch-switchBase"
-                >
-                  <input
-                    class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"
-                    type="checkbox"
-                    value="withOpenEntry"
-                  />
-                  <span
-                    class="MuiSwitch-thumb css-jsexje-MuiSwitch-thumb"
-                  />
-                  <span
-                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                  />
-                </span>
+                  class="MuiSwitch-thumb css-jsexje-MuiSwitch-thumb"
+                />
                 <span
-                  class="MuiSwitch-track css-1yjjitx-MuiSwitch-track"
+                  class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
                 />
               </span>
               <span
-                class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-ahj2mt-MuiTypography-root"
-              >
-                entryOpen
-              </span>
-            </label>
-          </div>
+                class="MuiSwitch-track css-1yjjitx-MuiSwitch-track"
+              />
+            </span>
+            <span
+              class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-ahj2mt-MuiTypography-root"
+            >
+              entryOpen
+            </span>
+          </label>
           <label
             class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
           >
@@ -6053,7 +6021,7 @@ exports[`SearchPage filters by event type 1`] = `
     class="MuiBox-root css-1ynyhby"
   >
     <div
-      class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-1 css-1god2i2-MuiGrid-root"
+      class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-1 css-n0zgdy-MuiGrid-root"
     >
       <div
         class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-11eerce-MuiGrid-root"
@@ -6546,43 +6514,39 @@ exports[`SearchPage filters by event type 1`] = `
         class="MuiGrid-root MuiGrid-item MuiGrid-grid-md-12 css-ejs5r2-MuiGrid-root"
       >
         <div
-          class="MuiStack-root css-1tiftik-MuiStack-root"
+          class="MuiStack-root css-1lba0i6-MuiStack-root"
         >
-          <div
-            class="MuiBox-root css-k008qs"
+          <label
+            class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
           >
-            <label
-              class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
+            <span
+              class="MuiSwitch-root MuiSwitch-sizeMedium css-julti5-MuiSwitch-root"
             >
               <span
-                class="MuiSwitch-root MuiSwitch-sizeMedium css-julti5-MuiSwitch-root"
+                class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-1xvpzln-MuiButtonBase-root-MuiSwitch-switchBase"
               >
+                <input
+                  class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"
+                  type="checkbox"
+                  value="withOpenEntry"
+                />
                 <span
-                  class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-1xvpzln-MuiButtonBase-root-MuiSwitch-switchBase"
-                >
-                  <input
-                    class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"
-                    type="checkbox"
-                    value="withOpenEntry"
-                  />
-                  <span
-                    class="MuiSwitch-thumb css-jsexje-MuiSwitch-thumb"
-                  />
-                  <span
-                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                  />
-                </span>
+                  class="MuiSwitch-thumb css-jsexje-MuiSwitch-thumb"
+                />
                 <span
-                  class="MuiSwitch-track css-1yjjitx-MuiSwitch-track"
+                  class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
                 />
               </span>
               <span
-                class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-ahj2mt-MuiTypography-root"
-              >
-                entryOpen
-              </span>
-            </label>
-          </div>
+                class="MuiSwitch-track css-1yjjitx-MuiSwitch-track"
+              />
+            </span>
+            <span
+              class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-ahj2mt-MuiTypography-root"
+            >
+              entryOpen
+            </span>
+          </label>
           <label
             class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
           >
@@ -6913,7 +6877,7 @@ exports[`SearchPage filters by judge 1`] = `
     class="MuiBox-root css-1ynyhby"
   >
     <div
-      class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-1 css-1god2i2-MuiGrid-root"
+      class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-1 css-n0zgdy-MuiGrid-root"
     >
       <div
         class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-11eerce-MuiGrid-root"
@@ -7406,43 +7370,39 @@ exports[`SearchPage filters by judge 1`] = `
         class="MuiGrid-root MuiGrid-item MuiGrid-grid-md-12 css-ejs5r2-MuiGrid-root"
       >
         <div
-          class="MuiStack-root css-1tiftik-MuiStack-root"
+          class="MuiStack-root css-1lba0i6-MuiStack-root"
         >
-          <div
-            class="MuiBox-root css-k008qs"
+          <label
+            class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
           >
-            <label
-              class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
+            <span
+              class="MuiSwitch-root MuiSwitch-sizeMedium css-julti5-MuiSwitch-root"
             >
               <span
-                class="MuiSwitch-root MuiSwitch-sizeMedium css-julti5-MuiSwitch-root"
+                class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-1xvpzln-MuiButtonBase-root-MuiSwitch-switchBase"
               >
+                <input
+                  class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"
+                  type="checkbox"
+                  value="withOpenEntry"
+                />
                 <span
-                  class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-1xvpzln-MuiButtonBase-root-MuiSwitch-switchBase"
-                >
-                  <input
-                    class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"
-                    type="checkbox"
-                    value="withOpenEntry"
-                  />
-                  <span
-                    class="MuiSwitch-thumb css-jsexje-MuiSwitch-thumb"
-                  />
-                  <span
-                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                  />
-                </span>
+                  class="MuiSwitch-thumb css-jsexje-MuiSwitch-thumb"
+                />
                 <span
-                  class="MuiSwitch-track css-1yjjitx-MuiSwitch-track"
+                  class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
                 />
               </span>
               <span
-                class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-ahj2mt-MuiTypography-root"
-              >
-                entryOpen
-              </span>
-            </label>
-          </div>
+                class="MuiSwitch-track css-1yjjitx-MuiSwitch-track"
+              />
+            </span>
+            <span
+              class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-ahj2mt-MuiTypography-root"
+            >
+              entryOpen
+            </span>
+          </label>
           <label
             class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
           >
@@ -7969,7 +7929,7 @@ exports[`SearchPage filters by organizer 1`] = `
     class="MuiBox-root css-1ynyhby"
   >
     <div
-      class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-1 css-1god2i2-MuiGrid-root"
+      class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-1 css-n0zgdy-MuiGrid-root"
     >
       <div
         class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-11eerce-MuiGrid-root"
@@ -8462,43 +8422,39 @@ exports[`SearchPage filters by organizer 1`] = `
         class="MuiGrid-root MuiGrid-item MuiGrid-grid-md-12 css-ejs5r2-MuiGrid-root"
       >
         <div
-          class="MuiStack-root css-1tiftik-MuiStack-root"
+          class="MuiStack-root css-1lba0i6-MuiStack-root"
         >
-          <div
-            class="MuiBox-root css-k008qs"
+          <label
+            class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
           >
-            <label
-              class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
+            <span
+              class="MuiSwitch-root MuiSwitch-sizeMedium css-julti5-MuiSwitch-root"
             >
               <span
-                class="MuiSwitch-root MuiSwitch-sizeMedium css-julti5-MuiSwitch-root"
+                class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-1xvpzln-MuiButtonBase-root-MuiSwitch-switchBase"
               >
+                <input
+                  class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"
+                  type="checkbox"
+                  value="withOpenEntry"
+                />
                 <span
-                  class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-1xvpzln-MuiButtonBase-root-MuiSwitch-switchBase"
-                >
-                  <input
-                    class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"
-                    type="checkbox"
-                    value="withOpenEntry"
-                  />
-                  <span
-                    class="MuiSwitch-thumb css-jsexje-MuiSwitch-thumb"
-                  />
-                  <span
-                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                  />
-                </span>
+                  class="MuiSwitch-thumb css-jsexje-MuiSwitch-thumb"
+                />
                 <span
-                  class="MuiSwitch-track css-1yjjitx-MuiSwitch-track"
+                  class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
                 />
               </span>
               <span
-                class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-ahj2mt-MuiTypography-root"
-              >
-                entryOpen
-              </span>
-            </label>
-          </div>
+                class="MuiSwitch-track css-1yjjitx-MuiSwitch-track"
+              />
+            </span>
+            <span
+              class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-ahj2mt-MuiTypography-root"
+            >
+              entryOpen
+            </span>
+          </label>
           <label
             class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
           >
@@ -8647,7 +8603,7 @@ exports[`SearchPage renders 1`] = `
     class="MuiBox-root css-1ynyhby"
   >
     <div
-      class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-1 css-1god2i2-MuiGrid-root"
+      class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-1 css-n0zgdy-MuiGrid-root"
     >
       <div
         class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-11eerce-MuiGrid-root"
@@ -9095,43 +9051,39 @@ exports[`SearchPage renders 1`] = `
         class="MuiGrid-root MuiGrid-item MuiGrid-grid-md-12 css-ejs5r2-MuiGrid-root"
       >
         <div
-          class="MuiStack-root css-1tiftik-MuiStack-root"
+          class="MuiStack-root css-1lba0i6-MuiStack-root"
         >
-          <div
-            class="MuiBox-root css-k008qs"
+          <label
+            class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
           >
-            <label
-              class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
+            <span
+              class="MuiSwitch-root MuiSwitch-sizeMedium css-julti5-MuiSwitch-root"
             >
               <span
-                class="MuiSwitch-root MuiSwitch-sizeMedium css-julti5-MuiSwitch-root"
+                class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-1xvpzln-MuiButtonBase-root-MuiSwitch-switchBase"
               >
+                <input
+                  class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"
+                  type="checkbox"
+                  value="withOpenEntry"
+                />
                 <span
-                  class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-1xvpzln-MuiButtonBase-root-MuiSwitch-switchBase"
-                >
-                  <input
-                    class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"
-                    type="checkbox"
-                    value="withOpenEntry"
-                  />
-                  <span
-                    class="MuiSwitch-thumb css-jsexje-MuiSwitch-thumb"
-                  />
-                  <span
-                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                  />
-                </span>
+                  class="MuiSwitch-thumb css-jsexje-MuiSwitch-thumb"
+                />
                 <span
-                  class="MuiSwitch-track css-1yjjitx-MuiSwitch-track"
+                  class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
                 />
               </span>
               <span
-                class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-ahj2mt-MuiTypography-root"
-              >
-                entryOpen
-              </span>
-            </label>
-          </div>
+                class="MuiSwitch-track css-1yjjitx-MuiSwitch-track"
+              />
+            </span>
+            <span
+              class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-ahj2mt-MuiTypography-root"
+            >
+              entryOpen
+            </span>
+          </label>
           <label
             class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
           >
