@@ -182,13 +182,6 @@ exports[`EventInfo should render event information 1`] = `
           123
            €
           <br />
-          event.accountNumber
-          : 
-          test
-          <br />
-          event.referenceNumber
-          : 
-          test
           <br />
           test
         </td>

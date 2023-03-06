@@ -3,7 +3,7 @@ import { Grid, Paper, Typography } from '@mui/material'
 import { ConfirmedEvent } from 'koekalenteri-shared/model'
 
 import useEventStatus from '../../hooks/useEventStatus'
-import { entryDateColor, isEntryOpen } from '../../utils'
+import { entryDateColor } from '../../utils'
 
 import CollapsibleSection from './CollapsibleSection'
 import CostInfo from './CostInfo'
@@ -31,7 +31,6 @@ export default function RegistrationEventInfo({ event }: { event: ConfirmedEvent
             <Grid item xs={8} sx={{ color: entryDateColor(event), '& .info': { color: 'info.dark', px: 1 } }}>
               <b>{t('daterange', { start: event.entryStartDate, end: event.entryEndDate })}</b>&nbsp;
               <span className="info">{status}</span>
-              {isEntryOpen(event) ? t('distanceLeft', { date: event.entryEndDate }) : ''}
             </Grid>
             <Grid item xs={4}>
               {t('event.organizer')}:
@@ -59,12 +58,16 @@ export default function RegistrationEventInfo({ event }: { event: ConfirmedEvent
             <Grid item xs={8}>
               <CostInfo event={event} />
             </Grid>
-            <Grid item xs={4}>
-              {t('event.description')}:
-            </Grid>
-            <Grid item xs={8}>
-              {event.description}
-            </Grid>
+            {event.description ? (
+              <>
+                <Grid item xs={4}>
+                  {t('event.description')}:
+                </Grid>
+                <Grid item xs={8}>
+                  {event.description}
+                </Grid>
+              </>
+            ) : null}
           </Grid>
         </Grid>
       </CollapsibleSection>
