@@ -569,7 +569,7 @@ exports[`EventForm should render 1`] = `
                             class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                           >
                             <label
-                              class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-error Mui-required MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
+                              class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-required MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
                               data-shrink="true"
                               for="class"
                               id="class-label"
@@ -577,14 +577,14 @@ exports[`EventForm should render 1`] = `
                               event.classes
                               <span
                                 aria-hidden="true"
-                                class="MuiFormLabel-asterisk MuiInputLabel-asterisk Mui-error css-dqj5rd-MuiFormLabel-asterisk"
+                                class="MuiFormLabel-asterisk MuiInputLabel-asterisk css-dqj5rd-MuiFormLabel-asterisk"
                               >
                                  
                                 *
                               </span>
                             </label>
                             <div
-                              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-error MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-tybxm0-MuiInputBase-root-MuiOutlinedInput-root"
+                              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-tybxm0-MuiInputBase-root-MuiOutlinedInput-root"
                             >
                               <div
                                 class="MuiChip-root MuiChip-outlined MuiChip-sizeSmall MuiChip-colorDefault MuiChip-outlinedDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-ti4gqd-MuiChip-root"
@@ -620,9 +620,8 @@ exports[`EventForm should render 1`] = `
                               </div>
                               <input
                                 aria-autocomplete="list"
-                                aria-describedby="class-helper-text"
                                 aria-expanded="false"
-                                aria-invalid="true"
+                                aria-invalid="false"
                                 autocapitalize="none"
                                 autocomplete="off"
                                 class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-152mnda-MuiInputBase-input-MuiOutlinedInput-input"
@@ -674,12 +673,6 @@ exports[`EventForm should render 1`] = `
                                 </legend>
                               </fieldset>
                             </div>
-                            <p
-                              class="MuiFormHelperText-root Mui-error MuiFormHelperText-sizeMedium MuiFormHelperText-contained Mui-required css-1vg31rc-MuiFormHelperText-root"
-                              id="class-helper-text"
-                            >
-                              validation.event.classesJudge
-                            </p>
                           </div>
                         </div>
                       </div>
@@ -1257,8 +1250,10 @@ exports[`EventForm should render 1`] = `
               judges
             </p>
             <p
-              class="MuiFormHelperText-root css-ml08u8-MuiFormHelperText-root"
-            />
+              class="MuiFormHelperText-root Mui-error css-9tosq5-MuiFormHelperText-root"
+            >
+              validation.event.classesJudge
+            </p>
           </div>
           <div
             class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-bz4dnt-MuiCollapse-root"
