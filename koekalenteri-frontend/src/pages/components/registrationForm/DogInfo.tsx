@@ -102,7 +102,7 @@ export const DogInfo = ({
       case 'fetch':
         const cache = await actions.fetch()
         updateDog(cache)
-        setMode(cache ? 'update' : 'notfound')
+        setMode(cache?.dog?.regNo ? 'update' : 'notfound')
         delay = 500
         break
       case 'update':
