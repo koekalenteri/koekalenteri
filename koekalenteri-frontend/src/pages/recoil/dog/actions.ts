@@ -11,6 +11,7 @@ import { useDogCache } from '../../components/registrationForm/hooks/useDogCache
 import { dogAtom, DogCachedInfo } from './atoms'
 
 const INIT_CACHE: DeepPartial<DogCachedInfo> = { owner: { ownerHandles: true } }
+const isErrObject = (err: unknown): err is object => typeof err === 'object'
 
 export function useDogActions(regNo: string) {
   const [dog, setDog] = useRecoilState(dogAtom(regNo))
@@ -18,7 +19,7 @@ export function useDogActions(regNo: string) {
   const { enqueueSnackbar } = useSnackbar()
 
   return {
-    fetch: async () => {
+    fetch: async (): Promise<DeepPartial<DogCachedInfo>> => {
       if (!regNo) {
         return { dog: emptyDog }
       }
@@ -35,8 +36,14 @@ export function useDogActions(regNo: string) {
           return applyCache(regNo, cache, fetched)
         }
       } catch (err) {
+        if (isErrObject(err) && 'status' in err) {
+          if (err.status === 404) {
+            return { dog: emptyDog }
+          }
+        }
         enqueueSnackbar('Koiran tietojen haku epäonnistui 😞', { variant: 'error' })
       }
+      return { dog: emptyDog }
     },
     refresh: async () => {
       if (!regNo) {

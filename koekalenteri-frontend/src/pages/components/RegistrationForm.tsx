@@ -74,9 +74,9 @@ export default function RegistrationForm({
   const [qualifies, setQualifies] = useState<boolean>(
     filterRelevantResults(
       event,
-      registration.class as RegistrationClass,
-      registration.dog?.results ?? [],
-      registration.results
+      (registration?.class ?? 'ALO') as RegistrationClass,
+      registration?.dog?.results ?? [],
+      registration?.results
     ).qualifies
   )
   const [errors, setErrors] = useState(validateRegistration(registration, event))
@@ -87,24 +87,24 @@ export default function RegistrationForm({
   const requirements = useMemo(
     () =>
       getRequirements(
-        registration.eventType ?? '',
-        registration.class as RegistrationClass,
-        registration.dates && registration.dates.length ? registration.dates[0].date : new Date()
+        registration?.eventType ?? '',
+        registration?.class as RegistrationClass,
+        registration?.dates && registration.dates.length ? registration.dates[0].date : new Date()
       ),
-    [registration.eventType, registration.class, registration.dates]
+    [registration?.eventType, registration?.class, registration?.dates]
   )
 
   const handleChange = useCallback(
-    (props: DeepPartial<Registration>, replace?: boolean) => {
+    (props: DeepPartial<Registration> | undefined = {}, replace?: boolean) => {
       if (props.class || props.results || props.dog?.results) {
         const cls = props.class ?? registration.class
-        const dogResults = props.dog?.results ?? registration.dog.results ?? []
+        const dogResults = props.dog?.results ?? registration.dog?.results ?? []
         const results = props.results ?? registration.results ?? []
         const filtered = filterRelevantResults(event, cls as RegistrationClass, dogResults as TestResult[], results)
         props.qualifyingResults = filtered.relevant
         setQualifies(filtered.qualifies)
       }
-      const newState = replace ? Object.assign({}, registration, props) : merge<Registration>(registration, props)
+      const newState = replace ? Object.assign({}, registration, props) : merge<Registration>(registration, props ?? {})
       if (hasChanges(registration, newState)) {
         console.debug('change', { changes: props, diff: diff(registration, newState) })
         setErrors(validateRegistration(newState, event))
@@ -148,7 +148,7 @@ export default function RegistrationForm({
       texts[error.opts.field] = t(`validation.registration.${error.key}`, error.opts)
       states[error.opts.field] = true
     }
-    if (!registration.dog.regNo) {
+    if (!registration?.dog?.regNo) {
       texts.breeder = texts.owner = texts.qualifyingResults = 'Valitse ensin koira'
       states.breeder = states.owner = states.qualifyingResults = true
     }
@@ -320,7 +320,7 @@ function getSectionHelperTexts(
 ): { [Property in keyof Registration]?: string } {
   return {
     breeder: `${registration.breeder?.name || ''}`,
-    dog: registration.dog ? `${registration.dog.regNo} - ${registration.dog.name}` : '',
+    dog: registration.dog?.regNo ? `${registration.dog.regNo} - ${registration.dog.name}` : '',
     handler: registration.ownerHandles ? t('registration.ownerHandles') : `${registration.handler?.name || ''}`,
     owner: `${registration.owner?.name || ''}`,
     qualifyingResults: t('registration.qualifyingResultsInfo', {

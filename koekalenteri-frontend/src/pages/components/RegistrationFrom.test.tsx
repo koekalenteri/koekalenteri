@@ -49,6 +49,18 @@ describe('RegistrationForm', () => {
     expect(container).toMatchSnapshot()
   })
 
+  it('renders with invalid dog information', () => {
+    const { container } = render(
+      <RegistrationForm
+        event={eventWithStaticDates}
+        // @ts-expect-error Type 'undefined' is not assignable to type 'Dog'.ts(2322)
+        registration={{ ...registrationWithStaticDates, dog: undefined }}
+      />,
+      { wrapper: Wrapper }
+    )
+    expect(container).toMatchSnapshot()
+  })
+
   it('should call onChange', async () => {
     const registration = { ...registrationWithStaticDates }
 
