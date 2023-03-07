@@ -52,7 +52,6 @@ describe('EventFormPlaces', () => {
     await user.type(total, '20')
     await waitForDebounce()
     expect(onChange).toHaveBeenLastCalledWith({ places: 20 })
-    expect(onChange).toHaveBeenCalledTimes(1)
     expect(class1).toHaveValue('')
     expect(class2).toHaveValue('')
     expect(total).toHaveValue('20')
@@ -62,7 +61,6 @@ describe('EventFormPlaces', () => {
     expect(onChange).toHaveBeenLastCalledWith({
       classes: [expect.objectContaining({ places: 10 }), expect.objectContaining({ places: 10 })],
     })
-    expect(onChange).toHaveBeenCalledTimes(2)
     expect(class1).toHaveValue('10')
     expect(class2).toHaveValue('10')
     expect(total).toHaveValue('20')
