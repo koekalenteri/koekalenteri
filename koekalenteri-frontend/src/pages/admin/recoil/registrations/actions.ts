@@ -1,12 +1,14 @@
 import { Registration } from 'koekalenteri-shared/model'
-import { useRecoilState } from 'recoil'
+import { useRecoilState, useRecoilValue } from 'recoil'
 
 import { putRegistration, putRegistrationGroup } from '../../../../api/registration'
+import { accessTokenSelector } from '../../../recoil'
 
 import { currentEventRegistrationsSelector } from './selectors'
 
 export const useAdminRegistrationActions = () => {
   const [adminRegistrations, setAdminRegistrations] = useRecoilState(currentEventRegistrationsSelector)
+  const token = useRecoilValue(accessTokenSelector)
 
   const updateAdminRegistration = (saved: Registration) => {
     const regs = [...adminRegistrations]
@@ -18,13 +20,13 @@ export const useAdminRegistrationActions = () => {
 
   return {
     async save(reg: Registration) {
-      const saved = await putRegistration(reg.ownerHandles ? { ...reg, handler: { ...reg.owner } } : reg)
+      const saved = await putRegistration(reg.ownerHandles ? { ...reg, handler: { ...reg.owner } } : reg, token)
       updateAdminRegistration(saved)
       return saved
     },
 
     async saveGroup(reg: Registration) {
-      const saved = await putRegistrationGroup(reg)
+      const saved = await putRegistrationGroup(reg, token)
       updateAdminRegistration(saved)
       return saved
     },

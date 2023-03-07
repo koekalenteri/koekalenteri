@@ -48,4 +48,12 @@ const HTTP = {
   },
 }
 
+export const withToken = (init: RequestInit, token?: string): RequestInit => ({
+  ...init,
+  headers: {
+    ...init.headers,
+    ...(token ? { Authorization: `Bearer ${token}` } : undefined),
+  },
+})
+
 export default HTTP

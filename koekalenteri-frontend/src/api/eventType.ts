@@ -1,6 +1,6 @@
 import type { EventType } from 'koekalenteri-shared/model'
 
-import http from './http'
+import http, { withToken } from './http'
 
 const PATH = '/eventType/'
 
@@ -9,10 +9,6 @@ export async function getEventTypes(refresh?: boolean, signal?: AbortSignal) {
   return http.get<Array<EventType>>(PATH + qs, { signal })
 }
 
-export async function putEventType(eventType: EventType, token?: string): Promise<EventType> {
-  return http.post<EventType, EventType>(PATH, eventType, {
-    headers: {
-      Authorization: token ? `Bearer ${token}` : '',
-    },
-  })
+export async function putEventType(eventType: EventType, token?: string, signal?: AbortSignal): Promise<EventType> {
+  return http.post<EventType, EventType>(PATH, eventType, withToken({ signal }, token))
 }

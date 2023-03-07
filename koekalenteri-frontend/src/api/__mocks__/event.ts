@@ -35,20 +35,20 @@ export const mockEvents: Event[] = [
   eventWithEntryClosing,
 ]
 
-export async function getEvents(): Promise<Event[]> {
+export async function getEvents(signal?: AbortSignal): Promise<Event[]> {
   return new Promise((resolve) => {
     process.nextTick(() => resolve(mockEvents))
   })
 }
 
-export async function getEvent(id: string): Promise<Event> {
+export async function getEvent(id: string, signal?: AbortSignal): Promise<Event> {
   return new Promise((resolve, reject) => {
     const event = mockEvents.find((item) => item.id === id)
     process.nextTick(() => (event ? resolve(event) : reject()))
   })
 }
 
-export async function putEvent(event: Event, token?: string): Promise<Event> {
+export async function putEvent(event: Event, token?: string, signal?: AbortSignal): Promise<Event> {
   return new Promise((resolve, reject) => {
     let existing: Event | undefined = event
     if (!event.id) {
