@@ -38,13 +38,13 @@ export const newRegistrationAtom = atom<Registration | undefined>({
   effects: [logEffect, storageEffect],
 })
 
-export const registrationByIdsAtom = atomFamily<Registration | undefined, string>({
+export const registrationByIdsAtom = atomFamily<Registration | undefined | null, string>({
   key: 'registration/ids',
   default: undefined,
   effects: [logEffect, storageEffect, remoteRegistrationEffect],
 })
 
-export const editableRegistrationByIdsAtom = atomFamily<Registration | undefined, string | undefined>({
+export const editableRegistrationByIdsAtom = atomFamily<Registration | undefined | null, string | undefined>({
   key: 'editableRegistration/ids',
   default: registrationSelector,
   effects: [logEffect, storageEffect],

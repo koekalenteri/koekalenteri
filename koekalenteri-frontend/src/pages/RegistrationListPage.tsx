@@ -1,17 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
-import {
-  Box,
-  Button,
-  CircularProgress,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  Link,
-} from '@mui/material'
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Link } from '@mui/material'
 import { isPast, isToday } from 'date-fns'
 import type { ConfirmedEvent } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue } from 'recoil'
@@ -21,11 +11,12 @@ import LinkButton from './components/LinkButton'
 import RegistrationEventInfo from './components/RegistrationEventInfo'
 import { useRegistrationActions } from './recoil/registration/actions'
 import RegistrationList from './registrationListPage/RegistrationList'
-import { currentEventSelector, registrationSelector, spaAtom } from './recoil'
+import { LoadingPage } from './LoadingPage'
+import { eventSelector, registrationSelector, spaAtom } from './recoil'
 
 export function RegistrationListPage({ cancel }: { cancel?: boolean }) {
   const params = useParams()
-  const event = useRecoilValue(currentEventSelector) as ConfirmedEvent | undefined
+  const event = useRecoilValue(eventSelector(params.id ?? '')) as ConfirmedEvent | undefined | null
   const [registration, setRegistration] = useRecoilState(
     registrationSelector(`${params.id ?? ''}:${params.registrationId ?? ''}`)
   )
@@ -51,8 +42,20 @@ export function RegistrationListPage({ cancel }: { cancel?: boolean }) {
     }
   }, [open, registration])
 
+  useEffect(() => {
+    if (event === null) {
+      throw new Response('Event not found', { status: 404, statusText: t('error.eventNotFound') })
+    }
+  }, [event, t])
+
+  useEffect(() => {
+    if (registration === null) {
+      throw new Response('Event not found', { status: 404, statusText: t('error.registrationNotFound') })
+    }
+  }, [registration, t])
+
   if (!event || !registration) {
-    return <CircularProgress />
+    return <LoadingPage />
   }
 
   return (

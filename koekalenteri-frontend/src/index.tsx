@@ -6,6 +6,7 @@ import { RecoilRoot } from 'recoil'
 import './i18n'
 
 import theme from './assets/Theme'
+import { LoadingPage } from './pages/LoadingPage'
 import App from './App'
 import reportWebVitals from './reportWebVitals'
 
@@ -23,7 +24,7 @@ root.render(
     <StyledEngineProvider injectFirst>
       <ThemeProvider theme={theme}>
         <RecoilRoot>
-          <Suspense fallback={<div>loading...</div>}>
+          <Suspense fallback={<LoadingPage />}>
             <CssBaseline />
             <App />
           </Suspense>

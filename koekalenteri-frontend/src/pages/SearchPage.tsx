@@ -28,6 +28,7 @@ export function SearchPage() {
   useEffect(() => setSpa(true), [setSpa])
   useEffect(() => setFilter(deserializeFilter(location.search)), [location, setFilter])
 
+  console.log({ filter, organizers, events, location })
   return (
     <>
       <EventFilter

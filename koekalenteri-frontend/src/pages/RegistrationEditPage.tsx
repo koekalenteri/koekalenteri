@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
 import type { ConfirmedEvent, Registration } from 'koekalenteri-shared/model'
@@ -10,13 +10,14 @@ import LinkButton from './components/LinkButton'
 import RegistrationEventInfo from './components/RegistrationEventInfo'
 import RegistrationForm from './components/RegistrationForm'
 import { useRegistrationActions } from './recoil/registration/actions'
+import { LoadingPage } from './LoadingPage'
 import { editableRegistrationByIdsAtom, eventSelector, registrationByIdsAtom, spaAtom } from './recoil'
 
 export default function RegistrationEditPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const params = useParams()
-  const event = useRecoilValue(eventSelector(params.id ?? '')) as ConfirmedEvent | undefined
+  const event = useRecoilValue(eventSelector(params.id ?? '')) as ConfirmedEvent | undefined | null
   const ids = `${params.id ?? ''}:${params.registrationId ?? ''}`
   const [savedRegistration, setSavedRegistration] = useRecoilState(registrationByIdsAtom(ids))
   const [registration, setRegistration] = useRecoilState(editableRegistrationByIdsAtom(ids))
@@ -55,8 +56,20 @@ export default function RegistrationEditPage() {
 
   const handleClick = useCallback(() => (spa ? () => navigate(-1) : undefined), [spa, navigate])
 
+  useEffect(() => {
+    if (event === null) {
+      throw new Response('Event not found', { status: 404, statusText: t('error.eventNotFound') })
+    }
+  }, [event, t])
+
+  useEffect(() => {
+    if (registration === null) {
+      throw new Response('Event not found', { status: 404, statusText: t('error.registrationNotFound') })
+    }
+  }, [registration, t])
+
   if (!event || !registration) {
-    throw new Error('Event not found!')
+    return <LoadingPage />
   }
 
   return (

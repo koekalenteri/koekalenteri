@@ -1,4 +1,5 @@
-import { isRouteErrorResponse, useRouteError } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
+import { isRouteErrorResponse, Link, useRouteError } from 'react-router-dom'
 import { Box, Typography } from '@mui/material'
 
 export function ErrorPage() {
@@ -19,18 +20,16 @@ export function ErrorPage() {
 }
 
 function ErrorInfo() {
+  const { t } = useTranslation()
   const error = useRouteError()
-  if (typeof process !== 'undefined' && process.env?.NODE_ENV !== 'test') {
-    console.error(error)
-  }
 
-  if (isRouteErrorResponse(error)) {
+  if (isRouteErrorResponse(error) || error instanceof Response) {
     return (
       <>
-        <Typography variant="h1">Oops</Typography>
-        <Typography variant="h2">{error.status}</Typography>
+        <Typography variant="h1">{error.status}</Typography>
         <Typography variant="body1">{error.statusText}</Typography>
-        {error.data?.message && <p>{error.data.message}</p>}
+        {'data' in error && error.data?.message && <p>{error.data.message}</p>}
+        <Link to="/">{t('goHome')}</Link>
       </>
     )
   }
