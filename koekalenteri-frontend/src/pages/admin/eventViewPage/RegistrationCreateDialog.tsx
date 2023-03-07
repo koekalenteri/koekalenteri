@@ -25,9 +25,14 @@ export default function RegistrationCreateDialog({ event, eventClass, open, onCl
     if (
       registration.eventId !== event.id ||
       registration.eventType !== event.eventType ||
-      (eventClass && registration.class !== eventClass)
+      (eventClass && !registration.class)
     ) {
-      setRegistration({ ...registration, eventId: event.id, eventType: event.eventType, class: eventClass })
+      setRegistration({
+        ...registration,
+        eventId: event.id,
+        eventType: event.eventType,
+        class: registration.class || eventClass,
+      })
     }
   }, [registration, event, setRegistration, eventClass])
 

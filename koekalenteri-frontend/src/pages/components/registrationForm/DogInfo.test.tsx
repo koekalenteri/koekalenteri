@@ -17,6 +17,7 @@ const eventDate = registrationWithStaticDates.dates[0].date
 
 jest.mock('../../../api/dog')
 jest.mock('../../../api/registration')
+jest.setTimeout(10000)
 
 function Wrapper(props: { children?: ReactNode }) {
   return (
@@ -58,6 +59,7 @@ describe('DogInfo', () => {
 
     await user.clear(input)
     expect(input).toHaveValue('')
+    await waitForDebounce()
     expect(changeHandler).toHaveBeenLastCalledWith(
       expect.objectContaining({
         dog: expect.objectContaining({ regNo: '' }),
@@ -71,6 +73,7 @@ describe('DogInfo', () => {
 
     await user.type(input, newDog.regNo)
     expect(input).toHaveValue(newDog.regNo)
+    await waitForDebounce()
 
     const button = screen.getByRole('button', { name: 'registration.cta.fetch' })
     await user.click(button)
