@@ -31,17 +31,31 @@ export const EventInfo = ({ event }: { event: Event }) => {
         size="small"
         aria-label="details"
         sx={{
+          border: 0,
+          my: 0.5,
+          mx: 0,
           '& *': {
             border: 0,
+            my: 0,
+            borderSpacing: 0,
             padding: '2px 16px 2px 0',
           },
           '& th': {
             border: 0,
+            margin: 0,
+            py: 0,
+            pl: 0,
+            borderSpacing: 0,
             width: '1%',
             whiteSpace: 'nowrap',
             verticalAlign: 'top',
           },
           '& td': {
+            border: 0,
+            margin: 0,
+            py: 0,
+            pl: 0,
+            borderSpacing: 0,
             whiteSpace: 'normal',
           },
         }}

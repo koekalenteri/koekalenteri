@@ -4,7 +4,7 @@ exports[`EventInfo should render event information 1`] = `
 <div>
   <table
     aria-label="details"
-    class="MuiTable-root css-9ahfwp-MuiTable-root"
+    class="MuiTable-root css-ii9sbb-MuiTable-root"
   >
     <tbody
       class="MuiTableBody-root css-apqrd9-MuiTableBody-root"

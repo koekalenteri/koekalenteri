@@ -15,7 +15,7 @@ export function EventTable({ events }: { events: Event[] }) {
         aria-label="event table"
         sx={{
           borderCollapse: 'separate',
-          borderSpacing: '2px',
+          borderSpacing: '3px',
         }}
       >
         <TableBody>

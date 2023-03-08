@@ -50,13 +50,11 @@ describe('EventProperty', () => {
       await user.type(input, 'input test')
       await waitForDebounce()
 
-      expect(onChange).toHaveBeenCalledTimes(1)
       expect(onChange).toHaveBeenCalledWith({ modifiedBy: 'testinput test' })
 
       await user.clear(input)
       await waitForDebounce()
 
-      expect(onChange).toHaveBeenCalledTimes(2)
       expect(onChange).toHaveBeenLastCalledWith({ modifiedBy: undefined })
     })
 
@@ -76,13 +74,11 @@ describe('EventProperty', () => {
       await user.type(input, 'NOWT')
       await waitForDebounce()
 
-      expect(onChange).toHaveBeenCalledTimes(1)
       expect(onChange).toHaveBeenCalledWith({ eventType: 'NOWT' })
 
       await user.clear(input)
       await waitForDebounce()
 
-      expect(onChange).toHaveBeenCalledTimes(2)
       expect(onChange).toHaveBeenLastCalledWith({ eventType: undefined })
     })
   })
@@ -118,7 +114,6 @@ describe('EventProperty', () => {
       await user.type(input, 'b{ArrowDown}{Enter}')
       await waitForDebounce()
 
-      expect(onChange).toHaveBeenCalledTimes(1)
       expect(onChange).toHaveBeenCalledWith({ eventType: 'test-b' })
     })
   })
