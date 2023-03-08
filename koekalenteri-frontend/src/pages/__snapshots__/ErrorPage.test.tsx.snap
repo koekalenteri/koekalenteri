@@ -16,9 +16,14 @@ exports[`ErrorPage should render 404 1`] = `
       Not Found
     </p>
     <a
+      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall css-15o2k4f-MuiButtonBase-root-MuiButton-root"
       href="/"
+      tabindex="0"
     >
       goHome
+      <span
+        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+      />
     </a>
   </div>
 </div>
@@ -34,6 +39,16 @@ exports[`ErrorPage should render 500 1`] = `
     >
       Oops
     </h1>
+    <a
+      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall css-15o2k4f-MuiButtonBase-root-MuiButton-root"
+      href="/"
+      tabindex="0"
+    >
+      goHome
+      <span
+        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+      />
+    </a>
   </div>
 </div>
 `;
