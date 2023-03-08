@@ -45,14 +45,10 @@ export function RegistrationListPage({ cancel }: { cancel?: boolean }) {
   useEffect(() => {
     if (event === null) {
       throw new Response('Event not found', { status: 404, statusText: t('error.eventNotFound') })
-    }
-  }, [event, t])
-
-  useEffect(() => {
-    if (registration === null) {
+    } else if (registration === null) {
       throw new Response('Event not found', { status: 404, statusText: t('error.registrationNotFound') })
     }
-  }, [registration, t])
+  }, [event, registration, t])
 
   if (!event || !registration) {
     return <LoadingPage />

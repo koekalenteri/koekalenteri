@@ -58,10 +58,8 @@ export default function RegistrationEditPage() {
 
   useEffect(() => {
     if (event === null) {
-      console.log('event')
       throw new Response('Event not found', { status: 404, statusText: t('error.eventNotFound') })
     } else if (registration === null) {
-      console.log('registration')
       throw new Response('Event not found', { status: 404, statusText: t('error.registrationNotFound') })
     }
   }, [event, registration, t])
