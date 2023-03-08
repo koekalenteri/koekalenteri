@@ -1,0 +1,40 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CostInfo should not render costMember when it is zero 1`] = `
+<div>
+  event.cost
+  : 
+  50
+   €
+  <br />
+  <br />
+  details
+</div>
+`;
+
+exports[`CostInfo should not render paymetDefauils when it is empty 1`] = `
+<div>
+  event.cost
+  : 
+  50
+   €
+  <br />
+</div>
+`;
+
+exports[`CostInfo should render with all the information 1`] = `
+<div>
+  event.cost
+  : 
+  50
+   €
+  <br />
+  event.costMember
+  : 
+  40
+   €
+  <br />
+  <br />
+  details
+</div>
+`;
