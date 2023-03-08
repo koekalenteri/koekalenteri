@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next'
 import { Event } from 'koekalenteri-shared/model'
 
 interface Props {
-  event: Event
+  event: Pick<Event, 'cost' | 'costMember' | 'paymentDetails'>
 }
 
 export default function CostInfo({ event }: Props) {
@@ -11,9 +11,17 @@ export default function CostInfo({ event }: Props) {
   return (
     <>
       {t('event.cost')}: {event.cost} €<br />
-      {t('event.costMember')}: {event.costMember} €<br />
-      <br />
-      {event.paymentDetails}
+      {event.costMember ? (
+        <>
+          {t('event.costMember')}: {event.costMember} €<br />
+        </>
+      ) : null}
+      {event.paymentDetails ? (
+        <>
+          <br />
+          {event.paymentDetails}
+        </>
+      ) : null}
     </>
   )
 }
