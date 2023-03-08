@@ -14,11 +14,23 @@ export const userNameSelector = selector({
 })
 
 export const accessTokenSelector = selector({
-  key: 'token',
+  key: 'accessToken',
   get: async () => {
     try {
       const user = await Auth.currentAuthenticatedUser()
       return user?.getSignInUserSession()?.getAccessToken().getJwtToken()
+    } catch (e) {
+      // The user is not authenticated
+    }
+  },
+})
+
+export const idTokenSelector = selector({
+  key: 'idToken',
+  get: async () => {
+    try {
+      const user = await Auth.currentAuthenticatedUser()
+      return user?.getSignInUserSession()?.getIdToken().getJwtToken()
     } catch (e) {
       // The user is not authenticated
     }
