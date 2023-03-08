@@ -7,6 +7,7 @@ import {
   eventWithEntryNotYetOpen,
   eventWithEntryOpen,
   eventWithStaticDates,
+  eventWithStaticDatesAnd3Classes,
   eventWithStaticDatesAndClass,
 } from '../../__mockData__/events'
 import { emptyEvent } from '../test-utils/emptyEvent'
@@ -15,6 +16,7 @@ export const mockEvents: Event[] = [
   eventWithStaticDates,
   eventWithEntryClosed, // in between the static dates for simulating unordered api response
   eventWithStaticDatesAndClass,
+  eventWithStaticDatesAnd3Classes,
   {
     ...emptyEvent,
     id: 'test2',

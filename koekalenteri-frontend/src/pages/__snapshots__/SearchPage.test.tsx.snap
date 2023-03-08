@@ -1291,6 +1291,97 @@ exports[`SearchPage filters by date 1`] = `
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-1rl1j2j-MuiGrid-root"
                   >
+                    ALO, AVO, VOI
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-5 css-1ek8k2z-MuiGrid-root"
+                  >
+                    test location
+                     (test)
+                  </div>
+                </div>
+                <div
+                  class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-xn8b0u-MuiGrid-root"
+                >
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-6 MuiGrid-grid-md-7 css-rhw740-MuiGrid-root"
+                  >
+                    Suomen Noutajakoirajärjestö ry
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 MuiGrid-grid-md-2 css-nuhzl1-MuiGrid-root"
+                  >
+                    <div
+                      class="MuiBox-root css-1l5sq2a"
+                    >
+                      10 toltaPlaces
+                    </div>
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 MuiGrid-grid-md-3 css-1xd4zan-MuiGrid-root"
+                  >
+                    <div
+                      class="MuiBox-root css-1i29gk3"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr
+          class="MuiTableRow-root css-17yh7s7-MuiTableRow-root"
+        >
+          <td
+            class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+          >
+            <div
+              class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
+            >
+              <div
+                class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-auto css-kcsfla-MuiGrid-root"
+              >
+                <button
+                  aria-label="expand row"
+                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10frfwe-MuiButtonBase-root-MuiIconButton-root"
+                  tabindex="0"
+                  type="button"
+                >
+                  <svg
+                    aria-hidden="true"
+                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                    data-testid="KeyboardArrowRightIcon"
+                    focusable="false"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"
+                    />
+                  </svg>
+                  <span
+                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                  />
+                </button>
+              </div>
+              <div
+                class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-xs-true css-2ryc1y-MuiGrid-root"
+              >
+                <div
+                  class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-1s2fltb-MuiGrid-root"
+                >
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 css-8tus7w-MuiGrid-root"
+                  >
+                    daterange
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-1rl1j2j-MuiGrid-root"
+                  >
+                    NOME-B
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-1rl1j2j-MuiGrid-root"
+                  >
                     AVO
                   </div>
                   <div
@@ -2010,6 +2101,97 @@ exports[`SearchPage filters by date/end 1`] = `
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-1rl1j2j-MuiGrid-root"
                   >
                     ALO
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-5 css-1ek8k2z-MuiGrid-root"
+                  >
+                    test location
+                     (test)
+                  </div>
+                </div>
+                <div
+                  class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-xn8b0u-MuiGrid-root"
+                >
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-6 MuiGrid-grid-md-7 css-rhw740-MuiGrid-root"
+                  >
+                    Suomen Noutajakoirajärjestö ry
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 MuiGrid-grid-md-2 css-nuhzl1-MuiGrid-root"
+                  >
+                    <div
+                      class="MuiBox-root css-1l5sq2a"
+                    >
+                      10 toltaPlaces
+                    </div>
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 MuiGrid-grid-md-3 css-1xd4zan-MuiGrid-root"
+                  >
+                    <div
+                      class="MuiBox-root css-1i29gk3"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr
+          class="MuiTableRow-root css-17yh7s7-MuiTableRow-root"
+        >
+          <td
+            class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+          >
+            <div
+              class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
+            >
+              <div
+                class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-auto css-kcsfla-MuiGrid-root"
+              >
+                <button
+                  aria-label="expand row"
+                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10frfwe-MuiButtonBase-root-MuiIconButton-root"
+                  tabindex="0"
+                  type="button"
+                >
+                  <svg
+                    aria-hidden="true"
+                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                    data-testid="KeyboardArrowRightIcon"
+                    focusable="false"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"
+                    />
+                  </svg>
+                  <span
+                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                  />
+                </button>
+              </div>
+              <div
+                class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-xs-true css-2ryc1y-MuiGrid-root"
+              >
+                <div
+                  class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-1s2fltb-MuiGrid-root"
+                >
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 css-8tus7w-MuiGrid-root"
+                  >
+                    daterange
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-1rl1j2j-MuiGrid-root"
+                  >
+                    NOME-B
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-1rl1j2j-MuiGrid-root"
+                  >
+                    ALO, AVO, VOI
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-5 css-1ek8k2z-MuiGrid-root"
@@ -5880,6 +6062,97 @@ exports[`SearchPage filters by event class 1`] = `
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-1rl1j2j-MuiGrid-root"
                   >
+                    ALO, AVO, VOI
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-5 css-1ek8k2z-MuiGrid-root"
+                  >
+                    test location
+                     (test)
+                  </div>
+                </div>
+                <div
+                  class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-xn8b0u-MuiGrid-root"
+                >
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-6 MuiGrid-grid-md-7 css-rhw740-MuiGrid-root"
+                  >
+                    Suomen Noutajakoirajärjestö ry
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 MuiGrid-grid-md-2 css-nuhzl1-MuiGrid-root"
+                  >
+                    <div
+                      class="MuiBox-root css-1l5sq2a"
+                    >
+                      10 toltaPlaces
+                    </div>
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 MuiGrid-grid-md-3 css-1xd4zan-MuiGrid-root"
+                  >
+                    <div
+                      class="MuiBox-root css-1i29gk3"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr
+          class="MuiTableRow-root css-17yh7s7-MuiTableRow-root"
+        >
+          <td
+            class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+          >
+            <div
+              class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
+            >
+              <div
+                class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-auto css-kcsfla-MuiGrid-root"
+              >
+                <button
+                  aria-label="expand row"
+                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10frfwe-MuiButtonBase-root-MuiIconButton-root"
+                  tabindex="0"
+                  type="button"
+                >
+                  <svg
+                    aria-hidden="true"
+                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                    data-testid="KeyboardArrowRightIcon"
+                    focusable="false"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"
+                    />
+                  </svg>
+                  <span
+                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                  />
+                </button>
+              </div>
+              <div
+                class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-xs-true css-2ryc1y-MuiGrid-root"
+              >
+                <div
+                  class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-1s2fltb-MuiGrid-root"
+                >
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 css-8tus7w-MuiGrid-root"
+                  >
+                    daterange
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-1rl1j2j-MuiGrid-root"
+                  >
+                    NOME-B
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-1rl1j2j-MuiGrid-root"
+                  >
                     AVO
                   </div>
                   <div
@@ -6646,6 +6919,97 @@ exports[`SearchPage filters by event type 1`] = `
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-1rl1j2j-MuiGrid-root"
                   >
                     ALO
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-5 css-1ek8k2z-MuiGrid-root"
+                  >
+                    test location
+                     (test)
+                  </div>
+                </div>
+                <div
+                  class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-xn8b0u-MuiGrid-root"
+                >
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-6 MuiGrid-grid-md-7 css-rhw740-MuiGrid-root"
+                  >
+                    Suomen Noutajakoirajärjestö ry
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 MuiGrid-grid-md-2 css-nuhzl1-MuiGrid-root"
+                  >
+                    <div
+                      class="MuiBox-root css-1l5sq2a"
+                    >
+                      10 toltaPlaces
+                    </div>
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 MuiGrid-grid-md-3 css-1xd4zan-MuiGrid-root"
+                  >
+                    <div
+                      class="MuiBox-root css-1i29gk3"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr
+          class="MuiTableRow-root css-17yh7s7-MuiTableRow-root"
+        >
+          <td
+            class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+          >
+            <div
+              class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
+            >
+              <div
+                class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-auto css-kcsfla-MuiGrid-root"
+              >
+                <button
+                  aria-label="expand row"
+                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10frfwe-MuiButtonBase-root-MuiIconButton-root"
+                  tabindex="0"
+                  type="button"
+                >
+                  <svg
+                    aria-hidden="true"
+                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                    data-testid="KeyboardArrowRightIcon"
+                    focusable="false"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"
+                    />
+                  </svg>
+                  <span
+                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                  />
+                </button>
+              </div>
+              <div
+                class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-xs-true css-2ryc1y-MuiGrid-root"
+              >
+                <div
+                  class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-1s2fltb-MuiGrid-root"
+                >
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 css-8tus7w-MuiGrid-root"
+                  >
+                    daterange
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-1rl1j2j-MuiGrid-root"
+                  >
+                    NOME-B
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-1rl1j2j-MuiGrid-root"
+                  >
+                    ALO, AVO, VOI
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-5 css-1ek8k2z-MuiGrid-root"
@@ -8982,7 +9346,7 @@ exports[`SearchPage renders 1`] = `
             class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
           >
             <label
-              class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
+              class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
               data-shrink="false"
               for=":r8:"
               id=":r8:-label"
@@ -8990,7 +9354,7 @@ exports[`SearchPage renders 1`] = `
               judge
             </label>
             <div
-              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1hw12xa-MuiInputBase-root-MuiOutlinedInput-root"
+              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1hw12xa-MuiInputBase-root-MuiOutlinedInput-root"
             >
               <input
                 aria-autocomplete="list"
@@ -8998,8 +9362,7 @@ exports[`SearchPage renders 1`] = `
                 aria-invalid="false"
                 autocapitalize="none"
                 autocomplete="off"
-                class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
-                disabled=""
+                class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
                 id=":r8:"
                 role="combobox"
                 spellcheck="false"
@@ -9011,8 +9374,7 @@ exports[`SearchPage renders 1`] = `
               >
                 <button
                   aria-label="Open"
-                  class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-                  disabled=""
+                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                   tabindex="-1"
                   title="Open"
                   type="button"
@@ -9028,6 +9390,9 @@ exports[`SearchPage renders 1`] = `
                       d="M7 10l5 5 5-5z"
                     />
                   </svg>
+                  <span
+                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                  />
                 </button>
               </div>
               <fieldset
@@ -9271,6 +9636,97 @@ exports[`SearchPage renders 1`] = `
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-1rl1j2j-MuiGrid-root"
                   >
                     ALO
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-5 css-1ek8k2z-MuiGrid-root"
+                  >
+                    test location
+                     (test)
+                  </div>
+                </div>
+                <div
+                  class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-xn8b0u-MuiGrid-root"
+                >
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-6 MuiGrid-grid-md-7 css-rhw740-MuiGrid-root"
+                  >
+                    Suomen Noutajakoirajärjestö ry
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 MuiGrid-grid-md-2 css-nuhzl1-MuiGrid-root"
+                  >
+                    <div
+                      class="MuiBox-root css-1l5sq2a"
+                    >
+                      10 toltaPlaces
+                    </div>
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 MuiGrid-grid-md-3 css-1xd4zan-MuiGrid-root"
+                  >
+                    <div
+                      class="MuiBox-root css-1i29gk3"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr
+          class="MuiTableRow-root css-17yh7s7-MuiTableRow-root"
+        >
+          <td
+            class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+          >
+            <div
+              class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
+            >
+              <div
+                class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-auto css-kcsfla-MuiGrid-root"
+              >
+                <button
+                  aria-label="expand row"
+                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10frfwe-MuiButtonBase-root-MuiIconButton-root"
+                  tabindex="0"
+                  type="button"
+                >
+                  <svg
+                    aria-hidden="true"
+                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                    data-testid="KeyboardArrowRightIcon"
+                    focusable="false"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"
+                    />
+                  </svg>
+                  <span
+                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                  />
+                </button>
+              </div>
+              <div
+                class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-xs-true css-2ryc1y-MuiGrid-root"
+              >
+                <div
+                  class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-1s2fltb-MuiGrid-root"
+                >
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 css-8tus7w-MuiGrid-root"
+                  >
+                    daterange
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-1rl1j2j-MuiGrid-root"
+                  >
+                    NOME-B
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-1rl1j2j-MuiGrid-root"
+                  >
+                    ALO, AVO, VOI
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-5 css-1ek8k2z-MuiGrid-root"
