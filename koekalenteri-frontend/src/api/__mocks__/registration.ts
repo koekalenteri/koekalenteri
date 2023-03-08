@@ -1,6 +1,8 @@
 import { parseISO } from 'date-fns'
 import { Registration } from 'koekalenteri-shared/model'
 
+import { mockRegistrationData } from '../../__mockData__/registrations'
+
 import { mockEvents } from './event'
 
 export const mockRegistrations: { [key: string]: Registration[] } = {
@@ -44,6 +46,13 @@ export const mockRegistrations: { [key: string]: Registration[] } = {
       reserve: 'ANY',
     },
   ],
+}
+
+for (const reg of mockRegistrationData) {
+  if (!mockRegistrations[reg.eventId]) {
+    mockRegistrations[reg.eventId] = []
+  }
+  mockRegistrations[reg.eventId].push(reg)
 }
 
 export async function getRegistrations(eventId: string, token?: string, signal?: AbortSignal): Promise<Registration[]> {

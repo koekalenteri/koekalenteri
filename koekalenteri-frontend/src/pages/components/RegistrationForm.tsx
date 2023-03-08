@@ -16,7 +16,6 @@ import {
   Theme,
   useMediaQuery,
 } from '@mui/material'
-import { diff } from 'deep-object-diff'
 import { TFunction } from 'i18next'
 import { ConfirmedEvent, DeepPartial, Registration, TestResult } from 'koekalenteri-shared/model'
 
@@ -106,7 +105,6 @@ export default function RegistrationForm({
       }
       const newState = replace ? Object.assign({}, registration, props) : merge<Registration>(registration, props ?? {})
       if (hasChanges(registration, newState)) {
-        console.debug('change', { changes: props, diff: diff(registration, newState) })
         setErrors(validateRegistration(newState, event))
         onChange?.(newState)
       }

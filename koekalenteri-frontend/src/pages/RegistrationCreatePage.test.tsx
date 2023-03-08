@@ -1,9 +1,9 @@
 import { ReactNode, Suspense } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { MemoryRouter, useParams } from 'react-router-dom'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import { format } from 'date-fns'
 import { SnackbarProvider } from 'notistack'
 import { RecoilRoot } from 'recoil'
@@ -24,26 +24,22 @@ jest.mock('../api/registration')
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useNavigate: jest.fn(),
   useParams: jest.fn(),
-  Link: jest.fn().mockImplementation(() => <>link</>),
 }))
-const mockUseNavigate = useNavigate as jest.Mock
 const mockUseParams = useParams as jest.Mock
-const mockNavigate = jest.fn()
-
-mockUseNavigate.mockImplementation(() => mockNavigate)
 
 function Wrapper({ children }: { children: ReactNode }) {
   return (
     <ThemeProvider theme={theme}>
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
         <RecoilRoot>
-          <SnackbarProvider>
-            <Suspense fallback={<div>loading...</div>}>
-              <SnackbarProvider>{children}</SnackbarProvider>
-            </Suspense>
-          </SnackbarProvider>
+          <MemoryRouter>
+            <SnackbarProvider>
+              <Suspense fallback={<div>loading...</div>}>
+                <SnackbarProvider>{children}</SnackbarProvider>
+              </Suspense>
+            </SnackbarProvider>
+          </MemoryRouter>
         </RecoilRoot>
       </LocalizationProvider>
     </ThemeProvider>

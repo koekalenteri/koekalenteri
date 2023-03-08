@@ -2,6 +2,16 @@
 
 exports[`RegistrationCreatePage should render with event/eventType/id path 1`] = `
 <div>
+  <a
+    class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textInfo MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-root MuiButton-text MuiButton-textInfo MuiButton-sizeSmall MuiButton-textSizeSmall css-1f21x25-MuiButtonBase-root-MuiButton-root"
+    href="/"
+    tabindex="0"
+  >
+    goHome
+    <span
+      class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+    />
+  </a>
   <div
     class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation2 css-g9q2hn-MuiPaper-root"
   >
@@ -2315,6 +2325,16 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
 
 exports[`RegistrationCreatePage should select the date on event/eventType/id/class/date path 1`] = `
 <div>
+  <a
+    class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textInfo MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-root MuiButton-text MuiButton-textInfo MuiButton-sizeSmall MuiButton-textSizeSmall css-1f21x25-MuiButtonBase-root-MuiButton-root"
+    href="/"
+    tabindex="0"
+  >
+    goHome
+    <span
+      class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+    />
+  </a>
   <div
     class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation2 css-g9q2hn-MuiPaper-root"
   >
