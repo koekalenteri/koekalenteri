@@ -4,7 +4,7 @@ exports[`EventInfo should render event information 1`] = `
 <div>
   <table
     aria-label="details"
-    class="MuiTable-root css-sdy3a3-MuiTable-root"
+    class="MuiTable-root css-v29f5t-MuiTable-root"
   >
     <tbody
       class="MuiTableBody-root css-apqrd9-MuiTableBody-root"
@@ -20,11 +20,9 @@ exports[`EventInfo should render event information 1`] = `
           :
         </th>
         <td
-          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-3yplw8-MuiTableCell-root"
+          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
         >
-          <b>
-            daterange
-          </b>
+          daterange
           <span
             class="info"
           />
@@ -44,7 +42,7 @@ exports[`EventInfo should render event information 1`] = `
           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
         >
           <table
-            class="MuiTable-root css-12oyadd-MuiTable-root"
+            class="MuiTable-root css-1k2pdqd-MuiTable-root"
           >
             <tbody
               class="MuiTableBody-root css-apqrd9-MuiTableBody-root"
@@ -71,13 +69,13 @@ exports[`EventInfo should render event information 1`] = `
                   Test Judge
                 </th>
                 <th
-                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-1mozben-MuiTableCell-root"
+                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-dv0mq-MuiTableCell-root"
                   scope="row"
                 >
                   22 / 11
                 </th>
                 <th
-                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-1mozben-MuiTableCell-root"
+                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-dv0mq-MuiTableCell-root"
                   scope="row"
                 >
                   members

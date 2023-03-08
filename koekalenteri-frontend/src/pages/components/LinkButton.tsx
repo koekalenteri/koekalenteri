@@ -15,9 +15,11 @@ export default function LinkButton({ to, text, onClick, sx = {} }: Props) {
     onClick?.(e)
   }
   sx.padding = '0 8px !important'
+  sx.fontWeight = 'bold'
+  sx.textDecoration = 'underline'
 
   return (
-    <Button size="small" color="info" sx={sx} component={Link} to={to} onClick={handleClick}>
+    <Button size="small" sx={sx} component={Link} to={to} onClick={handleClick}>
       {text}
     </Button>
   )

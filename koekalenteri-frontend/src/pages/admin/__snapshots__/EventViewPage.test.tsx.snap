@@ -15,7 +15,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
           class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true css-17utxkx-MuiGrid-root"
         >
           <a
-            class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textInfo MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-root MuiButton-text MuiButton-textInfo MuiButton-sizeSmall MuiButton-textSizeSmall css-1f21x25-MuiButtonBase-root-MuiButton-root"
+            class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall css-d25sdv-MuiButtonBase-root-MuiButton-root"
             href="/admin/event"
             tabindex="0"
           >
@@ -5649,7 +5649,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
           class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true css-17utxkx-MuiGrid-root"
         >
           <a
-            class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textInfo MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-root MuiButton-text MuiButton-textInfo MuiButton-sizeSmall MuiButton-textSizeSmall css-1f21x25-MuiButtonBase-root-MuiButton-root"
+            class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall css-d25sdv-MuiButtonBase-root-MuiButton-root"
             href="/admin/event"
             tabindex="0"
           >

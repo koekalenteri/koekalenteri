@@ -4,7 +4,7 @@ import { format } from 'date-fns'
 import type { Event, EventClass } from 'koekalenteri-shared/model'
 
 import useEventStatus from '../../hooks/useEventStatus'
-import { entryDateColor, isEntryOpen } from '../../utils'
+import { isEntryOpen } from '../../utils'
 import CostInfo from '../components/CostInfo'
 import LinkButton from '../components/LinkButton'
 import { useJudgesActions } from '../recoil'
@@ -28,7 +28,7 @@ export const EventInfo = ({ event }: { event: Event }) => {
         aria-label="details"
         sx={{
           '& *': {
-            borderBottom: 'unset',
+            border: 0,
             padding: '2px 16px 2px 0',
           },
           '& th': {
@@ -46,8 +46,8 @@ export const EventInfo = ({ event }: { event: Event }) => {
             <TableCell component="th" scope="row">
               {t('entryTime')}:
             </TableCell>
-            <TableCell sx={{ color: entryDateColor(event), '& .info': { color: 'info.dark' } }}>
-              <b>{t('daterange', { start: event.entryStartDate, end: event.entryEndDate })}</b>
+            <TableCell>
+              {t('daterange', { start: event.entryStartDate, end: event.entryEndDate })}
               <span className="info">{status}</span>
               {isEntryOpen(event) ? t('distanceLeft', { date: event.entryEndDate }) : ''}
             </TableCell>
@@ -122,6 +122,9 @@ const EventClassTable = ({ event }: EventProps) => {
     <Table
       size="small"
       sx={{
+        '& *': {
+          border: 0,
+        },
         '& th': {
           padding: '0 8px 0 0',
           verticalAlign: 'middle',
@@ -157,10 +160,10 @@ const EventClassTableRow = ({ event, eventClass }: { event: Event; eventClass: E
       <TableCell component="th" scope="row">
         {judgeNames}
       </TableCell>
-      <TableCell component="th" scope="row" align="right" sx={{ fontWeight: 'bold' }}>
+      <TableCell component="th" scope="row" align="right">
         {entryStatus}
       </TableCell>
-      <TableCell component="th" scope="row" align="right" sx={{ fontWeight: 'bold' }}>
+      <TableCell component="th" scope="row" align="right">
         {memberStatus}
       </TableCell>
       <TableCell component="th" scope="row">
@@ -169,9 +172,7 @@ const EventClassTableRow = ({ event, eventClass }: { event: Event; eventClass: E
             to={`/event/${event.eventType}/${event.id}/${eventClass.class}/${classDate}`}
             text={t('register')}
           />
-        ) : (
-          ''
-        )}
+        ) : null}
       </TableCell>
       <TableCell></TableCell>
     </TableRow>

@@ -1,18 +1,7 @@
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { KeyboardArrowDown, KeyboardArrowRight } from '@mui/icons-material'
-import {
-  Box,
-  Collapse,
-  Grid,
-  IconButton,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableRow,
-} from '@mui/material'
+import { Box, Collapse, Grid, IconButton, Table, TableBody, TableCell, TableContainer, TableRow } from '@mui/material'
 import type { Event, EventState } from 'koekalenteri-shared/model'
 import { useRecoilState } from 'recoil'
 
@@ -45,9 +34,8 @@ const Row = ({ event }: { event: Event }) => {
         sx={{
           '& > td': {
             backgroundColor: 'background.form',
-            borderBottom: '2px solid white',
-            borderRadius: 4,
-            padding: '2px 0',
+            borderRadius: '4px',
+            padding: 0,
             whiteSpace: 'nowrap',
           },
           '& div.MuiGrid-item': {
@@ -65,7 +53,7 @@ const Row = ({ event }: { event: Event }) => {
             </Grid>
             <Grid item container xs onClick={handleClick}>
               <Grid item container xs={12} md={6} justifyContent="flex-start" spacing={1}>
-                <Grid item xs={3} sx={{ fontWeight: event.entryOrigEndDate ? 'bold' : 'normal' }}>
+                <Grid item xs={3}>
                   {t('daterange', { start: event.startDate, end: event.endDate })}
                 </Grid>
                 <Grid item xs={2}>
@@ -99,9 +87,10 @@ const Row = ({ event }: { event: Event }) => {
           <Collapse
             in={open}
             sx={{
-              borderTop: '1px solid #BDBDBD',
+              borderTop: '1px solid',
+              borderTopColor: 'divider',
               ml: '34px',
-              mt: 1,
+              mt: 0,
               pt: 1,
             }}
             timeout="auto"
@@ -117,22 +106,15 @@ const Row = ({ event }: { event: Event }) => {
 
 const EventPlaces = ({ event }: { event: Event }) => {
   const { t } = useTranslation()
-  const color = (event.entries ?? 0) > event.places ? 'warning.main' : 'text.primary'
   let text = ''
-  let bold = false
   if (event.places) {
     if (event.entries) {
       text = `${event.entries} / ${event.places}`
-      bold = true
     } else {
       text = event.places + ' ' + t('toltaPlaces')
     }
   }
-  return (
-    <Box textAlign="right" sx={{ color, fontWeight: bold ? 'bold' : 'normal' }}>
-      {text}
-    </Box>
-  )
+  return <Box textAlign="right">{text}</Box>
 }
 
 function EventStateInfo({ state }: { state: EventState }) {
@@ -147,15 +129,21 @@ function EventStateInfo({ state }: { state: EventState }) {
 
 function EmptyResult() {
   const { t } = useTranslation()
-  return <Box sx={{ width: '100%', textAlign: 'center', color: 'red' }}>{t('noResults')}</Box>
+  return <Box sx={{ width: '100%', textAlign: 'center' }}>{t('noResults')}</Box>
 }
 
 export function EventTable({ events }: { events: Event[] }) {
   return (
     <>
       {events.length ? (
-        <TableContainer component={Paper}>
-          <Table aria-label="event table">
+        <TableContainer>
+          <Table
+            aria-label="event table"
+            sx={{
+              borderCollapse: 'separate',
+              borderSpacing: '2px',
+            }}
+          >
             <TableBody>
               {events.map((event) => (
                 <Row key={event.id} event={event} />

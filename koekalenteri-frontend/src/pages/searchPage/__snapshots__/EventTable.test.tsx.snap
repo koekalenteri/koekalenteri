@@ -3,17 +3,17 @@
 exports[`EventTable should render 1`] = `
 <div>
   <div
-    class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiTableContainer-root css-11xur9t-MuiPaper-root-MuiTableContainer-root"
+    class="MuiTableContainer-root css-rorn0c-MuiTableContainer-root"
   >
     <table
       aria-label="event table"
-      class="MuiTable-root css-rqglhn-MuiTable-root"
+      class="MuiTable-root css-1e1oplx-MuiTable-root"
     >
       <tbody
         class="MuiTableBody-root css-apqrd9-MuiTableBody-root"
       >
         <tr
-          class="MuiTableRow-root css-17yh7s7-MuiTableRow-root"
+          class="MuiTableRow-root css-1lvh4ei-MuiTableRow-root"
         >
           <td
             class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
@@ -53,7 +53,7 @@ exports[`EventTable should render 1`] = `
                   class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-1s2fltb-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 css-8tus7w-MuiGrid-root"
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 css-19p55ea-MuiGrid-root"
                   >
                     daterange
                   </div>
@@ -86,7 +86,7 @@ exports[`EventTable should render 1`] = `
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 MuiGrid-grid-md-2 css-nuhzl1-MuiGrid-root"
                   >
                     <div
-                      class="MuiBox-root css-1l5sq2a"
+                      class="MuiBox-root css-s2uf1z"
                     >
                       10 toltaPlaces
                     </div>
@@ -112,7 +112,7 @@ exports[`EventTable should render 1`] = `
 exports[`EventTable should render with empty result 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1smhbj1"
+    class="MuiBox-root css-fzwid6"
   >
     noResults
   </div>
