@@ -1,6 +1,8 @@
 import { useTranslation } from 'react-i18next'
-import { isRouteErrorResponse, Link, useRouteError } from 'react-router-dom'
+import { isRouteErrorResponse, useRouteError } from 'react-router-dom'
 import { Box, Typography } from '@mui/material'
+
+import LinkButton from './components/LinkButton'
 
 export function ErrorPage() {
   return (
@@ -29,9 +31,14 @@ function ErrorInfo() {
         <Typography variant="h1">{error.status}</Typography>
         <Typography variant="body1">{error.statusText}</Typography>
         {'data' in error && error.data?.message && <p>{error.data.message}</p>}
-        <Link to="/">{t('goHome')}</Link>
+        <LinkButton to="/" text={t('goHome')}></LinkButton>
       </>
     )
   }
-  return <Typography variant="h1">Oops</Typography>
+  return (
+    <>
+      <Typography variant="h1">Oops</Typography>
+      <LinkButton to="/" text={t('goHome')}></LinkButton>
+    </>
+  )
 }
