@@ -3,11 +3,11 @@ import { Table, TableBody, TableCell, TableRow } from '@mui/material'
 import { format } from 'date-fns'
 import type { Event, EventClass } from 'koekalenteri-shared/model'
 
-import useEventStatus from '../../hooks/useEventStatus'
-import { isEntryOpen } from '../../utils'
-import CostInfo from '../components/CostInfo'
-import LinkButton from '../components/LinkButton'
-import { useJudgesActions } from '../recoil'
+import useEventStatus from '../../../hooks/useEventStatus'
+import { isEntryOpen } from '../../../utils'
+import CostInfo from '../../components/CostInfo'
+import LinkButton from '../../components/LinkButton'
+import { useJudgesActions } from '../../recoil'
 
 export const EventInfo = ({ event }: { event: Event }) => {
   const { t } = useTranslation()
