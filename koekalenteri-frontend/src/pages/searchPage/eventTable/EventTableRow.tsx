@@ -1,7 +1,7 @@
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { KeyboardArrowDown, KeyboardArrowRight } from '@mui/icons-material'
-import { Box, Collapse, Grid, IconButton, TableCell, TableRow } from '@mui/material'
+import { Collapse, Grid, IconButton, TableCell, TableRow } from '@mui/material'
 import { Event } from 'koekalenteri-shared/model'
 import { useRecoilState } from 'recoil'
 
@@ -9,38 +9,25 @@ import { isEntryOpen } from '../../../utils'
 import LinkButton from '../../components/LinkButton'
 import { openedEventAtom } from '../../recoil'
 
+import { EventPlaces } from './eventTableRow/EventPlaces'
 import { EventInfo } from './EventInfo'
 import { EventStateInfo } from './EventStateInfo'
-
-function eventClasses(event: Event) {
-  const ret: string[] = []
-  for (const c of event.classes) {
-    const name = typeof c === 'string' ? c : c.class
-    if (ret.indexOf(name) === -1) {
-      ret.push(name)
-    }
-  }
-  return ret.join(', ')
-}
-
-const EventPlaces = ({ event }: { event: Event }) => {
-  const { t } = useTranslation()
-  let text = ''
-  if (event.places) {
-    if (event.entries) {
-      text = `${event.entries} / ${event.places}`
-    } else {
-      text = event.places + ' ' + t('toltaPlaces')
-    }
-  }
-  return <Box textAlign="right">{text}</Box>
-}
 
 export const EventTableRow = ({ event }: { event: Event }) => {
   const [open, setOpen] = useRecoilState(openedEventAtom(event.id))
   const { t } = useTranslation()
 
   const handleClick = useCallback(() => setOpen(!open), [open, setOpen])
+  const classes = useMemo(() => {
+    const ret: string[] = []
+    for (const c of event.classes) {
+      const name = typeof c === 'string' ? c : c.class
+      if (ret.indexOf(name) === -1) {
+        ret.push(name)
+      }
+    }
+    return ret.join(', ')
+  }, [event])
 
   return (
     <>
@@ -74,7 +61,7 @@ export const EventTableRow = ({ event }: { event: Event }) => {
                   {event.eventType}
                 </Grid>
                 <Grid item xs={2}>
-                  {eventClasses(event)}
+                  {classes}
                 </Grid>
                 <Grid item xs={5}>
                   {event.location}
@@ -105,10 +92,8 @@ export const EventTableRow = ({ event }: { event: Event }) => {
               borderTopColor: 'divider',
               ml: '34px',
               mt: 0,
-              pt: 1,
             }}
             timeout="auto"
-            unmountOnExit
           >
             <EventInfo event={event}></EventInfo>
           </Collapse>
