@@ -7,7 +7,6 @@ import { remoteEventsEffect, urlSyncEffect } from './effects'
 
 export const eventsAtom = atom<Event[]>({
   key: 'events',
-  default: [],
   effects: [logEffect, storageEffect, remoteEventsEffect],
 })
 

@@ -59,6 +59,10 @@
     "registration": "Vahvistusviesti",
     "reserve": "Varasijailmoitus"
   },
+  "error": {
+    "eventNotFound": "Tapahtumaa ei löydy",
+    "registrationNotFound": "Ilmoittautumista ei löydy"
+  },
   "entryEditTitle": "Muokkaa ilmoittautumista",
   "entryList": "Ilmoittautumistiedot",
   "entryOpen": "Ilmoittautuminen auki",

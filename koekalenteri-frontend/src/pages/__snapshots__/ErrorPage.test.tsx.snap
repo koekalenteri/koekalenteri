@@ -8,18 +8,18 @@ exports[`ErrorPage should render 404 1`] = `
     <h1
       class="MuiTypography-root MuiTypography-h1 css-2c7tpz-MuiTypography-root"
     >
-      Oops
-    </h1>
-    <h2
-      class="MuiTypography-root MuiTypography-h2 css-1lugpt4-MuiTypography-root"
-    >
       404
-    </h2>
+    </h1>
     <p
       class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
     >
       Not Found
     </p>
+    <a
+      href="/"
+    >
+      goHome
+    </a>
   </div>
 </div>
 `;

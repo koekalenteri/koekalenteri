@@ -3,7 +3,7 @@ import { DefaultValue, selectorFamily } from 'recoil'
 
 import { registrationByIdsAtom } from './atoms'
 
-export const registrationSelector = selectorFamily<Registration | undefined, string | undefined>({
+export const registrationSelector = selectorFamily<Registration | undefined | null, string | undefined>({
   key: 'registrationSelector',
   get:
     (id) =>

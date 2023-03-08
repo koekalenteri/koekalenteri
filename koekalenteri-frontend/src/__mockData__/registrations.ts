@@ -166,3 +166,10 @@ export const registrationsToEventWithEntryClosed: Registration[] = [
     cancelReason: 'koska mä voin',
   },
 ]
+
+export const mockRegistrationData = [
+  registrationWithStaticDates,
+  registrationWithStaticDatesAndClass,
+  registrationWithManualResults,
+  registrationWithStaticDatesCancelled,
+]

@@ -8,25 +8,25 @@ import { judgesAtom } from '../judges/atoms'
 import { eventFilterAtom, eventIdAtom, eventsAtom } from './atoms'
 import { withinArrayFilters, withinDateFilters, withinSwitchFilters } from './filters'
 
-export const eventSelector = selectorFamily<Event | undefined, string | undefined>({
+export const eventSelector = selectorFamily<Event | undefined | null, string | undefined>({
   key: 'event',
   get:
     (eventId) =>
     ({ get }) => {
       if (!eventId) {
-        return
+        return undefined
       }
       // get from the eventsAtom
       return get(eventByIdSelector(eventId))
     },
 })
 
-export const eventByIdSelector = selectorFamily<Event | undefined, string>({
+export const eventByIdSelector = selectorFamily<Event | null, string>({
   key: 'event/Id',
   get:
     (eventId) =>
     ({ get }) =>
-      get(eventsAtom).find((event) => event.id === eventId),
+      get(eventsAtom).find((event) => event.id === eventId) ?? null,
 })
 
 export const currentEventSelector = selector({

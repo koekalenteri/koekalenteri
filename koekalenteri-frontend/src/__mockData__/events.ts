@@ -34,6 +34,23 @@ export const eventWithStaticDatesAndClass: ConfirmedEvent = {
   location: 'test location',
 }
 
+export const eventWithStaticDatesAnd3Classes: ConfirmedEvent = {
+  ...emptyEvent,
+  id: 'test1-c',
+  eventType: 'NOME-B',
+  classes: [
+    { class: 'ALO', date: parseISO('2021-02-10') },
+    { class: 'AVO', date: parseISO('2021-02-10') },
+    { class: 'VOI', date: parseISO('2021-02-11') },
+  ],
+  startDate: parseISO('2021-02-10'),
+  endDate: parseISO('2021-02-11'),
+  entryStartDate: parseISO('2021-02-01'),
+  entryEndDate: parseISO('2021-02-07'),
+  judges: [123],
+  location: 'test location',
+}
+
 export const eventWithEntryOpen = {
   ...emptyEvent,
   id: 'test3',

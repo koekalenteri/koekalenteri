@@ -44,6 +44,10 @@
     "registration": "Confirmation"
   },
   "emailTemplates": "Messages",
+  "error": {
+    "eventNotFound": "Event not found",
+    "registrationNotFound": "Registration not found"
+  },
   "entryEditTitle": "Edit registration",
   "entryList": "Registration list",
   "entryOpen": "Registration open",
