@@ -46,7 +46,7 @@ export const mockRegistrations: { [key: string]: Registration[] } = {
   ],
 }
 
-export async function getRegistrations(eventId: string, _signal?: AbortSignal): Promise<Registration[]> {
+export async function getRegistrations(eventId: string, token?: string, signal?: AbortSignal): Promise<Registration[]> {
   return new Promise((resolve, reject) => {
     const event = mockEvents.find((item) => item.id === eventId)
     if (!event) {
@@ -60,7 +60,8 @@ export async function getRegistrations(eventId: string, _signal?: AbortSignal): 
 export async function getRegistration(
   eventId: string,
   id: string,
-  _signal?: AbortSignal
+  token?: string,
+  signal?: AbortSignal
 ): Promise<Registration | undefined> {
   return new Promise((resolve, reject) => {
     const registration = (mockRegistrations[eventId] || []).find((item) => item.id === id)
@@ -70,4 +71,20 @@ export async function getRegistration(
       process.nextTick(() => resolve(registration))
     }
   })
+}
+
+export async function putRegistration(
+  registration: Registration,
+  token?: string,
+  signal?: AbortSignal
+): Promise<Registration> {
+  throw new Error('not implemented')
+}
+
+export async function putRegistrationGroup(
+  registration: Registration,
+  token?: string,
+  signal?: AbortSignal
+): Promise<Registration> {
+  throw new Error('not implemented')
 }

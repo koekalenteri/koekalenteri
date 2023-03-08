@@ -565,8 +565,8 @@ Resources:
             Path: /judge
             Method: POST
             RestApiId: !Ref KoekalenteriApi
-            #Auth:
-            #  Authorizer: CognitoAuthorizer
+            Auth:
+              Authorizer: CognitoAuthorizer
 
   GetOfficialsFunction:
     Type: AWS::Serverless::Function
@@ -734,8 +734,8 @@ Resources:
             Path: /eventType
             Method: POST
             RestApiId: !Ref KoekalenteriApi
-            #Auth:
-            #  Authorizer: CognitoAuthorizer
+            Auth:
+              Authorizer: CognitoAuthorizer
 
   GetEmailTemplatesFunction:
     Type: AWS::Serverless::Function
@@ -764,8 +764,8 @@ Resources:
             Path: /admin/email-templates
             Method: get
             RestApiId: !Ref KoekalenteriApi
-            #Auth:
-            #  Authorizer: CognitoAuthorizer
+            Auth:
+              Authorizer: CognitoAuthorizer
 
   PutEmailTemplateFunction:
     Type: AWS::Serverless::Function
@@ -800,8 +800,8 @@ Resources:
             Path: /admin/email-templates
             Method: POST
             RestApiId: !Ref KoekalenteriApi
-            #Auth:
-            #  Authorizer: CognitoAuthorizer
+            Auth:
+              Authorizer: CognitoAuthorizer
 
   SendRegistrationMessagesFunction:
     Type: AWS::Serverless::Function
@@ -837,8 +837,8 @@ Resources:
             Path: /admin/email-send
             Method: POST
             RestApiId: !Ref KoekalenteriApi
-            #Auth:
-            #  Authorizer: CognitoAuthorizer
+            Auth:
+              Authorizer: CognitoAuthorizer
 
   SendRegistrationMessagesFunctionLogGroup:
     Type: AWS::Logs::LogGroup
