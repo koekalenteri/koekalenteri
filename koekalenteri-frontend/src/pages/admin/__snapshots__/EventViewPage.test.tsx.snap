@@ -365,26 +365,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                 tabindex="0"
                 type="button"
               >
-                <div
-                  class="MuiBox-root css-70qvj9"
-                >
-                  <div
-                    class="MuiBox-root css-1bhivts"
-                  >
-                    ALO
-                  </div>
-                  <div
-                    class="MuiBox-root css-neyg89"
-                  >
-                    <span
-                      class="MuiTypography-root MuiTypography-caption css-1nx6u1m-MuiTypography-root"
-                    >
-                      0
-                       / 
-                      10
-                    </span>
-                  </div>
-                </div>
+                ALO
                 <span
                   class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
                 />
@@ -5999,26 +5980,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                 tabindex="0"
                 type="button"
               >
-                <div
-                  class="MuiBox-root css-70qvj9"
-                >
-                  <div
-                    class="MuiBox-root css-1bhivts"
-                  >
-                    NOU
-                  </div>
-                  <div
-                    class="MuiBox-root css-neyg89"
-                  >
-                    <span
-                      class="MuiTypography-root MuiTypography-caption css-1nx6u1m-MuiTypography-root"
-                    >
-                      0
-                       / 
-                      10
-                    </span>
-                  </div>
-                </div>
+                NOU
                 <span
                   class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
                 />

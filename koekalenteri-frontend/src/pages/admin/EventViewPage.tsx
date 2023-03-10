@@ -152,28 +152,7 @@ export default function EventViewPage() {
                 key={`tab-${eventClass}`}
                 id={`tab-${eventClass}`}
                 sx={{ borderLeft: '1px solid', borderLeftColor: 'divider' }}
-                label={
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <Box sx={{ width: '100%', mr: 1 }}>{eventClass}</Box>
-                    <Box
-                      sx={{
-                        minWidth: 50,
-                        textAlign: 'end',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'flex-end',
-                        columnGap: 1,
-                      }}
-                    >
-                      <Typography
-                        variant="caption"
-                        sx={{ color: progressColor(numbersByClass[eventClass]?.value || 0) }}
-                      >
-                        {numbersByClass[eventClass]?.participants ?? 0} / {numbersByClass[eventClass]?.places}
-                      </Typography>
-                    </Box>
-                  </Box>
-                }
+                label={eventClass}
               ></Tab>
             ))}
           </Tabs>
