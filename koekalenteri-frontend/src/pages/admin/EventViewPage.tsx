@@ -10,7 +10,7 @@ import {
   ShuffleOutlined,
   TableChartOutlined,
 } from '@mui/icons-material'
-import { Box, Button, Divider, Grid, Stack, Tab, Tabs, Typography } from '@mui/material'
+import { Box, Button, Divider, Grid, Stack, Tab, Tabs } from '@mui/material'
 import { EmailTemplateId, Registration } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
@@ -50,7 +50,7 @@ export default function EventViewPage() {
   const registrations = useRecoilValue(currentEventClassRegistrationsSelector)
   const [recipientRegistrations, setRecipientRegistrations] = useState<Registration[]>([])
   const [messageTemplateId, setMessageTemplateId] = useState<EmailTemplateId>()
-  const { eventClasses, numbersByClass } = useEventRegistrationInfo(event, allRegistrations)
+  const { eventClasses } = useEventRegistrationInfo(event, allRegistrations)
 
   const activeTab = useMemo(
     () => Math.max(eventClasses.findIndex((c) => c === selectedEventClass) ?? 0, 0),
@@ -85,12 +85,6 @@ export default function EventViewPage() {
       setSelectedEventClass(eventClasses[0])
     }
   }, [eventClasses, selectedEventClass, setSelectedEventClass])
-
-  const progressColor = (value: number) => {
-    if (value === 100) return 'green'
-    if (value > 100) return 'red'
-    return 'blue'
-  }
 
   if (!event) {
     return <>duh</>

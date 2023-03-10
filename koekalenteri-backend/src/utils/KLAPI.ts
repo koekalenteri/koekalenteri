@@ -1,7 +1,6 @@
 import type { JsonArray, JsonObject } from 'koekalenteri-shared/model'
 import fetch from 'node-fetch'
 
-import { getSSMParams } from './environment'
 import type {
   KLAPIConfig, KLAPIResult, KLArvo, KLKennelpiiri, KLKoeHenkilö, KLKoemuodonTarkenne, KLKoemuodonTulos,
   KLKoemuodotParametrit, KLKoemuoto, KLKoemuotoParametrit, KLKoetapahtuma,
