@@ -10,7 +10,7 @@ import {
   ShuffleOutlined,
   TableChartOutlined,
 } from '@mui/icons-material'
-import { Box, Button, Divider, Grid, Stack, Tab, Tabs, Typography } from '@mui/material'
+import { Box, Button, Divider, Grid, Stack, Tab, Tabs } from '@mui/material'
 import { EmailTemplateId, Registration } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
@@ -50,7 +50,7 @@ export default function EventViewPage() {
   const registrations = useRecoilValue(currentEventClassRegistrationsSelector)
   const [recipientRegistrations, setRecipientRegistrations] = useState<Registration[]>([])
   const [messageTemplateId, setMessageTemplateId] = useState<EmailTemplateId>()
-  const { eventClasses, numbersByClass } = useEventRegistrationInfo(event, allRegistrations)
+  const { eventClasses } = useEventRegistrationInfo(event, allRegistrations)
 
   const activeTab = useMemo(
     () => Math.max(eventClasses.findIndex((c) => c === selectedEventClass) ?? 0, 0),
@@ -85,12 +85,6 @@ export default function EventViewPage() {
       setSelectedEventClass(eventClasses[0])
     }
   }, [eventClasses, selectedEventClass, setSelectedEventClass])
-
-  const progressColor = (value: number) => {
-    if (value === 100) return 'green'
-    if (value > 100) return 'red'
-    return 'blue'
-  }
 
   if (!event) {
     return <>duh</>
@@ -152,28 +146,7 @@ export default function EventViewPage() {
                 key={`tab-${eventClass}`}
                 id={`tab-${eventClass}`}
                 sx={{ borderLeft: '1px solid', borderLeftColor: 'divider' }}
-                label={
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <Box sx={{ width: '100%', mr: 1 }}>{eventClass}</Box>
-                    <Box
-                      sx={{
-                        minWidth: 50,
-                        textAlign: 'end',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'flex-end',
-                        columnGap: 1,
-                      }}
-                    >
-                      <Typography
-                        variant="caption"
-                        sx={{ color: progressColor(numbersByClass[eventClass]?.value || 0) }}
-                      >
-                        {numbersByClass[eventClass]?.participants ?? 0} / {numbersByClass[eventClass]?.places}
-                      </Typography>
-                    </Box>
-                  </Box>
-                }
+                label={eventClass}
               ></Tab>
             ))}
           </Tabs>

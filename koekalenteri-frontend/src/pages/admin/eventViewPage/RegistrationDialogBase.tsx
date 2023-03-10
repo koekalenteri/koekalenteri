@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { Dialog, DialogContent, DialogTitle } from '@mui/material'
 import { ConfirmedEvent, Event, Registration } from 'koekalenteri-shared/model'
 import { Resetter, SetterOrUpdater } from 'recoil'
@@ -52,7 +52,16 @@ export default function RegistrationDialogBase({
     onClose?.()
   }, [onClose, resetRegistration])
 
-  const handlerName = registration?.ownerHandles ? registration.owner?.name : registration?.handler?.name
+  const title = useMemo(() => {
+    if (registration?.dog?.name) {
+      const handlerName = registration?.ownerHandles ? registration?.owner?.name : registration?.handler?.name ?? ''
+      if (handlerName) {
+        return `${registration.dog.name} / ${handlerName}`
+      }
+      return registration.dog.name
+    }
+    return ''
+  }, [registration?.dog?.name, registration?.handler?.name, registration?.owner?.name, registration?.ownerHandles])
 
   if (!registration) {
     return null
@@ -76,7 +85,7 @@ export default function RegistrationDialogBase({
         },
       }}
     >
-      <DialogTitle id="reg-dialog-title">{`${registration?.dog?.name} / ${handlerName}`}</DialogTitle>
+      <DialogTitle id="reg-dialog-title">{title}</DialogTitle>
       <DialogContent dividers sx={{ height: '100%', p: 0 }}>
         <RegistrationForm
           event={event as ConfirmedEvent}
