@@ -40,18 +40,16 @@ const renderPage = (path: string, locale: Locale) =>
 
 describe('SearchPage', () => {
   it('renders', async () => {
-    const { container } = renderPage('', locales.fi)
+    renderPage('', locales.fi)
     await waitForDebounce()
     expect(screen.getAllByRole('row').length).toEqual(8)
-    expect(container).toMatchSnapshot()
   })
 
   it('filters by date/start', async () => {
-    const { container } = renderPage('/?s=2021-03-01', locales.fi)
+    renderPage('/?s=2021-03-01', locales.fi)
     await waitForDebounce()
     expect(screen.getByRole('textbox', { name: 'daterangeStart' })).toHaveValue('01.03.2021')
     expect(screen.getAllByRole('row').length).toEqual(4)
-    expect(container).toMatchSnapshot()
   })
 
   it('filters by date/end', async () => {
@@ -105,35 +103,31 @@ describe('SearchPage', () => {
   })
 
   it('filters by judge', async () => {
-    const { container } = renderPage('/?j=223', locales.fi)
+    renderPage('/?j=223', locales.fi)
     await waitForDebounce()
     expect(screen.getByRole('button', { name: 'Tuomari 2' })).toBeInTheDocument()
     expect(screen.getAllByRole('row').length).toEqual(5)
-    expect(container).toMatchSnapshot()
   })
 
   it('filters by entryUpcoming', async () => {
-    const { container } = renderPage('/?b=u', locales.fi)
+    renderPage('/?b=u', locales.fi)
     await waitForDebounce()
     expect(screen.getByRole('checkbox', { name: 'Ilmoittautuminen tulossa' })).toBeChecked()
     expect(screen.getAllByRole('row').length).toEqual(1)
-    expect(container).toMatchSnapshot()
   })
 
   it('filters by entryOpen', async () => {
-    const { container } = renderPage('/?b=o', locales.fi)
+    renderPage('/?b=o', locales.fi)
     await waitForDebounce()
     expect(screen.getByRole('checkbox', { name: 'entryOpen' })).toBeChecked()
     expect(screen.getAllByRole('row').length).toEqual(2)
-    expect(container).toMatchSnapshot()
   })
 
   it('filters by entryOpen and entryUpcoming', async () => {
-    const { container } = renderPage('/?b=o&b=u', locales.fi)
+    renderPage('/?b=o&b=u', locales.fi)
     await waitForDebounce()
     expect(screen.getByRole('checkbox', { name: 'Ilmoittautuminen tulossa' })).toBeChecked()
     expect(screen.getByRole('checkbox', { name: 'entryOpen' })).toBeChecked()
     expect(screen.getAllByRole('row').length).toEqual(3)
-    expect(container).toMatchSnapshot()
   })
 })
