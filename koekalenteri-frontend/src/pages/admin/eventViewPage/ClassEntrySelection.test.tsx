@@ -1,10 +1,10 @@
 import { ReactNode } from 'react'
 import { render } from '@testing-library/react'
+import { Registration } from 'koekalenteri-shared/model'
 import { SnackbarProvider } from 'notistack'
 import { RecoilRoot } from 'recoil'
 
 import { registrationWithStaticDates, registrationWithStaticDatesCancelled } from '../../../__mockData__/registrations'
-import { RegistrationWithMutators } from '../recoil'
 
 import ClassEntrySelection from './ClassEntrySelection'
 
@@ -30,10 +30,9 @@ describe('ClassEntrySelection', () => {
   it('renders with cancelled registration(s)', () => {
     const dates = [registrationWithStaticDates.dates[0].date]
 
-    const registrations: RegistrationWithMutators[] = [
-      registrationWithStaticDates,
-      registrationWithStaticDatesCancelled,
-    ].map((r) => ({ ...r, setGroup: jest.fn() }))
+    const registrations: Registration[] = [registrationWithStaticDates, registrationWithStaticDatesCancelled].map(
+      (r) => ({ ...r, setGroup: jest.fn() })
+    )
 
     const { container } = render(<ClassEntrySelection eventDates={dates} registrations={registrations} />, {
       wrapper: Wrapper,
