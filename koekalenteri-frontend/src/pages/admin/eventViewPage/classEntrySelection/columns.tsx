@@ -10,10 +10,23 @@ export function useClassEntrySelectionColumns(eventDates: Date[]) {
 
   const entryColumns: GridColDef[] = [
     {
+      cellClassName: 'nopad',
       field: 'dates',
       headerName: '',
       width: 32,
+      minWidth: 32,
       renderCell: (p) => <GroupColors dates={eventDates} selected={p.row.dates} />,
+    },
+    {
+      align: 'right',
+      cellClassName: 'nopad',
+      field: 'number',
+      headerAlign: 'right',
+      headerClassName: 'nopad',
+      headerName: '#',
+      width: 20,
+      minWidth: 20,
+      valueGetter: (p) => p.row.group.number,
     },
     {
       field: 'dog.name',

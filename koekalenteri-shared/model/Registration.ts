@@ -23,8 +23,12 @@ export interface JsonRegistration extends JsonDbRecord {
   group?: JsonRegistrationGroup
 }
 
-export interface RegistrationGroup extends Partial<RegistrationDate> { number?: number, key: string }
-export interface JsonRegistrationGroup extends JsonRegistrationDate { number?: number, key: string }
+export interface RegistrationGroup extends Partial<RegistrationDate> { number: number, key: string }
+export interface JsonRegistrationGroup extends Partial<JsonRegistrationDate> { number: number, key: string }
+
+export interface RegistrationGroupInfo extends Pick<Registration, 'eventId' | 'id' | 'group' | 'cancelled'> {}
+export interface JsonRegistrationGroupInfo extends Pick<JsonRegistration, 'eventId' | 'id' | 'group' | 'cancelled'> {}
+
 export interface ManualTestResult extends QualifyingResult {
   id: string
   regNo: string

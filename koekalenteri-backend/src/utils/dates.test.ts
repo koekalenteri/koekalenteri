@@ -1,4 +1,4 @@
-import {jest} from '@jest/globals'
+import { jest } from '@jest/globals'
 
 import { currentFinnishTime, formatDateSpan } from './dates'
 
@@ -23,7 +23,7 @@ test('formatDateSpan', () => {
 describe('currentFinnishTime', () => {
   beforeAll(() => {
     jest.useFakeTimers()
-    jest.setSystemTime(new Date("2020-04-01T10:20:30Z"))
+    jest.setSystemTime(new Date('2020-04-01T10:20:30Z'))
   })
 
   afterAll(() => {

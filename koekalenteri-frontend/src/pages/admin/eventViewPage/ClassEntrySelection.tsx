@@ -3,7 +3,7 @@ import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { Box, Typography } from '@mui/material'
 import { GridCallbackDetails, GridSelectionModel } from '@mui/x-data-grid'
-import { Registration, RegistrationDate, RegistrationGroup } from 'koekalenteri-shared/model'
+import { Registration, RegistrationDate, RegistrationGroup, RegistrationGroupInfo } from 'koekalenteri-shared/model'
 import { useSnackbar } from 'notistack'
 import { SetterOrUpdater } from 'recoil'
 
@@ -53,29 +53,82 @@ const ClassEntrySelection = ({
     () => availableGroups(eventDates).map((eventDate) => ({ ...eventDate, key: groupKey(eventDate), number: 0 })),
     [eventDates]
   )
+
   const registrationsByGroup: Record<string, RegistrationWithGroups[]> = useMemo(() => {
     const byGroup: Record<string, RegistrationWithGroups[]> = { cancelled: [], reserve: [] }
-    for (const group of eventGroups) {
-      byGroup[group.key] = []
-    }
     for (const reg of registrations) {
       const key = listKey(reg)
-      byGroup[key] = byGroup[key] || [] // make sure the array exists
+      byGroup[key] = byGroup[key] ?? [] // make sure the array exists
       byGroup[key].push({ ...reg, groups: reg.dates.map((rd) => groupKey(rd)) })
     }
+    for (const regs of Object.values(byGroup)) {
+      regs.sort((a, b) => (a.group?.number || 999) - (b.group?.number || 999))
+    }
     return byGroup
-  }, [eventGroups, registrations])
+  }, [registrations])
 
-  const handleDrop = (group: RegistrationGroup) => (item: DragItem) => {
+  const handleDrop = (group: RegistrationGroup) => async (item: DragItem) => {
     const reg = registrations.find((r) => r.id === item.id)
-    if (reg && reg.group?.key !== group?.key) {
-      reg.setGroup(group) // set the group to cache for faster ui update
-      actions.saveGroup({ ...reg, group, cancelled: group.key === 'cancelled' })
+    if (!reg) {
+      return
     }
-    if (item.move) {
-      console.log(item.id, item.move)
-      delete item.move
+
+    // make sure the dropped registration is selected, so its intuitive to user
+    setSelectedRegistrationId?.(reg.id)
+
+    const save: RegistrationGroupInfo[] = []
+    // determine all the other registrations in group
+    const regs = registrations.filter((r) => r.group?.key === group.key && r.id !== reg.id)
+    // registrations in the old group (in case group changed)
+    const oldGrpRegs =
+      reg.group?.key === group.key
+        ? []
+        : registrations.filter((r) => r.group?.key === reg.group?.key && r.id !== reg.id)
+
+    const newGroup = { ...group, number: regs.length + 1 }
+
+    if (group.key === 'cancelled' || group.key === 'reserve') {
+      if (reg.group?.key === group.key) {
+        // user can not re-order items in cancelled or reserve groups
+        delete item.move
+        return
+      }
+      regs.push(reg)
+      save.push(reg)
+    } else if (item.move) {
+      const pos = item.move.index + (item.move.position === 'before' ? 0 : 1)
+      // insert the registration to its correct place
+      regs.splice(pos, 0, reg)
+      newGroup.number = pos + 1
+      save.push({ eventId: reg.eventId, id: reg.id, group: newGroup })
+
+      // update all the registrations that needs to move, and add to `save` array
+      regs.forEach(async (r, i) => {
+        if (r.group && r.group?.number !== i + 1) {
+          const grp = { ...r.group, number: i + 1 }
+          save.push({ eventId: r.eventId, id: r.id, group: grp })
+        }
+      })
+    } else {
+      // move from list to another
+      save.push({ eventId: reg.eventId, id: reg.id, group: newGroup })
     }
+
+    if (oldGrpRegs.length) {
+      // update all the registrations that needs to move in the old group, and add to `save` array
+      oldGrpRegs.forEach(async (r, i) => {
+        if (r.group && r.group?.number !== i + 1) {
+          const grp = { ...r.group, number: i + 1 }
+          // await r.setGroup(grp)
+          save.push({ eventId: r.eventId, id: r.id, group: grp })
+        }
+      })
+    }
+
+    console.log(save.map((r) => `${r.id} => ${r.group?.key}:${r.group?.number}`))
+
+    // finally send all the updates to backend
+    await actions.saveGroups(reg.eventId, save)
   }
 
   const handleReject = (item: DragItem) => {
@@ -152,7 +205,7 @@ const ClassEntrySelection = ({
         onSelectionModelChange={handleSelectionModeChange}
         selectionModel={selectedRegistrationId ? [selectedRegistrationId] : []}
         onRowDoubleClick={handleDoubleClick}
-        onDrop={handleDrop({ key: 'reserve' })}
+        onDrop={handleDrop({ key: 'reserve', number: registrationsByGroup.reserve.length + 1 })}
       />
       <Typography variant="h6">Peruneet</Typography>
       <DragableDataGrid
@@ -163,7 +216,7 @@ const ClassEntrySelection = ({
         onSelectionModelChange={handleSelectionModeChange}
         selectionModel={selectedRegistrationId ? [selectedRegistrationId] : []}
         onRowDoubleClick={handleDoubleClick}
-        onDrop={handleDrop({ key: 'cancelled' })}
+        onDrop={handleDrop({ key: 'cancelled', number: registrationsByGroup.cancelled.length + 1 })}
       />
     </DndProvider>
   )

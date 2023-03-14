@@ -9,6 +9,7 @@ extends:
 plugins:
   - "@typescript-eslint"
   - simple-import-sort
+  - prettier
 
 env:
   node: true
@@ -22,17 +23,8 @@ rules:
   semi:
     - error
     - never
-  comma-dangle:
+  prettier/prettier:
     - error
-    - always-multiline
-  comma-spacing:
-    - error
-    -
-      before: false
-      after: true
-  "@typescript-eslint/indent":
-    - error
-    - 2
   simple-import-sort/imports:
     - error
     - groups:

@@ -62,7 +62,7 @@ describe('http', () => {
   })
 
   describe('put', () => {
-    it('should specify "POST" as method', async () => {
+    it('should specify "PUT" as method', async () => {
       fetchMock.mockResponse((req) =>
         req.method === 'PUT'
           ? Promise.resolve(JSON.stringify('ok'))

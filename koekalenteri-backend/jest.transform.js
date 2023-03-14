@@ -1,4 +1,4 @@
-import { transformSync } from "esbuild"
+import { transformSync } from 'esbuild'
 
 export default {
   /**

@@ -14,7 +14,7 @@ const dynamoDB = new CustomDynamoClient()
 const ses = new AWS.SES()
 
 // TODO: sender address from env / other config
-export const EMAIL_FROM = "koekalenteri@koekalenteri.snj.fi"
+export const EMAIL_FROM = 'koekalenteri@koekalenteri.snj.fi'
 const stackName = process.env.AWS_SAM_LOCAL ? 'local' : process.env.STACK_NAME ?? 'local'
 
 export async function sendReceipt(registration: JsonRegistration, date: string) {
@@ -37,7 +37,13 @@ export async function sendReceipt(registration: JsonRegistration, date: string) 
   }) */
 }
 
-export async function sendTemplatedMail(template: EmailTemplateId, language: Language, from: string, to: string[], data: Record<string, unknown>) {
+export async function sendTemplatedMail(
+  template: EmailTemplateId,
+  language: Language,
+  from: string,
+  to: string[],
+  data: Record<string, unknown>
+) {
   const params: SendTemplatedEmailRequest = {
     ConfigurationSetName: 'Koekalenteri',
     Destination: {
@@ -58,56 +64,57 @@ export async function sendTemplatedMail(template: EmailTemplateId, language: Lan
 
 export const getTemplatesHandler = genericReadAllHandler(dynamoDB, 'getTemplates')
 
-export const putTemplateHandler = metricScope((metrics: MetricsLogger) =>
-  async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-    authorize(event)
+export const putTemplateHandler = metricScope(
+  (metrics: MetricsLogger) =>
+    async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+      authorize(event)
 
-    const timestamp = new Date().toISOString()
-    const username = getUsername(event)
+      const timestamp = new Date().toISOString()
+      const username = getUsername(event)
 
-    try {
-      const item: JsonEmailTemplate = JSON.parse(event.body || "")
-      const existing = await dynamoDB.read<JsonEmailTemplate>({ id: item.id })
+      try {
+        const item: JsonEmailTemplate = JSON.parse(event.body || '')
+        const existing = await dynamoDB.read<JsonEmailTemplate>({ id: item.id })
 
-      // modification info is always updated
-      item.modifiedAt = timestamp
-      item.modifiedBy = username
+        // modification info is always updated
+        item.modifiedAt = timestamp
+        item.modifiedBy = username
 
-      const data: JsonEmailTemplate = { ...existing, ...item }
+        const data: JsonEmailTemplate = { ...existing, ...item }
 
-      // Generate SES compatible template for all languages
-      data.ses = {
-        fi: await markdownToTemplate(`${item.id}-${stackName}-fi`, data.fi),
-        en: await markdownToTemplate(`${item.id}-${stackName}-en`, data.en),
+        // Generate SES compatible template for all languages
+        data.ses = {
+          fi: await markdownToTemplate(`${item.id}-${stackName}-fi`, data.fi),
+          en: await markdownToTemplate(`${item.id}-${stackName}-en`, data.en),
+        }
+
+        await updateOrCreateTemplate(data.ses.fi)
+        await updateOrCreateTemplate(data.ses.en)
+
+        await dynamoDB.write(data)
+
+        metricsSuccess(metrics, event.requestContext, 'putTemplate')
+        return response(200, data)
+      } catch (err) {
+        console.error(err)
+        metricsError(metrics, event.requestContext, 'putTemplate')
+        return response((err as AWS.AWSError).statusCode || 501, err)
       }
-
-      await updateOrCreateTemplate(data.ses.fi)
-      await updateOrCreateTemplate(data.ses.en)
-
-      await dynamoDB.write(data)
-
-      metricsSuccess(metrics, event.requestContext, 'putTemplate')
-      return response(200, data)
-    } catch (err) {
-      console.error(err)
-      metricsError(metrics, event.requestContext, 'putTemplate')
-      return response((err as AWS.AWSError).statusCode || 501, err)
     }
-  },
 )
 
 async function updateOrCreateTemplate(template: Template) {
   try {
     await new Promise((resolve) => setTimeout(resolve, 1000))
-    const res = await ses.updateTemplate({Template: template}).promise()
+    const res = await ses.updateTemplate({ Template: template }).promise()
     console.info(res)
-  } catch(e: any) {
+  } catch (e: any) {
     if (e.code !== 'TemplateDoesNotExist') {
       console.error(e)
       throw e
     }
     await new Promise((resolve) => setTimeout(resolve, 1000))
-    const res = await ses.createTemplate({Template: template}).promise()
+    const res = await ses.createTemplate({ Template: template }).promise()
     console.info(res)
   }
 }

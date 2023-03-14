@@ -13,7 +13,7 @@ export type KLAPIResult<T> = Promise<{
 export enum KLKieli {
   Suomi = 1,
   Ruotsi,
-  Englanti
+  Englanti,
 }
 
 export const KLKieliToLang = {
@@ -23,8 +23,8 @@ export const KLKieliToLang = {
 }
 
 export type KLKoiraParametrit = {
-  Rekisterinumero?: string,
-  Tunnistusmerkintä?: string,
+  Rekisterinumero?: string
+  Tunnistusmerkintä?: string
   Kieli: KLKieli
 }
 
@@ -51,13 +51,13 @@ export type KLKoira = {
 }
 
 export type KLKoemuotoParametrit = {
-  Koemuoto: string,
-  Kennelpiiri?: number,
+  Koemuoto: string
+  Kennelpiiri?: number
   Kieli: KLKieli
 }
 
 export type KLKoemuodotParametrit = {
-  Rotukoodi?: string,
+  Rotukoodi?: string
   Kieli: KLKieli
 }
 
@@ -67,8 +67,8 @@ export type KLKoemuoto = {
 }
 
 export type KLKoemuodonTulos = {
-  luokka: string,
-  tulos: string,
+  luokka: string
+  tulos: string
   tyyppi: string
 }
 
@@ -77,8 +77,8 @@ export type KLKoemuodonTarkenne = {
 }
 
 export type KLKoetulosParametrit = {
-  Rekisterinumero: string,
-  Koemuoto?: string,
+  Rekisterinumero: string
+  Koemuoto?: string
   Kieli: KLKieli
 }
 
@@ -92,7 +92,7 @@ export type KLKoetulos = {
   lisämerkinnät: string
   tarkenne: string
   pisteet: number
-  sijoitus:	number
+  sijoitus: number
   tuomari: string
 }
 
@@ -103,7 +103,7 @@ export type KLKoeHenkilö = {
   kennelpiiri: string
   puhelin: string
   sähköposti: string
-  koemuodot: Array<{lyhenne: string, koemuoto: string}>
+  koemuodot: Array<{ lyhenne: string; koemuoto: string }>
 }
 
 export type KLKoetapahtumaParametrit = {
@@ -135,7 +135,7 @@ export type KLKoetapahtuma = {
   ylituomari: string
   koetoimitsija: string
   ilmoittautumiset: string
-  rajoitukset: Array<{ tyyppi: string, lisätieto: string }>
+  rajoitukset: Array<{ tyyppi: string; lisätieto: string }>
   osanottomaksu: string
   tininumero: string
   viitenumero: string
@@ -164,7 +164,7 @@ export type KLYhdistys = {
 
 export enum KLYhdistysRajaus {
   Koejärjestätä = 1,
-  Näyttelyjärjestäjä
+  Näyttelyjärjestäjä,
 }
 
 export type KLYhdistysParametrit = {
@@ -173,7 +173,7 @@ export type KLYhdistysParametrit = {
 }
 
 export enum KLParametri {
-  TapahtumienTyypit = 52
+  TapahtumienTyypit = 52,
 }
 
 export type KLParametritParametrit = {
@@ -198,7 +198,7 @@ export type KLRoturyhmä = {
 
 export enum KLRotuRajaus {
   Kaikki = 0,
-  Päärodut
+  Päärodut,
 }
 
 export type KLRodutParametrit = {

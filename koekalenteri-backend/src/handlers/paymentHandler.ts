@@ -1,56 +1,63 @@
-import { metricScope, MetricsLogger } from "aws-embedded-metrics"
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda"
-import { AWSError } from "aws-sdk"
-import { JsonRegistration } from "koekalenteri-shared/model"
+import { metricScope, MetricsLogger } from 'aws-embedded-metrics'
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
+import { AWSError } from 'aws-sdk'
+import { JsonRegistration } from 'koekalenteri-shared/model'
 
-import CustomDynamoClient from "../utils/CustomDynamoClient"
-import { currentFinnishTime } from "../utils/dates"
-import { getSSMParams } from "../utils/environment"
-import { getOrigin, getUsername } from "../utils/genericHandlers"
-import { metricsError, metricsSuccess } from "../utils/metrics"
-import { calculateHmac, PaytrailConfig } from "../utils/payment"
-import { redirect, response } from "../utils/response"
+import CustomDynamoClient from '../utils/CustomDynamoClient'
+import { currentFinnishTime } from '../utils/dates'
+import { getSSMParams } from '../utils/environment'
+import { getOrigin, getUsername } from '../utils/genericHandlers'
+import { metricsError, metricsSuccess } from '../utils/metrics'
+import { calculateHmac, PaytrailConfig } from '../utils/payment'
+import { redirect, response } from '../utils/response'
 
-import { sendReceipt } from "./email"
+import { sendReceipt } from './email'
 
 const dynamoDB = new CustomDynamoClient()
 
 type Source = 'notification' | 'user'
 
-type HandlePayment = (event: APIGatewayProxyEvent, source: Source, metrics: MetricsLogger) => Promise<APIGatewayProxyResult>
+type HandlePayment = (
+  event: APIGatewayProxyEvent,
+  source: Source,
+  metrics: MetricsLogger
+) => Promise<APIGatewayProxyResult>
 
-export const paymentConfirm = metricScope((metrics: MetricsLogger) =>
-  async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-    const retValue = await handlePayment(event, 'user', metrics)
+export const paymentConfirm = metricScope(
+  (metrics: MetricsLogger) =>
+    async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+      const retValue = await handlePayment(event, 'user', metrics)
 
-    return redirectToFinish(event, retValue)
-  },
-)
-
-export const paymentCancel = metricScope((metrics: MetricsLogger) =>
-  async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-    const retValue =  await handlePayment(event, 'user', metrics)
-
-    return redirectToFinish(event, retValue)
-  },
-)
-
-export const paymentNotification = metricScope((metrics: MetricsLogger) =>
-  async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-    const retValue = await handlePayment(event, 'notification', metrics)
-    if (retValue.statusCode != 200) {
-      return retValue
+      return redirectToFinish(event, retValue)
     }
-    const registration = JSON.parse(retValue.body)
-    const processed = (registration.confirmed && registration.receiptSent) || registration.cancelled
-  
-    // If the payment hasn't been completely processed, send an error response to receive further notifications and try again.
-    return processed ? response(200, undefined) : response(500, 'Unexpected')
-  },
 )
-  
+
+export const paymentCancel = metricScope(
+  (metrics: MetricsLogger) =>
+    async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+      const retValue = await handlePayment(event, 'user', metrics)
+
+      return redirectToFinish(event, retValue)
+    }
+)
+
+export const paymentNotification = metricScope(
+  (metrics: MetricsLogger) =>
+    async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+      const retValue = await handlePayment(event, 'notification', metrics)
+      if (retValue.statusCode != 200) {
+        return retValue
+      }
+      const registration = JSON.parse(retValue.body)
+      const processed = (registration.confirmed && registration.receiptSent) || registration.cancelled
+
+      // If the payment hasn't been completely processed, send an error response to receive further notifications and try again.
+      return processed ? response(200, undefined) : response(500, 'Unexpected')
+    }
+)
+
 const handlePayment: HandlePayment = async (event, source, metrics) => {
-  const env = await getSSMParams(['PaytrailMerchantSecret' ]) as PaytrailConfig 
+  const env = (await getSSMParams(['PaytrailMerchantSecret'])) as PaytrailConfig
 
   const timestamp = new Date().toISOString()
   const username = getUsername(event)
@@ -65,9 +72,12 @@ const handlePayment: HandlePayment = async (event, source, metrics) => {
     'checkout-transaction-id': transactionId = '',
     signature,
   } = event.headers
-  const checkoutHeaders = Object.fromEntries(Object.entries(event.headers).filter(([key]) => key.startsWith('checkout-')))
+  const checkoutHeaders = Object.fromEntries(
+    Object.entries(event.headers).filter(([key]) => key.startsWith('checkout-'))
+  )
 
-  if (calculateHmac(env.merchantSecret, checkoutHeaders) !== signature) { //!!!
+  if (calculateHmac(env.merchantSecret, checkoutHeaders) !== signature) {
+    //!!!
     console.log('warn', 'Verifying Paytrail signature failed', event)
 
     throw new Error(`Payment verification failed with transaction id "${transactionId}"`)
@@ -82,29 +92,36 @@ const handlePayment: HandlePayment = async (event, source, metrics) => {
     }
     // modification info is always updated
     registration.modifiedAt = timestamp
-    registration.modifiedBy = username  
+    registration.modifiedBy = username
 
     const { receiptSent = false, paymentStatus = 'PENDING', paidAt } = registration
-  
+
     /*
      * If status is already set and this is a direct call, it's either double click / refresh,
      * or callback has arrived before redirect.
      */
     if (source === 'user' && paymentStatus === 'SUCCESS') {
-      console.log('info', 'Payment already handled', { eventId, paymentStatus, paidAt, receiptSent, registrationId, transactionId })
-  
+      console.log('info', 'Payment already handled', {
+        eventId,
+        paymentStatus,
+        paidAt,
+        receiptSent,
+        registrationId,
+        transactionId,
+      })
+
       return response(200, registration)
     }
-  
+
     registration.paymentStatus = queryStatus === 'ok' ? 'SUCCESS' : queryStatus === 'fail' ? 'CANCEL' : paymentStatus
-    registration.paidAt = paymentStatus === 'SUCCESS' ? currentFinnishTime() : undefined 
+    registration.paidAt = paymentStatus === 'SUCCESS' ? currentFinnishTime() : undefined
 
     await dynamoDB.write(registration)
 
     /*
-    * Send confirmation and receipt only from callback to avoid sending them twice in case
-    * redirect and callback arrive nearly simultaneously.
-    */
+     * Send confirmation and receipt only from callback to avoid sending them twice in case
+     * redirect and callback arrive nearly simultaneously.
+     */
     if (registration.paidAt && !receiptSent && source === 'notification') {
       //!!!
       const receiptResult = await sendReceipt(registration, new Date(registration.paidAt).toLocaleDateString('fi'))
@@ -113,7 +130,14 @@ const handlePayment: HandlePayment = async (event, source, metrics) => {
 
     await dynamoDB.write(registration)
 
-    console.log('info', 'Registration state updated', { eventId, paymentStatus, paidAt, receiptSent, registrationId, transactionId })
+    console.log('info', 'Registration state updated', {
+      eventId,
+      paymentStatus,
+      paidAt,
+      receiptSent,
+      registrationId,
+      transactionId,
+    })
 
     metricsSuccess(metrics, event.requestContext, 'handlePayment')
     return response(200, registration)
@@ -127,7 +151,10 @@ const redirectToFinish = async (event: APIGatewayProxyEvent, r: APIGatewayProxyR
   const origin = getOrigin(event)
   const registration = JSON.parse(r.body)
   // TODO Paths should probably be in a common place for both BE and FE
-  const path = r.statusCode == 200 ? `${origin}/registration/${registration.eventType}/${registration.eventId}/${registration.id}` : `${origin}/` // TODO needs redirect to valid error page
+  const path =
+    r.statusCode == 200
+      ? `${origin}/registration/${registration.eventType}/${registration.eventId}/${registration.id}`
+      : `${origin}/` // TODO needs redirect to valid error page
 
   return redirect(registration, path)
 }

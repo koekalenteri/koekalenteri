@@ -471,11 +471,11 @@ Resources:
             Method: POST
             RestApiId: !Ref KoekalenteriApi
 
-  PutRegistrationGroupFunction:
+  PutRegistrationGroupsFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: koekalenteri-backend
-      Handler: dist/handlers/admin/registration.putRegistrationGroupHandler
+      Handler: dist/handlers/admin/registration.putRegistrationGroupsHandler
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -491,17 +491,17 @@ Resources:
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
 
       Events:
-        PutRegistrationGroup:
+        PutRegistrationGroups:
           Type: Api
           Properties:
-            Path: /admin/registration/{eventId}/{id}
+            Path: /admin/reg-groups/{eventId}
             Method: POST
             RestApiId: !Ref KoekalenteriApi
 
-  PutRegistrationGroupFunctionLogGroup:
+  PutRegistrationGroupsFunctionLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: !Join ['/', ['/aws/lambda', !Ref PutRegistrationGroupFunction]]
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref PutRegistrationGroupsFunction]]
       RetentionInDays: 30
 
   GetJudgesFunction:
