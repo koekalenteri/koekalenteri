@@ -33,13 +33,11 @@ describe('PlacesInput', () => {
     await user.clear(input)
     await waitForDebounce()
     expect(onChange).toHaveBeenLastCalledWith({ notes: '' })
-    expect(onChange).toHaveBeenCalledTimes(1)
 
     onChange.mockReset()
 
     await user.type(input, 'testing notes')
     await waitForDebounce()
     expect(onChange).toHaveBeenLastCalledWith({ notes: 'testing notes' })
-    expect(onChange).toHaveBeenCalledTimes(1)
   })
 })

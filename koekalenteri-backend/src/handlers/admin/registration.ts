@@ -24,18 +24,31 @@ const listKey = <T extends JsonRegistrationGroupInfo>(reg: T) => {
   return reg.group?.key ?? 'reserve'
 }
 
+const listDate = <T extends JsonRegistrationGroupInfo>(reg: T) => {
+  if (reg.cancelled) {
+    return 'cancelled'
+  }
+  return reg.group?.date ?? 'reserve'
+}
+
+const byKeyAndNumber = <T extends JsonRegistrationGroupInfo>(a: T, b: T): number =>
+  a.group?.key === b.group?.key
+    ? (a.group?.number || 999) - (b.group?.number || 999)
+    : (a.group?.key ?? '').localeCompare(b.group?.key ?? '')
+
 export async function fixGroups<T extends JsonRegistrationGroupInfo>(items: T[]): Promise<T[]> {
+  items.sort(byKeyAndNumber)
+
   const byGroup: Record<string, T[]> = { cancelled: [], reserve: [] }
   for (const item of items) {
-    const key = listKey(item)
-    byGroup[key] = byGroup[key] || [] // make sure the array exists
-    byGroup[key].push(item)
+    const date = listDate(item)
+    byGroup[date] = byGroup[date] || [] // make sure the array exists
+    byGroup[date].push(item)
   }
-  for (const [key, regs] of Object.entries(byGroup)) {
-    regs.sort((a, b) => (a.group?.number || 999) - (b.group?.number || 999))
+  for (const [date, regs] of Object.entries(byGroup)) {
     regs.forEach(async (reg, index) => {
-      if (reg.group?.key !== key || reg.group?.number !== index + 1) {
-        reg.group = { ...reg.group, key, number: index + 1 }
+      if (reg.group?.date !== date || reg.group?.number !== index + 1) {
+        reg.group = { ...reg.group, key: listKey(reg), number: index + 1 }
         await saveGroup(reg)
       }
     })
@@ -61,12 +74,7 @@ export const getRegistrationsHandler = metricScope(
     }
 )
 
-async function saveGroup({
-  eventId,
-  id,
-  group,
-  cancelled,
-}: Pick<JsonRegistration, 'id' | 'eventId' | 'group' | 'cancelled'>) {
+async function saveGroup({ eventId, id, group }: JsonRegistrationGroupInfo) {
   console.log({ eventId, id })
   return dynamoDB.update(
     { eventId, id },
@@ -77,7 +85,7 @@ async function saveGroup({
     },
     {
       ':value': { ...group }, // https://stackoverflow.com/questions/37006008/typescript-index-signature-is-missing-in-type
-      ':cancelled': cancelled ?? false,
+      ':cancelled': group?.key === 'cancelled',
     }
   )
 }

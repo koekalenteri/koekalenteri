@@ -29,5 +29,5 @@ export async function putRegistrationGroups(
   token?: string,
   signal?: AbortSignal
 ): Promise<Registration[]> {
-  return http.post(`/admin/reg-groups/${eventId}`, { groups }, withToken({ signal }, token))
+  return http.post(`/admin/reg-groups/${eventId}`, groups, withToken({ signal }, token))
 }
