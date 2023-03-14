@@ -128,7 +128,7 @@ export default function BasicInfoSection({
               onChange={handleDateChange}
             />
           </Grid>
-          <Grid item sx={{ width: 300 }}>
+          <Grid item sx={{ width: 300, display: 'none' /* KOE-451 */ }}>
             <EventProperty
               id="kcId"
               freeSolo
