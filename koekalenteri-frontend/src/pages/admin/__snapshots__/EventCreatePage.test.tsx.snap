@@ -316,7 +316,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                         </div>
                       </div>
                       <div
-                        class="MuiGrid-root MuiGrid-item css-17sva53-MuiGrid-root"
+                        class="MuiGrid-root MuiGrid-item css-1tz4rhg-MuiGrid-root"
                       >
                         <div
                           class="MuiAutocomplete-root css-l3ln04-MuiAutocomplete-root"

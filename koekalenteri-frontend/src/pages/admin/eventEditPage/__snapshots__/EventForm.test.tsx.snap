@@ -316,7 +316,7 @@ exports[`EventForm should render 1`] = `
                         </div>
                       </div>
                       <div
-                        class="MuiGrid-root MuiGrid-item css-17sva53-MuiGrid-root"
+                        class="MuiGrid-root MuiGrid-item css-1tz4rhg-MuiGrid-root"
                       >
                         <div
                           class="MuiAutocomplete-root MuiAutocomplete-hasClearIcon css-l3ln04-MuiAutocomplete-root"
@@ -328,19 +328,12 @@ exports[`EventForm should render 1`] = `
                               class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                             >
                               <label
-                                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled Mui-required MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
+                                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
                                 data-shrink="true"
                                 for="kcId"
                                 id="kcId-label"
                               >
                                 event.kcId
-                                <span
-                                  aria-hidden="true"
-                                  class="MuiFormLabel-asterisk MuiInputLabel-asterisk css-dqj5rd-MuiFormLabel-asterisk"
-                                >
-                                   
-                                  *
-                                </span>
                               </label>
                               <div
                                 class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1hw12xa-MuiInputBase-root-MuiOutlinedInput-root"
@@ -353,7 +346,6 @@ exports[`EventForm should render 1`] = `
                                   autocomplete="off"
                                   class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
                                   id="kcId"
-                                  required=""
                                   role="combobox"
                                   spellcheck="false"
                                   type="text"
@@ -394,8 +386,6 @@ exports[`EventForm should render 1`] = `
                                   >
                                     <span>
                                       event.kcId
-                                       
-                                      *
                                     </span>
                                   </legend>
                                 </fieldset>

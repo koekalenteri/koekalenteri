@@ -39,7 +39,7 @@ const REQUIRED_BY_STATE: Record<EventState, EventFlags> = {
   },
   confirmed: {
     classes: (event: PartialEvent) => event.eventType === 'NOME-B' || event.eventType === 'NOWT',
-    kcId: true,
+    // kcId: true,
     official: true,
     judges: true,
     places: true,
