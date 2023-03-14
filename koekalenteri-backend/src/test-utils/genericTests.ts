@@ -1,12 +1,12 @@
-import {jest} from '@jest/globals'
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda"
+import { jest } from '@jest/globals'
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import AWS from 'aws-sdk'
 
-import { defaultJSONHeaders } from "./headers"
-import { constructAPIGwEvent, createAWSError } from "./helpers"
+import { defaultJSONHeaders } from './headers'
+import { constructAPIGwEvent, createAWSError } from './helpers'
 
-export const genericReadAllTest = (handler: (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult>) =>
-  (): void => {
+export const genericReadAllTest =
+  (handler: (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult>) => (): void => {
     let scanSpy: any
 
     beforeAll(() => {
@@ -21,9 +21,10 @@ export const genericReadAllTest = (handler: (event: APIGatewayProxyEvent) => Pro
       const items = [{ id: 'id1' }, { id: 'id2' }]
 
       scanSpy.mockReturnValue({
-        promise: () => Promise.resolve({
-          Items: items,
-        }),
+        promise: () =>
+          Promise.resolve({
+            Items: items,
+          }),
       })
 
       const event = constructAPIGwEvent({}, { method: 'GET' })
@@ -69,8 +70,8 @@ export const genericReadAllTest = (handler: (event: APIGatewayProxyEvent) => Pro
     })
   }
 
-export const genericQueryTest = (handler: (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult>) =>
-  (): void => {
+export const genericQueryTest =
+  (handler: (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult>) => (): void => {
     let querySpy: any
 
     beforeAll(() => {
@@ -85,9 +86,10 @@ export const genericQueryTest = (handler: (event: APIGatewayProxyEvent) => Promi
       const items = [{ id: 'id1' }, { id: 'id2' }]
 
       querySpy.mockReturnValue({
-        promise: () => Promise.resolve({
-          Items: items,
-        }),
+        promise: () =>
+          Promise.resolve({
+            Items: items,
+          }),
       })
 
       const event = constructAPIGwEvent({}, { method: 'GET' })
@@ -133,8 +135,8 @@ export const genericQueryTest = (handler: (event: APIGatewayProxyEvent) => Promi
     })
   }
 
-export const genericReadTest = (handler: (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult>) =>
-  (): void => {
+export const genericReadTest =
+  (handler: (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult>) => (): void => {
     let getSpy: any
 
     beforeAll(() => {
@@ -195,8 +197,8 @@ export const genericReadTest = (handler: (event: APIGatewayProxyEvent) => Promis
     })
   }
 
-export const genericWriteTest = (handler: (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult>) =>
-  (): void => {
+export const genericWriteTest =
+  (handler: (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult>) => (): void => {
     let putSpy: any
 
     beforeAll(() => {
@@ -217,7 +219,7 @@ export const genericWriteTest = (handler: (event: APIGatewayProxyEvent) => Promi
         }
       })
 
-      const event = constructAPIGwEvent({}, { method: 'PUT', username: 'TEST' })
+      const event = constructAPIGwEvent({}, { method: 'POST', username: 'TEST' })
       const result = await handler(event)
 
       expect(result).toEqual({
@@ -240,7 +242,7 @@ export const genericWriteTest = (handler: (event: APIGatewayProxyEvent) => Promi
         throw error
       })
 
-      const event = constructAPIGwEvent({}, { method: 'PUT', username: 'TEST' })
+      const event = constructAPIGwEvent({}, { method: 'POST', username: 'TEST' })
       const result = await handler(event)
 
       expect(result).toEqual({
@@ -256,7 +258,7 @@ export const genericWriteTest = (handler: (event: APIGatewayProxyEvent) => Promi
         throw error
       })
 
-      const event = constructAPIGwEvent({}, { method: 'PUT', username: 'TEST' })
+      const event = constructAPIGwEvent({}, { method: 'POST', username: 'TEST' })
       const result = await handler(event)
 
       expect(result).toEqual({

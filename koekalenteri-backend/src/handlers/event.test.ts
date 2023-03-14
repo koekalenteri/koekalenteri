@@ -1,4 +1,4 @@
-import {jest} from '@jest/globals'
+import { jest } from '@jest/globals'
 import AWS from 'aws-sdk'
 
 import { genericReadAllTest, genericReadTest, genericWriteTest } from '../test-utils/genericTests'
@@ -20,7 +20,7 @@ describe('Test getEventsHandler (generic)', genericReadAllTest(getEventsHandler)
 describe('Test getEventHandler (generic)', genericReadTest(getEventHandler))
 describe('Test putEventHandler (generic)', genericWriteTest(putEventHandler))
 
-describe('putRegistrationHandler', function() {
+describe('putRegistrationHandler', function () {
   let putSpy: any
   let getSpy: any
   let querySpy: any
@@ -49,11 +49,11 @@ describe('putRegistrationHandler', function() {
         promise: () => Promise.resolve(),
       }
     })
-    getSpy.mockImplementation(() => ({ promise: () => Promise.resolve({Item: {}}) }))
-    querySpy.mockImplementation(() => ({ promise: () => Promise.resolve({Items: []}) }))
+    getSpy.mockImplementation(() => ({ promise: () => Promise.resolve({ Item: {} }) }))
+    querySpy.mockImplementation(() => ({ promise: () => Promise.resolve({ Items: [] }) }))
     updateSpy.mockImplementation(() => ({ promise: () => Promise.resolve() }))
 
-    const event = constructAPIGwEvent({}, { method: 'PUT', username: 'TEST' })
+    const event = constructAPIGwEvent({}, { method: 'POST', username: 'TEST' })
     const result = await putRegistrationHandler(event)
 
     expect(result).toEqual({
@@ -76,7 +76,7 @@ describe('putRegistrationHandler', function() {
       throw error
     })
 
-    const event = constructAPIGwEvent({}, { method: 'PUT', username: 'TEST' })
+    const event = constructAPIGwEvent({}, { method: 'POST', username: 'TEST' })
     const result = await putRegistrationHandler(event)
 
     expect(result).toEqual({
@@ -92,7 +92,7 @@ describe('putRegistrationHandler', function() {
       throw error
     })
 
-    const event = constructAPIGwEvent({}, { method: 'PUT', username: 'TEST' })
+    const event = constructAPIGwEvent({}, { method: 'POST', username: 'TEST' })
     const result = await putRegistrationHandler(event)
 
     expect(result).toEqual({

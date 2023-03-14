@@ -1,7 +1,7 @@
-import { Registration } from 'koekalenteri-shared/model'
+import { Registration, RegistrationGroupInfo } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
-import { putRegistration, putRegistrationGroup } from '../../../../api/registration'
+import { putRegistration, putRegistrationGroups } from '../../../../api/registration'
 import { idTokenSelector } from '../../../recoil'
 
 import { currentEventRegistrationsSelector } from './selectors'
@@ -25,10 +25,9 @@ export const useAdminRegistrationActions = () => {
       return saved
     },
 
-    async saveGroup(reg: Registration) {
-      const saved = await putRegistrationGroup(reg, token)
-      updateAdminRegistration(saved)
-      return saved
+    async saveGroups(eventId: string, groups: RegistrationGroupInfo[]) {
+      const regs = await putRegistrationGroups(eventId, groups, token)
+      setAdminRegistrations(regs)
     },
   }
 }

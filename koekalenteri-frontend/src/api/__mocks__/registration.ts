@@ -1,5 +1,5 @@
 import { parseISO } from 'date-fns'
-import { Registration } from 'koekalenteri-shared/model'
+import { Registration, RegistrationGroupInfo } from 'koekalenteri-shared/model'
 
 import { mockRegistrationData } from '../../__mockData__/registrations'
 
@@ -90,8 +90,8 @@ export async function putRegistration(
   throw new Error('not implemented')
 }
 
-export async function putRegistrationGroup(
-  registration: Registration,
+export async function putRegistrationGroups(
+  groups: RegistrationGroupInfo[],
   token?: string,
   signal?: AbortSignal
 ): Promise<Registration> {

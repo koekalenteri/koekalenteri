@@ -3,11 +3,11 @@ import { createHmac } from 'crypto'
 export const calculateHmac = (
   secret: string,
   params: Record<string, string | undefined>,
-  body?: object | undefined,
+  body?: object | undefined
 ): string => {
   const hmacPayload = Object.keys(params)
     .sort()
-    .map(key => [key, params[key]].join(':'))
+    .map((key) => [key, params[key]].join(':'))
     .concat(body ? JSON.stringify(body) : '')
     .join('\n')
 
@@ -15,11 +15,10 @@ export const calculateHmac = (
 }
 
 export type PaytrailConfig = {
-  merchantSecret: string,
-  merchantId: string,
-  successUrl: string,
-  cancelUrl: string,
-  notificationUrl: string,
+  merchantSecret: string
+  merchantId: string
+  successUrl: string
+  cancelUrl: string
+  notificationUrl: string
   paymentEndpoint: string
 }
-  

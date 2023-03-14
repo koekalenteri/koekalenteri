@@ -1,4 +1,3 @@
-
 module.exports = {
   transform: {
     '.+\\.ts$': '<rootDir>/jest.transform.js',
@@ -6,8 +5,5 @@ module.exports = {
   coverageProvider: 'v8',
   extensionsToTreatAsEsm: ['.ts'],
   testEnvironment: 'node',
-  coveragePathIgnorePatterns: [
-    "node_modules",
-    "<rootDir>/__test__",
-  ],
+  coveragePathIgnorePatterns: ['node_modules', '<rootDir>/__test__'],
 }

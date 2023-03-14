@@ -1,9 +1,19 @@
-import { APIGatewayProxyEvent } from "aws-lambda"
-import { AWSError } from "aws-sdk"
+import { APIGatewayProxyEvent, APIGatewayProxyEventPathParameters } from 'aws-lambda'
+import { AWSError } from 'aws-sdk'
 
-const DEFAULT_OPTIONS = { method: "GET", headers: {}, query: {}, path: "/" }
+interface Options {
+  method?: 'OPTIONS' | 'HEAD' | 'GET' | 'PUT' | 'POST' | 'DELETE'
+  headers?: Record<string, string>
+  query?: Record<string, string>
+  pathParameters?: APIGatewayProxyEventPathParameters | null
+  path?: string
+  username?: string
+  rawBody?: string
+}
 
-export function constructAPIGwEvent(message: any, options: any = DEFAULT_OPTIONS): APIGatewayProxyEvent {
+const DEFAULT_OPTIONS = { method: 'GET' as const, headers: {}, query: {}, path: '/' }
+
+export function constructAPIGwEvent(message: unknown, options: Options = DEFAULT_OPTIONS): APIGatewayProxyEvent {
   const opts = Object.assign({}, DEFAULT_OPTIONS, options)
   return {
     httpMethod: opts.method,

@@ -6,7 +6,7 @@ import { adminEventIdAtom, eventClassAtom } from '../events/atoms'
 import { adminRegistrationIdAtom, eventRegistrationsAtom } from './atoms'
 
 export interface RegistrationWithMutators extends Registration {
-  setGroup: (group?: RegistrationGroup) => void
+  setGroup: (group: RegistrationGroup) => Promise<void>
 }
 
 export const currentEventRegistrationsSelector = selector<Registration[]>({
@@ -32,12 +32,20 @@ export const currentEventClassRegistrationsSelector = selector<RegistrationWithM
       .filter((r) => r.class === eventClass || r.eventType === eventClass)
       .map((r) => ({
         ...r,
-        setGroup: getCallback(({ set }) => async (group?: RegistrationGroup) => {
+        setGroup: getCallback(({ set }) => async (group: RegistrationGroup) => {
           const newList = [...registrations]
           const index = newList.findIndex((item) => item.id === r.id)
           if (index !== -1) {
-            newList.splice(index, 1, { ...r, group })
+            newList.splice(index, 1, { ...r, group: { ...group } })
           }
+          newList.sort((a, b) => {
+            if (a.group?.key === b.group?.key) {
+              return (a.group?.number || 999) - (b.group?.number || 999)
+            }
+            return (a.group?.key ?? '').localeCompare(b.group?.key ?? '')
+          })
+          console.log(`${r.id} => ${group?.key}:${group?.number}`)
+          console.log(newList.map((r) => `${r.id} == ${r.group?.key}:${r.group?.number}`))
           set(currentEventRegistrationsSelector, newList)
         }),
       }))

@@ -22,9 +22,7 @@ export function tableHandler(h: State, node: Table) {
     while (++cellIndex < length) {
       const cell = row[cellIndex]
       const name = cellIndex === 0 ? 'th' : 'td'
-      out.push(
-        h(cell, name, { align: align[cellIndex] }, cell ? all(h, cell) : []),
-      )
+      out.push(h(cell, name, { align: align[cellIndex] }, cell ? all(h, cell) : []))
     }
 
     result[index] = h(rows[index], 'tr', wrap(out, true))
@@ -35,18 +33,19 @@ export function tableHandler(h: State, node: Table) {
     'table',
     wrap(
       ([] as Element[]).concat(
-        result.length > 1 ? h(
-          {
-            start: pointStart(result[1]),
-            end: pointEnd(result[result.length - 1]),
-          },
-          'tbody',
-          wrap(result.slice(1), true),
-        )
-          : [],
+        result.length > 1
+          ? h(
+              {
+                start: pointStart(result[1]),
+                end: pointEnd(result[result.length - 1]),
+              },
+              'tbody',
+              wrap(result.slice(1), true)
+            )
+          : []
       ),
-      true,
-    ),
+      true
+    )
   )
 }
 
@@ -107,7 +106,7 @@ export function all(h: HFunctionProps, parent: MdastParents) {
   return values
 }
 
-export function one(h: HFunctionProps|HFields, node: MdastContent, parent: MdastParents) {
+export function one(h: HFunctionProps | HFields, node: MdastContent, parent: MdastParents) {
   const type = node && node.type
   let fn: Handler = unknown
 
@@ -140,14 +139,7 @@ function returnNode(h: State, node: MdastNodes): any {
 function unknown(h: State, node: any): any {
   const data = node.data || {}
 
-  if (
-    'value' in node &&
-    !(
-      own.call(data, 'hName') ||
-      own.call(data, 'hProperties') ||
-      own.call(data, 'hChildren')
-    )
-  ) {
+  if ('value' in node && !(own.call(data, 'hName') || own.call(data, 'hProperties') || own.call(data, 'hChildren'))) {
     return h.augment(node, u('text', node.value))
   }
 

@@ -1,4 +1,4 @@
-import { Registration } from 'koekalenteri-shared/model'
+import { Registration, RegistrationGroupInfo } from 'koekalenteri-shared/model'
 
 import http, { withToken } from './http'
 
@@ -23,15 +23,11 @@ export async function putRegistration(
   return http.post<Registration, Registration>('/registration/', registration, withToken({ signal }, token))
 }
 
-export async function putRegistrationGroup(
-  registration: Registration,
+export async function putRegistrationGroups(
+  eventId: string,
+  groups: RegistrationGroupInfo[],
   token?: string,
   signal?: AbortSignal
-): Promise<Registration> {
-  const { eventId, id } = registration
-  return http.post<Registration, Registration>(
-    `/admin/registration/${eventId}/${id}`,
-    registration,
-    withToken({ signal }, token)
-  )
+): Promise<Registration[]> {
+  return http.post(`/admin/reg-groups/${eventId}`, { groups }, withToken({ signal }, token))
 }

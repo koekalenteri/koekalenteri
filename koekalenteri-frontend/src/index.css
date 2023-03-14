@@ -19,3 +19,7 @@ html, body, #root {
 .SnackbarContainer-root.snack {
   top: 50px
 }
+
+.MuiDataGrid-columnHeader.nopad, .MuiDataGrid-cell.nopad, .nopad {
+  padding: 0
+}

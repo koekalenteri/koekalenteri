@@ -1,4 +1,4 @@
-import { APIGatewayProxyResult } from "aws-lambda"
+import { APIGatewayProxyResult } from 'aws-lambda'
 
 export const response = (statusCode: number, body: unknown): APIGatewayProxyResult => ({
   statusCode: statusCode,
@@ -15,6 +15,6 @@ export const redirect = (body: unknown, url: string): APIGatewayProxyResult => (
   headers: {
     'Access-Control-Allow-Origin': '*',
     'Content-Type': 'application/json',
-    'Location': url,
+    Location: url,
   },
 })

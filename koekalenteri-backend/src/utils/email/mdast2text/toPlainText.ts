@@ -15,7 +15,7 @@ function one(node: any): string {
   )
 }
 
-function formatValue(node: { value: string; }) {
+function formatValue(node: { value: string }) {
   if (node.value.endsWith(':')) {
     return node.value + ' '
   }
@@ -32,10 +32,10 @@ function all(type: string, values: Node[]) {
   }
 
   if (type === 'tableRow' || type === 'table') {
-    result.push("\n")
+    result.push('\n')
   }
   if (type === 'paragraph' || type === 'heading') {
-    result.push("\n\n")
+    result.push('\n\n')
   }
 
   return result.join('')

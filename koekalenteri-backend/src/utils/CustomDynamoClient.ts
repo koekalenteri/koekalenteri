@@ -16,7 +16,7 @@ export default class CustomDynamoClient {
   constructor() {
     const options: AWS.DynamoDB.DocumentClient.DocumentClientOptions & AWS.DynamoDB.Types.ClientConfiguration = {}
 
-    this.table = process.env.TABLE_NAME || ""
+    this.table = process.env.TABLE_NAME || ''
 
     if (process.env.AWS_SAM_LOCAL) {
       // Override endpoint when in local development
@@ -32,9 +32,11 @@ export default class CustomDynamoClient {
 
   async readAll<T>(table?: string): Promise<T[] | undefined> {
     // TODO should this be improved with a query? Or create a query version of this?
-    const data = await this.docClient.scan({
-      TableName: table ? fromSamLocalTable(table) : this.table,
-    }).promise()
+    const data = await this.docClient
+      .scan({
+        TableName: table ? fromSamLocalTable(table) : this.table,
+      })
+      .promise()
     return data.Items?.filter((item: JsonObject) => !item.deletedAt) as T[]
   }
 
@@ -51,7 +53,10 @@ export default class CustomDynamoClient {
     return data.Item as T
   }
 
-  async query<T>(key: AWS.DynamoDB.DocumentClient.KeyExpression, values: AWS.DynamoDB.DocumentClient.ExpressionAttributeValueMap): Promise<T[] | undefined> {
+  async query<T>(
+    key: AWS.DynamoDB.DocumentClient.KeyExpression,
+    values: AWS.DynamoDB.DocumentClient.ExpressionAttributeValueMap
+  ): Promise<T[] | undefined> {
     if (!key) {
       console.warn('CustomDynamoClient.query: no key provided, returning undefined')
       return
@@ -73,7 +78,13 @@ export default class CustomDynamoClient {
     return this.docClient.put(params).promise()
   }
 
-  async update(key: AWS.DynamoDB.DocumentClient.Key, expression: UpdateExpression, names: {[key: string]: string}, values: JsonObject, table?: string) {
+  async update(
+    key: AWS.DynamoDB.DocumentClient.Key,
+    expression: UpdateExpression,
+    names: { [key: string]: string },
+    values: JsonObject,
+    table?: string
+  ) {
     const params: AWS.DynamoDB.DocumentClient.UpdateItemInput = {
       TableName: table ? fromSamLocalTable(table) : this.table,
       Key: key,

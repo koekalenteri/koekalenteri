@@ -2,11 +2,30 @@ import type { JsonArray, JsonObject } from 'koekalenteri-shared/model'
 import fetch from 'node-fetch'
 
 import type {
-  KLAPIConfig, KLAPIResult, KLArvo, KLKennelpiiri, KLKoeHenkilö, KLKoemuodonTarkenne, KLKoemuodonTulos,
-  KLKoemuodotParametrit, KLKoemuoto, KLKoemuotoParametrit, KLKoetapahtuma,
-  KLKoetapahtumaParametrit, KLKoetulos, KLKoetulosParametrit, KLKoira, KLKoiraParametrit,
-  KLPaikkakunta, KLParametritParametrit, KLRodutParametrit, KLRotu,   KLRoturyhmä, KLRoturyhmätParametrit,
-  KLYhdistys, KLYhdistysParametrit,
+  KLAPIConfig,
+  KLAPIResult,
+  KLArvo,
+  KLKennelpiiri,
+  KLKoeHenkilö,
+  KLKoemuodonTarkenne,
+  KLKoemuodonTulos,
+  KLKoemuodotParametrit,
+  KLKoemuoto,
+  KLKoemuotoParametrit,
+  KLKoetapahtuma,
+  KLKoetapahtumaParametrit,
+  KLKoetulos,
+  KLKoetulosParametrit,
+  KLKoira,
+  KLKoiraParametrit,
+  KLPaikkakunta,
+  KLParametritParametrit,
+  KLRodutParametrit,
+  KLRotu,
+  KLRoturyhmä,
+  KLRoturyhmätParametrit,
+  KLYhdistys,
+  KLYhdistysParametrit,
 } from './KLAPI_models'
 
 function toURLParams(params: Record<string, string | number | undefined> = {}): Record<string, string> {
@@ -36,7 +55,10 @@ export default class KLAPI {
     return this._config || (this._config = await this._loadConfig())
   }
 
-  private async get<T extends JsonObject | JsonArray>(path: string, params?: Record<string, string | number | undefined>): KLAPIResult<T> {
+  private async get<T extends JsonObject | JsonArray>(
+    path: string,
+    params?: Record<string, string | number | undefined>
+  ): KLAPIResult<T> {
     const cfg = await this._getConfig()
     const sp = new URLSearchParams(toURLParams(params))
     console.log(`KLAPI: ${path}?${sp}`)
@@ -55,7 +77,7 @@ export default class KLAPI {
       status = res.status
       try {
         if (res.ok) {
-          json = await res.json() as T
+          json = (await res.json()) as T
         }
         if (json) {
           console.log('response: ' + JSON.stringify(json))

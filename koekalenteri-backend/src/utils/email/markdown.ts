@@ -13,10 +13,8 @@ import { linkAsText } from './mdast2text/link'
 import { remarkPlainText } from './mdast2text/remarkPlainText'
 import { removeTableHead } from './mdast2text/table'
 
-
 export async function markdownToTemplate(templateName: string, source: string): Promise<Template> {
-
-  const {text, subject} = await markdownToText(source)
+  const { text, subject } = await markdownToText(source)
   const html = await markdownToHtml(source)
 
   return {
@@ -27,15 +25,16 @@ export async function markdownToTemplate(templateName: string, source: string): 
   }
 }
 
-export async function markdownToText(source: string): Promise<{subject: string, text: string}> {
+export async function markdownToText(source: string): Promise<{ subject: string; text: string }> {
   let subject = ''
-  const extractSubject: Plugin<void[], string, Root> = () => (tree: any) => visit(tree, (node, index, parent) => {
-    if (subject === '' && node.type === 'definition' && node.title) {
-      subject = node.title
-      parent.children.splice(index, 1)
-      return [SKIP, index]
-    }
-  })
+  const extractSubject: Plugin<void[], string, Root> = () => (tree: any) =>
+    visit(tree, (node, index, parent) => {
+      if (subject === '' && node.type === 'definition' && node.title) {
+        subject = node.title
+        parent.children.splice(index, 1)
+        return [SKIP, index]
+      }
+    })
 
   const text = await unified()
     .use(remarkParse)
@@ -46,7 +45,7 @@ export async function markdownToText(source: string): Promise<{subject: string, 
     .use(remarkPlainText)
     .process(source)
 
-  return {subject, text: String(text)}
+  return { subject, text: String(text) }
 }
 
 export async function markdownToHtml(source: string): Promise<string> {
