@@ -511,7 +511,7 @@ exports[`SearchPage filters by date - no-results 1`] = `
             <span
               class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-ahj2mt-MuiTypography-root"
             >
-              Ilmoittautuminen tulossa
+              entryUpcoming
             </span>
           </label>
         </div>
@@ -1041,7 +1041,7 @@ exports[`SearchPage filters by date 1`] = `
             <span
               class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-ahj2mt-MuiTypography-root"
             >
-              Ilmoittautuminen tulossa
+              entryUpcoming
             </span>
           </label>
         </div>
@@ -2688,7 +2688,7 @@ exports[`SearchPage filters by date/end 1`] = `
             <span
               class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-ahj2mt-MuiTypography-root"
             >
-              Ilmoittautuminen tulossa
+              entryUpcoming
             </span>
           </label>
         </div>
@@ -4380,7 +4380,7 @@ exports[`SearchPage filters by event class 1`] = `
             <span
               class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-ahj2mt-MuiTypography-root"
             >
-              Ilmoittautuminen tulossa
+              entryUpcoming
             </span>
           </label>
         </div>
@@ -5879,7 +5879,7 @@ exports[`SearchPage filters by event type 1`] = `
             <span
               class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-ahj2mt-MuiTypography-root"
             >
-              Ilmoittautuminen tulossa
+              entryUpcoming
             </span>
           </label>
         </div>
@@ -7679,7 +7679,7 @@ exports[`SearchPage filters by organizer 1`] = `
             <span
               class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-ahj2mt-MuiTypography-root"
             >
-              Ilmoittautuminen tulossa
+              entryUpcoming
             </span>
           </label>
         </div>

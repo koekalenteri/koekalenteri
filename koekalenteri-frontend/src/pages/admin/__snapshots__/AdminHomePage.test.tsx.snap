@@ -64,7 +64,7 @@ exports[`AdminHomePage renders the child page content when user is logged in 1`]
         <div
           class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-noWrap css-mpfifn-MuiTypography-root"
         >
-          Ylläpito
+          admin
         </div>
       </a>
       <div
@@ -236,7 +236,7 @@ exports[`AdminHomePage renders the page when user is logged in 1`] = `
         <div
           class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-noWrap css-mpfifn-MuiTypography-root"
         >
-          Ylläpito
+          admin
         </div>
       </a>
       <div

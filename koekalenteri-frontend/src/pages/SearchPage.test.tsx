@@ -112,7 +112,7 @@ describe('SearchPage', () => {
   it('filters by entryUpcoming', async () => {
     renderPage('/?b=u', locales.fi)
     await waitForDebounce()
-    expect(screen.getByRole('checkbox', { name: 'Ilmoittautuminen tulossa' })).toBeChecked()
+    expect(screen.getByRole('checkbox', { name: 'entryUpcoming' })).toBeChecked()
     expect(screen.getAllByRole('row').length).toEqual(1)
   })
 
@@ -126,7 +126,7 @@ describe('SearchPage', () => {
   it('filters by entryOpen and entryUpcoming', async () => {
     renderPage('/?b=o&b=u', locales.fi)
     await waitForDebounce()
-    expect(screen.getByRole('checkbox', { name: 'Ilmoittautuminen tulossa' })).toBeChecked()
+    expect(screen.getByRole('checkbox', { name: 'entryUpcoming' })).toBeChecked()
     expect(screen.getByRole('checkbox', { name: 'entryOpen' })).toBeChecked()
     expect(screen.getAllByRole('row').length).toEqual(3)
   })

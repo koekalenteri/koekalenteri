@@ -128,7 +128,7 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
               value="withUpcomingEntry"
               checked={filter.withUpcomingEntry}
               control={<Switch />}
-              label="Ilmoittautuminen tulossa"
+              label={t('entryUpcoming')}
               labelPlacement="end"
               onChange={handleWithUpcomingEntryChange}
             />

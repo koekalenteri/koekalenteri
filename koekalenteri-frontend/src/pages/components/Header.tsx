@@ -1,4 +1,5 @@
 import { Suspense } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Menu } from '@mui/icons-material'
 import { AppBar, IconButton, Link, Toolbar, Typography } from '@mui/material'
 import { useRecoilValue } from 'recoil'
@@ -15,6 +16,7 @@ interface Props {
 }
 
 const Header = ({ toggleMenu }: Props) => {
+  const { t } = useTranslation()
   const userName = useRecoilValue(userNameSelector)
   const inAdmin = !!toggleMenu
   const linkBorder = userName ? '2px solid #000' : undefined
@@ -50,7 +52,7 @@ const Header = ({ toggleMenu }: Props) => {
           }}
         >
           <Typography variant="subtitle1" noWrap component="div" sx={{ flexShrink: 1 }}>
-            Ylläpito
+            {t('admin')}
           </Typography>
         </Link>
         <Typography

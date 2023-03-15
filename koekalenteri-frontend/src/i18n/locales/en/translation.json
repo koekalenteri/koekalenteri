@@ -41,7 +41,11 @@
   },
   "edit": "Edit",
   "emailTemplate": {
-    "registration": "Confirmation"
+    "invitation": "Invitation",
+    "picked": "Picked notification",
+    "registration": "Confirmation",
+    "reserve": "Reserve notification",
+    "reserve-move": "Reserve move"
   },
   "emailTemplates": "Messages",
   "error": {
@@ -54,6 +58,7 @@
   "entryTime": "Registration time",
   "entryTitle": "Register to event",
   "entryTitle_test": "Register to test",
+  "entryUpcoming": "Upcoming registration",
   "event": {
     "accountNumber": "Account number",
     "allowHandlerMembershipPriority": "Handel membership priority",
@@ -116,6 +121,7 @@
     "statusText": ""
   },
   "eventClass": "Event class",
+  "eventInfo": "Event information",
   "eventTime": "Event time",
   "eventType": "Event type",
   "eventType_short": "Abbreviation",
@@ -150,6 +156,18 @@
   "places": "Places",
   "register": "Register",
   "registration": {
+    "breeder": "Breeder information",
+    "cancelDialog": {
+      "cta": "Peru ilmoittautuminen",
+      "done": "Ilmoittautumisesi on peruttu",
+      "title": "Ilmoittautumisen peruminen",
+      "text": "Olet perumassa koiran {{registration.dog.regNo}} {{registration.dog.name}} ilmoittautumista kokeeseen {{event.startDate, date}} {{event.eventType}} {{event.location}}",
+      "lateText": "Ilmoittautumisen voi perua koepäivänä vain ottamalla yhteyttä suoraan koesihteeriin {{event.secretary.name}} {{contact}}",
+      "confirmation": "Oletko varma, että haluat perua ilmoittautumisen?",
+      "terms": "Katso tarkemmat peruutusehdot <1>säännöistä</1>"
+    },
+    "class": "Event class",
+    "classesDetails": "Event class details",
     "createdAt": "Created at",
     "cta": {
       "addResult": "Add result",
@@ -169,7 +187,7 @@
     },
     "dates": "Dates",
     "datesInfo": "Select all suitable dates for your participation.",
-    "dog": "Dog information",
+    "dog": "Dog",
     "email": {
       "subject": "Registration confirmationq",
       "subject_update": "Registration modified",

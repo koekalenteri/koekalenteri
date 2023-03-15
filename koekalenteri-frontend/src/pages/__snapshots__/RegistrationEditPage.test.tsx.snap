@@ -46,7 +46,7 @@ exports[`RegistrationEditPage should render 1`] = `
           <p
             class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
           >
-            Kokeen tiedot
+            eventInfo
           </p>
           <p
             class="MuiFormHelperText-root css-ml08u8-MuiFormHelperText-root"
