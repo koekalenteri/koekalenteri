@@ -104,7 +104,7 @@ exports[`EventProperty freeSolo=false should display options when typing and fir
 <div>
   <div
     aria-owns="eventType-listbox"
-    class="MuiAutocomplete-root Mui-focused MuiAutocomplete-hasPopupIcon css-l3ln04-MuiAutocomplete-root"
+    class="MuiAutocomplete-root Mui-expanded Mui-focused MuiAutocomplete-hasPopupIcon css-l3ln04-MuiAutocomplete-root"
   >
     <div
       class="MuiBox-root css-91p3uw"
@@ -206,7 +206,7 @@ exports[`EventProperty freeSolo=false should display options when typing and fir
 <div>
   <div
     aria-owns="eventType-listbox"
-    class="MuiAutocomplete-root Mui-focused MuiAutocomplete-hasPopupIcon css-l3ln04-MuiAutocomplete-root"
+    class="MuiAutocomplete-root Mui-expanded Mui-focused MuiAutocomplete-hasPopupIcon css-l3ln04-MuiAutocomplete-root"
   >
     <div
       class="MuiBox-root css-91p3uw"

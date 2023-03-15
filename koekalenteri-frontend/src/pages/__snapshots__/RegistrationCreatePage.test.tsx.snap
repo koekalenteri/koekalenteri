@@ -181,7 +181,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
     class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation2 css-q8ljt1-MuiPaper-root"
   >
     <div
-      class="MuiBox-root css-1v6haz3"
+      class="MuiBox-root css-2hwc4u"
     >
       <div
         class="MuiBox-root css-g7pq3x"
@@ -2238,7 +2238,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
               Hyväksyn
                
               <a
-                class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-1flfxuu-MuiTypography-root-MuiLink-root"
+                class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-167apjz-MuiTypography-root-MuiLink-root"
                 href="https://yttmk.yhdistysavain.fi/noutajien-metsastyskokeet-2/ohjeistukset/kokeen-ja-tai-kilpailun-ilmoitta/"
                 rel="noopener"
                 target="_blank"
@@ -2249,7 +2249,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
               ja
                
               <a
-                class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-1flfxuu-MuiTypography-root-MuiLink-root"
+                class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-167apjz-MuiTypography-root-MuiLink-root"
                 href="https://www.snj.fi/snj/tietosuojaseloste/"
                 rel="noopener"
                 target="_blank"
@@ -2504,7 +2504,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
     class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation2 css-q8ljt1-MuiPaper-root"
   >
     <div
-      class="MuiBox-root css-1v6haz3"
+      class="MuiBox-root css-2hwc4u"
     >
       <div
         class="MuiBox-root css-g7pq3x"
@@ -4515,7 +4515,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
               Hyväksyn
                
               <a
-                class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-1flfxuu-MuiTypography-root-MuiLink-root"
+                class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-167apjz-MuiTypography-root-MuiLink-root"
                 href="https://yttmk.yhdistysavain.fi/noutajien-metsastyskokeet-2/ohjeistukset/kokeen-ja-tai-kilpailun-ilmoitta/"
                 rel="noopener"
                 target="_blank"
@@ -4526,7 +4526,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
               ja
                
               <a
-                class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-1flfxuu-MuiTypography-root-MuiLink-root"
+                class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-167apjz-MuiTypography-root-MuiLink-root"
                 href="https://www.snj.fi/snj/tietosuojaseloste/"
                 rel="noopener"
                 target="_blank"
