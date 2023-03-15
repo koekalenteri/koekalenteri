@@ -29,7 +29,7 @@ exports[`AdminHomePage renders the child page content when user is logged in 1`]
         />
       </button>
       <a
-        class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-1flfxuu-MuiTypography-root-MuiLink-root"
+        class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-167apjz-MuiTypography-root-MuiLink-root"
         href="/"
       >
         <button
@@ -48,7 +48,7 @@ exports[`AdminHomePage renders the child page content when user is logged in 1`]
         </button>
       </a>
       <a
-        class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-9z0oyi-MuiTypography-root-MuiLink-root"
+        class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-ah90lq-MuiTypography-root-MuiLink-root"
         href="/"
       >
         <div
@@ -58,7 +58,7 @@ exports[`AdminHomePage renders the child page content when user is logged in 1`]
         </div>
       </a>
       <a
-        class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-1vwq5f4-MuiTypography-root-MuiLink-root"
+        class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-1u98cmt-MuiTypography-root-MuiLink-root"
         href="/admin/event"
       >
         <div
@@ -201,7 +201,7 @@ exports[`AdminHomePage renders the page when user is logged in 1`] = `
         />
       </button>
       <a
-        class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-1flfxuu-MuiTypography-root-MuiLink-root"
+        class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-167apjz-MuiTypography-root-MuiLink-root"
         href="/"
       >
         <button
@@ -220,7 +220,7 @@ exports[`AdminHomePage renders the page when user is logged in 1`] = `
         </button>
       </a>
       <a
-        class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-9z0oyi-MuiTypography-root-MuiLink-root"
+        class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-ah90lq-MuiTypography-root-MuiLink-root"
         href="/"
       >
         <div
@@ -230,7 +230,7 @@ exports[`AdminHomePage renders the page when user is logged in 1`] = `
         </div>
       </a>
       <a
-        class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-1vwq5f4-MuiTypography-root-MuiLink-root"
+        class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-1u98cmt-MuiTypography-root-MuiLink-root"
         href="/admin/event"
       >
         <div

@@ -188,7 +188,7 @@ export default function RegistrationForm({
           },
           '& .fact input.Mui-disabled': {
             color: 'success.main',
-            WebkitTextFillColor: 'inherit',
+            WebkitTextFillColor: (theme) => theme.palette.success.main,
           },
         }}
       >
