@@ -161,7 +161,7 @@ export const DogInfo = ({
       open={open}
       onOpenChange={onOpenChange}
     >
-      <Stack direction="row" spacing={1} alignItems="flex-end">
+      <Stack direction="row" spacing={1} alignItems="center">
         <Autocomplete
           id="txtReknro"
           disabled={!disabled}
@@ -174,23 +174,22 @@ export const DogInfo = ({
           options={cachedRegNos ?? []}
           sx={{ minWidth: 200 }}
         />
-        <Stack alignItems="flex-start">
-          <FormHelperText error={state.mode === 'notfound'}>
-            {t(`registration.cta.helper.${state.mode}`, { date: reg?.dog?.refreshDate })}
-          </FormHelperText>
-          <LoadingButton
-            disabled={!validRegNo || (state.mode === 'update' && !allowRefresh)}
-            loading={loading}
-            startIcon={<CachedOutlined />}
-            size="small"
-            variant="outlined"
-            color="info"
-            onClick={buttonClick}
-          >
-            {t(`registration.cta.${state.mode}`)}
-          </LoadingButton>
-        </Stack>
+        <LoadingButton
+          disabled={!validRegNo || (state.mode === 'update' && !allowRefresh)}
+          loading={loading}
+          startIcon={<CachedOutlined />}
+          size="small"
+          variant="outlined"
+          color="info"
+          onClick={buttonClick}
+          sx={{ minWidth: 65 }}
+        >
+          {t(`registration.cta.${state.mode}`)}
+        </LoadingButton>
       </Stack>
+      <FormHelperText error={state.mode === 'notfound'} sx={{ minHeight: { xs: 40, sm: 20 } }}>
+        {t(`registration.cta.helper.${state.mode}`, { date: reg?.dog?.refreshDate })}
+      </FormHelperText>
       <Grid container spacing={1} sx={{ mt: 0.5 }}>
         <Grid item>
           <TextField

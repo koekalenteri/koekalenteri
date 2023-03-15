@@ -570,7 +570,7 @@ exports[`RegistrationEditPage should render 1`] = `
                   class="MuiBox-root css-n2y79c"
                 >
                   <div
-                    class="MuiStack-root css-1xsbkb6-MuiStack-root"
+                    class="MuiStack-root css-1q36rmd-MuiStack-root"
                   >
                     <div
                       class="MuiAutocomplete-root MuiAutocomplete-hasClearIcon css-1iz0kfw-MuiAutocomplete-root"
@@ -643,42 +643,38 @@ exports[`RegistrationEditPage should render 1`] = `
                         </div>
                       </div>
                     </div>
-                    <div
-                      class="MuiStack-root css-1a69w1n-MuiStack-root"
+                    <button
+                      class="MuiButtonBase-root MuiButton-root MuiLoadingButton-root MuiButton-outlined MuiButton-outlinedInfo MuiButton-sizeSmall MuiButton-outlinedSizeSmall MuiButton-root MuiLoadingButton-root MuiButton-outlined MuiButton-outlinedInfo MuiButton-sizeSmall MuiButton-outlinedSizeSmall css-138hc2r-MuiButtonBase-root-MuiButton-root-MuiLoadingButton-root"
+                      id=":r8:"
+                      tabindex="0"
+                      type="button"
                     >
-                      <p
-                        class="MuiFormHelperText-root css-w5l3sh-MuiFormHelperText-root"
+                      <span
+                        class="MuiButton-startIcon MuiButton-iconSizeSmall css-y6rp3m-MuiButton-startIcon"
                       >
-                        registration.cta.helper.update
-                      </p>
-                      <button
-                        class="MuiButtonBase-root MuiButton-root MuiLoadingButton-root MuiButton-outlined MuiButton-outlinedInfo MuiButton-sizeSmall MuiButton-outlinedSizeSmall MuiButton-root MuiLoadingButton-root MuiButton-outlined MuiButton-outlinedInfo MuiButton-sizeSmall MuiButton-outlinedSizeSmall css-1pa956v-MuiButtonBase-root-MuiButton-root-MuiLoadingButton-root"
-                        id=":r8:"
-                        tabindex="0"
-                        type="button"
-                      >
-                        <span
-                          class="MuiButton-startIcon MuiButton-iconSizeSmall css-y6rp3m-MuiButton-startIcon"
+                        <svg
+                          aria-hidden="true"
+                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                          data-testid="CachedOutlinedIcon"
+                          focusable="false"
+                          viewBox="0 0 24 24"
                         >
-                          <svg
-                            aria-hidden="true"
-                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                            data-testid="CachedOutlinedIcon"
-                            focusable="false"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              d="m19 8-4 4h3c0 3.31-2.69 6-6 6-1.01 0-1.97-.25-2.8-.7l-1.46 1.46C8.97 19.54 10.43 20 12 20c4.42 0 8-3.58 8-8h3l-4-4zM6 12c0-3.31 2.69-6 6-6 1.01 0 1.97.25 2.8.7l1.46-1.46C15.03 4.46 13.57 4 12 4c-4.42 0-8 3.58-8 8H1l4 4 4-4H6z"
-                            />
-                          </svg>
-                        </span>
-                        registration.cta.update
-                        <span
-                          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                        />
-                      </button>
-                    </div>
+                          <path
+                            d="m19 8-4 4h3c0 3.31-2.69 6-6 6-1.01 0-1.97-.25-2.8-.7l-1.46 1.46C8.97 19.54 10.43 20 12 20c4.42 0 8-3.58 8-8h3l-4-4zM6 12c0-3.31 2.69-6 6-6 1.01 0 1.97.25 2.8.7l1.46-1.46C15.03 4.46 13.57 4 12 4c-4.42 0-8 3.58-8 8H1l4 4 4-4H6z"
+                          />
+                        </svg>
+                      </span>
+                      registration.cta.update
+                      <span
+                        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                      />
+                    </button>
                   </div>
+                  <p
+                    class="MuiFormHelperText-root css-xhkh3h-MuiFormHelperText-root"
+                  >
+                    registration.cta.helper.update
+                  </p>
                   <div
                     class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-1 css-1su9uck-MuiGrid-root"
                   >
