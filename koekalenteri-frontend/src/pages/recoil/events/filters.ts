@@ -38,16 +38,28 @@ export function withinSwitchFilters(
   return result !== false
 }
 
-export function withinArrayFilters(event: Event, { eventType, eventClass, judge, organizer }: FilterProps) {
+export function withinEventTypeFilter(event: Event, { eventType, eventClass, judge, organizer }: FilterProps) {
   if (eventType.length && !eventType.includes(event.eventType)) {
     return false
   }
+  return true
+}
+
+export function withinEventTypeClassFilter(event: Event, { eventType, eventClass, judge, organizer }: FilterProps) {
   if (eventClass.length && !eventClass.some((c) => event.classes.map((cl) => cl.class).includes(c))) {
     return false
   }
+  return true
+}
+
+export function withinJudgeFilter(event: Event, { eventType, eventClass, judge, organizer }: FilterProps) {
   if (judge.length && !judge.some((j) => event.judges?.includes(j))) {
     return false
   }
+  return true
+}
+
+export function withinOrganizerFilter(event: Event, { eventType, eventClass, judge, organizer }: FilterProps) {
   if (organizer.length && !organizer.includes(event.organizer?.id)) {
     return false
   }

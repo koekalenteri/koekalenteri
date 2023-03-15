@@ -3,10 +3,18 @@ import { Event, EventClass, Organizer } from 'koekalenteri-shared/model'
 import { selector, selectorFamily } from 'recoil'
 
 import { unique, uniqueFn } from '../../../utils'
+import { organizersAtom } from '../../admin/recoil'
 import { judgesAtom } from '../judges/atoms'
 
 import { eventFilterAtom, eventIdAtom, eventsAtom } from './atoms'
-import { withinArrayFilters, withinDateFilters, withinSwitchFilters } from './filters'
+import {
+  withinDateFilters,
+  withinEventTypeClassFilter,
+  withinEventTypeFilter,
+  withinJudgeFilter,
+  withinOrganizerFilter,
+  withinSwitchFilters,
+} from './filters'
 
 export const eventSelector = selectorFamily<Event | undefined | null, string | undefined>({
   key: 'event',
@@ -46,42 +54,99 @@ export const filteredEventsSelector = selector({
         !event.deletedAt &&
         withinDateFilters(event, filter) &&
         withinSwitchFilters(event, filter) &&
-        withinArrayFilters(event, filter)
+        withinEventTypeFilter(event, filter) &&
+        withinEventTypeClassFilter(event, filter) &&
+        withinOrganizerFilter(event, filter) &&
+        withinJudgeFilter(event, filter)
       )
     })
   },
 })
 
-export const filterJudgesSelector = selector({
-  key: 'filterJudges',
+export const filteredEventsForTypeSelector = selector({
+  key: 'filteredEventsForType',
   get: ({ get }) => {
-    const events = get(filteredEventsSelector)
-    const judges = get(judgesAtom)
-    const usedJudgeIds = unique<number>(events.reduce<number[]>((acc, cur) => [...acc, ...cur.judges], []))
+    const filter = get(eventFilterAtom)
+    const events = get(eventsAtom)
 
-    return judges
-      .filter((j) => usedJudgeIds.includes(j.id))
-      .sort((a, b) => a.name.localeCompare(b.name, i18next.language))
+    return events.filter((event) => {
+      return (
+        event.state !== 'draft' &&
+        !event.deletedAt &&
+        withinDateFilters(event, filter) &&
+        withinSwitchFilters(event, filter) &&
+        withinEventTypeClassFilter(event, filter) &&
+        withinOrganizerFilter(event, filter) &&
+        withinJudgeFilter(event, filter)
+      )
+    })
   },
 })
 
-export const filterOrganizersSelector = selector({
-  key: 'filterOrganizers',
+export const filteredEventsForEventClassSelector = selector({
+  key: 'filteredEventsForEventClass',
   get: ({ get }) => {
-    const events = get(filteredEventsSelector)
-    const uniqueOrganizers = uniqueFn<Organizer>(
-      events.map((e) => e.organizer),
-      (a, b) => a.id === b.id
-    )
-    uniqueOrganizers.sort((a, b) => a.name.localeCompare(b.name, i18next.language))
-    return uniqueOrganizers
+    const filter = get(eventFilterAtom)
+    const events = get(eventsAtom)
+
+    return events.filter((event) => {
+      return (
+        event.state !== 'draft' &&
+        !event.deletedAt &&
+        withinDateFilters(event, filter) &&
+        withinSwitchFilters(event, filter) &&
+        withinEventTypeFilter(event, filter) &&
+        withinOrganizerFilter(event, filter) &&
+        withinJudgeFilter(event, filter)
+      )
+    })
+  },
+})
+
+export const filteredEventsForOrganizerSelector = selector({
+  key: 'filteredEventsForOrganizer',
+  get: ({ get }) => {
+    const filter = get(eventFilterAtom)
+    const events = get(eventsAtom)
+
+    return events.filter((event) => {
+      return (
+        event.state !== 'draft' &&
+        !event.deletedAt &&
+        withinDateFilters(event, filter) &&
+        withinSwitchFilters(event, filter) &&
+        withinEventTypeFilter(event, filter) &&
+        withinEventTypeClassFilter(event, filter) &&
+        withinJudgeFilter(event, filter)
+      )
+    })
+  },
+})
+
+export const filteredEventsForJudgeSelector = selector({
+  key: 'filteredEventsForJudge',
+  get: ({ get }) => {
+    const filter = get(eventFilterAtom)
+    const events = get(eventsAtom)
+
+    return events.filter((event) => {
+      return (
+        event.state !== 'draft' &&
+        !event.deletedAt &&
+        withinDateFilters(event, filter) &&
+        withinSwitchFilters(event, filter) &&
+        withinEventTypeFilter(event, filter) &&
+        withinEventTypeClassFilter(event, filter) &&
+        withinOrganizerFilter(event, filter)
+      )
+    })
   },
 })
 
 export const filterEventTypesSelector = selector({
   key: 'filterEventTypes',
   get: ({ get }) => {
-    const events = get(filteredEventsSelector)
+    const events = get(filteredEventsForTypeSelector)
     const uniqueEventTypes = unique<string>(events.map((e) => e.eventType))
     uniqueEventTypes.sort((a, b) => a.localeCompare(b, i18next.language))
     return uniqueEventTypes
@@ -91,11 +156,40 @@ export const filterEventTypesSelector = selector({
 export const filterEventClassesSelector = selector({
   key: 'filterEventClasses',
   get: ({ get }) => {
-    const events = get(filteredEventsSelector)
+    const events = get(filteredEventsForEventClassSelector)
     const uniqueEventClasses = unique<string>(
       events.reduce<EventClass[]>((acc, cur) => [...acc, ...cur.classes], []).map((ec) => ec.class)
     )
     uniqueEventClasses.sort((a, b) => a.localeCompare(b, i18next.language))
     return uniqueEventClasses
+  },
+})
+
+export const filterOrganizersSelector = selector({
+  key: 'filterOrganizers',
+  get: ({ get }) => {
+    const events = get(filteredEventsForOrganizerSelector)
+    const uniqueOrganizers = uniqueFn<Organizer>(
+      events.map((e) => e.organizer),
+      (a, b) => a.id === b.id
+    )
+    uniqueOrganizers.sort((a, b) => a.name.localeCompare(b.name, i18next.language))
+    return uniqueOrganizers
+  },
+})
+
+export const filterJudgesSelector = selector({
+  key: 'filterJudges',
+  get: ({ get }) => {
+    const events = get(filteredEventsForJudgeSelector)
+    const filter = get(eventFilterAtom)
+    const judges = get(judgesAtom)
+    const usedJudgeIds = unique<number>(
+      events.reduce<number[]>((acc, cur) => [...acc, ...cur.judges], [...filter.judge])
+    )
+
+    return judges
+      .filter((j) => usedJudgeIds.includes(j.id))
+      .sort((a, b) => a.name.localeCompare(b.name, i18next.language))
   },
 })

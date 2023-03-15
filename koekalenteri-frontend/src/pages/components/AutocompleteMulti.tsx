@@ -23,7 +23,7 @@ export default function AutocompleteMulti<T>(props: AutocompleteMultiProps<T>) {
   return (
     <Autocomplete
       autoHighlight
-      disabled={disabled || acProps.options.length === 0}
+      disabled={disabled || (acProps.options.length === 0 && acProps.value?.length === 0)}
       data-testid={label}
       {...acProps}
       disableCloseOnSelect
