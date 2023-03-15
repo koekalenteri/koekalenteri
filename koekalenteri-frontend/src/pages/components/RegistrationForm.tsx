@@ -190,6 +190,7 @@ export default function RegistrationForm({
             color: 'success.main',
             WebkitTextFillColor: (theme) => theme.palette.success.main,
           },
+          minWidth: 350,
         }}
       >
         <EntryInfo

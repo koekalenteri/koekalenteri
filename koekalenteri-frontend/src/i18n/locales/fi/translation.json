@@ -35,7 +35,7 @@
   "dog": {
     "breed": "Rotu",
     "dam": {
-      "name": "Emän nimi",
+      "name": "Emän tittelit ja nimi",
       "titles": "Emän tittelit"
     },
     "dob": "Syntymäaika",
@@ -48,7 +48,7 @@
     "regNo": "Rekisterinumero",
     "rfid": "Tunnistusmerkintä",
     "sire": {
-      "name": "Isän nimi",
+      "name": "Isän tittelit ja nimi",
       "titles": "Isän tittelit"
     },
     "titles": "Tittelit"

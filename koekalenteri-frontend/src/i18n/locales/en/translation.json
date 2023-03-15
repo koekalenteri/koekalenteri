@@ -21,7 +21,7 @@
   "dog": {
     "breed": "Breed",
     "dam": {
-      "name": "Dam's name",
+      "name": "Dam's title and name",
       "titles": "Dam's title"
     },
     "dob": "Date of birth",
@@ -34,7 +34,7 @@
     "regNo": "Registration number",
     "rfid": "ID marking",
     "sire": {
-      "name": "Sire's name",
+      "name": "Sire's title and name",
       "titles": "Sire's title"
     },
     "titles": "Title"

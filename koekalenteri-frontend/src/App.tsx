@@ -12,7 +12,7 @@ import { AWSConfig } from './amplify-env'
 import { Language, locales, muiLocales } from './i18n'
 import routes from './routes'
 
-import '@aws-amplify/ui-react/styles.css'
+// import '@aws-amplify/ui-react/styles.css'
 
 Auth.configure(AWSConfig)
 

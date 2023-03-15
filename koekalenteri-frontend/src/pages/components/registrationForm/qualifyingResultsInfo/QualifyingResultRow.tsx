@@ -30,7 +30,7 @@ export default function QualifyingResultRow({ result, requirements, onChange, on
 
   return (
     <Grid item container spacing={1} alignItems="center">
-      <Grid item>
+      <Grid item xs={6} sm={4} md={2}>
         <AutocompleteSingle
           disabled={result.official}
           disableClearable
@@ -38,10 +38,9 @@ export default function QualifyingResultRow({ result, requirements, onChange, on
           label={t('testResult.eventType')}
           onChange={(value) => handleChange(result, { type: value })}
           value={result.type}
-          sx={{ width: 128 }}
         />
       </Grid>
-      <Grid item>
+      <Grid item xs={6} sm={4} md={2}>
         <AutocompleteSingle
           disabled={result.official}
           disableClearable
@@ -55,7 +54,6 @@ export default function QualifyingResultRow({ result, requirements, onChange, on
             })
           }
           sx={{
-            width: 128,
             '& fieldset': {
               borderColor: resultBorderColor(result.qualifying),
               borderWidth: !result.result || result.qualifying === undefined ? undefined : 2,
@@ -67,8 +65,8 @@ export default function QualifyingResultRow({ result, requirements, onChange, on
           value={result.cert ? 'CERT' : result.result}
         />
       </Grid>
-      <Grid item>
-        <FormControl sx={{ width: 150 }}>
+      <Grid item xs={6} sm={4} md={2}>
+        <FormControl fullWidth>
           <DatePicker
             disabled={result.official}
             inputFormat={t('dateFormat.long')}
@@ -84,27 +82,27 @@ export default function QualifyingResultRow({ result, requirements, onChange, on
           />
         </FormControl>
       </Grid>
-      <Grid item>
+      <Grid item xs={6} sm={4} md={2}>
         <TextField
           disabled={result.official}
           error={!result.location}
+          fullWidth
           label={t('testResult.location')}
-          sx={{ width: 170 }}
           onChange={(e) => handleChange(result, { location: e.target.value })}
           value={result.location}
         />
       </Grid>
-      <Grid item>
+      <Grid item xs={12} sm={4} md={2.5}>
         <TextField
           disabled={result.official}
           error={!result.judge}
+          fullWidth
           label={t('testResult.judge')}
-          sx={{ width: 180 }}
           onChange={(e) => handleChange(result, { judge: e.target.value })}
           value={result.judge}
         />
       </Grid>
-      <Grid item sx={{ display: result.official ? 'none' : 'block' }}>
+      <Grid item sx={{ display: result.official ? 'none' : 'block' }} xs={12} sm={4} md={1.5}>
         <Button startIcon={<DeleteOutline />} onClick={handleRemove}>
           {t('registration.cta.deleteResult')}
         </Button>

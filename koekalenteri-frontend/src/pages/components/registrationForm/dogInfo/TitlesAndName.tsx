@@ -54,27 +54,27 @@ export function TitlesAndName({
   }, [name, titles])
 
   return (
-    <Grid item container spacing={1}>
-      <Grid item>
+    <Grid item container spacing={1} xs={12}>
+      <Grid item xs={12} sm={6}>
         <TextField
           className={className}
           disabled={disabledTitles}
+          fullWidth
           id={`${id}_titles`}
           label={titlesLabel}
           onChange={handleTitlesChange}
-          sx={{ width: 300 }}
           value={localTitles}
         />
       </Grid>
-      <Grid item>
+      <Grid item xs={12} sm={6}>
         <TextField
           className={className}
           disabled={disabledName}
           error={!disabledName && !name}
+          fullWidth
           id={`${id}_name`}
           label={nameLabel}
           onChange={handleNameChange}
-          sx={{ width: 450 }}
           value={localName}
         />
       </Grid>
