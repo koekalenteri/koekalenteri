@@ -38,6 +38,11 @@ interface Props {
   open?: boolean
 }
 
+interface State {
+  regNo: string
+  mode: 'fetch' | 'manual' | 'update' | 'invalid' | 'notfound' | 'autofetch'
+}
+
 export const DogInfo = ({
   reg,
   eventDate,
@@ -50,16 +55,16 @@ export const DogInfo = ({
 }: Props) => {
   const { t } = useTranslation()
   const { t: breed } = useTranslation('breed')
-  const [inputRegNo, setInputRegNo] = useState<string>(reg?.dog?.regNo ?? '')
-  const [mode, setMode] = useState<'fetch' | 'manual' | 'update' | 'invalid' | 'notfound' | 'autofetch'>(
-    inputRegNo ? 'update' : 'fetch'
-  )
-  const disabled = mode !== 'manual'
-  const validRegNo = validateRegNo(inputRegNo)
+  const [state, setState] = useState<State>({
+    regNo: reg?.dog?.regNo ?? '',
+    mode: reg?.dog?.regNo ? 'update' : 'fetch',
+  })
+  const disabled = state.mode !== 'manual'
+  const validRegNo = validateRegNo(state.regNo)
   const [loading, setLoading] = useState(false)
   const allowRefresh = shouldAllowRefresh(reg?.dog)
   const cachedRegNos = useRecoilValue(cachedDogRegNumbersSelector)
-  const actions = useDogActions(inputRegNo)
+  const actions = useDogActions(state.regNo)
 
   const handleChange = useCallback(
     (props: DeepPartial<DogCachedInfo>) => {
@@ -97,12 +102,12 @@ export const DogInfo = ({
     }
     setLoading(true)
     let delay = 10
-    switch (mode) {
+    switch (state.mode) {
       case 'autofetch':
       case 'fetch':
         const cache = await actions.fetch()
         updateDog(cache)
-        setMode(cache?.dog?.regNo ? 'update' : 'notfound')
+        setState((prev) => ({ ...prev, mode: cache?.dog?.regNo ? 'update' : 'notfound' }))
         delay = 500
         break
       case 'update':
@@ -110,41 +115,41 @@ export const DogInfo = ({
         delay = 500
         break
       case 'notfound':
-        setMode('manual')
+        setState((prev) => ({ ...prev, mode: 'manual' }))
         break
       default:
-        setInputRegNo('')
-        setMode('fetch')
+        setState({ regNo: '', mode: 'fetch' })
         break
     }
     setTimeout(() => setLoading(false), delay)
-  }, [actions, loading, mode, updateDog])
+  }, [actions, loading, state.mode, updateDog])
 
   const handleRegNoChange = useCallback(
     (event: SyntheticEvent<Element, Event>, value: string | null) => {
-      if (value !== null && value !== inputRegNo) {
+      if (value !== null && value !== state.regNo) {
         const upper = value.toLocaleUpperCase().trim()
-        setInputRegNo(upper)
-        setMode('fetch')
+        setState({ regNo: upper, mode: 'fetch' })
       }
     },
-    [inputRegNo]
+    [state.regNo]
   )
   const handleRegNoSelect = useCallback(
     (event: SyntheticEvent<Element, Event>, value: string | null) => {
-      handleRegNoChange(event, value)
-      setMode('autofetch')
+      if (value !== null && value !== state.regNo) {
+        const upper = value.toLocaleUpperCase().trim()
+        setState({ regNo: upper, mode: 'autofetch' })
+      }
     },
-    [handleRegNoChange]
+    [state.regNo]
   )
 
   useEffect(() => {
-    if (inputRegNo !== reg.dog?.regNo ?? '') {
-      if ((validRegNo && mode === 'autofetch') || inputRegNo === '') {
+    if (state.regNo !== reg.dog?.regNo ?? '') {
+      if ((validRegNo && state.mode === 'autofetch') || state.regNo === '') {
         buttonClick()
       }
     }
-  }, [buttonClick, inputRegNo, mode, reg.dog?.regNo, validRegNo])
+  }, [buttonClick, reg.dog?.regNo, state.mode, state.regNo, validRegNo])
 
   return (
     <CollapsibleSection
@@ -160,19 +165,19 @@ export const DogInfo = ({
           disabled={!disabled}
           freeSolo
           renderInput={(props) => <TextField {...props} error={!validRegNo} label={t('dog.regNo')} />}
-          value={inputRegNo ?? ''}
-          inputValue={inputRegNo ?? ''}
+          value={state.regNo}
+          inputValue={state.regNo}
           onChange={handleRegNoSelect}
           onInputChange={handleRegNoChange}
           options={cachedRegNos ?? []}
           sx={{ minWidth: 200 }}
         />
         <Stack alignItems="flex-start">
-          <FormHelperText error={mode === 'notfound' || mode === 'invalid'}>
-            {t(`registration.cta.helper.${mode}`, { date: reg?.dog?.refreshDate })}
+          <FormHelperText error={state.mode === 'notfound' || state.mode === 'invalid'}>
+            {t(`registration.cta.helper.${state.mode}`, { date: reg?.dog?.refreshDate })}
           </FormHelperText>
           <LoadingButton
-            disabled={!validRegNo || (mode === 'update' && !allowRefresh)}
+            disabled={!validRegNo || (state.mode === 'update' && !allowRefresh)}
             loading={loading}
             startIcon={<CachedOutlined />}
             size="small"
@@ -180,7 +185,7 @@ export const DogInfo = ({
             color="info"
             onClick={buttonClick}
           >
-            {t(`registration.cta.${mode}`)}
+            {t(`registration.cta.${state.mode}`)}
           </LoadingButton>
         </Stack>
       </Stack>
@@ -245,7 +250,7 @@ export const DogInfo = ({
         <Grid item container spacing={1}>
           <TitlesAndName
             className={disabled && reg?.dog?.breedCode ? 'fact' : ''}
-            disabledTitles={disabled && mode !== 'update'}
+            disabledTitles={disabled && state.mode !== 'update'}
             disabledName={disabled}
             id="dog"
             name={reg?.dog?.name}
@@ -257,8 +262,8 @@ export const DogInfo = ({
         </Grid>
         <Grid item container spacing={1}>
           <TitlesAndName
-            disabledTitles={disabled && mode !== 'update'}
-            disabledName={disabled && mode !== 'update'}
+            disabledTitles={disabled && state.mode !== 'update'}
+            disabledName={disabled && state.mode !== 'update'}
             id="sire"
             name={reg?.dog?.sire?.name}
             nameLabel={t('dog.sire.name')}
@@ -269,8 +274,8 @@ export const DogInfo = ({
         </Grid>
         <Grid item container spacing={1}>
           <TitlesAndName
-            disabledTitles={disabled && mode !== 'update'}
-            disabledName={disabled && mode !== 'update'}
+            disabledTitles={disabled && state.mode !== 'update'}
+            disabledName={disabled && state.mode !== 'update'}
             id="dam"
             name={reg?.dog?.dam?.name}
             nameLabel={t('dog.dam.name')}
