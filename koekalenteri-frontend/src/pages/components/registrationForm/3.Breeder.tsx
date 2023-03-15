@@ -37,21 +37,21 @@ export function BreederInfo({ reg, error, helperText, onChange, onOpenChange, op
       onOpenChange={onOpenChange}
     >
       <Grid item container spacing={1}>
-        <Grid item>
+        <Grid item xs={12} sm={6}>
           <TextField
             error={!reg.breeder?.name}
+            fullWidth
             id="breeder_name"
-            sx={{ width: 300 }}
             label="Nimi"
             value={reg.breeder?.name ?? ''}
             onChange={(e) => handleChange({ name: e.target.value || '' })}
           />
         </Grid>
-        <Grid item>
+        <Grid item xs={12} sm={6}>
           <TextField
             error={!reg.breeder?.location}
+            fullWidth
             id="breeder_location"
-            sx={{ width: 300 }}
             label="Kotikunta"
             value={reg.breeder?.location || ''}
             onChange={(e) => handleChange({ location: e.target.value || '' })}

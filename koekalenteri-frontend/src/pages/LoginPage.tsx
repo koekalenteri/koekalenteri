@@ -3,6 +3,8 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { Authenticator, useAuthenticator } from '@aws-amplify/ui-react'
 import { useSnackbar } from 'notistack'
 
+import '@aws-amplify/ui-react/styles.css'
+
 export function LoginPage() {
   const { user, route } = useAuthenticator((context) => [context.user, context.route])
   const { enqueueSnackbar } = useSnackbar()
