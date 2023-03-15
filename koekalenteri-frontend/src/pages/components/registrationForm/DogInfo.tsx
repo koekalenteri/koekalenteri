@@ -40,7 +40,7 @@ interface Props {
 
 interface State {
   regNo: string
-  mode: 'fetch' | 'manual' | 'update' | 'invalid' | 'notfound' | 'autofetch'
+  mode: 'fetch' | 'manual' | 'update' | 'notfound' | 'autofetch'
 }
 
 export const DogInfo = ({
@@ -107,7 +107,9 @@ export const DogInfo = ({
       case 'fetch':
         const cache = await actions.fetch()
         updateDog(cache)
-        setState((prev) => ({ ...prev, mode: cache?.dog?.regNo ? 'update' : 'notfound' }))
+        if (state.regNo) {
+          setState((prev) => ({ ...prev, mode: cache?.dog?.regNo ? 'update' : 'notfound' }))
+        }
         delay = 500
         break
       case 'update':
@@ -122,7 +124,7 @@ export const DogInfo = ({
         break
     }
     setTimeout(() => setLoading(false), delay)
-  }, [actions, loading, state.mode, updateDog])
+  }, [actions, loading, state.mode, state.regNo, updateDog])
 
   const handleRegNoChange = useCallback(
     (event: SyntheticEvent<Element, Event>, value: string | null) => {
@@ -173,7 +175,7 @@ export const DogInfo = ({
           sx={{ minWidth: 200 }}
         />
         <Stack alignItems="flex-start">
-          <FormHelperText error={state.mode === 'notfound' || state.mode === 'invalid'}>
+          <FormHelperText error={state.mode === 'notfound'}>
             {t(`registration.cta.helper.${state.mode}`, { date: reg?.dog?.refreshDate })}
           </FormHelperText>
           <LoadingButton
