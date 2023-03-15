@@ -1,9 +1,8 @@
-import { lightFormat, parseISO } from 'date-fns'
 import { JsonConfirmedEvent, JsonRegistration } from 'koekalenteri-shared/model'
 
 import { i18n } from '../i18n/index'
 
-import { formatDateSpan } from './dates'
+import { formatDate, formatDateSpan } from './dates'
 import { reverseName } from './string'
 
 export function emailTo(registration: JsonRegistration) {
@@ -31,7 +30,7 @@ export function registrationEmailTemplateData(
   const link = `${origin}/registration/${registration.eventType}/${registration.eventId}/${registration.id}`
   const qualifyingResults = registration.qualifyingResults.map((r) => ({
     ...r,
-    date: lightFormat(parseISO(r.date), 'd.M.yyyy'),
+    date: formatDate(r.date, 'd.M.yyyy'),
   }))
 
   // Friendly name for secretary (and official) (KOE-350)
