@@ -3,7 +3,6 @@ import { Event, EventClass, Organizer } from 'koekalenteri-shared/model'
 import { selector, selectorFamily } from 'recoil'
 
 import { unique, uniqueFn } from '../../../utils'
-import { organizersAtom } from '../../admin/recoil'
 import { judgesAtom } from '../judges/atoms'
 
 import { eventFilterAtom, eventIdAtom, eventsAtom } from './atoms'
