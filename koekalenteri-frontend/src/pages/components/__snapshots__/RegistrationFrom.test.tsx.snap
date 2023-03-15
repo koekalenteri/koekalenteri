@@ -3139,7 +3139,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
             <p
               class="MuiFormHelperText-root Mui-error css-9tosq5-MuiFormHelperText-root"
             >
-              Valitse ensin koira
+              validation.registration.choose
             </p>
           </div>
           <div
@@ -3280,7 +3280,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
             <p
               class="MuiFormHelperText-root Mui-error css-9tosq5-MuiFormHelperText-root"
             >
-              Valitse ensin koira
+              validation.registration.choose
             </p>
           </div>
           <div
@@ -3865,7 +3865,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
             <p
               class="MuiFormHelperText-root css-9tosq5-MuiFormHelperText-root"
             >
-              Valitse ensin koira
+              validation.registration.choose
             </p>
           </div>
           <div

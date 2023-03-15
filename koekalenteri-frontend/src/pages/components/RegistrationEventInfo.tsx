@@ -21,7 +21,7 @@ export default function RegistrationEventInfo({ event }: { event: ConfirmedEvent
         {event.eventType} {t('daterange', { start: event.startDate, end: event.endDate })}{' '}
         {event.location + (event.name ? ` (${event.name})` : '')}
       </Typography>
-      <CollapsibleSection title="Kokeen tiedot">
+      <CollapsibleSection title={t('eventInfo')}>
         <Grid
           container
           justifyContent="space-between"

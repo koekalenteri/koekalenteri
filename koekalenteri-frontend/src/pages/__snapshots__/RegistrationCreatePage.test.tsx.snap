@@ -56,7 +56,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
           <p
             class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
           >
-            Kokeen tiedot
+            eventInfo
           </p>
           <p
             class="MuiFormHelperText-root css-ml08u8-MuiFormHelperText-root"
@@ -1325,7 +1325,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
             <p
               class="MuiFormHelperText-root Mui-error css-9tosq5-MuiFormHelperText-root"
             >
-              Valitse ensin koira
+              validation.registration.choose
             </p>
           </div>
           <div
@@ -1466,7 +1466,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
             <p
               class="MuiFormHelperText-root Mui-error css-9tosq5-MuiFormHelperText-root"
             >
-              Valitse ensin koira
+              validation.registration.choose
             </p>
           </div>
           <div
@@ -2052,7 +2052,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
             <p
               class="MuiFormHelperText-root css-9tosq5-MuiFormHelperText-root"
             >
-              Valitse ensin koira
+              validation.registration.choose
             </p>
           </div>
           <div
@@ -2379,7 +2379,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
           <p
             class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
           >
-            Kokeen tiedot
+            eventInfo
           </p>
           <p
             class="MuiFormHelperText-root css-ml08u8-MuiFormHelperText-root"
@@ -3602,7 +3602,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
             <p
               class="MuiFormHelperText-root Mui-error css-9tosq5-MuiFormHelperText-root"
             >
-              Valitse ensin koira
+              validation.registration.choose
             </p>
           </div>
           <div
@@ -3743,7 +3743,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
             <p
               class="MuiFormHelperText-root Mui-error css-9tosq5-MuiFormHelperText-root"
             >
-              Valitse ensin koira
+              validation.registration.choose
             </p>
           </div>
           <div
@@ -4329,7 +4329,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
             <p
               class="MuiFormHelperText-root Mui-error css-9tosq5-MuiFormHelperText-root"
             >
-              Valitse ensin koira
+              validation.registration.choose
             </p>
           </div>
           <div

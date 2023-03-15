@@ -56,8 +56,11 @@
   "edit": "Muokkaa",
   "emailTemplates": "Viestit",
   "emailTemplate": {
+    "invitation": "Koekutsu",
+    "picked": "Koepaikkailmoitus",
     "registration": "Vahvistusviesti",
-    "reserve": "Varasijailmoitus"
+    "reserve": "Varasijailmoitus",
+    "reserve-move": "Varasijamuutos"
   },
   "error": {
     "eventNotFound": "Tapahtumaa ei löydy",
@@ -66,6 +69,7 @@
   "entryEditTitle": "Muokkaa ilmoittautumista",
   "entryList": "Ilmoittautumistiedot",
   "entryOpen": "Ilmoittautuminen auki",
+  "entryUpcoming": "Ilmoittautuminen tulossa",
   "entryTime": "Ilmoittautumisaika",
   "entryTitle": "Ilmoittaudu tapahtumaan",
   "entryTitle_test": "Ilmoittaudu kokeeseen",
@@ -131,6 +135,7 @@
     "statusText": ""
   },
   "eventClass": "Koeluokka",
+  "eventInfo": "Tapahtuman tiedot",
   "eventTime": "Ajankohta",
   "eventType": "Koemuoto",
   "eventType_short": "Lyhenne",
