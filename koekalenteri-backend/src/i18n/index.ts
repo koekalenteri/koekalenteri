@@ -2,7 +2,7 @@ import i18n from 'i18next'
 import { Language } from 'koekalenteri-shared/model'
 
 import { en, enBreed, fi, fiBreed } from './locales/index'
-import { formatDate } from './dates'
+import { createDateFormatter } from './dates'
 
 export type { Language }
 export { i18n }
@@ -24,6 +24,6 @@ i18n.init({
 
 //  additional formats
 i18n.services.formatter?.add('lowercase', (value) => value.toLowerCase())
-i18n.services.formatter?.add('weekday', formatDate('eeeeee d.M.'))
+i18n.services.formatter?.add('weekday', createDateFormatter('eeeeee d.M.'))
 
 console.log('i18next initialized')
