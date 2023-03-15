@@ -260,7 +260,7 @@
     "registration": {
       "choose": "Choose $t(registration.{{field}},lowercase)",
       "dogAge": "Dog must be at least {{length}} months old at test date.",
-      "dogBreed": "Breed \"$t(breed.{{type}})\" is not qualified for this test.",
+      "dogBreed": "Breed \"$t(breed:{{type}})\" is not qualified for this test.",
       "dogResults": "Dog is missing required results for entry.",
       "email": "The email address is invalid",
       "required": "$t(registration.{{field}}) is incomplete",
