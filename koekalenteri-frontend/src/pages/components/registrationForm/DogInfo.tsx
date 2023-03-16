@@ -14,6 +14,7 @@ import { DogCachedInfo, useDogActions } from '../../recoil/dog'
 import { cachedDogRegNumbersSelector } from '../../recoil/dog/selectors'
 import AutocompleteSingle from '../AutocompleteSingle'
 import CollapsibleSection from '../CollapsibleSection'
+import { emptyDog } from '../RegistrationForm'
 
 import { TitlesAndName } from './dogInfo/TitlesAndName'
 import { validateRegNo } from './validation'
@@ -41,7 +42,7 @@ interface Props {
 
 interface State {
   regNo: string
-  mode: 'fetch' | 'manual' | 'update' | 'notfound' | 'autofetch'
+  mode: 'fetch' | 'manual' | 'update' | 'notfound' | 'autofetch' | 'error'
 }
 
 export const DogInfo = ({
@@ -106,10 +107,15 @@ export const DogInfo = ({
     switch (state.mode) {
       case 'autofetch':
       case 'fetch':
-        const cache = await actions.fetch()
-        updateDog(cache)
-        if (state.regNo) {
-          setState((prev) => ({ ...prev, mode: cache?.dog?.regNo ? 'update' : 'notfound' }))
+        try {
+          const cache = await actions.fetch()
+          updateDog(cache)
+          if (state.regNo) {
+            setState((prev) => ({ ...prev, mode: cache?.dog?.regNo ? 'update' : 'notfound' }))
+          }
+        } catch (err) {
+          updateDog(emptyDog)
+          setState((prev) => ({ ...prev, mode: 'error' }))
         }
         delay = 500
         break
@@ -190,7 +196,7 @@ export const DogInfo = ({
                 {t(`registration.cta.${state.mode}`)}
               </LoadingButton>
             </Box>
-            <FormHelperText error={state.mode === 'notfound'}>
+            <FormHelperText error={['notfound', 'error'].includes(state.mode)}>
               {t(`registration.cta.helper.${state.mode}`, { date: reg?.dog?.refreshDate })}
             </FormHelperText>
           </FormControl>
