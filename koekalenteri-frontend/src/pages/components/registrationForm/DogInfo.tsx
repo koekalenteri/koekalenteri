@@ -260,7 +260,7 @@ export const DogInfo = ({
             value={reg?.dog?.breedCode}
           />
         </Grid>
-        <Grid item spacing={1} xs={12} lg={6}>
+        <Grid item xs={12} lg={6}>
           <TextField
             disabled={disabled && state.mode !== 'update'}
             fullWidth
@@ -270,7 +270,7 @@ export const DogInfo = ({
             value={reg?.dog?.sire?.name}
           />
         </Grid>
-        <Grid item spacing={1} xs={12} lg={6}>
+        <Grid item xs={12} lg={6}>
           <TextField
             disabled={disabled && state.mode !== 'update'}
             fullWidth
