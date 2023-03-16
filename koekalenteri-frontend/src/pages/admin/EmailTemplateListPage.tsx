@@ -58,9 +58,10 @@ export default function EmailTemplateListPage() {
     if (!template) {
       return
     }
-    await actions.save(template)
-    resetTemplate()
-    setChanges(false)
+    if (await actions.save(template)) {
+      resetTemplate()
+      setChanges(false)
+    }
   }, [actions, resetTemplate, template])
 
   const handleCancel = useCallback(async () => {

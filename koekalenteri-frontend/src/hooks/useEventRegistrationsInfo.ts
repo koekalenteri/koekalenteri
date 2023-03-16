@@ -56,5 +56,20 @@ export default function useEventRegistrationInfo(event: Event | undefined, regis
     return result
   }, [registrations, event, eventClasses])
 
-  return { dates, eventClasses, reserveByClass, numbersByClass }
+  const selectedByClass = useMemo(() => {
+    const byClass: Record<string, Registration[]> = {}
+    const allSelected = registrations.filter(
+      (r) => !r.cancelled && r.group && r.group.key !== 'reserve' && r.group.key !== 'cancelled'
+    )
+    for (const reg of allSelected) {
+      const c = reg.class ?? reg.eventType
+      if (!(c in byClass)) {
+        byClass[c] = []
+      }
+      byClass[c].push(reg)
+    }
+    return byClass
+  }, [registrations])
+
+  return { dates, eventClasses, reserveByClass, numbersByClass, selectedByClass }
 }

@@ -20,7 +20,7 @@ interface Props {
 }
 
 const InfoPanel = ({ event, registrations, onOpenMessageDialog }: Props) => {
-  const { dates, reserveByClass, numbersByClass } = useEventRegistrationInfo(event, registrations)
+  const { dates, reserveByClass, numbersByClass, selectedByClass } = useEventRegistrationInfo(event, registrations)
 
   return (
     <TableContainer
@@ -63,7 +63,12 @@ const InfoPanel = ({ event, registrations, onOpenMessageDialog }: Props) => {
                   </Typography>
                 </TableCell>
                 <TableCell align="right">
-                  <Button size="small" sx={{ fontSize: '0.5rem' }} disabled={nums.participants === 0 || nums.invalid}>
+                  <Button
+                    size="small"
+                    sx={{ fontSize: '0.5rem' }}
+                    disabled={nums.participants === 0 || nums.invalid}
+                    onClick={() => onOpenMessageDialog?.(selectedByClass[c], 'picked')}
+                  >
                     LÄHETÄ&nbsp;KOEPAIKKAILMOITUS
                   </Button>
                 </TableCell>
