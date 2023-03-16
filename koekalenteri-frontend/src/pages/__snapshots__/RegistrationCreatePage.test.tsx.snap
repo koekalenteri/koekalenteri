@@ -240,7 +240,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                     class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-1 css-a5rdam-MuiGrid-root"
                   >
                     <div
-                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 css-khuypw-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-md-2 css-1g2e93m-MuiGrid-root"
                     >
                       <div
                         class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-xg9u7b-MuiAutocomplete-root"
@@ -316,7 +316,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                       </div>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 css-d8dgoi-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-11eerce-MuiGrid-root"
                     >
                       <div
                         class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasClearIcon MuiAutocomplete-hasPopupIcon css-xg9u7b-MuiAutocomplete-root"
@@ -513,7 +513,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                       </div>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 css-d8dgoi-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-md-4 css-1pz4dnl-MuiGrid-root"
                     >
                       <div
                         class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-xg9u7b-MuiAutocomplete-root"
@@ -2459,7 +2459,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                     class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-1 css-a5rdam-MuiGrid-root"
                   >
                     <div
-                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 css-l3r1cp-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-md-2 css-s0jn49-MuiGrid-root"
                     >
                       <div
                         class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-xg9u7b-MuiAutocomplete-root"
@@ -2535,7 +2535,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                       </div>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 css-d8dgoi-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-11eerce-MuiGrid-root"
                     >
                       <div
                         class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasClearIcon MuiAutocomplete-hasPopupIcon css-xg9u7b-MuiAutocomplete-root"
@@ -2686,7 +2686,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                       </div>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 css-d8dgoi-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-md-4 css-1pz4dnl-MuiGrid-root"
                     >
                       <div
                         class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-xg9u7b-MuiAutocomplete-root"

@@ -97,7 +97,7 @@ export function EntryInfo({
       onOpenChange={onOpenChange}
     >
       <Grid container spacing={1}>
-        <Grid item sx={{ display: event.classes.length === 0 ? 'none' : 'block' }} xs={12}>
+        <Grid item sx={{ display: event.classes.length === 0 ? 'none' : 'block' }} xs={12} md={2}>
           <AutocompleteSingle
             disableClearable
             error={errorStates.class}
@@ -108,7 +108,7 @@ export function EntryInfo({
             value={reg.class ?? className}
           />
         </Grid>
-        <Grid item xs={12}>
+        <Grid item xs={12} md={6}>
           <AutocompleteMulti
             error={errorStates.dates}
             helperText={t('registration.datesInfo')}
@@ -120,7 +120,7 @@ export function EntryInfo({
             value={reg.dates}
           />
         </Grid>
-        <Grid item xs={12}>
+        <Grid item xs={12} md={4}>
           <AutocompleteSingle
             disableClearable
             error={errorStates.reserve}
