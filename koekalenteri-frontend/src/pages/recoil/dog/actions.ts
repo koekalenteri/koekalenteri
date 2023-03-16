@@ -42,6 +42,7 @@ export function useDogActions(regNo: string) {
           }
         }
         enqueueSnackbar('Koiran tietojen haku epäonnistui 😞', { variant: 'error' })
+        throw err
       }
       return { dog: emptyDog }
     },

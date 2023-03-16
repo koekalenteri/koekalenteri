@@ -172,9 +172,11 @@
     "cta": {
       "addResult": "Add result",
       "deleteResult": "Remove result",
+      "error": "Input dog information manually",
       "fetch": "Fetch information",
       "helper": {
-        "fetch": "",
+        "error": "Error fetching dog information. Please fill the form manually.",
+        "fetch": " ",
         "invalid": "Invalid registration number",
         "manual": "Input dog information manually",
         "notfound": "No information found by registration number",

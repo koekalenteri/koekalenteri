@@ -191,10 +191,12 @@
       "addResult": "Lisää tulos",
       "autofetch": "Hae koiran tiedot",
       "deleteResult": "Poista tulos",
+      "error": "Syötä tiedot käsin",
       "fetch": "Hae koiran tiedot",
       "helper": {
         "autofetch": "",
-        "fetch": "",
+        "error": "Koiran tietojen haku epäonnistui. Kirjoita tiedot lomakkeelle käsin.",
+        "fetch": " ",
         "invalid": "Virheellinen rekisterinumero",
         "manual": "Syötä tiedot käsin",
         "notfound": "Rekisterinumerolla ei löytynyt tietoja",
