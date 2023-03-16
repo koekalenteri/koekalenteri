@@ -7,6 +7,7 @@ import { RecoilRoot } from 'recoil'
 
 import { registrationDogAged20MonthsAndNoResults } from '../../../__mockData__/dogs'
 import { registrationWithStaticDates } from '../../../__mockData__/registrations'
+import * as dogApi from '../../../api/dog'
 import { locales } from '../../../i18n'
 import { renderWithUserEvents, waitForDebounce } from '../../../test-utils/utils'
 import { merge } from '../../../utils'
@@ -110,5 +111,45 @@ describe('DogInfo', () => {
       expect.objectContaining({ dog: registrationDogAged20MonthsAndNoResults }),
       true
     )
+  })
+
+  it('should display friendly error when api call fails', async () => {
+    jest.spyOn(dogApi, 'getDog').mockRejectedValue({ status: 501 })
+
+    const reg = {}
+    const { user } = renderWithUserEvents(<DogInfo reg={reg} eventDate={eventDate} minDogAgeMonths={15} />, {
+      wrapper: Wrapper,
+    })
+
+    const input = screen.getByRole('combobox', { name: 'dog.regNo' })
+    await user.type(input, 'TESTDOG-0020')
+    expect(input).toHaveValue('TESTDOG-0020')
+    await waitForDebounce()
+
+    const button = screen.getByRole('button', { name: 'registration.cta.fetch' })
+    await user.click(button)
+
+    expect(button.textContent).toEqual('registration.cta.error')
+    expect(screen.getByText('registration.cta.helper.error')).toBeInTheDocument()
+  })
+
+  it('should display friendly error when dog is not found', async () => {
+    jest.spyOn(dogApi, 'getDog').mockRejectedValue({ status: 404 })
+
+    const reg = {}
+    const { user } = renderWithUserEvents(<DogInfo reg={reg} eventDate={eventDate} minDogAgeMonths={15} />, {
+      wrapper: Wrapper,
+    })
+
+    const input = screen.getByRole('combobox', { name: 'dog.regNo' })
+    await user.type(input, 'TESTDOG-0020')
+    expect(input).toHaveValue('TESTDOG-0020')
+    await waitForDebounce()
+
+    const button = screen.getByRole('button', { name: 'registration.cta.fetch' })
+    await user.click(button)
+
+    expect(button.textContent).toEqual('registration.cta.notfound')
+    expect(screen.getByText('registration.cta.helper.notfound')).toBeInTheDocument()
   })
 })
