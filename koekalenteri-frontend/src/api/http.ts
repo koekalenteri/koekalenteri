@@ -22,7 +22,11 @@ async function http<T>(path: string, init: RequestInit): Promise<T> {
     const response = await fetch(url, init)
     const text = await response.text()
     if (!response.ok) {
-      throw new APIError(response, text)
+      let json = text
+      try {
+        json = parseJSON(text)
+      } catch (e) {}
+      throw new APIError(response, json)
     }
     const parsed = parseJSON(text)
     // console.debug('response', parsed)

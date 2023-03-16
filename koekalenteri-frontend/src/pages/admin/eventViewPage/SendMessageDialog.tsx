@@ -34,6 +34,7 @@ import { useRecoilValue } from 'recoil'
 
 import { sendTemplatedEmail } from '../../../api/email'
 import AutocompleteSingle from '../../components/AutocompleteSingle'
+import { idTokenSelector } from '../../recoil'
 import { emailTemplatesAtom } from '../recoil'
 
 interface Props {
@@ -50,6 +51,7 @@ export default function SendMessageDialog({ event, registrations, templateId, op
   const { enqueueSnackbar } = useSnackbar()
   const [text, setText] = useState('')
   const [sending, setSending] = useState(false)
+  const token = useRecoilValue(idTokenSelector)
   const templates = useRecoilValue(emailTemplatesAtom)
   const [selectedTemplate, setSelectedTemplate] = useState<EmailTemplate | undefined>(
     templates.find((t) => t.id === templateId)
@@ -128,16 +130,19 @@ export default function SendMessageDialog({ event, registrations, templateId, op
       },
     }).then(() => {
       setSending(true)
-      sendTemplatedEmail({
-        template: templateId,
-        eventId: event.id,
-        registrationIds: registrations.map<string>((r) => r.id),
-        text,
-      })
+      sendTemplatedEmail(
+        {
+          template: templateId,
+          eventId: event.id,
+          registrationIds: registrations.map<string>((r) => r.id),
+          text,
+        },
+        token
+      )
         .catch((error: Error) => enqueueSnackbar('Viestin lähetys epäonnistui 💩', { variant: 'error' }))
         .then(() => setSending(false))
     })
-  }, [confirm, enqueueSnackbar, event.id, registrations, t, templateId, text])
+  }, [confirm, enqueueSnackbar, event.id, registrations, t, templateId, text, token])
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="lg">

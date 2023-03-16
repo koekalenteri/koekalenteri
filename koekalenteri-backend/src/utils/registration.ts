@@ -32,6 +32,8 @@ export function registrationEmailTemplateData(
     ...r,
     date: formatDate(r.date, 'd.M.yyyy'),
   }))
+  const groupDate = registration.group?.date ? t('dateFormat.wdshort', { date: registration.group.date }) : ''
+  const groupTime = registration.group?.time ? t(`registration.time.${registration.group.time}`) : ''
 
   // Friendly name for secretary (and official) (KOE-350)
   confirmedEvent.secretary.name = reverseName(confirmedEvent.secretary.name)
@@ -48,5 +50,7 @@ export function registrationEmailTemplateData(
     reg: registration,
     regDates,
     reserveText,
+    groupDate,
+    groupTime,
   }
 }
