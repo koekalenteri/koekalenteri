@@ -189,20 +189,20 @@
     "createdAt": "Ilmoittautumisaika",
     "cta": {
       "addResult": "Lisää tulos",
-      "autofetch": "Hae tiedot",
+      "autofetch": "Hae koiran tiedot",
       "deleteResult": "Poista tulos",
-      "fetch": "Hae tiedot",
+      "fetch": "Hae koiran tiedot",
       "helper": {
         "autofetch": "",
         "fetch": "",
         "invalid": "Virheellinen rekisterinumero",
-        "manual": "Syötä koiran tiedot manuaalisesti",
+        "manual": "Syötä tiedot käsin",
         "notfound": "Rekisterinumerolla ei löytynyt tietoja",
         "update": "Koiran perustiedot ja koetulokset on haettu Kennelliiton rajapinnasta {{date, distance}} sitten."
       },
-      "invalid": "Hae tiedot",
-      "manual": "Tee uusi haku rekisterinumerolla",
-      "notfound": "Syötä koiran tiedot manuaalisesti",
+      "invalid": "Hae koiran tiedot",
+      "manual": "Tee uusi haku",
+      "notfound": "Syötä tiedot käsin",
       "update": "Päivitä"
     },
     "dates": "Ajankohdat",

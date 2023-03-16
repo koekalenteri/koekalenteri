@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { CachedOutlined } from '@mui/icons-material'
 import { LoadingButton } from '@mui/lab'
 import { Autocomplete, FormControl, FormHelperText, Grid, TextField, TextFieldProps } from '@mui/material'
+import { Box } from '@mui/system'
 import { DatePicker } from '@mui/x-date-pickers'
 import { differenceInMinutes, subMonths, subYears } from 'date-fns'
 import { BreedCode, DeepPartial, Dog, DogGender, Registration } from 'koekalenteri-shared/model'
@@ -161,36 +162,40 @@ export const DogInfo = ({
       open={open}
       onOpenChange={onOpenChange}
     >
-      <FormHelperText error={state.mode === 'notfound'} sx={{ display: 'none', minHeight: { xs: 40, sm: 20 } }}>
-        {t(`registration.cta.helper.${state.mode}`, { date: reg?.dog?.refreshDate })}
-      </FormHelperText>
-      <Grid container spacing={1} alignItems="center">
-        <Grid item xs={8} sm={4} lg={2}>
-          <Autocomplete
-            id="txtReknro"
-            disabled={!disabled}
-            freeSolo
-            renderInput={(props) => <TextField {...props} error={!validRegNo} label={t('dog.regNo')} />}
-            value={state.regNo}
-            inputValue={state.regNo}
-            onChange={handleRegNoSelect}
-            onInputChange={handleRegNoChange}
-            options={cachedRegNos ?? []}
-          />
+      <Grid container spacing={1} alignItems="flex-start">
+        <Grid item xs={12} sm={7} md={6} lg={3}>
+          <FormControl fullWidth>
+            <Box sx={{ display: 'flex' }}>
+              <Autocomplete
+                id="txtReknro"
+                disabled={!disabled}
+                freeSolo
+                renderInput={(props) => <TextField {...props} error={!validRegNo} label={t('dog.regNo')} />}
+                value={state.regNo}
+                inputValue={state.regNo}
+                onChange={handleRegNoSelect}
+                onInputChange={handleRegNoChange}
+                options={cachedRegNos ?? []}
+                sx={{ display: 'flex', flexGrow: 1, mr: 1 }}
+              />
+              <LoadingButton
+                disabled={!validRegNo || (state.mode === 'update' && !allowRefresh)}
+                loading={loading}
+                startIcon={<CachedOutlined />}
+                size="small"
+                variant="outlined"
+                onClick={buttonClick}
+                sx={{ display: 'flex', flexGrow: 0, width: '120px' }}
+              >
+                {t(`registration.cta.${state.mode}`)}
+              </LoadingButton>
+            </Box>
+            <FormHelperText error={state.mode === 'notfound'}>
+              {t(`registration.cta.helper.${state.mode}`, { date: reg?.dog?.refreshDate })}
+            </FormHelperText>
+          </FormControl>
         </Grid>
-        <Grid item xs={4} sm={2} lg={1}>
-          <LoadingButton
-            disabled={!validRegNo || (state.mode === 'update' && !allowRefresh)}
-            loading={loading}
-            startIcon={<CachedOutlined />}
-            size="small"
-            variant="outlined"
-            onClick={buttonClick}
-          >
-            {t(`registration.cta.${state.mode}`)}
-          </LoadingButton>
-        </Grid>
-        <Grid item xs={12} sm={6} lg={3}>
+        <Grid item xs={12} sm={5} md={6} lg={3}>
           <TextField
             className={disabled && reg?.dog?.rfid ? 'fact' : ''}
             disabled={disabled}
@@ -267,7 +272,7 @@ export const DogInfo = ({
             id={'sire'}
             label={t('dog.sire.name')}
             onChange={(e) => handleChange({ dog: { sire: { name: e.target.value } } })}
-            value={reg?.dog?.sire?.name}
+            value={reg?.dog?.sire?.name ?? ''}
           />
         </Grid>
         <Grid item xs={12} lg={6}>
@@ -277,7 +282,7 @@ export const DogInfo = ({
             id={'dam'}
             label={t('dog.dam.name')}
             onChange={(e) => handleChange({ dog: { dam: { name: e.target.value } } })}
-            value={reg?.dog?.dam?.name}
+            value={reg?.dog?.dam?.name ?? ''}
           />
         </Grid>
       </Grid>
