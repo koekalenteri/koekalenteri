@@ -233,7 +233,7 @@
     "ownerIsMember": "Omistaja on järjestävän yhdistyksen jäsen",
     "paid": "Maksettu",
     "qualifyingResults": "Osallistumisoikeuteen vaikuttavat tulokset",
-    "qualifyingResultsInfo": "Tulosten perusteella koiralla {{qualifies}} osallistua valittuun koeluokkaan.",
+    "qualifyingResultsInfo": "Tulosten perusteella koiralla {{qualifies}} osallistua {{class}} luokkaan.",
     "qualifyingResultsNo": "ei ole oikeutta",
     "qyalifyingResultsYes": "on oikeus",
     "reserve": "Varasija",
