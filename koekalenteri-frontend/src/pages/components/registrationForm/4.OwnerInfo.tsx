@@ -25,7 +25,7 @@ export function OwnerInfo({ reg, error, helperText, onChange, onOpenChange, open
       const cached = setCache({ ...cache, ...props })
       if (cached) {
         const { ownerHandles, ...owner } = cached
-        onChange({ owner, ownerHandles })
+        onChange({ owner, ownerHandles: ownerHandles ?? props.ownerHandles ?? true })
       }
     },
     [cache, onChange, setCache]
