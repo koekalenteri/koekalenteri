@@ -22,8 +22,8 @@
   },
   "datemask": "__.__.____",
   "daterange": "{{ start, datespan(end: undefined) }}",
-  "daterangeEnd": "Aikaväli päättyen",
-  "daterangeStart": "Aikaväli alkaen",
+  "daterangeEnd": "Tapahtumat päättyen",
+  "daterangeStart": "Tapahtumat alkaen",
   "dateshort": "{{ date, short }}",
   "delete": "Poista",
   "deleteEventComplete": "Tapahtuma poistettu",
@@ -243,8 +243,8 @@
     "saved_other": "Ilmoittautuminen on tallennettu.\nVahvistus on lähetetty sähköpostiosoitteisiin:\n{{to}}",
     "terms": "Hyväksyn <2>ilmoittautumisen ehdot</2> ja <6>tietosuojaselosteen</6>.",
     "time": {
-      "ap": "(aamu)",
-      "ip": "(ilta)"
+      "ap": "(ap)",
+      "ip": "(ip)"
     }
   },
   "registrations": "Ilmoittautumiset",
