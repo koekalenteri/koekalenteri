@@ -5,6 +5,7 @@ import { Collapse, Grid, IconButton, TableCell, TableRow } from '@mui/material'
 import { Event } from 'koekalenteri-shared/model'
 import { useRecoilState } from 'recoil'
 
+import { Path } from '../../../routeConfig'
 import { isEntryOpen } from '../../../utils'
 import LinkButton from '../../components/LinkButton'
 import { openedEventAtom } from '../../recoil'
@@ -77,7 +78,7 @@ export const EventTableRow = ({ event }: { event: Event }) => {
                 </Grid>
                 <Grid item xs={3} md={3} textAlign="right">
                   {isEntryOpen(event) ? (
-                    <LinkButton to={`/event/${event.eventType}/${event.id}`} text={t('register')} />
+                    <LinkButton to={Path.register(event)} text={t('register')} />
                   ) : (
                     <EventStateInfo state={event.state} />
                   )}

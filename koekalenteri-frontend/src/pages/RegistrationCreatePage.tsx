@@ -4,6 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import type { ConfirmedEvent, Registration } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
 
+import { Path } from '../routeConfig'
 import { hasChanges } from '../utils'
 
 import LinkButton from './components/LinkButton'
@@ -25,18 +26,24 @@ export default function RegistrationCreatePage() {
 
   const handleChange = useCallback(
     (newState: Registration) => {
-      if (event) {
-        if (newState.eventId !== event.id || newState.eventType !== event.eventType) {
-          newState.eventId = event.id
-          newState.eventType = event.eventType
-        }
+      if (!event) {
+        return
+      }
+
+      if (newState.eventId !== event.id || newState.eventType !== event.eventType) {
+        newState.eventId = event.id
+        newState.eventType = event.eventType
       }
 
       if (hasChanges(registration, newState)) {
         setRegistration(newState)
+
+        if (params.class && params.class !== newState.class) {
+          navigate(Path.register(event, newState.class))
+        }
       }
     },
-    [event, registration, setRegistration]
+    [event, navigate, params.class, registration, setRegistration]
   )
 
   const handleSave = useCallback(async () => {
