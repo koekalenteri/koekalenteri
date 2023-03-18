@@ -6,7 +6,7 @@ import LanguageDetector from 'i18next-browser-languagedetector'
 import { Language } from 'koekalenteri-shared/model'
 
 import { formatDate, formatDateSpan, formatDistance, locales } from './dates'
-import { en, enBreed, fi, fiBreed } from './locales'
+import { en, enBreed, enBreedAbbr, fi, fiBreed, fiBreedAbbr } from './locales'
 
 type MuiLocalization = Localization & {
   components: {
@@ -32,10 +32,10 @@ i18n
   .use(initReactI18next)
   .init({
     lng: process.env.NODE_ENV === 'test' ? 'fi' : undefined,
-    ns: ['translation', 'breed'],
+    ns: ['translation', 'breed', 'breedAbbr'],
     resources: {
-      fi: { translation: fi, breed: fiBreed },
-      en: { translation: en, breed: enBreed },
+      fi: { translation: fi, breed: fiBreed, breedAbbr: fiBreedAbbr },
+      en: { translation: en, breed: enBreed, breedAbbr: enBreedAbbr },
     },
     fallbackLng: 'fi',
     supportedLngs: ['fi', 'en'],

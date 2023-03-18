@@ -46,7 +46,9 @@ export function useClassEntrySelectionColumns(eventDates: Date[]) {
       headerName: t('dog.breed'),
       width: 150,
       valueGetter: (p: GridValueGetterParams<BreedCode, Registration>) =>
-        p.row.dog?.breedCode ? t(p.row.dog.breedCode, { ns: 'breed' }) : '',
+        p.row.dog?.breedCode && p.row.dog?.gender
+          ? t(`${p.row.dog.breedCode}.${p.row.dog.gender}`, { ns: 'breedAbbr', defaultValue: p.row.dog.breedCode })
+          : '',
     },
     {
       field: 'class',
