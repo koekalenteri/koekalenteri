@@ -323,6 +323,7 @@ function getSectionHelperTexts(
     handler: registration.ownerHandles ? t('registration.ownerHandles') : `${registration.handler?.name || ''}`,
     owner: `${registration.owner?.name || ''}`,
     qualifyingResults: t('registration.qualifyingResultsInfo', {
+      class: registration.class,
       qualifies: t(qualifies ? 'registration.qyalifyingResultsYes' : 'registration.qualifyingResultsNo'),
     }),
   }
