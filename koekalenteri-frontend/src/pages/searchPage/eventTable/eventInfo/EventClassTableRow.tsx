@@ -4,6 +4,7 @@ import { TableCell, TableRow } from '@mui/material'
 import { format } from 'date-fns'
 import { Event, EventClass } from 'koekalenteri-shared/model'
 
+import { Path } from '../../../../routeConfig'
 import { isEntryOpen } from '../../../../utils'
 import LinkButton from '../../../components/LinkButton'
 
@@ -38,10 +39,7 @@ export const EventClassTableRow = ({ event, eventClass }: { event: Event; eventC
       </TableCell>
       <TableCell component="th" scope="row">
         {isEntryOpen(event) ? (
-          <LinkButton
-            to={`/event/${event.eventType}/${event.id}/${eventClass.class}/${classDate}`}
-            text={t('register')}
-          />
+          <LinkButton to={Path.register(event, eventClass.class, classDate)} text={t('register')} />
         ) : null}
       </TableCell>
       <TableCell></TableCell>
