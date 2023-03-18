@@ -8,7 +8,6 @@ import {
   EmailOutlined,
   FormatListBulleted,
   ShuffleOutlined,
-  TableChartOutlined,
 } from '@mui/icons-material'
 import { Box, Button, Divider, Grid, Stack, Tab, Tabs } from '@mui/material'
 import { EmailTemplateId, Registration } from 'koekalenteri-shared/model'
@@ -107,9 +106,6 @@ export default function EventViewPage() {
           <Button startIcon={<FormatListBulleted />} disabled>
             Näytä tiedot
           </Button>
-          <Button startIcon={<TableChartOutlined />} disabled>
-            Vie Exceliin
-          </Button>
           <Button startIcon={<EmailOutlined />} onClick={openMsgDlg}>
             Lähetä viesti
           </Button>
@@ -155,6 +151,7 @@ export default function EventViewPage() {
         {eventClasses.map((eventClass, index) => (
           <TabPanel key={`tabPanel-${eventClass}`} index={index} activeTab={activeTab}>
             <ClassEntrySelection
+              eventClass={eventClass}
               eventDates={uniqueClassDates(event, eventClass)}
               registrations={registrations}
               setOpen={setOpen}

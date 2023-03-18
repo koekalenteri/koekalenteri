@@ -198,29 +198,6 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
           Näytä tiedot
         </button>
         <button
-          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-16m0f1y-MuiButtonBase-root-MuiButton-root"
-          disabled=""
-          tabindex="-1"
-          type="button"
-        >
-          <span
-            class="MuiButton-startIcon MuiButton-iconSizeMedium css-1d6wzja-MuiButton-startIcon"
-          >
-            <svg
-              aria-hidden="true"
-              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-              data-testid="TableChartOutlinedIcon"
-              focusable="false"
-              viewBox="0 0 24 24"
-            >
-              <path
-                d="M20 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h15c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 2v3H5V5h15zm-5 14h-5v-9h5v9zM5 10h3v9H5v-9zm12 9v-9h3v9h-3z"
-              />
-            </svg>
-          </span>
-          Vie Exceliin
-        </button>
-        <button
           class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-16m0f1y-MuiButtonBase-root-MuiButton-root"
           tabindex="0"
           type="button"
@@ -385,13 +362,14 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
         <h6
           class="MuiTypography-root MuiTypography-h6 css-6nwon9-MuiTypography-root"
         >
-          Osallistujat
+          Osallistujat 
+          ALO
         </h6>
         <div
           class="MuiBox-root css-1hvfy3o"
         >
           <div
-            aria-colcount="10"
+            aria-colcount="9"
             aria-multiselectable="false"
             aria-rowcount="1"
             class="MuiDataGrid-root MuiDataGrid-root--densityCompact css-6b2lsp-MuiDataGrid-root"
@@ -785,79 +763,6 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                     </div>
                     <div
                       aria-colindex="6"
-                      aria-label="eventClass"
-                      aria-sort="none"
-                      class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
-                      data-field="class"
-                      role="columnheader"
-                      style="height: 39px; width: 90px; min-width: 90px; max-width: 90px;"
-                      tabindex="-1"
-                    >
-                      <div
-                        class="MuiDataGrid-columnHeaderDraggableContainer"
-                        draggable="false"
-                      >
-                        <div
-                          class="MuiDataGrid-columnHeaderTitleContainer"
-                        >
-                          <div
-                            class="MuiDataGrid-columnHeaderTitleContainerContent"
-                          >
-                            <div
-                              aria-label=""
-                              class="MuiDataGrid-columnHeaderTitle css-1jbbcbn-MuiDataGrid-columnHeaderTitle"
-                              data-mui-internal-clone-element="true"
-                            >
-                              eventClass
-                            </div>
-                          </div>
-                          <div
-                            class="MuiDataGrid-iconButtonContainer css-ltf0zy-MuiDataGrid-iconButtonContainer"
-                          >
-                            <button
-                              aria-label="Sort"
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
-                              tabindex="-1"
-                              title="Sort"
-                              type="button"
-                            >
-                              <svg
-                                aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-ptiqhd-MuiSvgIcon-root"
-                                data-testid="ArrowUpwardIcon"
-                                focusable="false"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"
-                                />
-                              </svg>
-                              <span
-                                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                              />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                      <div
-                        class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--sideRight"
-                        style="min-height: 39px; opacity: 1;"
-                      >
-                        <svg
-                          aria-hidden="true"
-                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
-                          data-testid="SeparatorIcon"
-                          focusable="false"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            d="M11 19V5h2v14z"
-                          />
-                        </svg>
-                      </div>
-                    </div>
-                    <div
-                      aria-colindex="7"
                       aria-label="registration.handler"
                       aria-sort="none"
                       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -930,7 +835,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                       </div>
                     </div>
                     <div
-                      aria-colindex="8"
+                      aria-colindex="7"
                       aria-label="registration.member"
                       aria-sort="none"
                       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -1003,7 +908,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                       </div>
                     </div>
                     <div
-                      aria-colindex="9"
+                      aria-colindex="8"
                       aria-label="registration.paid"
                       aria-sort="none"
                       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -1076,7 +981,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                       </div>
                     </div>
                     <div
-                      aria-colindex="10"
+                      aria-colindex="9"
                       aria-label="Kommentti"
                       aria-sort="none"
                       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -1191,7 +1096,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
           style="display: flex; flex: 1; width: 100%; height: 100%;"
         >
           <div
-            aria-colcount="10"
+            aria-colcount="9"
             aria-multiselectable="false"
             aria-rowcount="1"
             class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-1d04q48-MuiDataGrid-root"
@@ -1613,79 +1518,6 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                     </div>
                     <div
                       aria-colindex="6"
-                      aria-label="eventClass"
-                      aria-sort="none"
-                      class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
-                      data-field="class"
-                      role="columnheader"
-                      style="height: 0px; width: 90px; min-width: 90px; max-width: 90px;"
-                      tabindex="-1"
-                    >
-                      <div
-                        class="MuiDataGrid-columnHeaderDraggableContainer"
-                        draggable="false"
-                      >
-                        <div
-                          class="MuiDataGrid-columnHeaderTitleContainer"
-                        >
-                          <div
-                            class="MuiDataGrid-columnHeaderTitleContainerContent"
-                          >
-                            <div
-                              aria-label=""
-                              class="MuiDataGrid-columnHeaderTitle css-1jbbcbn-MuiDataGrid-columnHeaderTitle"
-                              data-mui-internal-clone-element="true"
-                            >
-                              eventClass
-                            </div>
-                          </div>
-                          <div
-                            class="MuiDataGrid-iconButtonContainer css-ltf0zy-MuiDataGrid-iconButtonContainer"
-                          >
-                            <button
-                              aria-label="Sort"
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
-                              tabindex="-1"
-                              title="Sort"
-                              type="button"
-                            >
-                              <svg
-                                aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-ptiqhd-MuiSvgIcon-root"
-                                data-testid="ArrowUpwardIcon"
-                                focusable="false"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"
-                                />
-                              </svg>
-                              <span
-                                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                              />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                      <div
-                        class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--sideRight"
-                        style="min-height: 0; opacity: 1;"
-                      >
-                        <svg
-                          aria-hidden="true"
-                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
-                          data-testid="SeparatorIcon"
-                          focusable="false"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            d="M11 19V5h2v14z"
-                          />
-                        </svg>
-                      </div>
-                    </div>
-                    <div
-                      aria-colindex="7"
                       aria-label="registration.handler"
                       aria-sort="none"
                       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -1758,7 +1590,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                       </div>
                     </div>
                     <div
-                      aria-colindex="8"
+                      aria-colindex="7"
                       aria-label="registration.member"
                       aria-sort="none"
                       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -1831,7 +1663,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                       </div>
                     </div>
                     <div
-                      aria-colindex="9"
+                      aria-colindex="8"
                       aria-label="registration.paid"
                       aria-sort="none"
                       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -1904,7 +1736,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                       </div>
                     </div>
                     <div
-                      aria-colindex="10"
+                      aria-colindex="9"
                       aria-label="Kommentti"
                       aria-sort="none"
                       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -2019,7 +1851,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
           style="display: flex; flex: 1; width: 100%; height: 100%;"
         >
           <div
-            aria-colcount="10"
+            aria-colcount="9"
             aria-multiselectable="false"
             aria-rowcount="1"
             class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-1d04q48-MuiDataGrid-root"
@@ -2441,79 +2273,6 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                     </div>
                     <div
                       aria-colindex="6"
-                      aria-label="eventClass"
-                      aria-sort="none"
-                      class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
-                      data-field="class"
-                      role="columnheader"
-                      style="height: 0px; width: 90px; min-width: 90px; max-width: 90px;"
-                      tabindex="-1"
-                    >
-                      <div
-                        class="MuiDataGrid-columnHeaderDraggableContainer"
-                        draggable="false"
-                      >
-                        <div
-                          class="MuiDataGrid-columnHeaderTitleContainer"
-                        >
-                          <div
-                            class="MuiDataGrid-columnHeaderTitleContainerContent"
-                          >
-                            <div
-                              aria-label=""
-                              class="MuiDataGrid-columnHeaderTitle css-1jbbcbn-MuiDataGrid-columnHeaderTitle"
-                              data-mui-internal-clone-element="true"
-                            >
-                              eventClass
-                            </div>
-                          </div>
-                          <div
-                            class="MuiDataGrid-iconButtonContainer css-ltf0zy-MuiDataGrid-iconButtonContainer"
-                          >
-                            <button
-                              aria-label="Sort"
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
-                              tabindex="-1"
-                              title="Sort"
-                              type="button"
-                            >
-                              <svg
-                                aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-ptiqhd-MuiSvgIcon-root"
-                                data-testid="ArrowUpwardIcon"
-                                focusable="false"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"
-                                />
-                              </svg>
-                              <span
-                                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                              />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                      <div
-                        class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--sideRight"
-                        style="min-height: 0; opacity: 1;"
-                      >
-                        <svg
-                          aria-hidden="true"
-                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
-                          data-testid="SeparatorIcon"
-                          focusable="false"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            d="M11 19V5h2v14z"
-                          />
-                        </svg>
-                      </div>
-                    </div>
-                    <div
-                      aria-colindex="7"
                       aria-label="registration.handler"
                       aria-sort="none"
                       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -2586,7 +2345,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                       </div>
                     </div>
                     <div
-                      aria-colindex="8"
+                      aria-colindex="7"
                       aria-label="registration.member"
                       aria-sort="none"
                       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -2659,7 +2418,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                       </div>
                     </div>
                     <div
-                      aria-colindex="9"
+                      aria-colindex="8"
                       aria-label="registration.paid"
                       aria-sort="none"
                       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -2732,7 +2491,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                       </div>
                     </div>
                     <div
-                      aria-colindex="10"
+                      aria-colindex="9"
                       aria-label="Kommentti"
                       aria-sort="none"
                       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -2847,7 +2606,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
           style="display: flex; flex: 1; width: 100%; height: 100%;"
         >
           <div
-            aria-colcount="10"
+            aria-colcount="9"
             aria-multiselectable="false"
             aria-rowcount="1"
             class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-1d04q48-MuiDataGrid-root"
@@ -3269,79 +3028,6 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                     </div>
                     <div
                       aria-colindex="6"
-                      aria-label="eventClass"
-                      aria-sort="none"
-                      class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
-                      data-field="class"
-                      role="columnheader"
-                      style="height: 0px; width: 90px; min-width: 90px; max-width: 90px;"
-                      tabindex="-1"
-                    >
-                      <div
-                        class="MuiDataGrid-columnHeaderDraggableContainer"
-                        draggable="false"
-                      >
-                        <div
-                          class="MuiDataGrid-columnHeaderTitleContainer"
-                        >
-                          <div
-                            class="MuiDataGrid-columnHeaderTitleContainerContent"
-                          >
-                            <div
-                              aria-label=""
-                              class="MuiDataGrid-columnHeaderTitle css-1jbbcbn-MuiDataGrid-columnHeaderTitle"
-                              data-mui-internal-clone-element="true"
-                            >
-                              eventClass
-                            </div>
-                          </div>
-                          <div
-                            class="MuiDataGrid-iconButtonContainer css-ltf0zy-MuiDataGrid-iconButtonContainer"
-                          >
-                            <button
-                              aria-label="Sort"
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
-                              tabindex="-1"
-                              title="Sort"
-                              type="button"
-                            >
-                              <svg
-                                aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-ptiqhd-MuiSvgIcon-root"
-                                data-testid="ArrowUpwardIcon"
-                                focusable="false"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"
-                                />
-                              </svg>
-                              <span
-                                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                              />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                      <div
-                        class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--sideRight"
-                        style="min-height: 0; opacity: 1;"
-                      >
-                        <svg
-                          aria-hidden="true"
-                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
-                          data-testid="SeparatorIcon"
-                          focusable="false"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            d="M11 19V5h2v14z"
-                          />
-                        </svg>
-                      </div>
-                    </div>
-                    <div
-                      aria-colindex="7"
                       aria-label="registration.handler"
                       aria-sort="none"
                       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -3414,7 +3100,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                       </div>
                     </div>
                     <div
-                      aria-colindex="8"
+                      aria-colindex="7"
                       aria-label="registration.member"
                       aria-sort="none"
                       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -3487,7 +3173,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                       </div>
                     </div>
                     <div
-                      aria-colindex="9"
+                      aria-colindex="8"
                       aria-label="registration.paid"
                       aria-sort="none"
                       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -3560,7 +3246,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                       </div>
                     </div>
                     <div
-                      aria-colindex="10"
+                      aria-colindex="9"
                       aria-label="Kommentti"
                       aria-sort="none"
                       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -3675,7 +3361,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
           style="display: flex; flex: 1; width: 100%; height: 100%;"
         >
           <div
-            aria-colcount="10"
+            aria-colcount="9"
             aria-multiselectable="false"
             aria-rowcount="1"
             class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-1d04q48-MuiDataGrid-root"
@@ -4097,79 +3783,6 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                     </div>
                     <div
                       aria-colindex="6"
-                      aria-label="eventClass"
-                      aria-sort="none"
-                      class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
-                      data-field="class"
-                      role="columnheader"
-                      style="height: 0px; width: 90px; min-width: 90px; max-width: 90px;"
-                      tabindex="-1"
-                    >
-                      <div
-                        class="MuiDataGrid-columnHeaderDraggableContainer"
-                        draggable="false"
-                      >
-                        <div
-                          class="MuiDataGrid-columnHeaderTitleContainer"
-                        >
-                          <div
-                            class="MuiDataGrid-columnHeaderTitleContainerContent"
-                          >
-                            <div
-                              aria-label=""
-                              class="MuiDataGrid-columnHeaderTitle css-1jbbcbn-MuiDataGrid-columnHeaderTitle"
-                              data-mui-internal-clone-element="true"
-                            >
-                              eventClass
-                            </div>
-                          </div>
-                          <div
-                            class="MuiDataGrid-iconButtonContainer css-ltf0zy-MuiDataGrid-iconButtonContainer"
-                          >
-                            <button
-                              aria-label="Sort"
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
-                              tabindex="-1"
-                              title="Sort"
-                              type="button"
-                            >
-                              <svg
-                                aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-ptiqhd-MuiSvgIcon-root"
-                                data-testid="ArrowUpwardIcon"
-                                focusable="false"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"
-                                />
-                              </svg>
-                              <span
-                                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                              />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                      <div
-                        class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--sideRight"
-                        style="min-height: 0; opacity: 1;"
-                      >
-                        <svg
-                          aria-hidden="true"
-                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
-                          data-testid="SeparatorIcon"
-                          focusable="false"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            d="M11 19V5h2v14z"
-                          />
-                        </svg>
-                      </div>
-                    </div>
-                    <div
-                      aria-colindex="7"
                       aria-label="registration.handler"
                       aria-sort="none"
                       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -4242,7 +3855,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                       </div>
                     </div>
                     <div
-                      aria-colindex="8"
+                      aria-colindex="7"
                       aria-label="registration.member"
                       aria-sort="none"
                       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -4315,7 +3928,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                       </div>
                     </div>
                     <div
-                      aria-colindex="9"
+                      aria-colindex="8"
                       aria-label="registration.paid"
                       aria-sort="none"
                       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -4388,7 +4001,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                       </div>
                     </div>
                     <div
-                      aria-colindex="10"
+                      aria-colindex="9"
                       aria-label="Kommentti"
                       aria-sort="none"
                       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -4508,7 +4121,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
           style="display: flex; flex: 1; width: 100%; height: 100%;"
         >
           <div
-            aria-colcount="9"
+            aria-colcount="8"
             aria-multiselectable="false"
             aria-rowcount="1"
             class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-1d04q48-MuiDataGrid-root"
@@ -4908,79 +4521,6 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                     </div>
                     <div
                       aria-colindex="6"
-                      aria-label="eventClass"
-                      aria-sort="none"
-                      class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
-                      data-field="class"
-                      role="columnheader"
-                      style="height: 39px; width: 90px; min-width: 90px; max-width: 90px;"
-                      tabindex="-1"
-                    >
-                      <div
-                        class="MuiDataGrid-columnHeaderDraggableContainer"
-                        draggable="false"
-                      >
-                        <div
-                          class="MuiDataGrid-columnHeaderTitleContainer"
-                        >
-                          <div
-                            class="MuiDataGrid-columnHeaderTitleContainerContent"
-                          >
-                            <div
-                              aria-label=""
-                              class="MuiDataGrid-columnHeaderTitle css-1jbbcbn-MuiDataGrid-columnHeaderTitle"
-                              data-mui-internal-clone-element="true"
-                            >
-                              eventClass
-                            </div>
-                          </div>
-                          <div
-                            class="MuiDataGrid-iconButtonContainer css-ltf0zy-MuiDataGrid-iconButtonContainer"
-                          >
-                            <button
-                              aria-label="Sort"
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
-                              tabindex="-1"
-                              title="Sort"
-                              type="button"
-                            >
-                              <svg
-                                aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-ptiqhd-MuiSvgIcon-root"
-                                data-testid="ArrowUpwardIcon"
-                                focusable="false"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"
-                                />
-                              </svg>
-                              <span
-                                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                              />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                      <div
-                        class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--sideRight"
-                        style="min-height: 39px; opacity: 1;"
-                      >
-                        <svg
-                          aria-hidden="true"
-                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
-                          data-testid="SeparatorIcon"
-                          focusable="false"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            d="M11 19V5h2v14z"
-                          />
-                        </svg>
-                      </div>
-                    </div>
-                    <div
-                      aria-colindex="7"
                       aria-label="registration.handler"
                       aria-sort="none"
                       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -5053,7 +4593,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                       </div>
                     </div>
                     <div
-                      aria-colindex="8"
+                      aria-colindex="7"
                       aria-label="registration.member"
                       aria-sort="none"
                       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -5126,7 +4666,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                       </div>
                     </div>
                     <div
-                      aria-colindex="9"
+                      aria-colindex="8"
                       aria-label="registration.paid"
                       aria-sort="none"
                       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -5246,7 +4786,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
           style="display: flex; flex: 1; width: 100%; height: 100%;"
         >
           <div
-            aria-colcount="11"
+            aria-colcount="10"
             aria-multiselectable="false"
             aria-rowcount="1"
             class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-1d04q48-MuiDataGrid-root"
@@ -5646,79 +5186,6 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                     </div>
                     <div
                       aria-colindex="6"
-                      aria-label="eventClass"
-                      aria-sort="none"
-                      class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
-                      data-field="class"
-                      role="columnheader"
-                      style="height: 39px; width: 90px; min-width: 90px; max-width: 90px;"
-                      tabindex="-1"
-                    >
-                      <div
-                        class="MuiDataGrid-columnHeaderDraggableContainer"
-                        draggable="false"
-                      >
-                        <div
-                          class="MuiDataGrid-columnHeaderTitleContainer"
-                        >
-                          <div
-                            class="MuiDataGrid-columnHeaderTitleContainerContent"
-                          >
-                            <div
-                              aria-label=""
-                              class="MuiDataGrid-columnHeaderTitle css-1jbbcbn-MuiDataGrid-columnHeaderTitle"
-                              data-mui-internal-clone-element="true"
-                            >
-                              eventClass
-                            </div>
-                          </div>
-                          <div
-                            class="MuiDataGrid-iconButtonContainer css-ltf0zy-MuiDataGrid-iconButtonContainer"
-                          >
-                            <button
-                              aria-label="Sort"
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
-                              tabindex="-1"
-                              title="Sort"
-                              type="button"
-                            >
-                              <svg
-                                aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-ptiqhd-MuiSvgIcon-root"
-                                data-testid="ArrowUpwardIcon"
-                                focusable="false"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"
-                                />
-                              </svg>
-                              <span
-                                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                              />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                      <div
-                        class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--sideRight"
-                        style="min-height: 39px; opacity: 1;"
-                      >
-                        <svg
-                          aria-hidden="true"
-                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
-                          data-testid="SeparatorIcon"
-                          focusable="false"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            d="M11 19V5h2v14z"
-                          />
-                        </svg>
-                      </div>
-                    </div>
-                    <div
-                      aria-colindex="7"
                       aria-label="registration.handler"
                       aria-sort="none"
                       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -5791,7 +5258,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                       </div>
                     </div>
                     <div
-                      aria-colindex="8"
+                      aria-colindex="7"
                       aria-label="registration.member"
                       aria-sort="none"
                       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -5864,7 +5331,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                       </div>
                     </div>
                     <div
-                      aria-colindex="9"
+                      aria-colindex="8"
                       aria-label="registration.paid"
                       aria-sort="none"
                       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -5937,7 +5404,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                       </div>
                     </div>
                     <div
-                      aria-colindex="10"
+                      aria-colindex="9"
                       aria-label="Kommentti"
                       aria-sort="none"
                       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -6010,7 +5477,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                       </div>
                     </div>
                     <div
-                      aria-colindex="11"
+                      aria-colindex="10"
                       aria-label="Perumisen syy"
                       aria-sort="none"
                       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -6324,29 +5791,6 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
           Näytä tiedot
         </button>
         <button
-          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-16m0f1y-MuiButtonBase-root-MuiButton-root"
-          disabled=""
-          tabindex="-1"
-          type="button"
-        >
-          <span
-            class="MuiButton-startIcon MuiButton-iconSizeMedium css-1d6wzja-MuiButton-startIcon"
-          >
-            <svg
-              aria-hidden="true"
-              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-              data-testid="TableChartOutlinedIcon"
-              focusable="false"
-              viewBox="0 0 24 24"
-            >
-              <path
-                d="M20 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h15c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 2v3H5V5h15zm-5 14h-5v-9h5v9zM5 10h3v9H5v-9zm12 9v-9h3v9h-3z"
-              />
-            </svg>
-          </span>
-          Vie Exceliin
-        </button>
-        <button
           class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-16m0f1y-MuiButtonBase-root-MuiButton-root"
           tabindex="0"
           type="button"
@@ -6511,13 +5955,14 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
         <h6
           class="MuiTypography-root MuiTypography-h6 css-6nwon9-MuiTypography-root"
         >
-          Osallistujat
+          Osallistujat 
+          NOU
         </h6>
         <div
           class="MuiBox-root css-1hvfy3o"
         >
           <div
-            aria-colcount="10"
+            aria-colcount="9"
             aria-multiselectable="false"
             aria-rowcount="1"
             class="MuiDataGrid-root MuiDataGrid-root--densityCompact css-6b2lsp-MuiDataGrid-root"
@@ -6911,79 +6356,6 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                     </div>
                     <div
                       aria-colindex="6"
-                      aria-label="eventClass"
-                      aria-sort="none"
-                      class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
-                      data-field="class"
-                      role="columnheader"
-                      style="height: 39px; width: 90px; min-width: 90px; max-width: 90px;"
-                      tabindex="-1"
-                    >
-                      <div
-                        class="MuiDataGrid-columnHeaderDraggableContainer"
-                        draggable="false"
-                      >
-                        <div
-                          class="MuiDataGrid-columnHeaderTitleContainer"
-                        >
-                          <div
-                            class="MuiDataGrid-columnHeaderTitleContainerContent"
-                          >
-                            <div
-                              aria-label=""
-                              class="MuiDataGrid-columnHeaderTitle css-1jbbcbn-MuiDataGrid-columnHeaderTitle"
-                              data-mui-internal-clone-element="true"
-                            >
-                              eventClass
-                            </div>
-                          </div>
-                          <div
-                            class="MuiDataGrid-iconButtonContainer css-ltf0zy-MuiDataGrid-iconButtonContainer"
-                          >
-                            <button
-                              aria-label="Sort"
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
-                              tabindex="-1"
-                              title="Sort"
-                              type="button"
-                            >
-                              <svg
-                                aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-ptiqhd-MuiSvgIcon-root"
-                                data-testid="ArrowUpwardIcon"
-                                focusable="false"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"
-                                />
-                              </svg>
-                              <span
-                                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                              />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                      <div
-                        class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--sideRight"
-                        style="min-height: 39px; opacity: 1;"
-                      >
-                        <svg
-                          aria-hidden="true"
-                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
-                          data-testid="SeparatorIcon"
-                          focusable="false"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            d="M11 19V5h2v14z"
-                          />
-                        </svg>
-                      </div>
-                    </div>
-                    <div
-                      aria-colindex="7"
                       aria-label="registration.handler"
                       aria-sort="none"
                       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -7056,7 +6428,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                       </div>
                     </div>
                     <div
-                      aria-colindex="8"
+                      aria-colindex="7"
                       aria-label="registration.member"
                       aria-sort="none"
                       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -7129,7 +6501,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                       </div>
                     </div>
                     <div
-                      aria-colindex="9"
+                      aria-colindex="8"
                       aria-label="registration.paid"
                       aria-sort="none"
                       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -7202,7 +6574,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                       </div>
                     </div>
                     <div
-                      aria-colindex="10"
+                      aria-colindex="9"
                       aria-label="Kommentti"
                       aria-sort="none"
                       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -7317,7 +6689,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
           style="display: flex; flex: 1; width: 100%; height: 100%;"
         >
           <div
-            aria-colcount="10"
+            aria-colcount="9"
             aria-multiselectable="false"
             aria-rowcount="1"
             class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-1d04q48-MuiDataGrid-root"
@@ -7739,79 +7111,6 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                     </div>
                     <div
                       aria-colindex="6"
-                      aria-label="eventClass"
-                      aria-sort="none"
-                      class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
-                      data-field="class"
-                      role="columnheader"
-                      style="height: 0px; width: 90px; min-width: 90px; max-width: 90px;"
-                      tabindex="-1"
-                    >
-                      <div
-                        class="MuiDataGrid-columnHeaderDraggableContainer"
-                        draggable="false"
-                      >
-                        <div
-                          class="MuiDataGrid-columnHeaderTitleContainer"
-                        >
-                          <div
-                            class="MuiDataGrid-columnHeaderTitleContainerContent"
-                          >
-                            <div
-                              aria-label=""
-                              class="MuiDataGrid-columnHeaderTitle css-1jbbcbn-MuiDataGrid-columnHeaderTitle"
-                              data-mui-internal-clone-element="true"
-                            >
-                              eventClass
-                            </div>
-                          </div>
-                          <div
-                            class="MuiDataGrid-iconButtonContainer css-ltf0zy-MuiDataGrid-iconButtonContainer"
-                          >
-                            <button
-                              aria-label="Sort"
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
-                              tabindex="-1"
-                              title="Sort"
-                              type="button"
-                            >
-                              <svg
-                                aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-ptiqhd-MuiSvgIcon-root"
-                                data-testid="ArrowUpwardIcon"
-                                focusable="false"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"
-                                />
-                              </svg>
-                              <span
-                                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                              />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                      <div
-                        class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--sideRight"
-                        style="min-height: 0; opacity: 1;"
-                      >
-                        <svg
-                          aria-hidden="true"
-                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
-                          data-testid="SeparatorIcon"
-                          focusable="false"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            d="M11 19V5h2v14z"
-                          />
-                        </svg>
-                      </div>
-                    </div>
-                    <div
-                      aria-colindex="7"
                       aria-label="registration.handler"
                       aria-sort="none"
                       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -7884,7 +7183,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                       </div>
                     </div>
                     <div
-                      aria-colindex="8"
+                      aria-colindex="7"
                       aria-label="registration.member"
                       aria-sort="none"
                       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -7957,7 +7256,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                       </div>
                     </div>
                     <div
-                      aria-colindex="9"
+                      aria-colindex="8"
                       aria-label="registration.paid"
                       aria-sort="none"
                       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -8030,7 +7329,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                       </div>
                     </div>
                     <div
-                      aria-colindex="10"
+                      aria-colindex="9"
                       aria-label="Kommentti"
                       aria-sort="none"
                       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -8145,7 +7444,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
           style="display: flex; flex: 1; width: 100%; height: 100%;"
         >
           <div
-            aria-colcount="10"
+            aria-colcount="9"
             aria-multiselectable="false"
             aria-rowcount="1"
             class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-1d04q48-MuiDataGrid-root"
@@ -8567,79 +7866,6 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                     </div>
                     <div
                       aria-colindex="6"
-                      aria-label="eventClass"
-                      aria-sort="none"
-                      class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
-                      data-field="class"
-                      role="columnheader"
-                      style="height: 0px; width: 90px; min-width: 90px; max-width: 90px;"
-                      tabindex="-1"
-                    >
-                      <div
-                        class="MuiDataGrid-columnHeaderDraggableContainer"
-                        draggable="false"
-                      >
-                        <div
-                          class="MuiDataGrid-columnHeaderTitleContainer"
-                        >
-                          <div
-                            class="MuiDataGrid-columnHeaderTitleContainerContent"
-                          >
-                            <div
-                              aria-label=""
-                              class="MuiDataGrid-columnHeaderTitle css-1jbbcbn-MuiDataGrid-columnHeaderTitle"
-                              data-mui-internal-clone-element="true"
-                            >
-                              eventClass
-                            </div>
-                          </div>
-                          <div
-                            class="MuiDataGrid-iconButtonContainer css-ltf0zy-MuiDataGrid-iconButtonContainer"
-                          >
-                            <button
-                              aria-label="Sort"
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
-                              tabindex="-1"
-                              title="Sort"
-                              type="button"
-                            >
-                              <svg
-                                aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-ptiqhd-MuiSvgIcon-root"
-                                data-testid="ArrowUpwardIcon"
-                                focusable="false"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"
-                                />
-                              </svg>
-                              <span
-                                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                              />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                      <div
-                        class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--sideRight"
-                        style="min-height: 0; opacity: 1;"
-                      >
-                        <svg
-                          aria-hidden="true"
-                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
-                          data-testid="SeparatorIcon"
-                          focusable="false"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            d="M11 19V5h2v14z"
-                          />
-                        </svg>
-                      </div>
-                    </div>
-                    <div
-                      aria-colindex="7"
                       aria-label="registration.handler"
                       aria-sort="none"
                       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -8712,7 +7938,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                       </div>
                     </div>
                     <div
-                      aria-colindex="8"
+                      aria-colindex="7"
                       aria-label="registration.member"
                       aria-sort="none"
                       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -8785,7 +8011,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                       </div>
                     </div>
                     <div
-                      aria-colindex="9"
+                      aria-colindex="8"
                       aria-label="registration.paid"
                       aria-sort="none"
                       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -8858,7 +8084,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                       </div>
                     </div>
                     <div
-                      aria-colindex="10"
+                      aria-colindex="9"
                       aria-label="Kommentti"
                       aria-sort="none"
                       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -8973,7 +8199,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
           style="display: flex; flex: 1; width: 100%; height: 100%;"
         >
           <div
-            aria-colcount="10"
+            aria-colcount="9"
             aria-multiselectable="false"
             aria-rowcount="1"
             class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-1d04q48-MuiDataGrid-root"
@@ -9395,79 +8621,6 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                     </div>
                     <div
                       aria-colindex="6"
-                      aria-label="eventClass"
-                      aria-sort="none"
-                      class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
-                      data-field="class"
-                      role="columnheader"
-                      style="height: 0px; width: 90px; min-width: 90px; max-width: 90px;"
-                      tabindex="-1"
-                    >
-                      <div
-                        class="MuiDataGrid-columnHeaderDraggableContainer"
-                        draggable="false"
-                      >
-                        <div
-                          class="MuiDataGrid-columnHeaderTitleContainer"
-                        >
-                          <div
-                            class="MuiDataGrid-columnHeaderTitleContainerContent"
-                          >
-                            <div
-                              aria-label=""
-                              class="MuiDataGrid-columnHeaderTitle css-1jbbcbn-MuiDataGrid-columnHeaderTitle"
-                              data-mui-internal-clone-element="true"
-                            >
-                              eventClass
-                            </div>
-                          </div>
-                          <div
-                            class="MuiDataGrid-iconButtonContainer css-ltf0zy-MuiDataGrid-iconButtonContainer"
-                          >
-                            <button
-                              aria-label="Sort"
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
-                              tabindex="-1"
-                              title="Sort"
-                              type="button"
-                            >
-                              <svg
-                                aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-ptiqhd-MuiSvgIcon-root"
-                                data-testid="ArrowUpwardIcon"
-                                focusable="false"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"
-                                />
-                              </svg>
-                              <span
-                                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                              />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                      <div
-                        class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--sideRight"
-                        style="min-height: 0; opacity: 1;"
-                      >
-                        <svg
-                          aria-hidden="true"
-                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
-                          data-testid="SeparatorIcon"
-                          focusable="false"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            d="M11 19V5h2v14z"
-                          />
-                        </svg>
-                      </div>
-                    </div>
-                    <div
-                      aria-colindex="7"
                       aria-label="registration.handler"
                       aria-sort="none"
                       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -9540,7 +8693,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                       </div>
                     </div>
                     <div
-                      aria-colindex="8"
+                      aria-colindex="7"
                       aria-label="registration.member"
                       aria-sort="none"
                       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -9613,7 +8766,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                       </div>
                     </div>
                     <div
-                      aria-colindex="9"
+                      aria-colindex="8"
                       aria-label="registration.paid"
                       aria-sort="none"
                       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -9686,7 +8839,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                       </div>
                     </div>
                     <div
-                      aria-colindex="10"
+                      aria-colindex="9"
                       aria-label="Kommentti"
                       aria-sort="none"
                       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -9801,7 +8954,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
           style="display: flex; flex: 1; width: 100%; height: 100%;"
         >
           <div
-            aria-colcount="10"
+            aria-colcount="9"
             aria-multiselectable="false"
             aria-rowcount="1"
             class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-1d04q48-MuiDataGrid-root"
@@ -10223,79 +9376,6 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                     </div>
                     <div
                       aria-colindex="6"
-                      aria-label="eventClass"
-                      aria-sort="none"
-                      class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
-                      data-field="class"
-                      role="columnheader"
-                      style="height: 0px; width: 90px; min-width: 90px; max-width: 90px;"
-                      tabindex="-1"
-                    >
-                      <div
-                        class="MuiDataGrid-columnHeaderDraggableContainer"
-                        draggable="false"
-                      >
-                        <div
-                          class="MuiDataGrid-columnHeaderTitleContainer"
-                        >
-                          <div
-                            class="MuiDataGrid-columnHeaderTitleContainerContent"
-                          >
-                            <div
-                              aria-label=""
-                              class="MuiDataGrid-columnHeaderTitle css-1jbbcbn-MuiDataGrid-columnHeaderTitle"
-                              data-mui-internal-clone-element="true"
-                            >
-                              eventClass
-                            </div>
-                          </div>
-                          <div
-                            class="MuiDataGrid-iconButtonContainer css-ltf0zy-MuiDataGrid-iconButtonContainer"
-                          >
-                            <button
-                              aria-label="Sort"
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
-                              tabindex="-1"
-                              title="Sort"
-                              type="button"
-                            >
-                              <svg
-                                aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-ptiqhd-MuiSvgIcon-root"
-                                data-testid="ArrowUpwardIcon"
-                                focusable="false"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"
-                                />
-                              </svg>
-                              <span
-                                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                              />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                      <div
-                        class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--sideRight"
-                        style="min-height: 0; opacity: 1;"
-                      >
-                        <svg
-                          aria-hidden="true"
-                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
-                          data-testid="SeparatorIcon"
-                          focusable="false"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            d="M11 19V5h2v14z"
-                          />
-                        </svg>
-                      </div>
-                    </div>
-                    <div
-                      aria-colindex="7"
                       aria-label="registration.handler"
                       aria-sort="none"
                       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -10368,7 +9448,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                       </div>
                     </div>
                     <div
-                      aria-colindex="8"
+                      aria-colindex="7"
                       aria-label="registration.member"
                       aria-sort="none"
                       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -10441,7 +9521,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                       </div>
                     </div>
                     <div
-                      aria-colindex="9"
+                      aria-colindex="8"
                       aria-label="registration.paid"
                       aria-sort="none"
                       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -10514,7 +9594,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                       </div>
                     </div>
                     <div
-                      aria-colindex="10"
+                      aria-colindex="9"
                       aria-label="Kommentti"
                       aria-sort="none"
                       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -10634,7 +9714,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
           style="display: flex; flex: 1; width: 100%; height: 100%;"
         >
           <div
-            aria-colcount="9"
+            aria-colcount="8"
             aria-multiselectable="false"
             aria-rowcount="1"
             class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-1d04q48-MuiDataGrid-root"
@@ -11034,79 +10114,6 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                     </div>
                     <div
                       aria-colindex="6"
-                      aria-label="eventClass"
-                      aria-sort="none"
-                      class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
-                      data-field="class"
-                      role="columnheader"
-                      style="height: 39px; width: 90px; min-width: 90px; max-width: 90px;"
-                      tabindex="-1"
-                    >
-                      <div
-                        class="MuiDataGrid-columnHeaderDraggableContainer"
-                        draggable="false"
-                      >
-                        <div
-                          class="MuiDataGrid-columnHeaderTitleContainer"
-                        >
-                          <div
-                            class="MuiDataGrid-columnHeaderTitleContainerContent"
-                          >
-                            <div
-                              aria-label=""
-                              class="MuiDataGrid-columnHeaderTitle css-1jbbcbn-MuiDataGrid-columnHeaderTitle"
-                              data-mui-internal-clone-element="true"
-                            >
-                              eventClass
-                            </div>
-                          </div>
-                          <div
-                            class="MuiDataGrid-iconButtonContainer css-ltf0zy-MuiDataGrid-iconButtonContainer"
-                          >
-                            <button
-                              aria-label="Sort"
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
-                              tabindex="-1"
-                              title="Sort"
-                              type="button"
-                            >
-                              <svg
-                                aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-ptiqhd-MuiSvgIcon-root"
-                                data-testid="ArrowUpwardIcon"
-                                focusable="false"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"
-                                />
-                              </svg>
-                              <span
-                                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                              />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                      <div
-                        class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--sideRight"
-                        style="min-height: 39px; opacity: 1;"
-                      >
-                        <svg
-                          aria-hidden="true"
-                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
-                          data-testid="SeparatorIcon"
-                          focusable="false"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            d="M11 19V5h2v14z"
-                          />
-                        </svg>
-                      </div>
-                    </div>
-                    <div
-                      aria-colindex="7"
                       aria-label="registration.handler"
                       aria-sort="none"
                       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -11179,7 +10186,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                       </div>
                     </div>
                     <div
-                      aria-colindex="8"
+                      aria-colindex="7"
                       aria-label="registration.member"
                       aria-sort="none"
                       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -11252,7 +10259,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                       </div>
                     </div>
                     <div
-                      aria-colindex="9"
+                      aria-colindex="8"
                       aria-label="registration.paid"
                       aria-sort="none"
                       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -11372,7 +10379,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
           style="display: flex; flex: 1; width: 100%; height: 100%;"
         >
           <div
-            aria-colcount="11"
+            aria-colcount="10"
             aria-multiselectable="false"
             aria-rowcount="1"
             class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-1d04q48-MuiDataGrid-root"
@@ -11772,79 +10779,6 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                     </div>
                     <div
                       aria-colindex="6"
-                      aria-label="eventClass"
-                      aria-sort="none"
-                      class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
-                      data-field="class"
-                      role="columnheader"
-                      style="height: 39px; width: 90px; min-width: 90px; max-width: 90px;"
-                      tabindex="-1"
-                    >
-                      <div
-                        class="MuiDataGrid-columnHeaderDraggableContainer"
-                        draggable="false"
-                      >
-                        <div
-                          class="MuiDataGrid-columnHeaderTitleContainer"
-                        >
-                          <div
-                            class="MuiDataGrid-columnHeaderTitleContainerContent"
-                          >
-                            <div
-                              aria-label=""
-                              class="MuiDataGrid-columnHeaderTitle css-1jbbcbn-MuiDataGrid-columnHeaderTitle"
-                              data-mui-internal-clone-element="true"
-                            >
-                              eventClass
-                            </div>
-                          </div>
-                          <div
-                            class="MuiDataGrid-iconButtonContainer css-ltf0zy-MuiDataGrid-iconButtonContainer"
-                          >
-                            <button
-                              aria-label="Sort"
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
-                              tabindex="-1"
-                              title="Sort"
-                              type="button"
-                            >
-                              <svg
-                                aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-ptiqhd-MuiSvgIcon-root"
-                                data-testid="ArrowUpwardIcon"
-                                focusable="false"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"
-                                />
-                              </svg>
-                              <span
-                                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                              />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                      <div
-                        class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--sideRight"
-                        style="min-height: 39px; opacity: 1;"
-                      >
-                        <svg
-                          aria-hidden="true"
-                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
-                          data-testid="SeparatorIcon"
-                          focusable="false"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            d="M11 19V5h2v14z"
-                          />
-                        </svg>
-                      </div>
-                    </div>
-                    <div
-                      aria-colindex="7"
                       aria-label="registration.handler"
                       aria-sort="none"
                       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -11917,7 +10851,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                       </div>
                     </div>
                     <div
-                      aria-colindex="8"
+                      aria-colindex="7"
                       aria-label="registration.member"
                       aria-sort="none"
                       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -11990,7 +10924,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                       </div>
                     </div>
                     <div
-                      aria-colindex="9"
+                      aria-colindex="8"
                       aria-label="registration.paid"
                       aria-sort="none"
                       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -12063,7 +10997,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                       </div>
                     </div>
                     <div
-                      aria-colindex="10"
+                      aria-colindex="9"
                       aria-label="Kommentti"
                       aria-sort="none"
                       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
@@ -12136,7 +11070,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                       </div>
                     </div>
                     <div
-                      aria-colindex="11"
+                      aria-colindex="10"
                       aria-label="Perumisen syy"
                       aria-sort="none"
                       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
