@@ -139,10 +139,28 @@ export default function SendMessageDialog({ event, registrations, templateId, op
         },
         token
       )
-        .catch((error: Error) => enqueueSnackbar('Viestin lähetys epäonnistui 💩', { variant: 'error' }))
-        .then(() => setSending(false))
+        .catch((error: Error) => {
+          enqueueSnackbar('Viestin lähetys epäonnistui 💩', { variant: 'error' })
+          console.log(error)
+        })
+        .then(({ ok, failed } = { ok: [], failed: [] }) => {
+          if (ok.length) {
+            enqueueSnackbar('Viesti lähetetty onnistuneesti\n\n' + ok.join('\n'), {
+              variant: 'success',
+              style: { whiteSpace: 'pre-line' },
+            })
+          }
+          if (failed.length) {
+            enqueueSnackbar('Viestin lähetys epäonnistui 💩\n\n' + failed.join('\n'), {
+              variant: 'success',
+              style: { whiteSpace: 'pre-line' },
+            })
+          }
+          setSending(false)
+          onClose?.()
+        })
     })
-  }, [confirm, enqueueSnackbar, event.id, registrations, t, templateId, text, token])
+  }, [confirm, enqueueSnackbar, event.id, onClose, registrations, t, templateId, text, token])
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="lg">

@@ -24,6 +24,11 @@ const STATE_INCLUSION: Record<EventState, EventState[]> = {
   tentative: ['tentative', 'draft'],
   confirmed: ['confirmed', 'tentative', 'draft'],
   cancelled: ['cancelled'],
+  // next are not user-selectable stated
+  invited: ['confirmed'],
+  started: ['confirmed'],
+  ended: ['confirmed'],
+  completed: ['confirmed'],
 }
 
 const REQUIRED_BY_STATE: Record<EventState, EventFlags> = {
@@ -51,6 +56,11 @@ const REQUIRED_BY_STATE: Record<EventState, EventFlags> = {
     contactInfo: true,
   },
   cancelled: {},
+  //
+  invited: {},
+  started: {},
+  ended: {},
+  completed: {},
 }
 
 const contactInfoShown = (contact?: Partial<ShowContactInfo>) => !!contact && (contact.email || contact.phone)

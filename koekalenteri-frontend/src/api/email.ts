@@ -13,5 +13,9 @@ export async function putEmailTemplate(template: EmailTemplate, token?: string, 
 }
 
 export async function sendTemplatedEmail(message: RegistrationMessage, token?: string, signal?: AbortSignal) {
-  return http.post<RegistrationMessage, number>('/admin/email-send', message, withToken({ signal }, token))
+  return http.post<RegistrationMessage, { ok: string[]; failed: string[] }>(
+    '/admin/email-send',
+    message,
+    withToken({ signal }, token)
+  )
 }

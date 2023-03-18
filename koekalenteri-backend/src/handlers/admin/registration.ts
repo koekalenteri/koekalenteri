@@ -14,6 +14,7 @@ import { metricsError, metricsSuccess } from '../../utils/metrics'
 import { emailTo, registrationEmailTemplateData } from '../../utils/registration'
 import { response } from '../../utils/response'
 import { EMAIL_FROM, sendTemplatedMail } from '../email'
+import { markInvitationsSent, updateRegistrations } from '../event'
 
 const dynamoDB = new CustomDynamoClient()
 
@@ -108,12 +109,15 @@ export const putRegistrationGroupsHandler = metricScope(
         }
 
         const items = await dynamoDB.query<JsonRegistration>('eventId = :eventId', {
-          ':eventId': event.pathParameters?.eventId,
+          ':eventId': eventId,
         })
         const itemsWithGroups = await fixGroups(items ?? [])
 
+        const eventTable = process.env.EVENT_TABLE_NAME || ''
+        const { classes, entries } = await updateRegistrations(eventId, eventTable, dynamoDB.table)
+
         metricsSuccess(metrics, event.requestContext, 'putRegistrationGroups')
-        return response(200, itemsWithGroups)
+        return response(200, { items: itemsWithGroups, classes, entries })
       } catch (err) {
         console.error(err)
         if (err instanceof Error) {
@@ -146,14 +150,26 @@ export const sendMessagesHandler = metricScope((metrics: MetricsLogger) => async
       throw new Error('Event not found!')
     }
 
+    const ok: string[] = []
+    const failed: string[] = []
     for (const registration of registrations) {
       const to = emailTo(registration)
       const data = registrationEmailTemplateData(registration, confirmedEvent, origin, '')
-      await sendTemplatedMail(template, registration.language, EMAIL_FROM, to, { ...data, text })
+      try {
+        await sendTemplatedMail(template, registration.language, EMAIL_FROM, to, { ...data, text })
+        ok.push(...to)
+      } catch (e) {
+        failed.push(...to)
+        console.error(e)
+      }
+    }
+
+    if (template === 'invitation') {
+      markInvitationsSent(confirmedEvent, registrations[0].class)
     }
 
     metricsSuccess(metrics, event.requestContext, 'sendMessageHandler')
-    return response(200, registrations.length)
+    return response(200, { ok, failed })
   } catch (err) {
     console.error(err)
     if (err instanceof Error) {

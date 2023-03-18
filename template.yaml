@@ -482,12 +482,15 @@ Resources:
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref EventRegistrationTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EventTable
         - CloudWatchPutMetricPolicy: {}
 
       Environment:
         Variables:
           STACK_NAME: !Ref AWS::StackName
           TABLE_NAME: !Ref EventRegistrationTable
+          EVENT_TABLE_NAME : !Ref EventTable
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
 
       Events:

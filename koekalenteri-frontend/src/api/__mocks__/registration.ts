@@ -1,5 +1,5 @@
 import { parseISO } from 'date-fns'
-import { Registration, RegistrationGroupInfo } from 'koekalenteri-shared/model'
+import { ConfirmedEvent, Registration, RegistrationGroupInfo } from 'koekalenteri-shared/model'
 
 import { mockRegistrationData } from '../../__mockData__/registrations'
 
@@ -94,6 +94,6 @@ export async function putRegistrationGroups(
   groups: RegistrationGroupInfo[],
   token?: string,
   signal?: AbortSignal
-): Promise<Registration> {
+): Promise<Pick<ConfirmedEvent, 'classes' | 'entries'> & { items: Registration[] }> {
   throw new Error('not implemented')
 }

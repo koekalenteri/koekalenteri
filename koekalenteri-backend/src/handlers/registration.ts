@@ -1,7 +1,7 @@
 import { metricScope, MetricsLogger } from 'aws-embedded-metrics'
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import { AWSError } from 'aws-sdk'
-import { JsonConfirmedEvent, JsonRegistration } from 'koekalenteri-shared/model'
+import { JsonRegistration } from 'koekalenteri-shared/model'
 import { v4 as uuidv4 } from 'uuid'
 
 import CustomDynamoClient from '../utils/CustomDynamoClient'
@@ -11,6 +11,7 @@ import { emailTo, registrationEmailTemplateData } from '../utils/registration'
 import { response } from '../utils/response'
 
 import { EMAIL_FROM, sendTemplatedMail } from './email'
+import { updateRegistrations } from './event'
 
 export const dynamoDB = new CustomDynamoClient()
 
@@ -60,45 +61,14 @@ export const putRegistrationHandler = metricScope(
         registration.modifiedAt = timestamp
         registration.modifiedBy = username
 
-        const eventKey = { id: registration.eventId }
         const eventTable = process.env.EVENT_TABLE_NAME || ''
-        const confirmedEvent = await dynamoDB.read<JsonConfirmedEvent>(eventKey, eventTable)
+        const confirmedEvent = await updateRegistrations(registration.eventId, eventTable, dynamoDB.table)
         if (!confirmedEvent) {
           throw new Error(`Event of type "${registration.eventType}" not found with id "${registration.eventId}"`)
         }
 
         const data = { ...existing, ...registration }
         await dynamoDB.write(data)
-
-        const allRegistrations = await dynamoDB.query<JsonRegistration>('eventId = :id', {
-          ':id': registration.eventId,
-        })
-        const registrations = allRegistrations?.filter((r) => !r.cancelled)
-
-        const membershipPriority = (r: JsonRegistration) =>
-          (confirmedEvent.allowHandlerMembershipPriority && r.handler?.membership) ||
-          (confirmedEvent.allowOwnerMembershipPriority && r.owner?.membership)
-
-        const classes = confirmedEvent.classes || []
-        for (const cls of classes) {
-          const regsToClass = registrations?.filter((r) => r.class === cls.class)
-          cls.entries = regsToClass?.length
-          cls.members = regsToClass?.filter((r) => membershipPriority(r)).length
-        }
-        const entries = registrations?.length || 0
-        await dynamoDB.update(
-          eventKey,
-          'set #entries = :entries, #classes = :classes',
-          {
-            '#entries': 'entries',
-            '#classes': 'classes',
-          },
-          {
-            ':entries': entries,
-            ':classes': classes,
-          },
-          eventTable
-        )
 
         if (registration.handler?.email && registration.owner?.email) {
           const to = emailTo(registration)
