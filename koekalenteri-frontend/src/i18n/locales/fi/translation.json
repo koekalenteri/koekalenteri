@@ -127,7 +127,11 @@
       "confirmed_save": "Tapahtuma on julkaistu",
       "draft": "Luonnos",
       "draft_save": "Tapahtuma on tallennettu luonnoksena",
+      "ended": "Päättynyt",
       "extended_info": "Jatkettu",
+      "invited": "Kokekutsut lähetetty",
+      "completed": "Valmis",
+      "started": "Käynnissä",
       "tentative": "Julkaistu alustavana",
       "tentative_info": "Alustava",
       "tentative_save": "Tapahtuma on julkaistu alustavana"

@@ -26,7 +26,7 @@ export function useClassEntrySelectionColumns(eventDates: Date[]) {
       headerName: '#',
       width: 20,
       minWidth: 20,
-      valueGetter: (p) => p.row.group.number,
+      valueGetter: (p) => p.row.group?.number,
     },
     {
       field: 'dog.name',

@@ -1,7 +1,7 @@
 import { metricScope, MetricsLogger } from 'aws-embedded-metrics'
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import { AWSError } from 'aws-sdk'
-import { JsonConfirmedEvent } from 'koekalenteri-shared/model'
+import { JsonConfirmedEvent, JsonRegistration } from 'koekalenteri-shared/model'
 import { v4 as uuidv4 } from 'uuid'
 
 import CustomDynamoClient from '../utils/CustomDynamoClient'
@@ -57,3 +57,80 @@ export const putEventHandler = metricScope(
       }
     }
 )
+
+export const updateRegistrations = async (eventId: string, eventTable: string, registrationsTable: string) => {
+  const eventKey = { id: eventId }
+
+  console.log(eventTable, registrationsTable)
+
+  const confirmedEvent = await dynamoDB.read<JsonConfirmedEvent>(eventKey, eventTable)
+  if (!confirmedEvent) {
+    throw new Error(`Event with id "${eventId}" not found`)
+  }
+
+  const allRegistrations = await dynamoDB.query<JsonRegistration>(
+    'eventId = :id',
+    {
+      ':id': eventId,
+    },
+    registrationsTable
+  )
+  const registrations = allRegistrations?.filter((r) => !r.cancelled)
+
+  const membershipPriority = (r: JsonRegistration) =>
+    (confirmedEvent.allowHandlerMembershipPriority && r.handler?.membership) ||
+    (confirmedEvent.allowOwnerMembershipPriority && r.owner?.membership)
+
+  const classes = confirmedEvent.classes || []
+  for (const cls of classes) {
+    const regsToClass = registrations?.filter((r) => r.class === cls.class)
+    cls.entries = regsToClass?.length
+    cls.members = regsToClass?.filter((r) => membershipPriority(r)).length
+  }
+  const entries = registrations?.length || 0
+  await dynamoDB.update(
+    eventKey,
+    'set #entries = :entries, #classes = :classes',
+    {
+      '#entries': 'entries',
+      '#classes': 'classes',
+    },
+    {
+      ':entries': entries,
+      ':classes': classes,
+    },
+    eventTable
+  )
+
+  return confirmedEvent
+}
+
+export const markInvitationsSent = (confirmedEvent: JsonConfirmedEvent, eventClass?: string) => {
+  const eventKey = { id: confirmedEvent.id }
+  const eventTable = process.env.EVENT_TABLE_NAME || ''
+  let allInvited = true
+  if (eventClass) {
+    const c = confirmedEvent.classes.find((c) => c.class === eventClass)
+    if (c) {
+      c.state = 'invited'
+    }
+    allInvited = confirmedEvent.classes.filter((c) => c.state === 'invited').length === confirmedEvent.classes.length
+  }
+  if (allInvited) {
+    confirmedEvent.state = 'invited'
+  }
+
+  return dynamoDB.update(
+    eventKey,
+    'set #classes = :classes, #state = :state',
+    {
+      '#classes': 'classes',
+      '#state': 'state',
+    },
+    {
+      ':classes': confirmedEvent.classes,
+      ':state': confirmedEvent.state,
+    },
+    eventTable
+  )
+}

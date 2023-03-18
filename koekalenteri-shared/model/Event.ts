@@ -62,10 +62,12 @@ export type JsonEventClass = {
   places?: number
   entries?: number
   members?: number
+  state?: EventClassState
 }
 export type EventClass = ReplaceOptional<JsonEventClass, 'date', Date>
 
-export type EventState = 'draft' | 'tentative' | 'confirmed' | 'cancelled';
+export type EventClassState = 'invited' | 'started' | 'ended' | 'completed'
+export type EventState =  'draft' | 'tentative' | 'cancelled' | 'confirmed' | EventClassState
 
 export type Headquarters = {
   name: string
@@ -86,9 +88,9 @@ export type ShowContactInfo = {
 }
 
 export type ConfirmedEvent = Replace<Event, ConfirmedEventRequiredDates, Date> & {
-  state: 'confirmed'
+  state: 'confirmed' | EventClassState
 }
 
 export type JsonConfirmedEvent = NotOptional<JsonEvent, 'startDate'|'endDate'|'entryStartDate'|'entryEndDate'> & {
-  state: 'confirmed'
+  state: 'confirmed' | EventClassState
 }

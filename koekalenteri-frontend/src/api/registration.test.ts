@@ -108,12 +108,12 @@ test('putRegistration', async () => {
 test('putRegistrationGroups', async () => {
   fetchMock.mockResponse((req) =>
     req.method === 'POST'
-      ? Promise.resolve(JSON.stringify([mockRegistration]))
+      ? Promise.resolve(JSON.stringify({ items: [mockRegistration] }))
       : Promise.reject(new Error(`${req.method} !== 'POST'`))
   )
 
-  const result = await putRegistrationGroups('test-id', [mockRegistration])
+  const { items } = await putRegistrationGroups('test-id', [mockRegistration])
   expect(fetchMock.mock.calls.length).toEqual(1)
   expect(fetchMock.mock.calls[0][0]).toEqual(API_BASE_URL + '/admin/reg-groups/test-id')
-  expect(result.length).toEqual(1)
+  expect(items.length).toEqual(1)
 })
