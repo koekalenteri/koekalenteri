@@ -359,7 +359,7 @@ exports[`OfficialListPage renders 1`] = `
             >
               <div
                 class="MuiDataGrid-virtualScrollerContent MuiDataGrid-virtualScrollerContent--overflowed css-1kwdphh-MuiDataGrid-virtualScrollerContent"
-                style="width: auto; height: 108px; min-height: auto;"
+                style="width: auto; height: 84px; min-height: auto;"
               >
                 <div
                   class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"
@@ -372,7 +372,7 @@ exports[`OfficialListPage renders 1`] = `
                     data-id="333"
                     data-rowindex="0"
                     role="row"
-                    style="max-height: 36px; min-height: 36px;"
+                    style="max-height: 28px; min-height: 28px;"
                   >
                     <div
                       aria-colindex="1"
@@ -381,7 +381,7 @@ exports[`OfficialListPage renders 1`] = `
                       data-colindex="0"
                       data-field="name"
                       role="cell"
-                      style="min-width: 0; max-width: 0; min-height: 36px; max-height: 36px;"
+                      style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
                       tabindex="-1"
                     >
                       <div
@@ -398,7 +398,7 @@ exports[`OfficialListPage renders 1`] = `
                       data-colindex="1"
                       data-field="phone"
                       role="cell"
-                      style="min-width: 150px; max-width: 150px; min-height: 36px; max-height: 36px;"
+                      style="min-width: 150px; max-width: 150px; min-height: 28px; max-height: 28px;"
                       tabindex="-1"
                     >
                       <div
@@ -415,7 +415,7 @@ exports[`OfficialListPage renders 1`] = `
                       data-colindex="2"
                       data-field="email"
                       role="cell"
-                      style="min-width: 0; max-width: 0; min-height: 36px; max-height: 36px;"
+                      style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
                       tabindex="-1"
                     >
                       <div
@@ -433,7 +433,7 @@ exports[`OfficialListPage renders 1`] = `
                     data-id="444"
                     data-rowindex="1"
                     role="row"
-                    style="max-height: 36px; min-height: 36px;"
+                    style="max-height: 28px; min-height: 28px;"
                   >
                     <div
                       aria-colindex="1"
@@ -442,7 +442,7 @@ exports[`OfficialListPage renders 1`] = `
                       data-colindex="0"
                       data-field="name"
                       role="cell"
-                      style="min-width: 0; max-width: 0; min-height: 36px; max-height: 36px;"
+                      style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
                       tabindex="-1"
                     >
                       <div
@@ -459,7 +459,7 @@ exports[`OfficialListPage renders 1`] = `
                       data-colindex="1"
                       data-field="phone"
                       role="cell"
-                      style="min-width: 150px; max-width: 150px; min-height: 36px; max-height: 36px;"
+                      style="min-width: 150px; max-width: 150px; min-height: 28px; max-height: 28px;"
                       tabindex="-1"
                     >
                       <div
@@ -476,7 +476,7 @@ exports[`OfficialListPage renders 1`] = `
                       data-colindex="2"
                       data-field="email"
                       role="cell"
-                      style="min-width: 0; max-width: 0; min-height: 36px; max-height: 36px;"
+                      style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
                       tabindex="-1"
                     >
                       <div
@@ -494,7 +494,7 @@ exports[`OfficialListPage renders 1`] = `
                     data-id="555"
                     data-rowindex="2"
                     role="row"
-                    style="max-height: 36px; min-height: 36px;"
+                    style="max-height: 28px; min-height: 28px;"
                   >
                     <div
                       aria-colindex="1"
@@ -503,7 +503,7 @@ exports[`OfficialListPage renders 1`] = `
                       data-colindex="0"
                       data-field="name"
                       role="cell"
-                      style="min-width: 0; max-width: 0; min-height: 36px; max-height: 36px;"
+                      style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
                       tabindex="-1"
                     >
                       <div
@@ -520,7 +520,7 @@ exports[`OfficialListPage renders 1`] = `
                       data-colindex="1"
                       data-field="phone"
                       role="cell"
-                      style="min-width: 150px; max-width: 150px; min-height: 36px; max-height: 36px;"
+                      style="min-width: 150px; max-width: 150px; min-height: 28px; max-height: 28px;"
                       tabindex="-1"
                     >
                       <div
@@ -537,7 +537,7 @@ exports[`OfficialListPage renders 1`] = `
                       data-colindex="2"
                       data-field="email"
                       role="cell"
-                      style="min-width: 0; max-width: 0; min-height: 36px; max-height: 36px;"
+                      style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
                       tabindex="-1"
                     >
                       <div

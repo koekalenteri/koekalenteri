@@ -1,5 +1,6 @@
 import { red } from '@mui/material/colors'
 import { createTheme, responsiveFontSizes } from '@mui/material/styles'
+import type {} from '@mui/x-data-grid/themeAugmentation'
 
 declare module '@mui/material/styles/createPalette' {
   interface TypeBackground {
@@ -23,6 +24,11 @@ const theme = createTheme({
     },
   },
   components: {
+    MuiDataGrid: {
+      defaultProps: {
+        rowHeight: 40,
+      },
+    },
     MuiSwitch: {
       defaultProps: {
         color: 'success',

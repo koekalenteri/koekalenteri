@@ -1,14 +1,7 @@
 import { Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
-import {
-  AddCircleOutline,
-  DeleteOutline,
-  EditOutlined,
-  EmailOutlined,
-  FormatListBulleted,
-  ShuffleOutlined,
-} from '@mui/icons-material'
+import { AddCircleOutline, EditOutlined, EmailOutlined, FormatListBulleted } from '@mui/icons-material'
 import { Box, Button, Divider, Grid, Stack, Tab, Tabs } from '@mui/material'
 import { EmailTemplateId, Registration } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue } from 'recoil'
@@ -104,13 +97,10 @@ export default function EventViewPage() {
 
         <Stack direction="row" spacing={2}>
           <Button startIcon={<FormatListBulleted />} disabled>
-            Näytä tiedot
+            Näytä kokeen tiedot
           </Button>
           <Button startIcon={<EmailOutlined />} onClick={openMsgDlg}>
             Lähetä viesti
-          </Button>
-          <Button startIcon={<ShuffleOutlined />} disabled>
-            Arvo kokeen osallistujat
           </Button>
           <Divider orientation="vertical"></Divider>
           <Button
@@ -119,7 +109,7 @@ export default function EventViewPage() {
               setCreateOpen(true)
             }}
           >
-            {t('create')}
+            {t('createRegistration')}
           </Button>
           <Button
             startIcon={<EditOutlined />}
@@ -128,10 +118,7 @@ export default function EventViewPage() {
               setOpen(true)
             }}
           >
-            {t('edit')}
-          </Button>
-          <Button startIcon={<DeleteOutline />} disabled>
-            {t('delete')}
+            {t('editRegistration')}
           </Button>
         </Stack>
 

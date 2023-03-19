@@ -870,7 +870,7 @@ exports[`JudgeListPage renders 1`] = `
             >
               <div
                 class="MuiDataGrid-virtualScrollerContent MuiDataGrid-virtualScrollerContent--overflowed css-1kwdphh-MuiDataGrid-virtualScrollerContent"
-                style="width: auto; height: 108px; min-height: auto;"
+                style="width: auto; height: 84px; min-height: auto;"
               >
                 <div
                   class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"
@@ -883,7 +883,7 @@ exports[`JudgeListPage renders 1`] = `
                     data-id="123"
                     data-rowindex="0"
                     role="row"
-                    style="max-height: 36px; min-height: 36px;"
+                    style="max-height: 28px; min-height: 28px;"
                   >
                     <div
                       aria-colindex="1"
@@ -892,7 +892,7 @@ exports[`JudgeListPage renders 1`] = `
                       data-colindex="0"
                       data-field="active"
                       role="cell"
-                      style="min-width: 90px; max-width: 90px; min-height: 36px; max-height: 36px;"
+                      style="min-width: 90px; max-width: 90px; min-height: 28px; max-height: 28px;"
                       tabindex="-1"
                     >
                       <span
@@ -925,7 +925,7 @@ exports[`JudgeListPage renders 1`] = `
                       data-colindex="1"
                       data-field="official"
                       role="cell"
-                      style="min-width: 80px; max-width: 80px; min-height: 36px; max-height: 36px;"
+                      style="min-width: 80px; max-width: 80px; min-height: 28px; max-height: 28px;"
                       tabindex="-1"
                     >
                       <svg
@@ -947,7 +947,7 @@ exports[`JudgeListPage renders 1`] = `
                       data-colindex="2"
                       data-field="name"
                       role="cell"
-                      style="min-width: 0; max-width: 0; min-height: 36px; max-height: 36px;"
+                      style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
                       tabindex="-1"
                     >
                       <div
@@ -964,7 +964,7 @@ exports[`JudgeListPage renders 1`] = `
                       data-colindex="3"
                       data-field="id"
                       role="cell"
-                      style="min-width: 80px; max-width: 80px; min-height: 36px; max-height: 36px;"
+                      style="min-width: 80px; max-width: 80px; min-height: 28px; max-height: 28px;"
                       tabindex="-1"
                     >
                       <div
@@ -981,7 +981,7 @@ exports[`JudgeListPage renders 1`] = `
                       data-colindex="4"
                       data-field="location"
                       role="cell"
-                      style="min-width: 0; max-width: 0; min-height: 36px; max-height: 36px;"
+                      style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
                       tabindex="-1"
                     >
                       <div
@@ -998,7 +998,7 @@ exports[`JudgeListPage renders 1`] = `
                       data-colindex="5"
                       data-field="phone"
                       role="cell"
-                      style="min-width: 0; max-width: 0; min-height: 36px; max-height: 36px;"
+                      style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
                       tabindex="-1"
                     >
                       <div
@@ -1015,7 +1015,7 @@ exports[`JudgeListPage renders 1`] = `
                       data-colindex="6"
                       data-field="email"
                       role="cell"
-                      style="min-width: 0; max-width: 0; min-height: 36px; max-height: 36px;"
+                      style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
                       tabindex="-1"
                     >
                       <div
@@ -1032,7 +1032,7 @@ exports[`JudgeListPage renders 1`] = `
                       data-colindex="7"
                       data-field="district"
                       role="cell"
-                      style="min-width: 0; max-width: 0; min-height: 36px; max-height: 36px;"
+                      style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
                       tabindex="-1"
                     >
                       <div
@@ -1049,7 +1049,7 @@ exports[`JudgeListPage renders 1`] = `
                       data-colindex="8"
                       data-field="eventTypes"
                       role="cell"
-                      style="min-width: 0; max-width: 0; min-height: 36px; max-height: 36px;"
+                      style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
                       tabindex="-1"
                     >
                       <div
@@ -1064,7 +1064,7 @@ exports[`JudgeListPage renders 1`] = `
                       data-colindex="9"
                       data-field="languages"
                       role="cell"
-                      style="min-width: 220px; max-width: 220px; min-height: 36px; max-height: 36px;"
+                      style="min-width: 220px; max-width: 220px; min-height: 28px; max-height: 28px;"
                       tabindex="-1"
                     >
                       <div
@@ -1117,7 +1117,7 @@ exports[`JudgeListPage renders 1`] = `
                     data-id="223"
                     data-rowindex="1"
                     role="row"
-                    style="max-height: 36px; min-height: 36px;"
+                    style="max-height: 28px; min-height: 28px;"
                   >
                     <div
                       aria-colindex="1"
@@ -1126,7 +1126,7 @@ exports[`JudgeListPage renders 1`] = `
                       data-colindex="0"
                       data-field="active"
                       role="cell"
-                      style="min-width: 90px; max-width: 90px; min-height: 36px; max-height: 36px;"
+                      style="min-width: 90px; max-width: 90px; min-height: 28px; max-height: 28px;"
                       tabindex="-1"
                     >
                       <span
@@ -1159,7 +1159,7 @@ exports[`JudgeListPage renders 1`] = `
                       data-colindex="1"
                       data-field="official"
                       role="cell"
-                      style="min-width: 80px; max-width: 80px; min-height: 36px; max-height: 36px;"
+                      style="min-width: 80px; max-width: 80px; min-height: 28px; max-height: 28px;"
                       tabindex="-1"
                     >
                       <svg
@@ -1181,7 +1181,7 @@ exports[`JudgeListPage renders 1`] = `
                       data-colindex="2"
                       data-field="name"
                       role="cell"
-                      style="min-width: 0; max-width: 0; min-height: 36px; max-height: 36px;"
+                      style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
                       tabindex="-1"
                     >
                       <div
@@ -1198,7 +1198,7 @@ exports[`JudgeListPage renders 1`] = `
                       data-colindex="3"
                       data-field="id"
                       role="cell"
-                      style="min-width: 80px; max-width: 80px; min-height: 36px; max-height: 36px;"
+                      style="min-width: 80px; max-width: 80px; min-height: 28px; max-height: 28px;"
                       tabindex="-1"
                     >
                       <div
@@ -1215,7 +1215,7 @@ exports[`JudgeListPage renders 1`] = `
                       data-colindex="4"
                       data-field="location"
                       role="cell"
-                      style="min-width: 0; max-width: 0; min-height: 36px; max-height: 36px;"
+                      style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
                       tabindex="-1"
                     >
                       <div
@@ -1232,7 +1232,7 @@ exports[`JudgeListPage renders 1`] = `
                       data-colindex="5"
                       data-field="phone"
                       role="cell"
-                      style="min-width: 0; max-width: 0; min-height: 36px; max-height: 36px;"
+                      style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
                       tabindex="-1"
                     >
                       <div
@@ -1249,7 +1249,7 @@ exports[`JudgeListPage renders 1`] = `
                       data-colindex="6"
                       data-field="email"
                       role="cell"
-                      style="min-width: 0; max-width: 0; min-height: 36px; max-height: 36px;"
+                      style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
                       tabindex="-1"
                     >
                       <div
@@ -1266,7 +1266,7 @@ exports[`JudgeListPage renders 1`] = `
                       data-colindex="7"
                       data-field="district"
                       role="cell"
-                      style="min-width: 0; max-width: 0; min-height: 36px; max-height: 36px;"
+                      style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
                       tabindex="-1"
                     >
                       <div
@@ -1283,7 +1283,7 @@ exports[`JudgeListPage renders 1`] = `
                       data-colindex="8"
                       data-field="eventTypes"
                       role="cell"
-                      style="min-width: 0; max-width: 0; min-height: 36px; max-height: 36px;"
+                      style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
                       tabindex="-1"
                     >
                       <div
@@ -1298,7 +1298,7 @@ exports[`JudgeListPage renders 1`] = `
                       data-colindex="9"
                       data-field="languages"
                       role="cell"
-                      style="min-width: 220px; max-width: 220px; min-height: 36px; max-height: 36px;"
+                      style="min-width: 220px; max-width: 220px; min-height: 28px; max-height: 28px;"
                       tabindex="-1"
                     >
                       <div
@@ -1351,7 +1351,7 @@ exports[`JudgeListPage renders 1`] = `
                     data-id="323"
                     data-rowindex="2"
                     role="row"
-                    style="max-height: 36px; min-height: 36px;"
+                    style="max-height: 28px; min-height: 28px;"
                   >
                     <div
                       aria-colindex="1"
@@ -1360,7 +1360,7 @@ exports[`JudgeListPage renders 1`] = `
                       data-colindex="0"
                       data-field="active"
                       role="cell"
-                      style="min-width: 90px; max-width: 90px; min-height: 36px; max-height: 36px;"
+                      style="min-width: 90px; max-width: 90px; min-height: 28px; max-height: 28px;"
                       tabindex="-1"
                     >
                       <span
@@ -1393,7 +1393,7 @@ exports[`JudgeListPage renders 1`] = `
                       data-colindex="1"
                       data-field="official"
                       role="cell"
-                      style="min-width: 80px; max-width: 80px; min-height: 36px; max-height: 36px;"
+                      style="min-width: 80px; max-width: 80px; min-height: 28px; max-height: 28px;"
                       tabindex="-1"
                     >
                       <svg
@@ -1415,7 +1415,7 @@ exports[`JudgeListPage renders 1`] = `
                       data-colindex="2"
                       data-field="name"
                       role="cell"
-                      style="min-width: 0; max-width: 0; min-height: 36px; max-height: 36px;"
+                      style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
                       tabindex="-1"
                     >
                       <div
@@ -1432,7 +1432,7 @@ exports[`JudgeListPage renders 1`] = `
                       data-colindex="3"
                       data-field="id"
                       role="cell"
-                      style="min-width: 80px; max-width: 80px; min-height: 36px; max-height: 36px;"
+                      style="min-width: 80px; max-width: 80px; min-height: 28px; max-height: 28px;"
                       tabindex="-1"
                     >
                       <div
@@ -1449,7 +1449,7 @@ exports[`JudgeListPage renders 1`] = `
                       data-colindex="4"
                       data-field="location"
                       role="cell"
-                      style="min-width: 0; max-width: 0; min-height: 36px; max-height: 36px;"
+                      style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
                       tabindex="-1"
                     >
                       <div
@@ -1466,7 +1466,7 @@ exports[`JudgeListPage renders 1`] = `
                       data-colindex="5"
                       data-field="phone"
                       role="cell"
-                      style="min-width: 0; max-width: 0; min-height: 36px; max-height: 36px;"
+                      style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
                       tabindex="-1"
                     >
                       <div
@@ -1483,7 +1483,7 @@ exports[`JudgeListPage renders 1`] = `
                       data-colindex="6"
                       data-field="email"
                       role="cell"
-                      style="min-width: 0; max-width: 0; min-height: 36px; max-height: 36px;"
+                      style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
                       tabindex="-1"
                     >
                       <div
@@ -1500,7 +1500,7 @@ exports[`JudgeListPage renders 1`] = `
                       data-colindex="7"
                       data-field="district"
                       role="cell"
-                      style="min-width: 0; max-width: 0; min-height: 36px; max-height: 36px;"
+                      style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
                       tabindex="-1"
                     >
                       <div
@@ -1517,7 +1517,7 @@ exports[`JudgeListPage renders 1`] = `
                       data-colindex="8"
                       data-field="eventTypes"
                       role="cell"
-                      style="min-width: 0; max-width: 0; min-height: 36px; max-height: 36px;"
+                      style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
                       tabindex="-1"
                     >
                       <div
@@ -1532,7 +1532,7 @@ exports[`JudgeListPage renders 1`] = `
                       data-colindex="9"
                       data-field="languages"
                       role="cell"
-                      style="min-width: 220px; max-width: 220px; min-height: 36px; max-height: 36px;"
+                      style="min-width: 220px; max-width: 220px; min-height: 28px; max-height: 28px;"
                       tabindex="-1"
                     >
                       <div
@@ -2415,7 +2415,7 @@ Array [
     data-id="123"
     data-rowindex="0"
     role="row"
-    style="max-height: 36px; min-height: 36px;"
+    style="max-height: 28px; min-height: 28px;"
   >
     <div
       aria-colindex="1"
@@ -2424,7 +2424,7 @@ Array [
       data-colindex="0"
       data-field="active"
       role="cell"
-      style="min-width: 90px; max-width: 90px; min-height: 36px; max-height: 36px;"
+      style="min-width: 90px; max-width: 90px; min-height: 28px; max-height: 28px;"
       tabindex="-1"
     >
       <span
@@ -2457,7 +2457,7 @@ Array [
       data-colindex="1"
       data-field="official"
       role="cell"
-      style="min-width: 80px; max-width: 80px; min-height: 36px; max-height: 36px;"
+      style="min-width: 80px; max-width: 80px; min-height: 28px; max-height: 28px;"
       tabindex="-1"
     >
       <svg
@@ -2479,7 +2479,7 @@ Array [
       data-colindex="2"
       data-field="name"
       role="cell"
-      style="min-width: 0; max-width: 0; min-height: 36px; max-height: 36px;"
+      style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
       tabindex="-1"
     >
       <div
@@ -2496,7 +2496,7 @@ Array [
       data-colindex="3"
       data-field="id"
       role="cell"
-      style="min-width: 80px; max-width: 80px; min-height: 36px; max-height: 36px;"
+      style="min-width: 80px; max-width: 80px; min-height: 28px; max-height: 28px;"
       tabindex="-1"
     >
       <div
@@ -2513,7 +2513,7 @@ Array [
       data-colindex="4"
       data-field="location"
       role="cell"
-      style="min-width: 0; max-width: 0; min-height: 36px; max-height: 36px;"
+      style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
       tabindex="-1"
     >
       <div
@@ -2530,7 +2530,7 @@ Array [
       data-colindex="5"
       data-field="phone"
       role="cell"
-      style="min-width: 0; max-width: 0; min-height: 36px; max-height: 36px;"
+      style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
       tabindex="-1"
     >
       <div
@@ -2547,7 +2547,7 @@ Array [
       data-colindex="6"
       data-field="email"
       role="cell"
-      style="min-width: 0; max-width: 0; min-height: 36px; max-height: 36px;"
+      style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
       tabindex="-1"
     >
       <div
@@ -2564,7 +2564,7 @@ Array [
       data-colindex="7"
       data-field="district"
       role="cell"
-      style="min-width: 0; max-width: 0; min-height: 36px; max-height: 36px;"
+      style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
       tabindex="-1"
     >
       <div
@@ -2581,7 +2581,7 @@ Array [
       data-colindex="8"
       data-field="eventTypes"
       role="cell"
-      style="min-width: 0; max-width: 0; min-height: 36px; max-height: 36px;"
+      style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
       tabindex="-1"
     >
       <div
@@ -2596,7 +2596,7 @@ Array [
       data-colindex="9"
       data-field="languages"
       role="cell"
-      style="min-width: 220px; max-width: 220px; min-height: 36px; max-height: 36px;"
+      style="min-width: 220px; max-width: 220px; min-height: 28px; max-height: 28px;"
       tabindex="-1"
     >
       <div
@@ -2649,7 +2649,7 @@ Array [
     data-id="223"
     data-rowindex="1"
     role="row"
-    style="max-height: 36px; min-height: 36px;"
+    style="max-height: 28px; min-height: 28px;"
   >
     <div
       aria-colindex="1"
@@ -2658,7 +2658,7 @@ Array [
       data-colindex="0"
       data-field="active"
       role="cell"
-      style="min-width: 90px; max-width: 90px; min-height: 36px; max-height: 36px;"
+      style="min-width: 90px; max-width: 90px; min-height: 28px; max-height: 28px;"
       tabindex="-1"
     >
       <span
@@ -2691,7 +2691,7 @@ Array [
       data-colindex="1"
       data-field="official"
       role="cell"
-      style="min-width: 80px; max-width: 80px; min-height: 36px; max-height: 36px;"
+      style="min-width: 80px; max-width: 80px; min-height: 28px; max-height: 28px;"
       tabindex="-1"
     >
       <svg
@@ -2713,7 +2713,7 @@ Array [
       data-colindex="2"
       data-field="name"
       role="cell"
-      style="min-width: 0; max-width: 0; min-height: 36px; max-height: 36px;"
+      style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
       tabindex="-1"
     >
       <div
@@ -2730,7 +2730,7 @@ Array [
       data-colindex="3"
       data-field="id"
       role="cell"
-      style="min-width: 80px; max-width: 80px; min-height: 36px; max-height: 36px;"
+      style="min-width: 80px; max-width: 80px; min-height: 28px; max-height: 28px;"
       tabindex="-1"
     >
       <div
@@ -2747,7 +2747,7 @@ Array [
       data-colindex="4"
       data-field="location"
       role="cell"
-      style="min-width: 0; max-width: 0; min-height: 36px; max-height: 36px;"
+      style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
       tabindex="-1"
     >
       <div
@@ -2764,7 +2764,7 @@ Array [
       data-colindex="5"
       data-field="phone"
       role="cell"
-      style="min-width: 0; max-width: 0; min-height: 36px; max-height: 36px;"
+      style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
       tabindex="-1"
     >
       <div
@@ -2781,7 +2781,7 @@ Array [
       data-colindex="6"
       data-field="email"
       role="cell"
-      style="min-width: 0; max-width: 0; min-height: 36px; max-height: 36px;"
+      style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
       tabindex="-1"
     >
       <div
@@ -2798,7 +2798,7 @@ Array [
       data-colindex="7"
       data-field="district"
       role="cell"
-      style="min-width: 0; max-width: 0; min-height: 36px; max-height: 36px;"
+      style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
       tabindex="-1"
     >
       <div
@@ -2815,7 +2815,7 @@ Array [
       data-colindex="8"
       data-field="eventTypes"
       role="cell"
-      style="min-width: 0; max-width: 0; min-height: 36px; max-height: 36px;"
+      style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
       tabindex="-1"
     >
       <div
@@ -2830,7 +2830,7 @@ Array [
       data-colindex="9"
       data-field="languages"
       role="cell"
-      style="min-width: 220px; max-width: 220px; min-height: 36px; max-height: 36px;"
+      style="min-width: 220px; max-width: 220px; min-height: 28px; max-height: 28px;"
       tabindex="-1"
     >
       <div
@@ -2883,7 +2883,7 @@ Array [
     data-id="323"
     data-rowindex="2"
     role="row"
-    style="max-height: 36px; min-height: 36px;"
+    style="max-height: 28px; min-height: 28px;"
   >
     <div
       aria-colindex="1"
@@ -2892,7 +2892,7 @@ Array [
       data-colindex="0"
       data-field="active"
       role="cell"
-      style="min-width: 90px; max-width: 90px; min-height: 36px; max-height: 36px;"
+      style="min-width: 90px; max-width: 90px; min-height: 28px; max-height: 28px;"
       tabindex="-1"
     >
       <span
@@ -2925,7 +2925,7 @@ Array [
       data-colindex="1"
       data-field="official"
       role="cell"
-      style="min-width: 80px; max-width: 80px; min-height: 36px; max-height: 36px;"
+      style="min-width: 80px; max-width: 80px; min-height: 28px; max-height: 28px;"
       tabindex="-1"
     >
       <svg
@@ -2947,7 +2947,7 @@ Array [
       data-colindex="2"
       data-field="name"
       role="cell"
-      style="min-width: 0; max-width: 0; min-height: 36px; max-height: 36px;"
+      style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
       tabindex="-1"
     >
       <div
@@ -2964,7 +2964,7 @@ Array [
       data-colindex="3"
       data-field="id"
       role="cell"
-      style="min-width: 80px; max-width: 80px; min-height: 36px; max-height: 36px;"
+      style="min-width: 80px; max-width: 80px; min-height: 28px; max-height: 28px;"
       tabindex="-1"
     >
       <div
@@ -2981,7 +2981,7 @@ Array [
       data-colindex="4"
       data-field="location"
       role="cell"
-      style="min-width: 0; max-width: 0; min-height: 36px; max-height: 36px;"
+      style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
       tabindex="-1"
     >
       <div
@@ -2998,7 +2998,7 @@ Array [
       data-colindex="5"
       data-field="phone"
       role="cell"
-      style="min-width: 0; max-width: 0; min-height: 36px; max-height: 36px;"
+      style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
       tabindex="-1"
     >
       <div
@@ -3015,7 +3015,7 @@ Array [
       data-colindex="6"
       data-field="email"
       role="cell"
-      style="min-width: 0; max-width: 0; min-height: 36px; max-height: 36px;"
+      style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
       tabindex="-1"
     >
       <div
@@ -3032,7 +3032,7 @@ Array [
       data-colindex="7"
       data-field="district"
       role="cell"
-      style="min-width: 0; max-width: 0; min-height: 36px; max-height: 36px;"
+      style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
       tabindex="-1"
     >
       <div
@@ -3049,7 +3049,7 @@ Array [
       data-colindex="8"
       data-field="eventTypes"
       role="cell"
-      style="min-width: 0; max-width: 0; min-height: 36px; max-height: 36px;"
+      style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
       tabindex="-1"
     >
       <div
@@ -3064,7 +3064,7 @@ Array [
       data-colindex="9"
       data-field="languages"
       role="cell"
-      style="min-width: 220px; max-width: 220px; min-height: 36px; max-height: 36px;"
+      style="min-width: 220px; max-width: 220px; min-height: 28px; max-height: 28px;"
       tabindex="-1"
     >
       <div

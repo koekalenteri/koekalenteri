@@ -432,7 +432,7 @@ exports[`EventTypeListPage renders 1`] = `
             >
               <div
                 class="MuiDataGrid-virtualScrollerContent MuiDataGrid-virtualScrollerContent--overflowed css-1kwdphh-MuiDataGrid-virtualScrollerContent"
-                style="width: auto; height: 36px; min-height: auto;"
+                style="width: auto; height: 28px; min-height: auto;"
               >
                 <div
                   class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"
@@ -445,7 +445,7 @@ exports[`EventTypeListPage renders 1`] = `
                     data-id="TEST1"
                     data-rowindex="0"
                     role="row"
-                    style="max-height: 36px; min-height: 36px;"
+                    style="max-height: 28px; min-height: 28px;"
                   >
                     <div
                       aria-colindex="1"
@@ -454,7 +454,7 @@ exports[`EventTypeListPage renders 1`] = `
                       data-colindex="0"
                       data-field="eventType"
                       role="cell"
-                      style="min-width: 100px; max-width: 100px; min-height: 36px; max-height: 36px;"
+                      style="min-width: 100px; max-width: 100px; min-height: 28px; max-height: 28px;"
                       tabindex="-1"
                     >
                       <div
@@ -471,7 +471,7 @@ exports[`EventTypeListPage renders 1`] = `
                       data-colindex="1"
                       data-field="official"
                       role="cell"
-                      style="min-width: 80px; max-width: 80px; min-height: 36px; max-height: 36px;"
+                      style="min-width: 80px; max-width: 80px; min-height: 28px; max-height: 28px;"
                       tabindex="-1"
                     >
                       <svg
@@ -493,7 +493,7 @@ exports[`EventTypeListPage renders 1`] = `
                       data-colindex="2"
                       data-field="active"
                       role="cell"
-                      style="min-width: 80px; max-width: 80px; min-height: 36px; max-height: 36px;"
+                      style="min-width: 80px; max-width: 80px; min-height: 28px; max-height: 28px;"
                       tabindex="-1"
                     >
                       <span
@@ -525,7 +525,7 @@ exports[`EventTypeListPage renders 1`] = `
                       data-colindex="3"
                       data-field="description"
                       role="cell"
-                      style="min-width: 0; max-width: 0; min-height: 36px; max-height: 36px;"
+                      style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
                       tabindex="-1"
                     >
                       <div

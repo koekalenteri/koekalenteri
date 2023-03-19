@@ -12,6 +12,7 @@
   "copy": "Kopioi",
   "create": "Lisää uusi",
   "createEvent": "Uusi tapahtuma",
+  "createRegistration": "Uusi ilmoittautuminen",
   "date": "Aika",
   "dateTimeShort": "{{ date, dtshort }}",
   "dateFormat": {
@@ -54,6 +55,7 @@
     "titles": "Tittelit"
   },
   "edit": "Muokkaa",
+  "editRegistration": "Muokkaa ilmoittautumista",
   "emailTemplates": "Viestit",
   "emailTemplate": {
     "invitation": "Koekutsu",
