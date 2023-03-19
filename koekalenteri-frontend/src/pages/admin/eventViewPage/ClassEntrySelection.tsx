@@ -18,6 +18,7 @@ import GroupHeader from './classEntrySelection/GroupHeader'
 import NoRowsOverlay from './classEntrySelection/NoRowsOverlay'
 
 interface Props {
+  eventClass: string
   eventDates?: Date[]
   registrations?: Registration[]
   setOpen?: Dispatch<SetStateAction<boolean>>
@@ -41,6 +42,7 @@ const listKey = (reg: Registration, eventGroups: RegistrationGroup[]) => {
 export const groupKey = (rd: RegistrationDate) => rd.date.toISOString().slice(0, 10) + '-' + rd.time
 
 const ClassEntrySelection = ({
+  eventClass,
   eventDates = [],
   registrations = [],
   setOpen,
@@ -135,7 +137,7 @@ const ClassEntrySelection = ({
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <Typography variant="h6">Osallistujat</Typography>
+      <Typography variant="h6">Osallistujat {eventClass}</Typography>
       {/* column headers only */}
       <Box sx={{ height: 40, flexShrink: 0, width: '100%', overflow: 'hidden' }}>
         <StyledDataGrid

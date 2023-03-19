@@ -51,11 +51,6 @@ export function useClassEntrySelectionColumns(eventDates: Date[]) {
           : '',
     },
     {
-      field: 'class',
-      width: 90,
-      headerName: t('eventClass'),
-    },
-    {
       field: 'handler',
       headerName: t('registration.handler'),
       width: 150,
