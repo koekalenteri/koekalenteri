@@ -1,6 +1,6 @@
 import { Box } from '@mui/material'
 
-import banner from '../../assets/banner.png'
+import banner from '../../assets/banner.jpg'
 
 const Banner = () => {
   return (
@@ -8,10 +8,11 @@ const Banner = () => {
       sx={{
         backgroundImage: `url(${banner})`,
         backgroundRepeat: 'no-repeat',
-        backgroundPositionY: '36px',
         backgroundSize: 'cover',
+        backgroundBlendMode: 'luminosity',
+        backgroundColor: 'secondary.main',
         width: '100%',
-        height: { xs: 98, sm: 148, md: 260 },
+        height: { xs: 72, sm: 108, md: 144 },
       }}
     ></Box>
   )
