@@ -133,46 +133,55 @@ export default function EventViewPage() {
           </Tabs>
         </Box>
 
-        {eventClasses.map((eventClass, index) => (
-          <TabPanel key={`tabPanel-${eventClass}`} index={index} activeTab={activeTab}>
-            <ClassEntrySelection
-              eventClass={eventClass}
-              eventDates={uniqueClassDates(event, eventClass)}
-              registrations={registrations}
-              setOpen={setOpen}
-              selectedRegistrationId={selectedRegistrationId}
-              setSelectedRegistrationId={setSelectedRegistrationId}
-            />
-          </TabPanel>
-        ))}
-
-        <Suspense>
-          <RegistrationEditDialog
-            event={event}
-            onClose={handleClose}
-            open={open}
-            registrationId={open ? selectedRegistrationId ?? '' : ''}
-          />
-        </Suspense>
-        <Suspense>
-          <RegistrationCreateDialog
-            event={event}
-            eventClass={selectedEventClass !== event.eventType ? selectedEventClass : undefined}
-            onClose={handleCreateClose}
-            open={createOpen}
-            registrationId={open ? selectedRegistrationId ?? '' : ''}
-          />
-        </Suspense>
-        <Suspense>
-          <SendMessageDialog
-            event={event}
-            onClose={closeMsgDlg}
-            open={msgDlgOpen}
-            registrations={recipientRegistrations}
-            templateId={messageTemplateId}
-          />
-        </Suspense>
+        <Box
+          sx={{
+            display: 'flex',
+            flexGrow: 1,
+            overflow: 'auto',
+            width: '100%',
+            height: '100%',
+          }}
+        >
+          {eventClasses.map((eventClass, index) => (
+            <TabPanel key={`tabPanel-${eventClass}`} index={index} activeTab={activeTab}>
+              <ClassEntrySelection
+                eventClass={eventClass}
+                eventDates={uniqueClassDates(event, eventClass)}
+                registrations={registrations}
+                setOpen={setOpen}
+                selectedRegistrationId={selectedRegistrationId}
+                setSelectedRegistrationId={setSelectedRegistrationId}
+              />
+            </TabPanel>
+          ))}
+        </Box>
       </FullPageFlex>
+      <Suspense>
+        <RegistrationEditDialog
+          event={event}
+          onClose={handleClose}
+          open={open}
+          registrationId={open ? selectedRegistrationId ?? '' : ''}
+        />
+      </Suspense>
+      <Suspense>
+        <RegistrationCreateDialog
+          event={event}
+          eventClass={selectedEventClass !== event.eventType ? selectedEventClass : undefined}
+          onClose={handleCreateClose}
+          open={createOpen}
+          registrationId={open ? selectedRegistrationId ?? '' : ''}
+        />
+      </Suspense>
+      <Suspense>
+        <SendMessageDialog
+          event={event}
+          onClose={closeMsgDlg}
+          open={msgDlgOpen}
+          registrations={recipientRegistrations}
+          templateId={messageTemplateId}
+        />
+      </Suspense>
     </>
   )
 }

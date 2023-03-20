@@ -154,6 +154,7 @@ const ClassEntrySelection = ({
       {eventGroups.map((group) => (
         <DragableDataGrid
           autoHeight
+          flex={registrationsByGroup[group.key]?.length}
           key={group.key}
           group={group.key}
           columns={participantColumns}

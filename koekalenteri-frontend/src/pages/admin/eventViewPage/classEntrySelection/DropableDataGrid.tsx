@@ -60,7 +60,7 @@ const DropableDataGrid = (props: Props) => {
     <div
       ref={ref}
       className={classNames.join(' ')}
-      style={{ display: 'flex', flex: props.flex ?? 1, width: '100%', height: '100%' }}
+      style={{ display: 'flex', flexGrow: props.flex ?? 1, width: '100%' }}
     >
       <StyledDataGrid
         {...props}
@@ -70,6 +70,7 @@ const DropableDataGrid = (props: Props) => {
         }}
         sx={[
           {
+            minHeight: 100,
             '.reject & .MuiDataGrid-main': { bgcolor: 'error.main', opacity: 0.5, color: 'error.main' },
           },
           ...(Array.isArray(props.sx) ? props.sx : [props.sx]),
