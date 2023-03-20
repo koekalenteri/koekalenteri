@@ -38,7 +38,7 @@ const organizers: Organizer[] = [
   },
   {
     id: 2,
-    name: 'Test org',
+    name: 'Järjestäjä 2',
   },
 ]
 
@@ -65,7 +65,7 @@ test('should render', () => {
   expect(screen.getByTestId('eventType')).toHaveTextContent(/NOME-B/i)
   expect(screen.getByTestId('eventClass')).toHaveTextContent(/ALO/i)
   expect(screen.getByTestId('judge')).toHaveTextContent(/Tuomari 2/i)
-  expect(screen.getByTestId('organizer')).toHaveTextContent(/Test org/i)
+  expect(screen.getByTestId('organizer')).toHaveTextContent(/Järjestäjä 2/i)
 })
 
 function changeAutocompleteValue(testId: string, value: string) {

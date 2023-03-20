@@ -97,7 +97,7 @@ describe('SearchPage', () => {
   it('filters by organizer', async () => {
     const { container } = renderPage('/?o=2', locales.fi)
     await waitForDebounce()
-    expect(screen.getByRole('button', { name: 'Test org' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Järjestäjä 2' })).toBeInTheDocument()
     expect(screen.getAllByRole('row').length).toEqual(1)
     expect(container).toMatchSnapshot()
   })

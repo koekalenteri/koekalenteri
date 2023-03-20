@@ -1969,7 +1969,7 @@ exports[`SearchPage filters by date 1`] = `
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-6 MuiGrid-grid-md-7 css-rhw740-MuiGrid-root"
                   >
-                    Test org
+                    Järjestäjä 2
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 MuiGrid-grid-md-2 css-nuhzl1-MuiGrid-root"
@@ -3616,7 +3616,7 @@ exports[`SearchPage filters by date/end 1`] = `
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-6 MuiGrid-grid-md-7 css-rhw740-MuiGrid-root"
                   >
-                    Test org
+                    Järjestäjä 2
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 MuiGrid-grid-md-2 css-nuhzl1-MuiGrid-root"
@@ -4801,7 +4801,7 @@ exports[`SearchPage filters by event class 1`] = `
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-6 MuiGrid-grid-md-7 css-rhw740-MuiGrid-root"
                   >
-                    Test org
+                    Järjestäjä 2
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 MuiGrid-grid-md-2 css-nuhzl1-MuiGrid-root"
@@ -6601,7 +6601,7 @@ exports[`SearchPage filters by event type 1`] = `
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-6 MuiGrid-grid-md-7 css-rhw740-MuiGrid-root"
                   >
-                    Test org
+                    Järjestäjä 2
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 MuiGrid-grid-md-2 css-nuhzl1-MuiGrid-root"
@@ -7447,7 +7447,7 @@ exports[`SearchPage filters by organizer 1`] = `
                 <span
                   class="MuiChip-label MuiChip-labelMedium css-6od3lo-MuiChip-label"
                 >
-                  Test org
+                  Järjestäjä 2
                 </span>
                 <svg
                   aria-hidden="true"
@@ -7764,7 +7764,7 @@ exports[`SearchPage filters by organizer 1`] = `
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-6 MuiGrid-grid-md-7 css-rhw740-MuiGrid-root"
                   >
-                    Test org
+                    Järjestäjä 2
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 MuiGrid-grid-md-2 css-nuhzl1-MuiGrid-root"
