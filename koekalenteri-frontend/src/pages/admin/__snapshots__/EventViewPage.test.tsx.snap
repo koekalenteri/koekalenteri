@@ -150,19 +150,21 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                     <span
                       class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-bcc4ko-MuiTypography-root"
                     >
-                      0
+                      1
                     </span>
                   </td>
                   <td
                     class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
                   >
                     <button
-                      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall css-1ke4pnb-MuiButtonBase-root-MuiButton-root"
-                      disabled=""
-                      tabindex="-1"
+                      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall css-1ke4pnb-MuiButtonBase-root-MuiButton-root"
+                      tabindex="0"
                       type="button"
                     >
                       LÄHETÄ VARASIJAILMOITUS
+                      <span
+                        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                      />
                     </button>
                   </td>
                 </tr>
@@ -5259,19 +5261,21 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                     <span
                       class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-bcc4ko-MuiTypography-root"
                     >
-                      0
+                      1
                     </span>
                   </td>
                   <td
                     class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
                   >
                     <button
-                      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall css-1ke4pnb-MuiButtonBase-root-MuiButton-root"
-                      disabled=""
-                      tabindex="-1"
+                      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall css-1ke4pnb-MuiButtonBase-root-MuiButton-root"
+                      tabindex="0"
                       type="button"
                     >
                       LÄHETÄ VARASIJAILMOITUS
+                      <span
+                        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                      />
                     </button>
                   </td>
                 </tr>
@@ -8821,7 +8825,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
           <div
             aria-colcount="8"
             aria-multiselectable="false"
-            aria-rowcount="1"
+            aria-rowcount="2"
             class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-1d04q48-MuiDataGrid-root"
             role="grid"
           >
@@ -8831,15 +8835,6 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
             <div
               class="MuiDataGrid-main css-204u17-MuiDataGrid-main"
             >
-              <div
-                style="height: auto; width: 0px; position: absolute; top: 39px; bottom: 0px;"
-              >
-                <div
-                  class="MuiDataGrid-overlay css-1i7cl7u-MuiDataGrid-overlay"
-                >
-                  No rows
-                </div>
-              </div>
               <div
                 class="MuiDataGrid-columnHeaders css-z8fhq1-MuiDataGrid-columnHeaders"
                 style="min-height: 39px; max-height: 39px; line-height: 39px;"
@@ -9448,12 +9443,173 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                 >
                   <div
                     class="MuiDataGrid-virtualScrollerContent css-1kwdphh-MuiDataGrid-virtualScrollerContent"
-                    style="width: auto; height: 56px; min-height: auto;"
+                    style="width: auto; height: 28px; min-height: auto;"
                   >
                     <div
                       class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"
-                      style="transform: translate3d(0px, undefinedpx, 0px);"
-                    />
+                      style="transform: translate3d(0px, 0px, 0px);"
+                    >
+                      <div
+                        data-handler-id="T6"
+                        draggable="true"
+                        style="opacity: 1;"
+                      >
+                        <div
+                          aria-rowindex="2"
+                          aria-selected="false"
+                          class="MuiDataGrid-row MuiDataGrid-row--lastVisible"
+                          data-id="nou-registration"
+                          data-rowindex="0"
+                          role="row"
+                          style="max-height: 28px; min-height: 28px;"
+                        >
+                          <div
+                            aria-colindex="1"
+                            aria-colspan="1"
+                            class="nopad MuiDataGrid-cell--withRenderer MuiDataGrid-cell MuiDataGrid-cell--textLeft"
+                            data-colindex="0"
+                            data-field="dates"
+                            role="cell"
+                            style="min-width: 32px; max-width: 32px; min-height: 28px; max-height: 28px;"
+                            tabindex="-1"
+                          >
+                            <div
+                              aria-label="Sopivat ryhmät: ke registration.time.ap"
+                              class="MuiStack-root css-156fqfh-MuiStack-root"
+                              data-mui-internal-clone-element="true"
+                            >
+                              <div
+                                class="MuiBox-root css-14hq1a2"
+                              />
+                              <div
+                                class="MuiBox-root css-1urbi4i"
+                              />
+                              <div
+                                class="MuiBox-root css-1urbi4i"
+                              />
+                              <div
+                                class="MuiBox-root css-1urbi4i"
+                              />
+                            </div>
+                          </div>
+                          <div
+                            aria-colindex="2"
+                            aria-colspan="1"
+                            class="nopad MuiDataGrid-cell MuiDataGrid-cell--textRight"
+                            data-colindex="1"
+                            data-field="number"
+                            role="cell"
+                            style="min-width: 20px; max-width: 20px; min-height: 28px; max-height: 28px;"
+                            tabindex="-1"
+                          >
+                            <div
+                              class="MuiDataGrid-cellContent"
+                              title=""
+                            />
+                          </div>
+                          <div
+                            aria-colindex="3"
+                            aria-colspan="1"
+                            class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
+                            data-colindex="2"
+                            data-field="dog.name"
+                            role="cell"
+                            style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
+                            tabindex="-1"
+                          >
+                            <div
+                              class="MuiDataGrid-cellContent"
+                              title="Dog Name 10"
+                            >
+                              Dog Name 10
+                            </div>
+                          </div>
+                          <div
+                            aria-colindex="4"
+                            aria-colspan="1"
+                            class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
+                            data-colindex="3"
+                            data-field="dog.regNo"
+                            role="cell"
+                            style="min-width: 130px; max-width: 130px; min-height: 28px; max-height: 28px;"
+                            tabindex="-1"
+                          >
+                            <div
+                              class="MuiDataGrid-cellContent"
+                              title="TESTDOG-0010"
+                            >
+                              TESTDOG-0010
+                            </div>
+                          </div>
+                          <div
+                            aria-colindex="5"
+                            aria-colspan="1"
+                            class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
+                            data-colindex="4"
+                            data-field="dob.breed"
+                            role="cell"
+                            style="min-width: 150px; max-width: 150px; min-height: 28px; max-height: 28px;"
+                            tabindex="-1"
+                          >
+                            <div
+                              class="MuiDataGrid-cellContent"
+                              title="110.M"
+                            >
+                              110.M
+                            </div>
+                          </div>
+                          <div
+                            aria-colindex="6"
+                            aria-colspan="1"
+                            class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
+                            data-colindex="5"
+                            data-field="handler"
+                            role="cell"
+                            style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
+                            tabindex="-1"
+                          >
+                            <div
+                              class="MuiDataGrid-cellContent"
+                              title="Handler Name"
+                            >
+                              Handler Name
+                            </div>
+                          </div>
+                          <div
+                            aria-colindex="7"
+                            aria-colspan="1"
+                            class="MuiDataGrid-cell--withRenderer MuiDataGrid-cell MuiDataGrid-cell--textCenter"
+                            data-colindex="6"
+                            data-field="member"
+                            role="cell"
+                            style="min-width: 60px; max-width: 60px; min-height: 28px; max-height: 28px;"
+                            tabindex="-1"
+                          />
+                          <div
+                            aria-colindex="8"
+                            aria-colspan="1"
+                            class="MuiDataGrid-cell--withRenderer MuiDataGrid-cell MuiDataGrid-cell--textCenter"
+                            data-colindex="7"
+                            data-field="paid"
+                            role="cell"
+                            style="min-width: 90px; max-width: 90px; min-height: 28px; max-height: 28px;"
+                            tabindex="-1"
+                          >
+                            <svg
+                              aria-hidden="true"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-ptiqhd-MuiSvgIcon-root"
+                              data-testid="EuroOutlinedIcon"
+                              focusable="false"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                d="M15 18.5c-2.51 0-4.68-1.42-5.76-3.5H15l1-2H8.58c-.05-.33-.08-.66-.08-1s.03-.67.08-1H15l1-2H9.24C10.32 6.92 12.5 5.5 15 5.5c1.61 0 3.09.59 4.23 1.57L21 5.3C19.41 3.87 17.3 3 15 3c-3.92 0-7.24 2.51-8.48 6H3l-1 2h4.06c-.04.33-.06.66-.06 1s.02.67.06 1H3l-1 2h4.52c1.24 3.49 4.56 6 8.48 6 2.31 0 4.41-.87 6-2.3l-1.78-1.77c-1.13.98-2.6 1.57-4.22 1.57z"
+                              />
+                            </svg>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -9486,7 +9642,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
           <div
             aria-colcount="9"
             aria-multiselectable="false"
-            aria-rowcount="1"
+            aria-rowcount="2"
             class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-1d04q48-MuiDataGrid-root"
             role="grid"
           >
@@ -9496,15 +9652,6 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
             <div
               class="MuiDataGrid-main css-204u17-MuiDataGrid-main"
             >
-              <div
-                style="height: auto; width: 0px; position: absolute; top: 39px; bottom: 0px;"
-              >
-                <div
-                  class="MuiDataGrid-overlay css-1i7cl7u-MuiDataGrid-overlay"
-                >
-                  No rows
-                </div>
-              </div>
               <div
                 class="MuiDataGrid-columnHeaders css-z8fhq1-MuiDataGrid-columnHeaders"
                 style="min-height: 39px; max-height: 39px; line-height: 39px;"
@@ -10186,12 +10333,187 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                 >
                   <div
                     class="MuiDataGrid-virtualScrollerContent css-1kwdphh-MuiDataGrid-virtualScrollerContent"
-                    style="width: auto; height: 56px; min-height: auto;"
+                    style="width: auto; height: 28px; min-height: auto;"
                   >
                     <div
                       class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"
-                      style="transform: translate3d(0px, undefinedpx, 0px);"
-                    />
+                      style="transform: translate3d(0px, 0px, 0px);"
+                    >
+                      <div
+                        data-handler-id="T8"
+                        draggable="true"
+                        style="opacity: 1;"
+                      >
+                        <div
+                          aria-rowindex="2"
+                          aria-selected="false"
+                          class="MuiDataGrid-row MuiDataGrid-row--lastVisible"
+                          data-id="cancelled-registration"
+                          data-rowindex="0"
+                          role="row"
+                          style="max-height: 28px; min-height: 28px;"
+                        >
+                          <div
+                            aria-colindex="1"
+                            aria-colspan="1"
+                            class="nopad MuiDataGrid-cell--withRenderer MuiDataGrid-cell MuiDataGrid-cell--textLeft"
+                            data-colindex="0"
+                            data-field="dates"
+                            role="cell"
+                            style="min-width: 32px; max-width: 32px; min-height: 28px; max-height: 28px;"
+                            tabindex="-1"
+                          >
+                            <div
+                              aria-label="Sopivat ryhmät: ke registration.time.ap"
+                              class="MuiStack-root css-156fqfh-MuiStack-root"
+                              data-mui-internal-clone-element="true"
+                            >
+                              <div
+                                class="MuiBox-root css-14hq1a2"
+                              />
+                              <div
+                                class="MuiBox-root css-1urbi4i"
+                              />
+                              <div
+                                class="MuiBox-root css-1urbi4i"
+                              />
+                              <div
+                                class="MuiBox-root css-1urbi4i"
+                              />
+                            </div>
+                          </div>
+                          <div
+                            aria-colindex="2"
+                            aria-colspan="1"
+                            class="nopad MuiDataGrid-cell MuiDataGrid-cell--textRight"
+                            data-colindex="1"
+                            data-field="number"
+                            role="cell"
+                            style="min-width: 20px; max-width: 20px; min-height: 28px; max-height: 28px;"
+                            tabindex="-1"
+                          >
+                            <div
+                              class="MuiDataGrid-cellContent"
+                              title=""
+                            />
+                          </div>
+                          <div
+                            aria-colindex="3"
+                            aria-colspan="1"
+                            class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
+                            data-colindex="2"
+                            data-field="dog.name"
+                            role="cell"
+                            style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
+                            tabindex="-1"
+                          >
+                            <div
+                              class="MuiDataGrid-cellContent"
+                              title="Dog Name 20"
+                            >
+                              Dog Name 20
+                            </div>
+                          </div>
+                          <div
+                            aria-colindex="4"
+                            aria-colspan="1"
+                            class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
+                            data-colindex="3"
+                            data-field="dog.regNo"
+                            role="cell"
+                            style="min-width: 130px; max-width: 130px; min-height: 28px; max-height: 28px;"
+                            tabindex="-1"
+                          >
+                            <div
+                              class="MuiDataGrid-cellContent"
+                              title="TESTDOG-0020"
+                            >
+                              TESTDOG-0020
+                            </div>
+                          </div>
+                          <div
+                            aria-colindex="5"
+                            aria-colspan="1"
+                            class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
+                            data-colindex="4"
+                            data-field="dob.breed"
+                            role="cell"
+                            style="min-width: 150px; max-width: 150px; min-height: 28px; max-height: 28px;"
+                            tabindex="-1"
+                          >
+                            <div
+                              class="MuiDataGrid-cellContent"
+                              title="110.M"
+                            >
+                              110.M
+                            </div>
+                          </div>
+                          <div
+                            aria-colindex="6"
+                            aria-colspan="1"
+                            class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
+                            data-colindex="5"
+                            data-field="handler"
+                            role="cell"
+                            style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
+                            tabindex="-1"
+                          >
+                            <div
+                              class="MuiDataGrid-cellContent"
+                              title="Handler Name"
+                            >
+                              Handler Name
+                            </div>
+                          </div>
+                          <div
+                            aria-colindex="7"
+                            aria-colspan="1"
+                            class="MuiDataGrid-cell--withRenderer MuiDataGrid-cell MuiDataGrid-cell--textCenter"
+                            data-colindex="6"
+                            data-field="member"
+                            role="cell"
+                            style="min-width: 60px; max-width: 60px; min-height: 28px; max-height: 28px;"
+                            tabindex="-1"
+                          />
+                          <div
+                            aria-colindex="8"
+                            aria-colspan="1"
+                            class="MuiDataGrid-cell--withRenderer MuiDataGrid-cell MuiDataGrid-cell--textCenter"
+                            data-colindex="7"
+                            data-field="paid"
+                            role="cell"
+                            style="min-width: 90px; max-width: 90px; min-height: 28px; max-height: 28px;"
+                            tabindex="-1"
+                          >
+                            <svg
+                              aria-hidden="true"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-ptiqhd-MuiSvgIcon-root"
+                              data-testid="EuroOutlinedIcon"
+                              focusable="false"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                d="M15 18.5c-2.51 0-4.68-1.42-5.76-3.5H15l1-2H8.58c-.05-.33-.08-.66-.08-1s.03-.67.08-1H15l1-2H9.24C10.32 6.92 12.5 5.5 15 5.5c1.61 0 3.09.59 4.23 1.57L21 5.3C19.41 3.87 17.3 3 15 3c-3.92 0-7.24 2.51-8.48 6H3l-1 2h4.06c-.04.33-.06.66-.06 1s.02.67.06 1H3l-1 2h4.52c1.24 3.49 4.56 6 8.48 6 2.31 0 4.41-.87 6-2.3l-1.78-1.77c-1.13.98-2.6 1.57-4.22 1.57z"
+                              />
+                            </svg>
+                          </div>
+                          <div
+                            aria-colindex="9"
+                            aria-colspan="1"
+                            class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
+                            data-colindex="8"
+                            data-field="cancelReason"
+                            role="cell"
+                            style="min-width: 90px; max-width: 90px; min-height: 28px; max-height: 28px;"
+                            tabindex="-1"
+                          >
+                            <div
+                              class="MuiDataGrid-cellContent"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
