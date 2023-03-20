@@ -1,8 +1,9 @@
 import i18next from 'i18next'
-import { Event, EventClass, Organizer } from 'koekalenteri-shared/model'
+import { Event, EventClass } from 'koekalenteri-shared/model'
 import { selector, selectorFamily } from 'recoil'
 
-import { unique, uniqueFn } from '../../../utils'
+import { unique } from '../../../utils'
+import { organizersAtom } from '../../admin/recoil'
 import { judgesAtom } from '../judges/atoms'
 
 import { eventFilterAtom, eventIdAtom, eventsAtom } from './atoms'
@@ -168,12 +169,15 @@ export const filterOrganizersSelector = selector({
   key: 'filterOrganizers',
   get: ({ get }) => {
     const events = get(filteredEventsForOrganizerSelector)
-    const uniqueOrganizers = uniqueFn<Organizer>(
-      events.map((e) => e.organizer),
-      (a, b) => a.id === b.id
+    const filter = get(eventFilterAtom)
+    const organizers = get(organizersAtom)
+    const usedOrganizerIds = unique<number>(
+      events.reduce<number[]>((acc, cur) => [...acc, cur.organizer.id], [...filter.organizer])
     )
-    uniqueOrganizers.sort((a, b) => a.name.localeCompare(b.name, i18next.language))
-    return uniqueOrganizers
+
+    return organizers
+      .filter((o) => usedOrganizerIds.includes(o.id))
+      .sort((a, b) => a.name.localeCompare(b.name, i18next.language))
   },
 })
 

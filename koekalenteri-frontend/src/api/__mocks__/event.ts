@@ -22,7 +22,7 @@ export const mockEvents: Event[] = [
     id: 'test2',
     organizer: {
       id: 2,
-      name: 'Test org',
+      name: 'Järjestäjä 2',
     },
     eventType: 'NOME-B',
     classes: [{ class: 'AVO' }],
