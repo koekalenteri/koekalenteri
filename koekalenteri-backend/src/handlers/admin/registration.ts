@@ -30,7 +30,10 @@ const numberGroupKey = <T extends JsonRegistration>(reg: T) => {
   if (reg.cancelled) {
     return 'cancelled-' + ct
   }
-  return reg.group?.date ?? 'reserve-' + ct
+  if (reg.group?.date) {
+    return `${reg.group?.date}-${ct}`
+  }
+  return 'reserve-' + ct
 }
 
 const byKeyAndNumber = <T extends JsonRegistration>(a: T, b: T): number =>
