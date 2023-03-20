@@ -68,7 +68,7 @@ const DragableRow = ({ groupKey, ...props }: Props) => {
 
   drag(drop(ref))
   return (
-    <div ref={ref} style={{ opacity }} data-handler-id={handlerId}>
+    <div ref={ref} style={{ opacity, display: 'flex' }} data-handler-id={handlerId}>
       <GridRow {...props} />
     </div>
   )
