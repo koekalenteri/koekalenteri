@@ -18,38 +18,41 @@ import { markInvitationsSent, updateRegistrations } from '../event'
 
 const dynamoDB = new CustomDynamoClient()
 
-const listKey = <T extends JsonRegistrationGroupInfo>(reg: T) => {
+const groupKey = <T extends JsonRegistration>(reg: T) => {
   if (reg.cancelled) {
     return 'cancelled'
   }
   return reg.group?.key ?? 'reserve'
 }
 
-const listDate = <T extends JsonRegistrationGroupInfo>(reg: T) => {
+const numberGroupKey = <T extends JsonRegistration>(reg: T) => {
+  const ct = reg.class ?? reg.eventType
   if (reg.cancelled) {
-    return 'cancelled'
+    return 'cancelled-' + ct
   }
-  return reg.group?.date ?? 'reserve'
+  return reg.group?.date ?? 'reserve-' + ct
 }
 
-const byKeyAndNumber = <T extends JsonRegistrationGroupInfo>(a: T, b: T): number =>
+const byKeyAndNumber = <T extends JsonRegistration>(a: T, b: T): number =>
   a.group?.key === b.group?.key
     ? (a.group?.number || 999) - (b.group?.number || 999)
     : (a.group?.key ?? '').localeCompare(b.group?.key ?? '')
 
-export async function fixGroups<T extends JsonRegistrationGroupInfo>(items: T[]): Promise<T[]> {
+export async function fixGroups<T extends JsonRegistration>(items: T[]): Promise<T[]> {
   items.sort(byKeyAndNumber)
 
-  const byGroup: Record<string, T[]> = { cancelled: [], reserve: [] }
+  const grouped: Record<string, T[]> = {}
   for (const item of items) {
-    const date = listDate(item)
-    byGroup[date] = byGroup[date] || [] // make sure the array exists
-    byGroup[date].push(item)
+    const groupKey = numberGroupKey(item)
+    grouped[groupKey] = grouped[groupKey] || [] // make sure the array exists
+    grouped[groupKey].push(item)
   }
-  for (const [date, regs] of Object.entries(byGroup)) {
+  for (const regs of Object.values(grouped)) {
     regs.forEach(async (reg, index) => {
-      if (reg.group?.date !== date || reg.group?.number !== index + 1) {
-        reg.group = { ...reg.group, key: listKey(reg), number: index + 1 }
+      const key = groupKey(reg)
+      const number = index + 1
+      if (reg.group?.key !== key || reg.group?.number !== number) {
+        reg.group = { ...reg.group, key, number }
         await saveGroup(reg)
       }
     })
