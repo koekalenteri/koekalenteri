@@ -11,11 +11,9 @@ const TabPanel = ({ index, activeTab, children }: Props) => {
     <div
       role="tabpanel"
       style={{
+        width: '100%',
         minHeight: 400,
-        display: activeTab === index ? 'flex' : 'none',
-        flexDirection: 'column',
-        flex: 1,
-        overflow: 'auto',
+        display: activeTab === index ? 'block' : 'none',
       }}
     >
       {index === activeTab && <>{children}</>}

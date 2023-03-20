@@ -10,7 +10,7 @@ const FullPageFlex = (props: FullPageFlexProps) => {
     <Box
       sx={{
         display: 'flex',
-        p: 1,
+        p: 0,
         overflow: 'hidden',
         height: '100%',
         flexDirection: 'column',
@@ -23,7 +23,7 @@ const FullPageFlex = (props: FullPageFlexProps) => {
           flexDirection: 'column',
           flexGrow: 1,
           width: '100%',
-          minHeight: 600,
+          minHeight: 400,
         }}
       >
         {props.children}
