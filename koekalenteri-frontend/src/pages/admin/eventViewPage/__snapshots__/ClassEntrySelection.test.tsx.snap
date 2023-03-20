@@ -11605,6 +11605,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                     >
                       <div
                         class="MuiDataGrid-cellContent"
+                        title=""
                       />
                     </div>
                     <div
@@ -12488,6 +12489,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                     >
                       <div
                         class="MuiDataGrid-cellContent"
+                        title=""
                       />
                     </div>
                     <div
