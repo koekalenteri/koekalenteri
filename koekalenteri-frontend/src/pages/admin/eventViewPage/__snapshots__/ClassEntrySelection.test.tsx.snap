@@ -48,7 +48,7 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
                 data-field="dates"
                 role="columnheader"
-                style="height: 39px; width: 32px; min-width: 32px; max-width: 32px;"
+                style="height: 39px; width: 56px; min-width: 56px; max-width: 56px;"
                 tabindex="0"
               >
                 <div
@@ -713,7 +713,7 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
                 data-field="dates"
                 role="columnheader"
-                style="height: 39px; width: 32px; min-width: 32px; max-width: 32px;"
+                style="height: 39px; width: 56px; min-width: 56px; max-width: 56px;"
                 tabindex="0"
               >
                 <div
@@ -1378,7 +1378,7 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
                 data-field="dates"
                 role="columnheader"
-                style="height: 39px; width: 32px; min-width: 32px; max-width: 32px;"
+                style="height: 39px; width: 56px; min-width: 56px; max-width: 56px;"
                 tabindex="0"
               >
                 <div
@@ -2115,7 +2115,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
                 data-field="dates"
                 role="columnheader"
-                style="height: 39px; width: 32px; min-width: 32px; max-width: 32px;"
+                style="height: 39px; width: 56px; min-width: 56px; max-width: 56px;"
                 tabindex="0"
               >
                 <div
@@ -2744,15 +2744,8 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
           class="MuiStack-root header css-1d532f0-MuiStack-root"
         >
           <div
-            class="MuiStack-root css-156fqfh-MuiStack-root"
-          >
-            <div
-              class="MuiBox-root css-14hq1a2"
-            />
-            <div
-              class="MuiBox-root css-1urbi4i"
-            />
-          </div>
+            class="MuiBox-root css-55zn6h"
+          />
           <b>
             dateshort registration.time.ap
           </b>
@@ -2791,7 +2784,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
                 data-field="dates"
                 role="columnheader"
-                style="height: 0px; width: 32px; min-width: 32px; max-width: 32px;"
+                style="height: 0px; width: 56px; min-width: 56px; max-width: 56px;"
                 tabindex="0"
               >
                 <div
@@ -3420,15 +3413,8 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
           class="MuiStack-root header css-1d532f0-MuiStack-root"
         >
           <div
-            class="MuiStack-root css-156fqfh-MuiStack-root"
-          >
-            <div
-              class="MuiBox-root css-1urbi4i"
-            />
-            <div
-              class="MuiBox-root css-1gwv2qh"
-            />
-          </div>
+            class="MuiBox-root css-q8fzbv"
+          />
           <b>
             dateshort registration.time.ip
           </b>
@@ -3467,7 +3453,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
                 data-field="dates"
                 role="columnheader"
-                style="height: 0px; width: 32px; min-width: 32px; max-width: 32px;"
+                style="height: 0px; width: 56px; min-width: 56px; max-width: 56px;"
                 tabindex="0"
               >
                 <div
@@ -4132,7 +4118,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
                 data-field="dates"
                 role="columnheader"
-                style="height: 39px; width: 32px; min-width: 32px; max-width: 32px;"
+                style="height: 39px; width: 56px; min-width: 56px; max-width: 56px;"
                 tabindex="0"
               >
                 <div
@@ -4797,7 +4783,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
                 data-field="dates"
                 role="columnheader"
-                style="height: 39px; width: 32px; min-width: 32px; max-width: 32px;"
+                style="height: 39px; width: 56px; min-width: 56px; max-width: 56px;"
                 tabindex="0"
               >
                 <div
@@ -5534,7 +5520,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
                 data-field="dates"
                 role="columnheader"
-                style="height: 39px; width: 32px; min-width: 32px; max-width: 32px;"
+                style="height: 39px; width: 56px; min-width: 56px; max-width: 56px;"
                 tabindex="0"
               >
                 <div
@@ -6163,15 +6149,8 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
           class="MuiStack-root header css-1d532f0-MuiStack-root"
         >
           <div
-            class="MuiStack-root css-156fqfh-MuiStack-root"
-          >
-            <div
-              class="MuiBox-root css-14hq1a2"
-            />
-            <div
-              class="MuiBox-root css-1urbi4i"
-            />
-          </div>
+            class="MuiBox-root css-55zn6h"
+          />
           <b>
             dateshort registration.time.ap
           </b>
@@ -6210,7 +6189,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
                 data-field="dates"
                 role="columnheader"
-                style="height: 0px; width: 32px; min-width: 32px; max-width: 32px;"
+                style="height: 0px; width: 56px; min-width: 56px; max-width: 56px;"
                 tabindex="0"
               >
                 <div
@@ -6839,15 +6818,8 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
           class="MuiStack-root header css-1d532f0-MuiStack-root"
         >
           <div
-            class="MuiStack-root css-156fqfh-MuiStack-root"
-          >
-            <div
-              class="MuiBox-root css-1urbi4i"
-            />
-            <div
-              class="MuiBox-root css-1gwv2qh"
-            />
-          </div>
+            class="MuiBox-root css-q8fzbv"
+          />
           <b>
             dateshort registration.time.ip
           </b>
@@ -6886,7 +6858,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
                 data-field="dates"
                 role="columnheader"
-                style="height: 0px; width: 32px; min-width: 32px; max-width: 32px;"
+                style="height: 0px; width: 56px; min-width: 56px; max-width: 56px;"
                 tabindex="0"
               >
                 <div
@@ -7551,7 +7523,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
                 data-field="dates"
                 role="columnheader"
-                style="height: 39px; width: 32px; min-width: 32px; max-width: 32px;"
+                style="height: 39px; width: 56px; min-width: 56px; max-width: 56px;"
                 tabindex="0"
               >
                 <div
@@ -8216,7 +8188,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
                 data-field="dates"
                 role="columnheader"
-                style="height: 39px; width: 32px; min-width: 32px; max-width: 32px;"
+                style="height: 39px; width: 56px; min-width: 56px; max-width: 56px;"
                 tabindex="0"
               >
                 <div
@@ -8955,7 +8927,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
                 data-field="dates"
                 role="columnheader"
-                style="height: 39px; width: 32px; min-width: 32px; max-width: 32px;"
+                style="height: 39px; width: 56px; min-width: 56px; max-width: 56px;"
                 tabindex="0"
               >
                 <div
@@ -9584,15 +9556,8 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
           class="MuiStack-root header css-1d532f0-MuiStack-root"
         >
           <div
-            class="MuiStack-root css-156fqfh-MuiStack-root"
-          >
-            <div
-              class="MuiBox-root css-14hq1a2"
-            />
-            <div
-              class="MuiBox-root css-1urbi4i"
-            />
-          </div>
+            class="MuiBox-root css-55zn6h"
+          />
           <b>
             dateshort registration.time.ap
           </b>
@@ -9631,7 +9596,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
                 data-field="dates"
                 role="columnheader"
-                style="height: 0px; width: 32px; min-width: 32px; max-width: 32px;"
+                style="height: 0px; width: 56px; min-width: 56px; max-width: 56px;"
                 tabindex="0"
               >
                 <div
@@ -10260,15 +10225,8 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
           class="MuiStack-root header css-1d532f0-MuiStack-root"
         >
           <div
-            class="MuiStack-root css-156fqfh-MuiStack-root"
-          >
-            <div
-              class="MuiBox-root css-1urbi4i"
-            />
-            <div
-              class="MuiBox-root css-1gwv2qh"
-            />
-          </div>
+            class="MuiBox-root css-q8fzbv"
+          />
           <b>
             dateshort registration.time.ip
           </b>
@@ -10307,7 +10265,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
                 data-field="dates"
                 role="columnheader"
-                style="height: 0px; width: 32px; min-width: 32px; max-width: 32px;"
+                style="height: 0px; width: 56px; min-width: 56px; max-width: 56px;"
                 tabindex="0"
               >
                 <div
@@ -10963,7 +10921,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
                 data-field="dates"
                 role="columnheader"
-                style="height: 39px; width: 32px; min-width: 32px; max-width: 32px;"
+                style="height: 39px; width: 56px; min-width: 56px; max-width: 56px;"
                 tabindex="0"
               >
                 <div
@@ -11559,7 +11517,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 <div
                   data-handler-id="T14"
                   draggable="true"
-                  style="opacity: 1;"
+                  style="opacity: 1; display: flex;"
                 >
                   <div
                     aria-rowindex="2"
@@ -11577,9 +11535,20 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       data-colindex="0"
                       data-field="dates"
                       role="cell"
-                      style="min-width: 32px; max-width: 32px; min-height: 36px; max-height: 36px;"
+                      style="min-width: 56px; max-width: 56px; min-height: 36px; max-height: 36px;"
                       tabindex="-1"
                     >
+                      <svg
+                        aria-hidden="true"
+                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                        data-testid="DragIndicatorOutlinedIcon"
+                        focusable="false"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          d="M11 18c0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2 2 .9 2 2zm-2-8c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0-6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm6 4c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"
+                        />
+                      </svg>
                       <div
                         aria-label="Sopivat ryhmät: ke registration.time.ap"
                         class="MuiStack-root css-156fqfh-MuiStack-root"
@@ -11774,7 +11743,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
                 data-field="dates"
                 role="columnheader"
-                style="height: 39px; width: 32px; min-width: 32px; max-width: 32px;"
+                style="height: 39px; width: 56px; min-width: 56px; max-width: 56px;"
                 tabindex="0"
               >
                 <div
@@ -12443,7 +12412,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 <div
                   data-handler-id="T16"
                   draggable="true"
-                  style="opacity: 1;"
+                  style="opacity: 1; display: flex;"
                 >
                   <div
                     aria-rowindex="2"
@@ -12461,9 +12430,20 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       data-colindex="0"
                       data-field="dates"
                       role="cell"
-                      style="min-width: 32px; max-width: 32px; min-height: 36px; max-height: 36px;"
+                      style="min-width: 56px; max-width: 56px; min-height: 36px; max-height: 36px;"
                       tabindex="-1"
                     >
+                      <svg
+                        aria-hidden="true"
+                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                        data-testid="DragIndicatorOutlinedIcon"
+                        focusable="false"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          d="M11 18c0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2 2 .9 2 2zm-2-8c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0-6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm6 4c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"
+                        />
+                      </svg>
                       <div
                         aria-label="Sopivat ryhmät: ke registration.time.ap"
                         class="MuiStack-root css-156fqfh-MuiStack-root"

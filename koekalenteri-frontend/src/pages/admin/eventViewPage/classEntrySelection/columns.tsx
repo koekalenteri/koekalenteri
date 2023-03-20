@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { EuroOutlined, PersonOutline } from '@mui/icons-material'
+import { DragIndicatorOutlined, EuroOutlined, PersonOutline } from '@mui/icons-material'
 import { GridColDef, GridValueGetterParams } from '@mui/x-data-grid'
 import { BreedCode, Registration } from 'koekalenteri-shared/model'
 
@@ -13,9 +13,14 @@ export function useClassEntrySelectionColumns(eventDates: Date[]) {
       cellClassName: 'nopad',
       field: 'dates',
       headerName: '',
-      width: 32,
-      minWidth: 32,
-      renderCell: (p) => <GroupColors dates={eventDates} selected={p.row.dates} />,
+      width: 56,
+      minWidth: 56,
+      renderCell: (p) => (
+        <>
+          <DragIndicatorOutlined />
+          <GroupColors dates={eventDates} selected={p.row.dates} />
+        </>
+      ),
     },
     {
       align: 'right',

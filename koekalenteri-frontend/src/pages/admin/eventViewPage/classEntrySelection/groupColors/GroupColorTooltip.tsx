@@ -6,11 +6,10 @@ import type { RegistrationDate } from 'koekalenteri-shared/model'
 
 interface Props {
   children: ReactElement
-  disabled: boolean
   selected: RegistrationDate[]
 }
 
-const GroupColorTooltip = ({ selected, children, disabled }: Props) => {
+const GroupColorTooltip = ({ selected, children }: Props) => {
   const { t } = useTranslation()
   const title = useMemo(
     () =>
@@ -23,10 +22,6 @@ const GroupColorTooltip = ({ selected, children, disabled }: Props) => {
           .join(', '),
     [selected, t]
   )
-
-  if (disabled) {
-    return children
-  }
 
   return <Tooltip title={title}>{children}</Tooltip>
 }

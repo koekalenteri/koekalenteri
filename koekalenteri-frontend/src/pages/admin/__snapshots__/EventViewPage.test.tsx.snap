@@ -14,16 +14,6 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
         <div
           class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true css-17utxkx-MuiGrid-root"
         >
-          <a
-            class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall css-d25sdv-MuiButtonBase-root-MuiButton-root"
-            href="/admin/event"
-            tabindex="0"
-          >
-            goBack
-            <span
-              class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-            />
-          </a>
           <h5
             class="MuiTypography-root MuiTypography-h5 css-11zemyq-MuiTypography-root"
           >
@@ -364,7 +354,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
                         data-field="dates"
                         role="columnheader"
-                        style="height: 39px; width: 32px; min-width: 32px; max-width: 32px;"
+                        style="height: 39px; width: 56px; min-width: 56px; max-width: 56px;"
                         tabindex="0"
                       >
                         <div
@@ -993,21 +983,8 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                   class="MuiStack-root header css-sf7yvk-MuiStack-root"
                 >
                   <div
-                    class="MuiStack-root css-156fqfh-MuiStack-root"
-                  >
-                    <div
-                      class="MuiBox-root css-14hq1a2"
-                    />
-                    <div
-                      class="MuiBox-root css-1urbi4i"
-                    />
-                    <div
-                      class="MuiBox-root css-1urbi4i"
-                    />
-                    <div
-                      class="MuiBox-root css-1urbi4i"
-                    />
-                  </div>
+                    class="MuiBox-root css-55zn6h"
+                  />
                   <b>
                     dateshort registration.time.ap
                   </b>
@@ -1046,7 +1023,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
                         data-field="dates"
                         role="columnheader"
-                        style="height: 0px; width: 32px; min-width: 32px; max-width: 32px;"
+                        style="height: 0px; width: 56px; min-width: 56px; max-width: 56px;"
                         tabindex="0"
                       >
                         <div
@@ -1675,21 +1652,8 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                   class="MuiStack-root header css-sf7yvk-MuiStack-root"
                 >
                   <div
-                    class="MuiStack-root css-156fqfh-MuiStack-root"
-                  >
-                    <div
-                      class="MuiBox-root css-1urbi4i"
-                    />
-                    <div
-                      class="MuiBox-root css-1gwv2qh"
-                    />
-                    <div
-                      class="MuiBox-root css-1urbi4i"
-                    />
-                    <div
-                      class="MuiBox-root css-1urbi4i"
-                    />
-                  </div>
+                    class="MuiBox-root css-q8fzbv"
+                  />
                   <b>
                     dateshort registration.time.ip
                   </b>
@@ -1728,7 +1692,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
                         data-field="dates"
                         role="columnheader"
-                        style="height: 0px; width: 32px; min-width: 32px; max-width: 32px;"
+                        style="height: 0px; width: 56px; min-width: 56px; max-width: 56px;"
                         tabindex="0"
                       >
                         <div
@@ -2357,21 +2321,8 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                   class="MuiStack-root header css-sf7yvk-MuiStack-root"
                 >
                   <div
-                    class="MuiStack-root css-156fqfh-MuiStack-root"
-                  >
-                    <div
-                      class="MuiBox-root css-1urbi4i"
-                    />
-                    <div
-                      class="MuiBox-root css-1urbi4i"
-                    />
-                    <div
-                      class="MuiBox-root css-wd5nlm"
-                    />
-                    <div
-                      class="MuiBox-root css-1urbi4i"
-                    />
-                  </div>
+                    class="MuiBox-root css-169orto"
+                  />
                   <b>
                     dateshort registration.time.ap
                   </b>
@@ -2410,7 +2361,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
                         data-field="dates"
                         role="columnheader"
-                        style="height: 0px; width: 32px; min-width: 32px; max-width: 32px;"
+                        style="height: 0px; width: 56px; min-width: 56px; max-width: 56px;"
                         tabindex="0"
                       >
                         <div
@@ -3039,21 +2990,8 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                   class="MuiStack-root header css-sf7yvk-MuiStack-root"
                 >
                   <div
-                    class="MuiStack-root css-156fqfh-MuiStack-root"
-                  >
-                    <div
-                      class="MuiBox-root css-1urbi4i"
-                    />
-                    <div
-                      class="MuiBox-root css-1urbi4i"
-                    />
-                    <div
-                      class="MuiBox-root css-1urbi4i"
-                    />
-                    <div
-                      class="MuiBox-root css-6m2gat"
-                    />
-                  </div>
+                    class="MuiBox-root css-1myeusk"
+                  />
                   <b>
                     dateshort registration.time.ip
                   </b>
@@ -3092,7 +3030,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
                         data-field="dates"
                         role="columnheader"
-                        style="height: 0px; width: 32px; min-width: 32px; max-width: 32px;"
+                        style="height: 0px; width: 56px; min-width: 56px; max-width: 56px;"
                         tabindex="0"
                       >
                         <div
@@ -3757,7 +3695,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
                         data-field="dates"
                         role="columnheader"
-                        style="height: 39px; width: 32px; min-width: 32px; max-width: 32px;"
+                        style="height: 39px; width: 56px; min-width: 56px; max-width: 56px;"
                         tabindex="0"
                       >
                         <div
@@ -4422,7 +4360,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
                         data-field="dates"
                         role="columnheader"
-                        style="height: 39px; width: 32px; min-width: 32px; max-width: 32px;"
+                        style="height: 39px; width: 56px; min-width: 56px; max-width: 56px;"
                         tabindex="0"
                       >
                         <div
@@ -5129,16 +5067,6 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
         <div
           class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true css-17utxkx-MuiGrid-root"
         >
-          <a
-            class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall css-d25sdv-MuiButtonBase-root-MuiButton-root"
-            href="/admin/event"
-            tabindex="0"
-          >
-            goBack
-            <span
-              class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-            />
-          </a>
           <h5
             class="MuiTypography-root MuiTypography-h5 css-11zemyq-MuiTypography-root"
           >
@@ -5479,7 +5407,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
                         data-field="dates"
                         role="columnheader"
-                        style="height: 39px; width: 32px; min-width: 32px; max-width: 32px;"
+                        style="height: 39px; width: 56px; min-width: 56px; max-width: 56px;"
                         tabindex="0"
                       >
                         <div
@@ -6108,21 +6036,8 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                   class="MuiStack-root header css-sf7yvk-MuiStack-root"
                 >
                   <div
-                    class="MuiStack-root css-156fqfh-MuiStack-root"
-                  >
-                    <div
-                      class="MuiBox-root css-14hq1a2"
-                    />
-                    <div
-                      class="MuiBox-root css-1urbi4i"
-                    />
-                    <div
-                      class="MuiBox-root css-1urbi4i"
-                    />
-                    <div
-                      class="MuiBox-root css-1urbi4i"
-                    />
-                  </div>
+                    class="MuiBox-root css-55zn6h"
+                  />
                   <b>
                     dateshort registration.time.ap
                   </b>
@@ -6161,7 +6076,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
                         data-field="dates"
                         role="columnheader"
-                        style="height: 0px; width: 32px; min-width: 32px; max-width: 32px;"
+                        style="height: 0px; width: 56px; min-width: 56px; max-width: 56px;"
                         tabindex="0"
                       >
                         <div
@@ -6790,21 +6705,8 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                   class="MuiStack-root header css-sf7yvk-MuiStack-root"
                 >
                   <div
-                    class="MuiStack-root css-156fqfh-MuiStack-root"
-                  >
-                    <div
-                      class="MuiBox-root css-1urbi4i"
-                    />
-                    <div
-                      class="MuiBox-root css-1gwv2qh"
-                    />
-                    <div
-                      class="MuiBox-root css-1urbi4i"
-                    />
-                    <div
-                      class="MuiBox-root css-1urbi4i"
-                    />
-                  </div>
+                    class="MuiBox-root css-q8fzbv"
+                  />
                   <b>
                     dateshort registration.time.ip
                   </b>
@@ -6843,7 +6745,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
                         data-field="dates"
                         role="columnheader"
-                        style="height: 0px; width: 32px; min-width: 32px; max-width: 32px;"
+                        style="height: 0px; width: 56px; min-width: 56px; max-width: 56px;"
                         tabindex="0"
                       >
                         <div
@@ -7472,21 +7374,8 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                   class="MuiStack-root header css-sf7yvk-MuiStack-root"
                 >
                   <div
-                    class="MuiStack-root css-156fqfh-MuiStack-root"
-                  >
-                    <div
-                      class="MuiBox-root css-1urbi4i"
-                    />
-                    <div
-                      class="MuiBox-root css-1urbi4i"
-                    />
-                    <div
-                      class="MuiBox-root css-wd5nlm"
-                    />
-                    <div
-                      class="MuiBox-root css-1urbi4i"
-                    />
-                  </div>
+                    class="MuiBox-root css-169orto"
+                  />
                   <b>
                     dateshort registration.time.ap
                   </b>
@@ -7525,7 +7414,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
                         data-field="dates"
                         role="columnheader"
-                        style="height: 0px; width: 32px; min-width: 32px; max-width: 32px;"
+                        style="height: 0px; width: 56px; min-width: 56px; max-width: 56px;"
                         tabindex="0"
                       >
                         <div
@@ -8154,21 +8043,8 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                   class="MuiStack-root header css-sf7yvk-MuiStack-root"
                 >
                   <div
-                    class="MuiStack-root css-156fqfh-MuiStack-root"
-                  >
-                    <div
-                      class="MuiBox-root css-1urbi4i"
-                    />
-                    <div
-                      class="MuiBox-root css-1urbi4i"
-                    />
-                    <div
-                      class="MuiBox-root css-1urbi4i"
-                    />
-                    <div
-                      class="MuiBox-root css-6m2gat"
-                    />
-                  </div>
+                    class="MuiBox-root css-1myeusk"
+                  />
                   <b>
                     dateshort registration.time.ip
                   </b>
@@ -8207,7 +8083,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
                         data-field="dates"
                         role="columnheader"
-                        style="height: 0px; width: 32px; min-width: 32px; max-width: 32px;"
+                        style="height: 0px; width: 56px; min-width: 56px; max-width: 56px;"
                         tabindex="0"
                       >
                         <div
@@ -8863,7 +8739,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
                         data-field="dates"
                         role="columnheader"
-                        style="height: 39px; width: 32px; min-width: 32px; max-width: 32px;"
+                        style="height: 39px; width: 56px; min-width: 56px; max-width: 56px;"
                         tabindex="0"
                       >
                         <div
@@ -9459,7 +9335,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <div
                           data-handler-id="T6"
                           draggable="true"
-                          style="opacity: 1;"
+                          style="opacity: 1; display: flex;"
                         >
                           <div
                             aria-rowindex="2"
@@ -9477,9 +9353,20 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                               data-colindex="0"
                               data-field="dates"
                               role="cell"
-                              style="min-width: 32px; max-width: 32px; min-height: 28px; max-height: 28px;"
+                              style="min-width: 56px; max-width: 56px; min-height: 28px; max-height: 28px;"
                               tabindex="-1"
                             >
+                              <svg
+                                aria-hidden="true"
+                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                data-testid="DragIndicatorOutlinedIcon"
+                                focusable="false"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  d="M11 18c0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2 2 .9 2 2zm-2-8c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0-6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm6 4c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"
+                                />
+                              </svg>
                               <div
                                 aria-label="Sopivat ryhmät: ke registration.time.ap"
                                 class="MuiStack-root css-156fqfh-MuiStack-root"
@@ -9680,7 +9567,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
                         data-field="dates"
                         role="columnheader"
-                        style="height: 39px; width: 32px; min-width: 32px; max-width: 32px;"
+                        style="height: 39px; width: 56px; min-width: 56px; max-width: 56px;"
                         tabindex="0"
                       >
                         <div
@@ -10349,7 +10236,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <div
                           data-handler-id="T8"
                           draggable="true"
-                          style="opacity: 1;"
+                          style="opacity: 1; display: flex;"
                         >
                           <div
                             aria-rowindex="2"
@@ -10367,9 +10254,20 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                               data-colindex="0"
                               data-field="dates"
                               role="cell"
-                              style="min-width: 32px; max-width: 32px; min-height: 28px; max-height: 28px;"
+                              style="min-width: 56px; max-width: 56px; min-height: 28px; max-height: 28px;"
                               tabindex="-1"
                             >
+                              <svg
+                                aria-hidden="true"
+                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                data-testid="DragIndicatorOutlinedIcon"
+                                focusable="false"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  d="M11 18c0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2 2 .9 2 2zm-2-8c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0-6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm6 4c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"
+                                />
+                              </svg>
                               <div
                                 aria-label="Sopivat ryhmät: ke registration.time.ap"
                                 class="MuiStack-root css-156fqfh-MuiStack-root"

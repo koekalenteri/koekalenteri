@@ -7,9 +7,7 @@ import { EmailTemplateId, Registration } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
 import useEventRegistrationInfo from '../../hooks/useEventRegistrationsInfo'
-import { Path } from '../../routeConfig'
 import { uniqueClassDates } from '../../utils'
-import LinkButton from '../components/LinkButton'
 
 import FullPageFlex from './components/FullPageFlex'
 import ClassEntrySelection from './eventViewPage/ClassEntrySelection'
@@ -85,7 +83,6 @@ export default function EventViewPage() {
       <FullPageFlex>
         <Grid container justifyContent="space-between">
           <Grid item xs>
-            <LinkButton sx={{ mb: 1 }} to={Path.admin.events} text={t('goBack')} />
             <Title event={event} />
           </Grid>
           <Grid item xs="auto">
