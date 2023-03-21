@@ -301,5 +301,6 @@
       "reserve": "Valitse osallistutko varasijalta",
       "terms": "Ilmoittautumisen ehtojen ja tietosuojaselosteen hyväksyminen on pakollista."
     }
-  }
+  },
+  "withdraw": "Peru"
 }

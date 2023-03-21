@@ -1,11 +1,13 @@
+import { Dispatch, SetStateAction } from 'react'
 import { useTranslation } from 'react-i18next'
 import { DragIndicatorOutlined, EuroOutlined, PersonOutline } from '@mui/icons-material'
 import { GridColDef, GridValueGetterParams } from '@mui/x-data-grid'
 import { BreedCode, Registration } from 'koekalenteri-shared/model'
 
+import { ActionsMenu } from './ActionsMenu'
 import GroupColors from './GroupColors'
 
-export function useClassEntrySelectionColumns(eventDates: Date[]) {
+export function useClassEntrySelectionColumns(eventDates: Date[], openEditDialog?: Dispatch<SetStateAction<boolean>>) {
   const { t } = useTranslation()
 
   const entryColumns: GridColDef[] = [
@@ -21,6 +23,7 @@ export function useClassEntrySelectionColumns(eventDates: Date[]) {
           <GroupColors dates={eventDates} selected={p.row.dates} />
         </>
       ),
+      sortable: false,
     },
     {
       align: 'right',
@@ -31,6 +34,7 @@ export function useClassEntrySelectionColumns(eventDates: Date[]) {
       headerName: '#',
       width: 20,
       minWidth: 20,
+      sortable: false,
       valueGetter: (p) => (p.row.group?.number ? `${p.row.group.number}.` : ''),
     },
     {
@@ -38,18 +42,21 @@ export function useClassEntrySelectionColumns(eventDates: Date[]) {
       headerName: t('dog.name'),
       width: 250,
       flex: 1,
+      sortable: false,
       valueGetter: (p: GridValueGetterParams<string, Registration>) => p.row.dog.name,
     },
     {
       field: 'dog.regNo',
       headerName: t('dog.regNo'),
       width: 130,
+      sortable: false,
       valueGetter: (p) => p.row.dog.regNo,
     },
     {
       field: 'dob.breed',
       headerName: t('dog.breed'),
       width: 150,
+      sortable: false,
       valueGetter: (p: GridValueGetterParams<BreedCode, Registration>) =>
         p.row.dog?.breedCode && p.row.dog?.gender
           ? t(`${p.row.dog.breedCode}.${p.row.dog.gender}`, { ns: 'breedAbbr', defaultValue: p.row.dog.breedCode })
@@ -60,6 +67,7 @@ export function useClassEntrySelectionColumns(eventDates: Date[]) {
       headerName: t('registration.handler'),
       width: 150,
       flex: 1,
+      sortable: false,
       valueGetter: (p) => p.row.handler.name,
     },
     {
@@ -68,6 +76,7 @@ export function useClassEntrySelectionColumns(eventDates: Date[]) {
       width: 60,
       align: 'center',
       renderCell: (p) => (p.row.handler.membership ? <PersonOutline fontSize="small" /> : <></>),
+      sortable: false,
     },
     {
       field: 'paid',
@@ -75,6 +84,16 @@ export function useClassEntrySelectionColumns(eventDates: Date[]) {
       width: 90,
       align: 'center',
       renderCell: () => <EuroOutlined fontSize="small" />,
+      sortable: false,
+    },
+    {
+      cellClassName: 'nopad',
+      field: 'actions',
+      headerName: '',
+      width: 30,
+      minWidth: 30,
+      renderCell: (p) => <ActionsMenu id={p.row.id} openEditDialog={openEditDialog} />,
+      sortable: false,
     },
   ]
 

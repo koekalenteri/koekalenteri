@@ -10,12 +10,12 @@ import { SetterOrUpdater } from 'recoil'
 import StyledDataGrid from '../../components/StyledDataGrid'
 import { useAdminRegistrationActions } from '../recoil/registrations/actions'
 
-import { useClassEntrySelectionColumns } from './classEntrySelection/columns'
 import { DragItem } from './classEntrySelection/DragableRow'
 import DragableDataGrid from './classEntrySelection/DropableDataGrid'
 import { availableGroups } from './classEntrySelection/GroupColors'
 import GroupHeader from './classEntrySelection/GroupHeader'
 import NoRowsOverlay from './classEntrySelection/NoRowsOverlay'
+import { useClassEntrySelectionColumns } from './classEntrySelection/useClassEntrySectionColumns'
 
 interface Props {
   eventClass: string
@@ -50,7 +50,7 @@ const ClassEntrySelection = ({
   setSelectedRegistrationId,
 }: Props) => {
   const { enqueueSnackbar } = useSnackbar()
-  const { cancelledColumns, entryColumns, participantColumns } = useClassEntrySelectionColumns(eventDates)
+  const { cancelledColumns, entryColumns, participantColumns } = useClassEntrySelectionColumns(eventDates, setOpen)
   const actions = useAdminRegistrationActions()
 
   const eventGroups: RegistrationGroup[] = useMemo(

@@ -66,7 +66,7 @@ const InfoPanel = ({ event, registrations, onOpenMessageDialog }: Props) => {
                   <Button
                     size="small"
                     sx={{ fontSize: '0.5rem' }}
-                    disabled={nums.participants === 0 || nums.invalid}
+                    disabled={nums.participants === 0 || nums.invalid || event.state !== 'confirmed'}
                     onClick={() => onOpenMessageDialog?.(selectedByClass[c], 'picked')}
                   >
                     LÄHETÄ&nbsp;KOEPAIKKAILMOITUS
