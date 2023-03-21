@@ -25,6 +25,7 @@ const STATE_INCLUSION: Record<EventState, EventState[]> = {
   confirmed: ['confirmed', 'tentative', 'draft'],
   cancelled: ['cancelled'],
   // next are not user-selectable stated
+  picked: ['confirmed'],
   invited: ['confirmed'],
   started: ['confirmed'],
   ended: ['confirmed'],
@@ -57,6 +58,7 @@ const REQUIRED_BY_STATE: Record<EventState, EventFlags> = {
   },
   cancelled: {},
   //
+  picked: {},
   invited: {},
   started: {},
   ended: {},
