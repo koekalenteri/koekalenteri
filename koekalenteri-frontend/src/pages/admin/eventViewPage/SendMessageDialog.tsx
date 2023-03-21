@@ -110,7 +110,7 @@ export default function SendMessageDialog({ event, registrations, templateId, op
     }
     confirm({
       title: 'Viestin lähettäminen',
-      description: (
+      content: (
         <div>
           Olet lähettämässä viestiä {t(`emailTemplate.${templateId}`)} {registrations.length} ilmoittautumiseen.
           <br />
