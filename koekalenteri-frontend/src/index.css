@@ -16,8 +16,8 @@ html, body, #root {
   height: 100%
 }
 
-.SnackbarContainer-root.snack {
-  top: 50px
+.notistack-SnackbarContainer.snack {
+  top: 40px
 }
 
 .MuiDataGrid-columnHeader.nopad, .MuiDataGrid-cell.nopad, .nopad {

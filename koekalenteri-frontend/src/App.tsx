@@ -8,6 +8,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { ConfirmProvider } from 'material-ui-confirm'
 import { SnackbarProvider } from 'notistack'
 
+import SnackbarCloseButton from './pages/components/SnackbarCloseButton'
 import { AWSConfig } from './amplify-env'
 import { Language, locales, muiLocales } from './i18n'
 import routes from './routes'
@@ -27,7 +28,9 @@ function App() {
           anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
           classes={{ containerRoot: 'snack' }}
           disableWindowBlurListener
+          preventDuplicate
           maxSnack={3}
+          action={(snackbarKey) => <SnackbarCloseButton snackbarKey={snackbarKey} />}
         >
           <ConfirmProvider>
             <Authenticator.Provider>
