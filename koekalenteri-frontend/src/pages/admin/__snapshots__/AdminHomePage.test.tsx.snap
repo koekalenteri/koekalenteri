@@ -3,7 +3,7 @@
 exports[`AdminHomePage renders the child page content when user is logged in 1`] = `
 <div>
   <header
-    class="MuiPaper-root MuiPaper-outlined MuiAppBar-root MuiAppBar-colorSecondary MuiAppBar-positionFixed mui-fixed css-16hnns8-MuiPaper-root-MuiAppBar-root"
+    class="MuiPaper-root MuiPaper-elevation MuiPaper-elevation0 MuiAppBar-root MuiAppBar-colorSecondary MuiAppBar-positionFixed mui-fixed css-4899ph-MuiPaper-root-MuiAppBar-root"
   >
     <div
       class="MuiToolbar-root MuiToolbar-dense css-1njp2ce-MuiToolbar-root"
@@ -175,7 +175,7 @@ exports[`AdminHomePage renders the child page content when user is logged in 1`]
 exports[`AdminHomePage renders the page when user is logged in 1`] = `
 <div>
   <header
-    class="MuiPaper-root MuiPaper-outlined MuiAppBar-root MuiAppBar-colorSecondary MuiAppBar-positionFixed mui-fixed css-16hnns8-MuiPaper-root-MuiAppBar-root"
+    class="MuiPaper-root MuiPaper-elevation MuiPaper-elevation0 MuiAppBar-root MuiAppBar-colorSecondary MuiAppBar-positionFixed mui-fixed css-4899ph-MuiPaper-root-MuiAppBar-root"
   >
     <div
       class="MuiToolbar-root MuiToolbar-dense css-1njp2ce-MuiToolbar-root"
