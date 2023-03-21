@@ -24,7 +24,6 @@ import {
   TextField,
   Typography,
 } from '@mui/material'
-import { lightFormat } from 'date-fns'
 // @ts-ignore handlebars 4.8 should fix this issue
 import Handlebars from 'handlebars/dist/cjs/handlebars.js'
 import { EmailTemplate, EmailTemplateId, Event, Language, Registration } from 'koekalenteri-shared/model'
@@ -33,6 +32,7 @@ import { useSnackbar } from 'notistack'
 import { useRecoilValue } from 'recoil'
 
 import { sendTemplatedEmail } from '../../../api/email'
+import { formatDate, formatDateSpan } from '../../../i18n/dates'
 import AutocompleteSingle from '../../components/AutocompleteSingle'
 import { idTokenSelector } from '../../recoil'
 import { emailTemplatesAtom } from '../recoil'
@@ -63,27 +63,7 @@ export default function SendMessageDialog({ event, registrations, templateId, op
     }
     return [Handlebars.compile(ses.HtmlPart), Handlebars.compile(ses.SubjectPart)]
   }, [i18n.language, selectedTemplate?.ses])
-  const previewData = useMemo(() => {
-    const reg = registrations[0]
-    if (!reg) {
-      return {}
-    }
-    return {
-      subject: t('registration.email.subject', { context: '' }),
-      title: t('registration.email.title', { context: '' }),
-      link: `/registration/${reg.eventType}/${reg.eventId}/${reg.id}`,
-      event,
-      eventDate: t('daterange', { start: event.startDate, end: event.endDate }),
-      reg,
-      regDates: reg.dates
-        .map((d) => t('dateFormat.weekday', { date: d.date }) + (d.time ? ' ' + t(`registration.time.${d.time}`) : ''))
-        .join(', '),
-      dogBreed: reg.dog.breedCode ? t(`breed:${reg.dog.breedCode}`, 'breed') : '',
-      qualifyingResults: reg.qualifyingResults.map((r) => ({ ...r, date: lightFormat(r.date, 'd.M.yyyy') })),
-      reserveText: reg.reserve ? t(`registration.reserveChoises.${reg.reserve}`) : t(`registration.reserveChoises.ANY`),
-      text,
-    }
-  }, [event, registrations, t, text])
+  const previewData = useRegistrationEmailTemplateData(registrations[0], event, '', '', text)
 
   useEffect(() => {
     if (templateId && templates?.length) {
@@ -255,4 +235,58 @@ function listEmails(r: Registration): string {
     return r.owner.email
   }
   return [r.owner.email, r.handler.email].join(', ')
+}
+
+function useRegistrationEmailTemplateData(
+  registration: Registration,
+  event: Event,
+  origin: string | undefined,
+  context: string,
+  text: string
+) {
+  const { t } = useTranslation()
+
+  if (!registration || !event) {
+    return {}
+  }
+
+  const eventDate = formatDateSpan(event.startDate, registration.language, { end: event.endDate })
+  const reserveText = registration.reserve ? t(`registration.reserveChoises.${registration.reserve}`) : ''
+  const dogBreed = registration.dog.breedCode ? t(`breed:${registration.dog.breedCode}`, 'breed') : ''
+  const regDates = registration.dates
+    .map((d) => t('dateFormat.weekday', { date: d.date }) + (d.time ? ' ' + t(`registration.time.${d.time}`) : ''))
+    .join(', ')
+  const link = `${origin}/registration/${registration.eventType}/${registration.eventId}/${registration.id}`
+  const qualifyingResults = registration.qualifyingResults.map((r) => ({
+    ...r,
+    date: formatDate(r.date, 'd.M.yyyy'),
+  }))
+  const groupDate = registration.group?.date ? t('dateFormat.wdshort', { date: registration.group.date }) : ''
+  const groupTime = registration.group?.time ? t(`registration.time.${registration.group.time}`) : ''
+
+  return {
+    subject: t('registration.email.subject', { context }),
+    title: t('registration.email.title', { context }),
+    dogBreed,
+    link,
+    event: {
+      ...event,
+      // Friendly name for secretary (and official) (KOE-350)
+      secretary: { ...event.secretary, name: reverseName(event.secretary.name) },
+      official: { ...event.official, name: reverseName(event.official.name) },
+    },
+    eventDate,
+    qualifyingResults,
+    reg: registration,
+    regDates,
+    reserveText,
+    groupDate,
+    groupTime,
+    text,
+  }
+}
+
+function reverseName(name: string) {
+  const [last = '', first = ''] = name.split(' ')
+  return `${first} ${last}`.trim()
 }

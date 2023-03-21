@@ -5,7 +5,7 @@ import i18n from 'i18next'
 import LanguageDetector from 'i18next-browser-languagedetector'
 import { Language } from 'koekalenteri-shared/model'
 
-import { formatDate, formatDateSpan, formatDistance, locales } from './dates'
+import { formatDateSpan, formatDistance, getDateFormatter, locales } from './dates'
 import { en, enBreed, enBreedAbbr, fi, fiBreed, fiBreedAbbr } from './locales'
 
 type MuiLocalization = Localization & {
@@ -46,10 +46,10 @@ i18n
   })
 
 //  additional formats
-i18n.services.formatter?.add('dtshort', formatDate('eeeeee d.M. HH:mm'))
-i18n.services.formatter?.add('short', formatDate('eeeeee d.M.'))
-i18n.services.formatter?.add('weekday', formatDate('eeeeee'))
+i18n.services.formatter?.add('dtshort', getDateFormatter('eeeeee d.M. HH:mm'))
+i18n.services.formatter?.add('short', getDateFormatter('eeeeee d.M.'))
+i18n.services.formatter?.add('weekday', getDateFormatter('eeeeee'))
 i18n.services.formatter?.add('datespan', formatDateSpan)
 i18n.services.formatter?.add('distance', formatDistance)
 i18n.services.formatter?.add('lowercase', (value) => value.toLowerCase())
-i18n.services.formatter?.add('date', formatDate('d.M.yyyy'))
+i18n.services.formatter?.add('date', getDateFormatter('d.M.yyyy'))
