@@ -7,10 +7,10 @@ const Banner = () => {
     <Box
       sx={{
         backgroundImage: `url(${banner})`,
-        backgroundRepeat: 'no-repeat',
-        backgroundSize: 'cover',
-        backgroundBlendMode: 'luminosity',
-        backgroundColor: 'secondary.main',
+        backgroundRepeat: 'round',
+        backgroundSize: 'contain',
+        backgroundOrigin: 'padding-box',
+        marginTop: '36px',
         width: '100%',
         height: { xs: 72, sm: 108, md: 144 },
       }}

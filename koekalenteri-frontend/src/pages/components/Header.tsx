@@ -24,7 +24,7 @@ const Header = ({ toggleMenu }: Props) => {
   const mainBorder = inAdmin ? undefined : linkBorder
 
   return (
-    <AppBar position="fixed" color="secondary" sx={{ opacity: 0.85 }}>
+    <AppBar position="fixed" color="secondary" variant="outlined">
       <Toolbar variant="dense" disableGutters sx={{ width: '100%', px: 1, height: 36, minHeight: 36 }}>
         {toggleMenu ? (
           <IconButton sx={{ display: { sm: 'inline-flex', md: 'none' } }} onClick={toggleMenu}>
