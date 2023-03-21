@@ -535,6 +535,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                           >
                             <input
                               aria-autocomplete="list"
+                              aria-describedby=":r4:-helper-text"
                               aria-expanded="false"
                               aria-invalid="false"
                               autocapitalize="none"
@@ -585,6 +586,12 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                               </legend>
                             </fieldset>
                           </div>
+                          <p
+                            class="MuiFormHelperText-root MuiFormHelperText-sizeMedium MuiFormHelperText-contained MuiFormHelperText-filled css-1vg31rc-MuiFormHelperText-root"
+                            id=":r4:-helper-text"
+                          >
+                            registration.reserveHelp
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -2712,6 +2719,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                           >
                             <input
                               aria-autocomplete="list"
+                              aria-describedby=":r22:-helper-text"
                               aria-expanded="false"
                               aria-invalid="false"
                               autocapitalize="none"
@@ -2762,6 +2770,12 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                               </legend>
                             </fieldset>
                           </div>
+                          <p
+                            class="MuiFormHelperText-root MuiFormHelperText-sizeMedium MuiFormHelperText-contained MuiFormHelperText-filled css-1vg31rc-MuiFormHelperText-root"
+                            id=":r22:-helper-text"
+                          >
+                            registration.reserveHelp
+                          </p>
                         </div>
                       </div>
                     </div>

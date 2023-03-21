@@ -291,6 +291,7 @@ exports[`RegistrationForm renders 1`] = `
                           >
                             <input
                               aria-autocomplete="list"
+                              aria-describedby=":r4:-helper-text"
                               aria-expanded="false"
                               aria-invalid="false"
                               autocapitalize="none"
@@ -341,6 +342,12 @@ exports[`RegistrationForm renders 1`] = `
                               </legend>
                             </fieldset>
                           </div>
+                          <p
+                            class="MuiFormHelperText-root MuiFormHelperText-sizeMedium MuiFormHelperText-contained MuiFormHelperText-filled css-1vg31rc-MuiFormHelperText-root"
+                            id=":r4:-helper-text"
+                          >
+                            registration.reserveHelp
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -2248,6 +2255,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                           >
                             <input
                               aria-autocomplete="list"
+                              aria-describedby=":r14:-helper-text"
                               aria-expanded="false"
                               aria-invalid="false"
                               autocapitalize="none"
@@ -2298,6 +2306,12 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                               </legend>
                             </fieldset>
                           </div>
+                          <p
+                            class="MuiFormHelperText-root MuiFormHelperText-sizeMedium MuiFormHelperText-contained MuiFormHelperText-filled css-1vg31rc-MuiFormHelperText-root"
+                            id=":r14:-helper-text"
+                          >
+                            registration.reserveHelp
+                          </p>
                         </div>
                       </div>
                     </div>

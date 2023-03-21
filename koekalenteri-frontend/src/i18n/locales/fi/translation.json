@@ -239,13 +239,14 @@
     "qualifyingResultsInfo": "Tulosten perusteella koiralla {{qualifies}} osallistua {{class}} luokkaan.",
     "qualifyingResultsNo": "ei ole oikeutta",
     "qyalifyingResultsYes": "on oikeus",
-    "reserve": "Varasija",
+    "reserve": "Pystyn ottamaan koepaikan vastaan varasijalta",
     "reserveChoises": {
-      "ANY": "Osallistun",
-      "DAY": "Osallistun, päivän varoitusajalla",
-      "NO": "En osallistu",
-      "WEEK": "Osallistun, viikon varoitusajalla"
+      "ANY": "Koepäivänä",
+      "DAY": "Päivän varoitusajalla",
+      "NO": "En halua olla varasijalla",
+      "WEEK": "Viikon varoitusajalla"
     },
+    "reserveHelp": "Valitse kuinka lyhyellä varoitusajalla pystyt vielä saapumaan koepaikalle, mikäli saat koepaikan varasijalta.",
     "saved_one": "Ilmoittautuminen on tallennettu.\nVahvistus on lähetetty sähköpostiosoitteeseen:\n{{to}}",
     "saved_other": "Ilmoittautuminen on tallennettu.\nVahvistus on lähetetty sähköpostiosoitteisiin:\n{{to}}",
     "terms": "Hyväksyn <2>ilmoittautumisen ehdot</2> ja <6>tietosuojaselosteen</6>.",

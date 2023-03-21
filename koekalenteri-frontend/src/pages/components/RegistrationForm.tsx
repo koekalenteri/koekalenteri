@@ -326,5 +326,6 @@ function getSectionHelperTexts(
       class: registration.class,
       qualifies: t(qualifies ? 'registration.qyalifyingResultsYes' : 'registration.qualifyingResultsNo'),
     }),
+    reserve: t('registration.reserveHelp'),
   }
 }
