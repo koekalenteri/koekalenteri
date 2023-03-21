@@ -112,12 +112,12 @@ export const markInvitationsSent = (confirmedEvent: JsonConfirmedEvent, eventCla
   if (eventClass) {
     const c = confirmedEvent.classes.find((c) => c.class === eventClass)
     if (c) {
-      c.state = 'invited'
+      c.state = 'picked'
     }
-    allInvited = confirmedEvent.classes.filter((c) => c.state === 'invited').length === confirmedEvent.classes.length
+    allInvited = confirmedEvent.classes.filter((c) => c.state === 'picked').length === confirmedEvent.classes.length
   }
   if (allInvited) {
-    confirmedEvent.state = 'invited'
+    confirmedEvent.state = 'picked'
   }
 
   return dynamoDB.update(
