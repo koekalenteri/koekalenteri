@@ -14,7 +14,7 @@ import { metricsError, metricsSuccess } from '../../utils/metrics'
 import { emailTo, registrationEmailTemplateData } from '../../utils/registration'
 import { response } from '../../utils/response'
 import { EMAIL_FROM, sendTemplatedMail } from '../email'
-import { markInvitationsSent, updateRegistrations } from '../event'
+import { markInvitationsSent as markParticipantsPicked, updateRegistrations } from '../event'
 
 const dynamoDB = new CustomDynamoClient()
 
@@ -170,8 +170,8 @@ export const sendMessagesHandler = metricScope((metrics: MetricsLogger) => async
       }
     }
 
-    if (template === 'invitation') {
-      markInvitationsSent(confirmedEvent, registrations[0].class)
+    if (template === 'picked') {
+      markParticipantsPicked(confirmedEvent, registrations[0].class)
     }
 
     metricsSuccess(metrics, event.requestContext, 'sendMessageHandler')
