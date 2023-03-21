@@ -63,7 +63,7 @@ exports[`DogInfo should render 1`] = `
                     class="MuiFormControl-root MuiFormControl-fullWidth css-q8hpuo-MuiFormControl-root"
                   >
                     <div
-                      class="MuiBox-root css-k008qs"
+                      class="MuiBox-root css-70qvj9"
                     >
                       <div
                         class="MuiAutocomplete-root MuiAutocomplete-hasClearIcon css-30lne9-MuiAutocomplete-root"
@@ -137,31 +137,34 @@ exports[`DogInfo should render 1`] = `
                         </div>
                       </div>
                       <button
-                        class="MuiButtonBase-root MuiButton-root MuiLoadingButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeSmall MuiButton-outlinedSizeSmall MuiButton-root MuiLoadingButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeSmall MuiButton-outlinedSizeSmall css-iidjrt-MuiButtonBase-root-MuiButton-root-MuiLoadingButton-root"
-                        id=":r2:"
+                        class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall css-11qr2p8-MuiButtonBase-root-MuiButton-root"
                         tabindex="0"
                         type="button"
                       >
-                        <span
-                          class="MuiButton-startIcon MuiButton-iconSizeSmall css-y6rp3m-MuiButton-startIcon"
-                        >
-                          <svg
-                            aria-hidden="true"
-                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                            data-testid="CachedOutlinedIcon"
-                            focusable="false"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              d="m19 8-4 4h3c0 3.31-2.69 6-6 6-1.01 0-1.97-.25-2.8-.7l-1.46 1.46C8.97 19.54 10.43 20 12 20c4.42 0 8-3.58 8-8h3l-4-4zM6 12c0-3.31 2.69-6 6-6 1.01 0 1.97.25 2.8.7l1.46-1.46C15.03 4.46 13.57 4 12 4c-4.42 0-8 3.58-8 8H1l4 4 4-4H6z"
-                            />
-                          </svg>
-                        </span>
                         registration.cta.update
                         <span
                           class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
                         />
                       </button>
+                      <span
+                        class="MuiCircularProgress-root MuiCircularProgress-indeterminate MuiCircularProgress-colorPrimary css-1mx0uwl-MuiCircularProgress-root"
+                        role="progressbar"
+                        style="width: 28px; height: 28px;"
+                      >
+                        <svg
+                          class="MuiCircularProgress-svg css-1idz92c-MuiCircularProgress-svg"
+                          viewBox="22 22 44 44"
+                        >
+                          <circle
+                            class="MuiCircularProgress-circle MuiCircularProgress-circleIndeterminate css-176wh8e-MuiCircularProgress-circle"
+                            cx="44"
+                            cy="44"
+                            fill="none"
+                            r="20.2"
+                            stroke-width="3.6"
+                          />
+                        </svg>
+                      </span>
                     </div>
                     <p
                       class="MuiFormHelperText-root MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-1wc848c-MuiFormHelperText-root"
@@ -179,8 +182,8 @@ exports[`DogInfo should render 1`] = `
                     <label
                       class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-1jy569b-MuiFormLabel-root-MuiInputLabel-root"
                       data-shrink="true"
-                      for=":r3:"
-                      id=":r3:-label"
+                      for=":r2:"
+                      id=":r2:-label"
                     >
                       dog.rfid
                     </label>
@@ -191,7 +194,7 @@ exports[`DogInfo should render 1`] = `
                         aria-invalid="false"
                         class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
                         disabled=""
-                        id=":r3:"
+                        id=":r2:"
                         type="text"
                         value="1234567890123456"
                       />
@@ -309,8 +312,8 @@ exports[`DogInfo should render 1`] = `
                       <label
                         class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-1jy569b-MuiFormLabel-root-MuiInputLabel-root"
                         data-shrink="true"
-                        for=":r6:"
-                        id=":r6:-label"
+                        for=":r5:"
+                        id=":r5:-label"
                       >
                         dog.dob
                       </label>
@@ -321,7 +324,7 @@ exports[`DogInfo should render 1`] = `
                           aria-invalid="false"
                           class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
                           disabled=""
-                          id=":r6:"
+                          id=":r5:"
                           placeholder="dd.mm.yyyy"
                           type="tel"
                           value="10.04.2020"
@@ -378,8 +381,8 @@ exports[`DogInfo should render 1`] = `
                       <label
                         class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-1jy569b-MuiFormLabel-root-MuiInputLabel-root"
                         data-shrink="true"
-                        for=":r7:"
-                        id=":r7:-label"
+                        for=":r6:"
+                        id=":r6:-label"
                       >
                         dog.gender
                       </label>
@@ -394,7 +397,7 @@ exports[`DogInfo should render 1`] = `
                           autocomplete="off"
                           class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
                           disabled=""
-                          id=":r7:"
+                          id=":r6:"
                           role="combobox"
                           spellcheck="false"
                           type="text"
@@ -453,8 +456,8 @@ exports[`DogInfo should render 1`] = `
                       <label
                         class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-1jy569b-MuiFormLabel-root-MuiInputLabel-root"
                         data-shrink="true"
-                        for=":r9:"
-                        id=":r9:-label"
+                        for=":r8:"
+                        id=":r8:-label"
                       >
                         dog.breed
                       </label>
@@ -469,7 +472,7 @@ exports[`DogInfo should render 1`] = `
                           autocomplete="off"
                           class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
                           disabled=""
-                          id=":r9:"
+                          id=":r8:"
                           role="combobox"
                           spellcheck="false"
                           type="text"

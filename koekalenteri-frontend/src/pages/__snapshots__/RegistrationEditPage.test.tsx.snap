@@ -586,7 +586,7 @@ exports[`RegistrationEditPage should render 1`] = `
                         class="MuiFormControl-root MuiFormControl-fullWidth css-q8hpuo-MuiFormControl-root"
                       >
                         <div
-                          class="MuiBox-root css-k008qs"
+                          class="MuiBox-root css-70qvj9"
                         >
                           <div
                             class="MuiAutocomplete-root MuiAutocomplete-hasClearIcon css-30lne9-MuiAutocomplete-root"
@@ -660,31 +660,34 @@ exports[`RegistrationEditPage should render 1`] = `
                             </div>
                           </div>
                           <button
-                            class="MuiButtonBase-root MuiButton-root MuiLoadingButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeSmall MuiButton-outlinedSizeSmall MuiButton-root MuiLoadingButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeSmall MuiButton-outlinedSizeSmall css-19bwbg8-MuiButtonBase-root-MuiButton-root-MuiLoadingButton-root"
-                            id=":r8:"
+                            class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall css-8s45dw-MuiButtonBase-root-MuiButton-root"
                             tabindex="0"
                             type="button"
                           >
-                            <span
-                              class="MuiButton-startIcon MuiButton-iconSizeSmall css-y6rp3m-MuiButton-startIcon"
-                            >
-                              <svg
-                                aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                                data-testid="CachedOutlinedIcon"
-                                focusable="false"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  d="m19 8-4 4h3c0 3.31-2.69 6-6 6-1.01 0-1.97-.25-2.8-.7l-1.46 1.46C8.97 19.54 10.43 20 12 20c4.42 0 8-3.58 8-8h3l-4-4zM6 12c0-3.31 2.69-6 6-6 1.01 0 1.97.25 2.8.7l1.46-1.46C15.03 4.46 13.57 4 12 4c-4.42 0-8 3.58-8 8H1l4 4 4-4H6z"
-                                />
-                              </svg>
-                            </span>
                             registration.cta.update
                             <span
                               class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
                             />
                           </button>
+                          <span
+                            class="MuiCircularProgress-root MuiCircularProgress-indeterminate MuiCircularProgress-colorPrimary css-1joee6c-MuiCircularProgress-root"
+                            role="progressbar"
+                            style="width: 28px; height: 28px;"
+                          >
+                            <svg
+                              class="MuiCircularProgress-svg css-1idz92c-MuiCircularProgress-svg"
+                              viewBox="22 22 44 44"
+                            >
+                              <circle
+                                class="MuiCircularProgress-circle MuiCircularProgress-circleIndeterminate css-176wh8e-MuiCircularProgress-circle"
+                                cx="44"
+                                cy="44"
+                                fill="none"
+                                r="20.2"
+                                stroke-width="3.6"
+                              />
+                            </svg>
+                          </span>
                         </div>
                         <p
                           class="MuiFormHelperText-root MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-1vg31rc-MuiFormHelperText-root"
@@ -702,8 +705,8 @@ exports[`RegistrationEditPage should render 1`] = `
                         <label
                           class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="true"
-                          for=":r9:"
-                          id=":r9:-label"
+                          for=":r8:"
+                          id=":r8:-label"
                         >
                           dog.rfid
                         </label>
@@ -714,7 +717,7 @@ exports[`RegistrationEditPage should render 1`] = `
                             aria-invalid="false"
                             class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
                             disabled=""
-                            id=":r9:"
+                            id=":r8:"
                             type="text"
                             value="1234567890123456"
                           />
@@ -832,8 +835,8 @@ exports[`RegistrationEditPage should render 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="true"
-                            for=":rc:"
-                            id=":rc:-label"
+                            for=":rb:"
+                            id=":rb:-label"
                           >
                             dog.dob
                           </label>
@@ -844,7 +847,7 @@ exports[`RegistrationEditPage should render 1`] = `
                               aria-invalid="false"
                               class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
                               disabled=""
-                              id=":rc:"
+                              id=":rb:"
                               placeholder="dd.mm.yyyy"
                               type="tel"
                               value="10.04.2020"
@@ -901,8 +904,8 @@ exports[`RegistrationEditPage should render 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="true"
-                            for=":rd:"
-                            id=":rd:-label"
+                            for=":rc:"
+                            id=":rc:-label"
                           >
                             dog.gender
                           </label>
@@ -917,7 +920,7 @@ exports[`RegistrationEditPage should render 1`] = `
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
                               disabled=""
-                              id=":rd:"
+                              id=":rc:"
                               role="combobox"
                               spellcheck="false"
                               type="text"
@@ -976,8 +979,8 @@ exports[`RegistrationEditPage should render 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="true"
-                            for=":rf:"
-                            id=":rf:-label"
+                            for=":re:"
+                            id=":re:-label"
                           >
                             dog.breed
                           </label>
@@ -992,7 +995,7 @@ exports[`RegistrationEditPage should render 1`] = `
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
                               disabled=""
-                              id=":rf:"
+                              id=":re:"
                               role="combobox"
                               spellcheck="false"
                               type="text"
@@ -1984,8 +1987,8 @@ exports[`RegistrationEditPage should render 1`] = `
                     <label
                       class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
                       data-shrink="true"
-                      for=":rt:"
-                      id=":rt:-label"
+                      for=":rs:"
+                      id=":rs:-label"
                     >
                       registration.notes
                     </label>
@@ -1995,7 +1998,7 @@ exports[`RegistrationEditPage should render 1`] = `
                       <textarea
                         aria-invalid="false"
                         class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-1sqnrkk-MuiInputBase-input-MuiOutlinedInput-input"
-                        id=":rt:"
+                        id=":rs:"
                         rows="4"
                         style="height: 0px; overflow: hidden;"
                       >
@@ -2099,7 +2102,7 @@ exports[`RegistrationEditPage should render 1`] = `
       <button
         class="MuiButtonBase-root MuiButton-root MuiLoadingButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium Mui-disabled MuiButton-root MuiLoadingButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium css-1nte33v-MuiButtonBase-root-MuiButton-root-MuiLoadingButton-root"
         disabled=""
-        id=":ru:"
+        id=":rt:"
         tabindex="-1"
         type="button"
       >

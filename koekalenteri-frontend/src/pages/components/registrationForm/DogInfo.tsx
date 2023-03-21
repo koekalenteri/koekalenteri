@@ -1,8 +1,15 @@
 import { SyntheticEvent, useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { CachedOutlined } from '@mui/icons-material'
-import { LoadingButton } from '@mui/lab'
-import { Autocomplete, FormControl, FormHelperText, Grid, TextField, TextFieldProps } from '@mui/material'
+import {
+  Autocomplete,
+  Button,
+  CircularProgress,
+  FormControl,
+  FormHelperText,
+  Grid,
+  TextField,
+  TextFieldProps,
+} from '@mui/material'
 import { Box } from '@mui/system'
 import { DatePicker } from '@mui/x-date-pickers'
 import { differenceInMinutes, subMonths, subYears } from 'date-fns'
@@ -64,6 +71,7 @@ export const DogInfo = ({
   const disabled = state.mode !== 'manual'
   const validRegNo = validateRegNo(state.regNo)
   const [loading, setLoading] = useState(false)
+  const [delayed, setDelayed] = useState(false)
   const allowRefresh = shouldAllowRefresh(reg?.dog)
   const cachedRegNos = useRecoilValue(cachedDogRegNumbersSelector)
   const actions = useDogActions(state.regNo)
@@ -99,10 +107,11 @@ export const DogInfo = ({
   )
 
   const buttonClick = useCallback(async () => {
-    if (loading) {
+    if (delayed || loading) {
       return
     }
     setLoading(true)
+    setDelayed(true)
     let delay = 10
     switch (state.mode) {
       case 'autofetch':
@@ -130,8 +139,9 @@ export const DogInfo = ({
         setState({ regNo: '', mode: 'fetch' })
         break
     }
-    setTimeout(() => setLoading(false), delay)
-  }, [actions, loading, state.mode, state.regNo, updateDog])
+    setLoading(false)
+    setTimeout(() => setDelayed(false), delay)
+  }, [actions, delayed, loading, state.mode, state.regNo, updateDog])
 
   const handleRegNoChange = useCallback(
     (event: SyntheticEvent<Element, Event>, value: string | null) => {
@@ -171,7 +181,7 @@ export const DogInfo = ({
       <Grid container spacing={1} alignItems="flex-start">
         <Grid item xs={12} sm={7} md={6} lg={3}>
           <FormControl fullWidth>
-            <Box sx={{ display: 'flex' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <Autocomplete
                 id="txtReknro"
                 disabled={!disabled}
@@ -184,17 +194,15 @@ export const DogInfo = ({
                 options={cachedRegNos ?? []}
                 sx={{ display: 'flex', flexGrow: 1, mr: 1 }}
               />
-              <LoadingButton
+              <Button
                 disabled={!validRegNo || (state.mode === 'update' && !allowRefresh)}
-                loading={loading}
-                startIcon={<CachedOutlined />}
                 size="small"
-                variant="outlined"
+                variant="contained"
                 onClick={buttonClick}
-                sx={{ display: 'flex', flexGrow: 0, width: '120px' }}
               >
                 {t(`registration.cta.${state.mode}`)}
-              </LoadingButton>
+              </Button>
+              <CircularProgress size={28} sx={{ ml: 1, display: loading ? undefined : 'none' }} />
             </Box>
             <FormHelperText error={['notfound', 'error'].includes(state.mode)}>
               {t(`registration.cta.helper.${state.mode}`, { date: reg?.dog?.refreshDate })}
