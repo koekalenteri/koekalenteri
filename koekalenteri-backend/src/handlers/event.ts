@@ -105,14 +105,15 @@ export const updateRegistrations = async (eventId: string, eventTable: string, r
   return confirmedEvent
 }
 
-export const markInvitationsSent = (confirmedEvent: JsonConfirmedEvent, eventClass?: string) => {
+export const markParticipantsPicked = async (confirmedEvent: JsonConfirmedEvent, eventClass?: string) => {
   const eventKey = { id: confirmedEvent.id }
   const eventTable = process.env.EVENT_TABLE_NAME || ''
   let allInvited = true
   if (eventClass) {
-    const c = confirmedEvent.classes.find((c) => c.class === eventClass)
-    if (c) {
-      c.state = 'picked'
+    for (const c of confirmedEvent.classes) {
+      if (c.class === eventClass) {
+        c.state = 'picked'
+      }
     }
     allInvited = confirmedEvent.classes.filter((c) => c.state === 'picked').length === confirmedEvent.classes.length
   }
@@ -120,7 +121,7 @@ export const markInvitationsSent = (confirmedEvent: JsonConfirmedEvent, eventCla
     confirmedEvent.state = 'picked'
   }
 
-  return dynamoDB.update(
+  await dynamoDB.update(
     eventKey,
     'set #classes = :classes, #state = :state',
     {
@@ -133,4 +134,6 @@ export const markInvitationsSent = (confirmedEvent: JsonConfirmedEvent, eventCla
     },
     eventTable
   )
+
+  return confirmedEvent
 }

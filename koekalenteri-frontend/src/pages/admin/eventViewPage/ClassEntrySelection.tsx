@@ -1,9 +1,18 @@
 import { Dispatch, SetStateAction, useCallback, useMemo } from 'react'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
+import { useTranslation } from 'react-i18next'
 import { Box, Typography } from '@mui/material'
 import { GridCallbackDetails, GridSelectionModel } from '@mui/x-data-grid'
-import { Registration, RegistrationDate, RegistrationGroup, RegistrationGroupInfo } from 'koekalenteri-shared/model'
+import {
+  EventClassState,
+  EventState,
+  Registration,
+  RegistrationDate,
+  RegistrationGroup,
+  RegistrationGroupInfo,
+} from 'koekalenteri-shared/model'
+import { useConfirm } from 'material-ui-confirm'
 import { useSnackbar } from 'notistack'
 import { SetterOrUpdater } from 'recoil'
 
@@ -24,6 +33,7 @@ interface Props {
   setOpen?: Dispatch<SetStateAction<boolean>>
   selectedRegistrationId?: string
   setSelectedRegistrationId?: SetterOrUpdater<string | undefined>
+  state?: EventClassState | EventState
 }
 
 interface RegistrationWithGroups extends Registration {
@@ -48,7 +58,10 @@ const ClassEntrySelection = ({
   setOpen,
   selectedRegistrationId,
   setSelectedRegistrationId,
+  state,
 }: Props) => {
+  const confirm = useConfirm()
+  const { t } = useTranslation()
   const { enqueueSnackbar } = useSnackbar()
   const { cancelledColumns, entryColumns, participantColumns } = useClassEntrySelectionColumns(eventDates, setOpen)
   const actions = useAdminRegistrationActions()
@@ -75,6 +88,28 @@ const ClassEntrySelection = ({
     const reg = registrations.find((r) => r.id === item.id)
     if (!reg) {
       return
+    }
+
+    if (state === 'picked' && group.key !== 'cancelled' && group.key !== 'reserve') {
+      try {
+        await confirm({
+          title: 'Olet lisäämässä koirakkoa osallistujiin',
+          description:
+            'Kun koirakko on lisätty, koirakolle lähtee vahvistusviesti koepaikasta. Oletko varma että haluat lisätä tämän koirakon osallistujiin?',
+          confirmationText: 'Lisää osallistujiin',
+          cancellationText: t('cancel'),
+          cancellationButtonProps: { variant: 'outlined' },
+          confirmationButtonProps: { autoFocus: true, variant: 'contained' },
+          dialogActionsProps: {
+            sx: {
+              flexDirection: 'row-reverse',
+              justifyContent: 'flex-start',
+            },
+          },
+        })
+      } catch {
+        return
+      }
     }
 
     // make sure the dropped registration is selected, so its intuitive to user
@@ -115,9 +150,16 @@ const ClassEntrySelection = ({
     await actions.saveGroups(reg.eventId, save)
   }
 
-  const handleReject = (item: DragItem) => {
+  const handleReject = (group: RegistrationGroup) => (item: DragItem) => {
     const reg = registrations.find((r) => r.id === item.id)
-    if (reg) {
+    if (!reg || reg.group?.key === group.key) {
+      return
+    }
+    if (state === 'picked' && group.key === 'reserve') {
+      enqueueSnackbar(`Kun koepaikat on vahvistettu, ei koirakkoa voi enää siirtää osallistujista varasijalle.`, {
+        variant: 'warning',
+      })
+    } else {
       enqueueSnackbar(`Koira ${reg.dog.name} ei ole ilmoittautunut tähän ryhmään`, { variant: 'error' })
     }
   }
@@ -137,7 +179,9 @@ const ClassEntrySelection = ({
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <Typography variant="h6">Osallistujat {eventClass}</Typography>
+      <Typography variant="h6">
+        Osallistujat {eventClass} {state ? ' - ' + t(`event.states.${state}`) : ''}
+      </Typography>
       {/* column headers only */}
       <Box sx={{ height: 40, flexShrink: 0, width: '100%', overflow: 'hidden' }}>
         <StyledDataGrid
@@ -154,6 +198,10 @@ const ClassEntrySelection = ({
       {eventGroups.map((group) => (
         <DragableDataGrid
           autoHeight
+          canDrop={(item) => {
+            // console.log(item)
+            return state !== 'picked' || item?.groupKey === 'reserve'
+          }}
           flex={registrationsByGroup[group.key]?.length}
           key={group.key}
           group={group.key}
@@ -178,24 +226,36 @@ const ClassEntrySelection = ({
             },
           }}
           onDrop={handleDrop(group)}
-          onReject={handleReject}
+          onReject={handleReject(group)}
         />
       ))}
       <Typography variant="h6">Ilmoittautuneet</Typography>
       <DragableDataGrid
         autoHeight
+        canDrop={(item) => state !== 'picked' || item?.groupKey === 'cancelled'}
         columns={entryColumns}
+        componentsProps={{
+          row: {
+            groupKey: 'reserve',
+          },
+        }}
         hideFooter
         rows={registrationsByGroup.reserve}
         onSelectionModelChange={handleSelectionModeChange}
         selectionModel={selectedRegistrationId ? [selectedRegistrationId] : []}
         onRowDoubleClick={handleDoubleClick}
         onDrop={handleDrop({ key: 'reserve', number: registrationsByGroup.reserve.length + 1 })}
+        onReject={handleReject({ key: 'reserve', number: 0 })}
       />
       <Typography variant="h6">Peruneet</Typography>
       <DragableDataGrid
         autoHeight
         columns={cancelledColumns}
+        componentsProps={{
+          row: {
+            groupKey: 'cancelled',
+          },
+        }}
         hideFooter
         rows={registrationsByGroup.cancelled}
         onSelectionModelChange={handleSelectionModeChange}

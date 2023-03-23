@@ -1,4 +1,4 @@
-import type { EmailTemplate, RegistrationMessage } from 'koekalenteri-shared/model'
+import type { EmailTemplate, EventClass, EventState, RegistrationMessage } from 'koekalenteri-shared/model'
 
 import http, { withToken } from './http'
 
@@ -13,7 +13,7 @@ export async function putEmailTemplate(template: EmailTemplate, token?: string, 
 }
 
 export async function sendTemplatedEmail(message: RegistrationMessage, token?: string, signal?: AbortSignal) {
-  return http.post<RegistrationMessage, { ok: string[]; failed: string[] }>(
+  return http.post<RegistrationMessage, { ok: string[]; failed: string[]; state: EventState; classes: EventClass[] }>(
     '/admin/email-send',
     message,
     withToken({ signal }, token)

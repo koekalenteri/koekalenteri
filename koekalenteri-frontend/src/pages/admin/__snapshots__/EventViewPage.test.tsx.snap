@@ -313,6 +313,8 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
           >
             Osallistujat 
             ALO
+             
+             - event.states.confirmed
           </h6>
           <div
             class="MuiBox-root css-1hvfy3o"
@@ -4225,6 +4227,8 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
           >
             Osallistujat 
             NOU
+             
+             - event.states.confirmed
           </h6>
           <div
             class="MuiBox-root css-1hvfy3o"

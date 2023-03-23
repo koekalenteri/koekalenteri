@@ -20,7 +20,10 @@ interface Props {
 }
 
 const InfoPanel = ({ event, registrations, onOpenMessageDialog }: Props) => {
-  const { dates, reserveByClass, numbersByClass, selectedByClass } = useEventRegistrationInfo(event, registrations)
+  const { dates, reserveByClass, numbersByClass, selectedByClass, stateByClass } = useEventRegistrationInfo(
+    event,
+    registrations
+  )
 
   return (
     <TableContainer
@@ -66,7 +69,7 @@ const InfoPanel = ({ event, registrations, onOpenMessageDialog }: Props) => {
                   <Button
                     size="small"
                     sx={{ fontSize: '0.5rem' }}
-                    disabled={nums.participants === 0 || nums.invalid || event.state !== 'confirmed'}
+                    disabled={nums.participants === 0 || nums.invalid || stateByClass[c] !== 'confirmed'}
                     onClick={() => onOpenMessageDialog?.(selectedByClass[c], 'picked')}
                   >
                     LÄHETÄ&nbsp;KOEPAIKKAILMOITUS

@@ -6,6 +6,7 @@ import StyledDataGrid from '../../../components/StyledDataGrid'
 import DragableRow, { DragItem } from './DragableRow'
 
 interface Props extends DataGridProps {
+  canDrop?: (item?: DragItem) => boolean
   onDrop?: (item: DragItem) => any
   onReject?: (item: DragItem) => any
   group?: string
@@ -19,7 +20,8 @@ interface DragCollect {
 }
 
 const DropableDataGrid = (props: Props) => {
-  const getCanDrop = (item?: DragItem) => !props.group || !!item?.groups.includes(props.group)
+  const getCanDrop = (item?: DragItem) =>
+    (!props.group || !!item?.groups.includes(props.group)) && props.canDrop?.(item) !== false
   const [{ canDrop, isOver, isDragging }, ref] = useDrop<DragItem, void, DragCollect>(
     () => ({
       accept: 'row',
