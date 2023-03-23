@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { Event, Registration } from 'koekalenteri-shared/model'
+import { Event, EventState, Registration } from 'koekalenteri-shared/model'
 
 import { classPlaces, eventDates, uniqueClasses } from '../utils'
 
@@ -71,5 +71,19 @@ export default function useEventRegistrationInfo(event: Event | undefined, regis
     return byClass
   }, [registrations])
 
-  return { dates, eventClasses, reserveByClass, numbersByClass, selectedByClass }
+  const stateByClass = useMemo(() => {
+    if (!event) {
+      return {}
+    }
+    const byClass: Record<string, EventState> = { [event.eventType]: event.state }
+    for (const c of event.classes) {
+      console.log(c)
+      byClass[c.class] = c.state ?? event.state
+    }
+    return byClass
+  }, [event])
+
+  console.log(stateByClass)
+
+  return { dates, eventClasses, reserveByClass, numbersByClass, selectedByClass, stateByClass }
 }

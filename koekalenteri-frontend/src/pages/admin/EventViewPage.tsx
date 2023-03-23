@@ -17,7 +17,7 @@ import RegistrationEditDialog from './eventViewPage/RegistrationEditDialog'
 import SendMessageDialog from './eventViewPage/SendMessageDialog'
 import TabPanel from './eventViewPage/TabPanel'
 import Title from './eventViewPage/Title'
-import { adminRegistrationIdAtom, editableEventByIdAtom, eventClassAtom, eventRegistrationsAtom } from './recoil'
+import { adminEventSelector, adminRegistrationIdAtom, eventClassAtom, eventRegistrationsAtom } from './recoil'
 
 export default function EventViewPage() {
   const { t } = useTranslation()
@@ -27,7 +27,7 @@ export default function EventViewPage() {
 
   const params = useParams()
   const eventId = params.id ?? ''
-  const event = useRecoilValue(editableEventByIdAtom(eventId))
+  const event = useRecoilValue(adminEventSelector(eventId))
 
   const [selectedEventClass, setSelectedEventClass] = useRecoilState(eventClassAtom)
   const [selectedRegistrationId, setSelectedRegistrationId] = useRecoilState(adminRegistrationIdAtom)
@@ -38,7 +38,7 @@ export default function EventViewPage() {
   )
   const [recipientRegistrations, setRecipientRegistrations] = useState<Registration[]>([])
   const [messageTemplateId, setMessageTemplateId] = useState<EmailTemplateId>()
-  const { eventClasses } = useEventRegistrationInfo(event, allRegistrations)
+  const { eventClasses, stateByClass } = useEventRegistrationInfo(event, allRegistrations)
 
   const activeTab = useMemo(
     () => Math.max(eventClasses.findIndex((c) => c === selectedEventClass) ?? 0, 0),
@@ -148,6 +148,7 @@ export default function EventViewPage() {
                 setOpen={setOpen}
                 selectedRegistrationId={selectedRegistrationId}
                 setSelectedRegistrationId={setSelectedRegistrationId}
+                state={stateByClass[eventClass]}
               />
             </TabPanel>
           ))}

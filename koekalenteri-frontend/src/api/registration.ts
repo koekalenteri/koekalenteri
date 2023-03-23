@@ -28,6 +28,14 @@ export async function putRegistrationGroups(
   groups: RegistrationGroupInfo[],
   token?: string,
   signal?: AbortSignal
-): Promise<Pick<ConfirmedEvent, 'classes' | 'entries'> & { items: Registration[] }> {
+): Promise<
+  Pick<ConfirmedEvent, 'classes' | 'entries'> & {
+    items: Registration[]
+    pickedOk: string[]
+    pickedFailed: string[]
+    reserveOk: string[]
+    reserveFailed: string[]
+  }
+> {
   return http.post(`/admin/reg-groups/${eventId}`, groups, withToken({ signal }, token))
 }

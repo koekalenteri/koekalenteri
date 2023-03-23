@@ -29,13 +29,13 @@ import Handlebars from 'handlebars/dist/cjs/handlebars.js'
 import { EmailTemplate, EmailTemplateId, Event, Language, Registration } from 'koekalenteri-shared/model'
 import { useConfirm } from 'material-ui-confirm'
 import { useSnackbar } from 'notistack'
-import { useRecoilValue } from 'recoil'
+import { useRecoilValue, useSetRecoilState } from 'recoil'
 
 import { sendTemplatedEmail } from '../../../api/email'
 import { formatDate, formatDateSpan } from '../../../i18n/dates'
 import AutocompleteSingle from '../../components/AutocompleteSingle'
 import { idTokenSelector } from '../../recoil'
-import { emailTemplatesAtom } from '../recoil'
+import { adminEventSelector, emailTemplatesAtom } from '../recoil'
 
 interface Props {
   registrations: Registration[]
@@ -53,6 +53,7 @@ export default function SendMessageDialog({ event, registrations, templateId, op
   const [sending, setSending] = useState(false)
   const token = useRecoilValue(idTokenSelector)
   const templates = useRecoilValue(emailTemplatesAtom)
+  const setEvent = useSetRecoilState(adminEventSelector(event.id))
   const [selectedTemplate, setSelectedTemplate] = useState<EmailTemplate | undefined>(
     templates.find((t) => t.id === templateId)
   )
@@ -123,7 +124,7 @@ export default function SendMessageDialog({ event, registrations, templateId, op
           enqueueSnackbar('Viestin lähetys epäonnistui 💩', { variant: 'error' })
           console.log(error)
         })
-        .then(({ ok, failed } = { ok: [], failed: [] }) => {
+        .then(({ ok, failed, state, classes } = { ok: [], failed: [], state: event.state, classes: event.classes }) => {
           if (ok.length) {
             enqueueSnackbar('Viesti lähetetty onnistuneesti\n\n' + ok.join('\n'), {
               variant: 'success',
@@ -136,11 +137,12 @@ export default function SendMessageDialog({ event, registrations, templateId, op
               style: { whiteSpace: 'pre-line' },
             })
           }
+          setEvent({ ...event, state, classes })
           setSending(false)
           onClose?.()
         })
     })
-  }, [confirm, enqueueSnackbar, event.id, onClose, registrations, t, templateId, text, token])
+  }, [confirm, enqueueSnackbar, event, onClose, registrations, setEvent, t, templateId, text, token])
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="lg">
