@@ -1,3 +1,4 @@
+import { startOfDay } from 'date-fns'
 import { Event } from 'koekalenteri-shared/model'
 import { atom } from 'recoil'
 
@@ -32,7 +33,7 @@ export type FilterProps = {
 export const eventFilterAtom = atom<FilterProps>({
   key: 'eventFilter',
   default: {
-    start: null,
+    start: startOfDay(new Date()),
     end: null,
     withOpenEntry: false,
     withUpcomingEntry: false,
