@@ -2,7 +2,7 @@ import { metricScope, MetricsLogger } from 'aws-embedded-metrics'
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import { AWSError } from 'aws-sdk'
 import { JsonRegistration } from 'koekalenteri-shared/model'
-import { v4 as uuidv4 } from 'uuid'
+import { nanoid } from 'nanoid'
 
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { getOrigin, getUsername } from '../utils/genericHandlers'
@@ -52,7 +52,7 @@ export const putRegistrationHandler = metricScope(
           }
           cancel = !existing.cancelled && !!registration.cancelled
         } else {
-          registration.id = uuidv4()
+          registration.id = nanoid(10)
           registration.createdAt = timestamp
           registration.createdBy = username
         }

@@ -1,6 +1,6 @@
 import { availableResults, availableTypes, createMissingResult, resultBorderColor } from './utils'
 
-const UUID_REGEXP = /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/
+const ID_REGEXP = /^[0-9a-zA-Z_-]{10}$/
 
 describe('QualifyingResultsInfo utils', () => {
   describe('availableTypes', () => {
@@ -117,7 +117,7 @@ describe('QualifyingResultsInfo utils', () => {
         )
       ).toEqual(
         expect.objectContaining({
-          id: expect.stringMatching(UUID_REGEXP),
+          id: expect.stringMatching(ID_REGEXP),
           regNo: 'test-reg-no',
           official: false,
           qualifying: true,
@@ -155,7 +155,7 @@ describe('QualifyingResultsInfo utils', () => {
         )
       ).toEqual(
         expect.objectContaining({
-          id: expect.stringMatching(UUID_REGEXP),
+          id: expect.stringMatching(ID_REGEXP),
           regNo: 'test-reg-no',
           official: false,
           qualifying: true,
@@ -190,7 +190,7 @@ describe('QualifyingResultsInfo utils', () => {
         )
       ).toEqual(
         expect.objectContaining({
-          id: expect.stringMatching(UUID_REGEXP),
+          id: expect.stringMatching(ID_REGEXP),
           regNo: 'test-reg-no',
           official: false,
           qualifying: true,
@@ -202,7 +202,7 @@ describe('QualifyingResultsInfo utils', () => {
 
       expect(createMissingResult(undefined, [], 'test-reg-no')).toEqual(
         expect.objectContaining({
-          id: expect.stringMatching(UUID_REGEXP),
+          id: expect.stringMatching(ID_REGEXP),
           regNo: 'test-reg-no',
           official: false,
           qualifying: true,

@@ -1,7 +1,7 @@
 import { metricScope, MetricsLogger } from 'aws-embedded-metrics'
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import { AWSError } from 'aws-sdk'
-import { v4 as uuidv4 } from 'uuid'
+import { nanoid } from 'nanoid'
 
 import 'source-map-support/register'
 
@@ -41,15 +41,15 @@ export const genericReadHandler = (
 
 export function createDbRecord(event: APIGatewayProxyEvent, timestamp: string, username: string) {
   const item = {
-    id: uuidv4(),
+    id: nanoid(10),
     ...JSON.parse(event.body || ''),
     createdAt: timestamp,
     createdBy: username,
     modifiedAt: timestamp,
     modifiedBy: username,
   }
-  if (item.id === '') {
-    item.id = uuidv4()
+  if (!item.id) {
+    item.id = nanoid(10)
   }
 
   return item

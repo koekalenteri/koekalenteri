@@ -1,5 +1,5 @@
 import { ManualTestResult, QualifyingResult } from 'koekalenteri-shared/model'
-import { v4 as uuidv4 } from 'uuid'
+import { nanoid } from 'nanoid'
 
 import { EventResultRequirement, EventResultRequirements, EventResultRequirementsByDate } from '../../../../rules'
 import { unique } from '../../../../utils'
@@ -42,7 +42,7 @@ export function createMissingResult(
 ): ManualTestResult {
   const rule = findFirstMissing(requirements, results)
   return {
-    id: uuidv4(),
+    id: nanoid(10),
     regNo,
     date: new Date(),
     official: false,
