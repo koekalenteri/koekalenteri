@@ -2,7 +2,7 @@ import { metricScope, MetricsLogger } from 'aws-embedded-metrics'
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import { AWSError } from 'aws-sdk'
 import { JsonConfirmedEvent, JsonRegistration } from 'koekalenteri-shared/model'
-import { v4 as uuidv4 } from 'uuid'
+import { nanoid } from 'nanoid'
 
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { authorize, genericReadAllHandler, genericReadHandler, getUsername } from '../utils/genericHandlers'
@@ -27,7 +27,7 @@ export const putEventHandler = metricScope(
         if (item.id) {
           existing = await dynamoDB.read<JsonConfirmedEvent>({ id: item.id })
         } else {
-          item.id = uuidv4()
+          item.id = nanoid(10)
           item.createdAt = timestamp
           item.createdBy = username
         }
