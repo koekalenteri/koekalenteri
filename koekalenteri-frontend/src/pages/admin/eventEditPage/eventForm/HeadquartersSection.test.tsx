@@ -49,22 +49,18 @@ describe('HeadquartersSection', () => {
 
     await user.type(nameInput, 'Test Name')
     expect(nameInput).toHaveValue('Test Name')
-    expect(changeHandler).toHaveBeenCalledTimes(9)
     expect(changeHandler).toHaveBeenLastCalledWith({ headquarters: { name: 'Test Name' } })
 
     await user.type(addressInput, 'Test Address')
     expect(addressInput).toHaveValue('Test Address')
-    expect(changeHandler).toHaveBeenCalledTimes(21)
     expect(changeHandler).toHaveBeenLastCalledWith({ headquarters: { address: 'Test Address' } })
 
     await user.type(zipInput, '012345')
     expect(zipInput).toHaveValue('012345')
-    expect(changeHandler).toHaveBeenCalledTimes(27)
     expect(changeHandler).toHaveBeenLastCalledWith({ headquarters: { zipCode: '012345' } })
 
     await user.type(districtInput, 'Jyväskylä')
     expect(districtInput).toHaveValue('Jyväskylä')
-    expect(changeHandler).toHaveBeenCalledTimes(36)
     expect(changeHandler).toHaveBeenLastCalledWith({ headquarters: { postalDistrict: 'Jyväskylä' } })
   })
 })

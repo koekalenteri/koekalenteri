@@ -61,11 +61,9 @@ export function RegistrationListPage({ cancel }: { cancel?: boolean }) {
         sx={{
           p: 1,
           overflow: 'hidden',
-          height: '100%',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'flex-start',
-          mt: '36px',
         }}
       >
         <LinkButton sx={{ mb: 1 }} to="/" back={spa} text={spa ? t('goBack') : t('goHome')} />
