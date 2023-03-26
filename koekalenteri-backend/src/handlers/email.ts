@@ -2,7 +2,7 @@ import { metricScope, MetricsLogger } from 'aws-embedded-metrics'
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import AWS from 'aws-sdk'
 import type { SendTemplatedEmailRequest, Template } from 'aws-sdk/clients/ses'
-import { EmailTemplateId, JsonEmailTemplate, JsonEvent, JsonRegistration, Language } from 'koekalenteri-shared/model'
+import { EmailTemplateId, JsonEmailTemplate, JsonRegistration, Language } from 'koekalenteri-shared/model'
 
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { markdownToTemplate } from '../utils/email/markdown'
@@ -17,7 +17,7 @@ const ses = new AWS.SES()
 export const EMAIL_FROM = 'koekalenteri@koekalenteri.snj.fi'
 const stackName = process.env.AWS_SAM_LOCAL ? 'local' : process.env.STACK_NAME ?? 'local'
 
-export async function sendReceipt(registration: JsonRegistration, date: string) {
+export async function sendReceipt(registration: JsonRegistration /*, date: string*/) {
   const to: string[] = [registration.handler.email]
   if (registration.owner.email !== registration.handler.email) {
     to.push(registration.owner.email)

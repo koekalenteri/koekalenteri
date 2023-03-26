@@ -84,7 +84,6 @@ export const getRegistrationsHandler = metricScope(
 )
 
 async function saveGroup({ eventId, id, group }: JsonRegistrationGroupInfo) {
-  console.log({ eventId, id })
   return dynamoDB.update(
     { eventId, id },
     'set #grp = :value, #cancelled = :cancelled',

@@ -6,7 +6,6 @@ import { getEvents } from '../../../../api/event'
 let loaded = false
 
 export const remoteAdminEventsEffect: AtomEffect<Event[]> = ({ setSelf, trigger }) => {
-  // console.log('loading remote events...')
   if (trigger === 'get' && !loaded) {
     loaded = true
     getEvents().then(setSelf)

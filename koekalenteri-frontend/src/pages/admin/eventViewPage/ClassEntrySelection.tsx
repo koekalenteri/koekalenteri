@@ -199,7 +199,6 @@ const ClassEntrySelection = ({
         <DragableDataGrid
           autoHeight
           canDrop={(item) => {
-            // console.log(item)
             return state !== 'picked' || item?.groupKey === 'reserve'
           }}
           flex={registrationsByGroup[group.key]?.length}

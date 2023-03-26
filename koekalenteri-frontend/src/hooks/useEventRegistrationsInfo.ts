@@ -77,13 +77,10 @@ export default function useEventRegistrationInfo(event: Event | undefined, regis
     }
     const byClass: Record<string, EventState> = { [event.eventType]: event.state }
     for (const c of event.classes) {
-      console.log(c)
       byClass[c.class] = c.state ?? event.state
     }
     return byClass
   }, [event])
-
-  console.log(stateByClass)
 
   return { dates, eventClasses, reserveByClass, numbersByClass, selectedByClass, stateByClass }
 }

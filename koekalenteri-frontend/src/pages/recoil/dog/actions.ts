@@ -68,7 +68,6 @@ export function useDogActions(regNo: string) {
       const newCache = merge(cache ?? INIT_CACHE, props)
       const newCacheDog = diff(dog ?? {}, newCache.dog ?? {})
       if (hasChanges(newCache?.dog, newCacheDog)) {
-        console.log({ newCacheDog })
         newCache.dog = newCacheDog
       }
       setCache(newCache)

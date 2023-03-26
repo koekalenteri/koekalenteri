@@ -78,7 +78,6 @@ export const DogInfo = ({
 
   const handleChange = useCallback(
     (props: DeepPartial<DogCachedInfo>) => {
-      console.log('handleChange', { props })
       const cache = actions.updateCache(props)
       onChange?.({ dog: cache.dog })
     },

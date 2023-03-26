@@ -86,7 +86,6 @@ export function validateRegistration(registration: Registration, event: Confirme
     }
     const result = validateRegistrationField(registration, field, event)
     if (result) {
-      // console.log({ field, result })
       errors.push(result)
     }
   }

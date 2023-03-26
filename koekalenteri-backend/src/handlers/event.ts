@@ -61,8 +61,6 @@ export const putEventHandler = metricScope(
 export const updateRegistrations = async (eventId: string, eventTable: string, registrationsTable: string) => {
   const eventKey = { id: eventId }
 
-  console.log(eventTable, registrationsTable)
-
   const confirmedEvent = await dynamoDB.read<JsonConfirmedEvent>(eventKey, eventTable)
   if (!confirmedEvent) {
     throw new Error(`Event with id "${eventId}" not found`)

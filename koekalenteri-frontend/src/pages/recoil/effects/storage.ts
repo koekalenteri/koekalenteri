@@ -34,7 +34,6 @@ export const storageEffect: AtomEffect<any> = ({ node, setSelf, onSet, trigger }
   const handleStorageChange = (e: StorageEvent) => {
     if (e.storageArea === localStorage && e.key === node.key) {
       const parsed = parseStorageJSON(e.newValue)
-      console.log('storage change', e.newValue, parsed)
       setSelf(parsed)
     }
   }
@@ -64,7 +63,6 @@ export function stringStorageEffect<T extends string>(defaultValue: string): Ato
     const handleStorageChange = (e: StorageEvent) => {
       if (e.storageArea === localStorage && e.key === node.key) {
         const value = e.newValue ?? defaultValue
-        console.log('storage change', value)
         setSelf(value as T)
       }
     }
