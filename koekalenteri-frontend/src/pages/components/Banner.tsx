@@ -10,7 +10,7 @@ const Banner = () => {
         backgroundRepeat: 'round',
         backgroundSize: 'contain',
         backgroundOrigin: 'padding-box',
-        marginTop: '36px',
+        backgroundPositionY: '36px',
         width: '100%',
         height: { xs: 72, sm: 108, md: 144 },
       }}
