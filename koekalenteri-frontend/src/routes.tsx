@@ -37,20 +37,12 @@ const routes: RouteObject[] = [
         })
       ),
       {
-        path: 'registration/:eventType/:id/:registrationId/cancel',
-        element: <RegistrationListPage cancel />,
-      },
-      {
-        path: 'registration/:eventType/:id/:registrationId/edit',
-        element: <RegistrationEditPage />,
-      },
-      {
-        path: 'registration/:eventType/:id/:registrationId',
-        element: <RegistrationListPage />,
-      },
-      {
         path: 'r/:id/:registrationId/cancel',
         element: <RegistrationListPage cancel />,
+      },
+      {
+        path: 'r/:id/:registrationId/confirm',
+        element: <RegistrationListPage confirm />,
       },
       {
         path: 'r/:id/:registrationId/edit',
@@ -58,6 +50,23 @@ const routes: RouteObject[] = [
       },
       {
         path: 'r/:id/:registrationId',
+        element: <RegistrationListPage />,
+      },
+      // legacy routes, to be removed
+      {
+        path: 'registration/:eventType/:id/:registrationId/cancel',
+        element: <RegistrationListPage cancel />,
+      },
+      {
+        path: 'registration/:eventType/:id/:registrationId/confirm',
+        element: <RegistrationListPage confirm />,
+      },
+      {
+        path: 'registration/:eventType/:id/:registrationId/edit',
+        element: <RegistrationEditPage />,
+      },
+      {
+        path: 'registration/:eventType/:id/:registrationId',
         element: <RegistrationListPage />,
       },
     ],

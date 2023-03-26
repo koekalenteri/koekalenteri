@@ -190,6 +190,14 @@
       "confirmation": "Oletko varma, että haluat perua ilmoittautumisen?",
       "terms": "Katso tarkemmat peruutusehdot <1>säännöistä</1>"
     },
+    "confirmDialog": {
+      "alreadyConfirmed": "Koepaikka on jo vahvistettu",
+      "cta": "Vahvista koepaikka",
+      "done": "Koepaikkasi on vahvistettu",
+      "title": "Vahvista koepaikka",
+      "text": "Olet vahvistamassa koiran {{registration.dog.regNo}} {{registration.dog.name}} koepaikkaa kokeeseen {{event.startDate, date}} {{event.eventType}} {{event.location}}",
+      "confirmation": "Haluatko vahvistaa koepaikan?"
+    },
     "class": "Koeluokka",
     "classesDetails": "Koeluokan tiedot",
     "createdAt": "Ilmoittautumisaika",
