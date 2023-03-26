@@ -17,7 +17,7 @@ const ses = new AWS.SES()
 export const EMAIL_FROM = 'koekalenteri@koekalenteri.snj.fi'
 const stackName = process.env.AWS_SAM_LOCAL ? 'local' : process.env.STACK_NAME ?? 'local'
 
-export async function sendReceipt(registration: JsonRegistration /*, date: string*/) {
+export async function sendReceipt(registration: JsonRegistration, date: string) {
   const to: string[] = [registration.handler.email]
   if (registration.owner.email !== registration.handler.email) {
     to.push(registration.owner.email)

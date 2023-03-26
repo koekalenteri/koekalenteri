@@ -34,6 +34,20 @@ Array [
         "element": <RegistrationListPage />,
         "path": "registration/:eventType/:id/:registrationId",
       },
+      Object {
+        "element": <RegistrationListPage
+          cancel={true}
+        />,
+        "path": "r/:id/:registrationId/cancel",
+      },
+      Object {
+        "element": <RegistrationEditPage />,
+        "path": "r/:id/:registrationId/edit",
+      },
+      Object {
+        "element": <RegistrationListPage />,
+        "path": "r/:id/:registrationId",
+      },
     ],
     "element": <HomePage />,
     "errorElement": <ErrorPage />,

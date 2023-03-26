@@ -369,7 +369,7 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
                     
 
                     <a
-                      href="/registration/NOU/test1/nou-registration/edit"
+                      href="/r/test1/nou-registration/edit"
                     >
                       Muokkaa ilmoittautumisen tietoja
                     </a>
@@ -377,7 +377,7 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
                     
 
                     <a
-                      href="/registration/NOU/test1/nou-registration/cancel"
+                      href="/r/test1/nou-registration/cancel"
                     >
                       Peru ilmoittautuminen
                     </a>
@@ -676,7 +676,7 @@ additional notes
                   <p>
                     Voit tarkastella ilmoittautumisesi tietoja täällä: 
                     <a
-                      href="/registration/NOU/test1/nou-registration"
+                      href="/r/test1/nou-registration"
                     >
                       Katso ilmoittautumisen tiedot
                     </a>

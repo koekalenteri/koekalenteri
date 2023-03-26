@@ -1,4 +1,4 @@
-import { Event } from 'koekalenteri-shared/model'
+import { Event, Registration } from 'koekalenteri-shared/model'
 
 export const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://127.0.0.1:8080'
 
@@ -17,6 +17,7 @@ export const Path = {
     }
     return `/event/${event.eventType}/${event.id}`
   },
+  registration: (registration: Registration) => `/r/${registration.eventId}/${registration.id}`,
   admin: {
     root: ADMIN_ROOT,
     index: `${ADMIN_EVENTS}`,

@@ -151,10 +151,7 @@ const redirectToFinish = async (event: APIGatewayProxyEvent, r: APIGatewayProxyR
   const origin = getOrigin(event)
   const registration = JSON.parse(r.body)
   // TODO Paths should probably be in a common place for both BE and FE
-  const path =
-    r.statusCode == 200
-      ? `${origin}/registration/${registration.eventType}/${registration.eventId}/${registration.id}`
-      : `${origin}/` // TODO needs redirect to valid error page
+  const path = r.statusCode == 200 ? `${origin}/r/${registration.eventId}/${registration.id}` : `${origin}/` // TODO needs redirect to valid error page
 
   return redirect(registration, path)
 }

@@ -20,7 +20,7 @@ export interface JsonRegistration extends JsonDbRecord {
   cancelReason?: string
   confirmed?: boolean
   receiptSent?: boolean
-  paidAt?: Date
+  paidAt?: string
   paymentStatus?: PaymentStatus
   group?: JsonRegistrationGroup
 }
@@ -36,9 +36,10 @@ export interface ManualTestResult extends QualifyingResult {
   regNo: string
 }
 
-export interface Registration extends Omit<JsonRegistration, 'dates' | 'dog' | 'qualifyingResults' | 'results' | 'group' | keyof JsonDbRecord>, DbRecord {
+export interface Registration extends Omit<JsonRegistration, 'dates' | 'dog' | 'paidAt' | 'qualifyingResults' | 'results' | 'group' | keyof JsonDbRecord>, DbRecord {
   dates: RegistrationDate[]
   dog: Dog
+  paidAt?: Date
   qualifyingResults: QualifyingResult[]
   results?: Array<ManualTestResult>
   group?: RegistrationGroup
