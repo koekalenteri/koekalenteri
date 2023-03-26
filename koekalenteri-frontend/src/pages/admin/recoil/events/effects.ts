@@ -3,7 +3,12 @@ import { AtomEffect } from 'recoil'
 
 import { getEvents } from '../../../../api/event'
 
-export const remoteAdminEventsEffect: AtomEffect<Event[]> = ({ setSelf }) => {
+let loaded = false
+
+export const remoteAdminEventsEffect: AtomEffect<Event[]> = ({ setSelf, trigger }) => {
   // console.log('loading remote events...')
-  getEvents().then(setSelf)
+  if (trigger === 'get' && !loaded) {
+    loaded = true
+    getEvents().then(setSelf)
+  }
 }

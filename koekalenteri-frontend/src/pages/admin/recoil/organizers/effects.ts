@@ -4,8 +4,11 @@ import { AtomEffect } from 'recoil'
 
 import { getOrganizers } from '../../../../api/organizer'
 
+let loaded = false
+
 export const remoteOrganizersEffect: AtomEffect<Organizer[]> = ({ setSelf, trigger }) => {
-  if (trigger === 'get') {
+  if (trigger === 'get' && !loaded) {
+    loaded = true
     getOrganizers().then((organizers) => {
       const sortedOrganizers = [...organizers].sort((a, b) => a.name.localeCompare(b.name, i18next.language))
       setSelf(sortedOrganizers)
