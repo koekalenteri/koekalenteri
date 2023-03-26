@@ -17,6 +17,8 @@ export interface JsonRegistration extends JsonDbRecord {
   reserve: ReserveChoise | ''
   results?: Array<JsonTestResult & { id: string }>
   cancelled?: boolean
+  cancelReason?: string
+  confirmed?: boolean
   receiptSent?: boolean
   paidAt?: Date
   paymentStatus?: PaymentStatus
@@ -34,27 +36,11 @@ export interface ManualTestResult extends QualifyingResult {
   regNo: string
 }
 
-export interface Registration extends DbRecord {
-  agreeToTerms: boolean
-  breeder: RegistrationBreeder
-  class?: string
+export interface Registration extends Omit<JsonRegistration, 'dates' | 'dog' | 'qualifyingResults' | 'results' | 'group' | keyof JsonDbRecord>, DbRecord {
   dates: RegistrationDate[]
   dog: Dog
-  eventId: string
-  eventType: string
-  handler: RegistrationPerson
-  language: Language
-  notes: string
-  owner: RegistrationPerson
-  ownerHandles?: boolean
   qualifyingResults: QualifyingResult[]
-  reserve: ReserveChoise | ''
   results?: Array<ManualTestResult>
-  cancelled?: boolean
-  receiptSent?: boolean
-  paidAt?: Date
-  paymentStatus?: PaymentStatus
-  cancelReason?: string
   group?: RegistrationGroup
 }
 
