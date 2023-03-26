@@ -1,24 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Trans, useTranslation } from 'react-i18next'
+import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
 import { CheckOutlined, EuroOutlined, PersonOutline } from '@mui/icons-material'
-import {
-  Box,
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  Grid,
-  Link,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  Paper,
-  Typography,
-} from '@mui/material'
+import { Box, Grid, List, ListItem, ListItemIcon, ListItemText, Paper, Typography } from '@mui/material'
 import { isPast, isToday } from 'date-fns'
 import type { ConfirmedEvent, Registration } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue } from 'recoil'
@@ -27,11 +11,18 @@ import Header from './components/Header'
 import LinkButton from './components/LinkButton'
 import RegistrationEventInfo from './components/RegistrationEventInfo'
 import { useRegistrationActions } from './recoil/registration/actions'
+import { CancelDialog } from './registrationListPage/CancelDialog'
+import { ConfirmDialog } from './registrationListPage/ConfirmDialog'
 import RegistrationList from './registrationListPage/RegistrationList'
 import { LoadingPage } from './LoadingPage'
 import { eventSelector, registrationSelector, spaAtom } from './recoil'
 
-export function RegistrationListPage({ cancel }: { cancel?: boolean }) {
+interface Props {
+  cancel?: boolean
+  confirm?: boolean
+}
+
+export function RegistrationListPage({ cancel, confirm }: Props) {
   const params = useParams()
   const event = useRecoilValue(eventSelector(params.id ?? '')) as ConfirmedEvent | undefined | null
   const [registration, setRegistration] = useRecoilState(
@@ -39,7 +30,8 @@ export function RegistrationListPage({ cancel }: { cancel?: boolean }) {
   )
   const spa = useRecoilValue(spaAtom)
   const { t } = useTranslation()
-  const [open, setOpen] = useState(!!cancel)
+  const [cancelOpen, setCancelOpen] = useState(!!cancel)
+  const [confirmOpen, setConfirmOpen] = useState(!!confirm)
   const actions = useRegistrationActions()
   const cancelDisabled = useMemo(() => !event || isPast(event.startDate) || isToday(event.startDate), [event])
 
@@ -49,15 +41,29 @@ export function RegistrationListPage({ cancel }: { cancel?: boolean }) {
     }
     const saved = await actions.cancel(registration)
     setRegistration(saved)
+    setCancelOpen(false)
   }, [actions, registration, setRegistration])
 
-  const handleClose = useCallback(() => setOpen(false), [])
+  const handleConfirm = useCallback(async () => {
+    if (!registration) {
+      return
+    }
+    const saved = await actions.confirm(registration)
+    setRegistration(saved)
+    setConfirmOpen(false)
+  }, [actions, registration, setRegistration])
+
+  const handleCalcelClose = useCallback(() => setCancelOpen(false), [])
+  const handleConfirmClose = useCallback(() => setConfirmOpen(false), [])
 
   useEffect(() => {
-    if (open && registration?.cancelled) {
-      setOpen(false)
+    if (cancelOpen && registration?.cancelled) {
+      setCancelOpen(false)
     }
-  }, [open, registration])
+    if (confirmOpen && registration?.confirmed) {
+      setConfirmOpen(false)
+    }
+  }, [cancelOpen, confirmOpen, registration])
 
   useEffect(() => {
     if (event === null) {
@@ -123,53 +129,22 @@ export function RegistrationListPage({ cancel }: { cancel?: boolean }) {
             </Paper>
           </Grid>
         </Grid>
-        <RegistrationList rows={registration ? [registration] : []} onUnregister={() => setOpen(true)} />
-        <Dialog
-          open={open}
-          onClose={handleClose}
-          aria-labelledby="cancel-dialog-title"
-          aria-describedby="cancel-dialog-description"
-        >
-          <DialogTitle id="cancel-dialog-title">{t('registration.cancelDialog.title')}</DialogTitle>
-          <DialogContent>
-            <DialogContentText id="cancel-dialog-description">
-              {cancelDisabled
-                ? t('registration.cancelDialog.lateText', {
-                    registration,
-                    event,
-                    contact: event.contactInfo?.secretary?.phone ? event.secretary.phone : event.secretary.email,
-                  })
-                : t('registration.cancelDialog.text', { registration, event })}
-            </DialogContentText>
-            <DialogContentText
-              id="cancel-dialog-description2"
-              sx={{ py: 1, display: cancelDisabled ? 'none' : 'block' }}
-            >
-              {t('registration.cancelDialog.confirmation')}
-            </DialogContentText>
-            <DialogContentText id="cancel-dialog-description3" sx={{ py: 1 }}>
-              <Trans t={t} i18nKey="registration.cancelDialog.terms">
-                Katso tarkemmat peruutusehdot{' '}
-                <Link
-                  target="_blank"
-                  rel="noopener"
-                  href="https://yttmk.yhdistysavain.fi/noutajien-metsastyskokeet-2/ohjeistukset/kokeen-ja-tai-kilpailun-ilmoitta/"
-                >
-                  säännöistä
-                </Link>
-                .
-              </Trans>
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleCancel} disabled={cancelDisabled} autoFocus variant="contained">
-              {t('registration.cancelDialog.cta')}
-            </Button>
-            <Button onClick={handleClose} variant="outlined">
-              {t('cancel')}
-            </Button>
-          </DialogActions>
-        </Dialog>
+        <RegistrationList rows={registration ? [registration] : []} onUnregister={() => setCancelOpen(true)} />
+        <CancelDialog
+          open={cancelOpen}
+          onClose={handleCalcelClose}
+          disabled={cancelDisabled}
+          registration={registration}
+          event={event}
+          onCancel={handleCancel}
+        />
+        <ConfirmDialog
+          open={confirmOpen}
+          onClose={handleConfirmClose}
+          registration={registration}
+          event={event}
+          onConfirm={handleConfirm}
+        />
       </Box>
     </>
   )
@@ -207,5 +182,5 @@ function registrationStatus(registration: Registration) {
   if (registration.cancelled) {
     return 'Olen perunut ilmoittautumiseni'
   }
-  return registration.confirmed ? 'Olen vahvistanut ilmoittautumiseni' : 'Ilmoittautuminen vastaanotettu'
+  return registration.confirmed ? 'Olen vahvistanut osallistumiseni' : 'Ilmoittautuminen vastaanotettu'
 }

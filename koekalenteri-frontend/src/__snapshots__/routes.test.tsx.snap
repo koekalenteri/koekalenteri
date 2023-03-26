@@ -24,21 +24,13 @@ Array [
         "element": <RegistrationListPage
           cancel={true}
         />,
-        "path": "registration/:eventType/:id/:registrationId/cancel",
-      },
-      Object {
-        "element": <RegistrationEditPage />,
-        "path": "registration/:eventType/:id/:registrationId/edit",
-      },
-      Object {
-        "element": <RegistrationListPage />,
-        "path": "registration/:eventType/:id/:registrationId",
+        "path": "r/:id/:registrationId/cancel",
       },
       Object {
         "element": <RegistrationListPage
-          cancel={true}
+          confirm={true}
         />,
-        "path": "r/:id/:registrationId/cancel",
+        "path": "r/:id/:registrationId/confirm",
       },
       Object {
         "element": <RegistrationEditPage />,
@@ -47,6 +39,26 @@ Array [
       Object {
         "element": <RegistrationListPage />,
         "path": "r/:id/:registrationId",
+      },
+      Object {
+        "element": <RegistrationListPage
+          cancel={true}
+        />,
+        "path": "registration/:eventType/:id/:registrationId/cancel",
+      },
+      Object {
+        "element": <RegistrationListPage
+          confirm={true}
+        />,
+        "path": "registration/:eventType/:id/:registrationId/confirm",
+      },
+      Object {
+        "element": <RegistrationEditPage />,
+        "path": "registration/:eventType/:id/:registrationId/edit",
+      },
+      Object {
+        "element": <RegistrationListPage />,
+        "path": "registration/:eventType/:id/:registrationId",
       },
     ],
     "element": <HomePage />,
