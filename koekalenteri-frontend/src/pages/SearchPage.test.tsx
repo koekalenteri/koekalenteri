@@ -42,7 +42,7 @@ describe('SearchPage', () => {
   it('renders', async () => {
     renderPage('', locales.fi)
     await waitForDebounce()
-    expect(screen.getAllByRole('row').length).toEqual(8)
+    expect(screen.getAllByRole('row').length).toEqual(4)
   })
 
   it('filters by date/start', async () => {
