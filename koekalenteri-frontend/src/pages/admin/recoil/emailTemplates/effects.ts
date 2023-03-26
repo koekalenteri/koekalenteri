@@ -5,7 +5,7 @@ import { AtomEffect } from 'recoil'
 import { getEmailTemplates } from '../../../../api/email'
 import { idTokenSelector } from '../../../recoil'
 
-const templateIds: EmailTemplateId[] = ['registration', 'picked', 'reserve', 'reserve-move', 'invitation']
+const templateIds: EmailTemplateId[] = ['registration', 'picked', 'reserve', 'invitation']
 
 export const remoteEmailTemplatesEffect: AtomEffect<EmailTemplate[]> = ({ getPromise, setSelf, trigger }) => {
   if (trigger === 'get') {

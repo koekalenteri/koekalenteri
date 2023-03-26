@@ -45,8 +45,7 @@
     "invitation": "Invitation",
     "picked": "Picked notification",
     "registration": "Confirmation",
-    "reserve": "Reserve notification",
-    "reserve-move": "Reserve move"
+    "reserve": "Reserve notification"
   },
   "emailTemplates": "Messages",
   "error": {
