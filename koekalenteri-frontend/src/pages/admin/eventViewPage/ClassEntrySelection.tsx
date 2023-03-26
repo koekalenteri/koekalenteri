@@ -1,9 +1,9 @@
-import { Dispatch, SetStateAction, useCallback, useMemo } from 'react'
+import React, { Dispatch, SetStateAction, useCallback, useMemo } from 'react'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { useTranslation } from 'react-i18next'
 import { Box, Typography } from '@mui/material'
-import { GridCallbackDetails, GridSelectionModel } from '@mui/x-data-grid'
+import { GridCallbackDetails, GridCellParams, GridSelectionModel, MuiEvent } from '@mui/x-data-grid'
 import {
   EventClassState,
   EventState,
@@ -175,6 +175,24 @@ const ClassEntrySelection = ({
     [registrations, setSelectedRegistrationId]
   )
 
+  const handleCellClick = useCallback(
+    (params: GridCellParams, event: MuiEvent<React.MouseEvent>) => {
+      if (params.field === 'dog.regNo') {
+        event.defaultMuiPrevented = true
+        navigator.clipboard.writeText(params.value)
+        enqueueSnackbar({
+          message: 'Rekisterinumero kopioitu',
+          variant: 'info',
+          autoHideDuration: 1000,
+          anchorOrigin: {
+            horizontal: 'center',
+            vertical: 'bottom',
+          },
+        })
+      }
+    },
+    [enqueueSnackbar]
+  )
   const handleDoubleClick = useCallback(() => setOpen?.(true), [setOpen])
 
   return (
@@ -210,6 +228,7 @@ const ClassEntrySelection = ({
           rows={registrationsByGroup[group.key] ?? []}
           onSelectionModelChange={handleSelectionModeChange}
           selectionModel={selectedRegistrationId ? [selectedRegistrationId] : []}
+          onCellClick={handleCellClick}
           onRowDoubleClick={handleDoubleClick}
           components={{
             Header: GroupHeader,
@@ -242,6 +261,7 @@ const ClassEntrySelection = ({
         rows={registrationsByGroup.reserve}
         onSelectionModelChange={handleSelectionModeChange}
         selectionModel={selectedRegistrationId ? [selectedRegistrationId] : []}
+        onCellClick={handleCellClick}
         onRowDoubleClick={handleDoubleClick}
         onDrop={handleDrop({ key: 'reserve', number: registrationsByGroup.reserve.length + 1 })}
         onReject={handleReject({ key: 'reserve', number: 0 })}
@@ -259,6 +279,7 @@ const ClassEntrySelection = ({
         rows={registrationsByGroup.cancelled}
         onSelectionModelChange={handleSelectionModeChange}
         selectionModel={selectedRegistrationId ? [selectedRegistrationId] : []}
+        onCellClick={handleCellClick}
         onRowDoubleClick={handleDoubleClick}
         onDrop={handleDrop({ key: 'cancelled', number: registrationsByGroup.cancelled.length + 1 })}
       />
