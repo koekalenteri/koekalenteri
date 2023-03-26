@@ -1,10 +1,8 @@
 import { Event, EventClass } from 'koekalenteri-shared/model'
 
-import { eventWithEntryClosing, eventWithEntryNotYetOpen, eventWithEntryOpen } from './__mockData__/events'
 import {
   AnyObject,
   clone,
-  entryDateColor,
   hasChanges,
   isDateString,
   isEmpty,
@@ -16,14 +14,6 @@ import {
 } from './utils'
 
 describe('utils', () => {
-  describe('entryDateColor', () => {
-    it('should return proper values based on event status', () => {
-      expect(entryDateColor(eventWithEntryNotYetOpen)).toEqual('text.primary')
-      expect(entryDateColor(eventWithEntryOpen)).toEqual('success.main')
-      expect(entryDateColor(eventWithEntryClosing)).toEqual('warning.main')
-    })
-  })
-
   describe('isDateString', () => {
     it.each(['2016-09-18T17:34:02.666Z', '2021-05-10T09:05:12.000Z', '2016-12-31T23:59:60+00:00', '2018-06-19T04:06Z'])(
       'should return true for valid date string: %p',

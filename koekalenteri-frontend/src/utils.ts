@@ -45,13 +45,6 @@ export const registrationDates = (event: Event, cls?: string) =>
     { date, time: 'ip' },
   ])
 
-export function entryDateColor(event: Event) {
-  if (!isEntryOpen(event)) {
-    return 'text.primary'
-  }
-  return isEntryClosing(event) ? 'warning.main' : 'success.main'
-}
-
 export const unique = <T = string>(arr: T[]): T[] => arr.filter((c, i, a) => a.indexOf(c) === i)
 export const uniqueFn = <T>(arr: T[], cmp: (a: T, b: T) => boolean): T[] =>
   arr.filter((c, i, a) => a.findIndex((f) => cmp(f, c)) === i)
