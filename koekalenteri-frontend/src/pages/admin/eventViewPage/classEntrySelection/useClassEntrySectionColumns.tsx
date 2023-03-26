@@ -1,16 +1,21 @@
 import { Dispatch, SetStateAction } from 'react'
 import { useTranslation } from 'react-i18next'
-import { DragIndicatorOutlined, EuroOutlined, PersonOutline } from '@mui/icons-material'
-import { GridColDef, GridValueGetterParams } from '@mui/x-data-grid'
+import {
+  DragIndicatorOutlined,
+  EditOutlined,
+  EuroOutlined,
+  EventBusyOutlined,
+  PersonOutline,
+} from '@mui/icons-material'
+import { GridActionsCellItem, GridColDef, GridColumns, GridValueGetterParams } from '@mui/x-data-grid'
 import { BreedCode, Registration } from 'koekalenteri-shared/model'
 
-import { ActionsMenu } from './ActionsMenu'
 import GroupColors from './GroupColors'
 
 export function useClassEntrySelectionColumns(eventDates: Date[], openEditDialog?: Dispatch<SetStateAction<boolean>>) {
   const { t } = useTranslation()
 
-  const entryColumns: GridColDef[] = [
+  const entryColumns: GridColumns<Registration> = [
     {
       cellClassName: 'nopad',
       field: 'dates',
@@ -89,11 +94,25 @@ export function useClassEntrySelectionColumns(eventDates: Date[], openEditDialog
     {
       cellClassName: 'nopad',
       field: 'actions',
+      type: 'actions',
       headerName: '',
       width: 30,
       minWidth: 30,
-      renderCell: (p) => <ActionsMenu id={p.row.id} openEditDialog={openEditDialog} />,
       sortable: false,
+      getActions: () => [
+        <GridActionsCellItem
+          icon={<EditOutlined fontSize="small" />}
+          label={t('edit')}
+          onClick={() => openEditDialog?.(true)}
+          showInMenu
+        />,
+        <GridActionsCellItem
+          icon={<EventBusyOutlined fontSize="small" />}
+          label={t('withdraw')}
+          onClick={() => openEditDialog?.(true)}
+          showInMenu
+        />,
+      ],
     },
   ]
 

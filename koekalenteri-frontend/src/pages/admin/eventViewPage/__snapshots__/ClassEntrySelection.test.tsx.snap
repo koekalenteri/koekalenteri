@@ -420,7 +420,7 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
                 aria-colindex="9"
                 aria-label=""
                 aria-sort="none"
-                class="MuiDataGrid-columnHeader"
+                class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignCenter"
                 data-field="actions"
                 role="columnheader"
                 style="height: 39px; width: 30px; min-width: 30px; max-width: 30px;"
@@ -922,7 +922,7 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
                 aria-colindex="9"
                 aria-label=""
                 aria-sort="none"
-                class="MuiDataGrid-columnHeader"
+                class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignCenter"
                 data-field="actions"
                 role="columnheader"
                 style="height: 39px; width: 30px; min-width: 30px; max-width: 30px;"
@@ -1424,7 +1424,7 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
                 aria-colindex="9"
                 aria-label=""
                 aria-sort="none"
-                class="MuiDataGrid-columnHeader"
+                class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignCenter"
                 data-field="actions"
                 role="columnheader"
                 style="height: 39px; width: 30px; min-width: 30px; max-width: 30px;"
@@ -1999,7 +1999,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                 aria-colindex="9"
                 aria-label=""
                 aria-sort="none"
-                class="MuiDataGrid-columnHeader"
+                class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignCenter"
                 data-field="actions"
                 role="columnheader"
                 style="height: 39px; width: 30px; min-width: 30px; max-width: 30px;"
@@ -2505,7 +2505,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                 aria-colindex="9"
                 aria-label=""
                 aria-sort="none"
-                class="MuiDataGrid-columnHeader"
+                class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignCenter"
                 data-field="actions"
                 role="columnheader"
                 style="height: 0px; width: 30px; min-width: 30px; max-width: 30px;"
@@ -3011,7 +3011,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                 aria-colindex="9"
                 aria-label=""
                 aria-sort="none"
-                class="MuiDataGrid-columnHeader"
+                class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignCenter"
                 data-field="actions"
                 role="columnheader"
                 style="height: 0px; width: 30px; min-width: 30px; max-width: 30px;"
@@ -3513,7 +3513,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                 aria-colindex="9"
                 aria-label=""
                 aria-sort="none"
-                class="MuiDataGrid-columnHeader"
+                class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignCenter"
                 data-field="actions"
                 role="columnheader"
                 style="height: 39px; width: 30px; min-width: 30px; max-width: 30px;"
@@ -4015,7 +4015,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                 aria-colindex="9"
                 aria-label=""
                 aria-sort="none"
-                class="MuiDataGrid-columnHeader"
+                class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignCenter"
                 data-field="actions"
                 role="columnheader"
                 style="height: 39px; width: 30px; min-width: 30px; max-width: 30px;"
@@ -4590,7 +4590,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                 aria-colindex="9"
                 aria-label=""
                 aria-sort="none"
-                class="MuiDataGrid-columnHeader"
+                class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignCenter"
                 data-field="actions"
                 role="columnheader"
                 style="height: 39px; width: 30px; min-width: 30px; max-width: 30px;"
@@ -5096,7 +5096,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                 aria-colindex="9"
                 aria-label=""
                 aria-sort="none"
-                class="MuiDataGrid-columnHeader"
+                class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignCenter"
                 data-field="actions"
                 role="columnheader"
                 style="height: 0px; width: 30px; min-width: 30px; max-width: 30px;"
@@ -5602,7 +5602,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                 aria-colindex="9"
                 aria-label=""
                 aria-sort="none"
-                class="MuiDataGrid-columnHeader"
+                class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignCenter"
                 data-field="actions"
                 role="columnheader"
                 style="height: 0px; width: 30px; min-width: 30px; max-width: 30px;"
@@ -6104,7 +6104,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                 aria-colindex="9"
                 aria-label=""
                 aria-sort="none"
-                class="MuiDataGrid-columnHeader"
+                class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignCenter"
                 data-field="actions"
                 role="columnheader"
                 style="height: 39px; width: 30px; min-width: 30px; max-width: 30px;"
@@ -6606,7 +6606,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                 aria-colindex="9"
                 aria-label=""
                 aria-sort="none"
-                class="MuiDataGrid-columnHeader"
+                class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignCenter"
                 data-field="actions"
                 role="columnheader"
                 style="height: 39px; width: 30px; min-width: 30px; max-width: 30px;"
@@ -7183,7 +7183,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 aria-colindex="9"
                 aria-label=""
                 aria-sort="none"
-                class="MuiDataGrid-columnHeader"
+                class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignCenter"
                 data-field="actions"
                 role="columnheader"
                 style="height: 39px; width: 30px; min-width: 30px; max-width: 30px;"
@@ -7689,7 +7689,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 aria-colindex="9"
                 aria-label=""
                 aria-sort="none"
-                class="MuiDataGrid-columnHeader"
+                class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignCenter"
                 data-field="actions"
                 role="columnheader"
                 style="height: 0px; width: 30px; min-width: 30px; max-width: 30px;"
@@ -8195,7 +8195,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 aria-colindex="9"
                 aria-label=""
                 aria-sort="none"
-                class="MuiDataGrid-columnHeader"
+                class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignCenter"
                 data-field="actions"
                 role="columnheader"
                 style="height: 0px; width: 30px; min-width: 30px; max-width: 30px;"
@@ -8688,7 +8688,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 aria-colindex="9"
                 aria-label=""
                 aria-sort="none"
-                class="MuiDataGrid-columnHeader"
+                class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignCenter"
                 data-field="actions"
                 role="columnheader"
                 style="height: 39px; width: 30px; min-width: 30px; max-width: 30px;"
@@ -8913,34 +8913,44 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                     <div
                       aria-colindex="9"
                       aria-colspan="1"
-                      class="nopad MuiDataGrid-cell--withRenderer MuiDataGrid-cell MuiDataGrid-cell--textLeft"
+                      class="nopad MuiDataGrid-cell--withRenderer MuiDataGrid-cell MuiDataGrid-cell--textCenter"
                       data-colindex="8"
                       data-field="actions"
                       role="cell"
                       style="min-width: 30px; max-width: 30px; min-height: 36px; max-height: 36px;"
                       tabindex="-1"
                     >
-                      <button
-                        aria-haspopup="true"
-                        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
-                        tabindex="0"
-                        type="button"
+                      <div
+                        class="MuiDataGrid-actionsCell"
+                        role="menu"
+                        tabindex="-1"
                       >
-                        <svg
-                          aria-hidden="true"
-                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-ptiqhd-MuiSvgIcon-root"
-                          data-testid="MenuOutlinedIcon"
-                          focusable="false"
-                          viewBox="0 0 24 24"
+                        <button
+                          aria-controls=":rel:"
+                          aria-haspopup="true"
+                          aria-label="more"
+                          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
+                          id=":rem:"
+                          role="menuitem"
+                          tabindex="-1"
+                          type="button"
                         >
-                          <path
-                            d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"
+                          <svg
+                            aria-hidden="true"
+                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-ptiqhd-MuiSvgIcon-root"
+                            data-testid="MoreVertIcon"
+                            focusable="false"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"
+                            />
+                          </svg>
+                          <span
+                            class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
                           />
-                        </svg>
-                        <span
-                          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                        />
-                      </button>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -9379,7 +9389,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 aria-colindex="9"
                 aria-label=""
                 aria-sort="none"
-                class="MuiDataGrid-columnHeader"
+                class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignCenter"
                 data-field="actions"
                 role="columnheader"
                 style="height: 39px; width: 30px; min-width: 30px; max-width: 30px;"
@@ -9677,34 +9687,44 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                     <div
                       aria-colindex="9"
                       aria-colspan="1"
-                      class="nopad MuiDataGrid-cell--withRenderer MuiDataGrid-cell MuiDataGrid-cell--textLeft"
+                      class="nopad MuiDataGrid-cell--withRenderer MuiDataGrid-cell MuiDataGrid-cell--textCenter"
                       data-colindex="8"
                       data-field="actions"
                       role="cell"
                       style="min-width: 30px; max-width: 30px; min-height: 36px; max-height: 36px;"
                       tabindex="-1"
                     >
-                      <button
-                        aria-haspopup="true"
-                        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
-                        tabindex="0"
-                        type="button"
+                      <div
+                        class="MuiDataGrid-actionsCell"
+                        role="menu"
+                        tabindex="-1"
                       >
-                        <svg
-                          aria-hidden="true"
-                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-ptiqhd-MuiSvgIcon-root"
-                          data-testid="MenuOutlinedIcon"
-                          focusable="false"
-                          viewBox="0 0 24 24"
+                        <button
+                          aria-controls=":rfm:"
+                          aria-haspopup="true"
+                          aria-label="more"
+                          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
+                          id=":rfn:"
+                          role="menuitem"
+                          tabindex="-1"
+                          type="button"
                         >
-                          <path
-                            d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"
+                          <svg
+                            aria-hidden="true"
+                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-ptiqhd-MuiSvgIcon-root"
+                            data-testid="MoreVertIcon"
+                            focusable="false"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"
+                            />
+                          </svg>
+                          <span
+                            class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
                           />
-                        </svg>
-                        <span
-                          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                        />
-                      </button>
+                        </button>
+                      </div>
                     </div>
                     <div
                       aria-colindex="10"
