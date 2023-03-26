@@ -16,7 +16,7 @@ exports[`ErrorPage should render 404 1`] = `
       Not Found
     </p>
     <div
-      class="MuiBox-root css-0"
+      class="MuiBox-root css-mro3c9"
     >
       <a
         class="link"
@@ -40,7 +40,7 @@ exports[`ErrorPage should render 500 1`] = `
       Oops
     </h1>
     <div
-      class="MuiBox-root css-0"
+      class="MuiBox-root css-mro3c9"
     >
       <a
         class="link"

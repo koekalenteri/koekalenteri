@@ -20,7 +20,7 @@ export default function LinkButton({ back, to, sx, text }: Props) {
   }
 
   return (
-    <Box sx={sx}>
+    <Box sx={{ px: 1, ...sx }}>
       <Link className="link" to={to} onClick={handleClick}>
         {text}
       </Link>
