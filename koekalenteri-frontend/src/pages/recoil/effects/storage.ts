@@ -14,11 +14,13 @@ export const parseStorageJSON = (value: string | null) => {
   return parsed
 }
 
-export const storageEffect: AtomEffect<any> = ({ node, setSelf, onSet }) => {
-  const savedValue = localStorage.getItem(node.key)
-  if (savedValue !== null) {
-    const parsed = parseStorageJSON(savedValue)
-    setSelf(parsed)
+export const storageEffect: AtomEffect<any> = ({ node, setSelf, onSet, trigger }) => {
+  if (trigger === 'get') {
+    const savedValue = localStorage.getItem(node.key)
+    if (savedValue !== null) {
+      const parsed = parseStorageJSON(savedValue)
+      setSelf(parsed)
+    }
   }
 
   onSet((newValue, _, isReset) => {
@@ -43,10 +45,12 @@ export const storageEffect: AtomEffect<any> = ({ node, setSelf, onSet }) => {
 }
 
 export function stringStorageEffect<T extends string>(defaultValue: string): AtomEffect<T> {
-  return ({ node, setSelf, onSet }) => {
-    const savedValue = localStorage.getItem(node.key)
-    if (savedValue !== null) {
-      setSelf(savedValue as T)
+  return ({ node, setSelf, onSet, trigger }) => {
+    if (trigger === 'get') {
+      const savedValue = localStorage.getItem(node.key)
+      if (savedValue !== null) {
+        setSelf(savedValue as T)
+      }
     }
 
     onSet((newValue, _, isReset) => {

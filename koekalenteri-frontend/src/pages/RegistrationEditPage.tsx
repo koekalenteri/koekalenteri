@@ -54,8 +54,6 @@ export default function RegistrationEditPage() {
     return true
   }, [navigate, resetRegistration])
 
-  const handleClick = useCallback(() => (spa ? () => navigate(-1) : undefined), [spa, navigate])
-
   useEffect(() => {
     if (event === null) {
       throw new Response('Event not found', { status: 404, statusText: t('error.eventNotFound') })
@@ -70,7 +68,7 @@ export default function RegistrationEditPage() {
 
   return (
     <>
-      <LinkButton sx={{ mb: 1 }} to="/" onClick={handleClick} text={spa ? t('goBack') : t('goHome')} />
+      <LinkButton sx={{ mb: 1 }} to="/" back={spa} text={spa ? t('goBack') : t('goHome')} />
       <RegistrationEventInfo event={event} />
       <RegistrationForm
         changes={changes}

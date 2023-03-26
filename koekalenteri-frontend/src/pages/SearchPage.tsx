@@ -26,7 +26,12 @@ export function SearchPage() {
   const location = useLocation()
 
   useEffect(() => setSpa(true), [setSpa])
-  useEffect(() => setFilter(deserializeFilter(location.search)), [location, setFilter])
+  useEffect(() => {
+    // Only replace the filter based on url, don't clear it
+    if (location.search) {
+      setFilter(deserializeFilter(location.search))
+    }
+  }, [location, setFilter])
 
   return (
     <>

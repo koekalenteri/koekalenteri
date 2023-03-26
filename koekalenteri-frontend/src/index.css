@@ -12,7 +12,9 @@ code {
     monospace;
 }
 
-html, body, #root {
+html,
+body,
+#root {
   height: 100%
 }
 
@@ -20,6 +22,24 @@ html, body, #root {
   top: 40px
 }
 
-.MuiDataGrid-columnHeader.nopad, .MuiDataGrid-cell.nopad, .nopad {
+.MuiDataGrid-columnHeader.nopad,
+.MuiDataGrid-cell.nopad,
+.nopad {
   padding: 0
+}
+
+.link {
+  text-transform: none;
+  text-decoration: underline;
+  color: black;
+  font-weight: bold;
+  font-family: Roboto, Helvetica, Arial, sans-serif;
+  font-size: 0.8125rem;
+  line-height: 1.75;
+  letter-spacing: 0.02857em;
+  padding: 0px 8px;
+}
+
+.link:hover {
+  text-decoration: none;
 }
