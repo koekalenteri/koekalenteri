@@ -1,7 +1,17 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Link } from '@mui/material'
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Link,
+  Typography,
+} from '@mui/material'
 import { isPast, isToday } from 'date-fns'
 import type { ConfirmedEvent } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue } from 'recoil'
@@ -66,7 +76,8 @@ export function RegistrationListPage({ cancel }: { cancel?: boolean }) {
           alignItems: 'flex-start',
         }}
       >
-        <LinkButton sx={{ mb: 1 }} to="/" back={spa} text={spa ? t('goBack') : t('goHome')} />
+        <LinkButton sx={{ mb: 1, pl: 0 }} to="/" back={spa} text={spa ? t('goBack') : t('goHome')} />
+        <Typography variant="h5">Ilmoittutumistiedot</Typography>
         <RegistrationEventInfo event={event} />
         <RegistrationList rows={registration ? [registration] : []} onUnregister={() => setOpen(true)} />
         <Dialog

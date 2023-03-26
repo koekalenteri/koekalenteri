@@ -3,7 +3,7 @@
 exports[`RegistrationCreatePage should render with event/eventType/id path 1`] = `
 <div>
   <div
-    class="MuiBox-root css-19idom"
+    class="MuiBox-root css-7sa5ll"
   >
     <a
       class="link"
@@ -2236,7 +2236,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
 exports[`RegistrationCreatePage should select the date on event/eventType/id/class/date path 1`] = `
 <div>
   <div
-    class="MuiBox-root css-19idom"
+    class="MuiBox-root css-7sa5ll"
   >
     <a
       class="link"
