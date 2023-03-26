@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
+import { CheckOutlined, EuroOutlined, PersonOutline } from '@mui/icons-material'
 import {
   Box,
   Button,
@@ -9,11 +10,17 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
+  Grid,
   Link,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Paper,
   Typography,
 } from '@mui/material'
 import { isPast, isToday } from 'date-fns'
-import type { ConfirmedEvent } from 'koekalenteri-shared/model'
+import type { ConfirmedEvent, Registration } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
 import Header from './components/Header'
@@ -76,9 +83,46 @@ export function RegistrationListPage({ cancel }: { cancel?: boolean }) {
           alignItems: 'flex-start',
         }}
       >
-        <LinkButton sx={{ mb: 1, pl: 0 }} to="/" back={spa} text={spa ? t('goBack') : t('goHome')} />
-        <Typography variant="h5">Ilmoittutumistiedot</Typography>
-        <RegistrationEventInfo event={event} />
+        <Grid container direction="row" wrap="nowrap">
+          <Grid item>
+            <LinkButton sx={{ mb: 1, pl: 0 }} to="/" back={spa} text={spa ? t('goBack') : t('goHome')} />
+            <Typography variant="h5">Ilmoittutumistiedot</Typography>
+            <RegistrationEventInfo event={event} />
+          </Grid>
+          <Grid item>
+            <Paper sx={{ bgcolor: 'background.selected', p: 1, m: 1, width: 350 }}>
+              <List disablePadding>
+                <ListItem disablePadding>
+                  <ListItemIcon sx={{ minWidth: 32, color: membershipIconColor(event, registration) }}>
+                    <PersonOutline fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={membershipStatus(event, registration)}
+                    primaryTypographyProps={{ variant: 'subtitle1', fontWeight: 'bold' }}
+                  />
+                </ListItem>
+                <ListItem disablePadding>
+                  <ListItemIcon sx={{ minWidth: 32, color: paymentIconColor(registration) }}>
+                    <EuroOutlined fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={paymentStatus(registration)}
+                    primaryTypographyProps={{ variant: 'subtitle1', fontWeight: 'bold' }}
+                  />
+                </ListItem>
+                <ListItem disablePadding>
+                  <ListItemIcon sx={{ minWidth: 32, color: 'primary.main' }}>
+                    <CheckOutlined fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={registrationStatus(registration)}
+                    primaryTypographyProps={{ variant: 'subtitle1', fontWeight: 'bold' }}
+                  />
+                </ListItem>
+              </List>
+            </Paper>
+          </Grid>
+        </Grid>
         <RegistrationList rows={registration ? [registration] : []} onUnregister={() => setOpen(true)} />
         <Dialog
           open={open}
@@ -129,4 +173,39 @@ export function RegistrationListPage({ cancel }: { cancel?: boolean }) {
       </Box>
     </>
   )
+}
+
+function membershipIconColor(event: ConfirmedEvent, registration: Registration) {
+  if (
+    (event.allowHandlerMembershipPriority && registration.handler.membership) ||
+    (event.allowOwnerMembershipPriority && registration.owner.membership)
+  ) {
+    return 'primary.main'
+  }
+  return 'transparent'
+}
+
+function membershipStatus(event: ConfirmedEvent, registration: Registration) {
+  if (
+    (event.allowHandlerMembershipPriority && registration.handler.membership) ||
+    (event.allowOwnerMembershipPriority && registration.owner.membership)
+  ) {
+    return 'Olen jäsen'
+  }
+  return 'En ole jäsen'
+}
+
+function paymentIconColor(registration: Registration) {
+  return registration.paymentStatus === 'SUCCESS' ? 'primary.main' : 'transparent'
+}
+
+function paymentStatus(registration: Registration) {
+  return registration.paymentStatus === 'SUCCESS' ? 'Olen maksanut' : 'En ole maksanut'
+}
+
+function registrationStatus(registration: Registration) {
+  if (registration.cancelled) {
+    return 'Olen perunut ilmoittautumiseni'
+  }
+  return registration.confirmed ? 'Olen vahvistanut ilmoittautumiseni' : 'Ilmoittautuminen vastaanotettu'
 }

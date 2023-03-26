@@ -15,17 +15,8 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
   <div
     class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation2 css-g9q2hn-MuiPaper-root"
   >
-    <h5
-      class="MuiTypography-root MuiTypography-h5 css-1pdeq72-MuiTypography-root"
-    >
-      NOU
-       
-      daterange
-       
-      test location (test)
-    </h5>
     <div
-      class="MuiBox-root css-1d8l8v2"
+      class="MuiBox-root css-g7pq3x"
     >
       <button
         class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10frfwe-MuiButtonBase-root-MuiIconButton-root"
@@ -56,7 +47,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
           <p
             class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
           >
-            eventInfo
+            NOU daterange test location (test)
           </p>
           <p
             class="MuiFormHelperText-root css-ml08u8-MuiFormHelperText-root"
@@ -88,7 +79,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                       :
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-17hsjwz-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-s4hpul-MuiGrid-root"
                     >
                       <b>
                         daterange
@@ -2248,17 +2239,8 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
   <div
     class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation2 css-g9q2hn-MuiPaper-root"
   >
-    <h5
-      class="MuiTypography-root MuiTypography-h5 css-1pdeq72-MuiTypography-root"
-    >
-      NOME-B
-       
-      daterange
-       
-      test location (test)
-    </h5>
     <div
-      class="MuiBox-root css-1d8l8v2"
+      class="MuiBox-root css-g7pq3x"
     >
       <button
         class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10frfwe-MuiButtonBase-root-MuiIconButton-root"
@@ -2289,7 +2271,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
           <p
             class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
           >
-            eventInfo
+            NOME-B daterange test location (test)
           </p>
           <p
             class="MuiFormHelperText-root css-ml08u8-MuiFormHelperText-root"
@@ -2321,7 +2303,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                       :
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-17hsjwz-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-s4hpul-MuiGrid-root"
                     >
                       <b>
                         daterange
