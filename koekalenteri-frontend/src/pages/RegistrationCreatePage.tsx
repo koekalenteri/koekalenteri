@@ -52,7 +52,7 @@ export default function RegistrationCreatePage() {
     }
     const saved = await actions.save(registration)
     resetRegistration()
-    navigate(`/registration/${saved.eventType}/${saved.eventId}/${saved.id}`)
+    navigate(Path.registration(saved))
   }, [actions, event, navigate, registration, resetRegistration])
 
   const handleCancel = useCallback(async () => {

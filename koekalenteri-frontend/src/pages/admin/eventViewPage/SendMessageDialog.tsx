@@ -33,6 +33,7 @@ import { useRecoilValue, useSetRecoilState } from 'recoil'
 
 import { sendTemplatedEmail } from '../../../api/email'
 import { formatDate, formatDateSpan } from '../../../i18n/dates'
+import { Path } from '../../../routeConfig'
 import AutocompleteSingle from '../../components/AutocompleteSingle'
 import { idTokenSelector } from '../../recoil'
 import { adminEventSelector, emailTemplatesAtom } from '../recoil'
@@ -64,7 +65,7 @@ export default function SendMessageDialog({ event, registrations, templateId, op
     }
     return [Handlebars.compile(ses.HtmlPart), Handlebars.compile(ses.SubjectPart)]
   }, [i18n.language, selectedTemplate?.ses])
-  const previewData = useRegistrationEmailTemplateData(registrations[0], event, '', '', text)
+  const previewData = useRegistrationEmailTemplateData(registrations[0], event, '', text)
 
   useEffect(() => {
     if (templateId && templates?.length) {
@@ -239,13 +240,7 @@ function listEmails(r: Registration): string {
   return [r.owner.email, r.handler.email].join(', ')
 }
 
-function useRegistrationEmailTemplateData(
-  registration: Registration,
-  event: Event,
-  origin: string | undefined,
-  context: string,
-  text: string
-) {
+function useRegistrationEmailTemplateData(registration: Registration, event: Event, context: string, text: string) {
   const { t } = useTranslation()
 
   if (!registration || !event) {
@@ -258,7 +253,7 @@ function useRegistrationEmailTemplateData(
   const regDates = registration.dates
     .map((d) => t('dateFormat.weekday', { date: d.date }) + (d.time ? ' ' + t(`registration.time.${d.time}`) : ''))
     .join(', ')
-  const link = `${origin}/registration/${registration.eventType}/${registration.eventId}/${registration.id}`
+  const link = Path.registration(registration)
   const qualifyingResults = registration.qualifyingResults.map((r) => ({
     ...r,
     date: formatDate(r.date, 'd.M.yyyy'),

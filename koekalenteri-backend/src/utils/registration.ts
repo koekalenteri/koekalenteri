@@ -27,7 +27,7 @@ export function registrationEmailTemplateData(
   const regDates = registration.dates
     .map((d) => t('dateFormat.weekday', { date: d.date }) + (d.time ? ' ' + t(`registration.time.${d.time}`) : ''))
     .join(', ')
-  const link = `${origin}/registration/${registration.eventType}/${registration.eventId}/${registration.id}`
+  const link = `${origin}/r/${registration.eventId}/${registration.id}`
   const qualifyingResults = registration.qualifyingResults.map((r) => ({
     ...r,
     date: formatDate(r.date, 'd.M.yyyy'),

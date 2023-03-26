@@ -48,6 +48,18 @@ const routes: RouteObject[] = [
         path: 'registration/:eventType/:id/:registrationId',
         element: <RegistrationListPage />,
       },
+      {
+        path: 'r/:id/:registrationId/cancel',
+        element: <RegistrationListPage cancel />,
+      },
+      {
+        path: 'r/:id/:registrationId/edit',
+        element: <RegistrationEditPage />,
+      },
+      {
+        path: 'r/:id/:registrationId',
+        element: <RegistrationListPage />,
+      },
     ],
   },
   { path: Path.login, element: <LoginPage /> },
