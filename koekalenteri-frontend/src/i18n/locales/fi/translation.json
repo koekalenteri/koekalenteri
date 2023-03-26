@@ -61,8 +61,7 @@
     "invitation": "Koekutsu",
     "picked": "Koepaikkailmoitus",
     "registration": "Vahvistusviesti",
-    "reserve": "Varasijailmoitus",
-    "reserve-move": "Varasijamuutos"
+    "reserve": "Varasijailmoitus"
   },
   "error": {
     "eventNotFound": "Tapahtumaa ei löydy",
