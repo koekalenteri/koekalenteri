@@ -20,9 +20,20 @@ export const remoteEventsEffect: AtomEffect<Event[]> = ({ setSelf, trigger }) =>
   }
 }
 
-export const urlSyncEffect: AtomEffect<FilterProps> = ({ onSet, setSelf, trigger }) => {
+export const urlSyncEffect: AtomEffect<FilterProps> = ({ node, onSet, setSelf, trigger }) => {
   if (trigger === 'get') {
-    setSelf(deserializeFilter(window.location.search))
+    // Only sync when the search is provided in url (or atleast the ? to clear)
+    if (window.location.search || window.location.href.endsWith('?')) {
+      setSelf(deserializeFilter(window.location.search))
+    } else {
+      // When not provided, look up previous value from session
+      const sessionValue = sessionStorage.getItem(node.key)
+      if (sessionValue !== null) {
+        setSelf(deserializeFilter(sessionValue))
+        const newUrl = window.location.origin + window.location.pathname + '?' + sessionValue
+        window.history.pushState({ path: newUrl }, '', newUrl)
+      }
+    }
   }
 
   onSet((newValue, oldValue) => {
@@ -33,5 +44,7 @@ export const urlSyncEffect: AtomEffect<FilterProps> = ({ onSet, setSelf, trigger
     }
     const newUrl = window.location.origin + window.location.pathname + '?' + newSearch
     window.history.pushState({ path: newUrl }, '', newUrl)
+    // Save the value in session, so it can be restored when returning from different route
+    sessionStorage.setItem(node.key, newSearch)
   })
 }

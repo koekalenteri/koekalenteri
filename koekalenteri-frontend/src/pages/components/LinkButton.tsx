@@ -1,26 +1,29 @@
 import { MouseEventHandler } from 'react'
-import { Link } from 'react-router-dom'
-import { Button } from '@mui/material'
+import { Link, useNavigate } from 'react-router-dom'
+import { Box } from '@mui/material'
 
 interface Props {
   to: string
   text: string
   sx?: Record<string, any>
-  onClick?: MouseEventHandler<HTMLAnchorElement>
+  back?: boolean
 }
 
-export default function LinkButton({ to, text, onClick, sx = {} }: Props) {
+export default function LinkButton({ back, to, sx, text }: Props) {
+  const navigate = useNavigate()
   const handleClick: MouseEventHandler<HTMLAnchorElement> = (e) => {
     e.stopPropagation()
-    onClick?.(e)
+    if (back) {
+      e.preventDefault()
+      navigate(-1)
+    }
   }
-  sx.padding = '0 8px !important'
-  sx.fontWeight = 'bold'
-  sx.textDecoration = 'underline'
 
   return (
-    <Button size="small" sx={sx} component={Link} to={to} onClick={handleClick}>
-      {text}
-    </Button>
+    <Box sx={sx}>
+      <Link className="link" to={to} onClick={handleClick}>
+        {text}
+      </Link>
+    </Box>
   )
 }

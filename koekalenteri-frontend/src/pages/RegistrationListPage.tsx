@@ -68,7 +68,7 @@ export function RegistrationListPage({ cancel }: { cancel?: boolean }) {
           mt: '36px',
         }}
       >
-        <LinkButton sx={{ mb: 1 }} to="/" text={spa ? t('goBack') : t('goHome')} />
+        <LinkButton sx={{ mb: 1 }} to="/" back={spa} text={spa ? t('goBack') : t('goHome')} />
         <RegistrationEventInfo event={event} />
         <RegistrationList rows={registration ? [registration] : []} onUnregister={() => setOpen(true)} />
         <Dialog

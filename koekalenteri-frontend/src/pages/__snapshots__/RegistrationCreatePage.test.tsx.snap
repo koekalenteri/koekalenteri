@@ -2,16 +2,16 @@
 
 exports[`RegistrationCreatePage should render with event/eventType/id path 1`] = `
 <div>
-  <a
-    class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall css-d25sdv-MuiButtonBase-root-MuiButton-root"
-    href="/"
-    tabindex="0"
+  <div
+    class="MuiBox-root css-19idom"
   >
-    goHome
-    <span
-      class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-    />
-  </a>
+    <a
+      class="link"
+      href="/"
+    >
+      goHome
+    </a>
+  </div>
   <div
     class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation2 css-g9q2hn-MuiPaper-root"
   >
@@ -2235,16 +2235,16 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
 
 exports[`RegistrationCreatePage should select the date on event/eventType/id/class/date path 1`] = `
 <div>
-  <a
-    class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall css-d25sdv-MuiButtonBase-root-MuiButton-root"
-    href="/"
-    tabindex="0"
+  <div
+    class="MuiBox-root css-19idom"
   >
-    goHome
-    <span
-      class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-    />
-  </a>
+    <a
+      class="link"
+      href="/"
+    >
+      goHome
+    </a>
+  </div>
   <div
     class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation2 css-g9q2hn-MuiPaper-root"
   >

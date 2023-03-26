@@ -3,6 +3,9 @@
 exports[`RegistrationEditPage should render 1`] = `
 <div>
   <div
+    class="MuiBox-root css-19idom"
+  />
+  <div
     class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation2 css-g9q2hn-MuiPaper-root"
   >
     <h5

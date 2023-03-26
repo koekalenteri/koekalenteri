@@ -4,8 +4,11 @@ import { AtomEffect } from 'recoil'
 
 import { getJudges } from '../../../api/judge'
 
+let loaded = false
+
 export const remoteJudgesEffect: AtomEffect<Judge[]> = ({ setSelf, trigger }) => {
-  if (trigger === 'get') {
+  if (trigger === 'get' && !loaded) {
+    loaded = true
     getJudges().then((judges) => {
       const sortedJudges = [...judges].sort((a, b) => a.name.localeCompare(b.name, i18next.language))
       setSelf(sortedJudges)

@@ -61,8 +61,6 @@ export default function RegistrationCreatePage() {
     return true
   }, [navigate, resetRegistration])
 
-  const handleClick = useCallback(() => (spa ? navigate(-1) : undefined), [spa, navigate])
-
   useEffect(() => {
     if (event === null) {
       throw new Response('Event not found', { status: 404, statusText: t('error.eventNotFound') })
@@ -75,7 +73,7 @@ export default function RegistrationCreatePage() {
 
   return (
     <>
-      <LinkButton sx={{ mb: 1 }} to="/" onClick={handleClick} text={spa ? t('goBackToSearch') : t('goHome')} />
+      <LinkButton sx={{ mb: 1 }} to="/" back={spa} text={spa ? t('goBackToSearch') : t('goHome')} />
       <RegistrationEventInfo event={event} />
       <RegistrationForm
         changes
