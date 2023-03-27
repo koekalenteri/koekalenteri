@@ -51,13 +51,13 @@ Parameters:
 
 Resources:
 
-#cognito declaration
+  # Cognito declaration
   KoekalenteriUserPool:
     Type: AWS::Cognito::UserPool
     Properties:
       AdminCreateUserConfig:
         AllowAdminCreateUserOnly: false
-      UserPoolName: KoekalenteriUsers
+      UserPoolName: !Sub 'KoekalenteriUsers-${AWS::StackName}'
       UsernameAttributes:
       - email
       AutoVerifiedAttributes:
