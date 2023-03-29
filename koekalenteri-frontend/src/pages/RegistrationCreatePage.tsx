@@ -64,8 +64,13 @@ export default function RegistrationCreatePage() {
   useEffect(() => {
     if (event === null) {
       throw new Response('Event not found', { status: 404, statusText: t('error.eventNotFound') })
+    } else if (event && registration) {
+      // make the registration is for correct event
+      if (registration.eventId !== event.id || registration.eventType !== event.eventType) {
+        setRegistration({ ...registration, eventId: event.id, eventType: event.eventType })
+      }
     }
-  }, [event, t])
+  }, [event, registration, setRegistration, t])
 
   if (!event || !registration) {
     return <LoadingPage />

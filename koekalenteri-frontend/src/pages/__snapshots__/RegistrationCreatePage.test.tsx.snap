@@ -211,7 +211,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
             <p
               class="MuiFormHelperText-root css-9tosq5-MuiFormHelperText-root"
             >
-              NOU, ke registration.time.ap / ke registration.time.ip / to registration.time.ap / to registration.time.ip, registration.reserveChoises.ANY
+              NOU, ke registration.time.ap / ke registration.time.ip / to registration.time.ap / to registration.time.ip, registration.reserveChoises.DAY
             </p>
           </div>
           <div
@@ -536,7 +536,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                               role="combobox"
                               spellcheck="false"
                               type="text"
-                              value="registration.reserveChoises.ANY"
+                              value="registration.reserveChoises.DAY"
                             />
                             <div
                               class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
@@ -2435,7 +2435,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
             <p
               class="MuiFormHelperText-root css-9tosq5-MuiFormHelperText-root"
             >
-              VOI, to registration.time.ap / to registration.time.ip, registration.reserveChoises.ANY
+              VOI, to registration.time.ap / to registration.time.ip, registration.reserveChoises.DAY
             </p>
           </div>
           <div
@@ -2714,7 +2714,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                               role="combobox"
                               spellcheck="false"
                               type="text"
-                              value="registration.reserveChoises.ANY"
+                              value="registration.reserveChoises.DAY"
                             />
                             <div
                               class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"

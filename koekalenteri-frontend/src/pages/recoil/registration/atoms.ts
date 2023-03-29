@@ -33,7 +33,7 @@ export const newRegistrationAtom = atom<Registration | undefined>({
     owner: { ...emptyPerson },
     ownerHandles: true,
     qualifyingResults: [],
-    reserve: 'ANY',
+    reserve: 'DAY',
   },
   effects: [logEffect, storageEffect],
 })

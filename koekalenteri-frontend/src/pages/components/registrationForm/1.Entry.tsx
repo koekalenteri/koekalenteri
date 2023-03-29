@@ -75,7 +75,7 @@ export function EntryInfo({
       onChange?.(changes)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [className])
+  }, [classes, className, event])
 
   const handleClassChange = useCallback((value: string) => onChange?.({ class: value }), [onChange])
   const handleDatesChange = useCallback(
