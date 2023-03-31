@@ -9,8 +9,8 @@ import {
   RegistrationMessage,
 } from 'koekalenteri-shared/model'
 
+import { getOrigin } from '../../utils/auth'
 import CustomDynamoClient from '../../utils/CustomDynamoClient'
-import { getOrigin } from '../../utils/genericHandlers'
 import { metricsError, metricsSuccess } from '../../utils/metrics'
 import { emailTo, registrationEmailTemplateData } from '../../utils/registration'
 import { response } from '../../utils/response'

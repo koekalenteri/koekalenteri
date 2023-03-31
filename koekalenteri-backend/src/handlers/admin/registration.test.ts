@@ -1,6 +1,6 @@
 import { jest } from '@jest/globals'
 import AWS from 'aws-sdk'
-import { JsonRegistrationGroupInfo } from 'koekalenteri-shared/model'
+import { JsonRegistration, JsonRegistrationGroupInfo } from 'koekalenteri-shared/model'
 
 import { defaultJSONHeaders } from '../../test-utils/headers'
 import { constructAPIGwEvent, createAWSError } from '../../test-utils/helpers'
@@ -156,22 +156,24 @@ describe('admin/registration', () => {
 
   xdescribe('fixGroups', () => {
     it('should do nothing when groups exist', async () => {
-      expect(fixGroups([{ id: 'test-reg-id', eventId: 'test-evet-id', group: { key: 'test', number: 0 } }])).toEqual([
-        { id: 'test-reg-id', eventId: 'test-evet-id', group: { key: 'test', number: 0 } },
-      ])
+      expect(
+        fixGroups([
+          { id: 'test-reg-id', eventId: 'test-evet-id', group: { key: 'test', number: 0 } } as JsonRegistration,
+        ])
+      ).toEqual([{ id: 'test-reg-id', eventId: 'test-evet-id', group: { key: 'test', number: 0 } }])
     })
 
     it('should add groups to recerve with proper numbering', async () => {
-      expect(await fixGroups([{ id: 'test-reg-id', eventId: 'test-evet-id' }])).toEqual([
+      expect(await fixGroups([{ id: 'test-reg-id', eventId: 'test-evet-id' } as JsonRegistration])).toEqual([
         { id: 'test-reg-id', eventId: 'test-evet-id', group: { key: 'reserve', number: 1 } },
       ])
       expect(updateSpy).not.toHaveBeenCalled()
 
       expect(
         await fixGroups([
-          { id: 'test-reg-id', eventId: 'test-evet-id', group: { key: 'test', number: 4 } },
-          { id: 'test-reg-id2', eventId: 'test-evet-id' },
-          { id: 'test-reg-id3', eventId: 'test-evet-id' },
+          { id: 'test-reg-id', eventId: 'test-evet-id', group: { key: 'test', number: 4 } } as JsonRegistration,
+          { id: 'test-reg-id2', eventId: 'test-evet-id' } as JsonRegistration,
+          { id: 'test-reg-id3', eventId: 'test-evet-id' } as JsonRegistration,
         ])
       ).toEqual([
         { id: 'test-reg-id', eventId: 'test-evet-id', group: { key: 'test', number: 4 } },
@@ -182,9 +184,9 @@ describe('admin/registration', () => {
 
       expect(
         await fixGroups([
-          { id: 'test-reg-id', eventId: 'test-evet-id', group: { key: 'reserve', number: 1 } },
-          { id: 'test-reg-id2', eventId: 'test-evet-id' },
-          { id: 'test-reg-id3', eventId: 'test-evet-id' },
+          { id: 'test-reg-id', eventId: 'test-evet-id', group: { key: 'reserve', number: 1 } } as JsonRegistration,
+          { id: 'test-reg-id2', eventId: 'test-evet-id' } as JsonRegistration,
+          { id: 'test-reg-id3', eventId: 'test-evet-id' } as JsonRegistration,
         ])
       ).toEqual([
         { id: 'test-reg-id', eventId: 'test-evet-id', group: { key: 'reserve', number: 1 } },
@@ -195,10 +197,10 @@ describe('admin/registration', () => {
 
       expect(
         await fixGroups([
-          { id: 'test-reg-id-1', eventId: 'test-evet-id' },
-          { id: 'test-reg-id', eventId: 'test-evet-id', group: { key: 'reserve', number: 1 } },
-          { id: 'test-reg-id-2', eventId: 'test-evet-id' },
-          { id: 'test-reg-id-3', eventId: 'test-evet-id' },
+          { id: 'test-reg-id-1', eventId: 'test-evet-id' } as JsonRegistration,
+          { id: 'test-reg-id', eventId: 'test-evet-id', group: { key: 'reserve', number: 1 } } as JsonRegistration,
+          { id: 'test-reg-id-2', eventId: 'test-evet-id' } as JsonRegistration,
+          { id: 'test-reg-id-3', eventId: 'test-evet-id' } as JsonRegistration,
         ])
       ).toEqual([
         { id: 'test-reg-id-1', eventId: 'test-evet-id', group: { key: 'reserve', number: 2 } },

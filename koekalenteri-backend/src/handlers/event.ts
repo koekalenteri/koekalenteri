@@ -4,8 +4,9 @@ import { AWSError } from 'aws-sdk'
 import { JsonConfirmedEvent, JsonRegistration } from 'koekalenteri-shared/model'
 import { nanoid } from 'nanoid'
 
+import { authorize, getUsername } from '../utils/auth'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
-import { authorize, genericReadAllHandler, genericReadHandler, getUsername } from '../utils/genericHandlers'
+import { genericReadAllHandler, genericReadHandler } from '../utils/genericHandlers'
 import { metricsError, metricsSuccess } from '../utils/metrics'
 import { response } from '../utils/response'
 
@@ -16,7 +17,7 @@ export const getEventHandler = genericReadHandler(dynamoDB, 'getEvent')
 export const putEventHandler = metricScope(
   (metrics: MetricsLogger) =>
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-      authorize(event)
+      await authorize(event)
 
       const timestamp = new Date().toISOString()
       const username = getUsername(event)

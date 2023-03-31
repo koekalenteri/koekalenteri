@@ -4,9 +4,10 @@ import AWS from 'aws-sdk'
 import type { SendTemplatedEmailRequest, Template } from 'aws-sdk/clients/ses'
 import { EmailTemplateId, JsonEmailTemplate, JsonRegistration, Language } from 'koekalenteri-shared/model'
 
+import { authorize, getUsername } from '../utils/auth'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { markdownToTemplate } from '../utils/email/markdown'
-import { authorize, genericReadAllHandler, getUsername } from '../utils/genericHandlers'
+import { genericReadAllHandler } from '../utils/genericHandlers'
 import { metricsError, metricsSuccess } from '../utils/metrics'
 import { response } from '../utils/response'
 
@@ -67,7 +68,7 @@ export const getTemplatesHandler = genericReadAllHandler(dynamoDB, 'getTemplates
 export const putTemplateHandler = metricScope(
   (metrics: MetricsLogger) =>
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-      authorize(event)
+      await authorize(event)
 
       const timestamp = new Date().toISOString()
       const username = getUsername(event)

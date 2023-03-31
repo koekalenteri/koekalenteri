@@ -3,8 +3,9 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import { AWSError } from 'aws-sdk'
 import { EventType, JsonDbRecord, Judge, Official } from 'koekalenteri-shared/model'
 
+import { authorize, getUsername } from '../utils/auth'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
-import { authorize, createDbRecord, getUsername } from '../utils/genericHandlers'
+import { createDbRecord } from '../utils/genericHandlers'
 import KLAPI from '../utils/KLAPI'
 import { KLKieli, KLKieliToLang } from '../utils/KLAPI_models'
 import { metricsError, metricsSuccess } from '../utils/metrics'
@@ -51,7 +52,7 @@ export const getEventTypesHandler = metricScope(
 export const putEventTypeHandler = metricScope(
   (metrics: MetricsLogger) =>
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-      authorize(event)
+      await authorize(event)
 
       const timestamp = new Date().toISOString()
       const username = getUsername(event)

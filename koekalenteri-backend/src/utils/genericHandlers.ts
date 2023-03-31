@@ -5,6 +5,7 @@ import { nanoid } from 'nanoid'
 
 import 'source-map-support/register'
 
+import { authorize, getUsername } from './auth'
 import CustomDynamoClient from './CustomDynamoClient'
 import { metricsError, metricsSuccess } from './metrics'
 import { response } from './response'
@@ -60,7 +61,7 @@ export const genericWriteHandler = (
   name: string
 ): ((event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult>) =>
   metricScope((metrics: MetricsLogger) => async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-    authorize(event)
+    await authorize(event)
 
     const timestamp = new Date().toISOString()
     const username = getUsername(event)
@@ -75,26 +76,3 @@ export const genericWriteHandler = (
       return response((err as AWSError).statusCode || 501, err)
     }
   })
-
-export function authorize(event: APIGatewayProxyEvent) {
-  // TODO: remove unauthorized access
-  console.log(event.requestContext)
-
-  const origin = getOrigin(event)
-  const authorized =
-    event.requestContext.authorizer !== null ||
-    origin === 'https://dev.koekalenteri.snj.fi' ||
-    origin === 'http://localhost:3000'
-
-  if (!authorized || event.body === null) {
-    throw new Error('Unauthorized user')
-  }
-}
-
-export function getOrigin(event: APIGatewayProxyEvent) {
-  return event.headers.origin || event.headers.Origin
-}
-
-export function getUsername(event: APIGatewayProxyEvent) {
-  return event.requestContext.authorizer?.claims['cognito:username'] || 'anonymous'
-}
