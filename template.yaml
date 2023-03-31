@@ -138,12 +138,31 @@ Resources:
       KeySchema:
           - AttributeName: id
             KeyType: HASH
-          - AttributeName: cognito-username
-            KeyType: RANGE
       AttributeDefinitions:
           - AttributeName: id
             AttributeType: S
-          - AttributeName: cognito-username
+      Tags:
+        - Key: Env
+          Value: !Ref AWS::StackName
+        - Key: Label
+          Value: "koekalenteri"
+      BillingMode: PAY_PER_REQUEST
+      SSESpecification:
+        SSEEnabled: false
+
+  UserLinkTable: # Table linking cognito users to koekalenteri users. Multiple cognito users can link to same koekalenteri user.
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Join ['-', [user-link-table, !Ref AWS::StackName]]
+      KeySchema:
+          - AttributeName: cognitoUser
+            KeyType: HASH
+          - AttributeName: userId
+            KeyType: RANGE
+      AttributeDefinitions:
+          - AttributeName: cognitoUser
+            AttributeType: S
+          - AttributeName: userId
             AttributeType: S
       Tags:
         - Key: Env
