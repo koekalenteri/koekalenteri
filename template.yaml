@@ -330,7 +330,6 @@ Resources:
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
           USE_DYNAMODB_LOCAL: "0"
           DYNAMODB_LOCAL_URI: ""
-
       Events:
         GetEvents:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
@@ -356,7 +355,6 @@ Resources:
           STACK_NAME: !Ref AWS::StackName
           TABLE_NAME: !Ref EventTable
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
-
       Events:
         GetEvent:
           Type: Api
@@ -382,7 +380,6 @@ Resources:
           STACK_NAME: !Ref AWS::StackName
           TABLE_NAME: !Ref EventTable
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
-
       Events:
         PutEvent:
           Type: Api
@@ -407,14 +404,12 @@ Resources:
         - DynamoDBCrudPolicy:
             TableName: !Ref EventTable
         - CloudWatchPutMetricPolicy: {}
-
       Environment:
         Variables:
           STACK_NAME: !Ref AWS::StackName
           TABLE_NAME: !Ref EventRegistrationTable
           EVENT_TABLE_NAME : !Ref EventTable
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
-
       Events:
         GetRegistration:
           Type: Api
@@ -435,13 +430,11 @@ Resources:
         - DynamoDBCrudPolicy:
             TableName: !Ref EventRegistrationTable
         - CloudWatchPutMetricPolicy: {}
-
       Environment:
         Variables:
           STACK_NAME: !Ref AWS::StackName
           TABLE_NAME: !Ref EventRegistrationTable
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
-
       Events:
         GetEvent:
           Type: Api
@@ -470,14 +463,12 @@ Resources:
               Action:
               - ses:sendTemplatedEmail
               Resource: '*'
-
       Environment:
         Variables:
           STACK_NAME: !Ref AWS::StackName
           TABLE_NAME: !Ref EventRegistrationTable
           EVENT_TABLE_NAME : !Ref EventTable
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
-
       Events:
         PutRegistration:
           Type: Api
@@ -500,14 +491,12 @@ Resources:
         - DynamoDBCrudPolicy:
             TableName: !Ref EventTable
         - CloudWatchPutMetricPolicy: {}
-
       Environment:
         Variables:
           STACK_NAME: !Ref AWS::StackName
           TABLE_NAME: !Ref EventRegistrationTable
           EVENT_TABLE_NAME : !Ref EventTable
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
-
       Events:
         PutRegistrationGroups:
           Type: Api
@@ -549,7 +538,6 @@ Resources:
           TABLE_NAME: !Ref JudgeTable
           EVENT_TYPE_TABLE_NAME : !Ref EventTypeTable
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
-
       Events:
         GetJudges:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
@@ -575,7 +563,6 @@ Resources:
           STACK_NAME: !Ref AWS::StackName
           TABLE_NAME: !Ref JudgeTable
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
-
       Events:
         PutJudge:
           Type: Api
@@ -613,7 +600,6 @@ Resources:
           TABLE_NAME: !Ref OfficialTable
           EVENT_TYPE_TABLE_NAME : !Ref EventTypeTable
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
-
       Events:
         GetOfficials:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
@@ -646,7 +632,6 @@ Resources:
           STACK_NAME: !Ref AWS::StackName
           TABLE_NAME: !Ref OrganizerTable
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
-
       Events:
         GetOrganizers:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
@@ -679,7 +664,6 @@ Resources:
           STACK_NAME: !Ref AWS::StackName
           TABLE_NAME: !Ref DogTable
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
-
       Events:
         GetDog:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
@@ -687,6 +671,12 @@ Resources:
             Path: /dog/{regNo}
             Method: get
             RestApiId: !Ref KoekalenteriApi
+
+  GetDogFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref GetDogFunction]]
+      RetentionInDays: 30
 
   GetEventTypesFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
@@ -712,7 +702,6 @@ Resources:
           STACK_NAME: !Ref AWS::StackName
           TABLE_NAME: !Ref EventTypeTable
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
-
       Events:
         GetEventTypes:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
@@ -744,7 +733,6 @@ Resources:
           JUDGE_TABLE_NAME: !Ref JudgeTable
           OFFICIAL_TABLE_NAME: !Ref OfficialTable
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
-
       Events:
         PutEventType:
           Type: Api
@@ -754,6 +742,12 @@ Resources:
             RestApiId: !Ref KoekalenteriApi
             Auth:
               Authorizer: CognitoAuthorizer
+
+  PutEventTypesFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref PutEventTypesFunction]]
+      RetentionInDays: 30
 
   GetEmailTemplatesFunction:
     Type: AWS::Serverless::Function
@@ -774,7 +768,6 @@ Resources:
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
           USE_DYNAMODB_LOCAL: "0"
           DYNAMODB_LOCAL_URI: ""
-
       Events:
         GetEmailTemplates:
           Type: Api
@@ -810,7 +803,6 @@ Resources:
           STACK_NAME: !Ref AWS::StackName
           TABLE_NAME: !Ref EmailTemplatesTable
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
-
       Events:
         PutEmailTemplate:
           Type: Api
@@ -847,7 +839,6 @@ Resources:
           TABLE_NAME: !Ref EventRegistrationTable
           EVENT_TABLE_NAME : !Ref EventTable
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
-
       Events:
         PutEmailTemplate:
           Type: Api
@@ -884,7 +875,6 @@ Resources:
           USER_TABLE_NAME: !Ref UserTable
           USER_LINK_TABLE_NAME : !Ref UserLinkTable
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
-
       Events:
         GetUser:
           Type: Api
@@ -924,7 +914,6 @@ Resources:
         Variables:
           TABLE_NAME: !Ref EventRegistrationTable
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
-
       Events:
         PutEvent:
           Type: Api
