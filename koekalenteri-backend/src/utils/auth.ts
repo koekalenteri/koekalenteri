@@ -4,7 +4,10 @@ import { nanoid } from 'nanoid'
 
 import CustomDynamoClient from './CustomDynamoClient'
 
-const dynamoDB = new CustomDynamoClient('user-link-table')
+const USER_LINK_TABLE = process.env.USER_LINK_TABLE_NAME
+const USER_TABLE = process.env.USER_TABLE_NAME
+
+const dynamoDB = new CustomDynamoClient(USER_LINK_TABLE)
 
 export async function authorize(event: APIGatewayProxyEvent) {
   const user = await getOrCreateUser(event)
@@ -31,7 +34,7 @@ async function getOrCreateUser(event: APIGatewayProxyEvent) {
   const link = await dynamoDB.read<{ cognitoUser: string; userId: string }>({ cognitoUser })
 
   if (link) {
-    user = await dynamoDB.read<User>({ id: link.userId }, 'user-table')
+    user = await dynamoDB.read<User>({ id: link.userId }, USER_TABLE)
   } else {
     const { name, email } = event.requestContext.authorizer.claims
 
@@ -44,7 +47,7 @@ async function getOrCreateUser(event: APIGatewayProxyEvent) {
     } else {
       // create new user
       user = { id: nanoid(), name, email }
-      dynamoDB.write(user, 'user-table')
+      dynamoDB.write(user, USER_TABLE)
     }
     dynamoDB.write({ cognitoUser, userId: user.id })
   }
