@@ -36,7 +36,7 @@ async function getOrCreateUser(event: APIGatewayProxyEvent) {
     return null
   }
 
-  const link = await dynamoDB.read<UserLink>({ cognitoUser })
+  const link = await dynamoDB.read<UserLink>({ cognitoUser }, USER_LINK_TABLE)
 
   if (link) {
     user = await dynamoDB.read<User>({ id: link.userId }, USER_TABLE)
@@ -53,7 +53,7 @@ async function getOrCreateUser(event: APIGatewayProxyEvent) {
       user = { id: nanoid(), name, email }
       dynamoDB.write(user, USER_TABLE)
     }
-    dynamoDB.write({ cognitoUser, userId: user.id })
+    dynamoDB.write({ cognitoUser, userId: user.id }, USER_LINK_TABLE)
   }
   return user
 }
