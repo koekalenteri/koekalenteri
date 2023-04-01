@@ -4,6 +4,11 @@ import { nanoid } from 'nanoid'
 
 import CustomDynamoClient from './CustomDynamoClient'
 
+interface UserLink {
+  cognitoUser: string
+  userId: string
+}
+
 const USER_LINK_TABLE = process.env.USER_LINK_TABLE_NAME
 const USER_TABLE = process.env.USER_TABLE_NAME
 
@@ -31,16 +36,15 @@ async function getOrCreateUser(event: APIGatewayProxyEvent) {
     return null
   }
 
-  const link = await dynamoDB.read<{ cognitoUser: string; userId: string }>({ cognitoUser })
+  const link = await dynamoDB.read<UserLink>({ cognitoUser })
 
   if (link) {
     user = await dynamoDB.read<User>({ id: link.userId }, USER_TABLE)
   } else {
+    // no user link forund for the cognitoUser
     const { name, email } = event.requestContext.authorizer.claims
 
-    const users = await dynamoDB.query<User>('email = :email', {
-      ':email': email,
-    })
+    const users = (await dynamoDB.readAll<User>(USER_TABLE))?.filter((item) => item.email === email)
     if (users?.length) {
       // link to existing user
       user = users[0]

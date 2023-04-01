@@ -893,7 +893,7 @@ Resources:
             Method: GET
             RestApiId: !Ref KoekalenteriApi
             Auth:
-              Authorizer: CognitoAuthorizer # NB: CognitoAuthorizer does not work locally
+              Authorizer: CognitoAuthorizer # NB: CognitoAuthorizer does not work locally https://github.com/aws/aws-sam-cli/issues/137
 
   GetUserFunctionLogGroup:
     Type: AWS::Logs::LogGroup
