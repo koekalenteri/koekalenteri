@@ -743,10 +743,10 @@ Resources:
             Auth:
               Authorizer: CognitoAuthorizer
 
-  PutEventTypesFunctionLogGroup:
+  PutEventTypeFunctionLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: !Join ['/', ['/aws/lambda', !Ref PutEventTypesFunction]]
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref PutEventTypeFunction]]
       RetentionInDays: 30
 
   GetEmailTemplatesFunction:
