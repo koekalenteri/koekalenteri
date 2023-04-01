@@ -25,11 +25,11 @@ export const getRegistrationHandler = metricScope(
           delete item.group
         }
         metricsSuccess(metrics, event.requestContext, 'getRegistration')
-        return response(200, item)
+        return response(200, item, event)
       } catch (err) {
         console.error(err)
         metricsError(metrics, event.requestContext, 'getRegistration')
-        return response((err as AWSError).statusCode || 501, err)
+        return response((err as AWSError).statusCode || 501, err, event)
       }
     }
 )
@@ -80,14 +80,14 @@ export const putRegistrationHandler = metricScope(
         }
 
         metricsSuccess(metrics, event.requestContext, 'putRegistration')
-        return response(200, registration)
+        return response(200, registration, event)
       } catch (err) {
         console.error(err)
         if (err instanceof Error) {
           console.error(err.message)
         }
         metricsError(metrics, event.requestContext, 'putRegistration')
-        return response((err as AWSError).statusCode || 501, err)
+        return response((err as AWSError).statusCode || 501, err, event)
       }
     }
 )

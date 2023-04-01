@@ -75,11 +75,11 @@ export const getRegistrationsHandler = metricScope(
         })
         const itemsWithGroups = await fixGroups(items ?? [])
         metricsSuccess(metrics, event.requestContext, 'getRegistrations')
-        return response(200, itemsWithGroups)
+        return response(200, itemsWithGroups, event)
       } catch (err: unknown) {
         console.error(err)
         metricsError(metrics, event.requestContext, 'getRegistrations')
-        return response((err as AWSError).statusCode || 501, err)
+        return response((err as AWSError).statusCode || 501, err, event)
       }
     }
 )
