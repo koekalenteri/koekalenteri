@@ -173,14 +173,14 @@ export const putRegistrationGroupsHandler = metricScope(
         }
 
         metricsSuccess(metrics, event.requestContext, 'putRegistrationGroups')
-        return response(200, { items: itemsWithGroups, classes, entries, ...emails })
+        return response(200, { items: itemsWithGroups, classes, entries, ...emails }, event)
       } catch (err) {
         console.error(err)
         if (err instanceof Error) {
           console.error(err.message)
         }
         metricsError(metrics, event.requestContext, 'putRegistrationGroups')
-        return response((err as AWSError).statusCode || 501, err)
+        return response((err as AWSError).statusCode || 501, err, event)
       }
     }
 )
@@ -219,14 +219,14 @@ export const sendMessagesHandler = metricScope((metrics: MetricsLogger) => async
 
     metricsSuccess(metrics, event.requestContext, 'sendMessageHandler')
     const { state, classes } = confirmedEvent
-    return response(200, { ok, failed, classes, state })
+    return response(200, { ok, failed, classes, state }, event)
   } catch (err) {
     console.error(err)
     if (err instanceof Error) {
       console.error(err.message)
     }
     metricsError(metrics, event.requestContext, 'sendMessageHandler')
-    return response((err as AWSError).statusCode || 501, err)
+    return response((err as AWSError).statusCode || 501, err, event)
   }
 })
 
