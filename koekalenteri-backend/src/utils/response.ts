@@ -7,6 +7,10 @@ const allowOrigin = (event: APIGatewayProxyEvent) => {
   if (origin?.endsWith('koekalenteri.snj.fi')) {
     return origin
   }
+  // TODO: remove localhost access
+  if (origin === 'http://localhost:3000') {
+    return origin
+  }
   return 'https://koekalenteri.snj.fi'
 }
 
