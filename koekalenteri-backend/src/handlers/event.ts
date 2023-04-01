@@ -53,6 +53,7 @@ export const putEventHandler = metricScope(
         metricsSuccess(metrics, event.requestContext, 'putEvent')
         return response(200, data)
       } catch (err) {
+        console.error(err)
         metricsError(metrics, event.requestContext, 'putEvent')
         return response((err as AWSError).statusCode || 501, err)
       }

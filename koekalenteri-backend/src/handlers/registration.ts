@@ -27,6 +27,7 @@ export const getRegistrationHandler = metricScope(
         metricsSuccess(metrics, event.requestContext, 'getRegistration')
         return response(200, item)
       } catch (err) {
+        console.error(err)
         metricsError(metrics, event.requestContext, 'getRegistration')
         return response((err as AWSError).statusCode || 501, err)
       }
