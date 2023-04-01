@@ -868,6 +868,42 @@ Resources:
       LogGroupName: !Join ['/', ['/aws/lambda', !Ref SendRegistrationMessagesFunction]]
       RetentionInDays: 30
 
+  GetUserFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: koekalenteri-backend
+      Handler: dist/handlers/user.getUserHandler
+      Layers:
+        - !Ref CommonLayer
+      Tracing: Active
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UserTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UserLinkTable
+        - CloudWatchPutMetricPolicy: {}
+      Environment:
+        Variables:
+          STACK_NAME: !Ref AWS::StackName
+          USER_TABLE_NAME: !Ref UserTable
+          USER_LINK_TABLE_NAME : !Ref UserLinkTable
+          AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
+
+      Events:
+        GetUser:
+          Type: Api
+          Properties:
+            Path: /user
+            Method: GET
+            RestApiId: !Ref KoekalenteriApi
+            Auth:
+              Authorizer: CognitoAuthorizer
+
+  GetUserFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref GetUserFunction]]
+      RetentionInDays: 30
 
   PaymentConfirmFunction:
     Type: AWS::Serverless::Function

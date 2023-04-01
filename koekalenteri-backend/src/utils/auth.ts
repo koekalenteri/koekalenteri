@@ -1,15 +1,10 @@
 import { APIGatewayProxyEvent } from 'aws-lambda'
+import { User } from 'koekalenteri-shared/model'
 import { nanoid } from 'nanoid'
 
 import CustomDynamoClient from './CustomDynamoClient'
 
 const dynamoDB = new CustomDynamoClient('user-link-table')
-
-export interface User {
-  id: string
-  name: string
-  email: string
-}
 
 export async function authorize(event: APIGatewayProxyEvent) {
   // TODO: remove unauthorized access

@@ -1,9 +1,14 @@
-import { Language } from 'koekalenteri-shared/model'
+import { Language, User } from 'koekalenteri-shared/model'
 import { atom, atomFamily } from 'recoil'
 
 import { logEffect, stringStorageEffect } from '../effects'
 
-import { i18nextEffect } from './effects'
+import { i18nextEffect, remoteUserEffect } from './effects'
+
+export const userAtom = atom<User | null>({
+  key: 'user',
+  effects: [logEffect, remoteUserEffect],
+})
 
 export const languageAtom = atom<Language>({
   key: 'language',

@@ -23,3 +23,7 @@ export interface Judge extends OfficialPerson {
   active?: boolean
   official?: boolean
 }
+
+export interface User extends Person {
+  id: string
+}
