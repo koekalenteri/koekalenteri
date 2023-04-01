@@ -32,11 +32,11 @@ export default class CustomDynamoClient {
 
   async readAll<T>(table?: string): Promise<T[] | undefined> {
     // TODO should this be improved with a query? Or create a query version of this?
-    const data = await this.docClient
-      .scan({
-        TableName: table ? fromSamLocalTable(table) : this.table,
-      })
-      .promise()
+    const params = {
+      TableName: table ? fromSamLocalTable(table) : this.table,
+    }
+    console.log('DB.scan', params)
+    const data = await this.docClient.scan(params).promise()
     return data.Items?.filter((item: JsonObject) => !item.deletedAt) as T[]
   }
 
@@ -49,6 +49,7 @@ export default class CustomDynamoClient {
       TableName: table ? fromSamLocalTable(table) : this.table,
       Key: key,
     }
+    console.log('DB.get', params)
     const data = await this.docClient.get(params).promise()
     return data.Item as T
   }
@@ -67,6 +68,7 @@ export default class CustomDynamoClient {
       KeyConditionExpression: key,
       ExpressionAttributeValues: values,
     }
+    console.log('DB.query', params)
     const data = await this.docClient.query(params).promise()
     return data.Items as T[]
   }
@@ -76,6 +78,7 @@ export default class CustomDynamoClient {
       TableName: table ? fromSamLocalTable(table) : this.table,
       Item,
     }
+    console.log('DB.write', params)
     return this.docClient.put(params).promise()
   }
 
@@ -93,6 +96,7 @@ export default class CustomDynamoClient {
       ExpressionAttributeNames: names,
       ExpressionAttributeValues: values,
     }
+    console.log('DB.update', params)
     return this.docClient.update(params).promise()
   }
 }
