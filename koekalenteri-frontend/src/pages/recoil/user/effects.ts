@@ -22,7 +22,12 @@ export const remoteUserEffect: AtomEffect<User | null> = ({ setSelf, getPromise,
         setSelf(null)
       } else {
         console.log(token)
-        getUser(token).then(setSelf)
+        getUser(token)
+          .then(setSelf)
+          .catch((err) => {
+            console.error(err)
+            setSelf(null)
+          })
       }
     })
   }
