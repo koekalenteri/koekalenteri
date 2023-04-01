@@ -51,11 +51,11 @@ export const putEventHandler = metricScope(
         const data = { ...existing, ...item }
         await dynamoDB.write(data)
         metricsSuccess(metrics, event.requestContext, 'putEvent')
-        return response(200, data)
+        return response(200, data, event)
       } catch (err) {
         console.error(err)
         metricsError(metrics, event.requestContext, 'putEvent')
-        return response((err as AWSError).statusCode || 501, err)
+        return response((err as AWSError).statusCode || 501, err, event)
       }
     }
 )

@@ -52,7 +52,7 @@ export const paymentNotification = metricScope(
       const processed = (registration.confirmed && registration.receiptSent) || registration.cancelled
 
       // If the payment hasn't been completely processed, send an error response to receive further notifications and try again.
-      return processed ? response(200, undefined) : response(500, 'Unexpected')
+      return processed ? response(200, undefined, event) : response(500, 'Unexpected', event)
     }
 )
 
@@ -110,7 +110,7 @@ const handlePayment: HandlePayment = async (event, source, metrics) => {
         transactionId,
       })
 
-      return response(200, registration)
+      return response(200, registration, event)
     }
 
     registration.paymentStatus = queryStatus === 'ok' ? 'SUCCESS' : queryStatus === 'fail' ? 'CANCEL' : paymentStatus
@@ -125,7 +125,7 @@ const handlePayment: HandlePayment = async (event, source, metrics) => {
     if (registration.paidAt && !receiptSent && source === 'notification') {
       //!!!
       const receiptResult = await sendReceipt(registration, new Date(registration.paidAt).toLocaleDateString('fi'))
-      registration.receiptSent = receiptResult.isOk()
+      //registration.receiptSent = receiptResult.isOk()
     }
 
     await dynamoDB.write(registration)
@@ -140,10 +140,10 @@ const handlePayment: HandlePayment = async (event, source, metrics) => {
     })
 
     metricsSuccess(metrics, event.requestContext, 'handlePayment')
-    return response(200, registration)
+    return response(200, registration, event)
   } catch (err) {
     metricsError(metrics, event.requestContext, 'handlePayment')
-    return response((err as AWSError).statusCode || 501, err)
+    return response((err as AWSError).statusCode || 501, err, event)
   }
 }
 

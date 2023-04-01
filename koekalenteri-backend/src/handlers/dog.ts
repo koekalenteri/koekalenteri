@@ -84,16 +84,16 @@ export const getDogHandler = metricScope(
             await dynamoDB.write(item)
           } else {
             metricsError(metrics, event.requestContext, 'getDog')
-            return response(status, 'Upstream error: ' + error)
+            return response(status, 'Upstream error: ' + error, event)
           }
         }
 
         metricsSuccess(metrics, event.requestContext, 'getDog')
-        return response(200, item)
+        return response(200, item, event)
       } catch (err) {
         console.error(err)
         metricsError(metrics, event.requestContext, 'getDog')
-        return response((err as AWSError).statusCode || 501, err)
+        return response((err as AWSError).statusCode || 501, err, event)
       }
     }
 )

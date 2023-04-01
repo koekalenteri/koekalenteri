@@ -40,11 +40,11 @@ export const getEventTypesHandler = metricScope(
         }
         const items = await dynamoDB.readAll()
         metricsSuccess(metrics, event.requestContext, 'getEventTypes')
-        return response(200, items)
+        return response(200, items, event)
       } catch (err) {
         console.error(err)
         metricsError(metrics, event.requestContext, 'getEventTypes')
-        return response((err as AWSError).statusCode || 501, err)
+        return response((err as AWSError).statusCode || 501, err, event)
       }
     }
 )
@@ -96,11 +96,11 @@ export const putEventTypeHandler = metricScope(
           }
         }
         metricsSuccess(metrics, event.requestContext, 'putEventType')
-        return response(200, item)
+        return response(200, item, event)
       } catch (err) {
         console.error(err)
         metricsError(metrics, event.requestContext, 'putEventType')
-        return response((err as AWSError).statusCode || 501, err)
+        return response((err as AWSError).statusCode || 501, err, event)
       }
     }
 )

@@ -12,11 +12,11 @@ export const getUserHandler = metricScope(
       try {
         const user = await authorize(event)
         metricsSuccess(metrics, event.requestContext, 'getUser')
-        return response(200, user)
+        return response(200, user, event)
       } catch (err) {
         console.error(err)
         metricsError(metrics, event.requestContext, 'getUser')
-        return response((err as AWSError).statusCode || 501, err)
+        return response((err as AWSError).statusCode || 501, err, event)
       }
     }
 )

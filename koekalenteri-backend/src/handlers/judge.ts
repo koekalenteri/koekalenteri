@@ -50,11 +50,11 @@ export const getJudgesHandler = metricScope(
         }
         const items = (await dynamoDB.readAll<Judge & JsonDbRecord>())?.filter((j) => !j.deletedAt)
         metricsSuccess(metrics, event.requestContext, 'getJudges')
-        return response(200, items)
+        return response(200, items, event)
       } catch (err) {
         console.error(err)
         metricsError(metrics, event.requestContext, 'getJudges')
-        return response((err as AWSError).statusCode || 501, err)
+        return response((err as AWSError).statusCode || 501, err, event)
       }
     }
 )

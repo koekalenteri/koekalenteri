@@ -95,11 +95,11 @@ export const putTemplateHandler = metricScope(
         await dynamoDB.write(data)
 
         metricsSuccess(metrics, event.requestContext, 'putTemplate')
-        return response(200, data)
+        return response(200, data, event)
       } catch (err) {
         console.error(err)
         metricsError(metrics, event.requestContext, 'putTemplate')
-        return response((err as AWS.AWSError).statusCode || 501, err)
+        return response((err as AWS.AWSError).statusCode || 501, err, event)
       }
     }
 )

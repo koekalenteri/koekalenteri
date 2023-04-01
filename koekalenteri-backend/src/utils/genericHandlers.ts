@@ -18,10 +18,10 @@ export const genericReadAllHandler = (
     try {
       const items = await dynamoDB.readAll()
       metricsSuccess(metrics, event.requestContext, name)
-      return response(200, items)
+      return response(200, items, event)
     } catch (err) {
       metricsError(metrics, event.requestContext, name)
-      return response((err as AWSError).statusCode || 501, err)
+      return response((err as AWSError).statusCode || 501, err, event)
     }
   })
 
@@ -33,10 +33,10 @@ export const genericReadHandler = (
     try {
       const item = await dynamoDB.read(event.pathParameters)
       metricsSuccess(metrics, event.requestContext, name)
-      return response(200, item)
+      return response(200, item, event)
     } catch (err) {
       metricsError(metrics, event.requestContext, name)
-      return response((err as AWSError).statusCode || 501, err)
+      return response((err as AWSError).statusCode || 501, err, event)
     }
   })
 
@@ -70,9 +70,9 @@ export const genericWriteHandler = (
       const item = createDbRecord(event, timestamp, username)
       await dynamoDB.write(item)
       metricsSuccess(metrics, event.requestContext, name)
-      return response(200, item)
+      return response(200, item, event)
     } catch (err) {
       metricsError(metrics, event.requestContext, name)
-      return response((err as AWSError).statusCode || 501, err)
+      return response((err as AWSError).statusCode || 501, err, event)
     }
   })

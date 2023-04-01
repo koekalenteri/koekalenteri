@@ -26,11 +26,11 @@ export const getOrganizersHandler = metricScope(
         }
         const items = await dynamoDB.readAll()
         metricsSuccess(metrics, event.requestContext, 'getOrganizers')
-        return response(200, items)
+        return response(200, items, event)
       } catch (err) {
         console.error(err)
         metricsError(metrics, event.requestContext, 'getOrganizers')
-        return response((err as AWSError).statusCode || 501, err)
+        return response((err as AWSError).statusCode || 501, err, event)
       }
     }
 )

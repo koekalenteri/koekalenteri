@@ -47,14 +47,14 @@ export const getOfficialsHandler = metricScope(
         }
         const items = (await dynamoDB.readAll<Official & JsonDbRecord>())?.filter((o) => !o.deletedAt)
         metricsSuccess(metrics, event.requestContext, 'getOfficials')
-        return response(200, items)
+        return response(200, items, event)
       } catch (err) {
         console.error(err)
         if (err instanceof Error) {
           console.error(err.message)
         }
         metricsError(metrics, event.requestContext, 'getOfficials')
-        return response((err as AWSError).statusCode || 501, err)
+        return response((err as AWSError).statusCode || 501, err, event)
       }
     }
 )
