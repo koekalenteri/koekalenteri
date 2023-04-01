@@ -134,7 +134,7 @@ Resources:
   UserTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: !Join ['-', [user-table, !Ref AWS::StackName]]
+      TableName: !Join ['-', [user-table, 'v2', !Ref AWS::StackName]]
       KeySchema:
           - AttributeName: id
             KeyType: HASH
@@ -897,7 +897,7 @@ Resources:
             Method: GET
             RestApiId: !Ref KoekalenteriApi
             Auth:
-              Authorizer: CognitoAuthorizer
+              Authorizer: CognitoAuthorizer # NB: CognitoAuthorizer does not work locally
 
   GetUserFunctionLogGroup:
     Type: AWS::Logs::LogGroup
