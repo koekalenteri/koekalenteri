@@ -374,12 +374,18 @@ Resources:
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref EventTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserLinkTable
         - CloudWatchPutMetricPolicy: {}
       Environment:
         Variables:
           STACK_NAME: !Ref AWS::StackName
           TABLE_NAME: !Ref EventTable
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
+          USER_TABLE_NAME: !Ref UserTable
+          USER_LINK_TABLE_NAME : !Ref UserLinkTable
       Events:
         PutEvent:
           Type: Api
@@ -490,6 +496,10 @@ Resources:
             TableName: !Ref EventRegistrationTable
         - DynamoDBCrudPolicy:
             TableName: !Ref EventTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserLinkTable
         - CloudWatchPutMetricPolicy: {}
       Environment:
         Variables:
@@ -497,6 +507,8 @@ Resources:
           TABLE_NAME: !Ref EventRegistrationTable
           EVENT_TABLE_NAME : !Ref EventTable
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
+          USER_TABLE_NAME: !Ref UserTable
+          USER_LINK_TABLE_NAME : !Ref UserLinkTable
       Events:
         PutRegistrationGroups:
           Type: Api
@@ -504,6 +516,8 @@ Resources:
             Path: /admin/reg-groups/{eventId}
             Method: POST
             RestApiId: !Ref KoekalenteriApi
+            Auth:
+              Authorizer: CognitoAuthorizer
 
   PutRegistrationGroupsFunctionLogGroup:
     Type: AWS::Logs::LogGroup
@@ -557,12 +571,18 @@ Resources:
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref JudgeTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserLinkTable
         - CloudWatchPutMetricPolicy: {}
       Environment:
         Variables:
           STACK_NAME: !Ref AWS::StackName
           TABLE_NAME: !Ref JudgeTable
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
+          USER_TABLE_NAME: !Ref UserTable
+          USER_LINK_TABLE_NAME : !Ref UserLinkTable
       Events:
         PutJudge:
           Type: Api
@@ -725,6 +745,10 @@ Resources:
             TableName: !Ref JudgeTable
         - DynamoDBCrudPolicy:
             TableName: !Ref OfficialTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserLinkTable
         - CloudWatchPutMetricPolicy: {}
       Environment:
         Variables:
@@ -733,6 +757,8 @@ Resources:
           JUDGE_TABLE_NAME: !Ref JudgeTable
           OFFICIAL_TABLE_NAME: !Ref OfficialTable
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
+          USER_TABLE_NAME: !Ref UserTable
+          USER_LINK_TABLE_NAME : !Ref UserLinkTable
       Events:
         PutEventType:
           Type: Api
@@ -760,6 +786,10 @@ Resources:
       Policies:
         - DynamoDBReadPolicy:
             TableName: !Ref EmailTemplatesTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserLinkTable
         - CloudWatchPutMetricPolicy: {}
       Environment:
         Variables:
@@ -768,6 +798,8 @@ Resources:
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
           USE_DYNAMODB_LOCAL: "0"
           DYNAMODB_LOCAL_URI: ""
+          USER_TABLE_NAME: !Ref UserTable
+          USER_LINK_TABLE_NAME : !Ref UserLinkTable
       Events:
         GetEmailTemplates:
           Type: Api
@@ -789,6 +821,10 @@ Resources:
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref EmailTemplatesTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserLinkTable
         - CloudWatchPutMetricPolicy: {}
         - Statement:
             - Sid: SESTemplatesPolicy
@@ -803,6 +839,8 @@ Resources:
           STACK_NAME: !Ref AWS::StackName
           TABLE_NAME: !Ref EmailTemplatesTable
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
+          USER_TABLE_NAME: !Ref UserTable
+          USER_LINK_TABLE_NAME : !Ref UserLinkTable
       Events:
         PutEmailTemplate:
           Type: Api
@@ -826,6 +864,10 @@ Resources:
             TableName: !Ref EventRegistrationTable
         - DynamoDBCrudPolicy:
             TableName: !Ref EventTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserLinkTable
         - CloudWatchPutMetricPolicy: {}
         - Statement:
             - Sid: SESSendEmailPolicy
@@ -838,6 +880,8 @@ Resources:
           STACK_NAME: !Ref AWS::StackName
           TABLE_NAME: !Ref EventRegistrationTable
           EVENT_TABLE_NAME : !Ref EventTable
+          USER_TABLE_NAME: !Ref UserTable
+          USER_LINK_TABLE_NAME : !Ref UserLinkTable
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
       Events:
         PutEmailTemplate:
@@ -875,6 +919,8 @@ Resources:
           USER_TABLE_NAME: !Ref UserTable
           USER_LINK_TABLE_NAME : !Ref UserLinkTable
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
+          USER_TABLE_NAME: !Ref UserTable
+          USER_LINK_TABLE_NAME : !Ref UserLinkTable
       Events:
         GetUser:
           Type: Api
@@ -909,11 +955,17 @@ Resources:
               Resource: '*'
         - DynamoDBCrudPolicy:
             TableName: !Ref EventRegistrationTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserLinkTable
         - CloudWatchPutMetricPolicy: {}
       Environment:
         Variables:
           TABLE_NAME: !Ref EventRegistrationTable
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
+          USER_TABLE_NAME: !Ref UserTable
+          USER_LINK_TABLE_NAME : !Ref UserLinkTable
       Events:
         PutEvent:
           Type: Api
