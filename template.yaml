@@ -12,6 +12,12 @@ Globals:
     MemorySize: 1024 # From Lambda Power Tuner - https://lambda-power-tuning.show/#gAAAAQACAAQACMAL;Fu+DQkrxg0JplAJBPCnQQBhL0EDm+NlA;m1ZfNJtW3zSbVl81m1bfNZtWXzaaA6Q2
     Tags:
       Application: serverless-web-app
+    Environment:
+      Variables:
+        AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
+        STACK_NAME: !Ref AWS::StackName
+        USER_TABLE_NAME: !Ref UserTable
+        USER_LINK_TABLE_NAME : !Ref UserLinkTable
   Api:
     Auth:
       UsagePlan:
@@ -325,11 +331,7 @@ Resources:
         - CloudWatchPutMetricPolicy: {}
       Environment:
         Variables:
-          STACK_NAME: !Ref AWS::StackName
           TABLE_NAME: !Ref EventTable
-          AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
-          USE_DYNAMODB_LOCAL: "0"
-          DYNAMODB_LOCAL_URI: ""
       Events:
         GetEvents:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
@@ -352,9 +354,7 @@ Resources:
         - CloudWatchPutMetricPolicy: {}
       Environment:
         Variables:
-          STACK_NAME: !Ref AWS::StackName
           TABLE_NAME: !Ref EventTable
-          AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
       Events:
         GetEvent:
           Type: Api
@@ -381,11 +381,7 @@ Resources:
         - CloudWatchPutMetricPolicy: {}
       Environment:
         Variables:
-          STACK_NAME: !Ref AWS::StackName
           TABLE_NAME: !Ref EventTable
-          AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
-          USER_TABLE_NAME: !Ref UserTable
-          USER_LINK_TABLE_NAME : !Ref UserLinkTable
       Events:
         PutEvent:
           Type: Api
@@ -412,10 +408,8 @@ Resources:
         - CloudWatchPutMetricPolicy: {}
       Environment:
         Variables:
-          STACK_NAME: !Ref AWS::StackName
           TABLE_NAME: !Ref EventRegistrationTable
           EVENT_TABLE_NAME : !Ref EventTable
-          AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
       Events:
         GetRegistration:
           Type: Api
@@ -438,9 +432,7 @@ Resources:
         - CloudWatchPutMetricPolicy: {}
       Environment:
         Variables:
-          STACK_NAME: !Ref AWS::StackName
           TABLE_NAME: !Ref EventRegistrationTable
-          AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
       Events:
         GetEvent:
           Type: Api
@@ -471,10 +463,8 @@ Resources:
               Resource: '*'
       Environment:
         Variables:
-          STACK_NAME: !Ref AWS::StackName
           TABLE_NAME: !Ref EventRegistrationTable
           EVENT_TABLE_NAME : !Ref EventTable
-          AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
       Events:
         PutRegistration:
           Type: Api
@@ -503,12 +493,8 @@ Resources:
         - CloudWatchPutMetricPolicy: {}
       Environment:
         Variables:
-          STACK_NAME: !Ref AWS::StackName
           TABLE_NAME: !Ref EventRegistrationTable
           EVENT_TABLE_NAME : !Ref EventTable
-          AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
-          USER_TABLE_NAME: !Ref UserTable
-          USER_LINK_TABLE_NAME : !Ref UserLinkTable
       Events:
         PutRegistrationGroups:
           Type: Api
@@ -548,10 +534,8 @@ Resources:
         - CloudWatchPutMetricPolicy: {}
       Environment:
         Variables:
-          STACK_NAME: !Ref AWS::StackName
           TABLE_NAME: !Ref JudgeTable
           EVENT_TYPE_TABLE_NAME : !Ref EventTypeTable
-          AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
       Events:
         GetJudges:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
@@ -578,11 +562,7 @@ Resources:
         - CloudWatchPutMetricPolicy: {}
       Environment:
         Variables:
-          STACK_NAME: !Ref AWS::StackName
           TABLE_NAME: !Ref JudgeTable
-          AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
-          USER_TABLE_NAME: !Ref UserTable
-          USER_LINK_TABLE_NAME : !Ref UserLinkTable
       Events:
         PutJudge:
           Type: Api
@@ -616,10 +596,8 @@ Resources:
         - CloudWatchPutMetricPolicy: {}
       Environment:
         Variables:
-          STACK_NAME: !Ref AWS::StackName
           TABLE_NAME: !Ref OfficialTable
           EVENT_TYPE_TABLE_NAME : !Ref EventTypeTable
-          AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
       Events:
         GetOfficials:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
@@ -649,9 +627,7 @@ Resources:
         - CloudWatchPutMetricPolicy: {}
       Environment:
         Variables:
-          STACK_NAME: !Ref AWS::StackName
           TABLE_NAME: !Ref OrganizerTable
-          AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
       Events:
         GetOrganizers:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
@@ -681,9 +657,7 @@ Resources:
             TableName: !Ref DogTable
       Environment:
         Variables:
-          STACK_NAME: !Ref AWS::StackName
           TABLE_NAME: !Ref DogTable
-          AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
       Events:
         GetDog:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
@@ -719,9 +693,7 @@ Resources:
             TableName: !Ref EventTypeTable
       Environment:
         Variables:
-          STACK_NAME: !Ref AWS::StackName
           TABLE_NAME: !Ref EventTypeTable
-          AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
       Events:
         GetEventTypes:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
@@ -752,13 +724,9 @@ Resources:
         - CloudWatchPutMetricPolicy: {}
       Environment:
         Variables:
-          STACK_NAME: !Ref AWS::StackName
           TABLE_NAME: !Ref EventTypeTable
           JUDGE_TABLE_NAME: !Ref JudgeTable
           OFFICIAL_TABLE_NAME: !Ref OfficialTable
-          AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
-          USER_TABLE_NAME: !Ref UserTable
-          USER_LINK_TABLE_NAME : !Ref UserLinkTable
       Events:
         PutEventType:
           Type: Api
@@ -793,13 +761,7 @@ Resources:
         - CloudWatchPutMetricPolicy: {}
       Environment:
         Variables:
-          STACK_NAME: !Ref AWS::StackName
           TABLE_NAME: !Ref EmailTemplatesTable
-          AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
-          USE_DYNAMODB_LOCAL: "0"
-          DYNAMODB_LOCAL_URI: ""
-          USER_TABLE_NAME: !Ref UserTable
-          USER_LINK_TABLE_NAME : !Ref UserLinkTable
       Events:
         GetEmailTemplates:
           Type: Api
@@ -836,11 +798,7 @@ Resources:
               Resource: '*'
       Environment:
         Variables:
-          STACK_NAME: !Ref AWS::StackName
           TABLE_NAME: !Ref EmailTemplatesTable
-          AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
-          USER_TABLE_NAME: !Ref UserTable
-          USER_LINK_TABLE_NAME : !Ref UserLinkTable
       Events:
         PutEmailTemplate:
           Type: Api
@@ -877,12 +835,8 @@ Resources:
               Resource: '*'
       Environment:
         Variables:
-          STACK_NAME: !Ref AWS::StackName
           TABLE_NAME: !Ref EventRegistrationTable
           EVENT_TABLE_NAME : !Ref EventTable
-          USER_TABLE_NAME: !Ref UserTable
-          USER_LINK_TABLE_NAME : !Ref UserLinkTable
-          AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
       Events:
         PutEmailTemplate:
           Type: Api
@@ -913,14 +867,6 @@ Resources:
         - DynamoDBCrudPolicy:
             TableName: !Ref UserLinkTable
         - CloudWatchPutMetricPolicy: {}
-      Environment:
-        Variables:
-          STACK_NAME: !Ref AWS::StackName
-          USER_TABLE_NAME: !Ref UserTable
-          USER_LINK_TABLE_NAME : !Ref UserLinkTable
-          AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
-          USER_TABLE_NAME: !Ref UserTable
-          USER_LINK_TABLE_NAME : !Ref UserLinkTable
       Events:
         GetUser:
           Type: Api
