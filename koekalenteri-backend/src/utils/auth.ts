@@ -54,8 +54,9 @@ async function getOrCreateUser(event: APIGatewayProxyEvent) {
 export async function getAndUpdateUserByEmail(email: string, props: Omit<Partial<User>, 'id'>) {
   const users = (await dynamoDB.readAll<User>(USER_TABLE))?.filter((item) => item.email === email)
   const user = users?.length ? users[0] : { id: nanoid(), email }
-  if (Object.keys(diff(user, { ...props, ...user })).length > 0) {
-    dynamoDB.write(user, USER_TABLE)
+  const updated = { ...props, ...user }
+  if (Object.keys(diff(user, updated)).length > 0) {
+    dynamoDB.write(updated, USER_TABLE)
   }
   return user
 }
