@@ -3,6 +3,8 @@ import { diff } from 'deep-object-diff'
 import { User } from 'koekalenteri-shared/model'
 import { nanoid } from 'nanoid'
 
+import { findUserByEmail, updateUser } from '../lib/user'
+
 import CustomDynamoClient from './CustomDynamoClient'
 
 interface UserLink {
@@ -52,13 +54,12 @@ async function getOrCreateUser(event: APIGatewayProxyEvent) {
 }
 
 export async function getAndUpdateUserByEmail(email: string, props: Omit<Partial<User>, 'id'>) {
-  const users = (await dynamoDB.readAll<User>(USER_TABLE))?.filter((item) => item.email === email)
-  const user = users?.length ? users[0] : { id: nanoid(), email }
-  const updated = { ...props, ...user }
+  const user = (await findUserByEmail(email)) ?? { id: nanoid(), email }
+  const updated = { name: '?', ...props, ...user }
   if (Object.keys(diff(user, updated)).length > 0) {
-    dynamoDB.write(updated, USER_TABLE)
+    updateUser(updated)
   }
-  return user
+  return updated
 }
 
 export function getOrigin(event: APIGatewayProxyEvent) {

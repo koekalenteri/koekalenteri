@@ -1,6 +1,7 @@
 import { metricScope, MetricsLogger } from 'aws-embedded-metrics'
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import { AWSError } from 'aws-sdk'
+import { diff } from 'deep-object-diff'
 import { EventType, JsonDbRecord, Official } from 'koekalenteri-shared/model'
 
 import { getAndUpdateUserByEmail } from '../../utils/auth'
@@ -32,7 +33,7 @@ export const getOfficialsHandler = metricScope(
                 const existing = await dynamoDB.read<Official>({ id: item.jäsennumero })
                 const name = capitalize(item.nimi)
                 const location = capitalize(item.paikkakunta)
-                dynamoDB.write({
+                const official = {
                   ...existing,
                   id: item.jäsennumero,
                   name,
@@ -43,7 +44,10 @@ export const getOfficialsHandler = metricScope(
                   eventTypes: item.koemuodot.map((koemuoto) => koemuoto.lyhenne),
                   deletedAt: false,
                   deletedBy: '',
-                })
+                }
+                if (!existing || Object.keys(diff(existing, official)).length > 0) {
+                  await dynamoDB.write(official)
+                }
                 await getAndUpdateUserByEmail(item.sähköposti, {
                   name,
                   kcId: item.jäsennumero,
