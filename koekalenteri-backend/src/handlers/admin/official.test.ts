@@ -1,4 +1,4 @@
-import { genericReadAllTest } from '../test-utils/genericTests'
+import { genericReadAllTest } from '../../test-utils/genericTests'
 
 import { getOfficialsHandler } from './official'
 

@@ -25,6 +25,7 @@
     "aws-sdk": "^2.437.0",
     "date-fns": "^2.29.3",
     "date-fns-tz": "^2.0.0",
+    "deep-object-diff": "^1.1.9",
     "i18next": "^22.4.10",
     "nanoid": "^3.3.6",
     "node-fetch": "^3.3.0",

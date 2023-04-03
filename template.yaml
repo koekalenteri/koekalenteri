@@ -210,13 +210,13 @@ Resources:
   OrganizerTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: !Join ['-', [organizer-table, 'v2', !Ref AWS::StackName]]
+      TableName: !Join ['-', [organizer-table, 'v3', !Ref AWS::StackName]]
       KeySchema:
           - AttributeName: id
             KeyType: HASH
       AttributeDefinitions:
           - AttributeName: id
-            AttributeType: N
+            AttributeType: S
       Tags:
         - Key: Env
           Value: !Ref AWS::StackName
@@ -529,7 +529,7 @@ Resources:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
       CodeUri: koekalenteri-backend
-      Handler: dist/handlers/judge.getJudgesHandler
+      Handler: dist/handlers/admin/judge.getJudgesHandler
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -564,7 +564,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: koekalenteri-backend
-      Handler: dist/handlers/judge.putJudgeHandler
+      Handler: dist/handlers/admin/judge.putJudgeHandler
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -597,7 +597,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: koekalenteri-backend
-      Handler: dist/handlers/official.getOfficialsHandler
+      Handler: dist/handlers/admin/official.getOfficialsHandler
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -632,7 +632,7 @@ Resources:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
       CodeUri: koekalenteri-backend
-      Handler: dist/handlers/organizer.getOrganizersHandler
+      Handler: dist/handlers/admin/organizer.getOrganizersHandler
       Layers:
         - !Ref CommonLayer
       Tracing: Active

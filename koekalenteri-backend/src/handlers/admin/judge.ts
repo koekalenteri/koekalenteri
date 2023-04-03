@@ -3,14 +3,15 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import { AWSError } from 'aws-sdk'
 import { EventType, JsonDbRecord, Judge } from 'koekalenteri-shared/model'
 
-import CustomDynamoClient from '../utils/CustomDynamoClient'
-import { genericWriteHandler } from '../utils/genericHandlers'
-import KLAPI from '../utils/KLAPI'
-import { KLKieli } from '../utils/KLAPI_models'
-import { metricsError, metricsSuccess } from '../utils/metrics'
-import { response } from '../utils/response'
-import { getKLAPIConfig } from '../utils/secrets'
-import { capitalize } from '../utils/string'
+import { getAndUpdateUserByEmail } from '../../utils/auth'
+import CustomDynamoClient from '../../utils/CustomDynamoClient'
+import { genericWriteHandler } from '../../utils/genericHandlers'
+import KLAPI from '../../utils/KLAPI'
+import { KLKieli } from '../../utils/KLAPI_models'
+import { metricsError, metricsSuccess } from '../../utils/metrics'
+import { response } from '../../utils/response'
+import { getKLAPIConfig } from '../../utils/secrets'
+import { capitalize } from '../../utils/string'
 
 const dynamoDB = new CustomDynamoClient()
 const klapi = new KLAPI(getKLAPIConfig)
@@ -30,12 +31,14 @@ export const getJudgesHandler = metricScope(
             if (status === 200 && json) {
               for (const item of json) {
                 const existing = await dynamoDB.read<Judge>({ id: item.jäsennumero })
+                const name = capitalize(item.nimi)
+                const location = capitalize(item.paikkakunta)
                 await dynamoDB.write({
                   active: true,
                   ...existing,
                   id: item.jäsennumero,
-                  name: capitalize(item.nimi),
-                  location: capitalize(item.paikkakunta),
+                  name,
+                  location,
                   district: item.kennelpiiri,
                   email: item.sähköposti,
                   phone: item.puhelin,
@@ -43,6 +46,13 @@ export const getJudgesHandler = metricScope(
                   official: true,
                   deletedAt: false,
                   deletedBy: '',
+                })
+                await getAndUpdateUserByEmail(item.sähköposti, {
+                  name,
+                  kcId: item.jäsennumero,
+                  judge: true,
+                  location,
+                  phone: item.puhelin,
                 })
               }
             }

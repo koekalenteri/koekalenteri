@@ -1,4 +1,5 @@
 import { APIGatewayProxyEvent } from 'aws-lambda'
+import { diff } from 'deep-object-diff'
 import { User } from 'koekalenteri-shared/model'
 import { nanoid } from 'nanoid'
 
@@ -44,16 +45,17 @@ async function getOrCreateUser(event: APIGatewayProxyEvent) {
     // no user link forund for the cognitoUser
     const { name, email } = event.requestContext.authorizer.claims
 
-    const users = (await dynamoDB.readAll<User>(USER_TABLE))?.filter((item) => item.email === email)
-    if (users?.length) {
-      // link to existing user
-      user = users[0]
-    } else {
-      // create new user
-      user = { id: nanoid(), name, email }
-      dynamoDB.write(user, USER_TABLE)
-    }
+    user = await getAndUpdateUserByEmail(email, { name })
     dynamoDB.write({ cognitoUser, userId: user.id }, USER_LINK_TABLE)
+  }
+  return user
+}
+
+export async function getAndUpdateUserByEmail(email: string, props: Omit<Partial<User>, 'id'>) {
+  const users = (await dynamoDB.readAll<User>(USER_TABLE))?.filter((item) => item.email === email)
+  const user = users?.length ? users[0] : { id: nanoid(), email }
+  if (Object.keys(diff(user, { ...props, ...user })).length > 0) {
+    dynamoDB.write(user, USER_TABLE)
   }
   return user
 }

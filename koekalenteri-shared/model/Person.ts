@@ -1,8 +1,8 @@
 export interface Person {
   name: string
   email: string
-  phone: string
-  location: string
+  phone?: string
+  location?: string
 }
 
 export interface OfficialPerson extends Person {
@@ -26,4 +26,15 @@ export interface Judge extends OfficialPerson {
 
 export interface User extends Person {
   id: string
+  kcId?: number
+  judge?: boolean
+  officer?: boolean
+  roles?: UserRoles
+  admin?: boolean
 }
+
+export interface UserRoles {
+  [organizer: string]: UserRole
+}
+
+export type UserRole = 'admin' | 'secretary'

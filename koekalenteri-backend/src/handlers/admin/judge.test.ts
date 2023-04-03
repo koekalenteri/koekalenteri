@@ -1,5 +1,5 @@
-import { genericReadAllTest } from '../test-utils/genericTests'
-import { capitalize } from '../utils/string'
+import { genericReadAllTest } from '../../test-utils/genericTests'
+import { capitalize } from '../../utils/string'
 
 import { getJudgesHandler } from './judge'
 

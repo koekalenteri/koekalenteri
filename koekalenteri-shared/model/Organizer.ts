@@ -1,5 +1,7 @@
 export type Organizer = {
-  id: number,
-  name: string,
-  // TODO: account, etc
+  id: string
+  name: string
+  kcId?: number
+  active?: boolean
+  adminUserId?: string
 }
