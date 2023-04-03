@@ -181,8 +181,8 @@ export const filterOrganizersSelector = selector({
     const events = get(filteredEventsForOrganizerSelector)
     const organizers = get(eventOrganizersSelector)
     const filter = get(eventFilterAtom)
-    const usedOrganizerIds = unique<number>(
-      events.reduce<number[]>((acc, cur) => [...acc, cur.organizer.id], [...filter.organizer])
+    const usedOrganizerIds = unique<string>(
+      events.reduce<string[]>((acc, cur) => [...acc, cur.organizer.id], [...filter.organizer])
     )
 
     return organizers

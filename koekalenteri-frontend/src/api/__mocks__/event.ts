@@ -21,7 +21,7 @@ export const mockEvents: Event[] = [
     ...emptyEvent,
     id: 'test2',
     organizer: {
-      id: 2,
+      id: '2',
       name: 'Järjestäjä 2',
     },
     eventType: 'NOME-B',

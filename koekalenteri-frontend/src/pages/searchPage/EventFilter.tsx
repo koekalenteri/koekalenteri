@@ -37,7 +37,7 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
     [setFilter]
   )
   const handleOrganizerChange = useCallback(
-    (event: SyntheticEvent<Element, Event>, value: Organizer[]) => setFilter({ organizer: value.map((v) => +v.id) }),
+    (event: SyntheticEvent<Element, Event>, value: Organizer[]) => setFilter({ organizer: value.map((v) => v.id) }),
     [setFilter]
   )
   const handleJudgeChange = useCallback(
@@ -62,7 +62,7 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
   )
   const getName = useCallback((o?: { name?: string }) => o?.name ?? '', [])
   const getString = useCallback((o?: string) => o ?? '', [])
-  const compareId = useCallback((o?: { id?: number }, v?: { id?: number }) => o?.id === v?.id, [])
+  const compareId = useCallback((o?: { id?: number | string }, v?: { id?: number | string }) => o?.id === v?.id, [])
 
   return (
     <Box m={1}>

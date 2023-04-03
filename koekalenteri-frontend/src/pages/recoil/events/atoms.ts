@@ -27,7 +27,7 @@ export type FilterProps = {
   eventType: string[]
   eventClass: string[]
   judge: number[]
-  organizer: number[]
+  organizer: string[]
 }
 
 export const eventFilterAtom = atom<FilterProps>({

@@ -39,7 +39,7 @@ export const emptyEvent: ConfirmedEvent = {
     location: 'Ruotsi',
   },
   organizer: {
-    id: 1,
+    id: '1',
     name: 'Suomen Noutajakoirajärjestö ry',
   },
   paymentDetails: 'test',

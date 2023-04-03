@@ -107,7 +107,7 @@ export function deserializeFilter(input: string) {
     eventClass: searchParams.getAll('c'),
     eventType: searchParams.getAll('t'),
     judge: searchParams.getAll('j').map((j) => parseInt(j)),
-    organizer: searchParams.getAll('o').map((s) => parseInt(s)),
+    organizer: searchParams.getAll('o'),
     start: readDate(searchParams.get('s')),
     withClosingEntry: bits.includes('c'),
     withFreePlaces: bits.includes('f'),

@@ -33,11 +33,11 @@ const judges: Judge[] = [
 
 const organizers: Organizer[] = [
   {
-    id: 1,
+    id: '1',
     name: 'Järjestäjä 1',
   },
   {
-    id: 2,
+    id: '2',
     name: 'Järjestäjä 2',
   },
 ]
@@ -60,7 +60,14 @@ const renderComponent = (filter: FilterProps, onChange?: (filter: FilterProps) =
   )
 
 test('should render', () => {
-  renderComponent({ start: null, end: null, eventType: ['NOME-B'], eventClass: ['ALO'], judge: [234], organizer: [2] })
+  renderComponent({
+    start: null,
+    end: null,
+    eventType: ['NOME-B'],
+    eventClass: ['ALO'],
+    judge: [234],
+    organizer: ['2'],
+  })
 
   expect(screen.getByTestId('eventType')).toHaveTextContent(/NOME-B/i)
   expect(screen.getByTestId('eventClass')).toHaveTextContent(/ALO/i)

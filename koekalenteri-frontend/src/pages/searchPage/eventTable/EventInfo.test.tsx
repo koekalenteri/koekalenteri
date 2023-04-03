@@ -1,5 +1,6 @@
 import { Suspense } from 'react'
 import { render } from '@testing-library/react'
+import { Event } from 'koekalenteri-shared/model'
 import { RecoilRoot } from 'recoil'
 
 import { emptyEvent } from '../../../api/test-utils/emptyEvent'
@@ -11,10 +12,10 @@ jest.mock('../../../api/judge')
 
 describe('EventInfo', () => {
   it('should render event information', async function () {
-    const event = {
+    const event: Event = {
       ...emptyEvent,
       organizer: {
-        id: 0,
+        id: '0',
         name: 'test organization',
       },
       name: 'name',

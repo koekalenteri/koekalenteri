@@ -84,7 +84,7 @@ export default function BasicInfoSection({
     (e: ChangeEvent<HTMLInputElement>) => onChange?.({ name: e.target.value }),
     [onChange]
   )
-  const isEqualId = useCallback((o?: { id?: number }, v?: { id?: number }) => o?.id === v?.id, [])
+  const isEqualId = useCallback((o?: { id?: number | string }, v?: { id?: number | string }) => o?.id === v?.id, [])
   const getName = useCallback((o?: string | { name?: string }) => (typeof o === 'string' ? o : o?.name || ''), [])
   const getNameOrEmail = useCallback(
     (o?: string | { name?: string; email?: string }) => (typeof o === 'string' ? o : o?.name || o?.email || ''),

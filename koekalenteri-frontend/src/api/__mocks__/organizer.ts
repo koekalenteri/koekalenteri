@@ -1,10 +1,12 @@
-const mockOrganizers = [
+import { Organizer } from 'koekalenteri-shared/model'
+
+const mockOrganizers: Organizer[] = [
   {
-    id: 1,
+    id: '1',
     name: 'Järjestäjä 1',
   },
   {
-    id: 2,
+    id: '2',
     name: 'Järjestäjä 2',
   },
 ]
