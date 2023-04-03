@@ -531,6 +531,8 @@ Resources:
             TableName: !Ref JudgeTable
         - DynamoDBReadPolicy:
             TableName: !Ref EventTypeTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UserTable
         - CloudWatchPutMetricPolicy: {}
       Environment:
         Variables:
@@ -593,6 +595,8 @@ Resources:
             TableName: !Ref OfficialTable
         - DynamoDBReadPolicy:
             TableName: !Ref EventTypeTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UserTable
         - CloudWatchPutMetricPolicy: {}
       Environment:
         Variables:
