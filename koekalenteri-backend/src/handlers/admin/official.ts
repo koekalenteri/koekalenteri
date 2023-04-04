@@ -11,7 +11,7 @@ import { KLKieli } from '../../utils/KLAPI_models'
 import { metricsError, metricsSuccess } from '../../utils/metrics'
 import { response } from '../../utils/response'
 import { getKLAPIConfig } from '../../utils/secrets'
-import { capitalize } from '../../utils/string'
+import { capitalize, reverseName } from '../../utils/string'
 
 const dynamoDB = new CustomDynamoClient()
 const klapi = new KLAPI(getKLAPIConfig)
@@ -49,7 +49,7 @@ export const getOfficialsHandler = metricScope(
                   await dynamoDB.write(official)
                 }
                 await getAndUpdateUserByEmail(item.sähköposti, {
-                  name,
+                  name: reverseName(name),
                   kcId: item.jäsennumero,
                   officer: true,
                   location,
