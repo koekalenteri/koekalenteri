@@ -8,7 +8,7 @@ import CustomDynamoClient from '../../utils/CustomDynamoClient'
 import { metricsError, metricsSuccess } from '../../utils/metrics'
 import { response } from '../../utils/response'
 
-const dynamoDB = new CustomDynamoClient()
+const dynamoDB = new CustomDynamoClient(process.env.USER_TABLE_NAME)
 
 export const getUsersHandler = metricScope(
   (metrics: MetricsLogger) =>
