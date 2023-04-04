@@ -55,7 +55,7 @@ async function getOrCreateUser(event: APIGatewayProxyEvent) {
 
 export async function getAndUpdateUserByEmail(email: string, props: Omit<Partial<User>, 'id'>) {
   const user = (await findUserByEmail(email)) ?? { id: nanoid(), email }
-  const updated = { name: '?', ...props, ...user }
+  const updated = { name: '?', ...user, ...props }
   if (Object.keys(diff(user, updated)).length > 0) {
     updateUser(updated)
   }
