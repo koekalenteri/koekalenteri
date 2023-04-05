@@ -1,14 +1,16 @@
 import i18next from 'i18next'
 import { Judge } from 'koekalenteri-shared/model'
-import { useRecoilState, useRecoilValue } from 'recoil'
+import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
 
 import { getJudges, putJudge } from '../../../api/judge'
+import { usersAtom } from '../../admin/recoil/user'
 import { idTokenSelector } from '../user'
 
 import { judgesAtom } from './atoms'
 
 export const useJudgesActions = () => {
   const [judges, setJudges] = useRecoilState(judgesAtom)
+  const resetUsers = useResetRecoilState(usersAtom)
   const token = useRecoilValue(idTokenSelector)
 
   return {
@@ -25,6 +27,7 @@ export const useJudgesActions = () => {
     getJudges(true).then((judges) => {
       const sortedJudges = [...judges].sort((a, b) => a.name.localeCompare(b.name, i18next.language))
       setJudges(sortedJudges)
+      resetUsers()
     })
   }
 
