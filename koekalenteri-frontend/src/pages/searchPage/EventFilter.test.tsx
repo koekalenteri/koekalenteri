@@ -72,7 +72,7 @@ test('should render', () => {
   expect(screen.getByTestId('eventType')).toHaveTextContent(/NOME-B/i)
   expect(screen.getByTestId('eventClass')).toHaveTextContent(/ALO/i)
   expect(screen.getByTestId('judge')).toHaveTextContent(/Tuomari 2/i)
-  expect(screen.getByTestId('organizer')).toHaveTextContent(/Järjestäjä 2/i)
+  expect(screen.getByTestId('filter.organizer')).toHaveTextContent(/Järjestäjä 2/i)
 })
 
 function changeAutocompleteValue(testId: string, value: string) {
@@ -97,7 +97,7 @@ test('It should fire onChange', async () => {
   changeAutocompleteValue('judge', 'Tuomari 1')
   expect(changeHandler).toHaveBeenCalledTimes(3)
 
-  changeAutocompleteValue('organizer', 'Järjestäjä 1')
+  changeAutocompleteValue('filter.organizer', 'Järjestäjä 1')
   expect(changeHandler).toHaveBeenCalledTimes(4)
 
   /*

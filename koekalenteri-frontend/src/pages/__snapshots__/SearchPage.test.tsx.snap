@@ -301,7 +301,7 @@ exports[`SearchPage filters by date - no-results 1`] = `
       >
         <div
           class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-xg9u7b-MuiAutocomplete-root"
-          data-testid="organizer"
+          data-testid="filter.organizer"
         >
           <div
             class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
@@ -312,7 +312,7 @@ exports[`SearchPage filters by date - no-results 1`] = `
               for=":r1o:"
               id=":r1o:-label"
             >
-              organizer
+              filter.organizer
             </label>
             <div
               class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1hw12xa-MuiInputBase-root-MuiOutlinedInput-root"
@@ -363,7 +363,7 @@ exports[`SearchPage filters by date - no-results 1`] = `
                   class="css-yjsfm1"
                 >
                   <span>
-                    organizer
+                    filter.organizer
                   </span>
                 </legend>
               </fieldset>
@@ -829,7 +829,7 @@ exports[`SearchPage filters by date 1`] = `
       >
         <div
           class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-xg9u7b-MuiAutocomplete-root"
-          data-testid="organizer"
+          data-testid="filter.organizer"
         >
           <div
             class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
@@ -840,7 +840,7 @@ exports[`SearchPage filters by date 1`] = `
               for=":r1e:"
               id=":r1e:-label"
             >
-              organizer
+              filter.organizer
             </label>
             <div
               class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1hw12xa-MuiInputBase-root-MuiOutlinedInput-root"
@@ -892,7 +892,7 @@ exports[`SearchPage filters by date 1`] = `
                   class="css-yjsfm1"
                 >
                   <span>
-                    organizer
+                    filter.organizer
                   </span>
                 </legend>
               </fieldset>
@@ -2476,7 +2476,7 @@ exports[`SearchPage filters by date/end 1`] = `
       >
         <div
           class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-xg9u7b-MuiAutocomplete-root"
-          data-testid="organizer"
+          data-testid="filter.organizer"
         >
           <div
             class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
@@ -2487,7 +2487,7 @@ exports[`SearchPage filters by date/end 1`] = `
               for=":r14:"
               id=":r14:-label"
             >
-              organizer
+              filter.organizer
             </label>
             <div
               class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1hw12xa-MuiInputBase-root-MuiOutlinedInput-root"
@@ -2539,7 +2539,7 @@ exports[`SearchPage filters by date/end 1`] = `
                   class="css-yjsfm1"
                 >
                   <span>
-                    organizer
+                    filter.organizer
                   </span>
                 </legend>
               </fieldset>
@@ -4168,7 +4168,7 @@ exports[`SearchPage filters by event class 1`] = `
       >
         <div
           class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-xg9u7b-MuiAutocomplete-root"
-          data-testid="organizer"
+          data-testid="filter.organizer"
         >
           <div
             class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
@@ -4179,7 +4179,7 @@ exports[`SearchPage filters by event class 1`] = `
               for=":r2c:"
               id=":r2c:-label"
             >
-              organizer
+              filter.organizer
             </label>
             <div
               class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1hw12xa-MuiInputBase-root-MuiOutlinedInput-root"
@@ -4231,7 +4231,7 @@ exports[`SearchPage filters by event class 1`] = `
                   class="css-yjsfm1"
                 >
                   <span>
-                    organizer
+                    filter.organizer
                   </span>
                 </legend>
               </fieldset>
@@ -5667,7 +5667,7 @@ exports[`SearchPage filters by event type 1`] = `
       >
         <div
           class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-xg9u7b-MuiAutocomplete-root"
-          data-testid="organizer"
+          data-testid="filter.organizer"
         >
           <div
             class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
@@ -5678,7 +5678,7 @@ exports[`SearchPage filters by event type 1`] = `
               for=":r22:"
               id=":r22:-label"
             >
-              organizer
+              filter.organizer
             </label>
             <div
               class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1hw12xa-MuiInputBase-root-MuiOutlinedInput-root"
@@ -5730,7 +5730,7 @@ exports[`SearchPage filters by event type 1`] = `
                   class="css-yjsfm1"
                 >
                   <span>
-                    organizer
+                    filter.organizer
                   </span>
                 </legend>
               </fieldset>
@@ -7422,7 +7422,7 @@ exports[`SearchPage filters by organizer 1`] = `
       >
         <div
           class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasClearIcon MuiAutocomplete-hasPopupIcon css-xg9u7b-MuiAutocomplete-root"
-          data-testid="organizer"
+          data-testid="filter.organizer"
         >
           <div
             class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
@@ -7433,7 +7433,7 @@ exports[`SearchPage filters by organizer 1`] = `
               for=":r2m:"
               id=":r2m:-label"
             >
-              organizer
+              filter.organizer
             </label>
             <div
               class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-tybxm0-MuiInputBase-root-MuiOutlinedInput-root"
@@ -7530,7 +7530,7 @@ exports[`SearchPage filters by organizer 1`] = `
                   class="css-14lo706"
                 >
                   <span>
-                    organizer
+                    filter.organizer
                   </span>
                 </legend>
               </fieldset>

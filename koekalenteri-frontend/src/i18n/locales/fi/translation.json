@@ -147,6 +147,9 @@
   "eventType_short": "Lyhenne",
   "eventTypes": "Koemuodot",
   "events": "Tapahtumat",
+  "filter": {
+    "organizer": "Järjestäjä"
+  },
   "goBack": "Takaisin",
   "goBackToSearch": "Takaisin hakutuloksiin",
   "goHome": "Etusivulle",
@@ -175,7 +178,11 @@
   "official": "Virallinen",
   "officials": "Koetoimitsijat",
   "organizations": "Yhdistykset",
-  "organizer": "Järjestäjä",
+  "organizer": {
+    "id": "ID",
+    "kcId": "Tunnus",
+    "name": "Nimi"
+  },
   "paymentDetails": "Maksutiedot",
   "places": "Paikkoja",
   "register": "Ilmoittaudu",

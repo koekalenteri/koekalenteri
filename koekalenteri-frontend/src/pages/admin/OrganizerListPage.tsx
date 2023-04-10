@@ -25,13 +25,14 @@ export default function OrganizerListPage() {
 
   const columns: OrganizerColDef[] = [
     {
-      field: 'id',
-      headerName: t('id'),
+      field: 'kcId',
+      flex: 1,
+      headerName: t('organizer.kcId'),
     },
     {
       field: 'name',
-      headerName: t('name'),
-      flex: 2,
+      headerName: t('organizer.name'),
+      flex: 3,
     },
   ]
 

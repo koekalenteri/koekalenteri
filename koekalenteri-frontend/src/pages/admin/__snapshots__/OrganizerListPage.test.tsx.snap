@@ -119,7 +119,7 @@ exports[`OrganizerListPage renders 1`] = `
             style="min-height: 39px; max-height: 39px; line-height: 39px;"
           >
             <div
-              class="MuiDataGrid-columnHeadersInner MuiDataGrid-columnHeadersInner--scrollable css-gl260s-MuiDataGrid-columnHeadersInner"
+              class="MuiDataGrid-columnHeadersInner css-gl260s-MuiDataGrid-columnHeadersInner"
               role="rowgroup"
               style="transform: translate3d(0px, 0px, 0px);"
             >
@@ -130,12 +130,12 @@ exports[`OrganizerListPage renders 1`] = `
               >
                 <div
                   aria-colindex="1"
-                  aria-label="id"
+                  aria-label="organizer.kcId"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
-                  data-field="id"
+                  data-field="kcId"
                   role="columnheader"
-                  style="height: 39px; width: 100px; min-width: 100px; max-width: 100px;"
+                  style="height: 39px; width: 0px; min-width: 0; max-width: 0;"
                   tabindex="0"
                 >
                   <div
@@ -153,7 +153,7 @@ exports[`OrganizerListPage renders 1`] = `
                           class="MuiDataGrid-columnHeaderTitle css-1jbbcbn-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
-                          id
+                          organizer.kcId
                         </div>
                       </div>
                       <div
@@ -203,7 +203,7 @@ exports[`OrganizerListPage renders 1`] = `
                 </div>
                 <div
                   aria-colindex="2"
-                  aria-label="name"
+                  aria-label="organizer.name"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable"
                   data-field="name"
@@ -226,7 +226,7 @@ exports[`OrganizerListPage renders 1`] = `
                           class="MuiDataGrid-columnHeaderTitle css-1jbbcbn-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
-                          name
+                          organizer.name
                         </div>
                       </div>
                       <div
@@ -306,17 +306,14 @@ exports[`OrganizerListPage renders 1`] = `
                       aria-colspan="1"
                       class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                       data-colindex="0"
-                      data-field="id"
+                      data-field="kcId"
                       role="cell"
-                      style="min-width: 100px; max-width: 100px; min-height: 28px; max-height: 28px;"
+                      style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
                       tabindex="-1"
                     >
                       <div
                         class="MuiDataGrid-cellContent"
-                        title="1"
-                      >
-                        1
-                      </div>
+                      />
                     </div>
                     <div
                       aria-colindex="2"
@@ -350,17 +347,14 @@ exports[`OrganizerListPage renders 1`] = `
                       aria-colspan="1"
                       class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                       data-colindex="0"
-                      data-field="id"
+                      data-field="kcId"
                       role="cell"
-                      style="min-width: 100px; max-width: 100px; min-height: 28px; max-height: 28px;"
+                      style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
                       tabindex="-1"
                     >
                       <div
                         class="MuiDataGrid-cellContent"
-                        title="2"
-                      >
-                        2
-                      </div>
+                      />
                     </div>
                     <div
                       aria-colindex="2"

@@ -99,7 +99,7 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
           <AutocompleteMulti
             getOptionLabel={getName}
             isOptionEqualToValue={compareId}
-            label={t('organizer')}
+            label={t('filter.organizer')}
             onChange={handleOrganizerChange}
             options={organizers}
             value={organizers.filter((o) => filter.organizer.includes(o.id))}
