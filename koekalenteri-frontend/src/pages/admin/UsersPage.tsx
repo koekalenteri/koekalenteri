@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next'
-import { Theme, useMediaQuery } from '@mui/material'
+import { StarsOutlined, Support } from '@mui/icons-material'
+import { Badge, Theme, useMediaQuery } from '@mui/material'
 import { GridColumns } from '@mui/x-data-grid'
 import { User } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue } from 'recoil'
@@ -9,6 +10,22 @@ import StyledDataGrid from '../components/StyledDataGrid'
 import FullPageFlex from './components/FullPageFlex'
 import { QuickSearchToolbar } from './components/QuickSearchToolbar'
 import { filteredUsersSelector, userFilterAtom } from './recoil/user'
+
+const RoleInfo = ({ admin, roles }: User) => {
+  if (admin) {
+    return <StarsOutlined />
+  }
+  const roleCount = Object.keys(roles ?? {}).length
+  if (roleCount) {
+    return (
+      <Badge badgeContent={roleCount}>
+        <Support />
+      </Badge>
+    )
+  }
+
+  return null
+}
 
 export default function UsersPage() {
   const large = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
@@ -23,10 +40,11 @@ export default function UsersPage() {
       headerName: t('name'),
     },
     {
-      field: 'id',
+      field: 'roles',
       flex: 0,
-      headerName: t('id'),
+      headerName: 'roles',
       width: 80,
+      renderCell: (p) => <RoleInfo {...p.row} />,
     },
     {
       field: 'location',

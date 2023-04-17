@@ -917,6 +917,36 @@ Resources:
       LogGroupName: !Join ['/', ['/aws/lambda', !Ref GetUsersFunction]]
       RetentionInDays: 30
 
+  SetRoleFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: koekalenteri-backend
+      Handler: dist/handlers/admin/user.setRoleHandler
+      Layers:
+        - !Ref CommonLayer
+      Tracing: Active
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UserTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserLinkTable
+        - CloudWatchPutMetricPolicy: {}
+      Events:
+        GetUser:
+          Type: Api
+          Properties:
+            Path: /admin/user/role
+            Method: POST
+            RestApiId: !Ref KoekalenteriApi
+            Auth:
+              Authorizer: CognitoAuthorizer # NB: CognitoAuthorizer does not work locally https://github.com/aws/aws-sam-cli/issues/137
+
+  SetRoleFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref SetRoleFunction]]
+      RetentionInDays: 30
+
   PaymentConfirmFunction:
     Type: AWS::Serverless::Function
     Properties:
