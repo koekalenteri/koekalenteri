@@ -495,7 +495,7 @@ exports[`RegistrationForm renders 1`] = `
                             </div>
                           </div>
                           <button
-                            class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall css-8s45dw-MuiButtonBase-root-MuiButton-root"
+                            class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium css-ahvo9a-MuiButtonBase-root-MuiButton-root"
                             tabindex="0"
                             type="button"
                           >
@@ -2462,7 +2462,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                             </div>
                           </div>
                           <button
-                            class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall css-8s45dw-MuiButtonBase-root-MuiButton-root"
+                            class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium css-ahvo9a-MuiButtonBase-root-MuiButton-root"
                             disabled=""
                             tabindex="-1"
                             type="button"

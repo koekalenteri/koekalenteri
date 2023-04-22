@@ -195,7 +195,6 @@ export const DogInfo = ({
               />
               <Button
                 disabled={!validRegNo || (state.mode === 'update' && !allowRefresh)}
-                size="small"
                 variant="contained"
                 onClick={buttonClick}
               >

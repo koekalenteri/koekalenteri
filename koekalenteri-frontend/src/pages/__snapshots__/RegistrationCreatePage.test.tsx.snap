@@ -730,7 +730,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                             </div>
                           </div>
                           <button
-                            class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall css-8s45dw-MuiButtonBase-root-MuiButton-root"
+                            class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium css-ahvo9a-MuiButtonBase-root-MuiButton-root"
                             disabled=""
                             tabindex="-1"
                             type="button"
@@ -2908,7 +2908,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                             </div>
                           </div>
                           <button
-                            class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall css-8s45dw-MuiButtonBase-root-MuiButton-root"
+                            class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium css-ahvo9a-MuiButtonBase-root-MuiButton-root"
                             disabled=""
                             tabindex="-1"
                             type="button"
