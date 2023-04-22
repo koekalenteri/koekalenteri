@@ -62,14 +62,14 @@ export const putRegistrationHandler = metricScope(
         registration.modifiedAt = timestamp
         registration.modifiedBy = username
 
+        const data = { ...existing, ...registration }
+        await dynamoDB.write(data)
+
         const eventTable = process.env.EVENT_TABLE_NAME || ''
         const confirmedEvent = await updateRegistrations(registration.eventId, eventTable, dynamoDB.table)
         if (!confirmedEvent) {
           throw new Error(`Event of type "${registration.eventType}" not found with id "${registration.eventId}"`)
         }
-
-        const data = { ...existing, ...registration }
-        await dynamoDB.write(data)
 
         if (registration.handler?.email && registration.owner?.email) {
           const to = emailTo(registration)
