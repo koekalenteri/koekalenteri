@@ -128,7 +128,7 @@ export function EntryInfo({
             label={t('registration.reserve')}
             onChange={handleReserveChange}
             getOptionLabel={getReserveChoiceLabel}
-            options={['ANY', 'DAY', 'WEEK', 'NO'] as ReserveChoise[]}
+            options={['ANY', 'DAY', 'WEEK' /*, 'NO'*/] as ReserveChoise[]}
             value={reg.reserve}
           />
         </Grid>
