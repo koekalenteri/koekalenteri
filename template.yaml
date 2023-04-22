@@ -490,6 +490,12 @@ Resources:
             TableName: !Ref UserTable
         - DynamoDBReadPolicy:
             TableName: !Ref UserLinkTable
+        - Statement:
+            - Sid: SESSendEmailPolicy
+              Effect: Allow
+              Action:
+              - ses:sendTemplatedEmail
+              Resource: '*'
         - CloudWatchPutMetricPolicy: {}
       Environment:
         Variables:
