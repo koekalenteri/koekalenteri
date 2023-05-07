@@ -37,6 +37,51 @@ export const getUsersHandler = metricScope(
     }
 )
 
+export const setAdminHandler = metricScope(
+  (metrics: MetricsLogger) =>
+    async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+      try {
+        const user = await authorize(event)
+        if (!user) {
+          return response(401, 'Unauthorized', event)
+        }
+
+        const item: { userId: string; admin: boolean } = JSON.parse(event.body || '{}')
+
+        if (!item || !item.userId) {
+          return response(400, 'Bad request', event)
+        }
+
+        if (user.id === item.userId || !user.admin) {
+          return response(403, 'Forbidden', event)
+        }
+
+        const existing = await dynamoDB.read<User>({ id: item.userId })
+
+        if (!existing) {
+          return response(404, 'Not found', event)
+        }
+
+        dynamoDB.update(
+          { id: item.userId },
+          'set #admin = :admin',
+          {
+            '#admin': 'admin',
+          },
+          {
+            ':admin': item.admin,
+          }
+        )
+
+        return response(200, { ...existing, ...item }, event)
+      } catch (err: unknown) {
+        console.error(err)
+        metricsError(metrics, event.requestContext, 'addPermission')
+        return response((err as AWSError).statusCode || 501, err, event)
+      }
+    }
+)
+
 export const setRoleHandler = metricScope(
   (metrics: MetricsLogger) =>
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
