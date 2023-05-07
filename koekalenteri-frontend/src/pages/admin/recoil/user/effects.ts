@@ -6,8 +6,9 @@ import { idTokenSelector } from '../../../recoil'
 
 let loaded = false
 
-export const remoteUsersEffect: AtomEffect<User[]> = ({ getPromise, setSelf, trigger }) => {
-  if (trigger === 'get' && !loaded) {
+export const remoteUsersEffect: AtomEffect<User[]> = ({ getPromise, onSet, setSelf, trigger }) => {
+  const fetchUsers = () => {
+    loaded = false
     getPromise(idTokenSelector).then((token) => {
       if (!token) {
         setSelf([])
@@ -24,5 +25,16 @@ export const remoteUsersEffect: AtomEffect<User[]> = ({ getPromise, setSelf, tri
           })
       }
     })
+  }
+
+  onSet((_newValue, _oldValue, reset) => {
+    if (loaded && reset) {
+      // re-fetch on reset
+      fetchUsers()
+    }
+  })
+
+  if (trigger === 'get' && !loaded) {
+    fetchUsers()
   }
 }

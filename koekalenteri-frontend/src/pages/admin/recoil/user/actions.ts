@@ -2,10 +2,10 @@ import { useSetRecoilState } from 'recoil'
 
 import { usersAtom } from './atoms'
 
-export const useOfficialsActions = () => {
-  const setOfficials = useSetRecoilState(usersAtom)
+export const useUserActions = () => {
+  const setUsers = useSetRecoilState(usersAtom)
 
   return {
-    clear: () => setOfficials([]), // placeholder for real actions
+    clear: () => setUsers([]), // placeholder for real actions
   }
 }
