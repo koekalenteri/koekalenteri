@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
 
-import { renderWithUserEvents, waitForDebounce } from '../../../../../test-utils/utils'
+import { flushPromisesAndTimers, renderWithUserEvents } from '../../../../../test-utils/utils'
 import { PartialEvent } from '../../EventForm'
 
 import EventProperty from './EventProperty'
@@ -54,12 +54,12 @@ describe('EventProperty', () => {
       )
       const input = screen.getByRole('combobox')
       await user.type(input, 'input test')
-      jest.advanceTimersByTime(200)
+      await flushPromisesAndTimers()
 
       expect(onChange).toHaveBeenCalledWith({ modifiedBy: 'testinput test' })
 
       await user.clear(input)
-      jest.advanceTimersByTime(200)
+      await flushPromisesAndTimers()
 
       expect(onChange).toHaveBeenLastCalledWith({ modifiedBy: undefined })
     })
@@ -80,12 +80,12 @@ describe('EventProperty', () => {
       )
       const input = screen.getByRole('combobox')
       await user.type(input, 'NOWT')
-      jest.advanceTimersByTime(200)
+      await flushPromisesAndTimers()
 
       expect(onChange).toHaveBeenCalledWith({ eventType: 'NOWT' })
 
       await user.clear(input)
-      jest.advanceTimersByTime(200)
+      await flushPromisesAndTimers()
 
       expect(onChange).toHaveBeenLastCalledWith({ eventType: undefined })
     })
@@ -114,15 +114,15 @@ describe('EventProperty', () => {
 
       const input = screen.getByRole('combobox')
       await user.type(input, 'a')
-      jest.advanceTimersByTime(200)
+      await flushPromisesAndTimers()
       expect(container).toMatchSnapshot()
 
       await user.clear(input)
-      jest.advanceTimersByTime(200)
+      await flushPromisesAndTimers()
       expect(container).toMatchSnapshot()
 
       await user.type(input, 'b{ArrowDown}{Enter}')
-      jest.advanceTimersByTime(200)
+      await flushPromisesAndTimers()
 
       expect(onChange).toHaveBeenCalledWith({ eventType: 'test-b' })
     })

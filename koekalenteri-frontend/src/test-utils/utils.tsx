@@ -5,7 +5,6 @@ import { act, render, RenderOptions, RenderResult } from '@testing-library/react
 import userEvent from '@testing-library/user-event'
 import { Options } from '@testing-library/user-event/dist/types/options'
 import { UserEvent } from '@testing-library/user-event/dist/types/setup/setup'
-import type { Options as UserEventOptions } from '@testing-library/user-event/options'
 import mediaQuery from 'css-mediaquery'
 import { RecoilValue, useRecoilValue } from 'recoil'
 
