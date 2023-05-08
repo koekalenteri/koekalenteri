@@ -72,7 +72,7 @@ const routes: RouteObject[] = [
     ],
   },
   { path: Path.login, element: <LoginPage /> },
-  { path: Path.logout, element: <Navigate to="/" /> },
+  { path: Path.logout, element: <Navigate to="/" replace /> },
   {
     path: Path.admin.root,
     element: <AdminHomePage />,

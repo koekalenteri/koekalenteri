@@ -7,17 +7,17 @@ import { Path } from '../../routeConfig'
 import Header from '../components/Header'
 import LoadingIndicator from '../components/LoadingIndicator'
 import { SideMenu } from '../components/SideMenu'
-import { userNameSelector } from '../recoil'
+import { hasAdminAccessSelector } from '../recoil'
 
 export default function AdminHomePage() {
   const location = useLocation()
-  const userName = useRecoilValue(userNameSelector)
+  const hasAccess = useRecoilValue(hasAdminAccessSelector)
   const [menuOpen, setMenuOpen] = useState(false)
 
   const closeMenu = useCallback(() => setMenuOpen(false), [setMenuOpen])
   const toggleMenu = useCallback(() => setMenuOpen(!menuOpen), [setMenuOpen, menuOpen])
 
-  if (!userName) {
+  if (!hasAccess) {
     return <Navigate to={Path.login} state={{ from: location }} replace />
   }
 
