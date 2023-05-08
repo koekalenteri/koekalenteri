@@ -10,15 +10,14 @@ export const useOfficialsActions = () => {
   const setOfficials = useSetRecoilState(officialsAtom)
   const resetUsers = useResetRecoilState(adminUsersAtom)
 
-  return {
-    refresh,
+  const refresh = async () => {
+    const officials = await getOfficials(true)
+    const sortedOfficials = [...officials].sort((a, b) => a.name.localeCompare(b.name, i18next.language))
+    setOfficials(sortedOfficials)
+    resetUsers()
   }
 
-  function refresh() {
-    getOfficials(true).then((officials) => {
-      const sortedOfficials = [...officials].sort((a, b) => a.name.localeCompare(b.name, i18next.language))
-      setOfficials(sortedOfficials)
-      resetUsers()
-    })
+  return {
+    refresh,
   }
 }

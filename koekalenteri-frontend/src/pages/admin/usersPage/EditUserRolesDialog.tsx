@@ -42,9 +42,9 @@ export function EditUserRolesDialog({ onClose, open, user }: Props) {
   const [role, setRole] = useState<'admin' | 'secretary'>('secretary')
   const roles = user?.roles ?? {}
   const availableOrgs = organizers.filter((org) => !Object.keys(roles).includes(org.id))
-  const handleAdminChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAdminChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     if (!user) return
-    actions.setAdmin({ ...user, admin: event.target.checked })
+    await actions.setAdmin({ ...user, admin: event.target.checked })
   }
 
   useEffect(() => {

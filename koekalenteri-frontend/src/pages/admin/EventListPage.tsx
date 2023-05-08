@@ -55,8 +55,8 @@ export default function EventListPage() {
           justifyContent: 'flex-start',
         },
       },
-    }).then(() => {
-      actions.deleteCurrent()
+    }).then(async () => {
+      await actions.deleteCurrent()
     })
   }, [actions, confirm, t])
 

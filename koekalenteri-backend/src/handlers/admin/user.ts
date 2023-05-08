@@ -62,7 +62,7 @@ export const setAdminHandler = metricScope(
           return response(404, 'Not found', event)
         }
 
-        dynamoDB.update(
+        await dynamoDB.update(
           { id: item.userId },
           'set #admin = :admin',
           {
@@ -120,7 +120,7 @@ export const setRoleHandler = metricScope(
           roles[item.orgId] = item.role
         }
 
-        dynamoDB.update(
+        await dynamoDB.update(
           { id: item.userId },
           'set #roles = :roles',
           {

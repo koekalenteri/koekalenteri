@@ -13,25 +13,16 @@ export const useJudgesActions = () => {
   const resetUsers = useResetRecoilState(adminUsersAtom)
   const token = useRecoilValue(idTokenSelector)
 
-  return {
-    find,
-    refresh,
-    save,
+  const find = (id: number) => judges.find((item) => item.id === id)
+
+  const refresh = async () => {
+    const judges = await getJudges(true)
+    const sortedJudges = [...judges].sort((a, b) => a.name.localeCompare(b.name, i18next.language))
+    setJudges(sortedJudges)
+    resetUsers()
   }
 
-  function find(id: number) {
-    return judges.find((item) => item.id === id)
-  }
-
-  function refresh() {
-    getJudges(true).then((judges) => {
-      const sortedJudges = [...judges].sort((a, b) => a.name.localeCompare(b.name, i18next.language))
-      setJudges(sortedJudges)
-      resetUsers()
-    })
-  }
-
-  async function save(judge: Judge) {
+  const save = async (judge: Judge) => {
     const index = judges.findIndex((j) => j.id === judge.id)
     if (index === -1) {
       throw new Error(`Judge by id ${judge.id} not found!`)
@@ -40,5 +31,11 @@ export const useJudgesActions = () => {
     const newJudges = judges.map<Judge>((j) => ({ ...j }))
     newJudges.splice(index, 1, saved)
     setJudges(newJudges)
+  }
+
+  return {
+    find,
+    refresh,
+    save,
   }
 }
