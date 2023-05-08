@@ -9,8 +9,49 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  backend:
     runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          cache: npm
+      - name: Lint BE
+        run: |
+          cd koekalenteri-backend
+          npm ci
+          npm run lint
+          npm run build
+          npm test -- --coverage
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v3
+        with:
+          name: backend-coverage
+          path: koekalenteri-backend/coverage/lcov.info
+
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          cache: npm
+      - name: Lint FE
+        run: |
+          cd koekalenteri-frontend
+          npm ci
+          npm run lint
+          npm run build
+          npm test -- --coverage
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v3
+        with:
+          name: frontend-coverage
+          path: koekalenteri-frontend/coverage/lcov.info
+
+  sonar:
+    runs-on: ubuntu-latest
+    needs: [backend, frontend]
     steps:
       - uses: actions/checkout@v3
         with:
@@ -18,20 +59,16 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           cache: npm
-      - name: Build and Test BE
-        run: |
-          cd koekalenteri-backend
-          npm ci
-          npm run lint
-          npm run build
-          npm test -- --coverage
-      - name: Build and Test FE
-        run: |
-          cd koekalenteri-frontend
-          npm ci
-          npm run lint
-          npm run build
-          npm test -- --coverage
+      - name: Download backend coverage
+        uses: actions/download-artifact@v3
+        with:
+          name: backend-coverage
+          path: koekalenteri-backend/coverage/lcov.info
+      - name: Download frontend coverage
+        uses: actions/download-artifact@v3
+        with:
+          name: frontend-coverage
+          path: koekalenteri-frontend/coverage/lcov.info
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         env:
