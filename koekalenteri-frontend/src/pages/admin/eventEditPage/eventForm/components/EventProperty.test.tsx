@@ -17,6 +17,9 @@ const testEvent: PartialEvent = {
 }
 
 describe('EventProperty', () => {
+  beforeAll(() => jest.useFakeTimers())
+  afterAll(() => jest.useRealTimers())
+
   beforeEach(() => {
     jest.spyOn(console, 'warn').mockImplementation(console.debug)
     jest.spyOn(console, 'error').mockImplementation(console.debug)
@@ -25,6 +28,7 @@ describe('EventProperty', () => {
   afterEach(() => {
     expect(console.warn).toHaveBeenCalledTimes(0)
     expect(console.error).toHaveBeenCalledTimes(0)
+    jest.clearAllTimers()
   })
 
   describe('freeSolo=true', () => {
@@ -44,16 +48,18 @@ describe('EventProperty', () => {
       const onChange = jest.fn()
 
       const { user } = renderWithUserEvents(
-        <EventProperty id={'modifiedBy'} options={[]} event={testEvent} freeSolo onChange={onChange} />
+        <EventProperty id={'modifiedBy'} options={[]} event={testEvent} freeSolo onChange={onChange} />,
+        undefined,
+        { advanceTimers: jest.advanceTimersByTime }
       )
       const input = screen.getByRole('combobox')
       await user.type(input, 'input test')
-      await waitForDebounce()
+      jest.advanceTimersByTime(200)
 
       expect(onChange).toHaveBeenCalledWith({ modifiedBy: 'testinput test' })
 
       await user.clear(input)
-      await waitForDebounce()
+      jest.advanceTimersByTime(200)
 
       expect(onChange).toHaveBeenLastCalledWith({ modifiedBy: undefined })
     })
@@ -68,16 +74,18 @@ describe('EventProperty', () => {
           event={testEvent}
           freeSolo
           onChange={onChange}
-        />
+        />,
+        undefined,
+        { advanceTimers: jest.advanceTimersByTime }
       )
       const input = screen.getByRole('combobox')
       await user.type(input, 'NOWT')
-      await waitForDebounce()
+      jest.advanceTimersByTime(200)
 
       expect(onChange).toHaveBeenCalledWith({ eventType: 'NOWT' })
 
       await user.clear(input)
-      await waitForDebounce()
+      jest.advanceTimersByTime(200)
 
       expect(onChange).toHaveBeenLastCalledWith({ eventType: undefined })
     })
@@ -98,21 +106,23 @@ describe('EventProperty', () => {
       const onChange = jest.fn()
 
       const { container, user } = renderWithUserEvents(
-        <EventProperty id={'eventType'} options={['test-a', 'test-b']} event={testEvent} onChange={onChange} />
+        <EventProperty id={'eventType'} options={['test-a', 'test-b']} event={testEvent} onChange={onChange} />,
+        undefined,
+        { advanceTimers: jest.advanceTimersByTime }
       )
       expect(container).toMatchSnapshot()
 
       const input = screen.getByRole('combobox')
       await user.type(input, 'a')
-      await waitForDebounce()
+      jest.advanceTimersByTime(200)
       expect(container).toMatchSnapshot()
 
       await user.clear(input)
-      await waitForDebounce()
+      jest.advanceTimersByTime(200)
       expect(container).toMatchSnapshot()
 
       await user.type(input, 'b{ArrowDown}{Enter}')
-      await waitForDebounce()
+      jest.advanceTimersByTime(200)
 
       expect(onChange).toHaveBeenCalledWith({ eventType: 'test-b' })
     })

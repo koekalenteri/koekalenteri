@@ -5,6 +5,9 @@ import { API_BASE_URL } from '../routeConfig'
 import http from './http'
 
 fetchMock.enableMocks()
+jest.mock('notistack', () => ({
+  enqueueSnackbar: () => undefined,
+}))
 
 describe('http', () => {
   beforeEach(() => {

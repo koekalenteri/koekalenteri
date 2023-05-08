@@ -223,7 +223,7 @@ exports[`BasicInfoSection should render 1`] = `
                     class="MuiGrid-root MuiGrid-item css-1tz4rhg-MuiGrid-root"
                   >
                     <div
-                      class="MuiAutocomplete-root css-l3ln04-MuiAutocomplete-root"
+                      class="MuiAutocomplete-root css-1h51icj-MuiAutocomplete-root"
                     >
                       <div
                         class="MuiBox-root css-91p3uw"
@@ -300,7 +300,7 @@ exports[`BasicInfoSection should render 1`] = `
                     class="MuiGrid-root MuiGrid-item css-17sva53-MuiGrid-root"
                   >
                     <div
-                      class="MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-l3ln04-MuiAutocomplete-root"
+                      class="MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-1h51icj-MuiAutocomplete-root"
                     >
                       <div
                         class="MuiBox-root css-91p3uw"
@@ -399,7 +399,7 @@ exports[`BasicInfoSection should render 1`] = `
                     class="MuiGrid-root MuiGrid-item css-15ghomv-MuiGrid-root"
                   >
                     <div
-                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-xg9u7b-MuiAutocomplete-root"
+                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1kkal6p-MuiAutocomplete-root"
                     >
                       <div
                         class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
@@ -520,7 +520,7 @@ exports[`BasicInfoSection should render 1`] = `
                     class="MuiGrid-root MuiGrid-item css-15ghomv-MuiGrid-root"
                   >
                     <div
-                      class="MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-l3ln04-MuiAutocomplete-root"
+                      class="MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-1h51icj-MuiAutocomplete-root"
                     >
                       <div
                         class="MuiBox-root css-91p3uw"
@@ -619,7 +619,7 @@ exports[`BasicInfoSection should render 1`] = `
                     class="MuiGrid-root MuiGrid-item css-17sva53-MuiGrid-root"
                   >
                     <div
-                      class="MuiAutocomplete-root css-l3ln04-MuiAutocomplete-root"
+                      class="MuiAutocomplete-root css-1h51icj-MuiAutocomplete-root"
                     >
                       <div
                         class="MuiBox-root css-91p3uw"
@@ -696,7 +696,7 @@ exports[`BasicInfoSection should render 1`] = `
                     class="MuiGrid-root MuiGrid-item css-twodqs-MuiGrid-root"
                   >
                     <div
-                      class="MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-l3ln04-MuiAutocomplete-root"
+                      class="MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-1h51icj-MuiAutocomplete-root"
                     >
                       <div
                         class="MuiBox-root css-91p3uw"
@@ -795,7 +795,7 @@ exports[`BasicInfoSection should render 1`] = `
                     class="MuiGrid-root MuiGrid-item css-twodqs-MuiGrid-root"
                   >
                     <div
-                      class="MuiAutocomplete-root css-l3ln04-MuiAutocomplete-root"
+                      class="MuiAutocomplete-root css-1h51icj-MuiAutocomplete-root"
                     >
                       <div
                         class="MuiBox-root css-91p3uw"
