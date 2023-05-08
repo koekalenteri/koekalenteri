@@ -43,16 +43,16 @@ jobs:
           cache: npm
       - name: Install packages
         run: npm ci
-        working-directory: koekalenteri-backend
+        working-directory: koekalenteri-frontend
       - name: Lint
         run: npm run lint
-        working-directory: koekalenteri-backend
+        working-directory: koekalenteri-frontend
       - name: Build
         run: npm run build
-        working-directory: koekalenteri-backend
+        working-directory: koekalenteri-frontend
       - name: Test
         run: npm run test -- --coverage
-        working-directory: koekalenteri-backend
+        working-directory: koekalenteri-frontend
       - name: Upload coverage report
         uses: actions/upload-artifact@v3
         with:
