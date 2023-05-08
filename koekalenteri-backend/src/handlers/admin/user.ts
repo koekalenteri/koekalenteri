@@ -102,7 +102,7 @@ export const setRoleHandler = metricScope(
           return response(403, 'Forbidden', event)
         }
 
-        if (!user.admin || user.roles?.[item.orgId] !== 'admin') {
+        if (!user.admin && user.roles?.[item.orgId] !== 'admin') {
           console.warn('User does not have right to set role', { user, item })
           return response(403, 'Forbidden', event)
         }
