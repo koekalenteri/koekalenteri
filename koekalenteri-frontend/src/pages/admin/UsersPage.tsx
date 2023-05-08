@@ -1,10 +1,9 @@
 import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { AddCircleOutline, DeleteOutline, EditOutlined, StarsOutlined, Support } from '@mui/icons-material'
+import { AddCircleOutline, EditOutlined, StarsOutlined, Support } from '@mui/icons-material'
 import { Badge, Stack, Theme, useMediaQuery } from '@mui/material'
 import { GridColumns, GridSelectionModel } from '@mui/x-data-grid'
 import { User } from 'koekalenteri-shared/model'
-import { useConfirm } from 'material-ui-confirm'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
 import StyledDataGrid from '../components/StyledDataGrid'
@@ -13,13 +12,7 @@ import { isOrgAdminSelector } from '../recoil'
 import FullPageFlex from './components/FullPageFlex'
 import { QuickSearchToolbar } from './components/QuickSearchToolbar'
 import AutoButton from './eventListPage/AutoButton'
-import {
-  adminUserFilterAtom,
-  adminUserIdAtom,
-  currentAdminUserSelector,
-  filteredUsersSelector,
-  useAdminUserActions,
-} from './recoil/user'
+import { adminUserFilterAtom, adminUserIdAtom, currentAdminUserSelector, filteredUsersSelector } from './recoil/user'
 import { EditUserRolesDialog } from './usersPage/EditUserRolesDialog'
 
 const RoleInfo = ({ admin, roles }: User) => {
@@ -39,12 +32,10 @@ const RoleInfo = ({ admin, roles }: User) => {
 }
 
 export default function UsersPage() {
-  const confirm = useConfirm()
   const large = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
   const [searchText, setSearchText] = useRecoilState(adminUserFilterAtom)
   const { t } = useTranslation()
   const users = useRecoilValue(filteredUsersSelector)
-  const actions = useAdminUserActions()
   const isOrgAdmin = useRecoilValue(isOrgAdminSelector)
   const [selectedUserID, setSelectedUserID] = useRecoilState(adminUserIdAtom)
   const selectedUser = useRecoilValue(currentAdminUserSelector)
@@ -87,25 +78,6 @@ export default function UsersPage() {
       headerName: t('district'),
     },
   ]
-
-  const deleteAction = useCallback(() => {
-    confirm({
-      title: t('confirmTitle'),
-      description: t('deleteUserText'),
-      confirmationText: t('delete'),
-      cancellationText: t('cancel'),
-      cancellationButtonProps: { variant: 'outlined' },
-      confirmationButtonProps: { autoFocus: true, variant: 'contained' },
-      dialogActionsProps: {
-        sx: {
-          flexDirection: 'row-reverse',
-          justifyContent: 'flex-start',
-        },
-      },
-    }).then(() => {
-      actions.deleteCurrent()
-    })
-  }, [actions, confirm, t])
 
   const createAction = useCallback(() => alert('create'), [])
   const editAction = useCallback(() => setRolesOpen(true), [])
