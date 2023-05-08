@@ -16,13 +16,18 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           cache: npm
-      - name: Lint BE
-        run: |
-          cd koekalenteri-backend
-          npm ci
-          npm run lint
-          npm run build
-          npm test -- --coverage
+      - name: Install packages
+        run: npm ci
+        working-directory: koekalenteri-backend
+      - name: Lint
+        run: npm run lint
+        working-directory: koekalenteri-backend
+      - name: Build
+        run: npm run build
+        working-directory: koekalenteri-backend
+      - name: Test
+        run: npm run test -- --coverage
+        working-directory: koekalenteri-backend
       - name: Upload coverage report
         uses: actions/upload-artifact@v3
         with:
@@ -36,13 +41,18 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           cache: npm
-      - name: Lint FE
-        run: |
-          cd koekalenteri-frontend
-          npm ci
-          npm run lint
-          npm run build
-          npm test -- --coverage
+      - name: Install packages
+        run: npm ci
+        working-directory: koekalenteri-backend
+      - name: Lint
+        run: npm run lint
+        working-directory: koekalenteri-backend
+      - name: Build
+        run: npm run build
+        working-directory: koekalenteri-backend
+      - name: Test
+        run: npm run test -- --coverage
+        working-directory: koekalenteri-backend
       - name: Upload coverage report
         uses: actions/upload-artifact@v3
         with:
