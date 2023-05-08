@@ -132,11 +132,12 @@ describe('DogInfo', () => {
 
     const input = screen.getByRole('combobox', { name: 'dog.regNo' })
     await user.type(input, 'TESTDOG-0020')
-    expect(input).toHaveValue('TESTDOG-0020')
     await flushPromisesAndTimers()
+    expect(input).toHaveValue('TESTDOG-0020')
 
     const button = screen.getByRole('button', { name: 'registration.cta.fetch' })
     await user.click(button)
+    await flushPromisesAndTimers()
     await flushPromisesAndTimers()
 
     expect(button.textContent).toEqual('registration.cta.error')
@@ -157,11 +158,12 @@ describe('DogInfo', () => {
 
     const input = screen.getByRole('combobox', { name: 'dog.regNo' })
     await user.type(input, 'TESTDOG-0020')
-    expect(input).toHaveValue('TESTDOG-0020')
     await flushPromisesAndTimers()
+    expect(input).toHaveValue('TESTDOG-0020')
 
     const button = screen.getByRole('button', { name: 'registration.cta.fetch' })
     await user.click(button)
+    await flushPromisesAndTimers()
     await flushPromisesAndTimers()
 
     expect(button.textContent).toEqual('registration.cta.notfound')
