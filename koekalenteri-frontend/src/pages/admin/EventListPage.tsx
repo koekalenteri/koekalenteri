@@ -43,7 +43,7 @@ export default function EventListPage() {
 
   const deleteAction = useCallback(() => {
     confirm({
-      title: t('deleteEventTitle'),
+      title: t('confirmTitle'),
       description: t('deleteEventText'),
       confirmationText: t('delete'),
       cancellationText: t('cancel'),

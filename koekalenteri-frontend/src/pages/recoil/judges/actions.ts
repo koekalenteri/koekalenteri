@@ -3,14 +3,14 @@ import { Judge } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
 
 import { getJudges, putJudge } from '../../../api/judge'
-import { usersAtom } from '../../admin/recoil/user'
+import { adminUsersAtom } from '../../admin/recoil/user'
 import { idTokenSelector } from '../user'
 
 import { judgesAtom } from './atoms'
 
 export const useJudgesActions = () => {
   const [judges, setJudges] = useRecoilState(judgesAtom)
-  const resetUsers = useResetRecoilState(usersAtom)
+  const resetUsers = useResetRecoilState(adminUsersAtom)
   const token = useRecoilValue(idTokenSelector)
 
   return {

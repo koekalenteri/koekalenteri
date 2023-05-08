@@ -6,7 +6,7 @@ import { useRecoilValue } from 'recoil'
 
 import logo from '../../assets/snj-logo.png'
 import { Path } from '../../routeConfig'
-import { userNameSelector } from '../recoil'
+import { hasAdminAccessSelector, userNameSelector } from '../recoil'
 
 import LanguageMenu from './header/LanguageMenu'
 import UserMenu from './header/UserMenu'
@@ -18,6 +18,7 @@ interface Props {
 const Header = ({ toggleMenu }: Props) => {
   const { t } = useTranslation()
   const userName = useRecoilValue(userNameSelector)
+  const hasAdminAccess = useRecoilValue(hasAdminAccessSelector)
   const inAdmin = !!toggleMenu
   const linkBorder = userName ? '2px solid #000' : undefined
   const adminBorder = inAdmin ? linkBorder : undefined
@@ -41,20 +42,21 @@ const Header = ({ toggleMenu }: Props) => {
             Koekalenteri
           </Typography>
         </Link>
-        <Link
-          href={Path.admin.index}
-          sx={{
-            textDecoration: 'none',
-            borderBottom: adminBorder,
-            mr: 1,
-            px: 1,
-            display: userName ? undefined : 'none',
-          }}
-        >
-          <Typography variant="subtitle1" noWrap component="div" sx={{ flexShrink: 1 }}>
-            {t('admin')}
-          </Typography>
-        </Link>
+        {hasAdminAccess && (
+          <Link
+            href={Path.admin.index}
+            sx={{
+              textDecoration: 'none',
+              borderBottom: adminBorder,
+              mr: 1,
+              px: 1,
+            }}
+          >
+            <Typography variant="subtitle1" noWrap component="div" sx={{ flexShrink: 1 }}>
+              {t('admin')}
+            </Typography>
+          </Link>
+        )}
         <Typography
           variant="h6"
           color="primary.dark"

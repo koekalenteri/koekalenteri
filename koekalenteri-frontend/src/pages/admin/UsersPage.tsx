@@ -1,15 +1,26 @@
+import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { StarsOutlined, Support } from '@mui/icons-material'
-import { Badge, Theme, useMediaQuery } from '@mui/material'
-import { GridColumns } from '@mui/x-data-grid'
+import { AddCircleOutline, DeleteOutline, EditOutlined, StarsOutlined, Support } from '@mui/icons-material'
+import { Badge, Stack, Theme, useMediaQuery } from '@mui/material'
+import { GridColumns, GridSelectionModel } from '@mui/x-data-grid'
 import { User } from 'koekalenteri-shared/model'
+import { useConfirm } from 'material-ui-confirm'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
 import StyledDataGrid from '../components/StyledDataGrid'
+import { isOrgAdminSelector } from '../recoil'
 
 import FullPageFlex from './components/FullPageFlex'
 import { QuickSearchToolbar } from './components/QuickSearchToolbar'
-import { filteredUsersSelector, userFilterAtom } from './recoil/user'
+import AutoButton from './eventListPage/AutoButton'
+import {
+  adminUserFilterAtom,
+  adminUserIdAtom,
+  currentAdminUserSelector,
+  filteredUsersSelector,
+  useAdminUserActions,
+} from './recoil/user'
+import { EditUserRolesDialog } from './usersPage/EditUserRolesDialog'
 
 const RoleInfo = ({ admin, roles }: User) => {
   if (admin) {
@@ -28,10 +39,16 @@ const RoleInfo = ({ admin, roles }: User) => {
 }
 
 export default function UsersPage() {
+  const confirm = useConfirm()
   const large = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
-  const [searchText, setSearchText] = useRecoilState(userFilterAtom)
+  const [searchText, setSearchText] = useRecoilState(adminUserFilterAtom)
   const { t } = useTranslation()
-  const officials = useRecoilValue(filteredUsersSelector)
+  const users = useRecoilValue(filteredUsersSelector)
+  const actions = useAdminUserActions()
+  const isOrgAdmin = useRecoilValue(isOrgAdminSelector)
+  const [selectedUserID, setSelectedUserID] = useRecoilState(adminUserIdAtom)
+  const selectedUser = useRecoilValue(currentAdminUserSelector)
+  const [rolesOpen, setRolesOpen] = useState(false)
 
   const columns: GridColumns<User> = [
     {
@@ -42,7 +59,7 @@ export default function UsersPage() {
     {
       field: 'roles',
       flex: 0,
-      headerName: 'roles',
+      headerName: t('roles'),
       width: 80,
       renderCell: (p) => <RoleInfo {...p.row} />,
     },
@@ -71,9 +88,52 @@ export default function UsersPage() {
     },
   ]
 
+  const deleteAction = useCallback(() => {
+    confirm({
+      title: t('confirmTitle'),
+      description: t('deleteUserText'),
+      confirmationText: t('delete'),
+      cancellationText: t('cancel'),
+      cancellationButtonProps: { variant: 'outlined' },
+      confirmationButtonProps: { autoFocus: true, variant: 'contained' },
+      dialogActionsProps: {
+        sx: {
+          flexDirection: 'row-reverse',
+          justifyContent: 'flex-start',
+        },
+      },
+    }).then(() => {
+      actions.deleteCurrent()
+    })
+  }, [actions, confirm, t])
+
+  const createAction = useCallback(() => alert('create'), [])
+  const editAction = useCallback(() => setRolesOpen(true), [])
+  const handleSelectionModeChange = useCallback(
+    (selection: GridSelectionModel) => {
+      const value = typeof selection[0] === 'string' ? selection[0] : undefined
+      setSelectedUserID(value)
+    },
+    [setSelectedUserID]
+  )
+
   return (
     <>
       <FullPageFlex>
+        <Stack direction="row" spacing={2}>
+          <AutoButton
+            disabled={!isOrgAdmin}
+            startIcon={<AddCircleOutline />}
+            onClick={createAction}
+            text={t('create')}
+          />
+          <AutoButton
+            disabled={!isOrgAdmin || !selectedUserID}
+            startIcon={<EditOutlined />}
+            onClick={editAction}
+            text={t('editRoles')}
+          />
+        </Stack>
         <StyledDataGrid
           columns={columns}
           columnVisibilityModel={{
@@ -90,9 +150,12 @@ export default function UsersPage() {
               clearSearch: () => setSearchText(''),
             },
           }}
-          rows={officials}
+          rows={users}
+          onSelectionModelChange={handleSelectionModeChange}
+          selectionModel={selectedUserID ? [selectedUserID] : []}
         />
       </FullPageFlex>
+      <EditUserRolesDialog user={selectedUser} onClose={() => setRolesOpen(false)} open={rolesOpen} />
     </>
   )
 }

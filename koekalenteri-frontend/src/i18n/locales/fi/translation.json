@@ -3,6 +3,7 @@
   "admin": "Ylläpito",
   "cancel": "Peruuta",
   "clear": "Tyhjennä",
+  "confirmTitle": "Varmistus",
   "contact": {
     "city": "Kotikunta",
     "email": "Sähköposti",
@@ -29,7 +30,7 @@
   "delete": "Poista",
   "deleteEventComplete": "Tapahtuma poistettu",
   "deleteEventText": "Haluatko varmasti poistaa tapahtuman?",
-  "deleteEventTitle": "Varmistus",
+  "deleteUserText": "Haluatko varmasti poistaa käyttäjän?",
   "distance": "{{ date, distance }}",
   "distanceLeft": "{{ date, distance }} jäljellä",
   "district": "Kennelpiiri",
@@ -56,6 +57,7 @@
   },
   "edit": "Muokkaa",
   "editRegistration": "Muokkaa ilmoittautumista",
+  "editRoles": "Muokkaa rooleja",
   "emailTemplates": "Viestit",
   "emailTemplate": {
     "invitation": "Koekutsu",
@@ -270,6 +272,7 @@
     }
   },
   "registrations": "Ilmoittautumiset",
+  "roles": "Roolit",
   "size": {
     "fi": "Koko suomeksi",
     "en": "Koko englanniksi"
@@ -285,6 +288,20 @@
   },
   "toltaPlaces": "paikkaa",
   "updateData": "Päivitä $t({{data}}) Kennelliiton rajapinnasta",
+  "user": {
+    "admin": "Koekalenterin pääkäyttäjä",
+    "adminRoles": "Koekalenterin pääkäyttäjällä on pääkäyttäjä-oikeus kaikkiin yhdistyksiin",
+    "editRolesDialog": {
+      "cta": "Tallenna roolit",
+      "done": "Roolit tallennettu",
+      "title": "Käyttäjän [{{user.name}}] roolien muokkaus",
+      "terms": "Katso tarkemmat peruutusehdot <2>säännöistä</2>"
+    },
+    "role": {
+      "admin": "Pääkäyttäjä",
+      "secretary": "Koesihteeri"
+    }
+  },
   "users": "Käyttäjät",
   "validation": {
     "event": {

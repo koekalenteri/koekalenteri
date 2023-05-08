@@ -5,13 +5,19 @@ import { logEffect, storageEffect } from '../../../recoil/effects'
 
 import { remoteUsersEffect } from './effects'
 
-export const usersAtom = atom<User[]>({
+export const adminUsersAtom = atom<User[]>({
   key: 'users',
   default: [],
   effects: [logEffect, storageEffect, remoteUsersEffect],
 })
 
-export const userFilterAtom = atom<string>({
+export const adminUserFilterAtom = atom<string>({
   key: 'userFilter',
   default: '',
+})
+
+export const adminUserIdAtom = atom<string | undefined>({
+  key: 'userId',
+  default: '',
+  effects: [logEffect, storageEffect],
 })

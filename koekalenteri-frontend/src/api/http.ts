@@ -1,7 +1,9 @@
+import { enqueueSnackbar } from 'notistack'
+
 import { API_BASE_URL } from '../routeConfig'
 import { parseJSON } from '../utils'
 
-class APIError extends Error {
+export class APIError extends Error {
   status: number
   statusText: string
   result: string
@@ -25,11 +27,13 @@ async function http<T>(path: string, init: RequestInit): Promise<T> {
       let json = text
       try {
         json = parseJSON(text)
-      } catch (e) {}
+      } catch (e) {
+        console.error('json parsing failed', e)
+      }
+      enqueueSnackbar(`${response.status} ${json ?? text}`, { variant: 'error' })
       throw new APIError(response, json)
     }
     const parsed = parseJSON(text)
-    // console.debug('response', parsed)
     return parsed
   } catch (err) {
     console.error(err)
