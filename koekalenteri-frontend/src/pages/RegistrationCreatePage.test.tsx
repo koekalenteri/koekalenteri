@@ -11,7 +11,7 @@ import { RecoilRoot } from 'recoil'
 import { eventWithStaticDates, eventWithStaticDatesAnd3Classes } from '../__mockData__/events'
 import theme from '../assets/Theme'
 import { locales } from '../i18n'
-import { waitForDebounce } from '../test-utils/utils'
+import { flushPromisesAndTimers } from '../test-utils/utils'
 
 import RegistrationCreatePage from './RegistrationCreatePage'
 
@@ -47,11 +47,16 @@ function Wrapper({ children }: { children: ReactNode }) {
 }
 
 describe('RegistrationCreatePage', () => {
+  beforeAll(() => jest.useFakeTimers())
+  afterEach(() => jest.clearAllTimers())
+  afterAll(() => jest.useRealTimers())
+
   it('should render with event/eventType/id path', async () => {
     const { eventType, id } = eventWithStaticDates
     mockUseParams.mockImplementation(() => ({ id, eventType }))
     const { container } = render(<RegistrationCreatePage />, { wrapper: Wrapper })
-    await waitForDebounce()
+    await flushPromisesAndTimers()
+    await flushPromisesAndTimers()
     expect(container).toMatchSnapshot()
   })
 
@@ -59,7 +64,8 @@ describe('RegistrationCreatePage', () => {
     const { eventType, id, classes } = eventWithStaticDatesAnd3Classes
     mockUseParams.mockImplementation(() => ({ id, eventType, class: classes[1].class }))
     render(<RegistrationCreatePage />, { wrapper: Wrapper })
-    await waitForDebounce()
+    await flushPromisesAndTimers()
+    await flushPromisesAndTimers()
     const input = screen.getByRole('combobox', { name: 'registration.class' })
     expect(input).toHaveValue(classes[1].class)
   })
@@ -69,7 +75,8 @@ describe('RegistrationCreatePage', () => {
     const date = format(classes[2].date ?? new Date(), 'dd.MM.')
     mockUseParams.mockImplementation(() => ({ id, eventType, class: classes[2].class, date }))
     const { container } = render(<RegistrationCreatePage />, { wrapper: Wrapper })
-    await waitForDebounce()
+    await flushPromisesAndTimers()
+    await flushPromisesAndTimers()
     expect(container).toMatchSnapshot()
   })
 
@@ -78,7 +85,8 @@ describe('RegistrationCreatePage', () => {
     expect.assertions(1)
     try {
       render(<RegistrationCreatePage />, { wrapper: Wrapper })
-      await waitForDebounce()
+      await flushPromisesAndTimers()
+      await flushPromisesAndTimers()
     } catch (e) {
       // eslint-disable-next-line jest/no-conditional-expect
       expect(e).toMatchInlineSnapshot(`
