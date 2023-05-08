@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import { parseISO } from 'date-fns'
 
-import { renderWithUserEvents } from '../../../../../test-utils/utils'
+import { flushPromisesAndTimers, renderWithUserEvents } from '../../../../../test-utils/utils'
 
 import EventClasses from './EventClasses'
 
@@ -9,6 +9,10 @@ const date = parseISO('2023-01-17')
 const date2 = parseISO('2023-01-18')
 
 describe('EventClasses', () => {
+  beforeAll(() => jest.useFakeTimers())
+  afterEach(() => jest.clearAllTimers())
+  afterAll(() => jest.useRealTimers())
+
   it('should render with minimal properties', () => {
     const { container } = render(
       <EventClasses id={''} eventStartDate={date} eventEndDate={date} value={undefined} classes={[]} label={''} />
@@ -98,11 +102,14 @@ describe('EventClasses', () => {
         ]}
         label={''}
         showCount
-      />
+      />,
+      undefined,
+      { advanceTimers: jest.advanceTimersByTime }
     )
 
     const input = screen.getByRole('combobox')
     await user.type(input, '{ArrowDown}')
+    await flushPromisesAndTimers()
 
     expect(container).toMatchSnapshot()
   })
@@ -131,11 +138,14 @@ describe('EventClasses', () => {
         ]}
         label={''}
         showCount
-      />
+      />,
+      undefined,
+      { advanceTimers: jest.advanceTimersByTime }
     )
 
     const input = screen.getByRole('combobox')
     await user.type(input, '{ArrowDown}')
+    await flushPromisesAndTimers()
 
     expect(container).toMatchSnapshot()
   })
