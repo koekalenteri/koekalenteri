@@ -2,7 +2,8 @@ import i18next from 'i18next'
 import { User } from 'koekalenteri-shared/model'
 import { selector, selectorFamily } from 'recoil'
 
-import { userAtom } from '../../../recoil'
+import { eventsAtom, userAtom } from '../../../recoil'
+import { filteredAdminEventsSelector } from '../events'
 import { organizersAtom } from '../organizers'
 
 import { adminUserFilterAtom, adminUserIdAtom, adminUsersAtom } from './atoms'
@@ -50,5 +51,35 @@ export const adminUserOrganizersSelector = selector({
     const list = get(organizersAtom)
 
     return user?.admin ? list : list.filter((o) => user?.roles?.[o.id])
+  },
+})
+
+export const adminUserAdminOrganizersSelector = selector({
+  key: 'adminUserOrganizers',
+  get: ({ get }) => {
+    const user = get(userAtom)
+    const list = get(organizersAtom)
+
+    return user?.admin ? list : list.filter((o) => user?.roles?.[o.id] === 'admin')
+  },
+})
+
+export const adminUserEventsSelector = selector({
+  key: 'adminUserEvents',
+  get: ({ get }) => {
+    const user = get(userAtom)
+    const events = get(eventsAtom)
+
+    return user?.admin ? events : events.filter((e) => user?.roles?.[e.organizer.id])
+  },
+})
+
+export const adminUserFilteredEventsSelector = selector({
+  key: 'adminUserFilteredEvents',
+  get: ({ get }) => {
+    const user = get(userAtom)
+    const events = get(filteredAdminEventsSelector)
+
+    return user?.admin ? events : events.filter((e) => user?.roles?.[e.organizer.id])
   },
 })

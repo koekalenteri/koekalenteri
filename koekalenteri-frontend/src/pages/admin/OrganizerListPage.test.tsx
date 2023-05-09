@@ -10,11 +10,14 @@ import { flushPromisesAndTimers } from '../../test-utils/utils'
 
 import OrganizerListPage from './OrganizerListPage'
 
-jest.useFakeTimers()
-
 jest.mock('../../api/organizer')
+jest.mock('../../api/user')
 
 describe('OrganizerListPage', () => {
+  beforeAll(() => jest.useFakeTimers())
+  afterEach(() => jest.clearAllTimers())
+  afterAll(() => jest.useRealTimers())
+
   it('renders', async () => {
     const { container } = render(
       <ThemeProvider theme={theme}>

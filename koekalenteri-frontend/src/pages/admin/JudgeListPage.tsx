@@ -5,7 +5,7 @@ import { Button, Stack } from '@mui/material'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
 import StyledDataGrid from '../components/StyledDataGrid'
-import { filteredJudgesSelector, judgeFilterAtom, useJudgesActions } from '../recoil'
+import { filteredJudgesSelector, isAdminSelector, judgeFilterAtom, useJudgesActions } from '../recoil'
 
 import FullPageFlex from './components/FullPageFlex'
 import { QuickSearchToolbar } from './components/QuickSearchToolbar'
@@ -15,6 +15,7 @@ export default function JudgeListPage() {
   const [searchText, setSearchText] = useRecoilState(judgeFilterAtom)
   const { t } = useTranslation()
   const judges = useRecoilValue(filteredJudgesSelector)
+  const isAdmin = useRecoilValue(isAdminSelector)
   const actions = useJudgesActions()
 
   const columns = useJudgeListColumns()
@@ -30,7 +31,7 @@ export default function JudgeListPage() {
     <>
       <FullPageFlex>
         <Stack direction="row" spacing={2}>
-          <Button startIcon={<CloudSync />} onClick={actions.refresh}>
+          <Button startIcon={<CloudSync />} onClick={actions.refresh} sx={{ display: isAdmin ? undefined : 'none' }}>
             {t('updateData', { data: 'judges' })}
           </Button>
         </Stack>

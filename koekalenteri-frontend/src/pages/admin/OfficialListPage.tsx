@@ -6,6 +6,7 @@ import { Official } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
 import StyledDataGrid from '../components/StyledDataGrid'
+import { isAdminSelector } from '../recoil'
 
 import FullPageFlex from './components/FullPageFlex'
 import { QuickSearchToolbar } from './components/QuickSearchToolbar'
@@ -20,6 +21,7 @@ export default function OfficialListPage() {
   const [searchText, setSearchText] = useRecoilState(officialFilterAtom)
   const { t } = useTranslation()
   const officials = useRecoilValue(filteredOfficialsSelector)
+  const isAdmin = useRecoilValue(isAdminSelector)
   const actions = useOfficialsActions()
 
   const columns: OfficialColDef[] = [
@@ -70,7 +72,7 @@ export default function OfficialListPage() {
     <>
       <FullPageFlex>
         <Stack direction="row" spacing={2}>
-          <Button startIcon={<CloudSync />} onClick={actions.refresh}>
+          <Button startIcon={<CloudSync />} onClick={actions.refresh} sx={{ display: isAdmin ? undefined : 'none' }}>
             {t('updateData', { data: 'officials' })}
           </Button>
         </Stack>

@@ -10,11 +10,14 @@ import { flushPromisesAndTimers } from '../../test-utils/utils'
 
 import EventTypeListPage from './EventTypeListPage'
 
-jest.useFakeTimers()
-
 jest.mock('../../api/eventType')
+jest.mock('../../api/user')
 
 describe('EventTypeListPage', () => {
+  beforeAll(() => jest.useFakeTimers())
+  afterEach(() => jest.clearAllTimers())
+  afterAll(() => jest.useRealTimers())
+
   it('renders', async () => {
     const { container } = render(
       <ThemeProvider theme={theme}>

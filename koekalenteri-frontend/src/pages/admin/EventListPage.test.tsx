@@ -14,6 +14,7 @@ import { adminEventIdAtom } from './recoil'
 jest.mock('../../api/event')
 jest.mock('../../api/judge')
 jest.mock('../../api/registration')
+jest.mock('../../api/user')
 
 describe('EventListPage', () => {
   beforeAll(() => jest.useFakeTimers())
@@ -36,6 +37,7 @@ describe('EventListPage', () => {
         </RecoilRoot>
       </ThemeProvider>
     )
+    await flushPromisesAndTimers()
     await flushPromisesAndTimers()
     expect(container).toMatchSnapshot()
 

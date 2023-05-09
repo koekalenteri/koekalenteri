@@ -24,7 +24,7 @@ import { Organizer, User } from 'koekalenteri-shared/model'
 import { useRecoilValue } from 'recoil'
 
 import { isAdminSelector } from '../../recoil'
-import { adminUserOrganizersSelector, useAdminUserActions } from '../recoil/user'
+import { adminUserAdminOrganizersSelector, useAdminUserActions } from '../recoil/user'
 
 interface Props {
   user: User | null | undefined
@@ -36,7 +36,7 @@ export function EditUserRolesDialog({ onClose, open, user }: Props) {
   const { t } = useTranslation()
   const actions = useAdminUserActions()
   const isAdmin = useRecoilValue(isAdminSelector)
-  const organizers = useRecoilValue(adminUserOrganizersSelector)
+  const organizers = useRecoilValue(adminUserAdminOrganizersSelector)
   const [org, setOrg] = useState<Organizer | null>(null)
   const [role, setRole] = useState<'admin' | 'secretary'>('secretary')
   const roles = user?.roles ?? {}

@@ -68,7 +68,10 @@ export const getTemplatesHandler = genericReadAllHandler(dynamoDB, 'getTemplates
 export const putTemplateHandler = metricScope(
   (metrics: MetricsLogger) =>
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-      await authorize(event)
+      const user = await authorize(event)
+      if (!user?.admin) {
+        return response(401, 'Unauthorized', event)
+      }
 
       const timestamp = new Date().toISOString()
       const username = getUsername(event)

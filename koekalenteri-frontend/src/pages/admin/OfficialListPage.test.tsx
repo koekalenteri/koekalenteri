@@ -11,6 +11,7 @@ import { flushPromisesAndTimers } from '../../test-utils/utils'
 import OfficialListPage from './OfficialListPage'
 
 jest.mock('../../api/official')
+jest.mock('../../api/user')
 
 describe('OfficialListPage', () => {
   beforeAll(() => jest.useFakeTimers())

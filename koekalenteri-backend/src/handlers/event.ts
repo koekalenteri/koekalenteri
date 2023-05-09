@@ -4,7 +4,7 @@ import { AWSError } from 'aws-sdk'
 import { JsonConfirmedEvent, JsonRegistration } from 'koekalenteri-shared/model'
 import { nanoid } from 'nanoid'
 
-import { authorize, getUsername } from '../utils/auth'
+import { authorize } from '../utils/auth'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { genericReadAllHandler, genericReadHandler } from '../utils/genericHandlers'
 import { metricsError, metricsSuccess } from '../utils/metrics'
@@ -17,20 +17,25 @@ export const getEventHandler = genericReadHandler(dynamoDB, 'getEvent')
 export const putEventHandler = metricScope(
   (metrics: MetricsLogger) =>
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-      await authorize(event)
+      const user = await authorize(event)
+      if (!user) {
+        return response(401, 'Unauthorized', event)
+      }
 
       const timestamp = new Date().toISOString()
-      const username = getUsername(event)
 
       try {
         let existing
         const item: JsonConfirmedEvent = JSON.parse(event.body || '')
         if (item.id) {
           existing = await dynamoDB.read<JsonConfirmedEvent>({ id: item.id })
+          if (!user.admin && !user.roles?.[existing?.organizer?.id ?? '']) {
+            return response(403, 'Forbidden', event)
+          }
         } else {
           item.id = nanoid(10)
           item.createdAt = timestamp
-          item.createdBy = username
+          item.createdBy = user.name
         }
 
         if (
@@ -46,9 +51,12 @@ export const putEventHandler = metricScope(
 
         // modification info is always updated
         item.modifiedAt = timestamp
-        item.modifiedBy = username
+        item.modifiedBy = user.name
 
         const data = { ...existing, ...item }
+        if (!user.admin && !user.roles?.[data.organizer?.id ?? '']) {
+          return response(403, 'Forbidden', event)
+        }
         await dynamoDB.write(data)
         metricsSuccess(metrics, event.requestContext, 'putEvent')
         return response(200, data, event)

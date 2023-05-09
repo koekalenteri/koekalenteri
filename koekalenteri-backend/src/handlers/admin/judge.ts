@@ -4,7 +4,7 @@ import { AWSError } from 'aws-sdk'
 import { diff } from 'deep-object-diff'
 import { EventType, JsonDbRecord, Judge } from 'koekalenteri-shared/model'
 
-import { getAndUpdateUserByEmail } from '../../utils/auth'
+import { authorize, getAndUpdateUserByEmail } from '../../utils/auth'
 import CustomDynamoClient from '../../utils/CustomDynamoClient'
 import { genericWriteHandler } from '../../utils/genericHandlers'
 import KLAPI from '../../utils/KLAPI'
@@ -21,7 +21,12 @@ export const getJudgesHandler = metricScope(
   (metrics: MetricsLogger) =>
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
       try {
-        if (event.queryStringParameters && 'refresh' in event.queryStringParameters) {
+        const user = await authorize(event)
+        if (!user) {
+          return response(401, 'Unauthorized', event)
+        }
+
+        if (user.admin && event.queryStringParameters && 'refresh' in event.queryStringParameters) {
           const eventTypeTable = process.env.EVENT_TYPE_TABLE_NAME || ''
           const eventTypes = (await dynamoDB.readAll<EventType>(eventTypeTable))?.filter((et) => et.active) || []
           for (const eventType of eventTypes) {

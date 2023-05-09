@@ -52,13 +52,15 @@ export const getEventTypesHandler = metricScope(
 export const putEventTypeHandler = metricScope(
   (metrics: MetricsLogger) =>
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-      await authorize(event)
+      const user = await authorize(event)
+      if (!user?.admin) {
+        return response(401, 'Unauthorized', event)
+      }
 
       const timestamp = new Date().toISOString()
-      const username = getUsername(event)
 
       try {
-        const item = createDbRecord(event, timestamp, username)
+        const item = createDbRecord(event, timestamp, user.name)
         await dynamoDB.write(item)
         if (!item.active) {
           const active = (await dynamoDB.readAll<EventType>())?.filter((et) => et.active) || []
@@ -73,7 +75,7 @@ export const putEventTypeHandler = metricScope(
               {
                 ...judge,
                 deletedAt: timestamp,
-                deletedBy: username,
+                deletedBy: user.name,
               },
               judgeTable
             )
@@ -89,7 +91,7 @@ export const putEventTypeHandler = metricScope(
               {
                 ...official,
                 deletedAt: timestamp,
-                deletedBy: username,
+                deletedBy: user.name,
               },
               officialTable
             )

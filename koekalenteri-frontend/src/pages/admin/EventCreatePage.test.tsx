@@ -21,6 +21,7 @@ jest.mock('../../api/judge')
 jest.mock('../../api/official')
 jest.mock('../../api/organizer')
 jest.mock('../../api/registration')
+jest.mock('../../api/user')
 
 describe('EventEditPage', () => {
   beforeAll(() => jest.useFakeTimers())
@@ -56,6 +57,7 @@ describe('EventEditPage', () => {
         </LocalizationProvider>
       </ThemeProvider>
     )
+    await flushPromisesAndTimers()
     await flushPromisesAndTimers()
     expect(container).toMatchSnapshot()
   })

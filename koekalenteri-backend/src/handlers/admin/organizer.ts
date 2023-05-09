@@ -4,6 +4,7 @@ import { AWSError } from 'aws-sdk'
 import { Organizer } from 'koekalenteri-shared/model'
 import { nanoid } from 'nanoid'
 
+import { authorize } from '../../utils/auth'
 import CustomDynamoClient from '../../utils/CustomDynamoClient'
 import KLAPI from '../../utils/KLAPI'
 import { KLYhdistysRajaus } from '../../utils/KLAPI_models'
@@ -18,7 +19,12 @@ export const getOrganizersHandler = metricScope(
   (metrics: MetricsLogger) =>
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
       try {
-        if (event.queryStringParameters && 'refresh' in event.queryStringParameters) {
+        const user = await authorize(event)
+        if (!user) {
+          return response(401, 'Unauthorized', event)
+        }
+
+        if (user.admin && event.queryStringParameters && 'refresh' in event.queryStringParameters) {
           const { status, json } = await klapi.lueYhdistykset({ Rajaus: KLYhdistysRajaus.Koejärjestätä })
           if (status === 200 && json) {
             const existing = await dynamoDB.readAll<Organizer>()

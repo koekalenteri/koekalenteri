@@ -9,7 +9,8 @@ import { Path } from '../../routeConfig'
 import { activeEventTypesSelector, activeJudgesSelector, eventTypeClassesAtom } from '../recoil'
 
 import EventForm from './eventEditPage/EventForm'
-import { newEventAtom, officialsAtom, organizersAtom, useAdminEventActions } from './recoil'
+import { adminUserOrganizersSelector } from './recoil/user'
+import { newEventAtom, officialsAtom, useAdminEventActions } from './recoil'
 
 export default function EventCreatePage() {
   const { t } = useTranslation()
@@ -19,7 +20,7 @@ export default function EventCreatePage() {
   const activeJudges = useRecoilValue(activeJudgesSelector)
   const eventTypeClasses = useRecoilValue(eventTypeClassesAtom)
   const officials = useRecoilValue(officialsAtom)
-  const organizers = useRecoilValue(organizersAtom)
+  const organizers = useRecoilValue(adminUserOrganizersSelector)
 
   const actions = useAdminEventActions()
   const [event, setEvent] = useRecoilState(newEventAtom)

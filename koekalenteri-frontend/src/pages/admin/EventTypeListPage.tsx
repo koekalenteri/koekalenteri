@@ -5,7 +5,7 @@ import { Button, Stack } from '@mui/material'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
 import StyledDataGrid from '../components/StyledDataGrid'
-import { eventTypeFilterAtom, filteredEventTypesSelector, useEventTypeActions } from '../recoil'
+import { eventTypeFilterAtom, filteredEventTypesSelector, isAdminSelector, useEventTypeActions } from '../recoil'
 
 import FullPageFlex from './components/FullPageFlex'
 import { QuickSearchToolbar } from './components/QuickSearchToolbar'
@@ -14,6 +14,7 @@ import { useEventTypeListPageColumns } from './eventTypeListPage/columns'
 export default function EventTypeListPage() {
   const [searchText, setSearchText] = useRecoilState(eventTypeFilterAtom)
   const eventTypes = useRecoilValue(filteredEventTypesSelector)
+  const isAdmin = useRecoilValue(isAdminSelector)
   const actions = useEventTypeActions()
   const { t } = useTranslation()
 
@@ -30,7 +31,7 @@ export default function EventTypeListPage() {
     <>
       <FullPageFlex>
         <Stack direction="row" spacing={2}>
-          <Button startIcon={<CloudSync />} onClick={actions.refresh}>
+          <Button startIcon={<CloudSync />} onClick={actions.refresh} sx={{ display: isAdmin ? undefined : 'none' }}>
             {t('updateData', { data: 'eventTypes' })}
           </Button>
         </Stack>

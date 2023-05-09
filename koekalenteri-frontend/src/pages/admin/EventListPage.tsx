@@ -20,12 +20,12 @@ import FullPageFlex from './components/FullPageFlex'
 import { QuickSearchToolbar } from './components/QuickSearchToolbar'
 import AutoButton from './eventListPage/AutoButton'
 import useEventListColumns from './eventListPage/columns'
+import { adminUserFilteredEventsSelector } from './recoil/user'
 import {
   adminEventFilterTextAtom,
   adminEventIdAtom,
   adminShowPastEventsAtom,
   currentAdminEventSelector,
-  filteredAdminEventsSelector,
   useAdminEventActions,
 } from './recoil'
 
@@ -37,7 +37,7 @@ export default function EventListPage() {
   const [searchText, setSearchText] = useRecoilState(adminEventFilterTextAtom)
   const [selectedEventID, setSelectedEventID] = useRecoilState(adminEventIdAtom)
   const selectedEvent = useRecoilValue(currentAdminEventSelector)
-  const events = useRecoilValue(filteredAdminEventsSelector)
+  const events = useRecoilValue(adminUserFilteredEventsSelector)
   const actions = useAdminEventActions()
   const columns = useEventListColumns()
 

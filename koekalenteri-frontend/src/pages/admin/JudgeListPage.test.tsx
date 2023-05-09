@@ -10,11 +10,14 @@ import { flushPromisesAndTimers } from '../../test-utils/utils'
 
 import JudgeListPage from './JudgeListPage'
 
-jest.useFakeTimers()
-
 jest.mock('../../api/judge')
+jest.mock('../../api/user')
 
 describe('JudgeListPage', () => {
+  beforeAll(() => jest.useFakeTimers())
+  afterEach(() => jest.clearAllTimers())
+  afterAll(() => jest.useRealTimers())
+
   it('renders', async () => {
     const { container } = render(
       <ThemeProvider theme={theme}>

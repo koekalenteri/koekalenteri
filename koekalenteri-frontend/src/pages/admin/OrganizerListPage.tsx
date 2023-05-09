@@ -7,6 +7,7 @@ import { Organizer } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
 import StyledDataGrid from '../components/StyledDataGrid'
+import { isAdminSelector } from '../recoil'
 
 import FullPageFlex from './components/FullPageFlex'
 import { QuickSearchToolbar } from './components/QuickSearchToolbar'
@@ -19,6 +20,7 @@ interface OrganizerColDef extends GridColDef {
 export default function OrganizerListPage() {
   const [searchText, setSearchText] = useRecoilState(organizerFilterAtom)
   const organizers = useRecoilValue(filteredOrganizersSelector)
+  const isAdmin = useRecoilValue(isAdminSelector)
   const actions = useOrganizersActions()
 
   const { t } = useTranslation()
@@ -47,7 +49,7 @@ export default function OrganizerListPage() {
     <>
       <FullPageFlex>
         <Stack direction="row" spacing={2}>
-          <Button startIcon={<CloudSync />} onClick={actions.refresh}>
+          <Button startIcon={<CloudSync />} onClick={actions.refresh} sx={{ display: isAdmin ? undefined : 'none' }}>
             {t('updateData', { data: 'organizations' })}
           </Button>
         </Stack>
