@@ -23,7 +23,7 @@ const RoleInfo = ({ admin, roles }: User) => {
   if (roleCount) {
     return (
       <Badge badgeContent={roleCount}>
-        <Support />
+        <Support fontSize="small" />
       </Badge>
     )
   }
@@ -122,6 +122,7 @@ export default function UsersPage() {
               clearSearch: () => setSearchText(''),
             },
           }}
+          rowHeight={50}
           rows={users}
           onSelectionModelChange={handleSelectionModeChange}
           selectionModel={selectedUserID ? [selectedUserID] : []}

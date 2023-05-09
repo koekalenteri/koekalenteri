@@ -8,8 +8,6 @@ import { registrationWithStaticDates, registrationWithStaticDatesCancelled } fro
 
 import ClassEntrySelection from './ClassEntrySelection'
 
-jest.useFakeTimers()
-
 function Wrapper(props: { children?: ReactNode }) {
   return (
     <RecoilRoot>
@@ -19,6 +17,10 @@ function Wrapper(props: { children?: ReactNode }) {
 }
 
 describe('ClassEntrySelection', () => {
+  beforeAll(() => jest.useFakeTimers())
+  afterEach(() => jest.clearAllTimers())
+  afterAll(() => jest.useRealTimers())
+
   it.each([[undefined], [[]], [[new Date('2022-01-01T10:00:00.000Z')]], [[new Date('2022-06-20T09:00:00.000Z')]]])(
     'given %p as dates',
     (dates) => {

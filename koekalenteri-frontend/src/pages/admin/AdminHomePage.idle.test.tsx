@@ -11,11 +11,14 @@ import { DataMemoryRouter, flushPromisesAndTimers } from '../../test-utils/utils
 
 import AdminHomePage from './AdminHomePage'
 
-jest.useFakeTimers()
 jest.mock('@aws-amplify/auth', () => require('../global-mocks/auth/idle'))
 jest.mock('@aws-amplify/ui-react', () => require('../global-mocks/auth/idle'))
 
 describe('AdminHomePage', () => {
+  beforeAll(() => jest.useFakeTimers())
+  afterEach(() => jest.clearAllTimers())
+  afterAll(() => jest.useRealTimers())
+
   it('should redirect to login page if user is not logged in', async () => {
     const routes = [
       {

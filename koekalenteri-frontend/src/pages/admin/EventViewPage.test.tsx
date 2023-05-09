@@ -15,8 +15,6 @@ import { DataMemoryRouter, flushPromisesAndTimers } from '../../test-utils/utils
 
 import EventViewPage from './EventViewPage'
 
-jest.useFakeTimers()
-
 jest.mock('../../api/event')
 jest.mock('../../api/eventType')
 jest.mock('../../api/judge')
@@ -26,6 +24,10 @@ jest.mock('../../api/registration')
 jest.mock('../../api/email')
 
 describe('EventViewPage', () => {
+  beforeAll(() => jest.useFakeTimers())
+  afterEach(() => jest.clearAllTimers())
+  afterAll(() => jest.useRealTimers())
+
   it('renders properly for event without classes', async () => {
     const routes: RouteObject[] = [
       {

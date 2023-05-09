@@ -6,11 +6,14 @@ import { DogCache } from '../../../recoil/dog'
 
 import { filterInvalid, useDogCache } from './useDogCache'
 
-jest.useFakeTimers()
 jest.spyOn(Storage.prototype, 'setItem')
 jest.spyOn(Storage.prototype, 'getItem')
 
 describe('useDogCache', () => {
+  beforeAll(() => jest.useFakeTimers())
+  afterEach(() => jest.clearAllTimers())
+  afterAll(() => jest.useRealTimers())
+
   it('should read from localStorage', () => {
     renderHook(() => useDogCache('test'), { wrapper: RecoilRoot })
     expect(localStorage.getItem).toHaveBeenCalledWith('dog-cache')

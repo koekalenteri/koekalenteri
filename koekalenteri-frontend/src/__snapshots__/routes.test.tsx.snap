@@ -71,6 +71,7 @@ Array [
   },
   Object {
     "element": <Navigate
+      replace={true}
       to="/"
     />,
     "path": "/logout",

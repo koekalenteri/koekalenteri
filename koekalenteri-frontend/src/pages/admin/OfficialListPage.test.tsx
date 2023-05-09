@@ -10,11 +10,13 @@ import { flushPromisesAndTimers } from '../../test-utils/utils'
 
 import OfficialListPage from './OfficialListPage'
 
-jest.useFakeTimers()
-
 jest.mock('../../api/official')
 
 describe('OfficialListPage', () => {
+  beforeAll(() => jest.useFakeTimers())
+  afterEach(() => jest.clearAllTimers())
+  afterAll(() => jest.useRealTimers())
+
   it('renders', async () => {
     const { container } = render(
       <ThemeProvider theme={theme}>

@@ -15,8 +15,6 @@ import { flushPromisesAndTimers } from '../../test-utils/utils'
 import EventCreatePage from './EventCreatePage'
 import { newEventAtom } from './recoil'
 
-jest.useFakeTimers()
-
 jest.mock('../../api/event')
 jest.mock('../../api/eventType')
 jest.mock('../../api/judge')
@@ -25,6 +23,10 @@ jest.mock('../../api/organizer')
 jest.mock('../../api/registration')
 
 describe('EventEditPage', () => {
+  beforeAll(() => jest.useFakeTimers())
+  afterEach(() => jest.clearAllTimers())
+  afterAll(() => jest.useRealTimers())
+
   it('renders properly when creating a new event', async () => {
     const { i18n } = useTranslation()
     const language = i18n.language as Language

@@ -11,13 +11,15 @@ import { flushPromisesAndTimers, RecoilObserver } from '../../test-utils/utils'
 import EventListPage from './EventListPage'
 import { adminEventIdAtom } from './recoil'
 
-jest.useFakeTimers()
-
 jest.mock('../../api/event')
 jest.mock('../../api/judge')
 jest.mock('../../api/registration')
 
 describe('EventListPage', () => {
+  beforeAll(() => jest.useFakeTimers())
+  afterEach(() => jest.clearAllTimers())
+  afterAll(() => jest.useRealTimers())
+
   it('renders', async () => {
     const onChange = jest.fn()
     const { container } = render(

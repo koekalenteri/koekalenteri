@@ -2,6 +2,9 @@ import i18next from 'i18next'
 import { User } from 'koekalenteri-shared/model'
 import { selector, selectorFamily } from 'recoil'
 
+import { userAtom } from '../../../recoil'
+import { organizersAtom } from '../organizers'
+
 import { adminUserFilterAtom, adminUserIdAtom, adminUsersAtom } from './atoms'
 
 export const filteredUsersSelector = selector({
@@ -37,5 +40,15 @@ export const currentAdminUserSelector = selector({
   get: ({ get }) => {
     const userId = get(adminUserIdAtom)
     return userId ? get(adminUserSelector(userId)) : undefined
+  },
+})
+
+export const adminUserOrganizersSelector = selector({
+  key: 'adminUserOrganizers',
+  get: ({ get }) => {
+    const user = get(userAtom)
+    const list = get(organizersAtom)
+
+    return user?.admin ? list : list.filter((o) => user?.roles?.[o.id])
   },
 })

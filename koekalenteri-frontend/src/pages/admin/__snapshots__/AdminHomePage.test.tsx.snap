@@ -219,6 +219,16 @@ exports[`AdminHomePage renders the page when user is logged in 1`] = `
           Koekalenteri
         </div>
       </a>
+      <a
+        class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-1u98cmt-MuiTypography-root-MuiLink-root"
+        href="/admin/event"
+      >
+        <div
+          class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-noWrap css-mpfifn-MuiTypography-root"
+        >
+          admin
+        </div>
+      </a>
       <div
         class="MuiTypography-root MuiTypography-h6 MuiTypography-noWrap css-1mo43ab-MuiTypography-root"
       />

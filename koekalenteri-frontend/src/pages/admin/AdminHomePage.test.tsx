@@ -11,10 +11,14 @@ import { DataMemoryRouter, flushPromisesAndTimers } from '../../test-utils/utils
 
 import AdminHomePage from './AdminHomePage'
 
-jest.useFakeTimers()
+jest.mock('../../api/user')
 
 describe('AdminHomePage', () => {
-  it('renders the page when user is logged in', async () => {
+  beforeAll(() => jest.useFakeTimers())
+  afterEach(() => jest.clearAllTimers())
+  afterAll(() => jest.useRealTimers())
+
+  fit('renders the page when user is logged in', async () => {
     const routes = [
       {
         path: Path.admin.root,
@@ -39,6 +43,7 @@ describe('AdminHomePage', () => {
       </ThemeProvider>
     )
 
+    await flushPromisesAndTimers()
     await flushPromisesAndTimers()
     expect(container).toMatchSnapshot()
   })

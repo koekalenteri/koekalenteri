@@ -19,21 +19,30 @@ export const useAdminUserActions = () => {
 
   return {
     addRole: async (user: User, orgId: string, role: UserRole) => {
-      const saved = await putRole({ userId: user.id, orgId, role }, token)
-      replaceUser(saved)
+      try {
+        const saved = await putRole({ userId: user.id, orgId, role }, token)
+        replaceUser(saved)
+      } catch (e) {
+        console.error(e)
+      }
     },
     clear: () => setUsers([]), // placeholder for real actions
     deleteCurrent: () => null,
     removeRole: async (user: User, orgId: string) => {
-      const saved = await putRole({ userId: user.id, orgId, role: 'none' }, token)
-      replaceUser(saved)
+      try {
+        const saved = await putRole({ userId: user.id, orgId, role: 'none' }, token)
+        replaceUser(saved)
+      } catch (e) {
+        console.error(e)
+      }
     },
-    setAdmin: async (user: User): Promise<User> => {
-      const saved = await putAdmin({ userId: user.id, admin: !!user.admin }, token)
-
-      replaceUser(saved)
-
-      return saved
+    setAdmin: async (user: User) => {
+      try {
+        const saved = await putAdmin({ userId: user.id, admin: !!user.admin }, token)
+        replaceUser(saved)
+      } catch (e) {
+        console.error(e)
+      }
     },
   }
 }
