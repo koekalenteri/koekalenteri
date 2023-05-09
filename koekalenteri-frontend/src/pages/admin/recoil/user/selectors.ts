@@ -55,7 +55,7 @@ export const adminUserOrganizersSelector = selector({
 })
 
 export const adminUserAdminOrganizersSelector = selector({
-  key: 'adminUserOrganizers',
+  key: 'adminUserAdminOrganizers',
   get: ({ get }) => {
     const user = get(userAtom)
     const list = get(organizersAtom)
