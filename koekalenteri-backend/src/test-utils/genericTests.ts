@@ -1,6 +1,15 @@
 import { jest } from '@jest/globals'
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import AWS from 'aws-sdk'
+import { User } from 'koekalenteri-shared/model'
+
+jest.unstable_mockModule('../utils/auth', () => ({
+  authorize: jest
+    .fn<(event: APIGatewayProxyEvent) => Promise<User | null | undefined>>()
+    .mockResolvedValue({ id: 'userid', name: 'test user', email: 'mail@example.com', admin: true }),
+  getOrigin: jest.fn<(event: APIGatewayProxyEvent) => string | undefined>().mockReturnValue('localhost'),
+  getAndUpdateUserByEmail: jest.fn(),
+}))
 
 import { defaultJSONHeaders } from './headers'
 import { constructAPIGwEvent, createAWSError } from './helpers'
@@ -230,9 +239,9 @@ export const genericWriteTest =
       const data = JSON.parse(result.body)
       // compare only date part of timestamps (to avoid timing issues in tests)
       const timestamp = new Date().toISOString().slice(0, 10)
-      expect(data.createdBy).toEqual('TEST')
+      expect(data.createdBy).toEqual('test user')
       expect(data.createdAt.slice(0, 10)).toEqual(timestamp)
-      expect(data.modifiedBy).toEqual('TEST')
+      expect(data.modifiedBy).toEqual('test user')
       expect(data.modifiedAt.slice(0, 10)).toEqual(timestamp)
     })
 

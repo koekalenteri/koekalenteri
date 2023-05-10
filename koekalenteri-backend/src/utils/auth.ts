@@ -20,10 +20,6 @@ const dynamoDB = new CustomDynamoClient(USER_LINK_TABLE)
 export async function authorize(event: APIGatewayProxyEvent) {
   const user = await getOrCreateUser(event)
 
-  if (!user && process.env.NODE_ENV !== 'test') {
-    throw new Error('Unauthorized user')
-  }
-
   return user
 }
 
@@ -66,7 +62,7 @@ export function getOrigin(event: APIGatewayProxyEvent) {
   return event.headers.origin || event.headers.Origin
 }
 
-export function getUsername(event: APIGatewayProxyEvent) {
-  console.log('authorizer', event.requestContext.authorizer)
-  return event.requestContext.authorizer?.claims['cognito:username'] || 'anonymous'
+export async function getUsername(event: APIGatewayProxyEvent) {
+  const user = await getOrCreateUser(event)
+  return user?.name ?? 'anonymous'
 }

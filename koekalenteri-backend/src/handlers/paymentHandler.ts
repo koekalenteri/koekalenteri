@@ -60,7 +60,7 @@ const handlePayment: HandlePayment = async (event, source, metrics) => {
   const env = (await getSSMParams(['PaytrailMerchantSecret'])) as PaytrailConfig
 
   const timestamp = new Date().toISOString()
-  const username = getUsername(event)
+  const username = await getUsername(event)
 
   console.log(event.headers)
   console.log(event.requestContext)

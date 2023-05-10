@@ -15,7 +15,8 @@ import { metricsError, metricsSuccess } from '../../utils/metrics'
 import { emailTo, registrationEmailTemplateData } from '../../utils/registration'
 import { response } from '../../utils/response'
 import { EMAIL_FROM, sendTemplatedMail } from '../email'
-import { markParticipantsPicked, updateRegistrations } from '../event'
+
+import { markParticipantsPicked, updateRegistrations } from './event'
 
 const dynamoDB = new CustomDynamoClient()
 const eventTable = process.env.EVENT_TABLE_NAME || ''

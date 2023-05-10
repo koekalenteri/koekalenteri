@@ -2,7 +2,8 @@ import { Event } from 'koekalenteri-shared/model'
 
 import http, { withToken } from './http'
 
-export const PATH = '/event/'
+const PATH = '/event/'
+const ADMIN_PATH = '/admin/event/'
 
 export async function getEvents(signal?: AbortSignal): Promise<Event[]> {
   return http.get<Event[]>(PATH, { signal })
@@ -13,5 +14,5 @@ export async function getEvent(id: string, signal?: AbortSignal): Promise<Event>
 }
 
 export async function putEvent(event: Partial<Event>, token?: string, signal?: AbortSignal): Promise<Event> {
-  return http.post<Partial<Event>, Event>(PATH, event, withToken({ signal }, token))
+  return http.post<Partial<Event>, Event>(ADMIN_PATH, event, withToken({ signal }, token))
 }

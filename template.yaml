@@ -367,7 +367,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: koekalenteri-backend
-      Handler: dist/handlers/event.putEventHandler
+      Handler: dist/handlers/admin/event.putEventHandler
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -386,7 +386,7 @@ Resources:
         PutEvent:
           Type: Api
           Properties:
-            Path: /event
+            Path: /admin/event
             Method: POST
             RestApiId: !Ref KoekalenteriApi
             Auth:

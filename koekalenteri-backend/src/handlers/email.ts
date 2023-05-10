@@ -74,7 +74,7 @@ export const putTemplateHandler = metricScope(
       }
 
       const timestamp = new Date().toISOString()
-      const username = getUsername(event)
+      const username = await getUsername(event)
 
       try {
         const item: JsonEmailTemplate = JSON.parse(event.body || '')

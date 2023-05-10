@@ -4,14 +4,14 @@ import { AWSError } from 'aws-sdk'
 import { JsonRegistration } from 'koekalenteri-shared/model'
 import { nanoid } from 'nanoid'
 
-import { authorize, getOrigin } from '../utils/auth'
+import { getOrigin, getUsername } from '../utils/auth'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { metricsError, metricsSuccess } from '../utils/metrics'
 import { emailTo, registrationEmailTemplateData } from '../utils/registration'
 import { response } from '../utils/response'
 
+import { updateRegistrations } from './admin/event'
 import { EMAIL_FROM, sendTemplatedMail } from './email'
-import { updateRegistrations } from './event'
 
 export const dynamoDB = new CustomDynamoClient()
 
@@ -37,10 +37,7 @@ export const getRegistrationHandler = metricScope(
 export const putRegistrationHandler = metricScope(
   (metrics: MetricsLogger) =>
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-      const user = await authorize(event)
-      if (!user) {
-        return response(401, 'Unauthorized', event)
-      }
+      const username = await getUsername(event)
       const timestamp = new Date().toISOString()
       const origin = getOrigin(event)
 
@@ -58,12 +55,12 @@ export const putRegistrationHandler = metricScope(
         } else {
           registration.id = nanoid(10)
           registration.createdAt = timestamp
-          registration.createdBy = user.name
+          registration.createdBy = username
         }
 
         // modification info is always updated
         registration.modifiedAt = timestamp
-        registration.modifiedBy = user.name
+        registration.modifiedBy = username
 
         const data = { ...existing, ...registration }
         await dynamoDB.write(data)

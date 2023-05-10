@@ -3,7 +3,7 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import { AWSError } from 'aws-sdk'
 import { EventType, JsonDbRecord, Judge, Official } from 'koekalenteri-shared/model'
 
-import { authorize, getUsername } from '../utils/auth'
+import { authorize } from '../utils/auth'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { createDbRecord } from '../utils/genericHandlers'
 import KLAPI from '../utils/KLAPI'

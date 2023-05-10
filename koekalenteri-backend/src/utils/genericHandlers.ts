@@ -61,13 +61,14 @@ export const genericWriteHandler = (
   name: string
 ): ((event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult>) =>
   metricScope((metrics: MetricsLogger) => async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-    await authorize(event)
-
+    const user = await authorize(event)
+    if (!user) {
+      return response(401, 'Unauthorized', event)
+    }
     const timestamp = new Date().toISOString()
-    const username = getUsername(event)
 
     try {
-      const item = createDbRecord(event, timestamp, username)
+      const item = createDbRecord(event, timestamp, user.name)
       await dynamoDB.write(item)
       metricsSuccess(metrics, event.requestContext, name)
       return response(200, item, event)

@@ -1,7 +1,8 @@
 import { genericReadAllTest } from '../../test-utils/genericTests'
 import { capitalize } from '../../utils/string'
 
-import { getJudgesHandler } from './judge'
+// Dynamic to allow mocks (with ESM)
+const { getJudgesHandler } = await import('./judge')
 
 describe('Test getJudgesHandler (generic)', genericReadAllTest(getJudgesHandler))
 

@@ -4,16 +4,16 @@ import AWS from 'aws-sdk'
 import { genericReadAllTest } from '../test-utils/genericTests'
 import { constructAPIGwEvent } from '../test-utils/helpers'
 
-import { getEventTypesHandler, putEventTypeHandler } from './eventType'
+const { getEventTypesHandler, putEventTypeHandler } = await import('./eventType')
 
 describe('getEventTypesHandler (generic)', genericReadAllTest(getEventTypesHandler))
 
 describe('putEventTypeHandler', function () {
-  let putSpy
-  let getSpy
-  let scanSpy
-  let querySpy
-  let updateSpy
+  let putSpy: any
+  let getSpy: any
+  let scanSpy: any
+  let querySpy: any
+  let updateSpy: any
 
   beforeAll(() => {
     process.env.JUDGE_TABLE_NAME = 'judge'
@@ -40,7 +40,7 @@ describe('putEventTypeHandler', function () {
         judge: 0,
         official: 0,
       }
-      putSpy.mockImplementation((params) => {
+      putSpy.mockImplementation((params: any) => {
         if (params.Item.deletedAt) {
           deleteCounts[params.TableName as string]++
         }
@@ -48,7 +48,7 @@ describe('putEventTypeHandler', function () {
           promise: () => Promise.resolve({}),
         }
       })
-      scanSpy.mockImplementation((params) => {
+      scanSpy.mockImplementation((params: any) => {
         const result: Record<string, unknown[]> = {
           '': [
             { eventType: 'TEST', active: false },
