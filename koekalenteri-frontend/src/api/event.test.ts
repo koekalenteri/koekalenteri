@@ -49,7 +49,7 @@ test('putEvent', async () => {
 
   const newEvent = await putEvent({ eventType: 'TestEventType' })
   expect(fetchMock.mock.calls.length).toEqual(1)
-  expect(fetchMock.mock.calls[0][0]).toEqual(API_BASE_URL + '/event/')
+  expect(fetchMock.mock.calls[0][0]).toEqual(API_BASE_URL + '/admin/event/')
   expect(newEvent.id).not.toBeUndefined()
 })
 
