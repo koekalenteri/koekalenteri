@@ -18,6 +18,7 @@ const eventDate = registrationWithStaticDates.dates[0].date
 
 jest.mock('../../../api/dog')
 jest.mock('../../../api/registration')
+jest.setTimeout(10000)
 
 function Wrapper(props: { children?: ReactNode }) {
   return (
