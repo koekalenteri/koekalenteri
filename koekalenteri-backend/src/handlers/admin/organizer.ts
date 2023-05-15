@@ -14,7 +14,7 @@ const klapi = new KLAPI(getKLAPIConfig)
 
 export const refreshOrganizers = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   const user = await authorize(event)
-  if (!user || !user.admin) {
+  if (!user?.admin) {
     return response(401, 'Unauthorized', event)
   }
 

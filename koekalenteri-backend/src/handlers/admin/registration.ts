@@ -53,15 +53,17 @@ export async function fixGroups<T extends JsonRegistration>(items: T[]): Promise
     grouped[groupKey] = grouped[groupKey] || [] // make sure the array exists
     grouped[groupKey].push(item)
   }
+
   for (const regs of Object.values(grouped)) {
-    regs.forEach(async (reg, index) => {
+    for (let i = 0; i < regs.length; i++) {
+      const reg = regs[i]
       const key = groupKey(reg)
-      const number = index + 1
+      const number = i + 1
       if (reg.group?.key !== key || reg.group?.number !== number) {
         reg.group = { ...reg.group, key, number }
         await saveGroup(reg)
       }
-    })
+    }
   }
 
   return items

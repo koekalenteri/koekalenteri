@@ -16,7 +16,7 @@ const klapi = new KLAPI(getKLAPIConfig)
 
 export const refreshJudges = async (event: APIGatewayProxyEvent) => {
   const user = await authorize(event)
-  if (!user || !user.admin) {
+  if (!user?.admin) {
     return response(401, 'Unauthorized', event)
   }
 
