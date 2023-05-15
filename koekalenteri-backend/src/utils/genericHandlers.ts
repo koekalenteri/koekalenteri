@@ -5,7 +5,7 @@ import { nanoid } from 'nanoid'
 
 import 'source-map-support/register'
 
-import { authorize, getUsername } from './auth'
+import { authorize } from './auth'
 import CustomDynamoClient from './CustomDynamoClient'
 import { metricsError, metricsSuccess } from './metrics'
 import { response } from './response'

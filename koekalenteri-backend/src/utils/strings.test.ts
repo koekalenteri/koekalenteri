@@ -5,6 +5,8 @@ test('capitalize', function () {
   expect(capitalize('matti meikäläinen')).toEqual('Matti Meikäläinen')
   expect(capitalize('äijä örvelö')).toEqual('Äijä Örvelö')
   expect(capitalize('elli-noora alexandra kamilla jurvanen')).toEqual('Elli-Noora Alexandra Kamilla Jurvanen')
+  expect(capitalize('TEST PERSON')).toEqual('Test Person')
+  expect(capitalize('test person-dash')).toEqual('Test Person-Dash')
 })
 
 test('reverseName', function () {
