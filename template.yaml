@@ -585,7 +585,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: koekalenteri-backend
-      Handler: dist/handlers/admin/official.getOfficialsHandler
+      Handler: dist/handlers/official.getOfficialsHandler
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -620,7 +620,7 @@ Resources:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
       CodeUri: koekalenteri-backend
-      Handler: dist/handlers/admin/organizer.getOrganizersHandler
+      Handler: dist/handlers/organizer.getOrganizersHandler
       Layers:
         - !Ref CommonLayer
       Tracing: Active
