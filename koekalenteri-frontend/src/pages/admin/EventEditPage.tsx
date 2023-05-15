@@ -12,9 +12,9 @@ import { activeEventTypesSelector, activeJudgesSelector, eventTypeClassesAtom } 
 import EventForm from './eventEditPage/EventForm'
 import {
   adminEventSelector,
+  adminUserOrganizersSelector,
   editableEventByIdAtom,
   officialsAtom,
-  organizersAtom,
   useAdminEventActions,
 } from './recoil'
 
@@ -27,7 +27,7 @@ export default function EventEditPage() {
   const activeJudges = useRecoilValue(activeJudgesSelector)
   const eventTypeClasses = useRecoilValue(eventTypeClassesAtom)
   const officials = useRecoilValue(officialsAtom)
-  const organizers = useRecoilValue(organizersAtom)
+  const organizers = useRecoilValue(adminUserOrganizersSelector)
 
   const actions = useAdminEventActions()
   const storedEvent = useRecoilValue(adminEventSelector(eventId))
