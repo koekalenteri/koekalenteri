@@ -29,7 +29,7 @@ export function DataMemoryRouter({
   initialIndex?: number
   routes?: RouteObject[]
 }) {
-  const router = createMemoryRouter(routes || createRoutesFromElements(children), {
+  const router = createMemoryRouter(routes ?? createRoutesFromElements(children), {
     basename,
     hydrationData,
     initialEntries,

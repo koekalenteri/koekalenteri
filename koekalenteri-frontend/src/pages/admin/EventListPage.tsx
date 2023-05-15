@@ -111,7 +111,7 @@ export default function EventListPage() {
         />
         <AutoButton
           startIcon={<FormatListNumberedOutlined />}
-          disabled={!selectedEvent || !selectedEvent.entries}
+          disabled={!selectedEvent?.entries}
           onClick={viewAction}
           text={t('registrations')}
         />

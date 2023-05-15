@@ -27,7 +27,7 @@ import { TitlesAndName } from './dogInfo/TitlesAndName'
 import { validateRegNo } from './validation'
 
 export function shouldAllowRefresh(dog?: DeepPartial<Dog>) {
-  if (!dog || !dog.regNo) {
+  if (!dog?.regNo) {
     return false
   }
   if (dog.refreshDate && differenceInMinutes(new Date(), dog.refreshDate) <= 5) {

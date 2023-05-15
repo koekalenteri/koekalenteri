@@ -48,7 +48,7 @@ export function EntryInfo({
 
   const classes = uniqueClasses(event)
   const dates = registrationDates(event, reg.class)
-  const error = errorStates.class || errorStates.dates || errorStates.reserve
+  const error = errorStates.class ?? errorStates.dates ?? errorStates.reserve
   const datesText = reg.dates.map(getRegDateLabel).join(' / ')
   const reserveText = reg.reserve ? t(`registration.reserveChoises.${reg.reserve}`) : ''
   const infoText = `${reg.class || reg.eventType}, ${datesText}, ${reserveText}`

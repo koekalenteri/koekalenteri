@@ -48,7 +48,7 @@ export const setAdminHandler = metricScope(
 
         const item: { userId: string; admin: boolean } = JSON.parse(event.body || '{}')
 
-        if (!item || !item.userId) {
+        if (!item?.userId) {
           return response(400, 'Bad request', event)
         }
 
@@ -93,7 +93,7 @@ export const setRoleHandler = metricScope(
 
         const item: { userId: string; orgId: string; role: UserRole | 'none' } = JSON.parse(event.body || '{}')
 
-        if (!item || !item.orgId) {
+        if (!item?.orgId) {
           return response(400, 'Bad request', event)
         }
 
