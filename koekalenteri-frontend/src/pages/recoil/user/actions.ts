@@ -1,13 +1,27 @@
+import { useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Auth } from '@aws-amplify/auth'
-import { useSnackbar } from 'notistack'
+import { useSetRecoilState } from 'recoil'
+
+import { idTokenAtom } from './atoms'
 
 export const useUserActions = () => {
-  const { enqueueSnackbar } = useSnackbar()
+  const navigate = useNavigate()
+  const setIdToken = useSetRecoilState(idTokenAtom)
 
-  const signOut = () => {
-    Auth.signOut()
-    enqueueSnackbar('Heippa!', { variant: 'info' })
-  }
+  const signIn = useCallback(
+    async (idToken: string) => {
+      setIdToken(idToken)
+      navigate('/', { replace: true })
+    },
+    [navigate, setIdToken]
+  )
 
-  return { signOut }
+  const signOut = useCallback(async () => {
+    await Auth.signOut()
+    setIdToken(undefined)
+    navigate('/', { replace: true })
+  }, [navigate, setIdToken])
+
+  return { signIn, signOut }
 }

@@ -23,8 +23,8 @@ exports[`SearchPage filters by date - no-results 1`] = `
               <label
                 class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
                 data-shrink="true"
-                for=":r1i:"
-                id=":r1i:-label"
+                for=":r18:"
+                id=":r18:-label"
               >
                 daterangeStart
               </label>
@@ -34,7 +34,7 @@ exports[`SearchPage filters by date - no-results 1`] = `
                 <input
                   aria-invalid="false"
                   class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
-                  id=":r1i:"
+                  id=":r18:"
                   placeholder="dd.mm.yyyy"
                   type="tel"
                   value="01.03.2021"
@@ -88,8 +88,8 @@ exports[`SearchPage filters by date - no-results 1`] = `
               <label
                 class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
                 data-shrink="true"
-                for=":r1j:"
-                id=":r1j:-label"
+                for=":r19:"
+                id=":r19:-label"
               >
                 daterangeEnd
               </label>
@@ -99,7 +99,7 @@ exports[`SearchPage filters by date - no-results 1`] = `
                 <input
                   aria-invalid="false"
                   class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
-                  id=":r1j:"
+                  id=":r19:"
                   placeholder="dd.mm.yyyy"
                   type="tel"
                   value="01.03.2021"
@@ -159,8 +159,8 @@ exports[`SearchPage filters by date - no-results 1`] = `
             <label
               class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
               data-shrink="false"
-              for=":r1k:"
-              id=":r1k:-label"
+              for=":r1a:"
+              id=":r1a:-label"
             >
               eventType
             </label>
@@ -175,7 +175,7 @@ exports[`SearchPage filters by date - no-results 1`] = `
                 autocomplete="off"
                 class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
                 disabled=""
-                id=":r1k:"
+                id=":r1a:"
                 role="combobox"
                 spellcheck="false"
                 type="text"
@@ -234,8 +234,8 @@ exports[`SearchPage filters by date - no-results 1`] = `
             <label
               class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
               data-shrink="false"
-              for=":r1m:"
-              id=":r1m:-label"
+              for=":r1c:"
+              id=":r1c:-label"
             >
               eventClass
             </label>
@@ -250,7 +250,7 @@ exports[`SearchPage filters by date - no-results 1`] = `
                 autocomplete="off"
                 class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
                 disabled=""
-                id=":r1m:"
+                id=":r1c:"
                 role="combobox"
                 spellcheck="false"
                 type="text"
@@ -309,8 +309,8 @@ exports[`SearchPage filters by date - no-results 1`] = `
             <label
               class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
               data-shrink="false"
-              for=":r1o:"
-              id=":r1o:-label"
+              for=":r1e:"
+              id=":r1e:-label"
             >
               filter.organizer
             </label>
@@ -325,7 +325,7 @@ exports[`SearchPage filters by date - no-results 1`] = `
                 autocomplete="off"
                 class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
                 disabled=""
-                id=":r1o:"
+                id=":r1e:"
                 role="combobox"
                 spellcheck="false"
                 type="text"
@@ -384,8 +384,8 @@ exports[`SearchPage filters by date - no-results 1`] = `
             <label
               class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
               data-shrink="false"
-              for=":r1q:"
-              id=":r1q:-label"
+              for=":r1g:"
+              id=":r1g:-label"
             >
               judge
             </label>
@@ -400,7 +400,7 @@ exports[`SearchPage filters by date - no-results 1`] = `
                 autocomplete="off"
                 class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
                 disabled=""
-                id=":r1q:"
+                id=":r1g:"
                 role="combobox"
                 spellcheck="false"
                 type="text"
@@ -549,8 +549,8 @@ exports[`SearchPage filters by date 1`] = `
               <label
                 class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
                 data-shrink="true"
-                for=":r18:"
-                id=":r18:-label"
+                for=":ru:"
+                id=":ru:-label"
               >
                 daterangeStart
               </label>
@@ -560,7 +560,7 @@ exports[`SearchPage filters by date 1`] = `
                 <input
                   aria-invalid="false"
                   class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
-                  id=":r18:"
+                  id=":ru:"
                   placeholder="dd.mm.yyyy"
                   type="tel"
                   value="01.01.2021"
@@ -596,1653 +596,6 @@ exports[`SearchPage filters by date 1`] = `
                 >
                   <legend
                     class="css-14lo706"
-                  >
-                    <span>
-                      daterangeStart
-                    </span>
-                  </legend>
-                </fieldset>
-              </div>
-            </div>
-          </div>
-          <div
-            class="MuiFormControl-root css-1vsm76b-MuiFormControl-root"
-          >
-            <div
-              class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
-            >
-              <label
-                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
-                data-shrink="true"
-                for=":r19:"
-                id=":r19:-label"
-              >
-                daterangeEnd
-              </label>
-              <div
-                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-adornedEnd css-1o9ytj0-MuiInputBase-root-MuiOutlinedInput-root"
-              >
-                <input
-                  aria-invalid="false"
-                  class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
-                  id=":r19:"
-                  placeholder="dd.mm.yyyy"
-                  type="tel"
-                  value="01.03.2021"
-                />
-                <div
-                  class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1laqsz7-MuiInputAdornment-root"
-                >
-                  <button
-                    aria-label="Choose date, selected date is 1. maalis 2021"
-                    class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1yq5fb3-MuiButtonBase-root-MuiIconButton-root"
-                    tabindex="0"
-                    type="button"
-                  >
-                    <svg
-                      aria-hidden="true"
-                      class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                      data-testid="CalendarIcon"
-                      focusable="false"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"
-                      />
-                    </svg>
-                    <span
-                      class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                    />
-                  </button>
-                </div>
-                <fieldset
-                  aria-hidden="true"
-                  class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
-                >
-                  <legend
-                    class="css-14lo706"
-                  >
-                    <span>
-                      daterangeEnd
-                    </span>
-                  </legend>
-                </fieldset>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-md-4 css-bfkuk8-MuiGrid-root"
-      >
-        <div
-          class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1kkal6p-MuiAutocomplete-root"
-          data-testid="eventType"
-        >
-          <div
-            class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
-          >
-            <label
-              class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
-              data-shrink="false"
-              for=":r1a:"
-              id=":r1a:-label"
-            >
-              eventType
-            </label>
-            <div
-              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1hw12xa-MuiInputBase-root-MuiOutlinedInput-root"
-            >
-              <input
-                aria-autocomplete="list"
-                aria-expanded="false"
-                aria-invalid="false"
-                autocapitalize="none"
-                autocomplete="off"
-                class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
-                id=":r1a:"
-                role="combobox"
-                spellcheck="false"
-                type="text"
-                value=""
-              />
-              <div
-                class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
-              >
-                <button
-                  aria-label="Open"
-                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-                  tabindex="-1"
-                  title="Open"
-                  type="button"
-                >
-                  <svg
-                    aria-hidden="true"
-                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                    data-testid="ArrowDropDownIcon"
-                    focusable="false"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      d="M7 10l5 5 5-5z"
-                    />
-                  </svg>
-                  <span
-                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                  />
-                </button>
-              </div>
-              <fieldset
-                aria-hidden="true"
-                class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
-              >
-                <legend
-                  class="css-yjsfm1"
-                >
-                  <span>
-                    eventType
-                  </span>
-                </legend>
-              </fieldset>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-md-2 css-19qwjve-MuiGrid-root"
-      >
-        <div
-          class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1kkal6p-MuiAutocomplete-root"
-          data-testid="eventClass"
-        >
-          <div
-            class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
-          >
-            <label
-              class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
-              data-shrink="false"
-              for=":r1c:"
-              id=":r1c:-label"
-            >
-              eventClass
-            </label>
-            <div
-              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1hw12xa-MuiInputBase-root-MuiOutlinedInput-root"
-            >
-              <input
-                aria-autocomplete="list"
-                aria-expanded="false"
-                aria-invalid="false"
-                autocapitalize="none"
-                autocomplete="off"
-                class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
-                id=":r1c:"
-                role="combobox"
-                spellcheck="false"
-                type="text"
-                value=""
-              />
-              <div
-                class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
-              >
-                <button
-                  aria-label="Open"
-                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-                  tabindex="-1"
-                  title="Open"
-                  type="button"
-                >
-                  <svg
-                    aria-hidden="true"
-                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                    data-testid="ArrowDropDownIcon"
-                    focusable="false"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      d="M7 10l5 5 5-5z"
-                    />
-                  </svg>
-                  <span
-                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                  />
-                </button>
-              </div>
-              <fieldset
-                aria-hidden="true"
-                class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
-              >
-                <legend
-                  class="css-yjsfm1"
-                >
-                  <span>
-                    eventClass
-                  </span>
-                </legend>
-              </fieldset>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-wfcdf7-MuiGrid-root"
-      >
-        <div
-          class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1kkal6p-MuiAutocomplete-root"
-          data-testid="filter.organizer"
-        >
-          <div
-            class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
-          >
-            <label
-              class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
-              data-shrink="false"
-              for=":r1e:"
-              id=":r1e:-label"
-            >
-              filter.organizer
-            </label>
-            <div
-              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1hw12xa-MuiInputBase-root-MuiOutlinedInput-root"
-            >
-              <input
-                aria-autocomplete="list"
-                aria-expanded="false"
-                aria-invalid="false"
-                autocapitalize="none"
-                autocomplete="off"
-                class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
-                id=":r1e:"
-                role="combobox"
-                spellcheck="false"
-                type="text"
-                value=""
-              />
-              <div
-                class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
-              >
-                <button
-                  aria-label="Open"
-                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-                  tabindex="-1"
-                  title="Open"
-                  type="button"
-                >
-                  <svg
-                    aria-hidden="true"
-                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                    data-testid="ArrowDropDownIcon"
-                    focusable="false"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      d="M7 10l5 5 5-5z"
-                    />
-                  </svg>
-                  <span
-                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                  />
-                </button>
-              </div>
-              <fieldset
-                aria-hidden="true"
-                class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
-              >
-                <legend
-                  class="css-yjsfm1"
-                >
-                  <span>
-                    filter.organizer
-                  </span>
-                </legend>
-              </fieldset>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-wfcdf7-MuiGrid-root"
-      >
-        <div
-          class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1kkal6p-MuiAutocomplete-root"
-          data-testid="judge"
-        >
-          <div
-            class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
-          >
-            <label
-              class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
-              data-shrink="false"
-              for=":r1g:"
-              id=":r1g:-label"
-            >
-              judge
-            </label>
-            <div
-              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1hw12xa-MuiInputBase-root-MuiOutlinedInput-root"
-            >
-              <input
-                aria-autocomplete="list"
-                aria-expanded="false"
-                aria-invalid="false"
-                autocapitalize="none"
-                autocomplete="off"
-                class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
-                id=":r1g:"
-                role="combobox"
-                spellcheck="false"
-                type="text"
-                value=""
-              />
-              <div
-                class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
-              >
-                <button
-                  aria-label="Open"
-                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-                  tabindex="-1"
-                  title="Open"
-                  type="button"
-                >
-                  <svg
-                    aria-hidden="true"
-                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                    data-testid="ArrowDropDownIcon"
-                    focusable="false"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      d="M7 10l5 5 5-5z"
-                    />
-                  </svg>
-                  <span
-                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                  />
-                </button>
-              </div>
-              <fieldset
-                aria-hidden="true"
-                class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
-              >
-                <legend
-                  class="css-yjsfm1"
-                >
-                  <span>
-                    judge
-                  </span>
-                </legend>
-              </fieldset>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-md-12 css-ejs5r2-MuiGrid-root"
-      >
-        <div
-          class="MuiStack-root css-1lba0i6-MuiStack-root"
-        >
-          <label
-            class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
-          >
-            <span
-              class="MuiSwitch-root MuiSwitch-sizeMedium css-julti5-MuiSwitch-root"
-            >
-              <span
-                class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-1xvpzln-MuiButtonBase-root-MuiSwitch-switchBase"
-              >
-                <input
-                  class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"
-                  type="checkbox"
-                  value="withOpenEntry"
-                />
-                <span
-                  class="MuiSwitch-thumb css-jsexje-MuiSwitch-thumb"
-                />
-                <span
-                  class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                />
-              </span>
-              <span
-                class="MuiSwitch-track css-1yjjitx-MuiSwitch-track"
-              />
-            </span>
-            <span
-              class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-ahj2mt-MuiTypography-root"
-            >
-              entryOpen
-            </span>
-          </label>
-          <label
-            class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
-          >
-            <span
-              class="MuiSwitch-root MuiSwitch-sizeMedium css-julti5-MuiSwitch-root"
-            >
-              <span
-                class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-1xvpzln-MuiButtonBase-root-MuiSwitch-switchBase"
-              >
-                <input
-                  class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"
-                  type="checkbox"
-                  value="withUpcomingEntry"
-                />
-                <span
-                  class="MuiSwitch-thumb css-jsexje-MuiSwitch-thumb"
-                />
-                <span
-                  class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                />
-              </span>
-              <span
-                class="MuiSwitch-track css-1yjjitx-MuiSwitch-track"
-              />
-            </span>
-            <span
-              class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-ahj2mt-MuiTypography-root"
-            >
-              entryUpcoming
-            </span>
-          </label>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div
-    class="MuiTableContainer-root css-rorn0c-MuiTableContainer-root"
-  >
-    <table
-      aria-label="event table"
-      class="MuiTable-root css-166vbg3-MuiTable-root"
-    >
-      <tbody
-        class="MuiTableBody-root css-apqrd9-MuiTableBody-root"
-      >
-        <tr
-          class="MuiTableRow-root css-1lvh4ei-MuiTableRow-root"
-        >
-          <td
-            class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
-          >
-            <div
-              class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
-            >
-              <div
-                class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-auto css-kcsfla-MuiGrid-root"
-              >
-                <button
-                  aria-label="expand row"
-                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10frfwe-MuiButtonBase-root-MuiIconButton-root"
-                  tabindex="0"
-                  type="button"
-                >
-                  <svg
-                    aria-hidden="true"
-                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                    data-testid="KeyboardArrowRightIcon"
-                    focusable="false"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      d="M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"
-                    />
-                  </svg>
-                  <span
-                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                  />
-                </button>
-              </div>
-              <div
-                class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-xs-true css-2ryc1y-MuiGrid-root"
-              >
-                <div
-                  class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-1s2fltb-MuiGrid-root"
-                >
-                  <div
-                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 css-19p55ea-MuiGrid-root"
-                  >
-                    daterange
-                  </div>
-                  <div
-                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-1rl1j2j-MuiGrid-root"
-                  >
-                    NOU
-                  </div>
-                  <div
-                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-1rl1j2j-MuiGrid-root"
-                  />
-                  <div
-                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-5 css-1ek8k2z-MuiGrid-root"
-                  >
-                    test location
-                     (test)
-                  </div>
-                </div>
-                <div
-                  class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-xn8b0u-MuiGrid-root"
-                >
-                  <div
-                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-6 MuiGrid-grid-md-7 css-rhw740-MuiGrid-root"
-                  >
-                    Suomen Noutajakoirajärjestö ry
-                  </div>
-                  <div
-                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 MuiGrid-grid-md-2 css-nuhzl1-MuiGrid-root"
-                  >
-                    <div
-                      class="MuiBox-root css-s2uf1z"
-                    >
-                      10 toltaPlaces
-                    </div>
-                  </div>
-                  <div
-                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 MuiGrid-grid-md-3 css-1xd4zan-MuiGrid-root"
-                  >
-                    <div
-                      class="MuiBox-root css-bmuutb"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div
-              class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-fhr8k5-MuiCollapse-root"
-              style="min-height: 0px;"
-            >
-              <div
-                class="MuiCollapse-wrapper MuiCollapse-vertical css-smkl36-MuiCollapse-wrapper"
-              >
-                <div
-                  class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
-                >
-                  <table
-                    aria-label="details"
-                    class="MuiTable-root css-ii9sbb-MuiTable-root"
-                  >
-                    <tbody
-                      class="MuiTableBody-root css-apqrd9-MuiTableBody-root"
-                    >
-                      <tr
-                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
-                      >
-                        <th
-                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                          scope="row"
-                        >
-                          entryTime
-                          :
-                        </th>
-                        <td
-                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                        >
-                          daterange
-                          <span
-                            class="info"
-                          />
-                        </td>
-                      </tr>
-                      <tr
-                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
-                      >
-                        <th
-                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                          rowspan="1"
-                          scope="row"
-                        >
-                          event.judges
-                          :
-                        </th>
-                        <td
-                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                        >
-                          Tuomari 1
-                        </td>
-                      </tr>
-                      <tr
-                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
-                      >
-                        <th
-                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                          scope="row"
-                        >
-                          event.official
-                          :
-                        </th>
-                        <td
-                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                        >
-                          Teemu Toimitsija
-                        </td>
-                      </tr>
-                      <tr
-                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
-                      >
-                        <th
-                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                          scope="row"
-                        >
-                          event.paymentDetails
-                          :
-                        </th>
-                        <td
-                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                        >
-                          event.cost
-                          : 
-                          123
-                           €
-                          <br />
-                          event.costMember
-                          : 
-                          123
-                           €
-                          <br />
-                          <br />
-                          test
-                        </td>
-                      </tr>
-                      <tr
-                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
-                      >
-                        <th
-                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                          scope="row"
-                        >
-                          event.description
-                          :
-                        </th>
-                        <td
-                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                        >
-                          test
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          </td>
-        </tr>
-        <tr
-          class="MuiTableRow-root css-1lvh4ei-MuiTableRow-root"
-        >
-          <td
-            class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
-          >
-            <div
-              class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
-            >
-              <div
-                class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-auto css-kcsfla-MuiGrid-root"
-              >
-                <button
-                  aria-label="expand row"
-                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10frfwe-MuiButtonBase-root-MuiIconButton-root"
-                  tabindex="0"
-                  type="button"
-                >
-                  <svg
-                    aria-hidden="true"
-                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                    data-testid="KeyboardArrowRightIcon"
-                    focusable="false"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      d="M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"
-                    />
-                  </svg>
-                  <span
-                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                  />
-                </button>
-              </div>
-              <div
-                class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-xs-true css-2ryc1y-MuiGrid-root"
-              >
-                <div
-                  class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-1s2fltb-MuiGrid-root"
-                >
-                  <div
-                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 css-19p55ea-MuiGrid-root"
-                  >
-                    daterange
-                  </div>
-                  <div
-                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-1rl1j2j-MuiGrid-root"
-                  >
-                    NOME-B
-                  </div>
-                  <div
-                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-1rl1j2j-MuiGrid-root"
-                  >
-                    ALO
-                  </div>
-                  <div
-                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-5 css-1ek8k2z-MuiGrid-root"
-                  >
-                    test location
-                     (test)
-                  </div>
-                </div>
-                <div
-                  class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-xn8b0u-MuiGrid-root"
-                >
-                  <div
-                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-6 MuiGrid-grid-md-7 css-rhw740-MuiGrid-root"
-                  >
-                    Suomen Noutajakoirajärjestö ry
-                  </div>
-                  <div
-                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 MuiGrid-grid-md-2 css-nuhzl1-MuiGrid-root"
-                  >
-                    <div
-                      class="MuiBox-root css-s2uf1z"
-                    >
-                      10 toltaPlaces
-                    </div>
-                  </div>
-                  <div
-                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 MuiGrid-grid-md-3 css-1xd4zan-MuiGrid-root"
-                  >
-                    <div
-                      class="MuiBox-root css-bmuutb"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div
-              class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-fhr8k5-MuiCollapse-root"
-              style="min-height: 0px;"
-            >
-              <div
-                class="MuiCollapse-wrapper MuiCollapse-vertical css-smkl36-MuiCollapse-wrapper"
-              >
-                <div
-                  class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
-                >
-                  <table
-                    aria-label="details"
-                    class="MuiTable-root css-ii9sbb-MuiTable-root"
-                  >
-                    <tbody
-                      class="MuiTableBody-root css-apqrd9-MuiTableBody-root"
-                    >
-                      <tr
-                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
-                      >
-                        <th
-                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                          scope="row"
-                        >
-                          entryTime
-                          :
-                        </th>
-                        <td
-                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                        >
-                          daterange
-                          <span
-                            class="info"
-                          />
-                        </td>
-                      </tr>
-                      <tr
-                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
-                      >
-                        <th
-                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                          scope="row"
-                        >
-                          event.classes
-                          :
-                        </th>
-                        <td
-                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                        >
-                          <table
-                            class="MuiTable-root css-1k2pdqd-MuiTable-root"
-                          >
-                            <tbody
-                              class="MuiTableBody-root css-apqrd9-MuiTableBody-root"
-                            >
-                              <tr
-                                class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
-                              >
-                                <th
-                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                                  scope="row"
-                                >
-                                  dateshort
-                                </th>
-                                <th
-                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                                  scope="row"
-                                >
-                                  ALO
-                                </th>
-                                <th
-                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                                  scope="row"
-                                />
-                                <th
-                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-dv0mq-MuiTableCell-root"
-                                  scope="row"
-                                />
-                                <th
-                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-dv0mq-MuiTableCell-root"
-                                  scope="row"
-                                />
-                                <th
-                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                                  scope="row"
-                                />
-                                <td
-                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                                />
-                              </tr>
-                              <tr
-                                class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
-                              >
-                                <th
-                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                                  scope="row"
-                                >
-                                  dateshort
-                                </th>
-                                <th
-                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                                  scope="row"
-                                >
-                                  ALO
-                                </th>
-                                <th
-                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                                  scope="row"
-                                />
-                                <th
-                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-dv0mq-MuiTableCell-root"
-                                  scope="row"
-                                />
-                                <th
-                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-dv0mq-MuiTableCell-root"
-                                  scope="row"
-                                />
-                                <th
-                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                                  scope="row"
-                                />
-                                <td
-                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                                />
-                              </tr>
-                            </tbody>
-                          </table>
-                        </td>
-                      </tr>
-                      <tr
-                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
-                      >
-                        <th
-                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                          rowspan="1"
-                          scope="row"
-                        >
-                          event.judges
-                          :
-                        </th>
-                        <td
-                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                        >
-                          Tuomari 1
-                        </td>
-                      </tr>
-                      <tr
-                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
-                      >
-                        <th
-                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                          scope="row"
-                        >
-                          event.official
-                          :
-                        </th>
-                        <td
-                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                        >
-                          Teemu Toimitsija
-                        </td>
-                      </tr>
-                      <tr
-                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
-                      >
-                        <th
-                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                          scope="row"
-                        >
-                          event.paymentDetails
-                          :
-                        </th>
-                        <td
-                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                        >
-                          event.cost
-                          : 
-                          123
-                           €
-                          <br />
-                          event.costMember
-                          : 
-                          123
-                           €
-                          <br />
-                          <br />
-                          test
-                        </td>
-                      </tr>
-                      <tr
-                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
-                      >
-                        <th
-                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                          scope="row"
-                        >
-                          event.description
-                          :
-                        </th>
-                        <td
-                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                        >
-                          test
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          </td>
-        </tr>
-        <tr
-          class="MuiTableRow-root css-1lvh4ei-MuiTableRow-root"
-        >
-          <td
-            class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
-          >
-            <div
-              class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
-            >
-              <div
-                class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-auto css-kcsfla-MuiGrid-root"
-              >
-                <button
-                  aria-label="expand row"
-                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10frfwe-MuiButtonBase-root-MuiIconButton-root"
-                  tabindex="0"
-                  type="button"
-                >
-                  <svg
-                    aria-hidden="true"
-                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                    data-testid="KeyboardArrowRightIcon"
-                    focusable="false"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      d="M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"
-                    />
-                  </svg>
-                  <span
-                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                  />
-                </button>
-              </div>
-              <div
-                class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-xs-true css-2ryc1y-MuiGrid-root"
-              >
-                <div
-                  class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-1s2fltb-MuiGrid-root"
-                >
-                  <div
-                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 css-19p55ea-MuiGrid-root"
-                  >
-                    daterange
-                  </div>
-                  <div
-                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-1rl1j2j-MuiGrid-root"
-                  >
-                    NOME-B
-                  </div>
-                  <div
-                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-1rl1j2j-MuiGrid-root"
-                  >
-                    ALO, AVO, VOI
-                  </div>
-                  <div
-                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-5 css-1ek8k2z-MuiGrid-root"
-                  >
-                    test location
-                     (test)
-                  </div>
-                </div>
-                <div
-                  class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-xn8b0u-MuiGrid-root"
-                >
-                  <div
-                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-6 MuiGrid-grid-md-7 css-rhw740-MuiGrid-root"
-                  >
-                    Suomen Noutajakoirajärjestö ry
-                  </div>
-                  <div
-                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 MuiGrid-grid-md-2 css-nuhzl1-MuiGrid-root"
-                  >
-                    <div
-                      class="MuiBox-root css-s2uf1z"
-                    >
-                      10 toltaPlaces
-                    </div>
-                  </div>
-                  <div
-                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 MuiGrid-grid-md-3 css-1xd4zan-MuiGrid-root"
-                  >
-                    <div
-                      class="MuiBox-root css-bmuutb"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div
-              class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-fhr8k5-MuiCollapse-root"
-              style="min-height: 0px;"
-            >
-              <div
-                class="MuiCollapse-wrapper MuiCollapse-vertical css-smkl36-MuiCollapse-wrapper"
-              >
-                <div
-                  class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
-                >
-                  <table
-                    aria-label="details"
-                    class="MuiTable-root css-ii9sbb-MuiTable-root"
-                  >
-                    <tbody
-                      class="MuiTableBody-root css-apqrd9-MuiTableBody-root"
-                    >
-                      <tr
-                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
-                      >
-                        <th
-                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                          scope="row"
-                        >
-                          entryTime
-                          :
-                        </th>
-                        <td
-                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                        >
-                          daterange
-                          <span
-                            class="info"
-                          />
-                        </td>
-                      </tr>
-                      <tr
-                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
-                      >
-                        <th
-                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                          scope="row"
-                        >
-                          event.classes
-                          :
-                        </th>
-                        <td
-                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                        >
-                          <table
-                            class="MuiTable-root css-1k2pdqd-MuiTable-root"
-                          >
-                            <tbody
-                              class="MuiTableBody-root css-apqrd9-MuiTableBody-root"
-                            >
-                              <tr
-                                class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
-                              >
-                                <th
-                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                                  scope="row"
-                                >
-                                  dateshort
-                                </th>
-                                <th
-                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                                  scope="row"
-                                >
-                                  ALO
-                                </th>
-                                <th
-                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                                  scope="row"
-                                />
-                                <th
-                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-dv0mq-MuiTableCell-root"
-                                  scope="row"
-                                />
-                                <th
-                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-dv0mq-MuiTableCell-root"
-                                  scope="row"
-                                />
-                                <th
-                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                                  scope="row"
-                                />
-                                <td
-                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                                />
-                              </tr>
-                              <tr
-                                class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
-                              >
-                                <th
-                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                                  scope="row"
-                                >
-                                  dateshort
-                                </th>
-                                <th
-                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                                  scope="row"
-                                >
-                                  AVO
-                                </th>
-                                <th
-                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                                  scope="row"
-                                />
-                                <th
-                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-dv0mq-MuiTableCell-root"
-                                  scope="row"
-                                />
-                                <th
-                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-dv0mq-MuiTableCell-root"
-                                  scope="row"
-                                />
-                                <th
-                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                                  scope="row"
-                                />
-                                <td
-                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                                />
-                              </tr>
-                              <tr
-                                class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
-                              >
-                                <th
-                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                                  scope="row"
-                                >
-                                  dateshort
-                                </th>
-                                <th
-                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                                  scope="row"
-                                >
-                                  VOI
-                                </th>
-                                <th
-                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                                  scope="row"
-                                />
-                                <th
-                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-dv0mq-MuiTableCell-root"
-                                  scope="row"
-                                />
-                                <th
-                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-dv0mq-MuiTableCell-root"
-                                  scope="row"
-                                />
-                                <th
-                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                                  scope="row"
-                                />
-                                <td
-                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                                />
-                              </tr>
-                            </tbody>
-                          </table>
-                        </td>
-                      </tr>
-                      <tr
-                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
-                      >
-                        <th
-                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                          rowspan="1"
-                          scope="row"
-                        >
-                          event.judges
-                          :
-                        </th>
-                        <td
-                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                        >
-                          Tuomari 1
-                        </td>
-                      </tr>
-                      <tr
-                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
-                      >
-                        <th
-                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                          scope="row"
-                        >
-                          event.official
-                          :
-                        </th>
-                        <td
-                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                        >
-                          Teemu Toimitsija
-                        </td>
-                      </tr>
-                      <tr
-                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
-                      >
-                        <th
-                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                          scope="row"
-                        >
-                          event.paymentDetails
-                          :
-                        </th>
-                        <td
-                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                        >
-                          event.cost
-                          : 
-                          123
-                           €
-                          <br />
-                          event.costMember
-                          : 
-                          123
-                           €
-                          <br />
-                          <br />
-                          test
-                        </td>
-                      </tr>
-                      <tr
-                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
-                      >
-                        <th
-                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                          scope="row"
-                        >
-                          event.description
-                          :
-                        </th>
-                        <td
-                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                        >
-                          test
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          </td>
-        </tr>
-        <tr
-          class="MuiTableRow-root css-1lvh4ei-MuiTableRow-root"
-        >
-          <td
-            class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
-          >
-            <div
-              class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
-            >
-              <div
-                class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-auto css-kcsfla-MuiGrid-root"
-              >
-                <button
-                  aria-label="expand row"
-                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10frfwe-MuiButtonBase-root-MuiIconButton-root"
-                  tabindex="0"
-                  type="button"
-                >
-                  <svg
-                    aria-hidden="true"
-                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                    data-testid="KeyboardArrowRightIcon"
-                    focusable="false"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      d="M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"
-                    />
-                  </svg>
-                  <span
-                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                  />
-                </button>
-              </div>
-              <div
-                class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-xs-true css-2ryc1y-MuiGrid-root"
-              >
-                <div
-                  class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-1s2fltb-MuiGrid-root"
-                >
-                  <div
-                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 css-19p55ea-MuiGrid-root"
-                  >
-                    daterange
-                  </div>
-                  <div
-                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-1rl1j2j-MuiGrid-root"
-                  >
-                    NOME-B
-                  </div>
-                  <div
-                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-1rl1j2j-MuiGrid-root"
-                  >
-                    AVO
-                  </div>
-                  <div
-                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-5 css-1ek8k2z-MuiGrid-root"
-                  >
-                    test
-                     (test)
-                  </div>
-                </div>
-                <div
-                  class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-xn8b0u-MuiGrid-root"
-                >
-                  <div
-                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-6 MuiGrid-grid-md-7 css-rhw740-MuiGrid-root"
-                  >
-                    Järjestäjä 2
-                  </div>
-                  <div
-                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 MuiGrid-grid-md-2 css-nuhzl1-MuiGrid-root"
-                  >
-                    <div
-                      class="MuiBox-root css-s2uf1z"
-                    >
-                      10 toltaPlaces
-                    </div>
-                  </div>
-                  <div
-                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 MuiGrid-grid-md-3 css-1xd4zan-MuiGrid-root"
-                  >
-                    <div
-                      class="MuiBox-root css-bmuutb"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div
-              class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-fhr8k5-MuiCollapse-root"
-              style="min-height: 0px;"
-            >
-              <div
-                class="MuiCollapse-wrapper MuiCollapse-vertical css-smkl36-MuiCollapse-wrapper"
-              >
-                <div
-                  class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
-                >
-                  <table
-                    aria-label="details"
-                    class="MuiTable-root css-ii9sbb-MuiTable-root"
-                  >
-                    <tbody
-                      class="MuiTableBody-root css-apqrd9-MuiTableBody-root"
-                    >
-                      <tr
-                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
-                      >
-                        <th
-                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                          scope="row"
-                        >
-                          entryTime
-                          :
-                        </th>
-                        <td
-                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                        >
-                          daterange
-                          <span
-                            class="info"
-                          />
-                        </td>
-                      </tr>
-                      <tr
-                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
-                      >
-                        <th
-                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                          scope="row"
-                        >
-                          event.classes
-                          :
-                        </th>
-                        <td
-                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                        >
-                          <table
-                            class="MuiTable-root css-1k2pdqd-MuiTable-root"
-                          >
-                            <tbody
-                              class="MuiTableBody-root css-apqrd9-MuiTableBody-root"
-                            >
-                              <tr
-                                class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
-                              >
-                                <th
-                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                                  scope="row"
-                                >
-                                  dateshort
-                                </th>
-                                <th
-                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                                  scope="row"
-                                >
-                                  AVO
-                                </th>
-                                <th
-                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                                  scope="row"
-                                />
-                                <th
-                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-dv0mq-MuiTableCell-root"
-                                  scope="row"
-                                />
-                                <th
-                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-dv0mq-MuiTableCell-root"
-                                  scope="row"
-                                />
-                                <th
-                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                                  scope="row"
-                                />
-                                <td
-                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                                />
-                              </tr>
-                            </tbody>
-                          </table>
-                        </td>
-                      </tr>
-                      <tr
-                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
-                      >
-                        <th
-                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                          rowspan="1"
-                          scope="row"
-                        >
-                          event.judges
-                          :
-                        </th>
-                        <td
-                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                        >
-                          Tuomari 2
-                        </td>
-                      </tr>
-                      <tr
-                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
-                      >
-                        <th
-                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                          scope="row"
-                        >
-                          event.official
-                          :
-                        </th>
-                        <td
-                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                        >
-                          Teemu Toimitsija
-                        </td>
-                      </tr>
-                      <tr
-                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
-                      >
-                        <th
-                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                          scope="row"
-                        >
-                          event.paymentDetails
-                          :
-                        </th>
-                        <td
-                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                        >
-                          event.cost
-                          : 
-                          123
-                           €
-                          <br />
-                          event.costMember
-                          : 
-                          123
-                           €
-                          <br />
-                          <br />
-                          test
-                        </td>
-                      </tr>
-                      <tr
-                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
-                      >
-                        <th
-                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                          scope="row"
-                        >
-                          event.description
-                          :
-                        </th>
-                        <td
-                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                        >
-                          test
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</div>
-`;
-
-exports[`SearchPage filters by date/end 1`] = `
-<div>
-  <div
-    class="MuiBox-root css-1ynyhby"
-  >
-    <div
-      class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-1 css-n0zgdy-MuiGrid-root"
-    >
-      <div
-        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-11eerce-MuiGrid-root"
-      >
-        <div
-          class="MuiBox-root css-8atqhb"
-        >
-          <div
-            class="MuiFormControl-root css-1y1aqya-MuiFormControl-root"
-          >
-            <div
-              class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
-            >
-              <label
-                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
-                data-shrink="false"
-                for=":ru:"
-                id=":ru:-label"
-              >
-                daterangeStart
-              </label>
-              <div
-                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-adornedEnd css-1o9ytj0-MuiInputBase-root-MuiOutlinedInput-root"
-              >
-                <input
-                  aria-invalid="false"
-                  class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
-                  id=":ru:"
-                  placeholder="dd.mm.yyyy"
-                  type="tel"
-                  value=""
-                />
-                <div
-                  class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1laqsz7-MuiInputAdornment-root"
-                >
-                  <button
-                    aria-label="Choose date"
-                    class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1yq5fb3-MuiButtonBase-root-MuiIconButton-root"
-                    tabindex="0"
-                    type="button"
-                  >
-                    <svg
-                      aria-hidden="true"
-                      class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                      data-testid="CalendarIcon"
-                      focusable="false"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"
-                      />
-                    </svg>
-                    <span
-                      class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                    />
-                  </button>
-                </div>
-                <fieldset
-                  aria-hidden="true"
-                  class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
-                >
-                  <legend
-                    class="css-yjsfm1"
                   >
                     <span>
                       daterangeStart
@@ -3820,6 +2173,1653 @@ exports[`SearchPage filters by date/end 1`] = `
 </div>
 `;
 
+exports[`SearchPage filters by date/end 1`] = `
+<div>
+  <div
+    class="MuiBox-root css-1ynyhby"
+  >
+    <div
+      class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-1 css-n0zgdy-MuiGrid-root"
+    >
+      <div
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-11eerce-MuiGrid-root"
+      >
+        <div
+          class="MuiBox-root css-8atqhb"
+        >
+          <div
+            class="MuiFormControl-root css-1y1aqya-MuiFormControl-root"
+          >
+            <div
+              class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+            >
+              <label
+                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
+                data-shrink="false"
+                for=":rk:"
+                id=":rk:-label"
+              >
+                daterangeStart
+              </label>
+              <div
+                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-adornedEnd css-1o9ytj0-MuiInputBase-root-MuiOutlinedInput-root"
+              >
+                <input
+                  aria-invalid="false"
+                  class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
+                  id=":rk:"
+                  placeholder="dd.mm.yyyy"
+                  type="tel"
+                  value=""
+                />
+                <div
+                  class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1laqsz7-MuiInputAdornment-root"
+                >
+                  <button
+                    aria-label="Choose date"
+                    class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1yq5fb3-MuiButtonBase-root-MuiIconButton-root"
+                    tabindex="0"
+                    type="button"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                      data-testid="CalendarIcon"
+                      focusable="false"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"
+                      />
+                    </svg>
+                    <span
+                      class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                    />
+                  </button>
+                </div>
+                <fieldset
+                  aria-hidden="true"
+                  class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
+                >
+                  <legend
+                    class="css-yjsfm1"
+                  >
+                    <span>
+                      daterangeStart
+                    </span>
+                  </legend>
+                </fieldset>
+              </div>
+            </div>
+          </div>
+          <div
+            class="MuiFormControl-root css-1vsm76b-MuiFormControl-root"
+          >
+            <div
+              class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
+            >
+              <label
+                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
+                data-shrink="true"
+                for=":rl:"
+                id=":rl:-label"
+              >
+                daterangeEnd
+              </label>
+              <div
+                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-adornedEnd css-1o9ytj0-MuiInputBase-root-MuiOutlinedInput-root"
+              >
+                <input
+                  aria-invalid="false"
+                  class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
+                  id=":rl:"
+                  placeholder="dd.mm.yyyy"
+                  type="tel"
+                  value="01.03.2021"
+                />
+                <div
+                  class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1laqsz7-MuiInputAdornment-root"
+                >
+                  <button
+                    aria-label="Choose date, selected date is 1. maalis 2021"
+                    class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1yq5fb3-MuiButtonBase-root-MuiIconButton-root"
+                    tabindex="0"
+                    type="button"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                      data-testid="CalendarIcon"
+                      focusable="false"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"
+                      />
+                    </svg>
+                    <span
+                      class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                    />
+                  </button>
+                </div>
+                <fieldset
+                  aria-hidden="true"
+                  class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
+                >
+                  <legend
+                    class="css-14lo706"
+                  >
+                    <span>
+                      daterangeEnd
+                    </span>
+                  </legend>
+                </fieldset>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-md-4 css-bfkuk8-MuiGrid-root"
+      >
+        <div
+          class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1kkal6p-MuiAutocomplete-root"
+          data-testid="eventType"
+        >
+          <div
+            class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+          >
+            <label
+              class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
+              data-shrink="false"
+              for=":rm:"
+              id=":rm:-label"
+            >
+              eventType
+            </label>
+            <div
+              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1hw12xa-MuiInputBase-root-MuiOutlinedInput-root"
+            >
+              <input
+                aria-autocomplete="list"
+                aria-expanded="false"
+                aria-invalid="false"
+                autocapitalize="none"
+                autocomplete="off"
+                class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
+                id=":rm:"
+                role="combobox"
+                spellcheck="false"
+                type="text"
+                value=""
+              />
+              <div
+                class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+              >
+                <button
+                  aria-label="Open"
+                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                  tabindex="-1"
+                  title="Open"
+                  type="button"
+                >
+                  <svg
+                    aria-hidden="true"
+                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                    data-testid="ArrowDropDownIcon"
+                    focusable="false"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M7 10l5 5 5-5z"
+                    />
+                  </svg>
+                  <span
+                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                  />
+                </button>
+              </div>
+              <fieldset
+                aria-hidden="true"
+                class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
+              >
+                <legend
+                  class="css-yjsfm1"
+                >
+                  <span>
+                    eventType
+                  </span>
+                </legend>
+              </fieldset>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-md-2 css-19qwjve-MuiGrid-root"
+      >
+        <div
+          class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1kkal6p-MuiAutocomplete-root"
+          data-testid="eventClass"
+        >
+          <div
+            class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+          >
+            <label
+              class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
+              data-shrink="false"
+              for=":ro:"
+              id=":ro:-label"
+            >
+              eventClass
+            </label>
+            <div
+              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1hw12xa-MuiInputBase-root-MuiOutlinedInput-root"
+            >
+              <input
+                aria-autocomplete="list"
+                aria-expanded="false"
+                aria-invalid="false"
+                autocapitalize="none"
+                autocomplete="off"
+                class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
+                id=":ro:"
+                role="combobox"
+                spellcheck="false"
+                type="text"
+                value=""
+              />
+              <div
+                class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+              >
+                <button
+                  aria-label="Open"
+                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                  tabindex="-1"
+                  title="Open"
+                  type="button"
+                >
+                  <svg
+                    aria-hidden="true"
+                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                    data-testid="ArrowDropDownIcon"
+                    focusable="false"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M7 10l5 5 5-5z"
+                    />
+                  </svg>
+                  <span
+                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                  />
+                </button>
+              </div>
+              <fieldset
+                aria-hidden="true"
+                class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
+              >
+                <legend
+                  class="css-yjsfm1"
+                >
+                  <span>
+                    eventClass
+                  </span>
+                </legend>
+              </fieldset>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-wfcdf7-MuiGrid-root"
+      >
+        <div
+          class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1kkal6p-MuiAutocomplete-root"
+          data-testid="filter.organizer"
+        >
+          <div
+            class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+          >
+            <label
+              class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
+              data-shrink="false"
+              for=":rq:"
+              id=":rq:-label"
+            >
+              filter.organizer
+            </label>
+            <div
+              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1hw12xa-MuiInputBase-root-MuiOutlinedInput-root"
+            >
+              <input
+                aria-autocomplete="list"
+                aria-expanded="false"
+                aria-invalid="false"
+                autocapitalize="none"
+                autocomplete="off"
+                class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
+                id=":rq:"
+                role="combobox"
+                spellcheck="false"
+                type="text"
+                value=""
+              />
+              <div
+                class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+              >
+                <button
+                  aria-label="Open"
+                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                  tabindex="-1"
+                  title="Open"
+                  type="button"
+                >
+                  <svg
+                    aria-hidden="true"
+                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                    data-testid="ArrowDropDownIcon"
+                    focusable="false"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M7 10l5 5 5-5z"
+                    />
+                  </svg>
+                  <span
+                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                  />
+                </button>
+              </div>
+              <fieldset
+                aria-hidden="true"
+                class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
+              >
+                <legend
+                  class="css-yjsfm1"
+                >
+                  <span>
+                    filter.organizer
+                  </span>
+                </legend>
+              </fieldset>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-wfcdf7-MuiGrid-root"
+      >
+        <div
+          class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1kkal6p-MuiAutocomplete-root"
+          data-testid="judge"
+        >
+          <div
+            class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+          >
+            <label
+              class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
+              data-shrink="false"
+              for=":rs:"
+              id=":rs:-label"
+            >
+              judge
+            </label>
+            <div
+              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1hw12xa-MuiInputBase-root-MuiOutlinedInput-root"
+            >
+              <input
+                aria-autocomplete="list"
+                aria-expanded="false"
+                aria-invalid="false"
+                autocapitalize="none"
+                autocomplete="off"
+                class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
+                id=":rs:"
+                role="combobox"
+                spellcheck="false"
+                type="text"
+                value=""
+              />
+              <div
+                class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+              >
+                <button
+                  aria-label="Open"
+                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                  tabindex="-1"
+                  title="Open"
+                  type="button"
+                >
+                  <svg
+                    aria-hidden="true"
+                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                    data-testid="ArrowDropDownIcon"
+                    focusable="false"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M7 10l5 5 5-5z"
+                    />
+                  </svg>
+                  <span
+                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                  />
+                </button>
+              </div>
+              <fieldset
+                aria-hidden="true"
+                class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
+              >
+                <legend
+                  class="css-yjsfm1"
+                >
+                  <span>
+                    judge
+                  </span>
+                </legend>
+              </fieldset>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-md-12 css-ejs5r2-MuiGrid-root"
+      >
+        <div
+          class="MuiStack-root css-1lba0i6-MuiStack-root"
+        >
+          <label
+            class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
+          >
+            <span
+              class="MuiSwitch-root MuiSwitch-sizeMedium css-julti5-MuiSwitch-root"
+            >
+              <span
+                class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-1xvpzln-MuiButtonBase-root-MuiSwitch-switchBase"
+              >
+                <input
+                  class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"
+                  type="checkbox"
+                  value="withOpenEntry"
+                />
+                <span
+                  class="MuiSwitch-thumb css-jsexje-MuiSwitch-thumb"
+                />
+                <span
+                  class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                />
+              </span>
+              <span
+                class="MuiSwitch-track css-1yjjitx-MuiSwitch-track"
+              />
+            </span>
+            <span
+              class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-ahj2mt-MuiTypography-root"
+            >
+              entryOpen
+            </span>
+          </label>
+          <label
+            class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
+          >
+            <span
+              class="MuiSwitch-root MuiSwitch-sizeMedium css-julti5-MuiSwitch-root"
+            >
+              <span
+                class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-1xvpzln-MuiButtonBase-root-MuiSwitch-switchBase"
+              >
+                <input
+                  class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"
+                  type="checkbox"
+                  value="withUpcomingEntry"
+                />
+                <span
+                  class="MuiSwitch-thumb css-jsexje-MuiSwitch-thumb"
+                />
+                <span
+                  class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                />
+              </span>
+              <span
+                class="MuiSwitch-track css-1yjjitx-MuiSwitch-track"
+              />
+            </span>
+            <span
+              class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-ahj2mt-MuiTypography-root"
+            >
+              entryUpcoming
+            </span>
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div
+    class="MuiTableContainer-root css-rorn0c-MuiTableContainer-root"
+  >
+    <table
+      aria-label="event table"
+      class="MuiTable-root css-166vbg3-MuiTable-root"
+    >
+      <tbody
+        class="MuiTableBody-root css-apqrd9-MuiTableBody-root"
+      >
+        <tr
+          class="MuiTableRow-root css-1lvh4ei-MuiTableRow-root"
+        >
+          <td
+            class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+          >
+            <div
+              class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
+            >
+              <div
+                class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-auto css-kcsfla-MuiGrid-root"
+              >
+                <button
+                  aria-label="expand row"
+                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10frfwe-MuiButtonBase-root-MuiIconButton-root"
+                  tabindex="0"
+                  type="button"
+                >
+                  <svg
+                    aria-hidden="true"
+                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                    data-testid="KeyboardArrowRightIcon"
+                    focusable="false"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"
+                    />
+                  </svg>
+                  <span
+                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                  />
+                </button>
+              </div>
+              <div
+                class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-xs-true css-2ryc1y-MuiGrid-root"
+              >
+                <div
+                  class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-1s2fltb-MuiGrid-root"
+                >
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 css-19p55ea-MuiGrid-root"
+                  >
+                    daterange
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-1rl1j2j-MuiGrid-root"
+                  >
+                    NOU
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-1rl1j2j-MuiGrid-root"
+                  />
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-5 css-1ek8k2z-MuiGrid-root"
+                  >
+                    test location
+                     (test)
+                  </div>
+                </div>
+                <div
+                  class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-xn8b0u-MuiGrid-root"
+                >
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-6 MuiGrid-grid-md-7 css-rhw740-MuiGrid-root"
+                  >
+                    Suomen Noutajakoirajärjestö ry
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 MuiGrid-grid-md-2 css-nuhzl1-MuiGrid-root"
+                  >
+                    <div
+                      class="MuiBox-root css-s2uf1z"
+                    >
+                      10 toltaPlaces
+                    </div>
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 MuiGrid-grid-md-3 css-1xd4zan-MuiGrid-root"
+                  >
+                    <div
+                      class="MuiBox-root css-bmuutb"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div
+              class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-fhr8k5-MuiCollapse-root"
+              style="min-height: 0px;"
+            >
+              <div
+                class="MuiCollapse-wrapper MuiCollapse-vertical css-smkl36-MuiCollapse-wrapper"
+              >
+                <div
+                  class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
+                >
+                  <table
+                    aria-label="details"
+                    class="MuiTable-root css-ii9sbb-MuiTable-root"
+                  >
+                    <tbody
+                      class="MuiTableBody-root css-apqrd9-MuiTableBody-root"
+                    >
+                      <tr
+                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                      >
+                        <th
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                          scope="row"
+                        >
+                          entryTime
+                          :
+                        </th>
+                        <td
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                        >
+                          daterange
+                          <span
+                            class="info"
+                          />
+                        </td>
+                      </tr>
+                      <tr
+                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                      >
+                        <th
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                          rowspan="1"
+                          scope="row"
+                        >
+                          event.judges
+                          :
+                        </th>
+                        <td
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                        >
+                          Tuomari 1
+                        </td>
+                      </tr>
+                      <tr
+                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                      >
+                        <th
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                          scope="row"
+                        >
+                          event.official
+                          :
+                        </th>
+                        <td
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                        >
+                          Teemu Toimitsija
+                        </td>
+                      </tr>
+                      <tr
+                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                      >
+                        <th
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                          scope="row"
+                        >
+                          event.paymentDetails
+                          :
+                        </th>
+                        <td
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                        >
+                          event.cost
+                          : 
+                          123
+                           €
+                          <br />
+                          event.costMember
+                          : 
+                          123
+                           €
+                          <br />
+                          <br />
+                          test
+                        </td>
+                      </tr>
+                      <tr
+                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                      >
+                        <th
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                          scope="row"
+                        >
+                          event.description
+                          :
+                        </th>
+                        <td
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                        >
+                          test
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr
+          class="MuiTableRow-root css-1lvh4ei-MuiTableRow-root"
+        >
+          <td
+            class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+          >
+            <div
+              class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
+            >
+              <div
+                class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-auto css-kcsfla-MuiGrid-root"
+              >
+                <button
+                  aria-label="expand row"
+                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10frfwe-MuiButtonBase-root-MuiIconButton-root"
+                  tabindex="0"
+                  type="button"
+                >
+                  <svg
+                    aria-hidden="true"
+                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                    data-testid="KeyboardArrowRightIcon"
+                    focusable="false"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"
+                    />
+                  </svg>
+                  <span
+                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                  />
+                </button>
+              </div>
+              <div
+                class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-xs-true css-2ryc1y-MuiGrid-root"
+              >
+                <div
+                  class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-1s2fltb-MuiGrid-root"
+                >
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 css-19p55ea-MuiGrid-root"
+                  >
+                    daterange
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-1rl1j2j-MuiGrid-root"
+                  >
+                    NOME-B
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-1rl1j2j-MuiGrid-root"
+                  >
+                    ALO
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-5 css-1ek8k2z-MuiGrid-root"
+                  >
+                    test location
+                     (test)
+                  </div>
+                </div>
+                <div
+                  class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-xn8b0u-MuiGrid-root"
+                >
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-6 MuiGrid-grid-md-7 css-rhw740-MuiGrid-root"
+                  >
+                    Suomen Noutajakoirajärjestö ry
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 MuiGrid-grid-md-2 css-nuhzl1-MuiGrid-root"
+                  >
+                    <div
+                      class="MuiBox-root css-s2uf1z"
+                    >
+                      10 toltaPlaces
+                    </div>
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 MuiGrid-grid-md-3 css-1xd4zan-MuiGrid-root"
+                  >
+                    <div
+                      class="MuiBox-root css-bmuutb"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div
+              class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-fhr8k5-MuiCollapse-root"
+              style="min-height: 0px;"
+            >
+              <div
+                class="MuiCollapse-wrapper MuiCollapse-vertical css-smkl36-MuiCollapse-wrapper"
+              >
+                <div
+                  class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
+                >
+                  <table
+                    aria-label="details"
+                    class="MuiTable-root css-ii9sbb-MuiTable-root"
+                  >
+                    <tbody
+                      class="MuiTableBody-root css-apqrd9-MuiTableBody-root"
+                    >
+                      <tr
+                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                      >
+                        <th
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                          scope="row"
+                        >
+                          entryTime
+                          :
+                        </th>
+                        <td
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                        >
+                          daterange
+                          <span
+                            class="info"
+                          />
+                        </td>
+                      </tr>
+                      <tr
+                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                      >
+                        <th
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                          scope="row"
+                        >
+                          event.classes
+                          :
+                        </th>
+                        <td
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                        >
+                          <table
+                            class="MuiTable-root css-1k2pdqd-MuiTable-root"
+                          >
+                            <tbody
+                              class="MuiTableBody-root css-apqrd9-MuiTableBody-root"
+                            >
+                              <tr
+                                class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                              >
+                                <th
+                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                                  scope="row"
+                                >
+                                  dateshort
+                                </th>
+                                <th
+                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                                  scope="row"
+                                >
+                                  ALO
+                                </th>
+                                <th
+                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                                  scope="row"
+                                />
+                                <th
+                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-dv0mq-MuiTableCell-root"
+                                  scope="row"
+                                />
+                                <th
+                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-dv0mq-MuiTableCell-root"
+                                  scope="row"
+                                />
+                                <th
+                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                                  scope="row"
+                                />
+                                <td
+                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                                />
+                              </tr>
+                              <tr
+                                class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                              >
+                                <th
+                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                                  scope="row"
+                                >
+                                  dateshort
+                                </th>
+                                <th
+                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                                  scope="row"
+                                >
+                                  ALO
+                                </th>
+                                <th
+                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                                  scope="row"
+                                />
+                                <th
+                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-dv0mq-MuiTableCell-root"
+                                  scope="row"
+                                />
+                                <th
+                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-dv0mq-MuiTableCell-root"
+                                  scope="row"
+                                />
+                                <th
+                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                                  scope="row"
+                                />
+                                <td
+                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                                />
+                              </tr>
+                            </tbody>
+                          </table>
+                        </td>
+                      </tr>
+                      <tr
+                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                      >
+                        <th
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                          rowspan="1"
+                          scope="row"
+                        >
+                          event.judges
+                          :
+                        </th>
+                        <td
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                        >
+                          Tuomari 1
+                        </td>
+                      </tr>
+                      <tr
+                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                      >
+                        <th
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                          scope="row"
+                        >
+                          event.official
+                          :
+                        </th>
+                        <td
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                        >
+                          Teemu Toimitsija
+                        </td>
+                      </tr>
+                      <tr
+                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                      >
+                        <th
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                          scope="row"
+                        >
+                          event.paymentDetails
+                          :
+                        </th>
+                        <td
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                        >
+                          event.cost
+                          : 
+                          123
+                           €
+                          <br />
+                          event.costMember
+                          : 
+                          123
+                           €
+                          <br />
+                          <br />
+                          test
+                        </td>
+                      </tr>
+                      <tr
+                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                      >
+                        <th
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                          scope="row"
+                        >
+                          event.description
+                          :
+                        </th>
+                        <td
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                        >
+                          test
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr
+          class="MuiTableRow-root css-1lvh4ei-MuiTableRow-root"
+        >
+          <td
+            class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+          >
+            <div
+              class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
+            >
+              <div
+                class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-auto css-kcsfla-MuiGrid-root"
+              >
+                <button
+                  aria-label="expand row"
+                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10frfwe-MuiButtonBase-root-MuiIconButton-root"
+                  tabindex="0"
+                  type="button"
+                >
+                  <svg
+                    aria-hidden="true"
+                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                    data-testid="KeyboardArrowRightIcon"
+                    focusable="false"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"
+                    />
+                  </svg>
+                  <span
+                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                  />
+                </button>
+              </div>
+              <div
+                class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-xs-true css-2ryc1y-MuiGrid-root"
+              >
+                <div
+                  class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-1s2fltb-MuiGrid-root"
+                >
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 css-19p55ea-MuiGrid-root"
+                  >
+                    daterange
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-1rl1j2j-MuiGrid-root"
+                  >
+                    NOME-B
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-1rl1j2j-MuiGrid-root"
+                  >
+                    ALO, AVO, VOI
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-5 css-1ek8k2z-MuiGrid-root"
+                  >
+                    test location
+                     (test)
+                  </div>
+                </div>
+                <div
+                  class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-xn8b0u-MuiGrid-root"
+                >
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-6 MuiGrid-grid-md-7 css-rhw740-MuiGrid-root"
+                  >
+                    Suomen Noutajakoirajärjestö ry
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 MuiGrid-grid-md-2 css-nuhzl1-MuiGrid-root"
+                  >
+                    <div
+                      class="MuiBox-root css-s2uf1z"
+                    >
+                      10 toltaPlaces
+                    </div>
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 MuiGrid-grid-md-3 css-1xd4zan-MuiGrid-root"
+                  >
+                    <div
+                      class="MuiBox-root css-bmuutb"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div
+              class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-fhr8k5-MuiCollapse-root"
+              style="min-height: 0px;"
+            >
+              <div
+                class="MuiCollapse-wrapper MuiCollapse-vertical css-smkl36-MuiCollapse-wrapper"
+              >
+                <div
+                  class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
+                >
+                  <table
+                    aria-label="details"
+                    class="MuiTable-root css-ii9sbb-MuiTable-root"
+                  >
+                    <tbody
+                      class="MuiTableBody-root css-apqrd9-MuiTableBody-root"
+                    >
+                      <tr
+                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                      >
+                        <th
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                          scope="row"
+                        >
+                          entryTime
+                          :
+                        </th>
+                        <td
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                        >
+                          daterange
+                          <span
+                            class="info"
+                          />
+                        </td>
+                      </tr>
+                      <tr
+                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                      >
+                        <th
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                          scope="row"
+                        >
+                          event.classes
+                          :
+                        </th>
+                        <td
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                        >
+                          <table
+                            class="MuiTable-root css-1k2pdqd-MuiTable-root"
+                          >
+                            <tbody
+                              class="MuiTableBody-root css-apqrd9-MuiTableBody-root"
+                            >
+                              <tr
+                                class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                              >
+                                <th
+                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                                  scope="row"
+                                >
+                                  dateshort
+                                </th>
+                                <th
+                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                                  scope="row"
+                                >
+                                  ALO
+                                </th>
+                                <th
+                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                                  scope="row"
+                                />
+                                <th
+                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-dv0mq-MuiTableCell-root"
+                                  scope="row"
+                                />
+                                <th
+                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-dv0mq-MuiTableCell-root"
+                                  scope="row"
+                                />
+                                <th
+                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                                  scope="row"
+                                />
+                                <td
+                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                                />
+                              </tr>
+                              <tr
+                                class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                              >
+                                <th
+                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                                  scope="row"
+                                >
+                                  dateshort
+                                </th>
+                                <th
+                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                                  scope="row"
+                                >
+                                  AVO
+                                </th>
+                                <th
+                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                                  scope="row"
+                                />
+                                <th
+                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-dv0mq-MuiTableCell-root"
+                                  scope="row"
+                                />
+                                <th
+                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-dv0mq-MuiTableCell-root"
+                                  scope="row"
+                                />
+                                <th
+                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                                  scope="row"
+                                />
+                                <td
+                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                                />
+                              </tr>
+                              <tr
+                                class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                              >
+                                <th
+                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                                  scope="row"
+                                >
+                                  dateshort
+                                </th>
+                                <th
+                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                                  scope="row"
+                                >
+                                  VOI
+                                </th>
+                                <th
+                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                                  scope="row"
+                                />
+                                <th
+                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-dv0mq-MuiTableCell-root"
+                                  scope="row"
+                                />
+                                <th
+                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-dv0mq-MuiTableCell-root"
+                                  scope="row"
+                                />
+                                <th
+                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                                  scope="row"
+                                />
+                                <td
+                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                                />
+                              </tr>
+                            </tbody>
+                          </table>
+                        </td>
+                      </tr>
+                      <tr
+                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                      >
+                        <th
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                          rowspan="1"
+                          scope="row"
+                        >
+                          event.judges
+                          :
+                        </th>
+                        <td
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                        >
+                          Tuomari 1
+                        </td>
+                      </tr>
+                      <tr
+                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                      >
+                        <th
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                          scope="row"
+                        >
+                          event.official
+                          :
+                        </th>
+                        <td
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                        >
+                          Teemu Toimitsija
+                        </td>
+                      </tr>
+                      <tr
+                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                      >
+                        <th
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                          scope="row"
+                        >
+                          event.paymentDetails
+                          :
+                        </th>
+                        <td
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                        >
+                          event.cost
+                          : 
+                          123
+                           €
+                          <br />
+                          event.costMember
+                          : 
+                          123
+                           €
+                          <br />
+                          <br />
+                          test
+                        </td>
+                      </tr>
+                      <tr
+                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                      >
+                        <th
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                          scope="row"
+                        >
+                          event.description
+                          :
+                        </th>
+                        <td
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                        >
+                          test
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr
+          class="MuiTableRow-root css-1lvh4ei-MuiTableRow-root"
+        >
+          <td
+            class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+          >
+            <div
+              class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
+            >
+              <div
+                class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-auto css-kcsfla-MuiGrid-root"
+              >
+                <button
+                  aria-label="expand row"
+                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10frfwe-MuiButtonBase-root-MuiIconButton-root"
+                  tabindex="0"
+                  type="button"
+                >
+                  <svg
+                    aria-hidden="true"
+                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                    data-testid="KeyboardArrowRightIcon"
+                    focusable="false"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"
+                    />
+                  </svg>
+                  <span
+                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                  />
+                </button>
+              </div>
+              <div
+                class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-xs-true css-2ryc1y-MuiGrid-root"
+              >
+                <div
+                  class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-1s2fltb-MuiGrid-root"
+                >
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 css-19p55ea-MuiGrid-root"
+                  >
+                    daterange
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-1rl1j2j-MuiGrid-root"
+                  >
+                    NOME-B
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-1rl1j2j-MuiGrid-root"
+                  >
+                    AVO
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-5 css-1ek8k2z-MuiGrid-root"
+                  >
+                    test
+                     (test)
+                  </div>
+                </div>
+                <div
+                  class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-xn8b0u-MuiGrid-root"
+                >
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-6 MuiGrid-grid-md-7 css-rhw740-MuiGrid-root"
+                  >
+                    Järjestäjä 2
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 MuiGrid-grid-md-2 css-nuhzl1-MuiGrid-root"
+                  >
+                    <div
+                      class="MuiBox-root css-s2uf1z"
+                    >
+                      10 toltaPlaces
+                    </div>
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 MuiGrid-grid-md-3 css-1xd4zan-MuiGrid-root"
+                  >
+                    <div
+                      class="MuiBox-root css-bmuutb"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div
+              class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-fhr8k5-MuiCollapse-root"
+              style="min-height: 0px;"
+            >
+              <div
+                class="MuiCollapse-wrapper MuiCollapse-vertical css-smkl36-MuiCollapse-wrapper"
+              >
+                <div
+                  class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
+                >
+                  <table
+                    aria-label="details"
+                    class="MuiTable-root css-ii9sbb-MuiTable-root"
+                  >
+                    <tbody
+                      class="MuiTableBody-root css-apqrd9-MuiTableBody-root"
+                    >
+                      <tr
+                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                      >
+                        <th
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                          scope="row"
+                        >
+                          entryTime
+                          :
+                        </th>
+                        <td
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                        >
+                          daterange
+                          <span
+                            class="info"
+                          />
+                        </td>
+                      </tr>
+                      <tr
+                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                      >
+                        <th
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                          scope="row"
+                        >
+                          event.classes
+                          :
+                        </th>
+                        <td
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                        >
+                          <table
+                            class="MuiTable-root css-1k2pdqd-MuiTable-root"
+                          >
+                            <tbody
+                              class="MuiTableBody-root css-apqrd9-MuiTableBody-root"
+                            >
+                              <tr
+                                class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                              >
+                                <th
+                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                                  scope="row"
+                                >
+                                  dateshort
+                                </th>
+                                <th
+                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                                  scope="row"
+                                >
+                                  AVO
+                                </th>
+                                <th
+                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                                  scope="row"
+                                />
+                                <th
+                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-dv0mq-MuiTableCell-root"
+                                  scope="row"
+                                />
+                                <th
+                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-dv0mq-MuiTableCell-root"
+                                  scope="row"
+                                />
+                                <th
+                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                                  scope="row"
+                                />
+                                <td
+                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                                />
+                              </tr>
+                            </tbody>
+                          </table>
+                        </td>
+                      </tr>
+                      <tr
+                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                      >
+                        <th
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                          rowspan="1"
+                          scope="row"
+                        >
+                          event.judges
+                          :
+                        </th>
+                        <td
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                        >
+                          Tuomari 2
+                        </td>
+                      </tr>
+                      <tr
+                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                      >
+                        <th
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                          scope="row"
+                        >
+                          event.official
+                          :
+                        </th>
+                        <td
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                        >
+                          Teemu Toimitsija
+                        </td>
+                      </tr>
+                      <tr
+                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                      >
+                        <th
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                          scope="row"
+                        >
+                          event.paymentDetails
+                          :
+                        </th>
+                        <td
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                        >
+                          event.cost
+                          : 
+                          123
+                           €
+                          <br />
+                          event.costMember
+                          : 
+                          123
+                           €
+                          <br />
+                          <br />
+                          test
+                        </td>
+                      </tr>
+                      <tr
+                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                      >
+                        <th
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                          scope="row"
+                        >
+                          event.description
+                          :
+                        </th>
+                        <td
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                        >
+                          test
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+`;
+
 exports[`SearchPage filters by event class 1`] = `
 <div>
   <div
@@ -3843,8 +3843,8 @@ exports[`SearchPage filters by event class 1`] = `
               <label
                 class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
                 data-shrink="false"
-                for=":r26:"
-                id=":r26:-label"
+                for=":r1s:"
+                id=":r1s:-label"
               >
                 daterangeStart
               </label>
@@ -3854,7 +3854,7 @@ exports[`SearchPage filters by event class 1`] = `
                 <input
                   aria-invalid="false"
                   class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
-                  id=":r26:"
+                  id=":r1s:"
                   placeholder="dd.mm.yyyy"
                   type="tel"
                   value=""
@@ -3908,8 +3908,8 @@ exports[`SearchPage filters by event class 1`] = `
               <label
                 class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
                 data-shrink="false"
-                for=":r27:"
-                id=":r27:-label"
+                for=":r1t:"
+                id=":r1t:-label"
               >
                 daterangeEnd
               </label>
@@ -3919,7 +3919,7 @@ exports[`SearchPage filters by event class 1`] = `
                 <input
                   aria-invalid="false"
                   class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
-                  id=":r27:"
+                  id=":r1t:"
                   placeholder="dd.mm.yyyy"
                   type="tel"
                   value=""
@@ -3979,8 +3979,8 @@ exports[`SearchPage filters by event class 1`] = `
             <label
               class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
               data-shrink="false"
-              for=":r28:"
-              id=":r28:-label"
+              for=":r1u:"
+              id=":r1u:-label"
             >
               eventType
             </label>
@@ -3994,7 +3994,7 @@ exports[`SearchPage filters by event class 1`] = `
                 autocapitalize="none"
                 autocomplete="off"
                 class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
-                id=":r28:"
+                id=":r1u:"
                 role="combobox"
                 spellcheck="false"
                 type="text"
@@ -4055,8 +4055,8 @@ exports[`SearchPage filters by event class 1`] = `
             <label
               class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
               data-shrink="true"
-              for=":r2a:"
-              id=":r2a:-label"
+              for=":r20:"
+              id=":r20:-label"
             >
               eventClass
             </label>
@@ -4093,7 +4093,7 @@ exports[`SearchPage filters by event class 1`] = `
                 autocapitalize="none"
                 autocomplete="off"
                 class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-152mnda-MuiInputBase-input-MuiOutlinedInput-input"
-                id=":r2a:"
+                id=":r20:"
                 role="combobox"
                 spellcheck="false"
                 type="text"
@@ -4176,8 +4176,8 @@ exports[`SearchPage filters by event class 1`] = `
             <label
               class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
               data-shrink="false"
-              for=":r2c:"
-              id=":r2c:-label"
+              for=":r22:"
+              id=":r22:-label"
             >
               filter.organizer
             </label>
@@ -4191,7 +4191,7 @@ exports[`SearchPage filters by event class 1`] = `
                 autocapitalize="none"
                 autocomplete="off"
                 class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
-                id=":r2c:"
+                id=":r22:"
                 role="combobox"
                 spellcheck="false"
                 type="text"
@@ -4252,8 +4252,8 @@ exports[`SearchPage filters by event class 1`] = `
             <label
               class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
               data-shrink="false"
-              for=":r2e:"
-              id=":r2e:-label"
+              for=":r24:"
+              id=":r24:-label"
             >
               judge
             </label>
@@ -4267,7 +4267,7 @@ exports[`SearchPage filters by event class 1`] = `
                 autocapitalize="none"
                 autocomplete="off"
                 class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
-                id=":r2e:"
+                id=":r24:"
                 role="combobox"
                 spellcheck="false"
                 type="text"
@@ -5342,8 +5342,8 @@ exports[`SearchPage filters by event type 1`] = `
               <label
                 class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
                 data-shrink="false"
-                for=":r1s:"
-                id=":r1s:-label"
+                for=":r1i:"
+                id=":r1i:-label"
               >
                 daterangeStart
               </label>
@@ -5353,7 +5353,7 @@ exports[`SearchPage filters by event type 1`] = `
                 <input
                   aria-invalid="false"
                   class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
-                  id=":r1s:"
+                  id=":r1i:"
                   placeholder="dd.mm.yyyy"
                   type="tel"
                   value=""
@@ -5407,8 +5407,8 @@ exports[`SearchPage filters by event type 1`] = `
               <label
                 class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
                 data-shrink="false"
-                for=":r1t:"
-                id=":r1t:-label"
+                for=":r1j:"
+                id=":r1j:-label"
               >
                 daterangeEnd
               </label>
@@ -5418,7 +5418,7 @@ exports[`SearchPage filters by event type 1`] = `
                 <input
                   aria-invalid="false"
                   class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
-                  id=":r1t:"
+                  id=":r1j:"
                   placeholder="dd.mm.yyyy"
                   type="tel"
                   value=""
@@ -5478,8 +5478,8 @@ exports[`SearchPage filters by event type 1`] = `
             <label
               class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
               data-shrink="true"
-              for=":r1u:"
-              id=":r1u:-label"
+              for=":r1k:"
+              id=":r1k:-label"
             >
               eventType
             </label>
@@ -5516,7 +5516,7 @@ exports[`SearchPage filters by event type 1`] = `
                 autocapitalize="none"
                 autocomplete="off"
                 class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-152mnda-MuiInputBase-input-MuiOutlinedInput-input"
-                id=":r1u:"
+                id=":r1k:"
                 role="combobox"
                 spellcheck="false"
                 type="text"
@@ -5599,8 +5599,8 @@ exports[`SearchPage filters by event type 1`] = `
             <label
               class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
               data-shrink="false"
-              for=":r20:"
-              id=":r20:-label"
+              for=":r1m:"
+              id=":r1m:-label"
             >
               eventClass
             </label>
@@ -5614,7 +5614,7 @@ exports[`SearchPage filters by event type 1`] = `
                 autocapitalize="none"
                 autocomplete="off"
                 class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
-                id=":r20:"
+                id=":r1m:"
                 role="combobox"
                 spellcheck="false"
                 type="text"
@@ -5675,8 +5675,8 @@ exports[`SearchPage filters by event type 1`] = `
             <label
               class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
               data-shrink="false"
-              for=":r22:"
-              id=":r22:-label"
+              for=":r1o:"
+              id=":r1o:-label"
             >
               filter.organizer
             </label>
@@ -5690,7 +5690,7 @@ exports[`SearchPage filters by event type 1`] = `
                 autocapitalize="none"
                 autocomplete="off"
                 class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
-                id=":r22:"
+                id=":r1o:"
                 role="combobox"
                 spellcheck="false"
                 type="text"
@@ -5751,8 +5751,8 @@ exports[`SearchPage filters by event type 1`] = `
             <label
               class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
               data-shrink="false"
-              for=":r24:"
-              id=":r24:-label"
+              for=":r1q:"
+              id=":r1q:-label"
             >
               judge
             </label>
@@ -5766,7 +5766,7 @@ exports[`SearchPage filters by event type 1`] = `
                 autocapitalize="none"
                 autocomplete="off"
                 class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
-                id=":r24:"
+                id=":r1q:"
                 role="combobox"
                 spellcheck="false"
                 type="text"
@@ -7142,8 +7142,8 @@ exports[`SearchPage filters by organizer 1`] = `
               <label
                 class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
                 data-shrink="false"
-                for=":r2g:"
-                id=":r2g:-label"
+                for=":r26:"
+                id=":r26:-label"
               >
                 daterangeStart
               </label>
@@ -7153,7 +7153,7 @@ exports[`SearchPage filters by organizer 1`] = `
                 <input
                   aria-invalid="false"
                   class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
-                  id=":r2g:"
+                  id=":r26:"
                   placeholder="dd.mm.yyyy"
                   type="tel"
                   value=""
@@ -7207,8 +7207,8 @@ exports[`SearchPage filters by organizer 1`] = `
               <label
                 class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
                 data-shrink="false"
-                for=":r2h:"
-                id=":r2h:-label"
+                for=":r27:"
+                id=":r27:-label"
               >
                 daterangeEnd
               </label>
@@ -7218,7 +7218,7 @@ exports[`SearchPage filters by organizer 1`] = `
                 <input
                   aria-invalid="false"
                   class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
-                  id=":r2h:"
+                  id=":r27:"
                   placeholder="dd.mm.yyyy"
                   type="tel"
                   value=""
@@ -7278,8 +7278,8 @@ exports[`SearchPage filters by organizer 1`] = `
             <label
               class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
               data-shrink="false"
-              for=":r2i:"
-              id=":r2i:-label"
+              for=":r28:"
+              id=":r28:-label"
             >
               eventType
             </label>
@@ -7293,7 +7293,7 @@ exports[`SearchPage filters by organizer 1`] = `
                 autocapitalize="none"
                 autocomplete="off"
                 class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
-                id=":r2i:"
+                id=":r28:"
                 role="combobox"
                 spellcheck="false"
                 type="text"
@@ -7354,8 +7354,8 @@ exports[`SearchPage filters by organizer 1`] = `
             <label
               class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
               data-shrink="false"
-              for=":r2k:"
-              id=":r2k:-label"
+              for=":r2a:"
+              id=":r2a:-label"
             >
               eventClass
             </label>
@@ -7369,7 +7369,7 @@ exports[`SearchPage filters by organizer 1`] = `
                 autocapitalize="none"
                 autocomplete="off"
                 class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
-                id=":r2k:"
+                id=":r2a:"
                 role="combobox"
                 spellcheck="false"
                 type="text"
@@ -7430,8 +7430,8 @@ exports[`SearchPage filters by organizer 1`] = `
             <label
               class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
               data-shrink="true"
-              for=":r2m:"
-              id=":r2m:-label"
+              for=":r2c:"
+              id=":r2c:-label"
             >
               filter.organizer
             </label>
@@ -7468,7 +7468,7 @@ exports[`SearchPage filters by organizer 1`] = `
                 autocapitalize="none"
                 autocomplete="off"
                 class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-152mnda-MuiInputBase-input-MuiOutlinedInput-input"
-                id=":r2m:"
+                id=":r2c:"
                 role="combobox"
                 spellcheck="false"
                 type="text"
@@ -7551,8 +7551,8 @@ exports[`SearchPage filters by organizer 1`] = `
             <label
               class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
               data-shrink="false"
-              for=":r2o:"
-              id=":r2o:-label"
+              for=":r2e:"
+              id=":r2e:-label"
             >
               judge
             </label>
@@ -7566,7 +7566,7 @@ exports[`SearchPage filters by organizer 1`] = `
                 autocapitalize="none"
                 autocomplete="off"
                 class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
-                id=":r2o:"
+                id=":r2e:"
                 role="combobox"
                 spellcheck="false"
                 type="text"

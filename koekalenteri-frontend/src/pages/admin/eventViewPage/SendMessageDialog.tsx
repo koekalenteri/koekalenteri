@@ -35,7 +35,7 @@ import { sendTemplatedEmail } from '../../../api/email'
 import { formatDate, formatDateSpan } from '../../../i18n/dates'
 import { Path } from '../../../routeConfig'
 import AutocompleteSingle from '../../components/AutocompleteSingle'
-import { idTokenSelector } from '../../recoil'
+import { idTokenAtom } from '../../recoil'
 import { adminEventSelector, emailTemplatesAtom } from '../recoil'
 
 interface Props {
@@ -52,7 +52,7 @@ export default function SendMessageDialog({ event, registrations, templateId, op
   const { enqueueSnackbar } = useSnackbar()
   const [text, setText] = useState('')
   const [sending, setSending] = useState(false)
-  const token = useRecoilValue(idTokenSelector)
+  const token = useRecoilValue(idTokenAtom)
   const templates = useRecoilValue(emailTemplatesAtom)
   const setEvent = useSetRecoilState(adminEventSelector(event.id))
   const [selectedTemplate, setSelectedTemplate] = useState<EmailTemplate | undefined>(

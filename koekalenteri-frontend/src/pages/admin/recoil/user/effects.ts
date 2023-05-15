@@ -2,14 +2,14 @@ import { User } from 'koekalenteri-shared/model'
 import { AtomEffect } from 'recoil'
 
 import { getUsers } from '../../../../api/user'
-import { idTokenSelector } from '../../../recoil'
+import { idTokenAtom } from '../../../recoil'
 
 let loaded = false
 
 export const remoteUsersEffect: AtomEffect<User[]> = ({ getPromise, onSet, setSelf, trigger }) => {
   const fetchUsers = () => {
     loaded = false
-    getPromise(idTokenSelector).then((token) => {
+    getPromise(idTokenAtom).then((token) => {
       if (!token) {
         setSelf([])
       } else {

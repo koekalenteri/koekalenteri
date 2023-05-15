@@ -4,14 +4,14 @@ import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
 
 import { getJudges, putJudge } from '../../../api/judge'
 import { adminUsersAtom } from '../../admin/recoil/user'
-import { idTokenSelector } from '../user'
+import { idTokenAtom } from '../user'
 
 import { judgesAtom } from './atoms'
 
 export const useJudgesActions = () => {
   const [judges, setJudges] = useRecoilState(judgesAtom)
   const resetUsers = useResetRecoilState(adminUsersAtom)
-  const token = useRecoilValue(idTokenSelector)
+  const token = useRecoilValue(idTokenAtom)
 
   const find = (id: number) => judges.find((item) => item.id === id)
 

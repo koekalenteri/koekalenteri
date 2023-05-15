@@ -3,12 +3,12 @@ import { useSnackbar } from 'notistack'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
 import { putEmailTemplate } from '../../../../api/email'
-import { idTokenSelector } from '../../../recoil'
+import { idTokenAtom } from '../../../recoil'
 
 import { emailTemplatesAtom } from './atoms'
 
 export const useEmailTemplatesActions = () => {
-  const token = useRecoilValue(idTokenSelector)
+  const token = useRecoilValue(idTokenAtom)
   const { enqueueSnackbar } = useSnackbar()
   const [emailTemplates, setEmailTemplates] = useRecoilState(emailTemplatesAtom)
 

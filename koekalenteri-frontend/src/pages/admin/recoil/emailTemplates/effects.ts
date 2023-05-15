@@ -3,13 +3,13 @@ import { EmailTemplate, EmailTemplateId } from 'koekalenteri-shared/model'
 import { AtomEffect } from 'recoil'
 
 import { getEmailTemplates } from '../../../../api/email'
-import { idTokenSelector } from '../../../recoil'
+import { idTokenAtom } from '../../../recoil'
 
 const templateIds: EmailTemplateId[] = ['registration', 'picked', 'reserve', 'invitation']
 
 export const remoteEmailTemplatesEffect: AtomEffect<EmailTemplate[]> = ({ getPromise, setSelf, trigger }) => {
   if (trigger === 'get') {
-    getPromise(idTokenSelector).then((token) => {
+    getPromise(idTokenAtom).then((token) => {
       getEmailTemplates(token).then((emailTemplates) => {
         if (emailTemplates.length < templateIds.length) {
           for (const id of templateIds) {

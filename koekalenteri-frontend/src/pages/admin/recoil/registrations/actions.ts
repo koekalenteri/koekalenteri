@@ -3,7 +3,7 @@ import { useSnackbar } from 'notistack'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
 import { putRegistration, putRegistrationGroups } from '../../../../api/registration'
-import { idTokenSelector } from '../../../recoil'
+import { idTokenAtom } from '../../../recoil'
 import { currentAdminEventSelector } from '../events'
 
 import { currentEventRegistrationsSelector } from './selectors'
@@ -11,7 +11,7 @@ import { currentEventRegistrationsSelector } from './selectors'
 export const useAdminRegistrationActions = () => {
   const [adminRegistrations, setAdminRegistrations] = useRecoilState(currentEventRegistrationsSelector)
   const [currentAdminEvent, setCurrentAdminEvent] = useRecoilState(currentAdminEventSelector)
-  const token = useRecoilValue(idTokenSelector)
+  const token = useRecoilValue(idTokenAtom)
   const { enqueueSnackbar } = useSnackbar()
 
   const updateAdminRegistration = (saved: Registration) => {

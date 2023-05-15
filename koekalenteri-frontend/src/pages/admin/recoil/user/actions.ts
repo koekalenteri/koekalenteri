@@ -2,12 +2,12 @@ import { User, UserRole } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
 import { putAdmin, putRole } from '../../../../api/user'
-import { idTokenSelector } from '../../../recoil'
+import { idTokenAtom } from '../../../recoil'
 
 import { adminUsersAtom } from './atoms'
 
 export const useAdminUserActions = () => {
-  const token = useRecoilValue(idTokenSelector)
+  const token = useRecoilValue(idTokenAtom)
   const [users, setUsers] = useRecoilState(adminUsersAtom)
 
   const replaceUser = (user: User) => {

@@ -1,5 +1,6 @@
 import { Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Link as SpaLink } from 'react-router-dom'
 import { Menu } from '@mui/icons-material'
 import { AppBar, IconButton, Link, Toolbar, Typography } from '@mui/material'
 import { useRecoilValue } from 'recoil'
@@ -32,19 +33,20 @@ const Header = ({ toggleMenu }: Props) => {
             <Menu />
           </IconButton>
         ) : null}
-        <Link href="/">
+        <Link to="/" component={SpaLink}>
           <IconButton sx={{ mx: { xs: 1, sm: 1 }, p: 0, height: 36 }}>
             <img src={logo} height="100%" alt="Suomen noutajakoirajärjestö" />
           </IconButton>
         </Link>
-        <Link href="/" sx={{ textDecoration: 'none', borderBottom: mainBorder, mr: 1, px: 1 }}>
+        <Link to="/" component={SpaLink} sx={{ textDecoration: 'none', borderBottom: mainBorder, mr: 1, px: 1 }}>
           <Typography variant="subtitle1" noWrap component="div" sx={{ flexShrink: 1 }}>
             Koekalenteri
           </Typography>
         </Link>
         {hasAdminAccess && (
           <Link
-            href={Path.admin.index}
+            to={Path.admin.index}
+            component={SpaLink}
             sx={{
               textDecoration: 'none',
               borderBottom: adminBorder,

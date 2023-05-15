@@ -1,13 +1,30 @@
-import { Language, User } from 'koekalenteri-shared/model'
+import { Auth } from '@aws-amplify/auth'
+import { Language } from 'koekalenteri-shared/model'
 import { atom, atomFamily } from 'recoil'
 
-import { logEffect, stringStorageEffect } from '../effects'
+import { logEffect, storageEffect, stringStorageEffect } from '../effects'
 
-import { i18nextEffect, remoteUserEffect } from './effects'
+import { i18nextEffect } from './effects'
 
-export const userAtom = atom<User | null>({
-  key: 'user',
-  effects: [logEffect, remoteUserEffect],
+const getIdToken = async (): Promise<string | undefined> => {
+  try {
+    const user = await Auth.currentAuthenticatedUser()
+    return user?.getSignInUserSession()?.getIdToken().getJwtToken()
+  } catch (e) {
+    return
+  }
+}
+
+export const idTokenAtom = atom<string | undefined>({
+  key: 'idToken',
+  default: getIdToken(),
+  effects: [logEffect],
+})
+
+export const greetAtom = atom<boolean>({
+  key: 'greet',
+  default: true,
+  effects: [logEffect, storageEffect],
 })
 
 export const languageAtom = atom<Language>({

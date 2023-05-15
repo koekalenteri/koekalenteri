@@ -3,13 +3,13 @@ import { EventType } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
 import { getEventTypes, putEventType } from '../../../api/eventType'
-import { idTokenSelector } from '../user'
+import { idTokenAtom } from '../user'
 
 import { eventTypesAtom } from './atoms'
 
 export const useEventTypeActions = () => {
   const [eventTypes, setEventTypes] = useRecoilState(eventTypesAtom)
-  const token = useRecoilValue(idTokenSelector)
+  const token = useRecoilValue(idTokenAtom)
 
   return {
     refresh,

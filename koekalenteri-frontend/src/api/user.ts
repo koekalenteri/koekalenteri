@@ -12,7 +12,7 @@ export async function getUsers(token: string, signal?: AbortSignal) {
 
 export async function putAdmin(
   item: { userId: string; admin: boolean },
-  token: string,
+  token: string | undefined,
   signal?: AbortSignal
 ): Promise<User> {
   return http.post<{ userId: string; admin: boolean }, User>('/admin/user/admin', item, withToken({ signal }, token))
@@ -24,6 +24,6 @@ export interface RoleItem {
   role: UserRole | 'none'
 }
 
-export async function putRole(item: RoleItem, token: string, signal?: AbortSignal): Promise<User> {
+export async function putRole(item: RoleItem, token: string | undefined, signal?: AbortSignal): Promise<User> {
   return http.post<RoleItem, User>('/admin/user/role', item, withToken({ signal }, token))
 }
