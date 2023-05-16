@@ -3,7 +3,7 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import { AWSError } from 'aws-sdk'
 import { Organizer, User, UserRole } from 'koekalenteri-shared/model'
 
-import { i18n } from '../../i18n'
+import { i18n } from '../../i18n/index'
 import { authorize } from '../../utils/auth'
 import { getOrigin } from '../../utils/auth'
 import CustomDynamoClient from '../../utils/CustomDynamoClient'
