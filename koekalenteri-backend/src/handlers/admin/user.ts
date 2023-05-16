@@ -142,11 +142,11 @@ export const setRoleHandler = metricScope(
         if (item.role !== 'none') {
           await sendTemplatedMail('access', 'fi', EMAIL_FROM, [existing.email], {
             user: {
-              firstName: existing.name.split(' ')[0],
+              firstName: (existing.name ?? 'Nimetön').split(' ')[0],
               email: existing.email,
             },
             link: `${origin}/login`,
-            orgName: org?.name,
+            orgName: org?.name ?? 'Tuntematon',
             roleName: t(`user.role.${item.role}`),
             admin: item.role === 'admin',
             secretary: item.role === 'secretary',
