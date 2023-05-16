@@ -92,7 +92,7 @@ export function RegistrationListPage({ cancel, confirm }: Props) {
         <Grid container direction="row" wrap="nowrap">
           <Grid item>
             <LinkButton sx={{ mb: 1, pl: 0 }} to="/" back={spa} text={spa ? t('goBack') : t('goHome')} />
-            <Typography variant="h5">Ilmoittutumistiedot</Typography>
+            <Typography variant="h5">Ilmoittautumistiedot</Typography>
             <RegistrationEventInfo event={event} />
           </Grid>
           <Grid item>
