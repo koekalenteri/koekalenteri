@@ -13,6 +13,7 @@ import { adminEventIdAtom } from './recoil'
 
 jest.mock('../../api/event')
 jest.mock('../../api/judge')
+jest.mock('../../api/organizer')
 jest.mock('../../api/registration')
 jest.mock('../../api/user')
 
