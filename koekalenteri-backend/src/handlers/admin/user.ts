@@ -76,10 +76,11 @@ export const setAdminHandler = metricScope(
           }
         )
 
+        metricsSuccess(metrics, event.requestContext, 'setAdmin')
         return response(200, { ...existing, ...item }, event)
       } catch (err: unknown) {
         console.error(err)
-        metricsError(metrics, event.requestContext, 'addPermission')
+        metricsError(metrics, event.requestContext, 'setAdmin')
         return response((err as AWSError).statusCode || 501, err, event)
       }
     }
@@ -150,10 +151,11 @@ export const setRoleHandler = metricScope(
           secretary: item.role === 'secretary',
         })
 
+        metricsSuccess(metrics, event.requestContext, 'setRole')
         return response(200, { ...existing, roles }, event)
       } catch (err: unknown) {
         console.error(err)
-        metricsError(metrics, event.requestContext, 'addPermission')
+        metricsError(metrics, event.requestContext, 'setRole')
         return response((err as AWSError).statusCode || 501, err, event)
       }
     }
