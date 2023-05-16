@@ -1,12 +1,15 @@
 import { metricScope, MetricsLogger } from 'aws-embedded-metrics'
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import { AWSError } from 'aws-sdk'
-import { User, UserRole } from 'koekalenteri-shared/model'
+import { Organizer, User, UserRole } from 'koekalenteri-shared/model'
 
+import { i18n } from '../../i18n'
 import { authorize } from '../../utils/auth'
+import { getOrigin } from '../../utils/auth'
 import CustomDynamoClient from '../../utils/CustomDynamoClient'
 import { metricsError, metricsSuccess } from '../../utils/metrics'
 import { response } from '../../utils/response'
+import { EMAIL_FROM, sendTemplatedMail } from '../email'
 
 const dynamoDB = new CustomDynamoClient(process.env.USER_TABLE_NAME)
 
@@ -86,11 +89,13 @@ export const setRoleHandler = metricScope(
   (metrics: MetricsLogger) =>
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
       try {
+        const t = i18n.getFixedT('fi')
         const user = await authorize(event)
         if (!user) {
           return response(401, 'Unauthorized', event)
         }
 
+        const origin = getOrigin(event)
         const item: { userId: string; orgId: string; role: UserRole | 'none' } = JSON.parse(event.body || '{}')
 
         if (!item?.orgId) {
@@ -130,6 +135,20 @@ export const setRoleHandler = metricScope(
             ':roles': roles,
           }
         )
+
+        const org = await dynamoDB.read<Organizer>({ id: item.orgId }, process.env.ORGANIZERS_TABLE_NAME)
+
+        await sendTemplatedMail('access', 'fi', EMAIL_FROM, [existing.email], {
+          user: {
+            firstName: existing.name.split(' ')[0],
+            email: existing.email,
+            link: `${origin}/login`,
+            orgName: org?.name,
+            roleName: t(item.role),
+            admin: item.role === 'admin',
+            secretary: item.role === 'secretary',
+          },
+        })
 
         return response(200, { ...existing, roles }, event)
       } catch (err: unknown) {

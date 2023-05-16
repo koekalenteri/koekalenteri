@@ -936,7 +936,12 @@ Resources:
             TableName: !Ref UserTable
         - DynamoDBReadPolicy:
             TableName: !Ref UserLinkTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref OrganizerTable
         - CloudWatchPutMetricPolicy: {}
+      Environment:
+        Variables:
+          ORGANIZER_TABLE_NAME: !Ref OrganizerTable
       Events:
         GetUser:
           Type: Api
