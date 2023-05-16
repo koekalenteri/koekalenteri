@@ -43,6 +43,13 @@ export default function useEventListColumns(): EventListColDef[] {
           .join(', '),
     },
     {
+      field: 'organizer',
+      headerName: t('event.organizer'),
+      minWidth: 100,
+      valueGetter: (params) => params.row.organizer.name,
+      flex: 1,
+    },
+    {
       field: 'name',
       headerName: t('event.name'),
       minWidth: 100,

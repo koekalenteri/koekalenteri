@@ -4,7 +4,7 @@ import { Clear, Search } from '@mui/icons-material'
 import { IconButton, Stack, TextField } from '@mui/material'
 import { GridToolbarColumnsButton, GridToolbarContainer } from '@mui/x-data-grid'
 
-interface QuickSearchToolbarProps {
+export interface QuickSearchToolbarProps {
   clearSearch: () => void
   onChange: () => void
   value: string

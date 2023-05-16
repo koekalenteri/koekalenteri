@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import {
@@ -14,20 +14,48 @@ import { useConfirm } from 'material-ui-confirm'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
 import { Path } from '../../routeConfig'
+import AutocompleteSingle from '../components/AutocompleteSingle'
 import StyledDataGrid from '../components/StyledDataGrid'
 
 import FullPageFlex from './components/FullPageFlex'
-import { QuickSearchToolbar } from './components/QuickSearchToolbar'
+import { QuickSearchToolbar, QuickSearchToolbarProps } from './components/QuickSearchToolbar'
 import AutoButton from './eventListPage/AutoButton'
 import useEventListColumns from './eventListPage/columns'
-import { adminUserFilteredEventsSelector } from './recoil/user'
+import { adminUserFilteredEventsSelector, adminUserOrganizersSelector } from './recoil/user'
 import {
   adminEventFilterTextAtom,
   adminEventIdAtom,
   adminShowPastEventsAtom,
   currentAdminEventSelector,
+  selectedOrganizerIdAtom,
   useAdminEventActions,
 } from './recoil'
+
+const Toolbar = (props: QuickSearchToolbarProps) => {
+  const orgs = useRecoilValue(adminUserOrganizersSelector)
+  const [orgId, setOrgId] = useRecoilState(selectedOrganizerIdAtom)
+  const options = useMemo(() => [{ id: '', name: 'Kaikki' }, ...orgs], [orgs])
+
+  useEffect(() => {
+    if (orgs.length === 1) {
+      setOrgId(orgs[0].id)
+    }
+  }, [orgs, setOrgId])
+
+  return (
+    <QuickSearchToolbar {...props}>
+      <AutocompleteSingle
+        disabled={orgs.length < 2}
+        size="small"
+        options={options}
+        label={'Yhdistys'}
+        getOptionLabel={(o) => o.name}
+        value={options.find((o) => o.id === orgId) ?? null}
+        onChange={(o) => setOrgId(o?.id ?? '')}
+      ></AutocompleteSingle>
+    </QuickSearchToolbar>
+  )
+}
 
 export default function EventListPage() {
   const confirm = useConfirm()
@@ -120,7 +148,7 @@ export default function EventListPage() {
         columns={columns}
         rows={events}
         onSelectionModelChange={handleSelectionModeChange}
-        components={{ Toolbar: QuickSearchToolbar }}
+        components={{ Toolbar: Toolbar }}
         componentsProps={{
           toolbar: {
             value: searchText,

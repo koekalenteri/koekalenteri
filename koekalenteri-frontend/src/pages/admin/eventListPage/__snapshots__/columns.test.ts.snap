@@ -26,6 +26,13 @@ Array [
     "valueGetter": [Function],
   },
   Object {
+    "field": "organizer",
+    "flex": 1,
+    "headerName": "event.organizer",
+    "minWidth": 100,
+    "valueGetter": [Function],
+  },
+  Object {
     "field": "name",
     "flex": 1,
     "headerName": "event.name",
