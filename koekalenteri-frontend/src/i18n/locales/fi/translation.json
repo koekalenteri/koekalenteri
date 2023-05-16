@@ -299,7 +299,7 @@
       "terms": "Katso tarkemmat peruutusehdot <2>säännöistä</2>"
     },
     "role": {
-      "admin": "Pääkäyttäjä",
+      "admin": "Yhdistyksen pääkäyttäjä",
       "secretary": "Koesihteeri"
     }
   },

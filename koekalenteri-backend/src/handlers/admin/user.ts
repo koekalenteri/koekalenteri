@@ -142,12 +142,12 @@ export const setRoleHandler = metricScope(
           user: {
             firstName: existing.name.split(' ')[0],
             email: existing.email,
-            link: `${origin}/login`,
-            orgName: org?.name,
-            roleName: t(item.role),
-            admin: item.role === 'admin',
-            secretary: item.role === 'secretary',
           },
+          link: `${origin}/login`,
+          orgName: org?.name,
+          roleName: t(`user.role.${item.role}`),
+          admin: item.role === 'admin',
+          secretary: item.role === 'secretary',
         })
 
         return response(200, { ...existing, roles }, event)
