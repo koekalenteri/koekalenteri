@@ -137,7 +137,7 @@ export const setRoleHandler = metricScope(
           }
         )
 
-        const org = await dynamoDB.read<Organizer>({ id: item.orgId }, process.env.ORGANIZERS_TABLE_NAME)
+        const org = await dynamoDB.read<Organizer>({ id: item.orgId }, process.env.ORGANIZER_TABLE_NAME)
 
         await sendTemplatedMail('access', 'fi', EMAIL_FROM, [existing.email], {
           user: {
