@@ -139,17 +139,19 @@ export const setRoleHandler = metricScope(
 
         const org = await dynamoDB.read<Organizer>({ id: item.orgId }, process.env.ORGANIZER_TABLE_NAME)
 
-        await sendTemplatedMail('access', 'fi', EMAIL_FROM, [existing.email], {
-          user: {
-            firstName: existing.name.split(' ')[0],
-            email: existing.email,
-          },
-          link: `${origin}/login`,
-          orgName: org?.name,
-          roleName: t(`user.role.${item.role}`),
-          admin: item.role === 'admin',
-          secretary: item.role === 'secretary',
-        })
+        if (item.role !== 'none') {
+          await sendTemplatedMail('access', 'fi', EMAIL_FROM, [existing.email], {
+            user: {
+              firstName: existing.name.split(' ')[0],
+              email: existing.email,
+            },
+            link: `${origin}/login`,
+            orgName: org?.name,
+            roleName: t(`user.role.${item.role}`),
+            admin: item.role === 'admin',
+            secretary: item.role === 'secretary',
+          })
+        }
 
         metricsSuccess(metrics, event.requestContext, 'setRole')
         return response(200, { ...existing, roles }, event)
