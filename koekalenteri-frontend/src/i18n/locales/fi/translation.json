@@ -17,6 +17,7 @@
   "date": "Aika",
   "dateTimeShort": "{{ date, dtshort }}",
   "dateFormat": {
+    "date": "{{ date, date }}",
     "long": "dd.MM.yyyy",
     "short": "dd.MM.",
     "weekday": "{{ date, weekday }}",
@@ -270,6 +271,10 @@
     "time": {
       "ap": "(ap)",
       "ip": "(ip)"
+    },
+    "timeLong": {
+      "ap": "aamupäivä",
+      "ip": "iltapäivä"
     }
   },
   "registrations": "Ilmoittautumiset",

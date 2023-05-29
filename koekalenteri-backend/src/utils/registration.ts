@@ -2,7 +2,6 @@ import { JsonConfirmedEvent, JsonRegistration } from 'koekalenteri-shared/model'
 
 import { i18n } from '../i18n/index'
 
-import { formatDate, formatDateSpan } from './dates'
 import { reverseName } from './string'
 
 export function emailTo(registration: JsonRegistration) {
@@ -21,19 +20,19 @@ export function registrationEmailTemplateData(
 ) {
   const t = i18n.getFixedT(registration.language)
 
-  const eventDate = formatDateSpan(confirmedEvent.startDate, confirmedEvent.endDate)
+  const eventDate = t('daterange', { start: confirmedEvent.startDate, end: confirmedEvent.endDate })
   const reserveText = t(`registration.reserveChoises.${registration.reserve}`)
   const dogBreed = t(`breed:${registration.dog.breedCode}`)
   const regDates = registration.dates
-    .map((d) => t('dateFormat.weekday', { date: d.date }) + (d.time ? ' ' + t(`registration.time.${d.time}`) : ''))
+    .map((d) => t('dateFormat.short', { date: d.date }) + (d.time ? ' ' + t(`registration.time.${d.time}`) : ''))
     .join(', ')
   const link = `${origin}/r/${registration.eventId}/${registration.id}`
   const qualifyingResults = registration.qualifyingResults.map((r) => ({
     ...r,
-    date: formatDate(r.date, 'd.M.yyyy'),
+    date: t('dateFormats.date', { date: r.date }),
   }))
   const groupDate = registration.group?.date ? t('dateFormat.wdshort', { date: registration.group.date }) : ''
-  const groupTime = registration.group?.time ? t(`registration.time.${registration.group.time}`) : ''
+  const groupTime = registration.group?.time ? t(`registration.timeLong.${registration.group.time}`) : ''
 
   // Friendly name for secretary (and official) (KOE-350)
   confirmedEvent.secretary.name = reverseName(confirmedEvent.secretary.name)

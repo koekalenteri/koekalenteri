@@ -27,7 +27,12 @@ export function formatDate(
   return formatInTimeZone(date, tz, format, { locale })
 }
 
-export function formatDateSpan(start: Date | string, end: Date | string, tz = 'Europe/Helsinki'): string {
+export function formatDateSpan(
+  start: Date | string,
+  lng: string | undefined,
+  { end }: { end: Date | string },
+  tz = 'Europe/Helsinki'
+): string {
   if (typeof start === 'string') {
     start = parseISO(start)
   }

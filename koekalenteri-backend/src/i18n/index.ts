@@ -1,8 +1,10 @@
 import i18n from 'i18next'
 import { Language } from 'koekalenteri-shared/model'
 
+import { formatDateSpan } from '../utils/dates'
+
 import { en, enBreed, enBreedAbbr, fi, fiBreed, fiBreedAbbr } from './locales/index'
-import { createDateFormatter } from './dates'
+import { createDateFormatter, formatDistance } from './dates'
 
 export type { Language }
 export { i18n }
@@ -24,6 +26,13 @@ i18n.init({
 
 //  additional formats
 i18n.services.formatter?.add('lowercase', (value) => value.toLowerCase())
-i18n.services.formatter?.add('weekday', createDateFormatter('eeeeee d.M.'))
+
+i18n.services.formatter?.add('dtshort', createDateFormatter('eeeeee d.M. HH:mm'))
+i18n.services.formatter?.add('short', createDateFormatter('eeeeee d.M.'))
+i18n.services.formatter?.add('weekday', createDateFormatter('eeeeee'))
+i18n.services.formatter?.add('datespan', formatDateSpan)
+i18n.services.formatter?.add('distance', formatDistance)
+i18n.services.formatter?.add('lowercase', (value) => value.toLowerCase())
+i18n.services.formatter?.add('date', createDateFormatter('d.M.yyyy'))
 
 console.log('i18next initialized')

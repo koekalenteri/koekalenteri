@@ -15,10 +15,10 @@ test('formatDateSpan', () => {
   ]
 
   for (const test of tests) {
-    expect(formatDateSpan(test.start, test.end)).toEqual(test.result)
-    expect(formatDateSpan(new Date(test.start), test.end)).toEqual(test.result)
-    expect(formatDateSpan(test.start, new Date(test.end))).toEqual(test.result)
-    expect(formatDateSpan(new Date(test.start), new Date(test.end))).toEqual(test.result)
+    expect(formatDateSpan(test.start, 'fi', { end: test.end })).toEqual(test.result)
+    expect(formatDateSpan(new Date(test.start), 'fi', { end: test.end })).toEqual(test.result)
+    expect(formatDateSpan(test.start, 'fi', { end: new Date(test.end) })).toEqual(test.result)
+    expect(formatDateSpan(new Date(test.start), 'fi', { end: new Date(test.end) })).toEqual(test.result)
   }
 })
 
