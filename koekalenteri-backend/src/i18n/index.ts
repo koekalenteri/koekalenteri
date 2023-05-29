@@ -9,7 +9,7 @@ import { createDateFormatter, formatDistance } from './dates'
 export type { Language }
 export { i18n }
 
-i18n.init({
+await i18n.init({
   lng: process.env.NODE_ENV === 'test' ? 'fi' : undefined,
   ns: ['translation', 'breed', 'breedAbbr'],
   resources: {
