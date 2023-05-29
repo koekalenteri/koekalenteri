@@ -21,7 +21,7 @@ import FullPageFlex from './components/FullPageFlex'
 import { QuickSearchToolbar, QuickSearchToolbarProps } from './components/QuickSearchToolbar'
 import AutoButton from './eventListPage/AutoButton'
 import useEventListColumns from './eventListPage/columns'
-import { adminUserFilteredEventsSelector, adminUserOrganizersSelector } from './recoil/user'
+import { adminUserEventOrganizersSelector, adminUserFilteredEventsSelector } from './recoil/user'
 import {
   adminEventFilterTextAtom,
   adminEventIdAtom,
@@ -32,7 +32,7 @@ import {
 } from './recoil'
 
 const Toolbar = (props: QuickSearchToolbarProps) => {
-  const orgs = useRecoilValue(adminUserOrganizersSelector)
+  const orgs = useRecoilValue(adminUserEventOrganizersSelector)
   const [orgId, setOrgId] = useRecoilState(selectedOrganizerIdAtom)
   const options = useMemo(() => [{ id: '', name: 'Kaikki' }, ...orgs], [orgs])
 

@@ -3,6 +3,8 @@ import i18next from 'i18next'
 import { Event } from 'koekalenteri-shared/model'
 import { DefaultValue, selector, selectorFamily } from 'recoil'
 
+import { uniqueFn } from '../../../../utils'
+
 import {
   adminEventFilterTextAtom,
   adminEventIdAtom,
@@ -73,5 +75,16 @@ export const filteredAdminEventsSelector = selector({
             .includes(filter))
       )
     })
+  },
+})
+
+export const adminEventOrganizersSelector = selector({
+  key: 'adminEventOrganizers',
+  get: ({ get }) => {
+    const events = get(adminEventsAtom)
+    return uniqueFn(
+      events.map((event) => event.organizer),
+      (a, b) => a.id === b.id
+    ).sort((a, b) => a.name.localeCompare(b.name, i18next.language))
   },
 })

@@ -3,7 +3,7 @@ import { User } from 'koekalenteri-shared/model'
 import { selector, selectorFamily } from 'recoil'
 
 import { eventsAtom, userSelector } from '../../../recoil'
-import { filteredAdminEventsSelector } from '../events'
+import { adminEventOrganizersSelector, filteredAdminEventsSelector } from '../events'
 import { organizersAtom, selectedOrganizerIdAtom } from '../organizers'
 
 import { adminUserFilterAtom, adminUserIdAtom, adminUsersAtom } from './atoms'
@@ -49,6 +49,16 @@ export const adminUserOrganizersSelector = selector({
   get: ({ get }) => {
     const user = get(userSelector)
     const list = get(organizersAtom)
+
+    return user?.admin ? list : list.filter((o) => user?.roles?.[o.id])
+  },
+})
+
+export const adminUserEventOrganizersSelector = selector({
+  key: 'adminUserEventOrganizers',
+  get: ({ get }) => {
+    const user = get(userSelector)
+    const list = get(adminEventOrganizersSelector)
 
     return user?.admin ? list : list.filter((o) => user?.roles?.[o.id])
   },
