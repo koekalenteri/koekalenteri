@@ -50,6 +50,13 @@ const Toolbar = (props: QuickSearchToolbarProps) => {
         options={options}
         label={'Yhdistys'}
         getOptionLabel={(o) => o.name}
+        renderOption={(props, option) => {
+          return (
+            <li {...props} key={option.id}>
+              {option.name}
+            </li>
+          )
+        }}
         value={options.find((o) => o.id === orgId) ?? null}
         onChange={(o) => setOrgId(o?.id ?? '')}
       ></AutocompleteSingle>
