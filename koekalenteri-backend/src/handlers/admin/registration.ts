@@ -34,7 +34,7 @@ const numberGroupKey = <T extends JsonRegistration>(reg: T) => {
     return 'cancelled-' + ct
   }
   if (reg.group?.date) {
-    return `${reg.group?.date}-${ct}`
+    return 'participants' //`${reg.group?.date}-${ct}`
   }
   return 'reserve-' + ct
 }
