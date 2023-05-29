@@ -9,6 +9,7 @@ import { useAdminRegistrationActions } from '../recoil/registrations/actions'
 
 interface Props {
   changes: boolean
+  classDisabled?: boolean
   event: Event
   eventClass?: string
   onClose?: () => void
@@ -20,6 +21,7 @@ interface Props {
 
 export default function RegistrationDialogBase({
   changes,
+  classDisabled,
   event,
   onClose,
   open,
@@ -90,6 +92,7 @@ export default function RegistrationDialogBase({
         <RegistrationForm
           event={event as ConfirmedEvent}
           registration={registration}
+          classDisabled={classDisabled}
           onSave={handleSave}
           onCancel={handleCancel}
           onChange={handleChange}

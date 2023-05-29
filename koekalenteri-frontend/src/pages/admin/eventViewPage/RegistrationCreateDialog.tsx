@@ -25,13 +25,13 @@ export default function RegistrationCreateDialog({ event, eventClass, open, onCl
     if (
       registration.eventId !== event.id ||
       registration.eventType !== event.eventType ||
-      (eventClass && !registration.class)
+      (eventClass && registration.class !== eventClass)
     ) {
       setRegistration({
         ...registration,
         eventId: event.id,
         eventType: event.eventType,
-        class: registration.class || eventClass,
+        class: eventClass,
       })
     }
   }, [registration, event, setRegistration, eventClass])
@@ -39,6 +39,7 @@ export default function RegistrationCreateDialog({ event, eventClass, open, onCl
   return (
     <RegistrationDialogBase
       changes
+      classDisabled
       event={event}
       onClose={onClose}
       open={open}

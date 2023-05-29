@@ -13,6 +13,7 @@ type EntryInfoProps = {
   reg: Registration
   event: ConfirmedEvent
   classDate?: string
+  classDisabled?: boolean
   className?: string
   error?: boolean
   helperText?: string
@@ -27,6 +28,7 @@ export function EntryInfo({
   reg,
   event,
   classDate,
+  classDisabled,
   className,
   errorStates,
   helperTexts,
@@ -100,6 +102,7 @@ export function EntryInfo({
         <Grid item sx={{ display: event.classes.length === 0 ? 'none' : 'block' }} xs={12} md={2}>
           <AutocompleteSingle
             disableClearable
+            disabled={classDisabled}
             error={errorStates.class}
             helperText={helperTexts.class}
             label={t('registration.class')}

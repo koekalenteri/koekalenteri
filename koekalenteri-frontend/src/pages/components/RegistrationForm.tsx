@@ -34,6 +34,7 @@ import { filterRelevantResults, validateRegistration } from './registrationForm/
 interface Props {
   event: ConfirmedEvent
   registration: Registration
+  classDisabled?: boolean
   className?: string
   classDate?: string
   changes?: boolean
@@ -60,6 +61,7 @@ export const emptyPerson = {
 
 export default function RegistrationForm({
   event,
+  classDisabled,
   className,
   registration,
   classDate,
@@ -197,6 +199,7 @@ export default function RegistrationForm({
           reg={registration}
           event={event}
           classDate={classDate}
+          classDisabled={classDisabled}
           className={className}
           errorStates={errorStates}
           helperTexts={helperTexts}
