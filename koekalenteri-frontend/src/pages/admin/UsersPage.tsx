@@ -52,7 +52,12 @@ export default function UsersPage() {
       flex: 0,
       headerName: t('roles'),
       width: 80,
-      renderCell: (p) => <RoleInfo {...p.row} />,
+      sortComparator: (a, b) => {
+        const admin = a.admin - b.admin
+        return admin === 0 ? Object.keys(a.roles).length - Object.keys(b.roles).length : admin
+      },
+      valueGetter: (params) => ({ admin: params.row.admin ?? false, roles: params.row.roles ?? {} }),
+      renderCell: ({ value }) => <RoleInfo {...value} />,
     },
     {
       field: 'location',
