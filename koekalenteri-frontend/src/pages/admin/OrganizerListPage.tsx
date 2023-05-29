@@ -2,7 +2,7 @@ import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { CloudSync } from '@mui/icons-material'
 import { Button, Stack } from '@mui/material'
-import { GridColDef } from '@mui/x-data-grid'
+import { GridColumns } from '@mui/x-data-grid'
 import { Organizer } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
@@ -13,10 +13,6 @@ import FullPageFlex from './components/FullPageFlex'
 import { QuickSearchToolbar } from './components/QuickSearchToolbar'
 import { filteredOrganizersSelector, organizerFilterAtom, useOrganizersActions } from './recoil'
 
-interface OrganizerColDef extends GridColDef {
-  field: keyof Organizer
-}
-
 export default function OrganizerListPage() {
   const [searchText, setSearchText] = useRecoilState(organizerFilterAtom)
   const organizers = useRecoilValue(filteredOrganizersSelector)
@@ -25,7 +21,7 @@ export default function OrganizerListPage() {
 
   const { t } = useTranslation()
 
-  const columns: OrganizerColDef[] = [
+  const columns: GridColumns<Organizer> = [
     {
       field: 'kcId',
       flex: 1,

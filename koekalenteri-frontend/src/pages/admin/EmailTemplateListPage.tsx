@@ -2,7 +2,7 @@ import { SyntheticEvent, useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Cancel, Save } from '@mui/icons-material'
 import { Box, Button, Paper, Stack, Tab, Tabs } from '@mui/material'
-import { GridColDef, GridSelectionModel } from '@mui/x-data-grid'
+import { GridColumns, GridSelectionModel } from '@mui/x-data-grid'
 import { EmailTemplate } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
 
@@ -12,10 +12,6 @@ import StyledDataGrid from '../components/StyledDataGrid'
 import FullPageFlex from './components/FullPageFlex'
 import { TemplateEditor } from './emailTemplateListPage/TemplateEditor'
 import { editableTemplateByIdAtom, emailTemplatesAtom, templateSelector, useEmailTemplatesActions } from './recoil'
-
-interface EmailTemplateColDef extends GridColDef {
-  field: keyof EmailTemplate
-}
 
 export default function EmailTemplateListPage() {
   const emailTemplates = useRecoilValue(emailTemplatesAtom)
@@ -29,7 +25,7 @@ export default function EmailTemplateListPage() {
 
   const { t } = useTranslation()
 
-  const columns: EmailTemplateColDef[] = [
+  const columns: GridColumns<EmailTemplate> = [
     {
       field: 'id',
       flex: 1,

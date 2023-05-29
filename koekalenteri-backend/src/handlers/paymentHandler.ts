@@ -124,7 +124,8 @@ const handlePayment: HandlePayment = async (event, source, metrics) => {
      */
     if (registration.paidAt && !receiptSent && source === 'notification') {
       //!!!
-      const receiptResult = await sendReceipt(registration, new Date(registration.paidAt).toLocaleDateString('fi'))
+      // const receiptResult =
+      await sendReceipt(registration, new Date(registration.paidAt).toLocaleDateString('fi'))
       //registration.receiptSent = receiptResult.isOk()
     }
 

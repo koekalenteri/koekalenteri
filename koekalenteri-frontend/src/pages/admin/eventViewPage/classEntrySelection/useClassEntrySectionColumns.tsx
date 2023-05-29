@@ -6,7 +6,7 @@ import {
   EventBusyOutlined,
   PersonOutline,
 } from '@mui/icons-material'
-import { GridActionsCellItem, GridColDef, GridColumns, GridValueGetterParams } from '@mui/x-data-grid'
+import { GridActionsCellItem, GridColumns, GridValueGetterParams } from '@mui/x-data-grid'
 import { BreedCode, Registration } from 'koekalenteri-shared/model'
 
 import GroupColors from './GroupColors'
@@ -115,9 +115,9 @@ export function useClassEntrySelectionColumns(eventDates: Date[], openEditDialog
     },
   ]
 
-  const participantColumns: GridColDef[] = [...entryColumns]
+  const participantColumns: GridColumns<Registration> = [...entryColumns]
 
-  const cancelledColumns: GridColDef[] = [
+  const cancelledColumns: GridColumns<Registration> = [
     ...participantColumns,
     {
       field: 'cancelReason',

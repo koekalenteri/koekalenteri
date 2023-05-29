@@ -142,7 +142,7 @@ const ClassEntrySelection = ({
       save.push({ eventId: reg.eventId, id: reg.id, group: newGroup })
 
       // update all the registrations that needs to move, and add to `save` array
-      regs.forEach(async (r, i) => {
+      regs.forEach((r, i) => {
         if (r.group && r.group?.number !== i + 1 && r.id !== reg.id) {
           const grp = { ...r.group, number: i + 1 }
           save.push({ eventId: r.eventId, id: r.id, group: grp })
@@ -183,10 +183,10 @@ const ClassEntrySelection = ({
   )
 
   const handleCellClick = useCallback(
-    (params: GridCellParams, event: MuiEvent<React.MouseEvent>) => {
+    async (params: GridCellParams, event: MuiEvent<React.MouseEvent>) => {
       if (params.field === 'dog.regNo') {
         event.defaultMuiPrevented = true
-        navigator.clipboard.writeText(params.value)
+        await navigator.clipboard.writeText(params.value)
         enqueueSnackbar({
           message: 'Rekisterinumero kopioitu',
           variant: 'info',

@@ -1,17 +1,17 @@
 import { useTranslation } from 'react-i18next'
-import { GridColDef, GridValueGetterParams } from '@mui/x-data-grid'
+import { GridColumns, GridValueGetterParams } from '@mui/x-data-grid'
 import { Event, EventClass, EventState } from 'koekalenteri-shared/model'
 
 import { getEventTitle } from '../../../hooks/useEventTitle'
 import { useJudgesActions } from '../../recoil'
 
-interface EventListColDef extends GridColDef {
-  field: keyof Event | 'date'
-}
-
 type StartEndDate = { start: Date; end: Date }
 
-export default function useEventListColumns(): EventListColDef[] {
+type EventWithDate = Event & {
+  date: StartEndDate
+}
+
+export default function useEventListColumns(): GridColumns<EventWithDate> {
   const { t } = useTranslation()
   const judgeActions = useJudgesActions()
 

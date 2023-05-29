@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { CloudSync } from '@mui/icons-material'
 import { Button, Stack, Theme, useMediaQuery } from '@mui/material'
-import { GridColDef } from '@mui/x-data-grid'
+import { GridColumns } from '@mui/x-data-grid'
 import { Official } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
@@ -12,10 +12,6 @@ import FullPageFlex from './components/FullPageFlex'
 import { QuickSearchToolbar } from './components/QuickSearchToolbar'
 import { filteredOfficialsSelector, officialFilterAtom, useOfficialsActions } from './recoil'
 
-interface OfficialColDef extends GridColDef {
-  field: keyof Official
-}
-
 export default function OfficialListPage() {
   const large = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
   const [searchText, setSearchText] = useRecoilState(officialFilterAtom)
@@ -24,7 +20,7 @@ export default function OfficialListPage() {
   const isAdmin = useRecoilValue(isAdminSelector)
   const actions = useOfficialsActions()
 
-  const columns: OfficialColDef[] = [
+  const columns: GridColumns<Official> = [
     {
       field: 'name',
       flex: 1,
