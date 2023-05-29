@@ -63,7 +63,14 @@ const ClassEntrySelection = ({
   const confirm = useConfirm()
   const { t } = useTranslation()
   const { enqueueSnackbar } = useSnackbar()
-  const { cancelledColumns, entryColumns, participantColumns } = useClassEntrySelectionColumns(eventDates, setOpen)
+  const handleOpen = useCallback(
+    (id: string) => {
+      setSelectedRegistrationId?.(id)
+      setOpen?.(true)
+    },
+    [setOpen, setSelectedRegistrationId]
+  )
+  const { cancelledColumns, entryColumns, participantColumns } = useClassEntrySelectionColumns(eventDates, handleOpen)
   const actions = useAdminRegistrationActions()
 
   const eventGroups: RegistrationGroup[] = useMemo(

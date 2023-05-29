@@ -1,4 +1,3 @@
-import { Dispatch, SetStateAction } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   DragIndicatorOutlined,
@@ -12,7 +11,7 @@ import { BreedCode, Registration } from 'koekalenteri-shared/model'
 
 import GroupColors from './GroupColors'
 
-export function useClassEntrySelectionColumns(eventDates: Date[], openEditDialog?: Dispatch<SetStateAction<boolean>>) {
+export function useClassEntrySelectionColumns(eventDates: Date[], openEditDialog?: (id: string) => void) {
   const { t } = useTranslation()
 
   const entryColumns: GridColumns<Registration> = [
@@ -99,17 +98,17 @@ export function useClassEntrySelectionColumns(eventDates: Date[], openEditDialog
       width: 30,
       minWidth: 30,
       sortable: false,
-      getActions: () => [
+      getActions: (p) => [
         <GridActionsCellItem
           icon={<EditOutlined fontSize="small" />}
           label={t('edit')}
-          onClick={() => openEditDialog?.(true)}
+          onClick={() => openEditDialog?.(p.row.id)}
           showInMenu
         />,
         <GridActionsCellItem
           icon={<EventBusyOutlined fontSize="small" />}
           label={t('withdraw')}
-          onClick={() => openEditDialog?.(true)}
+          onClick={() => openEditDialog?.(p.row.id)}
           showInMenu
         />,
       ],
