@@ -251,7 +251,7 @@ function useRegistrationEmailTemplateData(registration: Registration, event: Eve
   const reserveText = registration.reserve ? t(`registration.reserveChoises.${registration.reserve}`) : ''
   const dogBreed = registration.dog.breedCode ? t(`breed:${registration.dog.breedCode}`, 'breed') : ''
   const regDates = registration.dates
-    .map((d) => t('dateFormat.weekday', { date: d.date }) + (d.time ? ' ' + t(`registration.time.${d.time}`) : ''))
+    .map((d) => t('dateFormat.short', { date: d.date }) + (d.time ? ' ' + t(`registration.time.${d.time}`) : ''))
     .join(', ')
   const link = Path.registration(registration)
   const qualifyingResults = registration.qualifyingResults.map((r) => ({
@@ -259,7 +259,7 @@ function useRegistrationEmailTemplateData(registration: Registration, event: Eve
     date: formatDate(r.date, 'd.M.yyyy'),
   }))
   const groupDate = registration.group?.date ? t('dateFormat.wdshort', { date: registration.group.date }) : ''
-  const groupTime = registration.group?.time ? t(`registration.time.${registration.group.time}`) : ''
+  const groupTime = registration.group?.time ? t(`registration.timeLong.${registration.group.time}`) : ''
 
   return {
     subject: t('registration.email.subject', { context }),
