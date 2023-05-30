@@ -1,9 +1,10 @@
+import { useMemo } from 'react'
 import { DropTargetMonitor, useDrop } from 'react-dnd'
 import { DataGridProps } from '@mui/x-data-grid'
 
 import StyledDataGrid from '../../../components/StyledDataGrid'
 
-import DragableRow, { DragItem } from './DragableRow'
+import DragableRow, { DragItem } from './dropableDataGrid/DragableRow'
 
 interface Props extends DataGridProps {
   canDrop?: (item?: DragItem) => boolean
@@ -25,17 +26,6 @@ const DropableDataGrid = (props: Props) => {
   const [{ canDrop, isOver, isDragging }, ref] = useDrop<DragItem, void, DragCollect>(
     () => ({
       accept: 'row',
-      drop: (item: DragItem, monitor: DropTargetMonitor<DragItem, void>) => {
-        if (getCanDrop(item)) {
-          if (item.move && item.move.groupKey !== props.group) {
-            // clean up possible stale move information from different group
-            delete item.move
-          }
-          props.onDrop?.(item)
-        } else {
-          props.onReject?.(item)
-        }
-      },
       collect: (monitor) => {
         const item = monitor.getItem()
         return {
@@ -44,26 +34,36 @@ const DropableDataGrid = (props: Props) => {
           isDragging: item !== null,
         }
       },
+      drop: (item: DragItem, monitor: DropTargetMonitor<DragItem, void>) => {
+        if (getCanDrop(item)) {
+          if (item.targetGroupKey && item.targetGroupKey !== props.group) {
+            // clean up possible stale move information from different group
+            delete item.targetGroupKey
+          }
+          props.onDrop?.(item)
+        } else {
+          props.onReject?.(item)
+        }
+      },
     }),
     [props.onDrop]
   )
 
-  const classNames = []
-  if (canDrop) {
-    classNames.push('accept')
-  } else if (isDragging) {
-    classNames.push('reject')
-  }
-  if (isOver) {
-    classNames.push('over')
-  }
+  const className = useMemo(() => {
+    const result = []
+    if (canDrop) {
+      result.push('accept')
+    } else if (isDragging) {
+      result.push('reject')
+    }
+    if (isOver) {
+      result.push('over')
+    }
+    return result.join(' ')
+  }, [canDrop, isDragging, isOver])
 
   return (
-    <div
-      ref={ref}
-      className={classNames.join(' ')}
-      style={{ display: 'flex', flexGrow: props.flex ?? 1, width: '100%' }}
-    >
+    <div ref={ref} className={className} style={{ display: 'flex', flexGrow: props.flex ?? 1, width: '100%' }}>
       <StyledDataGrid
         {...props}
         components={{
@@ -73,6 +73,10 @@ const DropableDataGrid = (props: Props) => {
         sx={[
           {
             minHeight: 100,
+            overflow: 'visible',
+            '& .MuiDataGrid-virtualScrollerContent': {
+              marginBottom: '3px',
+            },
             '.reject & .MuiDataGrid-main': { bgcolor: 'error.main', opacity: 0.5, color: 'error.main' },
             '[data-field="dog.regNo"]:hover::after': {
               content: '""',
@@ -83,6 +87,14 @@ const DropableDataGrid = (props: Props) => {
               top: '1px',
               left: '0px',
               display: 'inline-block',
+            },
+            '.accept & .hovered.before': {
+              borderTop: '3px solid #F2C94C',
+              transition: 'border-width 0.1s linear',
+            },
+            '.accept & .hovered.after': {
+              borderBottom: '3px solid #F2C94C',
+              transition: 'border-width 0.1s linear',
             },
           },
           ...(Array.isArray(props.sx) ? props.sx : [props.sx]),

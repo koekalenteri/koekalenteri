@@ -19,8 +19,8 @@ import { SetterOrUpdater } from 'recoil'
 import StyledDataGrid from '../../components/StyledDataGrid'
 import { useAdminRegistrationActions } from '../recoil/registrations/actions'
 
-import { DragItem } from './classEntrySelection/DragableRow'
 import DragableDataGrid from './classEntrySelection/DropableDataGrid'
+import { DragItem } from './classEntrySelection/dropableDataGrid/DragableRow'
 import { availableGroups } from './classEntrySelection/GroupColors'
 import GroupHeader from './classEntrySelection/GroupHeader'
 import NoRowsOverlay from './classEntrySelection/NoRowsOverlay'
@@ -131,23 +131,24 @@ const ClassEntrySelection = ({
     if (group.key === 'cancelled' || group.key === 'reserve') {
       if (reg.group?.key === group.key) {
         // user can not re-order items in cancelled or reserve groups
-        delete item.move
+        delete item.targetGroupKey
         return
       }
       save.push({ eventId: reg.eventId, id: reg.id, group: newGroup })
-    } else if (item.move) {
-      const pos = item.move.index + (item.move.position === 'before' ? 0 : 1)
+    } else if (item.targetGroupKey) {
+      const pos = (item.targetIndex ?? 0) + (item.position === 'before' ? 0 : 1)
       newGroup.number = regs[pos]?.group?.number ?? 0
       regs.splice(pos, 0, reg)
       save.push({ eventId: reg.eventId, id: reg.id, group: newGroup })
 
       // update all the registrations that needs to move, and add to `save` array
-      regs.forEach((r, i) => {
-        if (r.group && r.group?.number !== i + 1 && r.id !== reg.id) {
-          const grp = { ...r.group, number: i + 1 }
+      for (let i = pos + 1, num = newGroup.number + 1; i < regs.length; i++, num++) {
+        const r = regs[i]
+        if (r.group && r.group?.number !== num) {
+          const grp = { ...r.group, number: num }
           save.push({ eventId: r.eventId, id: r.id, group: grp })
         }
-      })
+      }
     } else {
       // move from list to another
       save.push({ eventId: reg.eventId, id: reg.id, group: newGroup })
@@ -248,6 +249,7 @@ const ClassEntrySelection = ({
             },
             row: {
               groupKey: group.key,
+              itemCount: registrationsByGroup[group.key]?.length ?? 0,
             },
           }}
           onDrop={handleDrop(group)}
@@ -262,6 +264,7 @@ const ClassEntrySelection = ({
         componentsProps={{
           row: {
             groupKey: 'reserve',
+            itemCount: registrationsByGroup.reserve.length,
           },
         }}
         hideFooter
@@ -280,6 +283,7 @@ const ClassEntrySelection = ({
         componentsProps={{
           row: {
             groupKey: 'cancelled',
+            itemCount: registrationsByGroup.cancelled.length,
           },
         }}
         hideFooter

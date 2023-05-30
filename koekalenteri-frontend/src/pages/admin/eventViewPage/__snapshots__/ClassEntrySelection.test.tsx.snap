@@ -512,7 +512,7 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
       aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-fdy4qv-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-1ut2vs0-MuiDataGrid-root"
       role="grid"
     >
       <div>
@@ -1014,7 +1014,7 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
       aria-colcount="10"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-fdy4qv-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-1ut2vs0-MuiDataGrid-root"
       role="grid"
     >
       <div>
@@ -2086,7 +2086,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
       aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-fdy4qv-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-1ut2vs0-MuiDataGrid-root"
       role="grid"
     >
       <div>
@@ -2592,7 +2592,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
       aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-fdy4qv-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-1ut2vs0-MuiDataGrid-root"
       role="grid"
     >
       <div>
@@ -3103,7 +3103,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
       aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-fdy4qv-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-1ut2vs0-MuiDataGrid-root"
       role="grid"
     >
       <div>
@@ -3605,7 +3605,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
       aria-colcount="10"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-fdy4qv-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-1ut2vs0-MuiDataGrid-root"
       role="grid"
     >
       <div>
@@ -4677,7 +4677,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
       aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-fdy4qv-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-1ut2vs0-MuiDataGrid-root"
       role="grid"
     >
       <div>
@@ -5183,7 +5183,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
       aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-fdy4qv-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-1ut2vs0-MuiDataGrid-root"
       role="grid"
     >
       <div>
@@ -5694,7 +5694,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
       aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-fdy4qv-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-1ut2vs0-MuiDataGrid-root"
       role="grid"
     >
       <div>
@@ -6196,7 +6196,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
       aria-colcount="10"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-fdy4qv-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-1ut2vs0-MuiDataGrid-root"
       role="grid"
     >
       <div>
@@ -7273,7 +7273,7 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
       aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-fdy4qv-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-1ut2vs0-MuiDataGrid-root"
       role="grid"
     >
       <div>
@@ -7775,7 +7775,7 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
       aria-colcount="10"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-fdy4qv-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-1ut2vs0-MuiDataGrid-root"
       role="grid"
     >
       <div>
@@ -8847,7 +8847,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
       aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-fdy4qv-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-1ut2vs0-MuiDataGrid-root"
       role="grid"
     >
       <div>
@@ -9353,7 +9353,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
       aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-fdy4qv-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-1ut2vs0-MuiDataGrid-root"
       role="grid"
     >
       <div>
@@ -9864,7 +9864,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
       aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="2"
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-fdy4qv-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-1ut2vs0-MuiDataGrid-root"
       role="grid"
     >
       <div>
@@ -10325,6 +10325,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 style="transform: translate3d(0px, 0px, 0px);"
               >
                 <div
+                  class=""
                   data-handler-id="T16"
                   draggable="true"
                   style="opacity: 1; display: flex;"
@@ -10335,6 +10336,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                     class="MuiDataGrid-row MuiDataGrid-row--lastVisible"
                     data-id="nou-registration"
                     data-rowindex="0"
+                    itemcount="1"
                     role="row"
                     style="max-height: 36px; min-height: 36px;"
                   >
@@ -10565,7 +10567,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
       aria-colcount="10"
       aria-multiselectable="false"
       aria-rowcount="2"
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-fdy4qv-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-1ut2vs0-MuiDataGrid-root"
       role="grid"
     >
       <div>
@@ -11099,6 +11101,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 style="transform: translate3d(0px, 0px, 0px);"
               >
                 <div
+                  class=""
                   data-handler-id="T18"
                   draggable="true"
                   style="opacity: 1; display: flex;"
@@ -11109,6 +11112,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                     class="MuiDataGrid-row MuiDataGrid-row--lastVisible"
                     data-id="cancelled-registration"
                     data-rowindex="0"
+                    itemcount="1"
                     role="row"
                     style="max-height: 36px; min-height: 36px;"
                   >
