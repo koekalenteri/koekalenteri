@@ -39,13 +39,15 @@ const numberGroupKey = <T extends JsonRegistration>(reg: T) => {
   return 'reserve-' + ct
 }
 
-const byKeyAndNumber = <T extends JsonRegistration>(a: T, b: T): number =>
-  a.group?.key === b.group?.key
-    ? (a.group?.number || 999) - (b.group?.number || 999)
-    : (a.group?.key ?? '').localeCompare(b.group?.key ?? '')
+const byClassKeyAndNumber = <T extends JsonRegistration>(a: T, b: T): number =>
+  a.class === b.class
+    ? a.group?.key === b.group?.key
+      ? (a.group?.number || 999) - (b.group?.number || 999)
+      : (a.group?.key ?? '').localeCompare(b.group?.key ?? '')
+    : (a.class ?? '').localeCompare(b.class ?? '')
 
 export async function fixGroups<T extends JsonRegistration>(items: T[]): Promise<T[]> {
-  items.sort(byKeyAndNumber)
+  items.sort(byClassKeyAndNumber)
 
   const grouped: Record<string, T[]> = {}
   for (const item of items) {
