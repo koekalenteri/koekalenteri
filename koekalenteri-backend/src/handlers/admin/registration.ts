@@ -40,11 +40,13 @@ const numberGroupKey = <T extends JsonRegistration>(reg: T) => {
 }
 
 const byKeyClassAndNumber = <T extends JsonRegistration>(a: T, b: T): number =>
-  a.group?.key === b.group?.key
+  a.group?.date === b.group?.date
     ? a.class === b.class
-      ? (a.group?.number || 999) - (b.group?.number || 999)
+      ? a.group?.time === b.group?.time
+        ? (a.group?.number || 999) - (b.group?.number || 999)
+        : (a.group?.time ?? '').localeCompare(b.group?.time ?? '')
       : (a.class ?? '').localeCompare(b.class ?? '')
-    : (a.group?.key ?? '').localeCompare(b.group?.key ?? '')
+    : (a.group?.date ?? '').localeCompare(b.group?.date ?? '')
 
 export async function fixGroups<T extends JsonRegistration>(items: T[]): Promise<T[]> {
   items.sort(byKeyClassAndNumber)
