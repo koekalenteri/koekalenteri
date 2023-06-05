@@ -26,6 +26,7 @@ export const Path = {
     newEvent: `${ADMIN_EVENTS}/create`,
     editEvent: (id: string = ':id') => `${ADMIN_EVENTS}/edit/${id}`,
     viewEvent: (id: string = ':id') => `${ADMIN_EVENTS}/view/${id}`,
+    startList: (id: string = ':id') => `${ADMIN_EVENTS}/startlist/${id}`,
 
     orgs: `${ADMIN_ROOT}/organizations`,
     users: `${ADMIN_ROOT}/users`,

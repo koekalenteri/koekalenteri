@@ -1,12 +1,19 @@
 import { Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
-import { AddCircleOutline, EditOutlined, EmailOutlined, FormatListBulleted } from '@mui/icons-material'
+import {
+  AddCircleOutline,
+  EditOutlined,
+  EmailOutlined,
+  FormatListBulleted,
+  FormatListNumberedOutlined,
+} from '@mui/icons-material'
 import { Box, Button, Divider, Grid, Stack, Tab, Tabs } from '@mui/material'
 import { EmailTemplateId, Registration } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
 import useEventRegistrationInfo from '../../hooks/useEventRegistrationsInfo'
+import { Path } from '../../routeConfig'
 import { uniqueClassDates } from '../../utils'
 
 import FullPageFlex from './components/FullPageFlex'
@@ -96,6 +103,10 @@ export default function EventViewPage() {
           </Button>
           <Button startIcon={<EmailOutlined />} onClick={openMsgDlg}>
             Lähetä viesti
+          </Button>
+          <Divider orientation="vertical"></Divider>
+          <Button startIcon={<FormatListNumberedOutlined />} href={Path.admin.startList(eventId)} target="_blank">
+            Starttilista
           </Button>
           <Divider orientation="vertical"></Divider>
           <Button

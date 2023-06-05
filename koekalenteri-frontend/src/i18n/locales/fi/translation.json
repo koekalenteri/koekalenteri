@@ -18,6 +18,7 @@
   "dateTimeShort": "{{ date, dtshort }}",
   "dateFormat": {
     "date": "{{ date, date }}",
+    "isodate": "{{ date, isodate }}",
     "long": "dd.MM.yyyy",
     "short": "dd.MM.",
     "weekday": "{{ date, weekday }}",

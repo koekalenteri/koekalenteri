@@ -110,5 +110,9 @@ Array [
     "errorElement": <ErrorPage />,
     "path": "/admin",
   },
+  Object {
+    "element": <AdminStartListPage />,
+    "path": "/admin/event/startlist/:id",
+  },
 ]
 `;
