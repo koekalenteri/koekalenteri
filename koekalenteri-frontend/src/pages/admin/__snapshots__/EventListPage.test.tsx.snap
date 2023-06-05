@@ -139,7 +139,7 @@ exports[`EventListPage renders 1`] = `
         <div>
           <div>
             <div
-              class="MuiStack-root css-npa03k-MuiStack-root"
+              class="MuiStack-root css-198osde-MuiStack-root"
             >
               <button
                 aria-label="Select columns"
@@ -222,10 +222,10 @@ exports[`EventListPage renders 1`] = `
                 </div>
               </div>
               <div
-                class="MuiDataGrid-toolbarContainer css-1lp14qv-MuiDataGrid-toolbarContainer"
+                class="MuiDataGrid-toolbarContainer css-zoh3q8-MuiDataGrid-toolbarContainer"
               >
                 <div
-                  class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasClearIcon MuiAutocomplete-hasPopupIcon css-f34qqq-MuiAutocomplete-root"
+                  class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasClearIcon MuiAutocomplete-hasPopupIcon css-1cu1hkm-MuiAutocomplete-root"
                   data-testid="Yhdistys"
                 >
                   <div
@@ -318,6 +318,36 @@ exports[`EventListPage renders 1`] = `
                     </div>
                   </div>
                 </div>
+                <label
+                  class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementStart css-1s5wj4-MuiFormControlLabel-root"
+                >
+                  <span
+                    class="MuiSwitch-root MuiSwitch-sizeSmall css-1ycxvqq-MuiSwitch-root"
+                  >
+                    <span
+                      class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-1xvpzln-MuiButtonBase-root-MuiSwitch-switchBase"
+                    >
+                      <input
+                        class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"
+                        type="checkbox"
+                      />
+                      <span
+                        class="MuiSwitch-thumb css-jsexje-MuiSwitch-thumb"
+                      />
+                      <span
+                        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                      />
+                    </span>
+                    <span
+                      class="MuiSwitch-track css-1yjjitx-MuiSwitch-track"
+                    />
+                  </span>
+                  <span
+                    class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-ahj2mt-MuiTypography-root"
+                  >
+                    Näytä myös menneet tapahtumat
+                  </span>
+                </label>
               </div>
             </div>
           </div>

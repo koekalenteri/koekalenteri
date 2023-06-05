@@ -47,7 +47,7 @@ exports[`OrganizerListPage renders 1`] = `
         <div>
           <div>
             <div
-              class="MuiStack-root css-npa03k-MuiStack-root"
+              class="MuiStack-root css-198osde-MuiStack-root"
             >
               <div
                 class="MuiDataGrid-toolbarContainer css-qdjmts-MuiDataGrid-toolbarContainer"
@@ -102,11 +102,6 @@ exports[`OrganizerListPage renders 1`] = `
                     </button>
                   </div>
                 </div>
-              </div>
-              <div
-                class="MuiDataGrid-toolbarContainer css-1lp14qv-MuiDataGrid-toolbarContainer"
-              >
-                 
               </div>
             </div>
           </div>

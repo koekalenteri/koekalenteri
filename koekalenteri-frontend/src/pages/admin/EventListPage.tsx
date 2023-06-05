@@ -18,7 +18,7 @@ import AutocompleteSingle from '../components/AutocompleteSingle'
 import StyledDataGrid from '../components/StyledDataGrid'
 
 import FullPageFlex from './components/FullPageFlex'
-import { QuickSearchToolbar, QuickSearchToolbarProps } from './components/QuickSearchToolbar'
+import { QuickSearchToolbar } from './components/QuickSearchToolbar'
 import AutoButton from './eventListPage/AutoButton'
 import useEventListColumns from './eventListPage/columns'
 import { adminUserEventOrganizersSelector, adminUserFilteredEventsSelector } from './recoil/user'
@@ -31,39 +31,6 @@ import {
   useAdminEventActions,
 } from './recoil'
 
-const Toolbar = (props: QuickSearchToolbarProps) => {
-  const orgs = useRecoilValue(adminUserEventOrganizersSelector)
-  const [orgId, setOrgId] = useRecoilState(selectedOrganizerIdAtom)
-  const options = useMemo(() => [{ id: '', name: 'Kaikki' }, ...orgs], [orgs])
-
-  useEffect(() => {
-    if (orgs.length === 1) {
-      setOrgId(orgs[0].id)
-    }
-  }, [orgs, setOrgId])
-
-  return (
-    <QuickSearchToolbar {...props}>
-      <AutocompleteSingle
-        disabled={orgs.length < 2}
-        size="small"
-        options={options}
-        label={'Yhdistys'}
-        getOptionLabel={(o) => o.name}
-        renderOption={(props, option) => {
-          return (
-            <li {...props} key={option.id}>
-              {option.name}
-            </li>
-          )
-        }}
-        value={options.find((o) => o.id === orgId) ?? null}
-        onChange={(o) => setOrgId(o?.id ?? '')}
-      ></AutocompleteSingle>
-    </QuickSearchToolbar>
-  )
-}
-
 export default function EventListPage() {
   const confirm = useConfirm()
   const { t } = useTranslation()
@@ -75,6 +42,9 @@ export default function EventListPage() {
   const events = useRecoilValue(adminUserFilteredEventsSelector)
   const actions = useAdminEventActions()
   const columns = useEventListColumns()
+  const orgs = useRecoilValue(adminUserEventOrganizersSelector)
+  const [orgId, setOrgId] = useRecoilState(selectedOrganizerIdAtom)
+  const options = useMemo(() => [{ id: '', name: 'Kaikki' }, ...orgs], [orgs])
 
   const deleteAction = useCallback(() => {
     confirm({
@@ -127,6 +97,14 @@ export default function EventListPage() {
     [setShowPast]
   )
 
+  useEffect(() => {
+    if (orgs.length === 1) {
+      setOrgId(orgs[0].id)
+    } else if (!orgs.find((org) => org.id === orgId)) {
+      setOrgId('')
+    }
+  }, [orgId, orgs, setOrgId])
+
   return (
     <FullPageFlex>
       <Stack direction="row" spacing={2}>
@@ -155,7 +133,7 @@ export default function EventListPage() {
         columns={columns}
         rows={events}
         onSelectionModelChange={handleSelectionModeChange}
-        components={{ Toolbar: Toolbar }}
+        components={{ Toolbar: QuickSearchToolbar }}
         componentsProps={{
           toolbar: {
             value: searchText,
@@ -163,14 +141,33 @@ export default function EventListPage() {
             clearSearch,
             columnSelector: true,
             children: (
-              <FormControlLabel
-                sx={{ m: 0 }}
-                checked={showPast}
-                control={<Switch size="small" />}
-                label="Näytä myös menneet tapahtumat"
-                labelPlacement="start"
-                onChange={toggleShowPast}
-              />
+              <>
+                <AutocompleteSingle
+                  disabled={orgs.length < 2}
+                  size="small"
+                  options={options}
+                  label={'Yhdistys'}
+                  getOptionLabel={(o) => o.name}
+                  renderOption={(props, option) => {
+                    return (
+                      <li {...props} key={option.id}>
+                        {option.name}
+                      </li>
+                    )
+                  }}
+                  value={options.find((o) => o.id === orgId) ?? null}
+                  onChange={(o) => setOrgId(o?.id ?? '')}
+                  sx={{ width: '50%' }}
+                ></AutocompleteSingle>
+                <FormControlLabel
+                  sx={{ m: 0, width: '50%', pl: 1 }}
+                  checked={showPast}
+                  control={<Switch size="small" />}
+                  label="Näytä myös menneet tapahtumat"
+                  labelPlacement="start"
+                  onChange={toggleShowPast}
+                />
+              </>
             ),
           },
         }}
