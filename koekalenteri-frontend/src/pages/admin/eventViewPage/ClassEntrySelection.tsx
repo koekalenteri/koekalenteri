@@ -249,7 +249,6 @@ const ClassEntrySelection = ({
             },
             row: {
               groupKey: group.key,
-              itemCount: registrationsByGroup[group.key]?.length ?? 0,
             },
           }}
           onDrop={handleDrop(group)}
@@ -264,7 +263,6 @@ const ClassEntrySelection = ({
         componentsProps={{
           row: {
             groupKey: 'reserve',
-            itemCount: registrationsByGroup.reserve.length,
           },
         }}
         hideFooter
@@ -283,7 +281,6 @@ const ClassEntrySelection = ({
         componentsProps={{
           row: {
             groupKey: 'cancelled',
-            itemCount: registrationsByGroup.cancelled.length,
           },
         }}
         hideFooter

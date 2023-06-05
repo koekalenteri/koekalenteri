@@ -10336,7 +10336,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                     class="MuiDataGrid-row MuiDataGrid-row--lastVisible"
                     data-id="nou-registration"
                     data-rowindex="0"
-                    itemcount="1"
                     role="row"
                     style="max-height: 36px; min-height: 36px;"
                   >
@@ -11112,7 +11111,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                     class="MuiDataGrid-row MuiDataGrid-row--lastVisible"
                     data-id="cancelled-registration"
                     data-rowindex="0"
-                    itemcount="1"
                     role="row"
                     style="max-height: 36px; min-height: 36px;"
                   >

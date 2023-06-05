@@ -7229,7 +7229,6 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                             class="MuiDataGrid-row MuiDataGrid-row--lastVisible"
                             data-id="nou-registration"
                             data-rowindex="0"
-                            itemcount="1"
                             role="row"
                             style="max-height: 28px; min-height: 28px;"
                           >
@@ -8011,7 +8010,6 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                             class="MuiDataGrid-row MuiDataGrid-row--lastVisible"
                             data-id="cancelled-registration"
                             data-rowindex="0"
-                            itemcount="1"
                             role="row"
                             style="max-height: 28px; min-height: 28px;"
                           >
