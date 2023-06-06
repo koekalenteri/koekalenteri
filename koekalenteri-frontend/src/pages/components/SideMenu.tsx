@@ -11,8 +11,10 @@ import {
   Support,
 } from '@mui/icons-material'
 import { Box, Divider, Theme, useMediaQuery } from '@mui/material'
+import { useRecoilValue } from 'recoil'
 
 import { Path } from '../../routeConfig'
+import { isAdminSelector } from '../recoil'
 import { useUserActions } from '../recoil/user/actions'
 
 import DrawerItem from './sideMenu/DrawerItem'
@@ -24,6 +26,7 @@ export function SideMenu({ open, onClose }: { open?: boolean; onClose: () => voi
   const lg = useMediaQuery((theme: Theme) => theme.breakpoints.up('lg'))
   const { t } = useTranslation()
   const actions = useUserActions()
+  const isAdmin = useRecoilValue(isAdminSelector)
 
   return (
     <MiniDrawer
@@ -39,24 +42,30 @@ export function SideMenu({ open, onClose }: { open?: boolean; onClose: () => voi
         <NavLink to={Path.admin.events}>
           <DrawerItem text={t('events')} icon={<Event />} />
         </NavLink>
-        <NavLink to={Path.admin.orgs}>
-          <DrawerItem text={t('organizations')} icon={<Support />} />
-        </NavLink>
+        {isAdmin && (
+          <NavLink to={Path.admin.orgs}>
+            <DrawerItem text={t('organizations')} icon={<Support />} />
+          </NavLink>
+        )}
         <NavLink to={Path.admin.judges}>
           <DrawerItem text={t('judges')} icon={<Accessibility />} />
         </NavLink>
         <NavLink to={Path.admin.officials}>
           <DrawerItem text={t('officials')} icon={<SupervisorAccount />} />
         </NavLink>
-        <NavLink to={Path.admin.eventTypes}>
-          <DrawerItem text={t('eventTypes')} icon={<EmojiEventsOutlined />} />
-        </NavLink>
+        {isAdmin && (
+          <NavLink to={Path.admin.eventTypes}>
+            <DrawerItem text={t('eventTypes')} icon={<EmojiEventsOutlined />} />
+          </NavLink>
+        )}
         <NavLink to={Path.admin.users}>
           <DrawerItem text={t('users')} icon={<PersonOutline />} />
         </NavLink>
-        <NavLink to={Path.admin.emailTemplates}>
-          <DrawerItem text={t('emailTemplates')} icon={<MailOutline />} />
-        </NavLink>
+        {isAdmin && (
+          <NavLink to={Path.admin.emailTemplates}>
+            <DrawerItem text={t('emailTemplates')} icon={<MailOutline />} />
+          </NavLink>
+        )}
       </DrawerList>
       <Divider />
       <DrawerList>

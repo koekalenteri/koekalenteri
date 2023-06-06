@@ -3,11 +3,13 @@ import { ToggleButton, ToggleButtonGroup } from '@mui/material'
 import { GridRenderCellParams } from '@mui/x-data-grid'
 import { t } from 'i18next'
 import { Judge } from 'koekalenteri-shared/model'
+import { useRecoilValue } from 'recoil'
 
-import { useJudgesActions } from '../../../recoil'
+import { isAdminSelector, useJudgesActions } from '../../../recoil'
 
 const LanguagesCell = (props: GridRenderCellParams<Judge, Judge>) => {
   const actions = useJudgesActions()
+  const isAdmin = useRecoilValue(isAdminSelector)
 
   const changeLanguges = useCallback(
     (_event: React.MouseEvent<HTMLElement, MouseEvent>, languages: string[]) => {
@@ -17,7 +19,7 @@ const LanguagesCell = (props: GridRenderCellParams<Judge, Judge>) => {
   )
 
   return (
-    <ToggleButtonGroup color={'info'} value={props.value} fullWidth onChange={changeLanguges}>
+    <ToggleButtonGroup color={'info'} value={props.value} fullWidth onChange={changeLanguges} disabled={!isAdmin}>
       <ToggleButton value="fi">{t('language.fi')}</ToggleButton>
       <ToggleButton value="sv">{t('language.sv')}</ToggleButton>
       <ToggleButton value="en">{t('language.en')}</ToggleButton>
