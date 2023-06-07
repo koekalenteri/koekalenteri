@@ -7,7 +7,7 @@ import { User } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
 import StyledDataGrid from '../components/StyledDataGrid'
-import { isOrgAdminSelector } from '../recoil'
+import { isOrgAdminSelector, userSelector } from '../recoil'
 
 import FullPageFlex from './components/FullPageFlex'
 import { QuickSearchToolbar } from './components/QuickSearchToolbar'
@@ -35,6 +35,7 @@ export default function UsersPage() {
   const large = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
   const [searchText, setSearchText] = useRecoilState(adminUserFilterAtom)
   const { t } = useTranslation()
+  const user = useRecoilValue(userSelector)
   const users = useRecoilValue(filteredUsersSelector)
   const isOrgAdmin = useRecoilValue(isOrgAdminSelector)
   const [selectedUserID, setSelectedUserID] = useRecoilState(adminUserIdAtom)
@@ -105,7 +106,7 @@ export default function UsersPage() {
             text={t('create')}
           />
           <AutoButton
-            disabled={!isOrgAdmin || !selectedUserID}
+            disabled={!isOrgAdmin || !selectedUserID || selectedUserID === user?.id}
             startIcon={<EditOutlined />}
             onClick={editAction}
             text={t('editRoles')}
