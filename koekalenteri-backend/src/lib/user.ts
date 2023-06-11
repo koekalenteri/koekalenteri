@@ -64,7 +64,8 @@ export async function setUserRole(
       ':roles': roles,
       ':modAt': new Date().toISOString(),
       ':modBy': modifiedBy,
-    }
+    },
+    USER_TABLE
   )
 
   const org = await dynamoDB.read<Organizer>({ id: orgId }, process.env.ORGANIZER_TABLE_NAME)
