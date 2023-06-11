@@ -66,7 +66,7 @@ export function CreateUserDialog({ onClose, open }: Props) {
             renderOption={(props, option) => {
               return (
                 <li {...props} key={option.id}>
-                  {option.name} ({option.kcId}, {option.id})
+                  {option.name}
                 </li>
               )
             }}
