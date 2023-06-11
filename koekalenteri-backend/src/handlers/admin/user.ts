@@ -122,7 +122,7 @@ export const setAdminHandler = metricScope(
           },
           {
             ':admin': item.admin,
-            ':modÁt': new Date().toISOString(),
+            ':modAt': new Date().toISOString(),
             ':modBy': user.name,
           }
         )

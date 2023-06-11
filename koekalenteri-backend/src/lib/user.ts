@@ -62,7 +62,7 @@ export async function setUserRole(
     },
     {
       ':roles': roles,
-      ':modÁt': new Date().toISOString(),
+      ':modAt': new Date().toISOString(),
       ':modBy': modifiedBy,
     }
   )
