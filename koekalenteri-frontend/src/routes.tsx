@@ -1,17 +1,6 @@
+import { lazy } from 'react'
 import { Navigate, RouteObject } from 'react-router-dom'
 
-import AdminHomePage from './pages/admin/AdminHomePage'
-import AdminStartListPage from './pages/admin/AdminStartListPage'
-import EmailTemplateListPage from './pages/admin/EmailTemplateListPage'
-import EventCreatePage from './pages/admin/EventCreatePage'
-import EventEditPage from './pages/admin/EventEditPage'
-import EventListPage from './pages/admin/EventListPage'
-import EventTypeListPage from './pages/admin/EventTypeListPage'
-import EventViewPage from './pages/admin/EventViewPage'
-import JudgeListPage from './pages/admin/JudgeListPage'
-import OfficialListPage from './pages/admin/OfficialListPage'
-import OrganizerListPage from './pages/admin/OrganizerListPage'
-import UsersPage from './pages/admin/UsersPage'
 import { ErrorPage } from './pages/ErrorPage'
 import { HomePage } from './pages/HomePage'
 import { LoginPage } from './pages/LoginPage'
@@ -20,6 +9,20 @@ import RegistrationEditPage from './pages/RegistrationEditPage'
 import { RegistrationListPage } from './pages/RegistrationListPage'
 import { SearchPage } from './pages/SearchPage'
 import { Path } from './routeConfig'
+
+// lazy load admin section
+const AdminHomePage = lazy(() => import('./pages/admin/AdminHomePage'))
+const AdminStartListPage = lazy(() => import('./pages/admin/AdminStartListPage'))
+const EmailTemplateListPage = lazy(() => import('./pages/admin/EmailTemplateListPage'))
+const EventCreatePage = lazy(() => import('./pages/admin/EventCreatePage'))
+const EventEditPage = lazy(() => import('./pages/admin/EventEditPage'))
+const EventListPage = lazy(() => import('./pages/admin/EventListPage'))
+const EventTypeListPage = lazy(() => import('./pages/admin/EventTypeListPage'))
+const EventViewPage = lazy(() => import('./pages/admin/EventViewPage'))
+const JudgeListPage = lazy(() => import('./pages/admin/JudgeListPage'))
+const OfficialListPage = lazy(() => import('./pages/admin/OfficialListPage'))
+const OrganizerListPage = lazy(() => import('./pages/admin/OrganizerListPage'))
+const UsersPage = lazy(() => import('./pages/admin/UsersPage'))
 
 const routes: RouteObject[] = [
   {
