@@ -4,7 +4,6 @@ import { AWSError } from 'aws-sdk'
 import { JsonUser, UserRole } from 'koekalenteri-shared/model'
 import { nanoid } from 'nanoid'
 
-import { i18n } from '../../i18n/index'
 import { setUserRole } from '../../lib/user'
 import { authorize, getOrigin } from '../../utils/auth'
 import CustomDynamoClient from '../../utils/CustomDynamoClient'
@@ -141,7 +140,6 @@ export const setRoleHandler = metricScope(
   (metrics: MetricsLogger) =>
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
       try {
-        const t = i18n.getFixedT('fi')
         const user = await authorize(event)
         if (!user) {
           return response(401, 'Unauthorized', event)
