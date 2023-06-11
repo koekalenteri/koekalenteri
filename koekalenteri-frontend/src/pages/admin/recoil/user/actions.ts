@@ -1,7 +1,7 @@
 import { User, UserRole } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
-import { putAdmin, putRole } from '../../../../api/user'
+import { putAdmin, putRole, putUser } from '../../../../api/user'
 import { idTokenAtom } from '../../../recoil'
 
 import { adminUsersAtom } from './atoms'
@@ -18,6 +18,14 @@ export const useAdminUserActions = () => {
   }
 
   return {
+    addUser: async (user: User) => {
+      try {
+        const users = await putUser(user, token)
+        setUsers(users)
+      } catch (e) {
+        console.error(e)
+      }
+    },
     addRole: async (user: User, orgId: string, role: UserRole) => {
       try {
         const saved = await putRole({ userId: user.id, orgId, role }, token)
@@ -26,8 +34,6 @@ export const useAdminUserActions = () => {
         console.error(e)
       }
     },
-    clear: () => setUsers([]), // placeholder for real actions
-    deleteCurrent: () => null,
     removeRole: async (user: User, orgId: string) => {
       try {
         const saved = await putRole({ userId: user.id, orgId, role: 'none' }, token)

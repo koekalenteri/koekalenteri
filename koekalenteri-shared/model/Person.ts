@@ -1,3 +1,5 @@
+import { DbRecord, JsonDbRecord } from "./Database"
+
 export interface Person {
   name: string
   email: string
@@ -24,7 +26,7 @@ export interface Judge extends OfficialPerson {
   official?: boolean
 }
 
-export interface User extends Person {
+export interface User extends Person, Partial<DbRecord> {
   id: string
   kcId?: number
   judge?: boolean
@@ -32,6 +34,8 @@ export interface User extends Person {
   roles?: UserRoles
   admin?: boolean
 }
+
+export type JsonUser = Omit<User, keyof DbRecord> & JsonDbRecord
 
 export interface UserRoles {
   [organizer: string]: UserRole

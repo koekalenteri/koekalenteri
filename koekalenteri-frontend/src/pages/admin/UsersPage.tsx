@@ -13,6 +13,7 @@ import FullPageFlex from './components/FullPageFlex'
 import { QuickSearchToolbar } from './components/QuickSearchToolbar'
 import AutoButton from './eventListPage/AutoButton'
 import { adminUserFilterAtom, adminUserIdAtom, currentAdminUserSelector, filteredUsersSelector } from './recoil/user'
+import { CreateUserDialog } from './usersPage/CreateUserDialog'
 import { EditUserRolesDialog } from './usersPage/EditUserRolesDialog'
 
 const RoleInfo = ({ admin, roles }: User) => {
@@ -40,6 +41,7 @@ export default function UsersPage() {
   const isOrgAdmin = useRecoilValue(isOrgAdminSelector)
   const [selectedUserID, setSelectedUserID] = useRecoilState(adminUserIdAtom)
   const selectedUser = useRecoilValue(currentAdminUserSelector)
+  const [createOpen, setCreateOpen] = useState(false)
   const [rolesOpen, setRolesOpen] = useState(false)
 
   const columns: GridColumns<User> = [
@@ -85,7 +87,7 @@ export default function UsersPage() {
     },
   ]
 
-  const createAction = useCallback(() => alert('create'), [])
+  const createAction = useCallback(() => setCreateOpen(true), [])
   const editAction = useCallback(() => setRolesOpen(true), [])
   const handleSelectionModeChange = useCallback(
     (selection: GridSelectionModel) => {
@@ -134,6 +136,7 @@ export default function UsersPage() {
           selectionModel={selectedUserID ? [selectedUserID] : []}
         />
       </FullPageFlex>
+      <CreateUserDialog onClose={() => setCreateOpen(false)} open={createOpen} />
       <EditUserRolesDialog user={selectedUser} onClose={() => setRolesOpen(false)} open={rolesOpen} />
     </>
   )

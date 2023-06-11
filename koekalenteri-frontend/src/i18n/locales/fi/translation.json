@@ -298,13 +298,22 @@
   "user": {
     "admin": "Koekalenterin pääkäyttäjä",
     "adminRoles": "Koekalenterin pääkäyttäjällä on pääkäyttäjä-oikeus kaikkiin yhdistyksiin",
+    "createDialog": {
+      "cta": "Lisää käyttäjä",
+      "done": "Käyttäjä lisätty",
+      "email": "Sähköposti",
+      "name": "Nimi (etunimi sukunimi)",
+      "organization": "Yhdistys",
+      "role": "Rooli",
+      "title": "Käyttäjän lisäys"
+    },
     "editRolesDialog": {
       "cta": "Tallenna roolit",
       "done": "Roolit tallennettu",
       "title": "Käyttäjän [{{user.name}}] roolien muokkaus",
       "terms": "Katso tarkemmat peruutusehdot <2>säännöistä</2>"
     },
-    "role": {
+    "roles": {
       "admin": "Yhdistyksen pääkäyttäjä",
       "secretary": "Koesihteeri"
     }

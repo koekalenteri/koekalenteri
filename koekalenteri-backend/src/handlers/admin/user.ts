@@ -1,16 +1,25 @@
 import { metricScope, MetricsLogger } from 'aws-embedded-metrics'
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import { AWSError } from 'aws-sdk'
-import { Organizer, User, UserRole } from 'koekalenteri-shared/model'
+import { JsonUser, UserRole } from 'koekalenteri-shared/model'
+import { nanoid } from 'nanoid'
 
 import { i18n } from '../../i18n/index'
+import { setUserRole } from '../../lib/user'
 import { authorize, getOrigin } from '../../utils/auth'
 import CustomDynamoClient from '../../utils/CustomDynamoClient'
 import { metricsError, metricsSuccess } from '../../utils/metrics'
 import { response } from '../../utils/response'
-import { EMAIL_FROM, sendTemplatedMail } from '../email'
 
 const dynamoDB = new CustomDynamoClient(process.env.USER_TABLE_NAME)
+
+const userIsAdminFor = (user: JsonUser) =>
+  Object.keys(user?.roles ?? {}).filter((orgId) => user?.roles?.[orgId] == 'admin')
+
+const filterRelevantUsers = (users: JsonUser[], user: JsonUser, adminFor: string[]) =>
+  user.admin
+    ? users
+    : users.filter((u) => u.admin || Object.keys(u.roles ?? {}).some((orgId) => adminFor.includes(orgId)))
 
 export const getUsersHandler = metricScope(
   (metrics: MetricsLogger) =>
@@ -20,20 +29,59 @@ export const getUsersHandler = metricScope(
         if (!user) {
           return response(401, 'Unauthorized', event)
         }
-        const adminFor = Object.keys(user?.roles ?? {}).filter((orgId) => user?.roles?.[orgId] == 'admin')
+        const adminFor = userIsAdminFor(user)
         if (!adminFor.length && !user?.admin) {
           return response(403, 'Forbidden', event)
         }
-        const users = (await dynamoDB.readAll<User>()) ?? []
-        const filtered = user.admin
-          ? users
-          : users.filter((u) => Object.keys(u.roles ?? {}).some((orgId) => adminFor.includes(orgId)))
+        const users = (await dynamoDB.readAll<JsonUser>()) ?? []
 
         metricsSuccess(metrics, event.requestContext, 'getUsers')
-        return response(200, filtered, event)
+        return response(200, filterRelevantUsers(users, user, adminFor), event)
       } catch (err: unknown) {
         console.error(err)
         metricsError(metrics, event.requestContext, 'getUsers')
+        return response((err as AWSError).statusCode || 501, err, event)
+      }
+    }
+)
+
+export const addUserHandler = metricScope(
+  (metrics: MetricsLogger) =>
+    async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+      try {
+        const user = await authorize(event)
+        if (!user) {
+          return response(401, 'Unauthorized', event)
+        }
+        const adminFor = userIsAdminFor(user)
+        if (!adminFor.length && !user?.admin) {
+          return response(403, 'Forbidden', event)
+        }
+        const item: JsonUser = JSON.parse(event.body || '{}')
+        const timestamp = new Date().toISOString()
+
+        const users = (await dynamoDB.readAll<JsonUser>()) ?? []
+
+        const idx = users.findIndex((u) => u.email === item.email)
+        if (idx >= 0) {
+          const origin = getOrigin(event)
+          for (const orgId of Object.keys(item.roles ?? [])) {
+            users[idx] = await setUserRole(users[idx], orgId, item.roles?.[orgId] ?? 'none', user.name, origin)
+          }
+        } else {
+          item.id = nanoid(10)
+          item.createdAt = timestamp
+          item.createdBy = user.name
+
+          await dynamoDB.write(item)
+          users.push(item)
+        }
+
+        metricsSuccess(metrics, event.requestContext, 'addUser')
+        return response(200, filterRelevantUsers(users, user, adminFor), event)
+      } catch (err: unknown) {
+        console.error(err)
+        metricsError(metrics, event.requestContext, 'addUser')
         return response((err as AWSError).statusCode || 501, err, event)
       }
     }
@@ -58,7 +106,7 @@ export const setAdminHandler = metricScope(
           return response(403, 'Forbidden', event)
         }
 
-        const existing = await dynamoDB.read<User>({ id: item.userId })
+        const existing = await dynamoDB.read<JsonUser>({ id: item.userId })
 
         if (!existing) {
           return response(404, 'Not found', event)
@@ -66,12 +114,16 @@ export const setAdminHandler = metricScope(
 
         await dynamoDB.update(
           { id: item.userId },
-          'set #admin = :admin',
+          'set #admin = :admin, #modAt = :modAt, #modBy = :modBy',
           {
             '#admin': 'admin',
+            '#modAt': 'modifiedAt',
+            '#modBy': 'modifiedBy',
           },
           {
             ':admin': item.admin,
+            ':modÁt': new Date().toISOString(),
+            ':modBy': user.name,
           }
         )
 
@@ -112,48 +164,16 @@ export const setRoleHandler = metricScope(
           return response(403, 'Forbidden', event)
         }
 
-        const existing = await dynamoDB.read<User>({ id: item.userId })
+        const existing = await dynamoDB.read<JsonUser>({ id: item.userId })
 
         if (!existing) {
           return response(404, 'Not found', event)
         }
 
-        const roles = existing.roles || {}
-        if (item.role === 'none') {
-          delete roles[item.orgId]
-        } else {
-          roles[item.orgId] = item.role
-        }
-
-        await dynamoDB.update(
-          { id: item.userId },
-          'set #roles = :roles',
-          {
-            '#roles': 'roles',
-          },
-          {
-            ':roles': roles,
-          }
-        )
-
-        const org = await dynamoDB.read<Organizer>({ id: item.orgId }, process.env.ORGANIZER_TABLE_NAME)
-
-        if (item.role !== 'none') {
-          await sendTemplatedMail('access', 'fi', EMAIL_FROM, [existing.email], {
-            user: {
-              firstName: (existing.name ?? 'Nimetön').split(' ')[0],
-              email: existing.email,
-            },
-            link: `${origin}/login`,
-            orgName: org?.name ?? 'Tuntematon',
-            roleName: t(`user.role.${item.role}`),
-            admin: item.role === 'admin',
-            secretary: item.role === 'secretary',
-          })
-        }
+        const saved = await setUserRole(existing, item.orgId, item.role, user.name, origin)
 
         metricsSuccess(metrics, event.requestContext, 'setRole')
-        return response(200, { ...existing, roles }, event)
+        return response(200, saved, event)
       } catch (err: unknown) {
         console.error(err)
         metricsError(metrics, event.requestContext, 'setRole')

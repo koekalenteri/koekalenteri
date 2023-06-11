@@ -1,6 +1,6 @@
 import { APIGatewayProxyEvent } from 'aws-lambda'
 import { diff } from 'deep-object-diff'
-import { User } from 'koekalenteri-shared/model'
+import { JsonUser } from 'koekalenteri-shared/model'
 import { nanoid } from 'nanoid'
 
 import { findUserByEmail, updateUser } from '../lib/user'
@@ -24,7 +24,7 @@ export async function authorize(event: APIGatewayProxyEvent) {
 }
 
 async function getOrCreateUser(event: APIGatewayProxyEvent) {
-  let user
+  let user: JsonUser | undefined
 
   if (!event.requestContext.authorizer?.claims) {
     return null
@@ -38,7 +38,7 @@ async function getOrCreateUser(event: APIGatewayProxyEvent) {
   const link = await dynamoDB.read<UserLink>({ cognitoUser }, USER_LINK_TABLE)
 
   if (link) {
-    user = await dynamoDB.read<User>({ id: link.userId }, USER_TABLE)
+    user = await dynamoDB.read<JsonUser>({ id: link.userId }, USER_TABLE)
   } else {
     // no user link forund for the cognitoUser
     const { name, email } = event.requestContext.authorizer.claims
@@ -49,11 +49,19 @@ async function getOrCreateUser(event: APIGatewayProxyEvent) {
   return user
 }
 
-export async function getAndUpdateUserByEmail(email: string, props: Omit<Partial<User>, 'id'>) {
-  const user = (await findUserByEmail(email)) ?? { id: nanoid(), email }
-  const updated = { name: '?', ...user, ...props }
+export async function getAndUpdateUserByEmail(email: string, props: Omit<Partial<JsonUser>, 'id'>) {
+  const user: JsonUser = (await findUserByEmail(email)) ?? {
+    id: nanoid(),
+    name: '?',
+    email,
+    createdAt: new Date().toISOString(),
+    createdBy: 'system',
+    modifiedAt: new Date().toISOString(),
+    modifiedBy: 'system',
+  }
+  const updated = { ...user, ...props }
   if (Object.keys(diff(user, updated)).length > 0) {
-    await updateUser(updated)
+    await updateUser({ ...updated, modifiedAt: new Date().toISOString(), modifiedBy: 'system' })
   }
   return updated
 }

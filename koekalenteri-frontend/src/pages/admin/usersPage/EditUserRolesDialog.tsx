@@ -91,7 +91,7 @@ export function EditUserRolesDialog({ onClose, open, user }: Props) {
                   return (
                     <TableRow key={orgId}>
                       <TableCell>{o.name}</TableCell>
-                      <TableCell>{t(`user.role.${roles[orgId]}`)}</TableCell>
+                      <TableCell>{t(`user.roles.${roles[orgId]}`)}</TableCell>
                       <TableCell>
                         <Button variant="outlined" onClick={() => actions.removeRole(user, orgId)}>
                           Poista
@@ -114,8 +114,8 @@ export function EditUserRolesDialog({ onClose, open, user }: Props) {
                   </TableCell>
                   <TableCell>
                     <Select value={role} onChange={(event) => setRole(event.target.value as 'admin' | 'secretary')}>
-                      <MenuItem value="admin">{t('user.role.admin')}</MenuItem>
-                      <MenuItem value="secretary">{t('user.role.secretary')}</MenuItem>
+                      <MenuItem value="admin">{t('user.roles.admin')}</MenuItem>
+                      <MenuItem value="secretary">{t('user.roles.secretary')}</MenuItem>
                     </Select>
                   </TableCell>
                   <TableCell>

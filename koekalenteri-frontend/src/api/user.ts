@@ -10,6 +10,10 @@ export async function getUsers(token: string, signal?: AbortSignal) {
   return http.get<User[]>('/admin/user', withToken({ signal }, token))
 }
 
+export async function putUser(user: User, token?: string, signal?: AbortSignal): Promise<User[]> {
+  return http.post<User, User[]>('/admin/user', user, withToken({ signal }, token))
+}
+
 export async function putAdmin(
   item: { userId: string; admin: boolean },
   token: string | undefined,
