@@ -1,5 +1,5 @@
 import * as esbuild from 'esbuild'
-import { readdirSync, statSync } from 'fs'
+import { existsSync, lstatSync, readdirSync, statSync } from 'fs'
 import { join } from 'path'
 
 function getEntryPoints(dir, ext) {
@@ -38,7 +38,12 @@ const ctx = await esbuild[mode]({
               return { path, external: false }
             }
             if (path.includes('/')) {
-              path = path + '.js'
+              const full = join(resolveDir, path)
+              if (existsSync(full) && lstatSync(full).isDirectory()) {
+                path = path + '/index.js'
+              } else {
+                path = path + '.js'
+              }
             }
             return { path, external: true }
           }
