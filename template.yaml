@@ -939,6 +939,12 @@ Resources:
         - DynamoDBReadPolicy:
             TableName: !Ref OrganizerTable
         - CloudWatchPutMetricPolicy: {}
+        - Statement:
+          - Sid: SESSendEmailPolicy
+            Effect: Allow
+            Action:
+            - ses:sendTemplatedEmail
+            Resource: '*'
       Environment:
         Variables:
           ORGANIZER_TABLE_NAME: !Ref OrganizerTable
