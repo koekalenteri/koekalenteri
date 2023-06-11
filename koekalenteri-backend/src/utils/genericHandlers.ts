@@ -10,36 +10,6 @@ import CustomDynamoClient from './CustomDynamoClient'
 import { metricsError, metricsSuccess } from './metrics'
 import { response } from './response'
 
-export const genericReadAllHandler = (
-  dynamoDB: CustomDynamoClient,
-  name: string
-): ((event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult>) =>
-  metricScope((metrics: MetricsLogger) => async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-    try {
-      const items = await dynamoDB.readAll()
-      metricsSuccess(metrics, event.requestContext, name)
-      return response(200, items, event)
-    } catch (err) {
-      metricsError(metrics, event.requestContext, name)
-      return response((err as AWSError).statusCode || 501, err, event)
-    }
-  })
-
-export const genericReadHandler = (
-  dynamoDB: CustomDynamoClient,
-  name: string
-): ((event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult>) =>
-  metricScope((metrics: MetricsLogger) => async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-    try {
-      const item = await dynamoDB.read(event.pathParameters)
-      metricsSuccess(metrics, event.requestContext, name)
-      return response(200, item, event)
-    } catch (err) {
-      metricsError(metrics, event.requestContext, name)
-      return response((err as AWSError).statusCode || 501, err, event)
-    }
-  })
-
 export function createDbRecord(event: APIGatewayProxyEvent, timestamp: string, username: string) {
   const item = {
     id: nanoid(10),

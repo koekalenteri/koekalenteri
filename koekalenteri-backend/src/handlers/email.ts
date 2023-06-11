@@ -1,13 +1,12 @@
 import { metricScope, MetricsLogger } from 'aws-embedded-metrics'
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
-import AWS from 'aws-sdk'
+import AWS, { AWSError } from 'aws-sdk'
 import type { SendTemplatedEmailRequest, Template } from 'aws-sdk/clients/ses'
 import { EmailTemplateId, JsonEmailTemplate, JsonRegistration, Language } from 'koekalenteri-shared/model'
 
 import { authorize, getUsername } from '../utils/auth'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { markdownToTemplate } from '../utils/email/markdown'
-import { genericReadAllHandler } from '../utils/genericHandlers'
 import { metricsError, metricsSuccess } from '../utils/metrics'
 import { response } from '../utils/response'
 
@@ -63,7 +62,19 @@ export async function sendTemplatedMail(
   }
 }
 
-export const getTemplatesHandler = genericReadAllHandler(dynamoDB, 'getTemplates')
+export const getTemplatesHandler = metricScope(
+  (metrics: MetricsLogger) =>
+    async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+      try {
+        const items = await dynamoDB.readAll()
+        metricsSuccess(metrics, event.requestContext, 'getTemplates')
+        return response(200, items, event)
+      } catch (err) {
+        metricsError(metrics, event.requestContext, 'getTemplates')
+        return response((err as AWSError).statusCode || 501, err, event)
+      }
+    }
+)
 
 export const putTemplateHandler = metricScope(
   (metrics: MetricsLogger) =>
