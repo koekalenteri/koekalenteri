@@ -55,6 +55,17 @@ Parameters:
     Description: GitHub Oauth Token
     NoEcho: true
 
+  # For Identity providers
+  GoogleClientId:
+    Type: String
+    Description: Google Client ID
+    NoEcho: true
+
+  GoogleClientSecret:
+    Type: String
+    Description: Google Client Secret
+    NoEcho: true
+
 Resources:
 
   # Cognito declaration
@@ -89,6 +100,24 @@ Resources:
       ExplicitAuthFlows:
       - USER_PASSWORD_AUTH
 
+  KoekalanteriUserPoolGoogleProvider:
+    Type: AWS::Cognito::UserPoolIdentityProvider
+    Properties:
+      AttributeMapping:
+        email_verified: "email_verified"
+        name: "name"
+        email: "email"
+        username: "sub"
+      IdpIdentifiers:
+        - String
+      ProviderDetails:
+        client_id: !Ref GoogleClientId
+        client_secret: !Ref GoogleClientSecret
+        authorize_scopes: "profile email openid"
+      ProviderName: "Google"
+      ProviderType: "Google"
+      UserPoolId: !Ref KoekalenteriUserPool
+
   KoekalenteriDomain:
     Type: AWS::Cognito::UserPoolDomain
     Properties:
@@ -100,8 +129,6 @@ Resources:
     Properties:
       AllowClassicFlow: false
       AllowUnauthenticatedIdentities: false
-      CognitoIdentityProviders:
-        - !Ref KoekalenteriUserPool
       IdentityPoolName: !Sub 'KoekalenteriIdentity-${AWS::StackName}'
 
   EventTable:

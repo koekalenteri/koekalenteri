@@ -68,7 +68,9 @@ jobs:
             --parameter-overrides \
               'ParameterKey=StageNameParam,ParameterValue=${{ env.branch }} \
               ParameterKey=Repository,ParameterValue=https://github.com/${{ github.repository }} \
-              ParameterKey=OauthToken,ParameterValue=${{ secrets.AWS_OAUTH_TOKEN }}
+              ParameterKey=OauthToken,ParameterValue=${{ secrets.AWS_OAUTH_TOKEN }} \
+              ParameterKey=GoogleClientId,ParameterValue=${{ secrets.GOOGLE_CLIENT_ID }} \
+              ParameterKey=GoogleClientSecret,ParameterValue=${{ secrets.GOOGLE_CLIENT_SECRET }} \
               ParameterKey=Branch,ParameterValue=${{ env.branch }}' \
             --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
             --no-confirm-changeset --no-fail-on-empty-changeset
