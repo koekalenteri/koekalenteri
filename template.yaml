@@ -95,6 +95,15 @@ Resources:
       Domain: !Join ['-', [!Ref CognitoDomainName, !Ref AWS::StackName]]
       UserPoolId: !Ref KoekalenteriUserPool
 
+  KoekalenteriIdentityPool:
+    Type: AWS::Cognito::IdentityPool
+    Properties:
+      AllowClassicFlow: false
+      AllowUnauthenticatedIdentities: false
+      CognitoIdentityProviders:
+        - !Ref KoekalenteriUserPool
+      IdentityPoolName: !Sub 'KoekalenteriIdentity-${AWS::StackName}'
+
   EventTable:
     Type: AWS::DynamoDB::Table
     Properties:
