@@ -30,15 +30,16 @@ export function CreateUserDialog({ onClose, open }: Props) {
   const [email, setEmail] = useState<string>('')
   const [name, setName] = useState<string>('')
 
-  const onSave = useCallback(() => {
+  const onSave = useCallback(async () => {
     if (!org || !role) return
-    actions.addUser({
+    await actions.addUser({
       id: '',
       email,
       name,
       roles: { [org.id]: role },
     })
-  }, [actions, email, name, org, role])
+    onClose()
+  }, [actions, email, name, onClose, org, role])
 
   return (
     <Dialog

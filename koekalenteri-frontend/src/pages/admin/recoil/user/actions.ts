@@ -1,4 +1,5 @@
 import { User, UserRole } from 'koekalenteri-shared/model'
+import { useSnackbar } from 'notistack'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
 import { putAdmin, putRole, putUser } from '../../../../api/user'
@@ -8,6 +9,7 @@ import { adminUsersAtom } from './atoms'
 
 export const useAdminUserActions = () => {
   const token = useRecoilValue(idTokenAtom)
+  const { enqueueSnackbar } = useSnackbar()
   const [users, setUsers] = useRecoilState(adminUsersAtom)
 
   const replaceUser = (user: User) => {
@@ -22,6 +24,7 @@ export const useAdminUserActions = () => {
       try {
         const users = await putUser(user, token)
         setUsers(users)
+        enqueueSnackbar(`Käyttäjä '${user.name}' lisätty, sähköpostilla '${user.email}'`, { variant: 'info' })
       } catch (e) {
         console.error(e)
       }
