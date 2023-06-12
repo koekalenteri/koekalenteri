@@ -83,8 +83,7 @@ Resources:
       GenerateSecret: false
       AllowedOAuthFlowsUserPoolClient: true
       AllowedOAuthFlows: ['code', 'implicit']
-      #CallbackURLs: ['http://localhost:3000', 'http://localhost:8080' ,'https://localhost', !Join ['', ['https://', !GetAtt AmplifyBranch.BranchName, '.', !GetAtt AmplifyApp.DefaultDomain]]]
-      CallbackURLs: ['http://localhost:3000', 'http://localhost:8080' ,'https://localhost']
+      CallbackURLs: ['http://localhost:3000', 'http://localhost:8080' ,'https://localhost', !Join ['', ['https://', !GetAtt AmplifyBranch.BranchName, '.', !GetAtt AmplifyApp.DefaultDomain]]]
       SupportedIdentityProviders: ['COGNITO']
       AllowedOAuthScopes: ['email', 'openid']
       ExplicitAuthFlows:
@@ -1134,43 +1133,43 @@ Resources:
                 Action: "amplify:*"
                 Resource: "*"
 
-#  AmplifyApp:
-#    Type: "AWS::Amplify::App"
-#    Properties:
-#      Name: !Join ['-', [Koekalenteri, !Ref AWS::StackName]]
-#      Repository: !Ref Repository
-#      Description: Koekalenteri
-#      OauthToken: !Ref OauthToken
-#      BuildSpec: |-
-#        version: 0.1
-#        frontend:
-#          phases:
-#            build:
-#              commands:
-#                - cd koekalenteri-frontend
-#                - npm ci
-#                - npm run build
-#          artifacts:
-#            baseDirectory: koekalenteri-frontend/build
-#            files:
-#              - '**/*'
-#      Tags:
-#        - Key: Name
-#          Value: Koekalenteri
-#      IAMServiceRole: !GetAtt AmplifyRole.Arn
+  AmplifyApp:
+    Type: "AWS::Amplify::App"
+    Properties:
+      Name: !Join ['-', [Koekalenteri, !Ref AWS::StackName]]
+      Repository: !Ref Repository
+      Description: Koekalenteri
+      OauthToken: !Ref OauthToken
+      BuildSpec: |-
+        version: 0.1
+        frontend:
+          phases:
+            build:
+              commands:
+                - cd koekalenteri-frontend
+                - npm ci
+                - npm run build
+          artifacts:
+            baseDirectory: koekalenteri-frontend/build
+            files:
+              - '**/*'
+      Tags:
+        - Key: Name
+          Value: Koekalenteri
+      IAMServiceRole: !GetAtt AmplifyRole.Arn
 
-#  AmplifyBranch:
-#    Type: AWS::Amplify::Branch
-#    Properties:
-#      BranchName: !Ref Branch
-#      AppId: !GetAtt AmplifyApp.AppId
-#      Description: Amplify Console Branch
-#      EnableAutoBuild: true
-#      Tags:
-#        - Key: Name
-#          Value: koekalenteri-amplify-console
-#        - Key: Branch
-#          Value: !Ref Branch
+  AmplifyBranch:
+    Type: AWS::Amplify::Branch
+    Properties:
+      BranchName: !Ref Branch
+      AppId: !GetAtt AmplifyApp.AppId
+      Description: Amplify Console Branch
+      EnableAutoBuild: true
+      Tags:
+        - Key: Name
+          Value: koekalenteri-amplify-console
+        - Key: Branch
+          Value: !Ref Branch
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
@@ -1188,5 +1187,5 @@ Outputs:
   CognitoDomainName:
     Description: The Cognito Hosted UI Domain Name
     Value: !Join ['', [!Ref CognitoDomainName, '-', !Ref AWS::StackName, '.auth.', !Ref AWS::Region, '.amazoncognito.com']]
-  #AmplifyURL:
-  #  Value: !Join ['', ['https://', !GetAtt AmplifyBranch.BranchName, '.', !GetAtt AmplifyApp.DefaultDomain]]
+  AmplifyURL:
+    Value: !Join ['', ['https://', !GetAtt AmplifyBranch.BranchName, '.', !GetAtt AmplifyApp.DefaultDomain]]
