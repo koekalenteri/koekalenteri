@@ -1,42 +1,42 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`routes should match a snapshot 1`] = `
-Array [
-  Object {
-    "children": Array [
-      Object {
+[
+  {
+    "children": [
+      {
         "element": <SearchPage />,
         "index": true,
       },
-      Object {
+      {
         "element": <RegistrationCreatePage />,
         "path": "event/:eventType/:id/:class/:date",
       },
-      Object {
+      {
         "element": <RegistrationCreatePage />,
         "path": "event/:eventType/:id/:class",
       },
-      Object {
+      {
         "element": <RegistrationCreatePage />,
         "path": "event/:eventType/:id",
       },
-      Object {
+      {
         "element": <RegistrationListPage
           cancel={true}
         />,
         "path": "r/:id/:registrationId/cancel",
       },
-      Object {
+      {
         "element": <RegistrationListPage
           confirm={true}
         />,
         "path": "r/:id/:registrationId/confirm",
       },
-      Object {
+      {
         "element": <RegistrationEditPage />,
         "path": "r/:id/:registrationId/edit",
       },
-      Object {
+      {
         "element": <RegistrationListPage />,
         "path": "r/:id/:registrationId",
       },
@@ -45,63 +45,63 @@ Array [
     "errorElement": <ErrorPage />,
     "path": "/",
   },
-  Object {
+  {
     "element": <LoginPage />,
     "path": "/login",
   },
-  Object {
+  {
     "element": <Navigate
       replace={true}
       to="/"
     />,
     "path": "/logout",
   },
-  Object {
-    "children": Array [
-      Object {
+  {
+    "children": [
+      {
         "element": <Navigate
           replace={true}
           to="/admin/event"
         />,
         "index": true,
       },
-      Object {
+      {
         "element": <EventListPage />,
         "path": "/admin/event",
       },
-      Object {
+      {
         "element": <EventCreatePage />,
         "path": "/admin/event/create",
       },
-      Object {
+      {
         "element": <EventEditPage />,
         "path": "/admin/event/edit/:id",
       },
-      Object {
+      {
         "element": <EventViewPage />,
         "path": "/admin/event/view/:id",
       },
-      Object {
+      {
         "element": <OrganizerListPage />,
         "path": "/admin/organizations",
       },
-      Object {
+      {
         "element": <OfficialListPage />,
         "path": "/admin/officials",
       },
-      Object {
+      {
         "element": <UsersPage />,
         "path": "/admin/users",
       },
-      Object {
+      {
         "element": <JudgeListPage />,
         "path": "/admin/judge",
       },
-      Object {
+      {
         "element": <EventTypeListPage />,
         "path": "/admin/types",
       },
-      Object {
+      {
         "element": <EmailTemplateListPage />,
         "path": "/admin/templates",
       },
@@ -110,7 +110,7 @@ Array [
     "errorElement": <ErrorPage />,
     "path": "/admin",
   },
-  Object {
+  {
     "element": <AdminStartListPage />,
     "path": "/admin/event/startlist/:id",
   },
