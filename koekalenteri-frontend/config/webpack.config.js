@@ -240,7 +240,7 @@ module.exports = function (webpackEnv) {
               ecma: 8,
             },
             compress: {
-              ecma: 5,
+              ecma: 6,
               warnings: false,
               // Disabled because of an issue with Uglify breaking seemingly valid code:
               // https://github.com/facebook/create-react-app/issues/2376
@@ -253,14 +253,11 @@ module.exports = function (webpackEnv) {
               // https://github.com/terser-js/terser/issues/120
               inline: 2,
             },
-            mangle: {
-              safari10: true,
-            },
             // Added for profiling in devtools
             keep_classnames: isEnvProductionProfile,
             keep_fnames: isEnvProductionProfile,
             output: {
-              ecma: 5,
+              ecma: 6,
               comments: false,
               // Turned on because emoji and regex is not minified properly using default
               // https://github.com/facebook/create-react-app/issues/2488
