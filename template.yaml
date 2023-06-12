@@ -87,19 +87,6 @@ Resources:
           RequireSymbols: false
           RequireUppercase: true
 
-  KoekalenteriUserPoolTokenClient:
-    Type: AWS::Cognito::UserPoolClient
-    Properties:
-      UserPoolId: !Ref KoekalenteriUserPool
-      GenerateSecret: false
-      AllowedOAuthFlowsUserPoolClient: true
-      AllowedOAuthFlows: ['code', 'implicit']
-      CallbackURLs: ['http://localhost:3000', 'http://localhost:8080' ,'https://localhost', !Join ['', ['https://', !GetAtt AmplifyBranch.BranchName, '.', !GetAtt AmplifyApp.DefaultDomain]]]
-      SupportedIdentityProviders: ['COGNITO']
-      AllowedOAuthScopes: ['email', 'openid']
-      ExplicitAuthFlows:
-      - USER_PASSWORD_AUTH
-
   KoekalanteriUserPoolGoogleProvider:
     Type: AWS::Cognito::UserPoolIdentityProvider
     Properties:
@@ -117,6 +104,19 @@ Resources:
       ProviderName: "Google"
       ProviderType: "Google"
       UserPoolId: !Ref KoekalenteriUserPool
+
+  KoekalenteriUserPoolTokenClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      UserPoolId: !Ref KoekalenteriUserPool
+      GenerateSecret: false
+      AllowedOAuthFlowsUserPoolClient: true
+      AllowedOAuthFlows: ['code', 'implicit']
+      CallbackURLs: ['http://localhost:3000', 'http://localhost:8080' ,'https://localhost', !Join ['', ['https://', !GetAtt AmplifyBranch.BranchName, '.', !GetAtt AmplifyApp.DefaultDomain]]]
+      SupportedIdentityProviders: ['COGNITO', 'Google']
+      AllowedOAuthScopes: ['email', 'openid']
+      ExplicitAuthFlows:
+      - USER_PASSWORD_AUTH
 
   KoekalenteriDomain:
     Type: AWS::Cognito::UserPoolDomain
