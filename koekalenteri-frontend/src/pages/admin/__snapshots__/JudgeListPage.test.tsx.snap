@@ -1666,7 +1666,7 @@ exports[`JudgeListPage renders 1`] = `
 `;
 
 exports[`JudgeListPage renders 2`] = `
-Array [
+[
   <div
     aria-rowindex="1"
     class="css-yrdy0g-MuiDataGrid-columnHeaderRow"

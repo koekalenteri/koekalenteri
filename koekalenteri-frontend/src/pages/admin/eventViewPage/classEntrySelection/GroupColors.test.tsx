@@ -33,24 +33,24 @@ describe('availableGroups', () => {
   it('generates ap and ip for each date', () => {
     const groups = availableGroups([new Date('2020-02-01T10:00:00.000Z'), new Date('2020-07-08T09:00:00.000Z')])
     expect(groups).toMatchInlineSnapshot(`
-Array [
-  Object {
-    "date": 2020-02-01T10:00:00.000Z,
-    "time": "ap",
-  },
-  Object {
-    "date": 2020-02-01T10:00:00.000Z,
-    "time": "ip",
-  },
-  Object {
-    "date": 2020-07-08T09:00:00.000Z,
-    "time": "ap",
-  },
-  Object {
-    "date": 2020-07-08T09:00:00.000Z,
-    "time": "ip",
-  },
-]
-`)
+      [
+        {
+          "date": 2020-02-01T10:00:00.000Z,
+          "time": "ap",
+        },
+        {
+          "date": 2020-02-01T10:00:00.000Z,
+          "time": "ip",
+        },
+        {
+          "date": 2020-07-08T09:00:00.000Z,
+          "time": "ap",
+        },
+        {
+          "date": 2020-07-08T09:00:00.000Z,
+          "time": "ip",
+        },
+      ]
+    `)
   })
 })

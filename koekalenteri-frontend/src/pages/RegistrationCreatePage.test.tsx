@@ -95,7 +95,7 @@ describe('RegistrationCreatePage', () => {
           "_bodyText": "Event not found",
           "bodyUsed": false,
           "headers": Headers {
-            "map": Object {
+            "map": {
               "content-type": "text/plain;charset=UTF-8",
             },
           },
