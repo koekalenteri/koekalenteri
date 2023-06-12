@@ -1136,7 +1136,7 @@ Resources:
   AmplifyApp:
     Type: "AWS::Amplify::App"
     Properties:
-      Name: Koekalenteri
+      Name: !Join ['-', [Koekalenteri, !Ref Branch]]
       Repository: !Ref Repository
       Description: Koekalenteri
       OauthToken: !Ref OauthToken
