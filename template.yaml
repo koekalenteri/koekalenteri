@@ -304,7 +304,7 @@ Resources:
       DestinationArn: !Sub 'arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:${ApiAccessLogGroup}'
       Format: '$context.identity.sourceIp $context.authorizer.claims.sub [$context.requestTime] "$context.httpMethod $context.resourcePath $context.protocol" $context.status $context.requestId $context.awsEndpointRequestId $context.xrayTraceId $context.responseLatency $context.integrationLatency "$context.error.message"'
     Properties:
-      Name: KoekalenteriApi
+      Name: !Join ['-', [Koekalenteri, !Ref AWS::StackName]]
       StageName: !Ref StageNameParam
       TracingEnabled: true
       Cors:
@@ -1136,7 +1136,7 @@ Resources:
   AmplifyApp:
     Type: "AWS::Amplify::App"
     Properties:
-      Name: !Join ['-', [Koekalenteri, !Ref Branch]]
+      Name: !Join ['-', [Koekalenteri, !Ref AWS::StackName]]
       Repository: !Ref Repository
       Description: Koekalenteri
       OauthToken: !Ref OauthToken
