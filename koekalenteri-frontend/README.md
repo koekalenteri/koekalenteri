@@ -40,16 +40,3 @@ The build is minified and the filenames include the hashes.\
 Your app is ready to be deployed!
 
 See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-## Deployment
-
-After project is deployed to Amplify, following redirects need to be defined (in Amplify comsole):
-
-```json
-[{
-  "source": "</^[^.]+$|\\.(?!(css|gif|ico|jpg|js|png|txt|svg|woff|ttf|map|json)$)([^.]+$)/>",
-  "status": "200",
-  "target": "/index.html",
-  "condition": null
-}]
-```
