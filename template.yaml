@@ -376,6 +376,12 @@ Resources:
             Method: get
             RestApiId: !Ref KoekalenteriApi
 
+  GetEventsFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref GetEventsFunction]]
+      RetentionInDays: 30
+
   GetEventFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -398,6 +404,12 @@ Resources:
             Path: /event/{id}
             Method: get
             RestApiId: !Ref KoekalenteriApi
+
+  GetEventFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref GetEventFunction]]
+      RetentionInDays: 30
 
   PutEventFunction:
     Type: AWS::Serverless::Function
@@ -428,6 +440,12 @@ Resources:
             Auth:
               Authorizer: CognitoAuthorizer
 
+  PutEventFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref PutEventFunction]]
+      RetentionInDays: 30
+
   GetRegistrationsFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -454,6 +472,12 @@ Resources:
             Method: GET
             RestApiId: !Ref KoekalenteriApi
 
+  GetRegistrationsFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref GetRegistrationsFunction]]
+      RetentionInDays: 30
+
   GetRegistrationFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -476,6 +500,12 @@ Resources:
             Path: /registration/{eventId}/{id}
             Method: GET
             RestApiId: !Ref KoekalenteriApi
+
+  GetRegistrationFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref GetRegistrationFunction]]
+      RetentionInDays: 30
 
   PutRegistrationFunction:
     Type: AWS::Serverless::Function
@@ -508,6 +538,12 @@ Resources:
             Path: /registration
             Method: POST
             RestApiId: !Ref KoekalenteriApi
+
+  PutRegistrationFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref PutRegistrationFunction]]
+      RetentionInDays: 30
 
   PutRegistrationGroupsFunction:
     Type: AWS::Serverless::Function
@@ -588,6 +624,12 @@ Resources:
             Method: get
             RestApiId: !Ref KoekalenteriApi
 
+  GetJudgesFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref GetJudgesFunction]]
+      RetentionInDays: 30
+
   PutJudgeFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -616,6 +658,12 @@ Resources:
             RestApiId: !Ref KoekalenteriApi
             Auth:
               Authorizer: CognitoAuthorizer
+
+  PutJudgeFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref PutJudgeFunction]]
+      RetentionInDays: 30
 
   GetOfficialsFunction:
     Type: AWS::Serverless::Function
@@ -652,6 +700,12 @@ Resources:
             Method: get
             RestApiId: !Ref KoekalenteriApi
 
+  GetOfficialsFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref GetOfficialsFunction]]
+      RetentionInDays: 30
+
   GetOrganizersFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
@@ -681,6 +735,12 @@ Resources:
             Path: /organizer
             Method: get
             RestApiId: !Ref KoekalenteriApi
+
+  GetOrganizersFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref GetOrganizersFunction]]
+      RetentionInDays: 30
 
   GetDogFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
@@ -747,6 +807,12 @@ Resources:
             Path: /eventType
             Method: get
             RestApiId: !Ref KoekalenteriApi
+
+  GetEventTypesFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref GetEventTypesFunction]]
+      RetentionInDays: 30
 
   PutEventTypeFunction:
     Type: AWS::Serverless::Function
@@ -818,6 +884,12 @@ Resources:
             Auth:
               Authorizer: CognitoAuthorizer
 
+  GetEmailTemplatesFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref GetEmailTemplatesFunction]]
+      RetentionInDays: 30
+
   PutEmailTemplateFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -854,6 +926,12 @@ Resources:
             RestApiId: !Ref KoekalenteriApi
             Auth:
               Authorizer: CognitoAuthorizer
+
+  PutEmailTemplateFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref PutEmailTemplateFunction]]
+      RetentionInDays: 30
 
   SendRegistrationMessagesFunction:
     Type: AWS::Serverless::Function
@@ -1035,10 +1113,10 @@ Resources:
             Auth:
               Authorizer: CognitoAuthorizer # NB: CognitoAuthorizer does not work locally https://github.com/aws/aws-sam-cli/issues/137
 
-  SetAdminFunctionLogGroup:
+  SetRoleFunctionLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: !Join ['/', ['/aws/lambda', !Ref SetAdminFunction]]
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref SetRoleFunction]]
       RetentionInDays: 30
 
   SetAdminFunction:
@@ -1109,6 +1187,12 @@ Resources:
             RestApiId: !Ref KoekalenteriApi
             #Auth:
             #  Authorizer: CognitoAuthorizer
+
+  PaymentConfirmFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref PaymentConfirmFunction]]
+      RetentionInDays: 30
 
   CommonLayer:
     Type: AWS::Serverless::LayerVersion
