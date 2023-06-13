@@ -32,7 +32,7 @@ jobs:
           npm test
       - name: SAM Validate
         run: |
-          sam validate
+          sam validate --lint
       - name: Configure variables
         shell: bash
         env:
