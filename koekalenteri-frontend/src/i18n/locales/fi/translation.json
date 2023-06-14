@@ -18,23 +18,25 @@
   "dateTimeShort": "{{ date, dtshort }}",
   "dateFormat": {
     "date": "{{ date, date }}",
+    "distance": "{{ date, distance }}",
+    "distanceLeft": "{{ date, distance }} jäljellä",
     "isodate": "{{ date, isodate }}",
-    "long": "dd.MM.yyyy",
-    "short": "dd.MM.",
+    "short": "{{ date, short }}",
     "weekday": "{{ date, weekday }}",
-    "wdshort": "{{ date, short }}"
+    "wdshort": "{{ date, wdshort }}"
+  },
+  "dateFormatString": {
+    "long": "dd.MM.yyyy",
+    "short": "dd.MM."
   },
   "datemask": "__.__.____",
   "daterange": "{{ start, datespan(end: undefined) }}",
   "daterangeEnd": "Tapahtumat päättyen",
   "daterangeStart": "Tapahtumat alkaen",
-  "dateshort": "{{ date, short }}",
   "delete": "Poista",
   "deleteEventComplete": "Tapahtuma poistettu",
   "deleteEventText": "Haluatko varmasti poistaa tapahtuman?",
   "deleteUserText": "Haluatko varmasti poistaa käyttäjän?",
-  "distance": "{{ date, distance }}",
-  "distanceLeft": "{{ date, distance }} jäljellä",
   "district": "Kennelpiiri",
   "dog": {
     "breed": "Rotu",

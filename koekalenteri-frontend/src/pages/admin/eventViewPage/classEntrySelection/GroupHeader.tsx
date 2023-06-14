@@ -24,7 +24,9 @@ const GroupHeader = ({ eventDates, group }: Props) => {
       }}
     >
       <GroupColors dates={eventDates} selected={[group]} disableTooltip />
-      <b>{t('dateshort', { date: group.date }) + (group.time ? ' ' + t(`registration.time.${group.time}`) : '')}</b>
+      <b>
+        {t('dateFormat.wdshort', { date: group.date }) + (group.time ? ' ' + t(`registration.time.${group.time}`) : '')}
+      </b>
     </Stack>
   )
 }

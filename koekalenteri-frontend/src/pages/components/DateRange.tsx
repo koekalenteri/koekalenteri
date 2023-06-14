@@ -70,7 +70,7 @@ export default function DateRange({
           label={startLabel}
           value={start}
           mask={t('datemask')}
-          inputFormat={t('dateFormat.long')}
+          inputFormat={t('dateFormatString.long')}
           minDate={range?.start}
           maxDate={range?.end}
           showToolbar={false}
@@ -91,7 +91,7 @@ export default function DateRange({
           label={endLabel}
           value={end}
           mask={t('datemask')}
-          inputFormat={t('dateFormat.long')}
+          inputFormat={t('dateFormatString.long')}
           minDate={start ? start : range?.start}
           maxDate={range?.end}
           showToolbar={false}

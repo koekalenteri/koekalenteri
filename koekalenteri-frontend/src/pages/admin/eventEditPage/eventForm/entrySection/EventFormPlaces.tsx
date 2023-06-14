@@ -97,7 +97,7 @@ export default function EventFormPlaces({ event, helperTexts, onChange }: Sectio
               return (
                 <TableRow key={day.toISOString()}>
                   <TableCell component="th" scope="row">
-                    {t('dateshort', { date: day })}
+                    {t('dateFormat.wdshort', { date: day })}
                   </TableCell>
                   {uniqueClasses.map((c) => {
                     const cls = classes.find((cl) => cl.class === c)

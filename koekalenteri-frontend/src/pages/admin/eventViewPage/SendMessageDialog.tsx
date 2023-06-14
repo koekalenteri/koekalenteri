@@ -32,7 +32,7 @@ import { useSnackbar } from 'notistack'
 import { useRecoilValue, useSetRecoilState } from 'recoil'
 
 import { sendTemplatedEmail } from '../../../api/email'
-import { formatDate, formatDateSpan } from '../../../i18n/dates'
+import { formatDateSpan } from '../../../i18n/dates'
 import { Path } from '../../../routeConfig'
 import AutocompleteSingle from '../../components/AutocompleteSingle'
 import { idTokenAtom } from '../../recoil'
@@ -256,7 +256,7 @@ function useRegistrationEmailTemplateData(registration: Registration, event: Eve
   const link = Path.registration(registration)
   const qualifyingResults = registration.qualifyingResults.map((r) => ({
     ...r,
-    date: formatDate(r.date, 'd.M.yyyy'),
+    date: t('dateFormat.date', { date: r.date }),
   }))
   const groupDate = registration.group?.date ? t('dateFormat.wdshort', { date: registration.group.date }) : ''
   const groupTime = registration.group?.time ? t(`registration.timeLong.${registration.group.time}`) : ''

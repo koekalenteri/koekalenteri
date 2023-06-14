@@ -10,6 +10,7 @@ export const useTranslation = () => {
   return {
     t: (str: string, { date }: { date?: Date } = {}) => {
       switch (str) {
+        // Values for translations that can not be just the key for tests
         case 'dateFormat.long':
           return formatDate(date, 'dd.MM.yyyy')
         case 'dateFormat.short':
@@ -18,6 +19,11 @@ export const useTranslation = () => {
           return formatDate(date, 'eeeeee d.M.')
         case 'dateFormat.weekday':
           return formatDate(date, 'eeeeee')
+
+        case 'dateFormatString.long':
+          return 'dd.MM.yyyy'
+        case 'dateFormatString.short':
+          return 'dd.MM.'
         case 'datemask':
           return '__.__.____'
         default:

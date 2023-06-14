@@ -69,7 +69,7 @@ export default function QualifyingResultRow({ result, requirements, onChange, on
         <FormControl fullWidth>
           <DatePicker
             disabled={result.official}
-            inputFormat={t('dateFormat.long')}
+            inputFormat={t('dateFormatString.long')}
             label={t('testResult.date')}
             mask={t('datemask')}
             maxDate={new Date()}

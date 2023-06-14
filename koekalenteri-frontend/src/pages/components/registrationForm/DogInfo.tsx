@@ -236,7 +236,7 @@ export const DogInfo = ({
             <DatePicker
               defaultCalendarMonth={subYears(new Date(), 2)}
               disabled={disabled}
-              inputFormat={t('dateFormat.long')}
+              inputFormat={t('dateFormatString.long')}
               label={t('dog.dob')}
               mask={t('datemask')}
               maxDate={subMonths(eventDate, minDogAgeMonths)}

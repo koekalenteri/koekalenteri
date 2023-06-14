@@ -854,7 +854,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                     class="MuiBox-root css-55zn6h"
                   />
                   <b>
-                    dateshort registration.time.ap
+                    ke 10.2. registration.time.ap
                   </b>
                 </div>
               </div>
@@ -1360,7 +1360,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                     class="MuiBox-root css-q8fzbv"
                   />
                   <b>
-                    dateshort registration.time.ip
+                    ke 10.2. registration.time.ip
                   </b>
                 </div>
               </div>
@@ -1866,7 +1866,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                     class="MuiBox-root css-169orto"
                   />
                   <b>
-                    dateshort registration.time.ap
+                    to 11.2. registration.time.ap
                   </b>
                 </div>
               </div>
@@ -2372,7 +2372,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                     class="MuiBox-root css-1myeusk"
                   />
                   <b>
-                    dateshort registration.time.ip
+                    to 11.2. registration.time.ip
                   </b>
                 </div>
               </div>
@@ -4797,7 +4797,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                     class="MuiBox-root css-55zn6h"
                   />
                   <b>
-                    dateshort registration.time.ap
+                    ke 10.2. registration.time.ap
                   </b>
                 </div>
               </div>
@@ -5303,7 +5303,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                     class="MuiBox-root css-q8fzbv"
                   />
                   <b>
-                    dateshort registration.time.ip
+                    ke 10.2. registration.time.ip
                   </b>
                 </div>
               </div>
@@ -5809,7 +5809,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                     class="MuiBox-root css-169orto"
                   />
                   <b>
-                    dateshort registration.time.ap
+                    to 11.2. registration.time.ap
                   </b>
                 </div>
               </div>
@@ -6315,7 +6315,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                     class="MuiBox-root css-1myeusk"
                   />
                   <b>
-                    dateshort registration.time.ip
+                    to 11.2. registration.time.ip
                   </b>
                 </div>
               </div>

@@ -68,7 +68,7 @@ export const EventInfo = ({ event }: { event: Event }) => {
             <TableCell>
               {t('daterange', { start: event.entryStartDate, end: event.entryEndDate })}
               <span className="info">{status}</span>
-              {isEntryOpen(event) ? t('distanceLeft', { date: event.entryEndDate }) : ''}
+              {isEntryOpen(event) ? t('dateFormat.distanceLeft', { date: event.entryEndDate }) : ''}
             </TableCell>
           </TableRow>
           {event.classes.length !== 0 && <EventClassRow key={event.id + 'classes'} event={event} />}

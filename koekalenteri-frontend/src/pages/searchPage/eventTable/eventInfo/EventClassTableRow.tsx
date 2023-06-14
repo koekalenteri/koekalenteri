@@ -23,7 +23,7 @@ export const EventClassTableRow = ({ event, eventClass }: { event: Event; eventC
   return (
     <TableRow>
       <TableCell component="th" scope="row">
-        {t('dateshort', { date: eventClass.date })}
+        {t('dateFormat.wdshort', { date: eventClass.date })}
       </TableCell>
       <TableCell component="th" scope="row">
         {eventClass.class}
