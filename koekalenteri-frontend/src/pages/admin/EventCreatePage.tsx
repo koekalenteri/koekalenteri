@@ -8,7 +8,7 @@ import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
 import { Path } from '../../routeConfig'
 import { activeEventTypesSelector, activeJudgesSelector, eventTypeClassesAtom } from '../recoil'
 
-import EventForm from './eventEditPage/EventForm'
+import EventForm from './components/EventForm'
 import { adminUserOrganizersSelector } from './recoil/user'
 import { newEventAtom, officialsAtom, useAdminEventActions } from './recoil'
 
