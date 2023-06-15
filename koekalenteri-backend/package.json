@@ -17,6 +17,10 @@
     "create-tables:win32": "cd ./__test__/environment/local/ && @powershell -NoProfile -ExecutionPolicy Unrestricted -Command ./create_tables.ps1",
     "start": "npm run create-tables && npm run watch"
   },
+  "engines": {
+    "npm": ">=8.0.0",
+    "node": ">=16.0.0"
+  },
   "keywords": [],
   "author": "",
   "license": "MIT",

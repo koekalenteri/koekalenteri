@@ -105,41 +105,44 @@ export const DogInfo = ({
     [onChange, reg?.dog]
   )
 
-  const buttonClick = useCallback(async () => {
+  const buttonClick = useCallback(() => {
     if (delayed || loading) {
       return
     }
-    setLoading(true)
-    setDelayed(true)
-    let delay = 10
-    switch (state.mode) {
-      case 'autofetch':
-      case 'fetch':
-        try {
-          const cache = await actions.fetch()
-          updateDog(cache)
-          if (state.regNo) {
-            setState((prev) => ({ ...prev, mode: cache?.dog?.regNo ? 'update' : 'notfound' }))
+    const load = async () => {
+      setLoading(true)
+      setDelayed(true)
+      let delay = 10
+      switch (state.mode) {
+        case 'autofetch':
+        case 'fetch':
+          try {
+            const cache = await actions.fetch()
+            updateDog(cache)
+            if (state.regNo) {
+              setState((prev) => ({ ...prev, mode: cache?.dog?.regNo ? 'update' : 'notfound' }))
+            }
+          } catch (err) {
+            updateDog(emptyDog)
+            setState((prev) => ({ ...prev, mode: 'error' }))
           }
-        } catch (err) {
-          updateDog(emptyDog)
-          setState((prev) => ({ ...prev, mode: 'error' }))
-        }
-        delay = 500
-        break
-      case 'update':
-        updateDog(await actions.refresh())
-        delay = 500
-        break
-      case 'notfound':
-        setState((prev) => ({ ...prev, mode: 'manual' }))
-        break
-      default:
-        setState({ regNo: '', mode: 'fetch' })
-        break
+          delay = 500
+          break
+        case 'update':
+          updateDog(await actions.refresh())
+          delay = 500
+          break
+        case 'notfound':
+          setState((prev) => ({ ...prev, mode: 'manual' }))
+          break
+        default:
+          setState({ regNo: '', mode: 'fetch' })
+          break
+      }
+      setLoading(false)
+      setTimeout(() => setDelayed(false), delay)
     }
-    setLoading(false)
-    setTimeout(() => setDelayed(false), delay)
+    load()
   }, [actions, delayed, loading, state.mode, state.regNo, updateDog])
 
   const handleRegNoChange = useCallback(
