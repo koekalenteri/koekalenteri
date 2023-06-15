@@ -48,8 +48,8 @@ export function OwnerInfo({ reg, error, helperText, onChange, onOpenChange, open
             id="owner_name"
             label={t('contact.name')}
             name="name"
-            onChange={(e) => handleChange({ name: e.target.value || '' })}
-            value={reg.owner?.name || ''}
+            onChange={(e) => handleChange({ name: e.target.value ?? '' })}
+            value={reg.owner?.name ?? ''}
           />
         </Grid>
         <Grid item xs={12} sm={6}>
@@ -60,8 +60,8 @@ export function OwnerInfo({ reg, error, helperText, onChange, onOpenChange, open
             id="owner_city"
             label={t('contact.city')}
             name="city"
-            onChange={(e) => handleChange({ location: e.target.value || '' })}
-            value={reg.owner?.location || ''}
+            onChange={(e) => handleChange({ location: e.target.value ?? '' })}
+            value={reg.owner?.location ?? ''}
           />
         </Grid>
         <Grid item xs={12} sm={6}>
@@ -72,8 +72,8 @@ export function OwnerInfo({ reg, error, helperText, onChange, onOpenChange, open
             id="owner_email"
             label={t('contact.email')}
             name="email"
-            onChange={(e) => handleChange({ email: e.target.value || '' })}
-            value={reg.owner?.email || ''}
+            onChange={(e) => handleChange({ email: e.target.value ?? '' })}
+            value={reg.owner?.email ?? ''}
           />
         </Grid>
         <Grid item xs={12} sm={6}>
@@ -84,8 +84,8 @@ export function OwnerInfo({ reg, error, helperText, onChange, onOpenChange, open
             id="owner_phone"
             label={t('contact.phone')}
             name="phone"
-            onChange={(e) => handleChange({ phone: e.target.value || '' })}
-            value={reg.owner?.phone || ''}
+            onChange={(e) => handleChange({ phone: e.target.value ?? '' })}
+            value={reg.owner?.phone ?? ''}
           />
         </Grid>
       </Grid>

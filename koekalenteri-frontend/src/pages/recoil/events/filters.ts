@@ -32,7 +32,7 @@ export function withinSwitchFilters(
   }
 
   if (withUpcomingEntry) {
-    result = result || isEntryUpcoming(event)
+    result = result ?? isEntryUpcoming(event)
   }
 
   return result !== false

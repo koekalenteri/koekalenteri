@@ -44,7 +44,7 @@ export function BreederInfo({ reg, error, helperText, onChange, onOpenChange, op
             id="breeder_name"
             label="Nimi"
             value={reg.breeder?.name ?? ''}
-            onChange={(e) => handleChange({ name: e.target.value || '' })}
+            onChange={(e) => handleChange({ name: e.target.value ?? '' })}
           />
         </Grid>
         <Grid item xs={12} sm={6}>
@@ -53,8 +53,8 @@ export function BreederInfo({ reg, error, helperText, onChange, onOpenChange, op
             fullWidth
             id="breeder_location"
             label="Kotikunta"
-            value={reg.breeder?.location || ''}
-            onChange={(e) => handleChange({ location: e.target.value || '' })}
+            value={reg.breeder?.location ?? ''}
+            onChange={(e) => handleChange({ location: e.target.value ?? '' })}
           />
         </Grid>
       </Grid>

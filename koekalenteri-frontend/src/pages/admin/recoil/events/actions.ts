@@ -71,7 +71,7 @@ export const useAdminEventActions = () => {
     await save({
       ...currentAdminEvent,
       deletedAt: new Date(),
-      deletedBy: user.attributes?.name || user.attributes?.email,
+      deletedBy: user.attributes?.name ?? user.attributes?.email,
     })
 
     enqueueSnackbar(t('deleteEventComplete'), { variant: 'info' })

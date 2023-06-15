@@ -12,7 +12,7 @@ export default function AutoButton(props: Props) {
     return (
       <Stack>
         <IconButton color="primary" {...rest}>
-          {startIcon || endIcon}
+          {startIcon ?? endIcon}
         </IconButton>
         <Typography variant="caption" noWrap sx={{ textAlign: 'center', width: 56, overflow: 'hidden' }}>
           {text}

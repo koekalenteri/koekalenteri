@@ -37,7 +37,7 @@ export default function AutocompleteSingle<T, DisableClearable extends boolean |
   )
 
   // @ts-expect-error Type 'null' is not assignable to type 'DisableClearable extends true ? NonNullable<T> : T | null'
-  const fixedValue: DisableClearable extends true ? NonNullable<T> : T | null = value === undefined ? null : value
+  const fixedValue: DisableClearable extends true ? NonNullable<T> : T | null = value ?? null
   const compareOption = useMemo(
     () => isOptionEqualToValue ?? ((option: T, value: T) => option === value),
     [isOptionEqualToValue]

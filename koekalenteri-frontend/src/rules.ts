@@ -57,7 +57,7 @@ export function getRuleDate(date: Date | string, available: RuleDate[] = Object.
 export function getRequirements(eventType: string, regClass: RegistrationClass | undefined, date: Date) {
   const eventRequirements = REQUIREMENTS[eventType] || {}
   const classRequirements = regClass && (eventRequirements as EventClassRequirement)[regClass]
-  const requirements = classRequirements || (eventRequirements as EventRequirement)
+  const requirements = classRequirements ?? (eventRequirements as EventRequirement)
   let results: EventResultRequirementsByDate | undefined
   if (requirements.results) {
     const resultRequirements = requirements.results
@@ -65,7 +65,7 @@ export function getRequirements(eventType: string, regClass: RegistrationClass |
     const ruleDate = getRuleDate(date, ruleDates)
     results = {
       date: ruleDate,
-      rules: resultRequirements[ruleDate] || [],
+      rules: resultRequirements[ruleDate] ?? [],
     }
   }
   return results

@@ -53,7 +53,7 @@ export function EntryInfo({
   const error = errorStates.class ?? errorStates.dates ?? errorStates.reserve
   const datesText = reg.dates.map(getRegDateLabel).join(' / ')
   const reserveText = reg.reserve ? t(`registration.reserveChoises.${reg.reserve}`) : ''
-  const infoText = `${reg.class || reg.eventType}, ${datesText}, ${reserveText}`
+  const infoText = `${reg.class ?? reg.eventType}, ${datesText}, ${reserveText}`
   const helperText = error ? t('validation.registration.required', { field: 'classesDetails' }) : infoText
 
   useEffect(() => {

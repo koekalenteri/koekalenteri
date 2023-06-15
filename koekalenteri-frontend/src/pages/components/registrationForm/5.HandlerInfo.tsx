@@ -47,7 +47,7 @@ export function HandlerInfo({ reg, error, helperText, onChange, onOpenChange, op
               label={t('contact.name')}
               name="name"
               onChange={(e) => handleChange({ name: e.target.value || '' })}
-              value={reg.handler?.name || ''}
+              value={reg.handler?.name ?? ''}
             />
           </Grid>
           <Grid item sx={{ width: 300 }}>
@@ -59,7 +59,7 @@ export function HandlerInfo({ reg, error, helperText, onChange, onOpenChange, op
               label={t('contact.city')}
               name="city"
               onChange={(e) => handleChange({ location: e.target.value || '' })}
-              value={reg.handler?.location || ''}
+              value={reg.handler?.location ?? ''}
             />
           </Grid>
         </Grid>
@@ -72,8 +72,8 @@ export function HandlerInfo({ reg, error, helperText, onChange, onOpenChange, op
               id="handler_email"
               label={t('contact.email')}
               name="email"
-              onChange={(e) => handleChange({ email: e.target.value || '' })}
-              value={reg.handler?.email || ''}
+              onChange={(e) => handleChange({ email: e.target.value ?? '' })}
+              value={reg.handler?.email ?? ''}
             />
           </Grid>
           <Grid item sx={{ width: 300 }}>
@@ -84,8 +84,8 @@ export function HandlerInfo({ reg, error, helperText, onChange, onOpenChange, op
               id="handler_phone"
               label={t('contact.phone')}
               name="phone"
-              onChange={(e) => handleChange({ phone: e.target.value || '' })}
-              value={reg.handler?.phone || ''}
+              onChange={(e) => handleChange({ phone: e.target.value ?? '' })}
+              value={reg.handler?.phone ?? ''}
             />
           </Grid>
         </Grid>

@@ -40,7 +40,7 @@ export default function QualifyingResultsInfo({
     if (!regNo) {
       return []
     }
-    const newResults: Array<ManualTestResult> = (qualifyingResults || []).map((r) => ({
+    const newResults: Array<ManualTestResult> = (qualifyingResults ?? []).map((r) => ({
       ...r,
       id: getResultId(r),
       regNo,

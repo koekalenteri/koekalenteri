@@ -8,6 +8,10 @@ let loaded = false
 export const remoteAdminEventsEffect: AtomEffect<Event[]> = ({ setSelf, trigger }) => {
   if (trigger === 'get' && !loaded) {
     loaded = true
-    getEvents().then(setSelf)
+    getEvents()
+      .then(setSelf)
+      .catch((reason) => {
+        throw new Error(reason)
+      })
   }
 }

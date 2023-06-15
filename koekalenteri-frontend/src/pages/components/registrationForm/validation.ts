@@ -55,7 +55,7 @@ export function validateRegistrationField(
   field: keyof Registration,
   event: ConfirmedEvent
 ): ValidationResult<Registration, 'registration'> {
-  const validator = VALIDATORS[field] || ((value) => typeof value[field] === 'undefined' || value[field] === '')
+  const validator = VALIDATORS[field] ?? ((value) => typeof value[field] === 'undefined' || value[field] === '')
   const result = validator(registration, true, event)
   if (!result) {
     return false
@@ -124,7 +124,7 @@ export function validateDog(
 
 function validateDogAge(event: { eventType: string; startDate: Date }, dog: { dob?: Date }) {
   const requirements = REQUIREMENTS[event.eventType]
-  const minAge = (requirements as EventRequirement).age || 0
+  const minAge = (requirements as EventRequirement).age ?? 0
   if (!dog.dob || differenceInMonths(event.startDate, dog.dob) < minAge) {
     return minAge
   }
@@ -132,7 +132,7 @@ function validateDogAge(event: { eventType: string; startDate: Date }, dog: { do
 
 function validateDogBreed(event: { eventType: string }, dog: { breedCode?: BreedCode }) {
   const requirements = REQUIREMENTS[event.eventType]
-  const breeds = (requirements as EventRequirement).breedCode || []
+  const breeds = (requirements as EventRequirement).breedCode ?? []
   if (breeds.length && dog.breedCode && !breeds.includes(dog.breedCode)) {
     return dog.breedCode
   }
@@ -243,9 +243,9 @@ function bestResults(
   manualResults: Partial<TestResult>[] | undefined
 ): QualifyingResult[] {
   const filter = (r: Partial<TestResult>) => r.type === eventType && r.class === regClass && r.result?.endsWith('1')
-  const officialBest: QualifyingResult[] = officialResults?.filter(filter).map((r) => ({ ...r, official: true })) || []
+  const officialBest: QualifyingResult[] = officialResults?.filter(filter).map((r) => ({ ...r, official: true })) ?? []
   const manualBest: QualifyingResult[] =
-    manualResults?.filter(filter).map((r) => ({ ...r, official: false } as QualifyingResult)) || []
+    manualResults?.filter(filter).map((r) => ({ ...r, official: false } as QualifyingResult)) ?? []
   return officialBest
     .concat(manualBest)
     .sort(byDate)

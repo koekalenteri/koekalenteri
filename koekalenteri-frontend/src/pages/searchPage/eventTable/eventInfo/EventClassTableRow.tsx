@@ -10,10 +10,10 @@ import LinkButton from '../../../components/LinkButton'
 export const EventClassTableRow = ({ event, eventClass }: { event: Event; eventClass: EventClass }) => {
   const { t } = useTranslation()
 
-  const date = eventClass.date || event.startDate || new Date()
+  const date = eventClass.date ?? event.startDate ?? new Date()
   const classDate = t('dateFormat.short', { date })
   const entryStatus =
-    eventClass.places || eventClass.entries ? `${eventClass.entries || 0} / ${eventClass.places || '-'}` : ''
+    eventClass.places || eventClass.entries ? `${eventClass.entries ?? 0} / ${eventClass.places ?? '-'}` : ''
   const memberStatus = eventClass.members ? t('members', { count: eventClass.members }) : ''
   const judgeNames = useMemo(
     () => (Array.isArray(eventClass.judge) ? eventClass.judge.map((j) => j.name).join(', ') : eventClass.judge?.name),
