@@ -39,15 +39,17 @@ export default function BasicInfoSection({
   const [helpAnchorEl, setHelpAnchorEl] = useState<HTMLButtonElement | null>(null)
   const typeOptions = eventClassOptions(event, eventTypeClasses?.[event.eventType ?? ''] ?? [])
   const error =
-    errorStates?.startDate ??
-    errorStates?.endDate ??
-    errorStates?.kcId ??
-    errorStates?.eventType ??
-    errorStates?.classes ??
-    errorStates?.organizer ??
-    errorStates?.location ??
-    errorStates?.official ??
-    errorStates?.secretary
+    (errorStates &&
+      (errorStates.startDate ||
+        errorStates.endDate ||
+        errorStates.kcId ||
+        errorStates.eventType ||
+        errorStates.classes ||
+        errorStates.organizer ||
+        errorStates.location ||
+        errorStates.official ||
+        errorStates.secretary)) ||
+    false
   const helperText = error
     ? t('validation.event.errors')
     : t('validation.event.effectiveRules', { date: new Date(getRuleDate(event.startDate)) })
