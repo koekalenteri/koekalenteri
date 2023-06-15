@@ -26,7 +26,7 @@ import PlacesInput from './eventFormPlaces/PlacesInput'
 export default function EventFormPlaces({ event, helperTexts, onChange }: SectionProps) {
   const { t } = useTranslation()
   const [classesEnabled, setClassesEnalbed] = useState(
-    event.classes?.reduce((prev, cur) => prev + (cur?.places || 0), 0) > 0
+    event.classes?.reduce((prev, cur) => prev + (cur?.places ?? 0), 0) > 0
   )
   const days = eachDayOfInterval({
     start: event.startDate,
@@ -35,7 +35,7 @@ export default function EventFormPlaces({ event, helperTexts, onChange }: Sectio
   const uniqueClasses = unique(event.classes.map((c) => c.class))
   const classesByDays = days.map((day) => ({
     day,
-    classes: event.classes.filter((c) => isSameDay(c.date || event.startDate, day)),
+    classes: event.classes.filter((c) => isSameDay(c.date ?? event.startDate, day)),
   }))
 
   const handleChange = (c: DeepPartial<EventClass>) => (value: number) => {
@@ -44,7 +44,7 @@ export default function EventFormPlaces({ event, helperTexts, onChange }: Sectio
     if (cls) {
       cls.places = Math.max(0, Math.min(value, 200))
     }
-    const total = newClasses.reduce((prev, cur) => prev + (cur?.places || 0), 0)
+    const total = newClasses.reduce((prev, cur) => prev + (cur?.places ?? 0), 0)
     onChange?.({ classes: newClasses, places: total ? total : event.places })
   }
 
@@ -101,7 +101,7 @@ export default function EventFormPlaces({ event, helperTexts, onChange }: Sectio
                   </TableCell>
                   {uniqueClasses.map((c) => {
                     const cls = classes.find((cl) => cl.class === c)
-                    dayTotal += cls?.places || 0
+                    dayTotal += cls?.places ?? 0
                     return (
                       <TableCell key={c} align="center">
                         {cls ? (
@@ -127,7 +127,7 @@ export default function EventFormPlaces({ event, helperTexts, onChange }: Sectio
                   <PlacesDisplay
                     value={event.classes
                       .filter((ec) => ec.class === c)
-                      .reduce((prev, cur) => prev + (cur?.places || 0), 0)}
+                      .reduce((prev, cur) => prev + (cur?.places ?? 0), 0)}
                   />
                 </TableCell>
               ))}

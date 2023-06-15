@@ -42,9 +42,9 @@ export default function EventProperty<Property extends keyof PartialEvent, freeS
     return ''
   }
   const value = event[id]
-  const fixedValue = value === undefined ? null : value
+  const fixedValue = value ?? null
   const [inputValue, setInputValue] = useState(getInputInitValue(fixedValue))
-  const isRequired = fields?.required[id] || false
+  const isRequired = fields?.required[id] ?? false
   const error = isRequired && validateEventField(event, id, true)
   const helperText = error ? t(`validation.event.${error.key}`, error.opts) : ''
 

@@ -41,7 +41,7 @@ export default function EventClasses(props: Props) {
     ...rest
   } = props
   const error = errorStates?.classes
-  const helperText = helperTexts?.classes || ''
+  const helperText = helperTexts?.classes ?? ''
   const sortedValue = useMemo(() => value?.slice().sort(compareEventClass), [value])
   const groupByWeekday = useCallback((c: { date?: Date }) => t('dateFormat.wdshort', { date: c.date }), [t])
   const getLabel = useCallback((c: { class?: string }) => c.class ?? '', [])

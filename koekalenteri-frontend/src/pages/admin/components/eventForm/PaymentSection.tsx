@@ -10,7 +10,7 @@ import EventProperty from './components/EventProperty'
 export default function PaymentSection({ errorStates, event, fields, onChange, open, onOpenChange }: SectionProps) {
   const { t } = useTranslation()
   const error =
-    errorStates?.cost || errorStates?.costMember || errorStates?.accountNumber || errorStates?.referenceNumber
+    errorStates?.cost ?? errorStates?.costMember ?? errorStates?.accountNumber ?? errorStates?.referenceNumber
   const helperText = error ? t('validation.event.errors') : ''
 
   return (
