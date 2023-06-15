@@ -174,6 +174,7 @@ jobs:
     environment: dev
     steps:
       - name: Trigger deployment
+        if: github.ref == 'refs/heads/dev'
         run: curl -X POST -d {} "${{ secrets.DEPLOY_TRIGGER_HOOK }}" -H "Content-Type:application/json"
 
   deploy-frontend-main:
@@ -182,6 +183,7 @@ jobs:
     environment: main
     steps:
       - name: Trigger deployment
+        if: github.ref == 'refs/heads/main'
         run: curl -X POST -d {} "${{ secrets.DEPLOY_TRIGGER_HOOK }}" -H "Content-Type:application/json"
 
 
