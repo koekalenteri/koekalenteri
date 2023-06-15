@@ -6,6 +6,7 @@ import { Box } from '@mui/system'
 import { GridActionsCellItem, GridColumns } from '@mui/x-data-grid'
 import { BreedCode, Registration } from 'koekalenteri-shared/model'
 
+import { Path } from '../../routeConfig'
 import StyledDataGrid from '../components/StyledDataGrid'
 
 export default function RegistrationList({
@@ -20,7 +21,7 @@ export default function RegistrationList({
   const navigate = useNavigate()
 
   const onEdit = (registration: Registration) => {
-    navigate(`/registration/${registration.eventType}/${registration.eventId}/${registration.id}/edit`)
+    navigate(`${Path.registration(registration)}/edit`)
   }
 
   const columns: GridColumns<Registration> = [
