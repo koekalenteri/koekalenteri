@@ -83,8 +83,6 @@
   "entryTitle_test": "Ilmoittaudu kokeeseen",
   "event": {
     "accountNumber": "Tilinumero",
-    "allowHandlerMembershipPriority": "Ohjaaja jäsenet etusijalla",
-    "allowOwnerMembershipPriority": "Omistaja jäsenet etusijalla",
     "classes": "Koeluokat",
     "contactInfo": "Yhteystiedot",
     "cost": "Maksu",
@@ -119,6 +117,7 @@
     "organizer": "Järjestäjä",
     "paymentDetails": "Maksutiedot",
     "places": "Paikkoja",
+    "priority": "Etusijat",
     "referenceNumber": "Viitenumero",
     "secretary": "Koesihteeri",
     "startDate": "Kokeen alkamispäivä",

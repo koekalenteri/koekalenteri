@@ -163,20 +163,14 @@ export function RegistrationListPage({ cancel, confirm }: Props) {
 }
 
 function membershipIconColor(event: ConfirmedEvent, registration: Registration) {
-  if (
-    (event.allowHandlerMembershipPriority && registration.handler.membership) ||
-    (event.allowOwnerMembershipPriority && registration.owner.membership)
-  ) {
+  if (event.priority?.includes('member') && (registration.handler.membership || registration.owner.membership)) {
     return 'primary.main'
   }
   return 'transparent'
 }
 
 function membershipStatus(event: ConfirmedEvent, registration: Registration) {
-  if (
-    (event.allowHandlerMembershipPriority && registration.handler.membership) ||
-    (event.allowOwnerMembershipPriority && registration.owner.membership)
-  ) {
+  if (event.priority?.includes('member') && (registration.handler.membership || registration.owner.membership)) {
     return 'Olen jäsen'
   }
   return 'En ole jäsen'

@@ -2,8 +2,6 @@ import type { ConfirmedEvent } from 'koekalenteri-shared/model'
 
 export const emptyEvent: ConfirmedEvent = {
   accountNumber: 'test',
-  allowHandlerMembershipPriority: true,
-  allowOwnerMembershipPriority: true,
   classes: [{ class: 'test' }],
   cost: 123,
   costMember: 123,
@@ -31,6 +29,7 @@ export const emptyEvent: ConfirmedEvent = {
     district: 'Helsinki',
     eventTypes: ['test'],
   },
+  priority: ['member'],
   secretary: {
     id: 2,
     name: 'Siiri Sihteeri',

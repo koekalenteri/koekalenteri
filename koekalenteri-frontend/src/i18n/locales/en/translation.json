@@ -61,8 +61,6 @@
   "entryUpcoming": "Upcoming registration",
   "event": {
     "accountNumber": "Account number",
-    "allowHandlerMembershipPriority": "Handel membership priority",
-    "allowOwnerMembershipPriority": "Owner membership priority",
     "classes": "Classes",
     "contactInfo": "Contact information",
     "cost": "Cost",
