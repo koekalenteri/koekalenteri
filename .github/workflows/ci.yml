@@ -99,6 +99,92 @@ jobs:
           name: frontend-coverage
           path: koekalenteri-frontend/coverage/lcov${{ matrix.shard }}.info
 
+  deploy-backend:
+    runs-on: ubuntu-latest
+    needs: [backend,frontend-test]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          cache: npm
+          node-version: 16 # sam build fails with 18
+          cache-dependency-path: koekalenteri-backend/package-lock.json
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.8"
+      - uses: aws-actions/setup-sam@v2
+      - uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - name: Build BE
+        run: |
+          cd koekalenteri-backend
+          npm ci
+          npm run build
+      - name: SAM Validate
+        run: |
+          sam validate --lint
+      - name: Configure variables
+        shell: bash
+        env:
+          REPO: ${{ github.repository }}
+          HASH: ${{ github.sha }}
+          REF: ${{ github.ref }}
+        run: |
+          # Set variables
+          BRANCH=${REF#refs/heads/}
+          REPOSITORY=`echo $REPO | cut -d "/" -f 2`
+          ENVIRONMENT=$REPOSITORY-$BRANCH
+          # In this step we are setting variables and persistenting them
+          # into the environment so that they can be utilized in other steps
+          echo "branch=$BRANCH" >> $GITHUB_ENV
+          echo "repository=$REPOSITORY" >> $GITHUB_ENV
+          echo "environment=$ENVIRONMENT" >> $GITHUB_ENV
+      - name: SAM Build
+        run: |
+          sam build
+      - name: SAM Deploy
+        run: |
+          # Output variables to ensure their values are set correctly when ran
+          echo "The repository is ${{ env.repository }}"
+          echo "The environment is ${{ env.environment }}"
+          echo "The branch is ${{ env.branch }}"
+          # Create S3 Bucket to store code
+          aws s3api head-bucket --bucket "${{ env.environment }}" 2>/dev/null \
+            || aws s3 mb s3://${{ env.environment }}
+          # Run SAM Deploy
+          sam deploy --template-file .aws-sam/build/template.yaml \
+            --stack-name ${{ env.environment }} \
+            --s3-bucket ${{ env.environment }} \
+            --parameter-overrides \
+              'ParameterKey=StageNameParam,ParameterValue=${{ env.branch }} \
+              ParameterKey=Repository,ParameterValue=https://github.com/${{ github.repository }} \
+              ParameterKey=OauthToken,ParameterValue=${{ secrets.AWS_OAUTH_TOKEN }} \
+              ParameterKey=GoogleClientId,ParameterValue=${{ secrets.GOOGLE_CLIENT_ID }} \
+              ParameterKey=GoogleClientSecret,ParameterValue=${{ secrets.GOOGLE_CLIENT_SECRET }} \
+              ParameterKey=Branch,ParameterValue=${{ env.branch }}' \
+            --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
+            --no-confirm-changeset --no-fail-on-empty-changeset
+
+  deploy-frontend-dev:
+    runs-on: ubuntu-latest
+    needs: [deploy-backend]
+    environment: dev
+    steps:
+      - name: Trigger deployment
+        run: curl -X POST -d {} "${{ secrets.DEPLOY_TRIGGER_HOOK }}" -H "Content-Type:application/json"
+
+  deploy-frontend-main:
+    runs-on: ubuntu-latest
+    needs: [deploy-backend]
+    environment: main
+    steps:
+      - name: Trigger deployment
+        run: curl -X POST -d {} "${{ secrets.DEPLOY_TRIGGER_HOOK }}" -H "Content-Type:application/json"
+
+
   sonar:
     runs-on: ubuntu-latest
     needs: [backend, frontend-test]
