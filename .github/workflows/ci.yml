@@ -43,7 +43,14 @@ jobs:
         with:
           cache: npm
           cache-dependency-path: koekalenteri-frontend/package-lock.json
+      - name: Cache node_modules
+        id: cache
+        uses: actions/cache@v3
+        with:
+          path: koekalenteri-frontend/node_modules
+          key: ${{ runner.os }}-${{ hashFiles('koekalenteri-frontend/package-lock.json') }}
       - name: Install packages
+        if: steps.cache.outputs.cache-hit != 'true'
         run: npm ci
         working-directory: koekalenteri-frontend
       - name: Lint
@@ -70,9 +77,12 @@ jobs:
         with:
           cache: npm
           cache-dependency-path: koekalenteri-frontend/package-lock.json
-      - name: Install packages
-        run: npm ci
-        working-directory: koekalenteri-frontend
+      - name: Restore node_modules
+        id: cache-restore
+        uses: actions/cache/restore@v3
+        with:
+          path: koekalenteri-frontend/node_modules
+          key: ${{ runner.os }}-${{ hashFiles('koekalenteri-frontend/package-lock.json') }}
       - name: Download frontend build
         uses: actions/download-artifact@v3
         with:
