@@ -1,7 +1,6 @@
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { TableCell, TableRow } from '@mui/material'
-import { format } from 'date-fns'
 import { Event, EventClass } from 'koekalenteri-shared/model'
 
 import { Path } from '../../../../routeConfig'
@@ -11,7 +10,7 @@ import LinkButton from '../../../components/LinkButton'
 export const EventClassTableRow = ({ event, eventClass }: { event: Event; eventClass: EventClass }) => {
   const { t } = useTranslation()
 
-  const classDate = format(eventClass.date || event.startDate || new Date(), t('dateFormat.short'))
+  const classDate = t('dateFormat.short', { date: eventClass.date || event.startDate || new Date() })
   const entryStatus =
     eventClass.places || eventClass.entries ? `${eventClass.entries || 0} / ${eventClass.places || '-'}` : ''
   const memberStatus = eventClass.members ? t('members', { count: eventClass.members }) : ''
