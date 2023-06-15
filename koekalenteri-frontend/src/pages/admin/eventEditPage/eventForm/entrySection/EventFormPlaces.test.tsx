@@ -11,8 +11,8 @@ jest.useRealTimers()
 describe('EventFormPlaces', () => {
   it('should render with minimal information', () => {
     const event: PartialEvent = {
-      startDate: new Date(),
-      endDate: new Date(),
+      startDate: new Date('2023-06-14T12:00:00Z'),
+      endDate: new Date('2023-06-14T12:00:00Z'),
       classes: [],
       judges: [],
     }
