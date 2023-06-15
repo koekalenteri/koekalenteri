@@ -17,7 +17,7 @@ jobs:
         with:
           cache: npm
       - name: Install packages
-        run: npm ci
+        run: npm i
         working-directory: koekalenteri-backend
       - name: Lint
         run: npm run lint
@@ -42,7 +42,7 @@ jobs:
         with:
           cache: npm
       - name: Install packages
-        run: npm ci
+        run: npm i
         working-directory: koekalenteri-frontend
       - name: Lint
         run: npm run lint
@@ -68,7 +68,7 @@ jobs:
         with:
           cache: npm
       - name: Install packages
-        run: npm ci
+        run: npm i
         working-directory: koekalenteri-frontend
       - name: Download frontend build
         uses: actions/download-artifact@v3
