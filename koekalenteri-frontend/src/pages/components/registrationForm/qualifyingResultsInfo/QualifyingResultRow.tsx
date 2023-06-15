@@ -75,7 +75,7 @@ export default function QualifyingResultRow({ result, requirements, onChange, on
             maxDate={new Date()}
             minDate={subYears(new Date(), 15)}
             onChange={(value: any) => handleChange(result, { date: value || undefined })}
-            renderInput={(params: JSX.IntrinsicAttributes & TextFieldProps) => (
+            renderInput={(params: React.JSX.IntrinsicAttributes & TextFieldProps) => (
               <TextField {...params} error={!result.date} />
             )}
             value={result.date || null}

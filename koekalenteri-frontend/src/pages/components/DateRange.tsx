@@ -1,3 +1,4 @@
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Box, FormControl, TextField, TextFieldProps, Theme } from '@mui/material'
 import { DatePicker, PickersDay } from '@mui/x-date-pickers'
@@ -78,7 +79,7 @@ export default function DateRange({
           renderDay={(date, selectedDates, props) => (
             <PickersDay {...props} sx={dayStyle(date, selectedDates, defaultStart)} />
           )}
-          renderInput={(params: JSX.IntrinsicAttributes & TextFieldProps) => (
+          renderInput={(params: React.JSX.IntrinsicAttributes & TextFieldProps) => (
             <TextField {...params} required={required} error={startError} helperText={startHelperText} />
           )}
         />
@@ -99,7 +100,7 @@ export default function DateRange({
           renderDay={(date, selectedDates, props) => (
             <PickersDay {...props} sx={dayStyle(date, selectedDates, defaultEnd)} />
           )}
-          renderInput={(params: JSX.IntrinsicAttributes & TextFieldProps) => (
+          renderInput={(params: React.JSX.IntrinsicAttributes & TextFieldProps) => (
             <TextField {...params} required={required} error={endError} helperText={endHelperText} />
           )}
         />

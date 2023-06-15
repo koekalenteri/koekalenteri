@@ -110,8 +110,6 @@ export const DogInfo = ({
       return
     }
     const load = async () => {
-      setLoading(true)
-      setDelayed(true)
       let delay = 10
       switch (state.mode) {
         case 'autofetch':
@@ -139,10 +137,20 @@ export const DogInfo = ({
           setState({ regNo: '', mode: 'fetch' })
           break
       }
-      setLoading(false)
-      setTimeout(() => setDelayed(false), delay)
+      return delay
     }
-    load()
+    setLoading(true)
+    setDelayed(true)
+    load().then(
+      (delay) => {
+        setLoading(false)
+        setTimeout(() => setDelayed(false), delay)
+      },
+      (reason) => {
+        console.error(reason)
+        setLoading(false)
+      }
+    )
   }, [actions, delayed, loading, state.mode, state.regNo, updateDog])
 
   const handleRegNoChange = useCallback(
@@ -216,7 +224,7 @@ export const DogInfo = ({
             disabled={disabled}
             fullWidth
             label={t('dog.rfid')}
-            value={reg?.dog?.rfid || ''}
+            value={reg?.dog?.rfid ?? ''}
             error={!disabled && !reg?.dog?.rfid}
             onChange={(e) => handleChange({ dog: { rfid: e.target.value } })}
           />
@@ -246,8 +254,8 @@ export const DogInfo = ({
               minDate={subYears(new Date(), 15)}
               onChange={(value: any) => value && handleChange({ dog: { dob: value } })}
               openTo={'year'}
-              renderInput={(params: JSX.IntrinsicAttributes & TextFieldProps) => <TextField {...params} />}
-              value={reg?.dog?.dob || null}
+              renderInput={(params: React.JSX.IntrinsicAttributes & TextFieldProps) => <TextField {...params} />}
+              value={reg?.dog?.dob ?? null}
               views={['year', 'month', 'day']}
             />
           </FormControl>
@@ -263,7 +271,7 @@ export const DogInfo = ({
             label={t('dog.gender')}
             onChange={(value) => handleChange({ dog: { gender: value ? value : undefined } })}
             options={['F', 'M'] as DogGender[]}
-            value={reg?.dog?.gender || ''}
+            value={reg?.dog?.gender ?? ''}
           />
         </Grid>
         <Grid item xs={12} sm={6}>

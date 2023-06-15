@@ -44,6 +44,7 @@ i18n
       escapeValue: false,
     },
   })
+  .catch((reason) => console.error(reason))
 
 //  additional formats
 i18n.services.formatter?.add('dtshort', getDateFormatter('eeeeee d.M. HH:mm'))
