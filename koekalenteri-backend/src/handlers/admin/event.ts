@@ -83,8 +83,7 @@ export const updateRegistrations = async (eventId: string, eventTable: string, r
   const registrations = allRegistrations?.filter((r) => !r.cancelled)
 
   const membershipPriority = (r: JsonRegistration) =>
-    (confirmedEvent.allowHandlerMembershipPriority && r.handler?.membership) ||
-    (confirmedEvent.allowOwnerMembershipPriority && r.owner?.membership)
+    Boolean(confirmedEvent.priority?.includes('member') && (r.handler?.membership || r.owner?.membership))
 
   const classes = confirmedEvent.classes || []
   for (const cls of classes) {

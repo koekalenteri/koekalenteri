@@ -1,30 +1,55 @@
-import { ChangeEvent, useCallback } from 'react'
+import { SyntheticEvent, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Checkbox, FormControlLabel, FormHelperText, Grid } from '@mui/material'
+import { FormHelperText, Grid } from '@mui/material'
 import { sub } from 'date-fns'
 
+import AutocompleteMulti from '../../../components/AutocompleteMulti'
 import CollapsibleSection from '../../../components/CollapsibleSection'
 import DateRange, { DateValue } from '../../../components/DateRange'
 import { SectionProps } from '../EventForm'
 
 import EventFormPlaces from './entrySection/EventFormPlaces'
 
+interface Priority {
+  group: string
+  name: string
+  value: string
+}
+
+const PRIORITY: Priority[] = [
+  { group: 'Järjestävän yhdistyksen jäsen', name: 'Jäsen', value: 'member' },
+  { group: 'Etusija nimetyillä roduilla', name: 'Kultaisetnoutajat', value: '111' },
+  { group: 'Etusija nimetyillä roduilla', name: 'Labradorit', value: '122' },
+  { group: 'Etusija nimetyillä roduilla', name: 'Sileäkarvaiset noutajat', value: '121' },
+  { group: 'Etusija nimetyillä roduilla', name: 'Chesapeakenlahdennoutajat', value: '263' },
+  { group: 'Etusija nimetyillä roduilla', name: 'Novascotiannoutajat', value: '312' },
+  { group: 'Etusija nimetyillä roduilla', name: 'Kiharakarvaiset noutajat', value: '110' },
+  { group: 'Järjestäjän kutsumat koirat', name: 'kutsutut', value: 'invited' },
+]
+
 export default function EntrySection(props: SectionProps) {
   const { t } = useTranslation()
   const { event, fields, helperTexts, onChange, onOpenChange, open } = props
   const error = helperTexts?.entryStartDate || helperTexts?.entryEndDate || helperTexts?.places
   const helperText = error ? t('validation.event.errors') : ''
+  const eventPriority = useMemo(() => {
+    const result: Priority[] = []
+    for (const value of event.priority ?? []) {
+      const priority = PRIORITY.find((p) => p.value === value)
+      if (priority) {
+        result.push(priority)
+      }
+    }
+    return result
+  }, [event.priority])
+
   const handleDateChange = useCallback(
     (start: DateValue, end: DateValue) =>
       onChange?.({ entryStartDate: start || undefined, entryEndDate: end || undefined }),
     [onChange]
   )
-  const handleOwnerMembershipChange = useCallback(
-    (e: ChangeEvent<HTMLInputElement>) => onChange?.({ allowOwnerMembershipPriority: e.target.checked }),
-    [onChange]
-  )
-  const handleHandlerMembershipChange = useCallback(
-    (e: ChangeEvent<HTMLInputElement>) => onChange?.({ allowHandlerMembershipPriority: e.target.checked }),
+  const handlePriorityChange = useCallback(
+    (e: SyntheticEvent<Element, Event>, value: Priority[]) => onChange?.({ priority: value.map((p) => p.value) }),
     [onChange]
   )
 
@@ -60,17 +85,15 @@ export default function EntrySection(props: SectionProps) {
         </Grid>
         <Grid item container spacing={1}>
           <Grid item>
-            <FormControlLabel
-              control={
-                <Checkbox checked={!!event.allowOwnerMembershipPriority} onChange={handleOwnerMembershipChange} />
-              }
-              label="Omistaja jäsenet etusijalla"
-            />
-            <FormControlLabel
-              control={
-                <Checkbox checked={!!event.allowHandlerMembershipPriority} onChange={handleHandlerMembershipChange} />
-              }
-              label="Ohjaaja jäsenet etusijalla"
+            <AutocompleteMulti
+              groupBy={(o) => o?.group ?? ''}
+              isOptionEqualToValue={(o, v) => o?.value === v?.value}
+              getOptionLabel={(o) => o?.name ?? ''}
+              sx={{ width: 600 }}
+              options={PRIORITY}
+              onChange={handlePriorityChange}
+              value={eventPriority}
+              label={'Etusijat'}
             />
           </Grid>
         </Grid>

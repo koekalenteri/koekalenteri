@@ -17,8 +17,7 @@ export interface JsonEvent extends JsonDbRecord {
   description: string
   places: number
   entries?: number
-  allowOwnerMembershipPriority: boolean
-  allowHandlerMembershipPriority: boolean
+  priority?: string[]
   cost: number
   costMember: number
   paymentDetails: string
