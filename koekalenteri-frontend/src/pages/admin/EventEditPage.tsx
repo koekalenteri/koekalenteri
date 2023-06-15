@@ -9,7 +9,7 @@ import { Path } from '../../routeConfig'
 import { hasChanges } from '../../utils'
 import { activeEventTypesSelector, activeJudgesSelector, eventTypeClassesAtom } from '../recoil'
 
-import EventForm from './eventEditPage/EventForm'
+import EventForm from './components/EventForm'
 import {
   adminEventSelector,
   adminUserOrganizersSelector,
