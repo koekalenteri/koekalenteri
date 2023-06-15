@@ -23,6 +23,7 @@ const ForkTsCheckerWebpackPlugin =
     ? require('react-dev-utils/ForkTsCheckerWarningWebpackPlugin')
     : require('react-dev-utils/ForkTsCheckerWebpackPlugin')
 const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin')
+const { EsbuildPlugin } = require('esbuild-loader')
 
 const createEnvironmentHash = require('./webpack/persistentCache/createEnvironmentHash')
 
@@ -228,7 +229,12 @@ module.exports = function (webpackEnv) {
     optimization: {
       minimize: isEnvProduction,
       minimizer: [
+        new EsbuildPlugin({
+          target: 'es2020',
+          css: true,
+        }),
         // This is only used in production mode
+        /*
         new TerserPlugin({
           terserOptions: {
             parse: {
@@ -267,6 +273,7 @@ module.exports = function (webpackEnv) {
         }),
         // This is only used in production mode
         new CssMinimizerPlugin(),
+        */
       ],
     },
     resolve: {
@@ -405,26 +412,14 @@ module.exports = function (webpackEnv) {
                 compact: isEnvProduction,
               },
             },
-            // Process any JS outside of the app with Babel.
+            // Process any JS outside of the app with Esbuild.
             // Unlike the application JS, we only compile the standard ES features.
             {
               test: /\.(js|mjs)$/,
               exclude: /@babel(?:\/|\\{1,2})runtime/,
-              loader: require.resolve('babel-loader'),
+              loader: require.resolve('esbuild-loader'),
               options: {
-                babelrc: false,
-                configFile: false,
-                compact: false,
-                presets: [[require.resolve('babel-preset-react-app/dependencies'), { helpers: true }]],
-                cacheDirectory: true,
-                // See #6846 for context on why cacheCompression is disabled
-                cacheCompression: false,
-
-                // Babel sourcemaps are needed for debugging into node_modules
-                // code.  Without the options below, debuggers like VSCode
-                // show incorrect code and set breakpoints on the wrong lines.
-                sourceMaps: shouldUseSourceMap,
-                inputSourceMap: shouldUseSourceMap,
+                target: 'es2020',
               },
             },
             // "postcss" loader applies autoprefixer to our CSS.

@@ -1,6 +1,6 @@
 {
   "name": "koekalenteri-frontend",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "private": true,
   "dependencies": {
     "@aws-amplify/auth": "^5.1.0",
@@ -239,6 +239,7 @@
     "camelcase": "^6.3.0",
     "core-js": "^3.31.0",
     "css-mediaquery": "^0.1.2",
+    "esbuild-loader": "^3.0.1",
     "eslint-config-react-app": "^7.0.0",
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-react": "^7.31.11",
