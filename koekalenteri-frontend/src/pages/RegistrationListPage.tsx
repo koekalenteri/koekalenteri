@@ -35,22 +35,34 @@ export function RegistrationListPage({ cancel, confirm }: Props) {
   const actions = useRegistrationActions()
   const cancelDisabled = useMemo(() => !event || isPast(event.startDate) || isToday(event.startDate), [event])
 
-  const handleCancel = useCallback(async () => {
+  const handleCancel = useCallback(() => {
     if (!registration) {
       return
     }
-    const saved = await actions.cancel(registration)
-    setRegistration(saved)
-    setCancelOpen(false)
+    actions.cancel(registration).then(
+      (saved) => {
+        setRegistration(saved)
+        setCancelOpen(false)
+      },
+      (reason) => {
+        console.error(reason)
+      }
+    )
   }, [actions, registration, setRegistration])
 
-  const handleConfirm = useCallback(async () => {
+  const handleConfirm = useCallback(() => {
     if (!registration) {
       return
     }
-    const saved = await actions.confirm(registration)
-    setRegistration(saved)
-    setConfirmOpen(false)
+    actions.confirm(registration).then(
+      (saved) => {
+        setRegistration(saved)
+        setConfirmOpen(false)
+      },
+      (reason) => {
+        console.error(reason)
+      }
+    )
   }, [actions, registration, setRegistration])
 
   const handleCalcelClose = useCallback(() => setCancelOpen(false), [])

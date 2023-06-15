@@ -46,16 +46,22 @@ export default function RegistrationCreatePage() {
     [event, navigate, params.class, registration, setRegistration]
   )
 
-  const handleSave = useCallback(async () => {
+  const handleSave = useCallback(() => {
     if (!registration || !event) {
       return
     }
-    const saved = await actions.save(registration)
-    resetRegistration()
-    navigate(Path.registration(saved))
+    actions.save(registration).then(
+      (saved) => {
+        resetRegistration()
+        navigate(Path.registration(saved))
+      },
+      (reason) => {
+        console.error(reason)
+      }
+    )
   }, [actions, event, navigate, registration, resetRegistration])
 
-  const handleCancel = useCallback(async () => {
+  const handleCancel = useCallback(() => {
     resetRegistration()
     navigate('/')
     return true

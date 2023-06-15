@@ -40,16 +40,22 @@ export default function RegistrationDialogBase({
     [registration, setRegistration]
   )
 
-  const handleSave = useCallback(async () => {
+  const handleSave = useCallback(() => {
     if (!registration || !event) {
       return
     }
-    await actions.save(registration)
-    resetRegistration()
-    onClose?.()
+    actions.save(registration).then(
+      () => {
+        resetRegistration()
+        onClose?.()
+      },
+      (reason) => {
+        console.error(reason)
+      }
+    )
   }, [actions, event, onClose, registration, resetRegistration])
 
-  const handleCancel = useCallback(async () => {
+  const handleCancel = useCallback(() => {
     resetRegistration()
     onClose?.()
   }, [onClose, resetRegistration])

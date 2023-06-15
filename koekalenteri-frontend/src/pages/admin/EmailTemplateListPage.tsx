@@ -50,17 +50,24 @@ export default function EmailTemplateListPage() {
     [setTemplate]
   )
 
-  const handleSave = useCallback(async () => {
+  const handleSave = useCallback(() => {
     if (!template) {
       return
     }
-    if (await actions.save(template)) {
-      resetTemplate()
-      setChanges(false)
-    }
+    actions.save(template).then(
+      (ok) => {
+        if (ok) {
+          resetTemplate()
+          setChanges(false)
+        }
+      },
+      (reason) => {
+        console.error(reason)
+      }
+    )
   }, [actions, resetTemplate, template])
 
-  const handleCancel = useCallback(async () => {
+  const handleCancel = useCallback(() => {
     resetTemplate()
     setChanges(false)
   }, [resetTemplate])

@@ -17,10 +17,14 @@ export const useUserActions = () => {
     [navigate, setIdToken]
   )
 
-  const signOut = useCallback(async () => {
-    await Auth.signOut()
-    setIdToken(undefined)
-    navigate('/', { replace: true })
+  const signOut = useCallback(() => {
+    Auth.signOut().then(
+      () => {
+        setIdToken(undefined)
+        navigate('/', { replace: true })
+      },
+      (reason) => console.error(reason)
+    )
   }, [navigate, setIdToken])
 
   return { signIn, signOut }

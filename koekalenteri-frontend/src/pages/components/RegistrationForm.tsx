@@ -136,7 +136,7 @@ export default function RegistrationForm({
     [large, open, registration.ownerHandles]
   )
 
-  const handleSave = useCallback(async () => {
+  const handleSave = useCallback(() => {
     setSaving(true)
     onSave?.()
   }, [onSave])
