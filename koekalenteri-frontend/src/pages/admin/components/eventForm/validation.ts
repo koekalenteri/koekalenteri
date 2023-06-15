@@ -79,8 +79,7 @@ const VALIDATORS: Validators<PartialEvent, 'event'> = {
     if (!required) {
       return false
     }
-    const classes = event.classes
-    if (!classes || !classes.length) {
+    if (!event.classes?.length) {
       return 'classes'
     }
     return false
@@ -94,7 +93,7 @@ const VALIDATORS: Validators<PartialEvent, 'event'> = {
   },
   cost: (event, required) => required && !event.cost,
   costMember: (event) => {
-    const cost = event.cost || 0
+    const cost = event.cost ?? 0
     if (event.costMember && cost < event.costMember) {
       return 'costMemberHigh'
     }
@@ -148,7 +147,7 @@ export type FieldRequirements = {
 }
 
 export function requiredFields(event: PartialEvent): FieldRequirements {
-  const states = STATE_INCLUSION[event.state || 'draft']
+  const states = STATE_INCLUSION[event.state ?? 'draft']
   const result: FieldRequirements = {
     state: {},
     required: {},
@@ -157,7 +156,7 @@ export function requiredFields(event: PartialEvent): FieldRequirements {
     const required = REQUIRED_BY_STATE[state]
     for (const prop in required) {
       result.state[prop as keyof Event] = state
-      result.required[prop as keyof Event] = resolve(required[prop as keyof Event] || false, event)
+      result.required[prop as keyof Event] = resolve(required[prop as keyof Event] ?? false, event)
     }
   }
   return result
@@ -173,7 +172,7 @@ export function validateEventField(
   required: boolean
 ): ValidationResult<PartialEvent, 'event'> {
   const validator =
-    VALIDATORS[field] || (() => required && (typeof event[field] === 'undefined' || event[field] === ''))
+    VALIDATORS[field] ?? (() => required && (typeof event[field] === 'undefined' || event[field] === ''))
   const result = validator(event, required)
   if (!result) {
     return false

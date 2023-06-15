@@ -18,14 +18,12 @@ function filterJudges(judges: Judge[], eventJudges: number[], id: number | undef
     .filter((j) => j.id === id || !eventJudges.includes(j.id))
 }
 
-function filterClassesByJudgeId(classes?: EventClass[], id?: number) {
-  return classes?.filter((c) =>
-    Array.isArray(c.judge) ? c.judge.find((j) => j.id === id) : c.judge && c.judge.id === id
-  )
-}
-
 function hasJudge(c: DeepPartial<EventClass>, id?: number) {
   return Array.isArray(c.judge) ? c.judge.find((j) => j.id === id) : c.judge?.id === id
+}
+
+function filterClassesByJudgeId(classes?: EventClass[], id?: number) {
+  return classes?.filter((c) => hasJudge(c, id))
 }
 
 interface Props extends SectionProps {
@@ -56,7 +54,7 @@ export default function JudgesSection({ event, judges, fields, onChange, onOpenC
   const toArray = (j?: DeepPartial<ClassJudge>): DeepPartial<ClassJudge[]> => (j ? [j] : [])
   const makeArray = (j?: DeepPartial<ClassJudge | ClassJudge[]>) => (Array.isArray(j) ? [...j] : toArray(j))
   const selectJudge = (j?: DeepPartial<ClassJudge | ClassJudge[]>, id?: number): DeepPartial<ClassJudge[]> => {
-    const judge = id ? { id, name: judges.find((j) => j.id === id)?.name || '' } : undefined
+    const judge = id ? { id, name: judges.find((j) => j.id === id)?.name ?? '' } : undefined
     const a = makeArray(j)
     if (judge && !a.find((cj) => cj.id === id)) {
       a.push(judge)
@@ -70,7 +68,7 @@ export default function JudgesSection({ event, judges, fields, onChange, onOpenC
   const updateJudge = (id: number | undefined, values?: DeepPartial<EventClass>[]) => {
     const isSelected = (c: DeepPartial<EventClass>) =>
       values?.find(
-        (v) => event && isSameDay(v.date || event.startDate, c.date || event.startDate) && v.class === c.class
+        (v) => event && isSameDay(v.date ?? event.startDate, c.date ?? event.startDate) && v.class === c.class
       )
     return event.classes?.map((c) => ({
       ...c,

@@ -39,14 +39,14 @@ export default function BasicInfoSection({
   const [helpAnchorEl, setHelpAnchorEl] = useState<HTMLButtonElement | null>(null)
   const typeOptions = eventClassOptions(event, eventTypeClasses?.[event.eventType ?? ''] ?? [])
   const error =
-    errorStates?.startDate ||
-    errorStates?.endDate ||
-    errorStates?.kcId ||
-    errorStates?.eventType ||
-    errorStates?.classes ||
-    errorStates?.organizer ||
-    errorStates?.location ||
-    errorStates?.official ||
+    errorStates?.startDate ??
+    errorStates?.endDate ??
+    errorStates?.kcId ??
+    errorStates?.eventType ??
+    errorStates?.classes ??
+    errorStates?.organizer ??
+    errorStates?.location ??
+    errorStates?.official ??
     errorStates?.secretary
   const helperText = error
     ? t('validation.event.errors')
@@ -57,8 +57,8 @@ export default function BasicInfoSection({
   const hasEntries = (event.entries ?? 0) > 0
   const handleDateChange = useCallback(
     (start: DateValue, end: DateValue) => {
-      start = start || event.startDate
-      end = end || event.endDate
+      start = start ?? event.startDate
+      end = end ?? event.endDate
       if (!isSameDay(start, event.startDate) && isSameDay(end, event.endDate)) {
         // startDate changed and endDate remained the same => change endDate based on the previous distance between days
         end = add(start, { days: differenceInDays(event.endDate, event.startDate) })
@@ -85,9 +85,9 @@ export default function BasicInfoSection({
     [onChange]
   )
   const isEqualId = useCallback((o?: { id?: number | string }, v?: { id?: number | string }) => o?.id === v?.id, [])
-  const getName = useCallback((o?: string | { name?: string }) => (typeof o === 'string' ? o : o?.name || ''), [])
+  const getName = useCallback((o?: string | { name?: string }) => (typeof o === 'string' ? o : o?.name ?? ''), [])
   const getNameOrEmail = useCallback(
-    (o?: string | { name?: string; email?: string }) => (typeof o === 'string' ? o : o?.name || o?.email || ''),
+    (o?: string | { name?: string; email?: string }) => (typeof o === 'string' ? o : o?.name ?? o?.email ?? ''),
     []
   )
   const handleSecretaryChange = useCallback(
@@ -174,7 +174,7 @@ export default function BasicInfoSection({
         </Grid>
         <Grid item container spacing={1}>
           <Grid item sx={{ width: 600 }}>
-            <TextField label="Tapahtuman nimi" fullWidth value={event.name || ''} onChange={handleNameChange} />
+            <TextField label="Tapahtuman nimi" fullWidth value={event.name ?? ''} onChange={handleNameChange} />
           </Grid>
         </Grid>
         <Grid item container spacing={1}>
@@ -246,7 +246,7 @@ function eventClassOptions(event: PartialEvent | undefined, typeClasses: string[
 function updateClassDates(event: PartialEvent, start: Date, end: Date) {
   const result: EventClass[] = []
   for (const c of event.classes) {
-    const date = startOfDay(add(start, { days: differenceInDays(c.date || event.startDate, event.startDate) }))
+    const date = startOfDay(add(start, { days: differenceInDays(c.date ?? event.startDate, event.startDate) }))
     if (!isAfter(date, end)) {
       result.push({ ...c, date })
     }

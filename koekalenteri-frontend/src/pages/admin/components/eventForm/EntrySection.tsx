@@ -30,7 +30,7 @@ const PRIORITY: Priority[] = [
 export default function EntrySection(props: SectionProps) {
   const { t } = useTranslation()
   const { event, fields, helperTexts, onChange, onOpenChange, open } = props
-  const error = helperTexts?.entryStartDate || helperTexts?.entryEndDate || helperTexts?.places
+  const error = helperTexts?.entryStartDate ?? helperTexts?.entryEndDate ?? helperTexts?.places
   const helperText = error ? t('validation.event.errors') : ''
   const eventPriority = useMemo(() => {
     const result: Priority[] = []
@@ -45,7 +45,7 @@ export default function EntrySection(props: SectionProps) {
 
   const handleDateChange = useCallback(
     (start: DateValue, end: DateValue) =>
-      onChange?.({ entryStartDate: start || undefined, entryEndDate: end || undefined }),
+      onChange?.({ entryStartDate: start ?? undefined, entryEndDate: end ?? undefined }),
     [onChange]
   )
   const handlePriorityChange = useCallback(
@@ -67,15 +67,15 @@ export default function EntrySection(props: SectionProps) {
             <DateRange
               startLabel="Ilmoittautumisaika alkaa"
               endLabel="Ilmoittautumisaika päättyy"
-              start={event.entryStartDate || null}
+              start={event.entryStartDate ?? null}
               defaultStart={sub(event.startDate, { weeks: 6 })}
-              end={event.entryEndDate || null}
+              end={event.entryEndDate ?? null}
               defaultEnd={sub(event.startDate, { weeks: 3 })}
-              range={{ start: event.createdAt || sub(event.startDate, { weeks: 9 }), end: event.startDate }}
-              required={fields?.required.entryStartDate || fields?.required.entryEndDate}
+              range={{ start: event.createdAt ?? sub(event.startDate, { weeks: 9 }), end: event.startDate }}
+              required={fields?.required.entryStartDate ?? fields?.required.entryEndDate}
               onChange={handleDateChange}
             />
-            <FormHelperText error>{helperTexts?.entryStartDate || helperTexts?.entryEndDate}</FormHelperText>
+            <FormHelperText error>{helperTexts?.entryStartDate ?? helperTexts?.entryEndDate}</FormHelperText>
           </Grid>
         </Grid>
         <Grid item container spacing={1}>

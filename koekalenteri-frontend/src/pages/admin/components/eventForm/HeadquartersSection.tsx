@@ -43,7 +43,7 @@ export default function HeadquartersSection({ headquarters, onChange, onOpenChan
           <Grid item sx={{ width: 300 }}>
             <TextField
               label={t('event.headquarters.name')}
-              defaultValue={headquarters?.name || ''}
+              defaultValue={headquarters?.name ?? ''}
               onChange={handleNameChange}
               fullWidth
             />
@@ -51,7 +51,7 @@ export default function HeadquartersSection({ headquarters, onChange, onOpenChan
           <Grid item sx={{ width: 300 }}>
             <TextField
               label={t('event.headquarters.address')}
-              defaultValue={headquarters?.address || ''}
+              defaultValue={headquarters?.address ?? ''}
               onChange={handleAddressChange}
               fullWidth
             />
@@ -61,7 +61,7 @@ export default function HeadquartersSection({ headquarters, onChange, onOpenChan
           <Grid item sx={{ width: 300 }}>
             <TextField
               label={t('event.headquarters.zipCode')}
-              defaultValue={headquarters?.zipCode || ''}
+              defaultValue={headquarters?.zipCode ?? ''}
               onChange={handleZipCodeChange}
               fullWidth
             />
@@ -69,7 +69,7 @@ export default function HeadquartersSection({ headquarters, onChange, onOpenChan
           <Grid item sx={{ width: 300 }}>
             <TextField
               label={t('event.headquarters.postalDistrict')}
-              defaultValue={headquarters?.postalDistrict || ''}
+              defaultValue={headquarters?.postalDistrict ?? ''}
               onChange={handleDistrictChange}
               fullWidth
             />
