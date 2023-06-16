@@ -18,7 +18,7 @@ export function withinDateFilters(event: Event, { start, end }: FilterProps) {
 export function withinSwitchFilters(
   event: Event,
   { withOpenEntry, withClosingEntry, withUpcomingEntry, withFreePlaces }: FilterProps
-) {
+): boolean {
   let result
 
   if (withOpenEntry) {
@@ -32,7 +32,7 @@ export function withinSwitchFilters(
   }
 
   if (withUpcomingEntry) {
-    result = result ?? isEntryUpcoming(event)
+    result = result || isEntryUpcoming(event)
   }
 
   return result !== false
