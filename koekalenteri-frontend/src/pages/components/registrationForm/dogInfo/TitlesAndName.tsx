@@ -1,5 +1,6 @@
 import { ChangeEvent, useCallback, useEffect, useState } from 'react'
-import { Grid, TextField } from '@mui/material'
+import Grid from '@mui/material/Grid'
+import TextField from '@mui/material/TextField'
 
 import useDebouncedCallback from '../../../../hooks/useDebouncedCallback'
 

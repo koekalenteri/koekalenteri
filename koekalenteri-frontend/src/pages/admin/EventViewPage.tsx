@@ -1,14 +1,18 @@
 import { Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
-import {
-  AddCircleOutline,
-  EditOutlined,
-  EmailOutlined,
-  FormatListBulleted,
-  FormatListNumberedOutlined,
-} from '@mui/icons-material'
-import { Box, Button, Divider, Grid, Stack, Tab, Tabs } from '@mui/material'
+import AddCircleOutline from '@mui/icons-material/AddCircleOutline'
+import EditOutlined from '@mui/icons-material/EditOutlined'
+import EmailOutlined from '@mui/icons-material/EmailOutlined'
+import FormatListBulleted from '@mui/icons-material/FormatListBulleted'
+import FormatListNumberedOutlined from '@mui/icons-material/FormatListNumberedOutlined'
+import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
+import Divider from '@mui/material/Divider'
+import Grid from '@mui/material/Grid'
+import Stack from '@mui/material/Stack'
+import Tab from '@mui/material/Tab'
+import Tabs from '@mui/material/Tabs'
 import { EmailTemplateId, Registration } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue } from 'recoil'
 

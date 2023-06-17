@@ -1,7 +1,9 @@
 import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ExpandMore, PersonOutline } from '@mui/icons-material'
-import { Menu, MenuItem } from '@mui/material'
+import ExpandMore from '@mui/icons-material/ExpandMore'
+import PersonOutline from '@mui/icons-material/PersonOutline'
+import Menu from '@mui/material/Menu'
+import MenuItem from '@mui/material/MenuItem'
 
 import { useUserActions } from '../../../recoil/user/actions'
 import AppBarButton from '../AppBarButton'

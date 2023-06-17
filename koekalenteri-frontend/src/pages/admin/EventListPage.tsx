@@ -1,14 +1,14 @@
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
-import {
-  AddCircleOutline,
-  ContentCopyOutlined,
-  DeleteOutline,
-  EditOutlined,
-  FormatListNumberedOutlined,
-} from '@mui/icons-material'
-import { FormControlLabel, Stack, Switch } from '@mui/material'
+import AddCircleOutline from '@mui/icons-material/AddCircleOutline'
+import ContentCopyOutlined from '@mui/icons-material/ContentCopyOutlined'
+import DeleteOutline from '@mui/icons-material/DeleteOutline'
+import EditOutlined from '@mui/icons-material/EditOutlined'
+import FormatListNumberedOutlined from '@mui/icons-material/FormatListNumberedOutlined'
+import FormControlLabel from '@mui/material/FormControlLabel'
+import Stack from '@mui/material/Stack'
+import Switch from '@mui/material/Switch'
 import { GridSelectionModel } from '@mui/x-data-grid'
 import { useConfirm } from 'material-ui-confirm'
 import { useRecoilState, useRecoilValue } from 'recoil'

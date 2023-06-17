@@ -1,4 +1,8 @@
-import { Button, ButtonProps, IconButton, Stack, Theme, Typography, useMediaQuery } from '@mui/material'
+import { ButtonProps, Theme, useMediaQuery } from '@mui/material'
+import Button from '@mui/material/Button'
+import IconButton from '@mui/material/IconButton'
+import Stack from '@mui/material/Stack'
+import Typography from '@mui/material/Typography'
 
 interface Props extends ButtonProps {
   text: string

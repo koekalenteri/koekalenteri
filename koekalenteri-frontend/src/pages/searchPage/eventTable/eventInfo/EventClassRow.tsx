@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next'
-import { TableCell, TableRow } from '@mui/material'
+import TableCell from '@mui/material/TableCell'
+import TableRow from '@mui/material/TableRow'
 import { Event } from 'koekalenteri-shared/model'
 
 import { EventClassTable } from './EventClassTable'

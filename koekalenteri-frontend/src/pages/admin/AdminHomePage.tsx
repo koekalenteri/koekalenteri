@@ -1,6 +1,6 @@
 import { Suspense, useCallback, useState } from 'react'
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
-import { Box } from '@mui/material'
+import Box from '@mui/material/Box'
 import { useRecoilValue } from 'recoil'
 
 import { Path } from '../../routeConfig'

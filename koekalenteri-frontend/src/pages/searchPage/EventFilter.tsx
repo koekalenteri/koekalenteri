@@ -1,6 +1,10 @@
 import { SyntheticEvent, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Box, FormControlLabel, Grid, Stack, Switch } from '@mui/material'
+import Box from '@mui/material/Box'
+import FormControlLabel from '@mui/material/FormControlLabel'
+import Grid from '@mui/material/Grid'
+import Stack from '@mui/material/Stack'
+import Switch from '@mui/material/Switch'
 import { Judge, Organizer } from 'koekalenteri-shared/model'
 
 import AutocompleteMulti from '../components/AutocompleteMulti'

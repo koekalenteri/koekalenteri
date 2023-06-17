@@ -1,6 +1,7 @@
 import { SyntheticEvent, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { FormHelperText, Grid } from '@mui/material'
+import FormHelperText from '@mui/material/FormHelperText'
+import Grid from '@mui/material/Grid'
 import { sub } from 'date-fns'
 
 import AutocompleteMulti from '../../../components/AutocompleteMulti'

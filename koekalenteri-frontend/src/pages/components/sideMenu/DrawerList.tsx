@@ -1,5 +1,5 @@
 import { ReactNode } from 'react'
-import { List } from '@mui/material'
+import List from '@mui/material/List'
 
 interface Props {
   children: ReactNode

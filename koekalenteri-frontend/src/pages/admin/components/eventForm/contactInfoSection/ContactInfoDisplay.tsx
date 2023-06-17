@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { Grid } from '@mui/material'
+import Grid from '@mui/material/Grid'
 import { Person, ShowContactInfo } from 'koekalenteri-shared/model'
 
 interface Props {

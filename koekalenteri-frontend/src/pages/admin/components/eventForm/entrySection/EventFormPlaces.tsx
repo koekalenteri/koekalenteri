@@ -1,18 +1,16 @@
 import { ChangeEvent, useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import {
-  Box,
-  Checkbox,
-  FormControlLabel,
-  FormHelperText,
-  Stack,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-  Typography,
-} from '@mui/material'
+import Box from '@mui/material/Box'
+import Checkbox from '@mui/material/Checkbox'
+import FormControlLabel from '@mui/material/FormControlLabel'
+import FormHelperText from '@mui/material/FormHelperText'
+import Stack from '@mui/material/Stack'
+import Table from '@mui/material/Table'
+import TableBody from '@mui/material/TableBody'
+import TableCell from '@mui/material/TableCell'
+import TableHead from '@mui/material/TableHead'
+import TableRow from '@mui/material/TableRow'
+import Typography from '@mui/material/Typography'
 import { eachDayOfInterval, isSameDay } from 'date-fns'
 import { DeepPartial, EventClass } from 'koekalenteri-shared/model'
 

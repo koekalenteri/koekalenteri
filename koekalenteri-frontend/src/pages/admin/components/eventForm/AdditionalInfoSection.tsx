@@ -1,6 +1,6 @@
 import { ChangeEvent, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { TextField } from '@mui/material'
+import TextField from '@mui/material/TextField'
 
 import CollapsibleSection from '../../../components/CollapsibleSection'
 import { SectionProps } from '../EventForm'

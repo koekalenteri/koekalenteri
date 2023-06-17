@@ -1,6 +1,7 @@
 import { ChangeEvent, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Grid, TextField } from '@mui/material'
+import Grid from '@mui/material/Grid'
+import TextField from '@mui/material/TextField'
 import { Headquarters } from 'koekalenteri-shared/model'
 
 import CollapsibleSection from '../../../components/CollapsibleSection'

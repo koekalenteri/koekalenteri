@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { TableCell, TableRow } from '@mui/material'
+import TableCell from '@mui/material/TableCell'
+import TableRow from '@mui/material/TableRow'
 import { Event, EventClass } from 'koekalenteri-shared/model'
 
 import { Path } from '../../../../routeConfig'

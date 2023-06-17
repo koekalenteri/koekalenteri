@@ -1,5 +1,6 @@
 import { ChangeEventHandler, useCallback, useEffect, useState } from 'react'
-import { StandardTextFieldProps, TextField } from '@mui/material'
+import { StandardTextFieldProps } from '@mui/material'
+import TextField from '@mui/material/TextField'
 
 import useDebouncedCallback from '../../../../../../hooks/useDebouncedCallback'
 

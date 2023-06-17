@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { Navigate, useLocation, useParams } from 'react-router-dom'
-import { Box } from '@mui/material'
+import Box from '@mui/material/Box'
 import { Registration, RegistrationTime } from 'koekalenteri-shared/model'
 import { useRecoilValue } from 'recoil'
 

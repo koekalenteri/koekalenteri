@@ -1,4 +1,6 @@
-import { Table, TableBody, TableContainer } from '@mui/material'
+import Table from '@mui/material/Table'
+import TableBody from '@mui/material/TableBody'
+import TableContainer from '@mui/material/TableContainer'
 import type { Event } from 'koekalenteri-shared/model'
 
 import { EmptyResult } from './eventTable/EmptyResult'

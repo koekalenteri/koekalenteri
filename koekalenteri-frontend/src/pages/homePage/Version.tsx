@@ -1,4 +1,4 @@
-import { Box } from '@mui/material'
+import Box from '@mui/material/Box'
 import { lightFormat } from 'date-fns'
 import preval from 'preval.macro'
 

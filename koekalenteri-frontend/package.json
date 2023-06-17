@@ -99,7 +99,8 @@
     "plugins": [
       "react",
       "simple-import-sort",
-      "prettier"
+      "prettier",
+      "mui-path-imports"
     ],
     "rules": {
       "prettier/prettier": "error",
@@ -124,6 +125,7 @@
           "after": true
         }
       ],
+      "mui-path-imports/mui-path-imports": "error",
       "@typescript-eslint/indent": "off",
       "simple-import-sort/imports": [
         "error",
@@ -241,6 +243,7 @@
     "css-mediaquery": "^0.1.2",
     "esbuild-loader": "^3.0.1",
     "eslint-config-react-app": "^7.0.0",
+    "eslint-plugin-mui-path-imports": "^0.0.15",
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-react": "^7.31.11",
     "eslint-plugin-simple-import-sort": "^10.0.0",

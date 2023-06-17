@@ -1,5 +1,8 @@
 import { MouseEventHandler, ReactNode } from 'react'
-import { ListItem, ListItemIcon, ListItemText, Tooltip } from '@mui/material'
+import ListItem from '@mui/material/ListItem'
+import ListItemIcon from '@mui/material/ListItemIcon'
+import ListItemText from '@mui/material/ListItemText'
+import Tooltip from '@mui/material/Tooltip'
 
 interface Props {
   text: string

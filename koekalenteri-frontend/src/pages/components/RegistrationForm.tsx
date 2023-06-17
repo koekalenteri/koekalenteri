@@ -1,21 +1,19 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
-import { Cancel, Save } from '@mui/icons-material'
-import { LoadingButton } from '@mui/lab'
-import {
-  Box,
-  Button,
-  Checkbox,
-  Collapse,
-  FormControl,
-  FormControlLabel,
-  FormHelperText,
-  Link,
-  Paper,
-  Stack,
-  Theme,
-  useMediaQuery,
-} from '@mui/material'
+import Cancel from '@mui/icons-material/Cancel'
+import Save from '@mui/icons-material/Save'
+import LoadingButton from '@mui/lab/LoadingButton'
+import { Theme, useMediaQuery } from '@mui/material'
+import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
+import Checkbox from '@mui/material/Checkbox'
+import Collapse from '@mui/material/Collapse'
+import FormControl from '@mui/material/FormControl'
+import FormControlLabel from '@mui/material/FormControlLabel'
+import FormHelperText from '@mui/material/FormHelperText'
+import Link from '@mui/material/Link'
+import Paper from '@mui/material/Paper'
+import Stack from '@mui/material/Stack'
 import { TFunction } from 'i18next'
 import { ConfirmedEvent, DeepPartial, Registration, TestResult } from 'koekalenteri-shared/model'
 

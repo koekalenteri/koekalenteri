@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next'
-import { Grid, Paper } from '@mui/material'
+import Grid from '@mui/material/Grid'
+import Paper from '@mui/material/Paper'
 import { ConfirmedEvent } from 'koekalenteri-shared/model'
 import { useRecoilValue } from 'recoil'
 

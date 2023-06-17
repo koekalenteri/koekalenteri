@@ -1,11 +1,7 @@
 import { SyntheticEvent, useCallback, useMemo } from 'react'
-import {
-  Autocomplete,
-  AutocompleteChangeDetails,
-  AutocompleteChangeReason,
-  AutocompleteProps,
-  TextField,
-} from '@mui/material'
+import { AutocompleteChangeDetails, AutocompleteChangeReason, AutocompleteProps } from '@mui/material'
+import Autocomplete from '@mui/material/Autocomplete'
+import TextField from '@mui/material/TextField'
 
 type OmitProps = 'fullWidth' | 'freeSolo' | 'multiple' | 'renderInput' | 'onChange'
 

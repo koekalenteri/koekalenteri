@@ -1,6 +1,6 @@
 import { SyntheticEvent, useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Grid } from '@mui/material'
+import Grid from '@mui/material/Grid'
 import { format, isSameDay } from 'date-fns'
 import { ConfirmedEvent, Registration, RegistrationDate, ReserveChoise } from 'koekalenteri-shared/model'
 

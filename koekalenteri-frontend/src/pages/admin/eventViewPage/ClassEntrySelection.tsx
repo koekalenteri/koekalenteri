@@ -2,7 +2,8 @@ import React, { Dispatch, SetStateAction, useCallback, useMemo } from 'react'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { useTranslation } from 'react-i18next'
-import { Box, Typography } from '@mui/material'
+import Box from '@mui/material/Box'
+import Typography from '@mui/material/Typography'
 import { GridCallbackDetails, GridCellParams, GridSelectionModel, MuiEvent } from '@mui/x-data-grid'
 import {
   EventClassState,

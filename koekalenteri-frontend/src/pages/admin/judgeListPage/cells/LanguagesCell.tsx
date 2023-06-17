@@ -1,5 +1,6 @@
 import React, { useCallback } from 'react'
-import { ToggleButton, ToggleButtonGroup } from '@mui/material'
+import ToggleButton from '@mui/material/ToggleButton'
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 import { GridRenderCellParams } from '@mui/x-data-grid'
 import { t } from 'i18next'
 import { Judge } from 'koekalenteri-shared/model'

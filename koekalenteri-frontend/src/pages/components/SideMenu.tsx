@@ -1,16 +1,16 @@
 import { useTranslation } from 'react-i18next'
 import { NavLink } from 'react-router-dom'
-import {
-  Accessibility,
-  EmojiEventsOutlined,
-  Event,
-  Logout,
-  MailOutline,
-  PersonOutline,
-  SupervisorAccount,
-  Support,
-} from '@mui/icons-material'
-import { Box, Divider, Theme, useMediaQuery } from '@mui/material'
+import Accessibility from '@mui/icons-material/Accessibility'
+import EmojiEventsOutlined from '@mui/icons-material/EmojiEventsOutlined'
+import Event from '@mui/icons-material/Event'
+import Logout from '@mui/icons-material/Logout'
+import MailOutline from '@mui/icons-material/MailOutline'
+import PersonOutline from '@mui/icons-material/PersonOutline'
+import SupervisorAccount from '@mui/icons-material/SupervisorAccount'
+import Support from '@mui/icons-material/Support'
+import { Theme, useMediaQuery } from '@mui/material'
+import Box from '@mui/material/Box'
+import Divider from '@mui/material/Divider'
 import { useRecoilValue } from 'recoil'
 
 import { Path } from '../../routeConfig'

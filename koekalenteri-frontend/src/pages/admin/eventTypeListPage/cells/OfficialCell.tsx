@@ -1,4 +1,5 @@
-import { CheckBoxOutlineBlankOutlined, CheckBoxOutlined } from '@mui/icons-material'
+import CheckBoxOutlineBlankOutlined from '@mui/icons-material/CheckBoxOutlineBlankOutlined'
+import CheckBoxOutlined from '@mui/icons-material/CheckBoxOutlined'
 import { GridRenderCellParams } from '@mui/x-data-grid'
 import { EventType } from 'koekalenteri-shared/model'
 

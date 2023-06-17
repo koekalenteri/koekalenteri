@@ -1,6 +1,7 @@
 import { ChangeEvent, SyntheticEvent, useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Grid, TextField } from '@mui/material'
+import Grid from '@mui/material/Grid'
+import TextField from '@mui/material/TextField'
 import { add, differenceInDays, eachDayOfInterval, isAfter, isSameDay, startOfDay } from 'date-fns'
 import { DeepPartial, EventClass, Official, Organizer, Secretary } from 'koekalenteri-shared/model'
 

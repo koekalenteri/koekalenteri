@@ -1,7 +1,8 @@
 import { MouseEvent, useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ExpandMore, Language as LanguageIcon } from '@mui/icons-material'
-import { Menu } from '@mui/material'
+import ExpandMore from '@mui/icons-material/ExpandMore'
+import LanguageIcon from '@mui/icons-material/Language'
+import Menu from '@mui/material/Menu'
 import { Language } from 'koekalenteri-shared/model'
 import { useRecoilValue } from 'recoil'
 

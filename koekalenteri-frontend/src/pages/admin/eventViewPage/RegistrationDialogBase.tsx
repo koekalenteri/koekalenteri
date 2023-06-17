@@ -1,5 +1,7 @@
 import { useCallback, useMemo } from 'react'
-import { Dialog, DialogContent, DialogTitle } from '@mui/material'
+import Dialog from '@mui/material/Dialog'
+import DialogContent from '@mui/material/DialogContent'
+import DialogTitle from '@mui/material/DialogTitle'
 import { ConfirmedEvent, Event, Registration } from 'koekalenteri-shared/model'
 import { Resetter, SetterOrUpdater } from 'recoil'
 

@@ -3,9 +3,12 @@
 exports[`SendMessageDialog renders hidden when open is false 1`] = `<div />`;
 
 exports[`SendMessageDialog renders with all parameters 1`] = `
-<div
-  aria-hidden="true"
+<body
+  style="padding-right: 1024px; overflow: hidden;"
 >
+  <div
+    aria-hidden="true"
+  />
   <div
     class="MuiDialog-root MuiModal-root css-zw3mfo-MuiModal-root-MuiDialog-root"
     role="presentation"
@@ -744,13 +747,16 @@ additional notes
       tabindex="0"
     />
   </div>
-</div>
+</body>
 `;
 
 exports[`SendMessageDialog renders with minimal parameters 1`] = `
-<div
-  aria-hidden="true"
+<body
+  style="padding-right: 1024px; overflow: hidden;"
 >
+  <div
+    aria-hidden="true"
+  />
   <div
     class="MuiDialog-root MuiModal-root css-zw3mfo-MuiModal-root-MuiDialog-root"
     role="presentation"
@@ -1078,5 +1084,5 @@ exports[`SendMessageDialog renders with minimal parameters 1`] = `
       tabindex="0"
     />
   </div>
-</div>
+</body>
 `;

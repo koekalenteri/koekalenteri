@@ -1,6 +1,9 @@
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Checkbox, FormControlLabel, Grid, TextField } from '@mui/material'
+import Checkbox from '@mui/material/Checkbox'
+import FormControlLabel from '@mui/material/FormControlLabel'
+import Grid from '@mui/material/Grid'
+import TextField from '@mui/material/TextField'
 import { DeepPartial, Registration, RegistrationPerson } from 'koekalenteri-shared/model'
 
 import CollapsibleSection from '../CollapsibleSection'

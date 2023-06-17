@@ -1,5 +1,7 @@
 import { ReactNode } from 'react'
-import { Fade, Paper, Popover } from '@mui/material'
+import Fade from '@mui/material/Fade'
+import Paper from '@mui/material/Paper'
+import Popover from '@mui/material/Popover'
 
 interface Props {
   anchorEl: HTMLButtonElement | null

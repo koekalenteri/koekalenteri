@@ -1,5 +1,5 @@
 import { ChangeEvent, useCallback } from 'react'
-import { Switch } from '@mui/material'
+import Switch from '@mui/material/Switch'
 import { GridRenderCellParams } from '@mui/x-data-grid'
 import { Judge } from 'koekalenteri-shared/model'
 import { useRecoilValue } from 'recoil'

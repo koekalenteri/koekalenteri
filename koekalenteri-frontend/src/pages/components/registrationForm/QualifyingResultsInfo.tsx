@@ -1,7 +1,8 @@
 import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { AddOutlined } from '@mui/icons-material'
-import { Button, Grid } from '@mui/material'
+import AddOutlined from '@mui/icons-material/AddOutlined'
+import Button from '@mui/material/Button'
+import Grid from '@mui/material/Grid'
 import { ManualTestResult, QualifyingResult, Registration, TestResult } from 'koekalenteri-shared/model'
 
 import { EventResultRequirementsByDate } from '../../../rules'

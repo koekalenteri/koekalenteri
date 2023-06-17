@@ -1,6 +1,8 @@
 import { StrictMode, Suspense } from 'react'
 import { createRoot } from 'react-dom/client'
-import { CssBaseline, StyledEngineProvider, ThemeProvider } from '@mui/material'
+import { ThemeProvider } from '@mui/material'
+import CssBaseline from '@mui/material/CssBaseline'
+import StyledEngineProvider from '@mui/material/StyledEngineProvider'
 import { RecoilRoot } from 'recoil'
 
 import './i18n'

@@ -1,11 +1,9 @@
 import { useTranslation } from 'react-i18next'
-import {
-  DragIndicatorOutlined,
-  EditOutlined,
-  EuroOutlined,
-  EventBusyOutlined,
-  PersonOutline,
-} from '@mui/icons-material'
+import DragIndicatorOutlined from '@mui/icons-material/DragIndicatorOutlined'
+import EditOutlined from '@mui/icons-material/EditOutlined'
+import EuroOutlined from '@mui/icons-material/EuroOutlined'
+import EventBusyOutlined from '@mui/icons-material/EventBusyOutlined'
+import PersonOutline from '@mui/icons-material/PersonOutline'
 import { GridActionsCellItem, GridColumns, GridValueGetterParams } from '@mui/x-data-grid'
 import { BreedCode, Registration } from 'koekalenteri-shared/model'
 

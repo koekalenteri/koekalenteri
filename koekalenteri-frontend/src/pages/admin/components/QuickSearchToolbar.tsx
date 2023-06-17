@@ -1,7 +1,10 @@
 import { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Clear, Search } from '@mui/icons-material'
-import { IconButton, Stack, TextField } from '@mui/material'
+import Clear from '@mui/icons-material/Clear'
+import Search from '@mui/icons-material/Search'
+import IconButton from '@mui/material/IconButton'
+import Stack from '@mui/material/Stack'
+import TextField from '@mui/material/TextField'
 import { GridToolbarColumnsButton, GridToolbarContainer } from '@mui/x-data-grid'
 
 export interface QuickSearchToolbarProps {

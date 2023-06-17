@@ -1,5 +1,5 @@
 import { useCallback } from 'react'
-import { InputAdornment } from '@mui/material'
+import InputAdornment from '@mui/material/InputAdornment'
 import { Event } from 'koekalenteri-shared/model'
 
 import EventProperty, { EventPropertyProps } from './EventProperty'

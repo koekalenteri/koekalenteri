@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Tooltip } from '@mui/material'
+import Tooltip from '@mui/material/Tooltip'
 import type { RegistrationDate } from 'koekalenteri-shared/model'
 
 interface Props {

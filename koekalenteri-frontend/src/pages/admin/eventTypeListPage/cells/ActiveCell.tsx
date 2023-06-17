@@ -1,5 +1,5 @@
 import { ChangeEvent, useCallback } from 'react'
-import { Switch } from '@mui/material'
+import Switch from '@mui/material/Switch'
 import { GridRenderCellParams } from '@mui/x-data-grid'
 import { EventType } from 'koekalenteri-shared/model'
 

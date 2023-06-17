@@ -1,7 +1,10 @@
 import { ReactNode, SyntheticEvent, useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { HelpOutlined } from '@mui/icons-material'
-import { Autocomplete, AutocompleteFreeSoloValueMapping, AutocompleteProps, IconButton, TextField } from '@mui/material'
+import HelpOutlined from '@mui/icons-material/HelpOutlined'
+import { AutocompleteFreeSoloValueMapping, AutocompleteProps } from '@mui/material'
+import Autocomplete from '@mui/material/Autocomplete'
+import IconButton from '@mui/material/IconButton'
+import TextField from '@mui/material/TextField'
 import { Box } from '@mui/system'
 import { Event } from 'koekalenteri-shared/model'
 

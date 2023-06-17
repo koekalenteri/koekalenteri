@@ -1,6 +1,11 @@
 import { ReactNode, useState } from 'react'
-import { KeyboardArrowDown, KeyboardArrowRight } from '@mui/icons-material'
-import { Box, Collapse, FormHelperText, IconButton, Typography } from '@mui/material'
+import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown'
+import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight'
+import Box from '@mui/material/Box'
+import Collapse from '@mui/material/Collapse'
+import FormHelperText from '@mui/material/FormHelperText'
+import IconButton from '@mui/material/IconButton'
+import Typography from '@mui/material/Typography'
 
 interface Props {
   border?: boolean

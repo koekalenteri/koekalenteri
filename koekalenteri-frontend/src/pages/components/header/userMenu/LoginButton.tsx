@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { PersonOutline } from '@mui/icons-material'
+import PersonOutline from '@mui/icons-material/PersonOutline'
 
 import { Path } from '../../../../routeConfig'
 import AppBarButton from '../AppBarButton'

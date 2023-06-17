@@ -30,17 +30,18 @@ describe('SendMessageDialog', () => {
   })
 
   it('renders with minimal parameters', async () => {
-    const { container } = render(<SendMessageDialog registrations={[]} open={true} event={eventWithStaticDates} />, {
+    const { baseElement } = render(<SendMessageDialog registrations={[]} open={true} event={eventWithStaticDates} />, {
       wrapper: Wrapper,
     })
     await flushPromisesAndTimers()
-    expect(container).toMatchSnapshot()
+    await flushPromisesAndTimers()
+    expect(baseElement).toMatchSnapshot()
   })
 
   it('renders with all parameters', async () => {
     const registrations: Registration[] = [registrationWithStaticDates, registrationWithStaticDatesCancelled]
 
-    const { container } = render(
+    const { baseElement } = render(
       <SendMessageDialog
         registrations={registrations}
         open={true}
@@ -51,6 +52,6 @@ describe('SendMessageDialog', () => {
     )
     await flushPromisesAndTimers()
     await flushPromisesAndTimers()
-    expect(container).toMatchSnapshot()
+    expect(baseElement).toMatchSnapshot()
   })
 })

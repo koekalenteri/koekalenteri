@@ -1,7 +1,9 @@
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { AddOutlined, DeleteOutline } from '@mui/icons-material'
-import { Button, Grid } from '@mui/material'
+import AddOutlined from '@mui/icons-material/AddOutlined'
+import DeleteOutline from '@mui/icons-material/DeleteOutline'
+import Button from '@mui/material/Button'
+import Grid from '@mui/material/Grid'
 import { isSameDay } from 'date-fns'
 import { ClassJudge, DeepPartial, EventClass, Judge } from 'koekalenteri-shared/model'
 
