@@ -325,8 +325,6 @@ Resources:
       SSESpecification:
         SSEEnabled: false
 
-  # TODO Rest of table definitions, maybe split tables into separate file?
-
   # API declaration
   KoekalenteriApi:
     Type: AWS::Serverless::Api
@@ -1205,7 +1203,6 @@ Resources:
         LicenseInfo: 'MIT'
         RetentionPolicy: Retain
 
-  # TODO Rest of API definitions, maybe split APIs in separate file? what about autogenerate from OpenAPI?
   # This role allows API Gateway to push execution and access logs to CloudWatch logs
 
   ApiGatewayPushToCloudWatchRole:

@@ -1,3 +1,4 @@
+import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { Auth } from '@aws-amplify/auth'
@@ -6,7 +7,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { ConfirmProvider } from 'material-ui-confirm'
-import { SnackbarProvider } from 'notistack'
+import { SnackbarKey, SnackbarProvider } from 'notistack'
 
 import SnackbarCloseButton from './pages/components/SnackbarCloseButton'
 import { AWSConfig } from './amplify-env'
@@ -20,6 +21,7 @@ const router = createBrowserRouter(routes)
 function App() {
   const { i18n } = useTranslation()
   const language = i18n.language as Language
+  const closeAction = useCallback((snackbarKey: SnackbarKey) => <SnackbarCloseButton snackbarKey={snackbarKey} />, [])
 
   return (
     <ThemeProvider theme={(outerTheme) => createTheme(outerTheme, muiLocales[language])}>
@@ -30,7 +32,7 @@ function App() {
           disableWindowBlurListener
           preventDuplicate
           maxSnack={3}
-          action={(snackbarKey) => <SnackbarCloseButton snackbarKey={snackbarKey} />}
+          action={closeAction}
         >
           <ConfirmProvider>
             <Authenticator.Provider>
