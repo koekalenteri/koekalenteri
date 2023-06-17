@@ -616,7 +616,7 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
                         
 
                         <td>
-                          10.02. registration.time.ap
+                          dd.MM. registration.time.ap
                         </td>
                         
 

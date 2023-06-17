@@ -1394,7 +1394,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                     class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                                     scope="row"
                                   >
-                                    pe 23.4.
+                                    eeeeee d.M.
                                   </th>
                                   <td
                                     class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignCenter MuiTableCell-sizeSmall css-vtdehq-MuiTableCell-root"

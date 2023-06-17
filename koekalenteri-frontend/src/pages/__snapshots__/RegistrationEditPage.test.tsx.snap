@@ -204,7 +204,7 @@ exports[`RegistrationEditPage should render 1`] = `
             <p
               class="MuiFormHelperText-root css-9tosq5-MuiFormHelperText-root"
             >
-              NOU, ke registration.time.ap, registration.reserveChoises.ANY
+              NOU, eeeeee registration.time.ap, registration.reserveChoises.ANY
             </p>
           </div>
           <div
@@ -329,7 +329,7 @@ exports[`RegistrationEditPage should render 1`] = `
                               <span
                                 class="MuiChip-label MuiChip-labelMedium css-6od3lo-MuiChip-label"
                               >
-                                ke registration.time.ap
+                                eeeeee registration.time.ap
                               </span>
                               <svg
                                 aria-hidden="true"

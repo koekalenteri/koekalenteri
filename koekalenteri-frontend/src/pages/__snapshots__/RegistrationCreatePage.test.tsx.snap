@@ -211,7 +211,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
             <p
               class="MuiFormHelperText-root css-9tosq5-MuiFormHelperText-root"
             >
-              NOU, ke registration.time.ap / ke registration.time.ip / to registration.time.ap / to registration.time.ip, registration.reserveChoises.DAY
+              NOU, eeeeee registration.time.ap / eeeeee registration.time.ip / eeeeee registration.time.ap / eeeeee registration.time.ip, registration.reserveChoises.DAY
             </p>
           </div>
           <div
@@ -336,7 +336,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                               <span
                                 class="MuiChip-label MuiChip-labelMedium css-6od3lo-MuiChip-label"
                               >
-                                ke registration.time.ap
+                                eeeeee registration.time.ap
                               </span>
                               <svg
                                 aria-hidden="true"
@@ -359,7 +359,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                               <span
                                 class="MuiChip-label MuiChip-labelMedium css-6od3lo-MuiChip-label"
                               >
-                                ke registration.time.ip
+                                eeeeee registration.time.ip
                               </span>
                               <svg
                                 aria-hidden="true"
@@ -382,7 +382,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                               <span
                                 class="MuiChip-label MuiChip-labelMedium css-6od3lo-MuiChip-label"
                               >
-                                to registration.time.ap
+                                eeeeee registration.time.ap
                               </span>
                               <svg
                                 aria-hidden="true"
@@ -405,7 +405,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                               <span
                                 class="MuiChip-label MuiChip-labelMedium css-6od3lo-MuiChip-label"
                               >
-                                to registration.time.ip
+                                eeeeee registration.time.ip
                               </span>
                               <svg
                                 aria-hidden="true"
@@ -2435,7 +2435,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
             <p
               class="MuiFormHelperText-root css-9tosq5-MuiFormHelperText-root"
             >
-              VOI, to registration.time.ap / to registration.time.ip, registration.reserveChoises.DAY
+              VOI, eeeeee registration.time.ap / eeeeee registration.time.ip, registration.reserveChoises.DAY
             </p>
           </div>
           <div
@@ -2560,7 +2560,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                               <span
                                 class="MuiChip-label MuiChip-labelMedium css-6od3lo-MuiChip-label"
                               >
-                                to registration.time.ap
+                                eeeeee registration.time.ap
                               </span>
                               <svg
                                 aria-hidden="true"
@@ -2583,7 +2583,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                               <span
                                 class="MuiChip-label MuiChip-labelMedium css-6od3lo-MuiChip-label"
                               >
-                                to registration.time.ip
+                                eeeeee registration.time.ip
                               </span>
                               <svg
                                 aria-hidden="true"

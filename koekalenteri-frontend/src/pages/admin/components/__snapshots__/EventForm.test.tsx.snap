@@ -584,7 +584,7 @@ exports[`EventForm should render 1`] = `
                                 <div
                                   class="MuiAvatar-root MuiAvatar-circular MuiAvatar-colorDefault MuiChip-avatar MuiChip-avatarSmall MuiChip-avatarColorDefault css-y9emw0-MuiAvatar-root"
                                 >
-                                  ke
+                                  eeeeee
                                 </div>
                                 <span
                                   class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
@@ -600,7 +600,7 @@ exports[`EventForm should render 1`] = `
                                 <div
                                   class="MuiAvatar-root MuiAvatar-circular MuiAvatar-colorDefault MuiChip-avatar MuiChip-avatarSmall MuiChip-avatarColorDefault css-f29i27-MuiAvatar-root"
                                 >
-                                  to
+                                  eeeeee
                                 </div>
                                 <span
                                   class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
@@ -1816,7 +1816,7 @@ exports[`EventForm should render 1`] = `
                                     class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                                     scope="row"
                                   >
-                                    ke 10.2.
+                                    eeeeee d.M.
                                   </th>
                                   <td
                                     class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignCenter MuiTableCell-sizeSmall css-vtdehq-MuiTableCell-root"
@@ -1866,7 +1866,7 @@ exports[`EventForm should render 1`] = `
                                     class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                                     scope="row"
                                   >
-                                    to 11.2.
+                                    eeeeee d.M.
                                   </th>
                                   <td
                                     class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignCenter MuiTableCell-sizeSmall css-vtdehq-MuiTableCell-root"

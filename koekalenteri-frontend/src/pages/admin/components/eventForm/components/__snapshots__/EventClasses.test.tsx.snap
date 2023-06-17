@@ -263,7 +263,7 @@ exports[`EventClasses should render with classes and values for 2 day event, ope
           <div
             class="MuiAvatar-root MuiAvatar-circular MuiAvatar-colorDefault MuiChip-avatar MuiChip-avatarSmall MuiChip-avatarColorDefault css-y3b1cu-MuiAvatar-root"
           >
-            ti
+            eeeeee
           </div>
           <span
             class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
@@ -279,7 +279,7 @@ exports[`EventClasses should render with classes and values for 2 day event, ope
           <div
             class="MuiAvatar-root MuiAvatar-circular MuiAvatar-colorDefault MuiChip-avatar MuiChip-avatarSmall MuiChip-avatarColorDefault css-y3b1cu-MuiAvatar-root"
           >
-            ti
+            eeeeee
           </div>
           <span
             class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
@@ -366,7 +366,7 @@ exports[`EventClasses should render with classes and values for 2 day event, ope
           <div
             class="MuiListSubheader-root MuiListSubheader-gutters MuiListSubheader-sticky MuiAutocomplete-groupLabel css-esv6et-MuiListSubheader-root-MuiAutocomplete-groupLabel"
           >
-            ti 17.1.
+            eeeeee d.M.
           </div>
           <ul
             class="MuiAutocomplete-groupUl css-91wxkq-MuiAutocomplete-groupUl"
@@ -443,17 +443,6 @@ exports[`EventClasses should render with classes and values for 2 day event, ope
               </span>
               AVO
             </li>
-          </ul>
-        </li>
-        <li>
-          <div
-            class="MuiListSubheader-root MuiListSubheader-gutters MuiListSubheader-sticky MuiAutocomplete-groupLabel css-esv6et-MuiListSubheader-root-MuiAutocomplete-groupLabel"
-          >
-            ke 18.1.
-          </div>
-          <ul
-            class="MuiAutocomplete-groupUl css-91wxkq-MuiAutocomplete-groupUl"
-          >
             <li
               aria-disabled="false"
               aria-selected="false"

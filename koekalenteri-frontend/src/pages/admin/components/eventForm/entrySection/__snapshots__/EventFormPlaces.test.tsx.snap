@@ -88,7 +88,7 @@ exports[`EventFormPlaces should render with classes 1`] = `
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
               scope="row"
             >
-              ke 10.2.
+              eeeeee d.M.
             </th>
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignCenter MuiTableCell-sizeSmall css-vtdehq-MuiTableCell-root"
@@ -138,7 +138,7 @@ exports[`EventFormPlaces should render with classes 1`] = `
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
               scope="row"
             >
-              to 11.2.
+              eeeeee d.M.
             </th>
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignCenter MuiTableCell-sizeSmall css-vtdehq-MuiTableCell-root"
@@ -322,7 +322,7 @@ exports[`EventFormPlaces should render with minimal information 1`] = `
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
               scope="row"
             >
-              ke 14.6.
+              eeeeee d.M.
             </th>
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignCenter MuiTableCell-sizeSmall css-vtdehq-MuiTableCell-root"

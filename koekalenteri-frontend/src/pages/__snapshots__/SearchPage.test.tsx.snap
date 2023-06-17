@@ -1415,7 +1415,7 @@ exports[`SearchPage filters by date 1`] = `
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                                   scope="row"
                                 >
-                                  ke 10.2.
+                                  eeeeee d.M.
                                 </th>
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
@@ -1450,7 +1450,7 @@ exports[`SearchPage filters by date 1`] = `
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                                   scope="row"
                                 >
-                                  to 11.2.
+                                  eeeeee d.M.
                                 </th>
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
@@ -1716,7 +1716,7 @@ exports[`SearchPage filters by date 1`] = `
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                                   scope="row"
                                 >
-                                  ke 10.2.
+                                  eeeeee d.M.
                                 </th>
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
@@ -1751,7 +1751,7 @@ exports[`SearchPage filters by date 1`] = `
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                                   scope="row"
                                 >
-                                  ke 10.2.
+                                  eeeeee d.M.
                                 </th>
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
@@ -1786,7 +1786,7 @@ exports[`SearchPage filters by date 1`] = `
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                                   scope="row"
                                 >
-                                  to 11.2.
+                                  eeeeee d.M.
                                 </th>
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
@@ -2052,7 +2052,7 @@ exports[`SearchPage filters by date 1`] = `
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                                   scope="row"
                                 >
-                                  pe 12.2.
+                                  eeeeee d.M.
                                 </th>
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
@@ -3062,7 +3062,7 @@ exports[`SearchPage filters by date/end 1`] = `
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                                   scope="row"
                                 >
-                                  ke 10.2.
+                                  eeeeee d.M.
                                 </th>
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
@@ -3097,7 +3097,7 @@ exports[`SearchPage filters by date/end 1`] = `
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                                   scope="row"
                                 >
-                                  to 11.2.
+                                  eeeeee d.M.
                                 </th>
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
@@ -3363,7 +3363,7 @@ exports[`SearchPage filters by date/end 1`] = `
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                                   scope="row"
                                 >
-                                  ke 10.2.
+                                  eeeeee d.M.
                                 </th>
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
@@ -3398,7 +3398,7 @@ exports[`SearchPage filters by date/end 1`] = `
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                                   scope="row"
                                 >
-                                  ke 10.2.
+                                  eeeeee d.M.
                                 </th>
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
@@ -3433,7 +3433,7 @@ exports[`SearchPage filters by date/end 1`] = `
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                                   scope="row"
                                 >
-                                  to 11.2.
+                                  eeeeee d.M.
                                 </th>
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
@@ -3699,7 +3699,7 @@ exports[`SearchPage filters by date/end 1`] = `
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                                   scope="row"
                                 >
-                                  pe 12.2.
+                                  eeeeee d.M.
                                 </th>
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
@@ -4548,7 +4548,7 @@ exports[`SearchPage filters by event class 1`] = `
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                                   scope="row"
                                 >
-                                  ke 10.2.
+                                  eeeeee d.M.
                                 </th>
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
@@ -4583,7 +4583,7 @@ exports[`SearchPage filters by event class 1`] = `
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                                   scope="row"
                                 >
-                                  ke 10.2.
+                                  eeeeee d.M.
                                 </th>
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
@@ -4618,7 +4618,7 @@ exports[`SearchPage filters by event class 1`] = `
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                                   scope="row"
                                 >
-                                  to 11.2.
+                                  eeeeee d.M.
                                 </th>
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
@@ -4884,7 +4884,7 @@ exports[`SearchPage filters by event class 1`] = `
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                                   scope="row"
                                 >
-                                  pe 12.2.
+                                  eeeeee d.M.
                                 </th>
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
@@ -5150,7 +5150,7 @@ exports[`SearchPage filters by event class 1`] = `
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                                   scope="row"
                                 >
-                                  to 22.6.
+                                  eeeeee d.M.
                                 </th>
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
@@ -5187,7 +5187,7 @@ exports[`SearchPage filters by event class 1`] = `
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                                   scope="row"
                                 >
-                                  to 22.6.
+                                  eeeeee d.M.
                                 </th>
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
@@ -6047,7 +6047,7 @@ exports[`SearchPage filters by event type 1`] = `
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                                   scope="row"
                                 >
-                                  ke 10.2.
+                                  eeeeee d.M.
                                 </th>
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
@@ -6082,7 +6082,7 @@ exports[`SearchPage filters by event type 1`] = `
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                                   scope="row"
                                 >
-                                  to 11.2.
+                                  eeeeee d.M.
                                 </th>
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
@@ -6348,7 +6348,7 @@ exports[`SearchPage filters by event type 1`] = `
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                                   scope="row"
                                 >
-                                  ke 10.2.
+                                  eeeeee d.M.
                                 </th>
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
@@ -6383,7 +6383,7 @@ exports[`SearchPage filters by event type 1`] = `
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                                   scope="row"
                                 >
-                                  ke 10.2.
+                                  eeeeee d.M.
                                 </th>
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
@@ -6418,7 +6418,7 @@ exports[`SearchPage filters by event type 1`] = `
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                                   scope="row"
                                 >
-                                  to 11.2.
+                                  eeeeee d.M.
                                 </th>
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
@@ -6684,7 +6684,7 @@ exports[`SearchPage filters by event type 1`] = `
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                                   scope="row"
                                 >
-                                  pe 12.2.
+                                  eeeeee d.M.
                                 </th>
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
@@ -6950,7 +6950,7 @@ exports[`SearchPage filters by event type 1`] = `
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                                   scope="row"
                                 >
-                                  to 22.6.
+                                  eeeeee d.M.
                                 </th>
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
@@ -6987,7 +6987,7 @@ exports[`SearchPage filters by event type 1`] = `
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                                   scope="row"
                                 >
-                                  to 22.6.
+                                  eeeeee d.M.
                                 </th>
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
@@ -7847,7 +7847,7 @@ exports[`SearchPage filters by organizer 1`] = `
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                                   scope="row"
                                 >
-                                  pe 12.2.
+                                  eeeeee d.M.
                                 </th>
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"

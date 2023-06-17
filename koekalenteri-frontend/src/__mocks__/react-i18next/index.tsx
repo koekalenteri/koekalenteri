@@ -1,10 +1,6 @@
 import { TransProps } from 'react-i18next'
 import { DefaultNamespace } from 'react-i18next/TransWithoutContext'
-import { format } from 'date-fns'
-import { fi } from 'date-fns/locale'
 import { KeyPrefix, Namespace, TFuncKey, ThirdPartyModule } from 'i18next'
-
-const formatDate = (date: Date | undefined, fmt: string) => (date ? format(date, fmt, { locale: fi }) : fmt)
 
 export const useTranslation = () => {
   return {
@@ -12,13 +8,13 @@ export const useTranslation = () => {
       switch (str) {
         // Values for translations that can not be just the key for tests
         case 'dateFormat.long':
-          return formatDate(date, 'dd.MM.yyyy')
+          return 'dd.MM.yyyy'
         case 'dateFormat.short':
-          return formatDate(date, 'dd.MM.')
+          return 'dd.MM.'
         case 'dateFormat.wdshort':
-          return formatDate(date, 'eeeeee d.M.')
+          return 'eeeeee d.M.'
         case 'dateFormat.weekday':
-          return formatDate(date, 'eeeeee')
+          return 'eeeeee'
 
         case 'dateFormatString.long':
           return 'dd.MM.yyyy'
