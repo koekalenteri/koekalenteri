@@ -13,7 +13,7 @@ import { response } from '../utils/response'
 import { updateRegistrations } from './admin/event'
 import { EMAIL_FROM, sendTemplatedMail } from './email'
 
-export const dynamoDB = new CustomDynamoClient()
+const dynamoDB = new CustomDynamoClient()
 
 export const getRegistrationHandler = metricScope(
   (metrics: MetricsLogger) =>

@@ -3,11 +3,13 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import { AWSError } from 'aws-sdk'
 import { JsonDbRecord, Judge } from 'koekalenteri-shared/model'
 
+import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { metricsError, metricsSuccess } from '../utils/metrics'
 import { response } from '../utils/response'
 
 import { refreshJudges } from './admin/judge'
-import { dynamoDB } from './registration'
+
+const dynamoDB = new CustomDynamoClient()
 
 export const getJudgesHandler = metricScope(
   (metrics: MetricsLogger) =>
