@@ -12,7 +12,7 @@ export default {
       loader: 'ts',
       format: 'esm',
       platform: 'node',
-      target: 'node16',
+      target: 'node18',
       sourcemap: 'inline',
       ...cfg.transformerConfig,
       sourcefile: file,
