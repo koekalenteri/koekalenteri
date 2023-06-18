@@ -72,7 +72,12 @@ export const StartListPage = () => {
               result.push(
                 <StyledTableRow>
                   <TableCell colSpan={6} sx={{ fontWeight: 'bold' }}>
-                    {reg.class}
+                    {reg.class}{' '}
+                    {event.classes
+                      .filter((c) => c.class === reg.class && c.date?.valueOf() === lastDate?.valueOf())
+                      .map((c) => (Array.isArray(c.judge) ? c.judge.map((j) => j.name).join(', ') : c.judge?.name))
+                      .filter(Boolean)
+                      .join(', ')}
                   </TableCell>
                 </StyledTableRow>
               )
