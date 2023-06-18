@@ -45,6 +45,25 @@ export interface Registration extends Omit<JsonRegistration, 'dates' | 'dog' | '
   group?: RegistrationGroup
 }
 
+export interface JsonRegistrationWithGroup extends JsonRegistration {
+  group: JsonRegistrationGroup
+}
+
+export interface JsonPublicRegistration {
+  class?: string
+  cancelled?: boolean
+  dog: JsonDog
+  group: JsonRegistrationGroup
+  handler: string
+  owner: string
+  ownerHandles?: boolean
+}
+
+export interface PublicRegistration extends Omit<JsonPublicRegistration, 'dog' | 'group'> {
+  dog: Dog
+  group: RegistrationGroup
+}
+
 export interface JsonQualifyingResult extends JsonTestResult { official: boolean, qualifying?: boolean };
 export interface QualifyingResult extends TestResult { official: boolean, qualifying?: boolean };
 

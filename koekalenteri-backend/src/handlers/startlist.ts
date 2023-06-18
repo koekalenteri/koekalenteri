@@ -22,6 +22,7 @@ export const getStartListHandler = metricScope(
             ?.filter<JsonRegistrationWithGroup>((reg): reg is JsonRegistrationWithGroup => !!reg.group)
             .filter((reg) => reg.group.date)
             .map<JsonPublicRegistration>((reg) => ({
+              class: reg.class,
               dog: reg.dog,
               group: reg.group,
               handler: reg.handler?.name,
