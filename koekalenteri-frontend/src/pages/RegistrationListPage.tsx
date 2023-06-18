@@ -33,7 +33,7 @@ interface Props {
 
 export function RegistrationListPage({ cancel, confirm }: Props) {
   const params = useParams()
-  const event = useRecoilValue(eventSelector(params.id ?? '')) as ConfirmedEvent | undefined | null
+  const event = useRecoilValue(eventSelector(params.id)) as ConfirmedEvent | null
   const [registration, setRegistration] = useRecoilState(
     registrationSelector(`${params.id ?? ''}:${params.registrationId ?? ''}`)
   )

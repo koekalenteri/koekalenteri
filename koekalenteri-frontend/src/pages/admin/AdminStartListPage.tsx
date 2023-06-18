@@ -5,7 +5,7 @@ import { Registration, RegistrationTime } from 'koekalenteri-shared/model'
 import { useRecoilValue } from 'recoil'
 
 import { Path } from '../../routeConfig'
-import { eventByIdSelector, hasAdminAccessSelector } from '../recoil'
+import { eventSelector, hasAdminAccessSelector } from '../recoil'
 
 import { eventRegistrationsAtom } from './recoil'
 
@@ -17,7 +17,7 @@ export default function AdminStartListPage() {
   const hasAccess = useRecoilValue(hasAdminAccessSelector)
   const params = useParams()
   const eventId = params.id ?? ''
-  const event = useRecoilValue(eventByIdSelector(eventId))
+  const event = useRecoilValue(eventSelector(eventId))
   const allRegistrations = useRecoilValue(eventRegistrationsAtom(eventId))
   const regsToPrint = allRegistrations.filter((reg) => !reg.cancelled)
   const nameLen = regsToPrint.reduce((acc, reg) => Math.min(38, Math.max(acc, reg.dog.name?.length ?? 0)), 0)

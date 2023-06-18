@@ -15,9 +15,8 @@ graph LR
   storageEffect[(localStorage)]
   urlSyncEffect[(urlSyncEffect)]
 
-  eventSelector-->eventByIdSelector
-  eventByIdSelector-->eventsAtom
-  eventByIdSelector-->getEvent
+  eventSelector-->eventsAtom
+  eventSelector-->getEvent
   currentEventSelector-->eventIdAtom
   currentEventSelector-->eventSelector
   filteredEventsSelector-->eventsAtom

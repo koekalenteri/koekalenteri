@@ -15,25 +15,17 @@ import {
   withinSwitchFilters,
 } from './filters'
 
-export const eventSelector = selectorFamily<Event | undefined | null, string | undefined>({
+export const eventSelector = selectorFamily<Event | null, string | undefined>({
   key: 'event',
   get:
     (eventId) =>
     ({ get }) => {
       if (!eventId) {
-        return undefined
+        return null
       }
       // get from the eventsAtom
-      return get(eventByIdSelector(eventId))
+      return get(eventsAtom).find((event) => event.id === eventId) ?? null
     },
-})
-
-export const eventByIdSelector = selectorFamily<Event | null, string>({
-  key: 'event/Id',
-  get:
-    (eventId) =>
-    ({ get }) =>
-      get(eventsAtom).find((event) => event.id === eventId) ?? null,
 })
 
 export const currentEventSelector = selector({

@@ -17,7 +17,7 @@ export default function RegistrationEditPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const params = useParams()
-  const event = useRecoilValue(eventSelector(params.id ?? '')) as ConfirmedEvent | undefined | null
+  const event = useRecoilValue(eventSelector(params.id)) as ConfirmedEvent | null
   const ids = `${params.id ?? ''}:${params.registrationId ?? ''}`
   const [savedRegistration, setSavedRegistration] = useRecoilState(registrationByIdsAtom(ids))
   const [registration, setRegistration] = useRecoilState(editableRegistrationByIdsAtom(ids))

@@ -18,7 +18,7 @@ export default function RegistrationCreatePage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const params = useParams()
-  const event = useRecoilValue(eventSelector(params.id ?? '')) as ConfirmedEvent | undefined | null
+  const event = useRecoilValue(eventSelector(params.id)) as ConfirmedEvent | undefined | null
   const [registration, setRegistration] = useRecoilState(newRegistrationAtom)
   const resetRegistration = useResetRecoilState(newRegistrationAtom)
   const spa = useRecoilValue(spaAtom)
