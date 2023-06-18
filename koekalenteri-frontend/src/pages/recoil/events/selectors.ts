@@ -1,7 +1,8 @@
 import i18next from 'i18next'
-import { Event, EventClass } from 'koekalenteri-shared/model'
+import { ConfirmedEvent, Event, EventClass } from 'koekalenteri-shared/model'
 import { selector, selectorFamily } from 'recoil'
 
+import { isConfirmedEvent } from '../../../lib/typeGuards'
 import { unique, uniqueFn } from '../../../utils'
 import { judgesAtom } from '../judges/atoms'
 
@@ -23,8 +24,17 @@ export const eventSelector = selectorFamily<Event | null, string | undefined>({
       if (!eventId) {
         return null
       }
-      // get from the eventsAtom
       return get(eventsAtom).find((event) => event.id === eventId) ?? null
+    },
+})
+
+export const confirmedEventSelector = selectorFamily<ConfirmedEvent | null, string | undefined>({
+  key: 'confirmedEvent',
+  get:
+    (eventId) =>
+    ({ get }) => {
+      const event = get(eventSelector(eventId))
+      return isConfirmedEvent(event) ? event : null
     },
 })
 

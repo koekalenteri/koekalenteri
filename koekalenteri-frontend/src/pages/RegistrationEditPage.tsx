@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
-import type { ConfirmedEvent, Registration } from 'koekalenteri-shared/model'
+import type { Registration } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
 
 import { hasChanges } from '../utils'
@@ -11,13 +11,13 @@ import RegistrationEventInfo from './components/RegistrationEventInfo'
 import RegistrationForm from './components/RegistrationForm'
 import { useRegistrationActions } from './recoil/registration/actions'
 import { LoadingPage } from './LoadingPage'
-import { editableRegistrationByIdsAtom, eventSelector, registrationByIdsAtom, spaAtom } from './recoil'
+import { confirmedEventSelector, editableRegistrationByIdsAtom, registrationByIdsAtom, spaAtom } from './recoil'
 
 export default function RegistrationEditPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const params = useParams()
-  const event = useRecoilValue(eventSelector(params.id)) as ConfirmedEvent | null
+  const event = useRecoilValue(confirmedEventSelector(params.id))
   const ids = `${params.id ?? ''}:${params.registrationId ?? ''}`
   const [savedRegistration, setSavedRegistration] = useRecoilState(registrationByIdsAtom(ids))
   const [registration, setRegistration] = useRecoilState(editableRegistrationByIdsAtom(ids))

@@ -1,7 +1,7 @@
 import { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
-import type { ConfirmedEvent, Registration } from 'koekalenteri-shared/model'
+import type { Registration } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
 
 import { Path } from '../routeConfig'
@@ -12,13 +12,13 @@ import RegistrationEventInfo from './components/RegistrationEventInfo'
 import RegistrationForm from './components/RegistrationForm'
 import { useRegistrationActions } from './recoil/registration/actions'
 import { LoadingPage } from './LoadingPage'
-import { eventSelector, newRegistrationAtom, spaAtom } from './recoil'
+import { confirmedEventSelector, newRegistrationAtom, spaAtom } from './recoil'
 
 export default function RegistrationCreatePage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const params = useParams()
-  const event = useRecoilValue(eventSelector(params.id)) as ConfirmedEvent | undefined | null
+  const event = useRecoilValue(confirmedEventSelector(params.id))
   const [registration, setRegistration] = useRecoilState(newRegistrationAtom)
   const resetRegistration = useResetRecoilState(newRegistrationAtom)
   const spa = useRecoilValue(spaAtom)

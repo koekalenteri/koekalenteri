@@ -24,7 +24,7 @@ import { CancelDialog } from './registrationListPage/CancelDialog'
 import { ConfirmDialog } from './registrationListPage/ConfirmDialog'
 import RegistrationList from './registrationListPage/RegistrationList'
 import { LoadingPage } from './LoadingPage'
-import { eventSelector, registrationSelector, spaAtom } from './recoil'
+import { confirmedEventSelector, registrationSelector, spaAtom } from './recoil'
 
 interface Props {
   cancel?: boolean
@@ -33,7 +33,7 @@ interface Props {
 
 export function RegistrationListPage({ cancel, confirm }: Props) {
   const params = useParams()
-  const event = useRecoilValue(eventSelector(params.id)) as ConfirmedEvent | null
+  const event = useRecoilValue(confirmedEventSelector(params.id))
   const [registration, setRegistration] = useRecoilState(
     registrationSelector(`${params.id ?? ''}:${params.registrationId ?? ''}`)
   )
