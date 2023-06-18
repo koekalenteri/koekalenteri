@@ -27,7 +27,8 @@ export const getStartListHandler = metricScope(
               handler: reg.handler?.name,
               owner: reg.owner?.name,
               ownerHandles: reg.ownerHandles,
-            })) ?? []
+            }))
+            .sort((a, b) => a.group.number - b.group.number) ?? []
 
         metricsSuccess(metrics, event.requestContext, 'getStartList')
         return response(200, publicRegs, event)
