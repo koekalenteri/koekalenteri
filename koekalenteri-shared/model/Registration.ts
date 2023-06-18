@@ -56,6 +56,7 @@ export interface JsonPublicRegistration {
   group: JsonRegistrationGroup
   handler: string
   owner: string
+  breeder: string
   ownerHandles?: boolean
 }
 

@@ -27,6 +27,7 @@ export const getStartListHandler = metricScope(
               group: reg.group,
               handler: reg.handler?.name,
               owner: reg.owner?.name,
+              breeder: reg.breeder?.name,
               ownerHandles: reg.ownerHandles,
             }))
             .sort((a, b) => a.group.number - b.group.number) ?? []
