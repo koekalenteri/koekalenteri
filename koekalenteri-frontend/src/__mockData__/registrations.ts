@@ -5,7 +5,12 @@ import {
   registrationDogAged20MonthsAndNoResults,
   registrationDogAged28MonthsWithNOUResult,
 } from './dogs'
-import { eventWithEntryClosed, eventWithStaticDates, eventWithStaticDatesAndClass } from './events'
+import {
+  eventWithEntryClosed,
+  eventWithParticipantsInvited,
+  eventWithStaticDates,
+  eventWithStaticDatesAndClass,
+} from './events'
 
 const mockRegistrationDefaults = {
   createdBy: 'anonymous',
@@ -167,9 +172,57 @@ export const registrationsToEventWithEntryClosed: Registration[] = [
   },
 ]
 
+const registrationToEventWithParticipantsInvitedBase = {
+  ...mockRegistrationDefaults,
+  eventId: eventWithParticipantsInvited.id,
+  eventType: eventWithParticipantsInvited.eventType,
+  dog: registrationDogAged28MonthsWithNOUResult,
+  createdAt: eventWithParticipantsInvited.entryStartDate,
+  modifiedAt: eventWithParticipantsInvited.entryEndDate,
+}
+
+export const registrationsToEventWithParticipantsInvited: Registration[] = [
+  {
+    ...registrationToEventWithParticipantsInvitedBase,
+    id: eventWithParticipantsInvited.id + '1',
+    class: 'ALO',
+    dates: [{ date: eventWithParticipantsInvited.startDate, time: 'ap' }],
+  },
+  {
+    ...registrationToEventWithParticipantsInvitedBase,
+    id: eventWithParticipantsInvited.id + '2',
+    class: 'ALO',
+    dates: [
+      { date: eventWithParticipantsInvited.startDate, time: 'ap' },
+      { date: eventWithParticipantsInvited.startDate, time: 'ip' },
+    ],
+  },
+  {
+    ...registrationToEventWithParticipantsInvitedBase,
+    id: eventWithParticipantsInvited.id + '3',
+    class: 'AVO',
+    dates: [{ date: eventWithParticipantsInvited.startDate, time: 'ap' }],
+  },
+  {
+    ...registrationToEventWithParticipantsInvitedBase,
+    id: eventWithParticipantsInvited.id + '4',
+    class: 'AVO',
+    dates: [{ date: eventWithParticipantsInvited.startDate, time: 'ip' }],
+  },
+  {
+    ...registrationToEventWithParticipantsInvitedBase,
+    id: eventWithParticipantsInvited.id + '5',
+    class: 'ALO',
+    dates: [{ date: eventWithParticipantsInvited.startDate, time: 'ip' }],
+    cancelled: true,
+    cancelReason: 'koska mä voin',
+  },
+]
+
 export const mockRegistrationData = [
   registrationWithStaticDates,
   registrationWithStaticDatesAndClass,
   registrationWithManualResults,
   registrationWithStaticDatesCancelled,
+  ...registrationsToEventWithParticipantsInvited,
 ]

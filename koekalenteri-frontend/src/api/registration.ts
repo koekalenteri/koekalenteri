@@ -1,4 +1,4 @@
-import { ConfirmedEvent, Registration, RegistrationGroupInfo } from 'koekalenteri-shared/model'
+import { ConfirmedEvent, PublicRegistration, Registration, RegistrationGroupInfo } from 'koekalenteri-shared/model'
 
 import http, { withToken } from './http'
 
@@ -38,4 +38,12 @@ export async function putRegistrationGroups(
   }
 > {
   return http.post(`/admin/reg-groups/${eventId}`, groups, withToken({ signal }, token))
+}
+
+export async function getStartList(
+  eventId: string,
+  token?: string,
+  signal?: AbortSignal
+): Promise<PublicRegistration[]> {
+  return http.get<PublicRegistration[]>(`/startlist/${eventId}`, withToken({ signal }, token))
 }

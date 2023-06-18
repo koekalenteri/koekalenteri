@@ -47,6 +47,7 @@ exports[`routes should match a snapshot 1`] = `
   },
   {
     "element": <LoginPage />,
+    "errorElement": <ErrorPage />,
     "path": "/login",
   },
   {
@@ -54,6 +55,7 @@ exports[`routes should match a snapshot 1`] = `
       replace={true}
       to="/"
     />,
+    "errorElement": <ErrorPage />,
     "path": "/logout",
   },
   {
@@ -112,7 +114,14 @@ exports[`routes should match a snapshot 1`] = `
   },
   {
     "element": <AdminStartListPage />,
+    "errorElement": <ErrorPage />,
     "path": "/admin/event/startlist/:id",
+  },
+  {
+    "element": <StartListPage />,
+    "errorElement": <ErrorPage />,
+    "loader": [Function],
+    "path": "/startlist/:id",
   },
 ]
 `;

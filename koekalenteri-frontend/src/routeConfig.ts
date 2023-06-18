@@ -18,6 +18,7 @@ export const Path = {
     return `/event/${event.eventType}/${event.id}`
   },
   registration: (registration: Registration) => `/r/${registration.eventId}/${registration.id}`,
+  startList: (id: string = ':id') => `/startlist/${id}`,
   admin: {
     root: ADMIN_ROOT,
     index: `${ADMIN_EVENTS}`,

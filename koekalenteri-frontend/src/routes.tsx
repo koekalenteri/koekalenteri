@@ -19,6 +19,7 @@ import RegistrationCreatePage from './pages/RegistrationCreatePage'
 import RegistrationEditPage from './pages/RegistrationEditPage'
 import { RegistrationListPage } from './pages/RegistrationListPage'
 import { SearchPage } from './pages/SearchPage'
+import { StartListLoader, StartListPage } from './pages/StartListPage'
 import { Path } from './routeConfig'
 
 /* TBI: does not work in production build (probably due to @aws-amplify/ui-react)
@@ -71,8 +72,8 @@ const routes: RouteObject[] = [
       },
     ],
   },
-  { path: Path.login, element: <LoginPage /> },
-  { path: Path.logout, element: <Navigate to="/" replace /> },
+  { path: Path.login, element: <LoginPage />, errorElement: <ErrorPage /> },
+  { path: Path.logout, element: <Navigate to="/" replace />, errorElement: <ErrorPage /> },
   {
     path: Path.admin.root,
     element: <AdminHomePage />,
@@ -127,6 +128,13 @@ const routes: RouteObject[] = [
   {
     path: Path.admin.startList(':id'),
     element: <AdminStartListPage />,
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: Path.startList(':id'),
+    loader: StartListLoader,
+    element: <StartListPage />,
+    errorElement: <ErrorPage />,
   },
 ]
 

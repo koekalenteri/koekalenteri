@@ -3,7 +3,7 @@ import { Registration } from 'koekalenteri-shared/model'
 
 import { API_BASE_URL } from '../routeConfig'
 
-import { getRegistration, getRegistrations, putRegistration, putRegistrationGroups } from './registration'
+import { getRegistration, getRegistrations, getStartList, putRegistration, putRegistrationGroups } from './registration'
 
 const mockRegistration: Registration = {
   id: 'test-registration-id',
@@ -116,4 +116,12 @@ test('putRegistrationGroups', async () => {
   expect(fetchMock.mock.calls.length).toEqual(1)
   expect(fetchMock.mock.calls[0][0]).toEqual(API_BASE_URL + '/admin/reg-groups/test-id')
   expect(items.length).toEqual(1)
+})
+
+describe('getStartList', () => {
+  it('should call correct endpoint', async () => {
+    await getStartList('test-id')
+    expect(fetchMock.mock.calls.length).toEqual(1)
+    expect(fetchMock.mock.calls[0][0]).toEqual(API_BASE_URL + '/startlist/test-id')
+  })
 })

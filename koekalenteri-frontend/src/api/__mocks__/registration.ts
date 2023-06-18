@@ -97,3 +97,14 @@ export async function putRegistrationGroups(
 ): Promise<Pick<ConfirmedEvent, 'classes' | 'entries'> & { items: Registration[] }> {
   throw new Error('not implemented')
 }
+
+export async function getStartList(eventId: string, token?: string, signal?: AbortSignal): Promise<Registration[]> {
+  return new Promise((resolve, reject) => {
+    const registrations = mockRegistrations[eventId]?.filter((r) => Boolean(r.group?.date))
+    if (!registrations?.length) {
+      reject()
+    } else {
+      process.nextTick(() => resolve(registrations))
+    }
+  })
+}
