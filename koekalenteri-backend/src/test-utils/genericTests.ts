@@ -80,7 +80,7 @@ export const genericReadAllTest =
   }
 
 export const genericQueryTest =
-  (handler: (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult>) => (): void => {
+  (handler: (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult>, mockData?: unknown[]) => (): void => {
     let querySpy: any
 
     beforeAll(() => {
@@ -92,7 +92,7 @@ export const genericQueryTest =
     })
 
     it('should return mocked data', async () => {
-      const items = [{ id: 'id1' }, { id: 'id2' }]
+      const items = mockData ?? [{ id: 'id1' }, { id: 'id2' }]
 
       querySpy.mockReturnValue({
         promise: () =>

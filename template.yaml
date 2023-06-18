@@ -1147,6 +1147,38 @@ Resources:
       LogGroupName: !Join ['/', ['/aws/lambda', !Ref SetAdminFunction]]
       RetentionInDays: 30
 
+  GetStartListFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: koekalenteri-backend
+      Handler: dist/handlers/startlist.getStartListHandler
+      Layers:
+        - !Ref CommonLayer
+      Tracing: Active
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref EventRegistrationTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref EventTable
+        - CloudWatchPutMetricPolicy: {}
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref EventRegistrationTable
+          EVENT_TABLE_NAME : !Ref EventTable
+      Events:
+        GetRegistration:
+          Type: Api
+          Properties:
+            Path: /startlist/{eventId}
+            Method: GET
+            RestApiId: !Ref KoekalenteriApi
+
+  GetStartListFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref GetStartListFunction]]
+      RetentionInDays: 30
+
   PaymentConfirmFunction:
     Type: AWS::Serverless::Function
     Properties:
