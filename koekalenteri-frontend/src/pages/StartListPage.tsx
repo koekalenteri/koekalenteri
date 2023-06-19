@@ -5,6 +5,7 @@ import { styled } from '@mui/material/styles'
 import Table from '@mui/material/Table'
 import TableCell from '@mui/material/TableCell'
 import TableRow from '@mui/material/TableRow'
+import Grid2 from '@mui/material/Unstable_Grid2/Grid2'
 import { PublicRegistration } from 'koekalenteri-shared/model'
 import { useRecoilValue } from 'recoil'
 
@@ -31,6 +32,7 @@ export const StartListPage = () => {
   const { id } = useParams()
   const event = useRecoilValue(confirmedEventSelector(id))
   const participants = useLoaderData() as PublicRegistration[]
+  const now = new Date()
 
   if (!event) {
     return <>Tapahtumaa ei löydy.</>
@@ -47,9 +49,16 @@ export const StartListPage = () => {
 
   return (
     <Box p={1}>
-      <h1>
-        {event.eventType} {event.location} {event.name ? `(${event.name})` : ''}
-      </h1>
+      <Grid2 container>
+        <Grid2 display="flex" flexGrow={1}>
+          <h1>
+            {event.eventType} {event.location} {event.name ? `(${event.name})` : ''}
+          </h1>
+        </Grid2>
+        <Grid2 display="flex" justifyContent="end">
+          {t('dateFormat.dtshort', { date: now })}
+        </Grid2>
+      </Grid2>
       <Table size="small">
         {participants.map((reg) => {
           const result: JSX.Element[] = []
