@@ -5,6 +5,7 @@ import DragIndicatorOutlined from '@mui/icons-material/DragIndicatorOutlined'
 import EditOutlined from '@mui/icons-material/EditOutlined'
 import EuroOutlined from '@mui/icons-material/EuroOutlined'
 import EventBusyOutlined from '@mui/icons-material/EventBusyOutlined'
+import MarkEmailReadOutlined from '@mui/icons-material/MarkEmailReadOutlined'
 import PersonOutline from '@mui/icons-material/PersonOutline'
 import Tooltip from '@mui/material/Tooltip'
 import { GridActionsCellItem, GridColumns, GridValueGetterParams } from '@mui/x-data-grid'
@@ -100,6 +101,14 @@ export function useClassEntrySelectionColumns(eventDates: Date[], openEditDialog
               placement="left"
             >
               <CheckOutlined fontSize="small" sx={{ opacity: p.row.confirmed ? 1 : 0.05 }} />
+            </Tooltip>
+            <Tooltip
+              title={`Ilmoittautuja ${
+                p.row.invitationRead ? 'on kuitannut koekutsun' : 'ei ole kuitannut koekutua'
+              } luetuksi`}
+              placement="left"
+            >
+              <MarkEmailReadOutlined fontSize="small" sx={{ opacity: p.row.invitationRead ? 1 : 0.05 }} />
             </Tooltip>
           </>
         ),

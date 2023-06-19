@@ -19,6 +19,7 @@ export interface JsonRegistration extends JsonDbRecord {
   cancelled?: boolean
   cancelReason?: string
   confirmed?: boolean
+  invitationRead?: boolean
   receiptSent?: boolean
   paidAt?: string
   paymentStatus?: PaymentStatus

@@ -6825,6 +6825,19 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                                   d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"
                                 />
                               </svg>
+                              <svg
+                                aria-hidden="true"
+                                aria-label="Ilmoittautuja ei ole kuitannut koekutua luetuksi"
+                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1zaak-MuiSvgIcon-root"
+                                data-mui-internal-clone-element="true"
+                                data-testid="MarkEmailReadOutlinedIcon"
+                                focusable="false"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h8v-2H4V8l8 5 8-5v5h2V6c0-1.1-.9-2-2-2zm-8 7L4 6h16l-8 5zm5.34 11-3.54-3.54 1.41-1.41 2.12 2.12 4.24-4.24L23 16.34 17.34 22z"
+                                />
+                              </svg>
                             </div>
                             <div
                               aria-colindex="8"
@@ -6842,11 +6855,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                                 tabindex="-1"
                               >
                                 <button
-                                  aria-controls=":r4m:"
+                                  aria-controls=":r4n:"
                                   aria-haspopup="true"
                                   aria-label="more"
                                   class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
-                                  id=":r4n:"
+                                  id=":r4o:"
                                   role="menuitem"
                                   tabindex="-1"
                                   type="button"
@@ -7589,6 +7602,19 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                                   d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"
                                 />
                               </svg>
+                              <svg
+                                aria-hidden="true"
+                                aria-label="Ilmoittautuja ei ole kuitannut koekutua luetuksi"
+                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1zaak-MuiSvgIcon-root"
+                                data-mui-internal-clone-element="true"
+                                data-testid="MarkEmailReadOutlinedIcon"
+                                focusable="false"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h8v-2H4V8l8 5 8-5v5h2V6c0-1.1-.9-2-2-2zm-8 7L4 6h16l-8 5zm5.34 11-3.54-3.54 1.41-1.41 2.12 2.12 4.24-4.24L23 16.34 17.34 22z"
+                                />
+                              </svg>
                             </div>
                             <div
                               aria-colindex="9"
@@ -7606,11 +7632,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                                 tabindex="-1"
                               >
                                 <button
-                                  aria-controls=":r5n:"
+                                  aria-controls=":r5p:"
                                   aria-haspopup="true"
                                   aria-label="more"
                                   class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
-                                  id=":r5o:"
+                                  id=":r5q:"
                                   role="menuitem"
                                   tabindex="-1"
                                   type="button"
