@@ -43,12 +43,12 @@ export function formatDateSpan(start: Date | string, lng: string | undefined, { 
     return lightFormat(start, 'd.M.yyyy')
   }
   if (isSameMonth(start, end)) {
-    return lightFormat(start, 'd.') + '-' + lightFormat(end, 'd.M.yyyy')
+    return lightFormat(start, 'd.') + '–' + lightFormat(end, 'd.M.yyyy')
   }
   if (isSameYear(start, end)) {
-    return lightFormat(start, 'd.M.') + '-' + lightFormat(end, 'd.M.yyyy')
+    return lightFormat(start, 'd.M.') + '–' + lightFormat(end, 'd.M.yyyy')
   }
-  return lightFormat(start, 'd.M.yyyy') + '-' + lightFormat(end, 'd.M.yyyy')
+  return lightFormat(start, 'd.M.yyyy') + '–' + lightFormat(end, 'd.M.yyyy')
 }
 
 export function formatDistance(date?: Date, lng?: string): string {
