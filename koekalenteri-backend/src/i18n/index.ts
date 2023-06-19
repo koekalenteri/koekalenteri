@@ -28,11 +28,13 @@ await i18n.init({
 i18n.services.formatter?.add('lowercase', (value) => value.toLowerCase())
 
 i18n.services.formatter?.add('dtshort', createDateFormatter('eeeeee d.M. HH:mm'))
-i18n.services.formatter?.add('short', createDateFormatter('eeeeee d.M.'))
+i18n.services.formatter?.add('wdshort', createDateFormatter('eeeeee d.M.'))
+i18n.services.formatter?.add('short', createDateFormatter('dd.MM.'))
 i18n.services.formatter?.add('weekday', createDateFormatter('eeeeee'))
 i18n.services.formatter?.add('datespan', formatDateSpan)
 i18n.services.formatter?.add('distance', formatDistance)
 i18n.services.formatter?.add('lowercase', (value) => value.toLowerCase())
 i18n.services.formatter?.add('date', createDateFormatter('d.M.yyyy'))
+i18n.services.formatter?.add('isodate', createDateFormatter('dd.MM.yyyy'))
 
 console.log('i18next initialized')

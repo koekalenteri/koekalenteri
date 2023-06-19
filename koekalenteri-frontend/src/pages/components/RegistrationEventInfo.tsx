@@ -9,6 +9,7 @@ import { judgesByIdsSelector } from '../recoil'
 
 import CollapsibleSection from './CollapsibleSection'
 import CostInfo from './CostInfo'
+import { PriorityChips } from './PriorityChips'
 
 export default function RegistrationEventInfo({ event }: { event: ConfirmedEvent }) {
   const { t } = useTranslation()
@@ -61,6 +62,16 @@ export default function RegistrationEventInfo({ event }: { event: ConfirmedEvent
             <Grid item xs={8}>
               <CostInfo event={event} />
             </Grid>
+            {event.priority ? (
+              <>
+                <Grid item xs={4}>
+                  {t('event.priority')}:
+                </Grid>
+                <Grid item xs={8}>
+                  <PriorityChips priority={event.priority} />
+                </Grid>
+              </>
+            ) : null}
             {event.description ? (
               <>
                 <Grid item xs={4}>

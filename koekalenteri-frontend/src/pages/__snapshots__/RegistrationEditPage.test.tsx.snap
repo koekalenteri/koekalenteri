@@ -144,6 +144,25 @@ exports[`RegistrationEditPage should render 1`] = `
                     <div
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-h9ezi1-MuiGrid-root"
                     >
+                      event.priority
+                      :
+                    </div>
+                    <div
+                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-163n9ee-MuiGrid-root"
+                    >
+                      <div
+                        class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-ysdvuz-MuiChip-root"
+                      >
+                        <span
+                          class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
+                        >
+                          Jäsen
+                        </span>
+                      </div>
+                    </div>
+                    <div
+                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-h9ezi1-MuiGrid-root"
+                    >
                       event.description
                       :
                     </div>

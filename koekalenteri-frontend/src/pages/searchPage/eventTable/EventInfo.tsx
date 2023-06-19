@@ -9,6 +9,7 @@ import type { Event } from 'koekalenteri-shared/model'
 import useEventStatus from '../../../hooks/useEventStatus'
 import { isEntryOpen } from '../../../utils'
 import CostInfo from '../../components/CostInfo'
+import { PriorityChips } from '../../components/PriorityChips'
 import { useJudgesActions } from '../../recoil'
 
 import { EventClassRow } from './eventInfo/EventClassRow'
@@ -104,6 +105,16 @@ export const EventInfo = ({ event }: { event: Event }) => {
               <CostInfo event={event} />
             </TableCell>
           </TableRow>
+          {event.priority?.length ? (
+            <TableRow key={event.id + 'priority'}>
+              <TableCell component="th" scope="row">
+                {t('event.priority')}:
+              </TableCell>
+              <TableCell>
+                <PriorityChips priority={event.priority} />
+              </TableCell>
+            </TableRow>
+          ) : null}
           {event.description ? (
             <TableRow key={event.id + 'description'}>
               <TableCell component="th" scope="row">

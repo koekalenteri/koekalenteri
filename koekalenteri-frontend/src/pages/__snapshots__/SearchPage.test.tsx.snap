@@ -1248,6 +1248,30 @@ exports[`SearchPage filters by date 1`] = `
                           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                           scope="row"
                         >
+                          event.priority
+                          :
+                        </th>
+                        <td
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                        >
+                          <div
+                            class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-ysdvuz-MuiChip-root"
+                          >
+                            <span
+                              class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
+                            >
+                              Jäsen
+                            </span>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr
+                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                      >
+                        <th
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                          scope="row"
+                        >
                           event.description
                           :
                         </th>
@@ -1540,6 +1564,30 @@ exports[`SearchPage filters by date 1`] = `
                           <br />
                           <br />
                           test
+                        </td>
+                      </tr>
+                      <tr
+                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                      >
+                        <th
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                          scope="row"
+                        >
+                          event.priority
+                          :
+                        </th>
+                        <td
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                        >
+                          <div
+                            class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-ysdvuz-MuiChip-root"
+                          >
+                            <span
+                              class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
+                            >
+                              Jäsen
+                            </span>
+                          </div>
                         </td>
                       </tr>
                       <tr
@@ -1885,6 +1933,30 @@ exports[`SearchPage filters by date 1`] = `
                           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                           scope="row"
                         >
+                          event.priority
+                          :
+                        </th>
+                        <td
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                        >
+                          <div
+                            class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-ysdvuz-MuiChip-root"
+                          >
+                            <span
+                              class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
+                            >
+                              Jäsen
+                            </span>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr
+                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                      >
+                        <th
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                          scope="row"
+                        >
                           event.description
                           :
                         </th>
@@ -2142,6 +2214,30 @@ exports[`SearchPage filters by date 1`] = `
                           <br />
                           <br />
                           test
+                        </td>
+                      </tr>
+                      <tr
+                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                      >
+                        <th
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                          scope="row"
+                        >
+                          event.priority
+                          :
+                        </th>
+                        <td
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                        >
+                          <div
+                            class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-ysdvuz-MuiChip-root"
+                          >
+                            <span
+                              class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
+                            >
+                              Jäsen
+                            </span>
+                          </div>
                         </td>
                       </tr>
                       <tr
@@ -2895,6 +2991,30 @@ exports[`SearchPage filters by date/end 1`] = `
                           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                           scope="row"
                         >
+                          event.priority
+                          :
+                        </th>
+                        <td
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                        >
+                          <div
+                            class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-ysdvuz-MuiChip-root"
+                          >
+                            <span
+                              class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
+                            >
+                              Jäsen
+                            </span>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr
+                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                      >
+                        <th
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                          scope="row"
+                        >
                           event.description
                           :
                         </th>
@@ -3187,6 +3307,30 @@ exports[`SearchPage filters by date/end 1`] = `
                           <br />
                           <br />
                           test
+                        </td>
+                      </tr>
+                      <tr
+                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                      >
+                        <th
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                          scope="row"
+                        >
+                          event.priority
+                          :
+                        </th>
+                        <td
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                        >
+                          <div
+                            class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-ysdvuz-MuiChip-root"
+                          >
+                            <span
+                              class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
+                            >
+                              Jäsen
+                            </span>
+                          </div>
                         </td>
                       </tr>
                       <tr
@@ -3532,6 +3676,30 @@ exports[`SearchPage filters by date/end 1`] = `
                           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                           scope="row"
                         >
+                          event.priority
+                          :
+                        </th>
+                        <td
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                        >
+                          <div
+                            class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-ysdvuz-MuiChip-root"
+                          >
+                            <span
+                              class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
+                            >
+                              Jäsen
+                            </span>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr
+                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                      >
+                        <th
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                          scope="row"
+                        >
                           event.description
                           :
                         </th>
@@ -3789,6 +3957,30 @@ exports[`SearchPage filters by date/end 1`] = `
                           <br />
                           <br />
                           test
+                        </td>
+                      </tr>
+                      <tr
+                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                      >
+                        <th
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                          scope="row"
+                        >
+                          event.priority
+                          :
+                        </th>
+                        <td
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                        >
+                          <div
+                            class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-ysdvuz-MuiChip-root"
+                          >
+                            <span
+                              class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
+                            >
+                              Jäsen
+                            </span>
+                          </div>
                         </td>
                       </tr>
                       <tr
@@ -4717,6 +4909,30 @@ exports[`SearchPage filters by event class 1`] = `
                           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                           scope="row"
                         >
+                          event.priority
+                          :
+                        </th>
+                        <td
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                        >
+                          <div
+                            class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-ysdvuz-MuiChip-root"
+                          >
+                            <span
+                              class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
+                            >
+                              Jäsen
+                            </span>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr
+                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                      >
+                        <th
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                          scope="row"
+                        >
                           event.description
                           :
                         </th>
@@ -4974,6 +5190,30 @@ exports[`SearchPage filters by event class 1`] = `
                           <br />
                           <br />
                           test
+                        </td>
+                      </tr>
+                      <tr
+                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                      >
+                        <th
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                          scope="row"
+                        >
+                          event.priority
+                          :
+                        </th>
+                        <td
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                        >
+                          <div
+                            class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-ysdvuz-MuiChip-root"
+                          >
+                            <span
+                              class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
+                            >
+                              Jäsen
+                            </span>
+                          </div>
                         </td>
                       </tr>
                       <tr
@@ -5288,6 +5528,30 @@ exports[`SearchPage filters by event class 1`] = `
                           <br />
                           <br />
                           test
+                        </td>
+                      </tr>
+                      <tr
+                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                      >
+                        <th
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                          scope="row"
+                        >
+                          event.priority
+                          :
+                        </th>
+                        <td
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                        >
+                          <div
+                            class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-ysdvuz-MuiChip-root"
+                          >
+                            <span
+                              class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
+                            >
+                              Jäsen
+                            </span>
+                          </div>
                         </td>
                       </tr>
                       <tr
@@ -6181,6 +6445,30 @@ exports[`SearchPage filters by event type 1`] = `
                           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                           scope="row"
                         >
+                          event.priority
+                          :
+                        </th>
+                        <td
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                        >
+                          <div
+                            class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-ysdvuz-MuiChip-root"
+                          >
+                            <span
+                              class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
+                            >
+                              Jäsen
+                            </span>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr
+                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                      >
+                        <th
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                          scope="row"
+                        >
                           event.description
                           :
                         </th>
@@ -6517,6 +6805,30 @@ exports[`SearchPage filters by event type 1`] = `
                           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                           scope="row"
                         >
+                          event.priority
+                          :
+                        </th>
+                        <td
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                        >
+                          <div
+                            class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-ysdvuz-MuiChip-root"
+                          >
+                            <span
+                              class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
+                            >
+                              Jäsen
+                            </span>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr
+                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                      >
+                        <th
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                          scope="row"
+                        >
                           event.description
                           :
                         </th>
@@ -6774,6 +7086,30 @@ exports[`SearchPage filters by event type 1`] = `
                           <br />
                           <br />
                           test
+                        </td>
+                      </tr>
+                      <tr
+                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                      >
+                        <th
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                          scope="row"
+                        >
+                          event.priority
+                          :
+                        </th>
+                        <td
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                        >
+                          <div
+                            class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-ysdvuz-MuiChip-root"
+                          >
+                            <span
+                              class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
+                            >
+                              Jäsen
+                            </span>
+                          </div>
                         </td>
                       </tr>
                       <tr
@@ -7088,6 +7424,30 @@ exports[`SearchPage filters by event type 1`] = `
                           <br />
                           <br />
                           test
+                        </td>
+                      </tr>
+                      <tr
+                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                      >
+                        <th
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                          scope="row"
+                        >
+                          event.priority
+                          :
+                        </th>
+                        <td
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                        >
+                          <div
+                            class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-ysdvuz-MuiChip-root"
+                          >
+                            <span
+                              class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
+                            >
+                              Jäsen
+                            </span>
+                          </div>
                         </td>
                       </tr>
                       <tr
@@ -7937,6 +8297,30 @@ exports[`SearchPage filters by organizer 1`] = `
                           <br />
                           <br />
                           test
+                        </td>
+                      </tr>
+                      <tr
+                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                      >
+                        <th
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                          scope="row"
+                        >
+                          event.priority
+                          :
+                        </th>
+                        <td
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                        >
+                          <div
+                            class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-ysdvuz-MuiChip-root"
+                          >
+                            <span
+                              class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
+                            >
+                              Jäsen
+                            </span>
+                          </div>
                         </td>
                       </tr>
                       <tr
