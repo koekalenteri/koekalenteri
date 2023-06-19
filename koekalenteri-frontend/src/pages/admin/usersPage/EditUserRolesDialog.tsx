@@ -105,6 +105,13 @@ export function EditUserRolesDialog({ onClose, open, user }: Props) {
                     <Autocomplete
                       value={org}
                       getOptionLabel={(org) => org.name}
+                      renderOption={(props, option) => {
+                        return (
+                          <li {...props} key={option.id}>
+                            {option.name}
+                          </li>
+                        )
+                      }}
                       options={availableOrgs ?? []}
                       onChange={(_event, value) => setOrg(value)}
                       renderInput={(params) => <TextField {...params} />}
