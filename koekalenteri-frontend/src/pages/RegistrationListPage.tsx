@@ -172,14 +172,14 @@ export function RegistrationListPage({ cancel, confirm }: Props) {
 }
 
 function membershipIconColor(event: ConfirmedEvent, registration: Registration) {
-  if (event.priority?.includes('member') && (registration.handler.membership || registration.owner.membership)) {
+  if (registration.handler.membership || registration.owner.membership) {
     return 'primary.main'
   }
   return 'transparent'
 }
 
 function membershipStatus(event: ConfirmedEvent, registration: Registration) {
-  if (event.priority?.includes('member') && (registration.handler.membership || registration.owner.membership)) {
+  if (registration.handler.membership || registration.owner.membership) {
     return 'Olen jäsen'
   }
   return 'En ole jäsen'
