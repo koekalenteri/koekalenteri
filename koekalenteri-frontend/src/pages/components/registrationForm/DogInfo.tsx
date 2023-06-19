@@ -48,6 +48,7 @@ interface Props {
 interface State {
   regNo: string
   mode: 'fetch' | 'manual' | 'update' | 'notfound' | 'autofetch' | 'error'
+  rfid: boolean
 }
 
 export const DogInfo = ({
@@ -65,8 +66,10 @@ export const DogInfo = ({
   const [state, setState] = useState<State>({
     regNo: reg?.dog?.regNo ?? '',
     mode: reg?.dog?.regNo ? 'update' : 'fetch',
+    rfid: false,
   })
   const disabled = state.mode !== 'manual'
+  const rfidDisabled = disabled && !state.rfid
   const validRegNo = validateRegNo(state.regNo)
   const [loading, setLoading] = useState(false)
   const [delayed, setDelayed] = useState(false)
@@ -116,7 +119,11 @@ export const DogInfo = ({
             const cache = await actions.fetch()
             updateDog(cache)
             if (state.regNo) {
-              setState((prev) => ({ ...prev, mode: cache?.dog?.regNo ? 'update' : 'notfound' }))
+              setState((prev) => ({
+                ...prev,
+                mode: cache?.dog?.regNo ? 'update' : 'notfound',
+                rfid: cache.rfid ?? !cache?.dog?.rfid,
+              }))
             }
           } catch (err) {
             updateDog(emptyDog)
@@ -132,7 +139,7 @@ export const DogInfo = ({
           setState((prev) => ({ ...prev, mode: 'manual' }))
           break
         default:
-          setState({ regNo: '', mode: 'fetch' })
+          setState({ regNo: '', mode: 'fetch', rfid: false })
           break
       }
       return delay
@@ -155,7 +162,7 @@ export const DogInfo = ({
     (event: SyntheticEvent<Element, Event>, value: string | null) => {
       if (value !== null && value !== state.regNo) {
         const upper = value.toLocaleUpperCase().trim()
-        setState({ regNo: upper, mode: 'fetch' })
+        setState({ regNo: upper, mode: 'fetch', rfid: false })
       }
     },
     [state.regNo]
@@ -164,7 +171,7 @@ export const DogInfo = ({
     (event: SyntheticEvent<Element, Event>, value: string | null) => {
       if (value !== null && value !== state.regNo) {
         const upper = value.toLocaleUpperCase().trim()
-        setState({ regNo: upper, mode: 'autofetch' })
+        setState({ regNo: upper, mode: 'autofetch', rfid: false })
       }
     },
     [state.regNo]
@@ -218,12 +225,12 @@ export const DogInfo = ({
         </Grid>
         <Grid item xs={12} sm={5} md={6} lg={3}>
           <TextField
-            className={disabled && reg?.dog?.rfid ? 'fact' : ''}
-            disabled={disabled}
+            className={rfidDisabled && reg?.dog?.rfid ? 'fact' : ''}
+            disabled={rfidDisabled}
             fullWidth
             label={t('dog.rfid')}
             value={reg?.dog?.rfid ?? ''}
-            error={!disabled && !reg?.dog?.rfid}
+            error={!rfidDisabled && !reg?.dog?.rfid}
             onChange={(e) => handleChange({ dog: { rfid: e.target.value } })}
           />
         </Grid>

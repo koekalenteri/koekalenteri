@@ -10,6 +10,7 @@ export interface DogCachedInfo {
   handler: RegistrationPerson
   owner: RegistrationPerson & { ownerHandles: boolean }
   results: ManualTestResult[]
+  rfid: boolean
 }
 
 export type DogCache = Record<string, Partial<DogCachedInfo>>

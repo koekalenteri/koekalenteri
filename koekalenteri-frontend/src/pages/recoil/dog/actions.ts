@@ -77,7 +77,7 @@ export function useDogActions(regNo: string) {
 }
 
 export function applyCache(regNo: string, cache?: DeepPartial<DogCachedInfo>, dog?: Dog) {
-  const result: DeepPartial<DogCachedInfo> = { ...cache, dog }
+  const result: DeepPartial<DogCachedInfo> = { ...cache, dog, rfid: false }
 
   if (dog) {
     // when we have some official info
@@ -95,9 +95,13 @@ export function applyCache(regNo: string, cache?: DeepPartial<DogCachedInfo>, do
       dog
     )
 
-    // titles is the only thing that overwrites official information, when the official info is empty
+    // titles and rfid are the only thing that overwrites official information, when the official info is empty
     if (!result.dog.titles && cache?.dog?.titles) {
       result.dog.titles = cache.dog.titles
+    }
+    if (!result.dog.rfid && cache?.dog?.rfid) {
+      result.dog.rfid = cache.dog.rfid
+      result.rfid = true
     }
   } else {
     result.dog = Object.assign({}, cache?.dog ?? {}, { regNo })
