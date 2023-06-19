@@ -8,7 +8,7 @@ import LinkButton from '../../components/LinkButton'
 export function EventStateInfo({ id, state }: { id: string; state: EventState }) {
   const { t } = useTranslation()
 
-  if (state === 'picked' || state === 'started') {
+  if (state === 'invited' || state === 'started') {
     return <LinkButton to={Path.startList(id)} text="Katso osallistujalista" />
   }
 

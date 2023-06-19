@@ -36,7 +36,7 @@ export const StartListPage = () => {
   const now = new Date()
 
   if (!event) {
-    return <>Tapahtumaa ei löydy.</>
+    return <>Tapahtumaa {id} ei löydy.</>
   }
 
   if (!participants?.length) {
