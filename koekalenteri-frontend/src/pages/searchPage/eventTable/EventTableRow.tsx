@@ -85,7 +85,7 @@ export const EventTableRow = ({ event }: { event: Event }) => {
                   {isEntryOpen(event) ? (
                     <LinkButton to={Path.register(event)} text={t('register')} />
                   ) : (
-                    <EventStateInfo state={event.state} />
+                    <EventStateInfo id={event.id} state={event.state} />
                   )}
                 </Grid>
               </Grid>
