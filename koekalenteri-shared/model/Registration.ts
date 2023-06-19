@@ -24,6 +24,7 @@ export interface JsonRegistration extends JsonDbRecord {
   paidAt?: string
   paymentStatus?: PaymentStatus
   group?: JsonRegistrationGroup
+  priorityByInvitation?: boolean
 }
 
 export interface RegistrationGroup extends Partial<RegistrationDate> { number: number, key: string }

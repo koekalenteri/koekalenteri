@@ -171,18 +171,31 @@ export function RegistrationListPage({ cancel, confirm }: Props) {
   )
 }
 
+const hasPriority = (event: ConfirmedEvent, registration: Registration) => {
+  if (event.priority?.includes('member') && (registration.handler.membership || registration.owner.membership)) {
+    return true
+  }
+  if (event.priority?.includes(registration.dog.breedCode ?? '')) {
+    return true
+  }
+  if (event.priority?.includes('invited') && registration.priorityByInvitation) {
+    return true
+  }
+  return false
+}
+
 function membershipIconColor(event: ConfirmedEvent, registration: Registration) {
-  if (registration.handler.membership || registration.owner.membership) {
+  if (hasPriority(event, registration)) {
     return 'primary.main'
   }
   return 'transparent'
 }
 
 function membershipStatus(event: ConfirmedEvent, registration: Registration) {
-  if (registration.handler.membership || registration.owner.membership) {
-    return 'Olen jäsen'
+  if (hasPriority(event, registration)) {
+    return 'Olen etusijalla'
   }
-  return 'En ole jäsen'
+  return 'En ole etusijalla'
 }
 
 function paymentIconColor(registration: Registration) {
