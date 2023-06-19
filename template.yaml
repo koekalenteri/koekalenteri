@@ -54,6 +54,10 @@ Parameters:
     Type: String
     Description: GitHub Oauth Token
     NoEcho: true
+  CustomDomain:
+    Type: String
+    Description: Custom domain for Amplify APP
+    NoEcho: true
 
   # For Identity providers
   GoogleClientId:
@@ -112,7 +116,8 @@ Resources:
       GenerateSecret: false
       AllowedOAuthFlowsUserPoolClient: true
       AllowedOAuthFlows: ['code', 'implicit']
-      CallbackURLs: ['http://localhost:3000', 'http://localhost:8080' ,'https://localhost', !Join ['', ['https://', !GetAtt AmplifyBranch.BranchName, '.', !GetAtt AmplifyApp.DefaultDomain]]]
+      CallbackURLs: ['http://localhost:3000/login', !Join ['', ['https://', !GetAtt AmplifyBranch.BranchName, '.', !GetAtt AmplifyApp.DefaultDomain, '/login']], !Join ['', ['https://', !Ref CustomDomain, '/login']]]
+      LogoutURLs: ['http://localhost:3000/logout', !Join ['', ['https://', !GetAtt AmplifyBranch.BranchName, '.', !GetAtt AmplifyApp.DefaultDomain, '/logout']], !Join ['', ['https://', !Ref CustomDomain, '/logout']]]
       SupportedIdentityProviders: ['COGNITO', 'Google']
       AllowedOAuthScopes: ['email', 'openid']
       ExplicitAuthFlows:
@@ -1317,7 +1322,7 @@ Resources:
       BranchName: !Ref Branch
       AppId: !GetAtt AmplifyApp.AppId
       Description: Amplify Console Branch
-      EnableAutoBuild: true
+      EnableAutoBuild: false
       Tags:
         - Key: Name
           Value: koekalenteri-amplify-console
