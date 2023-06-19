@@ -19,7 +19,8 @@ export const getStartListHandler = metricScope(
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
       try {
         const eventId = event.pathParameters?.eventId
-        const confirmedEvent = await dynamoDB.read<JsonEvent>({ id: eventId })
+        const eventTable = process.env.EVENT_TABLE_NAME || ''
+        const confirmedEvent = await dynamoDB.read<JsonEvent>({ id: eventId }, eventTable)
         let publicRegs: JsonPublicRegistration[] = []
 
         if (['invited', 'started', 'ended', 'completed'].includes(confirmedEvent?.state ?? '')) {
