@@ -171,7 +171,7 @@ exports[`EventInfo should render event information 1`] = `
             <span
               class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
             >
-              Jäsen
+              Jäsenet
             </span>
           </div>
         </td>

@@ -163,7 +163,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                         <span
                           class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
                         >
-                          Jäsen
+                          Jäsenet
                         </span>
                       </div>
                     </div>
@@ -2406,7 +2406,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                         <span
                           class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
                         >
-                          Jäsen
+                          Jäsenet
                         </span>
                       </div>
                     </div>

@@ -71,6 +71,7 @@ export default function EntrySection(props: SectionProps) {
         <Grid item container spacing={1}>
           <Grid item>
             <AutocompleteMulti
+              disablePortal
               groupBy={(o) => o?.group ?? ''}
               isOptionEqualToValue={(o, v) => o?.value === v?.value}
               getOptionLabel={(o) => o?.name ?? ''}
