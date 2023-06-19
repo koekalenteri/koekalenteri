@@ -111,7 +111,7 @@ export const DogInfo = ({
       return
     }
     const load = async () => {
-      let delay = 10
+      let delay = 100
       switch (state.mode) {
         case 'autofetch':
         case 'fetch':
@@ -119,7 +119,6 @@ export const DogInfo = ({
             const cache = await actions.fetch()
             updateDog(cache)
             if (state.regNo) {
-              console.log(cache)
               setState((prev) => ({
                 ...prev,
                 mode: cache?.dog?.regNo ? 'update' : 'notfound',
