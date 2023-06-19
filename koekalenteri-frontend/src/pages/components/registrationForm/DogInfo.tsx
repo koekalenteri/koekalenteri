@@ -119,10 +119,11 @@ export const DogInfo = ({
             const cache = await actions.fetch()
             updateDog(cache)
             if (state.regNo) {
+              console.log(cache)
               setState((prev) => ({
                 ...prev,
                 mode: cache?.dog?.regNo ? 'update' : 'notfound',
-                rfid: cache.rfid ?? !cache?.dog?.rfid,
+                rfid: !!cache.rfid || !cache?.dog?.rfid,
               }))
             }
           } catch (err) {
