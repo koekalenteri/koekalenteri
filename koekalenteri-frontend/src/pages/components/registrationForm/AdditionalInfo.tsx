@@ -7,13 +7,14 @@ import useDebouncedCallback from '../../../hooks/useDebouncedCallback'
 import CollapsibleSection from '../CollapsibleSection'
 
 type AdditionalInfoProps = {
+  disabled?: boolean
   notes?: string
   onChange?: (props: Partial<Registration>) => void
   onOpenChange?: (value: boolean) => void
   open?: boolean
 }
 
-export function AdditionalInfo({ notes, onChange, onOpenChange, open }: AdditionalInfoProps) {
+export function AdditionalInfo({ disabled, notes, onChange, onOpenChange, open }: AdditionalInfoProps) {
   const { t } = useTranslation()
   const [value, setValue] = useState(notes ?? '')
 
@@ -35,6 +36,7 @@ export function AdditionalInfo({ notes, onChange, onOpenChange, open }: Addition
   return (
     <CollapsibleSection title={t('registration.notes')} open={open} onOpenChange={onOpenChange}>
       <TextField
+        disabled={disabled}
         label={t('registration.notes')}
         multiline
         onChange={handleChange}

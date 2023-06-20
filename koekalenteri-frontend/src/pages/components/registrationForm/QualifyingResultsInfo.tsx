@@ -16,6 +16,7 @@ type QualifyingResultsInfoProps = {
   results?: ManualTestResult[]
   requirements?: EventResultRequirementsByDate
   qualifyingResults?: QualifyingResult[]
+  disabled?: boolean
   error?: boolean
   helperText?: string
   onChange?: (props: Partial<Registration>) => void
@@ -28,6 +29,7 @@ export default function QualifyingResultsInfo({
   results,
   requirements,
   qualifyingResults,
+  disabled,
   error,
   helperText,
   onChange,
@@ -35,7 +37,7 @@ export default function QualifyingResultsInfo({
   open,
 }: QualifyingResultsInfoProps) {
   const { t } = useTranslation()
-  const disableResultInput = !requirements?.rules.length || !regNo
+  const disableResultInput = disabled || !requirements?.rules.length || !regNo
 
   const qualifying = useMemo(() => {
     if (!regNo) {
@@ -97,6 +99,7 @@ export default function QualifyingResultsInfo({
         {qualifying.map((result, index) => (
           <QualifyingResultRow
             key={getResultId(result)}
+            disabled={disabled}
             result={result}
             requirements={requirements}
             onChange={handleChange}

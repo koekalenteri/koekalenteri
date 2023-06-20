@@ -14,6 +14,7 @@ import { useDogCacheKey } from './hooks/useDogCacheKey'
 
 interface Props {
   reg: DeepPartial<Registration>
+  disabled?: boolean
   error?: boolean
   helperText?: string
   onChange: (props: DeepPartial<Registration>) => void
@@ -21,7 +22,7 @@ interface Props {
   open?: boolean
 }
 
-export function OwnerInfo({ reg, error, helperText, onChange, onOpenChange, open }: Props) {
+export function OwnerInfo({ reg, disabled, error, helperText, onChange, onOpenChange, open }: Props) {
   const { t } = useTranslation()
   const [cache, setCache] = useDogCacheKey(reg.dog?.regNo, 'owner')
 
@@ -48,6 +49,7 @@ export function OwnerInfo({ reg, error, helperText, onChange, onOpenChange, open
         <Grid item xs={12} sm={6}>
           <TextField
             InputProps={{ autoComplete: 'name' }}
+            disabled={disabled}
             error={!reg.owner?.name}
             fullWidth
             id="owner_name"
@@ -60,6 +62,7 @@ export function OwnerInfo({ reg, error, helperText, onChange, onOpenChange, open
         <Grid item xs={12} sm={6}>
           <TextField
             InputProps={{ autoComplete: 'address-level2' }}
+            disabled={disabled}
             error={!reg.owner?.location}
             fullWidth
             id="owner_city"
@@ -72,6 +75,7 @@ export function OwnerInfo({ reg, error, helperText, onChange, onOpenChange, open
         <Grid item xs={12} sm={6}>
           <TextField
             InputProps={{ autoComplete: 'email' }}
+            disabled={disabled}
             error={!reg.owner?.email}
             fullWidth
             id="owner_email"
@@ -84,6 +88,7 @@ export function OwnerInfo({ reg, error, helperText, onChange, onOpenChange, open
         <Grid item xs={12} sm={6}>
           <TextField
             InputProps={{ autoComplete: 'tel' }}
+            disabled={disabled}
             error={!reg.owner?.phone}
             fullWidth
             id="owner_phone"
@@ -98,6 +103,7 @@ export function OwnerInfo({ reg, error, helperText, onChange, onOpenChange, open
         <FormControlLabel
           control={
             <Checkbox
+              disabled={disabled}
               checked={reg.owner?.membership ?? false}
               onChange={(e) => handleChange({ membership: e.target.checked })}
             />
@@ -107,6 +113,7 @@ export function OwnerInfo({ reg, error, helperText, onChange, onOpenChange, open
       </FormGroup>
       <FormGroup>
         <FormControlLabel
+          disabled={disabled}
           control={
             <Switch checked={reg.ownerHandles} onChange={(e) => handleChange({ ownerHandles: e.target.checked })} />
           }

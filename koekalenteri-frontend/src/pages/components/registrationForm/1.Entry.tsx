@@ -16,6 +16,7 @@ type EntryInfoProps = {
   classDisabled?: boolean
   className?: string
   error?: boolean
+  disabled?: boolean
   helperText?: string
   errorStates: { [Property in keyof Registration]?: boolean }
   helperTexts: { [Property in keyof Registration]?: string }
@@ -30,6 +31,7 @@ export function EntryInfo({
   classDate,
   classDisabled,
   className,
+  disabled,
   errorStates,
   helperTexts,
   onChange,
@@ -102,7 +104,7 @@ export function EntryInfo({
         <Grid item sx={{ display: event.classes.length === 0 ? 'none' : 'block' }} xs={12} md={2}>
           <AutocompleteSingle
             disableClearable
-            disabled={classDisabled}
+            disabled={classDisabled || disabled}
             error={errorStates.class}
             helperText={helperTexts.class}
             label={t('registration.class')}
@@ -113,6 +115,7 @@ export function EntryInfo({
         </Grid>
         <Grid item xs={12} md={6}>
           <AutocompleteMulti
+            disabled={disabled}
             error={errorStates.dates}
             helperText={t('registration.datesInfo')}
             label={t('registration.dates')}
@@ -126,6 +129,7 @@ export function EntryInfo({
         <Grid item xs={12} md={4}>
           <AutocompleteSingle
             disableClearable
+            disabled={disabled}
             error={errorStates.reserve}
             helperText={helperTexts.reserve}
             label={t('registration.reserve')}

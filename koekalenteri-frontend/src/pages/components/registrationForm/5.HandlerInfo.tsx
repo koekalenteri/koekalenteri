@@ -12,6 +12,7 @@ import { useDogCacheKey } from './hooks/useDogCacheKey'
 
 type HandlerInfoProps = {
   reg: DeepPartial<Registration>
+  disabled?: boolean
   error?: boolean
   helperText?: string
   onChange: (props: DeepPartial<Registration>) => void
@@ -19,7 +20,7 @@ type HandlerInfoProps = {
   open?: boolean
 }
 
-export function HandlerInfo({ reg, error, helperText, onChange, onOpenChange, open }: HandlerInfoProps) {
+export function HandlerInfo({ reg, disabled, error, helperText, onChange, onOpenChange, open }: HandlerInfoProps) {
   const { t } = useTranslation()
   const [cache, setCache] = useDogCacheKey(reg.dog?.regNo, 'handler')
 
@@ -44,6 +45,7 @@ export function HandlerInfo({ reg, error, helperText, onChange, onOpenChange, op
           <Grid item sx={{ width: 300 }}>
             <TextField
               InputProps={{ autoComplete: 'name' }}
+              disabled={disabled}
               error={!reg.handler?.name}
               fullWidth
               id="handler_name"
@@ -56,6 +58,7 @@ export function HandlerInfo({ reg, error, helperText, onChange, onOpenChange, op
           <Grid item sx={{ width: 300 }}>
             <TextField
               InputProps={{ autoComplete: 'address-level2' }}
+              disabled={disabled}
               error={!reg.handler?.location}
               fullWidth
               id="handler_city"
@@ -70,6 +73,7 @@ export function HandlerInfo({ reg, error, helperText, onChange, onOpenChange, op
           <Grid item sx={{ width: 300 }}>
             <TextField
               InputProps={{ autoComplete: 'email' }}
+              disabled={disabled}
               error={!reg.handler?.email}
               fullWidth
               id="handler_email"
@@ -82,6 +86,7 @@ export function HandlerInfo({ reg, error, helperText, onChange, onOpenChange, op
           <Grid item sx={{ width: 300 }}>
             <TextField
               InputProps={{ autoComplete: 'tel' }}
+              disabled={disabled}
               error={!reg.handler?.phone}
               fullWidth
               id="handler_phone"
@@ -94,6 +99,7 @@ export function HandlerInfo({ reg, error, helperText, onChange, onOpenChange, op
         </Grid>
       </Grid>
       <FormControlLabel
+        disabled={disabled}
         control={
           <Checkbox
             checked={reg.handler?.membership ?? false}

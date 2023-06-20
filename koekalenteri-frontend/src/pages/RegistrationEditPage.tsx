@@ -4,7 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import type { Registration } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
 
-import { hasChanges } from '../utils'
+import { hasChanges, isEntryClosed } from '../utils'
 
 import LinkButton from './components/LinkButton'
 import RegistrationEventInfo from './components/RegistrationEventInfo'
@@ -24,9 +24,10 @@ export default function RegistrationEditPage() {
   const resetRegistration = useResetRecoilState(editableRegistrationByIdsAtom(ids))
   const spa = useRecoilValue(spaAtom)
   const actions = useRegistrationActions()
+  const disabled = !event || isEntryClosed(event)
   const changes = useMemo(
-    () => !!savedRegistration && hasChanges(savedRegistration, registration),
-    [registration, savedRegistration]
+    () => !!disabled && !!savedRegistration && hasChanges(savedRegistration, registration),
+    [registration, savedRegistration, disabled]
   )
 
   const handleChange = useCallback(
@@ -39,7 +40,7 @@ export default function RegistrationEditPage() {
   )
 
   const handleSave = useCallback(() => {
-    if (!registration || !event) {
+    if (!registration || !event || disabled) {
       return
     }
     actions.save(registration).then(
@@ -52,7 +53,7 @@ export default function RegistrationEditPage() {
         console.error(reason)
       }
     )
-  }, [actions, event, navigate, registration, resetRegistration, setSavedRegistration])
+  }, [actions, disabled, event, navigate, registration, resetRegistration, setSavedRegistration])
 
   const handleCancel = useCallback(() => {
     resetRegistration()
@@ -78,6 +79,7 @@ export default function RegistrationEditPage() {
       <RegistrationEventInfo event={event} />
       <RegistrationForm
         changes={changes}
+        disabled={disabled}
         event={event}
         registration={registration}
         className={params.class}

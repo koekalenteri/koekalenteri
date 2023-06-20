@@ -17,12 +17,13 @@ import { availableResults, availableTypes, resultBorderColor } from './utils'
 
 interface Props {
   result: ManualTestResult
+  disabled?: boolean
   requirements?: EventResultRequirementsByDate
   onChange?: (result: ManualTestResult, props: Partial<TestResult>) => void
   onRemove?: (result: ManualTestResult) => void
 }
 
-export default function QualifyingResultRow({ result, requirements, onChange, onRemove }: Props) {
+export default function QualifyingResultRow({ result, disabled, requirements, onChange, onRemove }: Props) {
   const { t } = useTranslation()
   const handleChange = useCallback(
     (result: ManualTestResult, props: Partial<TestResult>) => {
@@ -36,7 +37,7 @@ export default function QualifyingResultRow({ result, requirements, onChange, on
     <Grid item container spacing={1} alignItems="center">
       <Grid item xs={6} sm={4} md={2}>
         <AutocompleteSingle
-          disabled={result.official}
+          disabled={result.official || disabled}
           disableClearable
           options={availableTypes(requirements)}
           label={t('testResult.eventType')}
@@ -46,7 +47,7 @@ export default function QualifyingResultRow({ result, requirements, onChange, on
       </Grid>
       <Grid item xs={6} sm={4} md={2}>
         <AutocompleteSingle
-          disabled={result.official}
+          disabled={result.official || disabled}
           disableClearable
           options={availableResults(requirements)}
           label={t('testResult.result')}
@@ -72,7 +73,7 @@ export default function QualifyingResultRow({ result, requirements, onChange, on
       <Grid item xs={6} sm={4} md={2}>
         <FormControl fullWidth>
           <DatePicker
-            disabled={result.official}
+            disabled={result.official || disabled}
             inputFormat={t('dateFormatString.long')}
             label={t('testResult.date')}
             mask={t('datemask')}
@@ -88,7 +89,7 @@ export default function QualifyingResultRow({ result, requirements, onChange, on
       </Grid>
       <Grid item xs={6} sm={4} md={2}>
         <TextField
-          disabled={result.official}
+          disabled={result.official || disabled}
           error={!result.location}
           fullWidth
           label={t('testResult.location')}
@@ -98,7 +99,7 @@ export default function QualifyingResultRow({ result, requirements, onChange, on
       </Grid>
       <Grid item xs={12} sm={4} md={2.5}>
         <TextField
-          disabled={result.official}
+          disabled={result.official || disabled}
           error={!result.judge}
           fullWidth
           label={t('testResult.judge')}
@@ -107,7 +108,7 @@ export default function QualifyingResultRow({ result, requirements, onChange, on
         />
       </Grid>
       <Grid item sx={{ display: result.official ? 'none' : 'block' }} xs={12} sm={4} md={1.5}>
-        <Button startIcon={<DeleteOutline />} onClick={handleRemove}>
+        <Button disabled={disabled} startIcon={<DeleteOutline />} onClick={handleRemove}>
           {t('registration.cta.deleteResult')}
         </Button>
       </Grid>

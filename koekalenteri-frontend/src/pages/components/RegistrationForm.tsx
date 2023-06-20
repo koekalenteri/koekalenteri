@@ -36,6 +36,7 @@ interface Props {
   className?: string
   classDate?: string
   changes?: boolean
+  disabled?: boolean
   onSave?: () => void
   onCancel?: () => void
   onChange?: (registration: Registration) => void
@@ -64,6 +65,7 @@ export default function RegistrationForm({
   registration,
   classDate,
   changes,
+  disabled,
   onSave,
   onCancel,
   onChange,
@@ -95,6 +97,7 @@ export default function RegistrationForm({
 
   const handleChange = useCallback(
     (props: DeepPartial<Registration> | undefined = {}, replace?: boolean) => {
+      if (disabled) return
       if (props.class || props.results || props.dog?.results) {
         const cls = props.class ?? registration.class
         const dogResults = props.dog?.results ?? registration.dog?.results ?? []
@@ -109,7 +112,7 @@ export default function RegistrationForm({
         onChange?.(newState)
       }
     },
-    [event, onChange, registration]
+    [event, onChange, registration, disabled]
   )
 
   const handleOpenChange = useCallback(
@@ -199,6 +202,7 @@ export default function RegistrationForm({
           classDate={classDate}
           classDisabled={classDisabled}
           className={className}
+          disabled={disabled}
           errorStates={errorStates}
           helperTexts={helperTexts}
           onChange={handleChange}
@@ -209,6 +213,7 @@ export default function RegistrationForm({
           reg={registration}
           eventDate={event.startDate}
           minDogAgeMonths={9}
+          disabled={disabled}
           error={errorStates.dog}
           helperText={helperTexts.dog}
           onChange={handleChange}
@@ -217,6 +222,7 @@ export default function RegistrationForm({
         />
         <BreederInfo
           reg={registration}
+          disabled={disabled}
           error={errorStates.breeder}
           helperText={helperTexts.breeder}
           onChange={handleChange}
@@ -225,6 +231,7 @@ export default function RegistrationForm({
         />
         <OwnerInfo
           reg={registration}
+          disabled={disabled}
           error={errorStates.owner}
           helperText={helperTexts.owner}
           onChange={handleChange}
@@ -234,6 +241,7 @@ export default function RegistrationForm({
         <Collapse in={!registration.ownerHandles}>
           <HandlerInfo
             reg={registration}
+            disabled={disabled}
             error={errorStates.handler}
             helperText={helperTexts.handler}
             onChange={handleChange}
@@ -243,6 +251,7 @@ export default function RegistrationForm({
         </Collapse>
         <QualifyingResultsInfo
           regNo={registration.dog?.regNo}
+          disabled={disabled}
           requirements={requirements}
           results={registration.results}
           qualifyingResults={registration.qualifyingResults}
@@ -253,6 +262,7 @@ export default function RegistrationForm({
           open={open.qr}
         />
         <AdditionalInfo
+          disabled={disabled}
           notes={registration.notes}
           onChange={handleChange}
           onOpenChange={(value) => handleOpenChange('info', value)}
@@ -261,6 +271,7 @@ export default function RegistrationForm({
         <Box sx={{ m: 1, mt: 2, ml: 4, borderTop: '1px solid #bdbdbd' }}>
           <FormControl error={errorStates.agreeToTerms} disabled={!!registration.id}>
             <FormControlLabel
+              disabled={disabled}
               control={
                 <Checkbox
                   checked={registration.agreeToTerms}
@@ -297,7 +308,7 @@ export default function RegistrationForm({
       >
         <LoadingButton
           color="primary"
-          disabled={!changes || !valid}
+          disabled={disabled || !changes || !valid}
           loading={saving}
           onClick={handleSave}
           startIcon={<Save />}

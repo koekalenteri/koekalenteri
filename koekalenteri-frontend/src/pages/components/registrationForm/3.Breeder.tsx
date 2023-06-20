@@ -10,6 +10,7 @@ import { useDogCacheKey } from './hooks/useDogCacheKey'
 
 type BreederInfoProps = {
   reg: DeepPartial<Registration>
+  disabled?: boolean
   error?: boolean
   helperText?: string
   onChange: (props: DeepPartial<Registration>) => void
@@ -17,7 +18,7 @@ type BreederInfoProps = {
   open?: boolean
 }
 
-export function BreederInfo({ reg, error, helperText, onChange, onOpenChange, open }: BreederInfoProps) {
+export function BreederInfo({ reg, disabled, error, helperText, onChange, onOpenChange, open }: BreederInfoProps) {
   const { t } = useTranslation()
   const [cache, setCache] = useDogCacheKey(reg.dog?.regNo, 'breeder')
 
@@ -40,6 +41,7 @@ export function BreederInfo({ reg, error, helperText, onChange, onOpenChange, op
       <Grid item container spacing={1}>
         <Grid item xs={12} sm={6}>
           <TextField
+            disabled={disabled}
             error={!reg.breeder?.name}
             fullWidth
             id="breeder_name"
@@ -50,6 +52,7 @@ export function BreederInfo({ reg, error, helperText, onChange, onOpenChange, op
         </Grid>
         <Grid item xs={12} sm={6}>
           <TextField
+            disabled={disabled}
             error={!reg.breeder?.location}
             fullWidth
             id="breeder_location"
