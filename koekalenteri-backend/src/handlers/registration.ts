@@ -46,12 +46,14 @@ export const putRegistrationHandler = metricScope(
         const registration: JsonRegistration = JSON.parse(event.body || '')
         const update = !!registration.id
         let cancel = false
+        let confirm = false
         if (update) {
           existing = await dynamoDB.read<JsonRegistration>({ eventId: registration.eventId, id: registration.id })
           if (!existing) {
             throw new Error(`Registration not found with id "${registration.id}"`)
           }
           cancel = !existing.cancelled && !!registration.cancelled
+          confirm = !existing.confirmed && !!registration.confirmed && !existing.cancelled
         } else {
           registration.id = nanoid(10)
           registration.createdAt = timestamp
@@ -73,7 +75,7 @@ export const putRegistrationHandler = metricScope(
 
         if (registration.handler?.email && registration.owner?.email) {
           const to = emailTo(registration)
-          const context = getEmailContext(update, cancel)
+          const context = getEmailContext(update, cancel, confirm)
           const data = registrationEmailTemplateData(registration, confirmedEvent, origin, context)
 
           await sendTemplatedMail('registration', registration.language, EMAIL_FROM, to, data)
@@ -92,12 +94,9 @@ export const putRegistrationHandler = metricScope(
     }
 )
 
-function getEmailContext(update: boolean, cancel: boolean) {
-  if (cancel) {
-    return 'cancel'
-  }
-  if (update) {
-    return 'update'
-  }
+function getEmailContext(update: boolean, cancel: boolean, confirm: boolean) {
+  if (cancel) return 'cancel'
+  if (confirm) return 'confirm'
+  if (update) return 'update'
   return ''
 }

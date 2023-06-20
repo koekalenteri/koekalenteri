@@ -60,7 +60,7 @@ export function RegistrationListPage({ cancel, confirm }: Props) {
   }, [actions, registration, setRegistration])
 
   const handleConfirm = useCallback(() => {
-    if (!registration) {
+    if (!registration || registration.confirmed || registration.cancelled) {
       return
     }
     actions.confirm(registration).then(
@@ -81,7 +81,7 @@ export function RegistrationListPage({ cancel, confirm }: Props) {
     if (cancelOpen && registration?.cancelled) {
       setCancelOpen(false)
     }
-    if (confirmOpen && registration?.confirmed) {
+    if (confirmOpen && (registration?.confirmed || registration?.cancelled)) {
       setConfirmOpen(false)
     }
   }, [cancelOpen, confirmOpen, registration])
