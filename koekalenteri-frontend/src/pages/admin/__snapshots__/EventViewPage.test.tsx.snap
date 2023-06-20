@@ -794,7 +794,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
               aria-colcount="8"
               aria-multiselectable="false"
               aria-rowcount="1"
-              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-g6ulsj-MuiDataGrid-root"
+              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-19k19ek-MuiDataGrid-root"
               role="grid"
             >
               <div>
@@ -1251,7 +1251,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
               aria-colcount="8"
               aria-multiselectable="false"
               aria-rowcount="1"
-              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-g6ulsj-MuiDataGrid-root"
+              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-19k19ek-MuiDataGrid-root"
               role="grid"
             >
               <div>
@@ -1708,7 +1708,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
               aria-colcount="8"
               aria-multiselectable="false"
               aria-rowcount="1"
-              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-g6ulsj-MuiDataGrid-root"
+              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-19k19ek-MuiDataGrid-root"
               role="grid"
             >
               <div>
@@ -2165,7 +2165,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
               aria-colcount="8"
               aria-multiselectable="false"
               aria-rowcount="1"
-              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-g6ulsj-MuiDataGrid-root"
+              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-19k19ek-MuiDataGrid-root"
               role="grid"
             >
               <div>
@@ -2627,7 +2627,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
               aria-colcount="8"
               aria-multiselectable="false"
               aria-rowcount="1"
-              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-g6ulsj-MuiDataGrid-root"
+              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-19k19ek-MuiDataGrid-root"
               role="grid"
             >
               <div>
@@ -3080,7 +3080,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
               aria-colcount="9"
               aria-multiselectable="false"
               aria-rowcount="1"
-              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-g6ulsj-MuiDataGrid-root"
+              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-19k19ek-MuiDataGrid-root"
               role="grid"
             >
               <div>
@@ -4394,7 +4394,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
               aria-colcount="8"
               aria-multiselectable="false"
               aria-rowcount="1"
-              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-g6ulsj-MuiDataGrid-root"
+              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-19k19ek-MuiDataGrid-root"
               role="grid"
             >
               <div>
@@ -4851,7 +4851,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
               aria-colcount="8"
               aria-multiselectable="false"
               aria-rowcount="1"
-              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-g6ulsj-MuiDataGrid-root"
+              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-19k19ek-MuiDataGrid-root"
               role="grid"
             >
               <div>
@@ -5308,7 +5308,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
               aria-colcount="8"
               aria-multiselectable="false"
               aria-rowcount="1"
-              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-g6ulsj-MuiDataGrid-root"
+              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-19k19ek-MuiDataGrid-root"
               role="grid"
             >
               <div>
@@ -5765,7 +5765,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
               aria-colcount="8"
               aria-multiselectable="false"
               aria-rowcount="1"
-              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-g6ulsj-MuiDataGrid-root"
+              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-19k19ek-MuiDataGrid-root"
               role="grid"
             >
               <div>
@@ -6227,7 +6227,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
               aria-colcount="8"
               aria-multiselectable="false"
               aria-rowcount="2"
-              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-g6ulsj-MuiDataGrid-root"
+              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-19k19ek-MuiDataGrid-root"
               role="grid"
             >
               <div>
@@ -6917,7 +6917,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
               aria-colcount="9"
               aria-multiselectable="false"
               aria-rowcount="2"
-              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-g6ulsj-MuiDataGrid-root"
+              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact css-19k19ek-MuiDataGrid-root"
               role="grid"
             >
               <div>

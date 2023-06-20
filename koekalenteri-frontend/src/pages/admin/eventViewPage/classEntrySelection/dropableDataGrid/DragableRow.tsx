@@ -47,20 +47,18 @@ const DragableRow = ({ groupKey, ...props }: Props) => {
         return
       }
 
-      const hoverBoundingRect = ref.current.getBoundingClientRect()
-      const mod = item.position === 'before' ? 3 : item.position === 'after' ? -3 : 0
-      const hoverMiddleY = (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2 + mod
-      const clientOffset = monitor.getClientOffset()
-      const hoverClientY = (clientOffset as XYCoord).y - hoverBoundingRect.top
-      const position = hoverClientY < hoverMiddleY ? 'before' : 'after'
-      if (sameGroup) {
-        if (
-          (position === 'before' && dragIndex === hoverIndex - 1) ||
-          (position === 'after' && dragIndex === hoverIndex + 1)
-        ) {
-          delete item.targetGroupKey
-          return
-        }
+      let position: 'before' | 'after' = 'before'
+      if (sameGroup && dragIndex === hoverIndex - 1) {
+        position = 'after'
+      } else if (sameGroup && dragIndex === hoverIndex + 1) {
+        position = 'before'
+      } else {
+        const hoverBoundingRect = ref.current.getBoundingClientRect()
+        const mod = item.position === 'before' ? 3 : item.position === 'after' ? -3 : 0
+        const hoverMiddleY = (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2 + mod
+        const clientOffset = monitor.getClientOffset()
+        const hoverClientY = (clientOffset as XYCoord).y - hoverBoundingRect.top
+        position = hoverClientY < hoverMiddleY ? 'before' : 'after'
       }
       item.targetGroupKey = groupKey
       item.targetIndex = hoverIndex
@@ -80,10 +78,6 @@ const DragableRow = ({ groupKey, ...props }: Props) => {
   })
 
   drag(drop(ref))
-
-  if (hovered) {
-    console.log(position)
-  }
 
   return (
     <div

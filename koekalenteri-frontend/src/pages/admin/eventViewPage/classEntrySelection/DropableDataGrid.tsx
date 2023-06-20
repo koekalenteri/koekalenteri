@@ -90,11 +90,9 @@ const DropableDataGrid = (props: Props) => {
             },
             '.accept & .hovered.before': {
               borderTop: '3px solid #F2C94C',
-              transition: 'border-width 0.1s linear',
             },
             '.accept & .hovered.after': {
               borderBottom: '3px solid #F2C94C',
-              transition: 'border-width 0.1s linear',
             },
           },
           ...(Array.isArray(props.sx) ? props.sx : [props.sx]),
