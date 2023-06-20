@@ -15,10 +15,10 @@ const dynamoDB = new CustomDynamoClient(process.env.USER_TABLE_NAME)
 const userIsAdminFor = (user: JsonUser) =>
   Object.keys(user?.roles ?? {}).filter((orgId) => user?.roles?.[orgId] == 'admin')
 
-const filterRelevantUsers = (users: JsonUser[], user: JsonUser, adminFor: string[]) =>
-  user.admin
-    ? users
-    : users.filter((u) => u.admin || Object.keys(u.roles ?? {}).some((orgId) => adminFor.includes(orgId)))
+const userIsMemberOf = (user: JsonUser) => Object.keys(user?.roles ?? {}).filter((orgId) => !!user?.roles?.[orgId])
+
+const filterRelevantUsers = (users: JsonUser[], user: JsonUser, orgs: string[]) =>
+  user.admin ? users : users.filter((u) => u.admin || Object.keys(u.roles ?? {}).some((orgId) => orgs.includes(orgId)))
 
 export const getUsersHandler = metricScope(
   (metrics: MetricsLogger) =>
@@ -28,14 +28,15 @@ export const getUsersHandler = metricScope(
         if (!user) {
           return response(401, 'Unauthorized', event)
         }
-        const adminFor = userIsAdminFor(user)
-        if (!adminFor.length && !user?.admin) {
+        const memberOf = userIsMemberOf(user)
+        if (!memberOf.length && !user?.admin) {
+          console.error(`User ${user.id} is not admin or member of any organizations.`)
           return response(403, 'Forbidden', event)
         }
         const users = (await dynamoDB.readAll<JsonUser>()) ?? []
 
         metricsSuccess(metrics, event.requestContext, 'getUsers')
-        return response(200, filterRelevantUsers(users, user, adminFor), event)
+        return response(200, filterRelevantUsers(users, user, memberOf), event)
       } catch (err: unknown) {
         console.error(err)
         metricsError(metrics, event.requestContext, 'getUsers')
