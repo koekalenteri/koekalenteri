@@ -91,20 +91,26 @@ export function useClassEntrySelectionColumns(eventDates: Date[], openEditDialog
               <PersonOutline fontSize="small" sx={{ opacity: p.row.handler.membership ? 1 : 0.05 }} />
             </Tooltip>
             <Tooltip
-              title={`Ilmoittautuja ${p.row.paidAt ? 'on' : 'ei ole'} järjestävän yhdistyksen jäsen`}
+              title={`Ilmoittautuja ${
+                p.row.paidAt ? 'on maksanut ilmoittautumisen' : 'ei ole maksanut ilmoittautumista'
+              }`}
               placement="left"
             >
               <EuroOutlined fontSize="small" sx={{ opacity: p.row.paidAt ? 1 : 0.05 }} />
             </Tooltip>
             <Tooltip
-              title={`Ilmoittautuja ${p.row.confirmed ? 'on' : 'ei ole'} vahvistanut ottavansa vastaan koepaikan`}
+              title={`Ilmoittautuja ${
+                p.row.confirmed
+                  ? 'on vahvistanut ottavansa koepaikan vastaan'
+                  : 'ei ole vahvistanut ottavansa koepaikkaa vastaan'
+              }`}
               placement="left"
             >
               <CheckOutlined fontSize="small" sx={{ opacity: p.row.confirmed ? 1 : 0.05 }} />
             </Tooltip>
             <Tooltip
               title={`Ilmoittautuja ${
-                p.row.invitationRead ? 'on kuitannut koekutsun' : 'ei ole kuitannut koekutua'
+                p.row.invitationRead ? 'on kuitannut koekutsun' : 'ei ole kuitannut koekutsua'
               } luetuksi`}
               placement="left"
             >

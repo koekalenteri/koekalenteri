@@ -6801,7 +6801,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                               </svg>
                               <svg
                                 aria-hidden="true"
-                                aria-label="Ilmoittautuja ei ole järjestävän yhdistyksen jäsen"
+                                aria-label="Ilmoittautuja ei ole maksanut ilmoittautumista"
                                 class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1zaak-MuiSvgIcon-root"
                                 data-mui-internal-clone-element="true"
                                 data-testid="EuroOutlinedIcon"
@@ -6814,7 +6814,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                               </svg>
                               <svg
                                 aria-hidden="true"
-                                aria-label="Ilmoittautuja ei ole vahvistanut ottavansa vastaan koepaikan"
+                                aria-label="Ilmoittautuja ei ole vahvistanut ottavansa koepaikkaa vastaan"
                                 class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1zaak-MuiSvgIcon-root"
                                 data-mui-internal-clone-element="true"
                                 data-testid="CheckOutlinedIcon"
@@ -6827,7 +6827,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                               </svg>
                               <svg
                                 aria-hidden="true"
-                                aria-label="Ilmoittautuja ei ole kuitannut koekutua luetuksi"
+                                aria-label="Ilmoittautuja ei ole kuitannut koekutsua luetuksi"
                                 class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1zaak-MuiSvgIcon-root"
                                 data-mui-internal-clone-element="true"
                                 data-testid="MarkEmailReadOutlinedIcon"
@@ -7578,7 +7578,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                               </svg>
                               <svg
                                 aria-hidden="true"
-                                aria-label="Ilmoittautuja ei ole järjestävän yhdistyksen jäsen"
+                                aria-label="Ilmoittautuja ei ole maksanut ilmoittautumista"
                                 class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1zaak-MuiSvgIcon-root"
                                 data-mui-internal-clone-element="true"
                                 data-testid="EuroOutlinedIcon"
@@ -7591,7 +7591,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                               </svg>
                               <svg
                                 aria-hidden="true"
-                                aria-label="Ilmoittautuja ei ole vahvistanut ottavansa vastaan koepaikan"
+                                aria-label="Ilmoittautuja ei ole vahvistanut ottavansa koepaikkaa vastaan"
                                 class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1zaak-MuiSvgIcon-root"
                                 data-mui-internal-clone-element="true"
                                 data-testid="CheckOutlinedIcon"
@@ -7604,7 +7604,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                               </svg>
                               <svg
                                 aria-hidden="true"
-                                aria-label="Ilmoittautuja ei ole kuitannut koekutua luetuksi"
+                                aria-label="Ilmoittautuja ei ole kuitannut koekutsua luetuksi"
                                 class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1zaak-MuiSvgIcon-root"
                                 data-mui-internal-clone-element="true"
                                 data-testid="MarkEmailReadOutlinedIcon"
