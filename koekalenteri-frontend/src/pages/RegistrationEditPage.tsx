@@ -4,7 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import type { Registration } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
 
-import { hasChanges, isEntryClosed } from '../utils'
+import { hasChanges, isEntryClosed, isEventOngoing, isEventOver } from '../utils'
 
 import LinkButton from './components/LinkButton'
 import RegistrationEventInfo from './components/RegistrationEventInfo'
@@ -24,7 +24,7 @@ export default function RegistrationEditPage() {
   const resetRegistration = useResetRecoilState(editableRegistrationByIdsAtom(ids))
   const spa = useRecoilValue(spaAtom)
   const actions = useRegistrationActions()
-  const disabled = !event || isEntryClosed(event)
+  const disabled = !event || isEntryClosed(event) || isEventOngoing(event) || isEventOver(event)
   const changes = useMemo(
     () => !!disabled && !!savedRegistration && hasChanges(savedRegistration, registration),
     [registration, savedRegistration, disabled]
