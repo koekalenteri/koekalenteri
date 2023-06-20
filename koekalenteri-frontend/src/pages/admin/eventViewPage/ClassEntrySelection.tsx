@@ -98,7 +98,12 @@ const ClassEntrySelection = ({
       return
     }
 
-    if (state === 'picked' && group.key !== 'cancelled' && group.key !== 'reserve') {
+    if (
+      state === 'picked' &&
+      group.key !== 'cancelled' &&
+      group.key !== 'reserve' &&
+      item.targetGroupKey !== group.key
+    ) {
       try {
         await confirm({
           title: 'Olet lisäämässä koirakkoa osallistujiin',
@@ -226,7 +231,7 @@ const ClassEntrySelection = ({
         <DragableDataGrid
           autoHeight
           canDrop={(item) => {
-            return state !== 'picked' || item?.groupKey === 'reserve'
+            return state !== 'started' || item?.groupKey === 'reserve'
           }}
           flex={registrationsByGroup[group.key]?.length}
           key={group.key}
