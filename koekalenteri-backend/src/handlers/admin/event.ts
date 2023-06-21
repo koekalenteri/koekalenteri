@@ -1,7 +1,7 @@
 import { metricScope, MetricsLogger } from 'aws-embedded-metrics'
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import { AWSError } from 'aws-sdk'
-import { JsonConfirmedEvent, JsonRegistration } from 'koekalenteri-shared/model'
+import { EventClassState, JsonConfirmedEvent, JsonRegistration } from 'koekalenteri-shared/model'
 import { nanoid } from 'nanoid'
 
 import { authorize } from '../../utils/auth'
@@ -109,20 +109,24 @@ export const updateRegistrations = async (eventId: string, eventTable: string, r
   return confirmedEvent
 }
 
-export const markParticipantsPicked = async (confirmedEvent: JsonConfirmedEvent, eventClass?: string) => {
+export const markParticipants = async (
+  confirmedEvent: JsonConfirmedEvent,
+  state: EventClassState,
+  eventClass?: string
+) => {
   const eventKey = { id: confirmedEvent.id }
   const eventTable = process.env.EVENT_TABLE_NAME || ''
   let allInvited = true
   if (eventClass) {
     for (const c of confirmedEvent.classes) {
       if (c.class === eventClass) {
-        c.state = 'picked'
+        c.state = state
       }
     }
-    allInvited = confirmedEvent.classes.filter((c) => c.state === 'picked').length === confirmedEvent.classes.length
+    allInvited = confirmedEvent.classes.filter((c) => c.state === state).length === confirmedEvent.classes.length
   }
   if (allInvited) {
-    confirmedEvent.state = 'picked'
+    confirmedEvent.state = state
   }
 
   await dynamoDB.update(

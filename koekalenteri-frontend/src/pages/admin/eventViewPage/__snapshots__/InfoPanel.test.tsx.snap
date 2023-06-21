@@ -74,7 +74,8 @@ exports[`InfoPanel> renders with event with closed entry and registrations 1`] =
               tabindex="-1"
               type="button"
             >
-              LÄHETÄ KOEPAIKKAILMOITUS
+              LÄHETÄ 
+              KOEPAIKKAILMOITUS
             </button>
           </td>
         </tr>
@@ -110,7 +111,8 @@ exports[`InfoPanel> renders with event with closed entry and registrations 1`] =
               tabindex="-1"
               type="button"
             >
-              LÄHETÄ KOEPAIKKAILMOITUS
+              LÄHETÄ 
+              KOEPAIKKAILMOITUS
             </button>
           </td>
         </tr>
@@ -279,7 +281,8 @@ exports[`InfoPanel> renders with event with closed entry and registrations with 
               tabindex="0"
               type="button"
             >
-              LÄHETÄ KOEPAIKKAILMOITUS
+              LÄHETÄ 
+              KOEPAIKKAILMOITUS
               <span
                 class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
               />
@@ -318,7 +321,8 @@ exports[`InfoPanel> renders with event with closed entry and registrations with 
               tabindex="-1"
               type="button"
             >
-              LÄHETÄ KOEPAIKKAILMOITUS
+              LÄHETÄ 
+              KOEPAIKKAILMOITUS
             </button>
           </td>
         </tr>
@@ -486,7 +490,8 @@ exports[`InfoPanel> renders with no registrations 1`] = `
               tabindex="-1"
               type="button"
             >
-              LÄHETÄ KOEPAIKKAILMOITUS
+              LÄHETÄ 
+              KOEPAIKKAILMOITUS
             </button>
           </td>
         </tr>

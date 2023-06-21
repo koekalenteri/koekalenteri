@@ -104,7 +104,8 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                       tabindex="-1"
                       type="button"
                     >
-                      LÄHETÄ KOEPAIKKAILMOITUS
+                      LÄHETÄ 
+                      KOEPAIKKAILMOITUS
                     </button>
                   </td>
                 </tr>
@@ -3704,7 +3705,8 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                       tabindex="-1"
                       type="button"
                     >
-                      LÄHETÄ KOEPAIKKAILMOITUS
+                      LÄHETÄ 
+                      KOEPAIKKAILMOITUS
                     </button>
                   </td>
                 </tr>

@@ -67,10 +67,17 @@ const InfoPanel = ({ event, registrations, onOpenMessageDialog }: Props) => {
                   <Button
                     size="small"
                     sx={{ fontSize: '0.5rem' }}
-                    disabled={nums.participants === 0 || nums.invalid || stateByClass[c] !== 'confirmed'}
-                    onClick={() => onOpenMessageDialog?.(selectedByClass[c], 'picked')}
+                    disabled={
+                      nums.participants === 0 || nums.invalid || !['confirmed', 'picked'].includes(stateByClass[c])
+                    }
+                    onClick={() =>
+                      onOpenMessageDialog?.(
+                        selectedByClass[c],
+                        stateByClass[c] === 'confirmed' ? 'picked' : 'invitation'
+                      )
+                    }
                   >
-                    LÄHETÄ&nbsp;KOEPAIKKAILMOITUS
+                    LÄHETÄ&nbsp;{stateByClass[c] === 'confirmed' ? 'KOEPAIKKAILMOITUS' : 'KOEKUTSU'}
                   </Button>
                 </TableCell>
               </TableRow>

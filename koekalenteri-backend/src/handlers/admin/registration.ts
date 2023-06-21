@@ -16,7 +16,7 @@ import { emailTo, registrationEmailTemplateData } from '../../utils/registration
 import { response } from '../../utils/response'
 import { EMAIL_FROM, sendTemplatedMail } from '../email'
 
-import { markParticipantsPicked, updateRegistrations } from './event'
+import { markParticipants, updateRegistrations } from './event'
 
 const dynamoDB = new CustomDynamoClient()
 const eventTable = process.env.EVENT_TABLE_NAME || ''
@@ -220,8 +220,12 @@ export const sendMessagesHandler = metricScope((metrics: MetricsLogger) => async
       text
     )
 
-    if (template === 'picked') {
-      confirmedEvent = await markParticipantsPicked(confirmedEvent, registrations[0].class)
+    if (template === 'picked' || template === 'invitation') {
+      confirmedEvent = await markParticipants(
+        confirmedEvent,
+        template === 'invitation' ? 'invited' : template,
+        registrations[0].class
+      )
     }
 
     metricsSuccess(metrics, event.requestContext, 'sendMessageHandler')
