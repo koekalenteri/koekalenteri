@@ -11,7 +11,7 @@ interface Props extends Omit<SectionProps, 'event'> {
   headquarters?: Partial<Headquarters>
 }
 
-export default function HeadquartersSection({ headquarters, onChange, onOpenChange, open }: Props) {
+export default function HeadquartersSection({ headquarters, disabled, onChange, onOpenChange, open }: Props) {
   const { t } = useTranslation()
   const handleChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>, props: Partial<Headquarters>) => {
@@ -43,6 +43,7 @@ export default function HeadquartersSection({ headquarters, onChange, onOpenChan
         <Grid item container spacing={1}>
           <Grid item sx={{ width: 300 }}>
             <TextField
+              disabled={disabled}
               label={t('event.headquarters.name')}
               defaultValue={headquarters?.name ?? ''}
               onChange={handleNameChange}
@@ -51,6 +52,7 @@ export default function HeadquartersSection({ headquarters, onChange, onOpenChan
           </Grid>
           <Grid item sx={{ width: 300 }}>
             <TextField
+              disabled={disabled}
               label={t('event.headquarters.address')}
               defaultValue={headquarters?.address ?? ''}
               onChange={handleAddressChange}
@@ -61,6 +63,7 @@ export default function HeadquartersSection({ headquarters, onChange, onOpenChan
         <Grid item container spacing={1}>
           <Grid item sx={{ width: 300 }}>
             <TextField
+              disabled={disabled}
               label={t('event.headquarters.zipCode')}
               defaultValue={headquarters?.zipCode ?? ''}
               onChange={handleZipCodeChange}
@@ -69,6 +72,7 @@ export default function HeadquartersSection({ headquarters, onChange, onOpenChan
           </Grid>
           <Grid item sx={{ width: 300 }}>
             <TextField
+              disabled={disabled}
               label={t('event.headquarters.postalDistrict')}
               defaultValue={headquarters?.postalDistrict ?? ''}
               onChange={handleDistrictChange}

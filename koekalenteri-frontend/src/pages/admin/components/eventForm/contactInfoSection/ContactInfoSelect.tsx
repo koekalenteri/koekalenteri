@@ -6,12 +6,13 @@ import FormGroup from '@mui/material/FormGroup'
 import { ShowContactInfo } from 'koekalenteri-shared/model'
 
 interface Props {
+  disabled?: boolean
   name: string
   show?: Partial<ShowContactInfo>
   onChange: (name: string, props: ShowContactInfo) => void
 }
 
-export default function ContactInfoSelect({ name, show, onChange }: Props) {
+export default function ContactInfoSelect({ disabled, name, show, onChange }: Props) {
   const { t } = useTranslation()
   const [state, setState] = useState({
     name: !!show?.name,
@@ -34,14 +35,17 @@ export default function ContactInfoSelect({ name, show, onChange }: Props) {
   return (
     <FormGroup row>
       <FormControlLabel
+        disabled={disabled}
         control={<Checkbox checked={state.name} name="name" onChange={handleChange} />}
         label={t('contact.name')}
       />
       <FormControlLabel
+        disabled={disabled}
         control={<Checkbox checked={state.email} name="email" onChange={handleChange} />}
         label={t('contact.email')}
       />
       <FormControlLabel
+        disabled={disabled}
         control={<Checkbox checked={state.phone} name="phone" onChange={handleChange} />}
         label={t('contact.phone')}
       />

@@ -18,6 +18,7 @@ interface Props {
   value: DeepPartial<EventClass>[] | undefined
   classes: DeepPartial<EventClass>[]
   label: string
+  disabled?: boolean
   required?: boolean
   requiredState?: EventState
   errorStates?: { [Property in keyof Event]?: boolean }
@@ -38,6 +39,7 @@ export default function EventClasses(props: Props) {
     label,
     eventStartDate,
     eventEndDate,
+    disabled,
     required,
     requiredState,
     errorStates,
@@ -68,7 +70,7 @@ export default function EventClasses(props: Props) {
       fullWidth
       disableClearable
       disableCloseOnSelect
-      disabled={classes.length === 0}
+      disabled={disabled || classes.length === 0}
       disablePortal
       multiple
       groupBy={groupBy ? groupByWeekday : undefined}

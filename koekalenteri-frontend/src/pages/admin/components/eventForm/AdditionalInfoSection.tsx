@@ -5,7 +5,7 @@ import TextField from '@mui/material/TextField'
 import CollapsibleSection from '../../../components/CollapsibleSection'
 import { SectionProps } from '../EventForm'
 
-export default function AdditionalInfoSection({ event, onChange, onOpenChange, open }: SectionProps) {
+export default function AdditionalInfoSection({ disabled, event, onChange, onOpenChange, open }: SectionProps) {
   const { t } = useTranslation()
 
   const handleChange = useCallback(
@@ -18,7 +18,14 @@ export default function AdditionalInfoSection({ event, onChange, onOpenChange, o
 
   return (
     <CollapsibleSection title={t('event.description')} open={open} onOpenChange={onOpenChange}>
-      <TextField rows={5} fullWidth multiline value={event.description} onChange={handleChange}></TextField>
+      <TextField
+        disabled={disabled}
+        rows={5}
+        fullWidth
+        multiline
+        value={event.description}
+        onChange={handleChange}
+      ></TextField>
     </CollapsibleSection>
   )
 }

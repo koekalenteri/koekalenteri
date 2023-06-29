@@ -11,6 +11,7 @@ interface Props {
   contactInfo?: DeepPartial<ContactInfo>
   official?: DeepPartial<Official>
   secretary?: Partial<Secretary>
+  disabled?: boolean
   error?: boolean
   helperText?: string
   open?: boolean
@@ -20,6 +21,7 @@ interface Props {
 
 export default function ContactInfoSection({
   contactInfo,
+  disabled,
   official,
   secretary,
   helperText,
@@ -48,11 +50,21 @@ export default function ContactInfoSection({
         <Grid item container spacing={1}>
           <Grid item>
             {t(`event.official`)}
-            <ContactInfoSelect name="official" show={contactInfo?.official} onChange={handleChange} />
+            <ContactInfoSelect
+              disabled={disabled}
+              name="official"
+              show={contactInfo?.official}
+              onChange={handleChange}
+            />
           </Grid>
           <Grid item>
             {t(`event.secretary`)}
-            <ContactInfoSelect name="secretary" show={contactInfo?.secretary} onChange={handleChange} />
+            <ContactInfoSelect
+              disabled={disabled}
+              name="secretary"
+              show={contactInfo?.secretary}
+              onChange={handleChange}
+            />
           </Grid>
         </Grid>
       </Grid>

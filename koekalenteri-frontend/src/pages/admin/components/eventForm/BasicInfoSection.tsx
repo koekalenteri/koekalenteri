@@ -24,6 +24,7 @@ interface Props extends SectionProps {
 }
 
 export default function BasicInfoSection({
+  disabled,
   event,
   errorStates,
   helperTexts,
@@ -127,13 +128,14 @@ export default function BasicInfoSection({
               endError={errorStates?.endDate}
               endHelperText={helperTexts?.endDate}
               required
-              disabled={hasEntries}
+              disabled={hasEntries || disabled}
               onChange={handleDateChange}
             />
           </Grid>
           <Grid item sx={{ width: 300, display: 'none' /* KOE-451 */ }}>
             <EventProperty
               id="kcId"
+              disabled={disabled}
               freeSolo
               event={event}
               fields={fields}
@@ -151,7 +153,7 @@ export default function BasicInfoSection({
           <Grid item sx={{ width: 300 }}>
             <EventProperty
               id="eventType"
-              disabled={hasEntries}
+              disabled={hasEntries || disabled}
               event={event}
               fields={fields}
               options={eventTypes ?? []}
@@ -161,6 +163,7 @@ export default function BasicInfoSection({
           <Grid item sx={{ width: 600 }}>
             <EventClasses
               id="class"
+              disabled={disabled}
               eventStartDate={event.startDate}
               eventEndDate={event.endDate}
               required={fields?.required.classes}
@@ -177,12 +180,19 @@ export default function BasicInfoSection({
         </Grid>
         <Grid item container spacing={1}>
           <Grid item sx={{ width: 600 }}>
-            <TextField label="Tapahtuman nimi" fullWidth value={event.name ?? ''} onChange={handleNameChange} />
+            <TextField
+              disabled={disabled}
+              label="Tapahtuman nimi"
+              fullWidth
+              value={event.name ?? ''}
+              onChange={handleNameChange}
+            />
           </Grid>
         </Grid>
         <Grid item container spacing={1}>
           <Grid item sx={{ width: 600 }}>
             <EventProperty
+              disabled={disabled}
               event={event}
               fields={fields}
               getOptionLabel={getName}
@@ -193,12 +203,21 @@ export default function BasicInfoSection({
             />
           </Grid>
           <Grid item sx={{ width: 300 }}>
-            <EventProperty event={event} fields={fields} freeSolo id="location" onChange={onChange} options={[]} />
+            <EventProperty
+              disabled={disabled}
+              event={event}
+              fields={fields}
+              freeSolo
+              id="location"
+              onChange={onChange}
+              options={[]}
+            />
           </Grid>
         </Grid>
         <Grid item container spacing={1}>
           <Grid item sx={{ width: 450 }}>
             <EventProperty
+              disabled={disabled}
               event={event}
               fields={fields}
               getOptionLabel={getName}
@@ -210,6 +229,7 @@ export default function BasicInfoSection({
           </Grid>
           <Grid item sx={{ width: 450 }}>
             <EventProperty
+              disabled={disabled}
               event={event}
               fields={fields}
               freeSolo

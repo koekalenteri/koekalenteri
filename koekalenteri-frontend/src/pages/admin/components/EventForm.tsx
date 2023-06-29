@@ -10,7 +10,7 @@ import Paper from '@mui/material/Paper'
 import Stack from '@mui/material/Stack'
 import type { DeepPartial, Event, EventClass, EventState, Judge, Official, Organizer } from 'koekalenteri-shared/model'
 
-import { merge } from '../../../utils'
+import { isEventOver, merge } from '../../../utils'
 import AutocompleteSingle from '../../components/AutocompleteSingle'
 
 import AdditionalInfoSection from './eventForm/AdditionalInfoSection'
@@ -31,6 +31,7 @@ export interface PartialEvent extends DeepPartial<Event> {
 
 export interface SectionProps {
   event: PartialEvent
+  disabled?: boolean
   fields?: FieldRequirements
   errorStates?: { [Property in keyof Event]?: boolean }
   helperTexts?: { [Property in keyof Event]?: string }
@@ -77,6 +78,7 @@ export default function EventForm({
     info: md,
   })
   const valid = errors.length === 0
+  const disabled = isEventOver(event)
   const fields = useMemo(() => requiredFields(event), [event])
 
   const handleChange = useCallback(
@@ -152,6 +154,7 @@ export default function EventForm({
     >
       <Box sx={{ p: 1 }}>
         <AutocompleteSingle
+          disabled={disabled}
           disableClearable
           getOptionLabel={getStateLabel}
           label={t('event.state')}
@@ -171,6 +174,7 @@ export default function EventForm({
         }}
       >
         <BasicInfoSection
+          disabled={disabled}
           errorStates={errorStates}
           event={event}
           eventTypeClasses={eventTypeClasses}
@@ -184,6 +188,7 @@ export default function EventForm({
           organizers={organizers}
         />
         <JudgesSection
+          disabled={disabled}
           errorStates={errorStates}
           event={event}
           fields={fields}
@@ -194,6 +199,7 @@ export default function EventForm({
           open={open.judges}
         />
         <EntrySection
+          disabled={disabled}
           errorStates={errorStates}
           event={event}
           fields={fields}
@@ -203,6 +209,7 @@ export default function EventForm({
           open={open.entry}
         />
         <PaymentSection
+          disabled={disabled}
           errorStates={errorStates}
           event={event}
           fields={fields}
@@ -211,6 +218,7 @@ export default function EventForm({
           open={open.payment}
         />
         <HeadquartersSection
+          disabled={disabled}
           errorStates={errorStates}
           headquarters={event.headquarters}
           fields={fields}
@@ -220,6 +228,7 @@ export default function EventForm({
           open={open.hq}
         />
         <ContactInfoSection
+          disabled={disabled}
           error={errorStates.contactInfo}
           contactInfo={event.contactInfo}
           official={event.official}
@@ -230,6 +239,7 @@ export default function EventForm({
           open={open.contact}
         />
         <AdditionalInfoSection
+          disabled={disabled}
           errorStates={errorStates}
           event={event}
           fields={fields}
@@ -248,7 +258,7 @@ export default function EventForm({
       >
         <LoadingButton
           color="primary"
-          disabled={!changes || !valid}
+          disabled={!changes || !valid || disabled}
           loadingPosition="start"
           startIcon={<Save />}
           variant="contained"

@@ -32,7 +32,7 @@ interface Props extends SectionProps {
   judges: Judge[]
 }
 
-export default function JudgesSection({ event, judges, fields, onChange, onOpenChange, open }: Props) {
+export default function JudgesSection({ event, disabled, judges, fields, onChange, onOpenChange, open }: Props) {
   const { t } = useTranslation()
   const list = event.judges
   const validationError = useMemo(
@@ -94,6 +94,7 @@ export default function JudgesSection({ event, judges, fields, onChange, onOpenC
             <Grid key={id} item container spacing={1} alignItems="center">
               <Grid item sx={{ width: 300 }}>
                 <AutocompleteSingle
+                  disabled={disabled}
                   value={value}
                   label={title}
                   error={!!id && !value}
@@ -117,6 +118,7 @@ export default function JudgesSection({ event, judges, fields, onChange, onOpenC
               <Grid item sx={{ width: 300 }} display={event.eventType === 'NOWT' ? 'NONE' : undefined}>
                 <EventClasses
                   id={`class${index}`}
+                  disabled={disabled}
                   eventStartDate={event.startDate}
                   eventEndDate={event.endDate}
                   value={filterClassesByJudgeId(event.classes, id)}
@@ -132,6 +134,7 @@ export default function JudgesSection({ event, judges, fields, onChange, onOpenC
               <Grid item>
                 <Button
                   startIcon={<DeleteOutline />}
+                  disabled={disabled}
                   onClick={() =>
                     onChange?.({
                       judges: event.judges.filter((j) => j !== id),
@@ -146,7 +149,11 @@ export default function JudgesSection({ event, judges, fields, onChange, onOpenC
           )
         })}
         <Grid item>
-          <Button startIcon={<AddOutlined />} onClick={() => onChange?.({ judges: [...event.judges].concat(0) })}>
+          <Button
+            disabled={disabled}
+            startIcon={<AddOutlined />}
+            onClick={() => onChange?.({ judges: [...event.judges].concat(0) })}
+          >
             Lisää tuomari
           </Button>
         </Grid>

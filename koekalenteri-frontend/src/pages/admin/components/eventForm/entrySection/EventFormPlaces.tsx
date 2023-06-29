@@ -21,7 +21,7 @@ import { compareEventClass } from '../components/EventClasses'
 import PlacesDisplay from './eventFormPlaces/PlacesDisplay'
 import PlacesInput from './eventFormPlaces/PlacesInput'
 
-export default function EventFormPlaces({ event, helperTexts, onChange }: SectionProps) {
+export default function EventFormPlaces({ event, disabled, helperTexts, onChange }: SectionProps) {
   const { t } = useTranslation()
   const [classesEnabled, setClassesEnalbed] = useState(
     event.classes?.reduce((prev, cur) => prev + (cur?.places ?? 0), 0) > 0
@@ -73,6 +73,7 @@ export default function EventFormPlaces({ event, helperTexts, onChange }: Sectio
           <Typography variant="subtitle1">Koepaikkojen määrä</Typography>
           <FormControlLabel
             sx={{ m: 0 }}
+            disabled={disabled}
             control={<Checkbox sx={{ py: 0 }} size="small" checked={classesEnabled} onChange={handleByClassesChange} />}
             label="Luokittain"
           />
@@ -103,7 +104,11 @@ export default function EventFormPlaces({ event, helperTexts, onChange }: Sectio
                     return (
                       <TableCell key={c} align="center">
                         {cls ? (
-                          <PlacesInput disabled={!classesEnabled} value={cls.places} onChange={handleChange(cls)} />
+                          <PlacesInput
+                            disabled={disabled || !classesEnabled}
+                            value={cls.places}
+                            onChange={handleChange(cls)}
+                          />
                         ) : (
                           ''
                         )}
@@ -132,7 +137,7 @@ export default function EventFormPlaces({ event, helperTexts, onChange }: Sectio
               <TableCell align="center">
                 <PlacesInput
                   id="event.places"
-                  disabled={classesEnabled}
+                  disabled={disabled || classesEnabled}
                   value={event.places}
                   onChange={handlePlacesChange}
                 />
