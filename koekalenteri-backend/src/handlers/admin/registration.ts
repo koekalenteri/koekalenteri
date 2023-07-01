@@ -9,6 +9,8 @@ import {
   RegistrationMessage,
 } from 'koekalenteri-shared/model'
 
+import { i18n } from '../../i18n'
+import { audit } from '../../lib/audit'
 import { getOrigin } from '../../utils/auth'
 import CustomDynamoClient from '../../utils/CustomDynamoClient'
 import { metricsError, metricsSuccess } from '../../utils/metrics'
@@ -102,6 +104,19 @@ async function saveGroup({ eventId, id, group }: JsonRegistrationGroupInfo) {
     {
       ':value': { ...group }, // https://stackoverflow.com/questions/37006008/typescript-index-signature-is-missing-in-type
       ':cancelled': group?.key === 'cancelled',
+    }
+  )
+}
+
+const setLastEmail = async ({ eventId, id }: JsonRegistration, value: string) => {
+  return dynamoDB.update(
+    { eventId, id },
+    'set #field = :value',
+    {
+      '#field': 'lastEmail',
+    },
+    {
+      ':value': value,
     }
   )
 }
@@ -248,6 +263,9 @@ async function sendTemplatedEmailToEventRegistrations(
   origin: string | undefined,
   text: string
 ) {
+  const t = i18n.getFixedT('fi')
+  const date = t('dateFormat.dtshort', { date: new Date(), defaultValue: 'dtshort' })
+  const templateName = t(`emailTemplate.${template}`)
   const ok: string[] = []
   const failed: string[] = []
   for (const registration of registrations) {
@@ -256,8 +274,11 @@ async function sendTemplatedEmailToEventRegistrations(
     try {
       await sendTemplatedMail(template, registration.language, EMAIL_FROM, to, { ...data, text })
       ok.push(...to)
+      audit(`${registration.eventId}:${registration.id}`, `${templateName}: ${to.join(', ')}`)
+      await setLastEmail(registration, `${templateName}: (${date}) ${to.join(', ')}`)
     } catch (e) {
       failed.push(...to)
+      audit(`${registration.eventId}:${registration.id}`, `FAILED ${templateName}: ${to.join(', ')}`)
       console.error(e)
     }
   }

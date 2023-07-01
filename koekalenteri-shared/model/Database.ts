@@ -13,3 +13,13 @@ export interface DbRecord extends Omit<JsonDbRecord, 'createdAt' | 'modifiedAt' 
   modifiedAt: Date,
   deletedAt?: Date,
 }
+
+export interface JsonAuditRecord {
+  auditKey: string
+  timestamp: string
+  message: string
+}
+
+export interface AuditRecord extends Omit<JsonAuditRecord, 'timestamp'> {
+  timestamp: Date
+}

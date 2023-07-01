@@ -16,6 +16,7 @@ Globals:
       Variables:
         AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
         STACK_NAME: !Ref AWS::StackName
+        AUDIT_TABLE_NAME: !Ref AuditTable
         USER_TABLE_NAME: !Ref UserTable
         USER_LINK_TABLE_NAME : !Ref UserLinkTable
   Api:
@@ -452,6 +453,8 @@ Resources:
             TableName: !Ref UserTable
         - DynamoDBReadPolicy:
             TableName: !Ref UserLinkTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuditTable
         - CloudWatchPutMetricPolicy: {}
       Environment:
         Variables:
@@ -485,6 +488,8 @@ Resources:
             TableName: !Ref EventRegistrationTable
         - DynamoDBCrudPolicy:
             TableName: !Ref EventTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref AuditTable
         - CloudWatchPutMetricPolicy: {}
       Environment:
         Variables:
@@ -546,6 +551,8 @@ Resources:
             TableName: !Ref EventRegistrationTable
         - DynamoDBCrudPolicy:
             TableName: !Ref EventTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuditTable
         - CloudWatchPutMetricPolicy: {}
         - Statement:
             - Sid: SESSendEmailPolicy
@@ -588,6 +595,8 @@ Resources:
             TableName: !Ref UserTable
         - DynamoDBReadPolicy:
             TableName: !Ref UserLinkTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuditTable
         - Statement:
             - Sid: SESSendEmailPolicy
               Effect: Allow
@@ -671,6 +680,8 @@ Resources:
             TableName: !Ref UserTable
         - DynamoDBReadPolicy:
             TableName: !Ref UserLinkTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuditTable
         - CloudWatchPutMetricPolicy: {}
       Environment:
         Variables:
@@ -859,6 +870,8 @@ Resources:
             TableName: !Ref UserTable
         - DynamoDBReadPolicy:
             TableName: !Ref UserLinkTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuditTable
         - CloudWatchPutMetricPolicy: {}
       Environment:
         Variables:
@@ -931,6 +944,8 @@ Resources:
             TableName: !Ref UserTable
         - DynamoDBReadPolicy:
             TableName: !Ref UserLinkTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuditTable
         - CloudWatchPutMetricPolicy: {}
         - Statement:
             - Sid: SESTemplatesPolicy
@@ -976,6 +991,8 @@ Resources:
             TableName: !Ref UserTable
         - DynamoDBReadPolicy:
             TableName: !Ref UserLinkTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuditTable
         - CloudWatchPutMetricPolicy: {}
         - Statement:
             - Sid: SESSendEmailPolicy
@@ -1078,6 +1095,8 @@ Resources:
             TableName: !Ref UserLinkTable
         - DynamoDBReadPolicy:
             TableName: !Ref OrganizerTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuditTable
         - CloudWatchPutMetricPolicy: {}
         - Statement:
           - Sid: SESSendEmailPolicy
@@ -1119,6 +1138,8 @@ Resources:
             TableName: !Ref UserLinkTable
         - DynamoDBReadPolicy:
             TableName: !Ref OrganizerTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuditTable
         - CloudWatchPutMetricPolicy: {}
         - Statement:
           - Sid: SESSendEmailPolicy
@@ -1158,6 +1179,8 @@ Resources:
             TableName: !Ref UserTable
         - DynamoDBReadPolicy:
             TableName: !Ref UserLinkTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuditTable
         - CloudWatchPutMetricPolicy: {}
       Events:
         GetUser:
