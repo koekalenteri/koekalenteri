@@ -1,4 +1,10 @@
-import { ConfirmedEvent, PublicRegistration, Registration, RegistrationGroupInfo } from 'koekalenteri-shared/model'
+import {
+  AuditRecord,
+  ConfirmedEvent,
+  PublicRegistration,
+  Registration,
+  RegistrationGroupInfo,
+} from 'koekalenteri-shared/model'
 
 import http, { withToken } from './http'
 
@@ -14,6 +20,14 @@ export async function getRegistration(
 ): Promise<Registration | undefined> {
   return http.get<Registration>(`/registration/${eventId}/${id}`, withToken({ signal }, token))
 }
+
+export const getRegistrationAuditTrail = async (
+  eventId: string,
+  id: string,
+  token?: string,
+  signal?: AbortSignal
+): Promise<AuditRecord[] | undefined> =>
+  http.get<AuditRecord[]>(`/registration/audit/${eventId}/${id}`, withToken({ signal }, token))
 
 export async function putRegistration(
   registration: Registration,

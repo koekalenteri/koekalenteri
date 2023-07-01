@@ -1,5 +1,5 @@
 import { parseISO } from 'date-fns'
-import { ConfirmedEvent, Registration, RegistrationGroupInfo } from 'koekalenteri-shared/model'
+import { AuditRecord, ConfirmedEvent, Registration, RegistrationGroupInfo } from 'koekalenteri-shared/model'
 
 import { mockRegistrationData } from '../../__mockData__/registrations'
 
@@ -79,6 +79,17 @@ export async function getRegistration(
     } else {
       process.nextTick(() => resolve(registration))
     }
+  })
+}
+
+export const getRegistrationAuditTrail = async (
+  eventId: string,
+  id: string,
+  token?: string,
+  signal?: AbortSignal
+): Promise<AuditRecord[] | undefined> => {
+  return new Promise((resolve) => {
+    process.nextTick(() => resolve([{ auditKey: 'somekey', timestamp: new Date(), message: 'example audit record' }]))
   })
 }
 

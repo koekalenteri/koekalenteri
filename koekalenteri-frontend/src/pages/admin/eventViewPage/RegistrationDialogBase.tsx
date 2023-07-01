@@ -2,10 +2,14 @@ import { useCallback, useMemo } from 'react'
 import Dialog from '@mui/material/Dialog'
 import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
-import { ConfirmedEvent, Event, Registration } from 'koekalenteri-shared/model'
+import List from '@mui/material/List'
+import ListItem from '@mui/material/ListItem'
+import ListItemText from '@mui/material/ListItemText'
+import { AuditRecord, ConfirmedEvent, Event, Registration } from 'koekalenteri-shared/model'
 import { Resetter, SetterOrUpdater } from 'recoil'
 
 import { hasChanges } from '../../../utils'
+import CollapsibleSection from '../../components/CollapsibleSection'
 import RegistrationForm from '../../components/RegistrationForm'
 import { useAdminRegistrationActions } from '../recoil/registrations/actions'
 
@@ -17,6 +21,7 @@ interface Props {
   onClose?: () => void
   open: boolean
   registration?: Registration
+  auditTrail?: AuditRecord[]
   resetRegistration: Resetter
   setRegistration: SetterOrUpdater<Registration | undefined>
 }
@@ -28,6 +33,7 @@ export default function RegistrationDialogBase({
   onClose,
   open,
   registration,
+  auditTrail,
   resetRegistration,
   setRegistration,
 }: Props) {
@@ -106,6 +112,17 @@ export default function RegistrationDialogBase({
           onChange={handleChange}
           changes={changes}
         />
+        {auditTrail ? (
+          <CollapsibleSection title="Audit trail" initOpen={false}>
+            <List dense>
+              {auditTrail.map((at, i) => (
+                <ListItem key={i}>
+                  <ListItemText primary={`${at.timestamp.toLocaleDateString()} ${at.message}`} />
+                </ListItem>
+              ))}
+            </List>
+          </CollapsibleSection>
+        ) : null}
       </DialogContent>
     </Dialog>
   )

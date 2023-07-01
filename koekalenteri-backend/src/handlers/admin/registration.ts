@@ -10,7 +10,7 @@ import {
 } from 'koekalenteri-shared/model'
 
 import { i18n } from '../../i18n'
-import { audit } from '../../lib/audit'
+import { audit, auditTrail } from '../../lib/audit'
 import { getOrigin } from '../../utils/auth'
 import CustomDynamoClient from '../../utils/CustomDynamoClient'
 import { formatDate } from '../../utils/dates'
@@ -89,6 +89,21 @@ export const getRegistrationsHandler = metricScope(
       } catch (err: unknown) {
         console.error(err)
         metricsError(metrics, event.requestContext, 'getRegistrations')
+        return response((err as AWSError).statusCode || 501, err, event)
+      }
+    }
+)
+
+export const getAuditTrailHandler = metricScope(
+  (metrics: MetricsLogger) =>
+    async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+      try {
+        const trail = await auditTrail(`${event.pathParameters?.eventId}:${event.pathParameters?.id}`)
+        metricsSuccess(metrics, event.requestContext, 'getAuditTrail')
+        return response(200, trail, event)
+      } catch (err: unknown) {
+        console.error(err)
+        metricsError(metrics, event.requestContext, 'getAuditTrail')
         return response((err as AWSError).statusCode || 501, err, event)
       }
     }

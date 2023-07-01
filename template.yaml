@@ -509,6 +509,40 @@ Resources:
       LogGroupName: !Join ['/', ['/aws/lambda', !Ref GetRegistrationsFunction]]
       RetentionInDays: 30
 
+  GetRegistrationAuditTrailFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: koekalenteri-backend
+      Handler: dist/handlers/admin/registration.getAuditTrailHandler
+      Layers:
+        - !Ref CommonLayer
+      Tracing: Active
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EventRegistrationTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EventTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref AuditTable
+        - CloudWatchPutMetricPolicy: {}
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref EventRegistrationTable
+          EVENT_TABLE_NAME : !Ref EventTable
+      Events:
+        GetRegistrationAuditTrail:
+          Type: Api
+          Properties:
+            Path: /admin/registration/audit/{eventId}/{id}
+            Method: GET
+            RestApiId: !Ref KoekalenteriApi
+
+  GetRegistrationAuditTrailFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref GetRegistrationAuditTrailFunction]]
+      RetentionInDays: 30
+
   GetRegistrationFunction:
     Type: AWS::Serverless::Function
     Properties:

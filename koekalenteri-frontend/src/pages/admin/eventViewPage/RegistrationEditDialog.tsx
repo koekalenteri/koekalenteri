@@ -1,7 +1,8 @@
-import { useEffect, useMemo } from 'react'
-import { Event } from 'koekalenteri-shared/model'
+import { useEffect, useMemo, useState } from 'react'
+import { AuditRecord, Event } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
 
+import { getRegistrationAuditTrail } from '../../../api/registration'
 import { hasChanges } from '../../../utils'
 import { currentAdminRegistrationSelector, editableCurrentAdminEventRegistrationByIdAtom } from '../recoil'
 
@@ -22,10 +23,18 @@ export default function RegistrationEditDialog({ event, registrationId, open, on
     () => !!registration && !!savedRegistration && hasChanges(savedRegistration, registration),
     [registration, savedRegistration]
   )
+  const [auditTrail, setAuditTrail] = useState<AuditRecord[]>([])
 
   useEffect(() => {
+    if (!open) return
     resetRegistration()
-  }, [registrationId, savedRegistration, resetRegistration])
+    getRegistrationAuditTrail(event.id, registrationId)
+      .then((at) => setAuditTrail(at ?? []))
+      .catch((e) => {
+        console.error(e)
+        setAuditTrail([])
+      })
+  }, [registrationId, savedRegistration, resetRegistration, event.id, open])
 
   return (
     <RegistrationDialogBase
@@ -36,6 +45,7 @@ export default function RegistrationEditDialog({ event, registrationId, open, on
       registration={registration}
       resetRegistration={resetRegistration}
       setRegistration={setRegistration}
+      auditTrail={auditTrail}
     />
   )
 }
