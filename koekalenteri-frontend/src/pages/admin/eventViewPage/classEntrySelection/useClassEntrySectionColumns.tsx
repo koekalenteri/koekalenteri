@@ -78,6 +78,14 @@ export function useClassEntrySelectionColumns(eventDates: Date[], openEditDialog
         valueGetter: (p) => p.row.handler.name,
       },
       {
+        field: 'lastEmail',
+        headerName: 'Viesti',
+        width: 130,
+        flex: 1,
+        sortable: false,
+        valueGetter: (p) => p.row.lastEmail ?? '',
+      },
+      {
         field: 'icons',
         headerName: '',
         width: 90,
