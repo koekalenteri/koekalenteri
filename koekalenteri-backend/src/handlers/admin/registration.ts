@@ -13,6 +13,7 @@ import { i18n } from '../../i18n'
 import { audit } from '../../lib/audit'
 import { getOrigin } from '../../utils/auth'
 import CustomDynamoClient from '../../utils/CustomDynamoClient'
+import { formatDate } from '../../utils/dates'
 import { metricsError, metricsSuccess } from '../../utils/metrics'
 import { emailTo, registrationEmailTemplateData } from '../../utils/registration'
 import { response } from '../../utils/response'
@@ -264,7 +265,7 @@ async function sendTemplatedEmailToEventRegistrations(
   text: string
 ) {
   const t = i18n.getFixedT('fi')
-  const date = t('dateFormat.dtshort', { date: new Date(), defaultValue: 'dtshort' })
+  const lastEmailDate = formatDate(new Date(), 'd.m.yyyy HH:mm')
   const templateName = t(`emailTemplate.${template}`)
   const ok: string[] = []
   const failed: string[] = []
@@ -275,7 +276,7 @@ async function sendTemplatedEmailToEventRegistrations(
       await sendTemplatedMail(template, registration.language, EMAIL_FROM, to, { ...data, text })
       ok.push(...to)
       audit(`${registration.eventId}:${registration.id}`, `${templateName}: ${to.join(', ')}`)
-      await setLastEmail(registration, `${templateName}: (${date}) ${to.join(', ')}`)
+      await setLastEmail(registration, `${templateName} ${lastEmailDate}`)
     } catch (e) {
       failed.push(...to)
       audit(`${registration.eventId}:${registration.id}`, `FAILED ${templateName}: ${to.join(', ')}`)
