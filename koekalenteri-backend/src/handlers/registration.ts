@@ -1,9 +1,12 @@
 import { metricScope, MetricsLogger } from 'aws-embedded-metrics'
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import { AWSError } from 'aws-sdk'
+import { diff } from 'deep-object-diff'
+import { getFixedT } from 'i18next'
 import { JsonRegistration } from 'koekalenteri-shared/model'
 import { nanoid } from 'nanoid'
 
+import { audit, registrationAuditKey } from '../lib/audit'
 import { getOrigin, getUsername } from '../utils/auth'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { metricsError, metricsSuccess } from '../utils/metrics'
@@ -73,6 +76,15 @@ export const putRegistrationHandler = metricScope(
           throw new Error(`Event of type "${registration.eventType}" not found with id "${registration.eventId}"`)
         }
 
+        const message = getAuditMessage(cancel, confirm, data, existing)
+        if (message) {
+          audit({
+            auditKey: registrationAuditKey(registration),
+            message,
+            user: username,
+          })
+        }
+
         if (registration.handler?.email && registration.owner?.email) {
           const to = emailTo(registration)
           const context = getEmailContext(update, cancel, confirm)
@@ -99,4 +111,28 @@ function getEmailContext(update: boolean, cancel: boolean, confirm: boolean) {
   if (confirm) return 'confirm'
   if (update) return 'update'
   return ''
+}
+
+function getAuditMessage(
+  cancel: boolean,
+  confirm: boolean,
+  data: JsonRegistration,
+  existing?: JsonRegistration
+): string {
+  if (cancel) return 'Ilmoittautuminen peruttuun'
+  if (confirm) return 'Ilmoittautumisen vahvistus'
+  if (!existing) return ''
+
+  const t = getFixedT('fi')
+  const changes: Partial<JsonRegistration> = diff(data, existing)
+  const keys = ['class', 'dog', 'breeder', 'owner', 'handler', 'qualifyingResults', 'notes'] as const
+  const modified: string[] = []
+
+  for (const key of keys) {
+    if (changes[key]) {
+      modified.push(t(`registration.${key}`))
+    }
+  }
+
+  return 'Muutti: ' + modified.join(', ')
 }

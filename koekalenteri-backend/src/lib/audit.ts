@@ -1,4 +1,4 @@
-import { JsonAuditRecord } from 'koekalenteri-shared/model'
+import { AuditRecord, JsonAuditRecord, JsonRegistration } from 'koekalenteri-shared/model'
 
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
@@ -6,9 +6,9 @@ const AUDIT_TABLE = process.env.AUDIT_TABLE_NAME
 
 const dynamoDB = new CustomDynamoClient(AUDIT_TABLE)
 
-export const audit = async (auditKey: string, message: string) => {
+export const audit = async (item: Omit<AuditRecord, 'timestamp'>) => {
   try {
-    dynamoDB.write({ auditKey, timestamp: new Date().toISOString(), message })
+    dynamoDB.write({ ...item, timestamp: new Date().toISOString() })
   } catch (e) {
     console.error(e)
   }
@@ -25,3 +25,5 @@ export const auditTrail = async (auditKey: string) => {
   }
   return []
 }
+
+export const registrationAuditKey = (reg: JsonRegistration) => `${reg.eventId}:${reg.id}`

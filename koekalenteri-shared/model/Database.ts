@@ -17,6 +17,7 @@ export interface DbRecord extends Omit<JsonDbRecord, 'createdAt' | 'modifiedAt' 
 export interface JsonAuditRecord {
   auditKey: string
   timestamp: string
+  user: string
   message: string
 }
 

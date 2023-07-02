@@ -10,8 +10,8 @@ import {
 } from 'koekalenteri-shared/model'
 
 import { i18n } from '../../i18n'
-import { audit, auditTrail } from '../../lib/audit'
-import { getOrigin } from '../../utils/auth'
+import { audit, auditTrail, registrationAuditKey } from '../../lib/audit'
+import { authorize, getOrigin } from '../../utils/auth'
 import CustomDynamoClient from '../../utils/CustomDynamoClient'
 import { formatDate } from '../../utils/dates'
 import { metricsError, metricsSuccess } from '../../utils/metrics'
@@ -80,6 +80,10 @@ export const getRegistrationsHandler = metricScope(
   (metrics: MetricsLogger) =>
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
       try {
+        const user = await authorize(event)
+        if (!user) {
+          return response(401, 'Unauthorized', event)
+        }
         const items = await dynamoDB.query<JsonRegistration>('eventId = :eventId', {
           ':eventId': event.pathParameters?.eventId,
         })
@@ -98,6 +102,10 @@ export const getAuditTrailHandler = metricScope(
   (metrics: MetricsLogger) =>
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
       try {
+        const user = await authorize(event)
+        if (!user) {
+          return response(401, 'Unauthorized', event)
+        }
         const trail = await auditTrail(`${event.pathParameters?.eventId}:${event.pathParameters?.id}`)
         metricsSuccess(metrics, event.requestContext, 'getAuditTrail')
         return response(200, trail, event)
@@ -143,12 +151,16 @@ export const putRegistrationGroupsHandler = metricScope(
   (metrics: MetricsLogger) =>
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
       try {
+        const user = await authorize(event)
+        if (!user) {
+          return response(401, 'Unauthorized', event)
+        }
         const origin = getOrigin(event)
         const eventId = event.pathParameters?.eventId ?? ''
         const groups: JsonRegistrationGroupInfo[] = JSON.parse(event.body || '')
 
         if (!groups) {
-          throw new Error('no groups!')
+          return response(422, 'no groups', event)
         }
 
         const eventGroups = groups.filter((g) => g.eventId === eventId)
@@ -188,7 +200,8 @@ export const putRegistrationGroupsHandler = metricScope(
             confirmedEvent,
             newParticipants,
             origin,
-            ''
+            '',
+            user.name
           )
 
           /**
@@ -205,7 +218,8 @@ export const putRegistrationGroupsHandler = metricScope(
             confirmedEvent,
             movedReserve,
             origin,
-            ''
+            '',
+            user.name
           )
           Object.assign(emails, { pickedOk, pickedFailed, reserveOk, reserveFailed })
         }
@@ -227,6 +241,10 @@ export const sendMessagesHandler = metricScope((metrics: MetricsLogger) => async
   const origin = getOrigin(event)
 
   try {
+    const user = await authorize(event)
+    if (!user) {
+      return response(401, 'Unauthorized', event)
+    }
     const message: RegistrationMessage = JSON.parse(event.body ?? '')
     const { template, eventId, registrationIds, text } = message
 
@@ -234,13 +252,13 @@ export const sendMessagesHandler = metricScope((metrics: MetricsLogger) => async
     const registrations = eventRegistrations?.filter((r) => registrationIds.includes(r.id))
 
     if (registrations?.length !== registrationIds.length) {
-      throw new Error('Not all registrations were found, aborting!')
+      return response(400, 'Not all registrations were found, aborting!', event)
     }
 
     let confirmedEvent = await dynamoDB.read<JsonConfirmedEvent>({ id: eventId }, eventTable)
 
     if (!confirmedEvent) {
-      throw new Error('Event not found!')
+      return response(404, 'Event not found', event)
     }
 
     const { ok, failed } = await sendTemplatedEmailToEventRegistrations(
@@ -248,7 +266,8 @@ export const sendMessagesHandler = metricScope((metrics: MetricsLogger) => async
       confirmedEvent,
       registrations,
       origin,
-      text
+      text,
+      user.name
     )
 
     if (template === 'picked' || template === 'invitation') {
@@ -277,7 +296,8 @@ async function sendTemplatedEmailToEventRegistrations(
   confirmedEvent: JsonConfirmedEvent,
   registrations: JsonRegistration[],
   origin: string | undefined,
-  text: string
+  text: string,
+  user: string
 ) {
   const t = i18n.getFixedT('fi')
   const lastEmailDate = formatDate(new Date(), 'd.m.yyyy HH:mm')
@@ -290,11 +310,19 @@ async function sendTemplatedEmailToEventRegistrations(
     try {
       await sendTemplatedMail(template, registration.language, EMAIL_FROM, to, { ...data, text })
       ok.push(...to)
-      audit(`${registration.eventId}:${registration.id}`, `${templateName}: ${to.join(', ')}`)
+      audit({
+        auditKey: registrationAuditKey(registration),
+        message: `${templateName}: ${to.join(', ')}`,
+        user,
+      })
       await setLastEmail(registration, `${templateName} ${lastEmailDate}`)
     } catch (e) {
       failed.push(...to)
-      audit(`${registration.eventId}:${registration.id}`, `FAILED ${templateName}: ${to.join(', ')}`)
+      audit({
+        auditKey: registrationAuditKey(registration),
+        message: `FAILED ${templateName}: ${to.join(', ')}`,
+        user,
+      })
       console.error(e)
     }
   }

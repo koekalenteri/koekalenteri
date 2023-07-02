@@ -113,11 +113,11 @@ export default function RegistrationDialogBase({
           changes={changes}
         />
         {auditTrail ? (
-          <CollapsibleSection title="Audit trail" initOpen={false}>
+          <CollapsibleSection title={`Audit trail (${auditTrail.length})`} initOpen={false}>
             <List dense>
               {auditTrail.map((at, i) => (
                 <ListItem key={i}>
-                  <ListItemText primary={`${at.timestamp.toLocaleDateString()} ${at.message}`} />
+                  <ListItemText primary={`${at.timestamp.toLocaleDateString()} ${at.message}`} secondary={at.user} />
                 </ListItem>
               ))}
             </List>

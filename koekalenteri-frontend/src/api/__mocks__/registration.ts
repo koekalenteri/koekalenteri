@@ -89,7 +89,9 @@ export const getRegistrationAuditTrail = async (
   signal?: AbortSignal
 ): Promise<AuditRecord[] | undefined> => {
   return new Promise((resolve) => {
-    process.nextTick(() => resolve([{ auditKey: 'somekey', timestamp: new Date(), message: 'example audit record' }]))
+    process.nextTick(() =>
+      resolve([{ auditKey: 'somekey', timestamp: new Date(), user: 'test user', message: 'example audit record' }])
+    )
   })
 }
 

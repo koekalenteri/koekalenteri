@@ -27,7 +27,7 @@ export const getRegistrationAuditTrail = async (
   token?: string,
   signal?: AbortSignal
 ): Promise<AuditRecord[] | undefined> =>
-  http.get<AuditRecord[]>(`/registration/audit/${eventId}/${id}`, withToken({ signal }, token))
+  http.get<AuditRecord[]>(`/admin/registration/audit/${eventId}/${id}`, withToken({ signal }, token))
 
 export async function putRegistration(
   registration: Registration,
