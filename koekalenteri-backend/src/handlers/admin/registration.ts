@@ -296,7 +296,7 @@ async function sendTemplatedEmailToEventRegistrations(
   user: string
 ) {
   const t = i18n.getFixedT('fi')
-  const lastEmailDate = formatDate(new Date(), 'd.m.yyyy HH:mm')
+  const lastEmailDate = formatDate(new Date(), 'd.M.yyyy HH:mm')
   const templateName = t(`emailTemplate.${template}`)
   const ok: string[] = []
   const failed: string[] = []

@@ -21,6 +21,7 @@
     "distanceLeft": "{{ date, distance }} jäljellä",
     "dtshort": "{{ date, dtshort }}",
     "isodate": "{{ date, isodate }}",
+    "long": "{{ date, long }}",
     "short": "{{ date, short }}",
     "weekday": "{{ date, weekday }}",
     "wdshort": "{{ date, wdshort }}"

@@ -1,4 +1,5 @@
 import { useCallback, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import Dialog from '@mui/material/Dialog'
 import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
@@ -37,6 +38,7 @@ export default function RegistrationDialogBase({
   resetRegistration,
   setRegistration,
 }: Props) {
+  const { t } = useTranslation()
   const actions = useAdminRegistrationActions()
 
   const handleChange = useCallback(
@@ -117,7 +119,10 @@ export default function RegistrationDialogBase({
             <List dense>
               {auditTrail.map((at, i) => (
                 <ListItem key={i}>
-                  <ListItemText primary={`${at.timestamp.toLocaleDateString()} ${at.message}`} secondary={at.user} />
+                  <ListItemText
+                    primary={`${t('dateFormat.long', { date: at.timestamp, defaultValue: '?' })} ${at.message}`}
+                    secondary={at.user}
+                  />
                 </ListItem>
               ))}
             </List>
