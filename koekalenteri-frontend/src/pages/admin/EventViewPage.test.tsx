@@ -50,6 +50,7 @@ describe('EventViewPage', () => {
       </ThemeProvider>
     )
     await flushPromisesAndTimers()
+    await flushPromisesAndTimers()
     expect(container).toMatchSnapshot()
   })
 
@@ -77,6 +78,7 @@ describe('EventViewPage', () => {
         </LocalizationProvider>
       </ThemeProvider>
     )
+    await flushPromisesAndTimers()
     await flushPromisesAndTimers()
     expect(container).toMatchSnapshot()
   })

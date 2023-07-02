@@ -502,6 +502,8 @@ Resources:
             Path: /admin/registration/{eventId}
             Method: GET
             RestApiId: !Ref KoekalenteriApi
+            Auth:
+              Authorizer: CognitoAuthorizer
 
   GetRegistrationsFunctionLogGroup:
     Type: AWS::Logs::LogGroup
@@ -536,6 +538,8 @@ Resources:
             Path: /admin/registration/audit/{eventId}/{id}
             Method: GET
             RestApiId: !Ref KoekalenteriApi
+            Auth:
+              Authorizer: CognitoAuthorizer
 
   GetRegistrationAuditTrailFunctionLogGroup:
     Type: AWS::Logs::LogGroup
