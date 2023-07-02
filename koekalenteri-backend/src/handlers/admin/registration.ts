@@ -80,10 +80,6 @@ export const getRegistrationsHandler = metricScope(
   (metrics: MetricsLogger) =>
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
       try {
-        const user = await authorize(event)
-        if (!user) {
-          return response(401, 'Unauthorized', event)
-        }
         const items = await dynamoDB.query<JsonRegistration>('eventId = :eventId', {
           ':eventId': event.pathParameters?.eventId,
         })
