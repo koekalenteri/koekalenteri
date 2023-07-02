@@ -36,5 +36,6 @@ i18n.services.formatter?.add('distance', formatDistance)
 i18n.services.formatter?.add('lowercase', (value) => value.toLowerCase())
 i18n.services.formatter?.add('date', createDateFormatter('d.M.yyyy'))
 i18n.services.formatter?.add('isodate', createDateFormatter('dd.MM.yyyy'))
+i18n.services.formatter?.add('long', createDateFormatter('dd.MM.yyyy HH:mm'))
 
 console.log('i18next initialized')
