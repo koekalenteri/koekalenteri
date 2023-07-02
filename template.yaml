@@ -489,6 +489,10 @@ Resources:
         - DynamoDBCrudPolicy:
             TableName: !Ref EventTable
         - DynamoDBReadPolicy:
+            TableName: !Ref UserTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserLinkTable
+        - DynamoDBReadPolicy:
             TableName: !Ref AuditTable
         - CloudWatchPutMetricPolicy: {}
       Environment:
@@ -524,6 +528,10 @@ Resources:
             TableName: !Ref EventRegistrationTable
         - DynamoDBCrudPolicy:
             TableName: !Ref EventTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserLinkTable
         - DynamoDBReadPolicy:
             TableName: !Ref AuditTable
         - CloudWatchPutMetricPolicy: {}
