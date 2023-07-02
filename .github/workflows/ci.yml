@@ -170,24 +170,13 @@ jobs:
             --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
             --no-confirm-changeset --no-fail-on-empty-changeset
 
-  deploy-frontend-dev:
+  deploy-frontend:
     runs-on: ubuntu-latest
     needs: [deploy-backend]
-    environment: dev
+    environment: ${{ github.ref_name }}
     steps:
       - name: Trigger deployment
-        if: github.ref == 'refs/heads/dev'
         run: curl -X POST -d {} "${{ secrets.DEPLOY_TRIGGER_HOOK }}" -H "Content-Type:application/json"
-
-  deploy-frontend-main:
-    runs-on: ubuntu-latest
-    needs: [deploy-backend]
-    environment: main
-    steps:
-      - name: Trigger deployment
-        if: github.ref == 'refs/heads/main'
-        run: curl -X POST -d {} "${{ secrets.DEPLOY_TRIGGER_HOOK }}" -H "Content-Type:application/json"
-
 
   sonar:
     runs-on: ubuntu-latest
