@@ -125,6 +125,7 @@ function getAuditMessage(
 
   const t = getFixedT('fi')
   const changes: Partial<JsonRegistration> = diff(data, existing)
+  console.debug('Audit changes', changes)
   const keys = ['class', 'dog', 'breeder', 'owner', 'handler', 'qualifyingResults', 'notes'] as const
   const modified: string[] = []
 
@@ -134,5 +135,5 @@ function getAuditMessage(
     }
   }
 
-  return 'Muutti: ' + modified.join(', ')
+  return modified.length ? 'Muutti: ' + modified.join(', ') : ''
 }
