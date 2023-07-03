@@ -355,9 +355,25 @@ Resources:
         SSEEnabled: false
 
   # S3
+  S3BucketLogs:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: "mycompliantloggingbucket"
+      AccessControl: LogDeliveryWrite
+
   EventAttachmentBucket:
     Type: AWS::S3::Bucket
     Properties:
+      AccessControl: PublicRead
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: false
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
       CorsConfiguration:
         CorsRules:
           - AllowedHeaders: # Headers that are specified in the Access-Control-Request-Headers header. These headers are allowed in a preflight OPTIONS request. In response to any preflight OPTIONS request, Amazon S3 returns any requested headers that are allowed.
@@ -371,6 +387,8 @@ Resources:
               - Date
             Id: EventAttachmentCORSRule # A unique identifier for this rule. The value must be no more than 255 characters.
             MaxAge: 3600 # The time in seconds that your browser is to cache the preflight response for the specified resource.
+      VersioningConfiguration:
+        Status: Enabled
 
   # API declaration
   KoekalenteriApi:
