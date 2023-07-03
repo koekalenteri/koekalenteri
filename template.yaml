@@ -374,7 +374,6 @@ Resources:
               - '*'
             AllowedMethods: # An HTTP method that you allow the origin to run. Allowed values: GET | PUT | HEAD | POST | DELETE
               - GET
-              - PUT
             AllowedOrigins: # One or more origins you want customers to be able to access the bucket from.
               - '*'
             ExposedHeaders: # One or more headers in the response that you want customers to be able to access from their applications (for example, from a JavaScript XMLHttpRequest object).
@@ -384,11 +383,6 @@ Resources:
       LoggingConfiguration:
         DestinationBucketName: !Ref S3BucketLogs
         LogFilePrefix: event-attachment-logs
-      PublicAccessBlockConfiguration:
-        BlockPublicAcls: true
-        BlockPublicPolicy: true
-        IgnorePublicAcls: true
-        RestrictPublicBuckets: false
       VersioningConfiguration:
         Status: Enabled
 
