@@ -358,18 +358,12 @@ Resources:
   S3BucketLogs:
     Type: 'AWS::S3::Bucket'
     Properties:
-      BucketName: "mycompliantloggingbucket"
       AccessControl: LogDeliveryWrite
 
   EventAttachmentBucket:
     Type: AWS::S3::Bucket
     Properties:
       AccessControl: PublicRead
-      PublicAccessBlockConfiguration:
-        BlockPublicAcls: true
-        BlockPublicPolicy: true
-        IgnorePublicAcls: true
-        RestrictPublicBuckets: false
       BucketEncryption:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
@@ -387,6 +381,14 @@ Resources:
               - Date
             Id: EventAttachmentCORSRule # A unique identifier for this rule. The value must be no more than 255 characters.
             MaxAge: 3600 # The time in seconds that your browser is to cache the preflight response for the specified resource.
+      LoggingConfiguration:
+        DestinationBucketName: !Ref S3BucketLogs
+        LogFilePrefix: event-attachment-logs
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: false
       VersioningConfiguration:
         Status: Enabled
 
