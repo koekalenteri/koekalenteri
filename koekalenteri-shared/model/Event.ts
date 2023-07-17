@@ -27,6 +27,7 @@ export interface JsonEvent extends JsonDbRecord {
   official: Official
   secretary: Secretary
   contactInfo?: Partial<ContactInfo>
+  invitationAttachment?: string
 }
 
 export type EventRequiredDates = 'startDate' | 'endDate'
