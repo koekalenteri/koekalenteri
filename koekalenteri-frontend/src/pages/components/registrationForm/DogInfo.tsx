@@ -71,6 +71,7 @@ export const DogInfo = ({
     rfid: false,
   })
   const disabledByMode = disabled || state.mode !== 'manual'
+  const sireDamDisabled = disabledByMode && (disabled || state.mode !== 'update')
   const rfidDisabled = disabledByMode && !state.rfid
   const validRegNo = validateRegNo(state.regNo)
   const [loading, setLoading] = useState(false)
@@ -297,21 +298,23 @@ export const DogInfo = ({
         </Grid>
         <Grid item xs={12} lg={6}>
           <TextField
-            disabled={disabledByMode && (disabled || state.mode !== 'update')}
+            disabled={sireDamDisabled}
             fullWidth
             id={'sire'}
             label={t('dog.sire.name')}
             onChange={(e) => handleChange({ dog: { sire: { name: e.target.value } } })}
+            error={!sireDamDisabled && !reg?.dog?.sire?.name}
             value={reg?.dog?.sire?.name ?? ''}
           />
         </Grid>
         <Grid item xs={12} lg={6}>
           <TextField
-            disabled={disabledByMode && (disabled || state.mode !== 'update')}
+            disabled={sireDamDisabled}
             fullWidth
             id={'dam'}
             label={t('dog.dam.name')}
             onChange={(e) => handleChange({ dog: { dam: { name: e.target.value } } })}
+            error={!sireDamDisabled && !reg?.dog?.dam?.name}
             value={reg?.dog?.dam?.name ?? ''}
           />
         </Grid>

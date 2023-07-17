@@ -108,7 +108,7 @@ export function validateDog(
   reg: { class?: string; dog?: Dog; results?: Partial<TestResult>[] }
 ): WideValidationResult<Registration, 'registration'> {
   const dog = reg.dog
-  if (!dog?.regNo || !dog?.name || !dog?.rfid) {
+  if (!dog?.regNo || !dog?.name || !dog?.rfid || !dog.dam?.name || !dog.sire?.name) {
     return 'required'
   }
   const breedCode = validateDogBreed(event, dog)
