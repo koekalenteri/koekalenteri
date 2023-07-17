@@ -2,7 +2,7 @@ import { ReactNode, SyntheticEvent, useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import HelpOutlined from '@mui/icons-material/HelpOutlined'
 import { AutocompleteFreeSoloValueMapping, AutocompleteProps } from '@mui/material'
-import Autocomplete from '@mui/material/Autocomplete'
+import Autocomplete, { AutocompleteInputChangeReason, AutocompleteRenderInputParams } from '@mui/material/Autocomplete'
 import IconButton from '@mui/material/IconButton'
 import TextField from '@mui/material/TextField'
 import { Box } from '@mui/system'
@@ -24,29 +24,33 @@ export type EventPropertyProps<Property extends keyof PartialEvent, freeSolo ext
   endAdornment?: ReactNode
 }
 
-export default function EventProperty<Property extends keyof PartialEvent, freeSolo extends boolean>(
+const getInputInitValue = <Property extends keyof PartialEvent, freeSolo extends boolean>(
+  prop: string | PartialEvent[Property] | null,
   props: EventPropertyProps<Property, freeSolo>
-) {
-  const { t } = useTranslation()
-  const { id, event, fields, helpClick, endAdornment, onChange, ...acProps } = props
-  const getInputInitValue = (prop: string | PartialEvent[Property] | null) => {
-    if (prop === null) {
-      return ''
-    }
-    if (typeof prop === 'string') {
-      return prop
-    }
-    if (props.getOptionLabel) {
-      return props.getOptionLabel(prop)
-    }
-    if (typeof prop === 'number') {
-      return `${prop}`
-    }
+) => {
+  if (prop === null) {
     return ''
   }
+  if (typeof prop === 'string') {
+    return prop
+  }
+  if (props.getOptionLabel) {
+    return props.getOptionLabel(prop)
+  }
+  if (typeof prop === 'number') {
+    return `${prop}`
+  }
+  return ''
+}
+
+const EventProperty = <Property extends keyof PartialEvent, freeSolo extends boolean>(
+  props: EventPropertyProps<Property, freeSolo>
+) => {
+  const { t } = useTranslation()
+  const { id, event, fields, helpClick, endAdornment, onChange, ...acProps } = props
   const value = event[id]
   const fixedValue = value ?? null
-  const [inputValue, setInputValue] = useState(getInputInitValue(fixedValue))
+  const [inputValue, setInputValue] = useState(getInputInitValue(fixedValue, props))
   const isRequired = fields?.required[id] ?? false
   const error = isRequired && validateEventField(event, id, true)
   const helperText = error ? t(`validation.event.${error.key}`, error.opts) : ''
@@ -73,11 +77,39 @@ export default function EventProperty<Property extends keyof PartialEvent, freeS
   })
 
   const handleInputChange = useCallback(
-    (e: SyntheticEvent<Element, globalThis.Event>, value: string) => {
+    (e: SyntheticEvent<Element, globalThis.Event>, value: string, reason: AutocompleteInputChangeReason) => {
+      if (reason === 'reset' && value === '') return
       setInputValue(value)
       debouncedonChange(value)
     },
     [debouncedonChange]
+  )
+
+  const renderInput = useCallback(
+    (params: AutocompleteRenderInputParams) => (
+      <Box sx={{ display: 'flex', flex: '0 0 auto', position: 'relative' }}>
+        <TextField
+          {...params}
+          label={t(`event.${id}`)}
+          required={isRequired}
+          error={!!error}
+          helperText={helperText}
+          InputProps={{
+            ...params.InputProps,
+            endAdornment: (
+              <>
+                {endAdornment}
+                {params.InputProps.endAdornment}
+              </>
+            ),
+          }}
+        />
+        <IconButton onClick={helpClick} sx={{ display: helpClick ? 'flex' : 'none', margin: 'auto' }}>
+          <HelpOutlined />
+        </IconButton>
+      </Box>
+    ),
+    [endAdornment, error, helpClick, helperText, id, isRequired, t]
   )
 
   return (
@@ -86,31 +118,13 @@ export default function EventProperty<Property extends keyof PartialEvent, freeS
       {...acProps}
       value={fixedValue}
       inputValue={inputValue}
-      renderInput={(params) => (
-        <Box sx={{ display: 'flex', flex: '0 0 auto', position: 'relative' }}>
-          <TextField
-            {...params}
-            label={t(`event.${id}`)}
-            required={isRequired}
-            error={!!error}
-            helperText={helperText}
-            InputProps={{
-              ...params.InputProps,
-              endAdornment: (
-                <>
-                  {endAdornment}
-                  {params.InputProps.endAdornment}
-                </>
-              ),
-            }}
-          />
-          <IconButton onClick={helpClick} sx={{ display: helpClick ? 'flex' : 'none', margin: 'auto' }}>
-            <HelpOutlined />
-          </IconButton>
-        </Box>
-      )}
+      renderInput={renderInput}
       onChange={handleChange}
       onInputChange={handleInputChange}
     />
   )
 }
+
+EventProperty.displayName = 'EventProperty'
+
+export default EventProperty

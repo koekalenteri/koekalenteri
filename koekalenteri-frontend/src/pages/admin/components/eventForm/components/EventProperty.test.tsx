@@ -89,6 +89,63 @@ describe('EventProperty', () => {
 
       expect(onChange).toHaveBeenLastCalledWith({ eventType: undefined })
     })
+
+    it('should fire onChange with options', async () => {
+      const onChange = jest.fn()
+
+      const { user } = renderWithUserEvents(
+        <EventProperty
+          id={'name'}
+          options={['alfa', 'beta', 'gamma']}
+          event={testEvent}
+          freeSolo
+          onChange={onChange}
+        />,
+        undefined,
+        { advanceTimers: jest.advanceTimersByTime }
+      )
+      const input = screen.getByRole('combobox')
+      await user.type(input, 'c')
+      await flushPromisesAndTimers()
+
+      expect(onChange).toHaveBeenCalledWith({ name: 'c' })
+
+      await user.clear(input)
+      await flushPromisesAndTimers()
+
+      expect(onChange).toHaveBeenLastCalledWith({ name: undefined })
+    })
+
+    it('should display options when typing and fire onChange when selecting an option or clearing input', async () => {
+      const onChange = jest.fn()
+
+      const { container, user } = renderWithUserEvents(
+        <EventProperty
+          id={'name'}
+          options={['alfa', 'beta', 'gamma']}
+          event={testEvent}
+          freeSolo
+          onChange={onChange}
+        />,
+        undefined,
+        { advanceTimers: jest.advanceTimersByTime }
+      )
+      expect(container).toMatchSnapshot()
+
+      const input = screen.getByRole('combobox')
+      await user.type(input, 'a')
+      await flushPromisesAndTimers()
+      expect(container).toMatchSnapshot()
+
+      await user.clear(input)
+      await flushPromisesAndTimers()
+      expect(container).toMatchSnapshot()
+
+      await user.type(input, 'b{ArrowDown}{Enter}')
+      await flushPromisesAndTimers()
+
+      expect(onChange).toHaveBeenLastCalledWith({ name: 'beta' })
+    })
   })
 
   describe('freeSolo=false', () => {

@@ -133,12 +133,15 @@ export default function EventForm({
   )
   const handleInfoOpenChange = useCallback((value: boolean) => handleOpenChange('info', value), [handleOpenChange])
 
-  const errorStates: { [Property in keyof PartialEvent]?: boolean } = {}
-  const helperTexts: { [Property in keyof PartialEvent]?: string } = {}
-  for (const error of errors) {
-    helperTexts[error.opts.field] = t(`validation.event.${error.key}`, error.opts)
-    errorStates[error.opts.field] = true
-  }
+  const { errorStates, helperTexts } = useMemo(() => {
+    const errorStates: { [Property in keyof PartialEvent]?: boolean } = {}
+    const helperTexts: { [Property in keyof PartialEvent]?: string } = {}
+    for (const error of errors) {
+      helperTexts[error.opts.field] = t(`validation.event.${error.key}`, error.opts)
+      errorStates[error.opts.field] = true
+    }
+    return { errorStates, helperTexts }
+  }, [errors, t])
 
   return (
     <Paper

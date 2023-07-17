@@ -66,7 +66,7 @@ export default function useEventListColumns(): GridColumns<EventWithDate> {
       headerName: t('event.secretary'),
       minWidth: 100,
       flex: 1,
-      valueGetter: (params) => params.row.secretary?.name,
+      valueGetter: (params) => params.row.secretary?.name || params.row.secretary?.email || '',
     },
     {
       field: 'official',

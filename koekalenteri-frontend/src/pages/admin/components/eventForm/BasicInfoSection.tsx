@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import Grid from '@mui/material/Grid'
 import TextField from '@mui/material/TextField'
 import { add, differenceInDays, eachDayOfInterval, isAfter, isSameDay, startOfDay } from 'date-fns'
-import { DeepPartial, EventClass, Official, Organizer, Secretary } from 'koekalenteri-shared/model'
+import { DeepPartial, EventClass, Official, Organizer, Person, Secretary } from 'koekalenteri-shared/model'
 
 import { getRuleDate } from '../../../../rules'
 import CollapsibleSection from '../../../components/CollapsibleSection'
@@ -55,9 +55,10 @@ export default function BasicInfoSection({
   const helperText = error
     ? t('validation.event.errors')
     : t('validation.event.effectiveRules', { date: new Date(getRuleDate(event.startDate)) })
-  const availableOfficials = useMemo(() => {
-    return officials?.filter((o) => !event.eventType || o.eventTypes?.includes(event.eventType)) ?? []
-  }, [event, officials])
+  const availableOfficials = useMemo(
+    () => officials?.filter((o) => !event.eventType || o.eventTypes?.includes(event.eventType)) ?? [],
+    [event, officials]
+  )
   const hasEntries = (event.entries ?? 0) > 0
   const handleDateChange = useCallback(
     (start: DateValue, end: DateValue) => {
@@ -91,20 +92,19 @@ export default function BasicInfoSection({
   const isEqualId = useCallback((o?: { id?: number | string }, v?: { id?: number | string }) => o?.id === v?.id, [])
   const getName = useCallback((o?: string | { name?: string }) => (typeof o === 'string' ? o : o?.name ?? ''), [])
   const getNameOrEmail = useCallback(
-    (o?: string | { name?: string; email?: string }) => (typeof o === 'string' ? o : o?.name ?? o?.email ?? ''),
+    (o?: string | Partial<Person>) => (typeof o === 'string' ? o : o?.name || o?.email || ''),
     []
   )
   const handleSecretaryChange = useCallback(
     ({ secretary }: { secretary?: Secretary | string }) => {
       if (typeof secretary === 'string') {
-        if (event.secretary?.name !== secretary && event.secretary?.email !== secretary) {
-          onChange?.({ secretary: { ...emptyPerson, email: secretary, id: 0 } })
-        }
+        const prop = secretary.includes('@') ? 'email' : 'name'
+        onChange?.({ secretary: { ...emptyPerson, [prop]: secretary, id: 0 } })
       } else {
         onChange?.({ secretary })
       }
     },
-    [event.secretary?.email, event.secretary?.name, onChange]
+    [onChange]
   )
 
   return (
@@ -200,6 +200,14 @@ export default function BasicInfoSection({
               isOptionEqualToValue={isEqualId}
               onChange={onChange}
               options={organizers ?? []}
+              renderOption={(props, option) => {
+                if (!option) return null
+                return (
+                  <li {...props} key={option.id}>
+                    {option.name}
+                  </li>
+                )
+              }}
             />
           </Grid>
           <Grid item sx={{ width: 300 }}>
