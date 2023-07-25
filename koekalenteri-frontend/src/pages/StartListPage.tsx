@@ -16,7 +16,7 @@ import { getStartList } from '../api/registration'
 
 import { confirmedEventSelector } from './recoil'
 
-export const StartListLoader = async ({ params }: { params: Params<string> }) =>
+export const startListLoader = async ({ params }: { params: Params<string> }) =>
   params.id ? getStartList(params.id) : []
 
 const StyledTableRow = styled(TableRow)(({ theme }) => ({

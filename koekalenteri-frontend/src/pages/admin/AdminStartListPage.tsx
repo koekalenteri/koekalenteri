@@ -3,10 +3,16 @@ import type { Registration, RegistrationTime } from 'koekalenteri-shared/model'
 import { useTranslation } from 'react-i18next'
 import { Navigate, useLocation, useParams } from 'react-router-dom'
 import Box from '@mui/material/Box'
+import Paper from '@mui/material/Paper'
+import Table from '@mui/material/Table'
+import TableCell from '@mui/material/TableCell'
+import TableContainer from '@mui/material/TableContainer'
+import TableRow from '@mui/material/TableRow'
+import Typography from '@mui/material/Typography'
 import { useRecoilValue } from 'recoil'
 
 import { Path } from '../../routeConfig'
-import { eventSelector, hasAdminAccessSelector } from '../recoil'
+import { hasAdminAccessSelector } from '../recoil'
 
 import { eventRegistrationsAtom } from './recoil'
 
@@ -18,13 +24,12 @@ export default function AdminStartListPage() {
   const hasAccess = useRecoilValue(hasAdminAccessSelector)
   const params = useParams()
   const eventId = params.id ?? ''
-  const event = useRecoilValue(eventSelector(eventId))
   const allRegistrations = useRecoilValue(eventRegistrationsAtom(eventId))
   const regsToPrint = allRegistrations.filter((reg) => !reg.cancelled)
   const nameLen = regsToPrint.reduce((acc, reg) => Math.min(38, Math.max(acc, reg.dog.name?.length ?? 0)), 0)
   const grouped = regsToPrint.reduce<GroupedRegs>((acc, reg) => {
-    const date = reg.group?.date ? t('dateFormat.wdshort', { date: reg.group.date }) : 'xx-varalla'
-    const cls = reg.class ?? event?.eventType ?? ''
+    const date = reg.group?.date ? t('dateFormat.wdshort', { date: reg.group.date }) : 'varalla'
+    const cls = reg.class ?? reg.eventType ?? ''
     const time = reg.group?.time ?? ''
     acc[date] = acc[date] ?? []
     acc[date][cls] = acc[date][cls] ?? []
@@ -41,51 +46,79 @@ export default function AdminStartListPage() {
 
   return (
     <Box p={1}>
-      <pre style={{ fontSize: 12, lineHeight: 1, letterSpacing: 1, margin: 0, padding: '8px' }}>
+      <TableContainer component={Paper}>
         {dates.map((d) => (
-          <>
-            {d.replace('xx-', '').padEnd(100, '-')}
-            {'\n\n'}
-            {Object.keys(grouped[d]).map((c) => (
-              <>
-                {Object.keys(grouped[d][c]).map((tm) => (
-                  <>
-                    {c + (tm ? ' - ' + t(`registration.timeLong.${tm as RegistrationTime}`) : '')}
-                    {'\n'}
-                    {grouped[d][c][tm].map((reg) => (
-                      <>
-                        {'\n'}
-                        {reg.group?.number.toString().padStart(5)}
-                        {'., '}
-                        {reg.dog.breedCode && reg.dog.gender
-                          ? t(`${reg.dog.breedCode}.${reg.dog.gender}`, {
-                              ns: 'breedAbbr',
-                              defaultValue: reg.dog.breedCode,
-                            })
-                          : ''}
-                        {', '}
-                        {reg.dog.name?.slice(0, nameLen).padEnd(nameLen)}, {reg.dog.regNo}
-                        {', s. '}
-                        {t('dateFormat.isodate', { date: reg.dog.dob })}
-                        {', siru '}
-                        {reg.dog.rfid}
-                        {'\n\n        ohj. '}
-                        {reg.handler.name}, {reg.handler.phone ?? '-ei puhelinta-'}
-                        {d.startsWith('xx-')
-                          ? ', ' +
-                            reg.handler.location +
-                            (reg.reserve ? ', ' + t(`registration.reserveChoises.${reg.reserve}`) : '')
-                          : ''}
-                        {'\n\n'}
-                      </>
-                    ))}
-                  </>
-                ))}
-              </>
-            ))}
-          </>
+          <Table size="small">
+            <TableRow>
+              <TableCell colSpan={9}>
+                <Typography variant="h5">{d}</Typography>
+              </TableCell>
+            </TableRow>
+            {Object.keys(grouped[d]).map((c) => {
+              const reserve = d === 'varalla'
+              const cols = reserve ? 10 : 8
+              return (
+                <>
+                  {Object.keys(grouped[d][c]).map((tm) => (
+                    <>
+                      <TableRow>
+                        <TableCell colSpan={cols}>
+                          <Typography variant="h6">
+                            {c + (tm ? ' - ' + t(`registration.timeLong.${tm as RegistrationTime}`) : '')}
+                          </Typography>
+                        </TableCell>
+                      </TableRow>
+                      <TableRow selected>
+                        <TableCell>#</TableCell>
+                        <TableCell>Rotu</TableCell>
+                        <TableCell>Nimi</TableCell>
+                        <TableCell>Rekisterinumero</TableCell>
+                        <TableCell>Syntymäaika</TableCell>
+                        <TableCell>Siru</TableCell>
+                        <TableCell>Ohjaaja</TableCell>
+                        <TableCell>Puhelin</TableCell>
+                        {reserve ? (
+                          <>
+                            <TableCell>Paikkakunta</TableCell>
+                            <TableCell>Varoitusaika</TableCell>
+                          </>
+                        ) : null}
+                      </TableRow>
+                      {grouped[d][c][tm].map((reg) => (
+                        <TableRow>
+                          <TableCell>{reg.group?.number.toString().padStart(5)}</TableCell>
+                          <TableCell>
+                            {reg.dog.breedCode && reg.dog.gender
+                              ? t(`${reg.dog.breedCode}.${reg.dog.gender}`, {
+                                  ns: 'breedAbbr',
+                                  defaultValue: reg.dog.breedCode,
+                                })
+                              : ''}
+                          </TableCell>
+                          <TableCell>{reg.dog.name?.slice(0, nameLen).padEnd(nameLen) ?? ''}</TableCell>
+                          <TableCell>{reg.dog.regNo}</TableCell>
+                          <TableCell>{t('dateFormat.isodate', { date: reg.dog.dob })}</TableCell>
+                          <TableCell>{reg.dog.rfid}</TableCell>
+                          <TableCell>{reg.handler.name}</TableCell>
+                          <TableCell>{reg.handler.phone ?? '-ei puhelinta-'}</TableCell>
+                          {reserve ? (
+                            <>
+                              <TableCell>{reg.handler.location}</TableCell>
+                              <TableCell>
+                                {reg.reserve ? t(`registration.reserveChoises.${reg.reserve}`) : ''}
+                              </TableCell>
+                            </>
+                          ) : null}
+                        </TableRow>
+                      ))}
+                    </>
+                  ))}
+                </>
+              )
+            })}
+          </Table>
         ))}
-      </pre>
+      </TableContainer>
     </Box>
   )
 }
