@@ -1,6 +1,7 @@
+import type { RegistrationDate } from 'koekalenteri-shared/model'
+
 import { useTranslation } from 'react-i18next'
 import Stack from '@mui/material/Stack'
-import { RegistrationDate } from 'koekalenteri-shared/model'
 
 import GroupColors from './GroupColors'
 

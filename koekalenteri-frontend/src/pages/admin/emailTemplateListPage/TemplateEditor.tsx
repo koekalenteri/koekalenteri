@@ -1,7 +1,8 @@
-import { ChangeEvent } from 'react'
+import type { EmailTemplate, Language } from 'koekalenteri-shared/model'
+import type { ChangeEvent } from 'react'
+
 import Paper from '@mui/material/Paper'
 import Stack from '@mui/material/Stack'
-import { EmailTemplate, Language } from 'koekalenteri-shared/model'
 
 interface Props {
   template: EmailTemplate

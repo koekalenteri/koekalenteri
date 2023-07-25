@@ -1,5 +1,6 @@
+import type { Dog } from 'koekalenteri-shared/model'
+
 import { subMonths } from 'date-fns'
-import { Dog } from 'koekalenteri-shared/model'
 
 import { eventWithStaticDates } from './events'
 

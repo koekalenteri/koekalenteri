@@ -1,4 +1,6 @@
-import { ReactNode, Suspense } from 'react'
+import type { ReactNode } from 'react'
+
+import { Suspense } from 'react'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'

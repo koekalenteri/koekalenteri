@@ -1,6 +1,7 @@
+import type { EventState } from 'koekalenteri-shared/model'
+
 import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
-import { EventState } from 'koekalenteri-shared/model'
 
 import { Path } from '../../../routeConfig'
 import LinkButton from '../../components/LinkButton'

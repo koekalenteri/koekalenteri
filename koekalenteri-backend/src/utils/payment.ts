@@ -6,7 +6,7 @@ export const calculateHmac = (
   body?: object | undefined
 ): string => {
   const hmacPayload = Object.keys(params)
-    .sort()
+    .sort((a, b) => a.localeCompare(b))
     .map((key) => [key, params[key]].join(':'))
     .concat(body ? JSON.stringify(body) : '')
     .join('\n')

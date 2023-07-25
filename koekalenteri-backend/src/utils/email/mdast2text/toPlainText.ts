@@ -1,5 +1,5 @@
-import { Literal, Parent } from 'mdast'
-import { Node } from 'unist-builder/lib'
+import type { Literal, Parent } from 'mdast'
+import type { Node } from 'unist-builder/lib'
 
 type NodeLike = string | Node | Parent | Literal | unknown
 

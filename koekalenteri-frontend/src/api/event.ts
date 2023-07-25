@@ -1,4 +1,4 @@
-import { Event } from 'koekalenteri-shared/model'
+import type { Event } from 'koekalenteri-shared/model'
 
 import http, { withToken } from './http'
 

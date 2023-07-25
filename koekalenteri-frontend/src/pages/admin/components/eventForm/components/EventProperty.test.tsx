@@ -1,7 +1,8 @@
+import type { PartialEvent } from '../../EventForm'
+
 import { render, screen } from '@testing-library/react'
 
 import { flushPromisesAndTimers, renderWithUserEvents } from '../../../../../test-utils/utils'
-import { PartialEvent } from '../../EventForm'
 
 import EventProperty from './EventProperty'
 

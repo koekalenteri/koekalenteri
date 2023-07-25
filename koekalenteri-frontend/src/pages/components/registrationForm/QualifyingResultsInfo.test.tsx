@@ -1,4 +1,6 @@
-import { ReactNode } from 'react'
+import type { ReactNode } from 'react'
+import type { RegistrationClass } from '../../../rules'
+
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { render, screen } from '@testing-library/react'
@@ -9,7 +11,7 @@ import {
   registrationWithStaticDates,
   registrationWithStaticDatesAndClass,
 } from '../../../__mockData__/registrations'
-import { getRequirements, RegistrationClass } from '../../../rules'
+import { getRequirements } from '../../../rules'
 
 import QualifyingResultsInfo from './QualifyingResultsInfo'
 

@@ -1,3 +1,5 @@
+import type { Organizer, User } from 'koekalenteri-shared/model'
+
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import Autocomplete from '@mui/material/Autocomplete'
@@ -18,7 +20,6 @@ import TableFooter from '@mui/material/TableFooter'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import TextField from '@mui/material/TextField'
-import { Organizer, User } from 'koekalenteri-shared/model'
 import { useRecoilValue } from 'recoil'
 
 import { isAdminSelector } from '../../recoil'

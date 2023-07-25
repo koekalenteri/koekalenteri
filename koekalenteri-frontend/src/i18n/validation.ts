@@ -1,4 +1,4 @@
-import { ValidationErrorKey } from '.'
+import type { ValidationErrorKey } from '.'
 
 export type ValidationError<T extends Record<string, any>, NS extends keyof ValidationErrorKey> = {
   key: keyof ValidationErrorKey[NS]

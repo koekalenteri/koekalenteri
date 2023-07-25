@@ -2,8 +2,8 @@
 // allows you to do things like:
 // expect(element).toHaveTextContent(/react/i)
 // learn more: https://github.com/testing-library/jest-dom
-import { DialogProps } from '@mui/material'
-import { DataGridProps } from '@mui/x-data-grid'
+import type { DialogProps } from '@mui/material'
+import type { DataGridProps } from '@mui/x-data-grid'
 
 // https://github.com/jsdom/jsdom/issues/3363
 import 'core-js/stable/structured-clone'

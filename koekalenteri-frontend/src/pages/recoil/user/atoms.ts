@@ -1,5 +1,6 @@
+import type { Language } from 'koekalenteri-shared/model'
+
 import { Auth } from '@aws-amplify/auth'
-import { Language } from 'koekalenteri-shared/model'
 import { atom, atomFamily } from 'recoil'
 
 import { logEffect, storageEffect, stringStorageEffect } from '../effects'

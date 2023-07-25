@@ -1,14 +1,17 @@
-import { metricScope, MetricsLogger } from 'aws-embedded-metrics'
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
-import { AWSError } from 'aws-sdk'
-import { JsonRegistration } from 'koekalenteri-shared/model'
+import type { MetricsLogger } from 'aws-embedded-metrics'
+import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
+import type { AWSError } from 'aws-sdk'
+import type { JsonRegistration } from 'koekalenteri-shared/model'
+import type { PaytrailConfig } from '../utils/payment'
+
+import { metricScope } from 'aws-embedded-metrics'
 
 import { getOrigin, getUsername } from '../utils/auth'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { currentFinnishTime } from '../utils/dates'
 import { getSSMParams } from '../utils/environment'
 import { metricsError, metricsSuccess } from '../utils/metrics'
-import { calculateHmac, PaytrailConfig } from '../utils/payment'
+import { calculateHmac } from '../utils/payment'
 import { redirect, response } from '../utils/response'
 
 import { sendReceipt } from './email'

@@ -1,8 +1,10 @@
+import type { Event } from 'koekalenteri-shared/model'
+import type { EventPropertyProps } from './EventProperty'
+
 import { useCallback } from 'react'
 import InputAdornment from '@mui/material/InputAdornment'
-import { Event } from 'koekalenteri-shared/model'
 
-import EventProperty, { EventPropertyProps } from './EventProperty'
+import EventProperty from './EventProperty'
 
 type Props = EventPropertyProps<'cost' | 'costMember', true>
 

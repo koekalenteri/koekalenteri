@@ -1,4 +1,4 @@
-import { User } from 'koekalenteri-shared/model'
+import type { User } from 'koekalenteri-shared/model'
 
 const MOCK_ADMIN: User = {
   id: 'asdf1234',

@@ -1,5 +1,6 @@
+import type { Event } from 'koekalenteri-shared/model'
+
 import { parseISO } from 'date-fns'
-import { Event } from 'koekalenteri-shared/model'
 
 import {
   eventWithEntryClosed,

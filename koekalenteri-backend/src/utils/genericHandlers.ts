@@ -1,12 +1,14 @@
-import { metricScope, MetricsLogger } from 'aws-embedded-metrics'
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
-import { AWSError } from 'aws-sdk'
+import type { MetricsLogger } from 'aws-embedded-metrics'
+import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
+import type { AWSError } from 'aws-sdk'
+import type CustomDynamoClient from './CustomDynamoClient'
+
+import { metricScope } from 'aws-embedded-metrics'
 import { nanoid } from 'nanoid'
 
 import 'source-map-support/register'
 
 import { authorize } from './auth'
-import CustomDynamoClient from './CustomDynamoClient'
 import { metricsError, metricsSuccess } from './metrics'
 import { response } from './response'
 

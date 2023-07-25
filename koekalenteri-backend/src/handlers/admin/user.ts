@@ -1,7 +1,9 @@
-import { metricScope, MetricsLogger } from 'aws-embedded-metrics'
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
-import { AWSError } from 'aws-sdk'
-import { JsonUser, UserRole } from 'koekalenteri-shared/model'
+import type { MetricsLogger } from 'aws-embedded-metrics'
+import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
+import type { AWSError } from 'aws-sdk'
+import type { JsonUser, UserRole } from 'koekalenteri-shared/model'
+
+import { metricScope } from 'aws-embedded-metrics'
 import { nanoid } from 'nanoid'
 
 import { setUserRole } from '../../lib/user'

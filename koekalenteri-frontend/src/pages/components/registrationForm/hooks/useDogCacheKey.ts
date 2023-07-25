@@ -1,7 +1,7 @@
-import { useCallback } from 'react'
-import { DeepPartial } from 'koekalenteri-shared/model'
+import type { DeepPartial } from 'koekalenteri-shared/model'
+import type { DogCachedInfo } from '../../../recoil/dog'
 
-import { DogCachedInfo } from '../../../recoil/dog'
+import { useCallback } from 'react'
 
 import { useDogCache } from './useDogCache'
 

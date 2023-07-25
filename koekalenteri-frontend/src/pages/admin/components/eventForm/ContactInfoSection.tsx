@@ -1,6 +1,7 @@
+import type { ContactInfo, DeepPartial, Official, Secretary, ShowContactInfo } from 'koekalenteri-shared/model'
+
 import { useTranslation } from 'react-i18next'
 import Grid from '@mui/material/Grid'
-import { ContactInfo, DeepPartial, Official, Secretary, ShowContactInfo } from 'koekalenteri-shared/model'
 
 import CollapsibleSection from '../../../components/CollapsibleSection'
 

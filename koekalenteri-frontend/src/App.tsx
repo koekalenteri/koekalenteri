@@ -1,3 +1,6 @@
+import type { SnackbarKey } from 'notistack'
+import type { Language } from './i18n'
+
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
@@ -7,11 +10,11 @@ import { createTheme, ThemeProvider } from '@mui/material/styles'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { ConfirmProvider } from 'material-ui-confirm'
-import { SnackbarKey, SnackbarProvider } from 'notistack'
+import { SnackbarProvider } from 'notistack'
 
 import SnackbarCloseButton from './pages/components/SnackbarCloseButton'
 import { AWSConfig } from './amplify-env'
-import { Language, locales, muiLocales } from './i18n'
+import { locales, muiLocales } from './i18n'
 import routes from './routes'
 
 Auth.configure(AWSConfig)

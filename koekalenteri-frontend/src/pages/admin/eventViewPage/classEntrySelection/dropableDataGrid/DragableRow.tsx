@@ -1,7 +1,9 @@
+import type { GridRowId, GridRowProps } from '@mui/x-data-grid'
+import type { Identifier, XYCoord } from 'dnd-core'
+
 import { useRef } from 'react'
 import { useDrag, useDragDropManager, useDrop } from 'react-dnd'
-import { GridRow, GridRowId, GridRowProps } from '@mui/x-data-grid'
-import type { Identifier, XYCoord } from 'dnd-core'
+import { GridRow } from '@mui/x-data-grid'
 
 export interface DragItem {
   id: GridRowId

@@ -1,5 +1,6 @@
+import type { User } from 'koekalenteri-shared/model'
+
 import i18next from 'i18next'
-import { User } from 'koekalenteri-shared/model'
 import { selector, selectorFamily } from 'recoil'
 
 import { eventsAtom, userSelector } from '../../../recoil'

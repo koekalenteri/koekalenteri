@@ -1,10 +1,13 @@
+import type { DataGridProps } from '@mui/x-data-grid'
+import type { DropTargetMonitor } from 'react-dnd'
+import type { DragItem } from './dropableDataGrid/DragableRow'
+
 import { useMemo } from 'react'
-import { DropTargetMonitor, useDrop } from 'react-dnd'
-import { DataGridProps } from '@mui/x-data-grid'
+import { useDrop } from 'react-dnd'
 
 import StyledDataGrid from '../../../components/StyledDataGrid'
 
-import DragableRow, { DragItem } from './dropableDataGrid/DragableRow'
+import DragableRow from './dropableDataGrid/DragableRow'
 
 interface Props extends DataGridProps {
   canDrop?: (item?: DragItem) => boolean

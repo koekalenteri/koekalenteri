@@ -1,4 +1,5 @@
-import { EventType } from 'koekalenteri-shared/model'
+import type { EventType } from 'koekalenteri-shared/model'
+
 import { atom } from 'recoil'
 
 import { logEffect, storageEffect } from '../effects'

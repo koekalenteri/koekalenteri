@@ -1,9 +1,11 @@
-import { MouseEvent, useCallback, useState } from 'react'
+import type { Language } from 'koekalenteri-shared/model'
+import type { MouseEvent } from 'react'
+
+import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import ExpandMore from '@mui/icons-material/ExpandMore'
 import LanguageIcon from '@mui/icons-material/Language'
 import Menu from '@mui/material/Menu'
-import { Language } from 'koekalenteri-shared/model'
 import { useRecoilValue } from 'recoil'
 
 import { locales } from '../../../i18n'

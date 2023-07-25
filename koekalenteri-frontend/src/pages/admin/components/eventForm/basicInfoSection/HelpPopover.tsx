@@ -1,4 +1,5 @@
-import { ReactNode } from 'react'
+import type { ReactNode } from 'react'
+
 import Fade from '@mui/material/Fade'
 import Paper from '@mui/material/Paper'
 import Popover from '@mui/material/Popover'

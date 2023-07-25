@@ -1,7 +1,8 @@
+import type { Language } from 'koekalenteri-shared/model'
+
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import MenuItem from '@mui/material/MenuItem'
-import { Language } from 'koekalenteri-shared/model'
 import { useRecoilState } from 'recoil'
 
 import { languageAtom } from '../../../recoil'

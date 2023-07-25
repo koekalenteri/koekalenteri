@@ -1,5 +1,6 @@
+import type { Event } from 'koekalenteri-shared/model'
+
 import { addDays, nextSaturday, startOfDay, sub } from 'date-fns'
-import { Event } from 'koekalenteri-shared/model'
 import { atom, atomFamily, selector } from 'recoil'
 
 import { uniqueClasses } from '../../../../utils'

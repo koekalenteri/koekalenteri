@@ -1,4 +1,5 @@
-import { Registration } from 'koekalenteri-shared/model'
+import type { Registration } from 'koekalenteri-shared/model'
+
 import { selector, selectorFamily } from 'recoil'
 
 import { adminEventIdAtom, eventClassAtom } from '../events/atoms'

@@ -1,10 +1,12 @@
+import type { Localization } from '@mui/material/locale'
+import type { Language } from 'koekalenteri-shared/model'
+
 import { initReactI18next } from 'react-i18next'
-import { enUS, fiFI, Localization } from '@mui/material/locale'
+import { enUS, fiFI } from '@mui/material/locale'
 import { enUS as genUS, fiFI as gfiFI } from '@mui/x-data-grid/locales'
 import { enUS as denUS, fiFI as dfiFI } from '@mui/x-date-pickers/locales'
 import i18n from 'i18next'
 import LanguageDetector from 'i18next-browser-languagedetector'
-import { Language } from 'koekalenteri-shared/model'
 
 import { formatDateSpan, formatDistance, getDateFormatter, locales } from './dates'
 import { en, enBreed, enBreedAbbr, fi, fiBreed, fiBreedAbbr } from './locales'

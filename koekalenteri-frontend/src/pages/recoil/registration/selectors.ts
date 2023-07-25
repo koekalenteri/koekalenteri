@@ -1,4 +1,5 @@
-import { Registration } from 'koekalenteri-shared/model'
+import type { Registration } from 'koekalenteri-shared/model'
+
 import { DefaultValue, selectorFamily } from 'recoil'
 
 import { registrationByIdsAtom } from './atoms'

@@ -1,6 +1,6 @@
-import 'i18next'
+import type { fi, fiBreed, fiBreedAbbr } from './locales'
 
-import { fi, fiBreed, fiBreedAbbr } from './locales'
+import 'i18next'
 
 declare module 'i18next' {
   interface CustomTypeOptions {

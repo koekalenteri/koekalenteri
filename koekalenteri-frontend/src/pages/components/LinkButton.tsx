@@ -1,4 +1,5 @@
-import { MouseEventHandler } from 'react'
+import type { MouseEventHandler } from 'react'
+
 import { Link, useNavigate } from 'react-router-dom'
 import Box from '@mui/material/Box'
 

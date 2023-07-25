@@ -1,6 +1,7 @@
+import type { GridColDef } from '@mui/x-data-grid'
+import type { Event, EventClass } from 'koekalenteri-shared/model'
+
 import { useTranslation } from 'react-i18next'
-import { GridColDef } from '@mui/x-data-grid'
-import { Event, EventClass } from 'koekalenteri-shared/model'
 
 import { getEventTitle } from '../../../hooks/useEventTitle'
 import { useJudgesActions } from '../../recoil'

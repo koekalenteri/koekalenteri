@@ -1,5 +1,6 @@
+import type { Judge } from 'koekalenteri-shared/model'
+
 import i18next from 'i18next'
-import { Judge } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
 
 import { getJudges, putJudge } from '../../../api/judge'

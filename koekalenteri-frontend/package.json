@@ -101,6 +101,7 @@
       "prettier",
       "mui-path-imports"
     ],
+    "overrides": [],
     "rules": {
       "prettier/prettier": "error",
       "arrow-body-style": "off",
@@ -130,6 +131,7 @@
         "error",
         {
           "groups": [
+            ["^@?\\w.*\\u0000$", "^[^.].*\\u0000$", "^\\..*\\u0000$"],
             [
               "^react",
               "^@?\\w"
@@ -154,6 +156,10 @@
             ]
           ]
         }
+      ],
+      "@typescript-eslint/consistent-type-imports": [
+        "error",
+        { "prefer": "type-imports" }
       ]
     }
   },

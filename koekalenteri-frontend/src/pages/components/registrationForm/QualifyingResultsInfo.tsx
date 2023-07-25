@@ -1,11 +1,12 @@
+import type { ManualTestResult, QualifyingResult, Registration, TestResult } from 'koekalenteri-shared/model'
+import type { EventResultRequirementsByDate } from '../../../rules'
+
 import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import AddOutlined from '@mui/icons-material/AddOutlined'
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
-import { ManualTestResult, QualifyingResult, Registration, TestResult } from 'koekalenteri-shared/model'
 
-import { EventResultRequirementsByDate } from '../../../rules'
 import CollapsibleSection from '../CollapsibleSection'
 
 import QualifyingResultRow from './qualifyingResultsInfo/QualifyingResultRow'

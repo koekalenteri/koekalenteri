@@ -1,4 +1,5 @@
-import { User } from 'koekalenteri-shared/model'
+import type { User } from 'koekalenteri-shared/model'
+
 import { atom } from 'recoil'
 
 import { logEffect, storageEffect } from '../../../recoil/effects'

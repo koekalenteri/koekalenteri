@@ -1,6 +1,7 @@
+import type { Event } from 'koekalenteri-shared/model'
+
 import { parseISO } from 'date-fns'
 import fetchMock from 'jest-fetch-mock'
-import type { Event } from 'koekalenteri-shared/model'
 
 import { API_BASE_URL } from '../routeConfig'
 import { isEntryClosing, isEntryOpen, isEntryUpcoming } from '../utils'

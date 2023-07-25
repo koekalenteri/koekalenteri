@@ -1,4 +1,4 @@
-import { JsonUser, Organizer, UserRole } from 'koekalenteri-shared/model'
+import type { JsonUser, Organizer, UserRole } from 'koekalenteri-shared/model'
 
 import { EMAIL_FROM, sendTemplatedMail } from '../handlers/email'
 import { i18n } from '../i18n'

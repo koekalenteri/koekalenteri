@@ -1,12 +1,14 @@
-import { metricScope, MetricsLogger } from 'aws-embedded-metrics'
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
-import { AWSError } from 'aws-sdk'
-import {
+import type { MetricsLogger } from 'aws-embedded-metrics'
+import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
+import type { AWSError } from 'aws-sdk'
+import type {
   JsonEvent,
   JsonPublicRegistration,
   JsonRegistration,
   JsonRegistrationWithGroup,
 } from 'koekalenteri-shared/model'
+
+import { metricScope } from 'aws-embedded-metrics'
 
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { metricsError, metricsSuccess } from '../utils/metrics'

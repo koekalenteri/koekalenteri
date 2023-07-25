@@ -1,6 +1,7 @@
-import { ReactNode } from 'react'
+import type { Registration } from 'koekalenteri-shared/model'
+import type { ReactNode } from 'react'
+
 import { render } from '@testing-library/react'
-import { Registration } from 'koekalenteri-shared/model'
 import { SnackbarProvider } from 'notistack'
 import { RecoilRoot } from 'recoil'
 

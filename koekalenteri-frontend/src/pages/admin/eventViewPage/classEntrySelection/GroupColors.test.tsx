@@ -1,6 +1,7 @@
+import type { RegistrationDate } from 'koekalenteri-shared/model'
+
 import React from 'react'
 import { render } from '@testing-library/react'
-import { RegistrationDate } from 'koekalenteri-shared/model'
 
 import GroupColors, { availableGroups } from './GroupColors'
 

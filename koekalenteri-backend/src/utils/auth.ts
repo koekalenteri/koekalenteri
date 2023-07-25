@@ -1,6 +1,7 @@
-import { APIGatewayProxyEvent } from 'aws-lambda'
+import type { APIGatewayProxyEvent } from 'aws-lambda'
+import type { JsonUser } from 'koekalenteri-shared/model'
+
 import { diff } from 'deep-object-diff'
-import { JsonUser } from 'koekalenteri-shared/model'
 import { nanoid } from 'nanoid'
 
 import { findUserByEmail, updateUser } from '../lib/user'

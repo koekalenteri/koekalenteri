@@ -1,10 +1,11 @@
+import type { Locale } from 'date-fns'
+
 import { Suspense } from 'react'
 import { MemoryRouter } from 'react-router-dom'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { render, screen } from '@testing-library/react'
-import { Locale } from 'date-fns'
 import { SnackbarProvider } from 'notistack'
 import { RecoilRoot } from 'recoil'
 

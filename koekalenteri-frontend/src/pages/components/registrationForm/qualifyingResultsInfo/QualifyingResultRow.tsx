@@ -1,3 +1,6 @@
+import type { ManualTestResult, TestResult } from 'koekalenteri-shared/model'
+import type { EventResultRequirementsByDate } from '../../../../rules'
+
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import DeleteOutline from '@mui/icons-material/DeleteOutline'
@@ -7,9 +10,7 @@ import Grid from '@mui/material/Grid'
 import TextField from '@mui/material/TextField'
 import { DatePicker } from '@mui/x-date-pickers'
 import { subYears } from 'date-fns'
-import { ManualTestResult, TestResult } from 'koekalenteri-shared/model'
 
-import { EventResultRequirementsByDate } from '../../../../rules'
 import AutocompleteSingle from '../../AutocompleteSingle'
 
 import { availableResults, availableTypes, resultBorderColor } from './utils'

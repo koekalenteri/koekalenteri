@@ -1,15 +1,18 @@
-import { SyntheticEvent, useCallback } from 'react'
+import type { Judge, Organizer } from 'koekalenteri-shared/model'
+import type { SyntheticEvent } from 'react'
+import type { DateValue } from '../components/DateRange'
+import type { FilterProps } from '../recoil'
+
+import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import Grid from '@mui/material/Grid'
 import Stack from '@mui/material/Stack'
 import Switch from '@mui/material/Switch'
-import { Judge, Organizer } from 'koekalenteri-shared/model'
 
 import AutocompleteMulti from '../components/AutocompleteMulti'
-import DateRange, { DateValue } from '../components/DateRange'
-import { FilterProps } from '../recoil'
+import DateRange from '../components/DateRange'
 
 interface Props {
   eventTypes: string[]

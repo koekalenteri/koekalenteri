@@ -1,6 +1,8 @@
+import type { RouteObject } from 'react-router-dom'
+import type { Language } from '../../i18n'
+
 import { Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
-import { RouteObject } from 'react-router-dom'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
@@ -10,7 +12,7 @@ import { RecoilRoot } from 'recoil'
 
 import { eventWithStaticDates } from '../../__mockData__/events'
 import theme from '../../assets/Theme'
-import { Language, locales } from '../../i18n'
+import { locales } from '../../i18n'
 import { Path } from '../../routeConfig'
 import { DataMemoryRouter, flushPromisesAndTimers } from '../../test-utils/utils'
 

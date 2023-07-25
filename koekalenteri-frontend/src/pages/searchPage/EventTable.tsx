@@ -1,7 +1,8 @@
+import type { Event } from 'koekalenteri-shared/model'
+
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
 import TableContainer from '@mui/material/TableContainer'
-import type { Event } from 'koekalenteri-shared/model'
 
 import { EmptyResult } from './eventTable/EmptyResult'
 import { EventTableRow } from './eventTable/EventTableRow'

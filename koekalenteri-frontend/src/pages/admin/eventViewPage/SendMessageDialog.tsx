@@ -1,3 +1,5 @@
+import type { EmailTemplate, EmailTemplateId, Event, Language, Registration } from 'koekalenteri-shared/model'
+
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import ArrowForwardIosSharp from '@mui/icons-material/ArrowForwardIosSharp'
@@ -25,7 +27,6 @@ import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 // @ts-ignore handlebars 4.8 should fix this issue
 import Handlebars from 'handlebars/dist/cjs/handlebars.js'
-import { EmailTemplate, EmailTemplateId, Event, Language, Registration } from 'koekalenteri-shared/model'
 import { useConfirm } from 'material-ui-confirm'
 import { useSnackbar } from 'notistack'
 import { useRecoilValue, useSetRecoilState } from 'recoil'

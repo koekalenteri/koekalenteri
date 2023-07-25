@@ -1,10 +1,12 @@
+import type { DateRangeProps } from './DateRange'
+
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { fireEvent, render, screen } from '@testing-library/react'
 import { parseISO, startOfMonth } from 'date-fns'
 import fi from 'date-fns/locale/fi'
 
-import DateRange, { DateRangeProps } from './DateRange'
+import DateRange from './DateRange'
 
 const renderComponent = (props: DateRangeProps) => {
   render(

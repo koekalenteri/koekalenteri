@@ -1,9 +1,10 @@
+import type { ConfirmedEvent, Event } from 'koekalenteri-shared/model'
+
 import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import Dialog from '@mui/material/Dialog'
 import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
-import { ConfirmedEvent, Event } from 'koekalenteri-shared/model'
 import { useSnackbar } from 'notistack'
 import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
 

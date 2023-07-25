@@ -1,4 +1,8 @@
-import { SyntheticEvent, useCallback, useEffect, useState } from 'react'
+import type { GridColDef, GridRowSelectionModel } from '@mui/x-data-grid'
+import type { EmailTemplate } from 'koekalenteri-shared/model'
+import type { SyntheticEvent } from 'react'
+
+import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import Cancel from '@mui/icons-material/Cancel'
 import Save from '@mui/icons-material/Save'
@@ -8,8 +12,6 @@ import Paper from '@mui/material/Paper'
 import Stack from '@mui/material/Stack'
 import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
-import { GridColDef, GridRowSelectionModel } from '@mui/x-data-grid'
-import { EmailTemplate } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
 
 import { hasChanges } from '../../utils'

@@ -1,12 +1,16 @@
+import type { RouterInit } from '@remix-run/router'
+import type { RenderOptions, RenderResult } from '@testing-library/react'
+import type { Options } from '@testing-library/user-event/dist/types/options'
+import type { UserEvent } from '@testing-library/user-event/dist/types/setup/setup'
+import type { RouteObject } from 'react-router-dom'
+import type { RecoilValue } from 'recoil'
+
 import { useEffect } from 'react'
-import { createMemoryRouter, createRoutesFromElements, RouteObject, RouterProvider } from 'react-router-dom'
-import { RouterInit } from '@remix-run/router'
-import { act, render, RenderOptions, RenderResult } from '@testing-library/react'
+import { createMemoryRouter, createRoutesFromElements, RouterProvider } from 'react-router-dom'
+import { act, render } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { Options } from '@testing-library/user-event/dist/types/options'
-import { UserEvent } from '@testing-library/user-event/dist/types/setup/setup'
 import mediaQuery from 'css-mediaquery'
-import { RecoilValue, useRecoilValue } from 'recoil'
+import { useRecoilValue } from 'recoil'
 
 /**
  * Abstraction to avoid re-writing all tests for the time being

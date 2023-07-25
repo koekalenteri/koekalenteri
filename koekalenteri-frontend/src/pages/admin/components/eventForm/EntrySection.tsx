@@ -1,14 +1,18 @@
-import { SyntheticEvent, useCallback, useMemo } from 'react'
+import type { SyntheticEvent } from 'react'
+import type { Priority } from '../../../../lib/priority'
+import type { DateValue } from '../../../components/DateRange'
+import type { SectionProps } from '../EventForm'
+
+import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import FormHelperText from '@mui/material/FormHelperText'
 import Grid from '@mui/material/Grid'
 import { sub } from 'date-fns'
 
-import { PRIORITY, Priority } from '../../../../lib/priority'
+import { PRIORITY } from '../../../../lib/priority'
 import AutocompleteMulti from '../../../components/AutocompleteMulti'
 import CollapsibleSection from '../../../components/CollapsibleSection'
-import DateRange, { DateValue } from '../../../components/DateRange'
-import { SectionProps } from '../EventForm'
+import DateRange from '../../../components/DateRange'
 
 import EventFormPlaces from './entrySection/EventFormPlaces'
 

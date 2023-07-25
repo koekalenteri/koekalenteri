@@ -1,5 +1,6 @@
+import type { AuditRecord, Event } from 'koekalenteri-shared/model'
+
 import { useEffect, useMemo, useState } from 'react'
-import { AuditRecord, Event } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
 
 import { getRegistrationAuditTrail } from '../../../api/registration'

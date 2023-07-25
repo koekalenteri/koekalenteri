@@ -1,7 +1,8 @@
-import { ManualTestResult, QualifyingResult } from 'koekalenteri-shared/model'
+import type { ManualTestResult, QualifyingResult } from 'koekalenteri-shared/model'
+import type { EventResultRequirement, EventResultRequirements, EventResultRequirementsByDate } from '../../../../rules'
+
 import { nanoid } from 'nanoid'
 
-import { EventResultRequirement, EventResultRequirements, EventResultRequirementsByDate } from '../../../../rules'
 import { unique } from '../../../../utils'
 import { objectContains } from '../validation'
 

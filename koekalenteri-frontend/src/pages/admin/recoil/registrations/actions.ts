@@ -1,4 +1,5 @@
-import { Registration, RegistrationGroupInfo } from 'koekalenteri-shared/model'
+import type { Registration, RegistrationGroupInfo } from 'koekalenteri-shared/model'
+
 import { useSnackbar } from 'notistack'
 import { useRecoilState, useRecoilValue } from 'recoil'
 

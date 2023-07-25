@@ -1,4 +1,5 @@
-import { EmailTemplate } from 'koekalenteri-shared/model'
+import type { EmailTemplate } from 'koekalenteri-shared/model'
+
 import { atom, atomFamily } from 'recoil'
 
 import { logEffect, storageEffect } from '../../../recoil/effects'

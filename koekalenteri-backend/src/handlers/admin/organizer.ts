@@ -1,5 +1,6 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
-import { Organizer } from 'koekalenteri-shared/model'
+import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
+import type { Organizer } from 'koekalenteri-shared/model'
+
 import { nanoid } from 'nanoid'
 
 import { authorize } from '../../utils/auth'

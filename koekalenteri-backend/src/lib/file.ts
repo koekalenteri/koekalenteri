@@ -1,8 +1,10 @@
-import { APIGatewayProxyEvent } from 'aws-lambda'
-import S3 from 'aws-sdk/clients/s3'
+import type { APIGatewayProxyEvent } from 'aws-lambda'
+import type S3 from 'aws-sdk/clients/s3'
+import type { FileInfo } from 'busboy'
+import type { Readable } from 'stream'
+
 import s3client from 'aws-sdk/clients/s3'
-import busboy, { FileInfo } from 'busboy'
-import { Readable } from 'stream'
+import busboy from 'busboy'
 
 const s3 = new s3client()
 

@@ -1,5 +1,7 @@
+import type { DeepPartial, Dog } from 'koekalenteri-shared/model'
+import type { DogCachedInfo } from './atoms'
+
 import { diff } from 'deep-object-diff'
-import { DeepPartial, Dog } from 'koekalenteri-shared/model'
 import { useSnackbar } from 'notistack'
 import { useRecoilState } from 'recoil'
 
@@ -8,7 +10,7 @@ import { hasChanges, merge } from '../../../utils'
 import { emptyDog } from '../../components/RegistrationForm'
 import { useDogCache } from '../../components/registrationForm/hooks/useDogCache'
 
-import { dogAtom, DogCachedInfo } from './atoms'
+import { dogAtom } from './atoms'
 
 const INIT_CACHE: DeepPartial<DogCachedInfo> = { owner: { ownerHandles: true } }
 const isErrObject = (err: unknown): err is object => typeof err === 'object'

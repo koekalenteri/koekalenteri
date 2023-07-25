@@ -1,4 +1,5 @@
-import { EmailTemplate } from 'koekalenteri-shared/model'
+import type { EmailTemplate } from 'koekalenteri-shared/model'
+
 import { useSnackbar } from 'notistack'
 import { useRecoilState, useRecoilValue } from 'recoil'
 

@@ -1,9 +1,11 @@
-import { ChangeEvent, useCallback } from 'react'
+import type { ChangeEvent } from 'react'
+import type { SectionProps } from '../EventForm'
+
+import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import TextField from '@mui/material/TextField'
 
 import CollapsibleSection from '../../../components/CollapsibleSection'
-import { SectionProps } from '../EventForm'
 
 export default function AdditionalInfoSection({ disabled, event, onChange, onOpenChange, open }: SectionProps) {
   const { t } = useTranslation()

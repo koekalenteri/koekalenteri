@@ -1,15 +1,18 @@
-import { ChangeEvent, SyntheticEvent, useCallback, useMemo, useState } from 'react'
+import type { DeepPartial, EventClass, Official, Organizer, Person, Secretary } from 'koekalenteri-shared/model'
+import type { ChangeEvent, SyntheticEvent } from 'react'
+import type { DateValue } from '../../../components/DateRange'
+import type { PartialEvent, SectionProps } from '../EventForm'
+
+import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import Grid from '@mui/material/Grid'
 import TextField from '@mui/material/TextField'
 import { add, differenceInDays, eachDayOfInterval, isAfter, isSameDay, startOfDay } from 'date-fns'
-import { DeepPartial, EventClass, Official, Organizer, Person, Secretary } from 'koekalenteri-shared/model'
 
 import { getRuleDate } from '../../../../rules'
 import CollapsibleSection from '../../../components/CollapsibleSection'
-import DateRange, { DateValue } from '../../../components/DateRange'
+import DateRange from '../../../components/DateRange'
 import { emptyPerson } from '../../../components/RegistrationForm'
-import { PartialEvent, SectionProps } from '../EventForm'
 
 import HelpPopover from './basicInfoSection/HelpPopover'
 import EventClasses from './components/EventClasses'

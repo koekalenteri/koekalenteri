@@ -1,5 +1,6 @@
+import type { Language } from 'koekalenteri-shared/model'
+
 import i18n from 'i18next'
-import { Language } from 'koekalenteri-shared/model'
 
 import { formatDateSpan } from '../utils/dates'
 

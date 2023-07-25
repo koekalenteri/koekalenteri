@@ -1,6 +1,7 @@
+import type { DeepPartial, Event, JsonValue, RegistrationDate } from 'koekalenteri-shared/model'
+
 import { eachDayOfInterval, endOfDay, startOfDay, subDays } from 'date-fns'
 import { diff } from 'deep-object-diff'
-import { DeepPartial, Event, JsonValue, RegistrationDate } from 'koekalenteri-shared/model'
 import { toASCII } from 'punycode'
 
 type EventDates = {

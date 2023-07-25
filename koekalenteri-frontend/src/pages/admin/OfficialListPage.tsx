@@ -1,10 +1,12 @@
+import type { Theme } from '@mui/material'
+import type { GridColDef } from '@mui/x-data-grid'
+import type { Official } from 'koekalenteri-shared/model'
+
 import { useTranslation } from 'react-i18next'
 import CloudSync from '@mui/icons-material/CloudSync'
-import { Theme, useMediaQuery } from '@mui/material'
+import { useMediaQuery } from '@mui/material'
 import Button from '@mui/material/Button'
 import Stack from '@mui/material/Stack'
-import { GridColDef } from '@mui/x-data-grid'
-import { Official } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
 import StyledDataGrid from '../components/StyledDataGrid'

@@ -1,11 +1,13 @@
-import { ChangeEvent, useCallback } from 'react'
+import type { Headquarters } from 'koekalenteri-shared/model'
+import type { ChangeEvent } from 'react'
+import type { SectionProps } from '../EventForm'
+
+import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import Grid from '@mui/material/Grid'
 import TextField from '@mui/material/TextField'
-import { Headquarters } from 'koekalenteri-shared/model'
 
 import CollapsibleSection from '../../../components/CollapsibleSection'
-import { SectionProps } from '../EventForm'
 
 interface Props extends Omit<SectionProps, 'event'> {
   headquarters?: Partial<Headquarters>

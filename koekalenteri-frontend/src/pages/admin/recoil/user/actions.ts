@@ -1,4 +1,5 @@
-import { User, UserRole } from 'koekalenteri-shared/model'
+import type { User, UserRole } from 'koekalenteri-shared/model'
+
 import { useSnackbar } from 'notistack'
 import { useRecoilState, useRecoilValue } from 'recoil'
 

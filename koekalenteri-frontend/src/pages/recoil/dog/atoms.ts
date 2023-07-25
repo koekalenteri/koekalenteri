@@ -1,4 +1,5 @@
-import { Dog, ManualTestResult, RegistrationBreeder, RegistrationPerson } from 'koekalenteri-shared/model'
+import type { Dog, ManualTestResult, RegistrationBreeder, RegistrationPerson } from 'koekalenteri-shared/model'
+
 import { atom, atomFamily } from 'recoil'
 
 import { logEffect } from '../effects'

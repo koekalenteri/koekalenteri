@@ -1,8 +1,9 @@
+import type { Event, EventClass } from 'koekalenteri-shared/model'
+
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import TableCell from '@mui/material/TableCell'
 import TableRow from '@mui/material/TableRow'
-import { Event, EventClass } from 'koekalenteri-shared/model'
 
 import { Path } from '../../../../routeConfig'
 import { isEntryOpen } from '../../../../utils'

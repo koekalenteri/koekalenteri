@@ -1,7 +1,8 @@
 // Create a DocumentClient that represents the query to add an item
-import AWS from 'aws-sdk'
 import type { UpdateExpression } from 'aws-sdk/clients/dynamodb.js'
-import { JsonObject } from 'koekalenteri-shared/model'
+import type { JsonObject } from 'koekalenteri-shared/model'
+
+import AWS from 'aws-sdk'
 
 function fromSamLocalTable(table: string) {
   // sam local does not provide proper table name as env variable

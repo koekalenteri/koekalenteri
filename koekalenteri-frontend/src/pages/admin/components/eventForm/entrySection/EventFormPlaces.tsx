@@ -1,4 +1,8 @@
-import { ChangeEvent, useCallback, useState } from 'react'
+import type { DeepPartial, EventClass } from 'koekalenteri-shared/model'
+import type { ChangeEvent } from 'react'
+import type { SectionProps } from '../../EventForm'
+
+import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
 import Checkbox from '@mui/material/Checkbox'
@@ -12,10 +16,8 @@ import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import Typography from '@mui/material/Typography'
 import { eachDayOfInterval, isSameDay } from 'date-fns'
-import { DeepPartial, EventClass } from 'koekalenteri-shared/model'
 
 import { unique } from '../../../../../utils'
-import { SectionProps } from '../../EventForm'
 import { compareEventClass } from '../components/EventClasses'
 
 import PlacesDisplay from './eventFormPlaces/PlacesDisplay'

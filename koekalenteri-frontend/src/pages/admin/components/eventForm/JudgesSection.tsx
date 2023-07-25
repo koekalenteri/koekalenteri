@@ -1,3 +1,6 @@
+import type { ClassJudge, DeepPartial, EventClass, Judge } from 'koekalenteri-shared/model'
+import type { SectionProps } from '../EventForm'
+
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import AddOutlined from '@mui/icons-material/AddOutlined'
@@ -5,11 +8,9 @@ import DeleteOutline from '@mui/icons-material/DeleteOutline'
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 import { isSameDay } from 'date-fns'
-import { ClassJudge, DeepPartial, EventClass, Judge } from 'koekalenteri-shared/model'
 
 import AutocompleteSingle from '../../../components/AutocompleteSingle'
 import CollapsibleSection from '../../../components/CollapsibleSection'
-import { SectionProps } from '../EventForm'
 
 import EventClasses from './components/EventClasses'
 import { validateEventField } from './validation'

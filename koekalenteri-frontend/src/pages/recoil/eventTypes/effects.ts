@@ -1,6 +1,7 @@
+import type { EventType } from 'koekalenteri-shared/model'
+import type { AtomEffect } from 'recoil'
+
 import i18next from 'i18next'
-import { EventType } from 'koekalenteri-shared/model'
-import { AtomEffect } from 'recoil'
 
 import { getEventTypes } from '../../../api/eventType'
 

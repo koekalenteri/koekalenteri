@@ -1,6 +1,7 @@
+import type { Judge } from 'koekalenteri-shared/model'
+import type { AtomEffect } from 'recoil'
+
 import i18next from 'i18next'
-import { Judge } from 'koekalenteri-shared/model'
-import { AtomEffect } from 'recoil'
 
 import { getJudges } from '../../../api/judge'
 

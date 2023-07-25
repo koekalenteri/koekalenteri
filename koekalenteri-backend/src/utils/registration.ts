@@ -1,4 +1,4 @@
-import { JsonConfirmedEvent, JsonRegistration } from 'koekalenteri-shared/model'
+import type { JsonConfirmedEvent, JsonRegistration } from 'koekalenteri-shared/model'
 
 import { i18n } from '../i18n/index'
 

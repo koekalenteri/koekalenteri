@@ -1,5 +1,6 @@
+import type { Headquarters } from 'koekalenteri-shared/model'
+
 import { render, screen } from '@testing-library/react'
-import { Headquarters } from 'koekalenteri-shared/model'
 
 import { renderWithUserEvents } from '../../../../test-utils/utils'
 

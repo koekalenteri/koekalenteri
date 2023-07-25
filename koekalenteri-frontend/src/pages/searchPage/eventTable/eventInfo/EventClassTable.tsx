@@ -1,7 +1,8 @@
+import type { Event, EventClass } from 'koekalenteri-shared/model'
+
 import { useCallback } from 'react'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
-import { Event, EventClass } from 'koekalenteri-shared/model'
 
 import { EventClassTableRow } from './EventClassTableRow'
 

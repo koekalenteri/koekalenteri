@@ -1,6 +1,9 @@
+import type { Theme } from '@mui/material'
+import type { DataGridProps } from '@mui/x-data-grid'
+
 import { useState } from 'react'
-import { styled, Theme } from '@mui/material'
-import { DataGrid, DataGridProps } from '@mui/x-data-grid'
+import { styled } from '@mui/material'
+import { DataGrid } from '@mui/x-data-grid'
 
 const DataGridWithDefaults = (props: DataGridProps) => {
   const [page, setPage] = useState(1)

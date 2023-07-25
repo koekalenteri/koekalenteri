@@ -1,6 +1,7 @@
+import type { EmailTemplate, EmailTemplateId } from 'koekalenteri-shared/model'
+import type { AtomEffect } from 'recoil'
+
 import i18next from 'i18next'
-import { EmailTemplate, EmailTemplateId } from 'koekalenteri-shared/model'
-import { AtomEffect } from 'recoil'
 
 import { getEmailTemplates } from '../../../../api/email'
 import { idTokenAtom } from '../../../recoil'

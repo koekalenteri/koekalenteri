@@ -1,5 +1,6 @@
+import type { Event } from 'koekalenteri-shared/model'
+
 import { useEffect } from 'react'
-import { Event } from 'koekalenteri-shared/model'
 import { useRecoilState, useResetRecoilState } from 'recoil'
 
 import { newRegistrationAtom } from '../../recoil'

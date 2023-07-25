@@ -1,9 +1,10 @@
-import { startOfDay } from 'date-fns'
-import { Event, EventState, ShowContactInfo } from 'koekalenteri-shared/model'
+import type { Event, EventState, ShowContactInfo } from 'koekalenteri-shared/model'
+import type { ValidationResult, Validators } from '../../../../i18n/validation'
+import type { PartialEvent } from '../EventForm'
 
-import { ValidationResult, Validators } from '../../../../i18n/validation'
+import { startOfDay } from 'date-fns'
+
 import { unique } from '../../../../utils'
-import { PartialEvent } from '../EventForm'
 
 type EventCallback = (event: PartialEvent) => boolean
 type EventFlag = boolean | EventCallback

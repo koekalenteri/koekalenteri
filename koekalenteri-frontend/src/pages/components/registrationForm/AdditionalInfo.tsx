@@ -1,7 +1,9 @@
-import { ChangeEventHandler, useCallback, useEffect, useState } from 'react'
+import type { Registration } from 'koekalenteri-shared/model'
+import type { ChangeEventHandler } from 'react'
+
+import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import TextField from '@mui/material/TextField'
-import { Registration } from 'koekalenteri-shared/model'
 
 import useDebouncedCallback from '../../../hooks/useDebouncedCallback'
 import CollapsibleSection from '../CollapsibleSection'

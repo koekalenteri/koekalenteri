@@ -1,4 +1,5 @@
-import { Registration } from 'koekalenteri-shared/model'
+import type { Registration } from 'koekalenteri-shared/model'
+
 import { atom, atomFamily } from 'recoil'
 
 import { emptyBreeder, emptyDog, emptyPerson } from '../../components/RegistrationForm'

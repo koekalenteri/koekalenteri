@@ -1,4 +1,5 @@
-import { Official } from 'koekalenteri-shared/model'
+import type { Official } from 'koekalenteri-shared/model'
+
 import { atom } from 'recoil'
 
 import { logEffect, storageEffect } from '../../../recoil/effects'

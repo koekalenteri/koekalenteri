@@ -1,6 +1,7 @@
+import type { TFunction } from 'i18next'
+import type { Event } from 'koekalenteri-shared/model'
+
 import { useTranslation } from 'react-i18next'
-import { TFunction } from 'i18next'
-import { Event } from 'koekalenteri-shared/model'
 
 import { isEntryClosed, isEntryOpen, isEventOngoing, isEventOver } from '../utils'
 

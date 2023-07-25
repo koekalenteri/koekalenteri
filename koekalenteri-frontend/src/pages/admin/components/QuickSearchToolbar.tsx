@@ -1,4 +1,5 @@
-import { ReactNode } from 'react'
+import type { ReactNode } from 'react'
+
 import { useTranslation } from 'react-i18next'
 import Clear from '@mui/icons-material/Clear'
 import Search from '@mui/icons-material/Search'

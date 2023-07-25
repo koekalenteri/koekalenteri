@@ -1,6 +1,14 @@
+import type { AWSError, Request } from 'aws-sdk'
+import type {
+  GetItemOutput,
+  PutItemInput,
+  PutItemOutput,
+  QueryOutput,
+  UpdateItemOutput,
+} from 'aws-sdk/clients/dynamodb'
+
 import { jest } from '@jest/globals'
-import AWS, { AWSError, Request } from 'aws-sdk'
-import { GetItemOutput, PutItemInput, PutItemOutput, QueryOutput, UpdateItemOutput } from 'aws-sdk/clients/dynamodb'
+import AWS from 'aws-sdk'
 
 import { defaultJSONHeaders } from '../test-utils/headers'
 import { constructAPIGwEvent, createAWSError } from '../test-utils/helpers'

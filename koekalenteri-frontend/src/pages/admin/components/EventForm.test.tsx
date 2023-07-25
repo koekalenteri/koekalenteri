@@ -1,10 +1,11 @@
+import type { Event } from 'koekalenteri-shared/model'
+
 import { Suspense } from 'react'
 import { ThemeProvider } from '@mui/material'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { fireEvent, render, screen, within } from '@testing-library/react'
 import fi from 'date-fns/locale/fi'
-import { Event } from 'koekalenteri-shared/model'
 import { RecoilRoot } from 'recoil'
 
 import { eventWithStaticDatesAndClass } from '../../../__mockData__/events'

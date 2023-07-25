@@ -1,4 +1,5 @@
-import { Judge } from 'koekalenteri-shared/model'
+import type { Judge } from 'koekalenteri-shared/model'
+
 import { atom } from 'recoil'
 
 import { logEffect, storageEffect } from '../effects'

@@ -1,5 +1,6 @@
+import type { RouteObject } from 'react-router-dom'
+
 import { Suspense } from 'react'
-import { RouteObject } from 'react-router-dom'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'

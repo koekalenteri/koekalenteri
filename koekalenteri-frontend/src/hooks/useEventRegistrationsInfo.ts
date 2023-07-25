@@ -1,5 +1,6 @@
+import type { Event, EventState, Registration } from 'koekalenteri-shared/model'
+
 import { useMemo } from 'react'
-import { Event, EventState, Registration } from 'koekalenteri-shared/model'
 
 import { classPlaces, eventDates, uniqueClasses } from '../utils'
 

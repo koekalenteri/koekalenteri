@@ -1,6 +1,7 @@
+import type { Event } from 'koekalenteri-shared/model'
+
 import { startOfToday } from 'date-fns'
 import i18next from 'i18next'
-import { Event } from 'koekalenteri-shared/model'
 import { DefaultValue, selector, selectorFamily } from 'recoil'
 
 import { uniqueFn } from '../../../../utils'

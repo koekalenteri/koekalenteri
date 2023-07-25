@@ -1,6 +1,4 @@
 import type { JsonArray, JsonObject } from 'koekalenteri-shared/model'
-import fetch from 'node-fetch'
-
 import type {
   KLAPIConfig,
   KLAPIResult,
@@ -27,6 +25,8 @@ import type {
   KLYhdistys,
   KLYhdistysParametrit,
 } from './KLAPI_models'
+
+import fetch from 'node-fetch'
 
 function toURLParams(params: Record<string, string | number | undefined> = {}): Record<string, string> {
   const result: Record<string, string> = {}

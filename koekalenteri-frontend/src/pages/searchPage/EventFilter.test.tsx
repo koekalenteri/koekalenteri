@@ -1,10 +1,10 @@
+import type { Judge, Organizer } from 'koekalenteri-shared/model'
+import type { FilterProps } from '../recoil'
+
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { fireEvent, render, screen, within } from '@testing-library/react'
 import fi from 'date-fns/locale/fi'
-import { Judge, Organizer } from 'koekalenteri-shared/model'
-
-import { FilterProps } from '../recoil'
 
 import { EventFilter } from './EventFilter'
 

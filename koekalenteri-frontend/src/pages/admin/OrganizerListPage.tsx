@@ -1,10 +1,11 @@
+import type { GridColDef } from '@mui/x-data-grid'
+import type { Organizer } from 'koekalenteri-shared/model'
+
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import CloudSync from '@mui/icons-material/CloudSync'
 import Button from '@mui/material/Button'
 import Stack from '@mui/material/Stack'
-import { GridColDef } from '@mui/x-data-grid'
-import { Organizer } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
 import StyledDataGrid from '../components/StyledDataGrid'

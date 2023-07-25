@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Element, ElementContent } from 'hast'
-import { Table } from 'mdast'
-import { MdastNodes } from 'mdast-util-to-hast/lib'
-import { Handler, MdastParents, State } from 'mdast-util-to-hast/lib/state'
+import type { Element, ElementContent } from 'hast'
+import type { Table } from 'mdast'
+import type { MdastNodes } from 'mdast-util-to-hast/lib'
+import type { Handler, MdastParents, State } from 'mdast-util-to-hast/lib/state'
+
 import { u } from 'unist-builder'
 import { pointEnd, pointStart } from 'unist-util-position'
 

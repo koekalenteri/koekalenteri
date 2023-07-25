@@ -1,7 +1,8 @@
-import { red } from '@mui/material/colors'
-import { createTheme, responsiveFontSizes } from '@mui/material/styles'
 import type {} from '@mui/x-data-grid/themeAugmentation'
 import type {} from '@mui/x-date-pickers/themeAugmentation'
+
+import { red } from '@mui/material/colors'
+import { createTheme, responsiveFontSizes } from '@mui/material/styles'
 
 declare module '@mui/material/styles/createPalette' {
   interface TypeBackground {

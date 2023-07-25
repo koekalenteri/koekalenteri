@@ -1,4 +1,5 @@
-import { EmailTemplate } from 'koekalenteri-shared/model'
+import type { EmailTemplate } from 'koekalenteri-shared/model'
+
 import { selectorFamily } from 'recoil'
 
 import { emailTemplatesAtom } from './atoms'

@@ -1,5 +1,6 @@
+import type { Registration } from 'koekalenteri-shared/model'
+
 import fetchMock from 'jest-fetch-mock'
-import { Registration } from 'koekalenteri-shared/model'
 
 import { API_BASE_URL } from '../routeConfig'
 

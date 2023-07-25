@@ -1,11 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Template } from 'aws-sdk/clients/ses'
-import { Root } from 'mdast'
+import type { Template } from 'aws-sdk/clients/ses'
+import type { Root } from 'mdast'
+import type { Plugin } from 'unified'
+
 import remarkBreaks from 'remark-breaks'
 import remarkGfm from 'remark-gfm'
 import remarkHtml from 'remark-html'
 import remarkParse from 'remark-parse'
-import { Plugin, unified } from 'unified'
+import { unified } from 'unified'
 import { SKIP, visit } from 'unist-util-visit'
 
 import { linkHandler } from './mdast2hast/link'

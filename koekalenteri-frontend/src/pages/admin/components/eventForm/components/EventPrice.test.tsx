@@ -1,7 +1,8 @@
+import type { PartialEvent } from '../../EventForm'
+
 import { screen } from '@testing-library/react'
 
 import { renderWithUserEvents, waitForDebounce } from '../../../../../test-utils/utils'
-import { PartialEvent } from '../../EventForm'
 
 import EventPrice from './EventPrice'
 

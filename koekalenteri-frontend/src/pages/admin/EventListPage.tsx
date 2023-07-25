@@ -1,3 +1,5 @@
+import type { GridRowSelectionModel } from '@mui/x-data-grid'
+
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
@@ -9,7 +11,6 @@ import FormatListNumberedOutlined from '@mui/icons-material/FormatListNumberedOu
 import FormControlLabel from '@mui/material/FormControlLabel'
 import Stack from '@mui/material/Stack'
 import Switch from '@mui/material/Switch'
-import { GridRowSelectionModel } from '@mui/x-data-grid'
 import { useConfirm } from 'material-ui-confirm'
 import { useRecoilState, useRecoilValue } from 'recoil'
 

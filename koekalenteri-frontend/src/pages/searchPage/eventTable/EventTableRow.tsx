@@ -1,3 +1,5 @@
+import type { Event } from 'koekalenteri-shared/model'
+
 import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown'
@@ -7,7 +9,6 @@ import Grid from '@mui/material/Grid'
 import IconButton from '@mui/material/IconButton'
 import TableCell from '@mui/material/TableCell'
 import TableRow from '@mui/material/TableRow'
-import { Event } from 'koekalenteri-shared/model'
 import { useRecoilState } from 'recoil'
 
 import { Path } from '../../../routeConfig'

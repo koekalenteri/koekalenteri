@@ -28,8 +28,10 @@ rules:
   simple-import-sort/imports:
     - error
     - groups:
-      - - react
-        - "^@?\\w"
+      - - "^@?\\w.*\\u0000$"
+        - "^[^.].*\\u0000$"
+        - "^\\..*\\u0000$"
+      - - "^@?\\w"
       - - "^(@|components)(/.*|$)"
       - - "^\\u0000"
       - - "^\\.\\.(?!/?$)"
@@ -38,4 +40,6 @@ rules:
         - "^\\.(?!/?$)"
         - "^\\./?$"
       - - "^.+\\.?(css)$"
-
+  "@typescript-eslint/consistent-type-imports":
+      - error
+      - prefer: 'type-imports'

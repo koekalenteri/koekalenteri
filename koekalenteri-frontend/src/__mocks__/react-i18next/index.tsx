@@ -1,5 +1,5 @@
-import { ReactNode } from 'react'
-import { ThirdPartyModule } from 'i18next'
+import type { ThirdPartyModule } from 'i18next'
+import type { ReactNode } from 'react'
 
 export const useTranslation = () => {
   return {

@@ -1,6 +1,7 @@
+import type { JsonRegistration, JsonRegistrationGroupInfo } from 'koekalenteri-shared/model'
+
 import { jest } from '@jest/globals'
 import AWS from 'aws-sdk'
-import { JsonRegistration, JsonRegistrationGroupInfo } from 'koekalenteri-shared/model'
 
 import { defaultJSONHeaders } from '../../test-utils/headers'
 import { constructAPIGwEvent, createAWSError } from '../../test-utils/helpers'

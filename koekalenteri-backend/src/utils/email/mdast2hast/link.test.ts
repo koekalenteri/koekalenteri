@@ -1,6 +1,7 @@
+import type { Link } from 'mdast'
+import type { State } from 'mdast-util-to-hast/lib/state'
+
 import { jest } from '@jest/globals'
-import { Link } from 'mdast'
-import { State } from 'mdast-util-to-hast/lib/state'
 
 import { linkHandler } from './link'
 

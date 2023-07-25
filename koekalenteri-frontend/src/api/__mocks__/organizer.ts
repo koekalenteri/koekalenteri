@@ -1,4 +1,4 @@
-import { Organizer } from 'koekalenteri-shared/model'
+import type { Organizer } from 'koekalenteri-shared/model'
 
 const mockOrganizers: Organizer[] = [
   {

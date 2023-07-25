@@ -1,7 +1,9 @@
-import { ChangeEvent, useCallback } from 'react'
+import type { GridRenderCellParams } from '@mui/x-data-grid'
+import type { EventType } from 'koekalenteri-shared/model'
+import type { ChangeEvent } from 'react'
+
+import { useCallback } from 'react'
 import Switch from '@mui/material/Switch'
-import { GridRenderCellParams } from '@mui/x-data-grid'
-import { EventType } from 'koekalenteri-shared/model'
 
 import { useEventTypeActions } from '../../../recoil'
 

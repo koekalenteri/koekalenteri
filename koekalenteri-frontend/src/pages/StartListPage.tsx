@@ -1,5 +1,8 @@
+import type { PublicRegistration } from 'koekalenteri-shared/model'
+import type { Params } from 'react-router-dom'
+
 import { useTranslation } from 'react-i18next'
-import { Params, useLoaderData, useParams } from 'react-router-dom'
+import { useLoaderData, useParams } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Grid from '@mui/material/Grid'
 import { styled } from '@mui/material/styles'
@@ -7,7 +10,6 @@ import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
 import TableRow from '@mui/material/TableRow'
-import { PublicRegistration } from 'koekalenteri-shared/model'
 import { useRecoilValue } from 'recoil'
 
 import { getStartList } from '../api/registration'

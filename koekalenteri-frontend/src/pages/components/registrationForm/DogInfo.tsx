@@ -1,4 +1,8 @@
-import { SyntheticEvent, useCallback, useEffect, useState } from 'react'
+import type { BreedCode, DeepPartial, Dog, DogGender, Registration } from 'koekalenteri-shared/model'
+import type { SyntheticEvent } from 'react'
+import type { DogCachedInfo } from '../../recoil/dog'
+
+import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import Autocomplete from '@mui/material/Autocomplete'
 import Button from '@mui/material/Button'
@@ -10,11 +14,10 @@ import TextField from '@mui/material/TextField'
 import { Box } from '@mui/system'
 import { DatePicker } from '@mui/x-date-pickers'
 import { differenceInMinutes, subMonths, subYears } from 'date-fns'
-import { BreedCode, DeepPartial, Dog, DogGender, Registration } from 'koekalenteri-shared/model'
 import { useRecoilValue } from 'recoil'
 
 import { hasChanges } from '../../../utils'
-import { DogCachedInfo, useDogActions } from '../../recoil/dog'
+import { useDogActions } from '../../recoil/dog'
 import { cachedDogRegNumbersSelector } from '../../recoil/dog/selectors'
 import AutocompleteSingle from '../AutocompleteSingle'
 import CollapsibleSection from '../CollapsibleSection'
@@ -180,7 +183,7 @@ export const DogInfo = ({
   )
 
   useEffect(() => {
-    if (state.regNo !== reg.dog?.regNo ?? '') {
+    if (state.regNo !== (reg.dog?.regNo ?? '')) {
       if ((validRegNo && state.mode === 'autofetch') || state.regNo === '') {
         buttonClick()
       }

@@ -1,6 +1,8 @@
-import { jest } from '@jest/globals'
-import AWS, { AWSError, Request } from 'aws-sdk'
+import type { AWSError, Request } from 'aws-sdk'
 import type { PutItemInput, PutItemOutput, ScanInput, ScanOutput } from 'aws-sdk/clients/dynamodb'
+
+import { jest } from '@jest/globals'
+import AWS from 'aws-sdk'
 
 import { genericReadAllTest } from '../test-utils/genericTests'
 import { constructAPIGwEvent } from '../test-utils/helpers'

@@ -1,5 +1,6 @@
-import { Root } from 'mdast'
-import { Plugin } from 'unified'
+import type { Root } from 'mdast'
+import type { Plugin } from 'unified'
+
 import { SKIP, visit } from 'unist-util-visit'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

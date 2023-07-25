@@ -1,4 +1,4 @@
-import { AtomEffect } from 'recoil'
+import type { AtomEffect } from 'recoil'
 
 import { parseJSON } from '../../../utils'
 

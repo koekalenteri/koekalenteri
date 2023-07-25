@@ -1,7 +1,8 @@
+import type { Registration } from 'koekalenteri-shared/model'
+
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
-import type { Registration } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
 
 import { hasChanges, isEntryClosed, isEventOngoing, isEventOver } from '../utils'

@@ -1,8 +1,10 @@
-import { SyntheticEvent, useCallback, useEffect } from 'react'
+import type { ConfirmedEvent, Registration, RegistrationDate, ReserveChoise } from 'koekalenteri-shared/model'
+import type { SyntheticEvent } from 'react'
+
+import { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import Grid from '@mui/material/Grid'
 import { format, isSameDay } from 'date-fns'
-import { ConfirmedEvent, Registration, RegistrationDate, ReserveChoise } from 'koekalenteri-shared/model'
 
 import { registrationDates, uniqueClasses } from '../../../utils'
 import AutocompleteMulti from '../AutocompleteMulti'

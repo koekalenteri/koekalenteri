@@ -1,5 +1,6 @@
+import type { EventType } from 'koekalenteri-shared/model'
+
 import i18next from 'i18next'
-import { EventType } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
 import { getEventTypes, putEventType } from '../../../api/eventType'

@@ -1,9 +1,11 @@
-import { Event } from 'koekalenteri-shared/model'
-import { AtomEffect, DefaultValue } from 'recoil'
+import type { Event } from 'koekalenteri-shared/model'
+import type { AtomEffect } from 'recoil'
+import type { FilterProps } from './atoms'
+
+import { DefaultValue } from 'recoil'
 
 import { getEvents } from '../../../api/event'
 
-import { FilterProps } from './atoms'
 import { deserializeFilter, serializeFilter } from './filters'
 
 let loaded = false

@@ -1,3 +1,6 @@
+import type { GridColDef, GridValueGetterParams } from '@mui/x-data-grid'
+import type { BreedCode, Registration } from 'koekalenteri-shared/model'
+
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import CheckOutlined from '@mui/icons-material/CheckOutlined'
@@ -8,8 +11,7 @@ import EventBusyOutlined from '@mui/icons-material/EventBusyOutlined'
 import MarkEmailReadOutlined from '@mui/icons-material/MarkEmailReadOutlined'
 import PersonOutline from '@mui/icons-material/PersonOutline'
 import Tooltip from '@mui/material/Tooltip'
-import { GridActionsCellItem, GridColDef, GridValueGetterParams } from '@mui/x-data-grid'
-import { BreedCode, Registration } from 'koekalenteri-shared/model'
+import { GridActionsCellItem } from '@mui/x-data-grid'
 
 import GroupColors from './GroupColors'
 

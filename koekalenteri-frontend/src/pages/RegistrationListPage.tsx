@@ -1,3 +1,5 @@
+import type { ConfirmedEvent, Registration } from 'koekalenteri-shared/model'
+
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
@@ -13,7 +15,6 @@ import ListItemText from '@mui/material/ListItemText'
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
 import { isPast, isToday } from 'date-fns'
-import type { ConfirmedEvent, Registration } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
 import Header from './components/Header'

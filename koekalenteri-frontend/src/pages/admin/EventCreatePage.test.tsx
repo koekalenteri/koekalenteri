@@ -1,3 +1,5 @@
+import type { Language } from '../../i18n'
+
 import { Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
 import { MemoryRouter } from 'react-router-dom'
@@ -9,7 +11,7 @@ import { SnackbarProvider } from 'notistack'
 import { RecoilRoot, snapshot_UNSTABLE } from 'recoil'
 
 import theme from '../../assets/Theme'
-import { Language, locales } from '../../i18n'
+import { locales } from '../../i18n'
 import { flushPromisesAndTimers } from '../../test-utils/utils'
 
 import EventCreatePage from './EventCreatePage'

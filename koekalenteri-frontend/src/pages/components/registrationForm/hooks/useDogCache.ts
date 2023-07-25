@@ -1,9 +1,11 @@
+import type { DeepPartial } from 'koekalenteri-shared/model'
+import type { DogCache, DogCachedInfo } from '../../../recoil/dog'
+
 import { useCallback, useMemo } from 'react'
-import { DeepPartial } from 'koekalenteri-shared/model'
 import { useRecoilState } from 'recoil'
 
 import { isEmpty } from '../../../../utils'
-import { DogCache, dogCacheAtom, DogCachedInfo } from '../../../recoil/dog'
+import { dogCacheAtom } from '../../../recoil/dog'
 import { validateRegNo } from '../validation'
 
 type Setter = (props: DeepPartial<DogCachedInfo>) => DeepPartial<DogCachedInfo> | undefined

@@ -1,5 +1,7 @@
-import { MetricsLogger, Unit } from 'aws-embedded-metrics'
-import { APIGatewayEventRequestContext } from 'aws-lambda'
+import type { MetricsLogger } from 'aws-embedded-metrics'
+import type { APIGatewayEventRequestContext } from 'aws-lambda'
+
+import { Unit } from 'aws-embedded-metrics'
 
 const metricsCount = (
   metrics: MetricsLogger,

@@ -1,14 +1,17 @@
+import type { Theme } from '@mui/material'
+import type { DeepPartial, Event, EventClass, EventState } from 'koekalenteri-shared/model'
+import type { FieldRequirements } from './eventForm/validation'
+
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import Cancel from '@mui/icons-material/Cancel'
 import Save from '@mui/icons-material/Save'
 import LoadingButton from '@mui/lab/LoadingButton'
-import { Theme, useMediaQuery } from '@mui/material'
+import { useMediaQuery } from '@mui/material'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Paper from '@mui/material/Paper'
 import Stack from '@mui/material/Stack'
-import type { DeepPartial, Event, EventClass, EventState } from 'koekalenteri-shared/model'
 import { useRecoilValue } from 'recoil'
 
 import { isEventOver, merge } from '../../../utils'
@@ -23,7 +26,7 @@ import EntrySection from './eventForm/EntrySection'
 import HeadquartersSection from './eventForm/HeadquartersSection'
 import JudgesSection from './eventForm/JudgesSection'
 import PaymentSection from './eventForm/PaymentSection'
-import { FieldRequirements, requiredFields, validateEvent } from './eventForm/validation'
+import { requiredFields, validateEvent } from './eventForm/validation'
 
 export interface PartialEvent extends DeepPartial<Event> {
   startDate: Date

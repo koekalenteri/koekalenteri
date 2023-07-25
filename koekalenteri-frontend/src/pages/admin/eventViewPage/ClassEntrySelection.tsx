@@ -1,11 +1,5 @@
-import React, { Dispatch, SetStateAction, useCallback, useMemo } from 'react'
-import { DndProvider } from 'react-dnd'
-import { HTML5Backend } from 'react-dnd-html5-backend'
-import { useTranslation } from 'react-i18next'
-import Box from '@mui/material/Box'
-import Typography from '@mui/material/Typography'
-import { GridCallbackDetails, GridCellParams, GridRowSelectionModel, MuiEvent } from '@mui/x-data-grid'
-import {
+import type { GridCallbackDetails, GridCellParams, GridRowSelectionModel, MuiEvent } from '@mui/x-data-grid'
+import type {
   EventClassState,
   EventState,
   Registration,
@@ -13,15 +7,23 @@ import {
   RegistrationGroup,
   RegistrationGroupInfo,
 } from 'koekalenteri-shared/model'
+import type { Dispatch, SetStateAction } from 'react'
+import type { SetterOrUpdater } from 'recoil'
+import type { DragItem } from './classEntrySelection/dropableDataGrid/DragableRow'
+
+import React, { useCallback, useMemo } from 'react'
+import { DndProvider } from 'react-dnd'
+import { HTML5Backend } from 'react-dnd-html5-backend'
+import { useTranslation } from 'react-i18next'
+import Box from '@mui/material/Box'
+import Typography from '@mui/material/Typography'
 import { useConfirm } from 'material-ui-confirm'
 import { useSnackbar } from 'notistack'
-import { SetterOrUpdater } from 'recoil'
 
 import StyledDataGrid from '../../components/StyledDataGrid'
 import { useAdminRegistrationActions } from '../recoil/registrations/actions'
 
 import DragableDataGrid from './classEntrySelection/DropableDataGrid'
-import { DragItem } from './classEntrySelection/dropableDataGrid/DragableRow'
 import { availableGroups } from './classEntrySelection/GroupColors'
 import GroupHeader from './classEntrySelection/GroupHeader'
 import NoRowsOverlay from './classEntrySelection/NoRowsOverlay'

@@ -1,4 +1,4 @@
-import { AuditRecord, JsonAuditRecord, JsonRegistration } from 'koekalenteri-shared/model'
+import type { AuditRecord, JsonAuditRecord, JsonRegistration } from 'koekalenteri-shared/model'
 
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 

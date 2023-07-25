@@ -1,5 +1,6 @@
+import type { Event } from 'koekalenteri-shared/model'
+
 import { startOfDay } from 'date-fns'
-import { Event } from 'koekalenteri-shared/model'
 import { atom } from 'recoil'
 
 import { logEffect, storageEffect } from '../effects'

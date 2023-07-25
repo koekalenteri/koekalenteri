@@ -1,4 +1,4 @@
-import { BreedCode, Person } from 'koekalenteri-shared/model'
+import type { BreedCode, Person } from 'koekalenteri-shared/model'
 
 import { filterRelevantResults, validateDog, validatePerson, validateRegNo } from './validation'
 

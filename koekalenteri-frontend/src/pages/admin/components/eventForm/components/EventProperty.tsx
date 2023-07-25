@@ -1,16 +1,20 @@
-import { ReactNode, SyntheticEvent, useCallback, useState } from 'react'
+import type { AutocompleteFreeSoloValueMapping, AutocompleteProps } from '@mui/material'
+import type { AutocompleteInputChangeReason, AutocompleteRenderInputParams } from '@mui/material/Autocomplete'
+import type { Event } from 'koekalenteri-shared/model'
+import type { ReactNode, SyntheticEvent } from 'react'
+import type { PartialEvent } from '../../EventForm'
+import type { FieldRequirements } from '../validation'
+
+import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import HelpOutlined from '@mui/icons-material/HelpOutlined'
-import { AutocompleteFreeSoloValueMapping, AutocompleteProps } from '@mui/material'
-import Autocomplete, { AutocompleteInputChangeReason, AutocompleteRenderInputParams } from '@mui/material/Autocomplete'
+import Autocomplete from '@mui/material/Autocomplete'
 import IconButton from '@mui/material/IconButton'
 import TextField from '@mui/material/TextField'
 import { Box } from '@mui/system'
-import { Event } from 'koekalenteri-shared/model'
 
 import useDebouncedCallback from '../../../../../hooks/useDebouncedCallback'
-import { PartialEvent } from '../../EventForm'
-import { FieldRequirements, validateEventField } from '../validation'
+import { validateEventField } from '../validation'
 
 export type Property = keyof Omit<PartialEvent, 'headquarters'>
 

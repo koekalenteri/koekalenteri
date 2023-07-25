@@ -1,6 +1,7 @@
+import type { GridColDef } from '@mui/x-data-grid'
+import type { EventType } from 'koekalenteri-shared/model'
+
 import { useTranslation } from 'react-i18next'
-import { GridColDef } from '@mui/x-data-grid'
-import { EventType } from 'koekalenteri-shared/model'
 
 import ActiveCell from './cells/ActiveCell'
 import OfficialCell from './cells/OfficialCell'

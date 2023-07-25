@@ -1,8 +1,11 @@
-import { metricScope, MetricsLogger } from 'aws-embedded-metrics'
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
-import AWS, { AWSError } from 'aws-sdk'
+import type { MetricsLogger } from 'aws-embedded-metrics'
+import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
+import type { AWSError } from 'aws-sdk'
 import type { SendTemplatedEmailRequest, Template } from 'aws-sdk/clients/ses'
-import { EmailTemplateId, JsonEmailTemplate, JsonRegistration, Language } from 'koekalenteri-shared/model'
+import type { EmailTemplateId, JsonEmailTemplate, JsonRegistration, Language } from 'koekalenteri-shared/model'
+
+import { metricScope } from 'aws-embedded-metrics'
+import AWS from 'aws-sdk'
 
 import { authorize, getUsername } from '../utils/auth'
 import CustomDynamoClient from '../utils/CustomDynamoClient'

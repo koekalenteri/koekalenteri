@@ -1,13 +1,15 @@
-import { metricScope, MetricsLogger } from 'aws-embedded-metrics'
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
-import { AWSError } from 'aws-sdk'
-import {
+import type { MetricsLogger } from 'aws-embedded-metrics'
+import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
+import type { AWSError } from 'aws-sdk'
+import type {
   EmailTemplateId,
   JsonConfirmedEvent,
   JsonRegistration,
   JsonRegistrationGroupInfo,
   RegistrationMessage,
 } from 'koekalenteri-shared/model'
+
+import { metricScope } from 'aws-embedded-metrics'
 
 import { i18n } from '../../i18n'
 import { audit, auditTrail, registrationAuditKey } from '../../lib/audit'
@@ -42,17 +44,21 @@ const numberGroupKey = <T extends JsonRegistration>(reg: T) => {
   return 'reserve-' + ct
 }
 
-const byKeyClassAndNumber = <T extends JsonRegistration>(a: T, b: T): number =>
+const byTimeAndNumber = <T extends JsonRegistration>(a: T, b: T): number =>
+  a.group?.time === b.group?.time
+    ? (a.group?.number || 999) - (b.group?.number || 999)
+    : (a.group?.time ?? '').localeCompare(b.group?.time ?? '')
+
+const byClassTimeAndNumber = <T extends JsonRegistration>(a: T, b: T): number =>
+  a.class === b.class ? byTimeAndNumber(a, b) : (a.class ?? '').localeCompare(b.class ?? '')
+
+const byDateClassTimeAndNumber = <T extends JsonRegistration>(a: T, b: T): number =>
   a.group?.date === b.group?.date
-    ? a.class === b.class
-      ? a.group?.time === b.group?.time
-        ? (a.group?.number || 999) - (b.group?.number || 999)
-        : (a.group?.time ?? '').localeCompare(b.group?.time ?? '')
-      : (a.class ?? '').localeCompare(b.class ?? '')
+    ? byClassTimeAndNumber(a, b)
     : (a.group?.date ?? '').localeCompare(b.group?.date ?? '')
 
 export async function fixGroups<T extends JsonRegistration>(items: T[]): Promise<T[]> {
-  items.sort(byKeyClassAndNumber)
+  items.sort(byDateClassTimeAndNumber)
 
   const grouped: Record<string, T[]> = {}
   for (const item of items) {

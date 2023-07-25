@@ -1,4 +1,4 @@
-import { Judge } from 'koekalenteri-shared/model'
+import type { Judge } from 'koekalenteri-shared/model'
 
 const mockJudges: Judge[] = [
   {

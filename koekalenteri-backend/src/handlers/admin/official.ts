@@ -1,6 +1,7 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
+import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
+import type { EventType, JsonDbRecord, Official } from 'koekalenteri-shared/model'
+
 import { diff } from 'deep-object-diff'
-import { EventType, JsonDbRecord, Official } from 'koekalenteri-shared/model'
 
 import { authorize, getAndUpdateUserByEmail } from '../../utils/auth'
 import CustomDynamoClient from '../../utils/CustomDynamoClient'

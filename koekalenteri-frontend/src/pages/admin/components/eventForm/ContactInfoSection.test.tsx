@@ -1,5 +1,6 @@
+import type { ContactInfo, Official, Secretary } from 'koekalenteri-shared/model'
+
 import { render } from '@testing-library/react'
-import { ContactInfo, Official, Secretary } from 'koekalenteri-shared/model'
 
 import ContactInfoSection from './ContactInfoSection'
 

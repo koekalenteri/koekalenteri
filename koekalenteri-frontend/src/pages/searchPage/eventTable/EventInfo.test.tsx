@@ -1,6 +1,7 @@
+import type { Event } from 'koekalenteri-shared/model'
+
 import { Suspense } from 'react'
 import { render } from '@testing-library/react'
-import { Event } from 'koekalenteri-shared/model'
 import { RecoilRoot } from 'recoil'
 
 import { emptyEvent } from '../../../api/test-utils/emptyEvent'

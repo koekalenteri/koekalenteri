@@ -1,8 +1,8 @@
+import type { DogCache } from '../../../recoil/dog'
+
 import { act } from 'react-dom/test-utils'
 import { renderHook } from '@testing-library/react'
 import { RecoilRoot } from 'recoil'
-
-import { DogCache } from '../../../recoil/dog'
 
 import { filterInvalid, useDogCache } from './useDogCache'
 

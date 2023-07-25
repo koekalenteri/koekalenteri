@@ -1,3 +1,6 @@
+import type { AuditRecord, ConfirmedEvent, Event, Registration } from 'koekalenteri-shared/model'
+import type { Resetter, SetterOrUpdater } from 'recoil'
+
 import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import Dialog from '@mui/material/Dialog'
@@ -6,8 +9,6 @@ import DialogTitle from '@mui/material/DialogTitle'
 import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
 import ListItemText from '@mui/material/ListItemText'
-import { AuditRecord, ConfirmedEvent, Event, Registration } from 'koekalenteri-shared/model'
-import { Resetter, SetterOrUpdater } from 'recoil'
 
 import { hasChanges } from '../../../utils'
 import CollapsibleSection from '../../components/CollapsibleSection'

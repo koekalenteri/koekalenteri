@@ -1,6 +1,7 @@
+import type { GridColDef } from '@mui/x-data-grid'
+import type { Judge } from 'koekalenteri-shared/model'
+
 import { useTranslation } from 'react-i18next'
-import { GridColDef } from '@mui/x-data-grid'
-import { Judge } from 'koekalenteri-shared/model'
 
 import ActiveCell from './cells/ActiveCell'
 import LanguagesCell from './cells/LanguagesCell'

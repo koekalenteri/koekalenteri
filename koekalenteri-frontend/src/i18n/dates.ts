@@ -1,3 +1,5 @@
+import type { Language } from 'koekalenteri-shared/model'
+
 import {
   format,
   formatDistanceToNowStrict,
@@ -9,7 +11,6 @@ import {
   parseISO,
 } from 'date-fns'
 import { enGB as en, fi } from 'date-fns/locale'
-import { Language } from 'koekalenteri-shared/model'
 
 export const locales: Record<Language, Locale> = { en, fi }
 

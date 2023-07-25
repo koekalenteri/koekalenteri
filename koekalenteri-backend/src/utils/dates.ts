@@ -1,9 +1,11 @@
-import { isSameDay, isSameMonth, isSameYear, isValid, Locale, parseISO } from 'date-fns'
+import type { Locale } from 'date-fns'
+import type { Language } from 'koekalenteri-shared/model'
+
+import { isSameDay, isSameMonth, isSameYear, isValid, parseISO } from 'date-fns'
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore https://github.com/date-fns/date-fns/issues/2964
 import { enGB as en, fi } from 'date-fns/locale/index'
 import { formatInTimeZone } from 'date-fns-tz'
-import { Language } from 'koekalenteri-shared/model'
 
 export const locales: Record<Language, Locale> = { fi, en }
 export interface DateFormatOptions {

@@ -1,5 +1,5 @@
-import { Processor } from 'unified'
-import { Node } from 'unist-builder/lib'
+import type { Processor } from 'unified'
+import type { Node } from 'unist-builder/lib'
 
 import { toPlainText } from './toPlainText'
 

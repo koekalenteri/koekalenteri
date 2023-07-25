@@ -1,5 +1,5 @@
-import { User } from 'koekalenteri-shared/model'
-import { AtomEffect } from 'recoil'
+import type { User } from 'koekalenteri-shared/model'
+import type { AtomEffect } from 'recoil'
 
 import { getUsers } from '../../../../api/user'
 import { idTokenAtom } from '../../../recoil'

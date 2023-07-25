@@ -1,7 +1,8 @@
+import type { Registration, RegistrationTime } from 'koekalenteri-shared/model'
+
 import { useTranslation } from 'react-i18next'
 import { Navigate, useLocation, useParams } from 'react-router-dom'
 import Box from '@mui/material/Box'
-import { Registration, RegistrationTime } from 'koekalenteri-shared/model'
 import { useRecoilValue } from 'recoil'
 
 import { Path } from '../../routeConfig'
@@ -32,7 +33,7 @@ export default function AdminStartListPage() {
     return acc
   }, {})
   const dates = Object.keys(grouped)
-  dates.sort()
+  dates.sort((a, b) => a.localeCompare(b))
 
   if (!hasAccess) {
     return <Navigate to={Path.login} state={{ from: location }} replace />

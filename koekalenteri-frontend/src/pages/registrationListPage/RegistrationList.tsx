@@ -1,3 +1,6 @@
+import type { GridColDef } from '@mui/x-data-grid'
+import type { BreedCode, Registration } from 'koekalenteri-shared/model'
+
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import CancelOutlined from '@mui/icons-material/CancelOutlined'
@@ -7,8 +10,7 @@ import PersonOutline from '@mui/icons-material/PersonOutline'
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
 import { Box } from '@mui/system'
-import { GridActionsCellItem, GridColDef } from '@mui/x-data-grid'
-import { BreedCode, Registration } from 'koekalenteri-shared/model'
+import { GridActionsCellItem } from '@mui/x-data-grid'
 
 import { Path } from '../../routeConfig'
 import StyledDataGrid from '../components/StyledDataGrid'

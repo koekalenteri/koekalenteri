@@ -1,4 +1,6 @@
-import { ChangeEvent, useCallback, useEffect, useState } from 'react'
+import type { ChangeEvent } from 'react'
+
+import { useCallback, useEffect, useState } from 'react'
 import Grid from '@mui/material/Grid'
 import TextField from '@mui/material/TextField'
 

@@ -1,6 +1,7 @@
+import type { Language, User } from 'koekalenteri-shared/model'
+import type { AtomEffect } from 'recoil'
+
 import i18n from 'i18next'
-import { Language, User } from 'koekalenteri-shared/model'
-import { AtomEffect } from 'recoil'
 
 import { getUser } from '../../../api/user'
 
@@ -12,7 +13,9 @@ export const i18nextEffect: AtomEffect<Language> = ({ onSet, setSelf, trigger })
   if (trigger === 'get') {
     setSelf(stringToLang(i18n.language))
   }
-  onSet((language) => i18n.changeLanguage(language))
+  onSet((language) => {
+    i18n.changeLanguage(language)
+  })
 }
 
 export const remoteUserEffect: AtomEffect<User | null> = ({ setSelf, getPromise, onSet, trigger }) => {

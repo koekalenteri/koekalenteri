@@ -1,5 +1,6 @@
+import type { Registration } from 'koekalenteri-shared/model'
+
 import { useTranslation } from 'react-i18next'
-import { Registration } from 'koekalenteri-shared/model'
 import { useSnackbar } from 'notistack'
 
 import { putRegistration } from '../../../api/registration'

@@ -1,4 +1,4 @@
-import { Dog } from 'koekalenteri-shared/model'
+import type { Dog } from 'koekalenteri-shared/model'
 
 import {
   registrationDogAged10MonthsAndNoResults,

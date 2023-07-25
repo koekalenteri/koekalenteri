@@ -1,3 +1,5 @@
+import type { EmailTemplateId, Registration } from 'koekalenteri-shared/model'
+
 import { Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
@@ -13,7 +15,6 @@ import Grid from '@mui/material/Grid'
 import Stack from '@mui/material/Stack'
 import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
-import { EmailTemplateId, Registration } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
 import useEventRegistrationInfo from '../../hooks/useEventRegistrationsInfo'

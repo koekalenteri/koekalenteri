@@ -1,8 +1,9 @@
+import type { PartialEvent } from '../../EventForm'
+
 import { render, screen } from '@testing-library/react'
 
 import { eventWithStaticDatesAndClass } from '../../../../../__mockData__/events'
 import { renderWithUserEvents, waitForDebounce } from '../../../../../test-utils/utils'
-import { PartialEvent } from '../../EventForm'
 
 import EventFormPlaces from './EventFormPlaces'
 

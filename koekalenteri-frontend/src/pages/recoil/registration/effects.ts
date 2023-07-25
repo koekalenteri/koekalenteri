@@ -1,5 +1,5 @@
-import { Registration } from 'koekalenteri-shared/model'
-import { AtomEffect } from 'recoil'
+import type { Registration } from 'koekalenteri-shared/model'
+import type { AtomEffect } from 'recoil'
 
 import { getRegistration } from '../../../api/registration'
 import { getParamFromFamilyKey } from '../effects'

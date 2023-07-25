@@ -1,4 +1,6 @@
-import { ReactNode, useState } from 'react'
+import type { ReactNode } from 'react'
+
+import { useState } from 'react'
 import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown'
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight'
 import Box from '@mui/material/Box'

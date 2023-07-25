@@ -1,5 +1,6 @@
+import type { Language } from 'koekalenteri-shared/model'
+
 import i18next from 'i18next'
-import { Language } from 'koekalenteri-shared/model'
 import { selector } from 'recoil'
 
 import { eventTypeFilterAtom, eventTypesAtom } from './atoms'

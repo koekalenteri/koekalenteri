@@ -1,7 +1,8 @@
+import type { Event } from 'koekalenteri-shared/model'
+
 import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
-import { Event } from 'koekalenteri-shared/model'
 
 import useEventTitle from '../../../hooks/useEventTitle'
 

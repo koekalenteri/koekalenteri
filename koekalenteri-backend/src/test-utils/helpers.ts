@@ -1,5 +1,5 @@
-import { APIGatewayProxyEvent, APIGatewayProxyEventPathParameters } from 'aws-lambda'
-import { AWSError } from 'aws-sdk'
+import type { APIGatewayProxyEvent, APIGatewayProxyEventPathParameters } from 'aws-lambda'
+import type { AWSError } from 'aws-sdk'
 
 interface Options {
   method?: 'OPTIONS' | 'HEAD' | 'GET' | 'PUT' | 'POST' | 'DELETE'

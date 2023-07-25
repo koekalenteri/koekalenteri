@@ -1,7 +1,9 @@
-import { metricScope, MetricsLogger } from 'aws-embedded-metrics'
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
-import { AWSError } from 'aws-sdk'
-import { EventType, JsonDbRecord, Judge, Official } from 'koekalenteri-shared/model'
+import type { MetricsLogger } from 'aws-embedded-metrics'
+import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
+import type { AWSError } from 'aws-sdk'
+import type { EventType, JsonDbRecord, Judge, Official } from 'koekalenteri-shared/model'
+
+import { metricScope } from 'aws-embedded-metrics'
 
 import { authorize } from '../utils/auth'
 import CustomDynamoClient from '../utils/CustomDynamoClient'

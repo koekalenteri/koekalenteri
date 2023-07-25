@@ -1,8 +1,9 @@
+import type { Event } from 'koekalenteri-shared/model'
+
 import { MemoryRouter } from 'react-router-dom'
 import { ThemeProvider } from '@mui/material'
 import { render, screen } from '@testing-library/react'
 import { parseISO } from 'date-fns'
-import { Event } from 'koekalenteri-shared/model'
 import { RecoilRoot } from 'recoil'
 
 import { eventWithEntryOpen } from '../../__mockData__/events'

@@ -1,7 +1,7 @@
-import { Event, EventClass } from 'koekalenteri-shared/model'
+import type { Event, EventClass } from 'koekalenteri-shared/model'
+import type { AnyObject } from './utils'
 
 import {
-  AnyObject,
   clone,
   hasChanges,
   isDateString,

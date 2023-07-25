@@ -1,5 +1,6 @@
+import type { TestResult } from 'koekalenteri-shared/model'
+
 import { parseISO } from 'date-fns'
-import { TestResult } from 'koekalenteri-shared/model'
 
 export type EventResultRequirement = Partial<TestResult> & { count: number; excludeCurrentYear?: boolean }
 export type EventResultRequirements = Array<EventResultRequirement>

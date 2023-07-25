@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Properties } from 'hast'
-import { Link } from 'mdast'
+import type { Properties } from 'hast'
+import type { Link } from 'mdast'
 
 import { all } from './table'
 

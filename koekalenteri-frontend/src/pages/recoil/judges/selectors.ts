@@ -1,5 +1,6 @@
+import type { Judge } from 'koekalenteri-shared/model'
+
 import i18next from 'i18next'
-import { Judge } from 'koekalenteri-shared/model'
 import { selector, selectorFamily } from 'recoil'
 
 import { judgeFilterAtom, judgesAtom } from './atoms'

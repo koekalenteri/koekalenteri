@@ -1,5 +1,5 @@
-import { Event } from 'koekalenteri-shared/model'
-import { AtomEffect } from 'recoil'
+import type { Event } from 'koekalenteri-shared/model'
+import type { AtomEffect } from 'recoil'
 
 import { getEvents } from '../../../../api/event'
 

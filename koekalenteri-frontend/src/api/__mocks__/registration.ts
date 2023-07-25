@@ -1,5 +1,6 @@
+import type { AuditRecord, ConfirmedEvent, Registration, RegistrationGroupInfo } from 'koekalenteri-shared/model'
+
 import { parseISO } from 'date-fns'
-import { AuditRecord, ConfirmedEvent, Registration, RegistrationGroupInfo } from 'koekalenteri-shared/model'
 
 import { mockRegistrationData } from '../../__mockData__/registrations'
 

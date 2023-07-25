@@ -1,9 +1,9 @@
+import type { Event } from 'koekalenteri-shared/model'
+import type { FilterProps } from './atoms'
+
 import { formatISO } from 'date-fns'
-import { Event } from 'koekalenteri-shared/model'
 
 import { isEntryClosing, isEntryOpen, isEntryUpcoming } from '../../../utils'
-
-import { FilterProps } from './atoms'
 
 export function withinDateFilters(event: Event, { start, end }: FilterProps) {
   if (start && (!event.endDate || event.endDate < start)) {

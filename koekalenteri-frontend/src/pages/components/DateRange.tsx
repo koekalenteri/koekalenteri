@@ -1,5 +1,6 @@
+import type { Theme } from '@mui/material'
+
 import { useTranslation } from 'react-i18next'
-import { Theme } from '@mui/material'
 import Box from '@mui/material/Box'
 import FormControl from '@mui/material/FormControl'
 import { DatePicker } from '@mui/x-date-pickers'

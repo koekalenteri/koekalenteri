@@ -1,4 +1,6 @@
-import { CSSObject, styled, Theme } from '@mui/material'
+import type { CSSObject, Theme } from '@mui/material'
+
+import { styled } from '@mui/material'
 import Drawer from '@mui/material/Drawer'
 
 const drawerWidth = '256px'

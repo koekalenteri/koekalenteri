@@ -1,7 +1,8 @@
+import type { RegistrationDate } from 'koekalenteri-shared/model'
+
 import React, { useMemo } from 'react'
 import Box from '@mui/material/Box'
 import Stack from '@mui/material/Stack'
-import { RegistrationDate } from 'koekalenteri-shared/model'
 
 import GroupColorTooltip from './groupColors/GroupColorTooltip'
 

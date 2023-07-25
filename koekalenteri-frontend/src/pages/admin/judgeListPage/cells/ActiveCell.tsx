@@ -1,7 +1,9 @@
-import { ChangeEvent, useCallback } from 'react'
+import type { GridRenderCellParams } from '@mui/x-data-grid'
+import type { Judge } from 'koekalenteri-shared/model'
+import type { ChangeEvent } from 'react'
+
+import { useCallback } from 'react'
 import Switch from '@mui/material/Switch'
-import { GridRenderCellParams } from '@mui/x-data-grid'
-import { Judge } from 'koekalenteri-shared/model'
 import { useRecoilValue } from 'recoil'
 
 import { isAdminSelector, useJudgesActions } from '../../../recoil'

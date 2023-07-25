@@ -1,6 +1,8 @@
+import type { SnackbarKey } from 'notistack'
+
 import Close from '@mui/icons-material/Close'
 import IconButton from '@mui/material/IconButton'
-import { SnackbarKey, useSnackbar } from 'notistack'
+import { useSnackbar } from 'notistack'
 
 interface Props {
   snackbarKey: SnackbarKey

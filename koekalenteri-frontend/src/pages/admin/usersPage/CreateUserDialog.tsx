@@ -1,3 +1,5 @@
+import type { Organizer } from 'koekalenteri-shared/model'
+
 import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import Autocomplete from '@mui/material/Autocomplete'
@@ -9,7 +11,6 @@ import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
 import MenuItem from '@mui/material/MenuItem'
 import TextField from '@mui/material/TextField'
-import { Organizer } from 'koekalenteri-shared/model'
 import { useRecoilValue } from 'recoil'
 
 import { adminUserAdminOrganizersSelector, useAdminUserActions } from '../recoil'

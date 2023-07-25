@@ -1,10 +1,11 @@
+import type { Event } from 'koekalenteri-shared/model'
+
 import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
 import TableRow from '@mui/material/TableRow'
-import type { Event } from 'koekalenteri-shared/model'
 
 import useEventStatus from '../../../hooks/useEventStatus'
 import { isEntryOpen } from '../../../utils'

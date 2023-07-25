@@ -1,6 +1,6 @@
-import AWS from 'aws-sdk'
+import type { KLAPIConfig } from './KLAPI_models'
 
-import { KLAPIConfig } from './KLAPI_models'
+import AWS from 'aws-sdk'
 
 const ssm = new AWS.SSM()
 

@@ -1,7 +1,9 @@
+import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
+import type { AWSError } from 'aws-sdk'
+import type { User } from 'koekalenteri-shared/model'
+
 import { jest } from '@jest/globals'
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
-import AWS, { AWSError } from 'aws-sdk'
-import { User } from 'koekalenteri-shared/model'
+import AWS from 'aws-sdk'
 
 jest.unstable_mockModule('../utils/auth', () => ({
   authorize: jest
@@ -11,8 +13,8 @@ jest.unstable_mockModule('../utils/auth', () => ({
   getAndUpdateUserByEmail: jest.fn(),
 }))
 
-import { AttributeMap, PutItemInput, PutItemOutput, ScanOutput } from 'aws-sdk/clients/dynamodb'
-import { PromiseResult, Request } from 'aws-sdk/lib/request'
+import type { AttributeMap, PutItemInput, PutItemOutput, ScanOutput } from 'aws-sdk/clients/dynamodb'
+import type { PromiseResult, Request } from 'aws-sdk/lib/request'
 
 import { defaultJSONHeaders } from './headers'
 import { constructAPIGwEvent, createAWSError } from './helpers'

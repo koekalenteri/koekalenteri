@@ -1,4 +1,6 @@
-import { ButtonProps, Theme, useMediaQuery } from '@mui/material'
+import type { ButtonProps, Theme } from '@mui/material'
+
+import { useMediaQuery } from '@mui/material'
 import Button from '@mui/material/Button'
 import IconButton from '@mui/material/IconButton'
 import Stack from '@mui/material/Stack'

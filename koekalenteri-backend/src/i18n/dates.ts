@@ -1,5 +1,6 @@
+import type { Language } from 'koekalenteri-shared/model'
+
 import { formatDistanceToNowStrict } from 'date-fns'
-import { Language } from 'koekalenteri-shared/model'
 
 import { formatDate, locales } from '../utils/dates'
 

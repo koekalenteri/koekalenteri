@@ -1,8 +1,9 @@
+import type { DeepPartial, Registration, RegistrationBreeder } from 'koekalenteri-shared/model'
+
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import Grid from '@mui/material/Grid'
 import TextField from '@mui/material/TextField'
-import { DeepPartial, Registration, RegistrationBreeder } from 'koekalenteri-shared/model'
 
 import CollapsibleSection from '../CollapsibleSection'
 

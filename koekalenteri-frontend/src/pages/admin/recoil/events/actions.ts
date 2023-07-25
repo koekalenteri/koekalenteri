@@ -1,8 +1,9 @@
+import type { Event } from 'koekalenteri-shared/model'
+
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { useAuthenticator } from '@aws-amplify/ui-react'
 import { addDays, differenceInDays } from 'date-fns'
-import { Event } from 'koekalenteri-shared/model'
 import { useSnackbar } from 'notistack'
 import { useRecoilState, useSetRecoilState } from 'recoil'
 

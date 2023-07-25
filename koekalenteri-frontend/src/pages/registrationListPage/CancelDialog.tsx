@@ -1,3 +1,5 @@
+import type { ConfirmedEvent, Registration } from 'koekalenteri-shared/model'
+
 import { Trans, useTranslation } from 'react-i18next'
 import Button from '@mui/material/Button'
 import Dialog from '@mui/material/Dialog'
@@ -6,7 +8,6 @@ import DialogContent from '@mui/material/DialogContent'
 import DialogContentText from '@mui/material/DialogContentText'
 import DialogTitle from '@mui/material/DialogTitle'
 import Link from '@mui/material/Link'
-import { ConfirmedEvent, Registration } from 'koekalenteri-shared/model'
 
 interface Props {
   disabled: boolean
