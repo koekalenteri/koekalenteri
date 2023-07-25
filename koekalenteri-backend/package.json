@@ -11,6 +11,7 @@
     "build": "node build.js",
     "prewatch": "node copy_i18n.mjs",
     "watch": "node build.js --watch",
+    "prelint": "node copy_i18n.mjs",
     "lint": "eslint \"src/**/*.ts\" && npx tsc --noEmit",
     "create-tables": "run-script-os",
     "create-tables:nix": "./__test__/environment/local/create_tables.sh",
