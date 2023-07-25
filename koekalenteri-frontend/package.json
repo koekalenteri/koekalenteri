@@ -48,7 +48,7 @@
     "postcss-flexbugs-fixes": "^5.0.2",
     "postcss-loader": "^7.3.3",
     "postcss-normalize": "^10.0.1",
-    "postcss-preset-env": "^8.4.2",
+    "postcss-preset-env": "^9.1.0",
     "preval.macro": "^5.0.0",
     "prompts": "^2.4.2",
     "punycode": "^2.3.0",

@@ -526,7 +526,7 @@ exports[`EventForm should render 1`] = `
                               class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-tybxm0-MuiInputBase-root-MuiOutlinedInput-root"
                             >
                               <div
-                                class="MuiChip-root MuiChip-outlined Mui-disabled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-outlinedDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-ti4gqd-MuiChip-root"
+                                class="MuiChip-root MuiChip-outlined Mui-disabled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-outlinedDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-1aqve3k-MuiChip-root"
                                 data-tag-index="0"
                                 tabindex="-1"
                               >
@@ -542,7 +542,7 @@ exports[`EventForm should render 1`] = `
                                 </span>
                               </div>
                               <div
-                                class="MuiChip-root MuiChip-outlined Mui-disabled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-outlinedDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-ti4gqd-MuiChip-root"
+                                class="MuiChip-root MuiChip-outlined Mui-disabled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-outlinedDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-1aqve3k-MuiChip-root"
                                 data-tag-index="1"
                                 tabindex="-1"
                               >
@@ -1818,7 +1818,7 @@ exports[`EventForm should render 1`] = `
                               class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-tybxm0-MuiInputBase-root-MuiOutlinedInput-root"
                             >
                               <div
-                                class="MuiButtonBase-root MuiChip-root MuiChip-filled Mui-disabled MuiChip-sizeMedium MuiChip-colorDefault MuiChip-deletable MuiChip-deletableColorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-1a0dwr1-MuiButtonBase-root-MuiChip-root"
+                                class="MuiButtonBase-root MuiChip-root MuiChip-filled Mui-disabled MuiChip-sizeMedium MuiChip-colorDefault MuiChip-deletable MuiChip-deletableColorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-rhzfjv-MuiButtonBase-root-MuiChip-root"
                                 data-tag-index="0"
                                 role="button"
                                 tabindex="-1"

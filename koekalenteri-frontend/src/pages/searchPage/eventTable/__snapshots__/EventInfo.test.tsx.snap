@@ -166,7 +166,7 @@ exports[`EventInfo should render event information 1`] = `
           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
         >
           <div
-            class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-1fj5pxn-MuiChip-root"
+            class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-j2ob3e-MuiChip-root"
           >
             <span
               class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
