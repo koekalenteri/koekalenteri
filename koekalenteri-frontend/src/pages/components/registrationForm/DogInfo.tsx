@@ -1,6 +1,5 @@
 import { SyntheticEvent, useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { TextFieldProps } from '@mui/material'
 import Autocomplete from '@mui/material/Autocomplete'
 import Button from '@mui/material/Button'
 import CircularProgress from '@mui/material/CircularProgress'
@@ -255,14 +254,12 @@ export const DogInfo = ({
             <DatePicker
               defaultCalendarMonth={subYears(new Date(), 2)}
               disabled={disabledByMode}
-              inputFormat={t('dateFormatString.long')}
+              format={t('dateFormatString.long')}
               label={t('dog.dob')}
-              mask={t('datemask')}
               maxDate={subMonths(eventDate, minDogAgeMonths)}
               minDate={subYears(new Date(), 15)}
               onChange={(value: any) => value && handleChange({ dog: { dob: value } })}
               openTo={'year'}
-              renderInput={(params: React.JSX.IntrinsicAttributes & TextFieldProps) => <TextField {...params} />}
               value={reg?.dog?.dob ?? null}
               views={['year', 'month', 'day']}
             />

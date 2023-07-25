@@ -1,10 +1,8 @@
-import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { TextFieldProps, Theme } from '@mui/material'
+import { Theme } from '@mui/material'
 import Box from '@mui/material/Box'
 import FormControl from '@mui/material/FormControl'
-import TextField from '@mui/material/TextField'
-import { DatePicker, PickersDay } from '@mui/x-date-pickers'
+import { DatePicker } from '@mui/x-date-pickers'
 import { isSameDay, isValid, startOfDay } from 'date-fns'
 
 export type DateValue = Date | null
@@ -26,10 +24,9 @@ export type DateRangeProps = {
   onChange?: (start: DateValue, end: DateValue) => void
 }
 
-function dayStyle(date: Date, selected: DateValue[], defaultDate?: Date) {
-  const isSelected = selected.reduce((a, c) => a || (!!c && isSameDay(c, date)), false)
+function dayStyle(date: Date, selected: Boolean, defaultDate?: Date) {
   const isDefault = !!defaultDate && isSameDay(date, defaultDate)
-  const hilight = isDefault && !isSelected
+  const hilight = isDefault && !selected
   return {
     border: hilight ? (theme: Theme) => `2px solid ${theme.palette.secondary.light}` : undefined,
   }
@@ -73,18 +70,17 @@ export default function DateRange({
           disabled={disabled}
           label={startLabel}
           value={start}
-          mask={t('datemask')}
-          inputFormat={t('dateFormatString.long')}
+          format={t('dateFormatString.long')}
           minDate={range?.start}
           maxDate={range?.end}
-          showToolbar={false}
           onChange={startChanged}
-          renderDay={(date, selectedDates, props) => (
-            <PickersDay {...props} sx={dayStyle(date, selectedDates, defaultStart)} />
-          )}
-          renderInput={(params: React.JSX.IntrinsicAttributes & TextFieldProps) => (
-            <TextField {...params} required={required} error={startError} helperText={startHelperText} />
-          )}
+          slotProps={{
+            day: ({ day, selected }) => ({ sx: dayStyle(day, selected, defaultStart) }),
+            textField: { required, error: startError, helperText: startHelperText },
+            toolbar: {
+              hidden: true,
+            },
+          }}
         />
       </FormControl>
 
@@ -94,18 +90,17 @@ export default function DateRange({
           disabled={disabled}
           label={endLabel}
           value={end}
-          mask={t('datemask')}
-          inputFormat={t('dateFormatString.long')}
+          format={t('dateFormatString.long')}
           minDate={start ? start : range?.start}
           maxDate={range?.end}
-          showToolbar={false}
           onChange={endChanged}
-          renderDay={(date, selectedDates, props) => (
-            <PickersDay {...props} sx={dayStyle(date, selectedDates, defaultEnd)} />
-          )}
-          renderInput={(params: React.JSX.IntrinsicAttributes & TextFieldProps) => (
-            <TextField {...params} required={required} error={endError} helperText={endHelperText} />
-          )}
+          slotProps={{
+            day: ({ day, selected }) => ({ sx: dayStyle(day, selected, defaultEnd) }),
+            textField: { required, error: endError, helperText: endHelperText },
+            toolbar: {
+              hidden: true,
+            },
+          }}
         />
       </FormControl>
     </Box>

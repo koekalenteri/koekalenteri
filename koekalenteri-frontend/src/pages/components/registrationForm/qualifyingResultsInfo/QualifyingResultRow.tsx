@@ -1,7 +1,6 @@
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import DeleteOutline from '@mui/icons-material/DeleteOutline'
-import { TextFieldProps } from '@mui/material'
 import Button from '@mui/material/Button'
 import FormControl from '@mui/material/FormControl'
 import Grid from '@mui/material/Grid'
@@ -74,15 +73,14 @@ export default function QualifyingResultRow({ result, disabled, requirements, on
         <FormControl fullWidth>
           <DatePicker
             disabled={result.official || disabled}
-            inputFormat={t('dateFormatString.long')}
+            format={t('dateFormatString.long')}
             label={t('testResult.date')}
-            mask={t('datemask')}
             maxDate={new Date()}
             minDate={subYears(new Date(), 15)}
             onChange={(value: any) => handleChange(result, { date: value || undefined })}
-            renderInput={(params: React.JSX.IntrinsicAttributes & TextFieldProps) => (
-              <TextField {...params} error={!result.date} />
-            )}
+            slotProps={{
+              textField: { error: !result.date },
+            }}
             value={result.date || null}
           />
         </FormControl>

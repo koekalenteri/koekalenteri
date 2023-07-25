@@ -93,11 +93,13 @@ exports[`BasicInfoSection should render 1`] = `
                           >
                             <input
                               aria-invalid="false"
+                              autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
                               id=":r0:"
-                              placeholder="dd.mm.yyyy"
+                              inputmode="text"
+                              placeholder="DD.MM.YYYY"
                               required=""
-                              type="tel"
+                              type="text"
                               value="01.06.2022"
                             />
                             <div
@@ -151,8 +153,8 @@ exports[`BasicInfoSection should render 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled Mui-required MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-1jy569b-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="true"
-                            for=":r1:"
-                            id=":r1:-label"
+                            for=":r2:"
+                            id=":r2:-label"
                           >
                             event.endDate
                             <span
@@ -168,11 +170,13 @@ exports[`BasicInfoSection should render 1`] = `
                           >
                             <input
                               aria-invalid="false"
+                              autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r1:"
-                              placeholder="dd.mm.yyyy"
+                              id=":r2:"
+                              inputmode="text"
+                              placeholder="DD.MM.YYYY"
                               required=""
-                              type="tel"
+                              type="text"
                               value="02.06.2022"
                             />
                             <div
@@ -482,8 +486,8 @@ exports[`BasicInfoSection should render 1`] = `
                       <label
                         class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-14s5rfu-MuiFormLabel-root-MuiInputLabel-root"
                         data-shrink="false"
-                        for=":r8:"
-                        id=":r8:-label"
+                        for=":ra:"
+                        id=":ra:-label"
                       >
                         Tapahtuman nimi
                       </label>
@@ -493,7 +497,7 @@ exports[`BasicInfoSection should render 1`] = `
                         <input
                           aria-invalid="false"
                           class="MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
-                          id=":r8:"
+                          id=":ra:"
                           type="text"
                           value=""
                         />
