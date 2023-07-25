@@ -4,7 +4,7 @@ import { Event } from 'koekalenteri-shared/model'
 
 import { isEntryClosed, isEntryOpen, isEventOngoing, isEventOver } from '../utils'
 
-export function getEventTitle(event: Event, t: TFunction<'translation', undefined, 'translation'>) {
+export function getEventTitle(event: Event, t: TFunction<'translation'>) {
   if (event.state === 'confirmed') {
     if (isEventOver(event)) {
       return t('event.states.confirmed_eventOver')

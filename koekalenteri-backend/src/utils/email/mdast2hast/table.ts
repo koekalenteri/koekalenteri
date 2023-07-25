@@ -1,13 +1,14 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Element, ElementContent } from 'hast'
 import { Table } from 'mdast'
 import { MdastNodes } from 'mdast-util-to-hast/lib'
-import { Handler, HFields, HFunctionProps, MdastContent, MdastParents, State } from 'mdast-util-to-hast/lib/state'
+import { Handler, MdastParents, State } from 'mdast-util-to-hast/lib/state'
 import { u } from 'unist-builder'
 import { pointEnd, pointStart } from 'unist-util-position'
 
 const own = {}.hasOwnProperty
 
-export function tableHandler(h: State, node: Table) {
+export function tableHandler(h: any, node: Table) {
   const rows = node.children
   let index = -1
   const align = node.align || []
@@ -69,7 +70,7 @@ export function wrap(nodes: Element[], loose: boolean) {
   return result
 }
 
-export function all(h: HFunctionProps, parent: MdastParents) {
+export function all(h: Handler | State, parent: MdastParents) {
   const values: ElementContent[] = []
 
   if ('children' in parent) {
@@ -106,7 +107,7 @@ export function all(h: HFunctionProps, parent: MdastParents) {
   return values
 }
 
-export function one(h: HFunctionProps | HFields, node: MdastContent, parent: MdastParents) {
+export function one(h: any, node: MdastNodes, parent: MdastParents) {
   const type = node && node.type
   let fn: Handler = unknown
 
@@ -117,11 +118,11 @@ export function one(h: HFunctionProps | HFields, node: MdastContent, parent: Mda
 
   if ('handlers' in h) {
     if (own.call(h.handlers, type)) {
-      fn = h.handlers[type] ?? unknown
-    } else if (h.passThrough && h.passThrough.includes(type)) {
+      fn = h.handlers?.[type] ?? unknown
+    } else if (h.passThrough?.includes(type)) {
       fn = returnNode
     } else {
-      fn = h.unknownHandler
+      fn = h.unknownHandler ?? unknown
     }
   }
 
@@ -129,14 +130,14 @@ export function one(h: HFunctionProps | HFields, node: MdastContent, parent: Mda
     node.value = node.value.replace(/:$/, '')
   }
 
-  return fn(h as State, node, parent)
+  return fn(h, node, parent)
 }
 
-function returnNode(h: State, node: MdastNodes): any {
+function returnNode(h: any, node: MdastNodes): any {
   return 'children' in node ? { ...node, children: all(h, node) } : node
 }
 
-function unknown(h: State, node: any): any {
+function unknown(h: any, node: any): any {
   const data = node.data || {}
 
   if ('value' in node && !(own.call(data, 'hName') || own.call(data, 'hProperties') || own.call(data, 'hChildren'))) {

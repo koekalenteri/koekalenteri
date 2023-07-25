@@ -1,5 +1,6 @@
 import { jest } from '@jest/globals'
-import AWS from 'aws-sdk'
+import AWS, { AWSError, Request } from 'aws-sdk'
+import { PutItemInput, PutItemOutput, ScanInput, ScanOutput } from 'aws-sdk/clients/dynamodb'
 
 import { genericReadAllTest } from '../test-utils/genericTests'
 import { constructAPIGwEvent } from '../test-utils/helpers'
@@ -9,21 +10,15 @@ const { getEventTypesHandler, putEventTypeHandler } = await import('./eventType'
 describe('getEventTypesHandler (generic)', genericReadAllTest(getEventTypesHandler))
 
 describe('putEventTypeHandler', function () {
-  let putSpy: any
-  let getSpy: any
-  let scanSpy: any
-  let querySpy: any
-  let updateSpy: any
+  const putSpy = jest.spyOn(AWS.DynamoDB.DocumentClient.prototype, 'put')
+  const getSpy = jest.spyOn(AWS.DynamoDB.DocumentClient.prototype, 'get')
+  const scanSpy = jest.spyOn(AWS.DynamoDB.DocumentClient.prototype, 'scan')
+  const querySpy = jest.spyOn(AWS.DynamoDB.DocumentClient.prototype, 'query')
+  const updateSpy = jest.spyOn(AWS.DynamoDB.DocumentClient.prototype, 'update')
 
   beforeAll(() => {
     process.env.JUDGE_TABLE_NAME = 'judge'
     process.env.OFFICIAL_TABLE_NAME = 'official'
-
-    putSpy = jest.spyOn(AWS.DynamoDB.DocumentClient.prototype, 'put')
-    getSpy = jest.spyOn(AWS.DynamoDB.DocumentClient.prototype, 'get')
-    scanSpy = jest.spyOn(AWS.DynamoDB.DocumentClient.prototype, 'scan')
-    querySpy = jest.spyOn(AWS.DynamoDB.DocumentClient.prototype, 'query')
-    updateSpy = jest.spyOn(AWS.DynamoDB.DocumentClient.prototype, 'update')
   })
 
   afterAll(() => {
@@ -40,15 +35,15 @@ describe('putEventTypeHandler', function () {
         judge: 0,
         official: 0,
       }
-      putSpy.mockImplementation((params: any) => {
+      putSpy.mockImplementation((params: PutItemInput) => {
         if (params.Item.deletedAt) {
           deleteCounts[params.TableName as string]++
         }
         return {
           promise: () => Promise.resolve({}),
-        }
+        } as Request<PutItemOutput, AWSError>
       })
-      scanSpy.mockImplementation((params: any) => {
+      scanSpy.mockImplementation((params: ScanInput) => {
         const result: Record<string, unknown[]> = {
           '': [
             { eventType: 'TEST', active: false },
@@ -71,7 +66,7 @@ describe('putEventTypeHandler', function () {
             Promise.resolve({
               Items: result[params.TableName as string] || [],
             }),
-        }
+        } as Request<ScanOutput, AWSError>
       })
 
       const event = constructAPIGwEvent(

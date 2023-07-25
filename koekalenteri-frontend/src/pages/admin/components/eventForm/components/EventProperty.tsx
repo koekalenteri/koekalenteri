@@ -12,11 +12,13 @@ import useDebouncedCallback from '../../../../../hooks/useDebouncedCallback'
 import { PartialEvent } from '../../EventForm'
 import { FieldRequirements, validateEventField } from '../validation'
 
-export type EventPropertyProps<Property extends keyof PartialEvent, freeSolo extends boolean> = Omit<
-  AutocompleteProps<PartialEvent[Property], false, false, freeSolo>,
+export type Property = keyof Omit<PartialEvent, 'headquarters'>
+
+export type EventPropertyProps<P extends Property, freeSolo extends boolean> = Omit<
+  AutocompleteProps<PartialEvent[P], false, false, freeSolo>,
   'renderInput' | 'onChange' | 'value'
 > & {
-  id: Property
+  id: P
   event: PartialEvent
   fields?: FieldRequirements
   onChange?: (props: Partial<Event>) => void
@@ -24,9 +26,9 @@ export type EventPropertyProps<Property extends keyof PartialEvent, freeSolo ext
   endAdornment?: ReactNode
 }
 
-const getInputInitValue = <Property extends keyof PartialEvent, freeSolo extends boolean>(
-  prop: string | PartialEvent[Property] | null,
-  props: EventPropertyProps<Property, freeSolo>
+const getInputInitValue = <P extends Property, freeSolo extends boolean>(
+  prop: string | PartialEvent[P] | null,
+  props: EventPropertyProps<P, freeSolo>
 ) => {
   if (prop === null) {
     return ''
@@ -43,9 +45,7 @@ const getInputInitValue = <Property extends keyof PartialEvent, freeSolo extends
   return ''
 }
 
-const EventProperty = <Property extends keyof PartialEvent, freeSolo extends boolean>(
-  props: EventPropertyProps<Property, freeSolo>
-) => {
+const EventProperty = <P extends Property, freeSolo extends boolean>(props: EventPropertyProps<P, freeSolo>) => {
   const { t } = useTranslation()
   const { id, event, fields, helpClick, endAdornment, onChange, ...acProps } = props
   const value = event[id]

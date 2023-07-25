@@ -1,6 +1,6 @@
 import { jest } from '@jest/globals'
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
-import AWS from 'aws-sdk'
+import AWS, { AWSError } from 'aws-sdk'
 import { User } from 'koekalenteri-shared/model'
 
 jest.unstable_mockModule('../utils/auth', () => ({
@@ -11,16 +11,15 @@ jest.unstable_mockModule('../utils/auth', () => ({
   getAndUpdateUserByEmail: jest.fn(),
 }))
 
+import { AttributeMap, PutItemInput, PutItemOutput, ScanOutput } from 'aws-sdk/clients/dynamodb'
+import { PromiseResult, Request } from 'aws-sdk/lib/request'
+
 import { defaultJSONHeaders } from './headers'
 import { constructAPIGwEvent, createAWSError } from './helpers'
 
 export const genericReadAllTest =
   (handler: (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult>) => (): void => {
-    let scanSpy: any
-
-    beforeAll(() => {
-      scanSpy = jest.spyOn(AWS.DynamoDB.DocumentClient.prototype, 'scan')
-    })
+    const scanSpy = jest.spyOn(AWS.DynamoDB.DocumentClient.prototype, 'scan')
 
     afterAll(() => {
       scanSpy.mockRestore()
@@ -33,8 +32,8 @@ export const genericReadAllTest =
         promise: () =>
           Promise.resolve({
             Items: items,
-          }),
-      })
+          } as unknown as PromiseResult<ScanOutput, AWSError>),
+      } as AWS.Request<AWS.DynamoDB.DocumentClient.ScanOutput, AWS.AWSError>)
 
       const event = constructAPIGwEvent({}, { method: 'GET' })
       const result = await handler(event)
@@ -80,12 +79,8 @@ export const genericReadAllTest =
   }
 
 export const genericQueryTest =
-  (handler: (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult>, mockData?: unknown[]) => (): void => {
-    let querySpy: any
-
-    beforeAll(() => {
-      querySpy = jest.spyOn(AWS.DynamoDB.DocumentClient.prototype, 'query')
-    })
+  (handler: (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult>, mockData?: AttributeMap[]) => (): void => {
+    const querySpy = jest.spyOn(AWS.DynamoDB.DocumentClient.prototype, 'query')
 
     afterAll(() => {
       querySpy.mockRestore()
@@ -98,8 +93,8 @@ export const genericQueryTest =
         promise: () =>
           Promise.resolve({
             Items: items,
-          }),
-      })
+          } as unknown as PromiseResult<ScanOutput, AWSError>),
+      } as AWS.Request<AWS.DynamoDB.DocumentClient.ScanOutput, AWS.AWSError>)
 
       const event = constructAPIGwEvent({}, { method: 'GET' })
       const result = await handler(event)
@@ -146,11 +141,7 @@ export const genericQueryTest =
 
 export const genericReadTest =
   (handler: (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult>) => (): void => {
-    let getSpy: any
-
-    beforeAll(() => {
-      getSpy = jest.spyOn(AWS.DynamoDB.DocumentClient.prototype, 'get')
-    })
+    const getSpy = jest.spyOn(AWS.DynamoDB.DocumentClient.prototype, 'get')
 
     afterAll(() => {
       getSpy.mockRestore()
@@ -160,8 +151,8 @@ export const genericReadTest =
       const item = { id: 'id1' }
 
       getSpy.mockReturnValue({
-        promise: () => Promise.resolve({ Item: item }),
-      })
+        promise: () => Promise.resolve({ Item: item } as unknown as PromiseResult<ScanOutput, AWSError>),
+      } as AWS.Request<AWS.DynamoDB.DocumentClient.ScanOutput, AWS.AWSError>)
 
       const event = constructAPIGwEvent({}, { method: 'GET', pathParameters: { id: 'id1' } })
       const result = await handler(event)
@@ -208,11 +199,7 @@ export const genericReadTest =
 
 export const genericWriteTest =
   (handler: (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult>) => (): void => {
-    let putSpy: any
-
-    beforeAll(() => {
-      putSpy = jest.spyOn(AWS.DynamoDB.DocumentClient.prototype, 'put')
-    })
+    const putSpy = jest.spyOn(AWS.DynamoDB.DocumentClient.prototype, 'put')
 
     afterAll(() => {
       putSpy.mockRestore()
@@ -221,11 +208,11 @@ export const genericWriteTest =
     it('should return put data', async () => {
       let item
 
-      putSpy.mockImplementation((params: any) => {
+      putSpy.mockImplementation((params: PutItemInput) => {
         item = params.Item
         return {
           promise: () => Promise.resolve(),
-        }
+        } as unknown as Request<PutItemOutput, AWSError>
       })
 
       const event = constructAPIGwEvent({}, { method: 'POST', username: 'TEST' })

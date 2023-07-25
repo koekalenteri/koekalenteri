@@ -1,4 +1,5 @@
 import { APIGatewayProxyEvent } from 'aws-lambda'
+import S3 from 'aws-sdk/clients/s3'
 import s3client from 'aws-sdk/clients/s3'
 import busboy, { FileInfo } from 'busboy'
 import { Readable } from 'stream'
@@ -51,9 +52,9 @@ export const parsePostFile = (event: APIGatewayProxyEvent) =>
     })
   })
 
-export const uploadFile = (key: string, buffer: any) =>
+export const uploadFile = (key: string, buffer: S3.Body) =>
   new Promise<void>((resolve, reject) => {
-    const data = {
+    const data: S3.Types.PutObjectRequest = {
       Bucket: process.env.BUCKET ?? '',
       Key: key,
       Body: buffer,

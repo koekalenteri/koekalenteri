@@ -2097,7 +2097,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                         aria-hidden="true"
                         class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-1sqnrkk-MuiInputBase-input-MuiOutlinedInput-input"
                         readonly=""
-                        style="visibility: hidden; position: absolute; overflow: hidden; height: 0px; top: 0px; left: 0px; transform: translateZ(0); padding: 0px; width: 100%;"
+                        style="visibility: hidden; position: absolute; overflow: hidden; height: 0px; top: 0px; left: 0px; transform: translateZ(0); padding-top: 0px; padding-bottom: 0px; width: 100%;"
                         tabindex="-1"
                       />
                       <fieldset
@@ -2187,7 +2187,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
       </div>
     </div>
     <div
-      class="MuiStack-root css-14nu51i-MuiStack-root"
+      class="MuiStack-root css-1eiqnnt-MuiStack-root"
     >
       <button
         class="MuiButtonBase-root MuiButton-root MuiLoadingButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium Mui-disabled MuiButton-root MuiLoadingButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium css-1nte33v-MuiButtonBase-root-MuiButton-root-MuiLoadingButton-root"
@@ -4295,7 +4295,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                         aria-hidden="true"
                         class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-1sqnrkk-MuiInputBase-input-MuiOutlinedInput-input"
                         readonly=""
-                        style="visibility: hidden; position: absolute; overflow: hidden; height: 0px; top: 0px; left: 0px; transform: translateZ(0); padding: 0px; width: 100%;"
+                        style="visibility: hidden; position: absolute; overflow: hidden; height: 0px; top: 0px; left: 0px; transform: translateZ(0); padding-top: 0px; padding-bottom: 0px; width: 100%;"
                         tabindex="-1"
                       />
                       <fieldset
@@ -4385,7 +4385,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
       </div>
     </div>
     <div
-      class="MuiStack-root css-14nu51i-MuiStack-root"
+      class="MuiStack-root css-1eiqnnt-MuiStack-root"
     >
       <button
         class="MuiButtonBase-root MuiButton-root MuiLoadingButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium Mui-disabled MuiButton-root MuiLoadingButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium css-1nte33v-MuiButtonBase-root-MuiButton-root-MuiLoadingButton-root"

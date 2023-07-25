@@ -7,6 +7,7 @@ function getEntryPoints(dir, ext) {
   for (const file of readdirSync(dir)) {
     const full = join(dir, file)
     if (statSync(full).isDirectory()) {
+      if (/test/.test(full)) continue
       result.push(...getEntryPoints(full, ext))
     } else if (full.endsWith(ext) && !full.endsWith(`.test${ext}`)) {
       result.push(full)

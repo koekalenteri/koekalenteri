@@ -1,6 +1,5 @@
-import { TransProps } from 'react-i18next'
-import { DefaultNamespace } from 'react-i18next/TransWithoutContext'
-import { KeyPrefix, Namespace, TFuncKey, ThirdPartyModule } from 'i18next'
+import { ReactNode } from 'react'
+import { ThirdPartyModule } from 'i18next'
 
 export const useTranslation = () => {
   return {
@@ -38,11 +37,6 @@ export const initReactI18next: ThirdPartyModule = {
   init() {},
 }
 
-export function Trans<
-  K extends TFuncKey<N, TKPrefix> extends infer A ? A : never,
-  N extends Namespace = DefaultNamespace,
-  TKPrefix extends KeyPrefix<N> = undefined,
-  E = React.HTMLProps<HTMLDivElement>
->(props: TransProps<K, N, TKPrefix, E>) {
+export function Trans(props: { children: ReactNode }) {
   return <>{props.children}</>
 }

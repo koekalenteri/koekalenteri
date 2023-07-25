@@ -1,5 +1,6 @@
 import { jest } from '@jest/globals'
-import AWS from 'aws-sdk'
+import AWS, { AWSError, Request } from 'aws-sdk'
+import { GetItemOutput, PutItemInput, PutItemOutput, QueryOutput, UpdateItemOutput } from 'aws-sdk/clients/dynamodb'
 
 import { defaultJSONHeaders } from '../test-utils/headers'
 import { constructAPIGwEvent, createAWSError } from '../test-utils/helpers'
@@ -15,17 +16,10 @@ jest.mock('aws-sdk/clients/ses', () => {
 })
 
 describe('putRegistrationHandler', function () {
-  let putSpy: any
-  let getSpy: any
-  let querySpy: any
-  let updateSpy: any
-
-  beforeAll(() => {
-    putSpy = jest.spyOn(AWS.DynamoDB.DocumentClient.prototype, 'put')
-    getSpy = jest.spyOn(AWS.DynamoDB.DocumentClient.prototype, 'get')
-    querySpy = jest.spyOn(AWS.DynamoDB.DocumentClient.prototype, 'query')
-    updateSpy = jest.spyOn(AWS.DynamoDB.DocumentClient.prototype, 'update')
-  })
+  const putSpy = jest.spyOn(AWS.DynamoDB.DocumentClient.prototype, 'put')
+  const getSpy = jest.spyOn(AWS.DynamoDB.DocumentClient.prototype, 'get')
+  const querySpy = jest.spyOn(AWS.DynamoDB.DocumentClient.prototype, 'query')
+  const updateSpy = jest.spyOn(AWS.DynamoDB.DocumentClient.prototype, 'update')
 
   afterAll(() => {
     putSpy.mockRestore()
@@ -37,15 +31,21 @@ describe('putRegistrationHandler', function () {
   it('should return put data', async () => {
     let item
 
-    putSpy.mockImplementation((params: any) => {
+    putSpy.mockImplementation((params: PutItemInput) => {
       item = params.Item
       return {
         promise: () => Promise.resolve(),
-      }
+      } as unknown as Request<PutItemOutput, AWSError>
     })
-    getSpy.mockImplementation(() => ({ promise: () => Promise.resolve({ Item: {} }) }))
-    querySpy.mockImplementation(() => ({ promise: () => Promise.resolve({ Items: [] }) }))
-    updateSpy.mockImplementation(() => ({ promise: () => Promise.resolve() }))
+    getSpy.mockImplementation(
+      () => ({ promise: () => Promise.resolve({ Item: {} }) }) as unknown as Request<GetItemOutput, AWSError>
+    )
+    querySpy.mockImplementation(
+      () => ({ promise: () => Promise.resolve({ Items: [] }) }) as unknown as Request<QueryOutput, AWSError>
+    )
+    updateSpy.mockImplementation(
+      () => ({ promise: () => Promise.resolve() }) as unknown as Request<UpdateItemOutput, AWSError>
+    )
 
     const event = constructAPIGwEvent({}, { method: 'POST' })
     const result = await putRegistrationHandler(event)

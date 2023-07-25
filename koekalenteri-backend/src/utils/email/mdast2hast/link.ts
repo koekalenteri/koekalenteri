@@ -1,10 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Properties } from 'hast'
 import { Link } from 'mdast'
-import { State } from 'mdast-util-to-hast/lib/state'
 
 import { all } from './table'
 
-export function linkHandler(h: State, node: Link) {
+export function linkHandler(h: any, node: Link) {
   const props: Properties = { href: node.url }
 
   if (node.title !== null && node.title !== undefined) {

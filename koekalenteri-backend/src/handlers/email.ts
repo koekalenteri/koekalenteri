@@ -22,6 +22,7 @@ export async function sendReceipt(registration: JsonRegistration, date: string) 
   if (registration.owner.email !== registration.handler.email) {
     to.push(registration.owner.email)
   }
+  console.log(date)
   return undefined /* TODO
   return sendTemplatedMail('PaymentReceipt', registration.language, from, to, {
     subject: t('registration.email.subject', { context }),
@@ -123,6 +124,7 @@ async function updateOrCreateTemplate(template: Template) {
     await new Promise((resolve) => setTimeout(resolve, 1000))
     const res = await ses.updateTemplate({ Template: template }).promise()
     console.info(res)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {
     if (e.code !== 'TemplateDoesNotExist') {
       console.error(e)

@@ -1,5 +1,5 @@
 import { ReactNode, Suspense } from 'react'
-import { MemoryRouter, useNavigate, useParams } from 'react-router-dom'
+import { MemoryRouter, useParams } from 'react-router-dom'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'

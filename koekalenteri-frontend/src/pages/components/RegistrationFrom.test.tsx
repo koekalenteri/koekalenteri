@@ -10,7 +10,7 @@ import { eventWithStaticDates } from '../../__mockData__/events'
 import { registrationWithStaticDates } from '../../__mockData__/registrations'
 import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
-import { createMatchMedia, flushPromisesAndTimers, renderWithUserEvents, waitForDebounce } from '../../test-utils/utils'
+import { createMatchMedia, flushPromisesAndTimers, renderWithUserEvents } from '../../test-utils/utils'
 
 import RegistrationForm from './RegistrationForm'
 

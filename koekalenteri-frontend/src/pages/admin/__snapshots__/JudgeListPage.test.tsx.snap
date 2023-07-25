@@ -9,7 +9,7 @@ exports[`JudgeListPage renders 1`] = `
       class="MuiBox-root css-1tyz8pc"
     >
       <div
-        class="MuiStack-root css-e53awj-MuiStack-root"
+        class="MuiStack-root css-1h12o0g-MuiStack-root"
       >
         <button
           class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-16m0f1y-MuiButtonBase-root-MuiButton-root"
@@ -47,7 +47,7 @@ exports[`JudgeListPage renders 1`] = `
         <div>
           <div>
             <div
-              class="MuiStack-root css-198osde-MuiStack-root"
+              class="MuiStack-root css-114556u-MuiStack-root"
             >
               <div
                 class="MuiDataGrid-toolbarContainer css-qdjmts-MuiDataGrid-toolbarContainer"

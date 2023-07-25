@@ -245,7 +245,7 @@ function bestResults(
   const filter = (r: Partial<TestResult>) => r.type === eventType && r.class === regClass && r.result?.endsWith('1')
   const officialBest: QualifyingResult[] = officialResults?.filter(filter).map((r) => ({ ...r, official: true })) ?? []
   const manualBest: QualifyingResult[] =
-    manualResults?.filter(filter).map((r) => ({ ...r, official: false } as QualifyingResult)) ?? []
+    manualResults?.filter(filter).map((r) => ({ ...r, official: false }) as QualifyingResult) ?? []
   return officialBest
     .concat(manualBest)
     .sort(byDate)

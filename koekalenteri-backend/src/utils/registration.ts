@@ -22,7 +22,7 @@ export function registrationEmailTemplateData(
 
   const eventDate = t('daterange', { start: confirmedEvent.startDate, end: confirmedEvent.endDate })
   const reserveText = t(`registration.reserveChoises.${registration.reserve || 'ANY'}`)
-  const dogBreed = registration.dog.breedCode ? t(`breed:${registration.dog.breedCode}`) : '?'
+  const dogBreed = registration.dog.breedCode ? t(`${registration.dog.breedCode}`, { ns: 'breed' }) : '?'
   const regDates = registration.dates
     .map((d) => t('dateFormat.short', { date: d.date }) + (d.time ? ' ' + t(`registration.time.${d.time}`) : ''))
     .join(', ')

@@ -10,10 +10,10 @@ import { fixGroups, getRegistrationsHandler, putRegistrationGroupsHandler } from
 // TODO: proper mocks with aws-sdk v3
 
 describe('admin/registration', () => {
-  let putSpy: any
-  let getSpy: any
-  let querySpy: any
-  let updateSpy: any
+  let putSpy: jest.SpiedFunction<typeof AWS.DynamoDB.DocumentClient.prototype.put>
+  let getSpy: jest.SpiedFunction<typeof AWS.DynamoDB.DocumentClient.prototype.get>
+  let querySpy: jest.SpiedFunction<typeof AWS.DynamoDB.DocumentClient.prototype.query>
+  let updateSpy: jest.SpiedFunction<typeof AWS.DynamoDB.DocumentClient.prototype.update>
 
   beforeAll(() => {
     putSpy = jest.spyOn(AWS.DynamoDB.DocumentClient.prototype, 'put')

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Template } from 'aws-sdk/clients/ses'
 import { Root } from 'mdast'
 import remarkBreaks from 'remark-breaks'

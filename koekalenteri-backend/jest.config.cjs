@@ -7,4 +7,5 @@ module.exports = {
   extensionsToTreatAsEsm: ['.ts'],
   testEnvironment: 'node',
   coveragePathIgnorePatterns: ['node_modules', '<rootDir>/__test__'],
+  modulePathIgnorePatterns: ['<rootDir>/dist/'],
 }
