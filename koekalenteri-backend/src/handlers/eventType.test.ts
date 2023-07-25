@@ -1,6 +1,6 @@
 import { jest } from '@jest/globals'
 import AWS, { AWSError, Request } from 'aws-sdk'
-import { PutItemInput, PutItemOutput, ScanInput, ScanOutput } from 'aws-sdk/clients/dynamodb'
+import type { PutItemInput, PutItemOutput, ScanInput, ScanOutput } from 'aws-sdk/clients/dynamodb'
 
 import { genericReadAllTest } from '../test-utils/genericTests'
 import { constructAPIGwEvent } from '../test-utils/helpers'
@@ -10,15 +10,21 @@ const { getEventTypesHandler, putEventTypeHandler } = await import('./eventType'
 describe('getEventTypesHandler (generic)', genericReadAllTest(getEventTypesHandler))
 
 describe('putEventTypeHandler', function () {
-  const putSpy = jest.spyOn(AWS.DynamoDB.DocumentClient.prototype, 'put')
-  const getSpy = jest.spyOn(AWS.DynamoDB.DocumentClient.prototype, 'get')
-  const scanSpy = jest.spyOn(AWS.DynamoDB.DocumentClient.prototype, 'scan')
-  const querySpy = jest.spyOn(AWS.DynamoDB.DocumentClient.prototype, 'query')
-  const updateSpy = jest.spyOn(AWS.DynamoDB.DocumentClient.prototype, 'update')
+  let putSpy: jest.SpiedFunction<typeof AWS.DynamoDB.DocumentClient.prototype.put>
+  let getSpy: jest.SpiedFunction<typeof AWS.DynamoDB.DocumentClient.prototype.get>
+  let scanSpy: jest.SpiedFunction<typeof AWS.DynamoDB.DocumentClient.prototype.scan>
+  let querySpy: jest.SpiedFunction<typeof AWS.DynamoDB.DocumentClient.prototype.query>
+  let updateSpy: jest.SpiedFunction<typeof AWS.DynamoDB.DocumentClient.prototype.update>
 
   beforeAll(() => {
     process.env.JUDGE_TABLE_NAME = 'judge'
     process.env.OFFICIAL_TABLE_NAME = 'official'
+
+    putSpy = jest.spyOn(AWS.DynamoDB.DocumentClient.prototype, 'put')
+    getSpy = jest.spyOn(AWS.DynamoDB.DocumentClient.prototype, 'get')
+    scanSpy = jest.spyOn(AWS.DynamoDB.DocumentClient.prototype, 'scan')
+    querySpy = jest.spyOn(AWS.DynamoDB.DocumentClient.prototype, 'query')
+    updateSpy = jest.spyOn(AWS.DynamoDB.DocumentClient.prototype, 'update')
   })
 
   afterAll(() => {
