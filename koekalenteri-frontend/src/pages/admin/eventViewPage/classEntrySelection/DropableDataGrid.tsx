@@ -69,9 +69,9 @@ const DropableDataGrid = (props: Props) => {
     <div ref={ref} className={className} style={{ display: 'flex', flexGrow: props.flex ?? 1, width: '100%' }}>
       <StyledDataGrid
         {...props}
-        components={{
-          ...props.components,
-          Row: DragableRow,
+        slots={{
+          ...props.slots,
+          row: DragableRow,
         }}
         sx={[
           {

@@ -224,8 +224,8 @@ const ClassEntrySelection = ({
           disableColumnMenu
           hideFooter
           rows={[]}
-          components={{
-            NoRowsOverlay: NullComponent,
+          slots={{
+            noRowsOverlay: NullComponent,
           }}
         />
       </Box>

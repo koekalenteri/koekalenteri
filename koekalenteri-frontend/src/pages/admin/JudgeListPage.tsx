@@ -39,8 +39,8 @@ export default function JudgeListPage() {
 
         <StyledDataGrid
           columns={columns}
-          components={{ Toolbar: QuickSearchToolbar }}
-          componentsProps={{
+          slots={{ toolbar: QuickSearchToolbar }}
+          slotProps={{
             toolbar: {
               value: searchText,
               onChange,

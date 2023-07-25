@@ -129,8 +129,8 @@ export default function UsersPage() {
             id: large,
             location: large,
           }}
-          components={{ Toolbar: QuickSearchToolbar }}
-          componentsProps={{
+          slots={{ toolbar: QuickSearchToolbar }}
+          slotProps={{
             toolbar: {
               value: searchText,
               onChange: (event: React.ChangeEvent<HTMLInputElement>) => setSearchText(event.target.value),

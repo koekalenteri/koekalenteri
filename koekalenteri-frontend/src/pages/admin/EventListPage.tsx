@@ -134,8 +134,8 @@ export default function EventListPage() {
         columns={columns}
         rows={events}
         onRowSelectionModelChange={handleSelectionModeChange}
-        components={{ Toolbar: QuickSearchToolbar }}
-        componentsProps={{
+        slots={{ toolbar: QuickSearchToolbar }}
+        slotProps={{
           toolbar: {
             value: searchText,
             onChange,
