@@ -1,5 +1,5 @@
 import { ReactNode, Suspense } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { MemoryRouter, useNavigate, useParams } from 'react-router-dom'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
@@ -10,10 +10,11 @@ import { RecoilRoot } from 'recoil'
 import { registrationWithStaticDates } from '../__mockData__/registrations'
 import theme from '../assets/Theme'
 import { locales } from '../i18n'
-import { waitForDebounce } from '../test-utils/utils'
+import { flushPromisesAndTimers } from '../test-utils/utils'
 
 import RegistrationEditPage from './RegistrationEditPage'
 
+jest.mock('../api/user')
 jest.mock('../api/event')
 jest.mock('../api/eventType')
 jest.mock('../api/judge')
@@ -27,22 +28,18 @@ jest.mock('react-router-dom', () => ({
   useParams: jest.fn(),
   Link: jest.fn().mockImplementation(() => <>link</>),
 }))
-const mockUseNavigate = useNavigate as jest.Mock
 const mockUseParams = useParams as jest.Mock
-const mockNavigate = jest.fn()
-
-mockUseNavigate.mockImplementation(() => mockNavigate)
 
 function Wrapper({ children }: { children: ReactNode }) {
   return (
     <ThemeProvider theme={theme}>
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
         <RecoilRoot>
-          <SnackbarProvider>
-            <Suspense fallback={<div>loading...</div>}>
-              <SnackbarProvider>{children}</SnackbarProvider>
-            </Suspense>
-          </SnackbarProvider>
+          <Suspense fallback={<div>loading...</div>}>
+            <SnackbarProvider>
+              <MemoryRouter>{children} </MemoryRouter>
+            </SnackbarProvider>
+          </Suspense>
         </RecoilRoot>
       </LocalizationProvider>
     </ThemeProvider>
@@ -50,29 +47,32 @@ function Wrapper({ children }: { children: ReactNode }) {
 }
 
 describe('RegistrationEditPage', () => {
+  beforeAll(() => jest.useFakeTimers())
+  afterEach(() => jest.clearAllTimers())
+  afterAll(() => jest.useRealTimers())
+
   it('should render', async () => {
     const { eventId, id } = registrationWithStaticDates
     mockUseParams.mockImplementation(() => ({ id: eventId, registrationId: id }))
     const { container } = render(<RegistrationEditPage />, { wrapper: Wrapper })
-    await waitForDebounce()
+    await flushPromisesAndTimers()
+    await flushPromisesAndTimers()
     expect(container).toMatchSnapshot()
   })
 
   xit('should throw 404 when event is not found', async () => {
     mockUseParams.mockImplementation(() => ({ id: 'asdf', registrationId: 'qwerty' }))
-    expect.assertions(1)
-    try {
+    await expect(async () => {
       render(<RegistrationEditPage />, { wrapper: Wrapper })
-      await waitForDebounce()
-    } catch (e) {
-      // eslint-disable-next-line jest/no-conditional-expect
-      expect(e).toMatchInlineSnapshot(`
+      await flushPromisesAndTimers()
+      await flushPromisesAndTimers()
+    }).rejects.toMatchInlineSnapshot(`
         Response {
           "_bodyInit": "Event not found",
           "_bodyText": "Event not found",
           "bodyUsed": false,
           "headers": Headers {
-            "map": Object {
+            "map": {
               "content-type": "text/plain;charset=UTF-8",
             },
           },
@@ -83,6 +83,5 @@ describe('RegistrationEditPage', () => {
           "url": "",
         }
       `)
-    }
   })
 })

@@ -1,72 +1,47 @@
+import { Suspense } from 'react'
 import { ThemeProvider } from '@mui/material'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { fireEvent, render, screen, within } from '@testing-library/react'
 import fi from 'date-fns/locale/fi'
-import { Event, Judge, Official, Organizer } from 'koekalenteri-shared/model'
+import { Event } from 'koekalenteri-shared/model'
 import { RecoilRoot } from 'recoil'
 
 import { eventWithStaticDatesAndClass } from '../../../__mockData__/events'
 import theme from '../../../assets/Theme'
+import { flushPromisesAndTimers } from '../../../test-utils/utils'
 
 import EventForm from './EventForm'
 
-const eventTypes = [eventWithStaticDatesAndClass.eventType, 'TEST-B', 'TEST-C']
-const eventTypeClasses = {
-  [eventWithStaticDatesAndClass.eventType]: [eventWithStaticDatesAndClass.classes[0].class, 'B', 'C'],
-  'TEST-B': ['B', 'C'],
-  'TEST-C': [],
-}
+jest.mock('../../../api/user')
+jest.mock('../../../api/event')
+jest.mock('../../../api/eventType')
+jest.mock('../../../api/judge')
+jest.mock('../../../api/official')
+jest.mock('../../../api/organizer')
+jest.mock('../../../api/registration')
 
-const JUDGES = [
-  {
-    id: eventWithStaticDatesAndClass.judges[0],
-    name: 'Test Judge',
-    email: 'joo@ei.com',
-    phone: '0700-judge',
-    location: 'Pohjois-Karjala',
-    district: 'Pohjois-Karjalan Kennelpiiri ry',
-    languages: ['fi'],
-    eventTypes: [eventWithStaticDatesAndClass.eventType, 'TEST-C'],
-  },
-]
-
-const OFFICIALS = [eventWithStaticDatesAndClass.official]
-const ORGANIZERS = [eventWithStaticDatesAndClass.organizer]
-
-const renderComponent = (
-  event: Event,
-  judges: Judge[],
-  officials: Official[],
-  organizers: Organizer[],
-  onSave?: () => void,
-  onCancel?: () => void,
-  onChange?: () => void
-) =>
+const renderComponent = (event: Event, onSave?: () => void, onCancel?: () => void, onChange?: () => void) =>
   render(
     <ThemeProvider theme={theme}>
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={fi}>
         <RecoilRoot>
-          <EventForm
-            event={event}
-            eventTypes={eventTypes}
-            eventTypeClasses={eventTypeClasses}
-            judges={judges}
-            officials={officials}
-            organizers={organizers}
-            changes
-            onSave={onSave}
-            onCancel={onCancel}
-            onChange={onChange}
-          />
+          <Suspense fallback={<div>loading?...</div>}>
+            <EventForm event={event} changes onSave={onSave} onCancel={onCancel} onChange={onChange} />
+          </Suspense>
         </RecoilRoot>
       </LocalizationProvider>
     </ThemeProvider>
   )
 
 describe('EventForm', () => {
-  it('should render', () => {
-    const { container } = renderComponent(eventWithStaticDatesAndClass, JUDGES, OFFICIALS, ORGANIZERS)
+  beforeAll(() => jest.useFakeTimers())
+  afterEach(() => jest.clearAllTimers())
+  afterAll(() => jest.useRealTimers())
+
+  it('should render', async () => {
+    const { container } = renderComponent(eventWithStaticDatesAndClass)
+    await flushPromisesAndTimers()
     expect(container).toMatchSnapshot()
   })
 
@@ -75,15 +50,7 @@ describe('EventForm', () => {
     const cancelHandler = jest.fn()
     const changeHandler = jest.fn()
 
-    renderComponent(
-      eventWithStaticDatesAndClass,
-      JUDGES,
-      OFFICIALS,
-      ORGANIZERS,
-      saveHandler,
-      cancelHandler,
-      changeHandler
-    )
+    renderComponent(eventWithStaticDatesAndClass, saveHandler, cancelHandler, changeHandler)
 
     const saveButton = screen.getByText(/Tallenna/i)
     // expect(saveButton).toBeDisabled()

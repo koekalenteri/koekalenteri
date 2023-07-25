@@ -10,7 +10,7 @@ import { eventWithStaticDates } from '../../__mockData__/events'
 import { registrationWithStaticDates } from '../../__mockData__/registrations'
 import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
-import { createMatchMedia, renderWithUserEvents, waitForDebounce } from '../../test-utils/utils'
+import { createMatchMedia, flushPromisesAndTimers, renderWithUserEvents, waitForDebounce } from '../../test-utils/utils'
 
 import RegistrationForm from './RegistrationForm'
 
@@ -39,17 +39,21 @@ describe('RegistrationForm', () => {
   beforeAll(() => {
     // jsdom does not have matchMedia, so inject a polyfill
     window.matchMedia = createMatchMedia(window.innerWidth)
+    jest.useFakeTimers()
   })
+  afterEach(() => jest.clearAllTimers())
+  afterAll(() => jest.useRealTimers())
 
-  it('renders', () => {
+  it('renders', async () => {
     const { container } = render(
       <RegistrationForm event={eventWithStaticDates} registration={registrationWithStaticDates} />,
       { wrapper: Wrapper }
     )
+    await flushPromisesAndTimers()
     expect(container).toMatchSnapshot()
   })
 
-  it('renders with invalid dog information', () => {
+  it('renders with invalid dog information', async () => {
     const { container } = render(
       <RegistrationForm
         event={eventWithStaticDates}
@@ -58,6 +62,7 @@ describe('RegistrationForm', () => {
       />,
       { wrapper: Wrapper }
     )
+    await flushPromisesAndTimers()
     expect(container).toMatchSnapshot()
   })
 
@@ -68,13 +73,15 @@ describe('RegistrationForm', () => {
 
     const { user } = renderWithUserEvents(
       <RegistrationForm event={eventWithStaticDates} registration={registration} onChange={onChange} />,
-      { wrapper: Wrapper }
+      { wrapper: Wrapper },
+      { advanceTimers: jest.advanceTimersByTime }
     )
 
+    await flushPromisesAndTimers()
     const notes = screen.getByRole('textbox', { name: 'registration.notes' })
 
     await user.type(notes, ' more!')
-    await waitForDebounce()
+    await flushPromisesAndTimers()
 
     expect(onChange).toHaveBeenLastCalledWith(
       expect.objectContaining({ notes: registrationWithStaticDates.notes + ' more!' })
@@ -94,9 +101,11 @@ describe('RegistrationForm', () => {
         registration={registrationWithStaticDates}
         onSave={onSave}
       />,
-      { wrapper: Wrapper }
+      { wrapper: Wrapper },
+      { advanceTimers: jest.advanceTimersByTime }
     )
 
+    await flushPromisesAndTimers()
     const saveButton = screen.getByRole('button', { name: 'Tallenna muutokset' })
 
     expect(saveButton).toBeEnabled()

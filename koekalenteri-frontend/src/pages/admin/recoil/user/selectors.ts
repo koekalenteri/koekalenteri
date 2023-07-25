@@ -90,7 +90,6 @@ export const adminUserFilteredEventsSelector = selector({
     const user = get(userSelector)
     const events = get(filteredAdminEventsSelector)
     const orgId = get(selectedOrganizerIdAtom)
-    console.log('orgId', orgId)
 
     const userEvents = user?.admin ? events : events.filter((e) => user?.roles?.[e.organizer.id])
     return orgId ? userEvents.filter((e) => e.organizer.id === orgId) : userEvents

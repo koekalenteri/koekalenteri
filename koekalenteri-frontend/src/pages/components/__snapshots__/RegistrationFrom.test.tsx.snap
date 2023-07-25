@@ -2470,7 +2470,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                             registration.cta.fetch
                           </button>
                           <span
-                            class="MuiCircularProgress-root MuiCircularProgress-indeterminate MuiCircularProgress-colorPrimary css-1rt8a8e-MuiCircularProgress-root"
+                            class="MuiCircularProgress-root MuiCircularProgress-indeterminate MuiCircularProgress-colorPrimary css-1joee6c-MuiCircularProgress-root"
                             role="progressbar"
                             style="width: 28px; height: 28px;"
                           >
@@ -2949,7 +2949,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
             </p>
           </div>
           <div
-            class="MuiCollapse-root MuiCollapse-vertical css-1fkrdiv-MuiCollapse-root"
+            class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-bz4dnt-MuiCollapse-root"
             style="min-height: 0px; height: 0px; transition-duration: 0ms;"
           >
             <div
@@ -3090,7 +3090,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
             </p>
           </div>
           <div
-            class="MuiCollapse-root MuiCollapse-vertical css-1fkrdiv-MuiCollapse-root"
+            class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-bz4dnt-MuiCollapse-root"
             style="min-height: 0px; height: 0px; transition-duration: 0ms;"
           >
             <div
@@ -3667,7 +3667,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
             </p>
           </div>
           <div
-            class="MuiCollapse-root MuiCollapse-vertical css-1fkrdiv-MuiCollapse-root"
+            class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-bz4dnt-MuiCollapse-root"
             style="min-height: 0px; height: 0px; transition-duration: 0ms;"
           >
             <div

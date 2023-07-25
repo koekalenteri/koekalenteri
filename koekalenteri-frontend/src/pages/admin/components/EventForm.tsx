@@ -8,10 +8,13 @@ import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Paper from '@mui/material/Paper'
 import Stack from '@mui/material/Stack'
-import type { DeepPartial, Event, EventClass, EventState, Judge, Official, Organizer } from 'koekalenteri-shared/model'
+import type { DeepPartial, Event, EventClass, EventState } from 'koekalenteri-shared/model'
+import { useRecoilValue } from 'recoil'
 
 import { isEventOver, merge } from '../../../utils'
 import AutocompleteSingle from '../../components/AutocompleteSingle'
+import { activeEventTypesSelector, activeJudgesSelector, eventTypeClassesAtom } from '../../recoil'
+import { adminUserOrganizersSelector, officialsAtom } from '../recoil'
 
 import AdditionalInfoSection from './eventForm/AdditionalInfoSection'
 import BasicInfoSection from './eventForm/BasicInfoSection'
@@ -42,31 +45,23 @@ export interface SectionProps {
 
 interface Props {
   event: Event
-  eventTypes: string[]
-  eventTypeClasses: Record<string, string[]>
-  judges: Judge[]
-  officials: Official[]
-  organizers: Organizer[]
   changes?: boolean
+  disabled?: boolean
   onSave?: () => void
   onCancel?: () => void
   onChange?: (event: Event) => void
 }
 
-export default function EventForm({
-  event,
-  judges,
-  eventTypes,
-  eventTypeClasses,
-  officials,
-  organizers,
-  changes,
-  onSave,
-  onCancel,
-  onChange,
-}: Props) {
-  const md = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
+const SELECTABLE_EVENT_STATES: EventState[] = ['draft', 'tentative', 'confirmed', 'cancelled']
+
+export default function EventForm({ event, changes, disabled, onSave, onCancel, onChange }: Props) {
   const { t } = useTranslation()
+  const md = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
+  const activeEventTypes = useRecoilValue(activeEventTypesSelector)
+  const activeJudges = useRecoilValue(activeJudgesSelector)
+  const eventTypeClasses = useRecoilValue(eventTypeClassesAtom)
+  const officials = useRecoilValue(officialsAtom)
+  const organizers = useRecoilValue(adminUserOrganizersSelector)
   const [errors, setErrors] = useState(event ? validateEvent(event) : [])
   const [open, setOpen] = useState<{ [key: string]: boolean | undefined }>({
     basic: true,
@@ -78,11 +73,13 @@ export default function EventForm({
     info: md,
   })
   const valid = errors.length === 0
-  const disabled = isEventOver(event)
+  const allDisabled = disabled || isEventOver(event)
+  const stateDisabled = allDisabled || !SELECTABLE_EVENT_STATES.includes(event.state)
   const fields = useMemo(() => requiredFields(event), [event])
 
   const handleChange = useCallback(
     (props: DeepPartial<Event>) => {
+      console.debug('handleChange')
       if (!event) {
         return
       }
@@ -157,12 +154,12 @@ export default function EventForm({
     >
       <Box sx={{ p: 1 }}>
         <AutocompleteSingle
-          disabled={disabled}
+          disabled={stateDisabled}
           disableClearable
           getOptionLabel={getStateLabel}
           label={t('event.state')}
           onChange={handleStateChange}
-          options={['draft', 'tentative', 'confirmed', 'cancelled'] as EventState[]}
+          options={SELECTABLE_EVENT_STATES}
           sx={{ width: 200 }}
           value={event?.state}
         />
@@ -177,11 +174,11 @@ export default function EventForm({
         }}
       >
         <BasicInfoSection
-          disabled={disabled}
+          disabled={allDisabled}
           errorStates={errorStates}
           event={event}
           eventTypeClasses={eventTypeClasses}
-          eventTypes={eventTypes}
+          eventTypes={activeEventTypes.map((et) => et.eventType)}
           fields={fields}
           helperTexts={helperTexts}
           officials={officials}
@@ -191,18 +188,18 @@ export default function EventForm({
           organizers={organizers}
         />
         <JudgesSection
-          disabled={disabled}
+          disabled={allDisabled}
           errorStates={errorStates}
           event={event}
           fields={fields}
           helperTexts={helperTexts}
-          judges={judges}
+          judges={activeJudges}
           onChange={handleChange}
           onOpenChange={handleJudgesOpenChange}
           open={open.judges}
         />
         <EntrySection
-          disabled={disabled}
+          disabled={allDisabled}
           errorStates={errorStates}
           event={event}
           fields={fields}
@@ -212,7 +209,7 @@ export default function EventForm({
           open={open.entry}
         />
         <PaymentSection
-          disabled={disabled}
+          disabled={allDisabled}
           errorStates={errorStates}
           event={event}
           fields={fields}
@@ -221,7 +218,7 @@ export default function EventForm({
           open={open.payment}
         />
         <HeadquartersSection
-          disabled={disabled}
+          disabled={allDisabled}
           errorStates={errorStates}
           headquarters={event.headquarters}
           fields={fields}
@@ -231,7 +228,7 @@ export default function EventForm({
           open={open.hq}
         />
         <ContactInfoSection
-          disabled={disabled}
+          disabled={allDisabled}
           error={errorStates.contactInfo}
           contactInfo={event.contactInfo}
           official={event.official}
@@ -242,7 +239,7 @@ export default function EventForm({
           open={open.contact}
         />
         <AdditionalInfoSection
-          disabled={disabled}
+          disabled={allDisabled}
           errorStates={errorStates}
           event={event}
           fields={fields}
@@ -261,7 +258,7 @@ export default function EventForm({
       >
         <LoadingButton
           color="primary"
-          disabled={!changes || !valid || disabled}
+          disabled={!changes || !valid || allDisabled}
           loadingPosition="start"
           startIcon={<Save />}
           variant="contained"

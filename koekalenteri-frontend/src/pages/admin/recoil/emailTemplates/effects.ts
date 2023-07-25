@@ -31,7 +31,8 @@ export const remoteEmailTemplatesEffect: AtomEffect<EmailTemplate[]> = ({ getPro
           setSelf(sortedEmailTemplates)
         })
         .catch((reason) => {
-          throw new Error(reason)
+          console.error(reason)
+          setSelf([])
         })
     })
   }

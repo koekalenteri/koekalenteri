@@ -10,7 +10,8 @@ export const remoteRegistrationEffect: AtomEffect<Registration | undefined | nul
     getRegistration(eventId, registrationId)
       .then((registration) => setSelf(registration ?? null))
       .catch((reason) => {
-        throw new Error(reason)
+        console.error(reason)
+        setSelf(null)
       })
   }
 }

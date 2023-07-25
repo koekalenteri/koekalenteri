@@ -15,7 +15,8 @@ export const remoteOfficialsEffect: AtomEffect<Official[]> = ({ setSelf, trigger
         setSelf(sortedOfficials)
       })
       .catch((reason) => {
-        throw new Error(reason)
+        console.error(reason)
+        setSelf([])
       })
   }
 }

@@ -101,9 +101,7 @@ exports[`RegistrationEditPage should render 1`] = `
                     </div>
                     <div
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-163n9ee-MuiGrid-root"
-                    >
-                      Tuomari 1
-                    </div>
+                    />
                     <div
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-h9ezi1-MuiGrid-root"
                     >
@@ -552,7 +550,7 @@ exports[`RegistrationEditPage should render 1`] = `
             </p>
           </div>
           <div
-            class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-bz4dnt-MuiCollapse-root"
+            class="MuiCollapse-root MuiCollapse-vertical css-1fkrdiv-MuiCollapse-root"
             style="min-height: 0px; height: 0px; transition-duration: 0ms;"
           >
             <div
@@ -1131,7 +1129,7 @@ exports[`RegistrationEditPage should render 1`] = `
             </p>
           </div>
           <div
-            class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-bz4dnt-MuiCollapse-root"
+            class="MuiCollapse-root MuiCollapse-vertical css-1fkrdiv-MuiCollapse-root"
             style="min-height: 0px; height: 0px; transition-duration: 0ms;"
           >
             <div
@@ -1274,7 +1272,7 @@ exports[`RegistrationEditPage should render 1`] = `
             </p>
           </div>
           <div
-            class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-bz4dnt-MuiCollapse-root"
+            class="MuiCollapse-root MuiCollapse-vertical css-1fkrdiv-MuiCollapse-root"
             style="min-height: 0px; height: 0px; transition-duration: 0ms;"
           >
             <div
@@ -1585,7 +1583,7 @@ exports[`RegistrationEditPage should render 1`] = `
                   </p>
                 </div>
                 <div
-                  class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-bz4dnt-MuiCollapse-root"
+                  class="MuiCollapse-root MuiCollapse-vertical css-1fkrdiv-MuiCollapse-root"
                   style="min-height: 0px; height: 0px; transition-duration: 0ms;"
                 >
                   <div
@@ -1859,7 +1857,7 @@ exports[`RegistrationEditPage should render 1`] = `
             </p>
           </div>
           <div
-            class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-bz4dnt-MuiCollapse-root"
+            class="MuiCollapse-root MuiCollapse-vertical css-1fkrdiv-MuiCollapse-root"
             style="min-height: 0px; height: 0px; transition-duration: 0ms;"
           >
             <div
@@ -1943,7 +1941,7 @@ exports[`RegistrationEditPage should render 1`] = `
             />
           </div>
           <div
-            class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-bz4dnt-MuiCollapse-root"
+            class="MuiCollapse-root MuiCollapse-vertical css-1fkrdiv-MuiCollapse-root"
             style="min-height: 0px; height: 0px; transition-duration: 0ms;"
           >
             <div
@@ -2125,5 +2123,6 @@ exports[`RegistrationEditPage should render 1`] = `
       </button>
     </div>
   </div>
+   
 </div>
 `;

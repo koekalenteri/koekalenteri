@@ -17,7 +17,8 @@ export const remoteEventsEffect: AtomEffect<Event[]> = ({ setSelf, trigger }) =>
         setSelf(events)
       })
       .catch((reason) => {
-        throw new Error(reason)
+        console.error(reason)
+        setSelf([])
       })
   }
 }

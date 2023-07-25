@@ -15,6 +15,7 @@ import { flushPromisesAndTimers } from '../test-utils/utils'
 
 import RegistrationCreatePage from './RegistrationCreatePage'
 
+jest.mock('../api/user')
 jest.mock('../api/event')
 jest.mock('../api/eventType')
 jest.mock('../api/judge')
@@ -33,13 +34,11 @@ function Wrapper({ children }: { children: ReactNode }) {
     <ThemeProvider theme={theme}>
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
         <RecoilRoot>
-          <MemoryRouter>
+          <Suspense fallback={<div>loading...</div>}>
             <SnackbarProvider>
-              <Suspense fallback={<div>loading...</div>}>
-                <SnackbarProvider>{children}</SnackbarProvider>
-              </Suspense>
+              <MemoryRouter>{children} </MemoryRouter>
             </SnackbarProvider>
-          </MemoryRouter>
+          </Suspense>
         </RecoilRoot>
       </LocalizationProvider>
     </ThemeProvider>
@@ -81,31 +80,31 @@ describe('RegistrationCreatePage', () => {
   })
 
   it('should throw 404', async () => {
+    const mockConsoleError = jest.spyOn(console, 'error').mockImplementation()
     mockUseParams.mockImplementation(() => ({ id: 'asdf', eventType: 'qwerty' }))
-    expect.assertions(1)
-    try {
+    await expect(async () => {
       render(<RegistrationCreatePage />, { wrapper: Wrapper })
       await flushPromisesAndTimers()
       await flushPromisesAndTimers()
-    } catch (e) {
-      // eslint-disable-next-line jest/no-conditional-expect
-      expect(e).toMatchInlineSnapshot(`
-        Response {
-          "_bodyInit": "Event not found",
-          "_bodyText": "Event not found",
-          "bodyUsed": false,
-          "headers": Headers {
-            "map": {
-              "content-type": "text/plain;charset=UTF-8",
-            },
+    }).rejects.toMatchInlineSnapshot(`
+      Response {
+        "_bodyInit": "Event not found",
+        "_bodyText": "Event not found",
+        "bodyUsed": false,
+        "headers": Headers {
+          "map": {
+            "content-type": "text/plain;charset=UTF-8",
           },
-          "ok": false,
-          "status": 404,
-          "statusText": "error.eventNotFound",
-          "type": "default",
-          "url": "",
-        }
-      `)
-    }
+        },
+        "ok": false,
+        "status": 404,
+        "statusText": "error.eventNotFound",
+        "type": "default",
+        "url": "",
+      }
+    `)
+
+    expect(mockConsoleError).toHaveBeenCalled()
+    mockConsoleError.mockRestore()
   })
 })

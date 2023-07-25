@@ -9,9 +9,12 @@ jest.mock('notistack', () => ({
   enqueueSnackbar: () => undefined,
 }))
 
+const mockConsoleError = jest.spyOn(console, 'error').mockImplementation()
+
 describe('http', () => {
   beforeEach(() => {
     fetchMock.resetMocks()
+    mockConsoleError.mockClear()
   })
 
   describe('get', () => {
@@ -36,6 +39,7 @@ describe('http', () => {
       })
 
       await expect(http.get('/test/')).rejects.toThrow('500 Shit hit the fan!')
+      expect(mockConsoleError).toHaveBeenCalled()
     })
   })
 
@@ -61,6 +65,7 @@ describe('http', () => {
       })
 
       await expect(http.post('/test/', {})).rejects.toThrow('500 Shit hit the fan!')
+      expect(mockConsoleError).toHaveBeenCalled()
     })
   })
 
@@ -86,6 +91,7 @@ describe('http', () => {
       })
 
       await expect(http.put('/test/', {})).rejects.toThrow('500 Shit hit the fan!')
+      expect(mockConsoleError).toHaveBeenCalled()
     })
   })
 
@@ -111,6 +117,7 @@ describe('http', () => {
       })
 
       await expect(http.delete('/test/', {})).rejects.toThrow('500 Shit hit the fan!')
+      expect(mockConsoleError).toHaveBeenCalled()
     })
   })
 })

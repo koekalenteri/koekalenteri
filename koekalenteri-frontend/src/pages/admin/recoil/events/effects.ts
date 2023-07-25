@@ -11,7 +11,8 @@ export const remoteAdminEventsEffect: AtomEffect<Event[]> = ({ setSelf, trigger 
     getEvents()
       .then(setSelf)
       .catch((reason) => {
-        throw new Error(reason)
+        console.error(reason)
+        setSelf([])
       })
   }
 }

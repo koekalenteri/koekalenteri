@@ -15,7 +15,8 @@ export const remoteEventTypesEffect: AtomEffect<EventType[]> = ({ setSelf, trigg
         setSelf(eventTypes)
       })
       .catch((reason) => {
-        throw new Error(reason)
+        console.error(reason)
+        setSelf([])
       })
   }
 }

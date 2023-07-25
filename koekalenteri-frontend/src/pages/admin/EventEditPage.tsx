@@ -7,27 +7,15 @@ import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
 
 import { Path } from '../../routeConfig'
 import { hasChanges } from '../../utils'
-import { activeEventTypesSelector, activeJudgesSelector, eventTypeClassesAtom } from '../recoil'
 
 import EventForm from './components/EventForm'
-import {
-  adminEventSelector,
-  adminUserOrganizersSelector,
-  editableEventByIdAtom,
-  officialsAtom,
-  useAdminEventActions,
-} from './recoil'
+import { adminEventSelector, editableEventByIdAtom, useAdminEventActions } from './recoil'
 
 export default function EventEditPage() {
   const { id: eventId = '' } = useParams()
   const { t } = useTranslation()
   const { enqueueSnackbar } = useSnackbar()
   const navigate = useNavigate()
-  const activeEventTypes = useRecoilValue(activeEventTypesSelector)
-  const activeJudges = useRecoilValue(activeJudgesSelector)
-  const eventTypeClasses = useRecoilValue(eventTypeClassesAtom)
-  const officials = useRecoilValue(officialsAtom)
-  const organizers = useRecoilValue(adminUserOrganizersSelector)
 
   const actions = useAdminEventActions()
   const storedEvent = useRecoilValue(adminEventSelector(eventId))
@@ -65,21 +53,10 @@ export default function EventEditPage() {
   }, [navigate, resetEvent])
 
   if (!event) {
-    return <div>event not found</div>
+    return <div>event {eventId} not found</div>
   }
 
   return (
-    <EventForm
-      event={event}
-      changes={changes}
-      eventTypes={activeEventTypes.map((et) => et.eventType)}
-      eventTypeClasses={eventTypeClasses}
-      judges={activeJudges}
-      officials={officials}
-      organizers={organizers}
-      onChange={handleChange}
-      onSave={handleSave}
-      onCancel={handleCancel}
-    />
+    <EventForm event={event} changes={changes} onChange={handleChange} onSave={handleSave} onCancel={handleCancel} />
   )
 }

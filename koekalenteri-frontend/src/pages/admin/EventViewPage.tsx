@@ -22,6 +22,7 @@ import { uniqueClassDates } from '../../utils'
 
 import FullPageFlex from './components/FullPageFlex'
 import ClassEntrySelection from './eventViewPage/ClassEntrySelection'
+import EventDetailsDialog from './eventViewPage/EventDetailsDialog'
 import InfoPanel from './eventViewPage/InfoPanel'
 import RegistrationCreateDialog from './eventViewPage/RegistrationCreateDialog'
 import RegistrationEditDialog from './eventViewPage/RegistrationEditDialog'
@@ -33,6 +34,7 @@ import { adminEventSelector, adminRegistrationIdAtom, eventClassAtom, eventRegis
 export default function EventViewPage() {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
+  const [detailsOpen, setDetailsOpen] = useState(false)
   const [createOpen, setCreateOpen] = useState(false)
   const [msgDlgOpen, setMsgDlgOpen] = useState(false)
 
@@ -65,6 +67,7 @@ export default function EventViewPage() {
 
   const handleClose = useCallback(() => setOpen(false), [])
   const handleCreateClose = useCallback(() => setCreateOpen(false), [])
+  const handleDetailsClose = useCallback(() => setDetailsOpen(false), [])
 
   function openMsgDlg() {
     setMsgDlgOpen(true)
@@ -102,7 +105,7 @@ export default function EventViewPage() {
         </Grid>
 
         <Stack direction="row" spacing={2}>
-          <Button startIcon={<FormatListBulleted />} disabled>
+          <Button startIcon={<FormatListBulleted />} onClick={() => setDetailsOpen(true)}>
             Näytä kokeen tiedot
           </Button>
           <Button startIcon={<EmailOutlined />} onClick={openMsgDlg}>
@@ -194,6 +197,9 @@ export default function EventViewPage() {
           registrations={recipientRegistrations}
           templateId={messageTemplateId}
         />
+      </Suspense>
+      <Suspense>
+        <EventDetailsDialog eventId={eventId} open={detailsOpen} onClose={handleDetailsClose} />
       </Suspense>
     </>
   )

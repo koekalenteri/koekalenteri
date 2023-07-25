@@ -15,7 +15,8 @@ export const remoteJudgesEffect: AtomEffect<Judge[]> = ({ setSelf, trigger }) =>
         setSelf(judges)
       })
       .catch((reason) => {
-        throw new Error(reason)
+        console.error(reason)
+        setSelf([])
       })
   }
 }

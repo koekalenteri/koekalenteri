@@ -15,7 +15,8 @@ export const remoteOrganizersEffect: AtomEffect<Organizer[]> = ({ setSelf, trigg
         setSelf(sortedOrganizers)
       })
       .catch((reason) => {
-        throw new Error(reason)
+        console.error(reason)
+        setSelf([])
       })
   }
 }

@@ -16,6 +16,7 @@ import { DataMemoryRouter, flushPromisesAndTimers } from '../../test-utils/utils
 
 import EventEditPage from './EventEditPage'
 
+jest.mock('../../api/user')
 jest.mock('../../api/event')
 jest.mock('../../api/eventType')
 jest.mock('../../api/judge')

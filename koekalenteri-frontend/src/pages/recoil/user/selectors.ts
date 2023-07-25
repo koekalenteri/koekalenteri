@@ -8,7 +8,6 @@ import { idTokenAtom } from './atoms'
 export const userSelector = selector({
   key: 'user',
   get: async ({ get }) => {
-    console.log('user: get')
     const token = get(idTokenAtom)
     return token ? await getUser(token) : null
   },

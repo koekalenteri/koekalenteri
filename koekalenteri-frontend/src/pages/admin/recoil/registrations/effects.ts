@@ -19,7 +19,8 @@ export const remoteRegistrationsEffect: AtomEffect<Registration[]> = ({ getPromi
           }
         })
         .catch((reason) => {
-          throw new Error(reason)
+          console.error(reason)
+          setSelf([])
         })
     })
   }

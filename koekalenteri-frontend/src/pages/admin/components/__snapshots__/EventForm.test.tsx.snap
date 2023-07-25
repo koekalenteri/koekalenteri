@@ -1150,7 +1150,7 @@ exports[`EventForm should render 1`] = `
                                 role="combobox"
                                 spellcheck="false"
                                 type="text"
-                                value="Test Judge"
+                                value="Tuomari 1"
                               />
                               <div
                                 class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
