@@ -8,7 +8,7 @@ import Paper from '@mui/material/Paper'
 import Stack from '@mui/material/Stack'
 import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
-import { GridColumns, GridSelectionModel } from '@mui/x-data-grid'
+import { GridColDef, GridRowSelectionModel } from '@mui/x-data-grid'
 import { EmailTemplate } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
 
@@ -31,7 +31,7 @@ export default function EmailTemplateListPage() {
 
   const { t } = useTranslation()
 
-  const columns: GridColumns<EmailTemplate> = [
+  const columns: GridColDef<EmailTemplate>[] = [
     {
       field: 'id',
       flex: 1,
@@ -44,7 +44,7 @@ export default function EmailTemplateListPage() {
     setChanges(hasChanges(storedTemplate, template))
   }, [storedTemplate, template])
 
-  const handleSelectionModeChange = (selection: GridSelectionModel) => {
+  const handleSelectionModeChange = (selection: GridRowSelectionModel) => {
     const value = typeof selection[0] === 'string' ? selection[0] : undefined
     setSelectedTemplateId(value)
   }
@@ -85,7 +85,7 @@ export default function EmailTemplateListPage() {
           <Box flex={1}>
             <StyledDataGrid
               columns={columns}
-              onSelectionModelChange={handleSelectionModeChange}
+              onRowSelectionModelChange={handleSelectionModeChange}
               rows={emailTemplates}
             />
           </Box>

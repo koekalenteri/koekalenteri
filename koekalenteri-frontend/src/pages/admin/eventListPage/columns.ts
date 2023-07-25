@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
-import { GridColumns, GridValueGetterParams } from '@mui/x-data-grid'
-import { Event, EventClass, EventState } from 'koekalenteri-shared/model'
+import { GridColDef } from '@mui/x-data-grid'
+import { Event, EventClass } from 'koekalenteri-shared/model'
 
 import { getEventTitle } from '../../../hooks/useEventTitle'
 import { useJudgesActions } from '../../recoil'
@@ -11,7 +11,7 @@ type EventWithDate = Event & {
   date: StartEndDate
 }
 
-export default function useEventListColumns(): GridColumns<EventWithDate> {
+export default function useEventListColumns(): GridColDef<EventWithDate>[] {
   const { t } = useTranslation()
   const judgeActions = useJudgesActions()
 
@@ -94,7 +94,7 @@ export default function useEventListColumns(): GridColumns<EventWithDate> {
       headerName: t('event.state'),
       flex: 1,
       type: 'string',
-      valueGetter: (params: GridValueGetterParams<EventState, Event>) => getEventTitle(params.row, t),
+      valueGetter: (params) => getEventTitle(params.row, t),
       hideable: false,
     },
   ]

@@ -1,8 +1,19 @@
+import { useState } from 'react'
 import { styled, Theme } from '@mui/material'
 import { DataGrid, DataGridProps } from '@mui/x-data-grid'
 
 const DataGridWithDefaults = (props: DataGridProps) => {
-  return <DataGrid pageSize={100} rowsPerPageOptions={[100]} density="compact" disableColumnMenu {...props} />
+  const [page, setPage] = useState(1)
+  return (
+    <DataGrid
+      paginationModel={{ page, pageSize: 100 }}
+      onPaginationModelChange={(model) => setPage(model.page)}
+      pageSizeOptions={[100]}
+      density="compact"
+      disableColumnMenu
+      {...props}
+    />
+  )
 }
 
 const StyledDataGrid = styled(DataGridWithDefaults)(({ theme }: { theme: Theme }) => {

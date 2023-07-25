@@ -3,7 +3,7 @@ import CloudSync from '@mui/icons-material/CloudSync'
 import { Theme, useMediaQuery } from '@mui/material'
 import Button from '@mui/material/Button'
 import Stack from '@mui/material/Stack'
-import { GridColumns } from '@mui/x-data-grid'
+import { GridColDef } from '@mui/x-data-grid'
 import { Official } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
@@ -22,7 +22,7 @@ export default function OfficialListPage() {
   const isAdmin = useRecoilValue(isAdminSelector)
   const actions = useOfficialsActions()
 
-  const columns: GridColumns<Official> = [
+  const columns: GridColDef<Official>[] = [
     {
       field: 'name',
       flex: 1,

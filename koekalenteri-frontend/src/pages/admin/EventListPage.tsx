@@ -9,7 +9,7 @@ import FormatListNumberedOutlined from '@mui/icons-material/FormatListNumberedOu
 import FormControlLabel from '@mui/material/FormControlLabel'
 import Stack from '@mui/material/Stack'
 import Switch from '@mui/material/Switch'
-import { GridSelectionModel } from '@mui/x-data-grid'
+import { GridRowSelectionModel } from '@mui/x-data-grid'
 import { useConfirm } from 'material-ui-confirm'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
@@ -79,7 +79,7 @@ export default function EventListPage() {
   }, [editAction, selectedEvent, viewAction])
 
   const handleSelectionModeChange = useCallback(
-    (selection: GridSelectionModel) => {
+    (selection: GridRowSelectionModel) => {
       const value = typeof selection[0] === 'string' ? selection[0] : undefined
       setSelectedEventID(value)
     },
@@ -132,7 +132,7 @@ export default function EventListPage() {
       <StyledDataGrid
         columns={columns}
         rows={events}
-        onSelectionModelChange={handleSelectionModeChange}
+        onRowSelectionModelChange={handleSelectionModeChange}
         components={{ Toolbar: QuickSearchToolbar }}
         componentsProps={{
           toolbar: {
@@ -171,7 +171,7 @@ export default function EventListPage() {
             ),
           },
         }}
-        selectionModel={selectedEventID ? [selectedEventID] : []}
+        rowSelectionModel={selectedEventID ? [selectedEventID] : []}
         onRowDoubleClick={handleDoubleClick}
       />
     </FullPageFlex>

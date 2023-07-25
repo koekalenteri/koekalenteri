@@ -8,7 +8,7 @@ import EventBusyOutlined from '@mui/icons-material/EventBusyOutlined'
 import MarkEmailReadOutlined from '@mui/icons-material/MarkEmailReadOutlined'
 import PersonOutline from '@mui/icons-material/PersonOutline'
 import Tooltip from '@mui/material/Tooltip'
-import { GridActionsCellItem, GridColumns, GridValueGetterParams } from '@mui/x-data-grid'
+import { GridActionsCellItem, GridColDef, GridValueGetterParams } from '@mui/x-data-grid'
 import { BreedCode, Registration } from 'koekalenteri-shared/model'
 
 import GroupColors from './GroupColors'
@@ -17,7 +17,7 @@ export function useClassEntrySelectionColumns(eventDates: Date[], openEditDialog
   const { t } = useTranslation()
 
   return useMemo(() => {
-    const entryColumns: GridColumns<Registration> = [
+    const entryColumns: GridColDef<Registration>[] = [
       {
         cellClassName: 'nopad',
         field: 'dates',
@@ -50,7 +50,7 @@ export function useClassEntrySelectionColumns(eventDates: Date[], openEditDialog
         width: 250,
         flex: 1,
         sortable: false,
-        valueGetter: (p: GridValueGetterParams<string, Registration>) => p.row.dog.name,
+        valueGetter: (p: GridValueGetterParams<Registration, string>) => p.row.dog.name,
       },
       {
         field: 'dog.regNo',
@@ -64,7 +64,7 @@ export function useClassEntrySelectionColumns(eventDates: Date[], openEditDialog
         headerName: t('dog.breed'),
         width: 150,
         sortable: false,
-        valueGetter: (p: GridValueGetterParams<BreedCode, Registration>) =>
+        valueGetter: (p: GridValueGetterParams<Registration, BreedCode>) =>
           p.row.dog?.breedCode && p.row.dog?.gender
             ? t(`${p.row.dog.breedCode}.${p.row.dog.gender}`, { ns: 'breedAbbr', defaultValue: p.row.dog.breedCode })
             : '',
@@ -153,9 +153,9 @@ export function useClassEntrySelectionColumns(eventDates: Date[], openEditDialog
       },
     ]
 
-    const participantColumns: GridColumns<Registration> = [...entryColumns]
+    const participantColumns: GridColDef<Registration>[] = [...entryColumns]
 
-    const cancelledColumns: GridColumns<Registration> = [...participantColumns]
+    const cancelledColumns: GridColDef<Registration>[] = [...participantColumns]
     cancelledColumns.splice(cancelledColumns.length - 2, 0, {
       field: 'cancelReason',
       headerName: 'Perumisen syy',

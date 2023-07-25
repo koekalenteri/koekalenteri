@@ -1,6 +1,7 @@
 import { initReactI18next } from 'react-i18next'
 import { enUS, fiFI, Localization } from '@mui/material/locale'
-import { enUS as genUS, fiFI as gfiFI, GridLocaleText } from '@mui/x-data-grid'
+import { enUS as genUS, fiFI as gfiFI } from '@mui/x-data-grid/locales'
+import { enUS as denUS, fiFI as dfiFI } from '@mui/x-date-pickers/locales'
 import i18n from 'i18next'
 import LanguageDetector from 'i18next-browser-languagedetector'
 import { Language } from 'koekalenteri-shared/model'
@@ -8,23 +9,13 @@ import { Language } from 'koekalenteri-shared/model'
 import { formatDateSpan, formatDistance, getDateFormatter, locales } from './dates'
 import { en, enBreed, enBreedAbbr, fi, fiBreed, fiBreedAbbr } from './locales'
 
-type MuiLocalization = Localization & {
-  components: {
-    MuiDataGrid: {
-      defaultProps: {
-        localeText: Partial<GridLocaleText>
-      }
-    }
-  }
-}
-
 export { locales }
 export type { Language }
 export type ValidationErrorKey = typeof fi.validation
 
-export const muiLocales: Record<Language, MuiLocalization> = {
-  fi: { ...fiFI, ...gfiFI },
-  en: { ...enUS, ...genUS },
+export const muiLocales: Record<Language, Localization> = {
+  fi: { ...fiFI, components: { ...fiFI.components, ...gfiFI.components, ...dfiFI.components } },
+  en: { ...enUS, components: { ...enUS.components, ...genUS.components, ...denUS.components } },
 }
 
 i18n

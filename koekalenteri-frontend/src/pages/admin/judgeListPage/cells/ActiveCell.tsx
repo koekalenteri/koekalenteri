@@ -6,7 +6,7 @@ import { useRecoilValue } from 'recoil'
 
 import { isAdminSelector, useJudgesActions } from '../../../recoil'
 
-const ActiveCell = (props: GridRenderCellParams<boolean, Judge>) => {
+const ActiveCell = (props: GridRenderCellParams<Judge, boolean>) => {
   const actions = useJudgesActions()
   const isAdmin = useRecoilValue(isAdminSelector)
 

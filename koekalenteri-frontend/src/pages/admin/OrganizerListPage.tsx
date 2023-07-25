@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import CloudSync from '@mui/icons-material/CloudSync'
 import Button from '@mui/material/Button'
 import Stack from '@mui/material/Stack'
-import { GridColumns } from '@mui/x-data-grid'
+import { GridColDef } from '@mui/x-data-grid'
 import { Organizer } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
@@ -22,7 +22,7 @@ export default function OrganizerListPage() {
 
   const { t } = useTranslation()
 
-  const columns: GridColumns<Organizer> = [
+  const columns: GridColDef<Organizer>[] = [
     {
       field: 'kcId',
       flex: 1,

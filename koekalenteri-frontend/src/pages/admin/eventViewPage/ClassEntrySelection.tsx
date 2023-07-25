@@ -4,7 +4,7 @@ import { HTML5Backend } from 'react-dnd-html5-backend'
 import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
-import { GridCallbackDetails, GridCellParams, GridSelectionModel, MuiEvent } from '@mui/x-data-grid'
+import { GridCallbackDetails, GridCellParams, GridRowSelectionModel, MuiEvent } from '@mui/x-data-grid'
 import {
   EventClassState,
   EventState,
@@ -179,7 +179,7 @@ const ClassEntrySelection = ({
   }
 
   const handleSelectionModeChange = useCallback(
-    (selection: GridSelectionModel, details: GridCallbackDetails) => {
+    (selection: GridRowSelectionModel, details: GridCallbackDetails) => {
       const value = typeof selection[0] === 'string' ? selection[0] : undefined
       if (value) {
         const reg = registrations.find((r) => r.id === value)
@@ -193,7 +193,7 @@ const ClassEntrySelection = ({
     async (params: GridCellParams, event: MuiEvent<React.MouseEvent>) => {
       if (params.field === 'dog.regNo') {
         event.defaultMuiPrevented = true
-        await navigator.clipboard.writeText(params.value)
+        await navigator.clipboard.writeText(params.value as string)
         enqueueSnackbar({
           message: 'Rekisterinumero kopioitu',
           variant: 'info',
@@ -238,18 +238,18 @@ const ClassEntrySelection = ({
           group={group.key}
           columns={participantColumns}
           hideFooter
-          headerHeight={0}
+          columnHeaderHeight={0}
           rows={registrationsByGroup[group.key] ?? []}
-          onSelectionModelChange={handleSelectionModeChange}
-          selectionModel={selectedRegistrationId ? [selectedRegistrationId] : []}
+          onRowSelectionModelChange={handleSelectionModeChange}
+          rowSelectionModel={selectedRegistrationId ? [selectedRegistrationId] : []}
           onCellClick={handleCellClick}
           onRowDoubleClick={handleDoubleClick}
-          components={{
-            Header: GroupHeader,
-            NoRowsOverlay: NoRowsOverlay,
+          slots={{
+            toolbar: GroupHeader,
+            noRowsOverlay: NoRowsOverlay,
           }}
-          componentsProps={{
-            header: {
+          slotProps={{
+            toolbar: {
               eventDates: eventDates,
               group: group,
             },
@@ -266,15 +266,15 @@ const ClassEntrySelection = ({
         autoHeight
         canDrop={(item) => state !== 'picked' || item?.groupKey === 'cancelled'}
         columns={entryColumns}
-        componentsProps={{
+        slotProps={{
           row: {
             groupKey: 'reserve',
           },
         }}
         hideFooter
         rows={registrationsByGroup.reserve}
-        onSelectionModelChange={handleSelectionModeChange}
-        selectionModel={selectedRegistrationId ? [selectedRegistrationId] : []}
+        onRowSelectionModelChange={handleSelectionModeChange}
+        rowSelectionModel={selectedRegistrationId ? [selectedRegistrationId] : []}
         onCellClick={handleCellClick}
         onRowDoubleClick={handleDoubleClick}
         onDrop={handleDrop({ key: 'reserve', number: registrationsByGroup.reserve.length + 1 })}
@@ -284,15 +284,15 @@ const ClassEntrySelection = ({
       <DragableDataGrid
         autoHeight
         columns={cancelledColumns}
-        componentsProps={{
+        slotProps={{
           row: {
             groupKey: 'cancelled',
           },
         }}
         hideFooter
         rows={registrationsByGroup.cancelled}
-        onSelectionModelChange={handleSelectionModeChange}
-        selectionModel={selectedRegistrationId ? [selectedRegistrationId] : []}
+        onRowSelectionModelChange={handleSelectionModeChange}
+        rowSelectionModel={selectedRegistrationId ? [selectedRegistrationId] : []}
         onCellClick={handleCellClick}
         onRowDoubleClick={handleDoubleClick}
         onDrop={handleDrop({ key: 'cancelled', number: registrationsByGroup.cancelled.length + 1 })}

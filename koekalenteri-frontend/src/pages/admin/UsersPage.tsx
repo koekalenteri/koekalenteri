@@ -7,7 +7,7 @@ import Support from '@mui/icons-material/Support'
 import { Theme, useMediaQuery } from '@mui/material'
 import Badge from '@mui/material/Badge'
 import Stack from '@mui/material/Stack'
-import { GridColumns, GridSelectionModel } from '@mui/x-data-grid'
+import { GridColDef, GridRowSelectionModel } from '@mui/x-data-grid'
 import { User } from 'koekalenteri-shared/model'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
@@ -49,7 +49,7 @@ export default function UsersPage() {
   const [createOpen, setCreateOpen] = useState(false)
   const [rolesOpen, setRolesOpen] = useState(false)
 
-  const columns: GridColumns<User> = [
+  const columns: GridColDef<User>[] = [
     {
       field: 'name',
       flex: 1,
@@ -95,7 +95,7 @@ export default function UsersPage() {
   const createAction = useCallback(() => setCreateOpen(true), [])
   const editAction = useCallback(() => setRolesOpen(true), [])
   const handleSelectionModeChange = useCallback(
-    (selection: GridSelectionModel) => {
+    (selection: GridRowSelectionModel) => {
       const value = typeof selection[0] === 'string' ? selection[0] : undefined
       setSelectedUserID(value)
     },
@@ -137,8 +137,8 @@ export default function UsersPage() {
           }}
           rowHeight={50}
           rows={users}
-          onSelectionModelChange={handleSelectionModeChange}
-          selectionModel={selectedUserID ? [selectedUserID] : []}
+          onRowSelectionModelChange={handleSelectionModeChange}
+          rowSelectionModel={selectedUserID ? [selectedUserID] : []}
         />
       </FullPageFlex>
       <CreateUserDialog onClose={() => setCreateOpen(false)} open={createOpen} />

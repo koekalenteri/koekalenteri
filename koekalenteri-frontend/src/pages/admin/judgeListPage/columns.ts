@@ -1,12 +1,12 @@
 import { useTranslation } from 'react-i18next'
-import { GridColumns } from '@mui/x-data-grid'
+import { GridColDef } from '@mui/x-data-grid'
 import { Judge } from 'koekalenteri-shared/model'
 
 import ActiveCell from './cells/ActiveCell'
 import LanguagesCell from './cells/LanguagesCell'
 import OfficialCell from './cells/OfficialCell'
 
-export default function useJudgeListColumns(): GridColumns<Judge> {
+export default function useJudgeListColumns(): GridColDef<Judge>[] {
   const { t } = useTranslation()
 
   return [

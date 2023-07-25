@@ -7,7 +7,7 @@ import PersonOutline from '@mui/icons-material/PersonOutline'
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
 import { Box } from '@mui/system'
-import { GridActionsCellItem, GridColumns } from '@mui/x-data-grid'
+import { GridActionsCellItem, GridColDef } from '@mui/x-data-grid'
 import { BreedCode, Registration } from 'koekalenteri-shared/model'
 
 import { Path } from '../../routeConfig'
@@ -28,7 +28,7 @@ export default function RegistrationList({
     navigate(`${Path.registration(registration)}/edit`)
   }
 
-  const columns: GridColumns<Registration> = [
+  const columns: GridColDef<Registration>[] = [
     {
       field: 'dog.name',
       valueGetter: (params) => params.row.dog.name,
@@ -67,7 +67,7 @@ export default function RegistrationList({
     {
       field: 'actions',
       type: 'actions',
-      getActions: (params) =>
+      getActions: (params: { row: Registration }) =>
         params.row.cancelled
           ? [
               <Box key="cancelled" sx={{ color: 'warning.main', textTransform: 'uppercase' }}>
@@ -101,7 +101,7 @@ export default function RegistrationList({
           hideFooter={true}
           columns={columns}
           density="compact"
-          disableSelectionOnClick
+          disableRowSelectionOnClick
           rows={rows}
           getRowId={(row) => row.id}
           getRowClassName={(params) => (params.row.cancelled ? 'cancelled' : '')}

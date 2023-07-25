@@ -5,7 +5,7 @@ import { EventType } from 'koekalenteri-shared/model'
 
 import { useEventTypeActions } from '../../../recoil'
 
-const ActiveCell = (props: GridRenderCellParams<boolean, EventType>) => {
+const ActiveCell = (props: GridRenderCellParams<EventType, boolean>) => {
   const actions = useEventTypeActions()
 
   const toggleActive = useCallback(

@@ -34,6 +34,12 @@ export default function EventDetailsDialog({ eventId, onClose, open }: Props) {
     [setEvent, storedEvent]
   )
 
+  const handleCancel = useCallback(() => {
+    resetEvent()
+    setChanges(false)
+    onClose?.()
+  }, [onClose, resetEvent])
+
   const handleSave = useCallback(() => {
     if (!event) {
       return
@@ -77,7 +83,7 @@ export default function EventDetailsDialog({ eventId, onClose, open }: Props) {
           event={event as ConfirmedEvent}
           changes={changes}
           onChange={handleChange}
-          onCancel={onClose}
+          onCancel={handleCancel}
           onSave={handleSave}
         />
       </DialogContent>

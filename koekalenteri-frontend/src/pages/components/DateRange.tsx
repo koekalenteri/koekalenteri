@@ -75,6 +75,9 @@ export default function DateRange({
           maxDate={range?.end}
           onChange={startChanged}
           slotProps={{
+            actionBar: {
+              actions: ['clear'],
+            },
             day: ({ day, selected }) => ({ sx: dayStyle(day, selected, defaultStart) }),
             textField: { required, error: startError, helperText: startHelperText },
             toolbar: {
@@ -95,6 +98,9 @@ export default function DateRange({
           maxDate={range?.end}
           onChange={endChanged}
           slotProps={{
+            actionBar: {
+              actions: ['clear'],
+            },
             day: ({ day, selected }) => ({ sx: dayStyle(day, selected, defaultEnd) }),
             textField: { required, error: endError, helperText: endHelperText },
             toolbar: {

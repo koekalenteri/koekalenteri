@@ -1,11 +1,11 @@
 import { useTranslation } from 'react-i18next'
-import { GridColumns } from '@mui/x-data-grid'
+import { GridColDef } from '@mui/x-data-grid'
 import { EventType } from 'koekalenteri-shared/model'
 
 import ActiveCell from './cells/ActiveCell'
 import OfficialCell from './cells/OfficialCell'
 
-export function useEventTypeListPageColumns(): GridColumns<EventType> {
+export function useEventTypeListPageColumns(): GridColDef<EventType>[] {
   const { t, i18n } = useTranslation()
 
   return [
