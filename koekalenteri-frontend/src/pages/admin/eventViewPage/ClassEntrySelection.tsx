@@ -94,6 +94,8 @@ const ClassEntrySelection = ({
     return byGroup
   }, [eventGroups, registrations])
 
+  const canArrangeReserve = !registrationsByGroup.reserve.some((r) => r.reserveNotified)
+
   const handleDrop = (group: RegistrationGroup) => async (item: DragItem) => {
     const reg = registrations.find((r) => r.id === item.id)
     if (!reg) {
@@ -136,7 +138,7 @@ const ClassEntrySelection = ({
 
     const newGroup = { ...group, number: regs.length + 1 }
 
-    if (group.key === 'cancelled' || group.key === 'reserve') {
+    if (group.key === 'cancelled' || (group.key === 'reserve' && !canArrangeReserve)) {
       if (reg.group?.key === group.key) {
         // user can not re-order items in cancelled or reserve groups
         delete item.targetGroupKey
@@ -168,7 +170,13 @@ const ClassEntrySelection = ({
 
   const handleReject = (group: RegistrationGroup) => (item: DragItem) => {
     const reg = registrations.find((r) => r.id === item.id)
-    if (!reg || reg.group?.key === group.key) {
+    if (!reg) return
+    if (reg.group?.key === group.key) {
+      if (group.key === 'reserve') {
+        enqueueSnackbar(`Varasijalla olevia koiria ei voi enää järjestellä, kun varasijailmoituksia on lähetetty`, {
+          variant: 'info',
+        })
+      }
       return
     }
     if (state === 'picked' && group.key === 'reserve') {
@@ -266,7 +274,11 @@ const ClassEntrySelection = ({
       <Typography variant="h6">Ilmoittautuneet</Typography>
       <DragableDataGrid
         autoHeight
-        canDrop={(item) => state !== 'picked' || item?.groupKey === 'cancelled'}
+        canDrop={(item) =>
+          (state !== 'picked' && item?.groupKey !== 'reserve') ||
+          item?.groupKey === 'cancelled' ||
+          (item?.groupKey === 'reserve' && canArrangeReserve)
+        }
         columns={entryColumns}
         slotProps={{
           row: {
@@ -285,6 +297,7 @@ const ClassEntrySelection = ({
       <Typography variant="h6">Peruneet</Typography>
       <DragableDataGrid
         autoHeight
+        canDrop={(item) => item?.groupKey !== 'cancelled'}
         columns={cancelledColumns}
         slotProps={{
           row: {

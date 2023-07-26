@@ -31,38 +31,41 @@ export const useAdminRegistrationActions = () => {
     },
 
     async saveGroups(eventId: string, groups: RegistrationGroupInfo[]) {
-      const { items, classes, entries, pickedOk, pickedFailed, reserveOk, reserveFailed } = await putRegistrationGroups(
-        eventId,
-        groups,
-        token
-      )
-      if (pickedOk.length) {
-        enqueueSnackbar('Koekutsu lähetetty onnistuneesti\n\n' + pickedOk.join('\n'), {
-          variant: 'success',
-          style: { whiteSpace: 'pre-line' },
-        })
-      }
-      if (reserveOk.length) {
-        enqueueSnackbar('Varasijailmoitus lähetetty onnistuneesti\n\n' + reserveOk.join('\n'), {
-          variant: 'success',
-          style: { whiteSpace: 'pre-line' },
-        })
-      }
-      if (pickedFailed.length) {
-        enqueueSnackbar('Koekutsun lähetys epäonnistui 💩\n\n' + pickedFailed.join('\n'), {
-          variant: 'success',
-          style: { whiteSpace: 'pre-line' },
-        })
-      }
-      if (pickedFailed.length) {
-        enqueueSnackbar('Varasijailmoituksen lähetys epäonnistui 💩\n\n' + reserveFailed.join('\n'), {
-          variant: 'success',
-          style: { whiteSpace: 'pre-line' },
-        })
-      }
-      setAdminRegistrations(items)
-      if (currentAdminEvent) {
-        setCurrentAdminEvent({ ...currentAdminEvent, classes, entries })
+      try {
+        const { items, classes, entries, pickedOk, pickedFailed, reserveOk, reserveFailed } =
+          await putRegistrationGroups(eventId, groups, token)
+
+        if (pickedOk.length) {
+          enqueueSnackbar('Koekutsu lähetetty onnistuneesti\n\n' + pickedOk.join('\n'), {
+            variant: 'success',
+            style: { whiteSpace: 'pre-line' },
+          })
+        }
+        if (reserveOk.length) {
+          enqueueSnackbar('Varasijailmoitus lähetetty onnistuneesti\n\n' + reserveOk.join('\n'), {
+            variant: 'success',
+            style: { whiteSpace: 'pre-line' },
+          })
+        }
+        if (pickedFailed.length) {
+          enqueueSnackbar('Koekutsun lähetys epäonnistui 💩\n\n' + pickedFailed.join('\n'), {
+            variant: 'success',
+            style: { whiteSpace: 'pre-line' },
+          })
+        }
+        if (pickedFailed.length) {
+          enqueueSnackbar('Varasijailmoituksen lähetys epäonnistui 💩\n\n' + reserveFailed.join('\n'), {
+            variant: 'success',
+            style: { whiteSpace: 'pre-line' },
+          })
+        }
+        setAdminRegistrations(items)
+        if (currentAdminEvent) {
+          setCurrentAdminEvent({ ...currentAdminEvent, classes, entries })
+        }
+      } catch (e) {
+        console.error(e)
+        return false
       }
     },
   }

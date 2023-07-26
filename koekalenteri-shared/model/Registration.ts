@@ -26,6 +26,7 @@ export interface JsonRegistration extends JsonDbRecord {
   group?: JsonRegistrationGroup
   priorityByInvitation?: boolean
   lastEmail?: string
+  reserveNotified?: boolean
 }
 
 export interface RegistrationGroup extends Partial<RegistrationDate> { number: number, key: string }
