@@ -27,13 +27,14 @@ export default function RegistrationEditPage() {
   const actions = useRegistrationActions()
   const disabled = !event || isEntryClosed(event) || isEventOngoing(event) || isEventOver(event)
   const changes = useMemo(
-    () => !!disabled && !!savedRegistration && hasChanges(savedRegistration, registration),
+    () => !disabled && !!savedRegistration && hasChanges(savedRegistration, registration),
     [registration, savedRegistration, disabled]
   )
 
   const handleChange = useCallback(
     (newState: Registration) => {
       if (hasChanges(registration, newState)) {
+        console.log('changes')
         setRegistration(newState)
       }
     },
