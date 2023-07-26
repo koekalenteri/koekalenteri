@@ -155,6 +155,7 @@ export const putRegistrationGroupsHandler = metricScope(
       try {
         const user = await authorize(event)
         if (!user) {
+          metricsError(metrics, event.requestContext, 'putRegistrationGroups')
           return response(401, 'Unauthorized', event)
         }
         const origin = getOrigin(event)
@@ -162,6 +163,7 @@ export const putRegistrationGroupsHandler = metricScope(
         const groups: JsonRegistrationGroupInfo[] = JSON.parse(event.body || '')
 
         if (!groups) {
+          metricsError(metrics, event.requestContext, 'putRegistrationGroups')
           return response(422, 'no groups', event)
         }
 
@@ -245,6 +247,7 @@ export const sendMessagesHandler = metricScope((metrics: MetricsLogger) => async
   try {
     const user = await authorize(event)
     if (!user) {
+      metricsError(metrics, event.requestContext, 'sendMessageHandler')
       return response(401, 'Unauthorized', event)
     }
     const message: RegistrationMessage = JSON.parse(event.body ?? '')
@@ -254,12 +257,14 @@ export const sendMessagesHandler = metricScope((metrics: MetricsLogger) => async
     const registrations = eventRegistrations?.filter((r) => registrationIds.includes(r.id))
 
     if (registrations?.length !== registrationIds.length) {
+      metricsError(metrics, event.requestContext, 'sendMessageHandler')
       return response(400, 'Not all registrations were found, aborting!', event)
     }
 
     let confirmedEvent = await dynamoDB.read<JsonConfirmedEvent>({ id: eventId }, eventTable)
 
     if (!confirmedEvent) {
+      metricsError(metrics, event.requestContext, 'sendMessageHandler')
       return response(404, 'Event not found', event)
     }
 
