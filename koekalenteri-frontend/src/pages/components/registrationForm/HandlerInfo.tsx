@@ -6,6 +6,7 @@ import Checkbox from '@mui/material/Checkbox'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import Grid from '@mui/material/Grid'
 import TextField from '@mui/material/TextField'
+import { MuiTelInput } from 'mui-tel-input'
 
 import CollapsibleSection from '../CollapsibleSection'
 
@@ -22,7 +23,7 @@ type HandlerInfoProps = {
 }
 
 export function HandlerInfo({ reg, disabled, error, helperText, onChange, onOpenChange, open }: HandlerInfoProps) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const [cache, setCache] = useDogCacheKey(reg.dog?.regNo, 'handler')
 
   const handleChange = useCallback(
@@ -85,7 +86,10 @@ export function HandlerInfo({ reg, disabled, error, helperText, onChange, onOpen
             />
           </Grid>
           <Grid item sx={{ width: 300 }}>
-            <TextField
+            <MuiTelInput
+              langOfCountryName={i18n.language}
+              defaultCountry="FI"
+              forceCallingCode
               InputProps={{ autoComplete: 'tel' }}
               disabled={disabled}
               error={!reg.handler?.phone}
@@ -93,7 +97,7 @@ export function HandlerInfo({ reg, disabled, error, helperText, onChange, onOpen
               id="handler_phone"
               label={t('contact.phone')}
               name="phone"
-              onChange={(e) => handleChange({ phone: e.target.value ?? '' })}
+              onChange={(phone) => handleChange({ phone })}
               value={reg.handler?.phone ?? ''}
             />
           </Grid>

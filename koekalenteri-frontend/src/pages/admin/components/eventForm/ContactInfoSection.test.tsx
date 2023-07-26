@@ -26,7 +26,7 @@ describe('ContactInfoSection', () => {
     id: 0,
     name: 'Test Official',
     email: 'official@example.com',
-    phone: '0700-official',
+    phone: '+3584012345',
     location: "official's place",
     district: "official's district",
     eventTypes: ['Type-A', 'Type-B', 'Type-C'],
@@ -36,7 +36,7 @@ describe('ContactInfoSection', () => {
     id: 0,
     name: 'Test Secretary',
     email: 'secretary@example.com',
-    phone: '0700-secretary',
+    phone: '+3584054321',
     location: "secretary's place",
   }
 

@@ -18,6 +18,7 @@ import type {
 } from '../../../rules'
 
 import { differenceInMonths, startOfYear } from 'date-fns'
+import { matchIsValidTel } from 'mui-tel-input'
 
 import { getRequirements, REQUIREMENTS } from '../../../rules'
 import { validEmail } from '../../../utils'
@@ -30,9 +31,12 @@ export function validatePerson(person: Person | undefined) {
   if (!person || !person.email || !person.name || !person.location || !person.phone) {
     return 'required'
   }
-  if (!validEmail(person.email)) {
-    return 'email'
+  if (!validEmail(person.email)) return 'email'
+  if (!matchIsValidTel(person.phone)) {
+    console.error('invalid phone: ', person.phone)
+    return 'phone'
   }
+
   return false
 }
 

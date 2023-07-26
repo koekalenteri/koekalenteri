@@ -8,6 +8,7 @@ import FormGroup from '@mui/material/FormGroup'
 import Grid from '@mui/material/Grid'
 import Switch from '@mui/material/Switch'
 import TextField from '@mui/material/TextField'
+import { MuiTelInput } from 'mui-tel-input'
 
 import CollapsibleSection from '../CollapsibleSection'
 
@@ -24,7 +25,7 @@ interface Props {
 }
 
 export function OwnerInfo({ reg, disabled, error, helperText, onChange, onOpenChange, open }: Props) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const [cache, setCache] = useDogCacheKey(reg.dog?.regNo, 'owner')
 
   const handleChange = useCallback(
@@ -87,7 +88,10 @@ export function OwnerInfo({ reg, disabled, error, helperText, onChange, onOpenCh
           />
         </Grid>
         <Grid item xs={12} sm={6}>
-          <TextField
+          <MuiTelInput
+            langOfCountryName={i18n.language}
+            defaultCountry="FI"
+            forceCallingCode
             InputProps={{ autoComplete: 'tel' }}
             disabled={disabled}
             error={!reg.owner?.phone}
@@ -95,7 +99,7 @@ export function OwnerInfo({ reg, disabled, error, helperText, onChange, onOpenCh
             id="owner_phone"
             label={t('contact.phone')}
             name="phone"
-            onChange={(e) => handleChange({ phone: e.target.value ?? '' })}
+            onChange={(phone) => handleChange({ phone })}
             value={reg.owner?.phone ?? ''}
           />
         </Grid>

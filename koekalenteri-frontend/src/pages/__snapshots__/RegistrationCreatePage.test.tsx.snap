@@ -1542,26 +1542,81 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-wfcdf7-MuiGrid-root"
                     >
                       <div
-                        class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                        class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root MuiTelInput-TextField  css-wb57ya-MuiFormControl-root-MuiTextField-root"
                       >
                         <label
-                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-error MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
-                          data-shrink="false"
+                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-error MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
+                          data-shrink="true"
                           for="owner_phone"
                           id="owner_phone-label"
                         >
                           contact.phone
                         </label>
                         <div
-                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-error MuiInputBase-fullWidth MuiInputBase-formControl css-govxmy-MuiInputBase-root-MuiOutlinedInput-root"
+                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-error MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart css-12gou2o-MuiInputBase-root-MuiOutlinedInput-root"
                         >
+                          <div
+                            class="MuiInputAdornment-root MuiInputAdornment-positionStart MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-74b6xz-MuiInputAdornment-root"
+                          >
+                            <span
+                              class="notranslate"
+                            >
+                              ​
+                            </span>
+                            <button
+                              aria-expanded="false"
+                              aria-haspopup="listbox"
+                              aria-label="Select country"
+                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiTelInput-IconButton css-104c99h-MuiButtonBase-root-MuiIconButton-root"
+                              tabindex="0"
+                              type="button"
+                            >
+                              <span
+                                class="MuiTelInput-Flag css-70qvj9"
+                                data-testid="FI"
+                              >
+                                <picture
+                                  class="css-70qvj9"
+                                >
+                                  <source
+                                    srcset="https://flagcdn.com/w40/fi.webp"
+                                    type="image/webp"
+                                  />
+                                  <source
+                                    srcset="https://flagcdn.com/w40/fi.png"
+                                    type="image/png"
+                                  />
+                                  <img
+                                    alt="unknown"
+                                    loading="lazy"
+                                    src="https://flagcdn.com/w40/fi.png"
+                                    width="20"
+                                  />
+                                </picture>
+                                <span
+                                  class="css-uoe0ln"
+                                >
+                                  FI
+                                </span>
+                              </span>
+                              <span
+                                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                              />
+                            </button>
+                            <p
+                              class="MuiTypography-root MuiTypography-body1 css-1nrbl98-MuiTypography-root"
+                            >
+                              +
+                              358
+                            </p>
+                          </div>
                           <input
                             aria-invalid="true"
                             autocomplete="tel"
-                            class="MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
+                            class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart css-1o9s3wi-MuiInputBase-input-MuiOutlinedInput-input"
                             id="owner_phone"
                             name="phone"
-                            type="text"
+                            type="tel"
                             value=""
                           />
                           <fieldset
@@ -1569,7 +1624,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                             class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                           >
                             <legend
-                              class="css-yjsfm1"
+                              class="css-14lo706"
                             >
                               <span>
                                 contact.phone
@@ -1857,26 +1912,81 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                               class="MuiGrid-root MuiGrid-item css-17sva53-MuiGrid-root"
                             >
                               <div
-                                class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                                class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root MuiTelInput-TextField  css-wb57ya-MuiFormControl-root-MuiTextField-root"
                               >
                                 <label
-                                  class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-error MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
-                                  data-shrink="false"
+                                  class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-error MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
+                                  data-shrink="true"
                                   for="handler_phone"
                                   id="handler_phone-label"
                                 >
                                   contact.phone
                                 </label>
                                 <div
-                                  class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-error MuiInputBase-fullWidth MuiInputBase-formControl css-govxmy-MuiInputBase-root-MuiOutlinedInput-root"
+                                  class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-error MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart css-12gou2o-MuiInputBase-root-MuiOutlinedInput-root"
                                 >
+                                  <div
+                                    class="MuiInputAdornment-root MuiInputAdornment-positionStart MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-74b6xz-MuiInputAdornment-root"
+                                  >
+                                    <span
+                                      class="notranslate"
+                                    >
+                                      ​
+                                    </span>
+                                    <button
+                                      aria-expanded="false"
+                                      aria-haspopup="listbox"
+                                      aria-label="Select country"
+                                      class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiTelInput-IconButton css-104c99h-MuiButtonBase-root-MuiIconButton-root"
+                                      tabindex="0"
+                                      type="button"
+                                    >
+                                      <span
+                                        class="MuiTelInput-Flag css-70qvj9"
+                                        data-testid="FI"
+                                      >
+                                        <picture
+                                          class="css-70qvj9"
+                                        >
+                                          <source
+                                            srcset="https://flagcdn.com/w40/fi.webp"
+                                            type="image/webp"
+                                          />
+                                          <source
+                                            srcset="https://flagcdn.com/w40/fi.png"
+                                            type="image/png"
+                                          />
+                                          <img
+                                            alt="unknown"
+                                            loading="lazy"
+                                            src="https://flagcdn.com/w40/fi.png"
+                                            width="20"
+                                          />
+                                        </picture>
+                                        <span
+                                          class="css-uoe0ln"
+                                        >
+                                          FI
+                                        </span>
+                                      </span>
+                                      <span
+                                        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                                      />
+                                    </button>
+                                    <p
+                                      class="MuiTypography-root MuiTypography-body1 css-1nrbl98-MuiTypography-root"
+                                    >
+                                      +
+                                      358
+                                    </p>
+                                  </div>
                                   <input
                                     aria-invalid="true"
                                     autocomplete="tel"
-                                    class="MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
+                                    class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart css-1o9s3wi-MuiInputBase-input-MuiOutlinedInput-input"
                                     id="handler_phone"
                                     name="phone"
-                                    type="text"
+                                    type="tel"
                                     value=""
                                   />
                                   <fieldset
@@ -1884,7 +1994,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                                     class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                                   >
                                     <legend
-                                      class="css-yjsfm1"
+                                      class="css-14lo706"
                                     >
                                       <span>
                                         contact.phone
@@ -3742,26 +3852,81 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-wfcdf7-MuiGrid-root"
                     >
                       <div
-                        class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                        class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root MuiTelInput-TextField  css-wb57ya-MuiFormControl-root-MuiTextField-root"
                       >
                         <label
-                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-error MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
-                          data-shrink="false"
+                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-error MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
+                          data-shrink="true"
                           for="owner_phone"
                           id="owner_phone-label"
                         >
                           contact.phone
                         </label>
                         <div
-                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-error MuiInputBase-fullWidth MuiInputBase-formControl css-govxmy-MuiInputBase-root-MuiOutlinedInput-root"
+                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-error MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart css-12gou2o-MuiInputBase-root-MuiOutlinedInput-root"
                         >
+                          <div
+                            class="MuiInputAdornment-root MuiInputAdornment-positionStart MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-74b6xz-MuiInputAdornment-root"
+                          >
+                            <span
+                              class="notranslate"
+                            >
+                              ​
+                            </span>
+                            <button
+                              aria-expanded="false"
+                              aria-haspopup="listbox"
+                              aria-label="Select country"
+                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiTelInput-IconButton css-104c99h-MuiButtonBase-root-MuiIconButton-root"
+                              tabindex="0"
+                              type="button"
+                            >
+                              <span
+                                class="MuiTelInput-Flag css-70qvj9"
+                                data-testid="FI"
+                              >
+                                <picture
+                                  class="css-70qvj9"
+                                >
+                                  <source
+                                    srcset="https://flagcdn.com/w40/fi.webp"
+                                    type="image/webp"
+                                  />
+                                  <source
+                                    srcset="https://flagcdn.com/w40/fi.png"
+                                    type="image/png"
+                                  />
+                                  <img
+                                    alt="unknown"
+                                    loading="lazy"
+                                    src="https://flagcdn.com/w40/fi.png"
+                                    width="20"
+                                  />
+                                </picture>
+                                <span
+                                  class="css-uoe0ln"
+                                >
+                                  FI
+                                </span>
+                              </span>
+                              <span
+                                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                              />
+                            </button>
+                            <p
+                              class="MuiTypography-root MuiTypography-body1 css-1nrbl98-MuiTypography-root"
+                            >
+                              +
+                              358
+                            </p>
+                          </div>
                           <input
                             aria-invalid="true"
                             autocomplete="tel"
-                            class="MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
+                            class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart css-1o9s3wi-MuiInputBase-input-MuiOutlinedInput-input"
                             id="owner_phone"
                             name="phone"
-                            type="text"
+                            type="tel"
                             value=""
                           />
                           <fieldset
@@ -3769,7 +3934,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                             class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                           >
                             <legend
-                              class="css-yjsfm1"
+                              class="css-14lo706"
                             >
                               <span>
                                 contact.phone
@@ -4057,26 +4222,81 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                               class="MuiGrid-root MuiGrid-item css-17sva53-MuiGrid-root"
                             >
                               <div
-                                class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                                class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root MuiTelInput-TextField  css-wb57ya-MuiFormControl-root-MuiTextField-root"
                               >
                                 <label
-                                  class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-error MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
-                                  data-shrink="false"
+                                  class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-error MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
+                                  data-shrink="true"
                                   for="handler_phone"
                                   id="handler_phone-label"
                                 >
                                   contact.phone
                                 </label>
                                 <div
-                                  class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-error MuiInputBase-fullWidth MuiInputBase-formControl css-govxmy-MuiInputBase-root-MuiOutlinedInput-root"
+                                  class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-error MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart css-12gou2o-MuiInputBase-root-MuiOutlinedInput-root"
                                 >
+                                  <div
+                                    class="MuiInputAdornment-root MuiInputAdornment-positionStart MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-74b6xz-MuiInputAdornment-root"
+                                  >
+                                    <span
+                                      class="notranslate"
+                                    >
+                                      ​
+                                    </span>
+                                    <button
+                                      aria-expanded="false"
+                                      aria-haspopup="listbox"
+                                      aria-label="Select country"
+                                      class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiTelInput-IconButton css-104c99h-MuiButtonBase-root-MuiIconButton-root"
+                                      tabindex="0"
+                                      type="button"
+                                    >
+                                      <span
+                                        class="MuiTelInput-Flag css-70qvj9"
+                                        data-testid="FI"
+                                      >
+                                        <picture
+                                          class="css-70qvj9"
+                                        >
+                                          <source
+                                            srcset="https://flagcdn.com/w40/fi.webp"
+                                            type="image/webp"
+                                          />
+                                          <source
+                                            srcset="https://flagcdn.com/w40/fi.png"
+                                            type="image/png"
+                                          />
+                                          <img
+                                            alt="unknown"
+                                            loading="lazy"
+                                            src="https://flagcdn.com/w40/fi.png"
+                                            width="20"
+                                          />
+                                        </picture>
+                                        <span
+                                          class="css-uoe0ln"
+                                        >
+                                          FI
+                                        </span>
+                                      </span>
+                                      <span
+                                        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                                      />
+                                    </button>
+                                    <p
+                                      class="MuiTypography-root MuiTypography-body1 css-1nrbl98-MuiTypography-root"
+                                    >
+                                      +
+                                      358
+                                    </p>
+                                  </div>
                                   <input
                                     aria-invalid="true"
                                     autocomplete="tel"
-                                    class="MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
+                                    class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart css-1o9s3wi-MuiInputBase-input-MuiOutlinedInput-input"
                                     id="handler_phone"
                                     name="phone"
-                                    type="text"
+                                    type="tel"
                                     value=""
                                   />
                                   <fieldset
@@ -4084,7 +4304,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                                     class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                                   >
                                     <legend
-                                      class="css-yjsfm1"
+                                      class="css-14lo706"
                                     >
                                       <span>
                                         contact.phone

@@ -24,7 +24,7 @@
                 "N": "2"
               },
               "phone": {
-                "S": "0700-siiri"
+                "S": "+35840-siiri"
               },
               "email": {
                 "S": "siiri@example.org"
@@ -181,7 +181,7 @@
                 "N": "1"
               },
               "phone": {
-                "S": "0700-teemu"
+                "S": "+35840-teemu"
               },
               "email": {
                 "S": "teemu@example.org"
@@ -245,7 +245,7 @@
                 "N": "2"
               },
               "phone": {
-                "S": "0700-siiri"
+                "S": "+35840-siiri"
               },
               "email": {
                 "S": "siiri@example.org"
@@ -316,7 +316,7 @@
                 "N": "2"
               },
               "phone": {
-                "S": "0700-siiri"
+                "S": "+35840-siiri"
               },
               "email": {
                 "S": "siiri@example.org"

@@ -1419,7 +1419,7 @@ exports[`RegistrationEditPage should render 1`] = `
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-wfcdf7-MuiGrid-root"
                     >
                       <div
-                        class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                        class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root MuiTelInput-TextField  css-wb57ya-MuiFormControl-root-MuiTextField-root"
                       >
                         <label
                           class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
@@ -1430,17 +1430,70 @@ exports[`RegistrationEditPage should render 1`] = `
                           contact.phone
                         </label>
                         <div
-                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl css-govxmy-MuiInputBase-root-MuiOutlinedInput-root"
+                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart css-12gou2o-MuiInputBase-root-MuiOutlinedInput-root"
                         >
+                          <div
+                            class="MuiInputAdornment-root MuiInputAdornment-positionStart MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-74b6xz-MuiInputAdornment-root"
+                          >
+                            <span
+                              class="notranslate"
+                            >
+                              ​
+                            </span>
+                            <button
+                              aria-expanded="false"
+                              aria-haspopup="listbox"
+                              aria-label="Select country"
+                              class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiTelInput-IconButton css-104c99h-MuiButtonBase-root-MuiIconButton-root"
+                              disabled=""
+                              tabindex="-1"
+                              type="button"
+                            >
+                              <span
+                                class="MuiTelInput-Flag css-70qvj9"
+                                data-testid="FI"
+                              >
+                                <picture
+                                  class="css-70qvj9"
+                                >
+                                  <source
+                                    srcset="https://flagcdn.com/w40/fi.webp"
+                                    type="image/webp"
+                                  />
+                                  <source
+                                    srcset="https://flagcdn.com/w40/fi.png"
+                                    type="image/png"
+                                  />
+                                  <img
+                                    alt="unknown"
+                                    loading="lazy"
+                                    src="https://flagcdn.com/w40/fi.png"
+                                    width="20"
+                                  />
+                                </picture>
+                                <span
+                                  class="css-uoe0ln"
+                                >
+                                  FI
+                                </span>
+                              </span>
+                            </button>
+                            <p
+                              class="MuiTypography-root MuiTypography-body1 css-1nrbl98-MuiTypography-root"
+                            >
+                              +
+                              358
+                            </p>
+                          </div>
                           <input
                             aria-invalid="false"
                             autocomplete="tel"
-                            class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
+                            class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedStart css-1o9s3wi-MuiInputBase-input-MuiOutlinedInput-input"
                             disabled=""
                             id="owner_phone"
                             name="phone"
-                            type="text"
-                            value="0700-owner"
+                            type="tel"
+                            value="40 12345"
                           />
                           <fieldset
                             aria-hidden="true"
@@ -1737,7 +1790,7 @@ exports[`RegistrationEditPage should render 1`] = `
                               class="MuiGrid-root MuiGrid-item css-17sva53-MuiGrid-root"
                             >
                               <div
-                                class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                                class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root MuiTelInput-TextField  css-wb57ya-MuiFormControl-root-MuiTextField-root"
                               >
                                 <label
                                   class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
@@ -1748,17 +1801,70 @@ exports[`RegistrationEditPage should render 1`] = `
                                   contact.phone
                                 </label>
                                 <div
-                                  class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl css-govxmy-MuiInputBase-root-MuiOutlinedInput-root"
+                                  class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart css-12gou2o-MuiInputBase-root-MuiOutlinedInput-root"
                                 >
+                                  <div
+                                    class="MuiInputAdornment-root MuiInputAdornment-positionStart MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-74b6xz-MuiInputAdornment-root"
+                                  >
+                                    <span
+                                      class="notranslate"
+                                    >
+                                      ​
+                                    </span>
+                                    <button
+                                      aria-expanded="false"
+                                      aria-haspopup="listbox"
+                                      aria-label="Select country"
+                                      class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiTelInput-IconButton css-104c99h-MuiButtonBase-root-MuiIconButton-root"
+                                      disabled=""
+                                      tabindex="-1"
+                                      type="button"
+                                    >
+                                      <span
+                                        class="MuiTelInput-Flag css-70qvj9"
+                                        data-testid="FI"
+                                      >
+                                        <picture
+                                          class="css-70qvj9"
+                                        >
+                                          <source
+                                            srcset="https://flagcdn.com/w40/fi.webp"
+                                            type="image/webp"
+                                          />
+                                          <source
+                                            srcset="https://flagcdn.com/w40/fi.png"
+                                            type="image/png"
+                                          />
+                                          <img
+                                            alt="unknown"
+                                            loading="lazy"
+                                            src="https://flagcdn.com/w40/fi.png"
+                                            width="20"
+                                          />
+                                        </picture>
+                                        <span
+                                          class="css-uoe0ln"
+                                        >
+                                          FI
+                                        </span>
+                                      </span>
+                                    </button>
+                                    <p
+                                      class="MuiTypography-root MuiTypography-body1 css-1nrbl98-MuiTypography-root"
+                                    >
+                                      +
+                                      358
+                                    </p>
+                                  </div>
                                   <input
                                     aria-invalid="false"
                                     autocomplete="tel"
-                                    class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
+                                    class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedStart css-1o9s3wi-MuiInputBase-input-MuiOutlinedInput-input"
                                     disabled=""
                                     id="handler_phone"
                                     name="phone"
-                                    type="text"
-                                    value="0700-handler"
+                                    type="tel"
+                                    value="40 54321"
                                   />
                                   <fieldset
                                     aria-hidden="true"

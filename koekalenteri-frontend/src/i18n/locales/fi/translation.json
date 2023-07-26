@@ -350,6 +350,7 @@
       "dogBreed": "Rodulla \"$t(breed:{{type}})\" ei ole osallistumisoikeutta kokeeseen.",
       "dogResults": "Tulosten perusteella koiralla ei ole oikeutta osallistua valittuun koeluokkaan.",
       "email": "Sähköpostiosoite on virheellinen",
+      "phone": "Puhelinnumero on virheellinen",
       "required": "$t(registration.{{field}}) ovat puutteelliset",
       "reserve": "Valitse osallistutko varasijalta",
       "terms": "Ilmoittautumisen ehtojen ja tietosuojaselosteen hyväksyminen on pakollista."

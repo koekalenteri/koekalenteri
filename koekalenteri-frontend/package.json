@@ -42,6 +42,7 @@
     "jest-watch-typeahead": "^2.2.2",
     "material-ui-confirm": "^3.0.7",
     "mini-css-extract-plugin": "^2.4.5",
+    "mui-tel-input": "^3.2.2",
     "nanoid": "^4.0.2",
     "notistack": "^3.0.1",
     "postcss": "^8.4.4",
@@ -131,7 +132,11 @@
         "error",
         {
           "groups": [
-            ["^@?\\w.*\\u0000$", "^[^.].*\\u0000$", "^\\..*\\u0000$"],
+            [
+              "^@?\\w.*\\u0000$",
+              "^[^.].*\\u0000$",
+              "^\\..*\\u0000$"
+            ],
             [
               "^react",
               "^@?\\w"
@@ -159,7 +164,9 @@
       ],
       "@typescript-eslint/consistent-type-imports": [
         "error",
-        { "prefer": "type-imports" }
+        {
+          "prefer": "type-imports"
+        }
       ]
     }
   },
@@ -200,7 +207,7 @@
       "^(?!.*\\.(js|jsx|mjs|cjs|ts|tsx|css|json)$)": "<rootDir>/config/jest/fileTransform.js"
     },
     "transformIgnorePatterns": [
-      "node_modules/(?!(react-dnd|dnd-core|@react-dnd|react-dnd-html5-backend|nanoid)/)"
+      "node_modules/(?!(react-dnd|dnd-core|@react-dnd|react-dnd-html5-backend|nanoid|mui-tel-input)/)"
     ],
     "modulePaths": [],
     "moduleNameMapper": {
