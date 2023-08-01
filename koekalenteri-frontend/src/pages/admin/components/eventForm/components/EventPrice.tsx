@@ -8,13 +8,19 @@ import EventProperty from './EventProperty'
 
 type Props = EventPropertyProps<'cost' | 'costMember', true>
 
+const validate = (v: string) => v.replace(/\D/g, '')
+
+const numberOrUndefined = (value?: string | number) => {
+  const number = Number(value)
+  if (value === null || isNaN(number)) return undefined
+  return number
+}
+
 export default function EventPrice(props: Props) {
   const toString = useCallback((v?: string | number) => v?.toString() ?? '', [])
   const handleChange = useCallback(
     (newProps: Partial<Event>) => {
-      const value = newProps[props.id]
-      const numberOrUndef = value === null || value === undefined ? undefined : +value
-      props.onChange?.({ [props.id]: numberOrUndef })
+      props.onChange?.({ [props.id]: numberOrUndefined(newProps[props.id]) })
     },
     [props]
   )
@@ -25,6 +31,7 @@ export default function EventPrice(props: Props) {
       getOptionLabel={toString}
       endAdornment={<InputAdornment position="end">€</InputAdornment>}
       onChange={handleChange}
+      validateInput={validate}
     />
   )
 }

@@ -27,6 +27,7 @@ export type EventPropertyProps<P extends Property, freeSolo extends boolean> = O
   fields?: FieldRequirements
   onChange?: (props: Partial<Event>) => void
   helpClick?: React.MouseEventHandler<HTMLButtonElement>
+  validateInput?: (value: string) => string
   endAdornment?: ReactNode
 }
 
@@ -51,7 +52,7 @@ const getInputInitValue = <P extends Property, freeSolo extends boolean>(
 
 const EventProperty = <P extends Property, freeSolo extends boolean>(props: EventPropertyProps<P, freeSolo>) => {
   const { t } = useTranslation()
-  const { id, event, fields, helpClick, endAdornment, onChange, ...acProps } = props
+  const { id, event, fields, helpClick, endAdornment, onChange, validateInput, ...acProps } = props
   const value = event[id]
   const fixedValue = value ?? null
   const [inputValue, setInputValue] = useState(getInputInitValue(fixedValue, props))
@@ -83,10 +84,13 @@ const EventProperty = <P extends Property, freeSolo extends boolean>(props: Even
   const handleInputChange = useCallback(
     (e: SyntheticEvent<Element, globalThis.Event>, value: string, reason: AutocompleteInputChangeReason) => {
       if (reason === 'reset' && value === '') return
-      setInputValue(value)
-      debouncedonChange(value)
+      const validated = validateInput?.(value) ?? value
+      if (inputValue !== validated) {
+        setInputValue(validated)
+        debouncedonChange(validated)
+      }
     },
-    [debouncedonChange]
+    [debouncedonChange, inputValue, validateInput]
   )
 
   const renderInput = useCallback(
