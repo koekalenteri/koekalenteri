@@ -3,7 +3,7 @@ import type { Event } from 'koekalenteri-shared/model'
 import { useEffect } from 'react'
 import { useRecoilState, useResetRecoilState } from 'recoil'
 
-import { newRegistrationAtom } from '../../recoil'
+import { adminNewRegistrationAtom } from '../recoil'
 
 import RegistrationDialogBase from './RegistrationDialogBase'
 
@@ -16,11 +16,11 @@ interface Props {
 }
 
 export default function RegistrationCreateDialog({ event, eventClass, open, onClose }: Props) {
-  const [registration, setRegistration] = useRecoilState(newRegistrationAtom)
-  const resetRegistration = useResetRecoilState(newRegistrationAtom)
+  const [registration, setRegistration] = useRecoilState(adminNewRegistrationAtom)
+  const resetRegistration = useResetRecoilState(adminNewRegistrationAtom)
 
   useEffect(() => {
-    if (!registration) {
+    if (!registration || !open) {
       return
     }
     if (
@@ -35,7 +35,7 @@ export default function RegistrationCreateDialog({ event, eventClass, open, onCl
         class: eventClass,
       })
     }
-  }, [registration, event, setRegistration, eventClass])
+  }, [registration, event, setRegistration, eventClass, open])
 
   return (
     <RegistrationDialogBase
