@@ -97,22 +97,24 @@ const ClassEntrySelection = ({
   const canArrangeReserve = !registrationsByGroup.reserve.some((r) => r.reserveNotified)
 
   const handleDrop = (group: RegistrationGroup) => async (item: DragItem) => {
+    console.debug({ state, group, item })
+
     const reg = registrations.find((r) => r.id === item.id)
     if (!reg) {
       return
     }
 
     if (
-      state === 'picked' &&
+      (state === 'picked' || state === 'invited') &&
       group.key !== 'cancelled' &&
       group.key !== 'reserve' &&
       item.targetGroupKey !== group.key
     ) {
+      const extra = state === 'invited' ? ' sekä koekutsu' : ''
       try {
         await confirm({
           title: 'Olet lisäämässä koirakkoa osallistujiin',
-          description:
-            'Kun koirakko on lisätty, koirakolle lähtee vahvistusviesti koepaikasta. Oletko varma että haluat lisätä tämän koirakon osallistujiin?',
+          description: `Kun koirakko on lisätty, koirakolle lähtee vahvistusviesti koepaikasta${extra}. Oletko varma että haluat lisätä tämän koirakon osallistujiin?`,
           confirmationText: 'Lisää osallistujiin',
           cancellationText: t('cancel'),
           cancellationButtonProps: { variant: 'outlined' },

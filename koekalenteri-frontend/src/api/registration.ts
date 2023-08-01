@@ -45,6 +45,8 @@ export async function putRegistrationGroups(
 ): Promise<
   Pick<ConfirmedEvent, 'classes' | 'entries'> & {
     items: Registration[]
+    invitedOk: string[]
+    invitedFailed: string[]
     pickedOk: string[]
     pickedFailed: string[]
     reserveOk: string[]

@@ -32,11 +32,17 @@ export const useAdminRegistrationActions = () => {
 
     async saveGroups(eventId: string, groups: RegistrationGroupInfo[]) {
       try {
-        const { items, classes, entries, pickedOk, pickedFailed, reserveOk, reserveFailed } =
+        const { items, classes, entries, invitedOk, invitedFailed, pickedOk, pickedFailed, reserveOk, reserveFailed } =
           await putRegistrationGroups(eventId, groups, token)
 
         if (pickedOk.length) {
-          enqueueSnackbar('Koekutsu lähetetty onnistuneesti\n\n' + pickedOk.join('\n'), {
+          enqueueSnackbar('Koepaikkailmoitus lähetetty onnistuneesti\n\n' + pickedOk.join('\n'), {
+            variant: 'success',
+            style: { whiteSpace: 'pre-line' },
+          })
+        }
+        if (invitedOk.length) {
+          enqueueSnackbar('Koekutsu lähetetty onnistuneesti\n\n' + invitedOk.join('\n'), {
             variant: 'success',
             style: { whiteSpace: 'pre-line' },
           })
@@ -48,7 +54,13 @@ export const useAdminRegistrationActions = () => {
           })
         }
         if (pickedFailed.length) {
-          enqueueSnackbar('Koekutsun lähetys epäonnistui 💩\n\n' + pickedFailed.join('\n'), {
+          enqueueSnackbar('Koepaikkailmoituksen lähetys epäonnistui 💩\n\n' + pickedFailed.join('\n'), {
+            variant: 'success',
+            style: { whiteSpace: 'pre-line' },
+          })
+        }
+        if (invitedFailed.length) {
+          enqueueSnackbar('Koekutsun lähetys epäonnistui 💩\n\n' + invitedFailed.join('\n'), {
             variant: 'success',
             style: { whiteSpace: 'pre-line' },
           })

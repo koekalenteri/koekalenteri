@@ -202,18 +202,27 @@ export const putRegistrationGroupsHandler = metricScope(
         const { classes, entries } = confirmedEvent
         const cls = itemsWithGroups[0].class
 
-        const emails = { pickedOk: [], pickedFailed: [], reserveOk: [], reserveFailed: [] }
+        const emails = {
+          invitedOk: [],
+          invitedFailed: [],
+          pickedOk: [],
+          pickedFailed: [],
+          reserveOk: [],
+          reserveFailed: [],
+        }
         if (
-          (cls && classes.find((c) => c.class === cls && c.state === 'picked')) ||
-          confirmedEvent.state === 'picked'
+          confirmedEvent.state === 'picked' ||
+          confirmedEvent.state === 'invited' ||
+          (cls && classes.find((c) => c.class === cls && (c.state === 'picked' || c.state === 'invited')))
         ) {
           /**
-           * When event/class has already been 'picked', registrations moved from reserve to participants receive 'picked' email
+           * When event/class has already been 'picked' or 'invited', registrations moved from reserve to participants receive 'picked' email
            */
-          const oldReserve = oldItems?.filter((reg) => reg.group?.key === 'reserve') ?? []
+          const oldResCan =
+            oldItems?.filter((reg) => reg.group?.key === 'reserve' || reg.group?.key === 'cancelled') ?? []
           const newParticipants = itemsWithGroups.filter(
             (reg) =>
-              reg.class === cls && isParticipantGroup(reg.group?.key) && oldReserve.find((old) => old.id === reg.id)
+              reg.class === cls && isParticipantGroup(reg.group?.key) && oldResCan.find((old) => old.id === reg.id)
           )
 
           const { ok: pickedOk, failed: pickedFailed } = await sendTemplatedEmailToEventRegistrations(
@@ -225,6 +234,18 @@ export const putRegistrationGroupsHandler = metricScope(
             user.name
           )
 
+          const { ok: invitedOk, failed: invitedFailed } =
+            confirmedEvent.state === 'invited'
+              ? await sendTemplatedEmailToEventRegistrations(
+                  'invitation',
+                  confirmedEvent,
+                  newParticipants,
+                  origin,
+                  '',
+                  user.name
+                )
+              : { ok: [], failed: [] }
+
           /**
            * Registrations in reserve group that moved up, receive updated 'reserve' email
            */
@@ -232,7 +253,7 @@ export const putRegistrationGroupsHandler = metricScope(
             (reg) =>
               reg.class === cls &&
               reg.group?.key === 'reserve' &&
-              oldReserve.find((old) => old.id === reg.id && (old.group?.number ?? 999) > (reg.group?.number ?? 999))
+              oldResCan.find((old) => old.id === reg.id && (old.group?.number ?? 999) > (reg.group?.number ?? 999))
           )
           const { ok: reserveOk, failed: reserveFailed } = await sendTemplatedEmailToEventRegistrations(
             'reserve',
@@ -242,7 +263,7 @@ export const putRegistrationGroupsHandler = metricScope(
             '',
             user.name
           )
-          Object.assign(emails, { pickedOk, pickedFailed, reserveOk, reserveFailed })
+          Object.assign(emails, { invitedOk, invitedFailed, pickedOk, pickedFailed, reserveOk, reserveFailed })
         }
 
         metricsSuccess(metrics, event.requestContext, 'putRegistrationGroups')
