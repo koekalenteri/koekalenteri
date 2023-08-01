@@ -1444,7 +1444,7 @@ Resources:
             files:
               - '**/*'
       CustomRules:
-        - Source: "</^[^.]+$|\\.(?!(css|gif|ico|jpg|js|png|txt|svg|woff|ttf|map|json)$)([^.]+$)/>"
+        - Source: "^((?!\\.(css|gif|ico|jpg|js|png|txt|svg|woff|ttf)$).)*$"
           Status: "200"
           Target: "/index.html"
       Tags:
