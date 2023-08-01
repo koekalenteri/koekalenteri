@@ -134,8 +134,8 @@ async function saveGroup({ eventId, id, group }: JsonRegistrationGroupInfo) {
   )
 }
 
-const setLastEmail = async ({ eventId, id }: JsonRegistration, value: string) => {
-  return dynamoDB.update(
+const setLastEmail = async ({ eventId, id }: JsonRegistration, value: string) =>
+  dynamoDB.update(
     { eventId, id },
     'set #field = :value',
     {
@@ -145,7 +145,24 @@ const setLastEmail = async ({ eventId, id }: JsonRegistration, value: string) =>
       ':value': value,
     }
   )
-}
+
+const setReserveNotified = async (registrations: JsonRegistration[]) =>
+  Promise.all(
+    registrations
+      .filter((r) => !r.reserveNotified)
+      .map(({ eventId, id }) =>
+        dynamoDB.update(
+          { eventId, id },
+          'set #field = :value',
+          {
+            '#field': 'reserveNotified',
+          },
+          {
+            ':value': true,
+          }
+        )
+      )
+  )
 
 const isParticipantGroup = (group?: string) => group && group !== 'reserve' && group !== 'cancelled'
 
@@ -209,7 +226,7 @@ export const putRegistrationGroupsHandler = metricScope(
           )
 
           /**
-           * Registrations in reserve group that moved up, receie updated 'reserve' email
+           * Registrations in reserve group that moved up, receive updated 'reserve' email
            */
           const movedReserve = itemsWithGroups.filter(
             (reg) =>
@@ -276,6 +293,10 @@ export const sendMessagesHandler = metricScope((metrics: MetricsLogger) => async
       text,
       user.name
     )
+
+    if (template === 'reserve') {
+      await setReserveNotified(registrations)
+    }
 
     if (template === 'picked' || template === 'invitation') {
       confirmedEvent = await markParticipants(
