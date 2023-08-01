@@ -43,7 +43,13 @@ export const useAdminEventActions = () => {
     copy.name = 'Kopio - ' + (copy.name ?? '')
     copy.state = 'draft'
     copy.entries = 0
-    copy.classes.forEach((c) => (c.entries = c.members = 0))
+    copy.classes.forEach((c) => {
+      c.entries = c.members = 0
+      if (c.date) {
+        c.date = addDays(newEventStartDate, differenceInDays(copy.startDate, c.date))
+      }
+      delete c.state
+    })
 
     const days = differenceInDays(copy.endDate, copy.startDate)
     copy.startDate = newEventStartDate
