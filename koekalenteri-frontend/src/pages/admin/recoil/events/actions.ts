@@ -52,6 +52,7 @@ export const useAdminEventActions = () => {
     copy.entryEndDate = newEventEntryEndDate
 
     delete copy.kcId
+    delete copy.entryOrigEndDate
 
     setNewEvent(copy)
     navigate(Path.admin.newEvent)
