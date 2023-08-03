@@ -110,10 +110,9 @@ jobs:
           cache: npm
           node-version: 16 # sam build fails with 18
           cache-dependency-path: koekalenteri-backend/package-lock.json
-      - uses: actions/setup-python@v4
-        with:
-          python-version: "3.8"
       - uses: aws-actions/setup-sam@v2
+        with:
+          use-installer: true
       - uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
