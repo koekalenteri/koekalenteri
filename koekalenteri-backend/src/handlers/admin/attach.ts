@@ -34,7 +34,13 @@ export const putInvitationAttachmentHandler = metricScope(
 
         const file = await parsePostFile(event)
         if (file.error) {
+          console.error(file.error)
           return response(400, file.error, event)
+        }
+
+        if (!file.data) {
+          console.error('no data')
+          return response(400, 'no data', event)
         }
 
         const key = nanoid()

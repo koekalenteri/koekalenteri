@@ -5,13 +5,13 @@ import type { FileInfo } from 'busboy'
 import type { Readable } from 'stream'
 
 import s3client from 'aws-sdk/clients/s3'
-import busboy from 'busboy'
+import Busboy from 'busboy'
 
 const s3 = new s3client()
 
 interface ParseResult {
   info?: FileInfo
-  data: string
+  data?: Buffer
   fields: Record<string, string>
   error: Error | null
 }
@@ -19,35 +19,38 @@ interface ParseResult {
 export const parsePostFile = (event: APIGatewayProxyEvent) =>
   new Promise<ParseResult>((resolve, reject) => {
     try {
-      console.log('Parsing File from event with headers: ', event.headers)
-      const bb = busboy({
+      console.log('Parsing File from event...')
+      const bb = Busboy({
         headers: {
           'content-type': event.headers['content-type'] ?? event.headers['Content-Type'],
         },
-        limits: {
-          fileSize: 20e6, // 20 MB
-        },
       })
+      console.log('busboy initialized')
 
       const result: ParseResult = {
         fields: {},
         info: undefined,
-        data: '',
+        data: undefined,
         error: null,
       }
+      const buffers: Uint8Array[] = []
 
       bb.on('file', (_name: string, file: Readable, info: FileInfo): void => {
         file.on('data', (data) => {
-          result.data = data
+          console.log('on data')
+          buffers.push(data)
         })
 
         file.on('end', () => {
+          console.log('on end')
           result.error = file.errored
           result.info = info
+          result.data = Buffer.concat(buffers)
         })
       })
 
       bb.on('field', (name, value) => {
+        console.log('on field', name)
         result.fields[name] = value
       })
 
@@ -56,9 +59,11 @@ export const parsePostFile = (event: APIGatewayProxyEvent) =>
         reject(error)
       })
       bb.on('finish', () => {
+        console.log('on finish')
         resolve(result)
       })
       bb.end(event.body)
+      console.log('parse end')
     } catch (e) {
       console.error(e)
       reject(e)
