@@ -401,16 +401,18 @@ Resources:
   # API declaration
   KoekalenteriApi:
     Type: AWS::Serverless::Api
-    MethodSettings:
-        DataTraceEnabled: true
-        MetricsEnabled: true
-        HttpMethod: '*'
-        ResourcePath: !Sub '${VersionParam}/*'
-        LoggingLevel: INFO
-    AccessLogSetting:
-      DestinationArn: !Sub 'arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:${ApiAccessLogGroup}'
-      Format: '$context.identity.sourceIp $context.authorizer.claims.sub [$context.requestTime] "$context.httpMethod $context.resourcePath $context.protocol" $context.status $context.requestId $context.awsEndpointRequestId $context.xrayTraceId $context.responseLatency $context.integrationLatency "$context.error.message"'
     Properties:
+      BinaryMediaTypes:
+        - "multipart/form-data"
+      MethodSettings:
+          DataTraceEnabled: true
+          MetricsEnabled: true
+          HttpMethod: '*'
+          ResourcePath: !Sub '${VersionParam}/*'
+          LoggingLevel: INFO
+      AccessLogSetting:
+        DestinationArn: !Sub 'arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:${ApiAccessLogGroup}'
+        Format: '$context.identity.sourceIp $context.authorizer.claims.sub [$context.requestTime] "$context.httpMethod $context.resourcePath $context.protocol" $context.status $context.requestId $context.awsEndpointRequestId $context.xrayTraceId $context.responseLatency $context.integrationLatency "$context.error.message"'
       Name: !Join ['-', [Koekalenteri, !Ref AWS::StackName]]
       StageName: !Ref StageNameParam
       TracingEnabled: true

@@ -24,11 +24,7 @@ export async function putInvitationAttachment(
   signal?: AbortSignal
 ): Promise<string> {
   const data = new FormData()
-  data.append('file', file)
+  data.append('file', file, file.name)
 
-  return http.post<FormData, string>(
-    `/admin/file/invitation/${eventId}`,
-    data,
-    withToken({ headers: { 'Content-Type': 'multipart/form-data' }, signal }, token)
-  )
+  return http.postRaw<FormData, string>(`/admin/file/invitation/${eventId}`, data, withToken({ signal }, token))
 }

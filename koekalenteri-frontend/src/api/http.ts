@@ -48,6 +48,9 @@ const HTTP = {
   async post<T, U>(path: string, body: T, init?: RequestInit): Promise<U> {
     return http<U>(path, { method: 'post', body: JSON.stringify(body), ...init })
   },
+  async postRaw<T extends BodyInit, U>(path: string, body: T, init?: RequestInit): Promise<U> {
+    return http<U>(path, { method: 'post', body, ...init })
+  },
   async put<T, U>(path: string, body: T, init?: RequestInit): Promise<U> {
     return http<U>(path, { method: 'put', body: JSON.stringify(body), ...init })
   },
