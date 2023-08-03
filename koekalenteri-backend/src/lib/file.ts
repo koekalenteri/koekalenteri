@@ -58,6 +58,7 @@ export const parsePostFile = (event: APIGatewayProxyEvent) =>
       bb.on('finish', () => {
         resolve(result)
       })
+      bb.end(event.body)
     } catch (e) {
       console.error(e)
       reject(e)
