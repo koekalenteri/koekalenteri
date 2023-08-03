@@ -1331,6 +1331,8 @@ Resources:
         - !Ref CommonLayer
       Tracing: Active
       Policies:
+        - S3FullAccessPolicy:
+            BucketName: !Ref EventAttachmentBucket
         - DynamoDBCrudPolicy:
             TableName: !Ref EventTable
         - DynamoDBReadPolicy:
@@ -1369,6 +1371,8 @@ Resources:
         - !Ref CommonLayer
       Tracing: Active
       Policies:
+        - S3ReadPolicy:
+            BucketName: !Ref EventAttachmentBucket
         - DynamoDBReadPolicy:
             TableName: !Ref UserTable
         - DynamoDBReadPolicy:
