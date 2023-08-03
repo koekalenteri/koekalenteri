@@ -1320,6 +1320,77 @@ Resources:
       LogGroupName: !Join ['/', ['/aws/lambda', !Ref GetStartListFunction]]
       RetentionInDays: 30
 
+  PutInvitationAttachmentFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: koekalenteri-backend
+      Handler: dist/handlers/admin/attach.putInvitationAttachmentHandler
+      Layers:
+        - !Ref CommonLayer
+      Tracing: Active
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EventTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserLinkTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuditTable
+        - CloudWatchPutMetricPolicy: {}
+      Environment:
+        Variables:
+          BUCKET: !Ref EventAttachmentBucket
+          TABLE_NAME: !Ref EventTable
+      Events:
+        Put:
+          Type: Api
+          Properties:
+            Path: /admin/file/invitation/{eventId}
+            Method: POST
+            RestApiId: !Ref KoekalenteriApi
+            Auth:
+              Authorizer: CognitoAuthorizer
+
+  PutInvitationAttachmentFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref PutInvitationAttachmentFunction]]
+      RetentionInDays: 30
+
+  GetAttachmentFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: koekalenteri-backend
+      Handler: dist/handlers/attach.getAttachmentHandler
+      Layers:
+        - !Ref CommonLayer
+      Tracing: Active
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserLinkTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuditTable
+        - CloudWatchPutMetricPolicy: {}
+      Environment:
+        Variables:
+          BUCKET: !Ref EventAttachmentBucket
+      Events:
+        Get:
+          Type: Api
+          Properties:
+            Path: /file/{key}
+            Method: GET
+            RestApiId: !Ref KoekalenteriApi
+
+  GetAttachmentFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref GetAttachmentFunction]]
+      RetentionInDays: 30
+
   PaymentConfirmFunction:
     Type: AWS::Serverless::Function
     Properties:

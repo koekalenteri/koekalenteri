@@ -40,9 +40,8 @@ export const putInvitationAttachmentHandler = metricScope(
         const key = nanoid()
         await uploadFile(key, file.data)
 
-        const eventKey = { id: eventId }
         await dynamoDB.update(
-          eventKey,
+          { id: eventId },
           'set #attachment = :attachment',
           {
             '#attachment': 'invitationAttachment',
@@ -53,9 +52,8 @@ export const putInvitationAttachmentHandler = metricScope(
           eventTable
         )
 
-        const items = await dynamoDB.readAll()
         metricsSuccess(metrics, event.requestContext, 'putInvitationAttachment')
-        return response(200, items, event)
+        return response(200, key, event)
       } catch (err) {
         console.error(err)
         metricsError(metrics, event.requestContext, 'putInvitationAttachment')

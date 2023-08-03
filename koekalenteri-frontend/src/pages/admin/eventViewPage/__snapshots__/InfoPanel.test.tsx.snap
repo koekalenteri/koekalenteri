@@ -3,207 +3,358 @@
 exports[`InfoPanel> renders with event with closed entry and registrations 1`] = `
 <div>
   <div
-    class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation4 MuiTableContainer-root css-jnhczt-MuiPaper-root-MuiTableContainer-root"
+    class="MuiPaper-root MuiPaper-elevation MuiPaper-elevation0 MuiAccordion-root Mui-expanded css-1aex4q2-MuiPaper-root-MuiAccordion-root"
   >
-    <table
-      class="MuiTable-root css-rqglhn-MuiTable-root"
+    <div
+      aria-expanded="true"
+      class="MuiButtonBase-root MuiAccordionSummary-root Mui-expanded css-ag2ckr-MuiButtonBase-root-MuiAccordionSummary-root"
+      role="button"
+      tabindex="0"
     >
-      <thead
-        class="MuiTableHead-root css-15wwp11-MuiTableHead-root"
+      <div
+        class="MuiAccordionSummary-content Mui-expanded css-1betqn-MuiAccordionSummary-content"
       >
-        <tr
-          class="MuiTableRow-root MuiTableRow-head css-1q1u3t4-MuiTableRow-root"
+        <div
+          class="MuiTabs-root css-1we33na-MuiTabs-root"
         >
-          <th
-            class="MuiTableCell-root MuiTableCell-head MuiTableCell-sizeMedium css-1ygcj2i-MuiTableCell-root"
-            colspan="4"
-            scope="col"
+          <div
+            class="MuiTabs-scroller MuiTabs-fixed css-jpln7h-MuiTabs-scroller"
+            style="overflow: hidden; margin-bottom: 0px;"
           >
-            <b>
-              Ilmoittautuneet
-            </b>
-          </th>
-        </tr>
-      </thead>
-      <tbody
-        class="MuiTableBody-root css-apqrd9-MuiTableBody-root"
+            <div
+              class="MuiTabs-flexContainer css-heg063-MuiTabs-flexContainer"
+              role="tablist"
+            >
+              <button
+                aria-selected="true"
+                class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary Mui-selected css-1h9z7r5-MuiButtonBase-root-MuiTab-root"
+                role="tab"
+                tabindex="0"
+                type="button"
+              >
+                Kokeen tilanne
+                <span
+                  class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                />
+              </button>
+              <button
+                aria-selected="false"
+                class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary css-1h9z7r5-MuiButtonBase-root-MuiTab-root"
+                role="tab"
+                tabindex="-1"
+                type="button"
+              >
+                Tehtävälista
+                <span
+                  class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                />
+              </button>
+            </div>
+            <span
+              class="MuiTabs-indicator css-1aquho2-MuiTabs-indicator"
+              style="left: 0px; width: 0px;"
+            />
+          </div>
+        </div>
+      </div>
+      <div
+        class="MuiAccordionSummary-expandIconWrapper Mui-expanded css-yw020d-MuiAccordionSummary-expandIconWrapper"
       >
-        <tr
-          class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
+        <svg
+          aria-hidden="true"
+          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+          data-testid="ExpandMoreIcon"
+          focusable="false"
+          viewBox="0 0 24 24"
         >
-          <td
-            class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
-            colspan="3"
-          >
-            <span
-              class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-g98qyn-MuiTypography-root"
-            >
-              • osallistujat
-            </span>
-          </td>
-        </tr>
-        <tr
-          class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
+          <path
+            d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"
+          />
+        </svg>
+      </div>
+    </div>
+    <div
+      class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-pwcg7p-MuiCollapse-root"
+      style="min-height: 0px;"
+    >
+      <div
+        class="MuiCollapse-wrapper MuiCollapse-vertical css-smkl36-MuiCollapse-wrapper"
+      >
+        <div
+          class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
         >
-          <td
-            class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+          <div
+            class="MuiAccordion-region"
+            role="region"
           >
-            <span
-              class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-53bho8-MuiTypography-root"
+            <div
+              class="MuiAccordionDetails-root css-nw01sv-MuiAccordionDetails-root"
             >
-              ALO
-            </span>
-          </td>
-          <td
-            class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
-          >
-            <span
-              class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-bcc4ko-MuiTypography-root"
-            >
-              0
-               / 
-              3
-            </span>
-          </td>
-          <td
-            class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
-          >
-            <button
-              class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall css-10zzhxi-MuiButtonBase-root-MuiButton-root"
-              disabled=""
-              tabindex="-1"
-              type="button"
-            >
-              LÄHETÄ 
-              KOEPAIKKAILMOITUS
-            </button>
-          </td>
-        </tr>
-        <tr
-          class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
-        >
-          <td
-            class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
-          >
-            <span
-              class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-53bho8-MuiTypography-root"
-            >
-              AVO
-            </span>
-          </td>
-          <td
-            class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
-          >
-            <span
-              class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-bcc4ko-MuiTypography-root"
-            >
-              0
-               / 
-              1
-            </span>
-          </td>
-          <td
-            class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
-          >
-            <button
-              class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall css-10zzhxi-MuiButtonBase-root-MuiButton-root"
-              disabled=""
-              tabindex="-1"
-              type="button"
-            >
-              LÄHETÄ 
-              KOEPAIKKAILMOITUS
-            </button>
-          </td>
-        </tr>
-        <tr
-          class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
-        >
-          <td
-            class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
-            colspan="3"
-          >
-            <span
-              class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-g98qyn-MuiTypography-root"
-            >
-              • varasijalla
-            </span>
-          </td>
-        </tr>
-        <tr
-          class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
-        >
-          <td
-            class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
-          >
-            <span
-              class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-53bho8-MuiTypography-root"
-            >
-              ALO
-            </span>
-          </td>
-          <td
-            class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
-          >
-            <span
-              class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-bcc4ko-MuiTypography-root"
-            >
-              2
-            </span>
-          </td>
-          <td
-            class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
-          >
-            <button
-              class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall css-10zzhxi-MuiButtonBase-root-MuiButton-root"
-              tabindex="0"
-              type="button"
-            >
-              LÄHETÄ VARASIJAILMOITUS
-              <span
-                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-              />
-            </button>
-          </td>
-        </tr>
-        <tr
-          class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
-        >
-          <td
-            class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
-          >
-            <span
-              class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-53bho8-MuiTypography-root"
-            >
-              AVO
-            </span>
-          </td>
-          <td
-            class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
-          >
-            <span
-              class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-bcc4ko-MuiTypography-root"
-            >
-              2
-            </span>
-          </td>
-          <td
-            class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
-          >
-            <button
-              class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall css-10zzhxi-MuiButtonBase-root-MuiButton-root"
-              tabindex="0"
-              type="button"
-            >
-              LÄHETÄ VARASIJAILMOITUS
-              <span
-                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-              />
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+              <div
+                class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 MuiTableContainer-root css-zdf2ig-MuiPaper-root-MuiTableContainer-root"
+              >
+                <table
+                  class="MuiTable-root css-rqglhn-MuiTable-root"
+                >
+                  <tbody
+                    class="MuiTableBody-root css-apqrd9-MuiTableBody-root"
+                  >
+                    <tr
+                      class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
+                    >
+                      <td
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                        colspan="3"
+                      >
+                        <span
+                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-g98qyn-MuiTypography-root"
+                        >
+                          Osallistujat
+                        </span>
+                      </td>
+                    </tr>
+                    <tr
+                      class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
+                    >
+                      <td
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                      >
+                        <span
+                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-53bho8-MuiTypography-root"
+                        >
+                          ALO
+                        </span>
+                      </td>
+                      <td
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
+                      >
+                        <span
+                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-bcc4ko-MuiTypography-root"
+                        >
+                          0
+                           / 
+                          3
+                        </span>
+                      </td>
+                      <td
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
+                      >
+                        <button
+                          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall css-10zzhxi-MuiButtonBase-root-MuiButton-root"
+                          disabled=""
+                          tabindex="-1"
+                          type="button"
+                        >
+                          LÄHETÄ 
+                          KOEPAIKKAILMOITUS
+                        </button>
+                      </td>
+                    </tr>
+                    <tr
+                      class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
+                    >
+                      <td
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                      >
+                        <span
+                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-53bho8-MuiTypography-root"
+                        >
+                          AVO
+                        </span>
+                      </td>
+                      <td
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
+                      >
+                        <span
+                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-bcc4ko-MuiTypography-root"
+                        >
+                          0
+                           / 
+                          1
+                        </span>
+                      </td>
+                      <td
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
+                      >
+                        <button
+                          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall css-10zzhxi-MuiButtonBase-root-MuiButton-root"
+                          disabled=""
+                          tabindex="-1"
+                          type="button"
+                        >
+                          LÄHETÄ 
+                          KOEPAIKKAILMOITUS
+                        </button>
+                      </td>
+                    </tr>
+                    <tr
+                      class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
+                    >
+                      <td
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                        colspan="3"
+                      >
+                        <span
+                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-g98qyn-MuiTypography-root"
+                        >
+                          Varasijalla
+                        </span>
+                      </td>
+                    </tr>
+                    <tr
+                      class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
+                    >
+                      <td
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                      >
+                        <span
+                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-53bho8-MuiTypography-root"
+                        >
+                          ALO
+                        </span>
+                      </td>
+                      <td
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
+                      >
+                        <span
+                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-bcc4ko-MuiTypography-root"
+                        >
+                          2
+                        </span>
+                      </td>
+                      <td
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
+                      >
+                        <button
+                          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall css-10zzhxi-MuiButtonBase-root-MuiButton-root"
+                          tabindex="0"
+                          type="button"
+                        >
+                          LÄHETÄ VARASIJAILMOITUS
+                          <span
+                            class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                          />
+                        </button>
+                      </td>
+                    </tr>
+                    <tr
+                      class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
+                    >
+                      <td
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                      >
+                        <span
+                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-53bho8-MuiTypography-root"
+                        >
+                          AVO
+                        </span>
+                      </td>
+                      <td
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
+                      >
+                        <span
+                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-bcc4ko-MuiTypography-root"
+                        >
+                          2
+                        </span>
+                      </td>
+                      <td
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
+                      >
+                        <button
+                          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall css-10zzhxi-MuiButtonBase-root-MuiButton-root"
+                          tabindex="0"
+                          type="button"
+                        >
+                          LÄHETÄ VARASIJAILMOITUS
+                          <span
+                            class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                          />
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div
+                class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 MuiTableContainer-root css-zdf2ig-MuiPaper-root-MuiTableContainer-root"
+                hidden=""
+              >
+                <table
+                  class="MuiTable-root css-rqglhn-MuiTable-root"
+                >
+                  <thead
+                    class="MuiTableHead-root css-15wwp11-MuiTableHead-root"
+                  >
+                    <tr
+                      class="MuiTableRow-root MuiTableRow-head css-1q1u3t4-MuiTableRow-root"
+                    >
+                      <th
+                        class="MuiTableCell-root MuiTableCell-head MuiTableCell-sizeMedium css-1ygcj2i-MuiTableCell-root"
+                        colspan="3"
+                        scope="col"
+                      >
+                        Liitteet
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody
+                    class="MuiTableBody-root css-apqrd9-MuiTableBody-root"
+                  >
+                    <tr
+                      class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
+                    >
+                      <td
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                      >
+                        <span
+                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-53bho8-MuiTypography-root"
+                        >
+                          Koekutsu
+                        </span>
+                      </td>
+                      <td
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                      >
+                        <span
+                          class="MuiTypography-root MuiTypography-caption css-182re6f-MuiTypography-root"
+                        >
+                          Ei liitettyä tiedostoa
+                        </span>
+                      </td>
+                      <td
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                      >
+                        <input
+                          accept="application/pdf"
+                          hidden=""
+                          id="koekutsu-file"
+                          type="file"
+                        />
+                        <label
+                          for="koekutsu-file"
+                        >
+                          <span
+                            class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall css-10zzhxi-MuiButtonBase-root-MuiButton-root"
+                            role="button"
+                            tabindex="0"
+                          >
+                            LIITÄ KOEKUTSU
+                            <span
+                              class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                            />
+                          </span>
+                        </label>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 `;
@@ -211,207 +362,358 @@ exports[`InfoPanel> renders with event with closed entry and registrations 1`] =
 exports[`InfoPanel> renders with event with closed entry and registrations with groups 1`] = `
 <div>
   <div
-    class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation4 MuiTableContainer-root css-jnhczt-MuiPaper-root-MuiTableContainer-root"
+    class="MuiPaper-root MuiPaper-elevation MuiPaper-elevation0 MuiAccordion-root Mui-expanded css-1aex4q2-MuiPaper-root-MuiAccordion-root"
   >
-    <table
-      class="MuiTable-root css-rqglhn-MuiTable-root"
+    <div
+      aria-expanded="true"
+      class="MuiButtonBase-root MuiAccordionSummary-root Mui-expanded css-ag2ckr-MuiButtonBase-root-MuiAccordionSummary-root"
+      role="button"
+      tabindex="0"
     >
-      <thead
-        class="MuiTableHead-root css-15wwp11-MuiTableHead-root"
+      <div
+        class="MuiAccordionSummary-content Mui-expanded css-1betqn-MuiAccordionSummary-content"
       >
-        <tr
-          class="MuiTableRow-root MuiTableRow-head css-1q1u3t4-MuiTableRow-root"
+        <div
+          class="MuiTabs-root css-1we33na-MuiTabs-root"
         >
-          <th
-            class="MuiTableCell-root MuiTableCell-head MuiTableCell-sizeMedium css-1ygcj2i-MuiTableCell-root"
-            colspan="4"
-            scope="col"
+          <div
+            class="MuiTabs-scroller MuiTabs-fixed css-jpln7h-MuiTabs-scroller"
+            style="overflow: hidden; margin-bottom: 0px;"
           >
-            <b>
-              Ilmoittautuneet
-            </b>
-          </th>
-        </tr>
-      </thead>
-      <tbody
-        class="MuiTableBody-root css-apqrd9-MuiTableBody-root"
+            <div
+              class="MuiTabs-flexContainer css-heg063-MuiTabs-flexContainer"
+              role="tablist"
+            >
+              <button
+                aria-selected="true"
+                class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary Mui-selected css-1h9z7r5-MuiButtonBase-root-MuiTab-root"
+                role="tab"
+                tabindex="0"
+                type="button"
+              >
+                Kokeen tilanne
+                <span
+                  class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                />
+              </button>
+              <button
+                aria-selected="false"
+                class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary css-1h9z7r5-MuiButtonBase-root-MuiTab-root"
+                role="tab"
+                tabindex="-1"
+                type="button"
+              >
+                Tehtävälista
+                <span
+                  class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                />
+              </button>
+            </div>
+            <span
+              class="MuiTabs-indicator css-1aquho2-MuiTabs-indicator"
+              style="left: 0px; width: 0px;"
+            />
+          </div>
+        </div>
+      </div>
+      <div
+        class="MuiAccordionSummary-expandIconWrapper Mui-expanded css-yw020d-MuiAccordionSummary-expandIconWrapper"
       >
-        <tr
-          class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
+        <svg
+          aria-hidden="true"
+          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+          data-testid="ExpandMoreIcon"
+          focusable="false"
+          viewBox="0 0 24 24"
         >
-          <td
-            class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
-            colspan="3"
-          >
-            <span
-              class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-g98qyn-MuiTypography-root"
-            >
-              • osallistujat
-            </span>
-          </td>
-        </tr>
-        <tr
-          class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
+          <path
+            d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"
+          />
+        </svg>
+      </div>
+    </div>
+    <div
+      class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-pwcg7p-MuiCollapse-root"
+      style="min-height: 0px;"
+    >
+      <div
+        class="MuiCollapse-wrapper MuiCollapse-vertical css-smkl36-MuiCollapse-wrapper"
+      >
+        <div
+          class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
         >
-          <td
-            class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+          <div
+            class="MuiAccordion-region"
+            role="region"
           >
-            <span
-              class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-53bho8-MuiTypography-root"
+            <div
+              class="MuiAccordionDetails-root css-nw01sv-MuiAccordionDetails-root"
             >
-              ALO
-            </span>
-          </td>
-          <td
-            class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
-          >
-            <span
-              class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-bcc4ko-MuiTypography-root"
-            >
-              1
-               / 
-              3
-            </span>
-          </td>
-          <td
-            class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
-          >
-            <button
-              class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall css-10zzhxi-MuiButtonBase-root-MuiButton-root"
-              tabindex="0"
-              type="button"
-            >
-              LÄHETÄ 
-              KOEPAIKKAILMOITUS
-              <span
-                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-              />
-            </button>
-          </td>
-        </tr>
-        <tr
-          class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
-        >
-          <td
-            class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
-          >
-            <span
-              class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-53bho8-MuiTypography-root"
-            >
-              AVO
-            </span>
-          </td>
-          <td
-            class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
-          >
-            <span
-              class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-b4hatb-MuiTypography-root"
-            >
-              2
-               / 
-              1
-            </span>
-          </td>
-          <td
-            class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
-          >
-            <button
-              class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall css-10zzhxi-MuiButtonBase-root-MuiButton-root"
-              disabled=""
-              tabindex="-1"
-              type="button"
-            >
-              LÄHETÄ 
-              KOEPAIKKAILMOITUS
-            </button>
-          </td>
-        </tr>
-        <tr
-          class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
-        >
-          <td
-            class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
-            colspan="3"
-          >
-            <span
-              class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-g98qyn-MuiTypography-root"
-            >
-              • varasijalla
-            </span>
-          </td>
-        </tr>
-        <tr
-          class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
-        >
-          <td
-            class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
-          >
-            <span
-              class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-53bho8-MuiTypography-root"
-            >
-              ALO
-            </span>
-          </td>
-          <td
-            class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
-          >
-            <span
-              class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-bcc4ko-MuiTypography-root"
-            >
-              1
-            </span>
-          </td>
-          <td
-            class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
-          >
-            <button
-              class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall css-10zzhxi-MuiButtonBase-root-MuiButton-root"
-              tabindex="0"
-              type="button"
-            >
-              LÄHETÄ VARASIJAILMOITUS
-              <span
-                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-              />
-            </button>
-          </td>
-        </tr>
-        <tr
-          class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
-        >
-          <td
-            class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
-          >
-            <span
-              class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-53bho8-MuiTypography-root"
-            >
-              AVO
-            </span>
-          </td>
-          <td
-            class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
-          >
-            <span
-              class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-bcc4ko-MuiTypography-root"
-            >
-              0
-            </span>
-          </td>
-          <td
-            class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
-          >
-            <button
-              class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall css-10zzhxi-MuiButtonBase-root-MuiButton-root"
-              disabled=""
-              tabindex="-1"
-              type="button"
-            >
-              LÄHETÄ VARASIJAILMOITUS
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+              <div
+                class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 MuiTableContainer-root css-zdf2ig-MuiPaper-root-MuiTableContainer-root"
+              >
+                <table
+                  class="MuiTable-root css-rqglhn-MuiTable-root"
+                >
+                  <tbody
+                    class="MuiTableBody-root css-apqrd9-MuiTableBody-root"
+                  >
+                    <tr
+                      class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
+                    >
+                      <td
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                        colspan="3"
+                      >
+                        <span
+                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-g98qyn-MuiTypography-root"
+                        >
+                          Osallistujat
+                        </span>
+                      </td>
+                    </tr>
+                    <tr
+                      class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
+                    >
+                      <td
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                      >
+                        <span
+                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-53bho8-MuiTypography-root"
+                        >
+                          ALO
+                        </span>
+                      </td>
+                      <td
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
+                      >
+                        <span
+                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-bcc4ko-MuiTypography-root"
+                        >
+                          1
+                           / 
+                          3
+                        </span>
+                      </td>
+                      <td
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
+                      >
+                        <button
+                          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall css-10zzhxi-MuiButtonBase-root-MuiButton-root"
+                          tabindex="0"
+                          type="button"
+                        >
+                          LÄHETÄ 
+                          KOEPAIKKAILMOITUS
+                          <span
+                            class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                          />
+                        </button>
+                      </td>
+                    </tr>
+                    <tr
+                      class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
+                    >
+                      <td
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                      >
+                        <span
+                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-53bho8-MuiTypography-root"
+                        >
+                          AVO
+                        </span>
+                      </td>
+                      <td
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
+                      >
+                        <span
+                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-b4hatb-MuiTypography-root"
+                        >
+                          2
+                           / 
+                          1
+                        </span>
+                      </td>
+                      <td
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
+                      >
+                        <button
+                          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall css-10zzhxi-MuiButtonBase-root-MuiButton-root"
+                          disabled=""
+                          tabindex="-1"
+                          type="button"
+                        >
+                          LÄHETÄ 
+                          KOEPAIKKAILMOITUS
+                        </button>
+                      </td>
+                    </tr>
+                    <tr
+                      class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
+                    >
+                      <td
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                        colspan="3"
+                      >
+                        <span
+                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-g98qyn-MuiTypography-root"
+                        >
+                          Varasijalla
+                        </span>
+                      </td>
+                    </tr>
+                    <tr
+                      class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
+                    >
+                      <td
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                      >
+                        <span
+                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-53bho8-MuiTypography-root"
+                        >
+                          ALO
+                        </span>
+                      </td>
+                      <td
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
+                      >
+                        <span
+                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-bcc4ko-MuiTypography-root"
+                        >
+                          1
+                        </span>
+                      </td>
+                      <td
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
+                      >
+                        <button
+                          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall css-10zzhxi-MuiButtonBase-root-MuiButton-root"
+                          tabindex="0"
+                          type="button"
+                        >
+                          LÄHETÄ VARASIJAILMOITUS
+                          <span
+                            class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                          />
+                        </button>
+                      </td>
+                    </tr>
+                    <tr
+                      class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
+                    >
+                      <td
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                      >
+                        <span
+                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-53bho8-MuiTypography-root"
+                        >
+                          AVO
+                        </span>
+                      </td>
+                      <td
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
+                      >
+                        <span
+                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-bcc4ko-MuiTypography-root"
+                        >
+                          0
+                        </span>
+                      </td>
+                      <td
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
+                      >
+                        <button
+                          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall css-10zzhxi-MuiButtonBase-root-MuiButton-root"
+                          disabled=""
+                          tabindex="-1"
+                          type="button"
+                        >
+                          LÄHETÄ VARASIJAILMOITUS
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div
+                class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 MuiTableContainer-root css-zdf2ig-MuiPaper-root-MuiTableContainer-root"
+                hidden=""
+              >
+                <table
+                  class="MuiTable-root css-rqglhn-MuiTable-root"
+                >
+                  <thead
+                    class="MuiTableHead-root css-15wwp11-MuiTableHead-root"
+                  >
+                    <tr
+                      class="MuiTableRow-root MuiTableRow-head css-1q1u3t4-MuiTableRow-root"
+                    >
+                      <th
+                        class="MuiTableCell-root MuiTableCell-head MuiTableCell-sizeMedium css-1ygcj2i-MuiTableCell-root"
+                        colspan="3"
+                        scope="col"
+                      >
+                        Liitteet
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody
+                    class="MuiTableBody-root css-apqrd9-MuiTableBody-root"
+                  >
+                    <tr
+                      class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
+                    >
+                      <td
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                      >
+                        <span
+                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-53bho8-MuiTypography-root"
+                        >
+                          Koekutsu
+                        </span>
+                      </td>
+                      <td
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                      >
+                        <span
+                          class="MuiTypography-root MuiTypography-caption css-182re6f-MuiTypography-root"
+                        >
+                          Ei liitettyä tiedostoa
+                        </span>
+                      </td>
+                      <td
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                      >
+                        <input
+                          accept="application/pdf"
+                          hidden=""
+                          id="koekutsu-file"
+                          type="file"
+                        />
+                        <label
+                          for="koekutsu-file"
+                        >
+                          <span
+                            class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall css-10zzhxi-MuiButtonBase-root-MuiButton-root"
+                            role="button"
+                            tabindex="0"
+                          >
+                            LIITÄ KOEKUTSU
+                            <span
+                              class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                            />
+                          </span>
+                        </label>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 `;
@@ -419,132 +721,283 @@ exports[`InfoPanel> renders with event with closed entry and registrations with 
 exports[`InfoPanel> renders with no registrations 1`] = `
 <div>
   <div
-    class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation4 MuiTableContainer-root css-jnhczt-MuiPaper-root-MuiTableContainer-root"
+    class="MuiPaper-root MuiPaper-elevation MuiPaper-elevation0 MuiAccordion-root Mui-expanded css-1aex4q2-MuiPaper-root-MuiAccordion-root"
   >
-    <table
-      class="MuiTable-root css-rqglhn-MuiTable-root"
+    <div
+      aria-expanded="true"
+      class="MuiButtonBase-root MuiAccordionSummary-root Mui-expanded css-ag2ckr-MuiButtonBase-root-MuiAccordionSummary-root"
+      role="button"
+      tabindex="0"
     >
-      <thead
-        class="MuiTableHead-root css-15wwp11-MuiTableHead-root"
+      <div
+        class="MuiAccordionSummary-content Mui-expanded css-1betqn-MuiAccordionSummary-content"
       >
-        <tr
-          class="MuiTableRow-root MuiTableRow-head css-1q1u3t4-MuiTableRow-root"
+        <div
+          class="MuiTabs-root css-1we33na-MuiTabs-root"
         >
-          <th
-            class="MuiTableCell-root MuiTableCell-head MuiTableCell-sizeMedium css-1ygcj2i-MuiTableCell-root"
-            colspan="5"
-            scope="col"
+          <div
+            class="MuiTabs-scroller MuiTabs-fixed css-jpln7h-MuiTabs-scroller"
+            style="overflow: hidden; margin-bottom: 0px;"
           >
-            <b>
-              Ilmoittautuneet
-            </b>
-          </th>
-        </tr>
-      </thead>
-      <tbody
-        class="MuiTableBody-root css-apqrd9-MuiTableBody-root"
+            <div
+              class="MuiTabs-flexContainer css-heg063-MuiTabs-flexContainer"
+              role="tablist"
+            >
+              <button
+                aria-selected="true"
+                class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary Mui-selected css-1h9z7r5-MuiButtonBase-root-MuiTab-root"
+                role="tab"
+                tabindex="0"
+                type="button"
+              >
+                Kokeen tilanne
+                <span
+                  class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                />
+              </button>
+              <button
+                aria-selected="false"
+                class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary css-1h9z7r5-MuiButtonBase-root-MuiTab-root"
+                role="tab"
+                tabindex="-1"
+                type="button"
+              >
+                Tehtävälista
+                <span
+                  class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                />
+              </button>
+            </div>
+            <span
+              class="MuiTabs-indicator css-1aquho2-MuiTabs-indicator"
+              style="left: 0px; width: 0px;"
+            />
+          </div>
+        </div>
+      </div>
+      <div
+        class="MuiAccordionSummary-expandIconWrapper Mui-expanded css-yw020d-MuiAccordionSummary-expandIconWrapper"
       >
-        <tr
-          class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
+        <svg
+          aria-hidden="true"
+          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+          data-testid="ExpandMoreIcon"
+          focusable="false"
+          viewBox="0 0 24 24"
         >
-          <td
-            class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
-            colspan="3"
-          >
-            <span
-              class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-g98qyn-MuiTypography-root"
-            >
-              • osallistujat
-            </span>
-          </td>
-        </tr>
-        <tr
-          class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
+          <path
+            d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"
+          />
+        </svg>
+      </div>
+    </div>
+    <div
+      class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-pwcg7p-MuiCollapse-root"
+      style="min-height: 0px;"
+    >
+      <div
+        class="MuiCollapse-wrapper MuiCollapse-vertical css-smkl36-MuiCollapse-wrapper"
+      >
+        <div
+          class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
         >
-          <td
-            class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+          <div
+            class="MuiAccordion-region"
+            role="region"
           >
-            <span
-              class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-53bho8-MuiTypography-root"
+            <div
+              class="MuiAccordionDetails-root css-nw01sv-MuiAccordionDetails-root"
             >
-              NOU
-            </span>
-          </td>
-          <td
-            class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
-          >
-            <span
-              class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-bcc4ko-MuiTypography-root"
-            >
-              0
-               / 
-              10
-            </span>
-          </td>
-          <td
-            class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
-          >
-            <button
-              class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall css-10zzhxi-MuiButtonBase-root-MuiButton-root"
-              disabled=""
-              tabindex="-1"
-              type="button"
-            >
-              LÄHETÄ 
-              KOEPAIKKAILMOITUS
-            </button>
-          </td>
-        </tr>
-        <tr
-          class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
-        >
-          <td
-            class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
-            colspan="3"
-          >
-            <span
-              class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-g98qyn-MuiTypography-root"
-            >
-              • varasijalla
-            </span>
-          </td>
-        </tr>
-        <tr
-          class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
-        >
-          <td
-            class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
-          >
-            <span
-              class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-53bho8-MuiTypography-root"
-            >
-              NOU
-            </span>
-          </td>
-          <td
-            class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
-          >
-            <span
-              class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-bcc4ko-MuiTypography-root"
-            >
-              0
-            </span>
-          </td>
-          <td
-            class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
-          >
-            <button
-              class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall css-10zzhxi-MuiButtonBase-root-MuiButton-root"
-              disabled=""
-              tabindex="-1"
-              type="button"
-            >
-              LÄHETÄ VARASIJAILMOITUS
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+              <div
+                class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 MuiTableContainer-root css-zdf2ig-MuiPaper-root-MuiTableContainer-root"
+              >
+                <table
+                  class="MuiTable-root css-rqglhn-MuiTable-root"
+                >
+                  <tbody
+                    class="MuiTableBody-root css-apqrd9-MuiTableBody-root"
+                  >
+                    <tr
+                      class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
+                    >
+                      <td
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                        colspan="3"
+                      >
+                        <span
+                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-g98qyn-MuiTypography-root"
+                        >
+                          Osallistujat
+                        </span>
+                      </td>
+                    </tr>
+                    <tr
+                      class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
+                    >
+                      <td
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                      >
+                        <span
+                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-53bho8-MuiTypography-root"
+                        >
+                          NOU
+                        </span>
+                      </td>
+                      <td
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
+                      >
+                        <span
+                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-bcc4ko-MuiTypography-root"
+                        >
+                          0
+                           / 
+                          10
+                        </span>
+                      </td>
+                      <td
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
+                      >
+                        <button
+                          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall css-10zzhxi-MuiButtonBase-root-MuiButton-root"
+                          disabled=""
+                          tabindex="-1"
+                          type="button"
+                        >
+                          LÄHETÄ 
+                          KOEPAIKKAILMOITUS
+                        </button>
+                      </td>
+                    </tr>
+                    <tr
+                      class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
+                    >
+                      <td
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                        colspan="3"
+                      >
+                        <span
+                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-g98qyn-MuiTypography-root"
+                        >
+                          Varasijalla
+                        </span>
+                      </td>
+                    </tr>
+                    <tr
+                      class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
+                    >
+                      <td
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                      >
+                        <span
+                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-53bho8-MuiTypography-root"
+                        >
+                          NOU
+                        </span>
+                      </td>
+                      <td
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
+                      >
+                        <span
+                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-bcc4ko-MuiTypography-root"
+                        >
+                          0
+                        </span>
+                      </td>
+                      <td
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
+                      >
+                        <button
+                          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall css-10zzhxi-MuiButtonBase-root-MuiButton-root"
+                          disabled=""
+                          tabindex="-1"
+                          type="button"
+                        >
+                          LÄHETÄ VARASIJAILMOITUS
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div
+                class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 MuiTableContainer-root css-zdf2ig-MuiPaper-root-MuiTableContainer-root"
+                hidden=""
+              >
+                <table
+                  class="MuiTable-root css-rqglhn-MuiTable-root"
+                >
+                  <thead
+                    class="MuiTableHead-root css-15wwp11-MuiTableHead-root"
+                  >
+                    <tr
+                      class="MuiTableRow-root MuiTableRow-head css-1q1u3t4-MuiTableRow-root"
+                    >
+                      <th
+                        class="MuiTableCell-root MuiTableCell-head MuiTableCell-sizeMedium css-1ygcj2i-MuiTableCell-root"
+                        colspan="3"
+                        scope="col"
+                      >
+                        Liitteet
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody
+                    class="MuiTableBody-root css-apqrd9-MuiTableBody-root"
+                  >
+                    <tr
+                      class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
+                    >
+                      <td
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                      >
+                        <span
+                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-53bho8-MuiTypography-root"
+                        >
+                          Koekutsu
+                        </span>
+                      </td>
+                      <td
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                      >
+                        <span
+                          class="MuiTypography-root MuiTypography-caption css-182re6f-MuiTypography-root"
+                        >
+                          Ei liitettyä tiedostoa
+                        </span>
+                      </td>
+                      <td
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                      >
+                        <input
+                          accept="application/pdf"
+                          hidden=""
+                          id="koekutsu-file"
+                          type="file"
+                        />
+                        <label
+                          for="koekutsu-file"
+                        >
+                          <span
+                            class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall css-10zzhxi-MuiButtonBase-root-MuiButton-root"
+                            role="button"
+                            tabindex="0"
+                          >
+                            LIITÄ KOEKUTSU
+                            <span
+                              class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                            />
+                          </span>
+                        </label>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 `;

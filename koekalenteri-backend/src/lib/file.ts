@@ -1,5 +1,6 @@
 import type { APIGatewayProxyEvent } from 'aws-lambda'
 import type S3 from 'aws-sdk/clients/s3'
+import type { GetObjectOutput } from 'aws-sdk/clients/s3'
 import type { FileInfo } from 'busboy'
 import type { Readable } from 'stream'
 
@@ -62,10 +63,15 @@ export const uploadFile = (key: string, buffer: S3.Body) =>
       Body: buffer,
     }
     s3.putObject(data, (error) => {
-      if (!error) {
-        resolve()
-      } else {
-        reject(new Error('error during put'))
-      }
+      if (error) return reject(error)
+      resolve()
+    })
+  })
+
+export const downloadFile = (key: string) =>
+  new Promise<GetObjectOutput>((resolve, reject) => {
+    s3.getObject({ Bucket: process.env.BUCKET ?? '', Key: key }, (error, data) => {
+      if (error) return reject(error)
+      resolve(data)
     })
   })

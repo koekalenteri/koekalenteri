@@ -1,6 +1,7 @@
 import type { Registration } from 'koekalenteri-shared/model'
 
 import { render } from '@testing-library/react'
+import { RecoilRoot } from 'recoil'
 
 import { eventWithEntryClosed, eventWithStaticDates } from '../../../__mockData__/events'
 import { registrationsToEventWithEntryClosed } from '../../../__mockData__/registrations'
@@ -16,14 +17,15 @@ function getGroupKey(r: Registration, i: number) {
 
 describe('InfoPanel>', () => {
   it('renders with no registrations', () => {
-    const { container } = render(<InfoPanel event={eventWithStaticDates} registrations={[]} />)
+    const { container } = render(<InfoPanel event={eventWithStaticDates} registrations={[]} />, { wrapper: RecoilRoot })
 
     expect(container).toMatchSnapshot()
   })
 
   it('renders with event with closed entry and registrations', () => {
     const { container } = render(
-      <InfoPanel event={eventWithEntryClosed} registrations={registrationsToEventWithEntryClosed} />
+      <InfoPanel event={eventWithEntryClosed} registrations={registrationsToEventWithEntryClosed} />,
+      { wrapper: RecoilRoot }
     )
 
     expect(container).toMatchSnapshot()
@@ -41,7 +43,8 @@ describe('InfoPanel>', () => {
             key: getGroupKey(r, i),
           },
         }))}
-      />
+      />,
+      { wrapper: RecoilRoot }
     )
 
     expect(container).toMatchSnapshot()
