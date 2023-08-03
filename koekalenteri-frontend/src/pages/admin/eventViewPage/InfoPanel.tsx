@@ -34,6 +34,7 @@ interface Props {
 
 const InfoPanel = ({ event, registrations, onOpenMessageDialog }: Props) => {
   const token = useRecoilValue(idTokenAtom)
+  const [attachmentKey, setAttachmentKey] = useState(event.invitationAttachment)
   const [expanded, setExpanded] = useState(true)
   const [tab, setTab] = useState(0)
   const { reserveByClass, numbersByClass, selectedByClass, stateByClass } = useEventRegistrationInfo(
@@ -51,7 +52,7 @@ const InfoPanel = ({ event, registrations, onOpenMessageDialog }: Props) => {
     async (e: ChangeEvent<HTMLInputElement>) => {
       if (!e.target.files) return
       const fileKey = await putInvitationAttachment(event.id, e.target.files[0], token)
-      event.invitationAttachment = fileKey
+      setAttachmentKey(fileKey)
     },
     [event, token]
   )
@@ -189,11 +190,11 @@ const InfoPanel = ({ event, registrations, onOpenMessageDialog }: Props) => {
                   </Typography>
                 </TableCell>
                 <TableCell>
-                  {event.invitationAttachment ? (
+                  {attachmentKey ? (
                     <>
                       <PictureAsPdfOutlined fontSize="small" sx={{ verticalAlign: 'middle', pr: 0.5 }} />
                       <Link
-                        href={`${API_BASE_URL}/file/${event.invitationAttachment}/kutsu.pdf`}
+                        href={`${API_BASE_URL}/file/${attachmentKey}/kutsu.pdf`}
                         rel="noopener"
                         target="_blank"
                         type="application/pdf"
