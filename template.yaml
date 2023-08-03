@@ -425,6 +425,7 @@ Resources:
       BinaryMediaTypes:
         - "multipart/form-data"
         - "application/pdf"
+        - "*/*"
 
   # API Functions
   GetEventsFunction:

@@ -196,6 +196,7 @@ const InfoPanel = ({ event, registrations, onOpenMessageDialog }: Props) => {
                         href={`${API_BASE_URL}/file/${event.invitationAttachment}/kutsu.pdf`}
                         rel="noopener"
                         target="_blank"
+                        type="application/pdf"
                         variant="caption"
                       >
                         Kutsu.pdf

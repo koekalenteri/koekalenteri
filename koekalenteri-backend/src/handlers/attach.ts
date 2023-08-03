@@ -23,6 +23,7 @@ export const getAttachmentHandler = metricScope(
         return {
           statusCode: 200,
           body: data.Body.toString('base64'),
+          isBase64Encoded: true,
           headers: {
             'Access-Control-Allow-Origin': allowOrigin(event),
             'Content-Type': 'application/pdf',
