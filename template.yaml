@@ -1388,7 +1388,7 @@ Resources:
         Get:
           Type: Api
           Properties:
-            Path: /file/{key}
+            Path: /file/{key}/{name}
             Method: GET
             RestApiId: !Ref KoekalenteriApi
 

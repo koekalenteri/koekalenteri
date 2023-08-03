@@ -6,7 +6,7 @@ import type { JsonConfirmedEvent } from 'koekalenteri-shared/model'
 import { metricScope } from 'aws-embedded-metrics'
 import { nanoid } from 'nanoid'
 
-import { parsePostFile, uploadFile } from '../../lib/file'
+import { deleteFile, parsePostFile, uploadFile } from '../../lib/file'
 import { authorize } from '../../utils/auth'
 import CustomDynamoClient from '../../utils/CustomDynamoClient'
 import { metricsError, metricsSuccess } from '../../utils/metrics'
@@ -41,6 +41,10 @@ export const putInvitationAttachmentHandler = metricScope(
         if (!file.data) {
           console.error('no data')
           return response(400, 'no data', event)
+        }
+
+        if (existing?.invitationAttachment) {
+          await deleteFile(existing.invitationAttachment)
         }
 
         const key = nanoid()

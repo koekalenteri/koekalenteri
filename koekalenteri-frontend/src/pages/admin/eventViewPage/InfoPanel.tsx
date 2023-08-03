@@ -193,7 +193,7 @@ const InfoPanel = ({ event, registrations, onOpenMessageDialog }: Props) => {
                     <>
                       <PictureAsPdfOutlined fontSize="small" sx={{ verticalAlign: 'middle', pr: 0.5 }} />
                       <Link
-                        href={`${API_BASE_URL}/file/${event.invitationAttachment}`}
+                        href={`${API_BASE_URL}/file/${event.invitationAttachment}/kutsu.pdf`}
                         rel="noopener"
                         target="_blank"
                         variant="caption"

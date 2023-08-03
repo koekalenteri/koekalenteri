@@ -6,7 +6,7 @@ import { metricScope } from 'aws-embedded-metrics'
 
 import { downloadFile } from '../lib/file'
 import { metricsError, metricsSuccess } from '../utils/metrics'
-import { response } from '../utils/response'
+import { allowOrigin, response } from '../utils/response'
 
 export const getAttachmentHandler = metricScope(
   (metrics: MetricsLogger) =>
@@ -20,9 +20,15 @@ export const getAttachmentHandler = metricScope(
         }
 
         metricsSuccess(metrics, event.requestContext, 'getAttachment')
-        return response(200, data.Body.toString('base64'), event, data.ContentType ?? 'application/pdf', {
-          isBase64Encoded: true,
-        })
+        return {
+          statusCode: 200,
+          body: data.Body.toString('base64'),
+          headers: {
+            'Access-Control-Allow-Origin': allowOrigin(event),
+            'Content-Type': 'application/pdf',
+            'Content-Disposition': `attachment; filename="${event.pathParameters?.name ?? 'kutsu.pdf'}"`,
+          },
+        }
       } catch (err) {
         metricsError(metrics, event.requestContext, 'getAttachment')
         return response((err as AWSError).statusCode || 501, err, event)

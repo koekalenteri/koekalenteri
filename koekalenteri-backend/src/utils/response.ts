@@ -2,7 +2,7 @@ import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 
 import { getOrigin } from './auth'
 
-const allowOrigin = (event: APIGatewayProxyEvent) => {
+export const allowOrigin = (event: APIGatewayProxyEvent) => {
   const origin = getOrigin(event)
   if (origin?.endsWith('koekalenteri.snj.fi')) {
     return origin
@@ -14,19 +14,12 @@ const allowOrigin = (event: APIGatewayProxyEvent) => {
   return 'https://koekalenteri.snj.fi'
 }
 
-export const response = (
-  statusCode: number,
-  body: unknown,
-  event: APIGatewayProxyEvent,
-  contentType = 'application/json',
-  extra: Partial<APIGatewayProxyResult> = {}
-): APIGatewayProxyResult => ({
-  ...extra,
+export const response = (statusCode: number, body: unknown, event: APIGatewayProxyEvent): APIGatewayProxyResult => ({
   statusCode: statusCode,
-  body: contentType === 'application/json' ? JSON.stringify(body) : (body as string),
+  body: JSON.stringify(body),
   headers: {
     'Access-Control-Allow-Origin': allowOrigin(event),
-    'Content-Type': contentType,
+    'Content-Type': 'application/json',
   },
 })
 
