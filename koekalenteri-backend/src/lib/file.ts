@@ -79,6 +79,7 @@ export const uploadFile = (key: string, buffer: S3.Body) =>
         Bucket: process.env.BUCKET ?? '',
         Key: key,
         Body: buffer,
+        ContentType: 'application/pdf',
       }
       s3.putObject(data, (error) => {
         if (error) {

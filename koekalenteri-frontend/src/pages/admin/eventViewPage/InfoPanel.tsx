@@ -3,10 +3,12 @@ import type { ChangeEvent, SyntheticEvent } from 'react'
 
 import { useCallback, useState } from 'react'
 import ExpandMore from '@mui/icons-material/ExpandMore'
+import PictureAsPdfOutlined from '@mui/icons-material/PictureAsPdfOutlined'
 import Accordion from '@mui/material/Accordion'
 import AccordionDetails from '@mui/material/AccordionDetails'
 import AccordionSummary from '@mui/material/AccordionSummary'
 import Button from '@mui/material/Button'
+import Link from '@mui/material/Link'
 import Paper from '@mui/material/Paper'
 import Tab from '@mui/material/Tab'
 import Table from '@mui/material/Table'
@@ -21,6 +23,7 @@ import { useRecoilValue } from 'recoil'
 
 import { putInvitationAttachment } from '../../../api/event'
 import useEventRegistrationInfo from '../../../hooks/useEventRegistrationsInfo'
+import { API_BASE_URL } from '../../../routeConfig'
 import { idTokenAtom } from '../../recoil'
 
 interface Props {
@@ -45,11 +48,12 @@ const InfoPanel = ({ event, registrations, onOpenMessageDialog }: Props) => {
     setTab(v)
   }, [])
   const handleInvitationUpload = useCallback(
-    (e: ChangeEvent<HTMLInputElement>) => {
+    async (e: ChangeEvent<HTMLInputElement>) => {
       if (!e.target.files) return
-      putInvitationAttachment(event.id, e.target.files[0], token)
+      const fileKey = await putInvitationAttachment(event.id, e.target.files[0], token)
+      event.invitationAttachment = fileKey
     },
-    [event.id, token]
+    [event, token]
   )
 
   return (
@@ -185,9 +189,23 @@ const InfoPanel = ({ event, registrations, onOpenMessageDialog }: Props) => {
                   </Typography>
                 </TableCell>
                 <TableCell>
-                  <Typography variant="caption" fontStyle="italic">
-                    Ei liitettyä tiedostoa
-                  </Typography>
+                  {event.invitationAttachment ? (
+                    <>
+                      <PictureAsPdfOutlined fontSize="small" sx={{ verticalAlign: 'middle', pr: 0.5 }} />
+                      <Link
+                        href={`${API_BASE_URL}/file/${event.invitationAttachment}`}
+                        rel="noopener"
+                        target="_blank"
+                        variant="caption"
+                      >
+                        Kutsu.pdf
+                      </Link>
+                    </>
+                  ) : (
+                    <Typography variant="caption" fontStyle="italic">
+                      Ei liitettyä tiedostoa
+                    </Typography>
+                  )}
                 </TableCell>
                 <TableCell>
                   <input

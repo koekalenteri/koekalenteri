@@ -424,6 +424,7 @@ Resources:
             UserPoolArn: !GetAtt "KoekalenteriUserPool.Arn"
       BinaryMediaTypes:
         - "multipart/form-data"
+        - "application/pdf"
 
   # API Functions
   GetEventsFunction:

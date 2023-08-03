@@ -13,8 +13,16 @@ export const getAttachmentHandler = metricScope(
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
       try {
         const data = await downloadFile(event.pathParameters?.key ?? '')
+
+        if (!data.Body) {
+          metricsError(metrics, event.requestContext, 'getAttachment')
+          return response(404, 'not found', event)
+        }
+
         metricsSuccess(metrics, event.requestContext, 'getAttachment')
-        return response(200, data.Body, event)
+        return response(200, data.Body.toString('base64'), event, data.ContentType ?? 'application/pdf', {
+          isBase64Encoded: true,
+        })
       } catch (err) {
         metricsError(metrics, event.requestContext, 'getAttachment')
         return response((err as AWSError).statusCode || 501, err, event)
