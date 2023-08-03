@@ -37,7 +37,7 @@ export const parsePostFile = (event: APIGatewayProxyEvent) =>
 
       bb.on('file', (_name: string, file: Readable, info: FileInfo): void => {
         file.on('data', (data) => {
-          console.log('on data')
+          console.log('on data', data.length)
           buffers.push(data)
         })
 
@@ -62,7 +62,8 @@ export const parsePostFile = (event: APIGatewayProxyEvent) =>
         console.log('on finish')
         resolve(result)
       })
-      bb.end(event.body)
+      bb.write(event.body, event.isBase64Encoded ? 'base64' : 'binary')
+      bb.end()
       console.log('parse end')
     } catch (e) {
       console.error(e)
