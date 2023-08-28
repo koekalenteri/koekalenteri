@@ -9,7 +9,7 @@ exports[`EventListPage renders 1`] = `
       class="MuiBox-root css-1tyz8pc"
     >
       <div
-        class="MuiStack-root css-1h12o0g-MuiStack-root"
+        class="MuiStack-root css-pl8gqh-MuiStack-root"
       >
         <button
           class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-16m0f1y-MuiButtonBase-root-MuiButton-root"
@@ -156,11 +156,11 @@ exports[`EventListPage renders 1`] = `
         aria-colcount="11"
         aria-multiselectable="false"
         aria-rowcount="5"
-        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1mj6q5r-MuiDataGrid-root"
+        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-11g2h2i-MuiDataGrid-root"
         role="grid"
       >
         <div
-          class="MuiStack-root css-114556u-MuiStack-root"
+          class="MuiStack-root css-g7lf93-MuiStack-root"
         >
           <button
             aria-expanded="false"
@@ -379,6 +379,7 @@ exports[`EventListPage renders 1`] = `
         >
           <div
             class="MuiDataGrid-columnHeaders MuiDataGrid-withBorderColor css-1iyq7zh-MuiDataGrid-columnHeaders"
+            role="presentation"
             style="min-height: 39px; max-height: 39px; line-height: 39px;"
           >
             <div
@@ -404,9 +405,11 @@ exports[`EventListPage renders 1`] = `
                   <div
                     class="MuiDataGrid-columnHeaderDraggableContainer"
                     draggable="false"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainer"
+                      role="presentation"
                     >
                       <div
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -477,9 +480,11 @@ exports[`EventListPage renders 1`] = `
                   <div
                     class="MuiDataGrid-columnHeaderDraggableContainer"
                     draggable="false"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainer"
+                      role="presentation"
                     >
                       <div
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -550,9 +555,11 @@ exports[`EventListPage renders 1`] = `
                   <div
                     class="MuiDataGrid-columnHeaderDraggableContainer"
                     draggable="false"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainer"
+                      role="presentation"
                     >
                       <div
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -623,9 +630,11 @@ exports[`EventListPage renders 1`] = `
                   <div
                     class="MuiDataGrid-columnHeaderDraggableContainer"
                     draggable="false"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainer"
+                      role="presentation"
                     >
                       <div
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -696,9 +705,11 @@ exports[`EventListPage renders 1`] = `
                   <div
                     class="MuiDataGrid-columnHeaderDraggableContainer"
                     draggable="false"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainer"
+                      role="presentation"
                     >
                       <div
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -769,9 +780,11 @@ exports[`EventListPage renders 1`] = `
                   <div
                     class="MuiDataGrid-columnHeaderDraggableContainer"
                     draggable="false"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainer"
+                      role="presentation"
                     >
                       <div
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -842,9 +855,11 @@ exports[`EventListPage renders 1`] = `
                   <div
                     class="MuiDataGrid-columnHeaderDraggableContainer"
                     draggable="false"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainer"
+                      role="presentation"
                     >
                       <div
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -915,9 +930,11 @@ exports[`EventListPage renders 1`] = `
                   <div
                     class="MuiDataGrid-columnHeaderDraggableContainer"
                     draggable="false"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainer"
+                      role="presentation"
                     >
                       <div
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -988,9 +1005,11 @@ exports[`EventListPage renders 1`] = `
                   <div
                     class="MuiDataGrid-columnHeaderDraggableContainer"
                     draggable="false"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainer"
+                      role="presentation"
                     >
                       <div
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -1061,9 +1080,11 @@ exports[`EventListPage renders 1`] = `
                   <div
                     class="MuiDataGrid-columnHeaderDraggableContainer"
                     draggable="false"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainer"
+                      role="presentation"
                     >
                       <div
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -1134,9 +1155,11 @@ exports[`EventListPage renders 1`] = `
                   <div
                     class="MuiDataGrid-columnHeaderDraggableContainer"
                     draggable="false"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainer"
+                      role="presentation"
                     >
                       <div
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -1199,14 +1222,17 @@ exports[`EventListPage renders 1`] = `
           </div>
           <div
             class="MuiDataGrid-virtualScroller css-axafay-MuiDataGrid-virtualScroller"
+            role="presentation"
             style="overflow-x: hidden;"
           >
             <div
               class="MuiDataGrid-virtualScrollerContent MuiDataGrid-virtualScrollerContent--overflowed css-1kwdphh-MuiDataGrid-virtualScrollerContent"
+              role="presentation"
               style="width: auto; height: 112px; min-height: auto;"
             >
               <div
                 class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"
+                role="rowgroup"
                 style="transform: translate3d(0px, 0px, 0px);"
               >
                 <div
@@ -1230,6 +1256,7 @@ exports[`EventListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="daterange"
                     >
                       daterange
@@ -1247,6 +1274,7 @@ exports[`EventListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="NOME-B"
                     >
                       NOME-B
@@ -1264,6 +1292,7 @@ exports[`EventListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="ALO, AVO"
                     >
                       ALO, AVO
@@ -1281,6 +1310,7 @@ exports[`EventListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="Suomen Noutajakoirajärjestö ry"
                     >
                       Suomen Noutajakoirajärjestö ry
@@ -1298,6 +1328,7 @@ exports[`EventListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="test"
                     >
                       test
@@ -1315,6 +1346,7 @@ exports[`EventListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="test"
                     >
                       test
@@ -1332,6 +1364,7 @@ exports[`EventListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="Siiri Sihteeri"
                     >
                       Siiri Sihteeri
@@ -1349,6 +1382,7 @@ exports[`EventListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="Teemu Toimitsija"
                     >
                       Teemu Toimitsija
@@ -1366,6 +1400,7 @@ exports[`EventListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="Tuomari 1"
                     >
                       Tuomari 1
@@ -1383,6 +1418,7 @@ exports[`EventListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="4 / 4"
                     >
                       4 / 4
@@ -1400,6 +1436,7 @@ exports[`EventListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="event.states.confirmed_entryClosed"
                     >
                       event.states.confirmed_entryClosed
@@ -1427,6 +1464,7 @@ exports[`EventListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="daterange"
                     >
                       daterange
@@ -1444,6 +1482,7 @@ exports[`EventListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="NOWT"
                     >
                       NOWT
@@ -1461,6 +1500,7 @@ exports[`EventListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="VOI"
                     >
                       VOI
@@ -1478,6 +1518,7 @@ exports[`EventListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="Suomen Noutajakoirajärjestö ry"
                     >
                       Suomen Noutajakoirajärjestö ry
@@ -1495,6 +1536,7 @@ exports[`EventListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="test"
                     >
                       test
@@ -1512,6 +1554,7 @@ exports[`EventListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="test"
                     >
                       test
@@ -1529,6 +1572,7 @@ exports[`EventListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="Siiri Sihteeri"
                     >
                       Siiri Sihteeri
@@ -1546,6 +1590,7 @@ exports[`EventListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="Teemu Toimitsija"
                     >
                       Teemu Toimitsija
@@ -1563,6 +1608,7 @@ exports[`EventListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="Tuomari 2"
                     >
                       Tuomari 2
@@ -1580,6 +1626,7 @@ exports[`EventListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="7 / 10"
                     >
                       7 / 10
@@ -1597,6 +1644,7 @@ exports[`EventListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="event.states.confirmed_entryOpen"
                     >
                       event.states.confirmed_entryOpen
@@ -1624,6 +1672,7 @@ exports[`EventListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="daterange"
                     >
                       daterange
@@ -1641,6 +1690,7 @@ exports[`EventListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="type4"
                     >
                       type4
@@ -1658,6 +1708,7 @@ exports[`EventListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="AVO"
                     >
                       AVO
@@ -1675,6 +1726,7 @@ exports[`EventListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="Suomen Noutajakoirajärjestö ry"
                     >
                       Suomen Noutajakoirajärjestö ry
@@ -1692,6 +1744,7 @@ exports[`EventListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="test"
                     >
                       test
@@ -1709,6 +1762,7 @@ exports[`EventListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="test"
                     >
                       test
@@ -1726,6 +1780,7 @@ exports[`EventListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="Siiri Sihteeri"
                     >
                       Siiri Sihteeri
@@ -1743,6 +1798,7 @@ exports[`EventListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="Teemu Toimitsija"
                     >
                       Teemu Toimitsija
@@ -1760,6 +1816,7 @@ exports[`EventListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="Tuomari 2"
                     >
                       Tuomari 2
@@ -1777,6 +1834,7 @@ exports[`EventListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="0 / 10"
                     >
                       0 / 10
@@ -1794,6 +1852,7 @@ exports[`EventListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="event.states.confirmed"
                     >
                       event.states.confirmed
@@ -1821,6 +1880,7 @@ exports[`EventListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="daterange"
                     >
                       daterange
@@ -1838,6 +1898,7 @@ exports[`EventListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="type5"
                     >
                       type5
@@ -1855,6 +1916,7 @@ exports[`EventListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="ALO"
                     >
                       ALO
@@ -1872,6 +1934,7 @@ exports[`EventListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="Suomen Noutajakoirajärjestö ry"
                     >
                       Suomen Noutajakoirajärjestö ry
@@ -1889,6 +1952,7 @@ exports[`EventListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="test"
                     >
                       test
@@ -1906,6 +1970,7 @@ exports[`EventListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="test"
                     >
                       test
@@ -1923,6 +1988,7 @@ exports[`EventListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="Siiri Sihteeri"
                     >
                       Siiri Sihteeri
@@ -1940,6 +2006,7 @@ exports[`EventListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="Teemu Toimitsija"
                     >
                       Teemu Toimitsija
@@ -1957,6 +2024,7 @@ exports[`EventListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="Tuomari 2"
                     >
                       Tuomari 2
@@ -1974,6 +2042,7 @@ exports[`EventListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="10 / 10"
                     >
                       10 / 10
@@ -1991,6 +2060,7 @@ exports[`EventListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="event.states.confirmed_entryOpen"
                     >
                       event.states.confirmed_entryOpen

@@ -48,7 +48,7 @@ export default function EventDetailsDialog({ eventId, onClose, open }: Props) {
     actions.save(event).then(
       (saved) => {
         resetEvent()
-        enqueueSnackbar(t(`event.states.${saved?.state || 'draft'}`, { context: 'save' }), { variant: 'info' })
+        enqueueSnackbar(t(`event.states.${saved?.state || 'draft'}`, '', { context: 'save' }), { variant: 'info' })
       },
       (reason) => {
         console.error(reason)

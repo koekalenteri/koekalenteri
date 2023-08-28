@@ -40,7 +40,7 @@ export default function EventEditPage() {
       (saved) => {
         resetEvent()
         navigate(Path.admin.events)
-        enqueueSnackbar(t(`event.states.${saved?.state || 'draft'}`, { context: 'save' }), { variant: 'info' })
+        enqueueSnackbar(t(`event.states.${saved?.state || 'draft'}`, '', { context: 'save' }), { variant: 'info' })
       },
       (reason) => {
         console.error(reason)

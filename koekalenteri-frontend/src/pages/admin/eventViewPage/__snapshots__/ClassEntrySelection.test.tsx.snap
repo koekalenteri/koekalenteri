@@ -16,7 +16,7 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
       aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1m6yzko-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-iq9buo-MuiDataGrid-root"
       role="grid"
     >
       <div
@@ -24,6 +24,7 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
       >
         <div
           class="MuiDataGrid-columnHeaders MuiDataGrid-withBorderColor css-1iyq7zh-MuiDataGrid-columnHeaders"
+          role="presentation"
           style="min-height: 39px; max-height: 39px; line-height: 39px;"
         >
           <div
@@ -49,9 +50,11 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -94,9 +97,11 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -141,9 +146,11 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -188,9 +195,11 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -235,9 +244,11 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -282,9 +293,11 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -329,9 +342,11 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -376,9 +391,11 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -421,9 +438,11 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -458,6 +477,7 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
         </div>
         <div
           class="MuiDataGrid-virtualScroller css-axafay-MuiDataGrid-virtualScroller"
+          role="presentation"
           style="overflow-x: hidden;"
         >
           <div
@@ -470,10 +490,12 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
           </div>
           <div
             class="MuiDataGrid-virtualScrollerContent MuiDataGrid-virtualScrollerContent--overflowed css-1kwdphh-MuiDataGrid-virtualScrollerContent"
+            role="presentation"
             style="width: auto; height: 1px; min-height: auto;"
           >
             <div
               class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"
+              role="rowgroup"
               style="transform: translate3d(0px, undefinedpx, 0px);"
             />
           </div>
@@ -494,7 +516,7 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
       aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1cg6hk2-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1ub6if3-MuiDataGrid-root"
       role="grid"
     >
       <div
@@ -502,6 +524,7 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
       >
         <div
           class="MuiDataGrid-columnHeaders MuiDataGrid-withBorderColor css-1iyq7zh-MuiDataGrid-columnHeaders"
+          role="presentation"
           style="min-height: 39px; max-height: 39px; line-height: 39px;"
         >
           <div
@@ -527,9 +550,11 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -572,9 +597,11 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -619,9 +646,11 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -666,9 +695,11 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -713,9 +744,11 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -760,9 +793,11 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -807,9 +842,11 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -854,9 +891,11 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -899,9 +938,11 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -936,6 +977,7 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
         </div>
         <div
           class="MuiDataGrid-virtualScroller css-axafay-MuiDataGrid-virtualScroller"
+          role="presentation"
           style="overflow-x: hidden; overflow-y: hidden;"
         >
           <div
@@ -954,10 +996,12 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
           </div>
           <div
             class="MuiDataGrid-virtualScrollerContent css-1kwdphh-MuiDataGrid-virtualScrollerContent"
+            role="presentation"
             style="width: auto; height: 72px; min-height: auto;"
           >
             <div
               class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"
+              role="rowgroup"
               style="transform: translate3d(0px, undefinedpx, 0px);"
             />
           </div>
@@ -978,7 +1022,7 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
       aria-colcount="10"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1cg6hk2-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1ub6if3-MuiDataGrid-root"
       role="grid"
     >
       <div
@@ -986,6 +1030,7 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
       >
         <div
           class="MuiDataGrid-columnHeaders MuiDataGrid-withBorderColor css-1iyq7zh-MuiDataGrid-columnHeaders"
+          role="presentation"
           style="min-height: 39px; max-height: 39px; line-height: 39px;"
         >
           <div
@@ -1011,9 +1056,11 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -1056,9 +1103,11 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -1103,9 +1152,11 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -1150,9 +1201,11 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -1197,9 +1250,11 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -1244,9 +1299,11 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -1291,9 +1348,11 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -1338,9 +1397,11 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -1411,9 +1472,11 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -1456,9 +1519,11 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -1493,6 +1558,7 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
         </div>
         <div
           class="MuiDataGrid-virtualScroller css-axafay-MuiDataGrid-virtualScroller"
+          role="presentation"
           style="overflow-x: hidden; overflow-y: hidden;"
         >
           <div
@@ -1511,10 +1577,12 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
           </div>
           <div
             class="MuiDataGrid-virtualScrollerContent css-1kwdphh-MuiDataGrid-virtualScrollerContent"
+            role="presentation"
             style="width: auto; height: 72px; min-height: auto;"
           >
             <div
               class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"
+              role="rowgroup"
               style="transform: translate3d(0px, undefinedpx, 0px);"
             />
           </div>
@@ -1541,7 +1609,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
       aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1m6yzko-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-iq9buo-MuiDataGrid-root"
       role="grid"
     >
       <div
@@ -1549,6 +1617,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
       >
         <div
           class="MuiDataGrid-columnHeaders MuiDataGrid-withBorderColor css-1iyq7zh-MuiDataGrid-columnHeaders"
+          role="presentation"
           style="min-height: 39px; max-height: 39px; line-height: 39px;"
         >
           <div
@@ -1574,9 +1643,11 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -1619,9 +1690,11 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -1666,9 +1739,11 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -1713,9 +1788,11 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -1760,9 +1837,11 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -1807,9 +1886,11 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -1854,9 +1935,11 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -1901,9 +1984,11 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -1946,9 +2031,11 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -1983,6 +2070,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
         </div>
         <div
           class="MuiDataGrid-virtualScroller css-axafay-MuiDataGrid-virtualScroller"
+          role="presentation"
           style="overflow-x: hidden;"
         >
           <div
@@ -1995,10 +2083,12 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
           </div>
           <div
             class="MuiDataGrid-virtualScrollerContent MuiDataGrid-virtualScrollerContent--overflowed css-1kwdphh-MuiDataGrid-virtualScrollerContent"
+            role="presentation"
             style="width: auto; height: 1px; min-height: auto;"
           >
             <div
               class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"
+              role="rowgroup"
               style="transform: translate3d(0px, undefinedpx, 0px);"
             />
           </div>
@@ -2014,7 +2104,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
       aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1cg6hk2-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1ub6if3-MuiDataGrid-root"
       role="grid"
     >
       <div
@@ -2032,6 +2122,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
       >
         <div
           class="MuiDataGrid-columnHeaders MuiDataGrid-withBorderColor css-1iyq7zh-MuiDataGrid-columnHeaders"
+          role="presentation"
           style="min-height: 0; max-height: 0; line-height: 0px;"
         >
           <div
@@ -2057,9 +2148,11 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -2102,9 +2195,11 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -2149,9 +2244,11 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -2196,9 +2293,11 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -2243,9 +2342,11 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -2290,9 +2391,11 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -2337,9 +2440,11 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -2384,9 +2489,11 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -2429,9 +2536,11 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -2466,6 +2575,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
         </div>
         <div
           class="MuiDataGrid-virtualScroller css-axafay-MuiDataGrid-virtualScroller"
+          role="presentation"
           style="overflow-x: hidden; overflow-y: hidden;"
         >
           <div
@@ -2484,10 +2594,12 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
           </div>
           <div
             class="MuiDataGrid-virtualScrollerContent css-1kwdphh-MuiDataGrid-virtualScrollerContent"
+            role="presentation"
             style="width: auto; height: 72px; min-height: auto;"
           >
             <div
               class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"
+              role="rowgroup"
               style="transform: translate3d(0px, undefinedpx, 0px);"
             />
           </div>
@@ -2503,7 +2615,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
       aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1cg6hk2-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1ub6if3-MuiDataGrid-root"
       role="grid"
     >
       <div
@@ -2521,6 +2633,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
       >
         <div
           class="MuiDataGrid-columnHeaders MuiDataGrid-withBorderColor css-1iyq7zh-MuiDataGrid-columnHeaders"
+          role="presentation"
           style="min-height: 0; max-height: 0; line-height: 0px;"
         >
           <div
@@ -2546,9 +2659,11 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -2591,9 +2706,11 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -2638,9 +2755,11 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -2685,9 +2804,11 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -2732,9 +2853,11 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -2779,9 +2902,11 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -2826,9 +2951,11 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -2873,9 +3000,11 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -2918,9 +3047,11 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -2955,6 +3086,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
         </div>
         <div
           class="MuiDataGrid-virtualScroller css-axafay-MuiDataGrid-virtualScroller"
+          role="presentation"
           style="overflow-x: hidden; overflow-y: hidden;"
         >
           <div
@@ -2973,10 +3105,12 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
           </div>
           <div
             class="MuiDataGrid-virtualScrollerContent css-1kwdphh-MuiDataGrid-virtualScrollerContent"
+            role="presentation"
             style="width: auto; height: 72px; min-height: auto;"
           >
             <div
               class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"
+              role="rowgroup"
               style="transform: translate3d(0px, undefinedpx, 0px);"
             />
           </div>
@@ -2997,7 +3131,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
       aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1cg6hk2-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1ub6if3-MuiDataGrid-root"
       role="grid"
     >
       <div
@@ -3005,6 +3139,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
       >
         <div
           class="MuiDataGrid-columnHeaders MuiDataGrid-withBorderColor css-1iyq7zh-MuiDataGrid-columnHeaders"
+          role="presentation"
           style="min-height: 39px; max-height: 39px; line-height: 39px;"
         >
           <div
@@ -3030,9 +3165,11 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -3075,9 +3212,11 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -3122,9 +3261,11 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -3169,9 +3310,11 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -3216,9 +3359,11 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -3263,9 +3408,11 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -3310,9 +3457,11 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -3357,9 +3506,11 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -3402,9 +3553,11 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -3439,6 +3592,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
         </div>
         <div
           class="MuiDataGrid-virtualScroller css-axafay-MuiDataGrid-virtualScroller"
+          role="presentation"
           style="overflow-x: hidden; overflow-y: hidden;"
         >
           <div
@@ -3457,10 +3611,12 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
           </div>
           <div
             class="MuiDataGrid-virtualScrollerContent css-1kwdphh-MuiDataGrid-virtualScrollerContent"
+            role="presentation"
             style="width: auto; height: 72px; min-height: auto;"
           >
             <div
               class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"
+              role="rowgroup"
               style="transform: translate3d(0px, undefinedpx, 0px);"
             />
           </div>
@@ -3481,7 +3637,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
       aria-colcount="10"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1cg6hk2-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1ub6if3-MuiDataGrid-root"
       role="grid"
     >
       <div
@@ -3489,6 +3645,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
       >
         <div
           class="MuiDataGrid-columnHeaders MuiDataGrid-withBorderColor css-1iyq7zh-MuiDataGrid-columnHeaders"
+          role="presentation"
           style="min-height: 39px; max-height: 39px; line-height: 39px;"
         >
           <div
@@ -3514,9 +3671,11 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -3559,9 +3718,11 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -3606,9 +3767,11 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -3653,9 +3816,11 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -3700,9 +3865,11 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -3747,9 +3914,11 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -3794,9 +3963,11 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -3841,9 +4012,11 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -3914,9 +4087,11 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -3959,9 +4134,11 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -3996,6 +4173,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
         </div>
         <div
           class="MuiDataGrid-virtualScroller css-axafay-MuiDataGrid-virtualScroller"
+          role="presentation"
           style="overflow-x: hidden; overflow-y: hidden;"
         >
           <div
@@ -4014,10 +4192,12 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
           </div>
           <div
             class="MuiDataGrid-virtualScrollerContent css-1kwdphh-MuiDataGrid-virtualScrollerContent"
+            role="presentation"
             style="width: auto; height: 72px; min-height: auto;"
           >
             <div
               class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"
+              role="rowgroup"
               style="transform: translate3d(0px, undefinedpx, 0px);"
             />
           </div>
@@ -4044,7 +4224,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
       aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1m6yzko-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-iq9buo-MuiDataGrid-root"
       role="grid"
     >
       <div
@@ -4052,6 +4232,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
       >
         <div
           class="MuiDataGrid-columnHeaders MuiDataGrid-withBorderColor css-1iyq7zh-MuiDataGrid-columnHeaders"
+          role="presentation"
           style="min-height: 39px; max-height: 39px; line-height: 39px;"
         >
           <div
@@ -4077,9 +4258,11 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -4122,9 +4305,11 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -4169,9 +4354,11 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -4216,9 +4403,11 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -4263,9 +4452,11 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -4310,9 +4501,11 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -4357,9 +4550,11 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -4404,9 +4599,11 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -4449,9 +4646,11 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -4486,6 +4685,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
         </div>
         <div
           class="MuiDataGrid-virtualScroller css-axafay-MuiDataGrid-virtualScroller"
+          role="presentation"
           style="overflow-x: hidden;"
         >
           <div
@@ -4498,10 +4698,12 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
           </div>
           <div
             class="MuiDataGrid-virtualScrollerContent MuiDataGrid-virtualScrollerContent--overflowed css-1kwdphh-MuiDataGrid-virtualScrollerContent"
+            role="presentation"
             style="width: auto; height: 1px; min-height: auto;"
           >
             <div
               class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"
+              role="rowgroup"
               style="transform: translate3d(0px, undefinedpx, 0px);"
             />
           </div>
@@ -4517,7 +4719,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
       aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1cg6hk2-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1ub6if3-MuiDataGrid-root"
       role="grid"
     >
       <div
@@ -4535,6 +4737,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
       >
         <div
           class="MuiDataGrid-columnHeaders MuiDataGrid-withBorderColor css-1iyq7zh-MuiDataGrid-columnHeaders"
+          role="presentation"
           style="min-height: 0; max-height: 0; line-height: 0px;"
         >
           <div
@@ -4560,9 +4763,11 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -4605,9 +4810,11 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -4652,9 +4859,11 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -4699,9 +4908,11 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -4746,9 +4957,11 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -4793,9 +5006,11 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -4840,9 +5055,11 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -4887,9 +5104,11 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -4932,9 +5151,11 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -4969,6 +5190,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
         </div>
         <div
           class="MuiDataGrid-virtualScroller css-axafay-MuiDataGrid-virtualScroller"
+          role="presentation"
           style="overflow-x: hidden; overflow-y: hidden;"
         >
           <div
@@ -4987,10 +5209,12 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
           </div>
           <div
             class="MuiDataGrid-virtualScrollerContent css-1kwdphh-MuiDataGrid-virtualScrollerContent"
+            role="presentation"
             style="width: auto; height: 72px; min-height: auto;"
           >
             <div
               class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"
+              role="rowgroup"
               style="transform: translate3d(0px, undefinedpx, 0px);"
             />
           </div>
@@ -5006,7 +5230,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
       aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1cg6hk2-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1ub6if3-MuiDataGrid-root"
       role="grid"
     >
       <div
@@ -5024,6 +5248,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
       >
         <div
           class="MuiDataGrid-columnHeaders MuiDataGrid-withBorderColor css-1iyq7zh-MuiDataGrid-columnHeaders"
+          role="presentation"
           style="min-height: 0; max-height: 0; line-height: 0px;"
         >
           <div
@@ -5049,9 +5274,11 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -5094,9 +5321,11 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -5141,9 +5370,11 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -5188,9 +5419,11 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -5235,9 +5468,11 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -5282,9 +5517,11 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -5329,9 +5566,11 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -5376,9 +5615,11 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -5421,9 +5662,11 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -5458,6 +5701,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
         </div>
         <div
           class="MuiDataGrid-virtualScroller css-axafay-MuiDataGrid-virtualScroller"
+          role="presentation"
           style="overflow-x: hidden; overflow-y: hidden;"
         >
           <div
@@ -5476,10 +5720,12 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
           </div>
           <div
             class="MuiDataGrid-virtualScrollerContent css-1kwdphh-MuiDataGrid-virtualScrollerContent"
+            role="presentation"
             style="width: auto; height: 72px; min-height: auto;"
           >
             <div
               class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"
+              role="rowgroup"
               style="transform: translate3d(0px, undefinedpx, 0px);"
             />
           </div>
@@ -5500,7 +5746,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
       aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1cg6hk2-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1ub6if3-MuiDataGrid-root"
       role="grid"
     >
       <div
@@ -5508,6 +5754,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
       >
         <div
           class="MuiDataGrid-columnHeaders MuiDataGrid-withBorderColor css-1iyq7zh-MuiDataGrid-columnHeaders"
+          role="presentation"
           style="min-height: 39px; max-height: 39px; line-height: 39px;"
         >
           <div
@@ -5533,9 +5780,11 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -5578,9 +5827,11 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -5625,9 +5876,11 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -5672,9 +5925,11 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -5719,9 +5974,11 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -5766,9 +6023,11 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -5813,9 +6072,11 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -5860,9 +6121,11 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -5905,9 +6168,11 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -5942,6 +6207,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
         </div>
         <div
           class="MuiDataGrid-virtualScroller css-axafay-MuiDataGrid-virtualScroller"
+          role="presentation"
           style="overflow-x: hidden; overflow-y: hidden;"
         >
           <div
@@ -5960,10 +6226,12 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
           </div>
           <div
             class="MuiDataGrid-virtualScrollerContent css-1kwdphh-MuiDataGrid-virtualScrollerContent"
+            role="presentation"
             style="width: auto; height: 72px; min-height: auto;"
           >
             <div
               class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"
+              role="rowgroup"
               style="transform: translate3d(0px, undefinedpx, 0px);"
             />
           </div>
@@ -5984,7 +6252,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
       aria-colcount="10"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1cg6hk2-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1ub6if3-MuiDataGrid-root"
       role="grid"
     >
       <div
@@ -5992,6 +6260,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
       >
         <div
           class="MuiDataGrid-columnHeaders MuiDataGrid-withBorderColor css-1iyq7zh-MuiDataGrid-columnHeaders"
+          role="presentation"
           style="min-height: 39px; max-height: 39px; line-height: 39px;"
         >
           <div
@@ -6017,9 +6286,11 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -6062,9 +6333,11 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -6109,9 +6382,11 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -6156,9 +6431,11 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -6203,9 +6480,11 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -6250,9 +6529,11 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -6297,9 +6578,11 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -6344,9 +6627,11 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -6417,9 +6702,11 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -6462,9 +6749,11 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -6499,6 +6788,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
         </div>
         <div
           class="MuiDataGrid-virtualScroller css-axafay-MuiDataGrid-virtualScroller"
+          role="presentation"
           style="overflow-x: hidden; overflow-y: hidden;"
         >
           <div
@@ -6517,10 +6807,12 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
           </div>
           <div
             class="MuiDataGrid-virtualScrollerContent css-1kwdphh-MuiDataGrid-virtualScrollerContent"
+            role="presentation"
             style="width: auto; height: 72px; min-height: auto;"
           >
             <div
               class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"
+              role="rowgroup"
               style="transform: translate3d(0px, undefinedpx, 0px);"
             />
           </div>
@@ -6547,7 +6839,7 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
       aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1m6yzko-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-iq9buo-MuiDataGrid-root"
       role="grid"
     >
       <div
@@ -6555,6 +6847,7 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
       >
         <div
           class="MuiDataGrid-columnHeaders MuiDataGrid-withBorderColor css-1iyq7zh-MuiDataGrid-columnHeaders"
+          role="presentation"
           style="min-height: 39px; max-height: 39px; line-height: 39px;"
         >
           <div
@@ -6580,9 +6873,11 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -6625,9 +6920,11 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -6672,9 +6969,11 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -6719,9 +7018,11 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -6766,9 +7067,11 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -6813,9 +7116,11 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -6860,9 +7165,11 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -6907,9 +7214,11 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -6952,9 +7261,11 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -6989,6 +7300,7 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
         </div>
         <div
           class="MuiDataGrid-virtualScroller css-axafay-MuiDataGrid-virtualScroller"
+          role="presentation"
           style="overflow-x: hidden;"
         >
           <div
@@ -7001,10 +7313,12 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
           </div>
           <div
             class="MuiDataGrid-virtualScrollerContent MuiDataGrid-virtualScrollerContent--overflowed css-1kwdphh-MuiDataGrid-virtualScrollerContent"
+            role="presentation"
             style="width: auto; height: 1px; min-height: auto;"
           >
             <div
               class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"
+              role="rowgroup"
               style="transform: translate3d(0px, undefinedpx, 0px);"
             />
           </div>
@@ -7025,7 +7339,7 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
       aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1cg6hk2-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1ub6if3-MuiDataGrid-root"
       role="grid"
     >
       <div
@@ -7033,6 +7347,7 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
       >
         <div
           class="MuiDataGrid-columnHeaders MuiDataGrid-withBorderColor css-1iyq7zh-MuiDataGrid-columnHeaders"
+          role="presentation"
           style="min-height: 39px; max-height: 39px; line-height: 39px;"
         >
           <div
@@ -7058,9 +7373,11 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -7103,9 +7420,11 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -7150,9 +7469,11 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -7197,9 +7518,11 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -7244,9 +7567,11 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -7291,9 +7616,11 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -7338,9 +7665,11 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -7385,9 +7714,11 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -7430,9 +7761,11 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -7467,6 +7800,7 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
         </div>
         <div
           class="MuiDataGrid-virtualScroller css-axafay-MuiDataGrid-virtualScroller"
+          role="presentation"
           style="overflow-x: hidden; overflow-y: hidden;"
         >
           <div
@@ -7485,10 +7819,12 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
           </div>
           <div
             class="MuiDataGrid-virtualScrollerContent css-1kwdphh-MuiDataGrid-virtualScrollerContent"
+            role="presentation"
             style="width: auto; height: 72px; min-height: auto;"
           >
             <div
               class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"
+              role="rowgroup"
               style="transform: translate3d(0px, undefinedpx, 0px);"
             />
           </div>
@@ -7509,7 +7845,7 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
       aria-colcount="10"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1cg6hk2-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1ub6if3-MuiDataGrid-root"
       role="grid"
     >
       <div
@@ -7517,6 +7853,7 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
       >
         <div
           class="MuiDataGrid-columnHeaders MuiDataGrid-withBorderColor css-1iyq7zh-MuiDataGrid-columnHeaders"
+          role="presentation"
           style="min-height: 39px; max-height: 39px; line-height: 39px;"
         >
           <div
@@ -7542,9 +7879,11 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -7587,9 +7926,11 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -7634,9 +7975,11 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -7681,9 +8024,11 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -7728,9 +8073,11 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -7775,9 +8122,11 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -7822,9 +8171,11 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -7869,9 +8220,11 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -7942,9 +8295,11 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -7987,9 +8342,11 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -8024,6 +8381,7 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
         </div>
         <div
           class="MuiDataGrid-virtualScroller css-axafay-MuiDataGrid-virtualScroller"
+          role="presentation"
           style="overflow-x: hidden; overflow-y: hidden;"
         >
           <div
@@ -8042,10 +8400,12 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
           </div>
           <div
             class="MuiDataGrid-virtualScrollerContent css-1kwdphh-MuiDataGrid-virtualScrollerContent"
+            role="presentation"
             style="width: auto; height: 72px; min-height: auto;"
           >
             <div
               class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"
+              role="rowgroup"
               style="transform: translate3d(0px, undefinedpx, 0px);"
             />
           </div>
@@ -8072,7 +8432,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
       aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1m6yzko-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-iq9buo-MuiDataGrid-root"
       role="grid"
     >
       <div
@@ -8080,6 +8440,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
       >
         <div
           class="MuiDataGrid-columnHeaders MuiDataGrid-withBorderColor css-1iyq7zh-MuiDataGrid-columnHeaders"
+          role="presentation"
           style="min-height: 39px; max-height: 39px; line-height: 39px;"
         >
           <div
@@ -8105,9 +8466,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -8150,9 +8513,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -8197,9 +8562,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -8244,9 +8611,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -8291,9 +8660,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -8338,9 +8709,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -8385,9 +8758,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -8432,9 +8807,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -8477,9 +8854,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -8514,6 +8893,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
         </div>
         <div
           class="MuiDataGrid-virtualScroller css-axafay-MuiDataGrid-virtualScroller"
+          role="presentation"
           style="overflow-x: hidden;"
         >
           <div
@@ -8526,10 +8906,12 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
           </div>
           <div
             class="MuiDataGrid-virtualScrollerContent MuiDataGrid-virtualScrollerContent--overflowed css-1kwdphh-MuiDataGrid-virtualScrollerContent"
+            role="presentation"
             style="width: auto; height: 1px; min-height: auto;"
           >
             <div
               class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"
+              role="rowgroup"
               style="transform: translate3d(0px, undefinedpx, 0px);"
             />
           </div>
@@ -8545,7 +8927,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
       aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1cg6hk2-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1ub6if3-MuiDataGrid-root"
       role="grid"
     >
       <div
@@ -8563,6 +8945,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
       >
         <div
           class="MuiDataGrid-columnHeaders MuiDataGrid-withBorderColor css-1iyq7zh-MuiDataGrid-columnHeaders"
+          role="presentation"
           style="min-height: 0; max-height: 0; line-height: 0px;"
         >
           <div
@@ -8588,9 +8971,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -8633,9 +9018,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -8680,9 +9067,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -8727,9 +9116,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -8774,9 +9165,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -8821,9 +9214,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -8868,9 +9263,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -8915,9 +9312,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -8960,9 +9359,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -8997,6 +9398,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
         </div>
         <div
           class="MuiDataGrid-virtualScroller css-axafay-MuiDataGrid-virtualScroller"
+          role="presentation"
           style="overflow-x: hidden; overflow-y: hidden;"
         >
           <div
@@ -9015,10 +9417,12 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
           </div>
           <div
             class="MuiDataGrid-virtualScrollerContent css-1kwdphh-MuiDataGrid-virtualScrollerContent"
+            role="presentation"
             style="width: auto; height: 72px; min-height: auto;"
           >
             <div
               class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"
+              role="rowgroup"
               style="transform: translate3d(0px, undefinedpx, 0px);"
             />
           </div>
@@ -9034,7 +9438,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
       aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1cg6hk2-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1ub6if3-MuiDataGrid-root"
       role="grid"
     >
       <div
@@ -9052,6 +9456,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
       >
         <div
           class="MuiDataGrid-columnHeaders MuiDataGrid-withBorderColor css-1iyq7zh-MuiDataGrid-columnHeaders"
+          role="presentation"
           style="min-height: 0; max-height: 0; line-height: 0px;"
         >
           <div
@@ -9077,9 +9482,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -9122,9 +9529,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -9169,9 +9578,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -9216,9 +9627,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -9263,9 +9676,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -9310,9 +9725,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -9357,9 +9774,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -9404,9 +9823,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -9449,9 +9870,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -9486,6 +9909,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
         </div>
         <div
           class="MuiDataGrid-virtualScroller css-axafay-MuiDataGrid-virtualScroller"
+          role="presentation"
           style="overflow-x: hidden; overflow-y: hidden;"
         >
           <div
@@ -9504,10 +9928,12 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
           </div>
           <div
             class="MuiDataGrid-virtualScrollerContent css-1kwdphh-MuiDataGrid-virtualScrollerContent"
+            role="presentation"
             style="width: auto; height: 72px; min-height: auto;"
           >
             <div
               class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"
+              role="rowgroup"
               style="transform: translate3d(0px, undefinedpx, 0px);"
             />
           </div>
@@ -9528,7 +9954,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
       aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="2"
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1cg6hk2-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1ub6if3-MuiDataGrid-root"
       role="grid"
     >
       <div
@@ -9536,6 +9962,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
       >
         <div
           class="MuiDataGrid-columnHeaders MuiDataGrid-withBorderColor css-1iyq7zh-MuiDataGrid-columnHeaders"
+          role="presentation"
           style="min-height: 39px; max-height: 39px; line-height: 39px;"
         >
           <div
@@ -9561,9 +9988,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -9606,9 +10035,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -9653,9 +10084,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -9700,9 +10133,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -9747,9 +10182,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -9794,9 +10231,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -9841,9 +10280,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -9888,9 +10329,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -9933,9 +10376,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -9970,14 +10415,17 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
         </div>
         <div
           class="MuiDataGrid-virtualScroller css-axafay-MuiDataGrid-virtualScroller"
+          role="presentation"
           style="overflow-x: hidden; overflow-y: hidden;"
         >
           <div
             class="MuiDataGrid-virtualScrollerContent css-1kwdphh-MuiDataGrid-virtualScrollerContent"
+            role="presentation"
             style="width: auto; height: 36px; min-height: auto;"
           >
             <div
               class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"
+              role="rowgroup"
               style="transform: translate3d(0px, 0px, 0px);"
             >
               <div
@@ -10041,6 +10489,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title=""
                     />
                   </div>
@@ -10056,6 +10505,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="Dog Name 10"
                     >
                       Dog Name 10
@@ -10073,6 +10523,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="TESTDOG-0010"
                     >
                       TESTDOG-0010
@@ -10090,6 +10541,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="110.M"
                     >
                       110.M
@@ -10107,6 +10559,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="Handler Name"
                     >
                       Handler Name
@@ -10124,6 +10577,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title=""
                     />
                   </div>
@@ -10253,7 +10707,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
       aria-colcount="10"
       aria-multiselectable="false"
       aria-rowcount="2"
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1cg6hk2-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1ub6if3-MuiDataGrid-root"
       role="grid"
     >
       <div
@@ -10261,6 +10715,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
       >
         <div
           class="MuiDataGrid-columnHeaders MuiDataGrid-withBorderColor css-1iyq7zh-MuiDataGrid-columnHeaders"
+          role="presentation"
           style="min-height: 39px; max-height: 39px; line-height: 39px;"
         >
           <div
@@ -10286,9 +10741,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -10331,9 +10788,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -10378,9 +10837,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -10425,9 +10886,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -10472,9 +10935,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -10519,9 +10984,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -10566,9 +11033,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -10613,9 +11082,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -10686,9 +11157,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -10731,9 +11204,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 <div
                   class="MuiDataGrid-columnHeaderDraggableContainer"
                   draggable="false"
+                  role="presentation"
                 >
                   <div
                     class="MuiDataGrid-columnHeaderTitleContainer"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -10768,14 +11243,17 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
         </div>
         <div
           class="MuiDataGrid-virtualScroller css-axafay-MuiDataGrid-virtualScroller"
+          role="presentation"
           style="overflow-x: hidden; overflow-y: hidden;"
         >
           <div
             class="MuiDataGrid-virtualScrollerContent css-1kwdphh-MuiDataGrid-virtualScrollerContent"
+            role="presentation"
             style="width: auto; height: 36px; min-height: auto;"
           >
             <div
               class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"
+              role="rowgroup"
               style="transform: translate3d(0px, 0px, 0px);"
             >
               <div
@@ -10839,6 +11317,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title=""
                     />
                   </div>
@@ -10854,6 +11333,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="Dog Name 20"
                     >
                       Dog Name 20
@@ -10871,6 +11351,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="TESTDOG-0020"
                     >
                       TESTDOG-0020
@@ -10888,6 +11369,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="110.M"
                     >
                       110.M
@@ -10905,6 +11387,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="Handler Name"
                     >
                       Handler Name
@@ -10922,6 +11405,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title=""
                     />
                   </div>
@@ -10937,6 +11421,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                     />
                   </div>
                   <div

@@ -9,7 +9,7 @@ exports[`JudgeListPage renders 1`] = `
       class="MuiBox-root css-1tyz8pc"
     >
       <div
-        class="MuiStack-root css-1h12o0g-MuiStack-root"
+        class="MuiStack-root css-pl8gqh-MuiStack-root"
       >
         <button
           class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-16m0f1y-MuiButtonBase-root-MuiButton-root"
@@ -41,11 +41,11 @@ exports[`JudgeListPage renders 1`] = `
         aria-colcount="10"
         aria-multiselectable="false"
         aria-rowcount="4"
-        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1mj6q5r-MuiDataGrid-root"
+        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-11g2h2i-MuiDataGrid-root"
         role="grid"
       >
         <div
-          class="MuiStack-root css-114556u-MuiStack-root"
+          class="MuiStack-root css-g7lf93-MuiStack-root"
         >
           <div
             class="MuiDataGrid-toolbarContainer css-1wrr6qg-MuiDataGrid-toolbarContainer"
@@ -107,6 +107,7 @@ exports[`JudgeListPage renders 1`] = `
         >
           <div
             class="MuiDataGrid-columnHeaders MuiDataGrid-withBorderColor css-1iyq7zh-MuiDataGrid-columnHeaders"
+            role="presentation"
             style="min-height: 39px; max-height: 39px; line-height: 39px;"
           >
             <div
@@ -132,9 +133,11 @@ exports[`JudgeListPage renders 1`] = `
                   <div
                     class="MuiDataGrid-columnHeaderDraggableContainer"
                     draggable="false"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainer"
+                      role="presentation"
                     >
                       <div
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -205,9 +208,11 @@ exports[`JudgeListPage renders 1`] = `
                   <div
                     class="MuiDataGrid-columnHeaderDraggableContainer"
                     draggable="false"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainer"
+                      role="presentation"
                     >
                       <div
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -278,9 +283,11 @@ exports[`JudgeListPage renders 1`] = `
                   <div
                     class="MuiDataGrid-columnHeaderDraggableContainer"
                     draggable="false"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainer"
+                      role="presentation"
                     >
                       <div
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -351,9 +358,11 @@ exports[`JudgeListPage renders 1`] = `
                   <div
                     class="MuiDataGrid-columnHeaderDraggableContainer"
                     draggable="false"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainer"
+                      role="presentation"
                     >
                       <div
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -424,9 +433,11 @@ exports[`JudgeListPage renders 1`] = `
                   <div
                     class="MuiDataGrid-columnHeaderDraggableContainer"
                     draggable="false"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainer"
+                      role="presentation"
                     >
                       <div
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -497,9 +508,11 @@ exports[`JudgeListPage renders 1`] = `
                   <div
                     class="MuiDataGrid-columnHeaderDraggableContainer"
                     draggable="false"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainer"
+                      role="presentation"
                     >
                       <div
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -570,9 +583,11 @@ exports[`JudgeListPage renders 1`] = `
                   <div
                     class="MuiDataGrid-columnHeaderDraggableContainer"
                     draggable="false"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainer"
+                      role="presentation"
                     >
                       <div
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -643,9 +658,11 @@ exports[`JudgeListPage renders 1`] = `
                   <div
                     class="MuiDataGrid-columnHeaderDraggableContainer"
                     draggable="false"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainer"
+                      role="presentation"
                     >
                       <div
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -716,9 +733,11 @@ exports[`JudgeListPage renders 1`] = `
                   <div
                     class="MuiDataGrid-columnHeaderDraggableContainer"
                     draggable="false"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainer"
+                      role="presentation"
                     >
                       <div
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -789,9 +808,11 @@ exports[`JudgeListPage renders 1`] = `
                   <div
                     class="MuiDataGrid-columnHeaderDraggableContainer"
                     draggable="false"
+                    role="presentation"
                   >
                     <div
                       class="MuiDataGrid-columnHeaderTitleContainer"
+                      role="presentation"
                     >
                       <div
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -854,14 +875,17 @@ exports[`JudgeListPage renders 1`] = `
           </div>
           <div
             class="MuiDataGrid-virtualScroller css-axafay-MuiDataGrid-virtualScroller"
+            role="presentation"
             style="overflow-x: hidden;"
           >
             <div
               class="MuiDataGrid-virtualScrollerContent MuiDataGrid-virtualScrollerContent--overflowed css-1kwdphh-MuiDataGrid-virtualScrollerContent"
+              role="presentation"
               style="width: auto; height: 84px; min-height: auto;"
             >
               <div
                 class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"
+                role="rowgroup"
                 style="transform: translate3d(0px, 0px, 0px);"
               >
                 <div
@@ -940,6 +964,7 @@ exports[`JudgeListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="Tuomari 1"
                     >
                       Tuomari 1
@@ -957,6 +982,7 @@ exports[`JudgeListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="123"
                     >
                       123
@@ -974,6 +1000,7 @@ exports[`JudgeListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="Helsinki"
                     >
                       Helsinki
@@ -991,6 +1018,7 @@ exports[`JudgeListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="123456789"
                     >
                       123456789
@@ -1008,6 +1036,7 @@ exports[`JudgeListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="tuomari1@sposti.not"
                     >
                       tuomari1@sposti.not
@@ -1025,6 +1054,7 @@ exports[`JudgeListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="Uusimaa"
                     >
                       Uusimaa
@@ -1042,6 +1072,7 @@ exports[`JudgeListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title=""
                     />
                   </div>
@@ -1174,6 +1205,7 @@ exports[`JudgeListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="Tuomari 2"
                     >
                       Tuomari 2
@@ -1191,6 +1223,7 @@ exports[`JudgeListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="223"
                     >
                       223
@@ -1208,6 +1241,7 @@ exports[`JudgeListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="Tampere"
                     >
                       Tampere
@@ -1225,6 +1259,7 @@ exports[`JudgeListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="123456788"
                     >
                       123456788
@@ -1242,6 +1277,7 @@ exports[`JudgeListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="tuomari2@sposti.not"
                     >
                       tuomari2@sposti.not
@@ -1259,6 +1295,7 @@ exports[`JudgeListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="Tampere"
                     >
                       Tampere
@@ -1276,6 +1313,7 @@ exports[`JudgeListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title=""
                     />
                   </div>
@@ -1408,6 +1446,7 @@ exports[`JudgeListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="Tuomari 3"
                     >
                       Tuomari 3
@@ -1425,6 +1464,7 @@ exports[`JudgeListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="323"
                     >
                       323
@@ -1442,6 +1482,7 @@ exports[`JudgeListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="Turku"
                     >
                       Turku
@@ -1459,6 +1500,7 @@ exports[`JudgeListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="123456787"
                     >
                       123456787
@@ -1476,6 +1518,7 @@ exports[`JudgeListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="tuomari3@sposti.not"
                     >
                       tuomari3@sposti.not
@@ -1493,6 +1536,7 @@ exports[`JudgeListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title="Turku"
                     >
                       Turku
@@ -1510,6 +1554,7 @@ exports[`JudgeListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
+                      role="presentation"
                       title=""
                     />
                   </div>
@@ -1661,9 +1706,11 @@ exports[`JudgeListPage renders 2`] = `
       <div
         class="MuiDataGrid-columnHeaderDraggableContainer"
         draggable="false"
+        role="presentation"
       >
         <div
           class="MuiDataGrid-columnHeaderTitleContainer"
+          role="presentation"
         >
           <div
             class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -1734,9 +1781,11 @@ exports[`JudgeListPage renders 2`] = `
       <div
         class="MuiDataGrid-columnHeaderDraggableContainer"
         draggable="false"
+        role="presentation"
       >
         <div
           class="MuiDataGrid-columnHeaderTitleContainer"
+          role="presentation"
         >
           <div
             class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -1807,9 +1856,11 @@ exports[`JudgeListPage renders 2`] = `
       <div
         class="MuiDataGrid-columnHeaderDraggableContainer"
         draggable="false"
+        role="presentation"
       >
         <div
           class="MuiDataGrid-columnHeaderTitleContainer"
+          role="presentation"
         >
           <div
             class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -1880,9 +1931,11 @@ exports[`JudgeListPage renders 2`] = `
       <div
         class="MuiDataGrid-columnHeaderDraggableContainer"
         draggable="false"
+        role="presentation"
       >
         <div
           class="MuiDataGrid-columnHeaderTitleContainer"
+          role="presentation"
         >
           <div
             class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -1953,9 +2006,11 @@ exports[`JudgeListPage renders 2`] = `
       <div
         class="MuiDataGrid-columnHeaderDraggableContainer"
         draggable="false"
+        role="presentation"
       >
         <div
           class="MuiDataGrid-columnHeaderTitleContainer"
+          role="presentation"
         >
           <div
             class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -2026,9 +2081,11 @@ exports[`JudgeListPage renders 2`] = `
       <div
         class="MuiDataGrid-columnHeaderDraggableContainer"
         draggable="false"
+        role="presentation"
       >
         <div
           class="MuiDataGrid-columnHeaderTitleContainer"
+          role="presentation"
         >
           <div
             class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -2099,9 +2156,11 @@ exports[`JudgeListPage renders 2`] = `
       <div
         class="MuiDataGrid-columnHeaderDraggableContainer"
         draggable="false"
+        role="presentation"
       >
         <div
           class="MuiDataGrid-columnHeaderTitleContainer"
+          role="presentation"
         >
           <div
             class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -2172,9 +2231,11 @@ exports[`JudgeListPage renders 2`] = `
       <div
         class="MuiDataGrid-columnHeaderDraggableContainer"
         draggable="false"
+        role="presentation"
       >
         <div
           class="MuiDataGrid-columnHeaderTitleContainer"
+          role="presentation"
         >
           <div
             class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -2245,9 +2306,11 @@ exports[`JudgeListPage renders 2`] = `
       <div
         class="MuiDataGrid-columnHeaderDraggableContainer"
         draggable="false"
+        role="presentation"
       >
         <div
           class="MuiDataGrid-columnHeaderTitleContainer"
+          role="presentation"
         >
           <div
             class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -2318,9 +2381,11 @@ exports[`JudgeListPage renders 2`] = `
       <div
         class="MuiDataGrid-columnHeaderDraggableContainer"
         draggable="false"
+        role="presentation"
       >
         <div
           class="MuiDataGrid-columnHeaderTitleContainer"
+          role="presentation"
         >
           <div
             class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -2455,6 +2520,7 @@ exports[`JudgeListPage renders 2`] = `
     >
       <div
         class="MuiDataGrid-cellContent"
+        role="presentation"
         title="Tuomari 1"
       >
         Tuomari 1
@@ -2472,6 +2538,7 @@ exports[`JudgeListPage renders 2`] = `
     >
       <div
         class="MuiDataGrid-cellContent"
+        role="presentation"
         title="123"
       >
         123
@@ -2489,6 +2556,7 @@ exports[`JudgeListPage renders 2`] = `
     >
       <div
         class="MuiDataGrid-cellContent"
+        role="presentation"
         title="Helsinki"
       >
         Helsinki
@@ -2506,6 +2574,7 @@ exports[`JudgeListPage renders 2`] = `
     >
       <div
         class="MuiDataGrid-cellContent"
+        role="presentation"
         title="123456789"
       >
         123456789
@@ -2523,6 +2592,7 @@ exports[`JudgeListPage renders 2`] = `
     >
       <div
         class="MuiDataGrid-cellContent"
+        role="presentation"
         title="tuomari1@sposti.not"
       >
         tuomari1@sposti.not
@@ -2540,6 +2610,7 @@ exports[`JudgeListPage renders 2`] = `
     >
       <div
         class="MuiDataGrid-cellContent"
+        role="presentation"
         title="Uusimaa"
       >
         Uusimaa
@@ -2557,6 +2628,7 @@ exports[`JudgeListPage renders 2`] = `
     >
       <div
         class="MuiDataGrid-cellContent"
+        role="presentation"
         title=""
       />
     </div>
@@ -2689,6 +2761,7 @@ exports[`JudgeListPage renders 2`] = `
     >
       <div
         class="MuiDataGrid-cellContent"
+        role="presentation"
         title="Tuomari 2"
       >
         Tuomari 2
@@ -2706,6 +2779,7 @@ exports[`JudgeListPage renders 2`] = `
     >
       <div
         class="MuiDataGrid-cellContent"
+        role="presentation"
         title="223"
       >
         223
@@ -2723,6 +2797,7 @@ exports[`JudgeListPage renders 2`] = `
     >
       <div
         class="MuiDataGrid-cellContent"
+        role="presentation"
         title="Tampere"
       >
         Tampere
@@ -2740,6 +2815,7 @@ exports[`JudgeListPage renders 2`] = `
     >
       <div
         class="MuiDataGrid-cellContent"
+        role="presentation"
         title="123456788"
       >
         123456788
@@ -2757,6 +2833,7 @@ exports[`JudgeListPage renders 2`] = `
     >
       <div
         class="MuiDataGrid-cellContent"
+        role="presentation"
         title="tuomari2@sposti.not"
       >
         tuomari2@sposti.not
@@ -2774,6 +2851,7 @@ exports[`JudgeListPage renders 2`] = `
     >
       <div
         class="MuiDataGrid-cellContent"
+        role="presentation"
         title="Tampere"
       >
         Tampere
@@ -2791,6 +2869,7 @@ exports[`JudgeListPage renders 2`] = `
     >
       <div
         class="MuiDataGrid-cellContent"
+        role="presentation"
         title=""
       />
     </div>
@@ -2923,6 +3002,7 @@ exports[`JudgeListPage renders 2`] = `
     >
       <div
         class="MuiDataGrid-cellContent"
+        role="presentation"
         title="Tuomari 3"
       >
         Tuomari 3
@@ -2940,6 +3020,7 @@ exports[`JudgeListPage renders 2`] = `
     >
       <div
         class="MuiDataGrid-cellContent"
+        role="presentation"
         title="323"
       >
         323
@@ -2957,6 +3038,7 @@ exports[`JudgeListPage renders 2`] = `
     >
       <div
         class="MuiDataGrid-cellContent"
+        role="presentation"
         title="Turku"
       >
         Turku
@@ -2974,6 +3056,7 @@ exports[`JudgeListPage renders 2`] = `
     >
       <div
         class="MuiDataGrid-cellContent"
+        role="presentation"
         title="123456787"
       >
         123456787
@@ -2991,6 +3074,7 @@ exports[`JudgeListPage renders 2`] = `
     >
       <div
         class="MuiDataGrid-cellContent"
+        role="presentation"
         title="tuomari3@sposti.not"
       >
         tuomari3@sposti.not
@@ -3008,6 +3092,7 @@ exports[`JudgeListPage renders 2`] = `
     >
       <div
         class="MuiDataGrid-cellContent"
+        role="presentation"
         title="Turku"
       >
         Turku
@@ -3025,6 +3110,7 @@ exports[`JudgeListPage renders 2`] = `
     >
       <div
         class="MuiDataGrid-cellContent"
+        role="presentation"
         title=""
       />
     </div>

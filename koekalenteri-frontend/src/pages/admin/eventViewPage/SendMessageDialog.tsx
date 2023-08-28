@@ -262,8 +262,8 @@ function useRegistrationEmailTemplateData(registration: Registration, event: Eve
   const groupTime = registration.group?.time ? t(`registration.timeLong.${registration.group.time}`) : ''
 
   return {
-    subject: t('registration.email.subject', { context }),
-    title: t('registration.email.title', { context }),
+    subject: t('registration.email.subject', '', { context }),
+    title: t('registration.email.title', '', { context }),
     dogBreed,
     link,
     event: {

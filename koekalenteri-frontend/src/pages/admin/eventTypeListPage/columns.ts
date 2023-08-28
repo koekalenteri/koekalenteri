@@ -12,7 +12,7 @@ export function useEventTypeListPageColumns(): GridColDef<EventType>[] {
   return [
     {
       field: 'eventType',
-      headerName: t('eventType', { context: 'short' }),
+      headerName: t('eventType', '', { context: 'short' }),
     },
     {
       align: 'center',

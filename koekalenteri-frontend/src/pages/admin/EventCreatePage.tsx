@@ -35,7 +35,7 @@ export default function EventCreatePage() {
       () => {
         resetEvent()
         navigate(Path.admin.events)
-        enqueueSnackbar(t(`event.states.${event?.state || 'draft'}`, { context: 'save' }), { variant: 'info' })
+        enqueueSnackbar(t(`event.states.${event?.state || 'draft'}`, '', { context: 'save' }), { variant: 'info' })
       },
       (reason) => {
         console.error(reason)

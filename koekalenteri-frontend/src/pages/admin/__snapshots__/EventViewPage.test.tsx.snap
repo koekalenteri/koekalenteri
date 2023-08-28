@@ -316,7 +316,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
         </div>
       </div>
       <div
-        class="MuiStack-root css-1h12o0g-MuiStack-root"
+        class="MuiStack-root css-pl8gqh-MuiStack-root"
       >
         <button
           class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-16m0f1y-MuiButtonBase-root-MuiButton-root"
@@ -506,7 +506,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
               aria-colcount="9"
               aria-multiselectable="false"
               aria-rowcount="1"
-              class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1mj6q5r-MuiDataGrid-root"
+              class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-11g2h2i-MuiDataGrid-root"
               role="grid"
             >
               <div
@@ -514,6 +514,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
               >
                 <div
                   class="MuiDataGrid-columnHeaders MuiDataGrid-withBorderColor css-1iyq7zh-MuiDataGrid-columnHeaders"
+                  role="presentation"
                   style="min-height: 39px; max-height: 39px; line-height: 39px;"
                 >
                   <div
@@ -539,9 +540,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -584,9 +587,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -631,9 +636,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -678,9 +685,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -725,9 +734,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -772,9 +783,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -819,9 +832,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -866,9 +881,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -911,9 +928,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -948,6 +967,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                 </div>
                 <div
                   class="MuiDataGrid-virtualScroller css-axafay-MuiDataGrid-virtualScroller"
+                  role="presentation"
                   style="overflow-x: hidden;"
                 >
                   <div
@@ -960,10 +980,12 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-virtualScrollerContent MuiDataGrid-virtualScrollerContent--overflowed css-1kwdphh-MuiDataGrid-virtualScrollerContent"
+                    role="presentation"
                     style="width: auto; height: 1px; min-height: auto;"
                   >
                     <div
                       class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"
+                      role="rowgroup"
                       style="transform: translate3d(0px, undefinedpx, 0px);"
                     />
                   </div>
@@ -979,7 +1001,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
               aria-colcount="9"
               aria-multiselectable="false"
               aria-rowcount="1"
-              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-5ief03-MuiDataGrid-root"
+              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-r2x0ng-MuiDataGrid-root"
               role="grid"
             >
               <div
@@ -997,6 +1019,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
               >
                 <div
                   class="MuiDataGrid-columnHeaders MuiDataGrid-withBorderColor css-1iyq7zh-MuiDataGrid-columnHeaders"
+                  role="presentation"
                   style="min-height: 0; max-height: 0; line-height: 0px;"
                 >
                   <div
@@ -1022,9 +1045,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -1067,9 +1092,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -1114,9 +1141,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -1161,9 +1190,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -1208,9 +1239,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -1255,9 +1288,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -1302,9 +1337,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -1349,9 +1386,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -1394,9 +1433,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -1431,6 +1472,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                 </div>
                 <div
                   class="MuiDataGrid-virtualScroller css-axafay-MuiDataGrid-virtualScroller"
+                  role="presentation"
                   style="overflow-x: hidden; overflow-y: hidden;"
                 >
                   <div
@@ -1449,10 +1491,12 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-virtualScrollerContent css-1kwdphh-MuiDataGrid-virtualScrollerContent"
+                    role="presentation"
                     style="width: auto; height: 56px; min-height: auto;"
                   >
                     <div
                       class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"
+                      role="rowgroup"
                       style="transform: translate3d(0px, undefinedpx, 0px);"
                     />
                   </div>
@@ -1468,7 +1512,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
               aria-colcount="9"
               aria-multiselectable="false"
               aria-rowcount="1"
-              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-5ief03-MuiDataGrid-root"
+              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-r2x0ng-MuiDataGrid-root"
               role="grid"
             >
               <div
@@ -1486,6 +1530,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
               >
                 <div
                   class="MuiDataGrid-columnHeaders MuiDataGrid-withBorderColor css-1iyq7zh-MuiDataGrid-columnHeaders"
+                  role="presentation"
                   style="min-height: 0; max-height: 0; line-height: 0px;"
                 >
                   <div
@@ -1511,9 +1556,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -1556,9 +1603,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -1603,9 +1652,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -1650,9 +1701,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -1697,9 +1750,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -1744,9 +1799,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -1791,9 +1848,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -1838,9 +1897,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -1883,9 +1944,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -1920,6 +1983,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                 </div>
                 <div
                   class="MuiDataGrid-virtualScroller css-axafay-MuiDataGrid-virtualScroller"
+                  role="presentation"
                   style="overflow-x: hidden; overflow-y: hidden;"
                 >
                   <div
@@ -1938,10 +2002,12 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-virtualScrollerContent css-1kwdphh-MuiDataGrid-virtualScrollerContent"
+                    role="presentation"
                     style="width: auto; height: 56px; min-height: auto;"
                   >
                     <div
                       class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"
+                      role="rowgroup"
                       style="transform: translate3d(0px, undefinedpx, 0px);"
                     />
                   </div>
@@ -1957,7 +2023,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
               aria-colcount="9"
               aria-multiselectable="false"
               aria-rowcount="1"
-              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-5ief03-MuiDataGrid-root"
+              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-r2x0ng-MuiDataGrid-root"
               role="grid"
             >
               <div
@@ -1975,6 +2041,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
               >
                 <div
                   class="MuiDataGrid-columnHeaders MuiDataGrid-withBorderColor css-1iyq7zh-MuiDataGrid-columnHeaders"
+                  role="presentation"
                   style="min-height: 0; max-height: 0; line-height: 0px;"
                 >
                   <div
@@ -2000,9 +2067,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -2045,9 +2114,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -2092,9 +2163,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -2139,9 +2212,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -2186,9 +2261,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -2233,9 +2310,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -2280,9 +2359,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -2327,9 +2408,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -2372,9 +2455,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -2409,6 +2494,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                 </div>
                 <div
                   class="MuiDataGrid-virtualScroller css-axafay-MuiDataGrid-virtualScroller"
+                  role="presentation"
                   style="overflow-x: hidden; overflow-y: hidden;"
                 >
                   <div
@@ -2427,10 +2513,12 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-virtualScrollerContent css-1kwdphh-MuiDataGrid-virtualScrollerContent"
+                    role="presentation"
                     style="width: auto; height: 56px; min-height: auto;"
                   >
                     <div
                       class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"
+                      role="rowgroup"
                       style="transform: translate3d(0px, undefinedpx, 0px);"
                     />
                   </div>
@@ -2446,7 +2534,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
               aria-colcount="9"
               aria-multiselectable="false"
               aria-rowcount="1"
-              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-5ief03-MuiDataGrid-root"
+              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-r2x0ng-MuiDataGrid-root"
               role="grid"
             >
               <div
@@ -2464,6 +2552,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
               >
                 <div
                   class="MuiDataGrid-columnHeaders MuiDataGrid-withBorderColor css-1iyq7zh-MuiDataGrid-columnHeaders"
+                  role="presentation"
                   style="min-height: 0; max-height: 0; line-height: 0px;"
                 >
                   <div
@@ -2489,9 +2578,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -2534,9 +2625,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -2581,9 +2674,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -2628,9 +2723,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -2675,9 +2772,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -2722,9 +2821,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -2769,9 +2870,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -2816,9 +2919,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -2861,9 +2966,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -2898,6 +3005,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                 </div>
                 <div
                   class="MuiDataGrid-virtualScroller css-axafay-MuiDataGrid-virtualScroller"
+                  role="presentation"
                   style="overflow-x: hidden; overflow-y: hidden;"
                 >
                   <div
@@ -2916,10 +3024,12 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-virtualScrollerContent css-1kwdphh-MuiDataGrid-virtualScrollerContent"
+                    role="presentation"
                     style="width: auto; height: 56px; min-height: auto;"
                   >
                     <div
                       class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"
+                      role="rowgroup"
                       style="transform: translate3d(0px, undefinedpx, 0px);"
                     />
                   </div>
@@ -2940,7 +3050,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
               aria-colcount="9"
               aria-multiselectable="false"
               aria-rowcount="1"
-              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-5ief03-MuiDataGrid-root"
+              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-r2x0ng-MuiDataGrid-root"
               role="grid"
             >
               <div
@@ -2948,6 +3058,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
               >
                 <div
                   class="MuiDataGrid-columnHeaders MuiDataGrid-withBorderColor css-1iyq7zh-MuiDataGrid-columnHeaders"
+                  role="presentation"
                   style="min-height: 39px; max-height: 39px; line-height: 39px;"
                 >
                   <div
@@ -2973,9 +3084,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -3018,9 +3131,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -3065,9 +3180,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -3112,9 +3229,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -3159,9 +3278,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -3206,9 +3327,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -3253,9 +3376,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -3300,9 +3425,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -3345,9 +3472,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -3382,6 +3511,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                 </div>
                 <div
                   class="MuiDataGrid-virtualScroller css-axafay-MuiDataGrid-virtualScroller"
+                  role="presentation"
                   style="overflow-x: hidden; overflow-y: hidden;"
                 >
                   <div
@@ -3400,10 +3530,12 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-virtualScrollerContent css-1kwdphh-MuiDataGrid-virtualScrollerContent"
+                    role="presentation"
                     style="width: auto; height: 56px; min-height: auto;"
                   >
                     <div
                       class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"
+                      role="rowgroup"
                       style="transform: translate3d(0px, undefinedpx, 0px);"
                     />
                   </div>
@@ -3424,7 +3556,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
               aria-colcount="10"
               aria-multiselectable="false"
               aria-rowcount="1"
-              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-5ief03-MuiDataGrid-root"
+              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-r2x0ng-MuiDataGrid-root"
               role="grid"
             >
               <div
@@ -3432,6 +3564,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
               >
                 <div
                   class="MuiDataGrid-columnHeaders MuiDataGrid-withBorderColor css-1iyq7zh-MuiDataGrid-columnHeaders"
+                  role="presentation"
                   style="min-height: 39px; max-height: 39px; line-height: 39px;"
                 >
                   <div
@@ -3457,9 +3590,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -3502,9 +3637,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -3549,9 +3686,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -3596,9 +3735,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -3643,9 +3784,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -3690,9 +3833,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -3737,9 +3882,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -3784,9 +3931,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -3857,9 +4006,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -3902,9 +4053,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -3939,6 +4092,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                 </div>
                 <div
                   class="MuiDataGrid-virtualScroller css-axafay-MuiDataGrid-virtualScroller"
+                  role="presentation"
                   style="overflow-x: hidden; overflow-y: hidden;"
                 >
                   <div
@@ -3957,10 +4111,12 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-virtualScrollerContent css-1kwdphh-MuiDataGrid-virtualScrollerContent"
+                    role="presentation"
                     style="width: auto; height: 56px; min-height: auto;"
                   >
                     <div
                       class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"
+                      role="rowgroup"
                       style="transform: translate3d(0px, undefinedpx, 0px);"
                     />
                   </div>
@@ -4291,7 +4447,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
         </div>
       </div>
       <div
-        class="MuiStack-root css-1h12o0g-MuiStack-root"
+        class="MuiStack-root css-pl8gqh-MuiStack-root"
       >
         <button
           class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-16m0f1y-MuiButtonBase-root-MuiButton-root"
@@ -4481,7 +4637,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
               aria-colcount="9"
               aria-multiselectable="false"
               aria-rowcount="1"
-              class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1mj6q5r-MuiDataGrid-root"
+              class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-11g2h2i-MuiDataGrid-root"
               role="grid"
             >
               <div
@@ -4489,6 +4645,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
               >
                 <div
                   class="MuiDataGrid-columnHeaders MuiDataGrid-withBorderColor css-1iyq7zh-MuiDataGrid-columnHeaders"
+                  role="presentation"
                   style="min-height: 39px; max-height: 39px; line-height: 39px;"
                 >
                   <div
@@ -4514,9 +4671,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -4559,9 +4718,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -4606,9 +4767,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -4653,9 +4816,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -4700,9 +4865,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -4747,9 +4914,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -4794,9 +4963,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -4841,9 +5012,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -4886,9 +5059,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -4923,6 +5098,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                 </div>
                 <div
                   class="MuiDataGrid-virtualScroller css-axafay-MuiDataGrid-virtualScroller"
+                  role="presentation"
                   style="overflow-x: hidden;"
                 >
                   <div
@@ -4935,10 +5111,12 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-virtualScrollerContent MuiDataGrid-virtualScrollerContent--overflowed css-1kwdphh-MuiDataGrid-virtualScrollerContent"
+                    role="presentation"
                     style="width: auto; height: 1px; min-height: auto;"
                   >
                     <div
                       class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"
+                      role="rowgroup"
                       style="transform: translate3d(0px, undefinedpx, 0px);"
                     />
                   </div>
@@ -4954,7 +5132,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
               aria-colcount="9"
               aria-multiselectable="false"
               aria-rowcount="1"
-              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-5ief03-MuiDataGrid-root"
+              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-r2x0ng-MuiDataGrid-root"
               role="grid"
             >
               <div
@@ -4972,6 +5150,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
               >
                 <div
                   class="MuiDataGrid-columnHeaders MuiDataGrid-withBorderColor css-1iyq7zh-MuiDataGrid-columnHeaders"
+                  role="presentation"
                   style="min-height: 0; max-height: 0; line-height: 0px;"
                 >
                   <div
@@ -4997,9 +5176,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -5042,9 +5223,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -5089,9 +5272,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -5136,9 +5321,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -5183,9 +5370,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -5230,9 +5419,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -5277,9 +5468,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -5324,9 +5517,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -5369,9 +5564,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -5406,6 +5603,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                 </div>
                 <div
                   class="MuiDataGrid-virtualScroller css-axafay-MuiDataGrid-virtualScroller"
+                  role="presentation"
                   style="overflow-x: hidden; overflow-y: hidden;"
                 >
                   <div
@@ -5424,10 +5622,12 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-virtualScrollerContent css-1kwdphh-MuiDataGrid-virtualScrollerContent"
+                    role="presentation"
                     style="width: auto; height: 56px; min-height: auto;"
                   >
                     <div
                       class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"
+                      role="rowgroup"
                       style="transform: translate3d(0px, undefinedpx, 0px);"
                     />
                   </div>
@@ -5443,7 +5643,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
               aria-colcount="9"
               aria-multiselectable="false"
               aria-rowcount="1"
-              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-5ief03-MuiDataGrid-root"
+              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-r2x0ng-MuiDataGrid-root"
               role="grid"
             >
               <div
@@ -5461,6 +5661,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
               >
                 <div
                   class="MuiDataGrid-columnHeaders MuiDataGrid-withBorderColor css-1iyq7zh-MuiDataGrid-columnHeaders"
+                  role="presentation"
                   style="min-height: 0; max-height: 0; line-height: 0px;"
                 >
                   <div
@@ -5486,9 +5687,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -5531,9 +5734,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -5578,9 +5783,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -5625,9 +5832,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -5672,9 +5881,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -5719,9 +5930,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -5766,9 +5979,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -5813,9 +6028,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -5858,9 +6075,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -5895,6 +6114,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                 </div>
                 <div
                   class="MuiDataGrid-virtualScroller css-axafay-MuiDataGrid-virtualScroller"
+                  role="presentation"
                   style="overflow-x: hidden; overflow-y: hidden;"
                 >
                   <div
@@ -5913,10 +6133,12 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-virtualScrollerContent css-1kwdphh-MuiDataGrid-virtualScrollerContent"
+                    role="presentation"
                     style="width: auto; height: 56px; min-height: auto;"
                   >
                     <div
                       class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"
+                      role="rowgroup"
                       style="transform: translate3d(0px, undefinedpx, 0px);"
                     />
                   </div>
@@ -5932,7 +6154,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
               aria-colcount="9"
               aria-multiselectable="false"
               aria-rowcount="1"
-              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-5ief03-MuiDataGrid-root"
+              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-r2x0ng-MuiDataGrid-root"
               role="grid"
             >
               <div
@@ -5950,6 +6172,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
               >
                 <div
                   class="MuiDataGrid-columnHeaders MuiDataGrid-withBorderColor css-1iyq7zh-MuiDataGrid-columnHeaders"
+                  role="presentation"
                   style="min-height: 0; max-height: 0; line-height: 0px;"
                 >
                   <div
@@ -5975,9 +6198,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -6020,9 +6245,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -6067,9 +6294,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -6114,9 +6343,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -6161,9 +6392,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -6208,9 +6441,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -6255,9 +6490,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -6302,9 +6539,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -6347,9 +6586,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -6384,6 +6625,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                 </div>
                 <div
                   class="MuiDataGrid-virtualScroller css-axafay-MuiDataGrid-virtualScroller"
+                  role="presentation"
                   style="overflow-x: hidden; overflow-y: hidden;"
                 >
                   <div
@@ -6402,10 +6644,12 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-virtualScrollerContent css-1kwdphh-MuiDataGrid-virtualScrollerContent"
+                    role="presentation"
                     style="width: auto; height: 56px; min-height: auto;"
                   >
                     <div
                       class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"
+                      role="rowgroup"
                       style="transform: translate3d(0px, undefinedpx, 0px);"
                     />
                   </div>
@@ -6421,7 +6665,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
               aria-colcount="9"
               aria-multiselectable="false"
               aria-rowcount="1"
-              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-5ief03-MuiDataGrid-root"
+              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-r2x0ng-MuiDataGrid-root"
               role="grid"
             >
               <div
@@ -6439,6 +6683,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
               >
                 <div
                   class="MuiDataGrid-columnHeaders MuiDataGrid-withBorderColor css-1iyq7zh-MuiDataGrid-columnHeaders"
+                  role="presentation"
                   style="min-height: 0; max-height: 0; line-height: 0px;"
                 >
                   <div
@@ -6464,9 +6709,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -6509,9 +6756,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -6556,9 +6805,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -6603,9 +6854,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -6650,9 +6903,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -6697,9 +6952,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -6744,9 +7001,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -6791,9 +7050,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -6836,9 +7097,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -6873,6 +7136,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                 </div>
                 <div
                   class="MuiDataGrid-virtualScroller css-axafay-MuiDataGrid-virtualScroller"
+                  role="presentation"
                   style="overflow-x: hidden; overflow-y: hidden;"
                 >
                   <div
@@ -6891,10 +7155,12 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-virtualScrollerContent css-1kwdphh-MuiDataGrid-virtualScrollerContent"
+                    role="presentation"
                     style="width: auto; height: 56px; min-height: auto;"
                   >
                     <div
                       class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"
+                      role="rowgroup"
                       style="transform: translate3d(0px, undefinedpx, 0px);"
                     />
                   </div>
@@ -6915,7 +7181,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
               aria-colcount="9"
               aria-multiselectable="false"
               aria-rowcount="2"
-              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-5ief03-MuiDataGrid-root"
+              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-r2x0ng-MuiDataGrid-root"
               role="grid"
             >
               <div
@@ -6923,6 +7189,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
               >
                 <div
                   class="MuiDataGrid-columnHeaders MuiDataGrid-withBorderColor css-1iyq7zh-MuiDataGrid-columnHeaders"
+                  role="presentation"
                   style="min-height: 39px; max-height: 39px; line-height: 39px;"
                 >
                   <div
@@ -6948,9 +7215,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -6993,9 +7262,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -7040,9 +7311,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -7087,9 +7360,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -7134,9 +7409,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -7181,9 +7458,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -7228,9 +7507,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -7275,9 +7556,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -7320,9 +7603,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -7357,14 +7642,17 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                 </div>
                 <div
                   class="MuiDataGrid-virtualScroller css-axafay-MuiDataGrid-virtualScroller"
+                  role="presentation"
                   style="overflow-x: hidden; overflow-y: hidden;"
                 >
                   <div
                     class="MuiDataGrid-virtualScrollerContent css-1kwdphh-MuiDataGrid-virtualScrollerContent"
+                    role="presentation"
                     style="width: auto; height: 28px; min-height: auto;"
                   >
                     <div
                       class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"
+                      role="rowgroup"
                       style="transform: translate3d(0px, 0px, 0px);"
                     >
                       <div
@@ -7434,6 +7722,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <div
                               class="MuiDataGrid-cellContent"
+                              role="presentation"
                               title=""
                             />
                           </div>
@@ -7449,6 +7738,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <div
                               class="MuiDataGrid-cellContent"
+                              role="presentation"
                               title="Dog Name 10"
                             >
                               Dog Name 10
@@ -7466,6 +7756,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <div
                               class="MuiDataGrid-cellContent"
+                              role="presentation"
                               title="TESTDOG-0010"
                             >
                               TESTDOG-0010
@@ -7483,6 +7774,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <div
                               class="MuiDataGrid-cellContent"
+                              role="presentation"
                               title="110.M"
                             >
                               110.M
@@ -7500,6 +7792,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <div
                               class="MuiDataGrid-cellContent"
+                              role="presentation"
                               title="Handler Name"
                             >
                               Handler Name
@@ -7517,6 +7810,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <div
                               class="MuiDataGrid-cellContent"
+                              role="presentation"
                               title=""
                             />
                           </div>
@@ -7646,7 +7940,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
               aria-colcount="10"
               aria-multiselectable="false"
               aria-rowcount="2"
-              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-5ief03-MuiDataGrid-root"
+              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-r2x0ng-MuiDataGrid-root"
               role="grid"
             >
               <div
@@ -7654,6 +7948,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
               >
                 <div
                   class="MuiDataGrid-columnHeaders MuiDataGrid-withBorderColor css-1iyq7zh-MuiDataGrid-columnHeaders"
+                  role="presentation"
                   style="min-height: 39px; max-height: 39px; line-height: 39px;"
                 >
                   <div
@@ -7679,9 +7974,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -7724,9 +8021,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -7771,9 +8070,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -7818,9 +8119,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -7865,9 +8168,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -7912,9 +8217,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -7959,9 +8266,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -8006,9 +8315,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -8079,9 +8390,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -8124,9 +8437,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <div
                           class="MuiDataGrid-columnHeaderDraggableContainer"
                           draggable="false"
+                          role="presentation"
                         >
                           <div
                             class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
                           >
                             <div
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
@@ -8161,14 +8476,17 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                 </div>
                 <div
                   class="MuiDataGrid-virtualScroller css-axafay-MuiDataGrid-virtualScroller"
+                  role="presentation"
                   style="overflow-x: hidden; overflow-y: hidden;"
                 >
                   <div
                     class="MuiDataGrid-virtualScrollerContent css-1kwdphh-MuiDataGrid-virtualScrollerContent"
+                    role="presentation"
                     style="width: auto; height: 28px; min-height: auto;"
                   >
                     <div
                       class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"
+                      role="rowgroup"
                       style="transform: translate3d(0px, 0px, 0px);"
                     >
                       <div
@@ -8238,6 +8556,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <div
                               class="MuiDataGrid-cellContent"
+                              role="presentation"
                               title=""
                             />
                           </div>
@@ -8253,6 +8572,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <div
                               class="MuiDataGrid-cellContent"
+                              role="presentation"
                               title="Dog Name 20"
                             >
                               Dog Name 20
@@ -8270,6 +8590,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <div
                               class="MuiDataGrid-cellContent"
+                              role="presentation"
                               title="TESTDOG-0020"
                             >
                               TESTDOG-0020
@@ -8287,6 +8608,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <div
                               class="MuiDataGrid-cellContent"
+                              role="presentation"
                               title="110.M"
                             >
                               110.M
@@ -8304,6 +8626,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <div
                               class="MuiDataGrid-cellContent"
+                              role="presentation"
                               title="Handler Name"
                             >
                               Handler Name
@@ -8321,6 +8644,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <div
                               class="MuiDataGrid-cellContent"
+                              role="presentation"
                               title=""
                             />
                           </div>
@@ -8336,6 +8660,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <div
                               class="MuiDataGrid-cellContent"
+                              role="presentation"
                             />
                           </div>
                           <div

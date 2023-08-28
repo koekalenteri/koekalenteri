@@ -1519,7 +1519,7 @@ exports[`RegistrationEditPage should render 1`] = `
                     >
                       <span
                         aria-disabled="true"
-                        class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary css-1tsrs4w-MuiButtonBase-root-MuiCheckbox-root"
+                        class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-1tsrs4w-MuiButtonBase-root-MuiCheckbox-root"
                         tabindex="-1"
                       >
                         <input
@@ -1888,7 +1888,7 @@ exports[`RegistrationEditPage should render 1`] = `
                         >
                           <span
                             aria-disabled="true"
-                            class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary css-1tsrs4w-MuiButtonBase-root-MuiCheckbox-root"
+                            class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-1tsrs4w-MuiButtonBase-root-MuiCheckbox-root"
                             tabindex="-1"
                           >
                             <input
@@ -2123,7 +2123,7 @@ exports[`RegistrationEditPage should render 1`] = `
           >
             <span
               aria-disabled="true"
-              class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary css-1tsrs4w-MuiButtonBase-root-MuiCheckbox-root"
+              class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-1tsrs4w-MuiButtonBase-root-MuiCheckbox-root"
               tabindex="-1"
             >
               <input
@@ -2151,7 +2151,7 @@ exports[`RegistrationEditPage should render 1`] = `
               Hyväksyn
                
               <a
-                class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-167apjz-MuiTypography-root-MuiLink-root"
+                class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-15fpjfj-MuiTypography-root-MuiLink-root"
                 href="https://yttmk.yhdistysavain.fi/noutajien-metsastyskokeet-2/ohjeistukset/kokeen-ja-tai-kilpailun-ilmoitta/"
                 rel="noopener"
                 target="_blank"
@@ -2162,7 +2162,7 @@ exports[`RegistrationEditPage should render 1`] = `
               ja
                
               <a
-                class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-167apjz-MuiTypography-root-MuiLink-root"
+                class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-15fpjfj-MuiTypography-root-MuiLink-root"
                 href="https://www.snj.fi/snj/tietosuojaseloste/"
                 rel="noopener"
                 target="_blank"
@@ -2178,7 +2178,7 @@ exports[`RegistrationEditPage should render 1`] = `
       </div>
     </div>
     <div
-      class="MuiStack-root css-1eiqnnt-MuiStack-root"
+      class="MuiStack-root css-90i6lo-MuiStack-root"
     >
       <button
         class="MuiButtonBase-root MuiButton-root MuiLoadingButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium Mui-disabled MuiButton-root MuiLoadingButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium css-1nte33v-MuiButtonBase-root-MuiButton-root-MuiLoadingButton-root"

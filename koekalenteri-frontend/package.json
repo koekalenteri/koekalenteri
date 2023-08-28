@@ -1,6 +1,6 @@
 {
   "name": "koekalenteri-frontend",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "private": true,
   "dependencies": {
     "@aws-amplify/auth": "^5.1.0",
@@ -42,7 +42,7 @@
     "jest-watch-typeahead": "^2.2.2",
     "material-ui-confirm": "^3.0.7",
     "mini-css-extract-plugin": "^2.4.5",
-    "mui-tel-input": "^3.2.2",
+    "mui-tel-input": "^4.0.0",
     "nanoid": "^4.0.2",
     "notistack": "^3.0.1",
     "postcss": "^8.4.4",
@@ -59,7 +59,7 @@
     "react-dnd": "^16.0.1",
     "react-dnd-html5-backend": "^16.0.1",
     "react-dom": "^18.2.0",
-    "react-i18next": "^13.0.2",
+    "react-i18next": "^13.2.0",
     "react-refresh": "^0.14.0",
     "react-router-dom": "^6.0.0",
     "recoil": "^0.7.6",
@@ -241,7 +241,7 @@
   },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
-    "@testing-library/jest-dom": "^5.16.3",
+    "@testing-library/jest-dom": "^6.1.2",
     "@testing-library/react": "^14.0.0",
     "@testing-library/user-event": "^14.4.3",
     "@types/css-mediaquery": "^0.1.1",
@@ -253,7 +253,7 @@
     "camelcase": "^6.3.0",
     "core-js": "^3.31.0",
     "css-mediaquery": "^0.1.2",
-    "esbuild-loader": "^3.0.1",
+    "esbuild-loader": "^4.0.1",
     "eslint-config-react-app": "^7.0.0",
     "eslint-plugin-mui-path-imports": "^0.0.15",
     "eslint-plugin-prettier": "^5.0.0",
@@ -263,7 +263,7 @@
     "jest-fetch-mock": "^3.0.3",
     "koekalenteri-shared": "file:../koekalenteri-shared",
     "prettier": "^3.0.0",
-    "typescript": "^5.1.6"
+    "typescript": "^5.2.2"
   },
   "babel": {
     "presets": [
