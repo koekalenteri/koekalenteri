@@ -29,11 +29,17 @@ export function availableTypes(requirements?: EventResultRequirementsByDate) {
   return unique(requirements.rules.flatMap((rule) => asArray(rule).map((opt) => opt.type)))
 }
 
-export function availableResults(requirements?: EventResultRequirementsByDate) {
+export function availableResults(requirements?: EventResultRequirementsByDate, type?: string) {
   if (!requirements) {
     return []
   }
-  return unique(requirements.rules.flatMap((rule) => asArray(rule).map((opt) => (opt.cert ? 'CERT' : opt.result))))
+  return unique(
+    requirements.rules.flatMap((rule) =>
+      asArray(rule)
+        .filter((opt) => !type || opt.type === type)
+        .map((opt) => (opt.cert ? 'CERT' : opt.result))
+    )
+  )
 }
 
 export function createMissingResult(

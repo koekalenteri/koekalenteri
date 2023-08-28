@@ -132,7 +132,13 @@ export const REQUIREMENTS: { [key: string]: EventRequirement | EventClassRequire
     results: {
       '2009-01-01': [[{ type: 'NOME-B', result: 'AVO1', count: 1 }], [{ type: 'NOWT', result: 'AVO1', count: 1 }]],
       '2016-04-01': [[{ type: 'NOME-B', result: 'AVO1', count: 2 }], [{ type: 'NOWT', result: 'AVO1', count: 2 }]],
-      '2023-04-15': [[{ type: 'NOME-B', result: 'AVO1', count: 1 }], [{ type: 'NOWT', result: 'AVO1', count: 1 }]],
+      '2023-04-15': [
+        [{ type: 'NOME-B', result: 'AVO1', count: 1 }],
+        [{ type: 'NOWT', result: 'AVO1', count: 1 }],
+        [{ type: 'NOME-A KV', result: 'EXC', count: 1 }],
+        [{ type: 'NOME-A KV', result: 'VG', count: 1 }],
+        [{ type: 'NOME-A KV', result: 'G', count: 1 }],
+      ],
     },
   },
   NKM: {

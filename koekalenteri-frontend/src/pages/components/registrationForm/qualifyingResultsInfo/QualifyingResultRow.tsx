@@ -41,7 +41,7 @@ export default function QualifyingResultRow({ result, disabled, requirements, on
           disableClearable
           options={availableTypes(requirements)}
           label={t('testResult.eventType')}
-          onChange={(value) => handleChange(result, { type: value })}
+          onChange={(value) => handleChange(result, { type: value, result: availableResults(requirements, value)[0] })}
           value={result.type}
         />
       </Grid>
@@ -49,7 +49,7 @@ export default function QualifyingResultRow({ result, disabled, requirements, on
         <AutocompleteSingle
           disabled={result.official || disabled}
           disableClearable
-          options={availableResults(requirements)}
+          options={availableResults(requirements, result.type)}
           label={t('testResult.result')}
           onChange={(value) =>
             handleChange(result, {
