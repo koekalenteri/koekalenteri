@@ -5,13 +5,13 @@ import { useRecoilState, useRecoilValue } from 'recoil'
 
 import { putRegistration, putRegistrationGroups } from '../../../../api/registration'
 import { idTokenAtom } from '../../../recoil'
-import { currentAdminEventSelector } from '../events'
+import { adminEventSelector } from '../events'
 
 import { currentEventRegistrationsSelector } from './selectors'
 
-export const useAdminRegistrationActions = () => {
+export const useAdminRegistrationActions = (eventId: string) => {
   const [adminRegistrations, setAdminRegistrations] = useRecoilState(currentEventRegistrationsSelector)
-  const [currentAdminEvent, setCurrentAdminEvent] = useRecoilState(currentAdminEventSelector)
+  const [event, setEvent] = useRecoilState(adminEventSelector(eventId))
   const token = useRecoilValue(idTokenAtom)
   const { enqueueSnackbar } = useSnackbar()
 
@@ -72,8 +72,8 @@ export const useAdminRegistrationActions = () => {
           })
         }
         setAdminRegistrations(items)
-        if (currentAdminEvent) {
-          setCurrentAdminEvent({ ...currentAdminEvent, classes, entries })
+        if (event) {
+          setEvent({ ...event, classes, entries })
         }
       } catch (e) {
         console.error(e)

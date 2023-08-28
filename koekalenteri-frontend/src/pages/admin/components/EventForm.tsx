@@ -82,7 +82,6 @@ export default function EventForm({ event, changes, disabled, onSave, onCancel, 
 
   const handleChange = useCallback(
     (props: DeepPartial<Event>) => {
-      console.debug('handleChange')
       if (!event) {
         return
       }

@@ -40,7 +40,7 @@ export default function RegistrationDialogBase({
   setRegistration,
 }: Props) {
   const { t } = useTranslation()
-  const actions = useAdminRegistrationActions()
+  const actions = useAdminRegistrationActions(event.id)
 
   const handleChange = useCallback(
     (newState: Registration) => {

@@ -65,7 +65,7 @@ exports[`EventTable should render 1`] = `
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-1rl1j2j-MuiGrid-root"
                   >
-                    test
+                    ALO
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-5 css-1ek8k2z-MuiGrid-root"
@@ -169,7 +169,7 @@ exports[`EventTable should render 1`] = `
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                                   scope="row"
                                 >
-                                  test
+                                  ALO
                                 </th>
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"

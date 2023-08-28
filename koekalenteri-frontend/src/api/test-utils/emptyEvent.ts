@@ -2,7 +2,7 @@ import type { ConfirmedEvent } from 'koekalenteri-shared/model'
 
 export const emptyEvent: ConfirmedEvent = {
   accountNumber: 'test',
-  classes: [{ class: 'test' }],
+  classes: [{ class: 'ALO' }],
   cost: 123,
   costMember: 123,
   createdAt: new Date('1989-01-01'),

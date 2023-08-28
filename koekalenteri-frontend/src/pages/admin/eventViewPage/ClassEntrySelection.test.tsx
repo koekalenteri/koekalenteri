@@ -25,7 +25,9 @@ describe('ClassEntrySelection', () => {
   it.each([[undefined], [[]], [[new Date('2022-01-01T10:00:00.000Z')]], [[new Date('2022-06-20T09:00:00.000Z')]]])(
     'given %p as dates',
     (dates) => {
-      const { container } = render(<ClassEntrySelection eventClass="AVO" eventDates={dates} />, { wrapper: Wrapper })
+      const { container } = render(<ClassEntrySelection eventId="test" eventClass="AVO" eventDates={dates} />, {
+        wrapper: Wrapper,
+      })
       expect(container).toMatchSnapshot()
     }
   )
@@ -38,7 +40,7 @@ describe('ClassEntrySelection', () => {
     )
 
     const { container } = render(
-      <ClassEntrySelection eventClass="ALO" eventDates={dates} registrations={registrations} />,
+      <ClassEntrySelection eventId="test" eventClass="ALO" eventDates={dates} registrations={registrations} />,
       {
         wrapper: Wrapper,
       }

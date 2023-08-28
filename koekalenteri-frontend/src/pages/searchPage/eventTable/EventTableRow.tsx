@@ -1,4 +1,4 @@
-import type { Event } from 'koekalenteri-shared/model'
+import type { Event, RegistrationClass } from 'koekalenteri-shared/model'
 
 import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -26,7 +26,7 @@ export const EventTableRow = ({ event }: { event: Event }) => {
 
   const handleClick = useCallback(() => setOpen(!open), [open, setOpen])
   const classes = useMemo(() => {
-    const ret: string[] = []
+    const ret: RegistrationClass[] = []
     for (const c of event.classes) {
       const name = typeof c === 'string' ? c : c.class
       if (ret.indexOf(name) === -1) {

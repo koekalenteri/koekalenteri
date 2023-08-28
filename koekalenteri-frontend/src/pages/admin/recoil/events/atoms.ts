@@ -1,4 +1,4 @@
-import type { Event } from 'koekalenteri-shared/model'
+import type { Event, RegistrationClass } from 'koekalenteri-shared/model'
 
 import { addDays, nextSaturday, startOfDay, sub } from 'date-fns'
 import { atom, atomFamily, selector } from 'recoil'
@@ -51,13 +51,13 @@ export const adminEventIdAtom = atom<string | undefined>({
   effects: [logEffect, storageEffect],
 })
 
-export const eventClassAtom = atom<string | undefined>({
+export const eventClassAtom = atom<RegistrationClass | string>({
   key: 'eventClass',
   default: selector({
     key: 'eventClass/default',
     get: ({ get }) => {
       const event = get(currentAdminEventSelector)
-      return uniqueClasses(event)[0] ?? event?.eventType
+      return uniqueClasses(event)[0]
     },
   }),
   effects: [logEffect, storageEffect],

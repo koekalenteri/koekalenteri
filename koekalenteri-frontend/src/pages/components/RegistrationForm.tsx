@@ -1,7 +1,6 @@
 import type { Theme } from '@mui/material'
 import type { TFunction } from 'i18next'
 import type { ConfirmedEvent, DeepPartial, Registration, TestResult } from 'koekalenteri-shared/model'
-import type { RegistrationClass } from '../../rules'
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
@@ -76,12 +75,7 @@ export default function RegistrationForm({
   const { t } = useTranslation()
   const large = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
   const [qualifies, setQualifies] = useState<boolean>(
-    filterRelevantResults(
-      event,
-      (registration?.class ?? 'ALO') as RegistrationClass,
-      registration?.dog?.results ?? [],
-      registration?.results
-    ).qualifies
+    filterRelevantResults(event, registration?.class, registration?.dog?.results ?? [], registration?.results).qualifies
   )
   const [errors, setErrors] = useState(validateRegistration(registration, event))
   const [open, setOpen] = useState<{ [key: string]: boolean | undefined }>({})
@@ -92,7 +86,7 @@ export default function RegistrationForm({
     () =>
       getRequirements(
         registration?.eventType ?? '',
-        registration?.class as RegistrationClass,
+        registration?.class,
         registration?.dates && registration.dates.length ? registration.dates[0].date : new Date()
       ),
     [registration?.eventType, registration?.class, registration?.dates]
@@ -105,7 +99,7 @@ export default function RegistrationForm({
         const cls = props.class ?? registration.class
         const dogResults = props.dog?.results ?? registration.dog?.results ?? []
         const results = props.results ?? registration.results ?? []
-        const filtered = filterRelevantResults(event, cls as RegistrationClass, dogResults as TestResult[], results)
+        const filtered = filterRelevantResults(event, cls, dogResults as TestResult[], results)
         props.qualifyingResults = filtered.relevant
         setQualifies(filtered.qualifies)
       }

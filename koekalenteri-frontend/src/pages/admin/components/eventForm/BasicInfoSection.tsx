@@ -1,4 +1,12 @@
-import type { DeepPartial, EventClass, Official, Organizer, Person, Secretary } from 'koekalenteri-shared/model'
+import type {
+  DeepPartial,
+  EventClass,
+  Official,
+  Organizer,
+  Person,
+  RegistrationClass,
+  Secretary,
+} from 'koekalenteri-shared/model'
 import type { ChangeEvent, SyntheticEvent } from 'react'
 import type { DateValue } from '../../../components/DateRange'
 import type { PartialEvent, SectionProps } from '../EventForm'
@@ -21,7 +29,7 @@ import EventProperty from './components/EventProperty'
 interface Props extends SectionProps {
   event: PartialEvent
   eventTypes?: string[]
-  eventTypeClasses?: Record<string, string[]>
+  eventTypeClasses?: Record<string, RegistrationClass[]>
   officials?: Official[]
   organizers?: Organizer[]
 }
@@ -257,7 +265,7 @@ export default function BasicInfoSection({
   )
 }
 
-function eventClassOptions(event: PartialEvent | undefined, typeClasses: string[]) {
+function eventClassOptions(event: PartialEvent | undefined, typeClasses: RegistrationClass[]) {
   if (!event?.startDate || !event?.endDate) {
     return []
   }

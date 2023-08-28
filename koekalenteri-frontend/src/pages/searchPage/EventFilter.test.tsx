@@ -1,4 +1,4 @@
-import type { Judge, Organizer } from 'koekalenteri-shared/model'
+import type { Judge, Organizer, RegistrationClass } from 'koekalenteri-shared/model'
 import type { FilterProps } from '../recoil'
 
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
@@ -43,7 +43,7 @@ const organizers: Organizer[] = [
 ]
 
 const eventTypes = ['NOU', 'NOME-B', 'NOME-A', 'NOWT', 'NKM']
-const eventClasses = ['ALO', 'AVO', 'VOI']
+const eventClasses: RegistrationClass[] = ['ALO', 'AVO', 'VOI']
 
 const renderComponent = (filter: FilterProps, onChange?: (filter: FilterProps) => void) =>
   render(

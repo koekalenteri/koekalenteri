@@ -1,5 +1,4 @@
 import type { ReactNode } from 'react'
-import type { RegistrationClass } from '../../../rules'
 
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
@@ -32,7 +31,7 @@ describe('QualifyingResultsInfo', () => {
     const reg = registrationWithStaticDatesAndClass
     const requirements = getRequirements(
       reg.eventType,
-      reg.class as RegistrationClass,
+      reg.class,
       reg.dates && reg.dates.length ? reg.dates[0].date : new Date()
     )
     const { container } = render(
@@ -54,7 +53,7 @@ describe('QualifyingResultsInfo', () => {
     const reg = registrationWithManualResults
     const requirements = getRequirements(
       reg.eventType,
-      reg.class as RegistrationClass,
+      reg.class,
       reg.dates && reg.dates.length ? reg.dates[0].date : new Date()
     )
     const { container } = render(
@@ -76,7 +75,7 @@ describe('QualifyingResultsInfo', () => {
     const reg = registrationWithStaticDates
     const requirements = getRequirements(
       reg.eventType,
-      reg.class as RegistrationClass,
+      reg.class,
       reg.dates && reg.dates.length ? reg.dates[0].date : new Date()
     )
     render(
@@ -97,7 +96,7 @@ describe('QualifyingResultsInfo', () => {
     const reg = registrationWithStaticDatesAndClass
     const requirements = getRequirements(
       reg.eventType,
-      reg.class as RegistrationClass,
+      reg.class,
       reg.dates && reg.dates.length ? reg.dates[0].date : new Date()
     )
     render(

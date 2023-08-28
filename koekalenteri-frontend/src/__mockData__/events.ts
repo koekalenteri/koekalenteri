@@ -52,7 +52,7 @@ export const eventWithStaticDatesAnd3Classes: ConfirmedEvent = {
   location: 'test location',
 }
 
-export const eventWithEntryOpen = {
+export const eventWithEntryOpen: ConfirmedEvent = {
   ...emptyEvent,
   id: 'test3',
   eventType: 'NOWT',
@@ -66,11 +66,11 @@ export const eventWithEntryOpen = {
   entries: 7,
 }
 
-export const eventWithEntryNotYetOpen = {
+export const eventWithEntryNotYetOpen: ConfirmedEvent = {
   ...emptyEvent,
   id: 'test4',
   eventType: 'type4',
-  classes: [{ class: 'class4' }],
+  classes: [{ class: 'AVO' }],
   startDate: addDays(today, 14),
   endDate: addDays(today, 15),
   entryStartDate: addDays(today, 1), // entry not open yet
@@ -80,11 +80,11 @@ export const eventWithEntryNotYetOpen = {
   entries: undefined,
 }
 
-export const eventWithEntryClosing = {
+export const eventWithEntryClosing: ConfirmedEvent = {
   ...emptyEvent,
   id: 'test5',
   eventType: 'type5',
-  classes: [{ class: 'class5' }],
+  classes: [{ class: 'ALO' }],
   startDate: addDays(today, 24),
   endDate: addDays(today, 25),
   entryStartDate: addDays(today, -1),

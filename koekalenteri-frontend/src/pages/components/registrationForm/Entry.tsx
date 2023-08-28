@@ -1,4 +1,10 @@
-import type { ConfirmedEvent, Registration, RegistrationDate, ReserveChoise } from 'koekalenteri-shared/model'
+import type {
+  ConfirmedEvent,
+  Registration,
+  RegistrationClass,
+  RegistrationDate,
+  ReserveChoise,
+} from 'koekalenteri-shared/model'
 import type { SyntheticEvent } from 'react'
 
 import { useCallback, useEffect } from 'react'
@@ -7,6 +13,7 @@ import Grid from '@mui/material/Grid'
 import { format, isSameDay } from 'date-fns'
 
 import { registrationDates, uniqueClasses } from '../../../utils'
+import { isRegistrationClass } from '../../admin/EventViewPage'
 import AutocompleteMulti from '../AutocompleteMulti'
 import AutocompleteSingle from '../AutocompleteSingle'
 import CollapsibleSection from '../CollapsibleSection'
@@ -62,12 +69,16 @@ export function EntryInfo({
 
   useEffect(() => {
     const changes: Partial<Registration> = {}
+    let newClass: string | undefined
     if (className && reg.class !== className) {
-      changes.class = className
+      newClass = className
     } else if (reg.class && !classes.includes(reg.class)) {
-      changes.class = classes.length === 1 ? classes[0] : undefined
+      newClass = classes.length === 1 ? classes[0] : undefined
     } else if (!reg.class && classes.length) {
-      changes.class = classes[0]
+      newClass = classes[0]
+    }
+    if (isRegistrationClass(newClass)) {
+      changes.class = newClass
     }
 
     const cdates = changes.class ? registrationDates(event, changes.class) : dates
@@ -83,7 +94,7 @@ export function EntryInfo({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [classes, className, event])
 
-  const handleClassChange = useCallback((value: string) => onChange?.({ class: value }), [onChange])
+  const handleClassChange = useCallback((value: RegistrationClass) => onChange?.({ class: value }), [onChange])
   const handleDatesChange = useCallback(
     (_e: SyntheticEvent<Element, Event>, value: RegistrationDate[]) => onChange?.({ dates: value }),
     [onChange]
@@ -112,7 +123,7 @@ export function EntryInfo({
             label={t('registration.class')}
             onChange={handleClassChange}
             options={classes}
-            value={reg.class ?? className}
+            value={reg.class}
           />
         </Grid>
         <Grid item xs={12} md={6}>

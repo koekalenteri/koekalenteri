@@ -159,7 +159,7 @@ export const filterEventClassesSelector = selector({
   key: 'filterEventClasses',
   get: ({ get }) => {
     const events = get(filteredEventsForEventClassSelector)
-    const uniqueEventClasses = unique<string>(
+    const uniqueEventClasses = unique(
       events.reduce<EventClass[]>((acc, cur) => [...acc, ...cur.classes], []).map((ec) => ec.class)
     )
     uniqueEventClasses.sort((a, b) => a.localeCompare(b, i18next.language))

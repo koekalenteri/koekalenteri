@@ -2,7 +2,7 @@ import type { Registration } from 'koekalenteri-shared/model'
 
 import { selector, selectorFamily } from 'recoil'
 
-import { adminEventIdAtom, eventClassAtom } from '../events/atoms'
+import { adminEventIdAtom } from '../events/atoms'
 
 import { adminRegistrationIdAtom, eventRegistrationsAtom } from './atoms'
 
@@ -20,15 +20,6 @@ export const currentEventRegistrationsSelector = selector<Registration[]>({
   },
 })
 
-export const currentEventClassRegistrationsSelector = selector<Registration[]>({
-  key: 'currentEventClassRegistrations',
-  get: ({ get }) => {
-    const eventClass = get(eventClassAtom)
-    const registrations = get(currentEventRegistrationsSelector)
-    return registrations.filter((r) => r.class === eventClass || r.eventType === eventClass)
-  },
-})
-
 export const currentAdminRegistrationSelector = selector<Registration | undefined>({
   key: 'currentAdminRegistration',
   get: ({ get }) => {
@@ -37,15 +28,14 @@ export const currentAdminRegistrationSelector = selector<Registration | undefine
   },
 })
 
-export const currentAdminEventRegistrationSelector = selectorFamily<Registration | undefined, string | undefined>({
-  key: 'currentAdminEventRegistrationSelector',
-  get:
-    (registrationId) =>
-    ({ get }) => {
-      if (!registrationId) {
-        return
-      }
-      const registrations = get(currentEventRegistrationsSelector)
-      return registrations.find((r) => r.id === registrationId)
-    },
-})
+export const adminEventRegistrationSelector = selectorFamily<Registration | undefined, { eventId: string; id: string }>(
+  {
+    key: 'adminEventRegistrationsSelector/eventId',
+    get:
+      ({ eventId, id }) =>
+      ({ get }) => {
+        const registrations = get(eventRegistrationsAtom(eventId)) ?? []
+        return registrations.find((r) => r.id === id)
+      },
+  }
+)

@@ -74,9 +74,5 @@ graph LR
   currentEventRegistrationsSelector-->adminEventIdAtom
   currentEventRegistrationsSelector-->eventRegistrationsAtom
 
-  currentEventClassRegistrationsSelector-->eventClassAtom
-  currentEventClassRegistrationsSelector-->currentEventRegistrationsSelector
-
   currentAdminRegistrationSelector-->adminRegistrationIdAtom
-  currentAdminRegistrationSelector-->currentEventClassRegistrationsSelector
 ```

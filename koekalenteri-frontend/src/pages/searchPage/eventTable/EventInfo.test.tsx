@@ -29,7 +29,7 @@ describe('EventInfo', () => {
       classes: [
         {
           date: new Date('2021-02-10'),
-          class: 'TestClass',
+          class: 'ALO',
           judge: { id: 1, name: 'Test Judge' },
           places: 11,
           entries: 22,

@@ -1,4 +1,4 @@
-import type { Judge, Organizer } from 'koekalenteri-shared/model'
+import type { Judge, Organizer, RegistrationClass } from 'koekalenteri-shared/model'
 import type { SyntheticEvent } from 'react'
 import type { DateValue } from '../components/DateRange'
 import type { FilterProps } from '../recoil'
@@ -16,7 +16,7 @@ import DateRange from '../components/DateRange'
 
 interface Props {
   eventTypes: string[]
-  eventClasses: string[]
+  eventClasses: RegistrationClass[]
   filter: FilterProps
   judges: Judge[]
   onChange?: (filter: FilterProps) => void
@@ -40,7 +40,7 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
     [setFilter]
   )
   const handleEventClassChange = useCallback(
-    (event: SyntheticEvent<Element, Event>, value: string[]) => setFilter({ eventClass: value }),
+    (event: SyntheticEvent<Element, Event>, value: RegistrationClass[]) => setFilter({ eventClass: value }),
     [setFilter]
   )
   const handleOrganizerChange = useCallback(

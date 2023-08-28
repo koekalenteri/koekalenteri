@@ -1,4 +1,4 @@
-import type { EmailTemplateId, Registration } from 'koekalenteri-shared/model'
+import type { EmailTemplateId, Registration, RegistrationClass } from 'koekalenteri-shared/model'
 
 import { Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -31,6 +31,10 @@ import SendMessageDialog from './eventViewPage/SendMessageDialog'
 import TabPanel from './eventViewPage/TabPanel'
 import Title from './eventViewPage/Title'
 import { adminEventSelector, adminRegistrationIdAtom, eventClassAtom, eventRegistrationsAtom } from './recoil'
+
+const REG_CLASSES = ['ALO', 'AVO', 'VOI']
+
+export const isRegistrationClass = (cls?: string): cls is RegistrationClass => !!(cls && REG_CLASSES.includes(cls))
 
 export default function EventViewPage() {
   const { t } = useTranslation()
@@ -161,6 +165,7 @@ export default function EventViewPage() {
           {eventClasses.map((eventClass, index) => (
             <TabPanel key={`tabPanel-${eventClass}`} index={index} activeTab={activeTab}>
               <ClassEntrySelection
+                eventId={eventId}
                 eventClass={eventClass}
                 eventDates={uniqueClassDates(event, eventClass)}
                 registrations={registrations}
@@ -184,7 +189,7 @@ export default function EventViewPage() {
       <Suspense>
         <RegistrationCreateDialog
           event={event}
-          eventClass={selectedEventClass !== event.eventType ? selectedEventClass : undefined}
+          eventClass={isRegistrationClass(selectedEventClass) ? selectedEventClass : undefined}
           onClose={handleCreateClose}
           open={createOpen}
           registrationId={open ? selectedRegistrationId ?? '' : ''}

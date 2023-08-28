@@ -1,4 +1,4 @@
-import { DbRecord, JsonDbRecord, NotOptional, Official, Organizer, Replace, ReplaceOptional, Secretary } from '.';
+import { DbRecord, JsonDbRecord, NotOptional, Official, Organizer, RegistrationClass, Replace, ReplaceOptional, Secretary } from '.';
 
 export interface JsonEvent extends JsonDbRecord {
   kcId?: number
@@ -56,7 +56,7 @@ export type ClassJudge = {
 }
 
 export type JsonEventClass = {
-  class: string
+  class: RegistrationClass
   date?: string
   judge?: ClassJudge | ClassJudge[],
   places?: number

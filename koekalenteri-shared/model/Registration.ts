@@ -1,9 +1,10 @@
 import { DbRecord, Dog, JsonDbRecord, JsonDog, JsonTestResult, Language, Person, Replace, TestResult } from ".";
 
+export type RegistrationClass = 'ALO' | 'AVO' | 'VOI'
 export interface JsonRegistration extends JsonDbRecord {
   agreeToTerms: boolean
   breeder: RegistrationBreeder
-  class?: string
+  class?: RegistrationClass
   dates: JsonRegistrationDate[]
   dog: JsonDog
   eventId: string

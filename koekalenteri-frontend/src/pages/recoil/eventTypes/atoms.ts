@@ -1,4 +1,4 @@
-import type { EventType } from 'koekalenteri-shared/model'
+import type { EventType, RegistrationClass } from 'koekalenteri-shared/model'
 
 import { atom } from 'recoil'
 
@@ -17,7 +17,7 @@ export const eventTypeFilterAtom = atom<string>({
   default: '',
 })
 
-export const eventTypeClassesAtom = atom<Record<string, string[]>>({
+export const eventTypeClassesAtom = atom<Record<string, RegistrationClass[]>>({
   key: 'eventTypeClasses',
   default: {
     NOU: [],

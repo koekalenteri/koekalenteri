@@ -91,7 +91,7 @@ describe('SearchPage', () => {
     const { container } = renderPage('/?c=AVO', locales.fi)
     await waitForDebounce()
     expect(screen.getByRole('button', { name: 'AVO' })).toBeInTheDocument()
-    expect(screen.getAllByRole('row').length).toEqual(3)
+    expect(screen.getAllByRole('row').length).toEqual(4)
     expect(container).toMatchSnapshot()
   })
 

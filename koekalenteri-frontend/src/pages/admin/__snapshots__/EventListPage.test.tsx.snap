@@ -1658,9 +1658,9 @@ exports[`EventListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
-                      title="class4"
+                      title="AVO"
                     >
-                      class4
+                      AVO
                     </div>
                   </div>
                   <div
@@ -1855,9 +1855,9 @@ exports[`EventListPage renders 1`] = `
                   >
                     <div
                       class="MuiDataGrid-cellContent"
-                      title="class5"
+                      title="ALO"
                     >
-                      class5
+                      ALO
                     </div>
                   </div>
                   <div

@@ -6,6 +6,7 @@ import type {
   QualifyingResult,
   Registration,
   RegistrationBreeder,
+  RegistrationClass,
   TestResult,
 } from 'koekalenteri-shared/model'
 import type { ValidationResult, Validators2, WideValidationResult } from '../../../i18n/validation'
@@ -14,7 +15,6 @@ import type {
   EventResultRequirement,
   EventResultRequirements,
   EventResultRequirementsByDate,
-  RegistrationClass,
 } from '../../../rules'
 
 import { differenceInMonths, startOfYear } from 'date-fns'
@@ -147,11 +147,11 @@ export type RelevantResults = { relevant: QualifyingResult[]; qualifies: boolean
 const byDate = (a: TestResult, b: TestResult) => new Date(a.date).valueOf() - new Date(b.date).valueOf()
 export function filterRelevantResults(
   { eventType, startDate }: { eventType: string; startDate: Date },
-  regClass: RegistrationClass,
+  regClass: RegistrationClass | undefined,
   officialResults?: TestResult[],
   manualResults?: Partial<TestResult>[]
 ): RelevantResults {
-  const nextClass = getNextClass(regClass)
+  const nextClass = regClass && getNextClass(regClass)
   const rules = getRequirements(eventType, regClass, startDate)
   const nextClassRules = nextClass && getRequirements(eventType, nextClass, startDate)
   const manualValid = manualResults?.filter((r) => r.type && r.date && r.location && r.judge)
@@ -165,8 +165,8 @@ export function filterRelevantResults(
   if (check.qualifies && check.relevant.length) {
     const officialNotThisYear = officialResults?.filter((r) => !excludeByYear(r, startDate))
     const manulNotThisYear = manualValid?.filter((r) => !excludeByYear(r, startDate))
-    const dis = checkRequiredResults(nextClassRules, officialNotThisYear, manulNotThisYear, false)
-    if (dis.qualifies) {
+    const dis = nextClass && checkRequiredResults(nextClassRules, officialNotThisYear, manulNotThisYear, false)
+    if (dis?.qualifies) {
       return {
         relevant: check.relevant.concat(dis.relevant).sort(byDate),
         qualifies: false,
@@ -257,7 +257,7 @@ function bestResults(
     .map((r) => (r.qualifying === false ? { ...r, qualifying: undefined } : r))
 }
 
-function getNextClass(c: RegistrationClass): RegistrationClass | undefined {
+function getNextClass(c: RegistrationClass | undefined): RegistrationClass | undefined {
   if (c === 'ALO') {
     return 'AVO'
   }

@@ -1,4 +1,4 @@
-import type { TestResult } from 'koekalenteri-shared/model'
+import type { RegistrationClass, TestResult } from 'koekalenteri-shared/model'
 
 import { parseISO } from 'date-fns'
 
@@ -16,8 +16,6 @@ export enum RULE_DATES {
   '2023-04-15',
 }
 export type RuleDate = keyof typeof RULE_DATES
-
-export type RegistrationClass = 'ALO' | 'AVO' | 'VOI' | undefined
 
 export type EventRequirement = {
   age?: number

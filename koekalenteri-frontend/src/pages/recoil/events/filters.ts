@@ -4,6 +4,7 @@ import type { FilterProps } from './atoms'
 import { formatISO } from 'date-fns'
 
 import { isEntryClosing, isEntryOpen, isEntryUpcoming } from '../../../utils'
+import { isRegistrationClass } from '../../admin/EventViewPage'
 
 export function withinDateFilters(event: Event, { start, end }: FilterProps) {
   if (start && (!event.endDate || event.endDate < start)) {
@@ -104,7 +105,7 @@ export function deserializeFilter(input: string) {
   const bits = searchParams.getAll('b')
   const result: FilterProps = {
     end: readDate(searchParams.get('e')),
-    eventClass: searchParams.getAll('c'),
+    eventClass: searchParams.getAll('c').filter(isRegistrationClass),
     eventType: searchParams.getAll('t'),
     judge: searchParams.getAll('j').map((j) => parseInt(j)),
     organizer: searchParams.getAll('o'),

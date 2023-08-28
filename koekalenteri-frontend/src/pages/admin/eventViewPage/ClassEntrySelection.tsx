@@ -30,6 +30,7 @@ import NoRowsOverlay from './classEntrySelection/NoRowsOverlay'
 import { useClassEntrySelectionColumns } from './classEntrySelection/useClassEntrySectionColumns'
 
 interface Props {
+  eventId: string
   eventClass: string
   eventDates?: Date[]
   registrations?: Registration[]
@@ -55,6 +56,7 @@ const listKey = (reg: Registration, eventGroups: RegistrationGroup[]) => {
 export const groupKey = (rd: RegistrationDate) => rd.date.toISOString().slice(0, 10) + '-' + rd.time
 
 const ClassEntrySelection = ({
+  eventId,
   eventClass,
   eventDates = [],
   registrations = [],
@@ -74,7 +76,7 @@ const ClassEntrySelection = ({
     [setOpen, setSelectedRegistrationId]
   )
   const { cancelledColumns, entryColumns, participantColumns } = useClassEntrySelectionColumns(eventDates, handleOpen)
-  const actions = useAdminRegistrationActions()
+  const actions = useAdminRegistrationActions(eventId)
 
   const eventGroups: RegistrationGroup[] = useMemo(
     () => availableGroups(eventDates).map((eventDate) => ({ ...eventDate, key: groupKey(eventDate), number: 0 })),
@@ -97,8 +99,6 @@ const ClassEntrySelection = ({
   const canArrangeReserve = !registrationsByGroup.reserve.some((r) => r.reserveNotified)
 
   const handleDrop = (group: RegistrationGroup) => async (item: DragItem) => {
-    console.debug({ state, group, item })
-
     const reg = registrations.find((r) => r.id === item.id)
     if (!reg) {
       return

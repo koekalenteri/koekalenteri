@@ -1,4 +1,4 @@
-import type { Event } from 'koekalenteri-shared/model'
+import type { Event, RegistrationClass } from 'koekalenteri-shared/model'
 
 import { useEffect } from 'react'
 import { useRecoilState, useResetRecoilState } from 'recoil'
@@ -9,7 +9,7 @@ import RegistrationDialogBase from './RegistrationDialogBase'
 
 interface Props {
   event: Event
-  eventClass?: string
+  eventClass?: RegistrationClass
   onClose?: () => void
   open: boolean
   registrationId: string

@@ -60,7 +60,7 @@ exports[`EventInfo should render event information 1`] = `
                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                   scope="row"
                 >
-                  TestClass
+                  ALO
                 </th>
                 <th
                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"

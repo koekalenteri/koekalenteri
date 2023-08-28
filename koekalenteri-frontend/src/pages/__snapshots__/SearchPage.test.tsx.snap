@@ -5593,6 +5593,296 @@ exports[`SearchPage filters by event class 1`] = `
             </div>
           </td>
         </tr>
+        <tr
+          class="MuiTableRow-root css-1lvh4ei-MuiTableRow-root"
+        >
+          <td
+            class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+          >
+            <div
+              class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
+            >
+              <div
+                class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-auto css-kcsfla-MuiGrid-root"
+              >
+                <button
+                  aria-label="expand row"
+                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10frfwe-MuiButtonBase-root-MuiIconButton-root"
+                  tabindex="0"
+                  type="button"
+                >
+                  <svg
+                    aria-hidden="true"
+                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                    data-testid="KeyboardArrowRightIcon"
+                    focusable="false"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"
+                    />
+                  </svg>
+                  <span
+                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                  />
+                </button>
+              </div>
+              <div
+                class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-xs-true css-2ryc1y-MuiGrid-root"
+              >
+                <div
+                  class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-1s2fltb-MuiGrid-root"
+                >
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 css-19p55ea-MuiGrid-root"
+                  >
+                    daterange
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-1rl1j2j-MuiGrid-root"
+                  >
+                    type4
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-1rl1j2j-MuiGrid-root"
+                  >
+                    AVO
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-5 css-1ek8k2z-MuiGrid-root"
+                  >
+                    test
+                     (test)
+                  </div>
+                </div>
+                <div
+                  class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-xn8b0u-MuiGrid-root"
+                >
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-6 MuiGrid-grid-md-7 css-rhw740-MuiGrid-root"
+                  >
+                    Suomen Noutajakoirajärjestö ry
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 MuiGrid-grid-md-2 css-nuhzl1-MuiGrid-root"
+                  >
+                    <div
+                      class="MuiBox-root css-s2uf1z"
+                    >
+                      10 toltaPlaces
+                    </div>
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 MuiGrid-grid-md-3 css-1xd4zan-MuiGrid-root"
+                  >
+                    <div
+                      class="MuiBox-root css-bmuutb"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div
+              class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-fhr8k5-MuiCollapse-root"
+              style="min-height: 0px;"
+            >
+              <div
+                class="MuiCollapse-wrapper MuiCollapse-vertical css-smkl36-MuiCollapse-wrapper"
+              >
+                <div
+                  class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
+                >
+                  <table
+                    aria-label="details"
+                    class="MuiTable-root css-ii9sbb-MuiTable-root"
+                  >
+                    <tbody
+                      class="MuiTableBody-root css-apqrd9-MuiTableBody-root"
+                    >
+                      <tr
+                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                      >
+                        <th
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                          scope="row"
+                        >
+                          entryTime
+                          :
+                        </th>
+                        <td
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                        >
+                          daterange
+                          <span
+                            class="info"
+                          />
+                        </td>
+                      </tr>
+                      <tr
+                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                      >
+                        <th
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                          scope="row"
+                        >
+                          event.classes
+                          :
+                        </th>
+                        <td
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                        >
+                          <table
+                            class="MuiTable-root css-1k2pdqd-MuiTable-root"
+                          >
+                            <tbody
+                              class="MuiTableBody-root css-apqrd9-MuiTableBody-root"
+                            >
+                              <tr
+                                class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                              >
+                                <th
+                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                                  scope="row"
+                                >
+                                  eeeeee d.M.
+                                </th>
+                                <th
+                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                                  scope="row"
+                                >
+                                  AVO
+                                </th>
+                                <th
+                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                                  scope="row"
+                                />
+                                <th
+                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-dv0mq-MuiTableCell-root"
+                                  scope="row"
+                                />
+                                <th
+                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-dv0mq-MuiTableCell-root"
+                                  scope="row"
+                                />
+                                <th
+                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                                  scope="row"
+                                />
+                                <td
+                                  class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                                />
+                              </tr>
+                            </tbody>
+                          </table>
+                        </td>
+                      </tr>
+                      <tr
+                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                      >
+                        <th
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                          rowspan="1"
+                          scope="row"
+                        >
+                          event.judges
+                          :
+                        </th>
+                        <td
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                        >
+                          Tuomari 2
+                        </td>
+                      </tr>
+                      <tr
+                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                      >
+                        <th
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                          scope="row"
+                        >
+                          event.official
+                          :
+                        </th>
+                        <td
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                        >
+                          Teemu Toimitsija
+                        </td>
+                      </tr>
+                      <tr
+                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                      >
+                        <th
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                          scope="row"
+                        >
+                          event.paymentDetails
+                          :
+                        </th>
+                        <td
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                        >
+                          event.cost
+                          : 
+                          123
+                           €
+                          <br />
+                          event.costMember
+                          : 
+                          123
+                           €
+                          <br />
+                          <br />
+                          test
+                        </td>
+                      </tr>
+                      <tr
+                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                      >
+                        <th
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                          scope="row"
+                        >
+                          event.priority
+                          :
+                        </th>
+                        <td
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                        >
+                          <div
+                            class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-1xzzkbc-MuiChip-root"
+                          >
+                            <span
+                              class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
+                            >
+                              Jäsenet
+                            </span>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr
+                        class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                      >
+                        <th
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                          scope="row"
+                        >
+                          event.description
+                          :
+                        </th>
+                        <td
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                        >
+                          test
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </td>
+        </tr>
       </tbody>
     </table>
   </div>

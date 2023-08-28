@@ -6,7 +6,7 @@ import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
 import { getRegistrationAuditTrail } from '../../../api/registration'
 import { hasChanges } from '../../../utils'
 import { idTokenAtom } from '../../recoil'
-import { currentAdminRegistrationSelector, editableCurrentAdminEventRegistrationByIdAtom } from '../recoil'
+import { currentAdminRegistrationSelector, editableAdminEventRegistrationByEventIdAndIdAtom } from '../recoil'
 
 import RegistrationDialogBase from './RegistrationDialogBase'
 
@@ -19,8 +19,9 @@ interface Props {
 
 export default function RegistrationEditDialog({ event, registrationId, open, onClose }: Props) {
   const savedRegistration = useRecoilValue(currentAdminRegistrationSelector)
-  const [registration, setRegistration] = useRecoilState(editableCurrentAdminEventRegistrationByIdAtom(registrationId))
-  const resetRegistration = useResetRecoilState(editableCurrentAdminEventRegistrationByIdAtom(registrationId))
+  const key = { eventId: event.id, id: registrationId }
+  const [registration, setRegistration] = useRecoilState(editableAdminEventRegistrationByEventIdAndIdAtom(key))
+  const resetRegistration = useResetRecoilState(editableAdminEventRegistrationByEventIdAndIdAtom(key))
   const token = useRecoilValue(idTokenAtom)
   const changes = useMemo(
     () => !!registration && !!savedRegistration && hasChanges(savedRegistration, registration),

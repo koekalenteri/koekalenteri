@@ -17,7 +17,7 @@ const mockRegistration: Registration = {
     name: 'test-breeder',
     location: 'test-location',
   },
-  class: 'test-class',
+  class: 'AVO',
   dates: [{ date: new Date(), time: 'ap' }],
   dog: {
     regNo: 'test-reg',

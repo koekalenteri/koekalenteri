@@ -1,3 +1,5 @@
+import type { PartialEvent } from '../EventForm'
+
 import { fireEvent, render, screen, within } from '@testing-library/react'
 
 import JudgesSection from './JudgesSection'
@@ -37,7 +39,7 @@ const JUDGES = [
 
 describe('JudgeSection', () => {
   it('should render properly with one judge selected', () => {
-    const testEvent = {
+    const testEvent: PartialEvent = {
       id: 'test',
       judges: [1],
       startDate: new Date('2022-06-01'),
@@ -49,7 +51,7 @@ describe('JudgeSection', () => {
   })
 
   it('should render properly with two judges selected', () => {
-    const testEvent = {
+    const testEvent: PartialEvent = {
       id: 'test',
       judges: [1, 2],
       startDate: new Date('2022-06-01'),
@@ -61,7 +63,7 @@ describe('JudgeSection', () => {
   })
 
   it('should render properly with three judges selected', () => {
-    const testEvent = {
+    const testEvent: PartialEvent = {
       id: 'test',
       judges: [1, 2, 3],
       startDate: new Date('2022-06-01'),
@@ -73,7 +75,7 @@ describe('JudgeSection', () => {
   })
 
   it('should not warn about judge 0 not beign available (KOE-357)', () => {
-    const testEvent = {
+    const testEvent: PartialEvent = {
       id: 'test',
       judges: [0],
       startDate: new Date('2022-06-01'),
@@ -85,7 +87,7 @@ describe('JudgeSection', () => {
   })
 
   it('should hide classes for NOWT event (KOE-317)', () => {
-    const testEvent = {
+    const testEvent: PartialEvent = {
       id: 'test',
       eventType: 'NOWT',
       judges: [0],
@@ -98,18 +100,18 @@ describe('JudgeSection', () => {
   })
 
   it('should fire onChange', async () => {
-    const testEvent = {
+    const testEvent: PartialEvent = {
       id: 'test',
       judges: [1],
       startDate: new Date('2022-06-01'),
       endDate: new Date('2022-06-02'),
       classes: [
-        { class: 'c1', date: new Date('2022-06-01') },
-        { class: 'c2', date: new Date('2022-06-01') },
-        { class: 'c3', date: new Date('2022-06-01') },
-        { class: 'c1', date: new Date('2022-06-02') },
-        { class: 'c2', date: new Date('2022-06-02') },
-        { class: 'c3', date: new Date('2022-06-02') },
+        { class: 'ALO', date: new Date('2022-06-01') },
+        { class: 'AVO', date: new Date('2022-06-01') },
+        { class: 'VOI', date: new Date('2022-06-01') },
+        { class: 'ALO', date: new Date('2022-06-02') },
+        { class: 'AVO', date: new Date('2022-06-02') },
+        { class: 'VOI', date: new Date('2022-06-02') },
       ],
     }
 

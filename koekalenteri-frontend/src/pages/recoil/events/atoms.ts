@@ -1,4 +1,4 @@
-import type { Event } from 'koekalenteri-shared/model'
+import type { Event, RegistrationClass } from 'koekalenteri-shared/model'
 
 import { startOfDay } from 'date-fns'
 import { atom } from 'recoil'
@@ -26,7 +26,7 @@ export type FilterProps = {
   withUpcomingEntry?: boolean
   withFreePlaces?: boolean
   eventType: string[]
-  eventClass: string[]
+  eventClass: RegistrationClass[]
   judge: number[]
   organizer: string[]
 }
