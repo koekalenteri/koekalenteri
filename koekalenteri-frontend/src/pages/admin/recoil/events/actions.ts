@@ -7,7 +7,7 @@ import { addDays, differenceInDays } from 'date-fns'
 import { useSnackbar } from 'notistack'
 import { useRecoilState, useSetRecoilState } from 'recoil'
 
-import { putEvent } from '../../../../api/event'
+import { copyEventWithRegistrations, putEvent } from '../../../../api/event'
 import { Path } from '../../../../routeConfig'
 
 import {
@@ -30,6 +30,7 @@ export const useAdminEventActions = () => {
 
   return {
     copyCurrent,
+    copyCurrentTest,
     deleteCurrent,
     save,
   }
@@ -62,6 +63,19 @@ export const useAdminEventActions = () => {
 
     setNewEvent(copy)
     navigate(Path.admin.newEvent)
+  }
+
+  async function copyCurrentTest() {
+    if (!currentAdminEvent) {
+      return
+    }
+    const saved = await copyEventWithRegistrations(
+      currentAdminEvent.id,
+      user.getSignInUserSession()?.getIdToken().getJwtToken()
+    )
+    setAdminEventId(saved.id)
+    setCurrentAdminEvent(saved)
+    return saved
   }
 
   async function save(event: Partial<Event>): Promise<Event> {

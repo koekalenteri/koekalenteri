@@ -1,5 +1,7 @@
 import type { Event } from 'koekalenteri-shared/model'
 
+import { addDays, nextSaturday, startOfDay } from 'date-fns'
+
 import http, { withToken } from './http'
 
 const PATH = '/event/'
@@ -27,4 +29,12 @@ export async function putInvitationAttachment(
   data.append('file', file, file.name)
 
   return http.postRaw<FormData, string>(`/admin/file/invitation/${eventId}`, data, withToken({ signal }, token))
+}
+
+export async function copyEventWithRegistrations(eventId: string, token?: string, signal?: AbortSignal) {
+  return http.post<{ id: string; startDate: Date }, Event>(
+    ADMIN_PATH + 'copy',
+    { id: eventId, startDate: startOfDay(nextSaturday(addDays(Date.now(), 90))) },
+    withToken({ signal }, token)
+  )
 }

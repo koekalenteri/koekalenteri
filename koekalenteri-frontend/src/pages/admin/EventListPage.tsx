@@ -118,6 +118,12 @@ export default function EventListPage() {
           text={t('copy')}
         />
         <AutoButton
+          startIcon={<ContentCopyOutlined />}
+          disabled={!selectedEventID}
+          onClick={actions.copyCurrentTest}
+          text={t('copyTest')}
+        />
+        <AutoButton
           startIcon={<DeleteOutline />}
           disabled={!selectedEventID}
           onClick={deleteAction}

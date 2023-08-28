@@ -11,6 +11,7 @@
     "phone": "Puhelin"
   },
   "copy": "Kopioi",
+  "copyTest": "Kopioi ilmoineen",
   "create": "Lisää uusi",
   "createEvent": "Uusi tapahtuma",
   "createRegistration": "Uusi ilmoittautuminen",
