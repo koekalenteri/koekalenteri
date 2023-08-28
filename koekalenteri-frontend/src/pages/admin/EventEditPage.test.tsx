@@ -56,6 +56,7 @@ describe('EventEditPage', () => {
       </ThemeProvider>
     )
     await flushPromisesAndTimers()
+    await flushPromisesAndTimers()
     expect(container).toMatchSnapshot()
   })
 })

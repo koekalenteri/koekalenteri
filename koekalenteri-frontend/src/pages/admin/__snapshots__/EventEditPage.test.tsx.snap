@@ -1055,10 +1055,8 @@ exports[`EventEditPage renders properly 1`] = `
               judges
             </p>
             <p
-              class="MuiFormHelperText-root Mui-error css-9tosq5-MuiFormHelperText-root"
-            >
-              validation.event.errors
-            </p>
+              class="MuiFormHelperText-root css-ml08u8-MuiFormHelperText-root"
+            />
           </div>
           <div
             class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-bz4dnt-MuiCollapse-root"
@@ -1090,21 +1088,20 @@ exports[`EventEditPage renders properly 1`] = `
                             class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                           >
                             <label
-                              class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled Mui-error MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
-                              data-shrink="false"
+                              class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
+                              data-shrink="true"
                               for=":rl:"
                               id=":rl:-label"
                             >
                               judgeChief
                             </label>
                             <div
-                              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled Mui-error MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1hw12xa-MuiInputBase-root-MuiOutlinedInput-root"
+                              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1hw12xa-MuiInputBase-root-MuiOutlinedInput-root"
                             >
                               <input
                                 aria-autocomplete="list"
-                                aria-describedby=":rl:-helper-text"
                                 aria-expanded="false"
-                                aria-invalid="true"
+                                aria-invalid="false"
                                 autocapitalize="none"
                                 autocomplete="off"
                                 class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
@@ -1113,7 +1110,7 @@ exports[`EventEditPage renders properly 1`] = `
                                 role="combobox"
                                 spellcheck="false"
                                 type="text"
-                                value=""
+                                value="Tuomari 1"
                               />
                               <div
                                 class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
@@ -1144,7 +1141,7 @@ exports[`EventEditPage renders properly 1`] = `
                                 class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                               >
                                 <legend
-                                  class="css-yjsfm1"
+                                  class="css-14lo706"
                                 >
                                   <span>
                                     judgeChief
@@ -1152,12 +1149,6 @@ exports[`EventEditPage renders properly 1`] = `
                                 </legend>
                               </fieldset>
                             </div>
-                            <p
-                              class="MuiFormHelperText-root Mui-disabled Mui-error MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-1vg31rc-MuiFormHelperText-root"
-                              id=":rl:-helper-text"
-                            >
-                              Tuomari 123 ei ole käytettävissä
-                            </p>
                           </div>
                         </div>
                       </div>
