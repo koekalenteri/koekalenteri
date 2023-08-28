@@ -22,7 +22,7 @@ export default function EventDetailsDialog({ eventId, onClose, open }: Props) {
   const { t } = useTranslation()
   const { enqueueSnackbar } = useSnackbar()
   const actions = useAdminEventActions()
-  const storedEvent = useRecoilValue(adminEventSelector(eventId))
+  const [storedEvent, setStoredEvent] = useRecoilState(adminEventSelector(eventId))
   const [event, setEvent] = useRecoilState(editableEventByIdAtom(eventId))
   const resetEvent = useResetRecoilState(editableEventByIdAtom(eventId))
   const [changes, setChanges] = useState<boolean>(hasChanges(storedEvent, event))
@@ -48,13 +48,15 @@ export default function EventDetailsDialog({ eventId, onClose, open }: Props) {
     actions.save(event).then(
       (saved) => {
         resetEvent()
-        enqueueSnackbar(t(`event.states.${saved?.state || 'draft'}`, '', { context: 'save' }), { variant: 'info' })
+        setStoredEvent(saved)
+        enqueueSnackbar(t(`event.saved`), { variant: 'info' })
+        onClose?.()
       },
       (reason) => {
         console.error(reason)
       }
     )
-  }, [actions, enqueueSnackbar, event, resetEvent, t])
+  }, [actions, enqueueSnackbar, event, onClose, resetEvent, setStoredEvent, t])
 
   if (!event) {
     return null
