@@ -20,7 +20,7 @@ exports[`EventFormPlaces should render with classes 1`] = `
           class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-fcbanr-MuiFormControlLabel-root"
         >
           <span
-            class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-root MuiCheckbox-colorPrimary css-1xphpbs-MuiButtonBase-root-MuiCheckbox-root"
+            class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeSmall PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeSmall MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeSmall css-1xphpbs-MuiButtonBase-root-MuiCheckbox-root"
           >
             <input
               class="PrivateSwitchBase-input css-1m9pwf3"
@@ -260,7 +260,7 @@ exports[`EventFormPlaces should render with minimal information 1`] = `
           class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-fcbanr-MuiFormControlLabel-root"
         >
           <span
-            class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-root MuiCheckbox-colorPrimary css-1xphpbs-MuiButtonBase-root-MuiCheckbox-root"
+            class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeSmall PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeSmall MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeSmall css-1xphpbs-MuiButtonBase-root-MuiCheckbox-root"
           >
             <input
               class="PrivateSwitchBase-input css-1m9pwf3"
