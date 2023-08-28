@@ -179,7 +179,7 @@ export const copyEventWithRegistrations = metricScope(
         item.modifiedBy = user.name
 
         const days = differenceInDays(parseISO(startDate), parseISO(item.startDate))
-        item.startDate = startDate
+        item.startDate = parseISO(startDate).toISOString()
         item.endDate = addDays(parseISO(item.endDate), days).toISOString()
         if (item.entryStartDate) item.entryStartDate = addDays(parseISO(item.entryStartDate), days).toISOString()
         if (item.entryEndDate) item.entryEndDate = addDays(parseISO(item.entryEndDate), days).toISOString()
@@ -202,7 +202,13 @@ export const copyEventWithRegistrations = metricScope(
           reg.dates.forEach((d) => {
             d.date = addDays(parseISO(d.date), days).toISOString()
           })
-          dynamoDB.write(reg, process.env.REGISTRATION_TABLE_NAME)
+          if (reg.group) {
+            if (reg.group.date && reg.group.key) {
+              reg.group.date = addDays(parseISO(reg.group.date), days).toISOString()
+              reg.group.key = reg.group.date.slice(0, 10) + '-' + reg.group.time
+            }
+          }
+          await dynamoDB.write(reg, process.env.REGISTRATION_TABLE_NAME)
         }
 
         metricsSuccess(metrics, event.requestContext, 'copyEventWithRegistrations')
