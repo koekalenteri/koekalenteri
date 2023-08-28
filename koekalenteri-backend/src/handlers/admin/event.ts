@@ -178,7 +178,7 @@ export const copyEventWithRegistrations = metricScope(
         item.modifiedAt = timestamp
         item.modifiedBy = user.name
 
-        const days = differenceInDays(parseISO(item.startDate), parseISO(startDate))
+        const days = differenceInDays(parseISO(startDate), parseISO(item.startDate))
         item.startDate = startDate
         item.endDate = addDays(parseISO(item.endDate), days).toISOString()
         if (item.entryStartDate) item.entryStartDate = addDays(parseISO(item.entryStartDate), days).toISOString()
