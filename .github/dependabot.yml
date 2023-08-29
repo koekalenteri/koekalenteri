@@ -10,13 +10,25 @@ updates:
     directory: "/koekalenteri-backend"
     schedule:
       interval: "weekly"
-      
+    groups:
+      deps:
+        patterns:
+          - "*"
+
   - package-ecosystem: "npm"
     directory: "/koekalenteri-frontend"
     schedule:
       interval: "weekly"
+    groups:
+      deps:
+        patterns:
+          - "*"
 
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
       interval: "weekly"
+    groups:
+      deps:
+        patterns:
+          - "*"
