@@ -17,8 +17,8 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "@types/jest": "^29.2.4",
-    "concurrently": "^8.2.0",
+    "@types/jest": "^29.5.4",
+    "concurrently": "^8.2.1",
     "rimraf": "^5.0.1",
     "typescript": "^5.2.2"
   }
