@@ -23,6 +23,8 @@ updates:
       deps:
         patterns:
           - "*"
+        exclude-patterns:
+          - "camelcase"
 
   - package-ecosystem: "npm"
     directory: "/"
