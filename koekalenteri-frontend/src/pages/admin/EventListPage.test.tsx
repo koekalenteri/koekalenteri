@@ -40,9 +40,11 @@ describe('EventListPage', () => {
     )
     await flushPromisesAndTimers()
     await flushPromisesAndTimers()
+    await flushPromisesAndTimers()
     expect(container).toMatchSnapshot()
 
     fireEvent.click(screen.getAllByRole('row')[1])
+    await flushPromisesAndTimers()
     await flushPromisesAndTimers()
 
     expect(onChange).toHaveBeenCalledTimes(2)
