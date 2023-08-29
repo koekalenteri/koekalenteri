@@ -42,7 +42,7 @@
     "remark-html": "^15.0.2",
     "remark-parse": "^10.0.1",
     "source-map-support": "^0.5.19",
-    "unified": "^10.1.2",
+    "unified": "^11.0.2",
     "unist-builder": "^4.0.0",
     "unist-util-position": "^5.0.0",
     "unist-util-visit": "^5.0.0",
