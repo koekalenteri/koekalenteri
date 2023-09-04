@@ -85,6 +85,7 @@
   "entryTitle_test": "Ilmoittaudu kokeeseen",
   "event": {
     "accountNumber": "Tilinumero",
+    "attachments": "Liitteet",
     "classes": "Koeluokat",
     "contactInfo": "Yhteystiedot",
     "cost": "Maksu",

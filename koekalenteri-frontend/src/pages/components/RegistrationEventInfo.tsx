@@ -1,18 +1,25 @@
 import type { ConfirmedEvent } from 'koekalenteri-shared/model'
 
 import { useTranslation } from 'react-i18next'
+import PictureAsPdfOutlined from '@mui/icons-material/PictureAsPdfOutlined'
 import Grid from '@mui/material/Grid'
+import Link from '@mui/material/Link'
 import Paper from '@mui/material/Paper'
 import { useRecoilValue } from 'recoil'
 
 import useEventStatus from '../../hooks/useEventStatus'
+import { API_BASE_URL } from '../../routeConfig'
 import { judgesByIdsSelector } from '../recoil'
 
 import CollapsibleSection from './CollapsibleSection'
 import CostInfo from './CostInfo'
 import { PriorityChips } from './PriorityChips'
 
-export default function RegistrationEventInfo({ event }: { event: ConfirmedEvent }) {
+interface Props {
+  event: ConfirmedEvent
+}
+
+export default function RegistrationEventInfo({ event }: Props) {
   const { t } = useTranslation()
   const status = useEventStatus(event)
   const judges = useRecoilValue(judgesByIdsSelector(event.judges))
@@ -80,6 +87,25 @@ export default function RegistrationEventInfo({ event }: { event: ConfirmedEvent
                 </Grid>
                 <Grid item xs={8}>
                   {event.description}
+                </Grid>
+              </>
+            ) : null}
+            {event.invitationAttachment && event.state === 'invited' ? (
+              <>
+                <Grid item xs={4}>
+                  {t('event.attachments')}:
+                </Grid>
+                <Grid item xs={8}>
+                  <PictureAsPdfOutlined fontSize="small" sx={{ verticalAlign: 'middle', pr: 0.5 }} />
+                  <Link
+                    href={`${API_BASE_URL}/file/${event.invitationAttachment}/kutsu.pdf`}
+                    rel="noopener"
+                    target="_blank"
+                    type="application/pdf"
+                    variant="caption"
+                  >
+                    Kutsu.pdf
+                  </Link>
                 </Grid>
               </>
             ) : null}
