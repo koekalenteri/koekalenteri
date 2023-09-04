@@ -260,6 +260,7 @@ function useRegistrationEmailTemplateData(registration: Registration, event: Eve
   }))
   const groupDate = registration.group?.date ? t('dateFormat.wdshort', { date: registration.group.date }) : ''
   const groupTime = registration.group?.time ? t(`registration.timeLong.${registration.group.time}`) : ''
+  const invitationLink = Path.invitation(registration)
 
   return {
     subject: t('registration.email.subject', '', { context }),
@@ -273,6 +274,7 @@ function useRegistrationEmailTemplateData(registration: Registration, event: Eve
       official: { ...event.official, name: reverseName(event.official.name) },
     },
     eventDate,
+    invitationLink,
     qualifyingResults,
     reg: registration,
     regDates,

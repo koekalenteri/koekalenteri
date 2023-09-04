@@ -18,6 +18,8 @@ export const Path = {
     return `/event/${event.eventType}/${event.id}`
   },
   registration: (registration: Registration) => `/r/${registration.eventId}/${registration.id}`,
+  invitation: (registration: Registration) => `/r/${registration.eventId}/${registration.id}/invitation`,
+  invitationAttachment: (event: Event) => `${API_BASE_URL}/file/${event.invitationAttachment}/kutsu.pdf`,
   startList: (id: string = ':id') => `/startlist/${id}`,
   admin: {
     root: ADMIN_ROOT,

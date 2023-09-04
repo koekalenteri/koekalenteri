@@ -41,5 +41,13 @@ export function useRegistrationActions() {
       enqueueSnackbar(t('registration.confirmDialog.done'), { variant: 'info' })
       return saved
     },
+
+    invitationRead: async (reg: Registration) => {
+      if (reg.invitationRead) return reg
+      const mod = structuredClone(reg)
+      mod.invitationRead = true
+      const saved = await putRegistration(mod)
+      return saved
+    },
   }
 }

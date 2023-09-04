@@ -33,6 +33,9 @@ export function registrationEmailTemplateData(
   }))
   const groupDate = registration.group?.date ? t('dateFormat.wdshort', { date: registration.group.date }) : ''
   const groupTime = registration.group?.time ? t(`registration.timeLong.${registration.group.time}`) : ''
+  const invitationLink = confirmedEvent.invitationAttachment
+    ? `${origin}/r/${registration.eventId}/${registration.id}/invitation`
+    : ''
 
   // Friendly name for secretary (and official) (KOE-350)
   confirmedEvent.secretary.name = reverseName(confirmedEvent.secretary.name)
@@ -45,6 +48,7 @@ export function registrationEmailTemplateData(
     link,
     event: confirmedEvent,
     eventDate,
+    invitationLink,
     qualifyingResults,
     reg: registration,
     regDates,

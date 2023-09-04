@@ -2,7 +2,7 @@ import type { ConfirmedEvent, Registration } from 'koekalenteri-shared/model'
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import CheckOutlined from '@mui/icons-material/CheckOutlined'
 import EuroOutlined from '@mui/icons-material/EuroOutlined'
 import PersonOutline from '@mui/icons-material/PersonOutline'
@@ -17,6 +17,8 @@ import Typography from '@mui/material/Typography'
 import { isPast, isToday } from 'date-fns'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
+import { Path } from '../routeConfig'
+
 import Header from './components/Header'
 import LinkButton from './components/LinkButton'
 import RegistrationEventInfo from './components/RegistrationEventInfo'
@@ -30,10 +32,12 @@ import { confirmedEventSelector, registrationSelector, spaAtom } from './recoil'
 interface Props {
   cancel?: boolean
   confirm?: boolean
+  invitation?: boolean
 }
 
-export function RegistrationListPage({ cancel, confirm }: Props) {
+export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
   const params = useParams()
+  const navigate = useNavigate()
   const event = useRecoilValue(confirmedEventSelector(params.id))
   const [registration, setRegistration] = useRecoilState(
     registrationSelector(`${params.id ?? ''}:${params.registrationId ?? ''}`)
@@ -85,7 +89,22 @@ export function RegistrationListPage({ cancel, confirm }: Props) {
     if (confirmOpen && (registration?.confirmed || registration?.cancelled)) {
       setConfirmOpen(false)
     }
-  }, [cancelOpen, confirmOpen, registration])
+    if (invitation && registration && event) {
+      actions.invitationRead(registration).then(
+        (saved) => {
+          setRegistration(saved)
+          if (event.invitationAttachment && event.state === 'invited') {
+            navigate(Path.invitationAttachment(event))
+          } else {
+            navigate(Path.registration(registration))
+          }
+        },
+        (reason) => {
+          console.error(reason)
+        }
+      )
+    }
+  }, [cancelOpen, confirmOpen, registration, invitation, event, actions, setRegistration, navigate])
 
   useEffect(() => {
     if (event === null) {

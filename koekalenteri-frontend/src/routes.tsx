@@ -69,6 +69,10 @@ const routes: RouteObject[] = [
         element: <RegistrationEditPage />,
       },
       {
+        path: 'r/:id/:registrationId/invitation',
+        element: <RegistrationListPage invitation />,
+      },
+      {
         path: 'r/:id/:registrationId',
         element: <RegistrationListPage />,
       },
