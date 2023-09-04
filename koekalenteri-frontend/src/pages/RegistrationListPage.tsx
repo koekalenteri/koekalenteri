@@ -46,6 +46,7 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
   const { t } = useTranslation()
   const [cancelOpen, setCancelOpen] = useState(!!cancel)
   const [confirmOpen, setConfirmOpen] = useState(!!confirm)
+  const [redirecting, setRedirecting] = useState(false)
   const actions = useRegistrationActions()
   const cancelDisabled = useMemo(() => !event || isPast(event.startDate) || isToday(event.startDate), [event])
 
@@ -89,12 +90,16 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
     if (confirmOpen && (registration?.confirmed || registration?.cancelled)) {
       setConfirmOpen(false)
     }
-    if (invitation && registration && event) {
+    if (invitation && registration && event && !redirecting) {
+      setRedirecting(true)
       actions.invitationRead(registration).then(
         (saved) => {
-          setRegistration(saved)
+          if (saved !== registration) {
+            setRegistration(saved)
+          }
           if (event.invitationAttachment && event.state === 'invited') {
-            navigate(Path.invitationAttachment(event))
+            console.log('but why?', redirecting)
+            window.location.replace(Path.invitationAttachment(event))
           } else {
             navigate(Path.registration(registration))
           }
@@ -104,7 +109,7 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
         }
       )
     }
-  }, [cancelOpen, confirmOpen, registration, invitation, event, actions, setRegistration, navigate])
+  }, [cancelOpen, confirmOpen, registration, invitation, event, actions, setRegistration, navigate, redirecting])
 
   useEffect(() => {
     if (event === null) {

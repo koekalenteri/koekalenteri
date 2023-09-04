@@ -37,9 +37,10 @@ exports[`routes should match a snapshot 1`] = `
         "path": "r/:id/:registrationId/edit",
       },
       {
-        "element": <RegistrationListPage
-          invitation={true}
-        />,
+        "element": <React.Fragment>
+          loading...
+        </React.Fragment>,
+        "loader": [Function],
         "path": "r/:id/:registrationId/invitation",
       },
       {

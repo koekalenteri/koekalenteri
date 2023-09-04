@@ -19,6 +19,7 @@ import { HomePage } from './pages/HomePage'
 import { LoginPage } from './pages/LoginPage'
 import RegistrationCreatePage from './pages/RegistrationCreatePage'
 import RegistrationEditPage from './pages/RegistrationEditPage'
+import { registrationInvitationLoader } from './pages/RegistrationInvitation'
 import { RegistrationListPage } from './pages/RegistrationListPage'
 import { SearchPage } from './pages/SearchPage'
 import { startListLoader, StartListPage } from './pages/StartListPage'
@@ -70,7 +71,8 @@ const routes: RouteObject[] = [
       },
       {
         path: 'r/:id/:registrationId/invitation',
-        element: <RegistrationListPage invitation />,
+        loader: registrationInvitationLoader,
+        element: <>loading...</>,
       },
       {
         path: 'r/:id/:registrationId',
