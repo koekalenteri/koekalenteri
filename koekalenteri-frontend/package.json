@@ -250,7 +250,7 @@
     "@types/preval.macro": "^3.0.0",
     "@types/react": "^18.0.26",
     "@types/react-dom": "^18.0.9",
-    "camelcase": "^6.3.0",
+    "camelcase": "^8.0.0",
     "core-js": "^3.31.0",
     "css-mediaquery": "^0.1.2",
     "esbuild-loader": "^4.0.2",
