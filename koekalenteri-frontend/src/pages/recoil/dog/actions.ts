@@ -48,7 +48,7 @@ export function useDogActions(regNo: string) {
       }
       return { dog: emptyDog }
     },
-    refresh: async () => {
+    refresh: async (oldInfo?: DeepPartial<Dog>): Promise<DeepPartial<DogCachedInfo> | undefined> => {
       if (!regNo) {
         return { dog: emptyDog }
       }
@@ -59,7 +59,7 @@ export function useDogActions(regNo: string) {
             updated.results = []
           }
           setDog(updated)
-          return applyCache(regNo, cache, updated)
+          return applyCache(regNo, cache, updated, oldInfo)
         }
       } catch (err) {
         enqueueSnackbar('Koiran tietojen päivitys epäonnistui 😞', { variant: 'error' })
@@ -78,7 +78,12 @@ export function useDogActions(regNo: string) {
   }
 }
 
-export function applyCache(regNo: string, cache?: DeepPartial<DogCachedInfo>, dog?: Dog) {
+export function applyCache(
+  regNo: string,
+  cache?: DeepPartial<DogCachedInfo>,
+  dog?: Dog,
+  oldInfo?: DeepPartial<Dog>
+): DeepPartial<DogCachedInfo> {
   const result: DeepPartial<DogCachedInfo> = { ...cache, dog, rfid: false }
 
   if (dog) {
@@ -86,12 +91,12 @@ export function applyCache(regNo: string, cache?: DeepPartial<DogCachedInfo>, do
     result.dog = merge<DeepPartial<Dog>>(
       {
         dam: {
-          name: cache?.dog?.dam?.name,
-          titles: cache?.dog?.dam?.titles,
+          name: cache?.dog?.dam?.name || oldInfo?.dam?.name,
+          titles: cache?.dog?.dam?.titles || oldInfo?.dam?.titles,
         },
         sire: {
-          name: cache?.dog?.sire?.name,
-          titles: cache?.dog?.sire?.titles,
+          name: cache?.dog?.sire?.name || oldInfo?.sire?.name,
+          titles: cache?.dog?.sire?.titles || oldInfo?.sire?.titles,
         },
       },
       dog

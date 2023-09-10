@@ -137,7 +137,7 @@ export const DogInfo = ({
           delay = 500
           break
         case 'update':
-          updateDog(await actions.refresh())
+          updateDog(await actions.refresh(reg.dog))
           delay = 500
           break
         case 'notfound':
@@ -161,7 +161,7 @@ export const DogInfo = ({
         setLoading(false)
       }
     )
-  }, [actions, delayed, loading, state.mode, state.regNo, updateDog])
+  }, [actions, delayed, loading, reg.dog, state.mode, state.regNo, updateDog])
 
   const handleRegNoChange = useCallback(
     (event: SyntheticEvent<Element, Event>, value: string | null) => {
