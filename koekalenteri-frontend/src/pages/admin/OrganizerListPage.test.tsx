@@ -33,6 +33,7 @@ describe('OrganizerListPage', () => {
       </ThemeProvider>
     )
     await flushPromisesAndTimers()
+    await flushPromisesAndTimers()
     expect(container).toMatchSnapshot()
   })
 })
