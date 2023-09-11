@@ -5,7 +5,7 @@ import { selector, selectorFamily } from 'recoil'
 
 import { eventsAtom, userSelector } from '../../../recoil'
 import { adminEventOrganizersSelector, filteredAdminEventsSelector } from '../events'
-import { organizersAtom, selectedOrganizerIdAtom } from '../organizers'
+import { adminOrganizersAtom, selectedOrganizerIdAtom } from '../organizers'
 
 import { adminUserFilterAtom, adminUserIdAtom, adminUsersAtom } from './atoms'
 
@@ -49,7 +49,7 @@ export const adminUserOrganizersSelector = selector({
   key: 'adminUserOrganizers',
   get: ({ get }) => {
     const user = get(userSelector)
-    const list = get(organizersAtom)
+    const list = get(adminOrganizersAtom)
 
     return user?.admin ? list : list.filter((o) => user?.roles?.[o.id])
   },
@@ -69,7 +69,7 @@ export const adminUserAdminOrganizersSelector = selector({
   key: 'adminUserAdminOrganizers',
   get: ({ get }) => {
     const user = get(userSelector)
-    const list = get(organizersAtom)
+    const list = get(adminOrganizersAtom)
 
     return user?.admin ? list : list.filter((o) => user?.roles?.[o.id] === 'admin')
   },

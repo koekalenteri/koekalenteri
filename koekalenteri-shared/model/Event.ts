@@ -1,9 +1,9 @@
-import { DbRecord, JsonDbRecord, NotOptional, Official, Organizer, RegistrationClass, Replace, ReplaceOptional, Secretary } from '.';
+import { DbRecord, JsonDbRecord, NotOptional, Official, PublicOrganizer, RegistrationClass, Replace, ReplaceOptional, Secretary } from '.';
 
 export interface JsonEvent extends JsonDbRecord {
   kcId?: number
   state: EventState
-  organizer: Organizer
+  organizer: PublicOrganizer
   eventType: string
   classes: Array<JsonEventClass>
   startDate: string

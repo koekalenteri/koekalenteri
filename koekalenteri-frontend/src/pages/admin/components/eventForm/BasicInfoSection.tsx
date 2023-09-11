@@ -209,6 +209,7 @@ export default function BasicInfoSection({
               getOptionLabel={getName}
               id="organizer"
               isOptionEqualToValue={isEqualId}
+              mapValue={(v: Organizer) => (v ? { id: v.id, name: v.name } : v)}
               onChange={onChange}
               options={organizers ?? []}
               renderOption={(props, option) => {

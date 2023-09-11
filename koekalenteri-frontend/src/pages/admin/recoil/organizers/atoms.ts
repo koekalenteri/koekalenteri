@@ -6,14 +6,14 @@ import { logEffect, storageEffect } from '../../../recoil/effects'
 
 import { remoteOrganizersEffect } from './effects'
 
-export const organizersAtom = atom<Organizer[]>({
-  key: 'organizers',
+export const adminOrganizersAtom = atom<Organizer[]>({
+  key: 'adminOrganizers',
   default: [],
   effects: [logEffect, storageEffect, remoteOrganizersEffect],
 })
 
-export const organizerFilterAtom = atom<string>({
-  key: 'organizerFilter',
+export const adminOrganizerFilterAtom = atom<string>({
+  key: 'adminOrganizerFilter',
   default: '',
 })
 

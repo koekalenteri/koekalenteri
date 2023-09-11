@@ -881,7 +881,7 @@ Resources:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
       CodeUri: koekalenteri-backend
-      Handler: dist/handlers/organizer.getOrganizersHandler
+      Handler: dist/handlers/admin/organizer.getOrganizersHandler
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -903,9 +903,11 @@ Resources:
         GetOrganizers:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
-            Path: /organizer
+            Path: /admin/organizer
             Method: get
             RestApiId: !Ref KoekalenteriApi
+            Auth:
+              Authorizer: CognitoAuthorizer
 
   GetOrganizersFunctionLogGroup:
     Type: AWS::Logs::LogGroup

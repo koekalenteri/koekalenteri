@@ -1,17 +1,41 @@
+import type { MetricsLogger } from 'aws-embedded-metrics'
 import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
+import type { AWSError } from 'aws-sdk'
 import type { Organizer } from 'koekalenteri-shared/model'
 
+import { metricScope } from 'aws-embedded-metrics'
 import { nanoid } from 'nanoid'
 
 import { authorize } from '../../utils/auth'
 import CustomDynamoClient from '../../utils/CustomDynamoClient'
 import KLAPI from '../../utils/KLAPI'
 import { KLYhdistysRajaus } from '../../utils/KLAPI_models'
+import { metricsError, metricsSuccess } from '../../utils/metrics'
 import { response } from '../../utils/response'
 import { getKLAPIConfig } from '../../utils/secrets'
 
 const dynamoDB = new CustomDynamoClient()
 const klapi = new KLAPI(getKLAPIConfig)
+
+export const getOrganizersHandler = metricScope(
+  (metrics: MetricsLogger) =>
+    async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+      try {
+        if (event.queryStringParameters && 'refresh' in event.queryStringParameters) {
+          return refreshOrganizers(event)
+        }
+
+        const items = await dynamoDB.readAll<Organizer>()
+
+        metricsSuccess(metrics, event.requestContext, 'getOrganizers')
+        return response(200, items, event)
+      } catch (err) {
+        console.error(err)
+        metricsError(metrics, event.requestContext, 'getOrganizers')
+        return response((err as AWSError).statusCode || 501, err, event)
+      }
+    }
+)
 
 export const refreshOrganizers = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   const user = await authorize(event)
@@ -43,6 +67,6 @@ export const refreshOrganizers = async (event: APIGatewayProxyEvent): Promise<AP
       }
     }
   }
-  const items = await dynamoDB.readAll()
+  const items = await dynamoDB.readAll<Organizer>()
   return response(200, items, event)
 }

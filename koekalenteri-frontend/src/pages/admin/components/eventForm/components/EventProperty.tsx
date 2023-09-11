@@ -16,7 +16,18 @@ import { Box } from '@mui/system'
 import useDebouncedCallback from '../../../../../hooks/useDebouncedCallback'
 import { validateEventField } from '../validation'
 
-export type Property = keyof Omit<PartialEvent, 'headquarters'>
+export type Property = keyof Omit<
+  PartialEvent,
+  | 'id'
+  | 'createdAt'
+  | 'createdBy'
+  | 'deletedAt'
+  | 'deletedBy'
+  | 'modifiedAt'
+  | 'modifiedBy'
+  | 'headquarters'
+  | 'invitationAttachment'
+>
 
 export type EventPropertyProps<P extends Property, freeSolo extends boolean> = Omit<
   AutocompleteProps<PartialEvent[P], false, false, freeSolo>,
@@ -28,6 +39,7 @@ export type EventPropertyProps<P extends Property, freeSolo extends boolean> = O
   onChange?: (props: Partial<Event>) => void
   helpClick?: React.MouseEventHandler<HTMLButtonElement>
   validateInput?: (value: string) => string
+  mapValue?: (value?: any) => PartialEvent[P]
   endAdornment?: ReactNode
 }
 
@@ -52,7 +64,7 @@ const getInputInitValue = <P extends Property, freeSolo extends boolean>(
 
 const EventProperty = <P extends Property, freeSolo extends boolean>(props: EventPropertyProps<P, freeSolo>) => {
   const { t } = useTranslation()
-  const { id, event, fields, helpClick, endAdornment, onChange, validateInput, ...acProps } = props
+  const { id, event, fields, helpClick, endAdornment, onChange, validateInput, mapValue, ...acProps } = props
   const value = event[id]
   const fixedValue = value ?? null
   const [inputValue, setInputValue] = useState(getInputInitValue(fixedValue, props))
@@ -63,15 +75,16 @@ const EventProperty = <P extends Property, freeSolo extends boolean>(props: Even
   const handleChange = useCallback(
     (
       e: SyntheticEvent<Element, globalThis.Event>,
-      value: PartialEvent[Property] | AutocompleteFreeSoloValueMapping<freeSolo> | null
+      value: PartialEvent[P] | AutocompleteFreeSoloValueMapping<freeSolo> | null
     ) => {
       if (!acProps.options.length) {
         return
       }
       const valueOrUndef = value ?? undefined
-      onChange?.({ [id]: valueOrUndef })
+      const mappedValueOrUndef = valueOrUndef && mapValue ? mapValue(valueOrUndef) : value
+      onChange?.({ [id]: mappedValueOrUndef })
     },
-    [acProps.options.length, id, onChange]
+    [acProps.options.length, id, mapValue, onChange]
   )
 
   const debouncedonChange = useDebouncedCallback((value) => {

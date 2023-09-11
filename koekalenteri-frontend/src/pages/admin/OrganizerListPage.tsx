@@ -13,10 +13,10 @@ import { isAdminSelector } from '../recoil'
 
 import FullPageFlex from './components/FullPageFlex'
 import { QuickSearchToolbar } from './components/QuickSearchToolbar'
-import { filteredOrganizersSelector, organizerFilterAtom, useOrganizersActions } from './recoil'
+import { adminOrganizerFilterAtom, filteredOrganizersSelector, useOrganizersActions } from './recoil'
 
 export default function OrganizerListPage() {
-  const [searchText, setSearchText] = useRecoilState(organizerFilterAtom)
+  const [searchText, setSearchText] = useRecoilState(adminOrganizerFilterAtom)
   const organizers = useRecoilValue(filteredOrganizersSelector)
   const isAdmin = useRecoilValue(isAdminSelector)
   const actions = useOrganizersActions()
