@@ -96,7 +96,7 @@ export function EntryInfo({
 
   const handleClassChange = useCallback((value: RegistrationClass) => onChange?.({ class: value }), [onChange])
   const handleDatesChange = useCallback(
-    (_e: SyntheticEvent<Element, Event>, value: RegistrationDate[]) => onChange?.({ dates: value }),
+    (_e: SyntheticEvent<Element, Event>, value: readonly RegistrationDate[]) => onChange?.({ dates: [...value] }),
     [onChange]
   )
   const handleReserveChange = useCallback(

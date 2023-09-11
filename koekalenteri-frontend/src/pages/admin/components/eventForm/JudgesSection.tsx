@@ -127,7 +127,7 @@ export default function JudgesSection({ event, disabled, judges, fields, onChang
                   label="Arvostelee koeluokat"
                   onChange={(_e, values) =>
                     onChange?.({
-                      classes: updateJudge(id, values),
+                      classes: updateJudge(id, [...values]),
                     })
                   }
                 />

@@ -36,19 +36,21 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
     [setFilter]
   )
   const handleEventTypeChange = useCallback(
-    (event: SyntheticEvent<Element, Event>, value: string[]) => setFilter({ eventType: value }),
+    (event: SyntheticEvent<Element, Event>, value: readonly string[]) => setFilter({ eventType: [...value] }),
     [setFilter]
   )
   const handleEventClassChange = useCallback(
-    (event: SyntheticEvent<Element, Event>, value: RegistrationClass[]) => setFilter({ eventClass: value }),
+    (event: SyntheticEvent<Element, Event>, value: readonly RegistrationClass[]) =>
+      setFilter({ eventClass: [...value] }),
     [setFilter]
   )
   const handleOrganizerChange = useCallback(
-    (event: SyntheticEvent<Element, Event>, value: Organizer[]) => setFilter({ organizer: value.map((v) => v.id) }),
+    (event: SyntheticEvent<Element, Event>, value: readonly Organizer[]) =>
+      setFilter({ organizer: value.map((v) => v.id) }),
     [setFilter]
   )
   const handleJudgeChange = useCallback(
-    (event: SyntheticEvent<Element, Event>, value: Judge[]) => setFilter({ judge: value.map((v) => +v.id) }),
+    (event: SyntheticEvent<Element, Event>, value: readonly Judge[]) => setFilter({ judge: value.map((v) => +v.id) }),
     [setFilter]
   )
   const handleWithEntryOpenChange = useCallback(
