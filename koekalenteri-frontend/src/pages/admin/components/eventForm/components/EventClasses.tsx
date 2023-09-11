@@ -26,7 +26,11 @@ interface Props {
   errorStates?: { [Property in keyof Event]?: boolean }
   helperTexts?: { [Property in keyof Event]?: string }
   showCount?: boolean
-  onChange?: (event: SyntheticEvent, value: DeepPartial<EventClass>[], reason: AutocompleteChangeReason) => void
+  onChange?: (
+    event: SyntheticEvent,
+    value: readonly DeepPartial<EventClass>[],
+    reason: AutocompleteChangeReason
+  ) => void
 }
 
 export const compareEventClass = (a: DeepPartial<EventClass>, b: DeepPartial<EventClass>) =>

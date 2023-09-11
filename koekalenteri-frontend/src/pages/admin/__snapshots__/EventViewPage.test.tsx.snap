@@ -1480,7 +1480,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                   >
                     <div
                       class="MuiDataGrid-overlayWrapperInner css-1akuw9y-MuiDataGrid-overlayWrapperInner"
-                      style="height: 56px; width: 0px;"
+                      style="width: 0px;"
                     >
                       <div
                         class="no-rows MuiBox-root css-1jpcp03"
@@ -1492,7 +1492,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                   <div
                     class="MuiDataGrid-virtualScrollerContent css-1kwdphh-MuiDataGrid-virtualScrollerContent"
                     role="presentation"
-                    style="width: auto; height: 56px; min-height: auto;"
+                    style="width: auto; min-height: auto;"
                   >
                     <div
                       class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"
@@ -1991,7 +1991,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                   >
                     <div
                       class="MuiDataGrid-overlayWrapperInner css-1akuw9y-MuiDataGrid-overlayWrapperInner"
-                      style="height: 56px; width: 0px;"
+                      style="width: 0px;"
                     >
                       <div
                         class="no-rows MuiBox-root css-1jpcp03"
@@ -2003,7 +2003,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                   <div
                     class="MuiDataGrid-virtualScrollerContent css-1kwdphh-MuiDataGrid-virtualScrollerContent"
                     role="presentation"
-                    style="width: auto; height: 56px; min-height: auto;"
+                    style="width: auto; min-height: auto;"
                   >
                     <div
                       class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"
@@ -2502,7 +2502,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                   >
                     <div
                       class="MuiDataGrid-overlayWrapperInner css-1akuw9y-MuiDataGrid-overlayWrapperInner"
-                      style="height: 56px; width: 0px;"
+                      style="width: 0px;"
                     >
                       <div
                         class="no-rows MuiBox-root css-1jpcp03"
@@ -2514,7 +2514,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                   <div
                     class="MuiDataGrid-virtualScrollerContent css-1kwdphh-MuiDataGrid-virtualScrollerContent"
                     role="presentation"
-                    style="width: auto; height: 56px; min-height: auto;"
+                    style="width: auto; min-height: auto;"
                   >
                     <div
                       class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"
@@ -3013,7 +3013,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                   >
                     <div
                       class="MuiDataGrid-overlayWrapperInner css-1akuw9y-MuiDataGrid-overlayWrapperInner"
-                      style="height: 56px; width: 0px;"
+                      style="width: 0px;"
                     >
                       <div
                         class="no-rows MuiBox-root css-1jpcp03"
@@ -3025,7 +3025,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                   <div
                     class="MuiDataGrid-virtualScrollerContent css-1kwdphh-MuiDataGrid-virtualScrollerContent"
                     role="presentation"
-                    style="width: auto; height: 56px; min-height: auto;"
+                    style="width: auto; min-height: auto;"
                   >
                     <div
                       class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"
@@ -3519,7 +3519,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                   >
                     <div
                       class="MuiDataGrid-overlayWrapperInner css-1akuw9y-MuiDataGrid-overlayWrapperInner"
-                      style="height: 56px; width: 0px;"
+                      style="width: 0px;"
                     >
                       <div
                         class="MuiDataGrid-overlay css-1w53k9d-MuiDataGrid-overlay"
@@ -3531,7 +3531,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                   <div
                     class="MuiDataGrid-virtualScrollerContent css-1kwdphh-MuiDataGrid-virtualScrollerContent"
                     role="presentation"
-                    style="width: auto; height: 56px; min-height: auto;"
+                    style="width: auto; min-height: auto;"
                   >
                     <div
                       class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"
@@ -4100,7 +4100,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                   >
                     <div
                       class="MuiDataGrid-overlayWrapperInner css-1akuw9y-MuiDataGrid-overlayWrapperInner"
-                      style="height: 56px; width: 0px;"
+                      style="width: 0px;"
                     >
                       <div
                         class="MuiDataGrid-overlay css-1w53k9d-MuiDataGrid-overlay"
@@ -4112,7 +4112,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                   <div
                     class="MuiDataGrid-virtualScrollerContent css-1kwdphh-MuiDataGrid-virtualScrollerContent"
                     role="presentation"
-                    style="width: auto; height: 56px; min-height: auto;"
+                    style="width: auto; min-height: auto;"
                   >
                     <div
                       class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"
@@ -5611,7 +5611,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                   >
                     <div
                       class="MuiDataGrid-overlayWrapperInner css-1akuw9y-MuiDataGrid-overlayWrapperInner"
-                      style="height: 56px; width: 0px;"
+                      style="width: 0px;"
                     >
                       <div
                         class="no-rows MuiBox-root css-1jpcp03"
@@ -5623,7 +5623,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                   <div
                     class="MuiDataGrid-virtualScrollerContent css-1kwdphh-MuiDataGrid-virtualScrollerContent"
                     role="presentation"
-                    style="width: auto; height: 56px; min-height: auto;"
+                    style="width: auto; min-height: auto;"
                   >
                     <div
                       class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"
@@ -6122,7 +6122,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                   >
                     <div
                       class="MuiDataGrid-overlayWrapperInner css-1akuw9y-MuiDataGrid-overlayWrapperInner"
-                      style="height: 56px; width: 0px;"
+                      style="width: 0px;"
                     >
                       <div
                         class="no-rows MuiBox-root css-1jpcp03"
@@ -6134,7 +6134,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                   <div
                     class="MuiDataGrid-virtualScrollerContent css-1kwdphh-MuiDataGrid-virtualScrollerContent"
                     role="presentation"
-                    style="width: auto; height: 56px; min-height: auto;"
+                    style="width: auto; min-height: auto;"
                   >
                     <div
                       class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"
@@ -6633,7 +6633,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                   >
                     <div
                       class="MuiDataGrid-overlayWrapperInner css-1akuw9y-MuiDataGrid-overlayWrapperInner"
-                      style="height: 56px; width: 0px;"
+                      style="width: 0px;"
                     >
                       <div
                         class="no-rows MuiBox-root css-1jpcp03"
@@ -6645,7 +6645,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                   <div
                     class="MuiDataGrid-virtualScrollerContent css-1kwdphh-MuiDataGrid-virtualScrollerContent"
                     role="presentation"
-                    style="width: auto; height: 56px; min-height: auto;"
+                    style="width: auto; min-height: auto;"
                   >
                     <div
                       class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"
@@ -7144,7 +7144,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                   >
                     <div
                       class="MuiDataGrid-overlayWrapperInner css-1akuw9y-MuiDataGrid-overlayWrapperInner"
-                      style="height: 56px; width: 0px;"
+                      style="width: 0px;"
                     >
                       <div
                         class="no-rows MuiBox-root css-1jpcp03"
@@ -7156,7 +7156,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                   <div
                     class="MuiDataGrid-virtualScrollerContent css-1kwdphh-MuiDataGrid-virtualScrollerContent"
                     role="presentation"
-                    style="width: auto; height: 56px; min-height: auto;"
+                    style="width: auto; min-height: auto;"
                   >
                     <div
                       class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"

@@ -93,7 +93,8 @@ export default function BasicInfoSection({
   )
   const closeHelp = useCallback(() => setHelpAnchorEl(null), [])
   const handleClassesChange = useCallback(
-    (e: SyntheticEvent<Element, Event>, values: DeepPartial<EventClass>[]) => onChange?.({ classes: values }),
+    (e: SyntheticEvent<Element, Event>, values: readonly DeepPartial<EventClass>[]) =>
+      onChange?.({ classes: [...values] }),
     [onChange]
   )
   const handleNameChange = useCallback(

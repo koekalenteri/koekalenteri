@@ -38,7 +38,8 @@ export default function EntrySection(props: SectionProps) {
     [onChange]
   )
   const handlePriorityChange = useCallback(
-    (e: SyntheticEvent<Element, Event>, value: Priority[]) => onChange?.({ priority: value.map((p) => p.value) }),
+    (e: SyntheticEvent<Element, Event>, value: readonly Priority[]) =>
+      onChange?.({ priority: value.map((p) => p.value) }),
     [onChange]
   )
 
