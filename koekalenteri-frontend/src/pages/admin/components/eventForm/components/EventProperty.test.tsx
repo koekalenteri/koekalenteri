@@ -11,7 +11,7 @@ const testEvent: PartialEvent = {
   endDate: new Date(),
   createdAt: new Date(),
   modifiedAt: new Date(),
-  modifiedBy: 'test',
+  name: 'test',
   createdBy: 'test',
   classes: [],
   judges: [],
@@ -34,7 +34,7 @@ describe('EventProperty', () => {
 
   describe('freeSolo=true', () => {
     it('should render with minimal information', () => {
-      const { container } = render(<EventProperty id={'modifiedBy'} options={[]} event={testEvent} freeSolo />)
+      const { container } = render(<EventProperty id={'name'} options={[]} event={testEvent} freeSolo />)
       expect(container).toMatchSnapshot()
     })
 
@@ -49,7 +49,7 @@ describe('EventProperty', () => {
       const onChange = jest.fn()
 
       const { user } = renderWithUserEvents(
-        <EventProperty id={'modifiedBy'} options={[]} event={testEvent} freeSolo onChange={onChange} />,
+        <EventProperty id={'name'} options={[]} event={testEvent} freeSolo onChange={onChange} />,
         undefined,
         { advanceTimers: jest.advanceTimersByTime }
       )
@@ -57,12 +57,12 @@ describe('EventProperty', () => {
       await user.type(input, 'input test')
       await flushPromisesAndTimers()
 
-      expect(onChange).toHaveBeenCalledWith({ modifiedBy: 'testinput test' })
+      expect(onChange).toHaveBeenCalledWith({ name: 'testinput test' })
 
       await user.clear(input)
       await flushPromisesAndTimers()
 
-      expect(onChange).toHaveBeenLastCalledWith({ modifiedBy: undefined })
+      expect(onChange).toHaveBeenLastCalledWith({ name: undefined })
     })
 
     it('should be clearable with options', async () => {
@@ -96,7 +96,7 @@ describe('EventProperty', () => {
 
       const { user } = renderWithUserEvents(
         <EventProperty
-          id={'name'}
+          id={'location'}
           options={['alfa', 'beta', 'gamma']}
           event={testEvent}
           freeSolo
@@ -109,7 +109,7 @@ describe('EventProperty', () => {
       await user.type(input, 'c')
       await flushPromisesAndTimers()
 
-      expect(onChange).toHaveBeenCalledWith({ name: 'c' })
+      expect(onChange).toHaveBeenCalledWith({ location: 'c' })
 
       await user.clear(input)
       await flushPromisesAndTimers()
@@ -151,7 +151,7 @@ describe('EventProperty', () => {
 
   describe('freeSolo=false', () => {
     it('should render with minimal information', () => {
-      const { container } = render(<EventProperty id={'modifiedBy'} options={[]} event={testEvent} />)
+      const { container } = render(<EventProperty id={'name'} options={[]} event={testEvent} />)
       expect(container).toMatchSnapshot()
     })
 
