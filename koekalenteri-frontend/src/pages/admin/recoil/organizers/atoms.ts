@@ -1,3 +1,4 @@
+import type { GridColumnVisibilityModel } from '@mui/x-data-grid'
 import type { Organizer } from 'koekalenteri-shared/model'
 
 import { atom } from 'recoil'
@@ -17,8 +18,20 @@ export const adminOrganizerFilterAtom = atom<string>({
   default: '',
 })
 
-export const selectedOrganizerIdAtom = atom<string>({
-  key: 'adminSelectedOrganizer',
+export const adminOrganizerIdAtom = atom<string | undefined>({
+  key: 'adminOrganizerId',
+  default: '',
+  effects: [logEffect, storageEffect],
+})
+
+export const adminOrganizerColumnsAtom = atom<GridColumnVisibilityModel>({
+  key: 'adminOrganizerColumns',
+  default: { id: false },
+  effects: [logEffect, storageEffect],
+})
+
+export const adminEventOrganizerIdAtom = atom<string>({
+  key: 'adminEventOrganizerId',
   default: '',
   effects: [logEffect, storageEffect],
 })

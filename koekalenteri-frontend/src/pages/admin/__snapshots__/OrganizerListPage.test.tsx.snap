@@ -36,9 +36,32 @@ exports[`OrganizerListPage renders 1`] = `
             class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
           />
         </button>
+        <button
+          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-16m0f1y-MuiButtonBase-root-MuiButton-root"
+          disabled=""
+          tabindex="-1"
+          type="button"
+        >
+          <span
+            class="MuiButton-startIcon MuiButton-iconSizeMedium css-1d6wzja-MuiButton-startIcon"
+          >
+            <svg
+              aria-hidden="true"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+              data-testid="EditOutlinedIcon"
+              focusable="false"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="m14.06 9.02.92.92L5.92 19H5v-.92l9.06-9.06M17.66 3c-.25 0-.51.1-.7.29l-1.83 1.83 3.75 3.75 1.83-1.83c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.2-.2-.45-.29-.71-.29zm-3.6 3.19L3 17.25V21h3.75L17.81 9.94l-3.75-3.75z"
+              />
+            </svg>
+          </span>
+          edit
+        </button>
       </div>
       <div
-        aria-colcount="2"
+        aria-colcount="3"
         aria-multiselectable="false"
         aria-rowcount="3"
         class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-11g2h2i-MuiDataGrid-root"
@@ -47,6 +70,35 @@ exports[`OrganizerListPage renders 1`] = `
         <div
           class="MuiStack-root css-g7lf93-MuiStack-root"
         >
+          <button
+            aria-expanded="false"
+            aria-haspopup="menu"
+            aria-label="Select columns"
+            class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall css-a1btr6-MuiButtonBase-root-MuiButton-root"
+            id=":r0:"
+            tabindex="0"
+            type="button"
+          >
+            <span
+              class="MuiButton-startIcon MuiButton-iconSizeSmall css-y6rp3m-MuiButton-startIcon"
+            >
+              <svg
+                aria-hidden="true"
+                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                data-testid="ColumnIconIcon"
+                focusable="false"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M6 5H3c-.55 0-1 .45-1 1v12c0 .55.45 1 1 1h3c.55 0 1-.45 1-1V6c0-.55-.45-1-1-1zm14 0h-3c-.55 0-1 .45-1 1v12c0 .55.45 1 1 1h3c.55 0 1-.45 1-1V6c0-.55-.45-1-1-1zm-7 0h-3c-.55 0-1 .45-1 1v12c0 .55.45 1 1 1h3c.55 0 1-.45 1-1V6c0-.55-.45-1-1-1z"
+                />
+              </svg>
+            </span>
+            Columns
+            <span
+              class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+            />
+          </button>
           <div
             class="MuiDataGrid-toolbarContainer css-1wrr6qg-MuiDataGrid-toolbarContainer"
           >
@@ -70,7 +122,7 @@ exports[`OrganizerListPage renders 1`] = `
                 <input
                   aria-invalid="false"
                   class="MuiInputBase-input MuiInput-input MuiInputBase-inputAdornedStart MuiInputBase-inputAdornedEnd css-1x51dt5-MuiInputBase-input-MuiInput-input"
-                  id=":r0:"
+                  id=":r2:"
                   placeholder="searchPlaceholder"
                   type="text"
                   value=""
@@ -270,6 +322,81 @@ exports[`OrganizerListPage renders 1`] = `
                     </svg>
                   </div>
                 </div>
+                <div
+                  aria-colindex="3"
+                  aria-label="organizer.paytrailMerchantId"
+                  aria-sort="none"
+                  class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
+                  data-field="paytrailMerchantId"
+                  role="columnheader"
+                  style="height: 39px; width: 0px; min-width: 0; max-width: 0;"
+                  tabindex="-1"
+                >
+                  <div
+                    class="MuiDataGrid-columnHeaderDraggableContainer"
+                    draggable="false"
+                    role="presentation"
+                  >
+                    <div
+                      class="MuiDataGrid-columnHeaderTitleContainer"
+                      role="presentation"
+                    >
+                      <div
+                        class="MuiDataGrid-columnHeaderTitleContainerContent"
+                      >
+                        <div
+                          aria-label=""
+                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          data-mui-internal-clone-element="true"
+                        >
+                          organizer.paytrailMerchantId
+                        </div>
+                      </div>
+                      <div
+                        class="MuiDataGrid-iconButtonContainer css-ltf0zy-MuiDataGrid-iconButtonContainer"
+                      >
+                        <button
+                          aria-label="Sort"
+                          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
+                          tabindex="-1"
+                          title="Sort"
+                          type="button"
+                        >
+                          <svg
+                            aria-hidden="true"
+                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-ptiqhd-MuiSvgIcon-root"
+                            data-testid="ArrowUpwardIcon"
+                            focusable="false"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"
+                            />
+                          </svg>
+                          <span
+                            class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                          />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--sideRight"
+                    style="min-height: 39px; opacity: 1;"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                      data-testid="SeparatorIcon"
+                      focusable="false"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        d="M11 19V5h2v14z"
+                      />
+                    </svg>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -330,6 +457,21 @@ exports[`OrganizerListPage renders 1`] = `
                       Järjestäjä 1
                     </div>
                   </div>
+                  <div
+                    aria-colindex="3"
+                    aria-colspan="1"
+                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft MuiDataGrid-withBorderColor"
+                    data-colindex="2"
+                    data-field="paytrailMerchantId"
+                    role="cell"
+                    style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
+                    tabindex="-1"
+                  >
+                    <div
+                      class="MuiDataGrid-cellContent"
+                      role="presentation"
+                    />
+                  </div>
                 </div>
                 <div
                   aria-rowindex="3"
@@ -372,6 +514,21 @@ exports[`OrganizerListPage renders 1`] = `
                     >
                       Järjestäjä 2
                     </div>
+                  </div>
+                  <div
+                    aria-colindex="3"
+                    aria-colspan="1"
+                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft MuiDataGrid-withBorderColor"
+                    data-colindex="2"
+                    data-field="paytrailMerchantId"
+                    role="cell"
+                    style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
+                    tabindex="-1"
+                  >
+                    <div
+                      class="MuiDataGrid-cellContent"
+                      role="presentation"
+                    />
                   </div>
                 </div>
               </div>

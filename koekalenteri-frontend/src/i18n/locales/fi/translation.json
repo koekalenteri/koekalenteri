@@ -191,8 +191,9 @@
   "organizations": "Yhdistykset",
   "organizer": {
     "id": "ID",
-    "kcId": "Tunnus",
-    "name": "Nimi"
+    "kcId": "Kennelliiton tunnus",
+    "name": "Nimi",
+    "paytrailMerchantId": "Paytrail kauppiastunnus"
   },
   "paymentDetails": "Maksutiedot",
   "places": "Paikkoja",

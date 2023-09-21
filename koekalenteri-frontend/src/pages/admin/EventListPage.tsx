@@ -24,11 +24,12 @@ import AutoButton from './eventListPage/AutoButton'
 import useEventListColumns from './eventListPage/columns'
 import { adminUserEventOrganizersSelector, adminUserFilteredEventsSelector } from './recoil/user'
 import {
+  adminEventColumnsAtom,
   adminEventFilterTextAtom,
   adminEventIdAtom,
+  adminEventOrganizerIdAtom,
   adminShowPastEventsAtom,
   currentAdminEventSelector,
-  selectedOrganizerIdAtom,
   useAdminEventActions,
 } from './recoil'
 
@@ -39,12 +40,13 @@ export default function EventListPage() {
   const [showPast, setShowPast] = useRecoilState(adminShowPastEventsAtom)
   const [searchText, setSearchText] = useRecoilState(adminEventFilterTextAtom)
   const [selectedEventID, setSelectedEventID] = useRecoilState(adminEventIdAtom)
+  const [visibilityModel, setVisibilityModel] = useRecoilState(adminEventColumnsAtom)
   const selectedEvent = useRecoilValue(currentAdminEventSelector)
   const events = useRecoilValue(adminUserFilteredEventsSelector)
   const actions = useAdminEventActions()
   const columns = useEventListColumns()
   const orgs = useRecoilValue(adminUserEventOrganizersSelector)
-  const [orgId, setOrgId] = useRecoilState(selectedOrganizerIdAtom)
+  const [orgId, setOrgId] = useRecoilState(adminEventOrganizerIdAtom)
   const options = useMemo(() => [{ id: '', name: 'Kaikki' }, ...orgs], [orgs])
 
   const deleteAction = useCallback(() => {
@@ -138,8 +140,12 @@ export default function EventListPage() {
       </Stack>
       <StyledDataGrid
         columns={columns}
-        rows={events}
+        columnVisibilityModel={visibilityModel}
+        onColumnVisibilityModelChange={setVisibilityModel}
+        onRowDoubleClick={handleDoubleClick}
         onRowSelectionModelChange={handleSelectionModeChange}
+        rows={events}
+        rowSelectionModel={selectedEventID ? [selectedEventID] : []}
         slots={{ toolbar: QuickSearchToolbar }}
         slotProps={{
           toolbar: {
@@ -148,7 +154,7 @@ export default function EventListPage() {
             clearSearch,
             columnSelector: true,
             children: (
-              <>
+              <Stack direction="row" mx={1} flex={1}>
                 <AutocompleteSingle
                   disabled={orgs.length < 2}
                   size="small"
@@ -164,22 +170,19 @@ export default function EventListPage() {
                   }}
                   value={options.find((o) => o.id === orgId) ?? null}
                   onChange={(o) => setOrgId(o?.id ?? '')}
-                  sx={{ width: '50%' }}
                 ></AutocompleteSingle>
                 <FormControlLabel
-                  sx={{ m: 0, width: '50%', pl: 1 }}
+                  sx={{ m: 0, pl: 1 }}
                   checked={showPast}
                   control={<Switch size="small" />}
                   label="Näytä myös menneet tapahtumat"
                   labelPlacement="start"
                   onChange={toggleShowPast}
                 />
-              </>
+              </Stack>
             ),
           },
         }}
-        rowSelectionModel={selectedEventID ? [selectedEventID] : []}
-        onRowDoubleClick={handleDoubleClick}
       />
     </FullPageFlex>
   )

@@ -5,7 +5,7 @@ import { selector, selectorFamily } from 'recoil'
 
 import { eventsAtom, userSelector } from '../../../recoil'
 import { adminEventOrganizersSelector, filteredAdminEventsSelector } from '../events'
-import { adminOrganizersAtom, selectedOrganizerIdAtom } from '../organizers'
+import { adminEventOrganizerIdAtom, adminOrganizersAtom } from '../organizers'
 
 import { adminUserFilterAtom, adminUserIdAtom, adminUsersAtom } from './atoms'
 
@@ -90,7 +90,7 @@ export const adminUserFilteredEventsSelector = selector({
   get: ({ get }) => {
     const user = get(userSelector)
     const events = get(filteredAdminEventsSelector)
-    const orgId = get(selectedOrganizerIdAtom)
+    const orgId = get(adminEventOrganizerIdAtom)
 
     const userEvents = user?.admin ? events : events.filter((e) => user?.roles?.[e.organizer.id])
     return orgId ? userEvents.filter((e) => e.organizer.id === orgId) : userEvents

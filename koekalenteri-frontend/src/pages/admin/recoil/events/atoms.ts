@@ -1,3 +1,4 @@
+import type { GridColumnVisibilityModel } from '@mui/x-data-grid'
 import type { Event, RegistrationClass } from 'koekalenteri-shared/model'
 
 import { addDays, nextSaturday, startOfDay, sub } from 'date-fns'
@@ -60,6 +61,12 @@ export const eventClassAtom = atom<RegistrationClass | string>({
       return uniqueClasses(event)[0]
     },
   }),
+  effects: [logEffect, storageEffect],
+})
+
+export const adminEventColumnsAtom = atom<GridColumnVisibilityModel>({
+  key: 'adminOrganizerColumns',
+  default: { id: false },
   effects: [logEffect, storageEffect],
 })
 
