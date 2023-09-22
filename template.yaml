@@ -448,7 +448,7 @@ Resources:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
             Path: /event
-            Method: get
+            Method: GET
             RestApiId: !Ref KoekalenteriApi
 
   GetEventsFunctionLogGroup:
@@ -477,7 +477,7 @@ Resources:
           Type: Api
           Properties:
             Path: /event/{id}
-            Method: get
+            Method: GET
             RestApiId: !Ref KoekalenteriApi
 
   GetEventFunctionLogGroup:
@@ -790,7 +790,7 @@ Resources:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
             Path: /judge
-            Method: get
+            Method: GET
             RestApiId: !Ref KoekalenteriApi
 
   GetJudgesFunctionLogGroup:
@@ -868,7 +868,7 @@ Resources:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
             Path: /official
-            Method: get
+            Method: GET
             RestApiId: !Ref KoekalenteriApi
 
   GetOfficialsFunctionLogGroup:
@@ -904,7 +904,7 @@ Resources:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
             Path: /admin/organizer
-            Method: get
+            Method: GET
             RestApiId: !Ref KoekalenteriApi
             Auth:
               Authorizer: CognitoAuthorizer
@@ -942,7 +942,7 @@ Resources:
           Type: Api
           Properties:
             Path: /admin/organizer
-            Method: put
+            Method: POST
             RestApiId: !Ref KoekalenteriApi
             Auth:
               Authorizer: CognitoAuthorizer
@@ -980,7 +980,7 @@ Resources:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
             Path: /dog/{regNo}
-            Method: get
+            Method: GET
             RestApiId: !Ref KoekalenteriApi
 
   GetDogFunctionLogGroup:
@@ -1016,7 +1016,7 @@ Resources:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
             Path: /eventType
-            Method: get
+            Method: GET
             RestApiId: !Ref KoekalenteriApi
 
   GetEventTypesFunctionLogGroup:
@@ -1092,7 +1092,7 @@ Resources:
           Type: Api
           Properties:
             Path: /admin/email-templates
-            Method: get
+            Method: GET
             RestApiId: !Ref KoekalenteriApi
             Auth:
               Authorizer: CognitoAuthorizer
