@@ -915,6 +915,44 @@ Resources:
       LogGroupName: !Join ['/', ['/aws/lambda', !Ref GetOrganizersFunction]]
       RetentionInDays: 30
 
+  PutOrganizerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: koekalenteri-backend
+      Handler: dist/handlers/admin/organizer.putOrganizerHandler
+      Layers:
+        - !Ref CommonLayer
+      Tracing: Active
+      Policies:
+        - Statement:
+            - Sid: SSMGetParameterPolicy
+              Effect: Allow
+              Action:
+              - ssm:GetParameters
+              - ssm:GetParameter
+              Resource: '*'
+        - DynamoDBCrudPolicy:
+            TableName: !Ref OrganizerTable
+        - CloudWatchPutMetricPolicy: {}
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref OrganizerTable
+      Events:
+        PutOrganizer:
+          Type: Api
+          Properties:
+            Path: /admin/organizer
+            Method: put
+            RestApiId: !Ref KoekalenteriApi
+            Auth:
+              Authorizer: CognitoAuthorizer
+
+  PutOrganizerFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref PutOrganizerFunction]]
+      RetentionInDays: 30
+
   GetDogFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
