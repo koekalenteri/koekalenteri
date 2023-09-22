@@ -26,8 +26,6 @@ await i18n.init({
 })
 
 //  additional formats
-i18n.services.formatter?.add('lowercase', (value) => value.toLowerCase())
-
 i18n.services.formatter?.add('dtshort', createDateFormatter('eeeeee d.M. HH:mm'))
 i18n.services.formatter?.add('wdshort', createDateFormatter('eeeeee d.M.'))
 i18n.services.formatter?.add('short', createDateFormatter('dd.MM.'))
