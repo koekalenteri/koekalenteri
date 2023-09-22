@@ -83,7 +83,7 @@ export const refreshOrganizers = metricScope(
     }
 )
 
-export const putOrganizer = metricScope(
+export const putOrganizerHandler = metricScope(
   (metrics: MetricsLogger) =>
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
       try {
