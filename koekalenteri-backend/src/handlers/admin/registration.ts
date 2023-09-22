@@ -209,6 +209,8 @@ export const putRegistrationGroupsHandler = metricScope(
           pickedFailed: [],
           reserveOk: [],
           reserveFailed: [],
+          cancelledOk: [],
+          cancelledFailed: [],
         }
         if (
           confirmedEvent.state === 'picked' ||
@@ -253,7 +255,12 @@ export const putRegistrationGroupsHandler = metricScope(
             (reg) =>
               reg.class === cls &&
               reg.group?.key === 'reserve' &&
-              oldResCan.find((old) => old.id === reg.id && (old.group?.number ?? 999) > (reg.group?.number ?? 999))
+              oldResCan.find(
+                (old) =>
+                  old.id === reg.id &&
+                  old.group?.key === 'reserve' &&
+                  (old.group?.number ?? 999) > (reg.group?.number ?? 999)
+              )
           )
           const { ok: reserveOk, failed: reserveFailed } = await sendTemplatedEmailToEventRegistrations(
             'reserve',
@@ -263,7 +270,35 @@ export const putRegistrationGroupsHandler = metricScope(
             '',
             user.name
           )
-          Object.assign(emails, { invitedOk, invitedFailed, pickedOk, pickedFailed, reserveOk, reserveFailed })
+
+          /**
+           * Registrations moved to cancelled group receive "cancelled" email
+           */
+          const cancelled = itemsWithGroups.filter(
+            (reg) =>
+              reg.class === cls &&
+              reg.group?.key === 'cancelled' &&
+              oldResCan.find((old) => old.id === reg.id && old.group?.key !== 'cancelled')
+          )
+          const { ok: cancelledOk, failed: cancelledFailed } = await sendTemplatedEmailToEventRegistrations(
+            'registration',
+            confirmedEvent,
+            cancelled,
+            origin,
+            '',
+            user.name
+          )
+
+          Object.assign(emails, {
+            invitedOk,
+            invitedFailed,
+            pickedOk,
+            pickedFailed,
+            reserveOk,
+            reserveFailed,
+            cancelledOk,
+            cancelledFailed,
+          })
         }
 
         metricsSuccess(metrics, event.requestContext, 'putRegistrationGroups')

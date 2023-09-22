@@ -51,6 +51,8 @@ export async function putRegistrationGroups(
     pickedFailed: string[]
     reserveOk: string[]
     reserveFailed: string[]
+    cancelledOk: string[]
+    cancelledFailed: string[]
   }
 > {
   return http.post(`/admin/reg-groups/${eventId}`, groups, withToken({ signal }, token))
