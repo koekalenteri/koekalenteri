@@ -65,7 +65,7 @@ export const eventClassAtom = atom<RegistrationClass | string>({
 })
 
 export const adminEventColumnsAtom = atom<GridColumnVisibilityModel>({
-  key: 'adminOrganizerColumns',
+  key: 'adminEventColumns',
   default: { id: false },
   effects: [logEffect, storageEffect],
 })

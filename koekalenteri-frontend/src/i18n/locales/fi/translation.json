@@ -62,6 +62,7 @@
     "titles": "Tittelit"
   },
   "edit": "Muokkaa",
+  "editWhat": "Muokkaa {{what}}",
   "editRegistration": "Muokkaa ilmoittautumista",
   "editRoles": "Muokkaa rooleja",
   "emailTemplates": "Viestit",
@@ -190,9 +191,13 @@
   "officials": "Koetoimitsijat",
   "organizations": "Yhdistykset",
   "organizer": {
+    "editDialog": {
+      "title": "Järjestäjän [{{organizer.name}}] muokkaus"
+    },
     "id": "ID",
     "kcId": "Kennelliiton tunnus",
     "name": "Nimi",
+    "editWhat": "yhdistyksen tietoja",
     "paytrailMerchantId": "Paytrail kauppiastunnus"
   },
   "paymentDetails": "Maksutiedot",
@@ -303,7 +308,7 @@
     "result": "Tulos"
   },
   "toltaPlaces": "paikkaa",
-  "updateData": "Päivitä $t({{data}}) Kennelliiton rajapinnasta",
+  "updateData": "Päivitä $t({{data}}, lowercase) Kennelliiton rajapinnasta",
   "user": {
     "admin": "Koekalenterin pääkäyttäjä",
     "adminRoles": "Koekalenterin pääkäyttäjällä on pääkäyttäjä-oikeus kaikkiin yhdistyksiin",

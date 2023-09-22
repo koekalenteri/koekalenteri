@@ -8,3 +8,7 @@ export async function getAdminOrganizers(refresh: boolean, token?: string, signa
   const qs = refresh ? '?refresh' : ''
   return http.get<Array<Organizer>>(PATH + qs, withToken({ signal }, token))
 }
+
+export async function putOrganizer(organizer: Organizer, token?: string, signal?: AbortSignal): Promise<Organizer> {
+  return http.post<Organizer, Organizer>(PATH, organizer, withToken({ signal }, token))
+}

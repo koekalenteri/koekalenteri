@@ -1,7 +1,7 @@
 import type { GridColDef, GridRowSelectionModel } from '@mui/x-data-grid'
 import type { Organizer } from 'koekalenteri-shared/model'
 
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import CloudSync from '@mui/icons-material/CloudSync'
 import EditOutlined from '@mui/icons-material/EditOutlined'
@@ -14,10 +14,12 @@ import { isAdminSelector } from '../recoil'
 import FullPageFlex from './components/FullPageFlex'
 import { QuickSearchToolbar } from './components/QuickSearchToolbar'
 import AutoButton from './eventListPage/AutoButton'
+import { EditOrganizerDialog } from './organizerListPage/EditOrganizerDialog'
 import {
   adminOrganizerColumnsAtom,
   adminOrganizerFilterAtom,
   adminOrganizerIdAtom,
+  currentAdminOrganizerSelector,
   filteredOrganizersSelector,
   useOrganizersActions,
 } from './recoil'
@@ -28,7 +30,9 @@ export default function OrganizerListPage() {
   const [visibilityModel, setVisibilityModel] = useRecoilState(adminOrganizerColumnsAtom)
   const organizers = useRecoilValue(filteredOrganizersSelector)
   const isAdmin = useRecoilValue(isAdminSelector)
+  const selectedOrganizer = useRecoilValue(currentAdminOrganizerSelector)
   const actions = useOrganizersActions()
+  const [editOpen, setEditOpen] = useState(false)
 
   const { t } = useTranslation()
 
@@ -64,10 +68,18 @@ export default function OrganizerListPage() {
   const handleSelectionModeChange = useCallback(
     (selection: GridRowSelectionModel) => {
       const value = typeof selection[0] === 'string' ? selection[0] : undefined
-      setSelectedID(value === selectedID ? undefined : value)
+      setSelectedID(value)
     },
-    [selectedID, setSelectedID]
+    [setSelectedID]
   )
+  const handleSave = useCallback(
+    async (organizer: Organizer) => {
+      await actions.save(organizer)
+      setEditOpen(false)
+    },
+    [actions]
+  )
+
   return (
     <>
       <FullPageFlex>
@@ -78,13 +90,19 @@ export default function OrganizerListPage() {
             sx={{ display: isAdmin ? undefined : 'none' }}
             text={t('updateData', { data: 'organizations' })}
           />
-          <AutoButton disabled={!selectedID} startIcon={<EditOutlined />} text={t('edit')} />
+          <AutoButton
+            disabled={!selectedID}
+            startIcon={<EditOutlined />}
+            text={t('editWhat', { what: t('organizer.editWhat') })}
+            onClick={() => setEditOpen(true)}
+          />
         </Stack>
 
         <StyledDataGrid
           columns={columns}
           columnVisibilityModel={visibilityModel}
           onColumnVisibilityModelChange={setVisibilityModel}
+          onRowDoubleClick={() => setEditOpen(true)}
           onRowSelectionModelChange={handleSelectionModeChange}
           rows={organizers}
           rowSelectionModel={selectedID ? [selectedID] : []}
@@ -99,6 +117,12 @@ export default function OrganizerListPage() {
           }}
         />
       </FullPageFlex>
+      <EditOrganizerDialog
+        onClose={() => setEditOpen(false)}
+        onSave={handleSave}
+        open={editOpen}
+        organizer={selectedOrganizer}
+      />
     </>
   )
 }
