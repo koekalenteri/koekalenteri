@@ -7,12 +7,12 @@ import type {
 } from 'koekalenteri-shared/model'
 import type { SyntheticEvent } from 'react'
 
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import Grid from '@mui/material/Grid'
 import { format, isSameDay } from 'date-fns'
 
-import { registrationDates, uniqueClasses } from '../../../utils'
+import { eventDates, registrationDates, uniqueClasses, uniqueDate } from '../../../utils'
 import { isRegistrationClass } from '../../admin/EventViewPage'
 import AutocompleteMulti from '../AutocompleteMulti'
 import AutocompleteSingle from '../AutocompleteSingle'
@@ -49,7 +49,8 @@ export function EntryInfo({
 }: EntryInfoProps) {
   const { t } = useTranslation()
 
-  const getRegDateLabel = useCallback(
+  const getRegDateLabel = useCallback((o: Date) => t('dateFormat.weekday', { date: o }), [t])
+  const getRegDateTimeLabel = useCallback(
     (o: RegistrationDate) =>
       t('dateFormat.weekday', { date: o.date }) + (o.time ? ' ' + t(`registration.time.${o.time}`) : ''),
     [t]
@@ -60,12 +61,24 @@ export function EntryInfo({
   )
 
   const classes = uniqueClasses(event)
-  const dates = registrationDates(event, reg.class)
+  const dates = eventDates(event)
   const error = errorStates.class ?? errorStates.dates ?? errorStates.reserve
-  const datesText = reg.dates.map(getRegDateLabel).join(' / ')
+  const datesText = reg.dates.map(getRegDateTimeLabel).join(' / ')
   const reserveText = reg.reserve ? t(`registration.reserveChoises.${reg.reserve}`) : ''
   const infoText = `${reg.class ?? reg.eventType}, ${datesText}, ${reserveText}`
   const helperText = error ? t('validation.registration.required', { field: 'classesDetails' }) : infoText
+  const [filterDates, setFilterDates] = useState<Date[]>(
+    uniqueDate(
+      classDate
+        ? registrationDates(event, reg.class)
+            .filter((d) => format(d.date, 'dd.MM.') === classDate)
+            .map((rd) => rd.date)
+        : dates
+    )
+  )
+  const isValidRegistrationDate = (rd: RegistrationDate) => filterDates.find((fd) => fd.valueOf() === rd.date.valueOf())
+  const datesAndTimes = registrationDates(event, reg.class).filter(isValidRegistrationDate)
+  const showDatesFilter = dates.length > 1
 
   useEffect(() => {
     const changes: Partial<Registration> = {}
@@ -73,7 +86,7 @@ export function EntryInfo({
     if (className && reg.class !== className) {
       newClass = className
     } else if (reg.class && !classes.includes(reg.class)) {
-      newClass = classes.length === 1 ? classes[0] : undefined
+      newClass = classes.length > 0 ? classes[0] : undefined
     } else if (!reg.class && classes.length) {
       newClass = classes[0]
     }
@@ -81,8 +94,8 @@ export function EntryInfo({
       changes.class = newClass
     }
 
-    const cdates = changes.class ? registrationDates(event, changes.class) : dates
-    const ddates = classDate ? cdates.filter((d) => format(d.date, 'dd.MM.') === classDate) : cdates
+    const cdates = changes.class ? registrationDates(event, changes.class) : datesAndTimes
+    const ddates = cdates.filter(isValidRegistrationDate)
     const rdates = reg.dates.filter((rd) => ddates.find((d) => isSameDay(d.date, rd.date) && d.time === rd.time))
     if (!rdates.length || rdates.length !== reg.dates.length) {
       changes.dates = ddates
@@ -92,10 +105,10 @@ export function EntryInfo({
       onChange?.(changes)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [classes, className, event])
+  }, [classes, className, event, filterDates])
 
   const handleClassChange = useCallback((value: RegistrationClass) => onChange?.({ class: value }), [onChange])
-  const handleDatesChange = useCallback(
+  const handleDatesAndTimesChange = useCallback(
     (_e: SyntheticEvent<Element, Event>, value: readonly RegistrationDate[]) => onChange?.({ dates: [...value] }),
     [onChange]
   )
@@ -114,7 +127,7 @@ export function EntryInfo({
       onOpenChange={onOpenChange}
     >
       <Grid container spacing={1}>
-        <Grid item sx={{ display: event.classes.length === 0 ? 'none' : 'block' }} xs={12} md={2}>
+        <Grid item sx={{ display: event.classes.length === 0 ? 'none' : 'block' }} xs={12} md={showDatesFilter ? 6 : 2}>
           <AutocompleteSingle
             disableClearable
             disabled={classDisabled || disabled}
@@ -126,20 +139,7 @@ export function EntryInfo({
             value={reg.class}
           />
         </Grid>
-        <Grid item xs={12} md={6}>
-          <AutocompleteMulti
-            disabled={disabled}
-            error={errorStates.dates}
-            helperText={t('registration.datesInfo')}
-            label={t('registration.dates')}
-            onChange={handleDatesChange}
-            isOptionEqualToValue={(o, v) => o.date.valueOf() === v.date.valueOf() && o.time === v.time}
-            getOptionLabel={getRegDateLabel}
-            options={dates}
-            value={reg.dates}
-          />
-        </Grid>
-        <Grid item xs={12} md={4}>
+        <Grid item xs={12} md={showDatesFilter ? 6 : 4}>
           <AutocompleteSingle
             disableClearable
             disabled={disabled}
@@ -150,6 +150,32 @@ export function EntryInfo({
             getOptionLabel={getReserveChoiceLabel}
             options={['ANY', 'DAY', 'WEEK' /*, 'NO'*/] as ReserveChoise[]}
             value={reg.reserve}
+          />
+        </Grid>
+        <Grid item xs={12} md={6} sx={{ display: showDatesFilter ? undefined : 'none' }}>
+          <AutocompleteMulti
+            disabled={disabled}
+            error={errorStates.dates}
+            helperText={t('registration.datesFilterInfo')}
+            label={t('registration.datesFilter')}
+            onChange={(_, value) => setFilterDates(value)}
+            isOptionEqualToValue={(o, v) => o.valueOf() === v.valueOf()}
+            getOptionLabel={getRegDateLabel}
+            options={dates}
+            value={filterDates}
+          />
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <AutocompleteMulti
+            disabled={disabled}
+            error={errorStates.dates}
+            helperText={t('registration.datesInfo')}
+            label={t('registration.dates')}
+            onChange={handleDatesAndTimesChange}
+            isOptionEqualToValue={(o, v) => o.date.valueOf() === v.date.valueOf() && o.time === v.time}
+            getOptionLabel={getRegDateTimeLabel}
+            options={datesAndTimes}
+            value={reg.dates}
           />
         </Grid>
       </Grid>

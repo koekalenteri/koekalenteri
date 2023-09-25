@@ -245,8 +245,10 @@
       "notfound": "Syötä tiedot käsin",
       "update": "Päivitä"
     },
-    "dates": "Ajankohdat",
-    "datesInfo": "Valitse kaikki sinulle sopivat ajankohdat kokeeseen osallistumiselle.",
+    "dates": "Ryhmät",
+    "datesFilter": "Päivät",
+    "datesFilterInfo": "Valitse sinulle sopivat päivät",
+    "datesInfo": "Valitse sinulle sopivimmat ryhmät. Ryhmätoivettasi ei välttämättä pystytä toteuttamaan.",
     "dog": "Koiran tiedot",
     "email": {
       "subject": "Ilmoittautumisen vahvistus",
