@@ -11,9 +11,11 @@ import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import Grid from '@mui/material/Grid'
 import { format, isSameDay } from 'date-fns'
+import { useRecoilValue } from 'recoil'
 
 import { eventDates, registrationDates, uniqueClasses, uniqueDate } from '../../../utils'
 import { isRegistrationClass } from '../../admin/EventViewPage'
+import { eventTypeGroupsAtom } from '../../recoil'
 import AutocompleteMulti from '../AutocompleteMulti'
 import AutocompleteSingle from '../AutocompleteSingle'
 import CollapsibleSection from '../CollapsibleSection'
@@ -48,6 +50,7 @@ export function EntryInfo({
   open,
 }: EntryInfoProps) {
   const { t } = useTranslation()
+  const eventTypeGroups = useRecoilValue(eventTypeGroupsAtom)
 
   const getRegDateLabel = useCallback((o: Date) => t('dateFormat.weekday', { date: o }), [t])
   const getRegDateTimeLabel = useCallback(
@@ -67,22 +70,21 @@ export function EntryInfo({
   const reserveText = reg.reserve ? t(`registration.reserveChoises.${reg.reserve}`) : ''
   const infoText = `${reg.class ?? reg.eventType}, ${datesText}, ${reserveText}`
   const helperText = error ? t('validation.registration.required', { field: 'classesDetails' }) : infoText
+  const groups = eventTypeGroups[reg.eventType] ?? []
+  const regDates = registrationDates(event, groups, reg.class)
   const [filterDates, setFilterDates] = useState<Date[]>(
-    uniqueDate(
-      classDate
-        ? registrationDates(event, reg.class)
-            .filter((d) => format(d.date, 'dd.MM.') === classDate)
-            .map((rd) => rd.date)
-        : dates
-    )
+    uniqueDate(classDate ? regDates.filter((d) => format(d.date, 'dd.MM.') === classDate).map((rd) => rd.date) : dates)
   )
-  const isValidRegistrationDate = (rd: RegistrationDate) => filterDates.find((fd) => fd.valueOf() === rd.date.valueOf())
-  const datesAndTimes = registrationDates(event, reg.class).filter(isValidRegistrationDate)
+  const isValidRegistrationDate = (rd: RegistrationDate) => filterDates.find((fd) => isSameDay(fd, rd.date))
+  const datesAndTimes = regDates.filter(isValidRegistrationDate)
   const showDatesFilter = dates.length > 1
+  const showDatesAndTimes = groups.length > 1
+
+  console.log(datesAndTimes, regDates, groups, reg.class)
 
   useEffect(() => {
     const changes: Partial<Registration> = {}
-    let newClass: string | undefined
+    let newClass: string | undefined | null = null
     if (className && reg.class !== className) {
       newClass = className
     } else if (reg.class && !classes.includes(reg.class)) {
@@ -90,11 +92,11 @@ export function EntryInfo({
     } else if (!reg.class && classes.length) {
       newClass = classes[0]
     }
-    if (isRegistrationClass(newClass)) {
+    if (isRegistrationClass(newClass) || newClass === undefined) {
       changes.class = newClass
     }
 
-    const cdates = changes.class ? registrationDates(event, changes.class) : datesAndTimes
+    const cdates = changes.class || !showDatesAndTimes ? registrationDates(event, groups, changes.class) : datesAndTimes
     const ddates = cdates.filter(isValidRegistrationDate)
     const rdates = reg.dates.filter((rd) => ddates.find((d) => isSameDay(d.date, rd.date) && d.time === rd.time))
     if (!rdates.length || rdates.length !== reg.dates.length) {
@@ -105,7 +107,7 @@ export function EntryInfo({
       onChange?.(changes)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [classes, className, event, filterDates])
+  }, [classes, className, event, filterDates, groups])
 
   const handleClassChange = useCallback((value: RegistrationClass) => onChange?.({ class: value }), [onChange])
   const handleDatesAndTimesChange = useCallback(
@@ -165,7 +167,7 @@ export function EntryInfo({
             value={filterDates}
           />
         </Grid>
-        <Grid item xs={12} md={6}>
+        <Grid item xs={12} md={6} sx={{ display: showDatesAndTimes ? undefined : 'none' }}>
           <AutocompleteMulti
             disabled={disabled}
             error={errorStates.dates}

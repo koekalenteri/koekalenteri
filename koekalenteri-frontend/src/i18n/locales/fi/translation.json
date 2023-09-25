@@ -287,11 +287,13 @@
     "terms": "Hyväksyn <2>ilmoittautumisen ehdot</2> ja <6>tietosuojaselosteen</6>.",
     "time": {
       "ap": "(ap)",
-      "ip": "(ip)"
+      "ip": "(ip)",
+      "kp": ""
     },
     "timeLong": {
       "ap": "aamupäivä",
-      "ip": "iltapäivä"
+      "ip": "iltapäivä",
+      "kp": ""
     }
   },
   "registrations": "Ilmoittautumiset",

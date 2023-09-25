@@ -1,4 +1,4 @@
-import type { DeepPartial, Event, JsonValue, RegistrationDate } from 'koekalenteri-shared/model'
+import type { DeepPartial, Event, JsonValue, RegistrationDate, RegistrationTime } from 'koekalenteri-shared/model'
 
 import { eachDayOfInterval, endOfDay, startOfDay, subDays } from 'date-fns'
 import { diff } from 'deep-object-diff'
@@ -40,11 +40,10 @@ export const uniqueClassDates = (event: Event, cls: string) =>
   cls === event.eventType
     ? eventDates(event)
     : uniqueDate(event.classes.filter((c) => c.class === cls).map((c) => c.date ?? event.startDate))
-export const registrationDates = (event: Event, cls?: string) =>
-  (cls ? uniqueClassDates(event, cls) : eventDates(event)).flatMap<RegistrationDate>((date) => [
-    { date, time: 'ap' },
-    { date, time: 'ip' },
-  ])
+export const registrationDates = (event: Event, times: RegistrationTime[], cls?: string) =>
+  (cls ? uniqueClassDates(event, cls) : eventDates(event)).flatMap<RegistrationDate>((date) =>
+    times.map((time) => ({ date, time }))
+  )
 
 export const unique = <T = string>(arr: T[]): T[] => arr.filter((c, i, a) => a.indexOf(c) === i)
 export const uniqueFn = <T>(arr: T[], cmp: (a: T, b: T) => boolean): T[] =>

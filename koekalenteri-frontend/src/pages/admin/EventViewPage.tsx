@@ -34,7 +34,8 @@ import { adminEventSelector, adminRegistrationIdAtom, eventClassAtom, eventRegis
 
 const REG_CLASSES = ['ALO', 'AVO', 'VOI']
 
-export const isRegistrationClass = (cls?: string): cls is RegistrationClass => !!(cls && REG_CLASSES.includes(cls))
+export const isRegistrationClass = (cls?: string | null): cls is RegistrationClass =>
+  !!(cls && REG_CLASSES.includes(cls))
 
 export default function EventViewPage() {
   const { t } = useTranslation()

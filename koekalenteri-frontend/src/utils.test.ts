@@ -61,7 +61,7 @@ describe('utils', () => {
         endDate: new Date(2020, 1, 2),
         classes: [] as EventClass[],
       } as Event
-      expect(registrationDates(event).length).toEqual(4)
+      expect(registrationDates(event, ['ap', 'ip']).length).toEqual(4)
     })
 
     it('should return each possible registration date for event with classes', () => {
@@ -75,7 +75,7 @@ describe('utils', () => {
           },
         ],
       } as Event
-      expect(registrationDates(event).length).toEqual(2)
+      expect(registrationDates(event, ['ap', 'ip']).length).toEqual(2)
     })
 
     it('should return each possible registration date for event with classes, for a class', () => {
@@ -101,8 +101,8 @@ describe('utils', () => {
           },
         ],
       } as Event
-      expect(registrationDates(event, 'ALO').length).toEqual(6)
-      expect(registrationDates(event, 'VOI').length).toEqual(2)
+      expect(registrationDates(event, ['ap', 'ip'], 'ALO').length).toEqual(6)
+      expect(registrationDates(event, ['ap', 'ip'], 'VOI').length).toEqual(2)
     })
   })
 

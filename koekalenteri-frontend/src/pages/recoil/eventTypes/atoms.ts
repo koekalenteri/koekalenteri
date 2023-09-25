@@ -1,4 +1,4 @@
-import type { EventType, RegistrationClass } from 'koekalenteri-shared/model'
+import type { EventType, RegistrationClass, RegistrationTime } from 'koekalenteri-shared/model'
 
 import { atom } from 'recoil'
 
@@ -24,5 +24,15 @@ export const eventTypeClassesAtom = atom<Record<string, RegistrationClass[]>>({
     'NOME-B': ['ALO', 'AVO', 'VOI'],
     'NOME-A': [],
     NOWT: ['ALO', 'AVO', 'VOI'],
+  },
+})
+
+export const eventTypeGroupsAtom = atom<Record<string, RegistrationTime[]>>({
+  key: 'eventTypeGroups',
+  default: {
+    NOU: ['ap', 'ip'],
+    'NOME-B': ['ap', 'ip'],
+    'NOME-A': ['kp'],
+    NOWT: ['kp'],
   },
 })

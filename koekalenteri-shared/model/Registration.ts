@@ -80,7 +80,7 @@ export interface JsonRegistrationDate {
 
 export interface RegistrationDate extends Replace<JsonRegistrationDate, 'date', Date> { }
 
-export type RegistrationTime = 'ap' | 'ip'
+export type RegistrationTime = 'ap' | 'ip' | 'kp'
 
 export interface RegistrationPerson extends Person {
   membership: boolean
