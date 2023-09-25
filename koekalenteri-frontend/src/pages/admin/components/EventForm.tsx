@@ -17,7 +17,7 @@ import { useRecoilValue } from 'recoil'
 import { isEventOver, merge } from '../../../utils'
 import AutocompleteSingle from '../../components/AutocompleteSingle'
 import { activeEventTypesSelector, activeJudgesSelector, eventTypeClassesAtom } from '../../recoil'
-import { adminUserOrganizersSelector, officialsAtom } from '../recoil'
+import { adminUserOrganizersSelector, adminUsersAtom, officialsAtom } from '../recoil'
 
 import AdditionalInfoSection from './eventForm/AdditionalInfoSection'
 import BasicInfoSection from './eventForm/BasicInfoSection'
@@ -64,6 +64,7 @@ export default function EventForm({ event, changes, disabled, onSave, onCancel, 
   const activeJudges = useRecoilValue(activeJudgesSelector)
   const eventTypeClasses = useRecoilValue(eventTypeClassesAtom)
   const officials = useRecoilValue(officialsAtom)
+  const users = useRecoilValue(adminUsersAtom)
   const organizers = useRecoilValue(adminUserOrganizersSelector)
   const [errors, setErrors] = useState(event ? validateEvent(event) : [])
   const [open, setOpen] = useState<{ [key: string]: boolean | undefined }>({
@@ -79,6 +80,8 @@ export default function EventForm({ event, changes, disabled, onSave, onCancel, 
   const allDisabled = disabled || isEventOver(event)
   const stateDisabled = allDisabled || !SELECTABLE_EVENT_STATES.includes(event.state)
   const fields = useMemo(() => requiredFields(event), [event])
+  const orgSecretries = event.organizer?.id ? users.filter((u) => u.roles?.[event.organizer.id]) : []
+  const secretaries = orgSecretries.concat(officials.map((o) => ({ ...o, id: o.id.toString() })))
 
   const handleChange = useCallback(
     (props: DeepPartial<Event>) => {
@@ -188,6 +191,7 @@ export default function EventForm({ event, changes, disabled, onSave, onCancel, 
           onOpenChange={handleBasicOpenChange}
           open={open.basic}
           organizers={organizers}
+          secretaries={secretaries}
         />
         <JudgesSection
           disabled={allDisabled}

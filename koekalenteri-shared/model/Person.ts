@@ -11,7 +11,9 @@ export interface OfficialPerson extends Person {
   id: number
 }
 
-export interface Secretary extends OfficialPerson { }
+export interface Secretary extends Person {
+  id: number | string
+ }
 
 export interface Official extends OfficialPerson {
   district: string

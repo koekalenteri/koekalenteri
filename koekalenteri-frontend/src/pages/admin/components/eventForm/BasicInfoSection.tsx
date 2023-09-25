@@ -6,6 +6,7 @@ import type {
   Person,
   RegistrationClass,
   Secretary,
+  User,
 } from 'koekalenteri-shared/model'
 import type { ChangeEvent, SyntheticEvent } from 'react'
 import type { DateValue } from '../../../components/DateRange'
@@ -32,6 +33,7 @@ interface Props extends SectionProps {
   eventTypeClasses?: Record<string, RegistrationClass[]>
   officials?: Official[]
   organizers?: Organizer[]
+  secretaries?: User[]
 }
 
 export default function BasicInfoSection({
@@ -47,6 +49,7 @@ export default function BasicInfoSection({
   onOpenChange,
   organizers,
   onChange,
+  secretaries,
 }: Props) {
   const { t } = useTranslation()
   const [helpAnchorEl, setHelpAnchorEl] = useState<HTMLButtonElement | null>(null)
@@ -258,7 +261,7 @@ export default function BasicInfoSection({
               id="secretary"
               isOptionEqualToValue={isEqualId}
               onChange={handleSecretaryChange}
-              options={officials ?? []}
+              options={secretaries ?? []}
             />
           </Grid>
         </Grid>

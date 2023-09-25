@@ -10,3 +10,7 @@ const MOCK_ADMIN: User = {
 export async function getUser(token: string, signal?: AbortSignal) {
   return MOCK_ADMIN
 }
+
+export async function getUsers(token: string, signal?: AbortSignal) {
+  return [MOCK_ADMIN]
+}

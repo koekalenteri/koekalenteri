@@ -51,7 +51,7 @@ export type Event = DbRecord &
   >
 
 export type ClassJudge = {
-  id: number
+  id: number | string
   name: string
 }
 
