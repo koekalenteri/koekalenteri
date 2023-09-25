@@ -73,7 +73,7 @@ const DragableRow = ({ groupKey, ...props }: Props) => {
 
   const [{ opacity }, drag] = useDrag<DragItem, void, { opacity: number }>({
     type: 'row',
-    item: { id: props.rowId, groups: props.row?.groups, index: props.index, groupKey: groupKey },
+    item: { id: props.rowId, groups: props.row?.dropGroups, index: props.index, groupKey: groupKey },
     collect: (monitor) => ({
       opacity: monitor.isDragging() ? 0.4 : 1,
     }),

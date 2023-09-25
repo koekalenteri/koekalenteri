@@ -20,6 +20,7 @@ import Typography from '@mui/material/Typography'
 import { useConfirm } from 'material-ui-confirm'
 import { useSnackbar } from 'notistack'
 
+import { uniqueDate } from '../../../utils'
 import StyledDataGrid from '../../components/StyledDataGrid'
 import { useAdminRegistrationActions } from '../recoil/registrations/actions'
 
@@ -42,6 +43,7 @@ interface Props {
 
 interface RegistrationWithGroups extends Registration {
   groups: string[]
+  dropGroups: string[]
 }
 
 const listKey = (reg: Registration, eventGroups: RegistrationGroup[]) => {
@@ -88,7 +90,11 @@ const ClassEntrySelection = ({
     for (const reg of registrations) {
       const key = listKey(reg, eventGroups)
       byGroup[key] = byGroup[key] ?? [] // make sure the array exists
-      byGroup[key].push({ ...reg, groups: reg.dates.map((rd) => groupKey(rd)) })
+      byGroup[key].push({
+        ...reg,
+        groups: reg.dates.map((rd) => groupKey(rd)),
+        dropGroups: availableGroups(uniqueDate(reg.dates.map((rd) => rd.date))).map((rd) => groupKey(rd)),
+      })
     }
     for (const regs of Object.values(byGroup)) {
       regs.sort((a, b) => (a.group?.number || 999) - (b.group?.number || 999))
