@@ -146,7 +146,7 @@ exports[`RegistrationForm renders 1`] = `
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-163n9ee-MuiGrid-root"
                     >
                       <div
-                        class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-1xzzkbc-MuiChip-root"
+                        class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-1w6a0pi-MuiChip-root"
                       >
                         <span
                           class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
