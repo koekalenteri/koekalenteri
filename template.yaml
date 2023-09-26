@@ -1652,7 +1652,7 @@ Resources:
             files:
               - '**/*'
       CustomRules:
-        - Source: "^((?!\\.(css|gif|ico|jpg|js|png|txt|svg|woff|ttf|json)$).)*$"
+        - Source: "^[^.]+((?!\\.(css|gif|ico|jpg|js|png|txt|svg|woff|ttf|json)$).)*$"
           Status: "200"
           Target: "/index.html"
       Tags:
