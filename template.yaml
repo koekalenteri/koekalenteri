@@ -933,6 +933,12 @@ Resources:
               Resource: '*'
         - DynamoDBCrudPolicy:
             TableName: !Ref OrganizerTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserLinkTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuditTable
         - CloudWatchPutMetricPolicy: {}
       Environment:
         Variables:
