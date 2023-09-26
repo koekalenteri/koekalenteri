@@ -58,6 +58,8 @@ export const paytrailRequest = async <T extends object>(
     'platform-name': 'koekalenteri.snj.fi',
   }
 
+  console.log(headers, body)
+
   let json: T | undefined
   try {
     const res = await fetch(`${PAYTRAIL_API_ENDPOINT}/${path}`, {
