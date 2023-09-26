@@ -1483,7 +1483,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: koekalenteri-backend
-      Handler: dist/handlers/paymentHandler.paymentConfirm
+      Handler: dist/handlers/payment.paymentConfirm
       Layers:
         - !Ref CommonLayer
       Tracing: Active

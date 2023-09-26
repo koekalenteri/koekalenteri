@@ -20,46 +20,11 @@ const dynamoDB = new CustomDynamoClient()
 
 type Source = 'notification' | 'user'
 
-type HandlePayment = (
+const handlePayment = async (
   event: APIGatewayProxyEvent,
   source: Source,
   metrics: MetricsLogger
-) => Promise<APIGatewayProxyResult>
-
-export const paymentConfirm = metricScope(
-  (metrics: MetricsLogger) =>
-    async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-      const retValue = await handlePayment(event, 'user', metrics)
-
-      return redirectToFinish(event, retValue)
-    }
-)
-
-export const paymentCancel = metricScope(
-  (metrics: MetricsLogger) =>
-    async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-      const retValue = await handlePayment(event, 'user', metrics)
-
-      return redirectToFinish(event, retValue)
-    }
-)
-
-export const paymentNotification = metricScope(
-  (metrics: MetricsLogger) =>
-    async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-      const retValue = await handlePayment(event, 'notification', metrics)
-      if (retValue.statusCode != 200) {
-        return retValue
-      }
-      const registration = JSON.parse(retValue.body)
-      const processed = (registration.confirmed && registration.receiptSent) || registration.cancelled
-
-      // If the payment hasn't been completely processed, send an error response to receive further notifications and try again.
-      return processed ? response(200, undefined, event) : response(500, 'Unexpected', event)
-    }
-)
-
-const handlePayment: HandlePayment = async (event, source, metrics) => {
+): Promise<APIGatewayProxyResult> => {
   const env = (await getSSMParams(['PaytrailMerchantSecret'])) as PaytrailConfig
 
   const timestamp = new Date().toISOString()
@@ -86,9 +51,8 @@ const handlePayment: HandlePayment = async (event, source, metrics) => {
     throw new Error(`Payment verification failed with transaction id "${transactionId}"`)
   }
 
-  let registration
   try {
-    registration = await dynamoDB.read<JsonRegistration>({ eventId: eventId, id: registrationId })
+    const registration = await dynamoDB.read<JsonRegistration>({ eventId: eventId, id: registrationId })
     if (!registration) {
       console.log('warn', `Payment event not found id "${registrationId}`)
       throw new Error(`Unknown payment event for registration id "${registrationId}"`)
@@ -119,17 +83,15 @@ const handlePayment: HandlePayment = async (event, source, metrics) => {
     registration.paymentStatus = queryStatus === 'ok' ? 'SUCCESS' : queryStatus === 'fail' ? 'CANCEL' : paymentStatus
     registration.paidAt = paymentStatus === 'SUCCESS' ? currentFinnishTime() : undefined
 
-    await dynamoDB.write(registration)
-
     /*
      * Send confirmation and receipt only from callback to avoid sending them twice in case
      * redirect and callback arrive nearly simultaneously.
      */
     if (registration.paidAt && !receiptSent && source === 'notification') {
-      //!!!
-      // const receiptResult =
+      // TODO: try/catch so we always end up writing the registration to db
+      // !!!const receiptResult =
       await sendReceipt(registration, new Date(registration.paidAt).toLocaleDateString('fi'))
-      //registration.receiptSent = receiptResult.isOk()
+      // registration.receiptSent = receiptResult.isOk()
     }
 
     await dynamoDB.write(registration)
@@ -159,3 +121,36 @@ const redirectToFinish = async (event: APIGatewayProxyEvent, r: APIGatewayProxyR
 
   return redirect(registration, path)
 }
+
+export const paymentConfirm = metricScope(
+  (metrics: MetricsLogger) =>
+    async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+      const retValue = await handlePayment(event, 'user', metrics)
+
+      return redirectToFinish(event, retValue)
+    }
+)
+
+export const paymentCancel = metricScope(
+  (metrics: MetricsLogger) =>
+    async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+      const retValue = await handlePayment(event, 'user', metrics)
+
+      return redirectToFinish(event, retValue)
+    }
+)
+
+export const paymentNotification = metricScope(
+  (metrics: MetricsLogger) =>
+    async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+      const retValue = await handlePayment(event, 'notification', metrics)
+      if (retValue.statusCode != 200) {
+        return retValue
+      }
+      const registration: JsonRegistration = JSON.parse(retValue.body)
+      const processed = (registration.confirmed && registration.receiptSent) || registration.cancelled
+
+      // If the payment hasn't been completely processed, send an error response to receive further notifications and try again.
+      return processed ? response(200, undefined, event) : response(500, 'Unexpected', event)
+    }
+)
