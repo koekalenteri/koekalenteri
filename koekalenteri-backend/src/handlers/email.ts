@@ -92,7 +92,7 @@ export const putTemplateHandler = metricScope(
       const username = await getUsername(event)
 
       try {
-        const item: JsonEmailTemplate = JSON.parse(event.body || '')
+        const item: JsonEmailTemplate = JSON.parse(event.body || '{}')
         const existing = await dynamoDB.read<JsonEmailTemplate>({ id: item.id })
 
         // modification info is always updated

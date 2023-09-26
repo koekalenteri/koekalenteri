@@ -1,4 +1,10 @@
-import type { CreatePaymentRequest, CreatePaymentResponse, PaymentCustomer, PaymentItem } from '../types/paytrail'
+import type {
+  CallbackUrl,
+  CreatePaymentRequest,
+  CreatePaymentResponse,
+  PaymentCustomer,
+  PaymentItem,
+} from '../types/paytrail'
 
 import { createHmac } from 'crypto'
 import { nanoid } from 'nanoid'
@@ -76,13 +82,28 @@ export const paytrailRequest = async <T extends object>(
   return json
 }
 
+export const createRedirectUrls = (origin: string): CallbackUrl => ({
+  success: `${origin}/p/success`,
+  cancel: `${origin}/p/cancel`,
+})
+
+export const createCallbackUrls = (host: string): CallbackUrl => ({
+  success: `https://${host}/payment/success`,
+  cancel: `https://${host}/payment/cancel`,
+})
+
 export const createPayment = async (
+  apiHost: string,
+  origin: string,
   merchantId: string,
   amount: number,
   reference: string,
   items: PaymentItem[],
   customer: PaymentCustomer
 ): Promise<CreatePaymentResponse | undefined> => {
+  const redirectUrls = createRedirectUrls(origin)
+  const callbackUrls = createCallbackUrls(apiHost)
+
   const body: CreatePaymentRequest = {
     stamp: 'd2568f2a-e4c6-40ba-a7cd-d573382ce548',
     reference,
@@ -91,14 +112,8 @@ export const createPayment = async (
     language: 'FI',
     items,
     customer,
-    redirectUrls: {
-      success: 'https://ecom.example.org/success',
-      cancel: 'https://ecom.example.org/cancel',
-    },
-    callbackUrls: {
-      success: 'https://ecom.example.org/success',
-      cancel: 'https://ecom.example.org/cancel',
-    },
+    redirectUrls,
+    callbackUrls,
   }
 
   return paytrailRequest<CreatePaymentResponse>(merchantId, 'POST', 'payments', body)

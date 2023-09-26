@@ -48,7 +48,7 @@ export const putRegistrationHandler = metricScope(
 
       try {
         let existing
-        const registration: JsonRegistration = JSON.parse(event.body || '')
+        const registration: JsonRegistration = JSON.parse(event.body || '{}')
         const update = !!registration.id
         let cancel = false
         let confirm = false

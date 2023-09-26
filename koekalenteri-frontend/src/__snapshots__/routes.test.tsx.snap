@@ -25,7 +25,7 @@ exports[`routes should match a snapshot 1`] = `
           This is da maksusivu
         </div>,
         "loader": [Function],
-        "path": "p/:id",
+        "path": "p/:id/:registrationId",
       },
       {
         "element": <RegistrationListPage

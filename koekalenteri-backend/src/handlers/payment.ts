@@ -1,15 +1,18 @@
 import type { MetricsLogger } from 'aws-embedded-metrics'
 import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import type { AWSError } from 'aws-sdk'
-import type { JsonRegistration } from 'koekalenteri-shared/model'
+import type { JsonEvent, Organizer } from 'koekalenteri-shared/model'
 
 import { metricScope } from 'aws-embedded-metrics'
+import { type JsonRegistration } from 'koekalenteri-shared/model'
+import { nanoid } from 'nanoid'
 
-import { calculateHmac } from '../lib/paytrail'
+import { calculateHmac, createPayment } from '../lib/paytrail'
 import { getPaytrailConfig } from '../lib/secrets'
 import { getOrigin, getUsername } from '../utils/auth'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { currentFinnishTime } from '../utils/dates'
+import { getApiHost } from '../utils/event'
 import { metricsError, metricsSuccess } from '../utils/metrics'
 import { redirect, response } from '../utils/response'
 
@@ -157,9 +160,42 @@ export const paymentNotification = metricScope(
 export const createPaymentHandler = metricScope(
   (metrics: MetricsLogger) =>
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-      console.log(event)
+      const { eventId, registrationId } = JSON.parse(event.body || '{}')
+
+      const jsonEvent = await dynamoDB.read<JsonEvent>({ id: eventId }, process.env.EVENT_TABLE_NAME)
+      const registration = await dynamoDB.read<JsonRegistration>({ eventId: eventId, id: registrationId })
+      const organizer = await dynamoDB.read<Organizer>(
+        { id: jsonEvent?.organizer.id },
+        process.env.ORGANIZER_TABLE_NAME
+      )
+      if (!jsonEvent || !registration || !organizer?.paytrailMerchantId) {
+        throw new Error('errors')
+      }
+      const amount = (registration.totalAmount ?? jsonEvent.cost) - (registration.paidAmount ?? 0)
+
+      const result = await createPayment(
+        getApiHost(event),
+        getOrigin(event),
+        organizer.paytrailMerchantId,
+        amount,
+        eventId,
+        [
+          {
+            unitPrice: 10,
+            units: 1,
+            vatPercentage: 0,
+            productCode: 'registration',
+            stamp: nanoid(),
+            reference: registrationId,
+            merchant: organizer.paytrailMerchantId,
+          },
+        ],
+        {
+          email: registration?.handler.email ?? registration?.owner.email,
+        }
+      )
 
       metricsSuccess(metrics, event.requestContext, 'createPayment')
-      return response(200, undefined, event)
+      return response(200, result, event)
     }
 )

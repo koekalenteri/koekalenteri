@@ -28,6 +28,8 @@ export interface JsonRegistration extends JsonDbRecord {
   priorityByInvitation?: boolean
   lastEmail?: string
   reserveNotified?: boolean
+  totalAmount?: number
+  paidAmount?: number
 }
 
 export interface RegistrationGroup extends Partial<RegistrationDate> { number: number, key: string }

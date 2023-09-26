@@ -1503,10 +1503,16 @@ Resources:
               Resource: '*'
         - DynamoDBCrudPolicy:
             TableName: !Ref EventRegistrationTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref OrganizerTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref EventTable
         - CloudWatchPutMetricPolicy: {}
       Environment:
         Variables:
           TABLE_NAME: !Ref EventRegistrationTable
+          EVENT_TABLE_NAME : !Ref EventTable
+          ORGANIZER_TABLE_NAME : !Ref OrganizerTable
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
       Events:
         PutEvent:

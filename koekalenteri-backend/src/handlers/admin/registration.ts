@@ -177,7 +177,7 @@ export const putRegistrationGroupsHandler = metricScope(
         }
         const origin = getOrigin(event)
         const eventId = event.pathParameters?.eventId ?? ''
-        const groups: JsonRegistrationGroupInfo[] = JSON.parse(event.body || '')
+        const groups: JsonRegistrationGroupInfo[] = JSON.parse(event.body || '[]')
 
         if (!groups) {
           metricsError(metrics, event.requestContext, 'putRegistrationGroups')
@@ -323,7 +323,7 @@ export const sendMessagesHandler = metricScope((metrics: MetricsLogger) => async
       metricsError(metrics, event.requestContext, 'sendMessageHandler')
       return response(401, 'Unauthorized', event)
     }
-    const message: RegistrationMessage = JSON.parse(event.body ?? '')
+    const message: RegistrationMessage = JSON.parse(event.body || '{}')
     const { template, eventId, registrationIds, text } = message
 
     const eventRegistrations = await dynamoDB.query<JsonRegistration>('eventId = :eventId', { ':eventId': eventId })

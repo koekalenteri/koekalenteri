@@ -59,7 +59,7 @@ const routes: RouteObject[] = [
         })
       ),
       {
-        path: 'p/:id',
+        path: 'p/:id/:registrationId',
         loader: paymentLoader,
         element: <div>This is da maksusivu</div>,
       },

@@ -26,7 +26,7 @@ export const putEventHandler = metricScope(
 
       try {
         let existing
-        const item: JsonConfirmedEvent = JSON.parse(event.body || '')
+        const item: JsonConfirmedEvent = JSON.parse(event.body || '{}')
         if (item.id) {
           existing = await dynamoDB.read<JsonConfirmedEvent>({ id: item.id })
           if (!user.admin && !user.roles?.[existing?.organizer?.id ?? '']) {
@@ -160,7 +160,7 @@ export const copyEventWithRegistrations = metricScope(
       const timestamp = new Date().toISOString()
 
       try {
-        const { id, startDate }: { id: string; startDate: string } = JSON.parse(event.body || '')
+        const { id, startDate }: { id: string; startDate: string } = JSON.parse(event.body || '{}')
         const item = await dynamoDB.read<JsonEvent>({ id })
 
         if (!item) {
