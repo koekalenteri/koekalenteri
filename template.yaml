@@ -1651,6 +1651,7 @@ Resources:
             baseDirectory: koekalenteri-frontend/build
             files:
               - '**/*'
+              - '.well-known/*'
       CustomRules:
         - Source: "^[^.]+((?!\\.(css|gif|ico|jpg|js|png|txt|svg|woff|ttf|json)$).)*$"
           Status: "200"
