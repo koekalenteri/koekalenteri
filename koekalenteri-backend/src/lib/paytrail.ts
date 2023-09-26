@@ -14,7 +14,7 @@ import { currentFinnishTime } from '../utils/dates'
 
 import { getPaytrailConfig } from './secrets'
 
-const PAYTRAIL_API_ENDPOINT = 'services.paytrail.com'
+const PAYTRAIL_API_ENDPOINT = 'https://services.paytrail.com'
 
 export const calculateHmac = (
   secret: string,
