@@ -55,7 +55,7 @@ export const paytrailRequest = async <T extends object>(
     'content-type': 'application/json; charset=utf-8',
     ...paytrailHeaders,
     signature: calculateHmac(cfg.PAYTRAIL_SECRET, paytrailHeaders, body),
-    'platform-name': 'koekalenteri.snj.fi',
+    // 'platform-name': 'koekalenteri.snj.fi',
   }
 
   console.log(headers, body)
