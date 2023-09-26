@@ -5,23 +5,23 @@ import type { EventType, JsonDbRecord, Judge, Official } from 'koekalenteri-shar
 
 import { metricScope } from 'aws-embedded-metrics'
 
+import KLAPI from '../lib/KLAPI'
+import { getKLAPIConfig } from '../lib/secrets'
+import { KLKieli, KLKieliToLang } from '../types/KLAPI'
 import { authorize } from '../utils/auth'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { createDbRecord } from '../utils/genericHandlers'
-import KLAPI from '../utils/KLAPI'
-import { KLKieli, KLKieliToLang } from '../utils/KLAPI_models'
 import { metricsError, metricsSuccess } from '../utils/metrics'
 import { response } from '../utils/response'
-import { getKLAPIConfig } from '../utils/secrets'
 
 const dynamoDB = new CustomDynamoClient()
-const klapi = new KLAPI(getKLAPIConfig)
 
 export const getEventTypesHandler = metricScope(
   (metrics: MetricsLogger) =>
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
       try {
         if (event.queryStringParameters && 'refresh' in event.queryStringParameters) {
+          const klapi = new KLAPI(getKLAPIConfig)
           for (const kieli of [KLKieli.Suomi, KLKieli.Ruotsi, KLKieli.Englanti]) {
             const { status, json } = await klapi.lueKoemuodot({ Kieli: kieli })
             if (status === 200 && json) {

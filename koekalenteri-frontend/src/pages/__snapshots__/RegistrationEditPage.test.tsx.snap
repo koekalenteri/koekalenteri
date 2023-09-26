@@ -2306,8 +2306,18 @@ exports[`RegistrationEditPage should render 1`] = `
       </div>
     </div>
     <div
-      class="MuiStack-root css-90i6lo-MuiStack-root"
+      class="MuiStack-root css-1p6e05z-MuiStack-root"
     >
+      <div
+        class="MuiBox-root css-1snmjsk"
+      >
+        <b>
+          Summa:
+        </b>
+         
+        123
+         €
+      </div>
       <button
         class="MuiButtonBase-root MuiButton-root MuiLoadingButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium Mui-disabled MuiButton-root MuiLoadingButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium css-1nte33v-MuiButtonBase-root-MuiButton-root-MuiLoadingButton-root"
         disabled=""

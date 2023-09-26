@@ -9,6 +9,7 @@ export const Path = {
   home: '/',
   login: '/login',
   logout: '/logout',
+  payment: (registration: Registration) => `/p/${registration.id}`,
   register: (event: Event, className?: string, classDate?: string) => {
     if (className) {
       return classDate

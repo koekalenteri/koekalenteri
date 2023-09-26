@@ -24,7 +24,7 @@ import type {
   KLRoturyhmätParametrit,
   KLYhdistys,
   KLYhdistysParametrit,
-} from './KLAPI_models'
+} from '../types/KLAPI'
 
 import fetch from 'node-fetch'
 

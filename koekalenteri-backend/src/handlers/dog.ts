@@ -5,16 +5,14 @@ import type { BreedCode, JsonDog, JsonTestResult } from 'koekalenteri-shared/mod
 
 import { metricScope } from 'aws-embedded-metrics'
 
+import KLAPI from '../lib/KLAPI'
+import { getKLAPIConfig } from '../lib/secrets'
+import { KLKieli } from '../types/KLAPI'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
-import KLAPI from '../utils/KLAPI'
-import { KLKieli } from '../utils/KLAPI_models'
 import { metricsError, metricsSuccess } from '../utils/metrics'
 import { response } from '../utils/response'
-import { getKLAPIConfig } from '../utils/secrets'
 
 const dynamoDB = new CustomDynamoClient()
-
-const klapi = new KLAPI(getKLAPIConfig)
 
 const GENDER: Record<string, 'F' | 'M'> = {
   narttu: 'F',
@@ -36,6 +34,7 @@ export const getDogHandler = metricScope(
         console.log('cached: ' + JSON.stringify(item))
 
         if (!item || refresh) {
+          const klapi = new KLAPI(getKLAPIConfig)
           const { status, json, error } = await klapi.lueKoiranPerustiedot({
             Rekisterinumero: regNo,
             Kieli: KLKieli.Suomi,

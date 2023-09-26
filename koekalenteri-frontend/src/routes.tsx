@@ -17,6 +17,7 @@ import UsersPage from './pages/admin/UsersPage'
 import { ErrorPage } from './pages/ErrorPage'
 import { HomePage } from './pages/HomePage'
 import { LoginPage } from './pages/LoginPage'
+import { paymentLoader } from './pages/PaymentPage'
 import RegistrationCreatePage from './pages/RegistrationCreatePage'
 import RegistrationEditPage from './pages/RegistrationEditPage'
 import { registrationInvitationLoader } from './pages/RegistrationInvitation'
@@ -57,6 +58,11 @@ const routes: RouteObject[] = [
           element: <RegistrationCreatePage />,
         })
       ),
+      {
+        path: 'p/:id',
+        loader: paymentLoader,
+        element: <div>This is da maksusivu</div>,
+      },
       {
         path: 'r/:id/:registrationId/cancel',
         element: <RegistrationListPage cancel />,

@@ -1485,6 +1485,43 @@ Resources:
       LogGroupName: !Join ['/', ['/aws/lambda', !Ref GetAttachmentFunction]]
       RetentionInDays: 30
 
+  PaymentCreateFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: koekalenteri-backend
+      Handler: dist/handlers/payment.createPayment
+      Layers:
+        - !Ref CommonLayer
+      Tracing: Active
+      Policies:
+        - Statement:
+            - Sid: SSMGetParameterPolicy
+              Effect: Allow
+              Action:
+              - ssm:GetParameters
+              - ssm:GetParameter
+              Resource: '*'
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EventRegistrationTable
+        - CloudWatchPutMetricPolicy: {}
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref EventRegistrationTable
+          AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
+      Events:
+        PutEvent:
+          Type: Api
+          Properties:
+            Path: /payment/create
+            Method: POST
+            RestApiId: !Ref KoekalenteriApi
+
+  PaymentCreateFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref PaymentCreateFunction]]
+      RetentionInDays: 30
+
   PaymentConfirmFunction:
     Type: AWS::Serverless::Function
     Properties:

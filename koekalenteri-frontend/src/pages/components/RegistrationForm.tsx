@@ -81,6 +81,8 @@ export default function RegistrationForm({
   const [open, setOpen] = useState<{ [key: string]: boolean | undefined }>({})
   const [saving, setSaving] = useState(false)
   const valid = errors.length === 0 && qualifies
+  const isMember = registration.handler?.membership || registration.owner?.membership
+  const paymentAmount = event.costMember && isMember ? event.costMember : event.cost
 
   const requirements = useMemo(
     () =>
@@ -302,7 +304,11 @@ export default function RegistrationForm({
         direction="row"
         justifyContent="flex-end"
         sx={{ p: 1, borderTop: '1px solid', borderColor: '#bdbdbd' }}
+        useFlexGap
       >
+        <Box my="auto">
+          <b>Summa:</b> {paymentAmount} €
+        </Box>
         <LoadingButton
           color="primary"
           disabled={disabled || !changes || !valid}
@@ -311,7 +317,7 @@ export default function RegistrationForm({
           startIcon={<Save />}
           variant="contained"
         >
-          {registration.id ? 'Tallenna muutokset' : 'Tallenna'}
+          {registration.id ? 'Tallenna muutokset' : 'Vahvista ja siirry maksamaan'}
         </LoadingButton>
         <Button startIcon={<Cancel />} variant="outlined" onClick={onCancel}>
           Peruuta

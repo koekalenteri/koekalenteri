@@ -2,16 +2,15 @@ import type { MetricsLogger } from 'aws-embedded-metrics'
 import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import type { AWSError } from 'aws-sdk'
 import type { JsonRegistration } from 'koekalenteri-shared/model'
-import type { PaytrailConfig } from '../utils/payment'
 
 import { metricScope } from 'aws-embedded-metrics'
 
+import { calculateHmac } from '../lib/paytrail'
+import { getPaytrailConfig } from '../lib/secrets'
 import { getOrigin, getUsername } from '../utils/auth'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { currentFinnishTime } from '../utils/dates'
-import { getSSMParams } from '../utils/environment'
 import { metricsError, metricsSuccess } from '../utils/metrics'
-import { calculateHmac } from '../utils/payment'
 import { redirect, response } from '../utils/response'
 
 import { sendReceipt } from './email'
@@ -25,7 +24,7 @@ const handlePayment = async (
   source: Source,
   metrics: MetricsLogger
 ): Promise<APIGatewayProxyResult> => {
-  const env = (await getSSMParams(['PaytrailMerchantSecret'])) as PaytrailConfig
+  const cfg = await getPaytrailConfig()
 
   const timestamp = new Date().toISOString()
   const username = await getUsername(event)
@@ -44,7 +43,7 @@ const handlePayment = async (
     Object.entries(event.headers).filter(([key]) => key.startsWith('checkout-'))
   )
 
-  if (calculateHmac(env.merchantSecret, checkoutHeaders) !== signature) {
+  if (calculateHmac(cfg.PAYTRAIL_SECRET, checkoutHeaders) !== signature) {
     //!!!
     console.log('warn', 'Verifying Paytrail signature failed', event)
 
@@ -152,5 +151,15 @@ export const paymentNotification = metricScope(
 
       // If the payment hasn't been completely processed, send an error response to receive further notifications and try again.
       return processed ? response(200, undefined, event) : response(500, 'Unexpected', event)
+    }
+)
+
+export const createPaymentHandler = metricScope(
+  (metrics: MetricsLogger) =>
+    async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+      console.log(event)
+
+      metricsSuccess(metrics, event.requestContext, 'createPayment')
+      return response(200, undefined, event)
     }
 )

@@ -3,17 +3,16 @@ import type { EventType, JsonDbRecord, Judge } from 'koekalenteri-shared/model'
 
 import { diff } from 'deep-object-diff'
 
+import KLAPI from '../../lib/KLAPI'
+import { getKLAPIConfig } from '../../lib/secrets'
+import { KLKieli } from '../../types/KLAPI'
 import { authorize, getAndUpdateUserByEmail } from '../../utils/auth'
 import CustomDynamoClient from '../../utils/CustomDynamoClient'
 import { genericWriteHandler } from '../../utils/genericHandlers'
-import KLAPI from '../../utils/KLAPI'
-import { KLKieli } from '../../utils/KLAPI_models'
 import { response } from '../../utils/response'
-import { getKLAPIConfig } from '../../utils/secrets'
 import { capitalize, reverseName } from '../../utils/string'
 
 const dynamoDB = new CustomDynamoClient()
-const klapi = new KLAPI(getKLAPIConfig)
 
 export const refreshJudges = async (event: APIGatewayProxyEvent) => {
   const user = await authorize(event)
@@ -21,6 +20,7 @@ export const refreshJudges = async (event: APIGatewayProxyEvent) => {
     return response(401, 'Unauthorized', event)
   }
 
+  const klapi = new KLAPI(getKLAPIConfig)
   const eventTypeTable = process.env.EVENT_TYPE_TABLE_NAME || ''
   const eventTypes = (await dynamoDB.readAll<EventType>(eventTypeTable))?.filter((et) => et.active) || []
   for (const eventType of eventTypes) {

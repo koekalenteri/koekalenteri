@@ -6,16 +6,15 @@ import type { Organizer } from 'koekalenteri-shared/model'
 import { metricScope } from 'aws-embedded-metrics'
 import { nanoid } from 'nanoid'
 
+import KLAPI from '../../lib/KLAPI'
+import { getKLAPIConfig } from '../../lib/secrets'
+import { KLYhdistysRajaus } from '../../types/KLAPI'
 import { authorize } from '../../utils/auth'
 import CustomDynamoClient from '../../utils/CustomDynamoClient'
-import KLAPI from '../../utils/KLAPI'
-import { KLYhdistysRajaus } from '../../utils/KLAPI_models'
 import { metricsError, metricsSuccess } from '../../utils/metrics'
 import { response } from '../../utils/response'
-import { getKLAPIConfig } from '../../utils/secrets'
 
 const dynamoDB = new CustomDynamoClient()
-const klapi = new KLAPI(getKLAPIConfig)
 
 export const getOrganizersHandler = metricScope(
   (metrics: MetricsLogger) =>
@@ -47,6 +46,7 @@ export const refreshOrganizers = metricScope(
           return response(401, 'Unauthorized', event)
         }
 
+        const klapi = new KLAPI(getKLAPIConfig)
         const { status, json } = await klapi.lueYhdistykset({ Rajaus: KLYhdistysRajaus.Koejärjestätä })
         if (status === 200 && json) {
           const existing = await dynamoDB.readAll<Organizer>()

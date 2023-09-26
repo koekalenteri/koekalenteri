@@ -21,6 +21,13 @@ exports[`routes should match a snapshot 1`] = `
         "path": "event/:eventType/:id",
       },
       {
+        "element": <div>
+          This is da maksusivu
+        </div>,
+        "loader": [Function],
+        "path": "p/:id",
+      },
+      {
         "element": <RegistrationListPage
           cancel={true}
         />,

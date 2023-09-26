@@ -54,7 +54,7 @@ export default function RegistrationCreatePage() {
     actions.save(registration).then(
       (saved) => {
         resetRegistration()
-        navigate(Path.registration(saved))
+        navigate(Path.payment(saved))
       },
       (reason) => {
         console.error(reason)
