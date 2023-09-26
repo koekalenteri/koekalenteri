@@ -63,6 +63,7 @@ export const paytrailRequest = async <T extends object>(
     const res = await fetch(`${PAYTRAIL_API_ENDPOINT}/${path}`, {
       method,
       headers,
+      body,
     })
     const status = res.status
     try {
