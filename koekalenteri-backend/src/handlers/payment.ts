@@ -171,7 +171,7 @@ export const createPaymentHandler = metricScope(
       if (!jsonEvent || !registration || !organizer?.paytrailMerchantId) {
         throw new Error('errors')
       }
-      const amount = (registration.totalAmount ?? jsonEvent.cost) - (registration.paidAmount ?? 0)
+      const amount = Math.round(100 * ((registration.totalAmount ?? jsonEvent.cost) - (registration.paidAmount ?? 0)))
 
       const result = await createPayment(
         getApiHost(event),
@@ -181,7 +181,7 @@ export const createPaymentHandler = metricScope(
         eventId,
         [
           {
-            unitPrice: 10,
+            unitPrice: amount,
             units: 1,
             vatPercentage: 0,
             productCode: 'registration',
