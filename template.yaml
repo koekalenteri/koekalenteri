@@ -1555,8 +1555,6 @@ Resources:
         Variables:
           TABLE_NAME: !Ref EventRegistrationTable
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
-          USER_TABLE_NAME: !Ref UserTable
-          USER_LINK_TABLE_NAME : !Ref UserLinkTable
       Events:
         PutEvent:
           Type: Api
