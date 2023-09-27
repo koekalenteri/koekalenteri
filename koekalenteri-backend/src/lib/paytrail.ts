@@ -4,6 +4,7 @@ import type {
   CreatePaymentResponse,
   PaymentCustomer,
   PaymentItem,
+  PaytrailHeaders,
 } from '../types/paytrail'
 
 import { createHmac } from 'crypto'
@@ -16,12 +17,19 @@ import { currentFinnishTime } from '../utils/dates'
 
 const PAYTRAIL_API_ENDPOINT = 'https://services.paytrail.com'
 
-export const calculateHmac = (
-  secret: string,
-  params: Record<string, string | undefined>,
-  body?: object | undefined
-): string => {
-  const hmacPayload = Object.keys(params)
+/**
+ * All API responses are signed the same way, allowing merchant to verify response validity.
+ * In addition, the responses contain request-id header. Saving or logging the value of this header is recommended.
+ *
+ * The signature is transmitted in the signature HTTP header.
+ * Signature payload consists of the following fields separated with a line feed (\n).
+ * Carriage returns (\r) are not supported.
+ *
+ * - All checkout- headers in alphabetical order. The header keys must be in lowercase. Each header key and value are separated with :
+ * HTTP body in exactly the same format as it will be sent, or empty string if no body
+ */
+export const calculateHmac = (secret: string, params: Partial<PaytrailHeaders>, body?: object | undefined): string => {
+  const hmacPayload = (Object.keys(params) as Array<keyof PaytrailHeaders>)
     .sort((a, b) => a.localeCompare(b))
     .map((key) => [key, params[key]].join(':'))
     .concat(body ? JSON.stringify(body) : '')
@@ -37,9 +45,14 @@ export const paytrailRequest = async <T extends object>(
   body: object | undefined,
   transactionId?: string
 ) => {
+  /**
+   * All API calls need to be signed using HMAC and SHA-256 or SHA-512.
+   * When a request contains a body, the body must be valid JSON and a
+   * content-type header with the value application/json; charset=utf-8 must be included.
+   */
   // const cfg = await getPaytrailConfig()
 
-  const paytrailHeaders: Record<string, string> = {
+  const paytrailHeaders: PaytrailHeaders = {
     'checkout-account': merchantId,
     'checkout-algorithm': 'sha256',
     'checkout-method': method,

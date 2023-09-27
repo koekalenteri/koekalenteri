@@ -2,6 +2,39 @@ export type PaytrailConfig = {
   PAYTRAIL_SECRET: string
 }
 
+export interface PaytrailHeaders {
+  /**
+   * Paytrail account ID, e.g. 375917
+   */
+  'checkout-account': string
+  /**
+   * Used signature algorithm, either sha256 or sha512
+   */
+  'checkout-algorithm': 'sha256' | 'sha512'
+  /**
+   * HTTP verb of the request, either GET or POST
+   */
+  'checkout-method': 'GET' | 'POST'
+  /**
+   * Unique identifier for this request
+   */
+  'checkout-nonce': string
+  /**
+   * ISO 8601 date time
+   */
+  'checkout-timestamp': string
+  /**
+   * Paytrail transaction ID when accessing single transaction - not required for a new payment request
+   */
+  'checkout-transaction-id'?: string
+  /**
+   * For SaaS services, use the marketing name of the platform (for example, shopify).
+   * For third party eCommerce platform plugins, use the platform name and your identifier,
+   * like company name (for example, woocommerce-yourcompany). Platform and integrator information
+   * helps customer service to provide better assistance for the merchants using the integration.
+   */
+  'platform-name'?: string
+}
 export interface CreatePaymentRequest {
   /**
    * Merchant unique identifier for the order. Maximum of 200 characters.
