@@ -7,6 +7,14 @@ import AWS from 'aws-sdk'
 import { genericReadAllTest } from '../test-utils/genericTests'
 import { constructAPIGwEvent } from '../test-utils/helpers'
 
+jest.unstable_mockModule('../config', () => ({
+  CONFIG: {
+    eventTypesTable: 'eventTypes',
+    judgeTable: 'judge',
+    officialTable: 'official',
+  },
+}))
+
 const { getEventTypesHandler, putEventTypeHandler } = await import('./eventType')
 
 describe('getEventTypesHandler (generic)', genericReadAllTest(getEventTypesHandler))
@@ -19,9 +27,6 @@ describe('putEventTypeHandler', function () {
   let updateSpy: jest.SpiedFunction<typeof AWS.DynamoDB.DocumentClient.prototype.update>
 
   beforeAll(() => {
-    process.env.JUDGE_TABLE_NAME = 'judge'
-    process.env.OFFICIAL_TABLE_NAME = 'official'
-
     putSpy = jest.spyOn(AWS.DynamoDB.DocumentClient.prototype, 'put')
     getSpy = jest.spyOn(AWS.DynamoDB.DocumentClient.prototype, 'get')
     scanSpy = jest.spyOn(AWS.DynamoDB.DocumentClient.prototype, 'scan')
@@ -53,7 +58,7 @@ describe('putEventTypeHandler', function () {
       })
       scanSpy.mockImplementation((params: ScanInput) => {
         const result: Record<string, unknown[]> = {
-          '': [
+          'table-name-not-provider-or-found-in-env': [
             { eventType: 'TEST', active: false },
             { eventType: 'Active', active: true },
           ],
