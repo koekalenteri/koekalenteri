@@ -13,7 +13,7 @@ import fetch from 'node-fetch'
 
 import { currentFinnishTime } from '../utils/dates'
 
-// import { getPaytrailConfig } from './secrets'
+import { getPaytrailConfig } from './secrets'
 
 const PAYTRAIL_API_ENDPOINT = 'https://services.paytrail.com'
 
@@ -39,7 +39,6 @@ export const calculateHmac = (secret: string, params: Partial<PaytrailHeaders>, 
 }
 
 export const paytrailRequest = async <T extends object>(
-  merchantId: string,
   method: 'GET' | 'POST',
   path: string,
   body: object | undefined,
@@ -50,10 +49,10 @@ export const paytrailRequest = async <T extends object>(
    * When a request contains a body, the body must be valid JSON and a
    * content-type header with the value application/json; charset=utf-8 must be included.
    */
-  // const cfg = await getPaytrailConfig()
+  const cfg = await getPaytrailConfig()
 
   const paytrailHeaders: PaytrailHeaders = {
-    'checkout-account': merchantId,
+    'checkout-account': cfg.PAYTRAIL_MERCHANT_ID,
     'checkout-algorithm': 'sha256',
     'checkout-method': method,
     'checkout-nonce': nanoid(),
@@ -67,7 +66,7 @@ export const paytrailRequest = async <T extends object>(
   const headers = {
     'content-type': 'application/json; charset=utf-8',
     ...paytrailHeaders,
-    signature: calculateHmac(/*cfg.PAYTRAIL_SECRET*/ 'MONISAIPPUAKAUPPIAS', paytrailHeaders, body),
+    signature: calculateHmac(cfg.PAYTRAIL_SECRET, paytrailHeaders, body),
     // 'platform-name': 'koekalenteri.snj.fi',
   }
 
@@ -111,7 +110,6 @@ export const createCallbackUrls = (host: string): CallbackUrl => ({
 export const createPayment = async (
   apiHost: string,
   origin: string,
-  merchantId: string,
   amount: number,
   reference: string,
   items: PaymentItem[],
@@ -132,5 +130,5 @@ export const createPayment = async (
     callbackUrls,
   }
 
-  return paytrailRequest<CreatePaymentResponse>(merchantId, 'POST', 'payments', body)
+  return paytrailRequest<CreatePaymentResponse>('POST', 'payments', body)
 }

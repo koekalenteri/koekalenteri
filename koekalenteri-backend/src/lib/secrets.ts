@@ -3,6 +3,10 @@ import type { PaytrailConfig } from '../types/paytrail'
 
 import AWS from 'aws-sdk'
 
+import { CONFIG } from '../config'
+
+const { stackName } = CONFIG
+
 const ssm = new AWS.SSM()
 
 type ValuesOf<T extends string[]> = T[number]
@@ -27,7 +31,10 @@ export async function getKLAPIConfig(): Promise<KLAPIConfig> {
 }
 
 export const getPaytrailConfig = async (): Promise<PaytrailConfig> => {
-  const cfg = (await getSSMParams(['PAYTRAIL_SECRET'])) as PaytrailConfig
+  const cfg = (await getSSMParams([
+    `${stackName}-PAYTRAIL_MERCHANT_ID`,
+    `${stackName}-PAYTRAIL_SECRET`,
+  ])) as PaytrailConfig
   if (!cfg.PAYTRAIL_SECRET) {
     throw new Error('Missing Paytrail Config!')
   }
