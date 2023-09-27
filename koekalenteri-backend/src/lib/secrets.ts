@@ -32,11 +32,12 @@ export async function getKLAPIConfig(): Promise<KLAPIConfig> {
 }
 
 export const getPaytrailConfig = async (): Promise<PaytrailConfig> => {
-  const cfg = (await getSSMParams([
-    `${stackName}-PAYTRAIL_MERCHANT_ID`,
-    `${stackName}-PAYTRAIL_SECRET`,
-  ])) as PaytrailConfig
-  if (!cfg.PAYTRAIL_SECRET) {
+  const stackedCfg = await getSSMParams([`${stackName}-PAYTRAIL_MERCHANT_ID`, `${stackName}-PAYTRAIL_SECRET`])
+  const cfg: PaytrailConfig = {
+    PAYTRAIL_MERCHANT_ID: stackedCfg[`${stackName}-PAYTRAIL_MERCHANT_ID`],
+    PAYTRAIL_SECRET: stackedCfg[`${stackName}-PAYTRAIL_SECRET`],
+  }
+  if (!cfg.PAYTRAIL_SECRET || !cfg.PAYTRAIL_MERCHANT_ID) {
     throw new Error('Missing Paytrail Config!')
   }
   return cfg
