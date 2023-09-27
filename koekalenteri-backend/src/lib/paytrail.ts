@@ -12,7 +12,7 @@ import fetch from 'node-fetch'
 
 import { currentFinnishTime } from '../utils/dates'
 
-import { getPaytrailConfig } from './secrets'
+// import { getPaytrailConfig } from './secrets'
 
 const PAYTRAIL_API_ENDPOINT = 'https://services.paytrail.com'
 
@@ -37,7 +37,7 @@ export const paytrailRequest = async <T extends object>(
   body: object | undefined,
   transactionId?: string
 ) => {
-  const cfg = await getPaytrailConfig()
+  // const cfg = await getPaytrailConfig()
 
   const paytrailHeaders: Record<string, string> = {
     'checkout-account': merchantId,
@@ -54,7 +54,7 @@ export const paytrailRequest = async <T extends object>(
   const headers = {
     'content-type': 'application/json; charset=utf-8',
     ...paytrailHeaders,
-    signature: calculateHmac(cfg.PAYTRAIL_SECRET, paytrailHeaders, body),
+    signature: calculateHmac(/*cfg.PAYTRAIL_SECRET*/ 'MONISAIPPUAKAUPPIAS', paytrailHeaders, body),
     // 'platform-name': 'koekalenteri.snj.fi',
   }
 
@@ -108,7 +108,7 @@ export const createPayment = async (
   const callbackUrls = createCallbackUrls(apiHost)
 
   const body: CreatePaymentRequest = {
-    stamp: 'd2568f2a-e4c6-40ba-a7cd-d573382ce548',
+    stamp: nanoid(),
     reference,
     amount,
     currency: 'EUR',
