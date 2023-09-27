@@ -1,10 +1,12 @@
 export type PaytrailConfig = {
+  PAYTRAIL_MERCHANT_ID: string
   PAYTRAIL_SECRET: string
 }
 
 export interface PaytrailHeaders {
   /**
    * Paytrail account ID, e.g. 375917
+   * NB: This needs to be always the "Aggregate" or "Main" merchant ID
    */
   'checkout-account': string
   /**
@@ -152,6 +154,7 @@ export interface PaymentItem {
   reference: string
   /**
    * Merchant ID for the item. Required for Shop-in-Shop payments, do not use for normal payments.
+   * This is the money-receiving merchant ID.
    */
   merchant: string
   /**
