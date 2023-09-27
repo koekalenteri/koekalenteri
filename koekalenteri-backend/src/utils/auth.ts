@@ -4,6 +4,7 @@ import type { JsonUser } from 'koekalenteri-shared/model'
 import { diff } from 'deep-object-diff'
 import { nanoid } from 'nanoid'
 
+import { CONFIG } from '../config'
 import { findUserByEmail, updateUser } from '../lib/user'
 
 import CustomDynamoClient from './CustomDynamoClient'
@@ -13,10 +14,9 @@ interface UserLink {
   userId: string
 }
 
-const USER_LINK_TABLE = process.env.USER_LINK_TABLE_NAME
-const USER_TABLE = process.env.USER_TABLE_NAME
+const { userTable, userLinkTable } = CONFIG
 
-const dynamoDB = new CustomDynamoClient(USER_LINK_TABLE)
+const dynamoDB = new CustomDynamoClient(userLinkTable)
 
 export async function authorize(event: APIGatewayProxyEvent) {
   const user = await getOrCreateUser(event)
@@ -36,16 +36,16 @@ async function getOrCreateUser(event: APIGatewayProxyEvent) {
     return null
   }
 
-  const link = await dynamoDB.read<UserLink>({ cognitoUser }, USER_LINK_TABLE)
+  const link = await dynamoDB.read<UserLink>({ cognitoUser })
 
   if (link) {
-    user = await dynamoDB.read<JsonUser>({ id: link.userId }, USER_TABLE)
+    user = await dynamoDB.read<JsonUser>({ id: link.userId }, userTable)
   } else {
     // no user link forund for the cognitoUser
     const { name, email } = event.requestContext.authorizer.claims
 
     user = await getAndUpdateUserByEmail(email, { name })
-    await dynamoDB.write({ cognitoUser, userId: user.id }, USER_LINK_TABLE)
+    await dynamoDB.write({ cognitoUser, userId: user.id })
   }
   return user
 }

@@ -10,18 +10,19 @@ import type {
 
 import { metricScope } from 'aws-embedded-metrics'
 
+import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { metricsError, metricsSuccess } from '../utils/metrics'
 import { response } from '../utils/response'
 
 const dynamoDB = new CustomDynamoClient()
+const { eventTable } = CONFIG
 
 export const getStartListHandler = metricScope(
   (metrics: MetricsLogger) =>
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
       try {
         const eventId = event.pathParameters?.eventId
-        const eventTable = process.env.EVENT_TABLE_NAME || ''
         const confirmedEvent = await dynamoDB.read<JsonEvent>({ id: eventId }, eventTable)
         let publicRegs: JsonPublicRegistration[] = []
 

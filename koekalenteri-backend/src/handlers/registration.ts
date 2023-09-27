@@ -8,6 +8,7 @@ import { diff } from 'deep-object-diff'
 import { getFixedT } from 'i18next'
 import { nanoid } from 'nanoid'
 
+import { CONFIG } from '../config'
 import { audit, registrationAuditKey } from '../lib/audit'
 import { getOrigin, getUsername } from '../utils/auth'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
@@ -16,9 +17,10 @@ import { emailTo, registrationEmailTemplateData } from '../utils/registration'
 import { response } from '../utils/response'
 
 import { updateRegistrations } from './admin/event'
-import { EMAIL_FROM, sendTemplatedMail } from './email'
+import { sendTemplatedMail } from './email'
 
 const dynamoDB = new CustomDynamoClient()
+const { emailFrom, eventTable } = CONFIG
 
 export const getRegistrationHandler = metricScope(
   (metrics: MetricsLogger) =>
@@ -72,7 +74,6 @@ export const putRegistrationHandler = metricScope(
         const data = { ...existing, ...registration }
         await dynamoDB.write(data)
 
-        const eventTable = process.env.EVENT_TABLE_NAME || ''
         const confirmedEvent = await updateRegistrations(registration.eventId, eventTable, dynamoDB.table)
         if (!confirmedEvent) {
           throw new Error(`Event of type "${registration.eventType}" not found with id "${registration.eventId}"`)
@@ -92,7 +93,7 @@ export const putRegistrationHandler = metricScope(
           const context = getEmailContext(update, cancel, confirm)
           const data = registrationEmailTemplateData(registration, confirmedEvent, origin, context)
 
-          await sendTemplatedMail('registration', registration.language, EMAIL_FROM, to, data)
+          await sendTemplatedMail('registration', registration.language, emailFrom, to, data)
         }
 
         metricsSuccess(metrics, event.requestContext, 'putRegistration')

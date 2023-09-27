@@ -3,6 +3,7 @@ import type { EventType, JsonDbRecord, Official } from 'koekalenteri-shared/mode
 
 import { diff } from 'deep-object-diff'
 
+import { CONFIG } from '../../config'
 import KLAPI from '../../lib/KLAPI'
 import { getKLAPIConfig } from '../../lib/secrets'
 import { KLKieli } from '../../types/KLAPI'
@@ -12,6 +13,7 @@ import { response } from '../../utils/response'
 import { capitalize, reverseName } from '../../utils/string'
 
 const dynamoDB = new CustomDynamoClient()
+const { eventTypeTable } = CONFIG
 
 export const refreshOfficials = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   const user = await authorize(event)
@@ -20,7 +22,6 @@ export const refreshOfficials = async (event: APIGatewayProxyEvent): Promise<API
   }
 
   const klapi = new KLAPI(getKLAPIConfig)
-  const eventTypeTable = process.env.EVENT_TYPE_TABLE_NAME || ''
   const eventTypes = (await dynamoDB.readAll<EventType>(eventTypeTable))?.filter((et) => et.active) || []
   for (const eventType of eventTypes) {
     const { status, json } = await klapi.lueKoemuodonKoetoimitsijat({

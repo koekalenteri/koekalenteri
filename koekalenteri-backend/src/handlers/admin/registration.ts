@@ -11,6 +11,7 @@ import type {
 
 import { metricScope } from 'aws-embedded-metrics'
 
+import { CONFIG } from '../../config'
 import { i18n } from '../../i18n'
 import { audit, auditTrail, registrationAuditKey } from '../../lib/audit'
 import { authorize, getOrigin } from '../../utils/auth'
@@ -19,12 +20,12 @@ import { formatDate } from '../../utils/dates'
 import { metricsError, metricsSuccess } from '../../utils/metrics'
 import { emailTo, registrationEmailTemplateData } from '../../utils/registration'
 import { response } from '../../utils/response'
-import { EMAIL_FROM, sendTemplatedMail } from '../email'
+import { sendTemplatedMail } from '../email'
 
 import { markParticipants, updateRegistrations } from './event'
 
 const dynamoDB = new CustomDynamoClient()
-const eventTable = process.env.EVENT_TABLE_NAME || ''
+const { emailFrom, eventTable } = CONFIG
 
 const groupKey = <T extends JsonRegistration>(reg: T) => {
   if (reg.cancelled) {
@@ -392,7 +393,7 @@ async function sendTemplatedEmailToEventRegistrations(
     const to = emailTo(registration)
     const data = registrationEmailTemplateData(registration, confirmedEvent, origin, '')
     try {
-      await sendTemplatedMail(template, registration.language, EMAIL_FROM, to, { ...data, text })
+      await sendTemplatedMail(template, registration.language, emailFrom, to, { ...data, text })
       ok.push(...to)
       audit({
         auditKey: registrationAuditKey(registration),

@@ -6,13 +6,14 @@ import type { JsonUser, UserRole } from 'koekalenteri-shared/model'
 import { metricScope } from 'aws-embedded-metrics'
 import { nanoid } from 'nanoid'
 
+import { CONFIG } from '../../config'
 import { setUserRole } from '../../lib/user'
 import { authorize, getOrigin } from '../../utils/auth'
 import CustomDynamoClient from '../../utils/CustomDynamoClient'
 import { metricsError, metricsSuccess } from '../../utils/metrics'
 import { response } from '../../utils/response'
 
-const dynamoDB = new CustomDynamoClient(process.env.USER_TABLE_NAME)
+const dynamoDB = new CustomDynamoClient(CONFIG.userTable)
 
 const userIsAdminFor = (user: JsonUser) =>
   Object.keys(user?.roles ?? {}).filter((orgId) => user?.roles?.[orgId] == 'admin')

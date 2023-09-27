@@ -7,12 +7,14 @@ import { metricScope } from 'aws-embedded-metrics'
 import { addDays, differenceInDays, parseISO } from 'date-fns'
 import { nanoid } from 'nanoid'
 
+import { CONFIG } from '../../config'
 import { authorize } from '../../utils/auth'
 import CustomDynamoClient from '../../utils/CustomDynamoClient'
 import { metricsError, metricsSuccess } from '../../utils/metrics'
 import { response } from '../../utils/response'
 
 const dynamoDB = new CustomDynamoClient()
+const { eventTable, registrationTable } = CONFIG
 
 export const putEventHandler = metricScope(
   (metrics: MetricsLogger) =>
@@ -118,7 +120,6 @@ export const markParticipants = async (
   eventClass?: string
 ) => {
   const eventKey = { id: confirmedEvent.id }
-  const eventTable = process.env.EVENT_TABLE_NAME || ''
   let allInvited = true
   if (eventClass) {
     for (const c of confirmedEvent.classes) {
@@ -195,7 +196,7 @@ export const copyEventWithRegistrations = metricScope(
           {
             ':id': id,
           },
-          process.env.REGISTRATION_TABLE_NAME
+          registrationTable
         )
         for (const reg of registrations ?? []) {
           reg.eventId = item.id
@@ -208,7 +209,7 @@ export const copyEventWithRegistrations = metricScope(
               reg.group.key = reg.group.date.slice(0, 10) + '-' + reg.group.time
             }
           }
-          await dynamoDB.write(reg, process.env.REGISTRATION_TABLE_NAME)
+          await dynamoDB.write(reg, registrationTable)
         }
 
         metricsSuccess(metrics, event.requestContext, 'copyEventWithRegistrations')

@@ -6,6 +6,7 @@ import type { JsonConfirmedEvent } from 'koekalenteri-shared/model'
 import { metricScope } from 'aws-embedded-metrics'
 import { nanoid } from 'nanoid'
 
+import { CONFIG } from '../../config'
 import { deleteFile, parsePostFile, uploadFile } from '../../lib/file'
 import { authorize } from '../../utils/auth'
 import CustomDynamoClient from '../../utils/CustomDynamoClient'
@@ -13,7 +14,7 @@ import { metricsError, metricsSuccess } from '../../utils/metrics'
 import { response } from '../../utils/response'
 
 const dynamoDB = new CustomDynamoClient()
-const eventTable = process.env.EVENT_TABLE_NAME ?? ''
+const { eventTable } = CONFIG
 
 export const putInvitationAttachmentHandler = metricScope(
   (metrics: MetricsLogger) =>

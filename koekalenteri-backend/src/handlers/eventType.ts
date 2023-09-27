@@ -5,6 +5,7 @@ import type { EventType, JsonDbRecord, Judge, Official } from 'koekalenteri-shar
 
 import { metricScope } from 'aws-embedded-metrics'
 
+import { CONFIG } from '../config'
 import KLAPI from '../lib/KLAPI'
 import { getKLAPIConfig } from '../lib/secrets'
 import { KLKieli, KLKieliToLang } from '../types/KLAPI'
@@ -15,6 +16,7 @@ import { metricsError, metricsSuccess } from '../utils/metrics'
 import { response } from '../utils/response'
 
 const dynamoDB = new CustomDynamoClient()
+const { judgeTable, officialTable } = CONFIG
 
 export const getEventTypesHandler = metricScope(
   (metrics: MetricsLogger) =>
@@ -67,7 +69,6 @@ export const putEventTypeHandler = metricScope(
         if (!item.active) {
           const active = (await dynamoDB.readAll<EventType>())?.filter((et) => et.active) || []
 
-          const judgeTable = process.env.JUDGE_TABLE_NAME
           const judgesToRemove =
             (await dynamoDB.readAll<Judge & JsonDbRecord>(judgeTable))?.filter(
               (j) => !j.deletedAt && !active.some((et) => j.eventTypes?.includes(et.eventType))
@@ -83,7 +84,6 @@ export const putEventTypeHandler = metricScope(
             )
           }
 
-          const officialTable = process.env.OFFICIAL_TABLE_NAME
           const officialsToRemove =
             (await dynamoDB.readAll<Official & JsonDbRecord>(officialTable))?.filter(
               (o) => !o.deletedAt && !active.some((et) => o.eventTypes?.includes(et.eventType))

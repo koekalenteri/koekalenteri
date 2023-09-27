@@ -7,6 +7,7 @@ import { metricScope } from 'aws-embedded-metrics'
 import { type JsonRegistration } from 'koekalenteri-shared/model'
 import { nanoid } from 'nanoid'
 
+import { CONFIG } from '../config'
 import { calculateHmac, createPayment } from '../lib/paytrail'
 import { getPaytrailConfig } from '../lib/secrets'
 import { getOrigin, getUsername } from '../utils/auth'
@@ -19,6 +20,7 @@ import { redirect, response } from '../utils/response'
 import { sendReceipt } from './email'
 
 const dynamoDB = new CustomDynamoClient()
+const { eventTable, organizerTable } = CONFIG
 
 type Source = 'notification' | 'user'
 
@@ -162,12 +164,9 @@ export const createPaymentHandler = metricScope(
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
       const { eventId, registrationId } = JSON.parse(event.body || '{}')
 
-      const jsonEvent = await dynamoDB.read<JsonEvent>({ id: eventId }, process.env.EVENT_TABLE_NAME)
+      const jsonEvent = await dynamoDB.read<JsonEvent>({ id: eventId }, eventTable)
       const registration = await dynamoDB.read<JsonRegistration>({ eventId: eventId, id: registrationId })
-      const organizer = await dynamoDB.read<Organizer>(
-        { id: jsonEvent?.organizer.id },
-        process.env.ORGANIZER_TABLE_NAME
-      )
+      const organizer = await dynamoDB.read<Organizer>({ id: jsonEvent?.organizer.id }, organizerTable)
       if (!jsonEvent || !registration || !organizer?.paytrailMerchantId) {
         throw new Error('errors')
       }
@@ -176,7 +175,6 @@ export const createPaymentHandler = metricScope(
       const result = await createPayment(
         getApiHost(event),
         getOrigin(event),
-        '695861', // organizer.paytrailMerchantId,
         amount,
         eventId,
         [
@@ -187,7 +185,7 @@ export const createPaymentHandler = metricScope(
             productCode: 'registration',
             stamp: nanoid(),
             reference: registrationId,
-            merchant: '695874', // organizer.paytrailMerchantId,
+            merchant: organizer.paytrailMerchantId,
           },
         ],
         {

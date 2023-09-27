@@ -7,6 +7,7 @@ import type { EmailTemplateId, JsonEmailTemplate, JsonRegistration, Language } f
 import { metricScope } from 'aws-embedded-metrics'
 import AWS from 'aws-sdk'
 
+import { CONFIG } from '../config'
 import { authorize, getUsername } from '../utils/auth'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { markdownToTemplate } from '../utils/email/markdown'
@@ -15,10 +16,6 @@ import { response } from '../utils/response'
 
 const dynamoDB = new CustomDynamoClient()
 const ses = new AWS.SES()
-
-// TODO: sender address from env / other config
-export const EMAIL_FROM = 'koekalenteri@koekalenteri.snj.fi'
-const stackName = process.env.AWS_SAM_LOCAL ? 'local' : process.env.STACK_NAME ?? 'local'
 
 export async function sendReceipt(registration: JsonRegistration, date: string) {
   const to: string[] = [registration.handler.email]
@@ -53,7 +50,7 @@ export async function sendTemplatedMail(
     Destination: {
       ToAddresses: to,
     },
-    Template: `${template}-${stackName}-${language}`,
+    Template: `${template}-${CONFIG.stackName}-${language}`,
     TemplateData: JSON.stringify(data),
     Source: from,
   }
@@ -103,8 +100,8 @@ export const putTemplateHandler = metricScope(
 
         // Generate SES compatible template for all languages
         data.ses = {
-          fi: await markdownToTemplate(`${item.id}-${stackName}-fi`, data.fi),
-          en: await markdownToTemplate(`${item.id}-${stackName}-en`, data.en),
+          fi: await markdownToTemplate(`${item.id}-${CONFIG.stackName}-fi`, data.fi),
+          en: await markdownToTemplate(`${item.id}-${CONFIG.stackName}-en`, data.en),
         }
 
         await updateOrCreateTemplate(data.ses.fi)

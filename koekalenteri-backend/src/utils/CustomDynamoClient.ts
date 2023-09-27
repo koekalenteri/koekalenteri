@@ -17,7 +17,7 @@ export default class CustomDynamoClient {
   constructor(tableName?: string) {
     const options: AWS.DynamoDB.DocumentClient.DocumentClientOptions & AWS.DynamoDB.Types.ClientConfiguration = {}
 
-    this.table = process.env.TABLE_NAME || tableName || ''
+    this.table = tableName ?? process.env.TABLE_NAME ?? 'table-name-not-provider-or-found-in-env'
 
     if (process.env.AWS_SAM_LOCAL) {
       // Override endpoint when in local development

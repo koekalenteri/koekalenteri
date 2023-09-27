@@ -3,6 +3,7 @@ import type { EventType, JsonDbRecord, Judge } from 'koekalenteri-shared/model'
 
 import { diff } from 'deep-object-diff'
 
+import { CONFIG } from '../../config'
 import KLAPI from '../../lib/KLAPI'
 import { getKLAPIConfig } from '../../lib/secrets'
 import { KLKieli } from '../../types/KLAPI'
@@ -13,6 +14,7 @@ import { response } from '../../utils/response'
 import { capitalize, reverseName } from '../../utils/string'
 
 const dynamoDB = new CustomDynamoClient()
+const { eventTypeTable } = CONFIG
 
 export const refreshJudges = async (event: APIGatewayProxyEvent) => {
   const user = await authorize(event)
@@ -21,7 +23,6 @@ export const refreshJudges = async (event: APIGatewayProxyEvent) => {
   }
 
   const klapi = new KLAPI(getKLAPIConfig)
-  const eventTypeTable = process.env.EVENT_TYPE_TABLE_NAME || ''
   const eventTypes = (await dynamoDB.readAll<EventType>(eventTypeTable))?.filter((et) => et.active) || []
   for (const eventType of eventTypes) {
     const { status, json } = await klapi.lueKoemuodonYlituomarit({

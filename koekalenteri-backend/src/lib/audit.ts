@@ -1,14 +1,14 @@
 import type { AuditRecord, JsonAuditRecord, JsonRegistration } from 'koekalenteri-shared/model'
 
+import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
-const AUDIT_TABLE = process.env.AUDIT_TABLE_NAME
-
-const dynamoDB = new CustomDynamoClient(AUDIT_TABLE)
+const { auditTable } = CONFIG
+const dynamoDB = new CustomDynamoClient(auditTable)
 
 export const audit = async (item: Omit<AuditRecord, 'timestamp'>) => {
   try {
-    dynamoDB.write({ ...item, timestamp: new Date().toISOString() }, AUDIT_TABLE)
+    dynamoDB.write({ ...item, timestamp: new Date().toISOString() }, auditTable)
   } catch (e) {
     console.error(e)
   }
@@ -21,7 +21,7 @@ export const auditTrail = async (auditKey: string) => {
       {
         ':auditKey': auditKey,
       },
-      AUDIT_TABLE
+      auditTable
     )
     return items ?? []
   } catch (e) {

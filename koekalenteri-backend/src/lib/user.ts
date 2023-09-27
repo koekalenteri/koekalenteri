@@ -1,19 +1,19 @@
 import type { JsonUser, Organizer, UserRole } from 'koekalenteri-shared/model'
 
-import { EMAIL_FROM, sendTemplatedMail } from '../handlers/email'
+import { CONFIG } from '../config'
+import { sendTemplatedMail } from '../handlers/email'
 import { i18n } from '../i18n'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
-const USER_LINK_TABLE = process.env.USER_LINK_TABLE_NAME
-const USER_TABLE = process.env.USER_TABLE_NAME
+const { userTable, userLinkTable, organizerTable, emailFrom } = CONFIG
 
-const dynamoDB = new CustomDynamoClient(USER_LINK_TABLE)
+const dynamoDB = new CustomDynamoClient(userLinkTable)
 
 let cache: JsonUser[] | undefined
 
 export async function getAllUsers() {
   if (!cache) {
-    cache = await dynamoDB.readAll<JsonUser>(USER_TABLE)
+    cache = await dynamoDB.readAll<JsonUser>()
   }
   return cache
 }
@@ -25,7 +25,7 @@ export async function findUserByEmail(email: string) {
 }
 
 export async function updateUser(user: JsonUser) {
-  await dynamoDB.write(user, USER_TABLE)
+  await dynamoDB.write(user)
 
   if (cache) {
     const idx = cache?.findIndex((u) => u.id === user.id)
@@ -65,13 +65,13 @@ export async function setUserRole(
       ':modAt': new Date().toISOString(),
       ':modBy': modifiedBy,
     },
-    USER_TABLE
+    userTable
   )
 
-  const org = await dynamoDB.read<Organizer>({ id: orgId }, process.env.ORGANIZER_TABLE_NAME)
+  const org = await dynamoDB.read<Organizer>({ id: orgId }, organizerTable)
 
   if (role !== 'none') {
-    await sendTemplatedMail('access', 'fi', EMAIL_FROM, [user.email], {
+    await sendTemplatedMail('access', 'fi', emailFrom, [user.email], {
       user: {
         firstName: (user.name ?? 'Nimetön').split(' ')[0],
         email: user.email,
