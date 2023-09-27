@@ -176,7 +176,7 @@ export const createPaymentHandler = metricScope(
       const result = await createPayment(
         getApiHost(event),
         getOrigin(event),
-        '695874', // organizer.paytrailMerchantId,
+        '695861', // organizer.paytrailMerchantId,
         amount,
         eventId,
         [
