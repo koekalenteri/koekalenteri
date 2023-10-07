@@ -1,7 +1,7 @@
 import type { MetricsLogger } from 'aws-embedded-metrics'
 import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import type { AWSError } from 'aws-sdk'
-import type { JsonEvent, Organizer } from 'koekalenteri-shared/model'
+import type { CreatePaymentResponse, JsonEvent, Organizer, VerifyPaymentResponse } from 'koekalenteri-shared/model'
 import type { PaytrailCallbackParams } from '../types/paytrail'
 
 import { metricScope } from 'aws-embedded-metrics'
@@ -194,8 +194,13 @@ export const createPaymentHandler = metricScope(
         }
       )
 
+      if (!result) {
+        metricsError(metrics, event.requestContext, 'createPayment')
+        return response<undefined>(500, undefined, event)
+      }
+
       metricsSuccess(metrics, event.requestContext, 'createPayment')
-      return response(200, result, event)
+      return response<CreatePaymentResponse>(200, result, event)
     }
 )
 
@@ -203,6 +208,7 @@ export const verifyPaymentHandler = metricScope(
   (metrics: MetricsLogger) =>
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
       const params: Partial<PaytrailCallbackParams> = JSON.parse(event.body || '{}')
+      const [eventId, registrationId] = params['checkout-reference']?.split(':') ?? []
       const signature = params.signature
       const hmacParams = Object.fromEntries(Object.entries(params).filter(([key]) => key.startsWith(HMAC_KEY_PREFIX)))
       const cfg = await getPaytrailConfig()
@@ -212,7 +218,7 @@ export const verifyPaymentHandler = metricScope(
         console.warn('Verifying payment signature failed', { hmac, signature, params }, event)
 
         metricsError(metrics, event.requestContext, 'verifyPayment')
-        return response(200, 'fail', event)
+        return response<VerifyPaymentResponse>(200, { status: 'error', eventId, registrationId }, event)
       }
 
       /**
@@ -220,6 +226,6 @@ export const verifyPaymentHandler = metricScope(
        */
 
       metricsSuccess(metrics, event.requestContext, 'verifyPayment')
-      return response(200, 'ok', event)
+      return response<VerifyPaymentResponse>(200, { status: 'ok', eventId, registrationId }, event)
     }
 )

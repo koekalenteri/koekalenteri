@@ -14,7 +14,11 @@ export const allowOrigin = (event: APIGatewayProxyEvent) => {
   return 'https://koekalenteri.snj.fi'
 }
 
-export const response = (statusCode: number, body: unknown, event: APIGatewayProxyEvent): APIGatewayProxyResult => ({
+export const response = <T = unknown>(
+  statusCode: number,
+  body: T,
+  event: APIGatewayProxyEvent
+): APIGatewayProxyResult => ({
   statusCode: statusCode,
   body: JSON.stringify(body),
   headers: {
