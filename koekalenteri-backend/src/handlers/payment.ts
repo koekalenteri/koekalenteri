@@ -2,6 +2,7 @@ import type { MetricsLogger } from 'aws-embedded-metrics'
 import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import type { AWSError } from 'aws-sdk'
 import type { JsonEvent, Organizer } from 'koekalenteri-shared/model'
+import type { PaytrailCallbackParams } from '../types/paytrail'
 
 import { metricScope } from 'aws-embedded-metrics'
 import { type JsonRegistration } from 'koekalenteri-shared/model'
@@ -201,8 +202,8 @@ export const createPaymentHandler = metricScope(
 export const verifyPaymentHandler = metricScope(
   (metrics: MetricsLogger) =>
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-      const params = JSON.parse(event.body || '{}')
-      const signature = params.signatire
+      const params: Partial<PaytrailCallbackParams> = JSON.parse(event.body || '{}')
+      const signature = params.signature
       const hmacParams = Object.fromEntries(Object.entries(params).filter(([key]) => key.startsWith(HMAC_KEY_PREFIX)))
       const cfg = await getPaytrailConfig()
       const hmac = calculateHmac(cfg.PAYTRAIL_SECRET, hmacParams)

@@ -39,6 +39,53 @@ export interface PaytrailHeaders {
    */
   'platform-name'?: string
 }
+
+export interface PaytrailCallbackParams {
+  /**
+   * Paytrail account ID
+   */
+  'checkout-account': string
+  /**
+   * Used signature algorithm. The same as used by merchant when creating the payment.
+   */
+  'checkout-algorithm': string
+  /**
+   * Payment amount in currency minor unit, e.g. cents. Maximum value of 99999999.
+   */
+  'checkout-amount': string
+  /**
+   * Payment reference of the settlement in which the succeeded transaction will be included in.
+   * Note: This field will be provided only for specific Suomi.fi -merchants and only when calling success-callback.
+   */
+  'checkout-settlement-reference'?: string
+  /**
+   * Merchant provided stamp. Maximum of 200 characters.
+   */
+  'checkout-stamp': string
+  /**
+   * Merchant provided reference. Maximum of 200 characters.
+   */
+  'checkout-reference': string
+  /**
+   * Paytrail provided transaction ID.
+   * Note: In case of refund request that fails in semantic validation (e.g. insufficent account balance), this field will not be provided since the refund transaction does not exist yet.
+   * Important: Store the value. It is needed for other actions such as refund or payment information query
+   */
+  'checkout-transaction-id': string
+  /**
+   * Payment status, either ok, pending, delayed, or fail.
+   */
+  'checkout-status': 'ok' | 'pending' | 'delayed' | 'fail'
+  /**
+   * The payment method provider the client used.
+   */
+  'checkout-provider': string
+  /**
+   * HMAC signature calculated from other parameter
+   */
+  signature: string
+}
+
 export interface CreatePaymentRequest {
   /**
    * Merchant unique identifier for the order. Maximum of 200 characters.
