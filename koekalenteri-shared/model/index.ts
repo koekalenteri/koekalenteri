@@ -10,4 +10,6 @@ export * from './Person'
 export * from './Organizer'
 export * from './Registration'
 
+export * from './paytrail'
+
 export type Language = 'fi' | 'en'

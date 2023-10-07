@@ -1,7 +1,7 @@
+import type { CreatePaymentResponse } from 'koekalenteri-shared/model'
 import type {
   CallbackUrl,
   CreatePaymentRequest,
-  CreatePaymentResponse,
   PaymentCustomer,
   PaymentItem,
   PaytrailHeaders,
@@ -16,6 +16,9 @@ import { currentFinnishTime } from '../utils/dates'
 import { getPaytrailConfig } from './secrets'
 
 const PAYTRAIL_API_ENDPOINT = 'https://services.paytrail.com'
+
+export const HMAC_KEY_PREFIX = 'checkout-'
+export const MIN_NUMBER_OF_HMAC_KEYS = 8
 
 /**
  * All API responses are signed the same way, allowing merchant to verify response validity.

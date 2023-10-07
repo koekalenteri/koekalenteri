@@ -8,7 +8,7 @@ import { type JsonRegistration } from 'koekalenteri-shared/model'
 import { nanoid } from 'nanoid'
 
 import { CONFIG } from '../config'
-import { calculateHmac, createPayment } from '../lib/paytrail'
+import { calculateHmac, createPayment, HMAC_KEY_PREFIX } from '../lib/paytrail'
 import { getPaytrailConfig } from '../lib/secrets'
 import { getOrigin, getUsername } from '../utils/auth'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
@@ -45,7 +45,7 @@ const handlePayment = async (
     signature,
   } = event.headers
   const checkoutHeaders = Object.fromEntries(
-    Object.entries(event.headers).filter(([key]) => key.startsWith('checkout-'))
+    Object.entries(event.headers).filter(([key]) => key.startsWith(HMAC_KEY_PREFIX))
   )
 
   if (calculateHmac(cfg.PAYTRAIL_SECRET, checkoutHeaders) !== signature) {
@@ -176,7 +176,7 @@ export const createPaymentHandler = metricScope(
         getApiHost(event),
         getOrigin(event),
         amount,
-        eventId,
+        `${eventId}:${registrationId}`,
         [
           {
             unitPrice: amount,
@@ -195,5 +195,29 @@ export const createPaymentHandler = metricScope(
 
       metricsSuccess(metrics, event.requestContext, 'createPayment')
       return response(200, result, event)
+    }
+)
+
+export const verifyPaymentHandler = metricScope(
+  (metrics: MetricsLogger) =>
+    async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+      const params = JSON.parse(event.body || '{}')
+      const signature = params.signatire
+      const hmacParams = Object.fromEntries(Object.entries(params).filter(([key]) => key.startsWith(HMAC_KEY_PREFIX)))
+      const cfg = await getPaytrailConfig()
+
+      if (calculateHmac(cfg.PAYTRAIL_SECRET, hmacParams) !== signature) {
+        console.warn('Verifying Paytrail signature failed', event)
+
+        metricsError(metrics, event.requestContext, 'verifyPayment')
+        return response(200, 'fail', event)
+      }
+
+      /**
+       * @todo verify event, registration, amount. save transaction-id. etc.
+       */
+
+      metricsSuccess(metrics, event.requestContext, 'verifyPayment')
+      return response(200, 'ok', event)
     }
 )
