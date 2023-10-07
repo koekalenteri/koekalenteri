@@ -44,7 +44,7 @@
     "mui-tel-input": "^4.0.0",
     "nanoid": "^4.0.2",
     "notistack": "^3.0.1",
-    "postcss": "^8.4.30",
+    "postcss": "^8.4.31",
     "postcss-flexbugs-fixes": "^5.0.2",
     "postcss-loader": "^7.3.3",
     "postcss-normalize": "^10.0.1",
