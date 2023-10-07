@@ -205,9 +205,10 @@ export const verifyPaymentHandler = metricScope(
       const signature = params.signatire
       const hmacParams = Object.fromEntries(Object.entries(params).filter(([key]) => key.startsWith(HMAC_KEY_PREFIX)))
       const cfg = await getPaytrailConfig()
+      const hmac = calculateHmac(cfg.PAYTRAIL_SECRET, hmacParams)
 
-      if (calculateHmac(cfg.PAYTRAIL_SECRET, hmacParams) !== signature) {
-        console.warn('Verifying Paytrail signature failed', event)
+      if (hmac !== signature) {
+        console.warn('Verifying payment signature failed', { hmac, signature, params }, event)
 
         metricsError(metrics, event.requestContext, 'verifyPayment')
         return response(200, 'fail', event)
