@@ -184,7 +184,7 @@ const updateTransactionStatus = async (transactionId: string | undefined, status
 export const successHandler = metricScope(
   (metrics: MetricsLogger) =>
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-      const params: Partial<PaytrailCallbackParams> = event.headers
+      const params: Partial<PaytrailCallbackParams> = event.queryStringParameters ?? {}
       const { eventId, registrationId, transactionId } = parseParams(params)
 
       try {
@@ -237,7 +237,7 @@ export const successHandler = metricScope(
 export const cancelHandler = metricScope(
   (metrics: MetricsLogger) =>
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-      const params: Partial<PaytrailCallbackParams> = event.headers
+      const params: Partial<PaytrailCallbackParams> = event.queryStringParameters ?? {}
       const { /* eventId, registrationId, */ transactionId } = parseParams(params)
 
       try {
