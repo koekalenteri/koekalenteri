@@ -228,7 +228,7 @@ function paymentIconColor(registration: Registration) {
 }
 
 function paymentStatus(registration: Registration) {
-  return registration.paymentStatus === 'SUCCESS' ? 'Olen maksanut' : 'En ole maksanut'
+  return registration.paymentStatus === 'SUCCESS' ? 'Olen maksanut' : 'Koemaksu puuttuu vielä'
 }
 
 function registrationStatus(registration: Registration) {
