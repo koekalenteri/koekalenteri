@@ -242,7 +242,7 @@ export const cancelHandler = metricScope(
   (metrics: MetricsLogger) =>
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
       const params: Partial<PaytrailCallbackParams> = event.queryStringParameters ?? {}
-      const { /* eventId, registrationId, */ transactionId } = parseParams(params)
+      const { eventId, registrationId, transactionId } = parseParams(params)
 
       try {
         await verifyParams(params)
@@ -252,6 +252,27 @@ export const cancelHandler = metricScope(
 
         if (transaction.status !== 'fail') {
           await updateTransactionStatus(transactionId, 'fail')
+
+          const registration = await dynamoDB.read<JsonRegistration>(
+            {
+              eventId: eventId,
+              id: registrationId,
+            },
+            registrationTable
+          )
+          if (!registration) throw new Error('registration not found')
+
+          if (registration.paymentStatus === 'PENDING') {
+            await dynamoDB.update(
+              { eventId, id: registrationId },
+              'set #paymentStatus = :paymentStatus',
+              { '#paymentStatus': 'paymentStatus' },
+              {
+                ':paymentStatus': 'CANCEL',
+              },
+              registrationTable
+            )
+          }
         }
 
         metricsSuccess(metrics, event.requestContext, 'cancelHandler')

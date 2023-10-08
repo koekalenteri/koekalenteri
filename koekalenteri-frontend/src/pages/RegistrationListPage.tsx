@@ -7,10 +7,12 @@ import CheckOutlined from '@mui/icons-material/CheckOutlined'
 import EuroOutlined from '@mui/icons-material/EuroOutlined'
 import PersonOutline from '@mui/icons-material/PersonOutline'
 import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
 import ListItemIcon from '@mui/material/ListItemIcon'
+import ListItemSecondaryAction from '@mui/material/ListItemSecondaryAction'
 import ListItemText from '@mui/material/ListItemText'
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
@@ -161,6 +163,13 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
                     primary={paymentStatus(registration)}
                     primaryTypographyProps={{ variant: 'subtitle1', fontWeight: 'bold' }}
                   />
+                  {(registration.paymentStatus ?? 'CANCEL') === 'CANCEL' ? (
+                    <ListItemSecondaryAction>
+                      <Button aria-label="Maksa ilmoittautuminen" onClick={() => navigate(Path.payment(registration))}>
+                        MAKSA
+                      </Button>
+                    </ListItemSecondaryAction>
+                  ) : null}
                 </ListItem>
                 <ListItem disablePadding>
                   <ListItemIcon sx={{ minWidth: 32, color: 'primary.main' }}>
@@ -228,7 +237,9 @@ function paymentIconColor(registration: Registration) {
 }
 
 function paymentStatus(registration: Registration) {
-  return registration.paymentStatus === 'SUCCESS' ? 'Olen maksanut' : 'Koemaksu puuttuu vielä'
+  if (registration.paymentStatus === 'SUCCESS') return 'Olen maksanut'
+  if (registration.paymentStatus === 'PENDING') return 'Odottaa vahvistusta'
+  return 'Koemaksu puuttuu vielä'
 }
 
 function registrationStatus(registration: Registration) {

@@ -69,29 +69,44 @@ export default function RegistrationList({
     {
       field: 'actions',
       type: 'actions',
-      getActions: (params: { row: Registration }) =>
-        params.row.cancelled
-          ? [
-              <Box key="cancelled" sx={{ color: 'warning.main', textTransform: 'uppercase' }}>
-                {t('event.states.cancelled')}
-              </Box>,
-            ]
-          : [
-              <GridActionsCellItem
-                key="edit"
-                color="info"
-                icon={<EditOutlined />}
-                label="Muokkaa ilmoittautumista"
-                onClick={() => onEdit(params.row)}
-              />,
-              <GridActionsCellItem
-                key="cancel"
-                color="error"
-                icon={<CancelOutlined />}
-                label="Peru ilmoittautuminen"
-                onClick={() => onUnregister(params.row)}
-              />,
-            ],
+      getActions: (params: { row: Registration }) => {
+        if (params.row.cancelled) {
+          return [
+            <Box key="cancelled" sx={{ color: 'warning.main', textTransform: 'uppercase' }}>
+              {t('event.states.cancelled')}
+            </Box>,
+          ]
+        }
+        const always = [
+          <GridActionsCellItem
+            key="edit"
+            color="info"
+            icon={<EditOutlined />}
+            label="Muokkaa ilmoittautumista"
+            onClick={() => onEdit(params.row)}
+          />,
+          <GridActionsCellItem
+            key="cancel"
+            color="error"
+            icon={<CancelOutlined />}
+            label="Peru ilmoittautuminen"
+            onClick={() => onUnregister(params.row)}
+          />,
+        ]
+        if (!['SUCCESS', 'PENDING'].includes(params.row.paymentStatus ?? '')) {
+          return [
+            <GridActionsCellItem
+              key="pay"
+              color="info"
+              icon={<EuroOutlined />}
+              label="Maksa ilmoittautuminen"
+              onClick={() => navigate(Path.payment(params.row))}
+            />,
+            ...always,
+          ]
+        }
+        return always
+      },
     },
   ]
 
