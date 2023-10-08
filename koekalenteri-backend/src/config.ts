@@ -1,4 +1,5 @@
 export const CONFIG = {
+  apiUrl: process.env.API_URL ?? 'http://localhost',
   stackName: process.env.AWS_SAM_LOCAL ? 'local' : process.env.STACK_NAME ?? 'local',
 
   // TODO: sender address from env / other config
