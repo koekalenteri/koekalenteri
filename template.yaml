@@ -14,7 +14,6 @@ Globals:
       Application: serverless-web-app
     Environment:
       Variables:
-        API_URL: !Sub "https://${KoekalenteriApi}.execute-api.${AWS::Region}.amazonaws.com/{StageNameParam}"
         AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
         STACK_NAME: !Ref AWS::StackName
         AUDIT_TABLE_NAME: !Ref AuditTable
@@ -1847,7 +1846,7 @@ Outputs:
   # Find out more about other implicit resources you can reference within SAM
   # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
   KoekalenteriFunctionApi:
-    Description: API Gateway endpoint URL for stage
+    Description: API Gateway endpoint URL for Prod stage
     Value: !Sub "https://${KoekalenteriApi}.execute-api.${AWS::Region}.amazonaws.com/{StageNameParam}"
   CognitoID:
     Description: The Cognito UserPool ID

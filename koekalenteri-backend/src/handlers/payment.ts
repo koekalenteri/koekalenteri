@@ -18,11 +18,12 @@ import { calculateHmac, createPayment, HMAC_KEY_PREFIX } from '../lib/paytrail'
 import { getPaytrailConfig } from '../lib/secrets'
 import { getOrigin } from '../utils/auth'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
+import { getApiHost } from '../utils/event'
 import { metricsError, metricsSuccess } from '../utils/metrics'
 import { response } from '../utils/response'
 
 const dynamoDB = new CustomDynamoClient()
-const { apiUrl, eventTable, organizerTable, registrationTable } = CONFIG
+const { eventTable, organizerTable, registrationTable } = CONFIG
 
 const parseParams = (headers: Partial<PaytrailCallbackParams>) => {
   const [eventId, registrationId] = headers['checkout-reference']?.split(':') ?? []
@@ -80,7 +81,7 @@ export const createHandler = metricScope(
       const stamp = nanoid()
 
       const result = await createPayment(
-        apiUrl,
+        getApiHost(event),
         getOrigin(event),
         amount,
         reference,
