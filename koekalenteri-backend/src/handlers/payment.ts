@@ -212,9 +212,13 @@ export const successHandler = metricScope(
 
             await dynamoDB.update(
               { eventId, id: registrationId },
-              'set #paidAmount = :amount, #paidAt = :paidAt',
-              { '#paidAmount': 'paidAmount', '#paidAt': 'paidAt' },
-              { ':paidAmount': (registration.paidAmount ?? 0) + amount, ':paidAt': new Date().toISOString() },
+              'set #paidAmount = :paidAmount, #paidAt = :paidAt, #paymentStatus = :paymentStatus',
+              { '#paidAmount': 'paidAmount', '#paidAt': 'paidAt', '#paymentStatus': 'paymentStatus' },
+              {
+                ':paidAmount': (registration.paidAmount ?? 0) + amount,
+                ':paidAt': new Date().toISOString(),
+                ':paymentStatus': 'SUCCESS',
+              },
               registrationTable
             )
             // send receipt
