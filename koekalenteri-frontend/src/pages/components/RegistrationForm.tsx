@@ -5,7 +5,7 @@ import type { ConfirmedEvent, DeepPartial, Registration, TestResult } from 'koek
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import Cancel from '@mui/icons-material/Cancel'
-import Save from '@mui/icons-material/Save'
+import CheckOutlined from '@mui/icons-material/CheckOutlined'
 import LoadingButton from '@mui/lab/LoadingButton'
 import { useMediaQuery } from '@mui/material'
 import Box from '@mui/material/Box'
@@ -314,7 +314,7 @@ export default function RegistrationForm({
           disabled={disabled || !changes || !valid}
           loading={saving}
           onClick={handleSave}
-          startIcon={<Save />}
+          startIcon={<CheckOutlined />}
           variant="contained"
         >
           {registration.id ? 'Tallenna muutokset' : 'Vahvista ja siirry maksamaan'}

@@ -21,11 +21,23 @@ exports[`routes should match a snapshot 1`] = `
         "path": "event/:eventType/:id",
       },
       {
-        "element": <div>
-          This is da maksusivu
-        </div>,
+        "element": <PaymentPage />,
         "loader": [Function],
         "path": "p/:id/:registrationId",
+      },
+      {
+        "element": <React.Fragment>
+          loading...
+        </React.Fragment>,
+        "loader": [Function],
+        "path": "p/success",
+      },
+      {
+        "element": <React.Fragment>
+          loading...
+        </React.Fragment>,
+        "loader": [Function],
+        "path": "p/cancel",
       },
       {
         "element": <RegistrationListPage

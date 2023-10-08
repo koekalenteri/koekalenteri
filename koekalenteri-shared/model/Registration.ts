@@ -22,6 +22,7 @@ export interface JsonRegistration extends JsonDbRecord {
   confirmed?: boolean
   invitationRead?: boolean
   receiptSent?: boolean
+  paidAmount?: number
   paidAt?: string
   paymentStatus?: PaymentStatus
   group?: JsonRegistrationGroup
@@ -29,7 +30,6 @@ export interface JsonRegistration extends JsonDbRecord {
   lastEmail?: string
   reserveNotified?: boolean
   totalAmount?: number
-  paidAmount?: number
 }
 
 export interface RegistrationGroup extends Partial<RegistrationDate> { number: number, key: string }

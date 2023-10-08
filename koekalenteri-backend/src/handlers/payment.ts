@@ -74,7 +74,7 @@ export const createHandler = metricScope(
         throw new Error('errors')
       }
       const reference = `${eventId}:${registrationId}`
-      const amount = Math.round(100 * registrationCost(jsonEvent, registration) - (registration.paidAmount ?? 0))
+      const amount = Math.round(100 * (registrationCost(jsonEvent, registration) - (registration.paidAmount ?? 0)))
       if (amount <= 0) {
         throw new Error('already paid')
       }

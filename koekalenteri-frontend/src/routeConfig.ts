@@ -5,11 +5,13 @@ export const API_BASE_URL = process.env.REACT_APP_API_BASE_URL ?? 'http://127.0.
 const ADMIN_ROOT = '/admin'
 const ADMIN_EVENTS = `${ADMIN_ROOT}/event`
 
+type RegistrationIds = Pick<Registration, 'eventId' | 'id'>
+
 export const Path = {
   home: '/',
   login: '/login',
   logout: '/logout',
-  payment: (registration: Registration) => `/p/${registration.eventId}/${registration.id}`,
+  payment: (registration: RegistrationIds) => `/p/${registration.eventId}/${registration.id}`,
   register: (event: Event, className?: string, classDate?: string) => {
     if (className) {
       return classDate
@@ -18,8 +20,8 @@ export const Path = {
     }
     return `/event/${event.eventType}/${event.id}`
   },
-  registration: (registration: Registration) => `/r/${registration.eventId}/${registration.id}`,
-  invitation: (registration: Registration) => `/r/${registration.eventId}/${registration.id}/invitation`,
+  registration: (registration: RegistrationIds) => `/r/${registration.eventId}/${registration.id}`,
+  invitation: (registration: RegistrationIds) => `/r/${registration.eventId}/${registration.id}/invitation`,
   invitationAttachment: (event: Event) => `${API_BASE_URL}/file/${event.invitationAttachment}/kutsu.pdf`,
   startList: (id: string = ':id') => `/startlist/${id}`,
   admin: {
