@@ -14,8 +14,6 @@ export function remarkPlainText(this: Processor) {
     }
 
     // Add an eof eol.
-    return node && node.type && node.type === 'root' && result && /[^\r\n]/.test(result.charAt(result.length - 1))
-      ? result + '\n'
-      : result
+    return node?.type === 'root' && result && /[^\r\n]/.test(result.charAt(result.length - 1)) ? result + '\n' : result
   }
 }

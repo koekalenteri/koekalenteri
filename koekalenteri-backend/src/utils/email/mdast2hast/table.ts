@@ -109,7 +109,7 @@ export function all(h: Handler | State, parent: MdastParents) {
 }
 
 export function one(h: any, node: MdastNodes, parent: MdastParents) {
-  const type = node && node.type
+  const type = node?.type
   let fn: Handler = unknown
 
   // Fail on non-nodes.

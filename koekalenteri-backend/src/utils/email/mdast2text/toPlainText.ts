@@ -1,7 +1,7 @@
 import type { Literal, Parent } from 'mdast'
 import type { Node } from 'unist-builder/lib'
 
-type NodeLike = string | Node | Parent | Literal | unknown
+type NodeLike = string | Node | Parent | Literal
 
 export function toPlainText(node: NodeLike) {
   return one(node)

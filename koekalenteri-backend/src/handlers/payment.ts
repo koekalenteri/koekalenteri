@@ -161,7 +161,9 @@ export const verifyHandler = metricScope(
     }
 )
 
-const updateTransactionStatus = async (transactionId: string, status: JsonTransaction['status']) => {
+const updateTransactionStatus = async (transactionId: string | undefined, status: JsonTransaction['status']) => {
+  if (!transactionId) return
+
   dynamoDB.update(
     { transactionId },
     'set #status = :status, #statusAt = :statusAt',
@@ -194,7 +196,7 @@ export const successHandler = metricScope(
         const status = params['checkout-status']
 
         if (status && status !== transaction.status) {
-          await updateTransactionStatus(transactionId!, status)
+          await updateTransactionStatus(transactionId, status)
 
           if (status === 'ok') {
             const registration = await dynamoDB.read<JsonRegistration>(
@@ -245,7 +247,7 @@ export const cancelHandler = metricScope(
         if (!transaction) throw new Error(`Transaction with id '${transactionId}' was not found`)
 
         if (transaction.status !== 'fail') {
-          await updateTransactionStatus(transactionId!, 'fail')
+          await updateTransactionStatus(transactionId, 'fail')
         }
 
         metricsSuccess(metrics, event.requestContext, 'cancelHandler')

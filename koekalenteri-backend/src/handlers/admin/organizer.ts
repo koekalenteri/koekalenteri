@@ -55,19 +55,17 @@ export const refreshOrganizers = metricScope(
             if (!old) {
               const org: Organizer = { id: nanoid(10), kcId: item.jäsennumero, name: item.strYhdistys }
               await dynamoDB.write(org)
-            } else {
-              if (old.name !== item.strYhdistys) {
-                await dynamoDB.update(
-                  { id: old.id },
-                  'set #name = :name',
-                  {
-                    '#name': 'name',
-                  },
-                  {
-                    ':name': item.strYhdistys,
-                  }
-                )
-              }
+            } else if (old.name !== item.strYhdistys) {
+              await dynamoDB.update(
+                { id: old.id },
+                'set #name = :name',
+                {
+                  '#name': 'name',
+                },
+                {
+                  ':name': item.strYhdistys,
+                }
+              )
             }
           }
         }

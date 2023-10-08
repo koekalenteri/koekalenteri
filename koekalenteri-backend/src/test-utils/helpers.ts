@@ -14,7 +14,7 @@ interface Options {
 const DEFAULT_OPTIONS = { method: 'GET' as const, headers: {}, query: {}, path: '/' }
 
 export function constructAPIGwEvent(message: unknown, options: Options = DEFAULT_OPTIONS): APIGatewayProxyEvent {
-  const opts = Object.assign({}, DEFAULT_OPTIONS, options)
+  const opts = { ...DEFAULT_OPTIONS, ...options }
   return {
     httpMethod: opts.method,
     path: opts.path,
