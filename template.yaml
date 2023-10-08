@@ -16,6 +16,7 @@ Globals:
       Variables:
         AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
         STACK_NAME: !Ref AWS::StackName
+        STAGE_NAME: !Ref StageNameParam
         AUDIT_TABLE_NAME: !Ref AuditTable
         USER_TABLE_NAME: !Ref UserTable
         USER_LINK_TABLE_NAME : !Ref UserLinkTable
