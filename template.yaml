@@ -179,6 +179,32 @@ Resources:
       SSESpecification:
         SSEEnabled: false
 
+  TransactionTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Join ['-', [transaction-table, !Ref AWS::StackName]]
+      KeySchema:
+          - AttributeName: transactionId
+            KeyType: HASH
+      AttributeDefinitions:
+          - AttributeName: transactionId
+            AttributeType: S
+      #GlobalSecondaryIndexes:
+      #  - IndexName: gsiReference
+      #    KeySchema:
+      #      - AttributeName: reference
+      #        KeyType: HASH
+      #    Projection:
+      #      ProjectionType: ALL
+      Tags:
+        - Key: Env
+          Value: !Ref AWS::StackName
+        - Key: Label
+          Value: "koekalenteri"
+      BillingMode: PAY_PER_REQUEST
+      SSESpecification:
+        SSEEnabled: false
+
   UserTable:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -1489,7 +1515,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: koekalenteri-backend
-      Handler: dist/handlers/payment.createPaymentHandler
+      Handler: dist/handlers/payment.createHandler
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -1502,6 +1528,8 @@ Resources:
               - ssm:GetParameter
               Resource: '*'
         - DynamoDBCrudPolicy:
+            TableName: !Ref TransactionTable
+        - DynamoDBCrudPolicy:
             TableName: !Ref EventRegistrationTable
         - DynamoDBReadPolicy:
             TableName: !Ref OrganizerTable
@@ -1510,7 +1538,8 @@ Resources:
         - CloudWatchPutMetricPolicy: {}
       Environment:
         Variables:
-          TABLE_NAME: !Ref EventRegistrationTable
+          TABLE_NAME: !Ref TransactionTable
+          REGISTRATION_TABLE_NAME: !Ref EventRegistrationTable
           EVENT_TABLE_NAME : !Ref EventTable
           ORGANIZER_TABLE_NAME : !Ref OrganizerTable
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
@@ -1532,7 +1561,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: koekalenteri-backend
-      Handler: dist/handlers/payment.verifyPaymentHandler
+      Handler: dist/handlers/payment.verifyHandler
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -1545,6 +1574,8 @@ Resources:
               - ssm:GetParameter
               Resource: '*'
         - DynamoDBCrudPolicy:
+            TableName: !Ref TransactionTable
+        - DynamoDBCrudPolicy:
             TableName: !Ref EventRegistrationTable
         - DynamoDBReadPolicy:
             TableName: !Ref OrganizerTable
@@ -1553,7 +1584,8 @@ Resources:
         - CloudWatchPutMetricPolicy: {}
       Environment:
         Variables:
-          TABLE_NAME: !Ref EventRegistrationTable
+          TABLE_NAME: !Ref TransactionTable
+          REGISTRATION_TABLE_NAME: !Ref EventRegistrationTable
           EVENT_TABLE_NAME : !Ref EventTable
           ORGANIZER_TABLE_NAME : !Ref OrganizerTable
           AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
@@ -1569,6 +1601,98 @@ Resources:
     Type: AWS::Logs::LogGroup
     Properties:
       LogGroupName: !Join ['/', ['/aws/lambda', !Ref PaymentVerifyFunction]]
+      RetentionInDays: 30
+
+  PaymentSuccessFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: koekalenteri-backend
+      Handler: dist/handlers/payment.successHandler
+      Layers:
+        - !Ref CommonLayer
+      Tracing: Active
+      Policies:
+        - Statement:
+            - Sid: SSMGetParameterPolicy
+              Effect: Allow
+              Action:
+              - ssm:GetParameters
+              - ssm:GetParameter
+              Resource: '*'
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TransactionTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EventRegistrationTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref OrganizerTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref EventTable
+        - CloudWatchPutMetricPolicy: {}
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref TransactionTable
+          REGISTRATION_TABLE_NAME: !Ref EventRegistrationTable
+          EVENT_TABLE_NAME : !Ref EventTable
+          ORGANIZER_TABLE_NAME : !Ref OrganizerTable
+          AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
+      Events:
+        PutEvent:
+          Type: Api
+          Properties:
+            Path: /payment/success
+            Method: GET
+            RestApiId: !Ref KoekalenteriApi
+
+  PaymentSuccessFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref PaymentSuccessFunction]]
+      RetentionInDays: 30
+
+  PaymentCancelFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: koekalenteri-backend
+      Handler: dist/handlers/payment.cancelHandler
+      Layers:
+        - !Ref CommonLayer
+      Tracing: Active
+      Policies:
+        - Statement:
+            - Sid: SSMGetParameterPolicy
+              Effect: Allow
+              Action:
+              - ssm:GetParameters
+              - ssm:GetParameter
+              Resource: '*'
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TransactionTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EventRegistrationTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref OrganizerTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref EventTable
+        - CloudWatchPutMetricPolicy: {}
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref TransactionTable
+          REGISTRATION_TABLE_NAME: !Ref EventRegistrationTable
+          EVENT_TABLE_NAME : !Ref EventTable
+          ORGANIZER_TABLE_NAME : !Ref OrganizerTable
+          AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
+      Events:
+        PutEvent:
+          Type: Api
+          Properties:
+            Path: /payment/cancel
+            Method: GET
+            RestApiId: !Ref KoekalenteriApi
+
+  PaymentCancelFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref PaymentCancelFunction]]
       RetentionInDays: 30
 
   PaymentConfirmFunction:

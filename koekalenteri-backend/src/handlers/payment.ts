@@ -1,7 +1,12 @@
 import type { MetricsLogger } from 'aws-embedded-metrics'
 import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
-import type { AWSError } from 'aws-sdk'
-import type { CreatePaymentResponse, JsonEvent, Organizer, VerifyPaymentResponse } from 'koekalenteri-shared/model'
+import type {
+  CreatePaymentResponse,
+  JsonConfirmedEvent,
+  JsonTransaction,
+  Organizer,
+  VerifyPaymentResponse,
+} from 'koekalenteri-shared/model'
 import type { PaytrailCallbackParams } from '../types/paytrail'
 
 import { metricScope } from 'aws-embedded-metrics'
@@ -11,173 +16,75 @@ import { nanoid } from 'nanoid'
 import { CONFIG } from '../config'
 import { calculateHmac, createPayment, HMAC_KEY_PREFIX } from '../lib/paytrail'
 import { getPaytrailConfig } from '../lib/secrets'
-import { getOrigin, getUsername } from '../utils/auth'
+import { getOrigin } from '../utils/auth'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
-import { currentFinnishTime } from '../utils/dates'
 import { getApiHost } from '../utils/event'
 import { metricsError, metricsSuccess } from '../utils/metrics'
-import { redirect, response } from '../utils/response'
-
-import { sendReceipt } from './email'
+import { response } from '../utils/response'
 
 const dynamoDB = new CustomDynamoClient()
-const { eventTable, organizerTable } = CONFIG
+const { eventTable, organizerTable, registrationTable } = CONFIG
 
-type Source = 'notification' | 'user'
+const parseParams = (headers: Partial<PaytrailCallbackParams>) => {
+  const [eventId, registrationId] = headers['checkout-reference']?.split(':') ?? []
 
-const handlePayment = async (
-  event: APIGatewayProxyEvent,
-  source: Source,
-  metrics: MetricsLogger
-): Promise<APIGatewayProxyResult> => {
+  return { eventId, registrationId, transactionId: headers['checkout-transaction-id'] }
+}
+
+const verifyParams = async (params: Partial<PaytrailCallbackParams>) => {
+  if (!params['checkout-transaction-id']) {
+    console.error('Missing checkout-transaction-id from params', { params })
+    throw new Error('Missing checkout-transaction-id from params')
+  }
+
   const cfg = await getPaytrailConfig()
+  const signature = params.signature
+  const hmacParams = Object.fromEntries(Object.entries(params).filter(([key]) => key.startsWith(HMAC_KEY_PREFIX)))
+  const hmac = calculateHmac(cfg.PAYTRAIL_SECRET, hmacParams)
 
-  const timestamp = new Date().toISOString()
-  const username = await getUsername(event)
-
-  console.log(event.headers)
-  console.log(event.requestContext)
-
-  const {
-    'checkout-reference': eventId = '',
-    'checkout-status': queryStatus = '',
-    'checkout-stamp': registrationId = '',
-    'checkout-transaction-id': transactionId = '',
-    signature,
-  } = event.headers
-  const checkoutHeaders = Object.fromEntries(
-    Object.entries(event.headers).filter(([key]) => key.startsWith(HMAC_KEY_PREFIX))
-  )
-
-  if (calculateHmac(cfg.PAYTRAIL_SECRET, checkoutHeaders) !== signature) {
-    //!!!
-    console.log('warn', 'Verifying Paytrail signature failed', event)
-
-    throw new Error(`Payment verification failed with transaction id "${transactionId}"`)
-  }
-
-  try {
-    const registration = await dynamoDB.read<JsonRegistration>({ eventId: eventId, id: registrationId })
-    if (!registration) {
-      console.log('warn', `Payment event not found id "${registrationId}`)
-      throw new Error(`Unknown payment event for registration id "${registrationId}"`)
-    }
-    // modification info is always updated
-    registration.modifiedAt = timestamp
-    registration.modifiedBy = username
-
-    const { receiptSent = false, paymentStatus = 'PENDING', paidAt } = registration
-
-    /*
-     * If status is already set and this is a direct call, it's either double click / refresh,
-     * or callback has arrived before redirect.
-     */
-    if (source === 'user' && paymentStatus === 'SUCCESS') {
-      console.log('info', 'Payment already handled', {
-        eventId,
-        paymentStatus,
-        paidAt,
-        receiptSent,
-        registrationId,
-        transactionId,
-      })
-
-      return response(200, registration, event)
-    }
-
-    registration.paymentStatus = queryStatus === 'ok' ? 'SUCCESS' : queryStatus === 'fail' ? 'CANCEL' : paymentStatus
-    registration.paidAt = paymentStatus === 'SUCCESS' ? currentFinnishTime() : undefined
-
-    /*
-     * Send confirmation and receipt only from callback to avoid sending them twice in case
-     * redirect and callback arrive nearly simultaneously.
-     */
-    if (registration.paidAt && !receiptSent && source === 'notification') {
-      // TODO: try/catch so we always end up writing the registration to db
-      // !!!const receiptResult =
-      await sendReceipt(registration, new Date(registration.paidAt).toLocaleDateString('fi'))
-      // registration.receiptSent = receiptResult.isOk()
-    }
-
-    await dynamoDB.write(registration)
-
-    console.log('info', 'Registration state updated', {
-      eventId,
-      paymentStatus,
-      paidAt,
-      receiptSent,
-      registrationId,
-      transactionId,
-    })
-
-    metricsSuccess(metrics, event.requestContext, 'handlePayment')
-    return response(200, registration, event)
-  } catch (err) {
-    metricsError(metrics, event.requestContext, 'handlePayment')
-    return response((err as AWSError).statusCode || 501, err, event)
+  if (hmac !== signature) {
+    console.error('Verifying payment signature failed', { hmac, signature, params })
+    throw new Error('Verifying payment signature failed')
   }
 }
 
-const redirectToFinish = async (event: APIGatewayProxyEvent, r: APIGatewayProxyResult) => {
-  const origin = getOrigin(event)
-  const registration = JSON.parse(r.body)
-  // TODO Paths should probably be in a common place for both BE and FE
-  const path = r.statusCode == 200 ? `${origin}/r/${registration.eventId}/${registration.id}` : `${origin}/` // TODO needs redirect to valid error page
-
-  return redirect(registration, path)
+const registrationCost = (event: JsonConfirmedEvent, registration: JsonRegistration): number => {
+  const isMember = registration.handler?.membership || registration.owner?.membership
+  return event.costMember && isMember ? event.costMember : event.cost
 }
 
-export const paymentConfirm = metricScope(
-  (metrics: MetricsLogger) =>
-    async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-      const retValue = await handlePayment(event, 'user', metrics)
-
-      return redirectToFinish(event, retValue)
-    }
-)
-
-export const paymentCancel = metricScope(
-  (metrics: MetricsLogger) =>
-    async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-      const retValue = await handlePayment(event, 'user', metrics)
-
-      return redirectToFinish(event, retValue)
-    }
-)
-
-export const paymentNotification = metricScope(
-  (metrics: MetricsLogger) =>
-    async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-      const retValue = await handlePayment(event, 'notification', metrics)
-      if (retValue.statusCode != 200) {
-        return retValue
-      }
-      const registration: JsonRegistration = JSON.parse(retValue.body)
-      const processed = (registration.confirmed && registration.receiptSent) || registration.cancelled
-
-      // If the payment hasn't been completely processed, send an error response to receive further notifications and try again.
-      return processed ? response(200, undefined, event) : response(500, 'Unexpected', event)
-    }
-)
-
-export const createPaymentHandler = metricScope(
+/**
+ * createHandler is called by client to start the payment process
+ */
+export const createHandler = metricScope(
   (metrics: MetricsLogger) =>
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
       const { eventId, registrationId } = JSON.parse(event.body || '{}')
 
-      const jsonEvent = await dynamoDB.read<JsonEvent>({ id: eventId }, eventTable)
-      const registration = await dynamoDB.read<JsonRegistration>({ eventId: eventId, id: registrationId })
+      const jsonEvent = await dynamoDB.read<JsonConfirmedEvent>({ id: eventId }, eventTable)
+      const registration = await dynamoDB.read<JsonRegistration>(
+        {
+          eventId: eventId,
+          id: registrationId,
+        },
+        registrationTable
+      )
       const organizer = await dynamoDB.read<Organizer>({ id: jsonEvent?.organizer.id }, organizerTable)
       if (!jsonEvent || !registration || !organizer?.paytrailMerchantId) {
         throw new Error('errors')
       }
-      const amount = Math.round(100 * ((registration.totalAmount ?? jsonEvent.cost) - (registration.paidAmount ?? 0)))
+      const amount = Math.round(100 * registrationCost(jsonEvent, registration) - (registration.paidAmount ?? 0))
+      if (amount <= 0) {
+        throw new Error('already paid')
+      }
+      const stamp = nanoid()
 
       const result = await createPayment(
         getApiHost(event),
         getOrigin(event),
         amount,
         `${eventId}:${registrationId}`,
+        stamp,
         [
           {
             unitPrice: amount,
@@ -199,33 +106,152 @@ export const createPaymentHandler = metricScope(
         return response<undefined>(500, undefined, event)
       }
 
+      const transaction: JsonTransaction = {
+        transactionId: result.transactionId,
+        status: 'new',
+        amount,
+        reference: result.reference,
+        type: 'payment',
+        stamp,
+        createdAt: new Date().toISOString(),
+      }
+      await dynamoDB.write(transaction)
+
+      await dynamoDB.update(
+        { eventId, registrationId },
+        'set #paymentStatus = :paymentStatus',
+        { '#paymentStatus': 'paymentStatus' },
+        { ':paymentStatus': 'PENDING' },
+        registrationTable
+      )
+
       metricsSuccess(metrics, event.requestContext, 'createPayment')
       return response<CreatePaymentResponse>(200, result, event)
     }
 )
 
-export const verifyPaymentHandler = metricScope(
+/**
+ * vefiryHandler is called by client when returning from payment provider.
+ */
+export const verifyHandler = metricScope(
   (metrics: MetricsLogger) =>
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
       const params: Partial<PaytrailCallbackParams> = JSON.parse(event.body || '{}')
-      const [eventId, registrationId] = params['checkout-reference']?.split(':') ?? []
-      const signature = params.signature
-      const hmacParams = Object.fromEntries(Object.entries(params).filter(([key]) => key.startsWith(HMAC_KEY_PREFIX)))
-      const cfg = await getPaytrailConfig()
-      const hmac = calculateHmac(cfg.PAYTRAIL_SECRET, hmacParams)
+      const { eventId, registrationId, transactionId } = parseParams(params)
 
-      if (hmac !== signature) {
-        console.warn('Verifying payment signature failed', { hmac, signature, params }, event)
+      try {
+        await verifyParams(params)
 
-        metricsError(metrics, event.requestContext, 'verifyPayment')
-        return response<VerifyPaymentResponse>(200, { status: 'error', eventId, registrationId }, event)
+        const transaction = await dynamoDB.read<JsonTransaction>({ transactionId })
+        if (!transaction) throw new Error(`Transaction with id '${transactionId}' was not found`)
+
+        metricsSuccess(metrics, event.requestContext, 'verifyHandler')
+        return response<VerifyPaymentResponse>(
+          200,
+          { status: transaction?.status === 'fail' ? 'error' : 'ok', eventId, registrationId },
+          event
+        )
+      } catch (e) {
+        console.error(e)
+        metricsError(metrics, event.requestContext, 'verifyHandler')
+        return response<VerifyPaymentResponse>(501, { status: 'error', eventId: '', registrationId: '' }, event)
       }
+    }
+)
 
-      /**
-       * @todo verify event, registration, amount. save transaction-id. etc.
-       */
+const updateTransactionStatus = async (transactionId: string, status: JsonTransaction['status']) => {
+  dynamoDB.update(
+    { transactionId },
+    'set #status = :status, #statusAt = :statusAt',
+    {
+      '#status': 'status',
+      '#statusAt': 'statusAt',
+    },
+    {
+      ':status': status,
+      ':statusAt': new Date().toISOString(),
+    }
+  )
+}
 
-      metricsSuccess(metrics, event.requestContext, 'verifyPayment')
-      return response<VerifyPaymentResponse>(200, { status: 'ok', eventId, registrationId }, event)
+/**
+ * successHandler is called by payment provider, to update successful payment status
+ */
+export const successHandler = metricScope(
+  (metrics: MetricsLogger) =>
+    async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+      const params: Partial<PaytrailCallbackParams> = event.headers
+      const { eventId, registrationId, transactionId } = parseParams(params)
+
+      try {
+        await verifyParams(params)
+
+        const transaction = await dynamoDB.read<JsonTransaction>({ transactionId })
+        if (!transaction) throw new Error(`Transaction with id '${transactionId}' was not found`)
+
+        const status = params['checkout-status']
+
+        if (status && status !== transaction.status) {
+          await updateTransactionStatus(transactionId!, status)
+
+          if (status === 'ok') {
+            const registration = await dynamoDB.read<JsonRegistration>(
+              {
+                eventId: eventId,
+                id: registrationId,
+              },
+              registrationTable
+            )
+            if (!registration) throw new Error('registration not found')
+
+            const amount = parseInt(params['checkout-amount'] ?? '0') / 100
+
+            await dynamoDB.update(
+              { eventId, registrationId },
+              'set #paidAmount = :amount, #paidAt = :paidAt',
+              { '#paidAmount': 'paidAmount', '#paidAt': 'paidAt' },
+              { ':paidAmount': (registration.paidAmount ?? 0) + amount, ':paidAt': new Date().toISOString() },
+              registrationTable
+            )
+            // send receipt
+          }
+        }
+
+        metricsSuccess(metrics, event.requestContext, 'successHandler')
+        return response(200, undefined, event)
+      } catch (e) {
+        console.error(e)
+        metricsError(metrics, event.requestContext, 'successHandler')
+        return response(500, undefined, event)
+      }
+    }
+)
+
+/**
+ * successHandler is called by payment provider, to update cancelled payment status
+ */
+export const cancelHandler = metricScope(
+  (metrics: MetricsLogger) =>
+    async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+      const params: Partial<PaytrailCallbackParams> = event.headers
+      const { /* eventId, registrationId, */ transactionId } = parseParams(params)
+
+      try {
+        await verifyParams(params)
+
+        const transaction = await dynamoDB.read<JsonTransaction>({ transactionId })
+        if (!transaction) throw new Error(`Transaction with id '${transactionId}' was not found`)
+
+        if (transaction.status !== 'fail') {
+          await updateTransactionStatus(transactionId!, 'fail')
+        }
+
+        metricsSuccess(metrics, event.requestContext, 'cancelHandler')
+        return response(200, undefined, event)
+      } catch (e) {
+        console.error(e)
+        metricsError(metrics, event.requestContext, 'cancelHandler')
+        return response(500, undefined, event)
+      }
     }
 )

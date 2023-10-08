@@ -9,6 +9,7 @@ export * from './EventType'
 export * from './Person'
 export * from './Organizer'
 export * from './Registration'
+export * from './Transaction'
 
 export * from './paytrail'
 

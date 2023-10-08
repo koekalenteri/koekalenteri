@@ -115,6 +115,7 @@ export const createPayment = async (
   origin: string,
   amount: number,
   reference: string,
+  stamp: string,
   items: PaymentItem[],
   customer: PaymentCustomer
 ): Promise<CreatePaymentResponse | undefined> => {
@@ -122,7 +123,7 @@ export const createPayment = async (
   const callbackUrls = createCallbackUrls(apiHost)
 
   const body: CreatePaymentRequest = {
-    stamp: nanoid(),
+    stamp,
     reference,
     amount,
     currency: 'EUR',
