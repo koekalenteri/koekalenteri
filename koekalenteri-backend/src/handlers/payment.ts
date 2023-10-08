@@ -118,7 +118,7 @@ export const createHandler = metricScope(
       await dynamoDB.write(transaction)
 
       await dynamoDB.update(
-        { eventId, registrationId },
+        { eventId, id: registrationId },
         'set #paymentStatus = :paymentStatus',
         { '#paymentStatus': 'paymentStatus' },
         { ':paymentStatus': 'PENDING' },
@@ -207,7 +207,7 @@ export const successHandler = metricScope(
             const amount = parseInt(params['checkout-amount'] ?? '0') / 100
 
             await dynamoDB.update(
-              { eventId, registrationId },
+              { eventId, id: registrationId },
               'set #paidAmount = :amount, #paidAt = :paidAt',
               { '#paidAmount': 'paidAmount', '#paidAt': 'paidAt' },
               { ':paidAmount': (registration.paidAmount ?? 0) + amount, ':paidAt': new Date().toISOString() },
