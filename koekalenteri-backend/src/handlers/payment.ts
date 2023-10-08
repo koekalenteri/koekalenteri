@@ -73,6 +73,7 @@ export const createHandler = metricScope(
       if (!jsonEvent || !registration || !organizer?.paytrailMerchantId) {
         throw new Error('errors')
       }
+      const reference = `${eventId}:${registrationId}`
       const amount = Math.round(100 * registrationCost(jsonEvent, registration) - (registration.paidAmount ?? 0))
       if (amount <= 0) {
         throw new Error('already paid')
@@ -83,7 +84,7 @@ export const createHandler = metricScope(
         getApiHost(event),
         getOrigin(event),
         amount,
-        `${eventId}:${registrationId}`,
+        reference,
         stamp,
         [
           {
@@ -110,7 +111,8 @@ export const createHandler = metricScope(
         transactionId: result.transactionId,
         status: 'new',
         amount,
-        reference: result.reference,
+        reference,
+        bankReference: result.reference,
         type: 'payment',
         stamp,
         createdAt: new Date().toISOString(),
