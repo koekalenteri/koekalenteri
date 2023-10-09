@@ -149,5 +149,9 @@ exports[`routes should match a snapshot 1`] = `
     "loader": [Function],
     "path": "/startlist/:id",
   },
+  {
+    "element": <TermsPage />,
+    "path": "terms",
+  },
 ]
 `;

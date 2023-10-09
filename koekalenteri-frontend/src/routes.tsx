@@ -25,6 +25,7 @@ import { registrationInvitationLoader } from './pages/RegistrationInvitation'
 import { RegistrationListPage } from './pages/RegistrationListPage'
 import { SearchPage } from './pages/SearchPage'
 import { startListLoader, StartListPage } from './pages/StartListPage'
+import { TermsPage } from './pages/TermsPage'
 import { Path } from './routeConfig'
 
 /* TBI: does not work in production build (probably due to @aws-amplify/ui-react)
@@ -160,6 +161,10 @@ const routes: RouteObject[] = [
     loader: startListLoader,
     element: <StartListPage />,
     errorElement: <ErrorPage />,
+  },
+  {
+    path: 'terms',
+    element: <TermsPage />,
   },
 ]
 
