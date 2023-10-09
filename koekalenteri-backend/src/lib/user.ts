@@ -13,7 +13,7 @@ let cache: JsonUser[] | undefined
 
 export async function getAllUsers() {
   if (!cache) {
-    cache = await dynamoDB.readAll<JsonUser>()
+    cache = await dynamoDB.readAll<JsonUser>(userTable)
   }
   return cache
 }
@@ -25,7 +25,7 @@ export async function findUserByEmail(email: string) {
 }
 
 export async function updateUser(user: JsonUser) {
-  await dynamoDB.write(user)
+  await dynamoDB.write(user, userTable)
 
   if (cache) {
     const idx = cache?.findIndex((u) => u.id === user.id)

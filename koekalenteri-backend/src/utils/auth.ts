@@ -45,7 +45,7 @@ async function getOrCreateUser(event: APIGatewayProxyEvent) {
     const { name, email } = event.requestContext.authorizer.claims
 
     user = await getAndUpdateUserByEmail(email, { name })
-    await dynamoDB.write({ cognitoUser, userId: user.id })
+    await dynamoDB.write({ cognitoUser, userId: user.id }, userLinkTable)
   }
   return user
 }
