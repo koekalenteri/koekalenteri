@@ -18,5 +18,5 @@ export function LoginPage() {
     }
   }, [actions, route, user])
 
-  return <Authenticator socialProviders={['google', 'facebook']} loginMechanisms={['email']} />
+  return <Authenticator socialProviders={['google' /*, 'facebook'*/]} loginMechanisms={['email']} />
 }
