@@ -31,7 +31,7 @@ export const getOrganizersHandler = metricScope(
       } catch (err) {
         console.error(err)
         metricsError(metrics, event.requestContext, 'getOrganizers')
-        return response((err as AWSError).statusCode || 501, err, event)
+        return response((err as AWSError).statusCode ?? 501, err, event)
       }
     }
 )
@@ -76,7 +76,7 @@ export const refreshOrganizers = metricScope(
       } catch (err) {
         console.error(err)
         metricsError(metrics, event.requestContext, 'refreshOrganizers')
-        return response((err as AWSError).statusCode || 501, err, event)
+        return response((err as AWSError).statusCode ?? 501, err, event)
       }
     }
 )
@@ -108,7 +108,7 @@ export const putOrganizerHandler = metricScope(
       } catch (err) {
         console.error(err)
         metricsError(metrics, event.requestContext, 'putOrganizer')
-        return response((err as AWSError).statusCode || 501, err, event)
+        return response((err as AWSError).statusCode ?? 501, err, event)
       }
     }
 )

@@ -36,7 +36,7 @@ export const getRegistrationHandler = metricScope(
       } catch (err) {
         console.error(err)
         metricsError(metrics, event.requestContext, 'getRegistration')
-        return response((err as AWSError).statusCode || 501, err, event)
+        return response((err as AWSError).statusCode ?? 501, err, event)
       }
     }
 )
@@ -104,7 +104,7 @@ export const putRegistrationHandler = metricScope(
           console.error(err.message)
         }
         metricsError(metrics, event.requestContext, 'putRegistration')
-        return response((err as AWSError).statusCode || 501, err, event)
+        return response((err as AWSError).statusCode ?? 501, err, event)
       }
     }
 )

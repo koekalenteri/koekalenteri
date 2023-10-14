@@ -52,7 +52,7 @@ export const getStartListHandler = metricScope(
       } catch (err: unknown) {
         console.error(err)
         metricsError(metrics, event.requestContext, 'getStartList')
-        return response((err as AWSError).statusCode || 501, err, event)
+        return response((err as AWSError).statusCode ?? 501, err, event)
       }
     }
 )

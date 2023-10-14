@@ -32,7 +32,7 @@ export const getAttachmentHandler = metricScope(
         }
       } catch (err) {
         metricsError(metrics, event.requestContext, 'getAttachment')
-        return response((err as AWSError).statusCode || 501, err, event)
+        return response((err as AWSError).statusCode ?? 501, err, event)
       }
     }
 )

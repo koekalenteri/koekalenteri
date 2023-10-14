@@ -85,7 +85,7 @@ export const isObject = (o: unknown): o is AnyObject =>
 export const isEmptyObject = (o: unknown): o is EmptyObject => isObject(o) && isEmpty(o)
 export const hasChanges = (a: object | undefined | null, b: object | undefined | null): boolean =>
   !isEmptyObject(diff(a ?? {}, b ?? {}))
-export const clone = <T extends AnyObject>(a: T): T => Object.assign({}, a)
+export const clone = <T extends AnyObject>(a: T): T => ({ ...a })
 export const merge = <T>(a: T, b: DeepPartial<T>): T => {
   const result = isObject(a) ? clone(a) : ({} as T)
   if (!isObject(b)) {

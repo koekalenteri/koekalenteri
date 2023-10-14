@@ -29,7 +29,7 @@ export const getOfficialsHandler = metricScope(
           console.error(err.message)
         }
         metricsError(metrics, event.requestContext, 'getOfficials')
-        return response((err as AWSError).statusCode || 501, err, event)
+        return response((err as AWSError).statusCode ?? 501, err, event)
       }
     }
 )

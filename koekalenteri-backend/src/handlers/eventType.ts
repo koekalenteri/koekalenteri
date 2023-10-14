@@ -48,7 +48,7 @@ export const getEventTypesHandler = metricScope(
       } catch (err) {
         console.error(err)
         metricsError(metrics, event.requestContext, 'getEventTypes')
-        return response((err as AWSError).statusCode || 501, err, event)
+        return response((err as AWSError).statusCode ?? 501, err, event)
       }
     }
 )
@@ -104,7 +104,7 @@ export const putEventTypeHandler = metricScope(
       } catch (err) {
         console.error(err)
         metricsError(metrics, event.requestContext, 'putEventType')
-        return response((err as AWSError).statusCode || 501, err, event)
+        return response((err as AWSError).statusCode ?? 501, err, event)
       }
     }
 )

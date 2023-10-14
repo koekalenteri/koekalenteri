@@ -72,7 +72,7 @@ export const getTemplatesHandler = metricScope(
         return response(200, items, event)
       } catch (err) {
         metricsError(metrics, event.requestContext, 'getTemplates')
-        return response((err as AWSError).statusCode || 501, err, event)
+        return response((err as AWSError).statusCode ?? 501, err, event)
       }
     }
 )
@@ -114,7 +114,7 @@ export const putTemplateHandler = metricScope(
       } catch (err) {
         console.error(err)
         metricsError(metrics, event.requestContext, 'putTemplate')
-        return response((err as AWS.AWSError).statusCode || 501, err, event)
+        return response((err as AWS.AWSError).statusCode ?? 501, err, event)
       }
     }
 )

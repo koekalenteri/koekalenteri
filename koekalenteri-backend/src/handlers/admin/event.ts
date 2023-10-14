@@ -65,7 +65,7 @@ export const putEventHandler = metricScope(
       } catch (err) {
         console.error(err)
         metricsError(metrics, event.requestContext, 'putEvent')
-        return response((err as AWSError).statusCode || 501, err, event)
+        return response((err as AWSError).statusCode ?? 501, err, event)
       }
     }
 )
@@ -217,7 +217,7 @@ export const copyEventWithRegistrations = metricScope(
       } catch (err) {
         console.error(err)
         metricsError(metrics, event.requestContext, 'copyEventWithRegistrations')
-        return response((err as AWSError).statusCode || 501, err, event)
+        return response((err as AWSError).statusCode ?? 501, err, event)
       }
     }
 )

@@ -43,7 +43,7 @@ export const getUsersHandler = metricScope(
       } catch (err: unknown) {
         console.error(err)
         metricsError(metrics, event.requestContext, 'getUsers')
-        return response((err as AWSError).statusCode || 501, err, event)
+        return response((err as AWSError).statusCode ?? 501, err, event)
       }
     }
 )
@@ -85,7 +85,7 @@ export const addUserHandler = metricScope(
       } catch (err: unknown) {
         console.error(err)
         metricsError(metrics, event.requestContext, 'addUser')
-        return response((err as AWSError).statusCode || 501, err, event)
+        return response((err as AWSError).statusCode ?? 501, err, event)
       }
     }
 )
@@ -135,7 +135,7 @@ export const setAdminHandler = metricScope(
       } catch (err: unknown) {
         console.error(err)
         metricsError(metrics, event.requestContext, 'setAdmin')
-        return response((err as AWSError).statusCode || 501, err, event)
+        return response((err as AWSError).statusCode ?? 501, err, event)
       }
     }
 )
@@ -179,7 +179,7 @@ export const setRoleHandler = metricScope(
       } catch (err: unknown) {
         console.error(err)
         metricsError(metrics, event.requestContext, 'setRole')
-        return response((err as AWSError).statusCode || 501, err, event)
+        return response((err as AWSError).statusCode ?? 501, err, event)
       }
     }
 )

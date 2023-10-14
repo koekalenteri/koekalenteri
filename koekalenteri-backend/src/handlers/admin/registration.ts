@@ -96,7 +96,7 @@ export const getRegistrationsHandler = metricScope(
       } catch (err: unknown) {
         console.error(err)
         metricsError(metrics, event.requestContext, 'getRegistrations')
-        return response((err as AWSError).statusCode || 501, err, event)
+        return response((err as AWSError).statusCode ?? 501, err, event)
       }
     }
 )
@@ -115,7 +115,7 @@ export const getAuditTrailHandler = metricScope(
       } catch (err: unknown) {
         console.error(err)
         metricsError(metrics, event.requestContext, 'getAuditTrail')
-        return response((err as AWSError).statusCode || 501, err, event)
+        return response((err as AWSError).statusCode ?? 501, err, event)
       }
     }
 )
@@ -310,7 +310,7 @@ export const putRegistrationGroupsHandler = metricScope(
           console.error(err.message)
         }
         metricsError(metrics, event.requestContext, 'putRegistrationGroups')
-        return response((err as AWSError).statusCode || 501, err, event)
+        return response((err as AWSError).statusCode ?? 501, err, event)
       }
     }
 )
@@ -372,7 +372,7 @@ export const sendMessagesHandler = metricScope((metrics: MetricsLogger) => async
       console.error(err.message)
     }
     metricsError(metrics, event.requestContext, 'sendMessageHandler')
-    return response((err as AWSError).statusCode || 501, err, event)
+    return response((err as AWSError).statusCode ?? 501, err, event)
   }
 })
 

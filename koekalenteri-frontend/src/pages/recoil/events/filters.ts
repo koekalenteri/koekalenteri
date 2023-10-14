@@ -20,7 +20,7 @@ export function withinSwitchFilters(
   event: Event,
   { withOpenEntry, withClosingEntry, withUpcomingEntry, withFreePlaces }: FilterProps
 ): boolean {
-  let result
+  let result: boolean | undefined
 
   if (withOpenEntry) {
     result = isEntryOpen(event)
