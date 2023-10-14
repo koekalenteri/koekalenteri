@@ -16,7 +16,7 @@ export default function PaymentSection({
   onChange,
   open,
   onOpenChange,
-}: SectionProps) {
+}: Readonly<SectionProps>) {
   const { t } = useTranslation()
   const error =
     errorStates?.cost ?? errorStates?.costMember ?? errorStates?.accountNumber ?? errorStates?.referenceNumber

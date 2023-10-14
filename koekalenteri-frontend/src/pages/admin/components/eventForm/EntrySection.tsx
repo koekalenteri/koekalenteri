@@ -16,7 +16,7 @@ import DateRange from '../../../components/DateRange'
 
 import EventFormPlaces from './entrySection/EventFormPlaces'
 
-export default function EntrySection(props: SectionProps) {
+export default function EntrySection(props: Readonly<SectionProps>) {
   const { t } = useTranslation()
   const { disabled, event, fields, helperTexts, onChange, onOpenChange, open } = props
   const error = helperTexts?.entryStartDate ?? helperTexts?.entryEndDate ?? helperTexts?.places

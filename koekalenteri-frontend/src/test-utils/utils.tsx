@@ -25,13 +25,13 @@ export function DataMemoryRouter({
   initialIndex,
   routes,
 }: {
-  basename?: RouterInit['basename']
-  children?: React.ReactNode | React.ReactNode[]
-  fallbackElement?: React.ReactNode
-  hydrationData?: RouterInit['hydrationData']
-  initialEntries?: string[]
-  initialIndex?: number
-  routes?: RouteObject[]
+  readonly basename?: RouterInit['basename']
+  readonly children?: React.ReactNode | React.ReactNode[]
+  readonly fallbackElement?: React.ReactNode
+  readonly hydrationData?: RouterInit['hydrationData']
+  readonly initialEntries?: string[]
+  readonly initialIndex?: number
+  readonly routes?: RouteObject[]
 }) {
   const router = createMemoryRouter(routes ?? createRoutesFromElements(children), {
     basename,
@@ -69,7 +69,13 @@ export const createMatchMedia =
     dispatchEvent: jest.fn(),
   })
 
-export function RecoilObserver<T>({ node, onChange }: { node: RecoilValue<T>; onChange: (value: T) => void }) {
+export function RecoilObserver<T>({
+  node,
+  onChange,
+}: {
+  readonly node: RecoilValue<T>
+  readonly onChange: (value: T) => void
+}) {
   const value = useRecoilValue(node)
   useEffect(() => onChange(value), [onChange, value])
   return null

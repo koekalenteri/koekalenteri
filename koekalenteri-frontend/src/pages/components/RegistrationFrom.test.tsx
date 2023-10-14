@@ -23,7 +23,7 @@ jest.mock('../../api/official')
 jest.mock('../../api/organizer')
 jest.mock('../../api/registration')
 
-function Wrapper({ children }: { children: ReactNode }) {
+function Wrapper({ children }: { readonly children: ReactNode }) {
   return (
     <ThemeProvider theme={theme}>
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>

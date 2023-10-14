@@ -23,9 +23,9 @@ import { compareEventClass } from '../components/EventClasses'
 import PlacesDisplay from './eventFormPlaces/PlacesDisplay'
 import PlacesInput from './eventFormPlaces/PlacesInput'
 
-export default function EventFormPlaces({ event, disabled, helperTexts, onChange }: SectionProps) {
+export default function EventFormPlaces({ event, disabled, helperTexts, onChange }: Readonly<SectionProps>) {
   const { t } = useTranslation()
-  const [classesEnabled, setClassesEnalbed] = useState(
+  const [classesEnabled, setClassesEnabled] = useState(
     event.classes?.reduce((prev, cur) => prev + (cur?.places ?? 0), 0) > 0
   )
   const days = eachDayOfInterval({
@@ -55,7 +55,7 @@ export default function EventFormPlaces({ event, disabled, helperTexts, onChange
 
   const handleByClassesChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>, checked: boolean) => {
-      setClassesEnalbed(checked)
+      setClassesEnabled(checked)
       const newClasses = event.classes.map((ec) => structuredClone(ec))
       const count = newClasses.length
       for (let diff = event.places ?? 0, i = 0; i < count; i++) {

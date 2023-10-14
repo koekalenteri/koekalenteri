@@ -20,7 +20,11 @@ import { EventPlaces } from './eventTableRow/EventPlaces'
 import { EventInfo } from './EventInfo'
 import { EventStateInfo } from './EventStateInfo'
 
-export const EventTableRow = ({ event }: { event: Event }) => {
+interface Props {
+  readonly event: Event
+}
+
+export const EventTableRow = ({ event }: Props) => {
   const [open, setOpen] = useRecoilState(openedEventAtom(event.id))
   const { t } = useTranslation()
 
@@ -37,75 +41,73 @@ export const EventTableRow = ({ event }: { event: Event }) => {
   }, [event])
 
   return (
-    <>
-      <TableRow
-        sx={{
-          '& > td': {
-            backgroundColor: 'background.form',
-            borderRadius: '4px',
-            padding: 0,
-            whiteSpace: 'nowrap',
-          },
-          '& div.MuiGrid-item': {
-            overflow: 'hidden',
-          },
-          '&:last-child td': { border: 0 },
-        }}
-      >
-        <TableCell>
-          <Grid container spacing={0} alignItems="center">
-            <Grid item xs={'auto'}>
-              <IconButton aria-label="expand row" size="small" color="primary" onClick={handleClick}>
-                {open ? <KeyboardArrowDown /> : <KeyboardArrowRight />}
-              </IconButton>
-            </Grid>
-            <Grid item container xs onClick={handleClick}>
-              <Grid item container xs={12} md={6} justifyContent="flex-start" spacing={1}>
-                <Grid item xs={3}>
-                  {t('daterange', { start: event.startDate, end: event.endDate })}
-                </Grid>
-                <Grid item xs={2}>
-                  {event.eventType}
-                </Grid>
-                <Grid item xs={2}>
-                  {classes}
-                </Grid>
-                <Grid item xs={5}>
-                  {event.location}
-                  {event.name ? ` (${event.name})` : ''}
-                </Grid>
+    <TableRow
+      sx={{
+        '& > td': {
+          backgroundColor: 'background.form',
+          borderRadius: '4px',
+          padding: 0,
+          whiteSpace: 'nowrap',
+        },
+        '& div.MuiGrid-item': {
+          overflow: 'hidden',
+        },
+        '&:last-child td': { border: 0 },
+      }}
+    >
+      <TableCell>
+        <Grid container spacing={0} alignItems="center">
+          <Grid item xs={'auto'}>
+            <IconButton aria-label="expand row" size="small" color="primary" onClick={handleClick}>
+              {open ? <KeyboardArrowDown /> : <KeyboardArrowRight />}
+            </IconButton>
+          </Grid>
+          <Grid item container xs onClick={handleClick}>
+            <Grid item container xs={12} md={6} justifyContent="flex-start" spacing={1}>
+              <Grid item xs={3}>
+                {t('daterange', { start: event.startDate, end: event.endDate })}
               </Grid>
-              <Grid item container xs={12} md={6} spacing={1}>
-                <Grid item xs={6} md={7}>
-                  {event.organizer?.name}
-                </Grid>
-                <Grid item xs={3} md={2}>
-                  <EventPlaces event={event} />
-                </Grid>
-                <Grid item xs={3} md={3} textAlign="right">
-                  {isEntryOpen(event) ? (
-                    <LinkButton to={Path.register(event)} text={t('register')} />
-                  ) : (
-                    <EventStateInfo id={event.id} state={event.state} />
-                  )}
-                </Grid>
+              <Grid item xs={2}>
+                {event.eventType}
+              </Grid>
+              <Grid item xs={2}>
+                {classes}
+              </Grid>
+              <Grid item xs={5}>
+                {event.location}
+                {event.name ? ` (${event.name})` : ''}
+              </Grid>
+            </Grid>
+            <Grid item container xs={12} md={6} spacing={1}>
+              <Grid item xs={6} md={7}>
+                {event.organizer?.name}
+              </Grid>
+              <Grid item xs={3} md={2}>
+                <EventPlaces event={event} />
+              </Grid>
+              <Grid item xs={3} md={3} textAlign="right">
+                {isEntryOpen(event) ? (
+                  <LinkButton to={Path.register(event)} text={t('register')} />
+                ) : (
+                  <EventStateInfo id={event.id} state={event.state} />
+                )}
               </Grid>
             </Grid>
           </Grid>
-          <Collapse
-            in={open}
-            sx={{
-              borderTop: '1px solid',
-              borderTopColor: 'divider',
-              ml: '34px',
-              mt: 0,
-            }}
-            timeout="auto"
-          >
-            <EventInfo event={event}></EventInfo>
-          </Collapse>
-        </TableCell>
-      </TableRow>
-    </>
+        </Grid>
+        <Collapse
+          in={open}
+          sx={{
+            borderTop: '1px solid',
+            borderTopColor: 'divider',
+            ml: '34px',
+            mt: 0,
+          }}
+          timeout="auto"
+        >
+          <EventInfo event={event}></EventInfo>
+        </Collapse>
+      </TableCell>
+    </TableRow>
   )
 }

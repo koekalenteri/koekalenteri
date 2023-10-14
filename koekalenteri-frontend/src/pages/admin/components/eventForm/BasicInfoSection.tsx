@@ -27,7 +27,7 @@ import HelpPopover from './basicInfoSection/HelpPopover'
 import EventClasses from './components/EventClasses'
 import EventProperty from './components/EventProperty'
 
-interface Props extends SectionProps {
+interface Props extends Readonly<SectionProps> {
   readonly event: PartialEvent
   readonly eventTypes?: string[]
   readonly eventTypeClasses?: Record<string, RegistrationClass[]>

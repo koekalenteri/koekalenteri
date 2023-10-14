@@ -7,7 +7,11 @@ import TableContainer from '@mui/material/TableContainer'
 import { EmptyResult } from './eventTable/EmptyResult'
 import { EventTableRow } from './eventTable/EventTableRow'
 
-export function EventTable({ events }: { events: Event[] }) {
+interface Props {
+  readonly events: Event[]
+}
+
+export function EventTable({ events }: Props) {
   if (!events.length) {
     return <EmptyResult />
   }

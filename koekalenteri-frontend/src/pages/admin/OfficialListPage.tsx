@@ -69,33 +69,31 @@ export default function OfficialListPage() {
   ]
 
   return (
-    <>
-      <FullPageFlex>
-        <Stack direction="row" spacing={2}>
-          <Button startIcon={<CloudSync />} onClick={actions.refresh} sx={{ display: isAdmin ? undefined : 'none' }}>
-            {t('updateData', { data: 'officials' })}
-          </Button>
-        </Stack>
+    <FullPageFlex>
+      <Stack direction="row" spacing={2}>
+        <Button startIcon={<CloudSync />} onClick={actions.refresh} sx={{ display: isAdmin ? undefined : 'none' }}>
+          {t('updateData', { data: 'officials' })}
+        </Button>
+      </Stack>
 
-        <StyledDataGrid
-          columns={columns}
-          columnVisibilityModel={{
-            district: large,
-            eventTypes: large,
-            id: large,
-            location: large,
-          }}
-          slots={{ toolbar: QuickSearchToolbar }}
-          slotProps={{
-            toolbar: {
-              value: searchText,
-              onChange: (event: React.ChangeEvent<HTMLInputElement>) => setSearchText(event.target.value),
-              clearSearch: () => setSearchText(''),
-            },
-          }}
-          rows={officials}
-        />
-      </FullPageFlex>
-    </>
+      <StyledDataGrid
+        columns={columns}
+        columnVisibilityModel={{
+          district: large,
+          eventTypes: large,
+          id: large,
+          location: large,
+        }}
+        slots={{ toolbar: QuickSearchToolbar }}
+        slotProps={{
+          toolbar: {
+            value: searchText,
+            onChange: (event: React.ChangeEvent<HTMLInputElement>) => setSearchText(event.target.value),
+            clearSearch: () => setSearchText(''),
+          },
+        }}
+        rows={officials}
+      />
+    </FullPageFlex>
   )
 }

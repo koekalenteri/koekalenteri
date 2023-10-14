@@ -8,7 +8,6 @@ import GroupColors from './GroupColors'
 interface Props {
   readonly eventDates: Date[]
   readonly group: RegistrationDate
-  readonly className?: string
 }
 
 const GroupHeader = ({ eventDates, group }: Props) => {

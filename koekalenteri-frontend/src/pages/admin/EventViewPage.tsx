@@ -193,7 +193,6 @@ export default function EventViewPage() {
           eventClass={isRegistrationClass(selectedEventClass) ? selectedEventClass : undefined}
           onClose={handleCreateClose}
           open={createOpen}
-          registrationId={open ? selectedRegistrationId ?? '' : ''}
         />
       </Suspense>
       <Suspense>

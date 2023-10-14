@@ -14,7 +14,7 @@ import { getRequirements } from '../../../rules'
 
 import QualifyingResultsInfo from './QualifyingResultsInfo'
 
-const Provider = ({ children }: { children: ReactNode }) => (
+const Provider = ({ children }: { readonly children: ReactNode }) => (
   <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={fi}>
     {children}
   </LocalizationProvider>

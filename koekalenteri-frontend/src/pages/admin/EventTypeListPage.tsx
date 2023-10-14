@@ -29,28 +29,26 @@ export default function EventTypeListPage() {
   const clearSearch = useCallback(() => setSearchText(''), [setSearchText])
 
   return (
-    <>
-      <FullPageFlex>
-        <Stack direction="row" spacing={2}>
-          <Button startIcon={<CloudSync />} onClick={actions.refresh} sx={{ display: isAdmin ? undefined : 'none' }}>
-            {t('updateData', { data: 'eventTypes' })}
-          </Button>
-        </Stack>
+    <FullPageFlex>
+      <Stack direction="row" spacing={2}>
+        <Button startIcon={<CloudSync />} onClick={actions.refresh} sx={{ display: isAdmin ? undefined : 'none' }}>
+          {t('updateData', { data: 'eventTypes' })}
+        </Button>
+      </Stack>
 
-        <StyledDataGrid
-          columns={columns}
-          slots={{ toolbar: QuickSearchToolbar }}
-          slotProps={{
-            toolbar: {
-              value: searchText,
-              onChange,
-              clearSearch,
-            },
-          }}
-          rows={eventTypes}
-          getRowId={(row) => row.eventType}
-        />
-      </FullPageFlex>
-    </>
+      <StyledDataGrid
+        columns={columns}
+        slots={{ toolbar: QuickSearchToolbar }}
+        slotProps={{
+          toolbar: {
+            value: searchText,
+            onChange,
+            clearSearch,
+          },
+        }}
+        rows={eventTypes}
+        getRowId={(row) => row.eventType}
+      />
+    </FullPageFlex>
   )
 }

@@ -20,35 +20,33 @@ import AutocompleteMulti from '../AutocompleteMulti'
 import AutocompleteSingle from '../AutocompleteSingle'
 import CollapsibleSection from '../CollapsibleSection'
 
-type EntryInfoProps = {
-  reg: Registration
-  event: ConfirmedEvent
-  classDate?: string
-  classDisabled?: boolean
-  className?: string
-  error?: boolean
-  disabled?: boolean
-  helperText?: string
-  errorStates: { [Property in keyof Registration]?: boolean }
-  helperTexts: { [Property in keyof Registration]?: string }
-  onChange?: (props: Partial<Registration>) => void
-  onOpenChange?: (value: boolean) => void
-  open?: boolean
+interface Props {
+  readonly classDate?: string
+  readonly classDisabled?: boolean
+  readonly className?: string
+  readonly disabled?: boolean
+  readonly errorStates: { [Property in keyof Registration]?: boolean }
+  readonly event: ConfirmedEvent
+  readonly helperTexts: { [Property in keyof Registration]?: string }
+  readonly onChange?: (props: Partial<Registration>) => void
+  readonly onOpenChange?: (value: boolean) => void
+  readonly open?: boolean
+  readonly reg: Registration
 }
 
 export function EntryInfo({
-  reg,
-  event,
   classDate,
   classDisabled,
   className,
   disabled,
   errorStates,
+  event,
   helperTexts,
   onChange,
   onOpenChange,
   open,
-}: EntryInfoProps) {
+  reg,
+}: Props) {
   const { t } = useTranslation()
   const eventTypeGroups = useRecoilValue(eventTypeGroupsAtom)
 

@@ -31,7 +31,7 @@ jest.mock('react-router-dom', () => ({
 }))
 const mockUseParams = useParams as jest.Mock
 
-function Wrapper({ children }: { children: ReactNode }) {
+function Wrapper({ children }: { readonly children: ReactNode }) {
   return (
     <ThemeProvider theme={theme}>
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>

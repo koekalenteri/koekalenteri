@@ -1,4 +1,4 @@
-import type { DateRangeProps } from './DateRange'
+import type { Props } from './DateRange'
 
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
@@ -8,7 +8,7 @@ import fi from 'date-fns/locale/fi'
 
 import DateRange from './DateRange'
 
-const renderComponent = (props: DateRangeProps) => {
+const renderComponent = (props: Props) => {
   render(
     <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={fi}>
       <DateRange {...props} />

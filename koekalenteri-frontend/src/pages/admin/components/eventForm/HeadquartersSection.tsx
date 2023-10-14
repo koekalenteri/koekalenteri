@@ -9,7 +9,7 @@ import TextField from '@mui/material/TextField'
 
 import CollapsibleSection from '../../../components/CollapsibleSection'
 
-interface Props extends Omit<SectionProps, 'event'> {
+interface Props extends Readonly<Omit<SectionProps, 'event'>> {
   readonly headquarters?: Partial<Headquarters>
 }
 

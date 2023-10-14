@@ -29,7 +29,7 @@ function filterClassesByJudgeId(classes?: EventClass[], id?: number) {
   return classes?.filter((c) => hasJudge(c, id))
 }
 
-interface Props extends SectionProps {
+interface Props extends Readonly<SectionProps> {
   readonly judges: Judge[]
 }
 

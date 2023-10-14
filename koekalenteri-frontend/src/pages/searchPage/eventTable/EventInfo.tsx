@@ -15,7 +15,11 @@ import { useJudgesActions } from '../../recoil'
 
 import { EventClassRow } from './eventInfo/EventClassRow'
 
-export const EventInfo = ({ event }: { event: Event }) => {
+interface Props {
+  readonly event: Event
+}
+
+export const EventInfo = ({ event }: Props) => {
   const { t } = useTranslation()
   const judgeActions = useJudgesActions()
   const status = useEventStatus(event)
@@ -31,101 +35,99 @@ export const EventInfo = ({ event }: { event: Event }) => {
   )
 
   return (
-    <>
-      <Table
-        size="small"
-        aria-label="details"
-        sx={{
+    <Table
+      size="small"
+      aria-label="details"
+      sx={{
+        border: 0,
+        my: 0.5,
+        mx: 0,
+        '& *': {
           border: 0,
-          my: 0.5,
-          mx: 0,
-          '& *': {
-            border: 0,
-            my: 0,
-            borderSpacing: 0,
-            padding: '2px 16px 2px 0',
-          },
-          '& th': {
-            border: 0,
-            margin: 0,
-            py: 0,
-            pl: 0,
-            borderSpacing: 0,
-            width: '1%',
-            whiteSpace: 'nowrap',
-            verticalAlign: 'top',
-          },
-          '& td': {
-            border: 0,
-            margin: 0,
-            py: 0,
-            pl: 0,
-            borderSpacing: 0,
-            whiteSpace: 'normal',
-          },
-        }}
-      >
-        <TableBody>
-          <TableRow key={event.id + 'date'}>
-            <TableCell component="th" scope="row">
-              {t('entryTime')}:
-            </TableCell>
-            <TableCell>
-              {t('daterange', { start: event.entryStartDate, end: event.entryEndDate })}
-              <span className="info">{status}</span>
-              {isEntryOpen(event) ? t('dateFormat.distanceLeft', { date: event.entryEndDate }) : ''}
-            </TableCell>
-          </TableRow>
-          {event.classes.length !== 0 && <EventClassRow key={event.id + 'classes'} event={event} />}
-          {haveJudgesWithoutAssignedClass && (
-            <>
-              <TableRow key={event.id + 'judge' + event.judges[0]}>
-                <TableCell component="th" scope="row" rowSpan={event.judges.length}>
-                  {t('event.judges')}:
-                </TableCell>
-                <TableCell>{judgeName(event.judges[0])}</TableCell>
+          my: 0,
+          borderSpacing: 0,
+          padding: '2px 16px 2px 0',
+        },
+        '& th': {
+          border: 0,
+          margin: 0,
+          py: 0,
+          pl: 0,
+          borderSpacing: 0,
+          width: '1%',
+          whiteSpace: 'nowrap',
+          verticalAlign: 'top',
+        },
+        '& td': {
+          border: 0,
+          margin: 0,
+          py: 0,
+          pl: 0,
+          borderSpacing: 0,
+          whiteSpace: 'normal',
+        },
+      }}
+    >
+      <TableBody>
+        <TableRow key={event.id + 'date'}>
+          <TableCell component="th" scope="row">
+            {t('entryTime')}:
+          </TableCell>
+          <TableCell>
+            {t('daterange', { start: event.entryStartDate, end: event.entryEndDate })}
+            <span className="info">{status}</span>
+            {isEntryOpen(event) ? t('dateFormat.distanceLeft', { date: event.entryEndDate }) : ''}
+          </TableCell>
+        </TableRow>
+        {event.classes.length !== 0 && <EventClassRow key={event.id + 'classes'} event={event} />}
+        {haveJudgesWithoutAssignedClass && (
+          <>
+            <TableRow key={event.id + 'judge' + event.judges[0]}>
+              <TableCell component="th" scope="row" rowSpan={event.judges.length}>
+                {t('event.judges')}:
+              </TableCell>
+              <TableCell>{judgeName(event.judges[0])}</TableCell>
+            </TableRow>
+            {event.judges.slice(1).map((judgeId) => (
+              <TableRow key={event.id + 'judge' + judgeId}>
+                <TableCell>{judgeName(judgeId)}</TableCell>
               </TableRow>
-              {event.judges.slice(1).map((judgeId) => (
-                <TableRow key={event.id + 'judge' + judgeId}>
-                  <TableCell>{judgeName(judgeId)}</TableCell>
-                </TableRow>
-              ))}
-            </>
-          )}
-          <TableRow key={event.id + 'official'}>
+            ))}
+          </>
+        )}
+        <TableRow key={event.id + 'official'}>
+          <TableCell component="th" scope="row">
+            {t('event.official')}:
+          </TableCell>
+          <TableCell>{event.official?.name || ''}</TableCell>
+        </TableRow>
+        <TableRow key={event.id + 'payment'}>
+          <TableCell component="th" scope="row">
+            {t('event.paymentDetails')}:
+          </TableCell>
+          <TableCell>
+            <CostInfo event={event} />
+          </TableCell>
+        </TableRow>
+        {event.priority?.length ? (
+          <TableRow key={event.id + 'priority'}>
             <TableCell component="th" scope="row">
-              {t('event.official')}:
-            </TableCell>
-            <TableCell>{event.official?.name || ''}</TableCell>
-          </TableRow>
-          <TableRow key={event.id + 'payment'}>
-            <TableCell component="th" scope="row">
-              {t('event.paymentDetails')}:
+              {t('event.priority')}:
             </TableCell>
             <TableCell>
-              <CostInfo event={event} />
+              <PriorityChips priority={event.priority} />
             </TableCell>
           </TableRow>
-          {event.priority?.length ? (
-            <TableRow key={event.id + 'priority'}>
-              <TableCell component="th" scope="row">
-                {t('event.priority')}:
-              </TableCell>
-              <TableCell>
-                <PriorityChips priority={event.priority} />
-              </TableCell>
-            </TableRow>
-          ) : null}
-          {event.description ? (
-            <TableRow key={event.id + 'description'}>
-              <TableCell component="th" scope="row">
-                {t('event.description')}:
-              </TableCell>
-              <TableCell>{event.description}</TableCell>
-            </TableRow>
-          ) : null}
-        </TableBody>
-      </Table>
-    </>
+        ) : null}
+        {event.description ? (
+          <TableRow key={event.id + 'description'}>
+            <TableCell component="th" scope="row">
+              {t('event.description')}:
+            </TableCell>
+            <TableCell>{event.description}</TableCell>
+          </TableRow>
+        ) : null}
+      </TableBody>
+    </Table>
   )
 }

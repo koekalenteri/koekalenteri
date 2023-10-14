@@ -25,6 +25,7 @@ export default function ContactInfoSection({
   disabled,
   official,
   secretary,
+  error,
   helperText,
   onChange,
   onOpenChange,
@@ -44,7 +45,7 @@ export default function ContactInfoSection({
       title={t('event.contactInfo')}
       open={open}
       onOpenChange={onOpenChange}
-      error={!!helperText}
+      error={error}
       helperText={helperText}
     >
       <Grid container spacing={1}>

@@ -75,69 +75,67 @@ export function EditUserRolesDialog({ onClose, open, user }: Props) {
         {user.admin ? (
           <DialogContentText variant="h6">{t('user.adminRoles')}</DialogContentText>
         ) : (
-          <>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell sx={{ width: '60%' }}>Yhdistys</TableCell>
-                  <TableCell>Rooli</TableCell>
-                  <TableCell></TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {Object.keys(roles).map((orgId) => {
-                  const o = organizers.find((o) => o.id === orgId)
-                  if (!o) return null
-                  return (
-                    <TableRow key={orgId}>
-                      <TableCell>{o.name}</TableCell>
-                      <TableCell>{t(`user.roles.${roles[orgId]}`)}</TableCell>
-                      <TableCell>
-                        <Button variant="outlined" onClick={() => actions.removeRole(user, orgId)}>
-                          Poista
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  )
-                })}
-              </TableBody>
-              <TableFooter>
-                <TableRow>
-                  <TableCell>
-                    <Autocomplete
-                      value={org}
-                      getOptionLabel={(org) => org.name}
-                      renderOption={(props, option) => {
-                        return (
-                          <li {...props} key={option.id}>
-                            {option.name}
-                          </li>
-                        )
-                      }}
-                      options={availableOrgs ?? []}
-                      onChange={(_event, value) => setOrg(value)}
-                      renderInput={(params) => <TextField {...params} />}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Select value={role} onChange={(event) => setRole(event.target.value as 'admin' | 'secretary')}>
-                      <MenuItem value="admin">{t('user.roles.admin')}</MenuItem>
-                      <MenuItem value="secretary">{t('user.roles.secretary')}</MenuItem>
-                    </Select>
-                  </TableCell>
-                  <TableCell>
-                    <Button
-                      disabled={!org}
-                      onClick={() => org && actions.addRole(user, org.id, role)}
-                      variant="contained"
-                    >
-                      Lisää
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              </TableFooter>
-            </Table>
-          </>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell sx={{ width: '60%' }}>Yhdistys</TableCell>
+                <TableCell>Rooli</TableCell>
+                <TableCell></TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {Object.keys(roles).map((orgId) => {
+                const o = organizers.find((o) => o.id === orgId)
+                if (!o) return null
+                return (
+                  <TableRow key={orgId}>
+                    <TableCell>{o.name}</TableCell>
+                    <TableCell>{t(`user.roles.${roles[orgId]}`)}</TableCell>
+                    <TableCell>
+                      <Button variant="outlined" onClick={() => actions.removeRole(user, orgId)}>
+                        Poista
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                )
+              })}
+            </TableBody>
+            <TableFooter>
+              <TableRow>
+                <TableCell>
+                  <Autocomplete
+                    value={org}
+                    getOptionLabel={(org) => org.name}
+                    renderOption={(props, option) => {
+                      return (
+                        <li {...props} key={option.id}>
+                          {option.name}
+                        </li>
+                      )
+                    }}
+                    options={availableOrgs ?? []}
+                    onChange={(_event, value) => setOrg(value)}
+                    renderInput={(params) => <TextField {...params} />}
+                  />
+                </TableCell>
+                <TableCell>
+                  <Select value={role} onChange={(event) => setRole(event.target.value as 'admin' | 'secretary')}>
+                    <MenuItem value="admin">{t('user.roles.admin')}</MenuItem>
+                    <MenuItem value="secretary">{t('user.roles.secretary')}</MenuItem>
+                  </Select>
+                </TableCell>
+                <TableCell>
+                  <Button
+                    disabled={!org}
+                    onClick={() => org && actions.addRole(user, org.id, role)}
+                    variant="contained"
+                  >
+                    Lisää
+                  </Button>
+                </TableCell>
+              </TableRow>
+            </TableFooter>
+          </Table>
         )}
       </DialogContent>
       <DialogActions>

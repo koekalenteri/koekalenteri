@@ -23,7 +23,7 @@ export type AutocompleteMultiProps<T> = Omit<AutocompleteProps<T, true, false, f
 
 export default function AutocompleteMulti<T>(props: AutocompleteMultiProps<T>) {
   const { error, helperText, label, disabled, ...acProps } = props
-  const getLabel = props.getOptionLabel ?? ((o?: T) => o ?? '')
+  const getLabel = props.getOptionLabel ?? ((o?: T): string => (o as string) ?? '')
 
   return (
     <Autocomplete
@@ -37,15 +37,13 @@ export default function AutocompleteMulti<T>(props: AutocompleteMultiProps<T>) {
       renderInput={(inputProps) => <TextField {...inputProps} label={label} error={error} helperText={helperText} />}
       renderOption={(optionProps, option, { selected }) => (
         <li {...optionProps}>
-          <>
-            <Checkbox
-              icon={<CheckBoxOutlineBlank fontSize="small" />}
-              checkedIcon={<CheckBox fontSize="small" />}
-              style={{ marginRight: 8 }}
-              checked={selected}
-            />
-            {getLabel(option)}
-          </>
+          <Checkbox
+            icon={<CheckBoxOutlineBlank fontSize="small" />}
+            checkedIcon={<CheckBox fontSize="small" />}
+            style={{ marginRight: 8 }}
+            checked={selected}
+          />
+          {getLabel(option)}
         </li>
       )}
     />

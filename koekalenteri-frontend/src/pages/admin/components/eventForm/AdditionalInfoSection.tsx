@@ -7,7 +7,13 @@ import TextField from '@mui/material/TextField'
 
 import CollapsibleSection from '../../../components/CollapsibleSection'
 
-export default function AdditionalInfoSection({ disabled, event, onChange, onOpenChange, open }: SectionProps) {
+export default function AdditionalInfoSection({
+  disabled,
+  event,
+  onChange,
+  onOpenChange,
+  open,
+}: Readonly<SectionProps>) {
   const { t } = useTranslation()
 
   const handleChange = useCallback(

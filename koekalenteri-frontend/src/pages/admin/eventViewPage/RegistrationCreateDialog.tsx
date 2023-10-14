@@ -12,7 +12,6 @@ interface Props {
   readonly eventClass?: RegistrationClass
   readonly onClose?: () => void
   readonly open: boolean
-  readonly registrationId: string
 }
 
 export default function RegistrationCreateDialog({ event, eventClass, open, onClose }: Props) {

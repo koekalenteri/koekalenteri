@@ -14,7 +14,7 @@ import { createMatchMedia } from '../../test-utils/utils'
 
 import RegistrationEventInfo from './RegistrationEventInfo'
 
-function Wrapper({ children }: { children: ReactNode }) {
+function Wrapper({ children }: { readonly children: ReactNode }) {
   return (
     <ThemeProvider theme={theme}>
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>

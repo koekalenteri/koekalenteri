@@ -15,13 +15,12 @@ import { GridActionsCellItem } from '@mui/x-data-grid'
 import { Path } from '../../routeConfig'
 import StyledDataGrid from '../components/StyledDataGrid'
 
-export default function RegistrationList({
-  rows,
-  onUnregister,
-}: {
-  rows: Registration[]
-  onUnregister: (registration: Registration) => void
-}) {
+interface Props {
+  readonly rows: Registration[]
+  readonly onUnregister: (registration: Registration) => void
+}
+
+export default function RegistrationList({ rows, onUnregister }: Props) {
   const { t } = useTranslation()
   const { t: breed } = useTranslation('breed')
   const navigate = useNavigate()

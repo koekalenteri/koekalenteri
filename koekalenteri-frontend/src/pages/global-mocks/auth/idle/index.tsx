@@ -17,14 +17,14 @@ const mockUser: any = {
 
 export const useAuthenticator = () => useContext(AuthenticatorContext)
 
-export const Provider = ({ children }: { children: React.ReactNode }) => {
+export const Provider = ({ children }: { readonly children: React.ReactNode }) => {
   const [route, setRoute] = useState('idle')
   const user = useMemo(() => (route === 'authenticated' ? mockUser : undefined), [route])
   const state = useMemo(() => ({ route, user, signOut: () => setRoute('idle') }), [route, user])
   return <AuthenticatorContext.Provider value={state}>{children}</AuthenticatorContext.Provider>
 }
 
-export const Authenticator = ({ children }: { children: React.ReactNode }) => {
+export const Authenticator = ({ children }: { readonly children: React.ReactNode }) => {
   return (
     <Provider>
       <p>MOCK AUTHENTICATOR</p>

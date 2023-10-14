@@ -9,17 +9,17 @@ import CollapsibleSection from '../CollapsibleSection'
 
 import { useDogCacheKey } from './hooks/useDogCacheKey'
 
-type BreederInfoProps = {
-  reg: DeepPartial<Registration>
-  disabled?: boolean
-  error?: boolean
-  helperText?: string
-  onChange: (props: DeepPartial<Registration>) => void
-  onOpenChange?: (value: boolean) => void
-  open?: boolean
+interface Props {
+  readonly reg: DeepPartial<Registration>
+  readonly disabled?: boolean
+  readonly error?: boolean
+  readonly helperText?: string
+  readonly onChange: (props: DeepPartial<Registration>) => void
+  readonly onOpenChange?: (value: boolean) => void
+  readonly open?: boolean
 }
 
-export function BreederInfo({ reg, disabled, error, helperText, onChange, onOpenChange, open }: BreederInfoProps) {
+export function BreederInfo({ reg, disabled, error, helperText, onChange, onOpenChange, open }: Props) {
   const { t } = useTranslation()
   const [cache, setCache] = useDogCacheKey(reg.dog?.regNo, 'breeder')
 

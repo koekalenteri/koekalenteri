@@ -12,17 +12,17 @@ import CollapsibleSection from '../CollapsibleSection'
 import QualifyingResultRow from './qualifyingResultsInfo/QualifyingResultRow'
 import { createMissingResult, getResultId } from './qualifyingResultsInfo/utils'
 
-type QualifyingResultsInfoProps = {
-  regNo?: string
-  results?: ManualTestResult[]
-  requirements?: EventResultRequirementsByDate
-  qualifyingResults?: QualifyingResult[]
-  disabled?: boolean
-  error?: boolean
-  helperText?: string
-  onChange?: (props: Partial<Registration>) => void
-  onOpenChange?: (value: boolean) => void
-  open?: boolean
+interface Props {
+  readonly regNo?: string
+  readonly results?: ManualTestResult[]
+  readonly requirements?: EventResultRequirementsByDate
+  readonly qualifyingResults?: QualifyingResult[]
+  readonly disabled?: boolean
+  readonly error?: boolean
+  readonly helperText?: string
+  readonly onChange?: (props: Partial<Registration>) => void
+  readonly onOpenChange?: (value: boolean) => void
+  readonly open?: boolean
 }
 
 export default function QualifyingResultsInfo({
@@ -36,7 +36,7 @@ export default function QualifyingResultsInfo({
   onChange,
   onOpenChange,
   open,
-}: QualifyingResultsInfoProps) {
+}: Props) {
   const { t } = useTranslation()
   const disableResultInput = disabled || !requirements?.rules.length || !regNo
 

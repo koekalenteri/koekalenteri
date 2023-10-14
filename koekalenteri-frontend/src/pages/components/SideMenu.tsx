@@ -23,7 +23,12 @@ import DrawerItem from './sideMenu/DrawerItem'
 import DrawerList from './sideMenu/DrawerList'
 import MiniDrawer from './sideMenu/MiniDrawer'
 
-export function SideMenu({ open, onClose }: { open?: boolean; onClose: () => void }) {
+interface Props {
+  readonly open?: boolean
+  readonly onClose: () => void
+}
+
+export function SideMenu({ open, onClose }: Props) {
   const md = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
   const lg = useMediaQuery((theme: Theme) => theme.breakpoints.up('lg'))
   const { t } = useTranslation()

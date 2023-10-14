@@ -19,7 +19,6 @@ interface Props {
   readonly changes: boolean
   readonly classDisabled?: boolean
   readonly event: Event
-  readonly eventClass?: string
   readonly onClose?: () => void
   readonly open: boolean
   readonly registration?: Registration

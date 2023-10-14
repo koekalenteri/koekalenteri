@@ -8,21 +8,21 @@ import { isSameDay, isValid, startOfDay } from 'date-fns'
 
 export type DateValue = Date | null
 
-export type DateRangeProps = {
-  defaultStart?: Date
-  defaultEnd?: Date
-  disabled?: boolean
-  start: DateValue
-  startLabel: string
-  startError?: boolean
-  startHelperText?: string
-  end: DateValue
-  endLabel: string
-  endError?: boolean
-  endHelperText?: string
-  range?: { start?: Date; end?: Date }
-  required?: boolean
-  onChange?: (start: DateValue, end: DateValue) => void
+export interface Props {
+  readonly defaultStart?: Date
+  readonly defaultEnd?: Date
+  readonly disabled?: boolean
+  readonly start: DateValue
+  readonly startLabel: string
+  readonly startError?: boolean
+  readonly startHelperText?: string
+  readonly end: DateValue
+  readonly endLabel: string
+  readonly endError?: boolean
+  readonly endHelperText?: string
+  readonly range?: { start?: Date; end?: Date }
+  readonly required?: boolean
+  readonly onChange?: (start: DateValue, end: DateValue) => void
 }
 
 function dayStyle(date: Date, selected: Boolean, defaultDate?: Date) {
@@ -52,7 +52,7 @@ export default function DateRange({
   required,
   disabled,
   onChange,
-}: DateRangeProps) {
+}: Props) {
   const { t } = useTranslation()
   const startChanged = (date: DateValue) => {
     const d = coerceToDateValue(date)

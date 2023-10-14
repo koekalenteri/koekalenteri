@@ -6,7 +6,7 @@ import Typography from '@mui/material/Typography'
 
 import useEventTitle from '../../../hooks/useEventTitle'
 
-export default function Title({ event }: { event: Event }) {
+export default function Title({ event }: { readonly event: Event }) {
   const { t } = useTranslation()
   const title = useEventTitle(event)
 

@@ -17,7 +17,7 @@ const mockUser: any = {
 
 export const useAuthenticator = () => useContext(AuthenticatorContext)
 
-export const Provider = ({ children }: { children: React.ReactNode }) => {
+export const Provider = ({ children }: { readonly children: React.ReactNode }) => {
   const [route, setRoute] = useState('authenticated')
   const user = useMemo(() => (route === 'authenticated' ? mockUser : undefined), [route])
   const state = useMemo(() => ({ route, user, signOut: () => setRoute('idle') }), [route, user])

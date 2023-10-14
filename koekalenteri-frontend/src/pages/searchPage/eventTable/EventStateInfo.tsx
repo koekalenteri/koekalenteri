@@ -6,7 +6,12 @@ import Box from '@mui/material/Box'
 import { Path } from '../../../routeConfig'
 import LinkButton from '../../components/LinkButton'
 
-export function EventStateInfo({ id, state }: { id: string; state: EventState }) {
+interface Props {
+  readonly id: string
+  readonly state: EventState
+}
+
+export function EventStateInfo({ id, state }: Props) {
   const { t } = useTranslation()
 
   if (state === 'invited' || state === 'started') {

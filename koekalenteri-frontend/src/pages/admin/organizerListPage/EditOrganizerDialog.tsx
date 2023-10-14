@@ -21,9 +21,9 @@ interface Props {
 
 export const EditOrganizerDialog = ({ onClose, onSave, open, organizer }: Props) => {
   const { t } = useTranslation()
-  const [merchantId, setMerchangId] = useState(organizer?.paytrailMerchantId ?? '')
+  const [merchantId, setMerchantId] = useState(organizer?.paytrailMerchantId ?? '')
   const onChange = useCallback((event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setMerchangId(event.target.value)
+    setMerchantId(event.target.value)
   }, [])
   const changed = merchantId !== organizer?.paytrailMerchantId
 

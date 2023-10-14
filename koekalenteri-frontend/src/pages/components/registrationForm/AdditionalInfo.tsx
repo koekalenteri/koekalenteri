@@ -8,15 +8,15 @@ import TextField from '@mui/material/TextField'
 import useDebouncedCallback from '../../../hooks/useDebouncedCallback'
 import CollapsibleSection from '../CollapsibleSection'
 
-type AdditionalInfoProps = {
-  disabled?: boolean
-  notes?: string
-  onChange?: (props: Partial<Registration>) => void
-  onOpenChange?: (value: boolean) => void
-  open?: boolean
+interface Props {
+  readonly disabled?: boolean
+  readonly notes?: string
+  readonly onChange?: (props: Partial<Registration>) => void
+  readonly onOpenChange?: (value: boolean) => void
+  readonly open?: boolean
 }
 
-export function AdditionalInfo({ disabled, notes, onChange, onOpenChange, open }: AdditionalInfoProps) {
+export function AdditionalInfo({ disabled, notes, onChange, onOpenChange, open }: Props) {
   const { t } = useTranslation()
   const [value, setValue] = useState(notes ?? '')
 
