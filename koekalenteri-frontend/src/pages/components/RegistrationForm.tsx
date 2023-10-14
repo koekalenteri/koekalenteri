@@ -293,6 +293,7 @@ export default function RegistrationForm({
                   </Link>
                 </Trans>
               }
+              name="agreeToTerms"
             />
           </FormControl>
           <FormHelperText error>{helperTexts.agreeToTerms}</FormHelperText>

@@ -1342,6 +1342,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                     class="PrivateSwitchBase-input css-1m9pwf3"
                                     data-indeterminate="false"
                                     disabled=""
+                                    name="classesEnabled"
                                     type="checkbox"
                                   />
                                   <svg

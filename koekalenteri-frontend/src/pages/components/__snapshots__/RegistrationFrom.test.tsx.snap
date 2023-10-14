@@ -1522,6 +1522,7 @@ exports[`RegistrationForm renders 1`] = `
                         <input
                           class="PrivateSwitchBase-input css-1m9pwf3"
                           data-indeterminate="false"
+                          name="ownerIsMember"
                           type="checkbox"
                         />
                         <svg
@@ -1560,6 +1561,7 @@ exports[`RegistrationForm renders 1`] = `
                         >
                           <input
                             class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"
+                            name="ownerHandles"
                             type="checkbox"
                           />
                           <span
@@ -1889,6 +1891,7 @@ exports[`RegistrationForm renders 1`] = `
                             <input
                               class="PrivateSwitchBase-input css-1m9pwf3"
                               data-indeterminate="false"
+                              name="handlerIsMember"
                               type="checkbox"
                             />
                             <svg
@@ -2127,6 +2130,7 @@ exports[`RegistrationForm renders 1`] = `
                 class="PrivateSwitchBase-input css-1m9pwf3"
                 data-indeterminate="false"
                 disabled=""
+                name="agreeToTerms"
                 type="checkbox"
               />
               <svg
@@ -3763,6 +3767,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                         <input
                           class="PrivateSwitchBase-input css-1m9pwf3"
                           data-indeterminate="false"
+                          name="ownerIsMember"
                           type="checkbox"
                         />
                         <svg
@@ -3801,6 +3806,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                         >
                           <input
                             class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"
+                            name="ownerHandles"
                             type="checkbox"
                           />
                           <span
@@ -4130,6 +4136,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                             <input
                               class="PrivateSwitchBase-input css-1m9pwf3"
                               data-indeterminate="false"
+                              name="handlerIsMember"
                               type="checkbox"
                             />
                             <svg
@@ -4368,6 +4375,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                 class="PrivateSwitchBase-input css-1m9pwf3"
                 data-indeterminate="false"
                 disabled=""
+                name="agreeToTerms"
                 type="checkbox"
               />
               <svg

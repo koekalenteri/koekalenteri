@@ -112,6 +112,7 @@ export function HandlerInfo({ reg, disabled, error, helperText, onChange, onOpen
           />
         }
         label={t('registration.handlerIsMember')}
+        name="handlerIsMember"
       />
     </CollapsibleSection>
   )

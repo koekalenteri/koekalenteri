@@ -467,6 +467,7 @@ exports[`SearchPage filters by date - no-results 1`] = `
               >
                 <input
                   class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"
+                  name="withOpenEntry"
                   type="checkbox"
                   value="withOpenEntry"
                 />
@@ -498,6 +499,7 @@ exports[`SearchPage filters by date - no-results 1`] = `
               >
                 <input
                   class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"
+                  name="withUpcomingEntry"
                   type="checkbox"
                   value="withUpcomingEntry"
                 />
@@ -1001,6 +1003,7 @@ exports[`SearchPage filters by date 1`] = `
               >
                 <input
                   class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"
+                  name="withOpenEntry"
                   type="checkbox"
                   value="withOpenEntry"
                 />
@@ -1032,6 +1035,7 @@ exports[`SearchPage filters by date 1`] = `
               >
                 <input
                   class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"
+                  name="withUpcomingEntry"
                   type="checkbox"
                   value="withUpcomingEntry"
                 />
@@ -2748,6 +2752,7 @@ exports[`SearchPage filters by date/end 1`] = `
               >
                 <input
                   class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"
+                  name="withOpenEntry"
                   type="checkbox"
                   value="withOpenEntry"
                 />
@@ -2779,6 +2784,7 @@ exports[`SearchPage filters by date/end 1`] = `
               >
                 <input
                   class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"
+                  name="withUpcomingEntry"
                   type="checkbox"
                   value="withUpcomingEntry"
                 />
@@ -4540,6 +4546,7 @@ exports[`SearchPage filters by event class 1`] = `
               >
                 <input
                   class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"
+                  name="withOpenEntry"
                   type="checkbox"
                   value="withOpenEntry"
                 />
@@ -4571,6 +4578,7 @@ exports[`SearchPage filters by event class 1`] = `
               >
                 <input
                   class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"
+                  name="withUpcomingEntry"
                   type="checkbox"
                   value="withUpcomingEntry"
                 />
@@ -6405,6 +6413,7 @@ exports[`SearchPage filters by event type 1`] = `
               >
                 <input
                   class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"
+                  name="withOpenEntry"
                   type="checkbox"
                   value="withOpenEntry"
                 />
@@ -6436,6 +6445,7 @@ exports[`SearchPage filters by event type 1`] = `
               >
                 <input
                   class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"
+                  name="withUpcomingEntry"
                   type="checkbox"
                   value="withUpcomingEntry"
                 />
@@ -8305,6 +8315,7 @@ exports[`SearchPage filters by organizer 1`] = `
               >
                 <input
                   class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"
+                  name="withOpenEntry"
                   type="checkbox"
                   value="withOpenEntry"
                 />
@@ -8336,6 +8347,7 @@ exports[`SearchPage filters by organizer 1`] = `
               >
                 <input
                   class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"
+                  name="withUpcomingEntry"
                   type="checkbox"
                   value="withUpcomingEntry"
                 />

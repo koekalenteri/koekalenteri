@@ -114,6 +114,7 @@ export function OwnerInfo({ reg, disabled, error, helperText, onChange, onOpenCh
             />
           }
           label={t('registration.ownerIsMember')}
+          name="ownerIsMember"
         />
       </FormGroup>
       <FormGroup>
@@ -123,6 +124,7 @@ export function OwnerInfo({ reg, disabled, error, helperText, onChange, onOpenCh
             <Switch checked={reg.ownerHandles} onChange={(e) => handleChange({ ownerHandles: e.target.checked })} />
           }
           label={t('registration.ownerHandles')}
+          name="ownerHandles"
         />
       </FormGroup>
     </CollapsibleSection>

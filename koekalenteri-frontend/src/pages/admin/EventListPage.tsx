@@ -177,6 +177,7 @@ export default function EventListPage() {
                   control={<Switch size="small" />}
                   label="Näytä myös menneet tapahtumat"
                   labelPlacement="start"
+                  name="showPast"
                   onChange={toggleShowPast}
                 />
               </Stack>

@@ -25,6 +25,7 @@ exports[`EventFormPlaces should render with classes 1`] = `
             <input
               class="PrivateSwitchBase-input css-1m9pwf3"
               data-indeterminate="false"
+              name="classesEnabled"
               type="checkbox"
             />
             <svg
@@ -265,6 +266,7 @@ exports[`EventFormPlaces should render with minimal information 1`] = `
             <input
               class="PrivateSwitchBase-input css-1m9pwf3"
               data-indeterminate="false"
+              name="classesEnabled"
               type="checkbox"
             />
             <svg

@@ -131,6 +131,7 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
               checked={filter.withOpenEntry}
               control={<Switch />}
               label={t('entryOpen')}
+              name="withOpenEntry"
               onChange={handleWithEntryOpenChange}
             />
             <FormControlLabel
@@ -139,6 +140,7 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
               control={<Switch />}
               label={t('entryUpcoming')}
               labelPlacement="end"
+              name="withUpcomingEntry"
               onChange={handleWithUpcomingEntryChange}
             />
           </Stack>

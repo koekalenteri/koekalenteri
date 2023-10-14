@@ -41,6 +41,7 @@ export function AdditionalInfo({ disabled, notes, onChange, onOpenChange, open }
         disabled={disabled}
         label={t('registration.notes')}
         multiline
+        name="notes"
         onChange={handleChange}
         rows={4}
         sx={{ width: '100%' }}

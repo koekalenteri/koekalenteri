@@ -1654,6 +1654,7 @@ exports[`RegistrationEditPage should render 1`] = `
                           class="PrivateSwitchBase-input css-1m9pwf3"
                           data-indeterminate="false"
                           disabled=""
+                          name="ownerIsMember"
                           type="checkbox"
                         />
                         <svg
@@ -1692,6 +1693,7 @@ exports[`RegistrationEditPage should render 1`] = `
                           <input
                             class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"
                             disabled=""
+                            name="ownerHandles"
                             type="checkbox"
                           />
                           <span
@@ -2023,6 +2025,7 @@ exports[`RegistrationEditPage should render 1`] = `
                               class="PrivateSwitchBase-input css-1m9pwf3"
                               data-indeterminate="false"
                               disabled=""
+                              name="handlerIsMember"
                               type="checkbox"
                             />
                             <svg
@@ -2259,6 +2262,7 @@ exports[`RegistrationEditPage should render 1`] = `
                 class="PrivateSwitchBase-input css-1m9pwf3"
                 data-indeterminate="false"
                 disabled=""
+                name="agreeToTerms"
                 type="checkbox"
               />
               <svg

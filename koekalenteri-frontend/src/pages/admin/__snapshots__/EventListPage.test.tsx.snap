@@ -356,6 +356,7 @@ exports[`EventListPage renders 1`] = `
                   >
                     <input
                       class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"
+                      name="showPast"
                       type="checkbox"
                     />
                     <span

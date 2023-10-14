@@ -70,6 +70,7 @@ export function EditUserRolesDialog({ onClose, open, user }: Props) {
           disabled={!isAdmin}
           control={<Checkbox checked={!!user.admin} onChange={handleAdminChange} />}
           label={t('user.admin')}
+          name="isAdmin"
         />
         {user.admin ? (
           <DialogContentText variant="h6">{t('user.adminRoles')}</DialogContentText>

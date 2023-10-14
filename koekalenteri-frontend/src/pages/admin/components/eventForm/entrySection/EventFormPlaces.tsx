@@ -78,6 +78,7 @@ export default function EventFormPlaces({ event, disabled, helperTexts, onChange
             disabled={disabled}
             control={<Checkbox sx={{ py: 0 }} size="small" checked={classesEnabled} onChange={handleByClassesChange} />}
             label="Luokittain"
+            name="classesEnabled"
           />
         </Stack>
         <Table size="small" sx={{ '& .MuiTextField-root': { m: 0, width: '10ch' } }}>
