@@ -45,7 +45,7 @@ const Header = ({ toggleMenu }: Props) => {
         ) : null}
         <Link to="/" component={SpaLink}>
           <IconButton sx={{ mx: { xs: 1, sm: 1 }, p: 0, height: 36 }}>
-            <img src={logo} height="100%" alt="Suomen noutajakoirajärjestö" />
+            <img src={logo} width="29" height="36" alt="Suomen noutajakoirajärjestö" />
           </IconButton>
         </Link>
         <Link to="/" component={SpaLink} sx={{ textDecoration: 'none', borderBottom: mainBorder, mr: 1, px: 1 }}>
