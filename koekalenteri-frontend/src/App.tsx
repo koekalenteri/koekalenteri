@@ -17,7 +17,11 @@ import { AWSConfig } from './amplify-env'
 import { locales, muiLocales } from './i18n'
 import routes from './routes'
 
-Auth.configure(AWSConfig)
+try {
+  Auth.configure(AWSConfig)
+} catch (e) {
+  console.error(e)
+}
 
 const router = createBrowserRouter(routes)
 
