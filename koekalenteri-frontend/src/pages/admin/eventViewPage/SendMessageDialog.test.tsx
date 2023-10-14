@@ -14,7 +14,7 @@ import SendMessageDialog from './SendMessageDialog'
 jest.useFakeTimers()
 jest.mock('../../../api/email')
 
-function Wrapper(props: { children?: ReactNode }) {
+function Wrapper(props: { readonly children?: ReactNode }) {
   return (
     <RecoilRoot>
       <SnackbarProvider>{props.children}</SnackbarProvider>

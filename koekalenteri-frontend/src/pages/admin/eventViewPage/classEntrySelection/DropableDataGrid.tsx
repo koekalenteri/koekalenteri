@@ -10,11 +10,11 @@ import StyledDataGrid from '../../../components/StyledDataGrid'
 import DragableRow from './dropableDataGrid/DragableRow'
 
 interface Props extends DataGridProps {
-  canDrop?: (item?: DragItem) => boolean
-  onDrop?: (item: DragItem) => any
-  onReject?: (item: DragItem) => any
-  group?: string
-  flex?: number
+  readonly canDrop?: (item?: DragItem) => boolean
+  readonly onDrop?: (item: DragItem) => any
+  readonly onReject?: (item: DragItem) => any
+  readonly group?: string
+  readonly flex?: number
 }
 
 interface DragCollect {

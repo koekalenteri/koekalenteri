@@ -18,9 +18,9 @@ export const paymentLoader = async ({ params }: { params: Params<string> }) =>
   params.id && params.registrationId ? defer({ response: createPayment(params.id, params.registrationId) }) : {}
 
 interface Props {
-  id?: string
-  registrationId?: string
-  response?: CreatePaymentResponse
+  readonly id?: string
+  readonly registrationId?: string
+  readonly response?: CreatePaymentResponse
 }
 
 const PaymentPageWithData = ({ id, registrationId, response }: Props) => {

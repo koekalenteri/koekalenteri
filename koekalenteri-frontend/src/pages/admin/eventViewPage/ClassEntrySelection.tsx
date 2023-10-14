@@ -31,14 +31,14 @@ import NoRowsOverlay from './classEntrySelection/NoRowsOverlay'
 import { useClassEntrySelectionColumns } from './classEntrySelection/useClassEntrySectionColumns'
 
 interface Props {
-  eventId: string
-  eventClass: string
-  eventDates?: Date[]
-  registrations?: Registration[]
-  setOpen?: Dispatch<SetStateAction<boolean>>
-  selectedRegistrationId?: string
-  setSelectedRegistrationId?: SetterOrUpdater<string | undefined>
-  state?: EventClassState | EventState
+  readonly eventId: string
+  readonly eventClass: string
+  readonly eventDates?: Date[]
+  readonly registrations?: Registration[]
+  readonly setOpen?: Dispatch<SetStateAction<boolean>>
+  readonly selectedRegistrationId?: string
+  readonly setSelectedRegistrationId?: SetterOrUpdater<string | undefined>
+  readonly state?: EventClassState | EventState
 }
 
 interface RegistrationWithGroups extends Registration {

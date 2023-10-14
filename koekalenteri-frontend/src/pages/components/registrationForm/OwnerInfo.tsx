@@ -15,13 +15,13 @@ import CollapsibleSection from '../CollapsibleSection'
 import { useDogCacheKey } from './hooks/useDogCacheKey'
 
 interface Props {
-  reg: DeepPartial<Registration>
-  disabled?: boolean
-  error?: boolean
-  helperText?: string
-  onChange: (props: DeepPartial<Registration>) => void
-  onOpenChange?: (value: boolean) => void
-  open?: boolean
+  readonly reg: DeepPartial<Registration>
+  readonly disabled?: boolean
+  readonly error?: boolean
+  readonly helperText?: string
+  readonly onChange: (props: DeepPartial<Registration>) => void
+  readonly onOpenChange?: (value: boolean) => void
+  readonly open?: boolean
 }
 
 export function OwnerInfo({ reg, disabled, error, helperText, onChange, onOpenChange, open }: Props) {

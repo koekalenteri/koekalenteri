@@ -16,7 +16,7 @@ export interface DragItem {
 }
 
 interface Props extends GridRowProps {
-  groupKey?: string
+  readonly groupKey?: string
 }
 
 const DragableRow = ({ groupKey, ...props }: Props) => {

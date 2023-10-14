@@ -37,15 +37,15 @@ export function shouldAllowRefresh(dog?: DeepPartial<Dog>) {
 }
 
 interface Props {
-  reg: DeepPartial<Registration>
-  eventDate: Date
-  minDogAgeMonths: number
-  disabled?: boolean
-  error?: boolean
-  helperText?: string
-  onChange?: (props: DeepPartial<Registration>, replace?: boolean) => void
-  onOpenChange?: (value: boolean) => void
-  open?: boolean
+  readonly reg: DeepPartial<Registration>
+  readonly eventDate: Date
+  readonly minDogAgeMonths: number
+  readonly disabled?: boolean
+  readonly error?: boolean
+  readonly helperText?: string
+  readonly onChange?: (props: DeepPartial<Registration>, replace?: boolean) => void
+  readonly onOpenChange?: (value: boolean) => void
+  readonly open?: boolean
 }
 
 interface State {

@@ -6,8 +6,8 @@ import { useTranslation } from 'react-i18next'
 import Tooltip from '@mui/material/Tooltip'
 
 interface Props {
-  children: ReactElement
-  selected: RegistrationDate[]
+  readonly children: ReactElement
+  readonly selected: RegistrationDate[]
 }
 
 const GroupColorTooltip = ({ selected, children }: Props) => {

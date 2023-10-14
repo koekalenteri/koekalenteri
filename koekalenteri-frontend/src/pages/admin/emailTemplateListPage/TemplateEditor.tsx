@@ -5,10 +5,10 @@ import Paper from '@mui/material/Paper'
 import Stack from '@mui/material/Stack'
 
 interface Props {
-  template: EmailTemplate
-  language: Language
-  hidden?: boolean
-  onChange?: (template: EmailTemplate) => void
+  readonly template: EmailTemplate
+  readonly language: Language
+  readonly hidden?: boolean
+  readonly onChange?: (template: EmailTemplate) => void
 }
 export function TemplateEditor({ template, language, hidden, onChange }: Props) {
   const handleChange = (event: ChangeEvent<HTMLTextAreaElement>) =>

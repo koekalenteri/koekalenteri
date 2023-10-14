@@ -13,9 +13,9 @@ import EventForm from '../components/EventForm'
 import { adminEventSelector, editableEventByIdAtom, useAdminEventActions } from '../recoil'
 
 interface Props {
-  eventId: string
-  onClose?: () => void
-  open: boolean
+  readonly eventId: string
+  readonly onClose?: () => void
+  readonly open: boolean
 }
 
 export default function EventDetailsDialog({ eventId, onClose, open }: Props) {

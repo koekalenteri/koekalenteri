@@ -37,6 +37,6 @@ export const initReactI18next: ThirdPartyModule = {
   init() {},
 }
 
-export function Trans(props: { children: ReactNode }) {
+export function Trans(props: { readonly children: ReactNode }) {
   return <>{props.children}</>
 }

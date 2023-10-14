@@ -5,7 +5,7 @@ import { ParameterInput } from './ParameterInput'
 import './ProviderButton.css'
 
 interface Props {
-  provider: Provider
+  readonly provider: Provider
 }
 
 export const ProviderButton = ({ provider }: Props) => {

@@ -28,12 +28,12 @@ import EventClasses from './components/EventClasses'
 import EventProperty from './components/EventProperty'
 
 interface Props extends SectionProps {
-  event: PartialEvent
-  eventTypes?: string[]
-  eventTypeClasses?: Record<string, RegistrationClass[]>
-  officials?: Official[]
-  organizers?: Organizer[]
-  secretaries?: User[]
+  readonly event: PartialEvent
+  readonly eventTypes?: string[]
+  readonly eventTypeClasses?: Record<string, RegistrationClass[]>
+  readonly officials?: Official[]
+  readonly organizers?: Organizer[]
+  readonly secretaries?: User[]
 }
 
 export default function BasicInfoSection({

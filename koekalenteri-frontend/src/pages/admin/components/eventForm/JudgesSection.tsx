@@ -30,7 +30,7 @@ function filterClassesByJudgeId(classes?: EventClass[], id?: number) {
 }
 
 interface Props extends SectionProps {
-  judges: Judge[]
+  readonly judges: Judge[]
 }
 
 export default function JudgesSection({ event, disabled, judges, fields, onChange, onOpenChange, open }: Props) {

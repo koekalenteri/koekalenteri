@@ -3,7 +3,7 @@ import type { ReactNode } from 'react'
 import List from '@mui/material/List'
 
 interface Props {
-  children: ReactNode
+  readonly children: ReactNode
 }
 
 export default function DrawerList({ children }: Props) {

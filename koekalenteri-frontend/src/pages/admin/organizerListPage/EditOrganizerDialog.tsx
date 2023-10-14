@@ -13,10 +13,10 @@ import DialogTitle from '@mui/material/DialogTitle'
 import TextField from '@mui/material/TextField'
 
 interface Props {
-  organizer: Organizer | null | undefined
-  onClose?: () => void
-  onSave?: (organizer: Organizer) => void
-  open: boolean
+  readonly organizer: Organizer | null | undefined
+  readonly onClose?: () => void
+  readonly onSave?: (organizer: Organizer) => void
+  readonly open: boolean
 }
 
 export const EditOrganizerDialog = ({ onClose, onSave, open, organizer }: Props) => {

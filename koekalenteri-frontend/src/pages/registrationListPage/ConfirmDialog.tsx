@@ -9,11 +9,11 @@ import DialogContentText from '@mui/material/DialogContentText'
 import DialogTitle from '@mui/material/DialogTitle'
 
 interface Props {
-  event: ConfirmedEvent | null | undefined
-  onConfirm: () => void
-  onClose: () => void
-  open: boolean
-  registration: Registration | null | undefined
+  readonly event: ConfirmedEvent | null | undefined
+  readonly onConfirm: () => void
+  readonly onClose: () => void
+  readonly open: boolean
+  readonly registration: Registration | null | undefined
 }
 
 export function ConfirmDialog({ event, onConfirm, onClose, open, registration }: Props) {

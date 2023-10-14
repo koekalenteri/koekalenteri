@@ -16,7 +16,7 @@ import LanguageMenu from './header/LanguageMenu'
 import UserMenu from './header/UserMenu'
 
 interface Props {
-  toggleMenu?: () => void
+  readonly toggleMenu?: () => void
 }
 
 const Header = ({ toggleMenu }: Props) => {

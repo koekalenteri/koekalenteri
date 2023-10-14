@@ -12,9 +12,9 @@ export const availableGroups = (dates: Date[]) =>
   dates.reduce<RegistrationDate[]>((acc, date) => [...acc, { date, time: 'ap' }, { date, time: 'ip' }], [])
 
 interface Props {
-  dates: Date[]
-  disableTooltip?: boolean
-  selected: RegistrationDate[]
+  readonly dates: Date[]
+  readonly disableTooltip?: boolean
+  readonly selected: RegistrationDate[]
 }
 
 const GroupColors = ({ dates, selected, disableTooltip = false }: Props) => {

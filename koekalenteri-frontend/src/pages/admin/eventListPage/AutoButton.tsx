@@ -7,7 +7,7 @@ import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 
 interface Props extends ButtonProps {
-  text: string
+  readonly text: string
 }
 
 export default function AutoButton(props: Props) {

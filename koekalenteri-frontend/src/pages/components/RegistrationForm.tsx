@@ -32,16 +32,16 @@ import QualifyingResultsInfo from './registrationForm/QualifyingResultsInfo'
 import { filterRelevantResults, validateRegistration } from './registrationForm/validation'
 
 interface Props {
-  event: ConfirmedEvent
-  registration: Registration
-  classDisabled?: boolean
-  className?: string
-  classDate?: string
-  changes?: boolean
-  disabled?: boolean
-  onSave?: () => void
-  onCancel?: () => void
-  onChange?: (registration: Registration) => void
+  readonly event: ConfirmedEvent
+  readonly registration: Registration
+  readonly classDisabled?: boolean
+  readonly className?: string
+  readonly classDate?: string
+  readonly changes?: boolean
+  readonly disabled?: boolean
+  readonly onSave?: () => void
+  readonly onCancel?: () => void
+  readonly onChange?: (registration: Registration) => void
 }
 
 export const emptyDog = {

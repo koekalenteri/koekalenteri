@@ -5,7 +5,7 @@ import IconButton from '@mui/material/IconButton'
 import { useSnackbar } from 'notistack'
 
 interface Props {
-  snackbarKey: SnackbarKey
+  readonly snackbarKey: SnackbarKey
 }
 
 function SnackbarCloseButton({ snackbarKey }: Props) {

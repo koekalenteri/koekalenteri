@@ -6,9 +6,9 @@ import Stack from '@mui/material/Stack'
 import GroupColors from './GroupColors'
 
 interface Props {
-  eventDates: Date[]
-  group: RegistrationDate
-  className?: string
+  readonly eventDates: Date[]
+  readonly group: RegistrationDate
+  readonly className?: string
 }
 
 const GroupHeader = ({ eventDates, group }: Props) => {

@@ -36,23 +36,23 @@ export interface PartialEvent extends DeepPartial<Event> {
 }
 
 export interface SectionProps {
-  event: PartialEvent
-  disabled?: boolean
-  fields?: FieldRequirements
-  errorStates?: { [Property in keyof Event]?: boolean }
-  helperTexts?: { [Property in keyof Event]?: string }
-  open?: boolean
-  onChange?: (event: DeepPartial<Event>) => void
-  onOpenChange?: (value: boolean) => void
+  readonly event: PartialEvent
+  readonly disabled?: boolean
+  readonly fields?: FieldRequirements
+  readonly errorStates?: { [Property in keyof Event]?: boolean }
+  readonly helperTexts?: { [Property in keyof Event]?: string }
+  readonly open?: boolean
+  readonly onChange?: (event: DeepPartial<Event>) => void
+  readonly onOpenChange?: (value: boolean) => void
 }
 
 interface Props {
-  event: Event
-  changes?: boolean
-  disabled?: boolean
-  onSave?: () => void
-  onCancel?: () => void
-  onChange?: (event: Event) => void
+  readonly event: Event
+  readonly changes?: boolean
+  readonly disabled?: boolean
+  readonly onSave?: () => void
+  readonly onCancel?: () => void
+  readonly onChange?: (event: Event) => void
 }
 
 const SELECTABLE_EVENT_STATES: EventState[] = ['draft', 'tentative', 'confirmed', 'cancelled']

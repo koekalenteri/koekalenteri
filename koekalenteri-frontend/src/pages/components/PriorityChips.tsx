@@ -3,7 +3,7 @@ import Chip from '@mui/material/Chip'
 import { PRIORITY } from '../../lib/priority'
 
 interface Props {
-  priority: string[]
+  readonly priority: string[]
 }
 
 export const PriorityChips = ({ priority }: Props) => (

@@ -27,9 +27,9 @@ import { API_BASE_URL } from '../../../routeConfig'
 import { idTokenAtom } from '../../recoil'
 
 interface Props {
-  event: Event
-  registrations: Registration[]
-  onOpenMessageDialog?: (recipients: Registration[], templateId?: EmailTemplateId) => void
+  readonly event: Event
+  readonly registrations: Registration[]
+  readonly onOpenMessageDialog?: (recipients: Registration[], templateId?: EmailTemplateId) => void
 }
 
 const InfoPanel = ({ event, registrations, onOpenMessageDialog }: Props) => {

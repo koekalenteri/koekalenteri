@@ -4,9 +4,9 @@ import { useTranslation } from 'react-i18next'
 import Grid from '@mui/material/Grid'
 
 interface Props {
-  contact: 'official' | 'secretary'
-  person?: Partial<Person>
-  show?: Partial<ShowContactInfo>
+  readonly contact: 'official' | 'secretary'
+  readonly person?: Partial<Person>
+  readonly show?: Partial<ShowContactInfo>
 }
 
 export default function ContactInfoDisplay({ contact, person, show }: Props) {

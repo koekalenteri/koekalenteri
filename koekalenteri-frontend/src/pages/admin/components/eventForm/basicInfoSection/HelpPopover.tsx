@@ -5,9 +5,9 @@ import Paper from '@mui/material/Paper'
 import Popover from '@mui/material/Popover'
 
 interface Props {
-  anchorEl: HTMLButtonElement | null
-  onClose: () => void
-  children: ReactNode
+  readonly anchorEl: HTMLButtonElement | null
+  readonly onClose: () => void
+  readonly children: ReactNode
 }
 
 export default function HelpPopover({ anchorEl, onClose, children }: Props) {

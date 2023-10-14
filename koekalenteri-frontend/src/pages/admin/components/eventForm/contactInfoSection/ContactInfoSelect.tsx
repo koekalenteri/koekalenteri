@@ -8,10 +8,10 @@ import FormControlLabel from '@mui/material/FormControlLabel'
 import FormGroup from '@mui/material/FormGroup'
 
 interface Props {
-  disabled?: boolean
-  name: string
-  show?: Partial<ShowContactInfo>
-  onChange: (name: string, props: ShowContactInfo) => void
+  readonly disabled?: boolean
+  readonly name: string
+  readonly show?: Partial<ShowContactInfo>
+  readonly onChange: (name: string, props: ShowContactInfo) => void
 }
 
 export default function ContactInfoSelect({ disabled, name, show, onChange }: Props) {

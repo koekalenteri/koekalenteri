@@ -10,14 +10,14 @@ import IconButton from '@mui/material/IconButton'
 import Typography from '@mui/material/Typography'
 
 interface Props {
-  border?: boolean
-  children?: ReactNode
-  error?: boolean
-  helperText?: string
-  initOpen?: boolean
-  onOpenChange?: (open: boolean) => void
-  open?: boolean
-  title: string
+  readonly border?: boolean
+  readonly children?: ReactNode
+  readonly error?: boolean
+  readonly helperText?: string
+  readonly initOpen?: boolean
+  readonly onOpenChange?: (open: boolean) => void
+  readonly open?: boolean
+  readonly title: string
 }
 
 export default function CollapsibleSection({

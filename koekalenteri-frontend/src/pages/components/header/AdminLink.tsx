@@ -6,8 +6,8 @@ import Typography from '@mui/material/Typography'
 import { Path } from '../../../routeConfig'
 
 interface Props {
-  active?: boolean
-  activeBorder?: string
+  readonly active?: boolean
+  readonly activeBorder?: string
 }
 
 export const AdminLink = ({ active, activeBorder }: Props) => {

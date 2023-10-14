@@ -32,9 +32,9 @@ import { LoadingPage } from './LoadingPage'
 import { confirmedEventSelector, registrationSelector, spaAtom } from './recoil'
 
 interface Props {
-  cancel?: boolean
-  confirm?: boolean
-  invitation?: boolean
+  readonly cancel?: boolean
+  readonly confirm?: boolean
+  readonly invitation?: boolean
 }
 
 export function RegistrationListPage({ cancel, confirm, invitation }: Props) {

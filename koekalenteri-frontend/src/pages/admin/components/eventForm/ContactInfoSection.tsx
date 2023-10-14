@@ -9,15 +9,15 @@ import ContactInfoDisplay from './contactInfoSection/ContactInfoDisplay'
 import ContactInfoSelect from './contactInfoSection/ContactInfoSelect'
 
 interface Props {
-  contactInfo?: DeepPartial<ContactInfo>
-  official?: DeepPartial<Official>
-  secretary?: Partial<Secretary>
-  disabled?: boolean
-  error?: boolean
-  helperText?: string
-  open?: boolean
-  onChange: (changes: { contactInfo: DeepPartial<ContactInfo> }) => void
-  onOpenChange?: (value: boolean) => void
+  readonly contactInfo?: DeepPartial<ContactInfo>
+  readonly official?: DeepPartial<Official>
+  readonly secretary?: Partial<Secretary>
+  readonly disabled?: boolean
+  readonly error?: boolean
+  readonly helperText?: string
+  readonly open?: boolean
+  readonly onChange: (changes: { contactInfo: DeepPartial<ContactInfo> }) => void
+  readonly onOpenChange?: (value: boolean) => void
 }
 
 export default function ContactInfoSection({

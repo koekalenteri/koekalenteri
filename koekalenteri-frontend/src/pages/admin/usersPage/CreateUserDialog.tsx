@@ -16,8 +16,8 @@ import { useRecoilValue } from 'recoil'
 import { adminUserAdminOrganizersSelector, useAdminUserActions } from '../recoil'
 
 interface Props {
-  onClose: () => void
-  open: boolean
+  readonly onClose: () => void
+  readonly open: boolean
 }
 
 export function CreateUserDialog({ onClose, open }: Props) {

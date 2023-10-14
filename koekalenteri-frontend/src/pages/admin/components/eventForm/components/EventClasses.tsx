@@ -14,19 +14,19 @@ import TextField from '@mui/material/TextField'
 import { isSameDay } from 'date-fns'
 
 interface Props {
-  id: string
-  eventStartDate: Date
-  eventEndDate: Date
-  value: DeepPartial<EventClass>[] | undefined
-  classes: DeepPartial<EventClass>[]
-  label: string
-  disabled?: boolean
-  required?: boolean
-  requiredState?: EventState
-  errorStates?: { [Property in keyof Event]?: boolean }
-  helperTexts?: { [Property in keyof Event]?: string }
-  showCount?: boolean
-  onChange?: (
+  readonly id: string
+  readonly eventStartDate: Date
+  readonly eventEndDate: Date
+  readonly value: DeepPartial<EventClass>[] | undefined
+  readonly classes: DeepPartial<EventClass>[]
+  readonly label: string
+  readonly disabled?: boolean
+  readonly required?: boolean
+  readonly requiredState?: EventState
+  readonly errorStates?: { [Property in keyof Event]?: boolean }
+  readonly helperTexts?: { [Property in keyof Event]?: string }
+  readonly showCount?: boolean
+  readonly onChange?: (
     event: SyntheticEvent,
     value: readonly DeepPartial<EventClass>[],
     reason: AutocompleteChangeReason

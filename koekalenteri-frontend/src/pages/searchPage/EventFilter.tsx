@@ -15,12 +15,12 @@ import AutocompleteMulti from '../components/AutocompleteMulti'
 import DateRange from '../components/DateRange'
 
 interface Props {
-  eventTypes: string[]
-  eventClasses: RegistrationClass[]
-  filter: FilterProps
-  judges: Judge[]
-  onChange?: (filter: FilterProps) => void
-  organizers: Organizer[]
+  readonly eventTypes: string[]
+  readonly eventClasses: RegistrationClass[]
+  readonly filter: FilterProps
+  readonly judges: Judge[]
+  readonly onChange?: (filter: FilterProps) => void
+  readonly organizers: Organizer[]
 }
 
 const MIN_DATE = new Date(2020, 0, 1)

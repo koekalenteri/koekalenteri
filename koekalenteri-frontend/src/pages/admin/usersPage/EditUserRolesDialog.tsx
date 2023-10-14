@@ -26,9 +26,9 @@ import { isAdminSelector } from '../../recoil'
 import { adminUserAdminOrganizersSelector, useAdminUserActions } from '../recoil/user'
 
 interface Props {
-  user: User | null | undefined
-  onClose: () => void
-  open: boolean
+  readonly user: User | null | undefined
+  readonly onClose: () => void
+  readonly open: boolean
 }
 
 export function EditUserRolesDialog({ onClose, open, user }: Props) {

@@ -1,9 +1,9 @@
 import type { ReactNode } from 'react'
 
 interface Props {
-  index: number
-  activeTab: number
-  children?: ReactNode
+  readonly index: number
+  readonly activeTab: number
+  readonly children?: ReactNode
 }
 
 const TabPanel = ({ index, activeTab, children }: Props) => {

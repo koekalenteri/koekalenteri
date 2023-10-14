@@ -3,7 +3,7 @@ import type { Event } from 'koekalenteri-shared/model'
 import { useTranslation } from 'react-i18next'
 
 interface Props {
-  event: Pick<Event, 'cost' | 'costMember' | 'paymentDetails'>
+  readonly event: Pick<Event, 'cost' | 'costMember' | 'paymentDetails'>
 }
 
 export default function CostInfo({ event }: Props) {

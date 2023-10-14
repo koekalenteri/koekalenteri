@@ -16,7 +16,7 @@ import CostInfo from './CostInfo'
 import { PriorityChips } from './PriorityChips'
 
 interface Props {
-  event: ConfirmedEvent
+  readonly event: ConfirmedEvent
 }
 
 export default function RegistrationEventInfo({ event }: Props) {

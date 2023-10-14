@@ -4,10 +4,10 @@ import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 
 interface Props {
-  startIcon?: ReactNode
-  endIcon?: ReactNode
-  onClick?: MouseEventHandler
-  children?: ReactNode
+  readonly startIcon?: ReactNode
+  readonly endIcon?: ReactNode
+  readonly onClick?: MouseEventHandler
+  readonly children?: ReactNode
 }
 
 export default function AppBarButton(props: Props) {

@@ -7,7 +7,7 @@ import TableBody from '@mui/material/TableBody'
 import { EventClassTableRow } from './EventClassTableRow'
 
 interface Props {
-  event: Event
+  readonly event: Event
 }
 
 export const EventClassTable = ({ event }: Props) => {

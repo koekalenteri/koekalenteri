@@ -11,10 +11,10 @@ import { currentAdminRegistrationSelector, editableAdminEventRegistrationByEvent
 import RegistrationDialogBase from './RegistrationDialogBase'
 
 interface Props {
-  event: Event
-  onClose?: () => void
-  open: boolean
-  registrationId: string
+  readonly event: Event
+  readonly onClose?: () => void
+  readonly open: boolean
+  readonly registrationId: string
 }
 
 export default function RegistrationEditDialog({ event, registrationId, open, onClose }: Props) {

@@ -6,9 +6,9 @@ import ListItemText from '@mui/material/ListItemText'
 import Tooltip from '@mui/material/Tooltip'
 
 interface Props {
-  text: string
-  icon: ReactNode
-  onClick?: MouseEventHandler
+  readonly text: string
+  readonly icon: ReactNode
+  readonly onClick?: MouseEventHandler
 }
 
 export default function DrawerItem({ text, icon, onClick }: Props) {

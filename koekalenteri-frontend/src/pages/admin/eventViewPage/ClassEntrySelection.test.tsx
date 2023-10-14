@@ -9,7 +9,7 @@ import { registrationWithStaticDates, registrationWithStaticDatesCancelled } fro
 
 import ClassEntrySelection from './ClassEntrySelection'
 
-function Wrapper(props: { children?: ReactNode }) {
+function Wrapper(props: { readonly children?: ReactNode }) {
   return (
     <RecoilRoot>
       <SnackbarProvider>{props.children}</SnackbarProvider>

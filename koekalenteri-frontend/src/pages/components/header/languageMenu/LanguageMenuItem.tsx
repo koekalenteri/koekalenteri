@@ -8,7 +8,7 @@ import { useRecoilState } from 'recoil'
 import { languageAtom } from '../../../recoil'
 
 interface Props {
-  locale: Language
+  readonly locale: Language
 }
 export function LanguageMenuItem({ locale }: Props) {
   const { t } = useTranslation()

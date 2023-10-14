@@ -10,12 +10,12 @@ import DialogTitle from '@mui/material/DialogTitle'
 import Link from '@mui/material/Link'
 
 interface Props {
-  disabled: boolean
-  event: ConfirmedEvent | null | undefined
-  onCancel: () => void
-  onClose: () => void
-  open: boolean
-  registration: Registration | null | undefined
+  readonly disabled: boolean
+  readonly event: ConfirmedEvent | null | undefined
+  readonly onCancel: () => void
+  readonly onClose: () => void
+  readonly open: boolean
+  readonly registration: Registration | null | undefined
 }
 
 export function CancelDialog({ disabled, event, onCancel, onClose, open, registration }: Props) {

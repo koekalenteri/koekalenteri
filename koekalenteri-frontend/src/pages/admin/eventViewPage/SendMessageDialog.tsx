@@ -39,11 +39,11 @@ import { idTokenAtom } from '../../recoil'
 import { adminEventSelector, emailTemplatesAtom } from '../recoil'
 
 interface Props {
-  registrations: Registration[]
-  templateId?: EmailTemplateId
-  open: boolean
-  event: Event
-  onClose?: () => void
+  readonly registrations: Registration[]
+  readonly templateId?: EmailTemplateId
+  readonly open: boolean
+  readonly event: Event
+  readonly onClose?: () => void
 }
 
 export default function SendMessageDialog({ event, registrations, templateId, open, onClose }: Props) {

@@ -9,7 +9,7 @@ import { useUserActions } from '../../../recoil/user/actions'
 import AppBarButton from '../AppBarButton'
 
 interface Props {
-  userName: string
+  readonly userName: string
 }
 
 export default function LoggedInUserMenu({ userName }: Props) {

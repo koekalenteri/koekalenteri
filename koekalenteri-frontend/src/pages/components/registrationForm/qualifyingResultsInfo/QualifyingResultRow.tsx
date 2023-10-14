@@ -16,11 +16,11 @@ import AutocompleteSingle from '../../AutocompleteSingle'
 import { availableResults, availableTypes, resultBorderColor } from './utils'
 
 interface Props {
-  result: ManualTestResult
-  disabled?: boolean
-  requirements?: EventResultRequirementsByDate
-  onChange?: (result: ManualTestResult, props: Partial<TestResult>) => void
-  onRemove?: (result: ManualTestResult) => void
+  readonly result: ManualTestResult
+  readonly disabled?: boolean
+  readonly requirements?: EventResultRequirementsByDate
+  readonly onChange?: (result: ManualTestResult, props: Partial<TestResult>) => void
+  readonly onRemove?: (result: ManualTestResult) => void
 }
 
 export default function QualifyingResultRow({ result, disabled, requirements, onChange, onRemove }: Props) {

@@ -16,16 +16,16 @@ import RegistrationForm from '../../components/RegistrationForm'
 import { useAdminRegistrationActions } from '../recoil/registrations/actions'
 
 interface Props {
-  changes: boolean
-  classDisabled?: boolean
-  event: Event
-  eventClass?: string
-  onClose?: () => void
-  open: boolean
-  registration?: Registration
-  auditTrail?: AuditRecord[]
-  resetRegistration: Resetter
-  setRegistration: SetterOrUpdater<Registration | undefined>
+  readonly changes: boolean
+  readonly classDisabled?: boolean
+  readonly event: Event
+  readonly eventClass?: string
+  readonly onClose?: () => void
+  readonly open: boolean
+  readonly registration?: Registration
+  readonly auditTrail?: AuditRecord[]
+  readonly resetRegistration: Resetter
+  readonly setRegistration: SetterOrUpdater<Registration | undefined>
 }
 
 export default function RegistrationDialogBase({

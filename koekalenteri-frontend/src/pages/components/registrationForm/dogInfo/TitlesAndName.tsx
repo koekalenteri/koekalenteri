@@ -6,16 +6,16 @@ import TextField from '@mui/material/TextField'
 
 import useDebouncedCallback from '../../../../hooks/useDebouncedCallback'
 
-type TitlesAndNameProps = {
-  className?: string
-  disabledName?: boolean
-  disabledTitles?: boolean
-  id: string
-  name?: string
-  nameLabel: string
-  onChange?: (props: { titles?: string; name?: string }) => void
-  titles?: string
-  titlesLabel: string
+interface Props {
+  readonly className?: string
+  readonly disabledName?: boolean
+  readonly disabledTitles?: boolean
+  readonly id: string
+  readonly name?: string
+  readonly nameLabel: string
+  readonly onChange?: (props: { titles?: string; name?: string }) => void
+  readonly titles?: string
+  readonly titlesLabel: string
 }
 export function TitlesAndName({
   className,
@@ -27,7 +27,7 @@ export function TitlesAndName({
   onChange,
   titles,
   titlesLabel,
-}: TitlesAndNameProps) {
+}: Props) {
   const [localName, setLocalName] = useState('')
   const [localTitles, setLocalTitles] = useState('')
 

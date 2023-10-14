@@ -22,7 +22,7 @@ jest.mock('../../../api/dog')
 jest.mock('../../../api/registration')
 jest.setTimeout(10000)
 
-function Wrapper(props: { children?: ReactNode }) {
+function Wrapper(props: { readonly children?: ReactNode }) {
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
       <RecoilRoot>
