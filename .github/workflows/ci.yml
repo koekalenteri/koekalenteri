@@ -17,7 +17,14 @@ jobs:
         with:
           cache: npm
           cache-dependency-path: koekalenteri-backend/package-lock.json
+      - name: Cache node_modules
+        id: cache
+        uses: actions/cache@v3
+        with:
+          path: koekalenteri-backend/node_modules
+          key: ${{ runner.os }}-${{ hashFiles('koekalenteri-backend/package-lock.json') }}
       - name: Install packages
+        if: steps.cache.outputs.cache-hit != 'true'
         run: npm ci
         working-directory: koekalenteri-backend
       - name: Lint
@@ -110,6 +117,12 @@ jobs:
           cache: npm
           node-version: 16 # sam build fails with 18
           cache-dependency-path: koekalenteri-backend/package-lock.json
+      - name: Restore node_modules
+        id: cache-restore
+        uses: actions/cache/restore@v3
+        with:
+          path: koekalenteri-backend/node_modules
+          key: ${{ runner.os }}-${{ hashFiles('koekalenteri-backend/package-lock.json') }}
       - uses: aws-actions/setup-sam@v2
         with:
           use-installer: true
@@ -118,11 +131,9 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
-      - name: Build BE
-        run: |
-          cd koekalenteri-backend
-          npm ci
-          npm run build
+      - name: Build
+        run: npm run build
+        working-directory: koekalenteri-backend
       - name: SAM Validate
         run: |
           sam validate --lint
@@ -190,12 +201,21 @@ jobs:
         with:
           cache: npm
           cache-dependency-path: koekalenteri-frontend/package-lock.json
-      - name: Restore node_modules
-        id: cache-restore
+      - name: Restore BE node_modules
+        id: cache-restore-be
+        uses: actions/cache/restore@v3
+        with:
+          path: koekalenteri-backend/node_modules
+          key: ${{ runner.os }}-${{ hashFiles('koekalenteri-backend/package-lock.json') }}
+      - name: Restore FE node_modules
+        id: cache-restore-fe
         uses: actions/cache/restore@v3
         with:
           path: koekalenteri-frontend/node_modules
           key: ${{ runner.os }}-${{ hashFiles('koekalenteri-frontend/package-lock.json') }}
+      - name: Build BE # So the sensors cana find handlers in template
+        run: npm run build
+        working-directory: koekalenteri-backend
       - name: Download backend coverage
         uses: actions/download-artifact@v3
         with:
