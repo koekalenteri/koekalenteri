@@ -2079,6 +2079,7 @@ exports[`RegistrationForm renders 1`] = `
                         aria-invalid="false"
                         class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-1sqnrkk-MuiInputBase-input-MuiOutlinedInput-input"
                         id=":r10:"
+                        name="notes"
                         rows="4"
                         style="height: 0px; overflow: hidden;"
                       >
@@ -4324,6 +4325,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                         aria-invalid="false"
                         class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-1sqnrkk-MuiInputBase-input-MuiOutlinedInput-input"
                         id=":r22:"
+                        name="notes"
                         rows="4"
                         style="height: 0px; overflow: hidden;"
                       >

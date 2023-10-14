@@ -2211,6 +2211,7 @@ exports[`RegistrationEditPage should render 1`] = `
                         class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputMultiline css-1sqnrkk-MuiInputBase-input-MuiOutlinedInput-input"
                         disabled=""
                         id=":rv:"
+                        name="notes"
                         rows="4"
                         style="height: 0px; overflow: hidden;"
                       >

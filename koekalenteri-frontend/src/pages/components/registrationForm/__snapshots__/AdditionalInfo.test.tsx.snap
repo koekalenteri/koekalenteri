@@ -71,6 +71,7 @@ exports[`PlacesInput should render with minimal info 1`] = `
                     aria-invalid="false"
                     class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-1sqnrkk-MuiInputBase-input-MuiOutlinedInput-input"
                     id=":r0:"
+                    name="notes"
                     rows="4"
                     style="height: 0px; overflow: hidden;"
                   />
@@ -175,6 +176,7 @@ exports[`PlacesInput should render with text 1`] = `
                     aria-invalid="false"
                     class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-1sqnrkk-MuiInputBase-input-MuiOutlinedInput-input"
                     id=":r1:"
+                    name="notes"
                     rows="4"
                     style="height: 0px; overflow: hidden;"
                   >
@@ -281,6 +283,7 @@ exports[`PlacesInput should rerender with new value 1`] = `
                     aria-invalid="false"
                     class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-1sqnrkk-MuiInputBase-input-MuiOutlinedInput-input"
                     id=":r2:"
+                    name="notes"
                     rows="4"
                     style="height: 0px; overflow: hidden;"
                   >
