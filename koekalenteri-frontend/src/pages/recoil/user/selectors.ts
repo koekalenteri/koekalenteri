@@ -8,23 +8,17 @@ import { idTokenAtom } from './atoms'
 export const userSelector = selector({
   key: 'user',
   get: async ({ get }) => {
-    const token = get(idTokenAtom)
-    return token ? await getUser(token) : null
+    try {
+      const token = get(idTokenAtom)
+      return token ? await getUser(token) : null
+    } catch (e) {
+      console.error(e)
+    }
+
+    return null
   },
   cachePolicy_UNSTABLE: {
     eviction: 'most-recent',
-  },
-})
-
-export const userNameSelector = selector({
-  key: 'userName',
-  get: async () => {
-    try {
-      const user = await Auth.currentAuthenticatedUser()
-      return user?.attributes?.name || user?.attributes?.email
-    } catch (e) {
-      // The user is not authenticated
-    }
   },
 })
 
@@ -35,7 +29,9 @@ export const accessTokenSelector = selector({
       const user = await Auth.currentAuthenticatedUser()
       return user?.getSignInUserSession()?.getAccessToken().getJwtToken()
     } catch (e) {
-      // The user is not authenticated
+      if (e !== 'The user is not authenticated') {
+        console.error(e, typeof e)
+      }
     }
   },
   cachePolicy_UNSTABLE: {

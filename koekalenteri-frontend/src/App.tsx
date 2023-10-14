@@ -1,8 +1,6 @@
 import type { SnackbarKey } from 'notistack'
-import type { Language } from './i18n'
 
-import { useCallback } from 'react'
-import { useTranslation } from 'react-i18next'
+import { Suspense, useCallback } from 'react'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { Auth } from '@aws-amplify/auth'
 import { Authenticator } from '@aws-amplify/ui-react'
@@ -11,8 +9,11 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { ConfirmProvider } from 'material-ui-confirm'
 import { SnackbarProvider } from 'notistack'
+import { useRecoilValue } from 'recoil'
 
 import SnackbarCloseButton from './pages/components/SnackbarCloseButton'
+import { LoadingPage } from './pages/LoadingPage'
+import { languageAtom } from './pages/recoil'
 import { AWSConfig } from './amplify-env'
 import { locales, muiLocales } from './i18n'
 import routes from './routes'
@@ -26,8 +27,7 @@ try {
 const router = createBrowserRouter(routes)
 
 function App() {
-  const { i18n } = useTranslation()
-  const language = i18n.language as Language
+  const language = useRecoilValue(languageAtom)
   const closeAction = useCallback((snackbarKey: SnackbarKey) => <SnackbarCloseButton snackbarKey={snackbarKey} />, [])
 
   return (
@@ -43,7 +43,9 @@ function App() {
         >
           <ConfirmProvider>
             <Authenticator.Provider>
-              <RouterProvider router={router} />
+              <Suspense fallback={<LoadingPage />}>
+                <RouterProvider router={router} />
+              </Suspense>
             </Authenticator.Provider>
           </ConfirmProvider>
         </SnackbarProvider>

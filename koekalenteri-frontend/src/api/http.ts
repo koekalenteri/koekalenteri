@@ -42,6 +42,9 @@ async function http<T>(path: string, init: RequestInit): Promise<T> {
     const parsed = parseJSON(text)
     return parsed
   } catch (err) {
+    if (!(err instanceof APIError)) {
+      enqueueSnackbar(`${err}`, { variant: 'error' })
+    }
     console.error(err)
     throw err
   }

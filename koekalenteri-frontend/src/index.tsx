@@ -1,4 +1,4 @@
-import { StrictMode, Suspense } from 'react'
+import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { ThemeProvider } from '@mui/material'
 import CssBaseline from '@mui/material/CssBaseline'
@@ -8,9 +8,7 @@ import { RecoilRoot } from 'recoil'
 import './i18n'
 
 import theme from './assets/Theme'
-import { LoadingPage } from './pages/LoadingPage'
 import App from './App'
-import reportWebVitals from './reportWebVitals'
 
 import './index.css'
 
@@ -23,17 +21,15 @@ if (!container) {
 const root = createRoot(container)
 root.render(
   <StrictMode>
-    <StyledEngineProvider injectFirst>
-      <ThemeProvider theme={theme}>
-        <RecoilRoot>
-          <Suspense fallback={<LoadingPage />}>
-            <CssBaseline />
-            <App />
-          </Suspense>
-        </RecoilRoot>
-      </ThemeProvider>
-    </StyledEngineProvider>
+    <RecoilRoot>
+      <StyledEngineProvider injectFirst>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          <App />
+        </ThemeProvider>
+      </StyledEngineProvider>
+    </RecoilRoot>
   </StrictMode>
 )
 
-reportWebVitals()
+// reportWebVitals()

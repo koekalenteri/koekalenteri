@@ -1,5 +1,4 @@
-import { Suspense } from 'react'
-import { useTranslation } from 'react-i18next'
+import { Suspense, useEffect } from 'react'
 import { Link as SpaLink } from 'react-router-dom'
 import Menu from '@mui/icons-material/Menu'
 import AppBar from '@mui/material/AppBar'
@@ -10,9 +9,9 @@ import Typography from '@mui/material/Typography'
 import { useRecoilValue } from 'recoil'
 
 import logo from '../../assets/snj-logo.png'
-import { Path } from '../../routeConfig'
-import { hasAdminAccessSelector, userNameSelector } from '../recoil'
+import { hasAdminAccessSelector, idTokenAtom, userSelector, useUserActions } from '../recoil'
 
+import { AdminLink } from './header/AdminLink'
 import LanguageMenu from './header/LanguageMenu'
 import UserMenu from './header/UserMenu'
 
@@ -21,13 +20,20 @@ interface Props {
 }
 
 const Header = ({ toggleMenu }: Props) => {
-  const { t } = useTranslation()
-  const userName = useRecoilValue(userNameSelector)
+  const actions = useUserActions()
+  const user = useRecoilValue(userSelector)
+  const idToken = useRecoilValue(idTokenAtom)
   const hasAdminAccess = useRecoilValue(hasAdminAccessSelector)
   const inAdmin = !!toggleMenu
-  const linkBorder = userName ? '2px solid #000' : undefined
-  const adminBorder = inAdmin ? linkBorder : undefined
+  const linkBorder = hasAdminAccess ? '2px solid #000' : undefined
   const mainBorder = inAdmin ? undefined : linkBorder
+
+  useEffect(() => {
+    if (idToken && !user) {
+      // SignOut if fetching user information has failed for some reason
+      actions.signOut()
+    }
+  }, [actions, idToken, user])
 
   return (
     <AppBar position="fixed" color="secondary" elevation={0}>
@@ -47,22 +53,7 @@ const Header = ({ toggleMenu }: Props) => {
             Koekalenteri
           </Typography>
         </Link>
-        {hasAdminAccess && (
-          <Link
-            to={Path.admin.index}
-            component={SpaLink}
-            sx={{
-              textDecoration: 'none',
-              borderBottom: adminBorder,
-              mr: 1,
-              px: 1,
-            }}
-          >
-            <Typography variant="subtitle1" noWrap component="div" sx={{ flexShrink: 1 }}>
-              {t('admin')}
-            </Typography>
-          </Link>
-        )}
+        {hasAdminAccess && <AdminLink active={inAdmin} activeBorder={linkBorder} />}
         <Typography
           variant="h6"
           color="primary.dark"
