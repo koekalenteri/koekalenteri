@@ -108,8 +108,8 @@ export const TermsPage = () => {
         <li>
           {' '}
           Muilta osin noudatetaan SKL:n ohjeita:{' '}
-          <a href="http://www.kennelliitto.fi/sites/default/files/media/ohje_kokeiden_rajoituksista.pdf">
-            http://www.kennelliitto.fi/sites/default/files/media/ohje_kokeiden_rajoituksista.pdf
+          <a href="https://www.kennelliitto.fi/sites/default/files/media/ohje_kokeiden_rajoituksista.pdf">
+            https://www.kennelliitto.fi/sites/default/files/media/ohje_kokeiden_rajoituksista.pdf
           </a>
         </li>
       </ul>
