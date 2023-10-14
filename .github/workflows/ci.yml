@@ -213,9 +213,6 @@ jobs:
         with:
           path: koekalenteri-frontend/node_modules
           key: ${{ runner.os }}-${{ hashFiles('koekalenteri-frontend/package-lock.json') }}
-      - name: Build BE # So the sensors cana find handlers in template
-        run: npm run build
-        working-directory: koekalenteri-backend
       - name: Download backend coverage
         uses: actions/download-artifact@v3
         with:
@@ -226,6 +223,8 @@ jobs:
         with:
           name: frontend-coverage
           path: koekalenteri-frontend/coverage
+      - name: Set version
+        run: echo -e "\nsonar.projectVersion=$env:GITHUB_SHA" >> sonar-project.properties
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         env:
