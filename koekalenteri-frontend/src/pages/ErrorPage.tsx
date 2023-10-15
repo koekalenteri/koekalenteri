@@ -1,7 +1,10 @@
+import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { isRouteErrorResponse, useRouteError } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
+
+import { rum } from '../lib/rum'
 
 import LinkButton from './components/LinkButton'
 
@@ -25,6 +28,10 @@ export function ErrorPage() {
 function ErrorInfo() {
   const { t } = useTranslation()
   const error = useRouteError()
+
+  useEffect(() => {
+    rum()?.recordError(error)
+  })
 
   if (isRouteErrorResponse(error) || error instanceof Response) {
     return (

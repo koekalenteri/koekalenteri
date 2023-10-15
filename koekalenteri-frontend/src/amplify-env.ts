@@ -1,3 +1,5 @@
+import type { AwsRumConfig } from 'aws-rum-web'
+
 export const AWSConfig = {
   aws_project_region: process.env.REACT_APP_REGION,
   aws_cognito_identity_pool_id: process.env.REACT_APP_IDENTITY_POOL_ID,
@@ -21,3 +23,16 @@ export const AWSConfig = {
     userPoolWebClientId: process.env.REACT_APP_CLIENT_ID,
   },
 }
+
+export const RUM_CONFIG: AwsRumConfig = {
+  sessionSampleRate: 1,
+  guestRoleArn: process.env.REACT_APP_RUM_ROLE_ARN,
+  identityPoolId: process.env.REACT_APP_RUM_IDENTITY_POOL_ID,
+  endpoint: process.env.REACT_APP_RUM_ENDPOINT,
+  telemetries: ['performance', 'errors', 'http'],
+  allowCookies: true,
+  enableXRay: false,
+}
+
+export const RUM_APPLICATION_ID = process.env.REACT_APP_RUM_APPLICATION_ID
+export const RUM_REGION = process.env.REACT_APP_REGION ?? ''
