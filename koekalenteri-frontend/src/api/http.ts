@@ -10,11 +10,13 @@ export class APIError extends Error {
   result: string
 
   constructor(response: Response, json: any) {
-    const message = `${response.status} ${json.message || response.statusText}`
+    const jsonStatus = json?.message ?? json
+    const statusText = response.statusText || jsonStatus
+    const message = `${response.status} ${statusText}`
     super(message)
     this.status = response.status
-    this.statusText = response.statusText
-    this.result = json.message
+    this.statusText = statusText
+    this.result = json
   }
 }
 
