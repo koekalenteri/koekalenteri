@@ -59,76 +59,92 @@ const registrationCost = (event: JsonConfirmedEvent, registration: JsonRegistrat
 export const createHandler = metricScope(
   (metrics: MetricsLogger) =>
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-      const { eventId, registrationId } = JSON.parse(event.body || '{}')
+      try {
+        const { eventId, registrationId } = JSON.parse(event.body || '{}')
 
-      const jsonEvent = await dynamoDB.read<JsonConfirmedEvent>({ id: eventId }, eventTable)
-      const registration = await dynamoDB.read<JsonRegistration>(
-        {
-          eventId: eventId,
-          id: registrationId,
-        },
-        registrationTable
-      )
-      const organizer = await dynamoDB.read<Organizer>({ id: jsonEvent?.organizer.id }, organizerTable)
-      if (!jsonEvent || !registration || !organizer?.paytrailMerchantId) {
-        throw new Error('errors')
-      }
-      const reference = `${eventId}:${registrationId}`
-      const amount = Math.round(100 * (registrationCost(jsonEvent, registration) - (registration.paidAmount ?? 0)))
-      if (amount <= 0) {
-        throw new Error('already paid')
-      }
-      const stamp = nanoid()
-
-      const result = await createPayment(
-        getApiHost(event),
-        getOrigin(event),
-        amount,
-        reference,
-        stamp,
-        [
+        const jsonEvent = await dynamoDB.read<JsonConfirmedEvent>({ id: eventId }, eventTable)
+        const registration = await dynamoDB.read<JsonRegistration>(
           {
-            unitPrice: amount,
-            units: 1,
-            vatPercentage: 0,
-            productCode: 'registration',
-            stamp: nanoid(),
-            reference: registrationId,
-            merchant: organizer.paytrailMerchantId,
+            eventId: eventId,
+            id: registrationId,
           },
-        ],
-        {
-          email: registration?.handler.email ?? registration?.owner.email,
+          registrationTable
+        )
+        const organizer = await dynamoDB.read<Organizer>({ id: jsonEvent?.organizer.id }, organizerTable)
+        if (!jsonEvent) {
+          metricsError(metrics, event.requestContext, 'createPayment')
+          return response<string>(404, 'Event not found', event)
         }
-      )
+        if (!registration) {
+          metricsError(metrics, event.requestContext, 'createPayment')
+          return response<string>(404, 'Registration not found', event)
+        }
+        if (!organizer?.paytrailMerchantId) {
+          metricsError(metrics, event.requestContext, 'createPayment')
+          return response<string>(412, `Organizer ${jsonEvent.organizer.id} does not have MerchantId!`, event)
+        }
+        const reference = `${eventId}:${registrationId}`
+        const amount = Math.round(100 * (registrationCost(jsonEvent, registration) - (registration.paidAmount ?? 0)))
+        if (amount <= 0) {
+          metricsError(metrics, event.requestContext, 'createPayment')
+          return response<string>(204, 'Already paid', event)
+        }
+        const stamp = nanoid()
 
-      if (!result) {
+        const result = await createPayment(
+          getApiHost(event),
+          getOrigin(event),
+          amount,
+          reference,
+          stamp,
+          [
+            {
+              unitPrice: amount,
+              units: 1,
+              vatPercentage: 0,
+              productCode: 'registration',
+              stamp: nanoid(),
+              reference: registrationId,
+              merchant: organizer.paytrailMerchantId,
+            },
+          ],
+          {
+            email: registration?.handler.email ?? registration?.owner.email,
+          }
+        )
+
+        if (!result) {
+          metricsError(metrics, event.requestContext, 'createPayment')
+          return response<undefined>(500, undefined, event)
+        }
+
+        const transaction: JsonTransaction = {
+          transactionId: result.transactionId,
+          status: 'new',
+          amount,
+          reference,
+          bankReference: result.reference,
+          type: 'payment',
+          stamp,
+          createdAt: new Date().toISOString(),
+        }
+        await dynamoDB.write(transaction)
+
+        await dynamoDB.update(
+          { eventId, id: registrationId },
+          'set #paymentStatus = :paymentStatus',
+          { '#paymentStatus': 'paymentStatus' },
+          { ':paymentStatus': 'PENDING' },
+          registrationTable
+        )
+
+        metricsSuccess(metrics, event.requestContext, 'createPayment')
+        return response<CreatePaymentResponse>(200, result, event)
+      } catch (e) {
+        console.error(e)
         metricsError(metrics, event.requestContext, 'createPayment')
-        return response<undefined>(500, undefined, event)
+        return response(500, undefined, event)
       }
-
-      const transaction: JsonTransaction = {
-        transactionId: result.transactionId,
-        status: 'new',
-        amount,
-        reference,
-        bankReference: result.reference,
-        type: 'payment',
-        stamp,
-        createdAt: new Date().toISOString(),
-      }
-      await dynamoDB.write(transaction)
-
-      await dynamoDB.update(
-        { eventId, id: registrationId },
-        'set #paymentStatus = :paymentStatus',
-        { '#paymentStatus': 'paymentStatus' },
-        { ':paymentStatus': 'PENDING' },
-        registrationTable
-      )
-
-      metricsSuccess(metrics, event.requestContext, 'createPayment')
-      return response<CreatePaymentResponse>(200, result, event)
     }
 )
 
