@@ -12,7 +12,6 @@ import LinkButton from './components/LinkButton'
 import RegistrationEventInfo from './components/RegistrationEventInfo'
 import RegistrationForm from './components/RegistrationForm'
 import { useRegistrationActions } from './recoil/registration/actions'
-import { LoadingPage } from './LoadingPage'
 import { confirmedEventSelector, newRegistrationAtom, spaAtom } from './recoil'
 
 export default function RegistrationCreatePage() {
@@ -68,20 +67,21 @@ export default function RegistrationCreatePage() {
     return true
   }, [navigate, resetRegistration])
 
-  useEffect(() => {
-    if (event === null) {
-      throw new Response('Event not found', { status: 404, statusText: t('error.eventNotFound') })
-    } else if (event && registration) {
-      // make the registration is for correct event
-      if (registration.eventId !== event.id || registration.eventType !== event.eventType) {
-        setRegistration({ ...registration, eventId: event.id, eventType: event.eventType })
-      }
-    }
-  }, [event, registration, setRegistration, t])
-
-  if (!event || !registration) {
-    return <LoadingPage />
+  if (event === null) {
+    throw new Response('Event not found', { status: 404, statusText: t('error.eventNotFound') })
   }
+
+  if (!registration) {
+    // Should not happen (tm)
+    throw new Response('Registration not found', { status: 404, statusText: t('error.registrationNotFound') })
+  }
+
+  useEffect(() => {
+    // make sure the registration is for correct event
+    if (registration.eventId !== event.id || registration.eventType !== event.eventType) {
+      setRegistration({ ...registration, eventId: event.id, eventType: event.eventType })
+    }
+  }, [event.eventType, event.id, registration, setRegistration])
 
   return (
     <>
