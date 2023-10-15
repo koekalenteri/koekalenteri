@@ -1,5 +1,6 @@
 import { enqueueSnackbar } from 'notistack'
 
+import { rum } from '../lib/rum'
 import { API_BASE_URL } from '../routeConfig'
 import { parseJSON } from '../utils'
 
@@ -34,6 +35,7 @@ async function http<T>(path: string, init: RequestInit): Promise<T> {
       try {
         json = parseJSON(text)
       } catch (e) {
+        rum()?.recordError(e)
         console.error('json parsing failed', e)
       }
       enqueueSnackbar(`${response.status} ${json ?? text}`, { variant: 'error' })
@@ -42,6 +44,7 @@ async function http<T>(path: string, init: RequestInit): Promise<T> {
     const parsed = parseJSON(text)
     return parsed
   } catch (err) {
+    rum()?.recordError(err)
     if (!(err instanceof APIError)) {
       enqueueSnackbar(`${err}`, { variant: 'error' })
     }
