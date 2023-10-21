@@ -16,7 +16,7 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
       aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-o8wyg-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1goazms-MuiDataGrid-root"
       role="grid"
     >
       <div
@@ -476,7 +476,7 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
           </div>
         </div>
         <div
-          class="MuiDataGrid-virtualScroller css-axafay-MuiDataGrid-virtualScroller"
+          class="MuiDataGrid-virtualScroller css-qvtrhg-MuiDataGrid-virtualScroller"
           role="presentation"
           style="overflow-x: hidden;"
         >
@@ -516,7 +516,7 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
       aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1wwtnt3-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1vcp40q-MuiDataGrid-root"
       role="grid"
     >
       <div
@@ -976,7 +976,7 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
           </div>
         </div>
         <div
-          class="MuiDataGrid-virtualScroller css-axafay-MuiDataGrid-virtualScroller"
+          class="MuiDataGrid-virtualScroller css-qvtrhg-MuiDataGrid-virtualScroller"
           role="presentation"
           style="overflow-x: hidden; overflow-y: hidden;"
         >
@@ -1022,7 +1022,7 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
       aria-colcount="10"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1wwtnt3-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1vcp40q-MuiDataGrid-root"
       role="grid"
     >
       <div
@@ -1557,7 +1557,7 @@ exports[`ClassEntrySelection given [] as dates 1`] = `
           </div>
         </div>
         <div
-          class="MuiDataGrid-virtualScroller css-axafay-MuiDataGrid-virtualScroller"
+          class="MuiDataGrid-virtualScroller css-qvtrhg-MuiDataGrid-virtualScroller"
           role="presentation"
           style="overflow-x: hidden; overflow-y: hidden;"
         >
@@ -1609,7 +1609,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
       aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-o8wyg-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1goazms-MuiDataGrid-root"
       role="grid"
     >
       <div
@@ -2069,7 +2069,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
           </div>
         </div>
         <div
-          class="MuiDataGrid-virtualScroller css-axafay-MuiDataGrid-virtualScroller"
+          class="MuiDataGrid-virtualScroller css-qvtrhg-MuiDataGrid-virtualScroller"
           role="presentation"
           style="overflow-x: hidden;"
         >
@@ -2104,7 +2104,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
       aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1wwtnt3-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1vcp40q-MuiDataGrid-root"
       role="grid"
     >
       <div
@@ -2574,7 +2574,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
           </div>
         </div>
         <div
-          class="MuiDataGrid-virtualScroller css-axafay-MuiDataGrid-virtualScroller"
+          class="MuiDataGrid-virtualScroller css-qvtrhg-MuiDataGrid-virtualScroller"
           role="presentation"
           style="overflow-x: hidden; overflow-y: hidden;"
         >
@@ -2615,7 +2615,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
       aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1wwtnt3-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1vcp40q-MuiDataGrid-root"
       role="grid"
     >
       <div
@@ -3085,7 +3085,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
           </div>
         </div>
         <div
-          class="MuiDataGrid-virtualScroller css-axafay-MuiDataGrid-virtualScroller"
+          class="MuiDataGrid-virtualScroller css-qvtrhg-MuiDataGrid-virtualScroller"
           role="presentation"
           style="overflow-x: hidden; overflow-y: hidden;"
         >
@@ -3131,7 +3131,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
       aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1wwtnt3-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1vcp40q-MuiDataGrid-root"
       role="grid"
     >
       <div
@@ -3591,7 +3591,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
           </div>
         </div>
         <div
-          class="MuiDataGrid-virtualScroller css-axafay-MuiDataGrid-virtualScroller"
+          class="MuiDataGrid-virtualScroller css-qvtrhg-MuiDataGrid-virtualScroller"
           role="presentation"
           style="overflow-x: hidden; overflow-y: hidden;"
         >
@@ -3637,7 +3637,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
       aria-colcount="10"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1wwtnt3-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1vcp40q-MuiDataGrid-root"
       role="grid"
     >
       <div
@@ -4172,7 +4172,7 @@ exports[`ClassEntrySelection given [2022-01-01T10:00:00.000Z] as dates 1`] = `
           </div>
         </div>
         <div
-          class="MuiDataGrid-virtualScroller css-axafay-MuiDataGrid-virtualScroller"
+          class="MuiDataGrid-virtualScroller css-qvtrhg-MuiDataGrid-virtualScroller"
           role="presentation"
           style="overflow-x: hidden; overflow-y: hidden;"
         >
@@ -4224,7 +4224,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
       aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-o8wyg-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1goazms-MuiDataGrid-root"
       role="grid"
     >
       <div
@@ -4684,7 +4684,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
           </div>
         </div>
         <div
-          class="MuiDataGrid-virtualScroller css-axafay-MuiDataGrid-virtualScroller"
+          class="MuiDataGrid-virtualScroller css-qvtrhg-MuiDataGrid-virtualScroller"
           role="presentation"
           style="overflow-x: hidden;"
         >
@@ -4719,7 +4719,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
       aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1wwtnt3-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1vcp40q-MuiDataGrid-root"
       role="grid"
     >
       <div
@@ -5189,7 +5189,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
           </div>
         </div>
         <div
-          class="MuiDataGrid-virtualScroller css-axafay-MuiDataGrid-virtualScroller"
+          class="MuiDataGrid-virtualScroller css-qvtrhg-MuiDataGrid-virtualScroller"
           role="presentation"
           style="overflow-x: hidden; overflow-y: hidden;"
         >
@@ -5230,7 +5230,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
       aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1wwtnt3-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1vcp40q-MuiDataGrid-root"
       role="grid"
     >
       <div
@@ -5700,7 +5700,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
           </div>
         </div>
         <div
-          class="MuiDataGrid-virtualScroller css-axafay-MuiDataGrid-virtualScroller"
+          class="MuiDataGrid-virtualScroller css-qvtrhg-MuiDataGrid-virtualScroller"
           role="presentation"
           style="overflow-x: hidden; overflow-y: hidden;"
         >
@@ -5746,7 +5746,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
       aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1wwtnt3-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1vcp40q-MuiDataGrid-root"
       role="grid"
     >
       <div
@@ -6206,7 +6206,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
           </div>
         </div>
         <div
-          class="MuiDataGrid-virtualScroller css-axafay-MuiDataGrid-virtualScroller"
+          class="MuiDataGrid-virtualScroller css-qvtrhg-MuiDataGrid-virtualScroller"
           role="presentation"
           style="overflow-x: hidden; overflow-y: hidden;"
         >
@@ -6252,7 +6252,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
       aria-colcount="10"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1wwtnt3-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1vcp40q-MuiDataGrid-root"
       role="grid"
     >
       <div
@@ -6787,7 +6787,7 @@ exports[`ClassEntrySelection given [2022-06-20T09:00:00.000Z] as dates 1`] = `
           </div>
         </div>
         <div
-          class="MuiDataGrid-virtualScroller css-axafay-MuiDataGrid-virtualScroller"
+          class="MuiDataGrid-virtualScroller css-qvtrhg-MuiDataGrid-virtualScroller"
           role="presentation"
           style="overflow-x: hidden; overflow-y: hidden;"
         >
@@ -6839,7 +6839,7 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
       aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-o8wyg-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1goazms-MuiDataGrid-root"
       role="grid"
     >
       <div
@@ -7299,7 +7299,7 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
           </div>
         </div>
         <div
-          class="MuiDataGrid-virtualScroller css-axafay-MuiDataGrid-virtualScroller"
+          class="MuiDataGrid-virtualScroller css-qvtrhg-MuiDataGrid-virtualScroller"
           role="presentation"
           style="overflow-x: hidden;"
         >
@@ -7339,7 +7339,7 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
       aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1wwtnt3-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1vcp40q-MuiDataGrid-root"
       role="grid"
     >
       <div
@@ -7799,7 +7799,7 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
           </div>
         </div>
         <div
-          class="MuiDataGrid-virtualScroller css-axafay-MuiDataGrid-virtualScroller"
+          class="MuiDataGrid-virtualScroller css-qvtrhg-MuiDataGrid-virtualScroller"
           role="presentation"
           style="overflow-x: hidden; overflow-y: hidden;"
         >
@@ -7845,7 +7845,7 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
       aria-colcount="10"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1wwtnt3-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1vcp40q-MuiDataGrid-root"
       role="grid"
     >
       <div
@@ -8380,7 +8380,7 @@ exports[`ClassEntrySelection given undefined as dates 1`] = `
           </div>
         </div>
         <div
-          class="MuiDataGrid-virtualScroller css-axafay-MuiDataGrid-virtualScroller"
+          class="MuiDataGrid-virtualScroller css-qvtrhg-MuiDataGrid-virtualScroller"
           role="presentation"
           style="overflow-x: hidden; overflow-y: hidden;"
         >
@@ -8432,7 +8432,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
       aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-o8wyg-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1goazms-MuiDataGrid-root"
       role="grid"
     >
       <div
@@ -8892,7 +8892,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
           </div>
         </div>
         <div
-          class="MuiDataGrid-virtualScroller css-axafay-MuiDataGrid-virtualScroller"
+          class="MuiDataGrid-virtualScroller css-qvtrhg-MuiDataGrid-virtualScroller"
           role="presentation"
           style="overflow-x: hidden;"
         >
@@ -8927,7 +8927,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
       aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1wwtnt3-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1vcp40q-MuiDataGrid-root"
       role="grid"
     >
       <div
@@ -9397,7 +9397,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
           </div>
         </div>
         <div
-          class="MuiDataGrid-virtualScroller css-axafay-MuiDataGrid-virtualScroller"
+          class="MuiDataGrid-virtualScroller css-qvtrhg-MuiDataGrid-virtualScroller"
           role="presentation"
           style="overflow-x: hidden; overflow-y: hidden;"
         >
@@ -9438,7 +9438,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
       aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1wwtnt3-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1vcp40q-MuiDataGrid-root"
       role="grid"
     >
       <div
@@ -9908,7 +9908,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
           </div>
         </div>
         <div
-          class="MuiDataGrid-virtualScroller css-axafay-MuiDataGrid-virtualScroller"
+          class="MuiDataGrid-virtualScroller css-qvtrhg-MuiDataGrid-virtualScroller"
           role="presentation"
           style="overflow-x: hidden; overflow-y: hidden;"
         >
@@ -9954,7 +9954,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
       aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="2"
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1wwtnt3-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1vcp40q-MuiDataGrid-root"
       role="grid"
     >
       <div
@@ -10414,7 +10414,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
           </div>
         </div>
         <div
-          class="MuiDataGrid-virtualScroller css-axafay-MuiDataGrid-virtualScroller"
+          class="MuiDataGrid-virtualScroller css-qvtrhg-MuiDataGrid-virtualScroller"
           role="presentation"
           style="overflow-x: hidden; overflow-y: hidden;"
         >
@@ -10707,7 +10707,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
       aria-colcount="10"
       aria-multiselectable="false"
       aria-rowcount="2"
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1wwtnt3-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1vcp40q-MuiDataGrid-root"
       role="grid"
     >
       <div
@@ -11242,7 +11242,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
           </div>
         </div>
         <div
-          class="MuiDataGrid-virtualScroller css-axafay-MuiDataGrid-virtualScroller"
+          class="MuiDataGrid-virtualScroller css-qvtrhg-MuiDataGrid-virtualScroller"
           role="presentation"
           style="overflow-x: hidden; overflow-y: hidden;"
         >

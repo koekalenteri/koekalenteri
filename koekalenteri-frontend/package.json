@@ -43,7 +43,7 @@
     "material-ui-confirm": "^3.0.7",
     "mini-css-extract-plugin": "^2.4.5",
     "mui-tel-input": "^4.0.0",
-    "nanoid": "^4.0.2",
+    "nanoid": "^5.0.2",
     "notistack": "^3.0.1",
     "postcss": "^8.4.31",
     "postcss-flexbugs-fixes": "^5.0.2",

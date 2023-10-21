@@ -64,7 +64,7 @@ exports[`OrganizerListPage renders 1`] = `
         aria-colcount="3"
         aria-multiselectable="false"
         aria-rowcount="3"
-        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-hbhmt4-MuiDataGrid-root"
+        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1wo8wtq-MuiDataGrid-root"
         role="grid"
       >
         <div
@@ -401,7 +401,7 @@ exports[`OrganizerListPage renders 1`] = `
             </div>
           </div>
           <div
-            class="MuiDataGrid-virtualScroller css-axafay-MuiDataGrid-virtualScroller"
+            class="MuiDataGrid-virtualScroller css-qvtrhg-MuiDataGrid-virtualScroller"
             role="presentation"
             style="overflow-x: hidden;"
           >
