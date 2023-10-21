@@ -12,7 +12,7 @@ updates:
   - package-ecosystem: "npm"
     directory: "/koekalenteri-backend"
     schedule:
-      interval: "weekly"
+      interval: "daily"
     ignore:
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
@@ -24,7 +24,7 @@ updates:
   - package-ecosystem: "npm"
     directory: "/koekalenteri-frontend"
     schedule:
-      interval: "weekly"
+      interval: "daily"
     ignore:
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
@@ -38,7 +38,7 @@ updates:
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "daily"
     ignore:
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
