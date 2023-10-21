@@ -7,7 +7,7 @@ import pkg from '../../../package.json'
 const buildTimestamp = preval`module.exports = new Date().getTime();` as number
 
 export default function Version() {
-  const date = lightFormat(buildTimestamp, 'dd.MM.yyyy')
+  const date = lightFormat(buildTimestamp, 'dd.MM.yyyy HH:mm')
   return (
     <Box
       sx={{

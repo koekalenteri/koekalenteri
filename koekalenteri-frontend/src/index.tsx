@@ -31,5 +31,3 @@ root.render(
     </RecoilRoot>
   </StrictMode>
 )
-
-// reportWebVitals()

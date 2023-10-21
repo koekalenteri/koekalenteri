@@ -6,7 +6,6 @@ import { enUS, fiFI } from '@mui/material/locale'
 import { enUS as genUS, fiFI as gfiFI } from '@mui/x-data-grid/locales'
 import { enUS as denUS, fiFI as dfiFI } from '@mui/x-date-pickers/locales'
 import i18n from 'i18next'
-import LanguageDetector from 'i18next-browser-languagedetector'
 
 import { formatDateSpan, formatDistance, getDateFormatter, locales } from './dates'
 import { en, enBreed, enBreedAbbr, fi, fiBreed, fiBreedAbbr } from './locales'
@@ -21,10 +20,9 @@ export const muiLocales: Record<Language, Localization> = {
 }
 
 i18n
-  .use(LanguageDetector)
   .use(initReactI18next)
   .init({
-    lng: process.env.NODE_ENV === 'test' ? 'fi' : undefined,
+    lng: 'fi',
     ns: ['translation', 'breed', 'breedAbbr'],
     resources: {
       fi: { translation: fi, breed: fiBreed, breedAbbr: fiBreedAbbr },

@@ -34,7 +34,7 @@ test('It should change the language', () => {
     </RecoilRoot>
   )
 
-  expect(localStorage.getItem('i18nextLng')).toEqual('fi')
+  expect(localStorage.getItem('i18nextLng')).toBeNull() // toEqual('fi')
 
   fireEvent.click(screen.getByTestId('LanguageIcon'))
   const menu = screen.getByRole('menu')
