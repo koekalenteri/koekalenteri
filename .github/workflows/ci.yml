@@ -36,7 +36,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: backend-coverage
-          path: coverage/lcov.info
+          path: src/lambda/coverage/lcov.info
 
   frontend:
     runs-on: ubuntu-latest
