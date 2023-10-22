@@ -2,9 +2,8 @@ import type { Locale } from 'date-fns'
 import type { Language } from '../../types'
 
 import { isSameDay, isSameMonth, isSameYear, isValid, parseISO } from 'date-fns'
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore https://github.com/date-fns/date-fns/issues/2964
-import { enGB as en, fi } from 'date-fns/locale/index'
+import en from 'date-fns/locale/en-GB'
+import fi from 'date-fns/locale/fi'
 import { formatInTimeZone } from 'date-fns-tz'
 
 export const locales: Record<Language, Locale> = { fi, en }

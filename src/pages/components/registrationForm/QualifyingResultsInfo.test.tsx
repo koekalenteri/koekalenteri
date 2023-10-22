@@ -3,7 +3,7 @@ import type { ReactNode } from 'react'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { render, screen } from '@testing-library/react'
-import { fi } from 'date-fns/locale'
+import fi from 'date-fns/locale/fi'
 
 import {
   registrationWithManualResults,
