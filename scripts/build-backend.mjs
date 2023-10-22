@@ -28,6 +28,7 @@ const ctx = await esbuild[mode]({
   platform: 'node',
   target: 'node16',
   outdir: 'dist',
+  outExtension: { '.js': '.mjs' },
   plugins: [
     {
       name: 'add-js-extension-to-local-imports-for-node',
@@ -41,9 +42,9 @@ const ctx = await esbuild[mode]({
             if (path.includes('/')) {
               const full = join(resolveDir, path)
               if (existsSync(full) && lstatSync(full).isDirectory()) {
-                path = path + '/index.js'
+                path = path + '/index.mjs'
               } else {
-                path = path + '.js'
+                path = path + '.mjs'
               }
             }
             return { path, external: true }
