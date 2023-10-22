@@ -147,6 +147,9 @@ jobs:
       - name: SAM Build
         run: |
           sam build --base-dir dist
+      - name: Common layer
+        run: |
+          mv node_modules src/lambda/shared/
       - name: SAM Deploy
         run: |
           # Output variables to ensure their values are set correctly when ran
