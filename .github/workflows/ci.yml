@@ -152,6 +152,7 @@ jobs:
           mv node_modules layer/nodejs/
           mv dist/i18n layer/nodejs/
           mv -t layer/nodejs/lambda dist/lambda/lib dist/lambda/types dist/lambda/utils
+          cp dist/lambda/config.mjs layer/nodejs/lambda
       - name: SAM Build
         run: |
           cp Makefile dist/
