@@ -1,0 +1,61 @@
+---
+root: true
+
+parser: "@typescript-eslint/parser"
+extends:
+  - eslint:recommended
+  - plugin:react/jsx-runtime
+  - plugin:react-hooks/recommended
+  - plugin:@typescript-eslint/recommended
+  - prettier
+
+plugins:
+  - react
+  - simple-import-sort
+  - prettier
+  - mui-path-imports
+
+env:
+  browser: true
+  node: true
+  es6: true
+
+rules:
+  prettier/prettier: error
+  arrow-body-style: 'off'
+  prefer-arrow-callback: 'off'
+  semi:
+  - error
+  - never
+  quotes:
+  - error
+  - single
+  - avoidEscape: true
+    allowTemplateLiterals: true
+  comma-spacing:
+  - error
+  - before: false
+    after: true
+  mui-path-imports/mui-path-imports: error
+  "@typescript-eslint/no-explicit-any": 'off' # TODO
+  "@typescript-eslint/no-unused-vars": 'off' # TODO
+  "@typescript-eslint/indent": 'off'
+  simple-import-sort/imports:
+  - error
+  - groups:
+    - - "^@?\\w.*\\u0000$"
+      - "^[^.].*\\u0000$"
+      - "^\\..*\\u0000$"
+    - - "^react"
+      - "^@?\\w"
+    - - "^(@|components)(/.*|$)"
+    - - "^\\u0000"
+    - - "^\\.\\.(?!/?$)"
+      - "^\\.\\./?$"
+    - - "^\\./(?=.*/)(?!/?$)"
+      - "^\\.(?!/?$)"
+      - "^\\./?$"
+    - - "^.+\\.?(css)$"
+  "@typescript-eslint/consistent-type-imports":
+  - error
+  - prefer: type-imports

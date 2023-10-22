@@ -41,23 +41,16 @@ setx AWS_PROFILE koekalenteri
 
 ### Setting up dependencies and services
 
-Following commands install dependencies to all of the projects and initialize a docker network and dynamodb instance
+Following commands install dependencies to the project and initialize a docker network and dynamodb instance
 
 ```bash
 npm ci
-npm run docker-init
+npm run init
 ```
 
 ### Local development
 
-#### Start the dynamodb instance (once, it is persistent)
-
-```bash
-npm run docker-init
-npm run dynamodb
-```
-
-#### Start backend & frontend
+#### Start backend and frontend
 
 ```bash
 npm start
@@ -66,12 +59,32 @@ npm start
 This command will start both backend and frontend.
 Changes are detected automatically. Only if you change the template.yaml, you need to stop (ctrl-c) and restart.
 
-Note: SAM local is very slow, because it rebuilds lambda on every access. If you are changing only the frontend, please see README.md in koekalenteri-frontend folder.
-
-Note: If you change types in koekalenteri-shared, you need to restart the app (ctrl-c + npm start) for changes to take effect.
+Note: SAM local is very slow, because it rebuilds lambda on every access.
 
 **Please note that AWS Cognito cannot be run locally so for user authentication a working network connection to the AWS setup is required.**
 
+#### Start frontend only
+
+```bash
+npm start-frontned
+```
+
+This command starts only the frontend.
+
+Note: You should configure .env (see .env_sample) to use backend in the cloud.
+
 ### Deploying
 
-Deployment automated with GitHub actions and AWS Amplify.
+Deployment is automated with GitHub actions.
+
+## Backend overview
+
+Koekalenteri backend is a bunch of lambda functions running on AWS.
+
+## Frontend overview
+
+Koekalenteri frontend is written in [TypeScript](https://www.typescriptlang.org/) and is based on the following major libraries:
+
+* [React](https://reactjs.org/) - UI framework
+* [Recoil](https://recoiljs.org/) - State management
+  * State is documented in [src/pages/recoil](src/pages/recoil/README.md) and [src/pages/admin/recoil](src/pages/admin/recoil/README.md)
