@@ -146,7 +146,7 @@ jobs:
           echo "environment=$ENVIRONMENT" >> $GITHUB_ENV
       - name: SAM Build
         run: |
-          sam build
+          sam build --base-dir dist
       - name: SAM Deploy
         run: |
           # Output variables to ensure their values are set correctly when ran
