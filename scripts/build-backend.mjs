@@ -45,11 +45,28 @@ const ctx = await esbuild[mode]({
               return { path, external: false }
             }
             if (path.includes('/')) {
-              const full = join(resolveDir, path)
-              if (existsSync(full) && lstatSync(full).isDirectory()) {
-                path = path + '/index.mjs'
+              if (path.startsWith('.')) {
+                const full = join(resolveDir, path)
+                if (existsSync(full) && lstatSync(full).isDirectory()) {
+                  path = path + '/index.mjs'
+                } else {
+                  path = path + '.mjs'
+                }
               } else {
-                path = path + '.mjs'
+                const full = join('node_modules', path)
+                if (existsSync(full) && lstatSync(full).isDirectory()) {
+                  if (existsSync(join(full, 'index.mjs'))) {
+                    path += 'index.mjs'
+                  } else {
+                    path += 'index.js'
+                  }
+                } else {
+                  if (existsSync(full + '.mjs')) {
+                    path += '.mjs'
+                  } else {
+                    path += '.js'
+                  }
+                }
               }
             }
             return { path, external: true }

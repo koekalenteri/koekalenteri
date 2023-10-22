@@ -506,6 +506,8 @@ Resources:
             Path: /event/{id}
             Method: GET
             RestApiId: !Ref KoekalenteriApi
+    Metadata:
+      BuildMethod: makefile
 
   GetEventFunctionLogGroup:
     Type: AWS::Logs::LogGroup
@@ -542,6 +544,8 @@ Resources:
             RestApiId: !Ref KoekalenteriApi
             Auth:
               Authorizer: CognitoAuthorizer
+    Metadata:
+      BuildMethod: makefile
 
   PutEventFunctionLogGroup:
     Type: AWS::Logs::LogGroup
@@ -581,6 +585,8 @@ Resources:
             RestApiId: !Ref KoekalenteriApi
             Auth:
               Authorizer: CognitoAuthorizer
+    Metadata:
+      BuildMethod: makefile
 
   CopyEventFunctionLogGroup:
     Type: AWS::Logs::LogGroup
@@ -620,6 +626,8 @@ Resources:
             RestApiId: !Ref KoekalenteriApi
             Auth:
               Authorizer: CognitoAuthorizer
+    Metadata:
+      BuildMethod: makefile
 
   GetRegistrationsFunctionLogGroup:
     Type: AWS::Logs::LogGroup
@@ -659,6 +667,8 @@ Resources:
             RestApiId: !Ref KoekalenteriApi
             Auth:
               Authorizer: CognitoAuthorizer
+    Metadata:
+      BuildMethod: makefile
 
   GetRegistrationAuditTrailFunctionLogGroup:
     Type: AWS::Logs::LogGroup
@@ -687,6 +697,8 @@ Resources:
             Path: /registration/{eventId}/{id}
             Method: GET
             RestApiId: !Ref KoekalenteriApi
+    Metadata:
+      BuildMethod: makefile
 
   GetRegistrationFunctionLogGroup:
     Type: AWS::Logs::LogGroup
@@ -726,6 +738,8 @@ Resources:
             Path: /registration
             Method: POST
             RestApiId: !Ref KoekalenteriApi
+    Metadata:
+      BuildMethod: makefile
 
   PutRegistrationFunctionLogGroup:
     Type: AWS::Logs::LogGroup
@@ -771,6 +785,8 @@ Resources:
             RestApiId: !Ref KoekalenteriApi
             Auth:
               Authorizer: CognitoAuthorizer
+    Metadata:
+      BuildMethod: makefile
 
   PutRegistrationGroupsFunctionLogGroup:
     Type: AWS::Logs::LogGroup
@@ -811,6 +827,8 @@ Resources:
             Path: /judge
             Method: GET
             RestApiId: !Ref KoekalenteriApi
+    Metadata:
+      BuildMethod: makefile
 
   GetJudgesFunctionLogGroup:
     Type: AWS::Logs::LogGroup
@@ -847,6 +865,8 @@ Resources:
             RestApiId: !Ref KoekalenteriApi
             Auth:
               Authorizer: CognitoAuthorizer
+    Metadata:
+      BuildMethod: makefile
 
   PutJudgeFunctionLogGroup:
     Type: AWS::Logs::LogGroup
@@ -893,6 +913,8 @@ Resources:
             RestApiId: !Ref KoekalenteriApi
             Auth:
               Authorizer: CognitoAuthorizer
+    Metadata:
+      BuildMethod: makefile
 
   GetOfficialsFunctionLogGroup:
     Type: AWS::Logs::LogGroup
@@ -930,6 +952,8 @@ Resources:
             RestApiId: !Ref KoekalenteriApi
             Auth:
               Authorizer: CognitoAuthorizer
+    Metadata:
+      BuildMethod: makefile
 
   GetOrganizersFunctionLogGroup:
     Type: AWS::Logs::LogGroup
@@ -973,6 +997,8 @@ Resources:
             RestApiId: !Ref KoekalenteriApi
             Auth:
               Authorizer: CognitoAuthorizer
+    Metadata:
+      BuildMethod: makefile
 
   PutOrganizerFunctionLogGroup:
     Type: AWS::Logs::LogGroup
@@ -1008,6 +1034,8 @@ Resources:
             Path: /dog/{regNo}
             Method: GET
             RestApiId: !Ref KoekalenteriApi
+    Metadata:
+      BuildMethod: makefile
 
   GetDogFunctionLogGroup:
     Type: AWS::Logs::LogGroup
@@ -1043,6 +1071,8 @@ Resources:
             Path: /eventType
             Method: GET
             RestApiId: !Ref KoekalenteriApi
+    Metadata:
+      BuildMethod: makefile
 
   GetEventTypesFunctionLogGroup:
     Type: AWS::Logs::LogGroup
@@ -1085,6 +1115,8 @@ Resources:
             RestApiId: !Ref KoekalenteriApi
             Auth:
               Authorizer: CognitoAuthorizer
+    Metadata:
+      BuildMethod: makefile
 
   PutEventTypeFunctionLogGroup:
     Type: AWS::Logs::LogGroup
@@ -1119,6 +1151,8 @@ Resources:
             RestApiId: !Ref KoekalenteriApi
             Auth:
               Authorizer: CognitoAuthorizer
+    Metadata:
+      BuildMethod: makefile
 
   GetEmailTemplatesFunctionLogGroup:
     Type: AWS::Logs::LogGroup
@@ -1163,6 +1197,8 @@ Resources:
             RestApiId: !Ref KoekalenteriApi
             Auth:
               Authorizer: CognitoAuthorizer
+    Metadata:
+      BuildMethod: makefile
 
   PutEmailTemplateFunctionLogGroup:
     Type: AWS::Logs::LogGroup
@@ -1208,6 +1244,8 @@ Resources:
             RestApiId: !Ref KoekalenteriApi
             Auth:
               Authorizer: CognitoAuthorizer
+    Metadata:
+      BuildMethod: makefile
 
   SendRegistrationMessagesFunctionLogGroup:
     Type: AWS::Logs::LogGroup
@@ -1237,6 +1275,8 @@ Resources:
             RestApiId: !Ref KoekalenteriApi
             Auth:
               Authorizer: CognitoAuthorizer # NB: CognitoAuthorizer does not work locally https://github.com/aws/aws-sam-cli/issues/137
+    Metadata:
+      BuildMethod: makefile
 
   GetUserFunctionLogGroup:
     Type: AWS::Logs::LogGroup
@@ -1266,6 +1306,8 @@ Resources:
             RestApiId: !Ref KoekalenteriApi
             Auth:
               Authorizer: CognitoAuthorizer # NB: CognitoAuthorizer does not work locally https://github.com/aws/aws-sam-cli/issues/137
+    Metadata:
+      BuildMethod: makefile
 
   GetUsersFunctionLogGroup:
     Type: AWS::Logs::LogGroup
@@ -1308,6 +1350,8 @@ Resources:
             RestApiId: !Ref KoekalenteriApi
             Auth:
               Authorizer: CognitoAuthorizer # NB: CognitoAuthorizer does not work locally https://github.com/aws/aws-sam-cli/issues/137
+    Metadata:
+      BuildMethod: makefile
 
   AddUserFunctionLogGroup:
     Type: AWS::Logs::LogGroup
@@ -1350,6 +1394,8 @@ Resources:
             RestApiId: !Ref KoekalenteriApi
             Auth:
               Authorizer: CognitoAuthorizer # NB: CognitoAuthorizer does not work locally https://github.com/aws/aws-sam-cli/issues/137
+    Metadata:
+      BuildMethod: makefile
 
   SetRoleFunctionLogGroup:
     Type: AWS::Logs::LogGroup
@@ -1381,6 +1427,8 @@ Resources:
             RestApiId: !Ref KoekalenteriApi
             Auth:
               Authorizer: CognitoAuthorizer # NB: CognitoAuthorizer does not work locally https://github.com/aws/aws-sam-cli/issues/137
+    Metadata:
+      BuildMethod: makefile
 
   SetAdminFunctionLogGroup:
     Type: AWS::Logs::LogGroup
@@ -1412,6 +1460,8 @@ Resources:
             Path: /startlist/{eventId}
             Method: GET
             RestApiId: !Ref KoekalenteriApi
+    Metadata:
+      BuildMethod: makefile
 
   GetStartListFunctionLogGroup:
     Type: AWS::Logs::LogGroup
@@ -1451,6 +1501,8 @@ Resources:
             RestApiId: !Ref KoekalenteriApi
             Auth:
               Authorizer: CognitoAuthorizer
+    Metadata:
+      BuildMethod: makefile
 
   PutInvitationAttachmentFunctionLogGroup:
     Type: AWS::Logs::LogGroup
@@ -1485,6 +1537,8 @@ Resources:
             Path: /file/{key}/{name}
             Method: GET
             RestApiId: !Ref KoekalenteriApi
+    Metadata:
+      BuildMethod: makefile
 
   GetAttachmentFunctionLogGroup:
     Type: AWS::Logs::LogGroup
@@ -1530,6 +1584,8 @@ Resources:
             Path: /payment/create
             Method: POST
             RestApiId: !Ref KoekalenteriApi
+    Metadata:
+      BuildMethod: makefile
 
   PaymentCreateFunctionLogGroup:
     Type: AWS::Logs::LogGroup
@@ -1575,6 +1631,8 @@ Resources:
             Path: /payment/verify
             Method: POST
             RestApiId: !Ref KoekalenteriApi
+    Metadata:
+      BuildMethod: makefile
 
   PaymentVerifyFunctionLogGroup:
     Type: AWS::Logs::LogGroup
@@ -1620,6 +1678,8 @@ Resources:
             Path: /payment/success
             Method: GET
             RestApiId: !Ref KoekalenteriApi
+    Metadata:
+      BuildMethod: makefile
 
   PaymentSuccessFunctionLogGroup:
     Type: AWS::Logs::LogGroup
@@ -1665,6 +1725,8 @@ Resources:
             Path: /payment/cancel
             Method: GET
             RestApiId: !Ref KoekalenteriApi
+    Metadata:
+      BuildMethod: makefile
 
   PaymentCancelFunctionLogGroup:
     Type: AWS::Logs::LogGroup
@@ -1707,6 +1769,8 @@ Resources:
             RestApiId: !Ref KoekalenteriApi
             #Auth:
             #  Authorizer: CognitoAuthorizer
+    Metadata:
+      BuildMethod: makefile
 
   PaymentConfirmFunctionLogGroup:
     Type: AWS::Logs::LogGroup

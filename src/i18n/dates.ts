@@ -10,7 +10,8 @@ import {
   lightFormat,
   parseISO,
 } from 'date-fns'
-import { enGB as en, fi } from 'date-fns/locale'
+import en from 'date-fns/locale/en-GB/index'
+import fi from 'date-fns/locale/fi/index'
 
 export const locales: Record<Language, Locale> = { en, fi }
 
