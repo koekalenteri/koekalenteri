@@ -147,11 +147,12 @@ jobs:
       - name: SAM Build
         run: |
           sam build --base-dir dist
-      - name: Common layer
+      - name: Shared Node.js layer
         run: |
           npm un @aws-amplify/auth @aws-amplify/ui-react @mui/icons-material @mui/lab @mui/material @mui/x-data-grid @mui/x-date-pickers aws-rum-web identity-obj-proxy material-ui-confirm mui-tel-input notistack react react-dnd react-dnd-html5-backend react-dom react-i18next react-router-dom recoil
           npm ci --omit=dev
-          mv node_modules src/lambda/shared/
+          mkdir -p layer/nodejs
+          mv node_modules layer/nodejs/
       - name: SAM Deploy
         run: |
           # Output variables to ensure their values are set correctly when ran
