@@ -1717,7 +1717,7 @@ Resources:
     Properties:
         LayerName: lambda-shared
         Description: Shared resources between lambdas
-        ContentUri: src/labmda/shared/
+        ContentUri: src/lambda/shared/
         CompatibleRuntimes:
           - nodejs18.x
         LicenseInfo: 'MIT'
