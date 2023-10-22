@@ -16,15 +16,14 @@ function getEntryPoints(dir, ext) {
   return result
 }
 
-const paths = ['src/lambda/handlers', 'src/lambda/lib', 'src/lambda/utils', 'src/i18n']
+const exclude = ['src/i18n/index.ts', 'src/lambda/jest.config.ts']
+const paths = ['src/lambda', 'src/i18n']
 const entryPoints = paths
   .map((path) => getEntryPoints(path, '.ts'))
   .flat()
-  .filter((entry) => entry !== 'src/i18n/index.ts')
+  .filter((entry) => !exclude.includes(entry))
 const watch = process.argv[2] === '--watch'
 const mode = watch ? 'context' : 'build'
-
-console.log(entryPoints)
 
 const ctx = await esbuild[mode]({
   entryPoints,
