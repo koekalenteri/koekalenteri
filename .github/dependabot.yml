@@ -10,19 +10,7 @@ updates:
         update-types: ["version-update:semver-major"]
 
   - package-ecosystem: "npm"
-    directory: "/koekalenteri-backend"
-    schedule:
-      interval: "daily"
-    ignore:
-      - dependency-name: "*"
-        update-types: ["version-update:semver-major"]
-    groups:
-      deps:
-        patterns:
-          - "*"
-
-  - package-ecosystem: "npm"
-    directory: "/koekalenteri-frontend"
+    directory: "/"
     schedule:
       interval: "daily"
     ignore:
@@ -35,15 +23,3 @@ updates:
         exclude-patterns:
           - "camelcase"
           - "@mui/*"
-
-  - package-ecosystem: "npm"
-    directory: "/"
-    schedule:
-      interval: "daily"
-    ignore:
-      - dependency-name: "*"
-        update-types: ["version-update:semver-major"]
-    groups:
-      deps:
-        patterns:
-          - "*"

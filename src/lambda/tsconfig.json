@@ -1,0 +1,14 @@
+{
+  "extends": "@tsconfig/node18/tsconfig.json",
+  "compilerOptions": {
+    "sourceMap": true,
+    "target": "es2022",
+    "module": "es2022",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "declaration": false,
+    "isolatedModules": true,
+    "allowSyntheticDefaultImports": true,
+  },
+  "include": ["../i18n", "./**/*.ts"]
+}

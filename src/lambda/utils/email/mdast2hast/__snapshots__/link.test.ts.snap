@@ -1,0 +1,24 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`linkHandler calls handler for "a" selector with title 1`] = `
+{
+  "children": undefined,
+  "properties": {
+    "href": "url",
+    "title": "title",
+  },
+  "tagName": "a",
+  "type": "element",
+}
+`;
+
+exports[`linkHandler calls handler for "a" selector without title 1`] = `
+{
+  "children": undefined,
+  "properties": {
+    "href": "url",
+  },
+  "tagName": "a",
+  "type": "element",
+}
+`;

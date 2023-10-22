@@ -16,31 +16,27 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           cache: npm
-          cache-dependency-path: koekalenteri-backend/package-lock.json
+          cache-dependency-path: package-lock.json
       - name: Cache node_modules
         id: cache
         uses: actions/cache@v3
         with:
-          path: koekalenteri-backend/node_modules
-          key: ${{ runner.os }}-${{ hashFiles('koekalenteri-backend/package-lock.json') }}
+          path: node_modules
+          key: ${{ runner.os }}-${{ hashFiles('package-lock.json') }}
       - name: Install packages
         if: steps.cache.outputs.cache-hit != 'true'
         run: npm ci
-        working-directory: koekalenteri-backend
       - name: Lint
         run: npm run lint
-        working-directory: koekalenteri-backend
       - name: Build
-        run: npm run build
-        working-directory: koekalenteri-backend
+        run: npm run build-backend
       - name: Test
-        run: npm run test -- --coverage
-        working-directory: koekalenteri-backend
+        run: npm run test-backend -- --coverage
       - name: Upload coverage report
         uses: actions/upload-artifact@v3
         with:
           name: backend-coverage
-          path: koekalenteri-backend/coverage/lcov.info
+          path: coverage/lcov.info
 
   frontend:
     runs-on: ubuntu-latest
@@ -49,28 +45,25 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           cache: npm
-          cache-dependency-path: koekalenteri-frontend/package-lock.json
+          cache-dependency-path: package-lock.json
       - name: Cache node_modules
         id: cache
         uses: actions/cache@v3
         with:
-          path: koekalenteri-frontend/node_modules
-          key: ${{ runner.os }}-${{ hashFiles('koekalenteri-frontend/package-lock.json') }}
+          path: node_modules
+          key: ${{ runner.os }}-${{ hashFiles('package-lock.json') }}
       - name: Install packages
         if: steps.cache.outputs.cache-hit != 'true'
         run: npm ci
-        working-directory: koekalenteri-frontend
       - name: Lint
         run: npm run lint
-        working-directory: koekalenteri-frontend
       - name: Build
-        run: npm run build
-        working-directory: koekalenteri-frontend
+        run: npm run build-frontend
       - name: Upload build
         uses: actions/upload-artifact@v3
         with:
           name: frontend-build
-          path: koekalenteri-frontend/build/
+          path: build/
 
   frontend-test:
     runs-on: ubuntu-latest
@@ -83,28 +76,27 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           cache: npm
-          cache-dependency-path: koekalenteri-frontend/package-lock.json
+          cache-dependency-path: package-lock.json
       - name: Restore node_modules
         id: cache-restore
         uses: actions/cache/restore@v3
         with:
-          path: koekalenteri-frontend/node_modules
-          key: ${{ runner.os }}-${{ hashFiles('koekalenteri-frontend/package-lock.json') }}
+          path: node_modules
+          key: ${{ runner.os }}-${{ hashFiles('package-lock.json') }}
       - name: Download frontend build
         uses: actions/download-artifact@v3
         with:
           name: frontend-build
-          path: koekalenteri-frontend/build
+          path: build
       - name: Test
-        run: npm run test -- --coverage --shard=${{ matrix.shard }}/${{ strategy.job-total }}
-        working-directory: koekalenteri-frontend
+        run: npm run test-frontend -- --coverage --shard=${{ matrix.shard }}/${{ strategy.job-total }}
       - name: Rename coverage
-        run: mv koekalenteri-frontend/coverage/lcov.info koekalenteri-frontend/coverage/lcov${{ matrix.shard }}.info
+        run: mv coverage/lcov.info coverage/lcov${{ matrix.shard }}.info
       - name: Upload coverage report
         uses: actions/upload-artifact@v3
         with:
           name: frontend-coverage
-          path: koekalenteri-frontend/coverage/lcov${{ matrix.shard }}.info
+          path: coverage/lcov${{ matrix.shard }}.info
 
   deploy-backend:
     runs-on: ubuntu-latest
@@ -116,13 +108,13 @@ jobs:
         with:
           cache: npm
           node-version: 16 # sam build fails with 18
-          cache-dependency-path: koekalenteri-backend/package-lock.json
+          cache-dependency-path: package-lock.json
       - name: Restore node_modules
         id: cache-restore
         uses: actions/cache/restore@v3
         with:
-          path: koekalenteri-backend/node_modules
-          key: ${{ runner.os }}-${{ hashFiles('koekalenteri-backend/package-lock.json') }}
+          path: node_modules
+          key: ${{ runner.os }}-${{ hashFiles('package-lock.json') }}
       - uses: aws-actions/setup-sam@v2
         with:
           use-installer: true
@@ -132,8 +124,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
       - name: Build
-        run: npm run build
-        working-directory: koekalenteri-backend
+        run: npm run build-backend
       - name: SAM Validate
         run: |
           sam validate --lint
@@ -200,34 +191,26 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           cache: npm
-          cache-dependency-path: koekalenteri-frontend/package-lock.json
-      - name: Restore BE node_modules
-        id: cache-restore-be
+          cache-dependency-path: package-lock.json
+      - name: Restore node_modules
+        id: cache-restore
         uses: actions/cache/restore@v3
         with:
-          path: koekalenteri-backend/node_modules
-          key: ${{ runner.os }}-${{ hashFiles('koekalenteri-backend/package-lock.json') }}
-      - name: Restore FE node_modules
-        id: cache-restore-fe
-        uses: actions/cache/restore@v3
-        with:
-          path: koekalenteri-frontend/node_modules
-          key: ${{ runner.os }}-${{ hashFiles('koekalenteri-frontend/package-lock.json') }}
+          path: node_modules
+          key: ${{ runner.os }}-${{ hashFiles('package-lock.json') }}
       - name: Download backend coverage
         uses: actions/download-artifact@v3
         with:
           name: backend-coverage
-          path: koekalenteri-backend/coverage/lcov.info
+          path: coverage/lcov.info
       - name: Download frontend coverage
         uses: actions/download-artifact@v3
         with:
           name: frontend-coverage
-          path: koekalenteri-frontend/coverage
+          path: coverage
       - name: Read frontend version
         id: package-version
         uses: martinbeentjes/npm-get-version-action@v1.3.1
-        with:
-          path: koekalenteri-frontend
       - name: Set version
         run: echo -e "\nsonar.projectVersion=${{ steps.package-version.outputs.current-version}}" >> sonar-project.properties
       - name: SonarCloud Scan

@@ -458,7 +458,6 @@ Resources:
   GetEventsFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
-      CodeUri: koekalenteri-backend
       Handler: dist/handlers/event.getEventsHandler
       Layers:
         - !Ref CommonLayer
@@ -487,7 +486,6 @@ Resources:
   GetEventFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: koekalenteri-backend
       Handler: dist/handlers/event.getEventHandler
       Layers:
         - !Ref CommonLayer
@@ -516,7 +514,6 @@ Resources:
   PutEventFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: koekalenteri-backend
       Handler: dist/handlers/admin/event.putEventHandler
       Layers:
         - !Ref CommonLayer
@@ -553,7 +550,6 @@ Resources:
   CopyEventFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: koekalenteri-backend
       Handler: dist/handlers/admin/event.copyEventWithRegistrations
       Layers:
         - !Ref CommonLayer
@@ -593,7 +589,6 @@ Resources:
   GetRegistrationsFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: koekalenteri-backend
       Handler: dist/handlers/admin/registration.getRegistrationsHandler
       Layers:
         - !Ref CommonLayer
@@ -633,7 +628,6 @@ Resources:
   GetRegistrationAuditTrailFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: koekalenteri-backend
       Handler: dist/handlers/admin/registration.getAuditTrailHandler
       Layers:
         - !Ref CommonLayer
@@ -673,7 +667,6 @@ Resources:
   GetRegistrationFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: koekalenteri-backend
       Handler: dist/handlers/registration.getRegistrationHandler
       Layers:
         - !Ref CommonLayer
@@ -702,7 +695,6 @@ Resources:
   PutRegistrationFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: koekalenteri-backend
       Handler: dist/handlers/registration.putRegistrationHandler
       Layers:
         - !Ref CommonLayer
@@ -742,7 +734,6 @@ Resources:
   PutRegistrationGroupsFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: koekalenteri-backend
       Handler: dist/handlers/admin/registration.putRegistrationGroupsHandler
       Layers:
         - !Ref CommonLayer
@@ -788,7 +779,6 @@ Resources:
   GetJudgesFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
-      CodeUri: koekalenteri-backend
       Handler: dist/handlers/judge.getJudgesHandler
       Layers:
         - !Ref CommonLayer
@@ -829,7 +819,6 @@ Resources:
   PutJudgeFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: koekalenteri-backend
       Handler: dist/handlers/admin/judge.putJudgeHandler
       Layers:
         - !Ref CommonLayer
@@ -866,7 +855,6 @@ Resources:
   GetOfficialsFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: koekalenteri-backend
       Handler: dist/handlers/official.getOfficialsHandler
       Layers:
         - !Ref CommonLayer
@@ -913,7 +901,6 @@ Resources:
   GetOrganizersFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
-      CodeUri: koekalenteri-backend
       Handler: dist/handlers/admin/organizer.getOrganizersHandler
       Layers:
         - !Ref CommonLayer
@@ -951,7 +938,6 @@ Resources:
   PutOrganizerFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: koekalenteri-backend
       Handler: dist/handlers/admin/organizer.putOrganizerHandler
       Layers:
         - !Ref CommonLayer
@@ -995,7 +981,6 @@ Resources:
   GetDogFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
-      CodeUri: koekalenteri-backend
       Handler: dist/handlers/dog.getDogHandler
       Layers:
         - !Ref CommonLayer
@@ -1031,7 +1016,6 @@ Resources:
   GetEventTypesFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
-      CodeUri: koekalenteri-backend
       Handler: dist/handlers/eventType.getEventTypesHandler
       Layers:
         - !Ref CommonLayer
@@ -1067,7 +1051,6 @@ Resources:
   PutEventTypeFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: koekalenteri-backend
       Handler: dist/handlers/eventType.putEventTypeHandler
       Layers:
         - !Ref CommonLayer
@@ -1110,7 +1093,6 @@ Resources:
   GetEmailTemplatesFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: koekalenteri-backend
       Handler: dist/handlers/email.getTemplatesHandler
       Layers:
         - !Ref CommonLayer
@@ -1145,7 +1127,6 @@ Resources:
   PutEmailTemplateFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: koekalenteri-backend
       Handler: dist/handlers/email.putTemplateHandler
       Layers:
         - !Ref CommonLayer
@@ -1190,7 +1171,6 @@ Resources:
   SendRegistrationMessagesFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: koekalenteri-backend
       Handler: dist/handlers/admin/registration.sendMessagesHandler
       Layers:
         - !Ref CommonLayer
@@ -1236,7 +1216,6 @@ Resources:
   GetUserFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: koekalenteri-backend
       Handler: dist/handlers/user.getUserHandler
       Layers:
         - !Ref CommonLayer
@@ -1266,7 +1245,6 @@ Resources:
   GetUsersFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: koekalenteri-backend
       Handler: dist/handlers/admin/user.getUsersHandler
       Layers:
         - !Ref CommonLayer
@@ -1296,7 +1274,6 @@ Resources:
   AddUserFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: koekalenteri-backend
       Handler: dist/handlers/admin/user.addUserHandler
       Layers:
         - !Ref CommonLayer
@@ -1339,7 +1316,6 @@ Resources:
   SetRoleFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: koekalenteri-backend
       Handler: dist/handlers/admin/user.setRoleHandler
       Layers:
         - !Ref CommonLayer
@@ -1382,7 +1358,6 @@ Resources:
   SetAdminFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: koekalenteri-backend
       Handler: dist/handlers/admin/user.setAdminHandler
       Layers:
         - !Ref CommonLayer
@@ -1414,7 +1389,6 @@ Resources:
   GetStartListFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: koekalenteri-backend
       Handler: dist/handlers/startlist.getStartListHandler
       Layers:
         - !Ref CommonLayer
@@ -1446,7 +1420,6 @@ Resources:
   PutInvitationAttachmentFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: koekalenteri-backend
       Handler: dist/handlers/admin/attach.putInvitationAttachmentHandler
       Layers:
         - !Ref CommonLayer
@@ -1486,7 +1459,6 @@ Resources:
   GetAttachmentFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: koekalenteri-backend
       Handler: dist/handlers/attach.getAttachmentHandler
       Layers:
         - !Ref CommonLayer
@@ -1521,7 +1493,6 @@ Resources:
   PaymentCreateFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: koekalenteri-backend
       Handler: dist/handlers/payment.createHandler
       Layers:
         - !Ref CommonLayer
@@ -1567,7 +1538,6 @@ Resources:
   PaymentVerifyFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: koekalenteri-backend
       Handler: dist/handlers/payment.verifyHandler
       Layers:
         - !Ref CommonLayer
@@ -1613,7 +1583,6 @@ Resources:
   PaymentSuccessFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: koekalenteri-backend
       Handler: dist/handlers/payment.successHandler
       Layers:
         - !Ref CommonLayer
@@ -1659,7 +1628,6 @@ Resources:
   PaymentCancelFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: koekalenteri-backend
       Handler: dist/handlers/payment.cancelHandler
       Layers:
         - !Ref CommonLayer
@@ -1705,7 +1673,6 @@ Resources:
   PaymentConfirmFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: koekalenteri-backend
       Handler: dist/handlers/payment.paymentConfirm
       Layers:
         - !Ref CommonLayer
@@ -1748,9 +1715,9 @@ Resources:
   CommonLayer:
     Type: AWS::Serverless::LayerVersion
     Properties:
-        LayerName: koekalenteri-shared
-        Description: Shared resources between BE and FE
-        ContentUri: koekalenteri-shared/
+        LayerName: lambda-shared
+        Description: Shared resources between lambdas
+        ContentUri: src/labmda/shared/
         CompatibleRuntimes:
           - nodejs18.x
         LicenseInfo: 'MIT'
@@ -1816,11 +1783,10 @@ Resources:
           phases:
             build:
               commands:
-                - cd koekalenteri-frontend
                 - npm ci
-                - npm run build
+                - npm run build-frontend
           artifacts:
-            baseDirectory: koekalenteri-frontend/build
+            baseDirectory: build
             files:
               - '**/*'
       CustomRules:
