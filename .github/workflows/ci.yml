@@ -32,6 +32,11 @@ jobs:
         run: npm run build-backend
       - name: Test
         run: npm run test-backend -- --coverage
+      - name: Upload build
+        uses: actions/upload-artifact@v3
+        with:
+          name: backend-build
+          path: dist/
       - name: Upload coverage report
         uses: actions/upload-artifact@v3
         with:
@@ -107,14 +112,11 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           cache: npm
-          node-version: 16 # sam build fails with 18
-          cache-dependency-path: package-lock.json
-      - name: Restore node_modules
-        id: cache-restore
-        uses: actions/cache/restore@v3
+      - name: Download backend build
+        uses: actions/download-artifact@v3
         with:
-          path: node_modules
-          key: ${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          name: backend-build
+          path: dist
       - uses: aws-actions/setup-sam@v2
         with:
           use-installer: true
@@ -123,8 +125,6 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
-      - name: Build
-        run: npm run build-backend
       - name: SAM Validate
         run: |
           sam validate --lint
@@ -149,6 +149,8 @@ jobs:
           sam build --base-dir dist
       - name: Common layer
         run: |
+          npm un @aws-amplify/auth @aws-amplify/ui-react @mui/icons-material @mui/lab @mui/material @mui/x-data-grid @mui/x-date-pickers aws-rum-web identity-obj-proxy material-ui-confirm mui-tel-input notistack react react-dnd react-dnd-html5-backend react-dom react-i18next react-router-dom recoil
+          npm ci --omit=dev
           mv node_modules src/lambda/shared/
       - name: SAM Deploy
         run: |
