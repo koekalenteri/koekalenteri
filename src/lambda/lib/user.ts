@@ -2,8 +2,9 @@ import type { JsonUser, Organizer, UserRole } from '../../types'
 
 import { i18n } from '../../i18n/lambda'
 import { CONFIG } from '../config'
-import { sendTemplatedMail } from '../handlers/email'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
+
+import { sendTemplatedMail } from './email'
 
 const { userTable, userLinkTable, organizerTable, emailFrom } = CONFIG
 

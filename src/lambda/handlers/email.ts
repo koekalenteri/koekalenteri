@@ -1,8 +1,8 @@
 import type { MetricsLogger } from 'aws-embedded-metrics'
 import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import type { AWSError } from 'aws-sdk'
-import type { SendTemplatedEmailRequest, Template } from 'aws-sdk/clients/ses'
-import type { EmailTemplateId, JsonEmailTemplate, JsonRegistration, Language } from '../../types'
+import type { Template } from 'aws-sdk/clients/ses'
+import type { JsonEmailTemplate, JsonRegistration } from '../../types'
 
 import { metricScope } from 'aws-embedded-metrics'
 import AWS from 'aws-sdk'
@@ -36,31 +36,6 @@ export async function sendReceipt(registration: JsonRegistration, date: string) 
     regDates,
     reserveText,
   }) */
-}
-
-export async function sendTemplatedMail(
-  template: EmailTemplateId,
-  language: Language,
-  from: string,
-  to: string[],
-  data: Record<string, unknown>
-) {
-  const params: SendTemplatedEmailRequest = {
-    ConfigurationSetName: 'Koekalenteri',
-    Destination: {
-      ToAddresses: to,
-    },
-    Template: `${template}-${CONFIG.stackName}-${language}`,
-    TemplateData: JSON.stringify(data),
-    Source: from,
-  }
-
-  try {
-    return ses.sendTemplatedEmail(params).promise()
-  } catch (e) {
-    // TODO: queue for retry based on error
-    console.log('Failed to send email', e)
-  }
 }
 
 export const getTemplatesHandler = metricScope(

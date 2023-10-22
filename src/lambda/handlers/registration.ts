@@ -10,6 +10,7 @@ import { nanoid } from 'nanoid'
 import { i18n } from '../../i18n/lambda'
 import { CONFIG } from '../config'
 import { audit, registrationAuditKey } from '../lib/audit'
+import { sendTemplatedMail } from '../lib/email'
 import { getOrigin, getUsername } from '../utils/auth'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { metricsError, metricsSuccess } from '../utils/metrics'
@@ -17,7 +18,6 @@ import { emailTo, registrationEmailTemplateData } from '../utils/registration'
 import { response } from '../utils/response'
 
 import { updateRegistrations } from './admin/event'
-import { sendTemplatedMail } from './email'
 
 const dynamoDB = new CustomDynamoClient()
 const { emailFrom, eventTable } = CONFIG
