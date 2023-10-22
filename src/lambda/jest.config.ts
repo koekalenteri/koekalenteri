@@ -1,7 +1,7 @@
 import type { Config } from 'jest'
 
 const config: Config = {
-  collectCoverageFrom: ['src/lambda/**/*.ts', '!src/lambda/**/*.d.ts'],
+  collectCoverageFrom: ['<rootDir>/**/*.ts', '!<rootDir>/**/*.d.ts'],
   coveragePathIgnorePatterns: ['/node_modules/'],
   coverageProvider: 'v8',
   extensionsToTreatAsEsm: ['.ts'],
