@@ -1,6 +1,6 @@
 import type { JsonConfirmedEvent, JsonRegistration } from '../../types'
 
-import { i18n } from '../../i18n'
+import { i18n } from '../../i18n/lambda'
 
 import { reverseName } from './string'
 

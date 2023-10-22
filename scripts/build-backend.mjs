@@ -9,16 +9,22 @@ function getEntryPoints(dir, ext) {
     if (statSync(full).isDirectory()) {
       if (/test/.test(full)) continue
       result.push(...getEntryPoints(full, ext))
-    } else if (full.endsWith(ext) && !full.endsWith(`.test${ext}`)) {
+    } else if (full.endsWith(ext) && !full.endsWith(`.test${ext}`) && !full.endsWith(`.d${ext}`)) {
       result.push(full)
     }
   }
   return result
 }
 
-const entryPoints = getEntryPoints('src/lambda', '.ts')
+const paths = ['src/lambda/handlers', 'src/lambda/lib', 'src/lambda/utils', 'src/i18n']
+const entryPoints = paths
+  .map((path) => getEntryPoints(path, '.ts'))
+  .flat()
+  .filter((entry) => entry !== 'src/i18n/index.ts')
 const watch = process.argv[2] === '--watch'
 const mode = watch ? 'context' : 'build'
+
+console.log(entryPoints)
 
 const ctx = await esbuild[mode]({
   entryPoints,
@@ -26,7 +32,7 @@ const ctx = await esbuild[mode]({
   logLevel: 'info',
   format: 'esm',
   platform: 'node',
-  target: 'node16',
+  target: 'node18',
   outdir: 'dist',
   outExtension: { '.js': '.mjs' },
   plugins: [

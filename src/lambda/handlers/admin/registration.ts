@@ -11,7 +11,7 @@ import type {
 
 import { metricScope } from 'aws-embedded-metrics'
 
-import { i18n } from '../../../i18n'
+import { i18n } from '../../../i18n/lambda'
 import { CONFIG } from '../../config'
 import { audit, auditTrail, registrationAuditKey } from '../../lib/audit'
 import { authorize, getOrigin } from '../../utils/auth'

@@ -5,9 +5,9 @@ import type { JsonRegistration } from '../../types'
 
 import { metricScope } from 'aws-embedded-metrics'
 import { diff } from 'deep-object-diff'
-import { getFixedT } from 'i18next'
 import { nanoid } from 'nanoid'
 
+import { i18n } from '../../i18n/lambda'
 import { CONFIG } from '../config'
 import { audit, registrationAuditKey } from '../lib/audit'
 import { getOrigin, getUsername } from '../utils/auth'
@@ -126,7 +126,7 @@ function getAuditMessage(
   if (confirm) return 'Ilmoittautumisen vahvistus'
   if (!existing) return ''
 
-  const t = getFixedT('fi')
+  const t = i18n.getFixedT('fi')
   const changes: Partial<JsonRegistration> = diff(data, existing)
   console.debug('Audit changes', changes)
   const keys = ['class', 'dog', 'breeder', 'owner', 'handler', 'qualifyingResults', 'notes'] as const
