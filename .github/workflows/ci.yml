@@ -144,16 +144,18 @@ jobs:
           echo "branch=$BRANCH" >> $GITHUB_ENV
           echo "repository=$REPOSITORY" >> $GITHUB_ENV
           echo "environment=$ENVIRONMENT" >> $GITHUB_ENV
-      - name: SAM Build
-        run: |
-          cp Makefile dist/
-          sam build --base-dir dist
       - name: Shared Node.js layer
         run: |
           npm un @aws-amplify/auth @aws-amplify/ui-react @mui/icons-material @mui/lab @mui/material @mui/x-data-grid @mui/x-date-pickers aws-rum-web identity-obj-proxy material-ui-confirm mui-tel-input notistack react react-dnd react-dnd-html5-backend react-dom react-i18next react-router-dom recoil
           npm ci --omit=dev
-          mkdir -p layer/nodejs
+          mkdir -p layer/nodejs/lambda
           mv node_modules layer/nodejs/
+          mv dist/i18n layer/nodejs/
+          mv -t layer/nodejs/lambda dist/lambda/lib dist/lambda/types dist/lambda/utils
+      - name: SAM Build
+        run: |
+          cp Makefile dist/
+          sam build --base-dir dist
       - name: SAM Deploy
         run: |
           # Output variables to ensure their values are set correctly when ran
