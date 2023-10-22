@@ -146,6 +146,7 @@ jobs:
           echo "environment=$ENVIRONMENT" >> $GITHUB_ENV
       - name: SAM Build
         run: |
+          cp Makefile dist/
           sam build --base-dir dist
       - name: Shared Node.js layer
         run: |

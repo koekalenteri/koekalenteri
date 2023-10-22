@@ -476,6 +476,8 @@ Resources:
             Path: /event
             Method: GET
             RestApiId: !Ref KoekalenteriApi
+    Metadata:
+      BuildMethod: makefile
 
   GetEventsFunctionLogGroup:
     Type: AWS::Logs::LogGroup
