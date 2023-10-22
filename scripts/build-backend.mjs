@@ -29,11 +29,11 @@ const ctx = await esbuild[mode]({
   entryPoints,
   bundle: true,
   logLevel: 'info',
-  format: 'esm',
+  format: 'cjs',
   platform: 'node',
   target: 'node18',
   outdir: 'dist',
-  outExtension: { '.js': '.mjs' },
+  // outExtension: { '.js': '.mjs' },
   plugins: [
     {
       name: 'add-js-extension-to-local-imports-for-node',
@@ -47,9 +47,9 @@ const ctx = await esbuild[mode]({
             if (path.includes('/')) {
               const full = join(resolveDir, path)
               if (existsSync(full) && lstatSync(full).isDirectory()) {
-                path = path + '/index.mjs'
+                path = path + '/index.js'
               } else {
-                path = path + '.mjs'
+                path = path + '.js'
               }
             }
             return { path, external: true }
