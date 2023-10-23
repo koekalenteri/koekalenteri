@@ -3,7 +3,6 @@ import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import type { AWSError } from 'aws-sdk'
 import type { EventType, JsonDbRecord, Judge } from '../../types'
 
-import { capitalize } from '@mui/material'
 import { metricScope } from 'aws-embedded-metrics'
 import { diff } from 'deep-object-diff'
 
@@ -15,7 +14,7 @@ import { authorize, getAndUpdateUserByEmail } from '../utils/auth'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { metricsError, metricsSuccess } from '../utils/metrics'
 import { response } from '../utils/response'
-import { reverseName } from '../utils/string'
+import { capitalize, reverseName } from '../utils/string'
 
 const dynamoDB = new CustomDynamoClient()
 
