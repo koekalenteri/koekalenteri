@@ -12,6 +12,9 @@ const dynamoDB = new CustomDynamoClient(userLinkTable)
 
 let cache: JsonUser[] | undefined
 
+export const filterRelevantUsers = (users: JsonUser[], user: JsonUser, orgs: string[]) =>
+  user.admin ? users : users.filter((u) => u.admin || Object.keys(u.roles ?? {}).some((orgId) => orgs.includes(orgId)))
+
 export async function getAllUsers() {
   if (!cache) {
     cache = await dynamoDB.readAll<JsonUser>(userTable)

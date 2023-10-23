@@ -458,7 +458,7 @@ Resources:
   GetEventsFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
-      Handler: lambda/handlers/event.getEventsHandler
+      Handler: lambda/GetEventsFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -488,7 +488,7 @@ Resources:
   GetEventFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/event.getEventHandler
+      Handler: lambda/GetEventFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -518,7 +518,7 @@ Resources:
   PutEventFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/admin/event.putEventHandler
+      Handler: lambda/PutEventFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -556,7 +556,7 @@ Resources:
   CopyEventFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/admin/event.copyEventWithRegistrations
+      Handler: lambda/CopyEventFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -597,7 +597,7 @@ Resources:
   GetRegistrationsFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/admin/registration.getRegistrationsHandler
+      Handler: lambda/GetRegistrationsFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -638,7 +638,7 @@ Resources:
   GetRegistrationAuditTrailFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/admin/registration.getAuditTrailHandler
+      Handler: lambda/GetRegistrationAuditTrailFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -679,7 +679,7 @@ Resources:
   GetRegistrationFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/registration.getRegistrationHandler
+      Handler: lambda/GetRegistrationFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -709,7 +709,7 @@ Resources:
   PutRegistrationFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/registration.putRegistrationHandler
+      Handler: lambda/PutRegistrationFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -795,9 +795,9 @@ Resources:
       RetentionInDays: 30
 
   GetJudgesFunction:
-    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/judge.getJudgesHandler
+      Handler: lambda/GetJudgesFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -822,7 +822,7 @@ Resources:
           EVENT_TYPE_TABLE_NAME : !Ref EventTypeTable
       Events:
         GetJudges:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Type: Api
           Properties:
             Path: /judge
             Method: GET
@@ -839,7 +839,7 @@ Resources:
   PutJudgeFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/admin/judge.putJudgeHandler
+      Handler: lambda/PutJudgeFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -877,7 +877,7 @@ Resources:
   GetOfficialsFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/official.getOfficialsHandler
+      Handler: lambda/GetOfficialsFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -906,7 +906,7 @@ Resources:
           EVENT_TYPE_TABLE_NAME : !Ref EventTypeTable
       Events:
         GetOfficials:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Type: Api
           Properties:
             Path: /official
             Method: GET
@@ -923,9 +923,9 @@ Resources:
       RetentionInDays: 30
 
   GetOrganizersFunction:
-    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/admin/organizer.getOrganizersHandler
+      Handler: lambda/GetOrganizersFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -945,7 +945,7 @@ Resources:
           TABLE_NAME: !Ref OrganizerTable
       Events:
         GetOrganizers:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Type: Api
           Properties:
             Path: /admin/organizer
             Method: GET
@@ -964,7 +964,7 @@ Resources:
   PutOrganizerFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/admin/organizer.putOrganizerHandler
+      Handler: lambda/PutOrganizerFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -1007,9 +1007,9 @@ Resources:
       RetentionInDays: 30
 
   GetDogFunction:
-    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/dog.getDogHandler
+      Handler: lambda/GetDogFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -1029,7 +1029,7 @@ Resources:
           TABLE_NAME: !Ref DogTable
       Events:
         GetDog:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Type: Api
           Properties:
             Path: /dog/{regNo}
             Method: GET
@@ -1044,9 +1044,9 @@ Resources:
       RetentionInDays: 30
 
   GetEventTypesFunction:
-    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/eventType.getEventTypesHandler
+      Handler: lambda/GetEventTypesFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -1066,7 +1066,7 @@ Resources:
           TABLE_NAME: !Ref EventTypeTable
       Events:
         GetEventTypes:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Type: Api
           Properties:
             Path: /eventType
             Method: GET
@@ -1083,7 +1083,7 @@ Resources:
   PutEventTypeFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/eventType.putEventTypeHandler
+      Handler: lambda/PutEventTypeFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -1127,7 +1127,7 @@ Resources:
   GetEmailTemplatesFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/email.getTemplatesHandler
+      Handler: lambda/GetEmailTemplatesFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -1163,7 +1163,7 @@ Resources:
   PutEmailTemplateFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/email.putTemplateHandler
+      Handler: lambda/PutEmailTemplateFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -1209,7 +1209,7 @@ Resources:
   SendRegistrationMessagesFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/admin/registration.sendMessagesHandler
+      Handler: lambda/SendRegistrationMessagesFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -1287,7 +1287,7 @@ Resources:
   GetUsersFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/admin/user.getUsersHandler
+      Handler: lambda/GetUsersFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -1318,7 +1318,7 @@ Resources:
   AddUserFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/admin/user.addUserHandler
+      Handler: lambda/AddUserFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -1362,7 +1362,7 @@ Resources:
   SetRoleFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/admin/user.setRoleHandler
+      Handler: lambda/SetRoleFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -1406,7 +1406,7 @@ Resources:
   SetAdminFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/admin/user.setAdminHandler
+      Handler: lambda/SetAdminFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -1439,7 +1439,7 @@ Resources:
   GetStartListFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/startlist.getStartListHandler
+      Handler: lambda/GetStartListFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -1472,7 +1472,7 @@ Resources:
   PutInvitationAttachmentFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/admin/attach.putInvitationAttachmentHandler
+      Handler: lambda/PutInvitationAttachmentFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -1513,7 +1513,7 @@ Resources:
   GetAttachmentFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/attach.getAttachmentHandler
+      Handler: lambda/GetAttachmentFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -1549,7 +1549,7 @@ Resources:
   PaymentCreateFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/payment.createHandler
+      Handler: lambda/PaymentCreateFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -1596,7 +1596,7 @@ Resources:
   PaymentVerifyFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/payment.verifyHandler
+      Handler: lambda/PaymentVerifyFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -1643,7 +1643,7 @@ Resources:
   PaymentSuccessFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/payment.successHandler
+      Handler: lambda/PaymentSuccessFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -1690,7 +1690,7 @@ Resources:
   PaymentCancelFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/payment.cancelHandler
+      Handler: lambda/PaymentCancelFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -1732,50 +1732,6 @@ Resources:
     Type: AWS::Logs::LogGroup
     Properties:
       LogGroupName: !Join ['/', ['/aws/lambda', !Ref PaymentCancelFunction]]
-      RetentionInDays: 30
-
-  PaymentConfirmFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      Handler: lambda/handlers/payment.paymentConfirm
-      Layers:
-        - !Ref CommonLayer
-      Tracing: Active
-      Policies:
-        - Statement:
-            - Sid: SSMGetParameterPolicy
-              Effect: Allow
-              Action:
-              - ssm:GetParameters
-              - ssm:GetParameter
-              Resource: '*'
-        - DynamoDBCrudPolicy:
-            TableName: !Ref EventRegistrationTable
-        - DynamoDBReadPolicy:
-            TableName: !Ref UserTable
-        - DynamoDBReadPolicy:
-            TableName: !Ref UserLinkTable
-        - CloudWatchPutMetricPolicy: {}
-      Environment:
-        Variables:
-          TABLE_NAME: !Ref EventRegistrationTable
-          AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
-      Events:
-        PutEvent:
-          Type: Api
-          Properties:
-            Path: /payment/confirm
-            Method: POST
-            RestApiId: !Ref KoekalenteriApi
-            #Auth:
-            #  Authorizer: CognitoAuthorizer
-    Metadata:
-      BuildMethod: makefile
-
-  PaymentConfirmFunctionLogGroup:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      LogGroupName: !Join ['/', ['/aws/lambda', !Ref PaymentConfirmFunction]]
       RetentionInDays: 30
 
   CommonLayer:
