@@ -28,11 +28,13 @@ async function getOrCreateUser(event: APIGatewayProxyEvent) {
   let user: JsonUser | undefined
 
   if (!event.requestContext.authorizer?.claims) {
+    console.log('no authorizer in requestContext', event.requestContext)
     return null
   }
 
   const cognitoUser = event.requestContext.authorizer?.claims.sub
   if (!cognitoUser) {
+    console.log('no claims.sub in requestContext.autorizer', event.requestContext.authorizer)
     return null
   }
 
