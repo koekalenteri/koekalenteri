@@ -17,7 +17,7 @@ export const useJudgesActions = () => {
   const find = (id: number) => judges.find((item) => item.id === id)
 
   const refresh = async () => {
-    const judges = await getJudges(true)
+    const judges = await getJudges(true, token)
     const sortedJudges = [...judges].sort((a, b) => a.name.localeCompare(b.name, i18next.language))
     setJudges(sortedJudges)
     resetUsers()
