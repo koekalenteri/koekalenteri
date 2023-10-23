@@ -897,6 +897,8 @@ Resources:
             Path: /official
             Method: GET
             RestApiId: !Ref KoekalenteriApi
+            Auth:
+              Authorizer: CognitoAuthorizer
 
   GetOfficialsFunctionLogGroup:
     Type: AWS::Logs::LogGroup
