@@ -5,6 +5,6 @@ build-%:
 	ln -s /opt/nodejs/lambda/lib lambda/lib
 	ln -s /opt/nodejs/lambda/types lambda/types
 	ln -s /opt/nodejs/lambda/utils lambda/utils
-	zip -qry lambdaFunctionSrc.zip "lambda/$(*)" "node_modules" "i18n" "lambda/lib" "lambda/types" "lambda/utils"
+	zip -qry lambdaFunctionSrc.zip "lambda/$(*)" "node_modules" "i18n" "lambda/lib" "lambda/types" "lambda/utils" ""lambda/config.mjs""
 	rm -rf "$(ARTIFACTS_DIR)"
 	mv lambdaFunctionSrc.zip "$(ARTIFACTS_DIR)"
