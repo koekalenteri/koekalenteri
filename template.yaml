@@ -750,7 +750,7 @@ Resources:
   PutRegistrationGroupsFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/admin/registration.putRegistrationGroupsHandler
+      Handler: lambda/PutRegistrationGroupsFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -1256,7 +1256,7 @@ Resources:
   GetUserFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/user.getUserHandler
+      Handler: lambda/GetUserFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
