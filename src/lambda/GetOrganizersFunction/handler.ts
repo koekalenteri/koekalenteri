@@ -50,7 +50,7 @@ const refreshOrganizers = metricScope(
             }
           }
           if (insert.length) {
-            dynamoDB.batchWrite(insert)
+            await dynamoDB.batchWrite(insert)
           }
         }
         const items = await dynamoDB.readAll<Organizer>()
