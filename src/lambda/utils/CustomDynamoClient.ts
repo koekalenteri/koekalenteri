@@ -101,7 +101,9 @@ export default class CustomDynamoClient {
           [tableName]: chunk,
         },
       }
-      await this.docClient.batchWrite(params).promise()
+      console.log('DB.batchWrite', params)
+      const result = await this.docClient.batchWrite(params).promise()
+      console.log(result)
     }
   }
 
