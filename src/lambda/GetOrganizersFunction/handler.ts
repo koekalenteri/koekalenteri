@@ -37,6 +37,7 @@ const refreshOrganizers = metricScope(
               const org: Organizer = { id: nanoid(10), kcId: item.jäsennumero, name: item.strYhdistys }
               insert.push(org)
             } else if (old.name !== item.strYhdistys) {
+              console.log(`Organizer ${old.kcId} name changed from ${old.name} to ${item.strYhdistys}`, old, item)
               await dynamoDB.update(
                 { id: old.id },
                 'set #name = :name',

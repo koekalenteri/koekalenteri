@@ -1,7 +1,7 @@
 import type { MetricsLogger } from 'aws-embedded-metrics'
 import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import type { AWSError } from 'aws-sdk'
-import type { EventType, JsonDbRecord, Judge } from '../../types'
+import type { EventType, JsonDbRecord, JsonJudge, Judge } from '../../types'
 
 import { metricScope } from 'aws-embedded-metrics'
 import { diff } from 'deep-object-diff'
@@ -34,14 +34,21 @@ const refreshJudges = async (event: APIGatewayProxyEvent) => {
       Kieli: KLKieli.Suomi,
     })
     if (status === 200 && json) {
+      const existingJudges = await dynamoDB.readAll<JsonJudge>()
+      const write: JsonJudge[] = []
       for (const item of json) {
-        const existing = await dynamoDB.read<Judge>({ id: item.jäsennumero })
+        const existing = existingJudges?.find((j) => j.id === `${item.jäsennumero}`)
         const name = capitalize(item.nimi)
         const location = capitalize(item.paikkakunta)
-        const judge = {
+        const judge: JsonJudge = {
           active: true,
+          languages: [],
+          createdAt: new Date().toISOString(),
+          createdBy: 'system',
+          modifiedAt: new Date().toISOString(),
+          modifiedBy: 'system',
           ...existing,
-          id: item.jäsennumero,
+          id: `${item.jäsennumero}`,
           name,
           location,
           district: item.kennelpiiri,
@@ -49,11 +56,15 @@ const refreshJudges = async (event: APIGatewayProxyEvent) => {
           phone: item.puhelin,
           eventTypes: item.koemuodot.map((koemuoto) => koemuoto.lyhenne),
           official: true,
-          deletedAt: false,
           deletedBy: '',
         }
+        if (judge.deletedAt) {
+          delete judge.deletedAt
+        }
         if (!existing || Object.keys(diff(existing, judge)).length > 0) {
-          await dynamoDB.write(judge)
+          const mode = existing ? 'updated' : 'new'
+          console.log(`${mode} judge: ${judge.id}: ${judge.name}`, { existing, judge })
+          write.push(judge)
         }
         await getAndUpdateUserByEmail(item.sähköposti, {
           name: reverseName(name),
@@ -62,6 +73,9 @@ const refreshJudges = async (event: APIGatewayProxyEvent) => {
           location,
           phone: item.puhelin,
         })
+      }
+      if (write.length) {
+        await dynamoDB.batchWrite(write)
       }
     }
   }

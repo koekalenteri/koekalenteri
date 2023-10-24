@@ -48,6 +48,7 @@ async function getOrCreateUser(event: APIGatewayProxyEvent) {
 
     user = await getAndUpdateUserByEmail(email, { name })
     await dynamoDB.write({ cognitoUser, userId: user.id }, userLinkTable)
+    console.log('added user link', { cognitoUser, userId: user.id })
   }
   return user
 }
@@ -64,6 +65,7 @@ export async function getAndUpdateUserByEmail(email: string, props: Omit<Partial
   }
   const updated = { ...user, ...props }
   if (Object.keys(diff(user, updated)).length > 0) {
+    console.log('user updated', { user, updated })
     await updateUser({ ...updated, modifiedAt: new Date().toISOString(), modifiedBy: 'system' })
   }
   return updated
