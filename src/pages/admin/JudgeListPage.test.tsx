@@ -33,6 +33,7 @@ describe('JudgeListPage', () => {
       </ThemeProvider>
     )
     await flushPromisesAndTimers()
+    await flushPromisesAndTimers()
     expect(container).toMatchSnapshot()
 
     fireEvent.click(screen.getAllByRole('row')[2])

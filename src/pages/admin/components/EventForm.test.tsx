@@ -43,6 +43,7 @@ describe('EventForm', () => {
   it('should render', async () => {
     const { container } = renderComponent(eventWithStaticDatesAndClass)
     await flushPromisesAndTimers()
+    await flushPromisesAndTimers()
     expect(container).toMatchSnapshot()
   })
 
