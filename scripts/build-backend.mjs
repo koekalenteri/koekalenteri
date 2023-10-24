@@ -56,14 +56,14 @@ const ctx = await esbuild[mode]({
                 const full = join('node_modules', path)
                 if (existsSync(full) && lstatSync(full).isDirectory()) {
                   if (existsSync(join(full, 'index.mjs'))) {
-                    path += 'index.mjs'
-                  } else {
-                    path += 'index.js'
+                    path = join(path, 'index.mjs')
+                  } else if (existsSync(join(full, 'index.js'))) {
+                    path = join(path, 'index.js')
                   }
                 } else {
                   if (existsSync(full + '.mjs')) {
                     path += '.mjs'
-                  } else {
+                  } else if (existsSync(full + '.js')) {
                     path += '.js'
                   }
                 }

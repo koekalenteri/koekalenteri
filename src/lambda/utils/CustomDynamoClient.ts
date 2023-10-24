@@ -31,7 +31,7 @@ export default class CustomDynamoClient {
     this.docClient = new AWS.DynamoDB.DocumentClient(options)
   }
 
-  async readAll<T>(table?: string): Promise<T[] | undefined> {
+  async readAll<T extends object>(table?: string): Promise<T[] | undefined> {
     // TODO should this be improved with a query? Or create a query version of this?
     const params = {
       TableName: table ? fromSamLocalTable(table) : this.table,
@@ -41,7 +41,10 @@ export default class CustomDynamoClient {
     return data.Items?.filter((item: JsonObject) => !item.deletedAt) as T[]
   }
 
-  async read<T>(key: Record<string, number | string | undefined> | null, table?: string): Promise<T | undefined> {
+  async read<T extends object>(
+    key: Record<string, number | string | undefined> | null,
+    table?: string
+  ): Promise<T | undefined> {
     if (!key) {
       console.warn('CustomDynamoClient.read: no key provoded, returning undefined')
       return
@@ -55,7 +58,7 @@ export default class CustomDynamoClient {
     return data.Item as T
   }
 
-  async query<T>(
+  async query<T extends object>(
     key: AWS.DynamoDB.DocumentClient.KeyExpression,
     values: AWS.DynamoDB.DocumentClient.ExpressionAttributeValueMap,
     table?: string
@@ -74,13 +77,32 @@ export default class CustomDynamoClient {
     return data.Items as T[]
   }
 
-  async write(Item: object, table?: string): Promise<unknown> {
+  async write<T extends object>(Item: T, table?: string): Promise<unknown> {
     const params = {
       TableName: table ? fromSamLocalTable(table) : this.table,
       Item,
     }
     console.log('DB.write', params)
     return this.docClient.put(params).promise()
+  }
+
+  async batchWrite<T extends object>(items: T[], table?: string) {
+    const tableName = table ? fromSamLocalTable(table) : this.table
+    const chunkSize = 25
+
+    for (let i = 0; i < items.length; i += chunkSize) {
+      const chunk = items.slice(i, i + chunkSize).map((item) => ({
+        PutRequest: {
+          Item: item,
+        },
+      }))
+      const params = {
+        RequestItems: {
+          [tableName]: chunk,
+        },
+      }
+      await this.docClient.batchWrite(params).promise()
+    }
   }
 
   async update(
