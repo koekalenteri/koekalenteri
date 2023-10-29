@@ -11,8 +11,9 @@ let loaded = false
 export const remoteOrganizersEffect: AtomEffect<Organizer[]> = ({ setSelf, getPromise, trigger }) => {
   if (trigger === 'get' && !loaded) {
     getPromise(idTokenAtom).then((token) => {
+      if (!token) return
       loaded = true
-      getAdminOrganizers(false, token)
+      getAdminOrganizers(token)
         .then((organizers) => {
           const sortedOrganizers = [...organizers].sort((a, b) => a.name.localeCompare(b.name, i18next.language))
           setSelf(sortedOrganizers)

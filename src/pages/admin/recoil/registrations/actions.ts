@@ -32,6 +32,7 @@ export const useAdminRegistrationActions = (eventId: string) => {
 
     async saveGroups(eventId: string, groups: RegistrationGroupInfo[]) {
       try {
+        if (!token) throw new Error('missing token')
         const {
           items,
           classes,

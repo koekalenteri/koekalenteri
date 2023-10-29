@@ -36,7 +36,7 @@ const mockJudges: Judge[] = [
   },
 ]
 
-export async function getJudges(refresh?: boolean, token?: string, signal?: AbortSignal) {
+export async function getJudges(token: string, refresh?: boolean, signal?: AbortSignal) {
   return new Promise((resolve) => {
     process.nextTick(() => resolve(mockJudges))
   })

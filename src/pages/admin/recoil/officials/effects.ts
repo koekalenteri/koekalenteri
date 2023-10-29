@@ -11,8 +11,8 @@ let loaded = false
 export const remoteOfficialsEffect: AtomEffect<Official[]> = ({ getPromise, setSelf, trigger }) => {
   if (trigger === 'get' && !loaded) {
     getPromise(idTokenAtom).then((token) => {
+      if (!token) return
       loaded = true
-
       getOfficials(token)
         .then((officials) => {
           const sortedOfficials = [...officials].sort((a, b) => a.name.localeCompare(b.name, i18next.language))

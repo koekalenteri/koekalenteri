@@ -2,7 +2,7 @@ import type { AuditRecord, ConfirmedEvent, PublicRegistration, Registration, Reg
 
 import http, { withToken } from './http'
 
-export async function getRegistrations(eventId: string, token?: string, signal?: AbortSignal): Promise<Registration[]> {
+export async function getRegistrations(eventId: string, token: string, signal?: AbortSignal): Promise<Registration[]> {
   return http.get<Registration[]>(`/admin/registration/${eventId}`, withToken({ signal }, token))
 }
 
@@ -18,7 +18,7 @@ export async function getRegistration(
 export const getRegistrationAuditTrail = async (
   eventId: string,
   id: string,
-  token?: string,
+  token: string,
   signal?: AbortSignal
 ): Promise<AuditRecord[] | undefined> =>
   http.get<AuditRecord[]>(`/admin/registration/audit/${eventId}/${id}`, withToken({ signal }, token))
@@ -34,7 +34,7 @@ export async function putRegistration(
 export async function putRegistrationGroups(
   eventId: string,
   groups: RegistrationGroupInfo[],
-  token?: string,
+  token: string,
   signal?: AbortSignal
 ): Promise<
   Pick<ConfirmedEvent, 'classes' | 'entries'> & {

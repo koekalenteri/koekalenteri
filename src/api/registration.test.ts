@@ -72,7 +72,7 @@ test('getRegistrations', async () => {
       : Promise.reject(new Error(`${req.method} !== 'GET'`))
   )
 
-  const result = await getRegistrations('test-id')
+  const result = await getRegistrations('test-id', 'test-token')
 
   expect(result.length).toEqual(1)
   expect(fetchMock.mock.calls.length).toEqual(1)
@@ -113,7 +113,7 @@ test('putRegistrationGroups', async () => {
       : Promise.reject(new Error(`${req.method} !== 'POST'`))
   )
 
-  const { items } = await putRegistrationGroups('test-id', [mockRegistration])
+  const { items } = await putRegistrationGroups('test-id', [mockRegistration], 'test-token')
   expect(fetchMock.mock.calls.length).toEqual(1)
   expect(fetchMock.mock.calls[0][0]).toEqual(API_BASE_URL + '/admin/reg-groups/test-id')
   expect(items.length).toEqual(1)

@@ -2,13 +2,13 @@ import type { Event } from '../../../../types'
 
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
-import { useAuthenticator } from '@aws-amplify/ui-react'
 import { addDays, differenceInDays } from 'date-fns'
 import { useSnackbar } from 'notistack'
-import { useRecoilState, useSetRecoilState } from 'recoil'
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
 
 import { copyEventWithRegistrations, putEvent } from '../../../../api/event'
 import { Path } from '../../../../routeConfig'
+import { idTokenAtom, userSelector } from '../../../recoil'
 
 import {
   adminEventIdAtom,
@@ -20,7 +20,8 @@ import {
 import { currentAdminEventSelector } from './selectors'
 
 export const useAdminEventActions = () => {
-  const { user } = useAuthenticator((context) => [context.user])
+  const token = useRecoilValue(idTokenAtom)
+  const user = useRecoilValue(userSelector)
   const setAdminEventId = useSetRecoilState(adminEventIdAtom)
   const [currentAdminEvent, setCurrentAdminEvent] = useRecoilState(currentAdminEventSelector)
   const setNewEvent = useSetRecoilState(newEventAtom)
@@ -69,17 +70,14 @@ export const useAdminEventActions = () => {
     if (!currentAdminEvent) {
       return
     }
-    const saved = await copyEventWithRegistrations(
-      currentAdminEvent.id,
-      user.getSignInUserSession()?.getIdToken().getJwtToken()
-    )
+    const saved = await copyEventWithRegistrations(currentAdminEvent.id, token)
     setAdminEventId(saved.id)
     setCurrentAdminEvent(saved)
     return saved
   }
 
   async function save(event: Partial<Event>): Promise<Event> {
-    const saved = await putEvent(event, user.getSignInUserSession()?.getIdToken().getJwtToken())
+    const saved = await putEvent(event, token)
     setAdminEventId(saved.id)
     setCurrentAdminEvent(saved)
     return saved
@@ -93,7 +91,7 @@ export const useAdminEventActions = () => {
     await save({
       ...currentAdminEvent,
       deletedAt: new Date(),
-      deletedBy: user.attributes?.name ?? user.attributes?.email,
+      deletedBy: user?.name ?? user?.email,
     })
 
     enqueueSnackbar(t('deleteEventComplete'), { variant: 'info' })

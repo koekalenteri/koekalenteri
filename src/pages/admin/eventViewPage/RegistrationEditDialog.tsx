@@ -30,7 +30,7 @@ export default function RegistrationEditDialog({ event, registrationId, open, on
   const [auditTrail, setAuditTrail] = useState<AuditRecord[]>([])
 
   useEffect(() => {
-    if (!open) return
+    if (!open || !token) return
     resetRegistration()
     getRegistrationAuditTrail(event.id, registrationId, token)
       .then((at) => setAuditTrail(at ?? []))

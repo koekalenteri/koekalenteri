@@ -18,7 +18,8 @@ export const useEventTypeActions = () => {
   }
 
   async function refresh() {
-    const eventTypes = await getEventTypes(true)
+    if (!token) throw new Error('missing token')
+    const eventTypes = await getEventTypes(token, true)
     const sortedEventTypes = [...eventTypes].sort((a, b) => a.eventType.localeCompare(b.eventType, i18next.language))
     setEventTypes(sortedEventTypes)
   }

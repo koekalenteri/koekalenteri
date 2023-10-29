@@ -6,7 +6,7 @@ import type { JsonRegistration, JsonRegistrationGroupInfo } from '../../types'
 import { metricScope } from 'aws-embedded-metrics'
 
 import { CONFIG } from '../config'
-import { updateRegistrations } from '../handlers/admin/event'
+import { updateRegistrations } from '../lib/event'
 import { sendTemplatedEmailToEventRegistrations } from '../lib/registration'
 import { authorize, getOrigin } from '../utils/auth'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
@@ -121,7 +121,7 @@ const putRegistrationGroupsHandler = metricScope(
           ':eventId': eventId,
         })
         const itemsWithGroups = await fixGroups(items ?? [])
-        const confirmedEvent = await updateRegistrations(eventId, eventTable, dynamoDB.table)
+        const confirmedEvent = await updateRegistrations(eventId, eventTable)
         const { classes, entries } = confirmedEvent
         const cls = itemsWithGroups[0].class
 

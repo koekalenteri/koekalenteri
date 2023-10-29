@@ -54,7 +54,7 @@ const putRegistrationHandler = metricScope(
         const data = { ...existing, ...registration }
         await dynamoDB.write(data)
 
-        const confirmedEvent = await updateRegistrations(registration.eventId, eventTable, dynamoDB.table)
+        const confirmedEvent = await updateRegistrations(registration.eventId, eventTable)
         if (!confirmedEvent) {
           throw new Error(`Event of type "${registration.eventType}" not found with id "${registration.eventId}"`)
         }

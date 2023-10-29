@@ -13,6 +13,7 @@ export const useOfficialsActions = () => {
   const resetUsers = useResetRecoilState(adminUsersAtom)
 
   const refresh = async () => {
+    if (!token) throw new Error('missing token')
     const officials = await getOfficials(token, true)
     const sortedOfficials = [...officials].sort((a, b) => a.name.localeCompare(b.name, i18next.language))
     setOfficials(sortedOfficials)

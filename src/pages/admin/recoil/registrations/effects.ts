@@ -10,8 +10,9 @@ export const remoteRegistrationsEffect: AtomEffect<Registration[]> = ({ getPromi
   if (trigger === 'get') {
     const eventId = getParamFromFamilyKey(node.key)
     if (loaded[eventId]) return
-    loaded[eventId] = true
     getPromise(idTokenAtom).then((token) => {
+      if (!token) return
+      loaded[eventId] = true
       getRegistrations(eventId, token)
         .then((registrations) => {
           if (registrations) {
