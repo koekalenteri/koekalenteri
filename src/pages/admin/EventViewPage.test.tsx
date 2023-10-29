@@ -23,6 +23,7 @@ jest.mock('../../api/official')
 jest.mock('../../api/organizer')
 jest.mock('../../api/registration')
 jest.mock('../../api/email')
+jest.mock('../../api/user')
 
 describe('EventViewPage', () => {
   beforeAll(() => jest.useFakeTimers())
