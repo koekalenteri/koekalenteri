@@ -8,6 +8,7 @@ import { metricScope } from 'aws-embedded-metrics'
 import KLAPI from '../lib/KLAPI'
 import { getKLAPIConfig } from '../lib/secrets'
 import { KLKieli, KLKieliToLang } from '../types/KLAPI'
+import { authorize } from '../utils/auth'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { metricsError, metricsSuccess } from '../utils/metrics'
 import { response } from '../utils/response'
@@ -18,24 +19,60 @@ const getEventTypesHandler = metricScope(
   (metrics: MetricsLogger) =>
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
       try {
+        const user = await authorize(event)
+        if (!user?.admin) {
+          metricsError(metrics, event.requestContext, 'getEventTypes')
+          return response(401, 'Unauthorized', event)
+        }
+
         if (event.queryStringParameters && 'refresh' in event.queryStringParameters) {
           const klapi = new KLAPI(getKLAPIConfig)
+          const insert: EventType[] = []
+          const existing = await dynamoDB.readAll<EventType>()
           for (const kieli of [KLKieli.Suomi, KLKieli.Ruotsi, KLKieli.Englanti]) {
             const { status, json } = await klapi.lueKoemuodot({ Kieli: kieli })
             if (status === 200 && json) {
               for (const item of json) {
-                const existing = await dynamoDB.read<EventType>({ eventType: item.lyhenne })
-                await dynamoDB.write({
-                  ...existing,
-                  eventType: item.lyhenne,
-                  description: {
-                    ...existing?.description,
+                const old = existing?.find((et) => et.eventType === item.lyhenne)
+                if (!old) {
+                  const oldInsert = insert.find((et) => et.eventType === item.lyhenne)
+                  if (!oldInsert) {
+                    insert.push({
+                      eventType: item.lyhenne,
+                      description: { fi: '', en: '', sv: '', [KLKieliToLang[kieli]]: item.koemuoto },
+                      official: true,
+                    })
+                  } else {
+                    oldInsert.description[KLKieliToLang[kieli]] = item.koemuoto
+                  }
+                } else if (old?.description[KLKieliToLang[kieli]] !== item.koemuoto) {
+                  console.log(
+                    `EventType ${old.eventType} description.${KLKieliToLang[kieli]} changed from ${
+                      old.description[KLKieliToLang[kieli]]
+                    } to ${item.koemuoto}`,
+                    old,
+                    item
+                  )
+                  old.description = {
+                    ...old.description,
                     [KLKieliToLang[kieli]]: item.koemuoto,
-                  },
-                  official: true,
-                })
+                  }
+                  await dynamoDB.update(
+                    { eventType: old.eventType },
+                    'set #description = :description',
+                    {
+                      '#description': 'description',
+                    },
+                    {
+                      ':description': old.description,
+                    }
+                  )
+                }
               }
             }
+          }
+          if (insert.length) {
+            await dynamoDB.batchWrite(insert)
           }
         }
         const items = await dynamoDB.readAll()

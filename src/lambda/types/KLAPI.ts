@@ -16,7 +16,7 @@ export enum KLKieli {
   Englanti,
 }
 
-export const KLKieliToLang = {
+export const KLKieliToLang: Record<number, 'fi' | 'sv' | 'en'> = {
   1: 'fi',
   2: 'sv',
   3: 'en',
