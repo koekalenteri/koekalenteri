@@ -12,7 +12,7 @@ import { eventWithStaticDates } from '../../__mockData__/events'
 import { registrationWithStaticDates } from '../../__mockData__/registrations'
 import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
-import { createMatchMedia, flushPromisesAndTimers, renderWithUserEvents } from '../../test-utils/utils'
+import { createMatchMedia, flushPromises, renderWithUserEvents } from '../../test-utils/utils'
 
 import RegistrationForm from './RegistrationForm'
 
@@ -51,7 +51,7 @@ describe('RegistrationForm', () => {
       <RegistrationForm event={eventWithStaticDates} registration={registrationWithStaticDates} />,
       { wrapper: Wrapper }
     )
-    await flushPromisesAndTimers()
+    await flushPromises()
     expect(container).toMatchSnapshot()
   })
 
@@ -64,7 +64,7 @@ describe('RegistrationForm', () => {
       />,
       { wrapper: Wrapper }
     )
-    await flushPromisesAndTimers()
+    await flushPromises()
     expect(container).toMatchSnapshot()
   })
 
@@ -79,11 +79,11 @@ describe('RegistrationForm', () => {
       { advanceTimers: jest.advanceTimersByTime }
     )
 
-    await flushPromisesAndTimers()
+    await flushPromises()
     const notes = screen.getByRole('textbox', { name: 'registration.notes' })
 
     await user.type(notes, ' more!')
-    await flushPromisesAndTimers()
+    await flushPromises()
 
     expect(onChange).toHaveBeenLastCalledWith(
       expect.objectContaining({ notes: registrationWithStaticDates.notes + ' more!' })
@@ -107,7 +107,7 @@ describe('RegistrationForm', () => {
       { advanceTimers: jest.advanceTimersByTime }
     )
 
-    await flushPromisesAndTimers()
+    await flushPromises()
     const saveButton = screen.getByRole('button', { name: 'Tallenna muutokset' })
 
     expect(saveButton).toBeEnabled()

@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import { parseISO } from 'date-fns'
 
-import { flushPromisesAndTimers, renderWithUserEvents } from '../../../../../test-utils/utils'
+import { flushPromises, renderWithUserEvents } from '../../../../../test-utils/utils'
 
 import EventClasses from './EventClasses'
 
@@ -109,7 +109,7 @@ describe('EventClasses', () => {
 
     const input = screen.getByRole('combobox')
     await user.type(input, '{ArrowDown}')
-    await flushPromisesAndTimers()
+    await flushPromises()
 
     expect(container).toMatchSnapshot()
   })
@@ -145,7 +145,7 @@ describe('EventClasses', () => {
 
     const input = screen.getByRole('combobox')
     await user.type(input, '{ArrowDown}')
-    await flushPromisesAndTimers()
+    await flushPromises()
 
     expect(container).toMatchSnapshot()
   })

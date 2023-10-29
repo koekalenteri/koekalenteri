@@ -10,7 +10,7 @@ import { RecoilRoot } from 'recoil'
 
 import { eventWithStaticDatesAndClass } from '../../../__mockData__/events'
 import theme from '../../../assets/Theme'
-import { flushPromisesAndTimers } from '../../../test-utils/utils'
+import { flushPromises } from '../../../test-utils/utils'
 
 import EventForm from './EventForm'
 
@@ -42,8 +42,7 @@ describe('EventForm', () => {
 
   it('should render', async () => {
     const { container } = renderComponent(eventWithStaticDatesAndClass)
-    await flushPromisesAndTimers()
-    await flushPromisesAndTimers()
+    await flushPromises()
     expect(container).toMatchSnapshot()
   })
 

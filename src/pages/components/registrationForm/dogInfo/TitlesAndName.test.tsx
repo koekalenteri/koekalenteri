@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
 
-import { flushPromisesAndTimers, renderWithUserEvents } from '../../../../test-utils/utils'
+import { flushPromises, renderWithUserEvents } from '../../../../test-utils/utils'
 
 import { TitlesAndName } from './TitlesAndName'
 
@@ -63,7 +63,7 @@ describe('TitlesAndName', () => {
       <TitlesAndName id="test" nameLabel="name" titlesLabel="titles" name="name" titles="titles" onChange={onChange} />
     )
 
-    await flushPromisesAndTimers()
+    await flushPromises()
     expect(onChange).not.toHaveBeenCalled()
 
     const name = screen.getByRole('textbox', { name: 'name' })
@@ -85,12 +85,12 @@ describe('TitlesAndName', () => {
     const titles = screen.getByRole('textbox', { name: 'titles' })
 
     await user.type(name, ' changed')
-    await flushPromisesAndTimers()
+    await flushPromises()
     expect(onChange).toHaveBeenLastCalledWith({ name: 'NAME CHANGED', titles: 'TITLES' })
 
     await user.clear(titles)
     await user.type(titles, 'tämmönen arvå')
-    await flushPromisesAndTimers()
+    await flushPromises()
     expect(onChange).toHaveBeenLastCalledWith({ name: 'NAME CHANGED', titles: 'TÄMMÖNEN ARVÅ' })
   })
 
@@ -105,7 +105,7 @@ describe('TitlesAndName', () => {
     await user.type(name, ' changed')
     expect(name).toHaveValue('NAME CHANGED')
     rerender(<TitlesAndName id="test" nameLabel="name" titlesLabel="titles" name="new name" titles="new titles" />)
-    await flushPromisesAndTimers()
+    await flushPromises()
     expect(name).toHaveValue('NEW NAME')
     expect(titles).toHaveValue('NEW TITLES')
   })
@@ -121,7 +121,7 @@ describe('TitlesAndName', () => {
     await user.type(name, ' changed')
     expect(name).toHaveValue('NAME CHANGED')
     unmount()
-    await flushPromisesAndTimers()
+    await flushPromises()
     expect(onChange).not.toHaveBeenCalled()
   })
 })

@@ -14,7 +14,7 @@ import { eventWithStaticDates } from '../../__mockData__/events'
 import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
 import { Path } from '../../routeConfig'
-import { DataMemoryRouter, flushPromisesAndTimers } from '../../test-utils/utils'
+import { DataMemoryRouter, flushPromises } from '../../test-utils/utils'
 
 import EventEditPage from './EventEditPage'
 
@@ -55,8 +55,7 @@ describe('EventEditPage', () => {
         </LocalizationProvider>
       </ThemeProvider>
     )
-    await flushPromisesAndTimers()
-    await flushPromisesAndTimers()
+    await flushPromises()
     expect(container).toMatchSnapshot()
   })
 })

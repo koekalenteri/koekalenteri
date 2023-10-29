@@ -2,7 +2,7 @@ import type { PartialEvent } from '../../EventForm'
 
 import { render, screen } from '@testing-library/react'
 
-import { flushPromisesAndTimers, renderWithUserEvents } from '../../../../../test-utils/utils'
+import { flushPromises, renderWithUserEvents } from '../../../../../test-utils/utils'
 
 import EventProperty from './EventProperty'
 
@@ -55,12 +55,12 @@ describe('EventProperty', () => {
       )
       const input = screen.getByRole('combobox')
       await user.type(input, 'input test')
-      await flushPromisesAndTimers()
+      await flushPromises()
 
       expect(onChange).toHaveBeenCalledWith({ name: 'testinput test' })
 
       await user.clear(input)
-      await flushPromisesAndTimers()
+      await flushPromises()
 
       expect(onChange).toHaveBeenLastCalledWith({ name: undefined })
     })
@@ -81,12 +81,12 @@ describe('EventProperty', () => {
       )
       const input = screen.getByRole('combobox')
       await user.type(input, 'NOWT')
-      await flushPromisesAndTimers()
+      await flushPromises()
 
       expect(onChange).toHaveBeenCalledWith({ eventType: 'NOWT' })
 
       await user.clear(input)
-      await flushPromisesAndTimers()
+      await flushPromises()
 
       expect(onChange).toHaveBeenLastCalledWith({ eventType: undefined })
     })
@@ -107,12 +107,12 @@ describe('EventProperty', () => {
       )
       const input = screen.getByRole('combobox')
       await user.type(input, 'c')
-      await flushPromisesAndTimers()
+      await flushPromises()
 
       expect(onChange).toHaveBeenCalledWith({ location: 'c' })
 
       await user.clear(input)
-      await flushPromisesAndTimers()
+      await flushPromises()
 
       expect(onChange).toHaveBeenLastCalledWith({ name: undefined })
     })
@@ -135,15 +135,15 @@ describe('EventProperty', () => {
 
       const input = screen.getByRole('combobox')
       await user.type(input, 'a')
-      await flushPromisesAndTimers()
+      await flushPromises()
       expect(container).toMatchSnapshot()
 
       await user.clear(input)
-      await flushPromisesAndTimers()
+      await flushPromises()
       expect(container).toMatchSnapshot()
 
       await user.type(input, 'b{ArrowDown}{Enter}')
-      await flushPromisesAndTimers()
+      await flushPromises()
 
       expect(onChange).toHaveBeenLastCalledWith({ name: 'beta' })
     })
@@ -172,15 +172,15 @@ describe('EventProperty', () => {
 
       const input = screen.getByRole('combobox')
       await user.type(input, 'a')
-      await flushPromisesAndTimers()
+      await flushPromises()
       expect(container).toMatchSnapshot()
 
       await user.clear(input)
-      await flushPromisesAndTimers()
+      await flushPromises()
       expect(container).toMatchSnapshot()
 
       await user.type(input, 'b{ArrowDown}{Enter}')
-      await flushPromisesAndTimers()
+      await flushPromises()
 
       expect(onChange).toHaveBeenCalledWith({ eventType: 'test-b' })
     })

@@ -11,7 +11,7 @@ import { registrationDogAged20MonthsAndNoResults } from '../../../__mockData__/d
 import { registrationWithStaticDates } from '../../../__mockData__/registrations'
 import * as dogApi from '../../../api/dog'
 import { locales } from '../../../i18n'
-import { flushPromisesAndTimers, renderWithUserEvents } from '../../../test-utils/utils'
+import { flushPromises, renderWithUserEvents } from '../../../test-utils/utils'
 import { merge } from '../../../utils'
 
 import { DogInfo } from './DogInfo'
@@ -44,7 +44,7 @@ describe('DogInfo', () => {
       <DogInfo reg={registrationWithStaticDates} eventDate={eventDate} minDogAgeMonths={0} />,
       { wrapper: Wrapper }
     )
-    await flushPromisesAndTimers()
+    await flushPromises()
 
     expect(container).toMatchSnapshot()
   })
@@ -67,7 +67,7 @@ describe('DogInfo', () => {
 
     await user.clear(input)
     expect(input).toHaveValue('')
-    await flushPromisesAndTimers()
+    await flushPromises()
     expect(changeHandler).toHaveBeenLastCalledWith(
       expect.objectContaining({
         dog: expect.objectContaining({ regNo: '' }),
@@ -81,7 +81,7 @@ describe('DogInfo', () => {
 
     await user.type(input, newDog.regNo)
     expect(input).toHaveValue(newDog.regNo)
-    await flushPromisesAndTimers()
+    await flushPromises()
 
     const button = screen.getByRole('button', { name: 'registration.cta.fetch' })
     await user.click(button)
@@ -112,8 +112,7 @@ describe('DogInfo', () => {
     expect(input).toHaveValue('')
     await user.type(input, 't{ArrowDown}{Enter}')
     expect(input).toHaveValue('TESTDOG-0020')
-    await flushPromisesAndTimers()
-    await flushPromisesAndTimers()
+    await flushPromises()
 
     expect(changeHandler).toHaveBeenLastCalledWith(
       expect.objectContaining({ dog: registrationDogAged20MonthsAndNoResults }),
@@ -135,13 +134,12 @@ describe('DogInfo', () => {
 
     const input = screen.getByRole('combobox', { name: 'dog.regNo' })
     await user.type(input, 'TESTDOG-0020')
-    await flushPromisesAndTimers()
+    await flushPromises()
     expect(input).toHaveValue('TESTDOG-0020')
 
     const button = screen.getByRole('button', { name: 'registration.cta.fetch' })
     await user.click(button)
-    await flushPromisesAndTimers()
-    await flushPromisesAndTimers()
+    await flushPromises()
 
     expect(button.textContent).toEqual('registration.cta.error')
     expect(screen.getByText('registration.cta.helper.error')).toBeInTheDocument()
@@ -161,13 +159,12 @@ describe('DogInfo', () => {
 
     const input = screen.getByRole('combobox', { name: 'dog.regNo' })
     await user.type(input, 'TESTDOG-0020')
-    await flushPromisesAndTimers()
+    await flushPromises()
     expect(input).toHaveValue('TESTDOG-0020')
 
     const button = screen.getByRole('button', { name: 'registration.cta.fetch' })
     await user.click(button)
-    await flushPromisesAndTimers()
-    await flushPromisesAndTimers()
+    await flushPromises()
 
     expect(button.textContent).toEqual('registration.cta.notfound')
     expect(screen.getByText('registration.cta.helper.notfound')).toBeInTheDocument()

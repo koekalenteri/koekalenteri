@@ -42,14 +42,13 @@ export function DataMemoryRouter({
   return <RouterProvider router={router} fallbackElement={fallbackElement} />
 }
 
-export function flushPromisesAndTimers(): Promise<void> {
-  return act(
-    () =>
-      new Promise<void>((resolve) => {
-        setTimeout(resolve, 0)
-        jest.runAllTimers()
-      })
-  )
+export const flushPromises = async () => {
+  for (let i = 0; i < 5; i++) {
+    await act(async () => {
+      jest.runOnlyPendingTimers()
+      await new Promise(jest.requireActual('timers').setImmediate)
+    })
+  }
 }
 
 export function waitForDebounce() {

@@ -7,11 +7,10 @@ import { RecoilRoot } from 'recoil'
 
 import { eventWithStaticDates } from '../../../__mockData__/events'
 import { registrationWithStaticDates, registrationWithStaticDatesCancelled } from '../../../__mockData__/registrations'
-import { flushPromisesAndTimers } from '../../../test-utils/utils'
+import { flushPromises } from '../../../test-utils/utils'
 
 import SendMessageDialog from './SendMessageDialog'
 
-jest.useFakeTimers()
 jest.mock('../../../api/email')
 
 function Wrapper(props: { readonly children?: ReactNode }) {
@@ -23,10 +22,15 @@ function Wrapper(props: { readonly children?: ReactNode }) {
 }
 
 describe('SendMessageDialog', () => {
-  it('renders hidden when open is false', () => {
+  beforeAll(() => jest.useFakeTimers())
+  afterEach(() => jest.clearAllTimers())
+  afterAll(() => jest.useRealTimers())
+
+  it('renders hidden when open is false', async () => {
     const { container } = render(<SendMessageDialog registrations={[]} open={false} event={eventWithStaticDates} />, {
       wrapper: Wrapper,
     })
+    await flushPromises()
     expect(container).toMatchSnapshot()
   })
 
@@ -34,8 +38,7 @@ describe('SendMessageDialog', () => {
     const { baseElement } = render(<SendMessageDialog registrations={[]} open={true} event={eventWithStaticDates} />, {
       wrapper: Wrapper,
     })
-    await flushPromisesAndTimers()
-    await flushPromisesAndTimers()
+    await flushPromises()
     expect(baseElement).toMatchSnapshot()
   })
 
@@ -51,8 +54,7 @@ describe('SendMessageDialog', () => {
       />,
       { wrapper: Wrapper }
     )
-    await flushPromisesAndTimers()
-    await flushPromisesAndTimers()
+    await flushPromises()
     expect(baseElement).toMatchSnapshot()
   })
 })

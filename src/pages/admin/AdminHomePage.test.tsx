@@ -7,7 +7,7 @@ import { RecoilRoot } from 'recoil'
 
 import theme from '../../assets/Theme'
 import { Path } from '../../routeConfig'
-import { DataMemoryRouter, flushPromisesAndTimers } from '../../test-utils/utils'
+import { DataMemoryRouter, flushPromises } from '../../test-utils/utils'
 
 import AdminHomePage from './AdminHomePage'
 
@@ -18,7 +18,7 @@ describe('AdminHomePage', () => {
   afterEach(() => jest.clearAllTimers())
   afterAll(() => jest.useRealTimers())
 
-  fit('renders the page when user is logged in', async () => {
+  it('renders the page when user is logged in', async () => {
     const routes = [
       {
         path: Path.admin.root,
@@ -43,8 +43,7 @@ describe('AdminHomePage', () => {
       </ThemeProvider>
     )
 
-    await flushPromisesAndTimers()
-    await flushPromisesAndTimers()
+    await flushPromises()
     expect(container).toMatchSnapshot()
   })
 
@@ -79,7 +78,7 @@ describe('AdminHomePage', () => {
       </ThemeProvider>
     )
 
-    await flushPromisesAndTimers()
+    await flushPromises()
     expect(container).toMatchSnapshot()
   })
 })

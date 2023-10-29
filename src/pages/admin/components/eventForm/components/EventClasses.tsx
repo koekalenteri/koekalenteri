@@ -84,7 +84,7 @@ export default function EventClasses(props: Props) {
       getOptionLabel={getLabel}
       isOptionEqualToValue={isEqual}
       renderOption={(optionProps, option, { selected }) => (
-        <li {...optionProps}>
+        <li {...optionProps} key={`${option.date}-${option.class}`}>
           <Checkbox
             icon={<CheckBoxOutlineBlank fontSize="small" />}
             checkedIcon={<CheckBox fontSize="small" />}

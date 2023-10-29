@@ -12,7 +12,7 @@ import { RecoilRoot, snapshot_UNSTABLE } from 'recoil'
 
 import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
-import { flushPromisesAndTimers } from '../../test-utils/utils'
+import { flushPromises } from '../../test-utils/utils'
 
 import EventCreatePage from './EventCreatePage'
 import { newEventAtom } from './recoil'
@@ -59,8 +59,7 @@ describe('EventEditPage', () => {
         </LocalizationProvider>
       </ThemeProvider>
     )
-    await flushPromisesAndTimers()
-    await flushPromisesAndTimers()
+    await flushPromises()
     expect(container).toMatchSnapshot()
   })
 })

@@ -72,8 +72,6 @@ export function EntryInfo({
   const showDatesFilter = dates.length > 1
   const showDatesAndTimes = groups.length > 1
 
-  console.log(datesAndTimes, regDates, groups, reg.class)
-
   useEffect(() => {
     const changes: Partial<Registration> = {}
     let newClass: string | undefined | null = null

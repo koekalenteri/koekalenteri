@@ -62,9 +62,9 @@
     "start-dynamodb": "docker start dynamodb && docker attach dynamodb",
     "start-frontend": "node scripts/start-frontend.js",
     "start": "rimraf .aws-sam && concurrently -c auto npm:start-*",
-    "test-backend": "NODE_OPTIONS=\"--experimental-vm-modules --no-warnings\" jest --config=src/lambda/jest.config.ts --silent",
-    "test-frontend": "node scripts/test-frontend.js --silent",
-    "test": "concurrently -c auto npm:test-*"
+    "test-backend": "NODE_OPTIONS=\"--experimental-vm-modules --no-warnings\" jest --config=src/lambda/jest.config.ts",
+    "test-frontend": "node scripts/test-frontend.js",
+    "test": "CI=1 concurrently -c auto npm:test-*"
   },
   "engines": {
     "npm": ">=8.0.0",

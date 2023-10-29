@@ -2518,7 +2518,6 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
       </button>
     </div>
   </div>
-   
 </div>
 `;
 
@@ -4857,6 +4856,5 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
       </button>
     </div>
   </div>
-   
 </div>
 `;

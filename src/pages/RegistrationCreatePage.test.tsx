@@ -13,7 +13,7 @@ import { RecoilRoot } from 'recoil'
 import { eventWithStaticDates, eventWithStaticDatesAnd3Classes } from '../__mockData__/events'
 import theme from '../assets/Theme'
 import { locales } from '../i18n'
-import { flushPromisesAndTimers } from '../test-utils/utils'
+import { flushPromises } from '../test-utils/utils'
 
 import RegistrationCreatePage from './RegistrationCreatePage'
 
@@ -38,7 +38,7 @@ function Wrapper({ children }: { readonly children: ReactNode }) {
         <RecoilRoot>
           <Suspense fallback={<div>loading...</div>}>
             <SnackbarProvider>
-              <MemoryRouter>{children} </MemoryRouter>
+              <MemoryRouter>{children}</MemoryRouter>
             </SnackbarProvider>
           </Suspense>
         </RecoilRoot>
@@ -56,8 +56,7 @@ describe('RegistrationCreatePage', () => {
     const { eventType, id } = eventWithStaticDates
     mockUseParams.mockImplementation(() => ({ id, eventType }))
     const { container } = render(<RegistrationCreatePage />, { wrapper: Wrapper })
-    await flushPromisesAndTimers()
-    await flushPromisesAndTimers()
+    await flushPromises()
     expect(container).toMatchSnapshot()
   })
 
@@ -65,8 +64,7 @@ describe('RegistrationCreatePage', () => {
     const { eventType, id, classes } = eventWithStaticDatesAnd3Classes
     mockUseParams.mockImplementation(() => ({ id, eventType, class: classes[1].class }))
     render(<RegistrationCreatePage />, { wrapper: Wrapper })
-    await flushPromisesAndTimers()
-    await flushPromisesAndTimers()
+    await flushPromises()
     const input = screen.getByRole('combobox', { name: 'registration.class' })
     expect(input).toHaveValue(classes[1].class)
   })
@@ -76,8 +74,7 @@ describe('RegistrationCreatePage', () => {
     const date = format(classes[2].date ?? new Date(), 'dd.MM.')
     mockUseParams.mockImplementation(() => ({ id, eventType, class: classes[2].class, date }))
     const { container } = render(<RegistrationCreatePage />, { wrapper: Wrapper })
-    await flushPromisesAndTimers()
-    await flushPromisesAndTimers()
+    await flushPromises()
     expect(container).toMatchSnapshot()
   })
 
@@ -86,8 +83,7 @@ describe('RegistrationCreatePage', () => {
     mockUseParams.mockImplementation(() => ({ id: 'asdf', eventType: 'qwerty' }))
     await expect(async () => {
       render(<RegistrationCreatePage />, { wrapper: Wrapper })
-      await flushPromisesAndTimers()
-      await flushPromisesAndTimers()
+      await flushPromises()
     }).rejects.toMatchInlineSnapshot(`
       Response {
         "_bodyInit": "Event not found",

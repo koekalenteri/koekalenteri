@@ -7,7 +7,7 @@ import { RecoilRoot } from 'recoil'
 
 import theme from '../../assets/Theme'
 import { Path } from '../../routeConfig'
-import { DataMemoryRouter, flushPromisesAndTimers } from '../../test-utils/utils'
+import { DataMemoryRouter, flushPromises } from '../../test-utils/utils'
 
 import AdminHomePage from './AdminHomePage'
 
@@ -44,7 +44,7 @@ describe('AdminHomePage', () => {
       </ThemeProvider>
     )
 
-    await flushPromisesAndTimers()
+    await flushPromises()
     expect(container).toMatchInlineSnapshot(`
 <div>
   Login

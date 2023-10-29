@@ -6,7 +6,7 @@ import { SnackbarProvider } from 'notistack'
 import { RecoilRoot } from 'recoil'
 
 import theme from '../../assets/Theme'
-import { flushPromisesAndTimers } from '../../test-utils/utils'
+import { flushPromises } from '../../test-utils/utils'
 
 import EventTypeListPage from './EventTypeListPage'
 
@@ -32,7 +32,7 @@ describe('EventTypeListPage', () => {
         </RecoilRoot>
       </ThemeProvider>
     )
-    await flushPromisesAndTimers()
+    await flushPromises()
     expect(container).toMatchSnapshot()
   })
 })

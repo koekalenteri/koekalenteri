@@ -12,7 +12,7 @@ import { eventWithStaticDates, eventWithStaticDatesAndClass } from '../../__mock
 import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
 import { Path } from '../../routeConfig'
-import { DataMemoryRouter, flushPromisesAndTimers } from '../../test-utils/utils'
+import { DataMemoryRouter, flushPromises } from '../../test-utils/utils'
 
 import EventViewPage from './EventViewPage'
 
@@ -50,8 +50,7 @@ describe('EventViewPage', () => {
         </LocalizationProvider>
       </ThemeProvider>
     )
-    await flushPromisesAndTimers()
-    await flushPromisesAndTimers()
+    await flushPromises()
     expect(container).toMatchSnapshot()
   })
 
@@ -79,8 +78,7 @@ describe('EventViewPage', () => {
         </LocalizationProvider>
       </ThemeProvider>
     )
-    await flushPromisesAndTimers()
-    await flushPromisesAndTimers()
+    await flushPromises()
     expect(container).toMatchSnapshot()
   })
 })

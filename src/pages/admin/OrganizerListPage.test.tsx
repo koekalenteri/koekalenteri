@@ -6,7 +6,7 @@ import { SnackbarProvider } from 'notistack'
 import { RecoilRoot } from 'recoil'
 
 import theme from '../../assets/Theme'
-import { flushPromisesAndTimers } from '../../test-utils/utils'
+import { flushPromises } from '../../test-utils/utils'
 
 import OrganizerListPage from './OrganizerListPage'
 
@@ -32,8 +32,7 @@ describe('OrganizerListPage', () => {
         </RecoilRoot>
       </ThemeProvider>
     )
-    await flushPromisesAndTimers()
-    await flushPromisesAndTimers()
+    await flushPromises()
     expect(container).toMatchSnapshot()
   })
 })

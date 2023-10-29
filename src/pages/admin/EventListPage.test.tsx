@@ -6,7 +6,7 @@ import { SnackbarProvider } from 'notistack'
 import { RecoilRoot } from 'recoil'
 
 import theme from '../../assets/Theme'
-import { flushPromisesAndTimers, RecoilObserver } from '../../test-utils/utils'
+import { flushPromises, RecoilObserver } from '../../test-utils/utils'
 
 import EventListPage from './EventListPage'
 import { adminEventIdAtom } from './recoil'
@@ -38,14 +38,11 @@ describe('EventListPage', () => {
         </RecoilRoot>
       </ThemeProvider>
     )
-    await flushPromisesAndTimers()
-    await flushPromisesAndTimers()
-    await flushPromisesAndTimers()
+    await flushPromises()
     expect(container).toMatchSnapshot()
 
     fireEvent.click(screen.getAllByRole('row')[1])
-    await flushPromisesAndTimers()
-    await flushPromisesAndTimers()
+    await flushPromises()
 
     expect(onChange).toHaveBeenCalledTimes(2)
     expect(onChange).toHaveBeenCalledWith(undefined)

@@ -12,7 +12,7 @@ import { RecoilRoot } from 'recoil'
 import { registrationWithStaticDates } from '../__mockData__/registrations'
 import theme from '../assets/Theme'
 import { locales } from '../i18n'
-import { flushPromisesAndTimers } from '../test-utils/utils'
+import { flushPromises } from '../test-utils/utils'
 
 import RegistrationEditPage from './RegistrationEditPage'
 
@@ -57,8 +57,7 @@ describe('RegistrationEditPage', () => {
     const { eventId, id } = registrationWithStaticDates
     mockUseParams.mockImplementation(() => ({ id: eventId, registrationId: id }))
     const { container } = render(<RegistrationEditPage />, { wrapper: Wrapper })
-    await flushPromisesAndTimers()
-    await flushPromisesAndTimers()
+    await flushPromises()
     expect(container).toMatchSnapshot()
   })
 
@@ -66,8 +65,7 @@ describe('RegistrationEditPage', () => {
     mockUseParams.mockImplementation(() => ({ id: 'asdf', registrationId: 'qwerty' }))
     await expect(async () => {
       render(<RegistrationEditPage />, { wrapper: Wrapper })
-      await flushPromisesAndTimers()
-      await flushPromisesAndTimers()
+      await flushPromises()
     }).rejects.toMatchInlineSnapshot(`
         Response {
           "_bodyInit": "Event not found",
