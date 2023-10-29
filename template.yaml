@@ -815,6 +815,10 @@ Resources:
             TableName: !Ref EventTypeTable
         - DynamoDBCrudPolicy:
             TableName: !Ref UserTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserLinkTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuditTable
         - CloudWatchPutMetricPolicy: {}
       Environment:
         Variables:
@@ -1069,6 +1073,12 @@ Resources:
         - CloudWatchPutMetricPolicy: {}
         - DynamoDBCrudPolicy:
             TableName: !Ref EventTypeTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserLinkTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuditTable
       Environment:
         Variables:
           TABLE_NAME: !Ref EventTypeTable
@@ -1079,6 +1089,8 @@ Resources:
             Path: /eventType
             Method: GET
             RestApiId: !Ref KoekalenteriApi
+            Auth:
+              Authorizer: CognitoAuthorizer
     Metadata:
       BuildMethod: makefile
 
