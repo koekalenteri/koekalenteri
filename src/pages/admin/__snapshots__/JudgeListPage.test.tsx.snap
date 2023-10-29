@@ -2688,7 +2688,7 @@ exports[`JudgeListPage renders 2`] = `
   <div
     aria-rowindex="3"
     aria-selected="true"
-    class="MuiDataGrid-row Mui-selected"
+    class="MuiDataGrid-row Mui-selected Mui-hovered"
     data-id="223"
     data-rowindex="1"
     role="row"

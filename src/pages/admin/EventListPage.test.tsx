@@ -1,12 +1,12 @@
 import { Suspense } from 'react'
 import { MemoryRouter } from 'react-router-dom'
 import { ThemeProvider } from '@mui/material'
-import { fireEvent, render, screen } from '@testing-library/react'
+import { screen } from '@testing-library/react'
 import { SnackbarProvider } from 'notistack'
 import { RecoilRoot } from 'recoil'
 
 import theme from '../../assets/Theme'
-import { flushPromises, RecoilObserver } from '../../test-utils/utils'
+import { flushPromises, RecoilObserver, renderWithUserEvents } from '../../test-utils/utils'
 
 import EventListPage from './EventListPage'
 import { adminEventIdAtom } from './recoil'
@@ -24,7 +24,7 @@ describe('EventListPage', () => {
 
   it('renders', async () => {
     const onChange = jest.fn()
-    const { container } = render(
+    const { container, user } = renderWithUserEvents(
       <ThemeProvider theme={theme}>
         <RecoilRoot>
           <RecoilObserver node={adminEventIdAtom} onChange={onChange} />
@@ -36,12 +36,17 @@ describe('EventListPage', () => {
             </Suspense>
           </MemoryRouter>
         </RecoilRoot>
-      </ThemeProvider>
+      </ThemeProvider>,
+      undefined,
+      { advanceTimers: jest.advanceTimersByTime }
     )
     await flushPromises()
     expect(container).toMatchSnapshot()
 
-    fireEvent.click(screen.getAllByRole('row')[1])
+    const rows = screen.getAllByRole('row')
+    expect(rows.length).toBeGreaterThan(1)
+
+    await user.click(rows[1])
     await flushPromises()
 
     expect(onChange).toHaveBeenCalledTimes(2)

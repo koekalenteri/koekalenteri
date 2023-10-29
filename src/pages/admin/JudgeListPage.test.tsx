@@ -6,7 +6,7 @@ import { SnackbarProvider } from 'notistack'
 import { RecoilRoot } from 'recoil'
 
 import theme from '../../assets/Theme'
-import { flushPromises } from '../../test-utils/utils'
+import { flushPromises, renderWithUserEvents } from '../../test-utils/utils'
 
 import JudgeListPage from './JudgeListPage'
 
@@ -19,7 +19,7 @@ describe('JudgeListPage', () => {
   afterAll(() => jest.useRealTimers())
 
   it('renders', async () => {
-    const { container } = render(
+    const { container, user } = renderWithUserEvents(
       <ThemeProvider theme={theme}>
         <RecoilRoot>
           <MemoryRouter>
@@ -30,12 +30,14 @@ describe('JudgeListPage', () => {
             </Suspense>
           </MemoryRouter>
         </RecoilRoot>
-      </ThemeProvider>
+      </ThemeProvider>,
+      undefined,
+      { advanceTimers: jest.advanceTimersByTime }
     )
     await flushPromises()
     expect(container).toMatchSnapshot()
 
-    fireEvent.click(screen.getAllByRole('row')[2])
+    user.click(screen.getAllByRole('row')[2])
     await flushPromises()
 
     expect(screen.getAllByRole('row')).toMatchSnapshot()

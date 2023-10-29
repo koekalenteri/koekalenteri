@@ -10,7 +10,7 @@ import { RecoilRoot } from 'recoil'
 
 import { eventWithStaticDatesAndClass } from '../../../__mockData__/events'
 import theme from '../../../assets/Theme'
-import { flushPromises } from '../../../test-utils/utils'
+import { flushPromises, renderWithUserEvents } from '../../../test-utils/utils'
 
 import EventForm from './EventForm'
 
@@ -23,7 +23,7 @@ jest.mock('../../../api/organizer')
 jest.mock('../../../api/registration')
 
 const renderComponent = (event: Event, onSave?: () => void, onCancel?: () => void, onChange?: () => void) =>
-  render(
+  renderWithUserEvents(
     <ThemeProvider theme={theme}>
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={fi}>
         <RecoilRoot>
@@ -32,7 +32,9 @@ const renderComponent = (event: Event, onSave?: () => void, onCancel?: () => voi
           </Suspense>
         </RecoilRoot>
       </LocalizationProvider>
-    </ThemeProvider>
+    </ThemeProvider>,
+    undefined,
+    { advanceTimers: jest.advanceTimersByTime }
   )
 
 describe('EventForm', () => {
@@ -51,20 +53,36 @@ describe('EventForm', () => {
     const cancelHandler = jest.fn()
     const changeHandler = jest.fn()
 
-    renderComponent(eventWithStaticDatesAndClass, saveHandler, cancelHandler, changeHandler)
+    const { container, user, getAllByRole, getByText } = renderComponent(
+      eventWithStaticDatesAndClass,
+      saveHandler,
+      cancelHandler,
+      changeHandler
+    )
+    await flushPromises()
 
-    const saveButton = screen.getByText(/Tallenna/i)
-    // expect(saveButton).toBeDisabled()
+    const saveButton = getByText(/Tallenna/i)
+    expect(saveButton).toBeDisabled()
 
     // Make a change to enable save button
-    fireEvent.mouseDown(screen.getByLabelText(/eventType/i))
-    fireEvent.click(within(screen.getByRole('listbox')).getByText(/TEST-C/i))
+    const eventType = getAllByRole('combobox').find((elem) => elem.id === 'eventType')
+    if (!eventType) throw new Error('paskaa')
+
+    const buttons = getAllByRole('button', { name: 'Open' })
+    console.log(buttons)
+    await user.click(buttons[0])
+    await flushPromises()
+    const options = screen.getAllByRole('option')
+    console.log(options)
+    await user.click(within(eventType).getByRole('button'))
+    user.selectOptions(eventType, ['TEST-C'])
+    await flushPromises()
     expect(saveButton).toBeEnabled()
 
-    fireEvent.click(saveButton)
+    user.click(saveButton)
     expect(saveHandler).toHaveBeenCalledTimes(1)
 
-    fireEvent.click(screen.getByText(/Peruuta/i))
+    user.click(screen.getByText(/Peruuta/i))
     expect(cancelHandler).toHaveBeenCalledTimes(1)
   })
 })
