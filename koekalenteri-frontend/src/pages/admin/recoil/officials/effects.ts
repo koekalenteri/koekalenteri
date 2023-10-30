@@ -13,7 +13,7 @@ export const remoteOfficialsEffect: AtomEffect<Official[]> = ({ getPromise, setS
     getPromise(idTokenAtom).then((token) => {
       loaded = true
 
-      getOfficials()
+      getOfficials(token)
         .then((officials) => {
           const sortedOfficials = [...officials].sort((a, b) => a.name.localeCompare(b.name, i18next.language))
           setSelf(sortedOfficials)

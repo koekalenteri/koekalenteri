@@ -885,6 +885,10 @@ Resources:
             TableName: !Ref EventTypeTable
         - DynamoDBCrudPolicy:
             TableName: !Ref UserTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserLinkTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuditTable
         - CloudWatchPutMetricPolicy: {}
       Environment:
         Variables:

@@ -22,7 +22,7 @@ const mockOfficials = [
   },
 ]
 
-export async function getOfficials(refresh?: boolean, token?: string, signal?: AbortSignal) {
+export async function getOfficials(token?: string, refresh?: boolean, signal?: AbortSignal) {
   return new Promise((resolve) => {
     process.nextTick(() => resolve(mockOfficials))
   })
