@@ -3,13 +3,19 @@ import type { PartialEvent } from '../../EventForm'
 import { render, screen } from '@testing-library/react'
 
 import { eventWithStaticDatesAndClass } from '../../../../../__mockData__/events'
-import { renderWithUserEvents, waitForDebounce } from '../../../../../test-utils/utils'
+import { flushPromises, renderWithUserEvents } from '../../../../../test-utils/utils'
 
 import EventFormPlaces from './EventFormPlaces'
 
-jest.useRealTimers()
-
 describe('EventFormPlaces', () => {
+  beforeEach(() => {
+    jest.useFakeTimers()
+  })
+  afterEach(() => {
+    jest.runOnlyPendingTimers()
+    jest.useRealTimers()
+  })
+
   it('should render with minimal information', () => {
     const event: PartialEvent = {
       startDate: new Date('2023-06-14T12:00:00Z'),
@@ -33,9 +39,10 @@ describe('EventFormPlaces', () => {
       Object.assign(event, props)
     })
 
-    const { user } = renderWithUserEvents(<EventFormPlaces event={event} onChange={onChange} />)
-
-    await waitForDebounce()
+    const { user } = renderWithUserEvents(<EventFormPlaces event={event} onChange={onChange} />, undefined, {
+      advanceTimers: jest.advanceTimersByTime,
+    })
+    await flushPromises()
     expect(onChange).not.toHaveBeenCalled()
 
     const check = screen.getByRole('checkbox')
@@ -51,13 +58,14 @@ describe('EventFormPlaces', () => {
 
     await user.clear(total)
     await user.type(total, '20')
-    await waitForDebounce()
+    await flushPromises()
     expect(onChange).toHaveBeenLastCalledWith({ places: 20 })
     expect(class1).toHaveValue('')
     expect(class2).toHaveValue('')
     expect(total).toHaveValue('20')
 
     await user.click(check)
+    await flushPromises()
     expect(check).toBeChecked()
     expect(onChange).toHaveBeenLastCalledWith({
       classes: [expect.objectContaining({ places: 10 }), expect.objectContaining({ places: 10 })],
