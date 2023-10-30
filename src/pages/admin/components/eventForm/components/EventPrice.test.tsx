@@ -2,7 +2,7 @@ import type { PartialEvent } from '../../EventForm'
 
 import { screen } from '@testing-library/react'
 
-import { renderWithUserEvents, waitForDebounce } from '../../../../../test-utils/utils'
+import { flushPromises, renderWithUserEvents } from '../../../../../test-utils/utils'
 
 import EventPrice from './EventPrice'
 
@@ -18,21 +18,30 @@ const testEvent: PartialEvent = {
 }
 
 describe('EventPrice', () => {
+  beforeEach(() => {
+    jest.useFakeTimers()
+  })
+  afterEach(() => {
+    jest.runOnlyPendingTimers()
+    jest.useRealTimers()
+  })
   it('should be clearable with options', async () => {
     const onChange = jest.fn()
 
     const { user } = renderWithUserEvents(
-      <EventPrice id={'cost'} options={[10, 20]} event={testEvent} onChange={onChange} />
+      <EventPrice id={'cost'} options={[10, 20]} event={testEvent} onChange={onChange} />,
+      undefined,
+      { advanceTimers: jest.advanceTimersByTime }
     )
     const input = screen.getByRole('combobox')
     await user.type(input, '5')
-    await waitForDebounce()
+    await flushPromises()
 
     expect(onChange).toHaveBeenCalledTimes(1)
     expect(onChange).toHaveBeenCalledWith({ cost: 5 })
 
     await user.clear(input)
-    await waitForDebounce()
+    await flushPromises()
 
     expect(onChange).toHaveBeenLastCalledWith({ cost: undefined })
     expect(onChange).toHaveBeenCalledTimes(2)
