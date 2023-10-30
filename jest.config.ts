@@ -2,7 +2,7 @@ import type { Config } from 'jest'
 
 const config: Config = {
   collectCoverageFrom: ['src/**/*.{js,jsx,ts,tsx}', '!src/**/*.d.ts'],
-  coveragePathIgnorePatterns: ['/node_modules/'],
+  coveragePathIgnorePatterns: ['/node_modules/', '/src/lambda/', '/src/i18n/locales', '/src/types'],
   roots: ['<rootDir>/src'],
   setupFiles: ['react-app-polyfill/jsdom'],
   setupFilesAfterEnv: ['<rootDir>/src/setupTests.tsx'],

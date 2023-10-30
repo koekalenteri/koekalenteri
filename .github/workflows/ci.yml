@@ -66,11 +66,15 @@ jobs:
         with:
           name: backend-build
           path: dist/
+      - name: Rename coverage
+        run: |
+          mkdir -p coverage
+          mv src/lambda/coverage/lcov.info coverage/lcov.info
       - name: Cache coverage report
-        uses: actions/cache@v3
+        uses: actions/cache/save@v3
         with:
-          path: src/lambda/coverage/lcov.info
-          key: ${{ github.ref_name }}-backend-coverage
+          path: coverage/lcov.info
+          key: ${{ github.ref_name }}-backend-coverage-${{ github.run_id }}
 
   frontend:
     runs-on: ubuntu-latest
@@ -145,10 +149,10 @@ jobs:
           name: frontend-coverage
           path: coverage
       - name: Cache frotnend coverage reports
-        uses: actions/cache@v3
+        uses: actions/cache/save@v3
         with:
           path: coverage
-          key: ${{ github.ref_name }}-frontend-coverage
+          key: ${{ github.ref_name }}-frontend-coverage-${{ github.run_id }}
 
   deploy-backend:
     runs-on: ubuntu-latest
@@ -261,11 +265,13 @@ jobs:
         with:
           path: coverage
           key: ${{ github.ref_name }}-frontend-coverage
+          restore-keys: ${{ github.ref_name }}-frontend-coverage
       - name: Download backend coverage
         uses: actions/cache/restore@v3
         with:
           path: coverage/lcov.info
           key: ${{ github.ref_name }}-backend-coverage
+          restore-keys: ${{ github.ref_name }}-backend-coverage
       - name: Read frontend version
         id: package-version
         uses: martinbeentjes/npm-get-version-action@v1.3.1
