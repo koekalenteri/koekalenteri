@@ -66,6 +66,7 @@ export default class KLAPI {
     let status = 204
     let error
     try {
+      const start = process.hrtime.bigint()
       const res = await fetch(`${cfg.KL_API_URL}/${path}?` + sp, {
         method: 'GET',
         headers: {
@@ -80,7 +81,8 @@ export default class KLAPI {
           json = (await res.json()) as T
         }
         if (json) {
-          console.log('response: ' + JSON.stringify(json))
+          const time = Number((process.hrtime.bigint() - start) / 100n) / 10
+          console.log(`response (in ${time}ms):` + JSON.stringify(json))
         } else {
           error = await res.text()
           console.error('not ok', status, error)
