@@ -10,9 +10,12 @@ import { RecoilRoot } from 'recoil'
 import { eventWithStaticDates } from '../../__mockData__/events'
 import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
-import { createMatchMedia } from '../../test-utils/utils'
+import { createMatchMedia, flushPromises } from '../../test-utils/utils'
 
 import RegistrationEventInfo from './RegistrationEventInfo'
+
+jest.mock('../../api/event')
+jest.mock('../../api/judge')
 
 function Wrapper({ children }: { readonly children: ReactNode }) {
   return (
@@ -30,10 +33,14 @@ describe('RegistrationForm', () => {
   beforeAll(() => {
     // jsdom does not have matchMedia, so inject a polyfill
     window.matchMedia = createMatchMedia(window.innerWidth)
+    jest.useFakeTimers()
   })
+  afterEach(() => jest.runOnlyPendingTimers())
+  afterAll(() => jest.useRealTimers())
 
-  it('renders', () => {
+  it('renders', async () => {
     const { container } = render(<RegistrationEventInfo event={eventWithStaticDates} />, { wrapper: Wrapper })
+    await flushPromises()
     expect(container).toMatchSnapshot()
   })
 })

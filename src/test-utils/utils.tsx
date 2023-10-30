@@ -51,10 +51,6 @@ export const flushPromises = async () => {
   }
 }
 
-export function waitForDebounce() {
-  return act(() => new Promise((resolve) => setTimeout(resolve, 150)))
-}
-
 export const createMatchMedia =
   (width: number) =>
   (query: string): MediaQueryList => ({

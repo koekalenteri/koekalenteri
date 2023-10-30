@@ -27,7 +27,7 @@ jest.mock('../../api/user')
 
 describe('EventEditPage', () => {
   beforeAll(() => jest.useFakeTimers())
-  afterEach(() => jest.clearAllTimers())
+  afterEach(() => jest.runOnlyPendingTimers())
   afterAll(() => jest.useRealTimers())
 
   it('renders properly when creating a new event', async () => {

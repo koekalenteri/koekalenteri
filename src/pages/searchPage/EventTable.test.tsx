@@ -12,6 +12,8 @@ import theme from '../../assets/Theme'
 
 import { EventTable } from './EventTable'
 
+jest.mock('../../api/judge')
+
 describe('EventTable', () => {
   it('should render with empty result', () => {
     const { container } = render(

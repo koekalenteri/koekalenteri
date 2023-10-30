@@ -98,7 +98,9 @@ exports[`RegistrationForm renders 1`] = `
                     </div>
                     <div
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-163n9ee-MuiGrid-root"
-                    />
+                    >
+                      Tuomari 1
+                    </div>
                     <div
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-h9ezi1-MuiGrid-root"
                     >

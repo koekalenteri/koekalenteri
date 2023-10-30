@@ -18,13 +18,10 @@ const testEvent: PartialEvent = {
 }
 
 describe('EventPrice', () => {
-  beforeEach(() => {
-    jest.useFakeTimers()
-  })
-  afterEach(() => {
-    jest.runOnlyPendingTimers()
-    jest.useRealTimers()
-  })
+  beforeAll(() => jest.useFakeTimers())
+  afterEach(() => jest.runOnlyPendingTimers())
+  afterAll(() => jest.useRealTimers())
+
   it('should be clearable with options', async () => {
     const onChange = jest.fn()
 

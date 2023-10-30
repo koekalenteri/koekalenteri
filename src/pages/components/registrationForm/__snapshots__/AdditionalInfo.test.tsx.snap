@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`PlacesInput should render with minimal info 1`] = `
+exports[`AdditionalInfo should render with minimal info 1`] = `
 <div>
   <div
     class="MuiBox-root css-z0stvt"
@@ -105,7 +105,7 @@ exports[`PlacesInput should render with minimal info 1`] = `
 </div>
 `;
 
-exports[`PlacesInput should render with text 1`] = `
+exports[`AdditionalInfo should render with text 1`] = `
 <div>
   <div
     class="MuiBox-root css-z0stvt"
@@ -212,7 +212,7 @@ exports[`PlacesInput should render with text 1`] = `
 </div>
 `;
 
-exports[`PlacesInput should rerender with new value 1`] = `
+exports[`AdditionalInfo should rerender with new value 1`] = `
 <div>
   <div
     class="MuiBox-root css-z0stvt"

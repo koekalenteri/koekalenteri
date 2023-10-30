@@ -1,19 +1,24 @@
 import { render, screen } from '@testing-library/react'
 
-import { renderWithUserEvents, waitForDebounce } from '../../test-utils/utils'
+import { flushPromises, renderWithUserEvents } from '../../test-utils/utils'
 
 import AutocompleteSingle from './AutocompleteSingle'
 
 describe('AutocompleteSingle', () => {
+  beforeAll(() => jest.useFakeTimers())
+
   beforeEach(() => {
     jest.spyOn(console, 'warn').mockImplementation(console.debug)
     jest.spyOn(console, 'error').mockImplementation(console.debug)
   })
 
   afterEach(() => {
+    jest.runOnlyPendingTimers()
     expect(console.warn).toHaveBeenCalledTimes(0)
     expect(console.error).toHaveBeenCalledTimes(0)
   })
+
+  afterAll(() => jest.useRealTimers())
 
   describe('when options are strings', () => {
     it('should render with minimal information', () => {
@@ -92,7 +97,9 @@ describe('AutocompleteSingle', () => {
           options={['test-a', 'test-b']}
           label={'test-label'}
           onChange={onChange}
-        />
+        />,
+        undefined,
+        { advanceTimers: jest.advanceTimersByTime }
       )
 
       const input = screen.getByRole('combobox')
@@ -122,7 +129,7 @@ describe('AutocompleteSingle', () => {
             onChange={onChange}
           />
         )
-        await waitForDebounce()
+        await flushPromises()
         expect(onChange).not.toHaveBeenCalled()
       }
     )
@@ -227,7 +234,9 @@ describe('AutocompleteSingle', () => {
           label={'test-label'}
           getOptionLabel={getName}
           onChange={onChange}
-        />
+        />,
+        undefined,
+        { advanceTimers: jest.advanceTimersByTime }
       )
 
       const input = screen.getByRole('combobox')

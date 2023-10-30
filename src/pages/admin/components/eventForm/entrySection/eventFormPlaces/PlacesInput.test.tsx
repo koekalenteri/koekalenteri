@@ -1,10 +1,14 @@
 import { render, screen } from '@testing-library/react'
 
-import { renderWithUserEvents, waitForDebounce } from '../../../../../../test-utils/utils'
+import { flushPromises, renderWithUserEvents } from '../../../../../../test-utils/utils'
 
 import PlacesInput from './PlacesInput'
 
 describe('PlacesInput', () => {
+  beforeAll(() => jest.useFakeTimers())
+  afterEach(() => jest.runOnlyPendingTimers())
+  afterAll(() => jest.useRealTimers())
+
   it('should render with zero', () => {
     const { container } = render(<PlacesInput value={0} />)
     expect(container).toMatchSnapshot()
@@ -23,21 +27,23 @@ describe('PlacesInput', () => {
 
   it('should call onChange', async () => {
     const onChange = jest.fn()
-    const { user } = renderWithUserEvents(<PlacesInput value={123} onChange={onChange} />)
+    const { user } = renderWithUserEvents(<PlacesInput value={123} onChange={onChange} />, undefined, {
+      advanceTimers: jest.advanceTimersByTime,
+    })
 
-    await waitForDebounce()
+    await flushPromises()
     expect(onChange).not.toHaveBeenCalled()
 
     const input = screen.getByRole('textbox')
 
     await user.clear(input)
-    await waitForDebounce()
+    await flushPromises()
     expect(onChange).toHaveBeenLastCalledWith(0)
 
     onChange.mockReset()
 
     await user.type(input, '53')
-    await waitForDebounce()
+    await flushPromises()
     expect(onChange).toHaveBeenLastCalledWith(53)
   })
 })

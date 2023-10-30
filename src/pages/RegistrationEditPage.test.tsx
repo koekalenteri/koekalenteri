@@ -50,7 +50,7 @@ function Wrapper({ children }: { readonly children: ReactNode }) {
 
 describe('RegistrationEditPage', () => {
   beforeAll(() => jest.useFakeTimers())
-  afterEach(() => jest.clearAllTimers())
+  afterEach(() => jest.runOnlyPendingTimers())
   afterAll(() => jest.useRealTimers())
 
   it('should render', async () => {

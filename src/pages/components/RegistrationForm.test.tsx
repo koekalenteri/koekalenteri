@@ -43,7 +43,7 @@ describe('RegistrationForm', () => {
     window.matchMedia = createMatchMedia(window.innerWidth)
     jest.useFakeTimers()
   })
-  afterEach(() => jest.clearAllTimers())
+  afterEach(() => jest.runOnlyPendingTimers())
   afterAll(() => jest.useRealTimers())
 
   it('renders', async () => {

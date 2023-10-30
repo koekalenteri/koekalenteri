@@ -39,7 +39,7 @@ const renderComponent = (event: Event, onSave?: () => void, onCancel?: () => voi
 
 describe('EventForm', () => {
   beforeAll(() => jest.useFakeTimers())
-  afterEach(() => jest.clearAllTimers())
+  afterEach(() => jest.runOnlyPendingTimers())
   afterAll(() => jest.useRealTimers())
 
   it('should render', async () => {

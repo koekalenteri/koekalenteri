@@ -20,7 +20,6 @@ const eventDate = registrationWithStaticDates.dates[0].date
 
 jest.mock('../../../api/dog')
 jest.mock('../../../api/registration')
-jest.setTimeout(10000)
 
 function Wrapper(props: { readonly children?: ReactNode }) {
   return (
@@ -36,7 +35,7 @@ function Wrapper(props: { readonly children?: ReactNode }) {
 
 describe('DogInfo', () => {
   beforeAll(() => jest.useFakeTimers())
-  afterEach(() => jest.clearAllTimers())
+  afterEach(() => jest.runOnlyPendingTimers())
   afterAll(() => jest.useRealTimers())
 
   it('should render', async () => {
@@ -85,6 +84,7 @@ describe('DogInfo', () => {
 
     const button = screen.getByRole('button', { name: 'registration.cta.fetch' })
     await user.click(button)
+    await flushPromises()
 
     expect(changeHandler).toHaveBeenLastCalledWith(expect.objectContaining({ dog: newDog }), true)
   })

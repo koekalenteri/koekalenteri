@@ -8,13 +8,9 @@ import { flushPromises, renderWithUserEvents } from '../../../../../test-utils/u
 import EventFormPlaces from './EventFormPlaces'
 
 describe('EventFormPlaces', () => {
-  beforeEach(() => {
-    jest.useFakeTimers()
-  })
-  afterEach(() => {
-    jest.runOnlyPendingTimers()
-    jest.useRealTimers()
-  })
+  beforeAll(() => jest.useFakeTimers())
+  afterEach(() => jest.runOnlyPendingTimers())
+  afterAll(() => jest.useRealTimers())
 
   it('should render with minimal information', () => {
     const event: PartialEvent = {

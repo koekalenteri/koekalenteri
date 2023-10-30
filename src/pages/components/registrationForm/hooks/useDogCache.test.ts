@@ -11,7 +11,7 @@ jest.spyOn(Storage.prototype, 'getItem')
 
 describe('useDogCache', () => {
   beforeAll(() => jest.useFakeTimers())
-  afterEach(() => jest.clearAllTimers())
+  afterEach(() => jest.runOnlyPendingTimers())
   afterAll(() => jest.useRealTimers())
 
   it('should read from localStorage', () => {

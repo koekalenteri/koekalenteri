@@ -27,9 +27,9 @@ describe('EventProperty', () => {
   })
 
   afterEach(() => {
+    jest.runOnlyPendingTimers()
     expect(console.warn).toHaveBeenCalledTimes(0)
     expect(console.error).toHaveBeenCalledTimes(0)
-    jest.clearAllTimers()
   })
 
   describe('freeSolo=true', () => {

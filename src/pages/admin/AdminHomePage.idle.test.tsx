@@ -16,7 +16,7 @@ jest.mock('@aws-amplify/ui-react', () => require('../global-mocks/auth/idle'))
 
 describe('AdminHomePage', () => {
   beforeAll(() => jest.useFakeTimers())
-  afterEach(() => jest.clearAllTimers())
+  afterEach(() => jest.runOnlyPendingTimers())
   afterAll(() => jest.useRealTimers())
 
   it('should redirect to login page if user is not logged in', async () => {

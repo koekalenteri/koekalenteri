@@ -19,7 +19,7 @@ jest.mock('../../api/user')
 
 describe('EventListPage', () => {
   beforeAll(() => jest.useFakeTimers())
-  afterEach(() => jest.clearAllTimers())
+  afterEach(() => jest.runOnlyPendingTimers())
   afterAll(() => jest.useRealTimers())
 
   it('renders', async () => {

@@ -27,7 +27,7 @@ jest.mock('../../api/user')
 
 describe('EventViewPage', () => {
   beforeAll(() => jest.useFakeTimers())
-  afterEach(() => jest.clearAllTimers())
+  afterEach(() => jest.runOnlyPendingTimers())
   afterAll(() => jest.useRealTimers())
 
   it('renders properly for event without classes', async () => {

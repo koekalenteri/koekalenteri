@@ -6,7 +6,7 @@ import { TitlesAndName } from './TitlesAndName'
 
 describe('TitlesAndName', () => {
   beforeAll(() => jest.useFakeTimers())
-  afterEach(() => jest.clearAllTimers())
+  afterEach(() => jest.runOnlyPendingTimers())
   afterAll(() => jest.useRealTimers())
 
   it('should render with minimal properties', () => {

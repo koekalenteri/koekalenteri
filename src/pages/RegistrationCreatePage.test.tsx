@@ -49,7 +49,7 @@ function Wrapper({ children }: { readonly children: ReactNode }) {
 
 describe('RegistrationCreatePage', () => {
   beforeAll(() => jest.useFakeTimers())
-  afterEach(() => jest.clearAllTimers())
+  afterEach(() => jest.runOnlyPendingTimers())
   afterAll(() => jest.useRealTimers())
 
   it('should render with event/eventType/id path', async () => {

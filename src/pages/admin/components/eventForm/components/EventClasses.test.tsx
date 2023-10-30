@@ -10,7 +10,7 @@ const date2 = parseISO('2023-01-18')
 
 describe('EventClasses', () => {
   beforeAll(() => jest.useFakeTimers())
-  afterEach(() => jest.clearAllTimers())
+  afterEach(() => jest.runOnlyPendingTimers())
   afterAll(() => jest.useRealTimers())
 
   it('should render with minimal properties', () => {

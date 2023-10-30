@@ -23,7 +23,7 @@ function Wrapper(props: { readonly children?: ReactNode }) {
 
 describe('SendMessageDialog', () => {
   beforeAll(() => jest.useFakeTimers())
-  afterEach(() => jest.clearAllTimers())
+  afterEach(() => jest.runOnlyPendingTimers())
   afterAll(() => jest.useRealTimers())
 
   it('renders hidden when open is false', async () => {

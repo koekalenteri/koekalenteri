@@ -15,7 +15,7 @@ jest.mock('../../api/user')
 
 describe('JudgeListPage', () => {
   beforeAll(() => jest.useFakeTimers())
-  afterEach(() => jest.clearAllTimers())
+  afterEach(() => jest.runOnlyPendingTimers())
   afterAll(() => jest.useRealTimers())
 
   it('renders', async () => {

@@ -1,10 +1,14 @@
 import { render, screen } from '@testing-library/react'
 
-import { renderWithUserEvents, waitForDebounce } from '../../../test-utils/utils'
+import { flushPromises, renderWithUserEvents } from '../../../test-utils/utils'
 
 import { AdditionalInfo } from './AdditionalInfo'
 
-describe('PlacesInput', () => {
+describe('AdditionalInfo', () => {
+  beforeAll(() => jest.useFakeTimers())
+  afterEach(() => jest.runOnlyPendingTimers())
+  afterAll(() => jest.useRealTimers())
+
   it('should render with minimal info', () => {
     const { container } = render(<AdditionalInfo />)
     expect(container).toMatchSnapshot()
@@ -23,21 +27,23 @@ describe('PlacesInput', () => {
 
   it('should call onChange', async () => {
     const onChange = jest.fn()
-    const { user } = renderWithUserEvents(<AdditionalInfo notes="test" onChange={onChange} />)
+    const { user } = renderWithUserEvents(<AdditionalInfo notes="test" onChange={onChange} />, undefined, {
+      advanceTimers: jest.advanceTimersByTime,
+    })
 
-    await waitForDebounce()
+    await flushPromises()
     expect(onChange).not.toHaveBeenCalled()
 
     const input = screen.getByRole('textbox')
 
     await user.clear(input)
-    await waitForDebounce()
+    await flushPromises()
     expect(onChange).toHaveBeenLastCalledWith({ notes: '' })
 
     onChange.mockReset()
 
     await user.type(input, 'testing notes')
-    await waitForDebounce()
+    await flushPromises()
     expect(onChange).toHaveBeenLastCalledWith({ notes: 'testing notes' })
   })
 })

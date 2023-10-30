@@ -15,7 +15,7 @@ jest.mock('../../api/user')
 
 describe('AdminHomePage', () => {
   beforeAll(() => jest.useFakeTimers())
-  afterEach(() => jest.clearAllTimers())
+  afterEach(() => jest.runOnlyPendingTimers())
   afterAll(() => jest.useRealTimers())
 
   it('renders the page when user is logged in', async () => {

@@ -5,14 +5,18 @@ import { render } from '@testing-library/react'
 import { RecoilRoot } from 'recoil'
 
 import { emptyEvent } from '../../../api/test-utils/emptyEvent'
-import { waitForDebounce } from '../../../test-utils/utils'
+import { flushPromises } from '../../../test-utils/utils'
 
 import { EventInfo } from './EventInfo'
 
 jest.mock('../../../api/judge')
 
 describe('EventInfo', () => {
-  it('should render event information', async function () {
+  beforeAll(() => jest.useFakeTimers())
+  afterEach(() => jest.runOnlyPendingTimers())
+  afterAll(() => jest.useRealTimers())
+
+  it('should render event information', async () => {
     const event: Event = {
       ...emptyEvent,
       organizer: {
@@ -44,7 +48,7 @@ describe('EventInfo', () => {
         </Suspense>
       </RecoilRoot>
     )
-    await waitForDebounce()
+    await flushPromises()
 
     expect(container).toMatchSnapshot()
   })

@@ -40,13 +40,10 @@ const renderPage = (path: string, locale: Locale) =>
   )
 
 describe('SearchPage', () => {
-  beforeEach(() => {
-    jest.useFakeTimers()
-  })
-  afterEach(() => {
-    jest.runOnlyPendingTimers()
-    jest.useRealTimers()
-  })
+  beforeAll(() => jest.useFakeTimers())
+  afterEach(() => jest.runOnlyPendingTimers())
+  afterAll(() => jest.useRealTimers())
+
   it('renders', async () => {
     renderPage('', locales.fi)
     await flushPromises()
