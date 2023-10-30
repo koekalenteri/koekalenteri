@@ -28,16 +28,16 @@ const refreshJudges = async (event: APIGatewayProxyEvent) => {
 
   const klapi = new KLAPI(getKLAPIConfig)
   const eventTypes = (await dynamoDB.readAll<EventType>(eventTypeTable))?.filter((et) => et.active) || []
+  const existingJudges = (await dynamoDB.readAll<JsonJudge>()) ?? []
+  const write: JsonJudge[] = []
   for (const eventType of eventTypes) {
     const { status, json } = await klapi.lueKoemuodonYlituomarit({
       Koemuoto: eventType.eventType,
       Kieli: KLKieli.Suomi,
     })
     if (status === 200 && json) {
-      const existingJudges = await dynamoDB.readAll<JsonJudge>()
-      const write: JsonJudge[] = []
       for (const item of json) {
-        const existing = existingJudges?.find((j) => j.id === item.jäsennumero)
+        const existing = existingJudges.find((j) => j.id === item.jäsennumero)
         const name = capitalize(item.nimi)
         const location = capitalize(item.paikkakunta)
         const judge: JsonJudge = {
@@ -65,17 +65,25 @@ const refreshJudges = async (event: APIGatewayProxyEvent) => {
           const mode = existing ? 'updated' : 'new'
           console.log(`${mode} judge: ${judge.id}: ${judge.name}`, { existing, judge })
           write.push(judge)
+          if (existing) {
+            Object.assign(existing, judge)
+          } else {
+            existingJudges.push(judge)
+          }
         }
-        await getAndUpdateUserByEmail(item.sähköposti, {
-          name: reverseName(name),
-          kcId: item.jäsennumero,
-          judge: true,
-          location,
-          phone: item.puhelin,
-        })
       }
-      if (write.length) {
-        await dynamoDB.batchWrite(write)
+    }
+    if (write.length) {
+      await dynamoDB.batchWrite(write)
+
+      for (const judge of write) {
+        await getAndUpdateUserByEmail(judge.email, {
+          name: reverseName(judge.name),
+          kcId: judge.id,
+          judge: true,
+          location: judge.location,
+          phone: judge.phone,
+        })
       }
     }
   }
