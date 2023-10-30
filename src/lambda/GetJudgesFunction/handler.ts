@@ -88,7 +88,7 @@ const refreshJudges = async (event: APIGatewayProxyEvent) => {
     }
   }
 
-  const items = (await dynamoDB.readAll<Judge & JsonDbRecord>())?.filter((j) => !j.deletedAt)
+  const items = existingJudges?.filter((j) => !j.deletedAt)
   return response(200, items, event)
 }
 

@@ -1,7 +1,7 @@
 import type { MetricsLogger } from 'aws-embedded-metrics'
 import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import type { AWSError } from 'aws-sdk'
-import type { EventType, JsonDbRecord, Official } from '../../types'
+import type { EventType, JsonOfficial } from '../../types'
 
 import { metricScope } from 'aws-embedded-metrics'
 import { diff } from 'deep-object-diff'
@@ -27,6 +27,8 @@ const refreshOfficials = async (event: APIGatewayProxyEvent): Promise<APIGateway
 
   const klapi = new KLAPI(getKLAPIConfig)
   const eventTypes = (await dynamoDB.readAll<EventType>(eventTypeTable))?.filter((et) => et.active) || []
+  const existingOfficials = (await dynamoDB.readAll<JsonOfficial>()) ?? []
+  const write: JsonOfficial[] = []
   for (const eventType of eventTypes) {
     const { status, json } = await klapi.lueKoemuodonKoetoimitsijat({
       Koemuoto: eventType.eventType,
@@ -34,10 +36,15 @@ const refreshOfficials = async (event: APIGatewayProxyEvent): Promise<APIGateway
     })
     if (status === 200 && json) {
       for (const item of json) {
-        const existing = await dynamoDB.read<Official>({ id: item.jäsennumero })
+        const existing = existingOfficials.find((official) => official.id === item.jäsennumero)
         const name = capitalize(item.nimi)
         const location = capitalize(item.paikkakunta)
-        const official = {
+        const official: JsonOfficial = {
+          languages: [],
+          createdAt: new Date().toISOString(),
+          createdBy: 'system',
+          modifiedAt: new Date().toISOString(),
+          modifiedBy: 'system',
           ...existing,
           id: item.jäsennumero,
           name,
@@ -46,23 +53,38 @@ const refreshOfficials = async (event: APIGatewayProxyEvent): Promise<APIGateway
           email: item.sähköposti,
           phone: item.puhelin,
           eventTypes: item.koemuodot.map((koemuoto) => koemuoto.lyhenne),
-          deletedAt: false,
           deletedBy: '',
         }
-        if (!existing || Object.keys(diff(existing, official)).length > 0) {
-          await dynamoDB.write(official)
+        if (official.deletedAt) {
+          delete official.deletedAt
         }
-        await getAndUpdateUserByEmail(item.sähköposti, {
-          name: reverseName(name),
-          kcId: item.jäsennumero,
+        if (!existing || Object.keys(diff(existing, official)).length > 0) {
+          const mode = existing ? 'updated' : 'new'
+          console.log(`${mode} official: ${official.id}: ${official.name}`, { existing, official })
+          write.push(official)
+          if (existing) {
+            Object.assign(existing, official)
+          } else {
+            existingOfficials.push(official)
+          }
+        }
+      }
+    }
+    if (write.length) {
+      await dynamoDB.batchWrite(write)
+
+      for (const official of write) {
+        await getAndUpdateUserByEmail(official.email, {
+          name: reverseName(official.name),
+          kcId: official.id,
           officer: true,
-          location,
-          phone: item.puhelin,
+          location: official.location,
+          phone: official.phone,
         })
       }
     }
   }
-  const items = (await dynamoDB.readAll<Official & JsonDbRecord>())?.filter((o) => !o.deletedAt)
+  const items = existingOfficials.filter((o) => !o.deletedAt)
   return response(200, items, event)
 }
 
@@ -73,7 +95,7 @@ const getOfficialsHandler = metricScope(
         if (event.queryStringParameters && 'refresh' in event.queryStringParameters) {
           return refreshOfficials(event)
         }
-        const items = (await dynamoDB.readAll<Official & JsonDbRecord>())?.filter((o) => !o.deletedAt)
+        const items = (await dynamoDB.readAll<JsonOfficial>())?.filter((o) => !o.deletedAt)
         metricsSuccess(metrics, event.requestContext, 'getOfficials')
         return response(200, items, event)
       } catch (err) {
