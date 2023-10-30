@@ -1,6 +1,5 @@
 import type { RegistrationDate } from '../../../../types'
 
-import React from 'react'
 import { render } from '@testing-library/react'
 
 import GroupColors, { availableGroups } from './GroupColors'

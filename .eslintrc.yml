@@ -11,6 +11,7 @@ extends:
 
 plugins:
   - react
+  - unused-imports
   - simple-import-sort
   - prettier
   - mui-path-imports
@@ -59,3 +60,4 @@ rules:
   "@typescript-eslint/consistent-type-imports":
   - error
   - prefer: type-imports
+  unused-imports/no-unused-imports: error

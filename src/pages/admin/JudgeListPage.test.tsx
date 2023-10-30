@@ -1,7 +1,7 @@
 import { Suspense } from 'react'
 import { MemoryRouter } from 'react-router-dom'
 import { ThemeProvider } from '@mui/material'
-import { fireEvent, render, screen } from '@testing-library/react'
+import { screen } from '@testing-library/react'
 import { SnackbarProvider } from 'notistack'
 import { RecoilRoot } from 'recoil'
 

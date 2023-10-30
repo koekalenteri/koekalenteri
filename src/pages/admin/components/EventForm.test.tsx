@@ -4,7 +4,7 @@ import { Suspense } from 'react'
 import { ThemeProvider } from '@mui/material'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
-import { fireEvent, render, screen, within } from '@testing-library/react'
+import { screen, within } from '@testing-library/react'
 import fi from 'date-fns/locale/fi'
 import { RecoilRoot } from 'recoil'
 

@@ -1,5 +1,4 @@
-import type { Element, ElementContent, Nodes, RootContent, Text } from 'hast'
-import type { Link, Parents } from 'mdast'
+import type { Link } from 'mdast'
 import type { State } from 'mdast-util-to-hast/lib/state'
 
 import { jest } from '@jest/globals'

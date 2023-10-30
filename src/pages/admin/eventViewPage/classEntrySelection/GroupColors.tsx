@@ -1,6 +1,6 @@
 import type { RegistrationDate } from '../../../../types'
 
-import React, { useMemo } from 'react'
+import { useMemo } from 'react'
 import Box from '@mui/material/Box'
 import Stack from '@mui/material/Stack'
 

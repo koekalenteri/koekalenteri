@@ -1,8 +1,7 @@
 import type { MetricsLogger } from 'aws-embedded-metrics'
 import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
-import type { AWSError } from 'aws-sdk'
 import type { Template } from 'aws-sdk/clients/ses'
-import type { JsonEmailTemplate, JsonRegistration } from '../../types'
+import type { JsonEmailTemplate } from '../../types'
 
 import { metricScope } from 'aws-embedded-metrics'
 import AWS from 'aws-sdk'
