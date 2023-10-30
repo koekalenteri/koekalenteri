@@ -37,7 +37,7 @@ const refreshJudges = async (event: APIGatewayProxyEvent) => {
       const existingJudges = await dynamoDB.readAll<JsonJudge>()
       const write: JsonJudge[] = []
       for (const item of json) {
-        const existing = existingJudges?.find((j) => j.id === `${item.jäsennumero}`)
+        const existing = existingJudges?.find((j) => j.id === item.jäsennumero)
         const name = capitalize(item.nimi)
         const location = capitalize(item.paikkakunta)
         const judge: JsonJudge = {
@@ -48,7 +48,7 @@ const refreshJudges = async (event: APIGatewayProxyEvent) => {
           modifiedAt: new Date().toISOString(),
           modifiedBy: 'system',
           ...existing,
-          id: `${item.jäsennumero}`,
+          id: item.jäsennumero,
           name,
           location,
           district: item.kennelpiiri,
