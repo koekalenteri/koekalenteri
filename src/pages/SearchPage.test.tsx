@@ -11,7 +11,7 @@ import { RecoilRoot } from 'recoil'
 
 import theme from '../assets/Theme'
 import { locales } from '../i18n'
-import { waitForDebounce } from '../test-utils/utils'
+import { flushPromises } from '../test-utils/utils'
 
 import { SearchPage } from './SearchPage'
 
@@ -40,22 +40,29 @@ const renderPage = (path: string, locale: Locale) =>
   )
 
 describe('SearchPage', () => {
+  beforeEach(() => {
+    jest.useFakeTimers()
+  })
+  afterEach(() => {
+    jest.runOnlyPendingTimers()
+    jest.useRealTimers()
+  })
   it('renders', async () => {
     renderPage('', locales.fi)
-    await waitForDebounce()
+    await flushPromises()
     expect(screen.getAllByRole('row').length).toEqual(4)
   })
 
   it('filters by date/start', async () => {
     renderPage('/?s=2021-03-01', locales.fi)
-    await waitForDebounce()
+    await flushPromises()
     expect(screen.getByRole('textbox', { name: 'daterangeStart' })).toHaveValue('01.03.2021')
     expect(screen.getAllByRole('row').length).toEqual(4)
   })
 
   it('filters by date/end', async () => {
     const { container } = renderPage('/?e=2021-03-01', locales.fi)
-    await waitForDebounce()
+    await flushPromises()
     expect(screen.getByRole('textbox', { name: 'daterangeEnd' })).toHaveValue('01.03.2021')
     expect(screen.getAllByRole('row').length).toEqual(4)
     expect(container).toMatchSnapshot()
@@ -63,7 +70,7 @@ describe('SearchPage', () => {
 
   it('filters by date', async () => {
     const { container } = renderPage('/?s=2021-01-01&e=2021-03-01', locales.fi)
-    await waitForDebounce()
+    await flushPromises()
     expect(screen.getByRole('textbox', { name: 'daterangeStart' })).toHaveValue('01.01.2021')
     expect(screen.getByRole('textbox', { name: 'daterangeEnd' })).toHaveValue('01.03.2021')
     expect(screen.getAllByRole('row').length).toEqual(4)
@@ -72,7 +79,7 @@ describe('SearchPage', () => {
 
   it('filters by date - no-results', async () => {
     const { container } = renderPage('/?s=2021-03-01&e=2021-03-01', locales.fi)
-    await waitForDebounce()
+    await flushPromises()
     expect(screen.getByRole('textbox', { name: 'daterangeStart' })).toHaveValue('01.03.2021')
     expect(screen.getByRole('textbox', { name: 'daterangeEnd' })).toHaveValue('01.03.2021')
     expect(screen.getByText('noResults')).toBeInTheDocument()
@@ -81,7 +88,7 @@ describe('SearchPage', () => {
 
   it('filters by event type', async () => {
     const { container } = renderPage('/?t=NOME-B', locales.fi)
-    await waitForDebounce()
+    await flushPromises()
     expect(screen.getByRole('button', { name: 'NOME-B' })).toBeInTheDocument()
     expect(screen.getAllByRole('row').length).toEqual(4)
     expect(container).toMatchSnapshot()
@@ -89,7 +96,7 @@ describe('SearchPage', () => {
 
   it('filters by event class', async () => {
     const { container } = renderPage('/?c=AVO', locales.fi)
-    await waitForDebounce()
+    await flushPromises()
     expect(screen.getByRole('button', { name: 'AVO' })).toBeInTheDocument()
     expect(screen.getAllByRole('row').length).toEqual(4)
     expect(container).toMatchSnapshot()
@@ -97,7 +104,7 @@ describe('SearchPage', () => {
 
   it('filters by organizer', async () => {
     const { container } = renderPage('/?o=2', locales.fi)
-    await waitForDebounce()
+    await flushPromises()
     expect(screen.getByRole('button', { name: 'Järjestäjä 2' })).toBeInTheDocument()
     expect(screen.getAllByRole('row').length).toEqual(1)
     expect(container).toMatchSnapshot()
@@ -105,28 +112,28 @@ describe('SearchPage', () => {
 
   it('filters by judge', async () => {
     renderPage('/?j=223', locales.fi)
-    await waitForDebounce()
+    await flushPromises()
     expect(screen.getByRole('button', { name: 'Tuomari 2' })).toBeInTheDocument()
     expect(screen.getAllByRole('row').length).toEqual(5)
   })
 
   it('filters by entryUpcoming', async () => {
     renderPage('/?b=u', locales.fi)
-    await waitForDebounce()
+    await flushPromises()
     expect(screen.getByRole('checkbox', { name: 'entryUpcoming' })).toBeChecked()
     expect(screen.getAllByRole('row').length).toEqual(1)
   })
 
   it('filters by entryOpen', async () => {
     renderPage('/?b=o', locales.fi)
-    await waitForDebounce()
+    await flushPromises()
     expect(screen.getByRole('checkbox', { name: 'entryOpen' })).toBeChecked()
     expect(screen.getAllByRole('row').length).toEqual(2)
   })
 
   it('filters by entryOpen and entryUpcoming', async () => {
     renderPage('/?b=o&b=u', locales.fi)
-    await waitForDebounce()
+    await flushPromises()
     expect(screen.getByRole('checkbox', { name: 'entryUpcoming' })).toBeChecked()
     expect(screen.getByRole('checkbox', { name: 'entryOpen' })).toBeChecked()
     expect(screen.getAllByRole('row').length).toEqual(3)
