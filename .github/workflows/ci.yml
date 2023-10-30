@@ -22,6 +22,7 @@ jobs:
           base: ${{ github.ref }}
           filters: |
             backend:
+              - '.github/**'
               - 'src/lambda/**'
               - 'src/i18n/**'
               - 'src/types/**'
@@ -30,6 +31,7 @@ jobs:
               - 'template.yml'
               - 'Makefile'
             frontend:
+              - '.github/**'
               - 'src/!(lambda)/**'
               - 'package.json'
               - 'tsconfig.json'
@@ -64,11 +66,11 @@ jobs:
         with:
           name: backend-build
           path: dist/
-      - name: Upload coverage report
-        uses: actions/upload-artifact@v3
+      - name: Cache coverage report
+        uses: actions/cache@v3
         with:
-          name: backend-coverage
           path: src/lambda/coverage/lcov.info
+          key: ${{ github.ref_name }}-backend-coverage
 
   frontend:
     runs-on: ubuntu-latest
@@ -132,6 +134,21 @@ jobs:
         with:
           name: frontend-coverage
           path: coverage/lcov${{ matrix.shard }}.info
+
+  frontend-coverage:
+    runs-on: ubuntu-latest
+    needs: [frontend-test]
+    steps:
+      - name: Download coverage artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: frontend-coverage
+          path: coverage
+      - name: Cache frotnend coverage reports
+        uses: actions/cache@v3
+        with:
+          path: coverage
+          key: ${{ github.ref_name }}-frontend-coverage
 
   deploy-backend:
     runs-on: ubuntu-latest
@@ -222,7 +239,7 @@ jobs:
 
   sonar:
     runs-on: ubuntu-latest
-    needs: [backend,frontend-test]
+    needs: [backend,frontend-coverage]
     # dependabot etc pull request can't have the token, so lets run only on merges.
     if: ${{ always() && !failure() && !cancelled() && github.event_name == 'push' }}
     steps:
@@ -239,16 +256,16 @@ jobs:
         with:
           path: node_modules
           key: ${{ runner.os }}-${{ hashFiles('package-lock.json') }}
-      - name: Download backend coverage
-        uses: actions/download-artifact@v3
-        with:
-          name: backend-coverage
-          path: coverage/lcov.info
       - name: Download frontend coverage
-        uses: actions/download-artifact@v3
+        uses: actions/cache/restore@v3
         with:
-          name: frontend-coverage
           path: coverage
+          key: ${{ github.ref_name }}-frontend-coverage
+      - name: Download backend coverage
+        uses: actions/cache/restore@v3
+        with:
+          path: coverage/lcov.info
+          key: ${{ github.ref_name }}-backend-coverage
       - name: Read frontend version
         id: package-version
         uses: martinbeentjes/npm-get-version-action@v1.3.1
