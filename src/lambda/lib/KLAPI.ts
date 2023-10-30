@@ -81,8 +81,8 @@ export default class KLAPI {
           json = (await res.json()) as T
         }
         if (json) {
-          const time = Number((process.hrtime.bigint() - start) / 100n) / 10
-          console.log(`response (in ${time}ms):` + JSON.stringify(json))
+          const time = Number((process.hrtime.bigint() - start) / 100000n) / 10
+          console.log(`KLAPI response (in ${time}ms):` + JSON.stringify(json))
         } else {
           error = await res.text()
           console.error('not ok', status, error)
