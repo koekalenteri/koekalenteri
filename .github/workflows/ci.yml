@@ -24,6 +24,7 @@ jobs:
             backend:
               - 'src/lambda/**'
               - 'src/i18n/**'
+              - 'src/types/**'
               - 'package.json'
               - 'tsconfig.json'
               - 'template.yml'
