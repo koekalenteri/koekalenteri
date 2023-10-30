@@ -36,7 +36,10 @@ function Wrapper(props: { readonly children?: ReactNode }) {
 describe('DogInfo', () => {
   beforeAll(() => jest.useFakeTimers())
   afterEach(() => jest.runOnlyPendingTimers())
-  afterAll(() => jest.useRealTimers())
+  afterAll(() => {
+    jest.clearAllTimers()
+    jest.useRealTimers()
+  })
 
   it('should render', async () => {
     const { container } = render(
@@ -48,7 +51,7 @@ describe('DogInfo', () => {
     expect(container).toMatchSnapshot()
   })
 
-  it('Should allow changing dog', async () => {
+  it('should allow changing dog', async () => {
     const reg = merge(registrationWithStaticDates, {})
     const changeHandler = jest.fn((props) => Object.assign(reg, props))
     const newDog = registrationDogAged20MonthsAndNoResults
