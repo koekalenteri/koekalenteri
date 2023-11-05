@@ -18,17 +18,17 @@ const { userTable, userLinkTable } = CONFIG
 
 const dynamoDB = new CustomDynamoClient(userLinkTable)
 
-export async function authorize(event: APIGatewayProxyEvent) {
+export async function authorize(event?: Partial<APIGatewayProxyEvent>) {
   const user = await getOrCreateUser(event)
 
   return user
 }
 
-async function getOrCreateUser(event: APIGatewayProxyEvent) {
+async function getOrCreateUser(event?: Partial<APIGatewayProxyEvent>) {
   let user: JsonUser | undefined
 
-  if (!event.requestContext.authorizer?.claims) {
-    console.log('no authorizer in requestContext', event.requestContext)
+  if (!event?.requestContext?.authorizer?.claims) {
+    console.log('no authorizer in requestContext', event?.requestContext)
     return null
   }
 
@@ -71,11 +71,11 @@ export async function getAndUpdateUserByEmail(email: string, props: Omit<Partial
   return updated
 }
 
-export function getOrigin(event: APIGatewayProxyEvent) {
-  return event.headers.origin || event.headers.Origin || ''
+export function getOrigin(event?: Partial<APIGatewayProxyEvent>) {
+  return event?.headers?.origin || event?.headers?.Origin || ''
 }
 
-export async function getUsername(event: APIGatewayProxyEvent) {
+export async function getUsername(event: Partial<APIGatewayProxyEvent>) {
   const user = await getOrCreateUser(event)
   return user?.name ?? 'anonymous'
 }
