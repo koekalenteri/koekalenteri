@@ -346,7 +346,7 @@ exports[`EventClasses should render with classes and values for 2 day event, ope
     </div>
   </div>
   <div
-    class="MuiAutocomplete-popper MuiAutocomplete-popperDisablePortal css-1rndd9j-MuiPopper-root-MuiAutocomplete-popper MuiPopper-root"
+    class="MuiPopper-root MuiAutocomplete-popper MuiAutocomplete-popperDisablePortal css-1rndd9j-MuiPopper-root-MuiAutocomplete-popper"
     data-popper-escaped=""
     data-popper-placement="bottom"
     data-popper-reference-hidden=""
@@ -579,7 +579,7 @@ exports[`EventClasses should render with classes and values, open 1`] = `
     </div>
   </div>
   <div
-    class="MuiAutocomplete-popper MuiAutocomplete-popperDisablePortal css-1rndd9j-MuiPopper-root-MuiAutocomplete-popper MuiPopper-root"
+    class="MuiPopper-root MuiAutocomplete-popper MuiAutocomplete-popperDisablePortal css-1rndd9j-MuiPopper-root-MuiAutocomplete-popper"
     data-popper-escaped=""
     data-popper-placement="bottom"
     data-popper-reference-hidden=""

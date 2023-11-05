@@ -156,7 +156,7 @@ exports[`EventListPage renders 1`] = `
         aria-colcount="11"
         aria-multiselectable="false"
         aria-rowcount="5"
-        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1wo8wtq-MuiDataGrid-root"
+        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1z3c5a-MuiDataGrid-root"
         role="grid"
       >
         <div
