@@ -37,7 +37,7 @@ const draft: JsonEvent = {
     name: 'Demo Koevastaava',
   },
   organizer: {
-    id: '400830',
+    id: 'sZty-anoPN',
     name: 'SUOMEN NOUTAJAKOIRAJÄRJESTÖ R.Y.',
   },
   paymentDetails: '',
