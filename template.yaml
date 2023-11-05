@@ -594,6 +594,39 @@ Resources:
       LogGroupName: !Join ['/', ['/aws/lambda', !Ref CopyEventFunction]]
       RetentionInDays: 30
 
+  DemoEventsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: lambda/DemoEventsFunction/handler.default
+      Layers:
+        - !Ref CommonLayer
+      Tracing: Active
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EventTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EventRegistrationTable
+        - CloudWatchPutMetricPolicy: {}
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref EventTable
+          REGISTRATION_TABLE_NAME: !Ref EventRegistrationTable
+      Events:
+        DemoEvents:
+          Type: Api
+          Properties:
+            Path: /cron/demo-events
+            Method: GET
+            RestApiId: !Ref KoekalenteriApi
+    Metadata:
+      BuildMethod: makefile
+
+  DemoEventsFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref DemoEventsFunction]]
+      RetentionInDays: 30
+
   GetRegistrationsFunction:
     Type: AWS::Serverless::Function
     Properties:
