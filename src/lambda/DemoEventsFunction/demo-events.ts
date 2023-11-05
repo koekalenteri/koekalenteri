@@ -51,4 +51,16 @@ const draftNOMEAWithEntry: JsonEvent = {
   entryStartDate: today,
 }
 
-export const events = [draftNOMEA, draftNOMEAWithEntry]
+const tentativeNOMEA: JsonEvent = {
+  ...draftNOMEA,
+  id: 'demo-tentative-nome-a',
+  location: 'demo',
+}
+
+const tentativeNOMEAWithEntry: JsonEvent = {
+  ...draftNOMEAWithEntry,
+  id: 'demo-tentative-nome-a-entry',
+  location: 'demo',
+}
+
+export const events = [draftNOMEA, draftNOMEAWithEntry, tentativeNOMEA, tentativeNOMEAWithEntry]
