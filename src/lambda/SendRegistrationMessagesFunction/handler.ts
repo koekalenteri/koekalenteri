@@ -12,8 +12,8 @@ import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { metricsError, metricsSuccess } from '../utils/metrics'
 import { response } from '../utils/response'
 
-const dynamoDB = new CustomDynamoClient()
-const { emailFrom, eventTable } = CONFIG
+const { eventTable, registrationTable } = CONFIG
+const dynamoDB = new CustomDynamoClient(registrationTable)
 
 const sendMessagesHandler = metricScope((metrics: MetricsLogger) => async (event: APIGatewayProxyEvent) => {
   const origin = getOrigin(event)

@@ -16,9 +16,8 @@ import { metricsError, metricsSuccess } from '../utils/metrics'
 import { response } from '../utils/response'
 import { capitalize, reverseName } from '../utils/string'
 
-const dynamoDB = new CustomDynamoClient()
-
-const { eventTypeTable } = CONFIG
+const { eventTypeTable, judgeTable } = CONFIG
+const dynamoDB = new CustomDynamoClient(judgeTable)
 
 const refreshJudges = async (event: APIGatewayProxyEvent) => {
   const user = await authorize(event)

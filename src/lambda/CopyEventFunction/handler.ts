@@ -13,8 +13,8 @@ import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { metricsError, metricsSuccess } from '../utils/metrics'
 import { response } from '../utils/response'
 
-const dynamoDB = new CustomDynamoClient()
-const { registrationTable } = CONFIG
+const { eventTable, registrationTable } = CONFIG
+const dynamoDB = new CustomDynamoClient(eventTable)
 
 const copyEventWithRegistrations = metricScope(
   (metrics: MetricsLogger) =>

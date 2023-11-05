@@ -18,8 +18,17 @@ Globals:
         STACK_NAME: !Ref AWS::StackName
         STAGE_NAME: !Ref StageNameParam
         AUDIT_TABLE_NAME: !Ref AuditTable
+        DOG_TABLE_NAME: !Ref DogTable
+        EMAIL_TEMPLATE_TABLE_NAME: !Ref EmailTemplatesTable
+        EVENT_TABLE_NAME: !Ref EventTable
+        EVENT_TYPE_TABLE_NAME: !Ref EventTypeTable
+        JUDGE_TABLE_NAME: !Ref JudgeTable
+        OFFICIAL_TABLE_NAME: !Ref OfficialTable
+        ORGANIZER_TABLE_NAME: !Ref OrganizerTable
+        REGISTRATION_TABLE_NAME: !Ref EventRegistrationTable
+        TRANSACTION_TABLE_NAME: !Ref TransactionTable
+        USER_LINK_TABLE_NAME: !Ref UserLinkTable
         USER_TABLE_NAME: !Ref UserTable
-        USER_LINK_TABLE_NAME : !Ref UserLinkTable
   Api:
     Auth:
       UsagePlan:
@@ -466,9 +475,6 @@ Resources:
         - DynamoDBReadPolicy:
             TableName: !Ref EventTable
         - CloudWatchPutMetricPolicy: {}
-      Environment:
-        Variables:
-          TABLE_NAME: !Ref EventTable
       Events:
         GetEvents:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
@@ -496,9 +502,6 @@ Resources:
         - DynamoDBReadPolicy:
             TableName: !Ref EventTable
         - CloudWatchPutMetricPolicy: {}
-      Environment:
-        Variables:
-          TABLE_NAME: !Ref EventTable
       Events:
         GetEvent:
           Type: Api
@@ -532,9 +535,6 @@ Resources:
         - DynamoDBCrudPolicy:
             TableName: !Ref AuditTable
         - CloudWatchPutMetricPolicy: {}
-      Environment:
-        Variables:
-          TABLE_NAME: !Ref EventTable
       Events:
         PutEvent:
           Type: Api
@@ -572,10 +572,6 @@ Resources:
         - DynamoDBCrudPolicy:
             TableName: !Ref AuditTable
         - CloudWatchPutMetricPolicy: {}
-      Environment:
-        Variables:
-          TABLE_NAME: !Ref EventTable
-          REGISTRATION_TABLE_NAME: !Ref EventRegistrationTable
       Events:
         CopyEvent:
           Type: Api
@@ -607,10 +603,6 @@ Resources:
         - DynamoDBCrudPolicy:
             TableName: !Ref EventRegistrationTable
         - CloudWatchPutMetricPolicy: {}
-      Environment:
-        Variables:
-          TABLE_NAME: !Ref EventTable
-          REGISTRATION_TABLE_NAME: !Ref EventRegistrationTable
       Events:
         DemoEvents:
           Type: Api
@@ -646,10 +638,6 @@ Resources:
         - DynamoDBReadPolicy:
             TableName: !Ref AuditTable
         - CloudWatchPutMetricPolicy: {}
-      Environment:
-        Variables:
-          TABLE_NAME: !Ref EventRegistrationTable
-          EVENT_TABLE_NAME : !Ref EventTable
       Events:
         GetRegistration:
           Type: Api
@@ -687,10 +675,6 @@ Resources:
         - DynamoDBReadPolicy:
             TableName: !Ref AuditTable
         - CloudWatchPutMetricPolicy: {}
-      Environment:
-        Variables:
-          TABLE_NAME: !Ref EventRegistrationTable
-          EVENT_TABLE_NAME : !Ref EventTable
       Events:
         GetRegistrationAuditTrail:
           Type: Api
@@ -720,9 +704,6 @@ Resources:
         - DynamoDBCrudPolicy:
             TableName: !Ref EventRegistrationTable
         - CloudWatchPutMetricPolicy: {}
-      Environment:
-        Variables:
-          TABLE_NAME: !Ref EventRegistrationTable
       Events:
         GetEvent:
           Type: Api
@@ -760,10 +741,6 @@ Resources:
               Action:
               - ses:sendTemplatedEmail
               Resource: '*'
-      Environment:
-        Variables:
-          TABLE_NAME: !Ref EventRegistrationTable
-          EVENT_TABLE_NAME : !Ref EventTable
       Events:
         PutRegistration:
           Type: Api
@@ -805,10 +782,6 @@ Resources:
               - ses:sendTemplatedEmail
               Resource: '*'
         - CloudWatchPutMetricPolicy: {}
-      Environment:
-        Variables:
-          TABLE_NAME: !Ref EventRegistrationTable
-          EVENT_TABLE_NAME : !Ref EventTable
       Events:
         PutRegistrationGroups:
           Type: Api
@@ -853,10 +826,6 @@ Resources:
         - DynamoDBCrudPolicy:
             TableName: !Ref AuditTable
         - CloudWatchPutMetricPolicy: {}
-      Environment:
-        Variables:
-          TABLE_NAME: !Ref JudgeTable
-          EVENT_TYPE_TABLE_NAME : !Ref EventTypeTable
       Events:
         GetJudges:
           Type: Api
@@ -892,9 +861,6 @@ Resources:
         - DynamoDBCrudPolicy:
             TableName: !Ref AuditTable
         - CloudWatchPutMetricPolicy: {}
-      Environment:
-        Variables:
-          TABLE_NAME: !Ref JudgeTable
       Events:
         PutJudge:
           Type: Api
@@ -939,10 +905,6 @@ Resources:
         - DynamoDBCrudPolicy:
             TableName: !Ref AuditTable
         - CloudWatchPutMetricPolicy: {}
-      Environment:
-        Variables:
-          TABLE_NAME: !Ref OfficialTable
-          EVENT_TYPE_TABLE_NAME : !Ref EventTypeTable
       Events:
         GetOfficials:
           Type: Api
@@ -985,9 +947,6 @@ Resources:
         - DynamoDBCrudPolicy:
             TableName: !Ref AuditTable
         - CloudWatchPutMetricPolicy: {}
-      Environment:
-        Variables:
-          TABLE_NAME: !Ref OrganizerTable
       Events:
         GetOrganizers:
           Type: Api
@@ -1030,9 +989,6 @@ Resources:
         - DynamoDBCrudPolicy:
             TableName: !Ref AuditTable
         - CloudWatchPutMetricPolicy: {}
-      Environment:
-        Variables:
-          TABLE_NAME: !Ref OrganizerTable
       Events:
         PutOrganizer:
           Type: Api
@@ -1069,9 +1025,6 @@ Resources:
         - CloudWatchPutMetricPolicy: {}
         - DynamoDBCrudPolicy:
             TableName: !Ref DogTable
-      Environment:
-        Variables:
-          TABLE_NAME: !Ref DogTable
       Events:
         GetDog:
           Type: Api
@@ -1112,9 +1065,6 @@ Resources:
             TableName: !Ref UserLinkTable
         - DynamoDBCrudPolicy:
             TableName: !Ref AuditTable
-      Environment:
-        Variables:
-          TABLE_NAME: !Ref EventTypeTable
       Events:
         GetEventTypes:
           Type: Api
@@ -1154,11 +1104,6 @@ Resources:
         - DynamoDBCrudPolicy:
             TableName: !Ref AuditTable
         - CloudWatchPutMetricPolicy: {}
-      Environment:
-        Variables:
-          TABLE_NAME: !Ref EventTypeTable
-          JUDGE_TABLE_NAME: !Ref JudgeTable
-          OFFICIAL_TABLE_NAME: !Ref OfficialTable
       Events:
         PutEventType:
           Type: Api
@@ -1192,9 +1137,6 @@ Resources:
         - DynamoDBReadPolicy:
             TableName: !Ref UserLinkTable
         - CloudWatchPutMetricPolicy: {}
-      Environment:
-        Variables:
-          TABLE_NAME: !Ref EmailTemplatesTable
       Events:
         GetEmailTemplates:
           Type: Api
@@ -1238,9 +1180,6 @@ Resources:
               - ses:createTemplate
               - ses:updateTemplate
               Resource: '*'
-      Environment:
-        Variables:
-          TABLE_NAME: !Ref EmailTemplatesTable
       Events:
         PutEmailTemplate:
           Type: Api
@@ -1284,10 +1223,6 @@ Resources:
               Action:
               - ses:sendTemplatedEmail
               Resource: '*'
-      Environment:
-        Variables:
-          TABLE_NAME: !Ref EventRegistrationTable
-          EVENT_TABLE_NAME : !Ref EventTable
       Events:
         PutEmailTemplate:
           Type: Api
@@ -1391,9 +1326,6 @@ Resources:
             Action:
             - ses:sendTemplatedEmail
             Resource: '*'
-      Environment:
-        Variables:
-          ORGANIZER_TABLE_NAME: !Ref OrganizerTable
       Events:
         GetUser:
           Type: Api
@@ -1435,9 +1367,6 @@ Resources:
             Action:
             - ses:sendTemplatedEmail
             Resource: '*'
-      Environment:
-        Variables:
-          ORGANIZER_TABLE_NAME: !Ref OrganizerTable
       Events:
         GetUser:
           Type: Api
@@ -1502,10 +1431,6 @@ Resources:
         - DynamoDBReadPolicy:
             TableName: !Ref EventTable
         - CloudWatchPutMetricPolicy: {}
-      Environment:
-        Variables:
-          TABLE_NAME: !Ref EventRegistrationTable
-          EVENT_TABLE_NAME : !Ref EventTable
       Events:
         GetRegistration:
           Type: Api
@@ -1544,7 +1469,6 @@ Resources:
       Environment:
         Variables:
           BUCKET: !Ref EventAttachmentBucket
-          TABLE_NAME: !Ref EventTable
       Events:
         Put:
           Type: Api
@@ -1623,13 +1547,6 @@ Resources:
         - DynamoDBReadPolicy:
             TableName: !Ref EventTable
         - CloudWatchPutMetricPolicy: {}
-      Environment:
-        Variables:
-          TABLE_NAME: !Ref TransactionTable
-          REGISTRATION_TABLE_NAME: !Ref EventRegistrationTable
-          EVENT_TABLE_NAME : !Ref EventTable
-          ORGANIZER_TABLE_NAME : !Ref OrganizerTable
-          AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
       Events:
         PutEvent:
           Type: Api
@@ -1670,13 +1587,6 @@ Resources:
         - DynamoDBReadPolicy:
             TableName: !Ref EventTable
         - CloudWatchPutMetricPolicy: {}
-      Environment:
-        Variables:
-          TABLE_NAME: !Ref TransactionTable
-          REGISTRATION_TABLE_NAME: !Ref EventRegistrationTable
-          EVENT_TABLE_NAME : !Ref EventTable
-          ORGANIZER_TABLE_NAME : !Ref OrganizerTable
-          AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
       Events:
         PutEvent:
           Type: Api
@@ -1717,13 +1627,6 @@ Resources:
         - DynamoDBReadPolicy:
             TableName: !Ref EventTable
         - CloudWatchPutMetricPolicy: {}
-      Environment:
-        Variables:
-          TABLE_NAME: !Ref TransactionTable
-          REGISTRATION_TABLE_NAME: !Ref EventRegistrationTable
-          EVENT_TABLE_NAME : !Ref EventTable
-          ORGANIZER_TABLE_NAME : !Ref OrganizerTable
-          AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
       Events:
         PutEvent:
           Type: Api
@@ -1764,13 +1667,6 @@ Resources:
         - DynamoDBReadPolicy:
             TableName: !Ref EventTable
         - CloudWatchPutMetricPolicy: {}
-      Environment:
-        Variables:
-          TABLE_NAME: !Ref TransactionTable
-          REGISTRATION_TABLE_NAME: !Ref EventRegistrationTable
-          EVENT_TABLE_NAME : !Ref EventTable
-          ORGANIZER_TABLE_NAME : !Ref OrganizerTable
-          AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
       Events:
         PutEvent:
           Type: Api

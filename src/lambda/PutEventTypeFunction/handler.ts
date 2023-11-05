@@ -12,8 +12,8 @@ import { createDbRecord } from '../utils/genericHandlers'
 import { metricsError, metricsSuccess } from '../utils/metrics'
 import { response } from '../utils/response'
 
-const { judgeTable, officialTable } = CONFIG
-const dynamoDB = new CustomDynamoClient()
+const { eventTypeTable, judgeTable, officialTable } = CONFIG
+const dynamoDB = new CustomDynamoClient(eventTypeTable)
 
 const putEventTypeHandler = metricScope(
   (metrics: MetricsLogger) =>

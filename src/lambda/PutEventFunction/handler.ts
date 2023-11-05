@@ -6,12 +6,13 @@ import type { JsonConfirmedEvent } from '../../types'
 import { metricScope } from 'aws-embedded-metrics'
 import { nanoid } from 'nanoid'
 
+import { CONFIG } from '../config'
 import { authorize } from '../utils/auth'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { metricsError, metricsSuccess } from '../utils/metrics'
 import { response } from '../utils/response'
 
-const dynamoDB = new CustomDynamoClient()
+const dynamoDB = new CustomDynamoClient(CONFIG.eventTable)
 
 const putEventHandler = metricScope(
   (metrics: MetricsLogger) =>

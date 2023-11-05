@@ -13,8 +13,8 @@ import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { metricsError, metricsSuccess } from '../utils/metrics'
 import { response } from '../utils/response'
 
-const dynamoDB = new CustomDynamoClient()
-const { eventTable } = CONFIG
+const { eventTable, registrationTable } = CONFIG
+const dynamoDB = new CustomDynamoClient(registrationTable)
 
 const groupKey = <T extends JsonRegistration>(reg: T) => {
   if (reg.cancelled) {

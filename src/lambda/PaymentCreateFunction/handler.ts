@@ -14,8 +14,8 @@ import { getApiHost } from '../utils/event'
 import { metricsError, metricsSuccess } from '../utils/metrics'
 import { response } from '../utils/response'
 
-const dynamoDB = new CustomDynamoClient()
-const { eventTable, organizerTable, registrationTable } = CONFIG
+const { eventTable, organizerTable, registrationTable, transactionTable } = CONFIG
+const dynamoDB = new CustomDynamoClient(transactionTable)
 
 const registrationCost = (event: JsonConfirmedEvent, registration: JsonRegistration): number => {
   const isMember = registration.handler?.membership || registration.owner?.membership

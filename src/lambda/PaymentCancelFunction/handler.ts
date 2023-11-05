@@ -12,8 +12,8 @@ import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { metricsError, metricsSuccess } from '../utils/metrics'
 import { response } from '../utils/response'
 
-const dynamoDB = new CustomDynamoClient()
-const { eventTable, organizerTable, registrationTable } = CONFIG
+const { registrationTable, transactionTable } = CONFIG
+const dynamoDB = new CustomDynamoClient(transactionTable)
 
 /**
  * cancelHandler is called by payment provider, to update cancelled payment status

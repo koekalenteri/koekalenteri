@@ -5,12 +5,13 @@ import type { JsonRegistration } from '../../types'
 
 import { metricScope } from 'aws-embedded-metrics'
 
+import { CONFIG } from '../config'
 import { fixRegistrationGroups } from '../lib/event'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { metricsError, metricsSuccess } from '../utils/metrics'
 import { response } from '../utils/response'
 
-const dynamoDB = new CustomDynamoClient()
+const dynamoDB = new CustomDynamoClient(CONFIG.registrationTable)
 
 const getRegistrationsHandler = metricScope(
   (metrics: MetricsLogger) =>

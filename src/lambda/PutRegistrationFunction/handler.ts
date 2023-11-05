@@ -18,8 +18,8 @@ import { metricsError, metricsSuccess } from '../utils/metrics'
 import { emailTo, registrationEmailTemplateData } from '../utils/registration'
 import { response } from '../utils/response'
 
-const dynamoDB = new CustomDynamoClient()
-const { emailFrom, eventTable } = CONFIG
+const { emailFrom, eventTable, registrationTable } = CONFIG
+const dynamoDB = new CustomDynamoClient(registrationTable)
 
 const putRegistrationHandler = metricScope(
   (metrics: MetricsLogger) =>

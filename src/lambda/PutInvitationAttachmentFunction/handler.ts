@@ -13,8 +13,8 @@ import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { metricsError, metricsSuccess } from '../utils/metrics'
 import { response } from '../utils/response'
 
-const dynamoDB = new CustomDynamoClient()
 const { eventTable } = CONFIG
+const dynamoDB = new CustomDynamoClient(eventTable)
 
 const putInvitationAttachmentHandler = metricScope(
   (metrics: MetricsLogger) =>
@@ -59,8 +59,7 @@ const putInvitationAttachmentHandler = metricScope(
           },
           {
             ':attachment': key,
-          },
-          eventTable
+          }
         )
 
         metricsSuccess(metrics, event.requestContext, 'putInvitationAttachment')

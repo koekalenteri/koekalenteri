@@ -5,12 +5,13 @@ import type { PaytrailCallbackParams } from '../types/paytrail'
 
 import { metricScope } from 'aws-embedded-metrics'
 
+import { CONFIG } from '../config'
 import { parseParams, verifyParams } from '../lib/payment'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { metricsError, metricsSuccess } from '../utils/metrics'
 import { response } from '../utils/response'
 
-const dynamoDB = new CustomDynamoClient()
+const dynamoDB = new CustomDynamoClient(CONFIG.transactionTable)
 
 /**
  * vefiryHandler is called by client when returning from payment provider.
