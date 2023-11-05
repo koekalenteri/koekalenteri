@@ -4,6 +4,7 @@ import type { AWSError } from 'aws-sdk'
 import type { JsonRegistration, JsonRegistrationGroupInfo } from '../../types'
 
 import { metricScope } from 'aws-embedded-metrics'
+import { unescape } from 'querystring'
 
 import { CONFIG } from '../config'
 import { updateRegistrations } from '../lib/event'
@@ -99,7 +100,7 @@ const putRegistrationGroupsHandler = metricScope(
           return response(401, 'Unauthorized', event)
         }
         const origin = getOrigin(event)
-        const eventId = event.pathParameters?.eventId ?? ''
+        const eventId = unescape(event.pathParameters?.eventId ?? '')
         const groups: JsonRegistrationGroupInfo[] = JSON.parse(event.body || '[]')
 
         if (!groups) {

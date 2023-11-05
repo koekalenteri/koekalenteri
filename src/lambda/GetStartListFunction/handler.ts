@@ -4,6 +4,7 @@ import type { AWSError } from 'aws-sdk'
 import type { JsonEvent, JsonPublicRegistration, JsonRegistration, JsonRegistrationWithGroup } from '../../types'
 
 import { metricScope } from 'aws-embedded-metrics'
+import { unescape } from 'querystring'
 
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
@@ -17,7 +18,7 @@ const getStartListHandler = metricScope(
   (metrics: MetricsLogger) =>
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
       try {
-        const eventId = event.pathParameters?.eventId
+        const eventId = unescape(event.pathParameters?.eventId ?? '')
         const confirmedEvent = await dynamoDB.read<JsonEvent>({ id: eventId }, eventTable)
         let publicRegs: JsonPublicRegistration[] = []
 

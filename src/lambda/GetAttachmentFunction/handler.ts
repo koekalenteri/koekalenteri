@@ -3,6 +3,7 @@ import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import type { AWSError } from 'aws-sdk'
 
 import { metricScope } from 'aws-embedded-metrics'
+import { unescape } from 'querystring'
 
 import { downloadFile } from '../lib/file'
 import { metricsError, metricsSuccess } from '../utils/metrics'
@@ -12,7 +13,7 @@ const getAttachmentHandler = metricScope(
   (metrics: MetricsLogger) =>
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
       try {
-        const data = await downloadFile(event.pathParameters?.key ?? '')
+        const data = await downloadFile(unescape(event.pathParameters?.key ?? ''))
 
         if (!data.Body) {
           metricsError(metrics, event.requestContext, 'getAttachment')
@@ -27,7 +28,7 @@ const getAttachmentHandler = metricScope(
           headers: {
             'Access-Control-Allow-Origin': allowOrigin(event),
             'Content-Type': 'application/pdf',
-            'Content-Disposition': `attachment; filename="${event.pathParameters?.name ?? 'kutsu.pdf'}"`,
+            'Content-Disposition': `attachment; filename="${unescape(event.pathParameters?.name ?? 'kutsu.pdf')}"`,
           },
         }
       } catch (err) {

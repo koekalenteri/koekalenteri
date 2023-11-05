@@ -5,6 +5,7 @@ import type { JsonConfirmedEvent } from '../../types'
 
 import { metricScope } from 'aws-embedded-metrics'
 import { nanoid } from 'nanoid'
+import { unescape } from 'querystring'
 
 import { CONFIG } from '../config'
 import { deleteFile, parsePostFile, uploadFile } from '../lib/file'
@@ -25,7 +26,7 @@ const putInvitationAttachmentHandler = metricScope(
           return response(401, 'Unauthorized', event)
         }
 
-        const eventId = event.pathParameters?.eventId ?? ''
+        const eventId = unescape(event.pathParameters?.eventId ?? '')
         const existing = await dynamoDB.read<JsonConfirmedEvent>({ id: eventId })
         if (!user.admin && !user.roles?.[existing?.organizer?.id ?? '']) {
           return response(403, 'Forbidden', event)

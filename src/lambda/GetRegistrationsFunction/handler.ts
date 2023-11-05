@@ -4,6 +4,7 @@ import type { AWSError } from 'aws-sdk'
 import type { JsonRegistration } from '../../types'
 
 import { metricScope } from 'aws-embedded-metrics'
+import { unescape } from 'querystring'
 
 import { CONFIG } from '../config'
 import { fixRegistrationGroups } from '../lib/event'
@@ -17,8 +18,9 @@ const getRegistrationsHandler = metricScope(
   (metrics: MetricsLogger) =>
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
       try {
+        const eventId = unescape(event.pathParameters?.eventId ?? '')
         const items = await dynamoDB.query<JsonRegistration>('eventId = :eventId', {
-          ':eventId': event.pathParameters?.eventId,
+          ':eventId': eventId,
         })
         const itemsWithGroups = await fixRegistrationGroups(items ?? [])
         metricsSuccess(metrics, event.requestContext, 'getRegistrations')

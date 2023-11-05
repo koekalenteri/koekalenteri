@@ -4,6 +4,7 @@ import type { AWSError } from 'aws-sdk'
 import type { JsonRegistration } from '../../types'
 
 import { metricScope } from 'aws-embedded-metrics'
+import { unescape } from 'querystring'
 
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
@@ -16,7 +17,16 @@ const getRegistrationHandler = metricScope(
   (metrics: MetricsLogger) =>
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
       try {
-        const item = await dynamoDB.read<JsonRegistration>(event.pathParameters)
+        const eventId = unescape(event.pathParameters?.eventId ?? '')
+        const id = unescape(event.pathParameters?.id ?? '')
+        if (!eventId || !id) {
+          metricsError(metrics, event.requestContext, 'getRegistration')
+          return response(404, 'not found', event)
+        }
+        const item = await dynamoDB.read<JsonRegistration>({
+          eventId,
+          id,
+        })
         if (item) {
           // Make sure not to leak group information to user
           delete item.group
