@@ -8,7 +8,7 @@ import { calculateHmac, HMAC_KEY_PREFIX } from './paytrail'
 import { getPaytrailConfig } from './secrets'
 
 const { transactionTable } = CONFIG
-const dynamoDB = new CustomDynamoClient()
+const dynamoDB = new CustomDynamoClient(transactionTable)
 
 export const parseParams = (headers: Partial<PaytrailCallbackParams>) => {
   const [eventId, registrationId] = headers['checkout-reference']?.split(':') ?? []

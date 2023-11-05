@@ -9,8 +9,8 @@ import { emailTo, registrationEmailTemplateData } from '../utils/registration'
 import { audit, registrationAuditKey } from './audit'
 import { sendTemplatedMail } from './email'
 
-const dynamoDB = new CustomDynamoClient()
-const { emailFrom, eventTable } = CONFIG
+const { emailFrom, registrationTable } = CONFIG
+const dynamoDB = new CustomDynamoClient(registrationTable)
 
 const setLastEmail = async ({ eventId, id }: JsonRegistration, value: string) =>
   dynamoDB.update(

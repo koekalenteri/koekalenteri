@@ -3,8 +3,8 @@ import type { EventClassState, JsonConfirmedEvent, JsonRegistration, JsonRegistr
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
-const dynamoDB = new CustomDynamoClient()
 const { eventTable, registrationTable } = CONFIG
+const dynamoDB = new CustomDynamoClient(eventTable)
 
 export const markParticipants = async (
   confirmedEvent: JsonConfirmedEvent,
