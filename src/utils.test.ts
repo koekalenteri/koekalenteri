@@ -1,4 +1,4 @@
-import type { Event, EventClass } from './types'
+import type { Event, EventClass, EventState } from './types'
 import type { AnyObject } from './utils'
 
 import {
@@ -6,6 +6,7 @@ import {
   hasChanges,
   isDateString,
   isEmpty,
+  isEntryOpen,
   isObject,
   merge,
   parseJSON,
@@ -207,6 +208,25 @@ describe('utils', () => {
       'user@localhost', // no dot in domain part
     ])('should return false for %p', (value) => {
       expect(validEmail(value)).toEqual(false)
+    })
+  })
+
+  describe('isEntryOpen', () => {
+    const now = new Date(1700000000000)
+    const future = new Date(1700000001000)
+    const past = new Date(1699999999999)
+    it.each<EventState>(['draft', 'cancelled', 'tentative'])('should return false for event with state %s', (state) => {
+      expect(
+        isEntryOpen({ startDate: future, endDate: future, entryStartDate: past, entryEndDate: future, state }, now)
+      ).toEqual(false)
+    })
+    it('should return true when entry is open', () => {
+      expect(
+        isEntryOpen(
+          { startDate: future, endDate: future, entryStartDate: past, entryEndDate: future, state: 'confirmed' },
+          now
+        )
+      ).toEqual(true)
     })
   })
 })

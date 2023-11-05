@@ -1,30 +1,37 @@
-import type { DeepPartial, Event, JsonValue, RegistrationDate, RegistrationTime } from './types'
+import type { DeepPartial, Event, EventState, JsonValue, RegistrationDate, RegistrationTime } from './types'
 
 import { eachDayOfInterval, endOfDay, startOfDay, subDays } from 'date-fns'
 import { diff } from 'deep-object-diff'
 import { toASCII } from 'punycode'
 
-type EventDates = {
-  startDate?: Date
-  endDate?: Date
-  entryStartDate?: Date
-  entryEndDate?: Date
-}
+type EventVitals = Pick<Event, 'startDate' | 'endDate' | 'entryStartDate' | 'entryEndDate' | 'state'>
 
-export const isEventUpcoming = ({ startDate }: EventDates, now = new Date()) => !!startDate && startDate > now
+export const isValidForEntry = (state: EventState) => !['draft', 'tentative', 'cancelled'].includes(state)
+export const isEventUpcoming = ({ startDate }: EventVitals, now = new Date()) => !!startDate && startDate > now
 
-export const isEntryUpcoming = ({ entryStartDate }: EventDates, now = new Date()) =>
-  !!entryStartDate && entryStartDate > now
-export const isEntryOpen = ({ entryStartDate, entryEndDate }: EventDates, now = new Date()) =>
-  !!entryStartDate && !!entryEndDate && startOfDay(entryStartDate) <= now && endOfDay(entryEndDate) >= now
-export const isEntryClosing = ({ entryStartDate, entryEndDate }: EventDates, now = new Date()) =>
-  !!entryEndDate && isEntryOpen({ entryStartDate, entryEndDate }, now) && subDays(entryEndDate, 7) <= endOfDay(now)
-export const isEntryClosed = ({ startDate, entryEndDate }: EventDates, now = new Date()) =>
+export const isEntryUpcoming = ({ entryStartDate, state }: EventVitals, now = new Date()) =>
+  !!entryStartDate && entryStartDate > now && isValidForEntry(state)
+
+export const isEntryOpen = ({ entryStartDate, entryEndDate, state }: EventVitals, now = new Date()) =>
+  !!entryStartDate &&
+  !!entryEndDate &&
+  startOfDay(entryStartDate) <= now &&
+  endOfDay(entryEndDate) >= now &&
+  isValidForEntry(state)
+
+export const isEntryClosing = (event: EventVitals, now = new Date()) =>
+  !!event.entryEndDate &&
+  isEntryOpen(event, now) &&
+  subDays(event.entryEndDate, 7) <= endOfDay(now) &&
+  isValidForEntry(event.state)
+
+export const isEntryClosed = ({ startDate, entryEndDate }: EventVitals, now = new Date()) =>
   !!startDate && !!entryEndDate && endOfDay(entryEndDate) < now && startOfDay(startDate) > now
 
-export const isEventOngoing = ({ startDate, endDate }: EventDates, now = new Date()) =>
-  !!startDate && !!endDate && startDate <= now && endDate >= now
-export const isEventOver = ({ startDate }: EventDates, now = new Date()) => !!startDate && startDate < now
+export const isEventOngoing = ({ startDate, endDate, state }: EventVitals, now = new Date()) =>
+  !!startDate && !!endDate && startDate <= now && endDate >= now && isValidForEntry(state) && state !== 'confirmed'
+
+export const isEventOver = ({ startDate }: EventVitals, now = new Date()) => !!startDate && startDate < now
 
 export const eventDates = (event?: Event) => {
   if (!event) return []
