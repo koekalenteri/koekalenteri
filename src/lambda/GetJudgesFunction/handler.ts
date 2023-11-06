@@ -79,7 +79,7 @@ const refreshJudges = async (event: APIGatewayProxyEvent) => {
         await getAndUpdateUserByEmail(judge.email, {
           name: reverseName(judge.name),
           kcId: judge.id,
-          judge: true,
+          judge: judge.eventTypes,
           location: judge.location,
           phone: judge.phone,
         })

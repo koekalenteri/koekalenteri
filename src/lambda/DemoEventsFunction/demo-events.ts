@@ -16,6 +16,14 @@ const monthAway = startOfDay(addMonths(Date.now(), 1)).toISOString()
 const draft: JsonEvent = {
   accountNumber: '',
   classes: [],
+  contactInfo: {
+    secretary: {
+      email: 'secretary@example.com',
+    },
+    official: {
+      email: 'official@example.com',
+    },
+  },
   cost: 50,
   costMember: 40,
   createdAt: timestamp,
@@ -30,10 +38,7 @@ const draft: JsonEvent = {
   modifiedBy: 'cron',
   name: 'DEMO: Luonnos NOME-A +1kk',
   official: {
-    district: 'demo',
-    email: 'vastaava@example.com',
-    eventTypes: ['NOMA-A'],
-    id: 0,
+    id: '0',
     name: 'Demo Koevastaava',
   },
   organizer: {
@@ -44,7 +49,6 @@ const draft: JsonEvent = {
   places: 0,
   referenceNumber: '',
   secretary: {
-    email: 'sihteeri@example.com',
     id: 'demo-sihteeri',
     name: 'Demo Sihteeri',
   },

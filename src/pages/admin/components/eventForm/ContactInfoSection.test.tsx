@@ -1,4 +1,4 @@
-import type { ContactInfo, Official, Secretary } from '../../../../types'
+import type { ContactInfo, User } from '../../../../types'
 
 import { render } from '@testing-library/react'
 
@@ -10,30 +10,29 @@ describe('ContactInfoSection', () => {
   for (let i = 0; i < 64; i++) {
     variants.push({
       official: {
-        name: (i & 0b000001) !== 0,
-        email: (i & 0b000010) !== 0,
-        phone: (i & 0b000100) !== 0,
+        name: (i & 0b000001) !== 0 ? 'Test Official' : '',
+        email: (i & 0b000010) !== 0 ? 'official@example.com' : '',
+        phone: (i & 0b000100) !== 0 ? '+3584012345' : '',
       },
       secretary: {
-        name: (i & 0b001000) !== 0,
-        email: (i & 0b010000) !== 0,
-        phone: (i & 0b100000) !== 0,
+        name: (i & 0b001000) !== 0 ? 'Test Secretary' : '',
+        email: (i & 0b010000) !== 0 ? 'secretary@example.com' : '',
+        phone: (i & 0b100000) !== 0 ? '+3584054321' : '',
       },
     })
   }
 
-  const official: Official = {
-    id: 0,
+  const official: User = {
+    id: '0',
     name: 'Test Official',
     email: 'official@example.com',
     phone: '+3584012345',
     location: "official's place",
-    district: "official's district",
-    eventTypes: ['Type-A', 'Type-B', 'Type-C'],
+    officer: ['Type-A', 'Type-B', 'Type-C'],
   }
 
-  const secretary: Secretary = {
-    id: 0,
+  const secretary: User = {
+    id: '0',
     name: 'Test Secretary',
     email: 'secretary@example.com',
     phone: '+3584054321',

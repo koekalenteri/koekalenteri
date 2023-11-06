@@ -1,12 +1,20 @@
-import type { DeepPartial, Event, EventState, JsonValue, RegistrationDate, RegistrationTime } from './types'
+import type {
+  DeepPartial,
+  Event,
+  EventState,
+  JsonValue,
+  RegistrationDate,
+  RegistrationTime,
+  ShowContactInfo,
+} from './types'
 
 import { eachDayOfInterval, endOfDay, startOfDay, subDays } from 'date-fns'
 import { diff } from 'deep-object-diff'
 import { toASCII } from 'punycode'
 
-type EventVitals = Pick<Event, 'startDate' | 'endDate' | 'entryStartDate' | 'entryEndDate' | 'state'>
+type EventVitals = Partial<Pick<Event, 'startDate' | 'endDate' | 'entryStartDate' | 'entryEndDate' | 'state'>>
 
-export const isValidForEntry = (state: EventState) => !['draft', 'tentative', 'cancelled'].includes(state)
+export const isValidForEntry = (state?: EventState) => !['draft', 'tentative', 'cancelled'].includes(state ?? '')
 export const isEventUpcoming = ({ startDate }: EventVitals, now = new Date()) => !!startDate && startDate > now
 
 export const isEntryUpcoming = ({ entryStartDate, state }: EventVitals, now = new Date()) =>
@@ -131,3 +139,6 @@ export const validEmail = (email: string) => {
 
   return true
 }
+
+export const printContactInfo = (info?: ShowContactInfo) =>
+  [info?.name, info?.phone, info?.email].filter(Boolean).join(', ')

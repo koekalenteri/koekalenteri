@@ -3,6 +3,18 @@ import type { ConfirmedEvent } from '../../types'
 export const emptyEvent: ConfirmedEvent = {
   accountNumber: 'test',
   classes: [{ class: 'ALO' }],
+  contactInfo: {
+    official: {
+      name: 'Teemu Toimitsija',
+      email: 'official@example.com',
+      phone: '040-official',
+    },
+    secretary: {
+      name: 'Siiri Sihteeri',
+      email: 'secretary@example.com',
+      phone: '040-secretary',
+    },
+  },
   cost: 123,
   costMember: 123,
   createdAt: new Date('1989-01-01'),
@@ -21,21 +33,13 @@ export const emptyEvent: ConfirmedEvent = {
   modifiedBy: 'test',
   name: 'test',
   official: {
-    id: 1,
+    id: '1',
     name: 'Teemu Toimitsija',
-    email: 'joo@ei.com',
-    phone: '040-official',
-    location: 'Suomi',
-    district: 'Helsinki',
-    eventTypes: ['test'],
   },
   priority: ['member'],
   secretary: {
-    id: 2,
+    id: '2',
     name: 'Siiri Sihteeri',
-    email: 'ei@joo.com',
-    phone: '040-secretary',
-    location: 'Ruotsi',
   },
   organizer: {
     id: '1',

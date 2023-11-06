@@ -77,7 +77,7 @@ const refreshOfficials = async (event: APIGatewayProxyEvent): Promise<APIGateway
         await getAndUpdateUserByEmail(official.email, {
           name: reverseName(official.name),
           kcId: official.id,
-          officer: true,
+          officer: official.eventTypes,
           location: official.location,
           phone: official.phone,
         })

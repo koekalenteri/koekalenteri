@@ -270,8 +270,8 @@ function useRegistrationEmailTemplateData(registration: Registration, event: Eve
     event: {
       ...event,
       // Friendly name for secretary (and official) (KOE-350)
-      secretary: { ...event.secretary, name: reverseName(event.secretary.name) },
-      official: { ...event.official, name: reverseName(event.official.name) },
+      secretary: { ...event.secretary, name: reverseName(event.secretary?.name ?? '') },
+      official: { ...event.official, name: reverseName(event.official?.name ?? '') },
     },
     eventDate,
     invitationLink,

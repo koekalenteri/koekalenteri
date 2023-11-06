@@ -1,13 +1,18 @@
 import type { DbRecord, JsonDbRecord } from './Database'
 
-export interface Person {
+export interface PublicPerson {
+  id?: number | string
+  name: string
+}
+
+export interface Person extends PublicPerson {
   name: string
   email: string
   phone?: string
   location?: string
 }
 
-export interface OfficialPerson extends Person {
+export interface OfficialPerson extends Omit<Person, 'id'> {
   id: number
 }
 
@@ -35,8 +40,8 @@ export type JsonJudge = Omit<Judge, keyof DbRecord> & Omit<JsonDbRecord, 'id'> &
 export interface User extends Person, Partial<DbRecord> {
   id: string
   kcId?: number
-  judge?: boolean
-  officer?: boolean
+  judge?: string[]
+  officer?: string[]
   roles?: UserRoles
   admin?: boolean
 }

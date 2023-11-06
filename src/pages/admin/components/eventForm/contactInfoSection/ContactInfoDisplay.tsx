@@ -1,17 +1,16 @@
-import type { Person, ShowContactInfo } from '../../../../../types'
+import type { ShowContactInfo } from '../../../../../types'
 
 import { useTranslation } from 'react-i18next'
 import Grid from '@mui/material/Grid'
 
 interface Props {
   readonly contact: 'official' | 'secretary'
-  readonly person?: Partial<Person>
   readonly show?: Partial<ShowContactInfo>
 }
 
-export default function ContactInfoDisplay({ contact, person, show }: Props) {
+export default function ContactInfoDisplay({ contact, show }: Props) {
   const { t } = useTranslation()
-  if (!person || !show || (!show.name && !show.email && !show.phone)) {
+  if (!show?.name && !show?.email && !show?.phone) {
     return null
   }
   return (
@@ -20,13 +19,13 @@ export default function ContactInfoDisplay({ contact, person, show }: Props) {
         <b>{t(`event.${contact}`)}</b>
       </Grid>
       <Grid item xs>
-        {show?.name ? person.name : ''}
+        {show.name}
       </Grid>
       <Grid item xs>
-        {show?.email ? person.email : ''}
+        {show.email}
       </Grid>
       <Grid item xs>
-        {show?.phone ? person.phone : ''}
+        {show.phone}
       </Grid>
     </Grid>
   )

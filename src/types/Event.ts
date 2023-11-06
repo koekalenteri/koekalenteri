@@ -2,12 +2,11 @@ import type {
   DbRecord,
   JsonDbRecord,
   NotOptional,
-  Official,
   PublicOrganizer,
   RegistrationClass,
   Replace,
   ReplaceOptional,
-  Secretary,
+  User,
 } from '.'
 
 export interface JsonEvent extends JsonDbRecord {
@@ -34,8 +33,8 @@ export interface JsonEvent extends JsonDbRecord {
   accountNumber: string
   referenceNumber: string
   judges: Array<number>
-  official: Official
-  secretary: Secretary
+  official: Partial<User>
+  secretary: Partial<User>
   contactInfo?: Partial<ContactInfo>
   invitationAttachment?: string
 }
@@ -83,10 +82,10 @@ export type ContactInfo = {
   secretary: ShowContactInfo
 }
 
-export type ShowContactInfo = {
-  name: boolean
-  email: boolean
-  phone: boolean
+export interface ShowContactInfo {
+  name?: string
+  email?: string
+  phone?: string
 }
 
 export type ConfirmedEvent = Replace<Event, ConfirmedEventRequiredDates, Date> & {

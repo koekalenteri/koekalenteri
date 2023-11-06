@@ -1,14 +1,5 @@
 import type { ChangeEvent, SyntheticEvent } from 'react'
-import type {
-  DeepPartial,
-  EventClass,
-  Official,
-  Organizer,
-  Person,
-  RegistrationClass,
-  Secretary,
-  User,
-} from '../../../../types'
+import type { DeepPartial, EventClass, Organizer, Person, RegistrationClass, User } from '../../../../types'
 import type { DateValue } from '../../../components/DateRange'
 import type { PartialEvent, SectionProps } from '../EventForm'
 
@@ -21,7 +12,6 @@ import { add, differenceInDays, eachDayOfInterval, isAfter, isSameDay, startOfDa
 import { getRuleDate } from '../../../../rules'
 import CollapsibleSection from '../../../components/CollapsibleSection'
 import DateRange from '../../../components/DateRange'
-import { emptyPerson } from '../../../components/RegistrationForm'
 
 import HelpPopover from './basicInfoSection/HelpPopover'
 import EventClasses from './components/EventClasses'
@@ -31,7 +21,7 @@ interface Props extends Readonly<SectionProps> {
   readonly event: PartialEvent
   readonly eventTypes?: string[]
   readonly eventTypeClasses?: Record<string, RegistrationClass[]>
-  readonly officials?: Official[]
+  readonly officials?: User[]
   readonly organizers?: Organizer[]
   readonly secretaries?: User[]
 }
@@ -70,7 +60,9 @@ export default function BasicInfoSection({
     ? t('validation.event.errors')
     : t('validation.event.effectiveRules', { date: new Date(getRuleDate(event.startDate)) })
   const availableOfficials = useMemo(
-    () => officials?.filter((o) => !event.eventType || o.eventTypes?.includes(event.eventType)) ?? [],
+    () =>
+      officials?.filter((o) => !event.eventType || (Array.isArray(o.officer) && o.officer.includes(event.eventType))) ??
+      [],
     [event, officials]
   )
   const hasEntries = (event.entries ?? 0) > 0
@@ -109,17 +101,6 @@ export default function BasicInfoSection({
   const getNameOrEmail = useCallback(
     (o?: string | Partial<Person>) => (typeof o === 'string' ? o : o?.name || o?.email || ''),
     []
-  )
-  const handleSecretaryChange = useCallback(
-    ({ secretary }: { secretary?: Secretary | string }) => {
-      if (typeof secretary === 'string') {
-        const prop = secretary.includes('@') ? 'email' : 'name'
-        onChange?.({ secretary: { ...emptyPerson, [prop]: secretary, id: 0 } })
-      } else {
-        onChange?.({ secretary })
-      }
-    },
-    [onChange]
   )
 
   return (
@@ -244,7 +225,7 @@ export default function BasicInfoSection({
               disabled={disabled}
               event={event}
               fields={fields}
-              getOptionLabel={getName}
+              getOptionLabel={getNameOrEmail}
               id="official"
               isOptionEqualToValue={isEqualId}
               onChange={onChange}
@@ -256,11 +237,10 @@ export default function BasicInfoSection({
               disabled={disabled}
               event={event}
               fields={fields}
-              freeSolo
               getOptionLabel={getNameOrEmail}
               id="secretary"
               isOptionEqualToValue={isEqualId}
-              onChange={handleSecretaryChange}
+              onChange={onChange}
               options={secretaries ?? []}
             />
           </Grid>

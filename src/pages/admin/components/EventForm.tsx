@@ -1,5 +1,5 @@
 import type { Theme } from '@mui/material'
-import type { DeepPartial, Event, EventClass, EventState } from '../../../types'
+import type { DeepPartial, Event, EventState } from '../../../types'
 import type { FieldRequirements } from './eventForm/validation'
 
 import { useCallback, useMemo, useState } from 'react'
@@ -17,7 +17,7 @@ import { useRecoilValue } from 'recoil'
 import { isEventOver, merge } from '../../../utils'
 import AutocompleteSingle from '../../components/AutocompleteSingle'
 import { activeEventTypesSelector, activeJudgesSelector, eventTypeClassesAtom } from '../../recoil'
-import { adminUserOrganizersSelector, adminUsersAtom, officialsAtom } from '../recoil'
+import { adminUserOrganizersSelector, adminUsersAtom } from '../recoil'
 
 import AdditionalInfoSection from './eventForm/AdditionalInfoSection'
 import BasicInfoSection from './eventForm/BasicInfoSection'
@@ -29,10 +29,12 @@ import PaymentSection from './eventForm/PaymentSection'
 import { requiredFields, validateEvent } from './eventForm/validation'
 
 export interface PartialEvent extends DeepPartial<Event> {
-  startDate: Date
-  endDate: Date
-  classes: EventClass[]
-  judges: number[]
+  startDate: Event['startDate']
+  endDate: Event['endDate']
+  classes: Event['classes']
+  judges: Event['judges']
+  official?: Partial<Event['official']>
+  secretary?: Partial<Event['secretary']>
 }
 
 export interface SectionProps {
@@ -63,7 +65,6 @@ export default function EventForm({ event, changes, disabled, onSave, onCancel, 
   const activeEventTypes = useRecoilValue(activeEventTypesSelector)
   const activeJudges = useRecoilValue(activeJudgesSelector)
   const eventTypeClasses = useRecoilValue(eventTypeClassesAtom)
-  const officials = useRecoilValue(officialsAtom)
   const users = useRecoilValue(adminUsersAtom)
   const organizers = useRecoilValue(adminUserOrganizersSelector)
   const [errors, setErrors] = useState(event ? validateEvent(event) : [])
@@ -78,10 +79,13 @@ export default function EventForm({ event, changes, disabled, onSave, onCancel, 
   })
   const valid = errors.length === 0
   const allDisabled = disabled || isEventOver(event)
-  const stateDisabled = allDisabled || !SELECTABLE_EVENT_STATES.includes(event.state)
+  const stateDisabled = allDisabled || !SELECTABLE_EVENT_STATES.includes(event.state ?? 'draft')
   const fields = useMemo(() => requiredFields(event), [event])
-  const orgSecretries = event.organizer?.id ? users.filter((u) => u.roles?.[event.organizer.id]) : []
-  const secretaries = orgSecretries.concat(officials.map((o) => ({ ...o, id: o.id.toString() })))
+  const officials = useMemo(() => users.filter((u) => u.officer), [users])
+  const secretaries = useMemo(
+    () => (event.organizer?.id ? users.filter((u) => u.officer || u.roles?.[event.organizer?.id ?? '']) : officials),
+    [event.organizer?.id, officials, users]
+  )
 
   const handleChange = useCallback(
     (props: DeepPartial<Event>) => {

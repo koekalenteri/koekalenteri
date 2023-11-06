@@ -8,7 +8,7 @@ import TableCell from '@mui/material/TableCell'
 import TableRow from '@mui/material/TableRow'
 
 import useEventStatus from '../../../hooks/useEventStatus'
-import { isEntryOpen } from '../../../utils'
+import { isEntryOpen, printContactInfo } from '../../../utils'
 import CostInfo from '../../components/CostInfo'
 import { PriorityChips } from '../../components/PriorityChips'
 import { useJudgesActions } from '../../recoil'
@@ -99,7 +99,7 @@ export const EventInfo = ({ event }: Props) => {
           <TableCell component="th" scope="row">
             {t('event.official')}:
           </TableCell>
-          <TableCell>{event.official?.name || ''}</TableCell>
+          <TableCell>{printContactInfo(event.contactInfo?.official)}</TableCell>
         </TableRow>
         <TableRow key={event.id + 'payment'}>
           <TableCell component="th" scope="row">

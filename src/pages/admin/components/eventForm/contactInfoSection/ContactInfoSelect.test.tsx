@@ -5,16 +5,20 @@ import { renderWithUserEvents } from '../../../../../test-utils/utils'
 import ContactInfoSelect from './ContactInfoSelect'
 
 describe('PersonContactInfo', () => {
+  const defaults = { name: 'test name', email: 'test email', phone: 'test phone' }
+
   it('should render', () => {
     const changeHandler = jest.fn()
-    const { container } = render(<ContactInfoSelect name="official" onChange={changeHandler} />)
+    const { container } = render(<ContactInfoSelect defaults={defaults} name="official" onChange={changeHandler} />)
     expect(container).toMatchSnapshot()
   })
 
   it('should fire onChange when uncontrolled', async () => {
     const changeHandler = jest.fn()
 
-    const { user } = renderWithUserEvents(<ContactInfoSelect name="uncontrolled" onChange={changeHandler} />)
+    const { user } = renderWithUserEvents(
+      <ContactInfoSelect defaults={defaults} name="uncontrolled" onChange={changeHandler} />
+    )
 
     expect(changeHandler).toHaveBeenCalledTimes(0)
 
@@ -31,49 +35,59 @@ describe('PersonContactInfo', () => {
     expect(emailInput).not.toBeChecked()
     expect(phoneInput).not.toBeChecked()
     expect(changeHandler).toHaveBeenCalledTimes(1)
-    expect(changeHandler).toHaveBeenLastCalledWith('uncontrolled', { email: false, name: true, phone: false })
+    expect(changeHandler).toHaveBeenLastCalledWith('uncontrolled', { email: '', name: defaults.name, phone: '' })
 
     await user.click(emailInput)
     expect(nameInput).toBeChecked()
     expect(emailInput).toBeChecked()
     expect(phoneInput).not.toBeChecked()
     expect(changeHandler).toHaveBeenCalledTimes(2)
-    expect(changeHandler).toHaveBeenLastCalledWith('uncontrolled', { email: true, name: true, phone: false })
+    expect(changeHandler).toHaveBeenLastCalledWith('uncontrolled', {
+      email: defaults.email,
+      name: defaults.name,
+      phone: '',
+    })
 
     await user.click(phoneInput)
     expect(nameInput).toBeChecked()
     expect(emailInput).toBeChecked()
     expect(phoneInput).toBeChecked()
     expect(changeHandler).toHaveBeenCalledTimes(3)
-    expect(changeHandler).toHaveBeenLastCalledWith('uncontrolled', { email: true, name: true, phone: true })
+    expect(changeHandler).toHaveBeenLastCalledWith('uncontrolled', defaults)
 
     await user.click(nameInput)
     expect(nameInput).not.toBeChecked()
     expect(emailInput).toBeChecked()
     expect(phoneInput).toBeChecked()
     expect(changeHandler).toHaveBeenCalledTimes(4)
-    expect(changeHandler).toHaveBeenLastCalledWith('uncontrolled', { email: true, name: false, phone: true })
+    expect(changeHandler).toHaveBeenLastCalledWith('uncontrolled', {
+      email: defaults.email,
+      name: '',
+      phone: defaults.phone,
+    })
 
     await user.click(emailInput)
     expect(nameInput).not.toBeChecked()
     expect(emailInput).not.toBeChecked()
     expect(phoneInput).toBeChecked()
     expect(changeHandler).toHaveBeenCalledTimes(5)
-    expect(changeHandler).toHaveBeenLastCalledWith('uncontrolled', { email: false, name: false, phone: true })
+    expect(changeHandler).toHaveBeenLastCalledWith('uncontrolled', { email: '', name: '', phone: defaults.phone })
 
     await user.click(phoneInput)
     expect(nameInput).not.toBeChecked()
     expect(emailInput).not.toBeChecked()
     expect(phoneInput).not.toBeChecked()
     expect(changeHandler).toHaveBeenCalledTimes(6)
-    expect(changeHandler).toHaveBeenLastCalledWith('uncontrolled', { email: false, name: false, phone: false })
+    expect(changeHandler).toHaveBeenLastCalledWith('uncontrolled', { email: '', name: '', phone: '' })
   })
 
   it('should fire onChange when controlled', async () => {
     const state = {}
     const changeHandler = jest.fn((props) => Object.assign(state, props))
 
-    const { user } = renderWithUserEvents(<ContactInfoSelect name="controlled" show={state} onChange={changeHandler} />)
+    const { user } = renderWithUserEvents(
+      <ContactInfoSelect defaults={defaults} name="controlled" show={state} onChange={changeHandler} />
+    )
 
     expect(changeHandler).toHaveBeenCalledTimes(0)
 
@@ -90,41 +104,49 @@ describe('PersonContactInfo', () => {
     expect(emailInput).not.toBeChecked()
     expect(phoneInput).not.toBeChecked()
     expect(changeHandler).toHaveBeenCalledTimes(1)
-    expect(changeHandler).toHaveBeenLastCalledWith('controlled', { email: false, name: true, phone: false })
+    expect(changeHandler).toHaveBeenLastCalledWith('controlled', { email: '', name: defaults.name, phone: '' })
 
     await user.click(emailInput)
     expect(nameInput).toBeChecked()
     expect(emailInput).toBeChecked()
     expect(phoneInput).not.toBeChecked()
     expect(changeHandler).toHaveBeenCalledTimes(2)
-    expect(changeHandler).toHaveBeenLastCalledWith('controlled', { email: true, name: true, phone: false })
+    expect(changeHandler).toHaveBeenLastCalledWith('controlled', {
+      email: defaults.email,
+      name: defaults.name,
+      phone: '',
+    })
 
     await user.click(phoneInput)
     expect(nameInput).toBeChecked()
     expect(emailInput).toBeChecked()
     expect(phoneInput).toBeChecked()
     expect(changeHandler).toHaveBeenCalledTimes(3)
-    expect(changeHandler).toHaveBeenLastCalledWith('controlled', { email: true, name: true, phone: true })
+    expect(changeHandler).toHaveBeenLastCalledWith('controlled', defaults)
 
     await user.click(nameInput)
     expect(nameInput).not.toBeChecked()
     expect(emailInput).toBeChecked()
     expect(phoneInput).toBeChecked()
     expect(changeHandler).toHaveBeenCalledTimes(4)
-    expect(changeHandler).toHaveBeenLastCalledWith('controlled', { email: true, name: false, phone: true })
+    expect(changeHandler).toHaveBeenLastCalledWith('controlled', {
+      email: defaults.email,
+      name: '',
+      phone: defaults.phone,
+    })
 
     await user.click(emailInput)
     expect(nameInput).not.toBeChecked()
     expect(emailInput).not.toBeChecked()
     expect(phoneInput).toBeChecked()
     expect(changeHandler).toHaveBeenCalledTimes(5)
-    expect(changeHandler).toHaveBeenLastCalledWith('controlled', { email: false, name: false, phone: true })
+    expect(changeHandler).toHaveBeenLastCalledWith('controlled', { email: '', name: '', phone: defaults.phone })
 
     await user.click(phoneInput)
     expect(nameInput).not.toBeChecked()
     expect(emailInput).not.toBeChecked()
     expect(phoneInput).not.toBeChecked()
     expect(changeHandler).toHaveBeenCalledTimes(6)
-    expect(changeHandler).toHaveBeenLastCalledWith('controlled', { email: false, name: false, phone: false })
+    expect(changeHandler).toHaveBeenLastCalledWith('controlled', { email: '', name: '', phone: '' })
   })
 })

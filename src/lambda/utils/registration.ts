@@ -38,8 +38,8 @@ export function registrationEmailTemplateData(
     : ''
 
   // Friendly name for secretary (and official) (KOE-350)
-  confirmedEvent.secretary.name = reverseName(confirmedEvent.secretary.name)
-  confirmedEvent.official.name = reverseName(confirmedEvent.official.name)
+  confirmedEvent.secretary.name = reverseName(confirmedEvent.secretary?.name ?? '')
+  confirmedEvent.official.name = reverseName(confirmedEvent.official?.name ?? '')
 
   return {
     subject: t('registration.email.subject', '', { context }),
