@@ -7,6 +7,7 @@ import {
   isDateString,
   isEmpty,
   isEntryOpen,
+  isEventOngoing,
   isObject,
   merge,
   parseJSON,
@@ -228,5 +229,25 @@ describe('utils', () => {
         )
       ).toEqual(true)
     })
+  })
+
+  describe('isEventOngoing', () => {
+    const future = new Date('2022-01-16')
+    const now = new Date('2022-01-15')
+    const past = new Date('2022-01-14')
+    it.each`
+      startDate | endDate   | state                  | expected
+      ${past}   | ${future} | ${'confirmed_started'} | ${true}
+      ${past}   | ${past}   | ${'confirmed_started'} | ${false}
+      ${future} | ${future} | ${'confirmed_started'} | ${false}
+      ${now}    | ${future} | ${'confirmed_started'} | ${true}
+      ${past}   | ${now}    | ${'confirmed_started'} | ${true}
+      ${now}    | ${now}    | ${'confirmed_started'} | ${true}
+    `(
+      `when startDate=$startDate.toISOString, time=${now.toISOString()}, endDate=$endDate.toISOString and state='$state', it should return $expected`,
+      ({ startDate, endDate, expected, state }) => {
+        expect(isEventOngoing({ startDate, endDate, state }, now)).toBe(expected)
+      }
+    )
   })
 })

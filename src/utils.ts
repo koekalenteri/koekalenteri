@@ -37,9 +37,14 @@ export const isEntryClosed = ({ startDate, entryEndDate }: EventVitals, now = ne
   !!startDate && !!entryEndDate && endOfDay(entryEndDate) < now && startOfDay(startDate) > now
 
 export const isEventOngoing = ({ startDate, endDate, state }: EventVitals, now = new Date()) =>
-  !!startDate && !!endDate && startDate <= now && endDate >= now && isValidForEntry(state) && state !== 'confirmed'
+  !!startDate &&
+  !!endDate &&
+  startOfDay(startDate) <= now &&
+  endOfDay(endDate) >= now &&
+  isValidForEntry(state) &&
+  state !== 'confirmed'
 
-export const isEventOver = ({ startDate }: EventVitals, now = new Date()) => !!startDate && startDate < now
+export const isEventOver = ({ endDate }: EventVitals, now = new Date()) => !!endDate && endOfDay(endDate) < now
 
 export const eventDates = (event?: Event) => {
   if (!event) return []
