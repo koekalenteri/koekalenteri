@@ -39,7 +39,7 @@ export function CancelDialog({ disabled, event, onCancel, onClose, open, registr
             ? t('registration.cancelDialog.lateText', {
                 registration,
                 event,
-                contact: event.contactInfo?.secretary?.phone || event.contactInfo?.secretary?.email,
+                contact: event.contactInfo?.secretary?.phone ?? event.contactInfo?.secretary?.email,
               })
             : t('registration.cancelDialog.text', { registration, event })}
         </DialogContentText>

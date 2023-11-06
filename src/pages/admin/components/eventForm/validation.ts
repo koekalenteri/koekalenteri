@@ -66,7 +66,7 @@ const REQUIRED_BY_STATE: Record<EventState, EventFlags> = {
   completed: {},
 }
 
-const contactInfoShown = (contact?: Partial<ShowContactInfo>) => Boolean(contact?.email || contact?.phone)
+const contactInfoShown = (contact?: Partial<ShowContactInfo>) => !!contact?.email || !!contact?.phone
 
 const getMinJudgeCount = (event: PartialEvent) => {
   if (event.eventType === 'NOWT' || event.eventType === 'NOME-A') {

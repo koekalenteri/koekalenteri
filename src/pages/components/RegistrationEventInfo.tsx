@@ -60,7 +60,7 @@ export default function RegistrationEventInfo({ event }: Props) {
               {t('event.official')}:
             </Grid>
             <Grid item xs={8}>
-              {event.official?.name || ''}
+              {event.official?.name ?? ''}
             </Grid>
           </Grid>
           <Grid item container sm={12} md columnSpacing={1}>
