@@ -2,8 +2,7 @@ export const CONFIG = {
   stackName: process.env.AWS_SAM_LOCAL ? 'local' : process.env.STACK_NAME ?? 'local',
   stageName: process.env.STAGE_NAME ?? '',
 
-  // TODO: sender address from env / other config
-  emailFrom: 'koekalenteri@koekalenteri.snj.fi',
+  emailFrom: process.env.EMAIL_FROM ?? 'koekalenteri@koekalenteri.snj.fi',
   fileBucket: process.env.BUCKET ?? 'bucket-not-found-in-env',
 
   // TABLES
