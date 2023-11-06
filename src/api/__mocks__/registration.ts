@@ -76,7 +76,7 @@ export async function getRegistration(
   return new Promise((resolve, reject) => {
     const registration = (mockRegistrations[eventId] || []).find((item) => item.id === id)
     if (!registration) {
-      reject()
+      reject(new Error('not found'))
     } else {
       process.nextTick(() => resolve(registration))
     }
@@ -116,7 +116,7 @@ export async function getStartList(eventId: string, token?: string, signal?: Abo
   return new Promise((resolve, reject) => {
     const registrations = mockRegistrations[eventId]?.filter((r) => Boolean(r.group?.date))
     if (!registrations?.length) {
-      reject()
+      reject(new Error('not found'))
     } else {
       process.nextTick(() => resolve(registrations))
     }

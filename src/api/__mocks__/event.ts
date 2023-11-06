@@ -47,7 +47,7 @@ export async function getEvents(signal?: AbortSignal): Promise<Event[]> {
 export async function getEvent(id: string, signal?: AbortSignal): Promise<Event> {
   return new Promise((resolve, reject) => {
     const event = mockEvents.find((item) => item.id === id)
-    process.nextTick(() => (event ? resolve(event) : reject()))
+    process.nextTick(() => (event ? resolve(event) : reject(new Error('not found'))))
   })
 }
 
@@ -65,6 +65,6 @@ export async function putEvent(event: Event, token?: string, signal?: AbortSigna
         existing.modifiedBy = 'mock'
       }
     }
-    process.nextTick(() => (existing ? resolve(existing) : reject()))
+    process.nextTick(() => (existing ? resolve(existing) : reject(new Error('not found'))))
   })
 }
