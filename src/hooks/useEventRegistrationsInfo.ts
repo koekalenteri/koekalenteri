@@ -2,7 +2,7 @@ import type { Event, EventState, Registration } from '../types'
 
 import { useMemo } from 'react'
 
-import { classPlaces, eventDates, uniqueClasses } from '../utils'
+import { eventDates, placesForClass, uniqueClasses } from '../utils'
 
 interface EventClassInfoNumbers {
   places: number
@@ -40,7 +40,7 @@ export default function useEventRegistrationInfo(event: Event | undefined, regis
   const numbersByClass = useMemo(() => {
     const result: { [key: string]: EventClassInfoNumbers } = {}
     for (const c of eventClasses) {
-      const places = classPlaces(event, c) || event?.places || 0
+      const places = placesForClass(event, c)
       const classRegs = registrations.filter((r) => (r.class ?? r.eventType) === c)
       const regs = classRegs.filter((r) => r.group && !r.cancelled && r.group.key !== 'reserve').length
       const reserve = classRegs.filter((r) => !r.cancelled && (!r.group || r.group.key === 'reserve')).length

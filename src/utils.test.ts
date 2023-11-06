@@ -11,6 +11,7 @@ import {
   isObject,
   merge,
   parseJSON,
+  placesForClass,
   registrationDates,
   validEmail,
 } from './utils'
@@ -247,6 +248,55 @@ describe('utils', () => {
       `when startDate=$startDate.toISOString, time=${now.toISOString()}, endDate=$endDate.toISOString and state='$state', it should return $expected`,
       ({ startDate, endDate, expected, state }) => {
         expect(isEventOngoing({ startDate, endDate, state }, now)).toBe(expected)
+      }
+    )
+  })
+
+  describe('placesForCalss', () => {
+    it.each`
+      event
+      ${null}
+      ${undefined}
+      ${{}}
+    `('should return 0 when event is $event', ({ event }) => {
+      expect(placesForClass(event, 'ALO')).toEqual(0)
+    })
+
+    it.each`
+      event                  | expected
+      ${{ places: 5 }}       | ${5}
+      ${{ places: 123 }}     | ${123}
+      ${{ places: null }}    | ${0}
+      ${{ places: 'kissa' }} | ${0}
+    `('should return 0 when event is $event', ({ event, expected }) => {
+      expect(placesForClass(event, 'ALO')).toEqual(expected)
+    })
+
+    it.each`
+      event                  | expected
+      ${{ places: 0 }}       | ${0}
+      ${{ places: null }}    | ${0}
+      ${{ places: 'kissa' }} | ${0}
+      ${{ places: 123 }}     | ${123}
+    `('should return $expected when event is $event', ({ event, expected }) => {
+      expect(placesForClass(event, 'ALO')).toEqual(expected)
+    })
+
+    it.each`
+      places | classes                                                                                       | cls      | expected
+      ${3}   | ${null}                                                                                       | ${'ALO'} | ${3}
+      ${5}   | ${[{ class: 'ALO', places: 'kissa' }]}                                                        | ${'ALO'} | ${5}
+      ${0}   | ${[{ class: 'ALO', places: 50 }]}                                                             | ${'ALO'} | ${50}
+      ${20}  | ${[{ class: 'ALO', places: 50 }, { class: 'ALO', places: 20 }]}                               | ${'ALO'} | ${70}
+      ${10}  | ${[{ class: 'ALO', places: 50 }]}                                                             | ${'AVO'} | ${10}
+      ${10}  | ${[{ class: 'ALO', places: 11 }, { class: 'AVO', places: 12 }, { class: 'VOI', places: 13 }]} | ${'ALO'} | ${11}
+      ${10}  | ${[{ class: 'ALO', places: 11 }, { class: 'AVO', places: 12 }, { class: 'VOI', places: 13 }]} | ${'AVO'} | ${12}
+      ${10}  | ${[{ class: 'ALO', places: 11 }, { class: 'AVO', places: 12 }, { class: 'VOI', places: 13 }]} | ${'VOI'} | ${13}
+      ${10}  | ${[{ class: 'ALO', places: 11 }, { class: 'AVO', places: 12 }, { class: 'VOI', places: 13 }]} | ${'HUI'} | ${10}
+    `(
+      'should return $expected for class $cls when places is $places and $classes is $classes',
+      ({ places, classes, cls, expected }) => {
+        expect(placesForClass({ places, classes }, cls)).toEqual(expected)
       }
     )
   })

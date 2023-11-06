@@ -15,6 +15,7 @@ import { toASCII } from 'punycode'
 type EventVitals = Partial<Pick<Event, 'startDate' | 'endDate' | 'entryStartDate' | 'entryEndDate' | 'state'>>
 
 export const isValidForEntry = (state?: EventState) => !['draft', 'tentative', 'cancelled'].includes(state ?? '')
+
 export const isEventUpcoming = ({ startDate }: EventVitals, now = new Date()) => !!startDate && startDate > now
 
 export const isEntryUpcoming = ({ entryStartDate, state }: EventVitals, now = new Date()) =>
@@ -54,20 +55,34 @@ export const eventDates = (event?: Event) => {
 }
 
 export const uniqueClasses = (event?: Event) => unique((event?.classes ?? []).map((c) => c.class))
-export const classPlaces = (event: Event | undefined, cls: string) =>
-  (event?.classes ?? []).filter((c) => c.class === cls).reduce((acc, cur) => acc + (cur.places ?? 0), 0)
+
+export const placesForClass = (event: DeepPartial<Pick<Event, 'places' | 'classes'>> | undefined, cls: string) => {
+  if (!event) {
+    return 0
+  }
+
+  return (
+    (event.classes ?? []).filter((c) => c.class === cls).reduce((acc, cur) => acc + (Number(cur.places) || 0), 0) ||
+    Number(event.places) ||
+    0
+  )
+}
+
 export const uniqueClassDates = (event: Event, cls: string) =>
   cls === event.eventType
     ? eventDates(event)
     : uniqueDate(event.classes.filter((c) => c.class === cls).map((c) => c.date ?? event.startDate))
+
 export const registrationDates = (event: Event, times: RegistrationTime[], cls?: string) =>
   (cls ? uniqueClassDates(event, cls) : eventDates(event)).flatMap<RegistrationDate>((date) =>
     times.map((time) => ({ date, time }))
   )
 
 export const unique = <T = string>(arr: T[]): T[] => arr.filter((c, i, a) => a.indexOf(c) === i)
+
 export const uniqueFn = <T>(arr: T[], cmp: (a: T, b: T) => boolean): T[] =>
   arr.filter((c, i, a) => a.findIndex((f) => cmp(f, c)) === i)
+
 export const uniqueDate = (arr: Date[]) => [...new Set<number>(arr.map((d) => d.valueOf()))].map((v) => new Date(v))
 
 const DATE_RE = /^\d{4}-(?:0[1-9]|1[0-2])-(?:[0-2][1-9]|[1-3]0|3[01])$/
@@ -100,12 +115,17 @@ export type Entries<T> = {
 }[keyof T][]
 
 export const isEmpty = (o: AnyObject): o is EmptyObject => Object.keys(o).length === 0
+
 export const isObject = (o: unknown): o is AnyObject =>
   o !== null && Object.prototype.toString.call(o) === '[object Object]'
+
 export const isEmptyObject = (o: unknown): o is EmptyObject => isObject(o) && isEmpty(o)
+
 export const hasChanges = (a: object | undefined | null, b: object | undefined | null): boolean =>
   !isEmptyObject(diff(a ?? {}, b ?? {}))
+
 export const clone = <T extends AnyObject>(a: T): T => ({ ...a })
+
 export const merge = <T>(a: T, b: DeepPartial<T>): T => {
   const result = isObject(a) ? clone(a) : ({} as T)
   if (!isObject(b)) {
