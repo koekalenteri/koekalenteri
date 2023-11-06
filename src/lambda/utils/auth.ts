@@ -72,7 +72,7 @@ export async function getAndUpdateUserByEmail(email: string, props: Omit<Partial
 }
 
 export function getOrigin(event?: Partial<APIGatewayProxyEvent>) {
-  return event?.headers?.origin || event?.headers?.Origin || ''
+  return event?.headers?.origin ?? event?.headers?.Origin ?? ''
 }
 
 export async function getUsername(event: Partial<APIGatewayProxyEvent>) {
