@@ -83,7 +83,8 @@ export default function EventForm({ event, changes, disabled, onSave, onCancel, 
   const fields = useMemo(() => requiredFields(event), [event])
   const officials = useMemo(() => users.filter((u) => u.officer), [users])
   const secretaries = useMemo(
-    () => (event.organizer?.id ? users.filter((u) => u.officer || u.roles?.[event.organizer?.id ?? '']) : officials),
+    () =>
+      event.organizer?.id ? users.filter((u) => !!u.officer || !!u.roles?.[event.organizer?.id ?? '']) : officials,
     [event.organizer?.id, officials, users]
   )
 
