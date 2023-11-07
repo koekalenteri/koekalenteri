@@ -45,13 +45,13 @@ const theme = createTheme({
   palette: {
     primary: {
       light: '#547463',
-      main: '#000',
+      main: '#222',
       dark: '#1d392a',
       contrastText: '#fff',
     },
     secondary: {
       light: '#f7ebcf',
-      main: '#98A59E',
+      main: '#fcfcfc', // '#98A59E',
       dark: '#aca189',
       contrastText: '#000',
     },
@@ -62,7 +62,7 @@ const theme = createTheme({
       default: '#fcfdfd',
       form: '#f2f2f2',
       oddRow: '#f8f8f8',
-      tableHead: '#C4C4C4',
+      tableHead: '#d8d8d8',
       ok: '#c1d4c9',
       hover: '#AFC1B7',
       selected: '#D5E1DB',

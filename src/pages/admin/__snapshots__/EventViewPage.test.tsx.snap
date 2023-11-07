@@ -57,7 +57,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                     >
                       <button
                         aria-selected="true"
-                        class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary Mui-selected css-12hoemi-MuiButtonBase-root-MuiTab-root"
+                        class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary Mui-selected css-19yv3lq-MuiButtonBase-root-MuiTab-root"
                         role="tab"
                         tabindex="0"
                         type="button"
@@ -69,7 +69,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                       </button>
                       <button
                         aria-selected="false"
-                        class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary css-12hoemi-MuiButtonBase-root-MuiTab-root"
+                        class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary css-19yv3lq-MuiButtonBase-root-MuiTab-root"
                         role="tab"
                         tabindex="-1"
                         type="button"
@@ -81,7 +81,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                       </button>
                     </div>
                     <span
-                      class="MuiTabs-indicator css-13zgqbm-MuiTabs-indicator"
+                      class="MuiTabs-indicator css-snoo6i-MuiTabs-indicator"
                       style="left: 0px; width: 0px;"
                     />
                   </div>
@@ -130,7 +130,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                             class="MuiTableBody-root css-apqrd9-MuiTableBody-root"
                           >
                             <tr
-                              class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                              class="MuiTableRow-root css-1n6kcfq-MuiTableRow-root"
                             >
                               <td
                                 class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
@@ -144,7 +144,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                               </td>
                             </tr>
                             <tr
-                              class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                              class="MuiTableRow-root css-1n6kcfq-MuiTableRow-root"
                             >
                               <td
                                 class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
@@ -170,7 +170,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                                 class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
                               >
                                 <button
-                                  class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall css-1ke4pnb-MuiButtonBase-root-MuiButton-root"
+                                  class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall css-1vnuxvz-MuiButtonBase-root-MuiButton-root"
                                   disabled=""
                                   tabindex="-1"
                                   type="button"
@@ -181,7 +181,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                               </td>
                             </tr>
                             <tr
-                              class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                              class="MuiTableRow-root css-1n6kcfq-MuiTableRow-root"
                             >
                               <td
                                 class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
@@ -195,7 +195,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                               </td>
                             </tr>
                             <tr
-                              class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                              class="MuiTableRow-root css-1n6kcfq-MuiTableRow-root"
                             >
                               <td
                                 class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
@@ -219,7 +219,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                                 class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
                               >
                                 <button
-                                  class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall css-1ke4pnb-MuiButtonBase-root-MuiButton-root"
+                                  class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall css-1vnuxvz-MuiButtonBase-root-MuiButton-root"
                                   tabindex="0"
                                   type="button"
                                 >
@@ -244,7 +244,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                             class="MuiTableHead-root css-15wwp11-MuiTableHead-root"
                           >
                             <tr
-                              class="MuiTableRow-root MuiTableRow-head css-1gsj6qz-MuiTableRow-root"
+                              class="MuiTableRow-root MuiTableRow-head css-1n6kcfq-MuiTableRow-root"
                             >
                               <th
                                 class="MuiTableCell-root MuiTableCell-head MuiTableCell-sizeMedium css-1ygcj2i-MuiTableCell-root"
@@ -259,7 +259,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                             class="MuiTableBody-root css-apqrd9-MuiTableBody-root"
                           >
                             <tr
-                              class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                              class="MuiTableRow-root css-1n6kcfq-MuiTableRow-root"
                             >
                               <td
                                 class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
@@ -292,7 +292,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                                   for="koekutsu-file"
                                 >
                                   <span
-                                    class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall css-1ke4pnb-MuiButtonBase-root-MuiButton-root"
+                                    class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall css-1vnuxvz-MuiButtonBase-root-MuiButton-root"
                                     role="button"
                                     tabindex="0"
                                   >
@@ -319,7 +319,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
         class="MuiStack-root css-pl8gqh-MuiStack-root"
       >
         <button
-          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-16m0f1y-MuiButtonBase-root-MuiButton-root"
+          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-mvwufc-MuiButtonBase-root-MuiButton-root"
           tabindex="0"
           type="button"
         >
@@ -344,7 +344,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
           />
         </button>
         <button
-          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-16m0f1y-MuiButtonBase-root-MuiButton-root"
+          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-mvwufc-MuiButtonBase-root-MuiButton-root"
           tabindex="0"
           type="button"
         >
@@ -372,7 +372,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
           class="MuiDivider-root MuiDivider-fullWidth MuiDivider-vertical css-ftc7wc-MuiDivider-root"
         />
         <a
-          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-16m0f1y-MuiButtonBase-root-MuiButton-root"
+          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-mvwufc-MuiButtonBase-root-MuiButton-root"
           href="/admin/event/startlist/test1-b"
           tabindex="0"
           target="_blank"
@@ -401,7 +401,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
           class="MuiDivider-root MuiDivider-fullWidth MuiDivider-vertical css-ftc7wc-MuiDivider-root"
         />
         <button
-          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-16m0f1y-MuiButtonBase-root-MuiButton-root"
+          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-mvwufc-MuiButtonBase-root-MuiButton-root"
           tabindex="0"
           type="button"
         >
@@ -426,7 +426,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
           />
         </button>
         <button
-          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-16m0f1y-MuiButtonBase-root-MuiButton-root"
+          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-mvwufc-MuiButtonBase-root-MuiButton-root"
           disabled=""
           tabindex="-1"
           type="button"
@@ -465,7 +465,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
             >
               <button
                 aria-selected="true"
-                class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary Mui-selected css-ttp10v-MuiButtonBase-root-MuiTab-root"
+                class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary Mui-selected css-3qq8tn-MuiButtonBase-root-MuiTab-root"
                 id="tab-ALO"
                 role="tab"
                 tabindex="0"
@@ -478,7 +478,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
               </button>
             </div>
             <span
-              class="MuiTabs-indicator css-13zgqbm-MuiTabs-indicator"
+              class="MuiTabs-indicator css-snoo6i-MuiTabs-indicator"
               style="left: 0px; width: 0px;"
             />
           </div>
@@ -506,7 +506,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
               aria-colcount="9"
               aria-multiselectable="false"
               aria-rowcount="1"
-              class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1z3c5a-MuiDataGrid-root"
+              class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1fah1r6-MuiDataGrid-root"
               role="grid"
             >
               <div
@@ -1001,7 +1001,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
               aria-colcount="9"
               aria-multiselectable="false"
               aria-rowcount="1"
-              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1n6ua78-MuiDataGrid-root"
+              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-dqym9p-MuiDataGrid-root"
               role="grid"
             >
               <div
@@ -1512,7 +1512,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
               aria-colcount="9"
               aria-multiselectable="false"
               aria-rowcount="1"
-              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1n6ua78-MuiDataGrid-root"
+              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-dqym9p-MuiDataGrid-root"
               role="grid"
             >
               <div
@@ -2023,7 +2023,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
               aria-colcount="9"
               aria-multiselectable="false"
               aria-rowcount="1"
-              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1n6ua78-MuiDataGrid-root"
+              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-dqym9p-MuiDataGrid-root"
               role="grid"
             >
               <div
@@ -2534,7 +2534,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
               aria-colcount="9"
               aria-multiselectable="false"
               aria-rowcount="1"
-              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1n6ua78-MuiDataGrid-root"
+              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-dqym9p-MuiDataGrid-root"
               role="grid"
             >
               <div
@@ -3050,7 +3050,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
               aria-colcount="9"
               aria-multiselectable="false"
               aria-rowcount="1"
-              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1n6ua78-MuiDataGrid-root"
+              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-dqym9p-MuiDataGrid-root"
               role="grid"
             >
               <div
@@ -3556,7 +3556,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
               aria-colcount="10"
               aria-multiselectable="false"
               aria-rowcount="1"
-              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1n6ua78-MuiDataGrid-root"
+              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-dqym9p-MuiDataGrid-root"
               role="grid"
             >
               <div
@@ -4188,7 +4188,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                     >
                       <button
                         aria-selected="true"
-                        class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary Mui-selected css-12hoemi-MuiButtonBase-root-MuiTab-root"
+                        class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary Mui-selected css-19yv3lq-MuiButtonBase-root-MuiTab-root"
                         role="tab"
                         tabindex="0"
                         type="button"
@@ -4200,7 +4200,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                       </button>
                       <button
                         aria-selected="false"
-                        class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary css-12hoemi-MuiButtonBase-root-MuiTab-root"
+                        class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary css-19yv3lq-MuiButtonBase-root-MuiTab-root"
                         role="tab"
                         tabindex="-1"
                         type="button"
@@ -4212,7 +4212,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                       </button>
                     </div>
                     <span
-                      class="MuiTabs-indicator css-13zgqbm-MuiTabs-indicator"
+                      class="MuiTabs-indicator css-snoo6i-MuiTabs-indicator"
                       style="left: 0px; width: 0px;"
                     />
                   </div>
@@ -4261,7 +4261,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                             class="MuiTableBody-root css-apqrd9-MuiTableBody-root"
                           >
                             <tr
-                              class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                              class="MuiTableRow-root css-1n6kcfq-MuiTableRow-root"
                             >
                               <td
                                 class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
@@ -4275,7 +4275,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                               </td>
                             </tr>
                             <tr
-                              class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                              class="MuiTableRow-root css-1n6kcfq-MuiTableRow-root"
                             >
                               <td
                                 class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
@@ -4301,7 +4301,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                                 class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
                               >
                                 <button
-                                  class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall css-1ke4pnb-MuiButtonBase-root-MuiButton-root"
+                                  class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall css-1vnuxvz-MuiButtonBase-root-MuiButton-root"
                                   disabled=""
                                   tabindex="-1"
                                   type="button"
@@ -4312,7 +4312,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                               </td>
                             </tr>
                             <tr
-                              class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                              class="MuiTableRow-root css-1n6kcfq-MuiTableRow-root"
                             >
                               <td
                                 class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
@@ -4326,7 +4326,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                               </td>
                             </tr>
                             <tr
-                              class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                              class="MuiTableRow-root css-1n6kcfq-MuiTableRow-root"
                             >
                               <td
                                 class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
@@ -4350,7 +4350,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                                 class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
                               >
                                 <button
-                                  class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall css-1ke4pnb-MuiButtonBase-root-MuiButton-root"
+                                  class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall css-1vnuxvz-MuiButtonBase-root-MuiButton-root"
                                   tabindex="0"
                                   type="button"
                                 >
@@ -4375,7 +4375,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                             class="MuiTableHead-root css-15wwp11-MuiTableHead-root"
                           >
                             <tr
-                              class="MuiTableRow-root MuiTableRow-head css-1gsj6qz-MuiTableRow-root"
+                              class="MuiTableRow-root MuiTableRow-head css-1n6kcfq-MuiTableRow-root"
                             >
                               <th
                                 class="MuiTableCell-root MuiTableCell-head MuiTableCell-sizeMedium css-1ygcj2i-MuiTableCell-root"
@@ -4390,7 +4390,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                             class="MuiTableBody-root css-apqrd9-MuiTableBody-root"
                           >
                             <tr
-                              class="MuiTableRow-root css-1gsj6qz-MuiTableRow-root"
+                              class="MuiTableRow-root css-1n6kcfq-MuiTableRow-root"
                             >
                               <td
                                 class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
@@ -4423,7 +4423,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                                   for="koekutsu-file"
                                 >
                                   <span
-                                    class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall css-1ke4pnb-MuiButtonBase-root-MuiButton-root"
+                                    class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall css-1vnuxvz-MuiButtonBase-root-MuiButton-root"
                                     role="button"
                                     tabindex="0"
                                   >
@@ -4450,7 +4450,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
         class="MuiStack-root css-pl8gqh-MuiStack-root"
       >
         <button
-          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-16m0f1y-MuiButtonBase-root-MuiButton-root"
+          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-mvwufc-MuiButtonBase-root-MuiButton-root"
           tabindex="0"
           type="button"
         >
@@ -4475,7 +4475,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
           />
         </button>
         <button
-          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-16m0f1y-MuiButtonBase-root-MuiButton-root"
+          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-mvwufc-MuiButtonBase-root-MuiButton-root"
           tabindex="0"
           type="button"
         >
@@ -4503,7 +4503,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
           class="MuiDivider-root MuiDivider-fullWidth MuiDivider-vertical css-ftc7wc-MuiDivider-root"
         />
         <a
-          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-16m0f1y-MuiButtonBase-root-MuiButton-root"
+          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-mvwufc-MuiButtonBase-root-MuiButton-root"
           href="/admin/event/startlist/test1"
           tabindex="0"
           target="_blank"
@@ -4532,7 +4532,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
           class="MuiDivider-root MuiDivider-fullWidth MuiDivider-vertical css-ftc7wc-MuiDivider-root"
         />
         <button
-          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-16m0f1y-MuiButtonBase-root-MuiButton-root"
+          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-mvwufc-MuiButtonBase-root-MuiButton-root"
           tabindex="0"
           type="button"
         >
@@ -4557,7 +4557,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
           />
         </button>
         <button
-          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-16m0f1y-MuiButtonBase-root-MuiButton-root"
+          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-mvwufc-MuiButtonBase-root-MuiButton-root"
           disabled=""
           tabindex="-1"
           type="button"
@@ -4596,7 +4596,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
             >
               <button
                 aria-selected="true"
-                class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary Mui-selected css-ttp10v-MuiButtonBase-root-MuiTab-root"
+                class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary Mui-selected css-3qq8tn-MuiButtonBase-root-MuiTab-root"
                 id="tab-NOU"
                 role="tab"
                 tabindex="0"
@@ -4609,7 +4609,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
               </button>
             </div>
             <span
-              class="MuiTabs-indicator css-13zgqbm-MuiTabs-indicator"
+              class="MuiTabs-indicator css-snoo6i-MuiTabs-indicator"
               style="left: 0px; width: 0px;"
             />
           </div>
@@ -4637,7 +4637,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
               aria-colcount="9"
               aria-multiselectable="false"
               aria-rowcount="1"
-              class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1z3c5a-MuiDataGrid-root"
+              class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1fah1r6-MuiDataGrid-root"
               role="grid"
             >
               <div
@@ -5132,7 +5132,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
               aria-colcount="9"
               aria-multiselectable="false"
               aria-rowcount="1"
-              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1n6ua78-MuiDataGrid-root"
+              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-dqym9p-MuiDataGrid-root"
               role="grid"
             >
               <div
@@ -5643,7 +5643,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
               aria-colcount="9"
               aria-multiselectable="false"
               aria-rowcount="1"
-              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1n6ua78-MuiDataGrid-root"
+              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-dqym9p-MuiDataGrid-root"
               role="grid"
             >
               <div
@@ -6154,7 +6154,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
               aria-colcount="9"
               aria-multiselectable="false"
               aria-rowcount="1"
-              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1n6ua78-MuiDataGrid-root"
+              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-dqym9p-MuiDataGrid-root"
               role="grid"
             >
               <div
@@ -6665,7 +6665,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
               aria-colcount="9"
               aria-multiselectable="false"
               aria-rowcount="1"
-              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1n6ua78-MuiDataGrid-root"
+              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-dqym9p-MuiDataGrid-root"
               role="grid"
             >
               <div
@@ -7181,7 +7181,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
               aria-colcount="9"
               aria-multiselectable="false"
               aria-rowcount="2"
-              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1n6ua78-MuiDataGrid-root"
+              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-dqym9p-MuiDataGrid-root"
               role="grid"
             >
               <div
@@ -7940,7 +7940,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
               aria-colcount="10"
               aria-multiselectable="false"
               aria-rowcount="2"
-              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1n6ua78-MuiDataGrid-root"
+              class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-dqym9p-MuiDataGrid-root"
               role="grid"
             >
               <div

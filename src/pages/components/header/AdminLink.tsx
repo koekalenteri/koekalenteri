@@ -26,6 +26,7 @@ export const AdminLink = ({ active, activeBorder }: Props) => {
       }}
     >
       <Typography
+        color="secondary"
         variant="subtitle1"
         noWrap
         component="div"

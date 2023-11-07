@@ -12,7 +12,7 @@ exports[`EventListPage renders 1`] = `
         class="MuiStack-root css-pl8gqh-MuiStack-root"
       >
         <button
-          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-16m0f1y-MuiButtonBase-root-MuiButton-root"
+          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-mvwufc-MuiButtonBase-root-MuiButton-root"
           tabindex="0"
           type="button"
         >
@@ -37,7 +37,7 @@ exports[`EventListPage renders 1`] = `
           />
         </button>
         <button
-          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-16m0f1y-MuiButtonBase-root-MuiButton-root"
+          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-mvwufc-MuiButtonBase-root-MuiButton-root"
           disabled=""
           tabindex="-1"
           type="button"
@@ -60,7 +60,7 @@ exports[`EventListPage renders 1`] = `
           edit
         </button>
         <button
-          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-16m0f1y-MuiButtonBase-root-MuiButton-root"
+          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-mvwufc-MuiButtonBase-root-MuiButton-root"
           disabled=""
           tabindex="-1"
           type="button"
@@ -83,7 +83,7 @@ exports[`EventListPage renders 1`] = `
           copy
         </button>
         <button
-          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-16m0f1y-MuiButtonBase-root-MuiButton-root"
+          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-mvwufc-MuiButtonBase-root-MuiButton-root"
           disabled=""
           tabindex="-1"
           type="button"
@@ -106,7 +106,7 @@ exports[`EventListPage renders 1`] = `
           copyTest
         </button>
         <button
-          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-16m0f1y-MuiButtonBase-root-MuiButton-root"
+          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-mvwufc-MuiButtonBase-root-MuiButton-root"
           disabled=""
           tabindex="-1"
           type="button"
@@ -129,7 +129,7 @@ exports[`EventListPage renders 1`] = `
           delete
         </button>
         <button
-          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-16m0f1y-MuiButtonBase-root-MuiButton-root"
+          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-mvwufc-MuiButtonBase-root-MuiButton-root"
           disabled=""
           tabindex="-1"
           type="button"
@@ -156,7 +156,7 @@ exports[`EventListPage renders 1`] = `
         aria-colcount="11"
         aria-multiselectable="false"
         aria-rowcount="5"
-        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1z3c5a-MuiDataGrid-root"
+        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1fah1r6-MuiDataGrid-root"
         role="grid"
       >
         <div
@@ -166,7 +166,7 @@ exports[`EventListPage renders 1`] = `
             aria-expanded="false"
             aria-haspopup="menu"
             aria-label="Select columns"
-            class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall css-a1btr6-MuiButtonBase-root-MuiButton-root"
+            class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall css-1ddbqw-MuiButtonBase-root-MuiButton-root"
             id=":r0:"
             tabindex="0"
             type="button"
@@ -198,7 +198,7 @@ exports[`EventListPage renders 1`] = `
               class="MuiFormControl-root MuiTextField-root css-1pupl87-MuiFormControl-root-MuiTextField-root"
             >
               <div
-                class="MuiInputBase-root MuiInput-root MuiInput-underline MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd css-dlnixt-MuiInputBase-root-MuiInput-root"
+                class="MuiInputBase-root MuiInput-root MuiInput-underline MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd css-u7cxs7-MuiInputBase-root-MuiInput-root"
               >
                 <svg
                   aria-hidden="true"
@@ -259,7 +259,7 @@ exports[`EventListPage renders 1`] = `
                   class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                 >
                   <label
-                    class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeSmall MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeSmall MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
+                    class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeSmall MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeSmall MuiInputLabel-outlined css-1cwx9dy-MuiFormLabel-root-MuiInputLabel-root"
                     data-shrink="true"
                     for=":r3:"
                     id=":r3:-label"
@@ -267,7 +267,7 @@ exports[`EventListPage renders 1`] = `
                     Yhdistys
                   </label>
                   <div
-                    class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-sizeSmall MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1hw12xa-MuiInputBase-root-MuiOutlinedInput-root"
+                    class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-sizeSmall MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1tenv44-MuiInputBase-root-MuiOutlinedInput-root"
                   >
                     <input
                       aria-autocomplete="list"

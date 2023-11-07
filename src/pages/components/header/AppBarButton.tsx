@@ -16,6 +16,7 @@ export default function AppBarButton(props: Props) {
       onClick={props.onClick}
       startIcon={props.startIcon}
       endIcon={props.endIcon}
+      color="secondary"
       sx={{
         textTransform: 'none',
         '& .MuiButton-startIcon': { marginRight: { xs: 0, sm: 2 } },

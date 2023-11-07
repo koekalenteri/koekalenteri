@@ -12,7 +12,7 @@ exports[`EventTypeListPage renders 1`] = `
         class="MuiStack-root css-pl8gqh-MuiStack-root"
       >
         <button
-          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-16m0f1y-MuiButtonBase-root-MuiButton-root"
+          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-mvwufc-MuiButtonBase-root-MuiButton-root"
           tabindex="0"
           type="button"
         >
@@ -41,7 +41,7 @@ exports[`EventTypeListPage renders 1`] = `
         aria-colcount="4"
         aria-multiselectable="false"
         aria-rowcount="2"
-        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1z3c5a-MuiDataGrid-root"
+        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1fah1r6-MuiDataGrid-root"
         role="grid"
       >
         <div
@@ -54,7 +54,7 @@ exports[`EventTypeListPage renders 1`] = `
               class="MuiFormControl-root MuiTextField-root css-1pupl87-MuiFormControl-root-MuiTextField-root"
             >
               <div
-                class="MuiInputBase-root MuiInput-root MuiInput-underline MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd css-dlnixt-MuiInputBase-root-MuiInput-root"
+                class="MuiInputBase-root MuiInput-root MuiInput-underline MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd css-u7cxs7-MuiInputBase-root-MuiInput-root"
               >
                 <svg
                   aria-hidden="true"

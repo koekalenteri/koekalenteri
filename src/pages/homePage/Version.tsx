@@ -11,17 +11,20 @@ export default function Version() {
   return (
     <Box
       sx={{
-        bottom: 0,
-        color: 'secondary',
-        fontSize: 10,
+        top: { xs: 114, sm: 178, md: 242, lg: 306 },
+        left: 0,
+        color: '#eee',
+        fontSize: 6,
+        fontFamily: 'monospace',
         p: 0.5,
-        position: 'fixed',
+        position: 'absolute',
         textAlign: 'right',
+        zIndex: 2,
         width: '100%',
-        zIndex: -1,
+        textShadow: '1px 1px 1px #222',
       }}
     >
-      v{pkg.version} ({date})
+      v{pkg.version} [{date}]
     </Box>
   )
 }

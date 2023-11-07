@@ -12,7 +12,7 @@ exports[`RegistrationForm renders 1`] = `
         class="MuiBox-root css-g7pq3x"
       >
         <button
-          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10frfwe-MuiButtonBase-root-MuiIconButton-root"
+          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-tov16f-MuiButtonBase-root-MuiIconButton-root"
           tabindex="0"
           type="button"
         >
@@ -75,7 +75,7 @@ exports[`RegistrationForm renders 1`] = `
                           class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                         >
                           <label
-                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
+                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-a5n9ke-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="false"
                             for=":r0:"
                             id=":r0:-label"
@@ -83,7 +83,7 @@ exports[`RegistrationForm renders 1`] = `
                             registration.class
                           </label>
                           <div
-                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1hw12xa-MuiInputBase-root-MuiOutlinedInput-root"
+                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1tenv44-MuiInputBase-root-MuiOutlinedInput-root"
                           >
                             <input
                               aria-autocomplete="list"
@@ -151,7 +151,7 @@ exports[`RegistrationForm renders 1`] = `
                           class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                         >
                           <label
-                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
+                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1cwx9dy-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="true"
                             for=":r2:"
                             id=":r2:-label"
@@ -159,7 +159,7 @@ exports[`RegistrationForm renders 1`] = `
                             registration.reserve
                           </label>
                           <div
-                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1hw12xa-MuiInputBase-root-MuiOutlinedInput-root"
+                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1tenv44-MuiInputBase-root-MuiOutlinedInput-root"
                           >
                             <input
                               aria-autocomplete="list"
@@ -234,7 +234,7 @@ exports[`RegistrationForm renders 1`] = `
                           class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                         >
                           <label
-                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
+                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1cwx9dy-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="true"
                             for=":r4:"
                             id=":r4:-label"
@@ -242,7 +242,7 @@ exports[`RegistrationForm renders 1`] = `
                             registration.datesFilter
                           </label>
                           <div
-                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-tybxm0-MuiInputBase-root-MuiOutlinedInput-root"
+                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1u8w1x9-MuiInputBase-root-MuiOutlinedInput-root"
                           >
                             <div
                               class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorDefault MuiChip-deletable MuiChip-deletableColorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-1u20pgy-MuiButtonBase-root-MuiChip-root"
@@ -385,7 +385,7 @@ exports[`RegistrationForm renders 1`] = `
                           class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                         >
                           <label
-                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
+                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1cwx9dy-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="true"
                             for=":r6:"
                             id=":r6:-label"
@@ -393,7 +393,7 @@ exports[`RegistrationForm renders 1`] = `
                             registration.dates
                           </label>
                           <div
-                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-tybxm0-MuiInputBase-root-MuiOutlinedInput-root"
+                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1u8w1x9-MuiInputBase-root-MuiOutlinedInput-root"
                           >
                             <div
                               class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorDefault MuiChip-deletable MuiChip-deletableColorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-1u20pgy-MuiButtonBase-root-MuiChip-root"
@@ -513,7 +513,7 @@ exports[`RegistrationForm renders 1`] = `
         class="MuiBox-root css-1d8l8v2"
       >
         <button
-          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10frfwe-MuiButtonBase-root-MuiIconButton-root"
+          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-tov16f-MuiButtonBase-root-MuiIconButton-root"
           tabindex="0"
           type="button"
         >
@@ -581,7 +581,7 @@ exports[`RegistrationForm renders 1`] = `
                               class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                             >
                               <label
-                                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
+                                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1cwx9dy-MuiFormLabel-root-MuiInputLabel-root"
                                 data-shrink="true"
                                 for="txtReknro"
                                 id="txtReknro-label"
@@ -589,7 +589,7 @@ exports[`RegistrationForm renders 1`] = `
                                 dog.regNo
                               </label>
                               <div
-                                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1hw12xa-MuiInputBase-root-MuiOutlinedInput-root"
+                                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1tenv44-MuiInputBase-root-MuiOutlinedInput-root"
                               >
                                 <input
                                   aria-autocomplete="list"
@@ -646,7 +646,7 @@ exports[`RegistrationForm renders 1`] = `
                             </div>
                           </div>
                           <button
-                            class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium css-ahvo9a-MuiButtonBase-root-MuiButton-root"
+                            class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium css-1j214pj-MuiButtonBase-root-MuiButton-root"
                             tabindex="0"
                             type="button"
                           >
@@ -656,7 +656,7 @@ exports[`RegistrationForm renders 1`] = `
                             />
                           </button>
                           <span
-                            class="MuiCircularProgress-root MuiCircularProgress-indeterminate MuiCircularProgress-colorPrimary css-1joee6c-MuiCircularProgress-root"
+                            class="MuiCircularProgress-root MuiCircularProgress-indeterminate MuiCircularProgress-colorPrimary css-ccepa6-MuiCircularProgress-root"
                             role="progressbar"
                             style="width: 28px; height: 28px;"
                           >
@@ -689,7 +689,7 @@ exports[`RegistrationForm renders 1`] = `
                         class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root fact css-wb57ya-MuiFormControl-root-MuiTextField-root"
                       >
                         <label
-                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
+                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1cwx9dy-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="true"
                           for=":ra:"
                           id=":ra:-label"
@@ -697,7 +697,7 @@ exports[`RegistrationForm renders 1`] = `
                           dog.rfid
                         </label>
                         <div
-                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl css-govxmy-MuiInputBase-root-MuiOutlinedInput-root"
+                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl css-78sb4c-MuiInputBase-root-MuiOutlinedInput-root"
                         >
                           <input
                             aria-invalid="false"
@@ -735,7 +735,7 @@ exports[`RegistrationForm renders 1`] = `
                             class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root fact css-wb57ya-MuiFormControl-root-MuiTextField-root"
                           >
                             <label
-                              class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
+                              class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1cwx9dy-MuiFormLabel-root-MuiInputLabel-root"
                               data-shrink="true"
                               for="dog_titles"
                               id="dog_titles-label"
@@ -743,7 +743,7 @@ exports[`RegistrationForm renders 1`] = `
                               dog.titles
                             </label>
                             <div
-                              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-govxmy-MuiInputBase-root-MuiOutlinedInput-root"
+                              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-78sb4c-MuiInputBase-root-MuiOutlinedInput-root"
                             >
                               <input
                                 aria-invalid="false"
@@ -774,7 +774,7 @@ exports[`RegistrationForm renders 1`] = `
                             class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root fact css-wb57ya-MuiFormControl-root-MuiTextField-root"
                           >
                             <label
-                              class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
+                              class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1cwx9dy-MuiFormLabel-root-MuiInputLabel-root"
                               data-shrink="true"
                               for="dog_name"
                               id="dog_name-label"
@@ -782,7 +782,7 @@ exports[`RegistrationForm renders 1`] = `
                               dog.name
                             </label>
                             <div
-                              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl css-govxmy-MuiInputBase-root-MuiOutlinedInput-root"
+                              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl css-78sb4c-MuiInputBase-root-MuiOutlinedInput-root"
                             >
                               <input
                                 aria-invalid="false"
@@ -819,7 +819,7 @@ exports[`RegistrationForm renders 1`] = `
                           class="MuiFormControl-root MuiTextField-root css-z3c6am-MuiFormControl-root-MuiTextField-root"
                         >
                           <label
-                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
+                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1cwx9dy-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="true"
                             for=":re:"
                             id=":re:-label"
@@ -827,7 +827,7 @@ exports[`RegistrationForm renders 1`] = `
                             dog.dob
                           </label>
                           <div
-                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-formControl Mui-readOnly MuiInputBase-readOnly css-18jsfs7-MuiInputBase-root-MuiOutlinedInput-root"
+                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-formControl Mui-readOnly MuiInputBase-readOnly css-lzrvms-MuiInputBase-root-MuiOutlinedInput-root"
                           >
                             <input
                               aria-invalid="false"
@@ -869,7 +869,7 @@ exports[`RegistrationForm renders 1`] = `
                           class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                         >
                           <label
-                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
+                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1cwx9dy-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="true"
                             for=":rg:"
                             id=":rg:-label"
@@ -877,7 +877,7 @@ exports[`RegistrationForm renders 1`] = `
                             dog.gender
                           </label>
                           <div
-                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1hw12xa-MuiInputBase-root-MuiOutlinedInput-root"
+                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1tenv44-MuiInputBase-root-MuiOutlinedInput-root"
                           >
                             <input
                               aria-autocomplete="list"
@@ -944,7 +944,7 @@ exports[`RegistrationForm renders 1`] = `
                           class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                         >
                           <label
-                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
+                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1cwx9dy-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="true"
                             for=":ri:"
                             id=":ri:-label"
@@ -952,7 +952,7 @@ exports[`RegistrationForm renders 1`] = `
                             dog.breed
                           </label>
                           <div
-                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1hw12xa-MuiInputBase-root-MuiOutlinedInput-root"
+                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1tenv44-MuiInputBase-root-MuiOutlinedInput-root"
                           >
                             <input
                               aria-autocomplete="list"
@@ -1015,7 +1015,7 @@ exports[`RegistrationForm renders 1`] = `
                         class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                       >
                         <label
-                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
+                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1cwx9dy-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="true"
                           for="sire"
                           id="sire-label"
@@ -1023,7 +1023,7 @@ exports[`RegistrationForm renders 1`] = `
                           dog.sire.name
                         </label>
                         <div
-                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-govxmy-MuiInputBase-root-MuiOutlinedInput-root"
+                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-78sb4c-MuiInputBase-root-MuiOutlinedInput-root"
                         >
                           <input
                             aria-invalid="false"
@@ -1054,7 +1054,7 @@ exports[`RegistrationForm renders 1`] = `
                         class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                       >
                         <label
-                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
+                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1cwx9dy-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="true"
                           for="dam"
                           id="dam-label"
@@ -1062,7 +1062,7 @@ exports[`RegistrationForm renders 1`] = `
                           dog.dam.name
                         </label>
                         <div
-                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-govxmy-MuiInputBase-root-MuiOutlinedInput-root"
+                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-78sb4c-MuiInputBase-root-MuiOutlinedInput-root"
                         >
                           <input
                             aria-invalid="false"
@@ -1097,7 +1097,7 @@ exports[`RegistrationForm renders 1`] = `
         class="MuiBox-root css-1d8l8v2"
       >
         <button
-          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10frfwe-MuiButtonBase-root-MuiIconButton-root"
+          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-tov16f-MuiButtonBase-root-MuiIconButton-root"
           tabindex="0"
           type="button"
         >
@@ -1156,7 +1156,7 @@ exports[`RegistrationForm renders 1`] = `
                         class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                       >
                         <label
-                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
+                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1cwx9dy-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="true"
                           for="breeder_name"
                           id="breeder_name-label"
@@ -1164,7 +1164,7 @@ exports[`RegistrationForm renders 1`] = `
                           Nimi
                         </label>
                         <div
-                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-govxmy-MuiInputBase-root-MuiOutlinedInput-root"
+                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-78sb4c-MuiInputBase-root-MuiOutlinedInput-root"
                         >
                           <input
                             aria-invalid="false"
@@ -1195,7 +1195,7 @@ exports[`RegistrationForm renders 1`] = `
                         class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                       >
                         <label
-                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
+                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1cwx9dy-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="true"
                           for="breeder_location"
                           id="breeder_location-label"
@@ -1203,7 +1203,7 @@ exports[`RegistrationForm renders 1`] = `
                           Kotikunta
                         </label>
                         <div
-                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-govxmy-MuiInputBase-root-MuiOutlinedInput-root"
+                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-78sb4c-MuiInputBase-root-MuiOutlinedInput-root"
                         >
                           <input
                             aria-invalid="false"
@@ -1238,7 +1238,7 @@ exports[`RegistrationForm renders 1`] = `
         class="MuiBox-root css-1d8l8v2"
       >
         <button
-          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10frfwe-MuiButtonBase-root-MuiIconButton-root"
+          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-tov16f-MuiButtonBase-root-MuiIconButton-root"
           tabindex="0"
           type="button"
         >
@@ -1297,7 +1297,7 @@ exports[`RegistrationForm renders 1`] = `
                         class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                       >
                         <label
-                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
+                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1cwx9dy-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="true"
                           for="owner_name"
                           id="owner_name-label"
@@ -1305,7 +1305,7 @@ exports[`RegistrationForm renders 1`] = `
                           contact.name
                         </label>
                         <div
-                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-govxmy-MuiInputBase-root-MuiOutlinedInput-root"
+                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-78sb4c-MuiInputBase-root-MuiOutlinedInput-root"
                         >
                           <input
                             aria-invalid="false"
@@ -1338,7 +1338,7 @@ exports[`RegistrationForm renders 1`] = `
                         class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                       >
                         <label
-                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
+                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1cwx9dy-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="true"
                           for="owner_city"
                           id="owner_city-label"
@@ -1346,7 +1346,7 @@ exports[`RegistrationForm renders 1`] = `
                           contact.city
                         </label>
                         <div
-                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-govxmy-MuiInputBase-root-MuiOutlinedInput-root"
+                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-78sb4c-MuiInputBase-root-MuiOutlinedInput-root"
                         >
                           <input
                             aria-invalid="false"
@@ -1379,7 +1379,7 @@ exports[`RegistrationForm renders 1`] = `
                         class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                       >
                         <label
-                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
+                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1cwx9dy-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="true"
                           for="owner_email"
                           id="owner_email-label"
@@ -1387,7 +1387,7 @@ exports[`RegistrationForm renders 1`] = `
                           contact.email
                         </label>
                         <div
-                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-govxmy-MuiInputBase-root-MuiOutlinedInput-root"
+                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-78sb4c-MuiInputBase-root-MuiOutlinedInput-root"
                         >
                           <input
                             aria-invalid="false"
@@ -1420,7 +1420,7 @@ exports[`RegistrationForm renders 1`] = `
                         class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root MuiTelInput-TextField  css-wb57ya-MuiFormControl-root-MuiTextField-root"
                       >
                         <label
-                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
+                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1cwx9dy-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="true"
                           for="owner_phone"
                           id="owner_phone-label"
@@ -1428,7 +1428,7 @@ exports[`RegistrationForm renders 1`] = `
                           contact.phone
                         </label>
                         <div
-                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart css-12gou2o-MuiInputBase-root-MuiOutlinedInput-root"
+                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart css-fx6mn2-MuiInputBase-root-MuiOutlinedInput-root"
                         >
                           <div
                             class="MuiInputAdornment-root MuiInputAdornment-positionStart MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-74b6xz-MuiInputAdornment-root"
@@ -1517,7 +1517,7 @@ exports[`RegistrationForm renders 1`] = `
                       class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
                     >
                       <span
-                        class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-1tsrs4w-MuiButtonBase-root-MuiCheckbox-root"
+                        class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-1aovigq-MuiButtonBase-root-MuiCheckbox-root"
                       >
                         <input
                           class="PrivateSwitchBase-input css-1m9pwf3"
@@ -1602,7 +1602,7 @@ exports[`RegistrationForm renders 1`] = `
               class="MuiBox-root css-1d8l8v2"
             >
               <button
-                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10frfwe-MuiButtonBase-root-MuiIconButton-root"
+                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-tov16f-MuiButtonBase-root-MuiIconButton-root"
                 tabindex="0"
                 type="button"
               >
@@ -1664,7 +1664,7 @@ exports[`RegistrationForm renders 1`] = `
                                 class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                               >
                                 <label
-                                  class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
+                                  class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1cwx9dy-MuiFormLabel-root-MuiInputLabel-root"
                                   data-shrink="true"
                                   for="handler_name"
                                   id="handler_name-label"
@@ -1672,7 +1672,7 @@ exports[`RegistrationForm renders 1`] = `
                                   contact.name
                                 </label>
                                 <div
-                                  class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-govxmy-MuiInputBase-root-MuiOutlinedInput-root"
+                                  class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-78sb4c-MuiInputBase-root-MuiOutlinedInput-root"
                                 >
                                   <input
                                     aria-invalid="false"
@@ -1705,7 +1705,7 @@ exports[`RegistrationForm renders 1`] = `
                                 class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                               >
                                 <label
-                                  class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
+                                  class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1cwx9dy-MuiFormLabel-root-MuiInputLabel-root"
                                   data-shrink="true"
                                   for="handler_city"
                                   id="handler_city-label"
@@ -1713,7 +1713,7 @@ exports[`RegistrationForm renders 1`] = `
                                   contact.city
                                 </label>
                                 <div
-                                  class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-govxmy-MuiInputBase-root-MuiOutlinedInput-root"
+                                  class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-78sb4c-MuiInputBase-root-MuiOutlinedInput-root"
                                 >
                                   <input
                                     aria-invalid="false"
@@ -1750,7 +1750,7 @@ exports[`RegistrationForm renders 1`] = `
                                 class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                               >
                                 <label
-                                  class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
+                                  class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1cwx9dy-MuiFormLabel-root-MuiInputLabel-root"
                                   data-shrink="true"
                                   for="handler_email"
                                   id="handler_email-label"
@@ -1758,7 +1758,7 @@ exports[`RegistrationForm renders 1`] = `
                                   contact.email
                                 </label>
                                 <div
-                                  class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-govxmy-MuiInputBase-root-MuiOutlinedInput-root"
+                                  class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-78sb4c-MuiInputBase-root-MuiOutlinedInput-root"
                                 >
                                   <input
                                     aria-invalid="false"
@@ -1791,7 +1791,7 @@ exports[`RegistrationForm renders 1`] = `
                                 class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root MuiTelInput-TextField  css-wb57ya-MuiFormControl-root-MuiTextField-root"
                               >
                                 <label
-                                  class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
+                                  class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1cwx9dy-MuiFormLabel-root-MuiInputLabel-root"
                                   data-shrink="true"
                                   for="handler_phone"
                                   id="handler_phone-label"
@@ -1799,7 +1799,7 @@ exports[`RegistrationForm renders 1`] = `
                                   contact.phone
                                 </label>
                                 <div
-                                  class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart css-12gou2o-MuiInputBase-root-MuiOutlinedInput-root"
+                                  class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart css-fx6mn2-MuiInputBase-root-MuiOutlinedInput-root"
                                 >
                                   <div
                                     class="MuiInputAdornment-root MuiInputAdornment-positionStart MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-74b6xz-MuiInputAdornment-root"
@@ -1886,7 +1886,7 @@ exports[`RegistrationForm renders 1`] = `
                           class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
                         >
                           <span
-                            class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-1tsrs4w-MuiButtonBase-root-MuiCheckbox-root"
+                            class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-1aovigq-MuiButtonBase-root-MuiCheckbox-root"
                           >
                             <input
                               class="PrivateSwitchBase-input css-1m9pwf3"
@@ -1928,7 +1928,7 @@ exports[`RegistrationForm renders 1`] = `
         class="MuiBox-root css-1d8l8v2"
       >
         <button
-          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10frfwe-MuiButtonBase-root-MuiIconButton-root"
+          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-tov16f-MuiButtonBase-root-MuiIconButton-root"
           tabindex="0"
           type="button"
         >
@@ -1981,7 +1981,7 @@ exports[`RegistrationForm renders 1`] = `
                     class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
                   >
                     <button
-                      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-16m0f1y-MuiButtonBase-root-MuiButton-root"
+                      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-mvwufc-MuiButtonBase-root-MuiButton-root"
                       disabled=""
                       tabindex="-1"
                       type="button"
@@ -2014,7 +2014,7 @@ exports[`RegistrationForm renders 1`] = `
         class="MuiBox-root css-1d8l8v2"
       >
         <button
-          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10frfwe-MuiButtonBase-root-MuiIconButton-root"
+          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-tov16f-MuiButtonBase-root-MuiIconButton-root"
           tabindex="0"
           type="button"
         >
@@ -2065,7 +2065,7 @@ exports[`RegistrationForm renders 1`] = `
                     class="MuiFormControl-root MuiTextField-root css-136h9lv-MuiFormControl-root-MuiTextField-root"
                   >
                     <label
-                      class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
+                      class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1cwx9dy-MuiFormLabel-root-MuiInputLabel-root"
                       data-shrink="true"
                       for=":r10:"
                       id=":r10:-label"
@@ -2073,7 +2073,7 @@ exports[`RegistrationForm renders 1`] = `
                       registration.notes
                     </label>
                     <div
-                      class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-multiline css-5d3t38-MuiInputBase-root-MuiOutlinedInput-root"
+                      class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-multiline css-1w0qb2b-MuiInputBase-root-MuiOutlinedInput-root"
                     >
                       <textarea
                         aria-invalid="false"
@@ -2123,7 +2123,7 @@ exports[`RegistrationForm renders 1`] = `
           >
             <span
               aria-disabled="true"
-              class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-1tsrs4w-MuiButtonBase-root-MuiCheckbox-root"
+              class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-1aovigq-MuiButtonBase-root-MuiCheckbox-root"
               tabindex="-1"
             >
               <input
@@ -2152,7 +2152,7 @@ exports[`RegistrationForm renders 1`] = `
               Hyväksyn
                
               <a
-                class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-15fpjfj-MuiTypography-root-MuiLink-root"
+                class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-17vs3rc-MuiTypography-root-MuiLink-root"
                 href="https://yttmk.yhdistysavain.fi/noutajien-metsastyskokeet-2/ohjeistukset/kokeen-ja-tai-kilpailun-ilmoitta/"
                 rel="noopener"
                 target="_blank"
@@ -2163,7 +2163,7 @@ exports[`RegistrationForm renders 1`] = `
               ja
                
               <a
-                class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-15fpjfj-MuiTypography-root-MuiLink-root"
+                class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-17vs3rc-MuiTypography-root-MuiLink-root"
                 href="https://www.snj.fi/snj/tietosuojaseloste/"
                 rel="noopener"
                 target="_blank"
@@ -2192,7 +2192,7 @@ exports[`RegistrationForm renders 1`] = `
          €
       </div>
       <button
-        class="MuiButtonBase-root MuiButton-root MuiLoadingButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium Mui-disabled MuiButton-root MuiLoadingButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium css-1nte33v-MuiButtonBase-root-MuiButton-root-MuiLoadingButton-root"
+        class="MuiButtonBase-root MuiButton-root MuiLoadingButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium Mui-disabled MuiButton-root MuiLoadingButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium css-15jnnye-MuiButtonBase-root-MuiButton-root-MuiLoadingButton-root"
         disabled=""
         id=":r11:"
         tabindex="-1"
@@ -2216,7 +2216,7 @@ exports[`RegistrationForm renders 1`] = `
         Tallenna muutokset
       </button>
       <button
-        class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium css-1zh5ck-MuiButtonBase-root-MuiButton-root"
+        class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium css-q3vbvi-MuiButtonBase-root-MuiButton-root"
         tabindex="0"
         type="button"
       >
@@ -2257,7 +2257,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
         class="MuiBox-root css-g7pq3x"
       >
         <button
-          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10frfwe-MuiButtonBase-root-MuiIconButton-root"
+          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-tov16f-MuiButtonBase-root-MuiIconButton-root"
           tabindex="0"
           type="button"
         >
@@ -2320,7 +2320,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                           class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                         >
                           <label
-                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
+                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-a5n9ke-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="false"
                             for=":r12:"
                             id=":r12:-label"
@@ -2328,7 +2328,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                             registration.class
                           </label>
                           <div
-                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1hw12xa-MuiInputBase-root-MuiOutlinedInput-root"
+                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1tenv44-MuiInputBase-root-MuiOutlinedInput-root"
                           >
                             <input
                               aria-autocomplete="list"
@@ -2396,7 +2396,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                           class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                         >
                           <label
-                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
+                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1cwx9dy-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="true"
                             for=":r14:"
                             id=":r14:-label"
@@ -2404,7 +2404,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                             registration.reserve
                           </label>
                           <div
-                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1hw12xa-MuiInputBase-root-MuiOutlinedInput-root"
+                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1tenv44-MuiInputBase-root-MuiOutlinedInput-root"
                           >
                             <input
                               aria-autocomplete="list"
@@ -2479,7 +2479,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                           class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                         >
                           <label
-                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
+                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1cwx9dy-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="true"
                             for=":r16:"
                             id=":r16:-label"
@@ -2487,7 +2487,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                             registration.datesFilter
                           </label>
                           <div
-                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-tybxm0-MuiInputBase-root-MuiOutlinedInput-root"
+                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1u8w1x9-MuiInputBase-root-MuiOutlinedInput-root"
                           >
                             <div
                               class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorDefault MuiChip-deletable MuiChip-deletableColorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-1u20pgy-MuiButtonBase-root-MuiChip-root"
@@ -2630,7 +2630,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                           class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                         >
                           <label
-                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
+                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1cwx9dy-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="true"
                             for=":r18:"
                             id=":r18:-label"
@@ -2638,7 +2638,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                             registration.dates
                           </label>
                           <div
-                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-tybxm0-MuiInputBase-root-MuiOutlinedInput-root"
+                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1u8w1x9-MuiInputBase-root-MuiOutlinedInput-root"
                           >
                             <div
                               class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorDefault MuiChip-deletable MuiChip-deletableColorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-1u20pgy-MuiButtonBase-root-MuiChip-root"
@@ -2758,7 +2758,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
         class="MuiBox-root css-1d8l8v2"
       >
         <button
-          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10frfwe-MuiButtonBase-root-MuiIconButton-root"
+          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-tov16f-MuiButtonBase-root-MuiIconButton-root"
           tabindex="0"
           type="button"
         >
@@ -2826,7 +2826,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                               class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                             >
                               <label
-                                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-error MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
+                                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-error MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-a5n9ke-MuiFormLabel-root-MuiInputLabel-root"
                                 data-shrink="false"
                                 for="txtReknro"
                                 id="txtReknro-label"
@@ -2834,7 +2834,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                                 dog.regNo
                               </label>
                               <div
-                                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-error MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1hw12xa-MuiInputBase-root-MuiOutlinedInput-root"
+                                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-error MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1tenv44-MuiInputBase-root-MuiOutlinedInput-root"
                               >
                                 <input
                                   aria-autocomplete="list"
@@ -2891,7 +2891,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                             </div>
                           </div>
                           <button
-                            class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium css-ahvo9a-MuiButtonBase-root-MuiButton-root"
+                            class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium css-1j214pj-MuiButtonBase-root-MuiButton-root"
                             disabled=""
                             tabindex="-1"
                             type="button"
@@ -2899,7 +2899,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                             registration.cta.fetch
                           </button>
                           <span
-                            class="MuiCircularProgress-root MuiCircularProgress-indeterminate MuiCircularProgress-colorPrimary css-1joee6c-MuiCircularProgress-root"
+                            class="MuiCircularProgress-root MuiCircularProgress-indeterminate MuiCircularProgress-colorPrimary css-ccepa6-MuiCircularProgress-root"
                             role="progressbar"
                             style="width: 28px; height: 28px;"
                           >
@@ -2932,7 +2932,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                         class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                       >
                         <label
-                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
+                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-a5n9ke-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="false"
                           for=":r1c:"
                           id=":r1c:-label"
@@ -2940,7 +2940,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                           dog.rfid
                         </label>
                         <div
-                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl css-govxmy-MuiInputBase-root-MuiOutlinedInput-root"
+                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl css-78sb4c-MuiInputBase-root-MuiOutlinedInput-root"
                         >
                           <input
                             aria-invalid="false"
@@ -2978,7 +2978,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                             class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                           >
                             <label
-                              class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
+                              class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-a5n9ke-MuiFormLabel-root-MuiInputLabel-root"
                               data-shrink="false"
                               for="dog_titles"
                               id="dog_titles-label"
@@ -2986,7 +2986,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                               dog.titles
                             </label>
                             <div
-                              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl css-govxmy-MuiInputBase-root-MuiOutlinedInput-root"
+                              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl css-78sb4c-MuiInputBase-root-MuiOutlinedInput-root"
                             >
                               <input
                                 aria-invalid="false"
@@ -3018,7 +3018,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                             class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                           >
                             <label
-                              class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
+                              class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-a5n9ke-MuiFormLabel-root-MuiInputLabel-root"
                               data-shrink="false"
                               for="dog_name"
                               id="dog_name-label"
@@ -3026,7 +3026,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                               dog.name
                             </label>
                             <div
-                              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl css-govxmy-MuiInputBase-root-MuiOutlinedInput-root"
+                              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl css-78sb4c-MuiInputBase-root-MuiOutlinedInput-root"
                             >
                               <input
                                 aria-invalid="false"
@@ -3063,7 +3063,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                           class="MuiFormControl-root MuiTextField-root css-z3c6am-MuiFormControl-root-MuiTextField-root"
                         >
                           <label
-                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
+                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-a5n9ke-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="false"
                             for=":r1g:"
                             id=":r1g:-label"
@@ -3071,7 +3071,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                             dog.dob
                           </label>
                           <div
-                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-formControl Mui-readOnly MuiInputBase-readOnly css-18jsfs7-MuiInputBase-root-MuiOutlinedInput-root"
+                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-formControl Mui-readOnly MuiInputBase-readOnly css-lzrvms-MuiInputBase-root-MuiOutlinedInput-root"
                           >
                             <input
                               aria-invalid="false"
@@ -3113,7 +3113,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                           class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                         >
                           <label
-                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
+                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-a5n9ke-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="false"
                             for=":r1i:"
                             id=":r1i:-label"
@@ -3121,7 +3121,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                             dog.gender
                           </label>
                           <div
-                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1hw12xa-MuiInputBase-root-MuiOutlinedInput-root"
+                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1tenv44-MuiInputBase-root-MuiOutlinedInput-root"
                           >
                             <input
                               aria-autocomplete="list"
@@ -3188,7 +3188,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                           class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                         >
                           <label
-                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
+                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-a5n9ke-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="false"
                             for=":r1k:"
                             id=":r1k:-label"
@@ -3196,7 +3196,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                             dog.breed
                           </label>
                           <div
-                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1hw12xa-MuiInputBase-root-MuiOutlinedInput-root"
+                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1tenv44-MuiInputBase-root-MuiOutlinedInput-root"
                           >
                             <input
                               aria-autocomplete="list"
@@ -3259,7 +3259,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                         class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                       >
                         <label
-                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
+                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-a5n9ke-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="false"
                           for="sire"
                           id="sire-label"
@@ -3267,7 +3267,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                           dog.sire.name
                         </label>
                         <div
-                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl css-govxmy-MuiInputBase-root-MuiOutlinedInput-root"
+                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl css-78sb4c-MuiInputBase-root-MuiOutlinedInput-root"
                         >
                           <input
                             aria-invalid="false"
@@ -3299,7 +3299,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                         class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                       >
                         <label
-                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-wx20vo-MuiFormLabel-root-MuiInputLabel-root"
+                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-a5n9ke-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="false"
                           for="dam"
                           id="dam-label"
@@ -3307,7 +3307,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                           dog.dam.name
                         </label>
                         <div
-                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl css-govxmy-MuiInputBase-root-MuiOutlinedInput-root"
+                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl css-78sb4c-MuiInputBase-root-MuiOutlinedInput-root"
                         >
                           <input
                             aria-invalid="false"
@@ -3343,7 +3343,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
         class="MuiBox-root css-1d8l8v2"
       >
         <button
-          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10frfwe-MuiButtonBase-root-MuiIconButton-root"
+          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-tov16f-MuiButtonBase-root-MuiIconButton-root"
           tabindex="0"
           type="button"
         >
@@ -3402,7 +3402,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                         class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                       >
                         <label
-                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
+                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1cwx9dy-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="true"
                           for="breeder_name"
                           id="breeder_name-label"
@@ -3410,7 +3410,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                           Nimi
                         </label>
                         <div
-                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-govxmy-MuiInputBase-root-MuiOutlinedInput-root"
+                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-78sb4c-MuiInputBase-root-MuiOutlinedInput-root"
                         >
                           <input
                             aria-invalid="false"
@@ -3441,7 +3441,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                         class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                       >
                         <label
-                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
+                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1cwx9dy-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="true"
                           for="breeder_location"
                           id="breeder_location-label"
@@ -3449,7 +3449,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                           Kotikunta
                         </label>
                         <div
-                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-govxmy-MuiInputBase-root-MuiOutlinedInput-root"
+                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-78sb4c-MuiInputBase-root-MuiOutlinedInput-root"
                         >
                           <input
                             aria-invalid="false"
@@ -3484,7 +3484,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
         class="MuiBox-root css-1d8l8v2"
       >
         <button
-          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10frfwe-MuiButtonBase-root-MuiIconButton-root"
+          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-tov16f-MuiButtonBase-root-MuiIconButton-root"
           tabindex="0"
           type="button"
         >
@@ -3543,7 +3543,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                         class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                       >
                         <label
-                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
+                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1cwx9dy-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="true"
                           for="owner_name"
                           id="owner_name-label"
@@ -3551,7 +3551,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                           contact.name
                         </label>
                         <div
-                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-govxmy-MuiInputBase-root-MuiOutlinedInput-root"
+                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-78sb4c-MuiInputBase-root-MuiOutlinedInput-root"
                         >
                           <input
                             aria-invalid="false"
@@ -3584,7 +3584,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                         class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                       >
                         <label
-                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
+                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1cwx9dy-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="true"
                           for="owner_city"
                           id="owner_city-label"
@@ -3592,7 +3592,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                           contact.city
                         </label>
                         <div
-                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-govxmy-MuiInputBase-root-MuiOutlinedInput-root"
+                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-78sb4c-MuiInputBase-root-MuiOutlinedInput-root"
                         >
                           <input
                             aria-invalid="false"
@@ -3625,7 +3625,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                         class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                       >
                         <label
-                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
+                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1cwx9dy-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="true"
                           for="owner_email"
                           id="owner_email-label"
@@ -3633,7 +3633,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                           contact.email
                         </label>
                         <div
-                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-govxmy-MuiInputBase-root-MuiOutlinedInput-root"
+                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-78sb4c-MuiInputBase-root-MuiOutlinedInput-root"
                         >
                           <input
                             aria-invalid="false"
@@ -3666,7 +3666,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                         class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root MuiTelInput-TextField  css-wb57ya-MuiFormControl-root-MuiTextField-root"
                       >
                         <label
-                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
+                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1cwx9dy-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="true"
                           for="owner_phone"
                           id="owner_phone-label"
@@ -3674,7 +3674,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                           contact.phone
                         </label>
                         <div
-                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart css-12gou2o-MuiInputBase-root-MuiOutlinedInput-root"
+                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart css-fx6mn2-MuiInputBase-root-MuiOutlinedInput-root"
                         >
                           <div
                             class="MuiInputAdornment-root MuiInputAdornment-positionStart MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-74b6xz-MuiInputAdornment-root"
@@ -3763,7 +3763,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                       class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
                     >
                       <span
-                        class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-1tsrs4w-MuiButtonBase-root-MuiCheckbox-root"
+                        class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-1aovigq-MuiButtonBase-root-MuiCheckbox-root"
                       >
                         <input
                           class="PrivateSwitchBase-input css-1m9pwf3"
@@ -3848,7 +3848,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
               class="MuiBox-root css-1d8l8v2"
             >
               <button
-                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10frfwe-MuiButtonBase-root-MuiIconButton-root"
+                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-tov16f-MuiButtonBase-root-MuiIconButton-root"
                 tabindex="0"
                 type="button"
               >
@@ -3910,7 +3910,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                                 class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                               >
                                 <label
-                                  class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
+                                  class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1cwx9dy-MuiFormLabel-root-MuiInputLabel-root"
                                   data-shrink="true"
                                   for="handler_name"
                                   id="handler_name-label"
@@ -3918,7 +3918,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                                   contact.name
                                 </label>
                                 <div
-                                  class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-govxmy-MuiInputBase-root-MuiOutlinedInput-root"
+                                  class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-78sb4c-MuiInputBase-root-MuiOutlinedInput-root"
                                 >
                                   <input
                                     aria-invalid="false"
@@ -3951,7 +3951,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                                 class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                               >
                                 <label
-                                  class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
+                                  class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1cwx9dy-MuiFormLabel-root-MuiInputLabel-root"
                                   data-shrink="true"
                                   for="handler_city"
                                   id="handler_city-label"
@@ -3959,7 +3959,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                                   contact.city
                                 </label>
                                 <div
-                                  class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-govxmy-MuiInputBase-root-MuiOutlinedInput-root"
+                                  class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-78sb4c-MuiInputBase-root-MuiOutlinedInput-root"
                                 >
                                   <input
                                     aria-invalid="false"
@@ -3996,7 +3996,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                                 class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                               >
                                 <label
-                                  class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
+                                  class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1cwx9dy-MuiFormLabel-root-MuiInputLabel-root"
                                   data-shrink="true"
                                   for="handler_email"
                                   id="handler_email-label"
@@ -4004,7 +4004,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                                   contact.email
                                 </label>
                                 <div
-                                  class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-govxmy-MuiInputBase-root-MuiOutlinedInput-root"
+                                  class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-78sb4c-MuiInputBase-root-MuiOutlinedInput-root"
                                 >
                                   <input
                                     aria-invalid="false"
@@ -4037,7 +4037,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                                 class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root MuiTelInput-TextField  css-wb57ya-MuiFormControl-root-MuiTextField-root"
                               >
                                 <label
-                                  class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
+                                  class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1cwx9dy-MuiFormLabel-root-MuiInputLabel-root"
                                   data-shrink="true"
                                   for="handler_phone"
                                   id="handler_phone-label"
@@ -4045,7 +4045,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                                   contact.phone
                                 </label>
                                 <div
-                                  class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart css-12gou2o-MuiInputBase-root-MuiOutlinedInput-root"
+                                  class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart css-fx6mn2-MuiInputBase-root-MuiOutlinedInput-root"
                                 >
                                   <div
                                     class="MuiInputAdornment-root MuiInputAdornment-positionStart MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-74b6xz-MuiInputAdornment-root"
@@ -4132,7 +4132,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                           class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
                         >
                           <span
-                            class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-1tsrs4w-MuiButtonBase-root-MuiCheckbox-root"
+                            class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-1aovigq-MuiButtonBase-root-MuiCheckbox-root"
                           >
                             <input
                               class="PrivateSwitchBase-input css-1m9pwf3"
@@ -4174,7 +4174,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
         class="MuiBox-root css-1d8l8v2"
       >
         <button
-          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10frfwe-MuiButtonBase-root-MuiIconButton-root"
+          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-tov16f-MuiButtonBase-root-MuiIconButton-root"
           tabindex="0"
           type="button"
         >
@@ -4227,7 +4227,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                     class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
                   >
                     <button
-                      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-16m0f1y-MuiButtonBase-root-MuiButton-root"
+                      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-mvwufc-MuiButtonBase-root-MuiButton-root"
                       disabled=""
                       tabindex="-1"
                       type="button"
@@ -4260,7 +4260,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
         class="MuiBox-root css-1d8l8v2"
       >
         <button
-          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10frfwe-MuiButtonBase-root-MuiIconButton-root"
+          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-tov16f-MuiButtonBase-root-MuiIconButton-root"
           tabindex="0"
           type="button"
         >
@@ -4311,7 +4311,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                     class="MuiFormControl-root MuiTextField-root css-136h9lv-MuiFormControl-root-MuiTextField-root"
                   >
                     <label
-                      class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-t4q8ta-MuiFormLabel-root-MuiInputLabel-root"
+                      class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1cwx9dy-MuiFormLabel-root-MuiInputLabel-root"
                       data-shrink="true"
                       for=":r22:"
                       id=":r22:-label"
@@ -4319,7 +4319,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                       registration.notes
                     </label>
                     <div
-                      class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-multiline css-5d3t38-MuiInputBase-root-MuiOutlinedInput-root"
+                      class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-multiline css-1w0qb2b-MuiInputBase-root-MuiOutlinedInput-root"
                     >
                       <textarea
                         aria-invalid="false"
@@ -4369,7 +4369,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
           >
             <span
               aria-disabled="true"
-              class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-1tsrs4w-MuiButtonBase-root-MuiCheckbox-root"
+              class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-1aovigq-MuiButtonBase-root-MuiCheckbox-root"
               tabindex="-1"
             >
               <input
@@ -4398,7 +4398,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
               Hyväksyn
                
               <a
-                class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-15fpjfj-MuiTypography-root-MuiLink-root"
+                class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-17vs3rc-MuiTypography-root-MuiLink-root"
                 href="https://yttmk.yhdistysavain.fi/noutajien-metsastyskokeet-2/ohjeistukset/kokeen-ja-tai-kilpailun-ilmoitta/"
                 rel="noopener"
                 target="_blank"
@@ -4409,7 +4409,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
               ja
                
               <a
-                class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-15fpjfj-MuiTypography-root-MuiLink-root"
+                class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-17vs3rc-MuiTypography-root-MuiLink-root"
                 href="https://www.snj.fi/snj/tietosuojaseloste/"
                 rel="noopener"
                 target="_blank"
@@ -4438,7 +4438,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
          €
       </div>
       <button
-        class="MuiButtonBase-root MuiButton-root MuiLoadingButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium Mui-disabled MuiButton-root MuiLoadingButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium css-1nte33v-MuiButtonBase-root-MuiButton-root-MuiLoadingButton-root"
+        class="MuiButtonBase-root MuiButton-root MuiLoadingButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium Mui-disabled MuiButton-root MuiLoadingButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium css-15jnnye-MuiButtonBase-root-MuiButton-root-MuiLoadingButton-root"
         disabled=""
         id=":r23:"
         tabindex="-1"
@@ -4462,7 +4462,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
         Tallenna muutokset
       </button>
       <button
-        class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium css-1zh5ck-MuiButtonBase-root-MuiButton-root"
+        class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium css-q3vbvi-MuiButtonBase-root-MuiButton-root"
         tabindex="0"
         type="button"
       >

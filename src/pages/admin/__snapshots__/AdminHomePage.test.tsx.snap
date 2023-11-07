@@ -3,7 +3,7 @@
 exports[`AdminHomePage renders the child page content when user is logged in 1`] = `
 <div>
   <header
-    class="MuiPaper-root MuiPaper-elevation MuiPaper-elevation0 MuiAppBar-root MuiAppBar-colorSecondary MuiAppBar-positionFixed mui-fixed css-4899ph-MuiPaper-root-MuiAppBar-root"
+    class="MuiPaper-root MuiPaper-elevation MuiPaper-elevation0 MuiAppBar-root MuiAppBar-colorPrimary MuiAppBar-positionFixed mui-fixed css-ztfdnx-MuiPaper-root-MuiAppBar-root"
   >
     <div
       class="MuiToolbar-root MuiToolbar-dense css-1njp2ce-MuiToolbar-root"
@@ -29,7 +29,7 @@ exports[`AdminHomePage renders the child page content when user is logged in 1`]
         />
       </button>
       <a
-        class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-15fpjfj-MuiTypography-root-MuiLink-root"
+        class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-17vs3rc-MuiTypography-root-MuiLink-root"
         href="/"
       >
         <button
@@ -49,30 +49,30 @@ exports[`AdminHomePage renders the child page content when user is logged in 1`]
         </button>
       </a>
       <a
-        class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-bjcnli-MuiTypography-root-MuiLink-root"
+        class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-1eimd8p-MuiTypography-root-MuiLink-root"
         href="/"
       >
         <div
-          class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-noWrap css-mpfifn-MuiTypography-root"
+          class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-noWrap css-12w1lm-MuiTypography-root"
         >
           Koekalenteri
         </div>
       </a>
       <a
-        class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-6rka08-MuiTypography-root-MuiLink-root"
+        class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-x1z00-MuiTypography-root-MuiLink-root"
         href="/admin/event"
       >
         <div
-          class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-noWrap css-mpfifn-MuiTypography-root"
+          class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-noWrap css-12w1lm-MuiTypography-root"
         >
           admin
         </div>
       </a>
       <div
-        class="MuiTypography-root MuiTypography-h6 MuiTypography-noWrap css-1mo43ab-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-h6 MuiTypography-noWrap css-2mbm5r-MuiTypography-root"
       />
       <button
-        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-kva05m-MuiButtonBase-root-MuiButton-root"
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textSecondary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textSecondary MuiButton-sizeMedium MuiButton-textSizeMedium css-mxyqxy-MuiButtonBase-root-MuiButton-root"
         tabindex="0"
         type="button"
       >
@@ -116,7 +116,7 @@ exports[`AdminHomePage renders the child page content when user is logged in 1`]
         />
       </button>
       <button
-        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-kva05m-MuiButtonBase-root-MuiButton-root"
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textSecondary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textSecondary MuiButton-sizeMedium MuiButton-textSizeMedium css-mxyqxy-MuiButtonBase-root-MuiButton-root"
         tabindex="0"
         type="button"
       >
@@ -176,7 +176,7 @@ exports[`AdminHomePage renders the child page content when user is logged in 1`]
 exports[`AdminHomePage renders the page when user is logged in 1`] = `
 <div>
   <header
-    class="MuiPaper-root MuiPaper-elevation MuiPaper-elevation0 MuiAppBar-root MuiAppBar-colorSecondary MuiAppBar-positionFixed mui-fixed css-4899ph-MuiPaper-root-MuiAppBar-root"
+    class="MuiPaper-root MuiPaper-elevation MuiPaper-elevation0 MuiAppBar-root MuiAppBar-colorPrimary MuiAppBar-positionFixed mui-fixed css-ztfdnx-MuiPaper-root-MuiAppBar-root"
   >
     <div
       class="MuiToolbar-root MuiToolbar-dense css-1njp2ce-MuiToolbar-root"
@@ -202,7 +202,7 @@ exports[`AdminHomePage renders the page when user is logged in 1`] = `
         />
       </button>
       <a
-        class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-15fpjfj-MuiTypography-root-MuiLink-root"
+        class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-17vs3rc-MuiTypography-root-MuiLink-root"
         href="/"
       >
         <button
@@ -222,30 +222,30 @@ exports[`AdminHomePage renders the page when user is logged in 1`] = `
         </button>
       </a>
       <a
-        class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-bjcnli-MuiTypography-root-MuiLink-root"
+        class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-1eimd8p-MuiTypography-root-MuiLink-root"
         href="/"
       >
         <div
-          class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-noWrap css-mpfifn-MuiTypography-root"
+          class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-noWrap css-12w1lm-MuiTypography-root"
         >
           Koekalenteri
         </div>
       </a>
       <a
-        class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-6rka08-MuiTypography-root-MuiLink-root"
+        class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-x1z00-MuiTypography-root-MuiLink-root"
         href="/admin/event"
       >
         <div
-          class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-noWrap css-mpfifn-MuiTypography-root"
+          class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-noWrap css-12w1lm-MuiTypography-root"
         >
           admin
         </div>
       </a>
       <div
-        class="MuiTypography-root MuiTypography-h6 MuiTypography-noWrap css-1mo43ab-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-h6 MuiTypography-noWrap css-2mbm5r-MuiTypography-root"
       />
       <button
-        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-kva05m-MuiButtonBase-root-MuiButton-root"
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textSecondary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textSecondary MuiButton-sizeMedium MuiButton-textSizeMedium css-mxyqxy-MuiButtonBase-root-MuiButton-root"
         tabindex="0"
         type="button"
       >
@@ -289,7 +289,7 @@ exports[`AdminHomePage renders the page when user is logged in 1`] = `
         />
       </button>
       <button
-        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-kva05m-MuiButtonBase-root-MuiButton-root"
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textSecondary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textSecondary MuiButton-sizeMedium MuiButton-textSizeMedium css-mxyqxy-MuiButtonBase-root-MuiButton-root"
         tabindex="0"
         type="button"
       >

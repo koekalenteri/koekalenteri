@@ -36,7 +36,7 @@ const Header = ({ toggleMenu }: Props) => {
   }, [actions, idToken, user])
 
   return (
-    <AppBar position="fixed" color="secondary" elevation={0}>
+    <AppBar position="fixed" elevation={0}>
       <Toolbar variant="dense" disableGutters sx={{ width: '100%', px: 1, height: 36, minHeight: 36 }}>
         {toggleMenu ? (
           <IconButton sx={{ display: { sm: 'inline-flex', md: 'none' } }} onClick={toggleMenu}>
@@ -49,14 +49,14 @@ const Header = ({ toggleMenu }: Props) => {
           </IconButton>
         </Link>
         <Link to="/" component={SpaLink} sx={{ textDecoration: 'none', borderBottom: mainBorder, mr: 1, px: 1 }}>
-          <Typography variant="subtitle1" noWrap component="div" sx={{ flexShrink: 1 }}>
+          <Typography color="secondary" variant="subtitle1" noWrap component="div" sx={{ flexShrink: 1 }}>
             Koekalenteri
           </Typography>
         </Link>
         {hasAdminAccess && <AdminLink active={inAdmin} activeBorder={linkBorder} />}
         <Typography
           variant="h6"
-          color="primary.dark"
+          color="#fdfdfd"
           noWrap
           component="div"
           sx={{ ml: 1, flexGrow: 1, flexShrink: 10000 }}
