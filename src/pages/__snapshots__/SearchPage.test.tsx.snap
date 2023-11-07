@@ -3,7 +3,7 @@
 exports[`SearchPage filters by date - no-results 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1ynyhby"
+    class="MuiBox-root css-qgqxrk"
   >
     <div
       class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-1 css-n0zgdy-MuiGrid-root"
@@ -535,7 +535,7 @@ exports[`SearchPage filters by date - no-results 1`] = `
 exports[`SearchPage filters by date 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1ynyhby"
+    class="MuiBox-root css-qgqxrk"
   >
     <div
       class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-1 css-n0zgdy-MuiGrid-root"
@@ -2284,7 +2284,7 @@ exports[`SearchPage filters by date 1`] = `
 exports[`SearchPage filters by date/end 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1ynyhby"
+    class="MuiBox-root css-qgqxrk"
   >
     <div
       class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-1 css-n0zgdy-MuiGrid-root"
@@ -4033,7 +4033,7 @@ exports[`SearchPage filters by date/end 1`] = `
 exports[`SearchPage filters by event class 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1ynyhby"
+    class="MuiBox-root css-qgqxrk"
   >
     <div
       class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-1 css-n0zgdy-MuiGrid-root"
@@ -5900,7 +5900,7 @@ exports[`SearchPage filters by event class 1`] = `
 exports[`SearchPage filters by event type 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1ynyhby"
+    class="MuiBox-root css-qgqxrk"
   >
     <div
       class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-1 css-n0zgdy-MuiGrid-root"
@@ -7802,7 +7802,7 @@ exports[`SearchPage filters by event type 1`] = `
 exports[`SearchPage filters by organizer 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1ynyhby"
+    class="MuiBox-root css-qgqxrk"
   >
     <div
       class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-1 css-n0zgdy-MuiGrid-root"

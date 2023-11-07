@@ -74,7 +74,7 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
   const compareId = useCallback((o?: { id?: number | string }, v?: { id?: number | string }) => o?.id === v?.id, [])
 
   return (
-    <Box m={1}>
+    <Box p={1} bgcolor={'white'} sx={{ position: 'sticky', top: '36px', zIndex: 2, borderBottom: '1px solid #eee' }}>
       <Grid container justifyContent="start" spacing={1}>
         <Grid item xs={12} md={6}>
           <DateRange
