@@ -1,3 +1,5 @@
+import { unique } from '../utils'
+
 export interface Priority {
   group: string
   name: string
@@ -14,3 +16,16 @@ export const PRIORITY: Priority[] = [
   { group: 'Etusija nimetyillä roduilla', name: 'Kiharakarvaiset noutajat', value: '110' },
   { group: 'Järjestäjän kutsumat koirat', name: 'Kutsutut', value: 'invited' },
 ]
+
+export const priorityValuesToPriority = (values: Array<string | undefined> = []) => {
+  const result: Priority[] = []
+  if (!Array.isArray(values)) return result
+
+  for (const value of unique(values)) {
+    const priority = PRIORITY.find((p) => p.value === value)
+    if (priority) {
+      result.push(priority)
+    }
+  }
+  return result
+}

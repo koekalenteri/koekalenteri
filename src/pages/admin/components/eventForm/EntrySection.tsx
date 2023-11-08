@@ -9,7 +9,7 @@ import FormHelperText from '@mui/material/FormHelperText'
 import Grid from '@mui/material/Grid'
 import { sub } from 'date-fns'
 
-import { PRIORITY } from '../../../../lib/priority'
+import { PRIORITY, priorityValuesToPriority } from '../../../../lib/priority'
 import AutocompleteMulti from '../../../components/AutocompleteMulti'
 import CollapsibleSection from '../../../components/CollapsibleSection'
 import DateRange from '../../../components/DateRange'
@@ -21,16 +21,7 @@ export default function EntrySection(props: Readonly<SectionProps>) {
   const { disabled, event, fields, helperTexts, onChange, onOpenChange, open } = props
   const error = helperTexts?.entryStartDate ?? helperTexts?.entryEndDate ?? helperTexts?.places
   const helperText = error ? t('validation.event.errors') : ''
-  const eventPriority = useMemo(() => {
-    const result: Priority[] = []
-    for (const value of event.priority ?? []) {
-      const priority = PRIORITY.find((p) => p.value === value)
-      if (priority) {
-        result.push(priority)
-      }
-    }
-    return result
-  }, [event.priority])
+  const eventPriority = useMemo(() => priorityValuesToPriority(event.priority), [event.priority])
 
   const handleDateChange = useCallback(
     (start: DateValue, end: DateValue) =>
