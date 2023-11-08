@@ -55,7 +55,7 @@
     "@types/busboy": "^1.5.2",
     "@types/hast": "^3.0.2",
     "@types/jest": "^29.5.6",
-    "@types/mdast": "^4.0.2",
+    "@types/mdast": "^4.0.3",
     "@types/node": "^20.8.7",
     "@types/node-fetch": "^2.6.7",
     "@typescript-eslint/eslint-plugin": "^6.8.0",
