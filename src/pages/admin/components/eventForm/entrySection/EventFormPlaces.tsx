@@ -15,9 +15,8 @@ import TableCell from '@mui/material/TableCell'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import Typography from '@mui/material/Typography'
-import { eachDayOfInterval, isSameDay } from 'date-fns'
 
-import { unique } from '../../../../../utils'
+import { eventClasses, eventClassesByDays } from '../../../../../lib/event'
 import { compareEventClass } from '../components/EventClasses'
 
 import PlacesDisplay from './eventFormPlaces/PlacesDisplay'
@@ -28,15 +27,8 @@ export default function EventFormPlaces({ event, disabled, helperTexts, onChange
   const [classesEnabled, setClassesEnabled] = useState(
     event.classes?.reduce((prev, cur) => prev + (cur?.places ?? 0), 0) > 0
   )
-  const days = eachDayOfInterval({
-    start: event.startDate,
-    end: event.endDate,
-  })
-  const uniqueClasses = unique(event.classes.map((c) => c.class))
-  const classesByDays = days.map((day) => ({
-    day,
-    classes: event.classes.filter((c) => isSameDay(c.date ?? event.startDate, day)),
-  }))
+  const uniqueClasses = eventClasses(event)
+  const classesByDays = eventClassesByDays(event)
 
   const handleChange = (c: DeepPartial<EventClass>) => (value: number) => {
     const newClasses = event.classes.map((ec) => structuredClone(ec))
