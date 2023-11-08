@@ -1233,7 +1233,7 @@ exports[`SearchPage filters by date 1`] = `
                           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                           scope="row"
                         >
-                          event.paymentDetails
+                          paymentDetails
                           :
                         </th>
                         <td
@@ -1249,8 +1249,6 @@ exports[`SearchPage filters by date 1`] = `
                           123
                            €
                           <br />
-                          <br />
-                          test
                         </td>
                       </tr>
                       <tr
@@ -1558,7 +1556,7 @@ exports[`SearchPage filters by date 1`] = `
                           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                           scope="row"
                         >
-                          event.paymentDetails
+                          paymentDetails
                           :
                         </th>
                         <td
@@ -1574,8 +1572,6 @@ exports[`SearchPage filters by date 1`] = `
                           123
                            €
                           <br />
-                          <br />
-                          test
                         </td>
                       </tr>
                       <tr
@@ -1918,7 +1914,7 @@ exports[`SearchPage filters by date 1`] = `
                           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                           scope="row"
                         >
-                          event.paymentDetails
+                          paymentDetails
                           :
                         </th>
                         <td
@@ -1934,8 +1930,6 @@ exports[`SearchPage filters by date 1`] = `
                           123
                            €
                           <br />
-                          <br />
-                          test
                         </td>
                       </tr>
                       <tr
@@ -2208,7 +2202,7 @@ exports[`SearchPage filters by date 1`] = `
                           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                           scope="row"
                         >
-                          event.paymentDetails
+                          paymentDetails
                           :
                         </th>
                         <td
@@ -2224,8 +2218,6 @@ exports[`SearchPage filters by date 1`] = `
                           123
                            €
                           <br />
-                          <br />
-                          test
                         </td>
                       </tr>
                       <tr
@@ -2982,7 +2974,7 @@ exports[`SearchPage filters by date/end 1`] = `
                           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                           scope="row"
                         >
-                          event.paymentDetails
+                          paymentDetails
                           :
                         </th>
                         <td
@@ -2998,8 +2990,6 @@ exports[`SearchPage filters by date/end 1`] = `
                           123
                            €
                           <br />
-                          <br />
-                          test
                         </td>
                       </tr>
                       <tr
@@ -3307,7 +3297,7 @@ exports[`SearchPage filters by date/end 1`] = `
                           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                           scope="row"
                         >
-                          event.paymentDetails
+                          paymentDetails
                           :
                         </th>
                         <td
@@ -3323,8 +3313,6 @@ exports[`SearchPage filters by date/end 1`] = `
                           123
                            €
                           <br />
-                          <br />
-                          test
                         </td>
                       </tr>
                       <tr
@@ -3667,7 +3655,7 @@ exports[`SearchPage filters by date/end 1`] = `
                           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                           scope="row"
                         >
-                          event.paymentDetails
+                          paymentDetails
                           :
                         </th>
                         <td
@@ -3683,8 +3671,6 @@ exports[`SearchPage filters by date/end 1`] = `
                           123
                            €
                           <br />
-                          <br />
-                          test
                         </td>
                       </tr>
                       <tr
@@ -3957,7 +3943,7 @@ exports[`SearchPage filters by date/end 1`] = `
                           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                           scope="row"
                         >
-                          event.paymentDetails
+                          paymentDetails
                           :
                         </th>
                         <td
@@ -3973,8 +3959,6 @@ exports[`SearchPage filters by date/end 1`] = `
                           123
                            €
                           <br />
-                          <br />
-                          test
                         </td>
                       </tr>
                       <tr
@@ -4906,7 +4890,7 @@ exports[`SearchPage filters by event class 1`] = `
                           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                           scope="row"
                         >
-                          event.paymentDetails
+                          paymentDetails
                           :
                         </th>
                         <td
@@ -4922,8 +4906,6 @@ exports[`SearchPage filters by event class 1`] = `
                           123
                            €
                           <br />
-                          <br />
-                          test
                         </td>
                       </tr>
                       <tr
@@ -5196,7 +5178,7 @@ exports[`SearchPage filters by event class 1`] = `
                           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                           scope="row"
                         >
-                          event.paymentDetails
+                          paymentDetails
                           :
                         </th>
                         <td
@@ -5212,8 +5194,6 @@ exports[`SearchPage filters by event class 1`] = `
                           123
                            €
                           <br />
-                          <br />
-                          test
                         </td>
                       </tr>
                       <tr
@@ -5534,7 +5514,7 @@ exports[`SearchPage filters by event class 1`] = `
                           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                           scope="row"
                         >
-                          event.paymentDetails
+                          paymentDetails
                           :
                         </th>
                         <td
@@ -5550,8 +5530,6 @@ exports[`SearchPage filters by event class 1`] = `
                           123
                            €
                           <br />
-                          <br />
-                          test
                         </td>
                       </tr>
                       <tr
@@ -5824,7 +5802,7 @@ exports[`SearchPage filters by event class 1`] = `
                           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                           scope="row"
                         >
-                          event.paymentDetails
+                          paymentDetails
                           :
                         </th>
                         <td
@@ -5840,8 +5818,6 @@ exports[`SearchPage filters by event class 1`] = `
                           123
                            €
                           <br />
-                          <br />
-                          test
                         </td>
                       </tr>
                       <tr
@@ -6738,7 +6714,7 @@ exports[`SearchPage filters by event type 1`] = `
                           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                           scope="row"
                         >
-                          event.paymentDetails
+                          paymentDetails
                           :
                         </th>
                         <td
@@ -6754,8 +6730,6 @@ exports[`SearchPage filters by event type 1`] = `
                           123
                            €
                           <br />
-                          <br />
-                          test
                         </td>
                       </tr>
                       <tr
@@ -7098,7 +7072,7 @@ exports[`SearchPage filters by event type 1`] = `
                           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                           scope="row"
                         >
-                          event.paymentDetails
+                          paymentDetails
                           :
                         </th>
                         <td
@@ -7114,8 +7088,6 @@ exports[`SearchPage filters by event type 1`] = `
                           123
                            €
                           <br />
-                          <br />
-                          test
                         </td>
                       </tr>
                       <tr
@@ -7388,7 +7360,7 @@ exports[`SearchPage filters by event type 1`] = `
                           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                           scope="row"
                         >
-                          event.paymentDetails
+                          paymentDetails
                           :
                         </th>
                         <td
@@ -7404,8 +7376,6 @@ exports[`SearchPage filters by event type 1`] = `
                           123
                            €
                           <br />
-                          <br />
-                          test
                         </td>
                       </tr>
                       <tr
@@ -7726,7 +7696,7 @@ exports[`SearchPage filters by event type 1`] = `
                           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                           scope="row"
                         >
-                          event.paymentDetails
+                          paymentDetails
                           :
                         </th>
                         <td
@@ -7742,8 +7712,6 @@ exports[`SearchPage filters by event type 1`] = `
                           123
                            €
                           <br />
-                          <br />
-                          test
                         </td>
                       </tr>
                       <tr
@@ -8605,7 +8573,7 @@ exports[`SearchPage filters by organizer 1`] = `
                           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                           scope="row"
                         >
-                          event.paymentDetails
+                          paymentDetails
                           :
                         </th>
                         <td
@@ -8621,8 +8589,6 @@ exports[`SearchPage filters by organizer 1`] = `
                           123
                            €
                           <br />
-                          <br />
-                          test
                         </td>
                       </tr>
                       <tr

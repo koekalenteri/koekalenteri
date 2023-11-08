@@ -14,7 +14,6 @@ const twoWeeksAway = startOfDay(addWeeks(Date.now(), 2)).toISOString()
 const monthAway = startOfDay(addMonths(Date.now(), 1)).toISOString()
 
 const draft: JsonEvent = {
-  accountNumber: '',
   classes: [],
   contactInfo: {
     secretary: {
@@ -45,9 +44,7 @@ const draft: JsonEvent = {
     id: 'sZty-anoPN',
     name: 'SUOMEN NOUTAJAKOIRAJÄRJESTÖ R.Y.',
   },
-  paymentDetails: '',
   places: 0,
-  referenceNumber: '',
   secretary: {
     id: 'demo-sihteeri',
     name: 'Demo Sihteeri',

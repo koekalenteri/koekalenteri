@@ -29,9 +29,6 @@ export interface JsonEvent extends JsonDbRecord {
   priority?: string[]
   cost: number
   costMember: number
-  paymentDetails: string
-  accountNumber: string
-  referenceNumber: string
   judges: Array<number>
   official: Partial<User>
   secretary: Partial<User>

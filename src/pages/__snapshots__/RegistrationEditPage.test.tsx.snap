@@ -120,12 +120,6 @@ exports[`RegistrationEditPage should render 1`] = `
                     class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-sm-12 MuiGrid-grid-md-true css-1gzo6kn-MuiGrid-root"
                   >
                     <div
-                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-h9ezi1-MuiGrid-root"
-                    >
-                      event.paymentDetails
-                      :
-                    </div>
-                    <div
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-163n9ee-MuiGrid-root"
                     >
                       event.cost
@@ -138,8 +132,6 @@ exports[`RegistrationEditPage should render 1`] = `
                       123
                        €
                       <br />
-                      <br />
-                      test
                     </div>
                     <div
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-h9ezi1-MuiGrid-root"

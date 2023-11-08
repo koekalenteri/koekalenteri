@@ -1601,7 +1601,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
             <p
               class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
             >
-              event.paymentDetails
+              paymentDetails
             </p>
             <p
               class="MuiFormHelperText-root css-ml08u8-MuiFormHelperText-root"
@@ -1793,158 +1793,6 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                         </div>
                       </div>
                     </div>
-                    <div
-                      class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
-                    >
-                      <div
-                        class="MuiGrid-root MuiGrid-item css-17sva53-MuiGrid-root"
-                      >
-                        <div
-                          class="MuiAutocomplete-root css-1h51icj-MuiAutocomplete-root"
-                        >
-                          <div
-                            class="MuiBox-root css-91p3uw"
-                          >
-                            <div
-                              class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
-                            >
-                              <label
-                                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-a5n9ke-MuiFormLabel-root-MuiInputLabel-root"
-                                data-shrink="false"
-                                for="accountNumber"
-                                id="accountNumber-label"
-                              >
-                                event.accountNumber
-                              </label>
-                              <div
-                                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1tenv44-MuiInputBase-root-MuiOutlinedInput-root"
-                              >
-                                <input
-                                  aria-autocomplete="list"
-                                  aria-expanded="false"
-                                  aria-invalid="false"
-                                  autocapitalize="none"
-                                  autocomplete="off"
-                                  class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
-                                  disabled=""
-                                  id="accountNumber"
-                                  role="combobox"
-                                  spellcheck="false"
-                                  type="text"
-                                  value=""
-                                />
-                                <fieldset
-                                  aria-hidden="true"
-                                  class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
-                                >
-                                  <legend
-                                    class="css-yjsfm1"
-                                  >
-                                    <span>
-                                      event.accountNumber
-                                    </span>
-                                  </legend>
-                                </fieldset>
-                              </div>
-                            </div>
-                            <button
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-b11i70-MuiButtonBase-root-MuiIconButton-root"
-                              tabindex="0"
-                              type="button"
-                            >
-                              <svg
-                                aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                                data-testid="HelpOutlinedIcon"
-                                focusable="false"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"
-                                />
-                              </svg>
-                              <span
-                                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                              />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                      <div
-                        class="MuiGrid-root MuiGrid-item css-17sva53-MuiGrid-root"
-                      >
-                        <div
-                          class="MuiAutocomplete-root css-1h51icj-MuiAutocomplete-root"
-                        >
-                          <div
-                            class="MuiBox-root css-91p3uw"
-                          >
-                            <div
-                              class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
-                            >
-                              <label
-                                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-a5n9ke-MuiFormLabel-root-MuiInputLabel-root"
-                                data-shrink="false"
-                                for="referenceNumber"
-                                id="referenceNumber-label"
-                              >
-                                event.referenceNumber
-                              </label>
-                              <div
-                                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1tenv44-MuiInputBase-root-MuiOutlinedInput-root"
-                              >
-                                <input
-                                  aria-autocomplete="list"
-                                  aria-expanded="false"
-                                  aria-invalid="false"
-                                  autocapitalize="none"
-                                  autocomplete="off"
-                                  class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
-                                  disabled=""
-                                  id="referenceNumber"
-                                  role="combobox"
-                                  spellcheck="false"
-                                  type="text"
-                                  value=""
-                                />
-                                <fieldset
-                                  aria-hidden="true"
-                                  class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
-                                >
-                                  <legend
-                                    class="css-yjsfm1"
-                                  >
-                                    <span>
-                                      event.referenceNumber
-                                    </span>
-                                  </legend>
-                                </fieldset>
-                              </div>
-                            </div>
-                            <button
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-b11i70-MuiButtonBase-root-MuiIconButton-root"
-                              tabindex="0"
-                              type="button"
-                            >
-                              <svg
-                                aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                                data-testid="HelpOutlinedIcon"
-                                focusable="false"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"
-                                />
-                              </svg>
-                              <span
-                                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                              />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -2018,8 +1866,8 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-a5n9ke-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="false"
-                            for=":r14:"
-                            id=":r14:-label"
+                            for=":r10:"
+                            id=":r10:-label"
                           >
                             event.headquarters.name
                           </label>
@@ -2030,7 +1878,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                               aria-invalid="false"
                               class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
                               disabled=""
-                              id=":r14:"
+                              id=":r10:"
                               type="text"
                               value=""
                             />
@@ -2058,8 +1906,8 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-a5n9ke-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="false"
-                            for=":r15:"
-                            id=":r15:-label"
+                            for=":r11:"
+                            id=":r11:-label"
                           >
                             event.headquarters.address
                           </label>
@@ -2070,7 +1918,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                               aria-invalid="false"
                               class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
                               disabled=""
-                              id=":r15:"
+                              id=":r11:"
                               type="text"
                               value=""
                             />
@@ -2102,8 +1950,8 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-a5n9ke-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="false"
-                            for=":r16:"
-                            id=":r16:-label"
+                            for=":r12:"
+                            id=":r12:-label"
                           >
                             event.headquarters.zipCode
                           </label>
@@ -2114,7 +1962,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                               aria-invalid="false"
                               class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
                               disabled=""
-                              id=":r16:"
+                              id=":r12:"
                               type="text"
                               value=""
                             />
@@ -2142,8 +1990,8 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-a5n9ke-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="false"
-                            for=":r17:"
-                            id=":r17:-label"
+                            for=":r13:"
+                            id=":r13:-label"
                           >
                             event.headquarters.postalDistrict
                           </label>
@@ -2154,7 +2002,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                               aria-invalid="false"
                               class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
                               disabled=""
-                              id=":r17:"
+                              id=":r13:"
                               type="text"
                               value=""
                             />
@@ -2353,7 +2201,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                               <input
                                 aria-invalid="false"
                                 class="MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
-                                id=":r18:"
+                                id=":r14:"
                                 name="name"
                                 type="text"
                                 value=""
@@ -2383,7 +2231,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                               <input
                                 aria-invalid="false"
                                 class="MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
-                                id=":r19:"
+                                id=":r15:"
                                 name="email"
                                 type="text"
                                 value=""
@@ -2413,7 +2261,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                               <input
                                 aria-invalid="false"
                                 class="MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
-                                id=":r1a:"
+                                id=":r16:"
                                 name="phone"
                                 type="text"
                                 value=""
@@ -2551,7 +2399,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                               <input
                                 aria-invalid="false"
                                 class="MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
-                                id=":r1b:"
+                                id=":r17:"
                                 name="name"
                                 type="text"
                                 value=""
@@ -2581,7 +2429,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                               <input
                                 aria-invalid="false"
                                 class="MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
-                                id=":r1c:"
+                                id=":r18:"
                                 name="email"
                                 type="text"
                                 value=""
@@ -2611,7 +2459,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                               <input
                                 aria-invalid="false"
                                 class="MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
-                                id=":r1d:"
+                                id=":r19:"
                                 name="phone"
                                 type="text"
                                 value=""
@@ -2703,7 +2551,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                         aria-invalid="false"
                         class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputMultiline css-1sqnrkk-MuiInputBase-input-MuiOutlinedInput-input"
                         disabled=""
-                        id=":r1e:"
+                        id=":r1a:"
                         rows="5"
                         style="height: 0px; overflow: hidden;"
                       />
@@ -2743,7 +2591,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
       <button
         class="MuiButtonBase-root MuiButton-root MuiLoadingButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium Mui-disabled MuiButton-root MuiLoadingButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium css-ptn6go-MuiButtonBase-root-MuiButton-root-MuiLoadingButton-root"
         disabled=""
-        id=":r1f:"
+        id=":r1b:"
         tabindex="-1"
         type="button"
       >

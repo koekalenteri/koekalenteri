@@ -3,7 +3,7 @@ import type { Event } from '../../types'
 import { useTranslation } from 'react-i18next'
 
 interface Props {
-  readonly event: Pick<Event, 'cost' | 'costMember' | 'paymentDetails'>
+  readonly event: Pick<Event, 'cost' | 'costMember'>
 }
 
 export default function CostInfo({ event }: Props) {
@@ -15,12 +15,6 @@ export default function CostInfo({ event }: Props) {
       {event.costMember ? (
         <>
           {t('event.costMember')}: {event.costMember} €<br />
-        </>
-      ) : null}
-      {event.paymentDetails ? (
-        <>
-          <br />
-          {event.paymentDetails}
         </>
       ) : null}
     </>

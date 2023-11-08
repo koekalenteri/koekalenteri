@@ -60,7 +60,6 @@
   "entryTitle_test": "Register to test",
   "entryUpcoming": "Upcoming registration",
   "event": {
-    "accountNumber": "Account number",
     "classes": "Classes",
     "contactInfo": "Contact information",
     "cost": "Cost",
@@ -93,9 +92,7 @@
     "name": "Name",
     "official": "Chief officer",
     "organizer": "Organizer",
-    "paymentDetails": "Payment details",
     "places": "Places",
-    "referenceNumber": "Reference number",
     "secretary": "Secretary",
     "startDate": "Starting date",
     "state": "State",
@@ -150,7 +147,6 @@
   "officials": "Officers",
   "organizations": "Organizations",
   "organizer": "Organizer",
-  "paymentDetails": "Payment details",
   "places": "Places",
   "register": "Register",
   "registration": {

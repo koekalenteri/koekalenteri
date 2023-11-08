@@ -1,7 +1,6 @@
 import type { ConfirmedEvent } from '../../types'
 
 export const emptyEvent: ConfirmedEvent = {
-  accountNumber: 'test',
   classes: [{ class: 'ALO' }],
   contactInfo: {
     official: {
@@ -45,9 +44,7 @@ export const emptyEvent: ConfirmedEvent = {
     id: '1',
     name: 'Suomen Noutajakoirajärjestö ry',
   },
-  paymentDetails: 'test',
   places: 10,
-  referenceNumber: 'test',
   startDate: new Date('1990-01-01'),
   state: 'confirmed' as const,
 }

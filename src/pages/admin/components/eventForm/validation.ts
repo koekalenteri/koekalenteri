@@ -54,7 +54,6 @@ const REQUIRED_BY_STATE: Record<EventState, EventFlags> = {
     entryEndDate: true,
     cost: true,
     costMember: (event: PartialEvent) => !!event.costMember,
-    accountNumber: true,
     contactInfo: true,
   },
   cancelled: {},

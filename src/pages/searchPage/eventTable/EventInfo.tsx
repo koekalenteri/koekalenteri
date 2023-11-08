@@ -103,7 +103,7 @@ export const EventInfo = ({ event }: Props) => {
         </TableRow>
         <TableRow key={event.id + 'payment'}>
           <TableCell component="th" scope="row">
-            {t('event.paymentDetails')}:
+            {t('paymentDetails')}:
           </TableCell>
           <TableCell>
             <CostInfo event={event} />

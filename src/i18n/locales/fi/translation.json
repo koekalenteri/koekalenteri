@@ -85,7 +85,6 @@
   "entryTitle": "Ilmoittaudu tapahtumaan",
   "entryTitle_test": "Ilmoittaudu kokeeseen",
   "event": {
-    "accountNumber": "Tilinumero",
     "attachments": "Liitteet",
     "classes": "Koeluokat",
     "contactInfo": "Yhteystiedot",
@@ -120,10 +119,8 @@
     "name": "Nimi",
     "official": "Vastaava koetoimitsija",
     "organizer": "Järjestäjä",
-    "paymentDetails": "Maksutiedot",
     "places": "Paikkoja",
     "priority": "Etusijat",
-    "referenceNumber": "Viitenumero",
     "secretary": "Koesihteeri",
     "startDate": "Kokeen alkamispäivä",
     "state": "Tila",

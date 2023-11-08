@@ -64,9 +64,6 @@ export default function RegistrationEventInfo({ event }: Props) {
             </Grid>
           </Grid>
           <Grid item container sm={12} md columnSpacing={1}>
-            <Grid item xs={4}>
-              {t('event.paymentDetails')}:
-            </Grid>
             <Grid item xs={8}>
               <CostInfo event={event} />
             </Grid>

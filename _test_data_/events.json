@@ -224,9 +224,6 @@
               }
             ]
           },
-          "referenceNumber": {
-            "S": "123654"
-          },
           "modifiedAt": {
             "S": "2023-02-21T15:35:26.990Z"
           },
@@ -263,9 +260,6 @@
           },
           "entryEndDate": {
             "S": "2023-05-20T21:00:00.000Z"
-          },
-          "accountNumber": {
-            "S": "FI6420012001013623"
           },
           "organizer": {
             "M": {
@@ -544,9 +538,6 @@
               }
             }
           },
-          "referenceNumber": {
-            "S": "11041"
-          },
           "modifiedBy": {
             "S": "anonymous"
           },
@@ -555,9 +546,6 @@
           },
           "state": {
             "S": "confirmed"
-          },
-          "paymentDetails": {
-            "S": "lorem ipsum"
           },
           "unofficial": {
             "BOOL": false
@@ -570,9 +558,6 @@
           },
           "eventType": {
             "S": "NOME-B"
-          },
-          "accountNumber": {
-            "S": "FI46...."
           },
           "requirePaymentBeforeEntry": {
             "BOOL": false
@@ -645,9 +630,6 @@
           "endDate": {
             "S": "2023-11-24T22:00:00.000Z"
           },
-          "paymentDetails": {
-            "S": "lorem ipsum"
-          },
           "classes": {
             "L": [
               {
@@ -703,9 +685,6 @@
           "allowHandlerMembershipPriority": {
             "BOOL": true
           },
-          "referenceNumber": {
-            "S": "11041"
-          },
           "location": {
             "S": "Liperi"
           },
@@ -729,9 +708,6 @@
           },
           "entries": {
             "N": "10"
-          },
-          "accountNumber": {
-            "S": "FI46...."
           },
           "organizer": {
             "M": {
