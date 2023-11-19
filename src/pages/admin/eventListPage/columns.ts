@@ -1,5 +1,5 @@
 import type { GridColDef } from '@mui/x-data-grid'
-import type { Event, EventClass } from '../../../types'
+import type { DogEvent, EventClass } from '../../../types'
 
 import { useTranslation } from 'react-i18next'
 
@@ -8,7 +8,7 @@ import { useJudgesActions } from '../../recoil'
 
 type StartEndDate = { start: Date; end: Date }
 
-type EventWithDate = Event & {
+type EventWithDate = DogEvent & {
   date: StartEndDate
 }
 

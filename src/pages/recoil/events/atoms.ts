@@ -1,4 +1,4 @@
-import type { Event, RegistrationClass } from '../../../types'
+import type { DogEvent, RegistrationClass } from '../../../types'
 
 import { startOfDay } from 'date-fns'
 import { atom } from 'recoil'
@@ -7,7 +7,7 @@ import { logEffect, storageEffect } from '../effects'
 
 import { remoteEventsEffect, urlSyncEffect } from './effects'
 
-export const eventsAtom = atom<Event[]>({
+export const eventsAtom = atom<DogEvent[]>({
   key: 'events',
   effects: [logEffect, storageEffect, remoteEventsEffect],
 })

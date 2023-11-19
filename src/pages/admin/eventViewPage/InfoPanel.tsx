@@ -1,5 +1,5 @@
 import type { ChangeEvent, SyntheticEvent } from 'react'
-import type { EmailTemplateId, Event, Registration } from '../../../types'
+import type { DogEvent, EmailTemplateId, Registration } from '../../../types'
 
 import { useCallback, useState } from 'react'
 import ExpandMore from '@mui/icons-material/ExpandMore'
@@ -27,7 +27,7 @@ import { API_BASE_URL } from '../../../routeConfig'
 import { idTokenAtom } from '../../recoil'
 
 interface Props {
-  readonly event: Event
+  readonly event: DogEvent
   readonly registrations: Registration[]
   readonly onOpenMessageDialog?: (recipients: Registration[], templateId?: EmailTemplateId) => void
 }

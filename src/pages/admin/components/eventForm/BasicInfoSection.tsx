@@ -1,5 +1,5 @@
 import type { ChangeEvent, SyntheticEvent } from 'react'
-import type { DeepPartial, EventClass, Organizer, Person, RegistrationClass, User } from '../../../../types'
+import type { DeepPartial, DogEvent, EventClass, Organizer, Person, RegistrationClass, User } from '../../../../types'
 import type { DateValue } from '../../../components/DateRange'
 import type { PartialEvent, SectionProps } from '../EventForm'
 
@@ -63,7 +63,7 @@ export default function BasicInfoSection({
     () =>
       officials?.filter((o) => !event.eventType || (Array.isArray(o.officer) && o.officer.includes(event.eventType))) ??
       [],
-    [event, officials]
+    [event.eventType, officials]
   )
   const hasEntries = (event.entries ?? 0) > 0
   const handleDateChange = useCallback(
@@ -87,6 +87,14 @@ export default function BasicInfoSection({
     []
   )
   const closeHelp = useCallback(() => setHelpAnchorEl(null), [])
+  const handleTypeChange = useCallback(
+    ({ eventType }: Partial<DogEvent>) => {
+      const filterClasses = eventTypeClasses?.[eventType ?? ''] ?? []
+      const classes = event.classes.filter((c) => filterClasses.includes(c.class))
+      onChange?.({ eventType, classes })
+    },
+    [event.classes, eventTypeClasses, onChange]
+  )
   const handleClassesChange = useCallback(
     (e: SyntheticEvent<Element, Event>, values: readonly DeepPartial<EventClass>[]) =>
       onChange?.({ classes: [...values] }),
@@ -153,7 +161,7 @@ export default function BasicInfoSection({
               event={event}
               fields={fields}
               options={eventTypes ?? []}
-              onChange={onChange}
+              onChange={handleTypeChange}
             />
           </Grid>
           <Grid item sx={{ width: 600 }}>

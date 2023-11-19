@@ -1,7 +1,7 @@
 import type { AutocompleteFreeSoloValueMapping, AutocompleteProps } from '@mui/material'
 import type { AutocompleteInputChangeReason, AutocompleteRenderInputParams } from '@mui/material/Autocomplete'
 import type { ReactNode, SyntheticEvent } from 'react'
-import type { Event } from '../../../../../types'
+import type { DogEvent } from '../../../../../types'
 import type { PartialEvent } from '../../EventForm'
 import type { FieldRequirements } from '../validation'
 
@@ -36,7 +36,7 @@ export type EventPropertyProps<P extends Property, freeSolo extends boolean> = O
   id: P
   event: PartialEvent
   fields?: FieldRequirements
-  onChange?: (props: Partial<Event>) => void
+  onChange?: (props: Partial<DogEvent>) => void
   helpClick?: React.MouseEventHandler<HTMLButtonElement>
   validateInput?: (value: string) => string
   mapValue?: (value?: any) => PartialEvent[P]

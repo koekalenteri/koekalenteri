@@ -7,9 +7,10 @@ import Grid from '@mui/material/Grid'
 import { format, isSameDay } from 'date-fns'
 import { useRecoilValue } from 'recoil'
 
-import { eventDates, registrationDates, uniqueClasses, uniqueDate } from '../../../utils'
+import { useEventRegistrationDates } from '../../../hooks/useEventRegistrationDates'
+import { registrationDates, unique, uniqueClasses, uniqueDate } from '../../../utils'
 import { isRegistrationClass } from '../../admin/EventViewPage'
-import { eventTypeGroupsAtom } from '../../recoil'
+import { eventTypeGroupsSelector } from '../../recoil'
 import AutocompleteMulti from '../AutocompleteMulti'
 import AutocompleteSingle from '../AutocompleteSingle'
 import CollapsibleSection from '../CollapsibleSection'
@@ -42,12 +43,12 @@ export function EntryInfo({
   reg,
 }: Props) {
   const { t } = useTranslation()
-  const eventTypeGroups = useRecoilValue(eventTypeGroupsAtom)
+  const eventTypeGroups = useRecoilValue(eventTypeGroupsSelector(event.eventType)).filter((g) => g !== 'kp')
 
-  const getRegDateLabel = useCallback((o: Date) => t('dateFormat.weekday', { date: o }), [t])
+  const getRegDateLabel = useCallback((o: Date) => t('dateFormat.wdshort', { date: o }), [t])
   const getRegDateTimeLabel = useCallback(
     (o: RegistrationDate) =>
-      t('dateFormat.weekday', { date: o.date }) + (o.time ? ' ' + t(`registration.time.${o.time}`) : ''),
+      t('dateFormat.weekday', { date: o.date }) + (o.time ? ' ' + t(`registration.timeLong.${o.time}`) : ''),
     [t]
   )
   const getReserveChoiceLabel = useCallback(
@@ -56,21 +57,31 @@ export function EntryInfo({
   )
 
   const classes = uniqueClasses(event)
-  const dates = eventDates(event)
   const error = errorStates.class ?? errorStates.dates ?? errorStates.reserve
   const datesText = reg.dates.map(getRegDateTimeLabel).join(' / ')
   const reserveText = reg.reserve ? t(`registration.reserveChoises.${reg.reserve}`) : ''
   const infoText = `${reg.class ?? reg.eventType}, ${datesText}, ${reserveText}`
   const helperText = error ? t('validation.registration.required', { field: 'classesDetails' }) : infoText
-  const groups = eventTypeGroups[reg.eventType] ?? []
-  const regDates = registrationDates(event, groups, reg.class)
+  const regDates = useEventRegistrationDates(event, reg.class)
+  const dates = uniqueDate(regDates.map((rd) => rd.date))
   const [filterDates, setFilterDates] = useState<Date[]>(
     uniqueDate(classDate ? regDates.filter((d) => format(d.date, 'dd.MM.') === classDate).map((rd) => rd.date) : dates)
   )
   const isValidRegistrationDate = (rd: RegistrationDate) => filterDates.find((fd) => isSameDay(fd, rd.date))
   const datesAndTimes = regDates.filter(isValidRegistrationDate)
+  const groups = unique(datesAndTimes.map((dt) => dt.time))
   const showDatesFilter = dates.length > 1
   const showDatesAndTimes = groups.length > 1
+  const sizeSwitch = showDatesFilter && showDatesAndTimes
+
+  useEffect(() => {
+    if (!showDatesFilter) {
+      const validFilters = filterDates.filter((fd) => dates.find((d) => d.valueOf() === fd.valueOf()))
+      if (!validFilters.length) {
+        setFilterDates(dates)
+      }
+    }
+  }, [dates, filterDates, showDatesFilter])
 
   useEffect(() => {
     const changes: Partial<Registration> = {}
@@ -119,7 +130,7 @@ export function EntryInfo({
       onOpenChange={onOpenChange}
     >
       <Grid container spacing={1}>
-        <Grid item sx={{ display: event.classes.length === 0 ? 'none' : 'block' }} xs={12} md={showDatesFilter ? 6 : 2}>
+        <Grid item sx={{ display: event.classes.length === 0 ? 'none' : 'block' }} xs={12} md={sizeSwitch ? 6 : 2}>
           <AutocompleteSingle
             disableClearable
             disabled={classDisabled || disabled}
@@ -131,7 +142,7 @@ export function EntryInfo({
             value={reg.class}
           />
         </Grid>
-        <Grid item xs={12} md={showDatesFilter ? 6 : 4}>
+        <Grid item xs={12} md={sizeSwitch ? 6 : 4}>
           <AutocompleteSingle
             disableClearable
             disabled={disabled}
@@ -150,7 +161,7 @@ export function EntryInfo({
             error={errorStates.dates}
             helperText={t('registration.datesFilterInfo')}
             label={t('registration.datesFilter')}
-            onChange={(_, value) => setFilterDates(value)}
+            onChange={(_, value) => setFilterDates(value.sort((a, b) => a.valueOf() - b.valueOf()))}
             isOptionEqualToValue={(o, v) => o.valueOf() === v.valueOf()}
             getOptionLabel={getRegDateLabel}
             options={dates}

@@ -1,5 +1,5 @@
 import type { Params } from 'react-router-dom'
-import type { CreatePaymentResponse, Event, Registration } from '../types'
+import type { CreatePaymentResponse, DogEvent, Registration } from '../types'
 
 import { Suspense } from 'react'
 import { Await, defer, Navigate, useLoaderData, useParams } from 'react-router-dom'
@@ -20,7 +20,7 @@ export const paymentLoader = async ({ params }: { params: Params<string> }) =>
   params.id && params.registrationId ? defer({ response: createPayment(params.id, params.registrationId) }) : {}
 
 interface Props {
-  readonly event: Event
+  readonly event: DogEvent
   readonly registration: Registration
   readonly response?: CreatePaymentResponse
 }

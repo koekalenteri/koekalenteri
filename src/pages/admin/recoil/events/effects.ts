@@ -1,11 +1,11 @@
 import type { AtomEffect } from 'recoil'
-import type { Event } from '../../../../types'
+import type { DogEvent } from '../../../../types'
 
 import { getEvents } from '../../../../api/event'
 
 let loaded = false
 
-export const remoteAdminEventsEffect: AtomEffect<Event[]> = ({ setSelf, trigger }) => {
+export const remoteAdminEventsEffect: AtomEffect<DogEvent[]> = ({ setSelf, trigger }) => {
   if (trigger === 'get' && !loaded) {
     loaded = true
     getEvents()

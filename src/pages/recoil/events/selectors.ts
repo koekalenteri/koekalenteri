@@ -1,4 +1,4 @@
-import type { ConfirmedEvent, Event, EventClass } from '../../../types'
+import type { ConfirmedEvent, DogEvent, EventClass } from '../../../types'
 
 import i18next from 'i18next'
 import { selector, selectorFamily } from 'recoil'
@@ -17,7 +17,7 @@ import {
   withinSwitchFilters,
 } from './filters'
 
-export const eventSelector = selectorFamily<Event | null, string | undefined>({
+export const eventSelector = selectorFamily<DogEvent | null, string | undefined>({
   key: 'event',
   get:
     (eventId) =>

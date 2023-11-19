@@ -5,14 +5,14 @@ import { RecoilRoot } from 'recoil'
 
 import { eventWithEntryClosed, eventWithStaticDates } from '../../../__mockData__/events'
 import { registrationsToEventWithEntryClosed } from '../../../__mockData__/registrations'
+import { eventRegistrationDateKey } from '../../../lib/event'
 
-import { groupKey } from './ClassEntrySelection'
 import InfoPanel from './InfoPanel'
 
 function getGroupKey(r: Registration, i: number) {
   if (r.cancelled) return 'cancelled'
   if (i === 0) return 'reserve'
-  return groupKey(r.dates[0])
+  return eventRegistrationDateKey(r.dates[0])
 }
 
 describe('InfoPanel>', () => {

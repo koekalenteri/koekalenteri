@@ -1,9 +1,9 @@
-import type { Language } from '../../../types'
+import type { Language, RegistrationTime } from '../../../types'
 
 import i18next from 'i18next'
-import { selector } from 'recoil'
+import { selector, selectorFamily } from 'recoil'
 
-import { eventTypeFilterAtom, eventTypesAtom } from './atoms'
+import { eventTypeFilterAtom, eventTypeGroupsAtom, eventTypesAtom } from './atoms'
 
 export const activeEventTypesSelector = selector({
   key: 'activeEventTypes',
@@ -26,4 +26,12 @@ export const filteredEventTypesSelector = selector({
         .includes(filter)
     )
   },
+})
+
+export const eventTypeGroupsSelector = selectorFamily<RegistrationTime[], string | undefined>({
+  key: 'eventTypeGroupsSelector',
+  get:
+    (eventClass) =>
+    ({ get }) =>
+      eventClass ? get(eventTypeGroupsAtom)[eventClass] ?? [] : [],
 })

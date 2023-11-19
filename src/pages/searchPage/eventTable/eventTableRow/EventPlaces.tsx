@@ -1,10 +1,10 @@
-import type { Event } from '../../../../types'
+import type { DogEvent } from '../../../../types'
 
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
 
-export const EventPlaces = ({ event }: { event: Event }) => {
+export const EventPlaces = ({ event }: { event: DogEvent }) => {
   const { t } = useTranslation()
 
   const text = useMemo(() => {

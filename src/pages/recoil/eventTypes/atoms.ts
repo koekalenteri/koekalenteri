@@ -30,9 +30,9 @@ export const eventTypeClassesAtom = atom<Record<string, RegistrationClass[]>>({
 export const eventTypeGroupsAtom = atom<Record<string, RegistrationTime[]>>({
   key: 'eventTypeGroups',
   default: {
-    NOU: ['ap', 'ip'],
-    'NOME-B': ['ap', 'ip'],
-    'NOME-A': ['kp'],
-    NOWT: ['kp'],
+    NOU: ['ap', 'ip', 'kp'],
+    'NOME-B': ['ap', 'ip', 'kp'],
+    'NOME-A': [],
+    NOWT: [],
   },
 })

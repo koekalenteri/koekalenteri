@@ -1,9 +1,9 @@
-import type { Event } from '../../types'
+import type { DogEvent } from '../../types'
 
 import { useTranslation } from 'react-i18next'
 
 interface Props {
-  readonly event: Pick<Event, 'cost' | 'costMember'>
+  readonly event: Pick<DogEvent, 'cost' | 'costMember'>
 }
 
 export default function CostInfo({ event }: Props) {

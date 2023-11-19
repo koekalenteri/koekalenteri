@@ -1,4 +1,4 @@
-import type { Event } from '../../../../types'
+import type { DogEvent } from '../../../../types'
 
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
@@ -76,7 +76,7 @@ export const useAdminEventActions = () => {
     return saved
   }
 
-  async function save(event: Partial<Event>): Promise<Event> {
+  async function save(event: Partial<DogEvent>): Promise<DogEvent> {
     const saved = await putEvent(event, token)
     setAdminEventId(saved.id)
     setCurrentAdminEvent(saved)

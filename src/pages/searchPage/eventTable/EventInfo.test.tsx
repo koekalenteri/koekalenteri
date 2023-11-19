@@ -1,4 +1,4 @@
-import type { Event } from '../../../types'
+import type { DogEvent } from '../../../types'
 
 import { Suspense } from 'react'
 import { render } from '@testing-library/react'
@@ -17,7 +17,7 @@ describe('EventInfo', () => {
   afterAll(() => jest.useRealTimers())
 
   it('should render event information', async () => {
-    const event: Event = {
+    const event: DogEvent = {
       ...emptyEvent,
       organizer: {
         id: '0',

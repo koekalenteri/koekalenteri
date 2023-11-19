@@ -1,4 +1,4 @@
-import type { Event } from '../../../types'
+import type { DogEvent } from '../../../types'
 
 import { Suspense } from 'react'
 import { ThemeProvider } from '@mui/material'
@@ -22,7 +22,7 @@ jest.mock('../../../api/official')
 jest.mock('../../../api/organizer')
 jest.mock('../../../api/registration')
 
-const renderComponent = (event: Event, onSave?: () => void, onCancel?: () => void, onChange?: () => void) =>
+const renderComponent = (event: DogEvent, onSave?: () => void, onCancel?: () => void, onChange?: () => void) =>
   renderWithUserEvents(
     <ThemeProvider theme={theme}>
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={fi}>

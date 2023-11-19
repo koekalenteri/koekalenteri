@@ -1,4 +1,4 @@
-import type { Event } from '../../../types'
+import type { DogEvent } from '../../../types'
 
 import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
@@ -6,7 +6,7 @@ import Typography from '@mui/material/Typography'
 
 import useEventTitle from '../../../hooks/useEventTitle'
 
-export default function Title({ event }: { readonly event: Event }) {
+export default function Title({ event }: { readonly event: DogEvent }) {
   const { t } = useTranslation()
   const title = useEventTitle(event)
 

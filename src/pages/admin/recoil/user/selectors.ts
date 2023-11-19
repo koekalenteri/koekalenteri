@@ -51,7 +51,7 @@ export const adminUserOrganizersSelector = selector({
     const user = get(userSelector)
     const list = get(adminOrganizersAtom)
 
-    return user?.admin ? list : list.filter((o) => user?.roles?.[o.id])
+    return user?.admin ? list.filter((o) => o.paytrailMerchantId) : list.filter((o) => user?.roles?.[o.id])
   },
 })
 

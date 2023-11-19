@@ -1,4 +1,4 @@
-import type { Event } from '../types'
+import type { DogEvent } from '../types'
 
 import { parseISO } from 'date-fns'
 import fetchMock from 'jest-fetch-mock'
@@ -60,7 +60,7 @@ test('putEvent', async () => {
  * We want midnight in current timezone.
  */
 
-const event: Event = {
+const event: DogEvent = {
   ...emptyEvent,
   entryStartDate: parseISO('2021-01-02'),
   entryEndDate: parseISO('2021-01-13'),

@@ -1,4 +1,4 @@
-import type { AuditRecord, Event } from '../../../types'
+import type { AuditRecord, DogEvent } from '../../../types'
 
 import { useEffect, useMemo, useState } from 'react'
 import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
@@ -11,7 +11,7 @@ import { currentAdminRegistrationSelector, editableAdminEventRegistrationByEvent
 import RegistrationDialogBase from './RegistrationDialogBase'
 
 interface Props {
-  readonly event: Event
+  readonly event: DogEvent
   readonly onClose?: () => void
   readonly open: boolean
   readonly registrationId: string

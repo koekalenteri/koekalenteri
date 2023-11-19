@@ -1,6 +1,6 @@
-import type { Event } from '../types'
+import type { DogEvent } from '../types'
 
-import { eventClasses, eventClassesByDays, eventDays } from './event'
+import { getEventClassesByDays, getEventDays, getUniqueEventClasses } from './event'
 
 describe('lib/event', () => {
   describe('eventDays', () => {
@@ -10,11 +10,11 @@ describe('lib/event', () => {
       ${new Date(2023, 1, 15)} | ${new Date(2023, 1, 16)} | ${[new Date(2023, 1, 15), new Date(2023, 1, 16)]}
       ${new Date(2023, 2, 10)} | ${new Date(2023, 2, 12)} | ${[new Date(2023, 2, 10), new Date(2023, 2, 11), new Date(2023, 2, 12)]}
     `('returns $expected when event startDate=$startDate and endDate=$endDate', ({ startDate, endDate, expected }) => {
-      expect(eventDays({ startDate, endDate })).toEqual(expected)
+      expect(getEventDays({ startDate, endDate })).toEqual(expected)
     })
   })
 
-  describe('eventClasses', () => {
+  describe('getUniqueEventClasses', () => {
     it.each`
       classes                                                                     | expected
       ${[]}                                                                       | ${[]}
@@ -24,7 +24,7 @@ describe('lib/event', () => {
       ${[{ class: 'ALO' }, { class: 'AVO' }]}                                     | ${['ALO', 'AVO']}
       ${[{ class: 'ALO' }, { class: 'AVO' }, { class: 'AVO' }, { class: 'VOI' }]} | ${['ALO', 'AVO', 'VOI']}
     `('returns $expected for test array #$# ($classes.length items)', ({ classes, expected }) => {
-      expect(eventClasses({ classes })).toEqual(expected)
+      expect(getUniqueEventClasses({ classes })).toEqual(expected)
     })
   })
 
@@ -39,8 +39,8 @@ describe('lib/event', () => {
         ${[{ class: 'ALO', date }]} | ${[{ day: date, classes: [{ class: 'ALO', date }] }]}
       `(
         'returns day: $expected.0.day, classes.length: $expected.0.classes.length for test $#',
-        ({ classes, expected }: { classes: Event['classes']; expected: any }) => {
-          expect(eventClassesByDays({ startDate: date, endDate: date, classes })).toEqual(expected)
+        ({ classes, expected }: { classes: DogEvent['classes']; expected: any }) => {
+          expect(getEventClassesByDays({ startDate: date, endDate: date, classes })).toEqual(expected)
         }
       )
     })
@@ -59,8 +59,8 @@ describe('lib/event', () => {
         ${[{ class: 'ALO', date: endDate }, { class: 'AVO', date: endDate }, { class: 'VOI', date: startDate }]} | ${[{ day: startDate, classes: [{ class: 'VOI', date: startDate }] }, { day: endDate, classes: [{ class: 'ALO', date: endDate }, { class: 'AVO', date: endDate }] }]}
       `(
         'returns day: $expected.0.day, classes.length: $expected.0.classes.length, day: $expected.1.day, classes.length: $expected.1.classes.length for test $#',
-        ({ classes, expected }: { classes: Event['classes']; expected: any }) => {
-          expect(eventClassesByDays({ startDate, endDate, classes })).toEqual(expected)
+        ({ classes, expected }: { classes: DogEvent['classes']; expected: any }) => {
+          expect(getEventClassesByDays({ startDate, endDate, classes })).toEqual(expected)
         }
       )
     })

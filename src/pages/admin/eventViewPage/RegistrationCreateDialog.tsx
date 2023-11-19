@@ -1,4 +1,4 @@
-import type { Event, RegistrationClass } from '../../../types'
+import type { DogEvent, RegistrationClass } from '../../../types'
 
 import { useEffect } from 'react'
 import { useRecoilState, useResetRecoilState } from 'recoil'
@@ -8,7 +8,7 @@ import { adminNewRegistrationAtom } from '../recoil'
 import RegistrationDialogBase from './RegistrationDialogBase'
 
 interface Props {
-  readonly event: Event
+  readonly event: DogEvent
   readonly eventClass?: RegistrationClass
   readonly onClose?: () => void
   readonly open: boolean

@@ -45,7 +45,7 @@ exports[`RegistrationForm renders 1`] = `
             <p
               class="MuiFormHelperText-root css-9tosq5-MuiFormHelperText-root"
             >
-              NOU, eeeeee registration.time.ap, registration.reserveChoises.ANY
+              NOU, eeeeee registration.timeLong.ap, registration.reserveChoises.ANY
             </p>
           </div>
           <div
@@ -253,7 +253,7 @@ exports[`RegistrationForm renders 1`] = `
                               <span
                                 class="MuiChip-label MuiChip-labelMedium css-6od3lo-MuiChip-label"
                               >
-                                eeeeee
+                                eeeeee d.M.
                               </span>
                               <svg
                                 aria-hidden="true"
@@ -276,7 +276,7 @@ exports[`RegistrationForm renders 1`] = `
                               <span
                                 class="MuiChip-label MuiChip-labelMedium css-6od3lo-MuiChip-label"
                               >
-                                eeeeee
+                                eeeeee d.M.
                               </span>
                               <svg
                                 aria-hidden="true"
@@ -404,7 +404,7 @@ exports[`RegistrationForm renders 1`] = `
                               <span
                                 class="MuiChip-label MuiChip-labelMedium css-6od3lo-MuiChip-label"
                               >
-                                eeeeee registration.time.ap
+                                eeeeee registration.timeLong.ap
                               </span>
                               <svg
                                 aria-hidden="true"
@@ -2290,7 +2290,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
             <p
               class="MuiFormHelperText-root css-9tosq5-MuiFormHelperText-root"
             >
-              NOU, eeeeee registration.time.ap, registration.reserveChoises.ANY
+              NOU, eeeeee registration.timeLong.ap, registration.reserveChoises.ANY
             </p>
           </div>
           <div
@@ -2498,7 +2498,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                               <span
                                 class="MuiChip-label MuiChip-labelMedium css-6od3lo-MuiChip-label"
                               >
-                                eeeeee
+                                eeeeee d.M.
                               </span>
                               <svg
                                 aria-hidden="true"
@@ -2521,7 +2521,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                               <span
                                 class="MuiChip-label MuiChip-labelMedium css-6od3lo-MuiChip-label"
                               >
-                                eeeeee
+                                eeeeee d.M.
                               </span>
                               <svg
                                 aria-hidden="true"
@@ -2649,7 +2649,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                               <span
                                 class="MuiChip-label MuiChip-labelMedium css-6od3lo-MuiChip-label"
                               >
-                                eeeeee registration.time.ap
+                                eeeeee registration.timeLong.ap
                               </span>
                               <svg
                                 aria-hidden="true"

@@ -1,4 +1,4 @@
-import type { ConfirmedEvent, Event } from '../../../types'
+import type { ConfirmedEvent, DogEvent } from '../../../types'
 
 import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -28,7 +28,7 @@ export default function EventDetailsDialog({ eventId, onClose, open }: Props) {
   const [changes, setChanges] = useState<boolean>(hasChanges(storedEvent, event))
 
   const handleChange = useCallback(
-    (newState: Event) => {
+    (newState: DogEvent) => {
       setChanges(hasChanges(storedEvent, newState))
       setEvent(newState)
     },

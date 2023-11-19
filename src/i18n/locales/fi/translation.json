@@ -92,6 +92,7 @@
     "costMember": "Maksu jäsenille",
     "createdAt": "Luontiaika",
     "createdBy": "Luoja",
+    "dates": "Ryhmät",
     "deletedAt": "Poistoaika",
     "deletedBy": "Poistaja",
     "description": "Lisätiedot",
@@ -290,7 +291,7 @@
     "timeLong": {
       "ap": "aamupäivä",
       "ip": "iltapäivä",
-      "kp": ""
+      "kp": "yksi ryhmä"
     }
   },
   "registrations": "Ilmoittautumiset",

@@ -1,4 +1,4 @@
-import type { Event } from '../../types'
+import type { DogEvent } from '../../types'
 
 import { parseISO } from 'date-fns'
 
@@ -13,7 +13,7 @@ import {
 } from '../../__mockData__/events'
 import { emptyEvent } from '../test-utils/emptyEvent'
 
-export const mockEvents: Event[] = [
+export const mockEvents: DogEvent[] = [
   eventWithStaticDates,
   eventWithEntryClosed, // in between the static dates for simulating unordered api response
   eventWithStaticDatesAndClass,
@@ -26,7 +26,7 @@ export const mockEvents: Event[] = [
       name: 'Järjestäjä 2',
     },
     eventType: 'NOME-B',
-    classes: [{ class: 'AVO' }],
+    classes: [{ class: 'AVO', date: parseISO('2021-02-12') }],
     startDate: parseISO('2021-02-12'),
     endDate: parseISO('2021-02-13'),
     entryStartDate: parseISO('2021-02-01'),
@@ -38,22 +38,22 @@ export const mockEvents: Event[] = [
   eventWithEntryClosing,
 ]
 
-export async function getEvents(signal?: AbortSignal): Promise<Event[]> {
+export async function getEvents(signal?: AbortSignal): Promise<DogEvent[]> {
   return new Promise((resolve) => {
     process.nextTick(() => resolve(mockEvents))
   })
 }
 
-export async function getEvent(id: string, signal?: AbortSignal): Promise<Event> {
+export async function getEvent(id: string, signal?: AbortSignal): Promise<DogEvent> {
   return new Promise((resolve, reject) => {
     const event = mockEvents.find((item) => item.id === id)
     process.nextTick(() => (event ? resolve(event) : reject(new Error('not found'))))
   })
 }
 
-export async function putEvent(event: Event, token?: string, signal?: AbortSignal): Promise<Event> {
+export async function putEvent(event: DogEvent, token?: string, signal?: AbortSignal): Promise<DogEvent> {
   return new Promise((resolve, reject) => {
-    let existing: Event | undefined = event
+    let existing: DogEvent | undefined = event
     if (!event.id) {
       event.id = 'test' + (mockEvents.length + 1)
       mockEvents.push(event)

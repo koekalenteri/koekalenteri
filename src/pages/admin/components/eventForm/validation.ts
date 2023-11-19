@@ -1,5 +1,5 @@
 import type { ValidationResult, Validators } from '../../../../i18n/validation'
-import type { Event, EventState, ShowContactInfo } from '../../../../types'
+import type { DogEvent, EventState, ShowContactInfo } from '../../../../types'
 import type { PartialEvent } from '../EventForm'
 
 import { startOfDay } from 'date-fns'
@@ -9,15 +9,15 @@ import { unique } from '../../../../utils'
 type EventCallback = (event: PartialEvent) => boolean
 type EventFlag = boolean | EventCallback
 type EventFlags = Partial<{
-  [Property in keyof Event]: EventFlag
+  [Property in keyof DogEvent]: EventFlag
 }>
 
 type RequiredFieldState = Partial<{
-  [Property in keyof Event]: EventState
+  [Property in keyof DogEvent]: EventState
 }>
 
 type RequiredFields = Partial<{
-  [Property in keyof Event]: boolean
+  [Property in keyof DogEvent]: boolean
 }>
 
 const STATE_INCLUSION: Record<EventState, EventState[]> = {
@@ -155,8 +155,8 @@ export function requiredFields(event: PartialEvent): FieldRequirements {
   for (const state of states) {
     const required = REQUIRED_BY_STATE[state]
     for (const prop in required) {
-      result.state[prop as keyof Event] = state
-      result.required[prop as keyof Event] = resolve(required[prop as keyof Event] ?? false, event)
+      result.state[prop as keyof DogEvent] = state
+      result.required[prop as keyof DogEvent] = resolve(required[prop as keyof DogEvent] ?? false, event)
     }
   }
   return result
@@ -168,7 +168,7 @@ function resolve(value: EventFlag | undefined, event: PartialEvent): boolean {
 
 export function validateEventField(
   event: PartialEvent,
-  field: keyof Event,
+  field: keyof DogEvent,
   required: boolean
 ): ValidationResult<PartialEvent, 'event'> {
   const validator =
@@ -198,8 +198,8 @@ export function validateEventField(
 export function validateEvent(event: PartialEvent) {
   const required = requiredFields(event).required
   const errors = []
-  let field: keyof Event
-  const fields = unique(Object.keys(event).concat(Object.keys(required))) as Array<keyof Event>
+  let field: keyof DogEvent
+  const fields = unique(Object.keys(event).concat(Object.keys(required))) as Array<keyof DogEvent>
   for (field of fields) {
     const result = validateEventField(event, field, !!required[field])
     if (result) {

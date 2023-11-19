@@ -1,4 +1,4 @@
-import type { Event, EventState, Registration } from '../types'
+import type { DogEvent, EventState, Registration } from '../types'
 
 import { useMemo } from 'react'
 
@@ -13,7 +13,7 @@ interface EventClassInfoNumbers {
   invalid: boolean
 }
 
-export default function useEventRegistrationInfo(event: Event | undefined, registrations: Registration[]) {
+export default function useEventRegistrationInfo(event: DogEvent | undefined, registrations: Registration[]) {
   const dates = useMemo(() => eventDates(event), [event])
 
   const reserveByClass: Record<string, Registration[]> = useMemo(() => {

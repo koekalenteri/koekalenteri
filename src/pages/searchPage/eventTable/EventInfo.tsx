@@ -1,4 +1,4 @@
-import type { Event } from '../../../types'
+import type { DogEvent } from '../../../types'
 
 import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -16,7 +16,7 @@ import { useJudgesActions } from '../../recoil'
 import { EventClassRow } from './eventInfo/EventClassRow'
 
 interface Props {
-  readonly event: Event
+  readonly event: DogEvent
 }
 
 export const EventInfo = ({ event }: Props) => {

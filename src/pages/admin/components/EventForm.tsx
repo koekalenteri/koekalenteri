@@ -1,5 +1,5 @@
 import type { Theme } from '@mui/material'
-import type { DeepPartial, Event, EventState } from '../../../types'
+import type { DeepPartial, DogEvent, EventState } from '../../../types'
 import type { FieldRequirements } from './eventForm/validation'
 
 import { useCallback, useMemo, useState } from 'react'
@@ -28,33 +28,33 @@ import JudgesSection from './eventForm/JudgesSection'
 import PaymentSection from './eventForm/PaymentSection'
 import { requiredFields, validateEvent } from './eventForm/validation'
 
-export interface PartialEvent extends DeepPartial<Event> {
-  startDate: Event['startDate']
-  endDate: Event['endDate']
-  classes: Event['classes']
-  judges: Event['judges']
-  official?: Partial<Event['official']>
-  secretary?: Partial<Event['secretary']>
+export interface PartialEvent extends DeepPartial<DogEvent> {
+  startDate: DogEvent['startDate']
+  endDate: DogEvent['endDate']
+  classes: DogEvent['classes']
+  judges: DogEvent['judges']
+  official?: Partial<DogEvent['official']>
+  secretary?: Partial<DogEvent['secretary']>
 }
 
 export interface SectionProps {
   readonly event: PartialEvent
   readonly disabled?: boolean
   readonly fields?: FieldRequirements
-  readonly errorStates?: { [Property in keyof Event]?: boolean }
-  readonly helperTexts?: { [Property in keyof Event]?: string }
+  readonly errorStates?: { [Property in keyof DogEvent]?: boolean }
+  readonly helperTexts?: { [Property in keyof DogEvent]?: string }
   readonly open?: boolean
-  readonly onChange?: (event: DeepPartial<Event>) => void
+  readonly onChange?: (event: DeepPartial<DogEvent>) => void
   readonly onOpenChange?: (value: boolean) => void
 }
 
 interface Props {
-  readonly event: Event
+  readonly event: DogEvent
   readonly changes?: boolean
   readonly disabled?: boolean
   readonly onSave?: () => void
   readonly onCancel?: () => void
-  readonly onChange?: (event: Event) => void
+  readonly onChange?: (event: DogEvent) => void
 }
 
 const SELECTABLE_EVENT_STATES: EventState[] = ['draft', 'tentative', 'confirmed', 'cancelled']
@@ -89,11 +89,11 @@ export default function EventForm({ event, changes, disabled, onSave, onCancel, 
   )
 
   const handleChange = useCallback(
-    (props: DeepPartial<Event>) => {
+    (props: DeepPartial<DogEvent>) => {
       if (!event) {
         return
       }
-      const newState = merge<Event>(event, props)
+      const newState = merge<DogEvent>(event, props)
       setErrors(validateEvent(newState))
       onChange?.(newState)
     },

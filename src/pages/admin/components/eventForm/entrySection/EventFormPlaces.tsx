@@ -16,7 +16,7 @@ import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import Typography from '@mui/material/Typography'
 
-import { eventClasses, eventClassesByDays } from '../../../../../lib/event'
+import { getEventClassesByDays, getUniqueEventClasses } from '../../../../../lib/event'
 import { compareEventClass } from '../components/EventClasses'
 
 import PlacesDisplay from './eventFormPlaces/PlacesDisplay'
@@ -27,8 +27,8 @@ export default function EventFormPlaces({ event, disabled, helperTexts, onChange
   const [classesEnabled, setClassesEnabled] = useState(
     event.classes?.reduce((prev, cur) => prev + (cur?.places ?? 0), 0) > 0
   )
-  const uniqueClasses = eventClasses(event)
-  const classesByDays = eventClassesByDays(event)
+  const uniqueClasses = getUniqueEventClasses(event)
+  const classesByDays = getEventClassesByDays(event)
 
   const handleChange = (c: DeepPartial<EventClass>) => (value: number) => {
     const newClasses = event.classes.map((ec) => structuredClone(ec))

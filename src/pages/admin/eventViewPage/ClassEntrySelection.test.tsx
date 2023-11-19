@@ -1,12 +1,13 @@
 import type { ReactNode } from 'react'
-import type { Registration } from '../../../types'
 
 import { render } from '@testing-library/react'
 import { SnackbarProvider } from 'notistack'
 import { RecoilRoot } from 'recoil'
 
+import { eventWithStaticDatesAnd3Classes } from '../../../__mockData__/events'
 import { registrationWithStaticDates, registrationWithStaticDatesCancelled } from '../../../__mockData__/registrations'
 import { flushPromises } from '../../../test-utils/utils'
+import { type Registration } from '../../../types'
 
 import ClassEntrySelection from './ClassEntrySelection'
 
@@ -25,16 +26,13 @@ describe('ClassEntrySelection', () => {
   afterEach(() => jest.runOnlyPendingTimers())
   afterAll(() => jest.useRealTimers())
 
-  it.each([[undefined], [[]], [[new Date('2022-01-01T10:00:00.000Z')]], [[new Date('2022-06-20T09:00:00.000Z')]]])(
-    'given %p as dates',
-    async (dates) => {
-      const { container } = render(<ClassEntrySelection eventId="test" eventClass="AVO" eventDates={dates} />, {
-        wrapper: Wrapper,
-      })
-      await flushPromises()
-      expect(container).toMatchSnapshot()
-    }
-  )
+  it('renders', async () => {
+    const { container } = render(<ClassEntrySelection event={eventWithStaticDatesAnd3Classes} eventClass="AVO" />, {
+      wrapper: Wrapper,
+    })
+    await flushPromises()
+    expect(container).toMatchSnapshot()
+  })
 
   it('renders with cancelled registration(s)', async () => {
     const dates = [registrationWithStaticDates.dates[0].date]
@@ -44,7 +42,7 @@ describe('ClassEntrySelection', () => {
     )
 
     const { container } = render(
-      <ClassEntrySelection eventId="test" eventClass="ALO" eventDates={dates} registrations={registrations} />,
+      <ClassEntrySelection event={eventWithStaticDatesAnd3Classes} eventClass="ALO" registrations={registrations} />,
       {
         wrapper: Wrapper,
       }

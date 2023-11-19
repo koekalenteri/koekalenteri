@@ -3,10 +3,10 @@ import type { Dispatch, SetStateAction } from 'react'
 import type React from 'react'
 import type { SetterOrUpdater } from 'recoil'
 import type {
+  DogEvent,
   EventClassState,
   EventState,
   Registration,
-  RegistrationDate,
   RegistrationGroup,
   RegistrationGroupInfo,
 } from '../../../types'
@@ -18,23 +18,25 @@ import { HTML5Backend } from 'react-dnd-html5-backend'
 import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
+import { isSameDay } from 'date-fns'
 import { useConfirm } from 'material-ui-confirm'
 import { useSnackbar } from 'notistack'
 
+import { useEventRegistrationDates } from '../../../hooks/useEventRegistrationDates'
+import { useEventRegistrationGroups } from '../../../hooks/useEventRegistrationGroups'
+import { eventRegistrationDateKey } from '../../../lib/event'
 import { uniqueDate } from '../../../utils'
 import StyledDataGrid from '../../components/StyledDataGrid'
 import { useAdminRegistrationActions } from '../recoil/registrations/actions'
 
 import DragableDataGrid from './classEntrySelection/DropableDataGrid'
-import { availableGroups } from './classEntrySelection/GroupColors'
 import GroupHeader from './classEntrySelection/GroupHeader'
 import NoRowsOverlay from './classEntrySelection/NoRowsOverlay'
 import { useClassEntrySelectionColumns } from './classEntrySelection/useClassEntrySectionColumns'
 
 interface Props {
-  readonly eventId: string
+  readonly event: DogEvent
   readonly eventClass: string
-  readonly eventDates?: Date[]
   readonly registrations?: Registration[]
   readonly setOpen?: Dispatch<SetStateAction<boolean>>
   readonly selectedRegistrationId?: string
@@ -56,12 +58,10 @@ const listKey = (reg: Registration, eventGroups: RegistrationGroup[]) => {
   }
   return 'reserve'
 }
-export const groupKey = (rd: RegistrationDate) => rd.date.toISOString().slice(0, 10) + '-' + rd.time
 
 const ClassEntrySelection = ({
-  eventId,
+  event,
   eventClass,
-  eventDates = [],
   registrations = [],
   setOpen,
   selectedRegistrationId,
@@ -78,30 +78,28 @@ const ClassEntrySelection = ({
     },
     [setOpen, setSelectedRegistrationId]
   )
-  const { cancelledColumns, entryColumns, participantColumns } = useClassEntrySelectionColumns(eventDates, handleOpen)
-  const actions = useAdminRegistrationActions(eventId)
-
-  const eventGroups: RegistrationGroup[] = useMemo(
-    () => availableGroups(eventDates).map((eventDate) => ({ ...eventDate, key: groupKey(eventDate), number: 0 })),
-    [eventDates]
-  )
+  const dates = useEventRegistrationDates(event, eventClass)
+  const { cancelledColumns, entryColumns, participantColumns } = useClassEntrySelectionColumns(dates, handleOpen)
+  const actions = useAdminRegistrationActions(event.id)
+  const groups = useEventRegistrationGroups(event, eventClass)
 
   const registrationsByGroup: Record<string, RegistrationWithGroups[]> = useMemo(() => {
     const byGroup: Record<string, RegistrationWithGroups[]> = { cancelled: [], reserve: [] }
     for (const reg of registrations) {
-      const key = listKey(reg, eventGroups)
+      const key = listKey(reg, groups)
+      const regDates = uniqueDate(reg.dates.map((rd) => rd.date))
       byGroup[key] = byGroup[key] ?? [] // make sure the array exists
       byGroup[key].push({
         ...reg,
-        groups: reg.dates.map((rd) => groupKey(rd)),
-        dropGroups: availableGroups(uniqueDate(reg.dates.map((rd) => rd.date))).map((rd) => groupKey(rd)),
+        groups: reg.dates.map((rd) => eventRegistrationDateKey(rd)),
+        dropGroups: groups.filter((g) => regDates.find((d) => !g.date || isSameDay(g.date, d))).map((g) => g.key),
       })
     }
     for (const regs of Object.values(byGroup)) {
       regs.sort((a, b) => (a.group?.number || 999) - (b.group?.number || 999))
     }
     return byGroup
-  }, [eventGroups, registrations])
+  }, [groups, registrations])
 
   const canArrangeReserve = !registrationsByGroup.reserve.some((r) => r.reserveNotified)
 
@@ -193,6 +191,7 @@ const ClassEntrySelection = ({
         variant: 'warning',
       })
     } else {
+      console.log(reg.group?.key, group.key, reg.dates)
       enqueueSnackbar(`Koira ${reg.dog.name} ei ole ilmoittautunut tähän ryhmään`, { variant: 'error' })
     }
   }
@@ -246,7 +245,7 @@ const ClassEntrySelection = ({
           }}
         />
       </Box>
-      {eventGroups.map((group) => (
+      {groups.map((group) => (
         <DragableDataGrid
           autoHeight
           canDrop={(item) => {
@@ -269,7 +268,7 @@ const ClassEntrySelection = ({
           }}
           slotProps={{
             toolbar: {
-              eventDates: eventDates,
+              available: groups,
               group: group,
             },
             row: {

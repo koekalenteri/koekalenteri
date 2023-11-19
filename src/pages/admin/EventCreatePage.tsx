@@ -1,4 +1,4 @@
-import type { Event } from '../../types'
+import type { DogEvent } from '../../types'
 
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -21,7 +21,7 @@ export default function EventCreatePage() {
   const resetEvent = useResetRecoilState(newEventAtom)
 
   const handleChange = useCallback(
-    (newState: Event) => {
+    (newState: DogEvent) => {
       setEvent(newState)
     },
     [setEvent]

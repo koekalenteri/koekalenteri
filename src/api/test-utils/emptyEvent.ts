@@ -1,7 +1,7 @@
 import type { ConfirmedEvent } from '../../types'
 
 export const emptyEvent: ConfirmedEvent = {
-  classes: [{ class: 'ALO' }],
+  classes: [{ class: 'ALO', date: new Date('1990-01-01') }],
   contactInfo: {
     official: {
       name: 'Teemu Toimitsija',

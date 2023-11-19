@@ -1,4 +1,4 @@
-import type { EmailTemplate, EmailTemplateId, Event, Language, Registration } from '../../../types'
+import type { DogEvent, EmailTemplate, EmailTemplateId, Language, Registration } from '../../../types'
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -42,7 +42,7 @@ interface Props {
   readonly registrations: Registration[]
   readonly templateId?: EmailTemplateId
   readonly open: boolean
-  readonly event: Event
+  readonly event: DogEvent
   readonly onClose?: () => void
 }
 
@@ -240,7 +240,7 @@ function listEmails(r: Registration): string {
   return [r.owner.email, r.handler.email].join(', ')
 }
 
-function useRegistrationEmailTemplateData(registration: Registration, event: Event, context: string, text: string) {
+function useRegistrationEmailTemplateData(registration: Registration, event: DogEvent, context: string, text: string) {
   const { t } = useTranslation()
 
   if (!registration || !event) {

@@ -1,5 +1,5 @@
 import type { GridColumnVisibilityModel } from '@mui/x-data-grid'
-import type { Event, RegistrationClass } from '../../../../types'
+import type { DogEvent, RegistrationClass } from '../../../../types'
 
 import { addDays, nextSaturday, startOfDay, sub } from 'date-fns'
 import { atom, atomFamily, selector } from 'recoil'
@@ -10,7 +10,7 @@ import { logEffect, storageEffect } from '../../../recoil'
 import { remoteAdminEventsEffect } from './effects'
 import { adminEventSelector, currentAdminEventSelector } from './selectors'
 
-export const adminEventsAtom = atom<Event[]>({
+export const adminEventsAtom = atom<DogEvent[]>({
   key: 'adminEvents',
   default: [],
   effects: [logEffect, storageEffect, remoteAdminEventsEffect],
@@ -20,7 +20,7 @@ export const newEventStartDate = startOfDay(nextSaturday(addDays(Date.now(), 90)
 export const newEventEntryStartDate = sub(newEventStartDate, { weeks: 6 })
 export const newEventEntryEndDate = sub(newEventStartDate, { weeks: 3 })
 
-export const newEventAtom = atom<Event>({
+export const newEventAtom = atom<DogEvent>({
   key: 'newEvent',
   default: {
     state: 'draft',
@@ -30,7 +30,7 @@ export const newEventAtom = atom<Event>({
     entryEndDate: newEventEntryEndDate,
     classes: [],
     judges: [],
-  } as unknown as Event,
+  } as unknown as DogEvent,
   effects: [logEffect, storageEffect],
 })
 
@@ -73,7 +73,7 @@ export const adminEventColumnsAtom = atom<GridColumnVisibilityModel>({
 /**
  * Existing event editing, edits stored to local storage
  */
-export const editableEventByIdAtom = atomFamily<Event | undefined, string>({
+export const editableEventByIdAtom = atomFamily<DogEvent | undefined, string>({
   key: 'editableEvent/Id',
   default: adminEventSelector,
   effects: [logEffect, storageEffect],

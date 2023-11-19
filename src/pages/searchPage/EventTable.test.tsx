@@ -1,4 +1,4 @@
-import type { Event } from '../../types'
+import type { DogEvent } from '../../types'
 
 import { MemoryRouter } from 'react-router-dom'
 import { ThemeProvider } from '@mui/material'
@@ -27,7 +27,7 @@ describe('EventTable', () => {
   })
 
   it('should render', async function () {
-    const event: Event = {
+    const event: DogEvent = {
       ...emptyEvent,
       startDate: parseISO('2021-02-10'),
       endDate: parseISO('2021-02-11'),

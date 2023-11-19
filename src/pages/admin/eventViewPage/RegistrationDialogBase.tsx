@@ -1,5 +1,5 @@
 import type { Resetter, SetterOrUpdater } from 'recoil'
-import type { AuditRecord, ConfirmedEvent, Event, Registration } from '../../../types'
+import type { AuditRecord, ConfirmedEvent, DogEvent, Registration } from '../../../types'
 
 import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -18,7 +18,7 @@ import { useAdminRegistrationActions } from '../recoil/registrations/actions'
 interface Props {
   readonly changes: boolean
   readonly classDisabled?: boolean
-  readonly event: Event
+  readonly event: DogEvent
   readonly onClose?: () => void
   readonly open: boolean
   readonly registration?: Registration

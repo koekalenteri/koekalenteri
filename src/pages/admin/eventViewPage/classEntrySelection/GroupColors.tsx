@@ -1,6 +1,5 @@
 import type { RegistrationDate } from '../../../../types'
 
-import { useMemo } from 'react'
 import Box from '@mui/material/Box'
 import Stack from '@mui/material/Stack'
 
@@ -12,13 +11,12 @@ export const availableGroups = (dates: Date[]) =>
   dates.reduce<RegistrationDate[]>((acc, date) => [...acc, { date, time: 'ap' }, { date, time: 'ip' }], [])
 
 interface Props {
-  readonly dates: Date[]
+  readonly available: RegistrationDate[]
   readonly disableTooltip?: boolean
   readonly selected: RegistrationDate[]
 }
 
-const GroupColors = ({ dates, selected, disableTooltip = false }: Props) => {
-  const available = useMemo(() => availableGroups(dates), [dates])
+const GroupColors = ({ available, selected, disableTooltip = false }: Props) => {
   if (disableTooltip) {
     const selIdx = available.findIndex(
       (dt) => selected[0].date.getTime() === dt.date.getTime() && selected[0].time === dt.time

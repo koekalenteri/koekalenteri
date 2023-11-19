@@ -1,4 +1,4 @@
-import type { Event, EventClass } from '../../../../types'
+import type { DogEvent, EventClass } from '../../../../types'
 
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -9,7 +9,7 @@ import { Path } from '../../../../routeConfig'
 import { isEntryOpen } from '../../../../utils'
 import LinkButton from '../../../components/LinkButton'
 
-export const EventClassTableRow = ({ event, eventClass }: { event: Event; eventClass: EventClass }) => {
+export const EventClassTableRow = ({ event, eventClass }: { event: DogEvent; eventClass: EventClass }) => {
   const { t } = useTranslation()
 
   const date = eventClass.date ?? event.startDate ?? new Date()

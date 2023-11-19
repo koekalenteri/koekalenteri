@@ -1,4 +1,4 @@
-import type { Event, Registration } from './types'
+import type { DogEvent, Registration } from './types'
 
 export const API_BASE_URL = process.env.REACT_APP_API_BASE_URL ?? 'http://127.0.0.1:8080'
 
@@ -12,7 +12,7 @@ export const Path = {
   login: '/login',
   logout: '/logout',
   payment: (registration: RegistrationIds) => `/p/${registration.eventId}/${registration.id}`,
-  register: (event: Event, className?: string, classDate?: string) => {
+  register: (event: DogEvent, className?: string, classDate?: string) => {
     if (className) {
       return classDate
         ? `/event/${event.eventType}/${event.id}/${className}/${classDate}`
@@ -22,7 +22,7 @@ export const Path = {
   },
   registration: (registration: RegistrationIds) => `/r/${registration.eventId}/${registration.id}`,
   invitation: (registration: RegistrationIds) => `/r/${registration.eventId}/${registration.id}/invitation`,
-  invitationAttachment: (event: Event) => `${API_BASE_URL}/file/${event.invitationAttachment}/kutsu.pdf`,
+  invitationAttachment: (event: DogEvent) => `${API_BASE_URL}/file/${event.invitationAttachment}/kutsu.pdf`,
   startList: (id: string = ':id') => `/startlist/${id}`,
   admin: {
     root: ADMIN_ROOT,

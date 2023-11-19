@@ -6,11 +6,11 @@ import Stack from '@mui/material/Stack'
 import GroupColors from './GroupColors'
 
 interface Props {
-  readonly eventDates: Date[]
+  readonly available: RegistrationDate[]
   readonly group: RegistrationDate
 }
 
-const GroupHeader = ({ eventDates, group }: Props) => {
+const GroupHeader = ({ available, group }: Props) => {
   const { t } = useTranslation()
 
   return (
@@ -23,9 +23,10 @@ const GroupHeader = ({ eventDates, group }: Props) => {
         bgcolor: 'background.ok',
       }}
     >
-      <GroupColors dates={eventDates} selected={[group]} disableTooltip />
+      <GroupColors available={available} selected={[group]} disableTooltip />
       <b>
-        {t('dateFormat.wdshort', { date: group.date }) + (group.time ? ' ' + t(`registration.time.${group.time}`) : '')}
+        {t('dateFormat.wdshort', { date: group.date }) +
+          (group.time ? ' ' + t(`registration.timeLong.${group.time}`) : '')}
       </b>
     </Stack>
   )

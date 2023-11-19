@@ -93,7 +93,7 @@ describe('JudgeSection', () => {
       judges: [0],
       startDate: new Date('2022-06-01'),
       endDate: new Date('2022-06-02'),
-      classes: [{ class: 'AVO' }],
+      classes: [{ class: 'AVO', date: new Date('2022-06-01') }],
     }
     const { container } = render(<JudgesSection event={testEvent} judges={JUDGES} />)
     expect(container).toMatchSnapshot()

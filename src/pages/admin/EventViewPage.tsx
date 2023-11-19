@@ -19,7 +19,7 @@ import { useRecoilState, useRecoilValue } from 'recoil'
 
 import useEventRegistrationInfo from '../../hooks/useEventRegistrationsInfo'
 import { Path } from '../../routeConfig'
-import { uniqueClassDates } from '../../utils'
+import { eventTypeGroupsSelector } from '../recoil'
 
 import FullPageFlex from './components/FullPageFlex'
 import ClassEntrySelection from './eventViewPage/ClassEntrySelection'
@@ -48,6 +48,7 @@ export default function EventViewPage() {
   const eventId = params.id ?? ''
   const event = useRecoilValue(adminEventSelector(eventId))
 
+  const defaultGroups = useRecoilValue(eventTypeGroupsSelector(event?.eventType))
   const [selectedEventClass, setSelectedEventClass] = useRecoilState(eventClassAtom)
   const [selectedRegistrationId, setSelectedRegistrationId] = useRecoilState(adminRegistrationIdAtom)
   const allRegistrations = useRecoilValue(eventRegistrationsAtom(eventId))
@@ -166,9 +167,8 @@ export default function EventViewPage() {
           {eventClasses.map((eventClass, index) => (
             <TabPanel key={`tabPanel-${eventClass}`} index={index} activeTab={activeTab}>
               <ClassEntrySelection
-                eventId={eventId}
+                event={event}
                 eventClass={eventClass}
-                eventDates={uniqueClassDates(event, eventClass)}
                 registrations={registrations}
                 setOpen={setOpen}
                 selectedRegistrationId={selectedRegistrationId}

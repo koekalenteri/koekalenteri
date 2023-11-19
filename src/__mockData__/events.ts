@@ -56,7 +56,7 @@ export const eventWithEntryOpen: ConfirmedEvent = {
   ...emptyEvent,
   id: 'test3',
   eventType: 'NOWT',
-  classes: [{ class: 'VOI' }],
+  classes: [{ class: 'VOI', date: addDays(today, 14) }],
   startDate: addDays(today, 14),
   endDate: addDays(today, 15),
   entryStartDate: today, // entry starts today
@@ -70,7 +70,7 @@ export const eventWithEntryNotYetOpen: ConfirmedEvent = {
   ...emptyEvent,
   id: 'test4',
   eventType: 'type4',
-  classes: [{ class: 'AVO' }],
+  classes: [{ class: 'AVO', date: addDays(today, 14) }],
   startDate: addDays(today, 14),
   endDate: addDays(today, 15),
   entryStartDate: addDays(today, 1), // entry not open yet
@@ -84,7 +84,7 @@ export const eventWithEntryClosing: ConfirmedEvent = {
   ...emptyEvent,
   id: 'test5',
   eventType: 'type5',
-  classes: [{ class: 'ALO' }],
+  classes: [{ class: 'ALO', date: addDays(today, 14) }],
   startDate: addDays(today, 24),
   endDate: addDays(today, 25),
   entryStartDate: addDays(today, -1),
@@ -99,8 +99,8 @@ export const eventWithEntryClosed: ConfirmedEvent = {
   id: 'testEntryClosed',
   eventType: 'NOME-B',
   classes: [
-    { class: 'ALO', places: 3, entries: 2 },
-    { class: 'AVO', places: 1, entries: 2 },
+    { class: 'ALO', date: addDays(today, 7), places: 3, entries: 2 },
+    { class: 'AVO', date: addDays(today, 7), places: 1, entries: 2 },
   ],
   places: 4,
   entries: 4,
@@ -117,8 +117,8 @@ export const eventWithParticipantsInvited: ConfirmedEvent = {
   eventType: 'NOME-B',
   state: 'invited',
   classes: [
-    { class: 'ALO', places: 3, entries: 2 },
-    { class: 'AVO', places: 1, entries: 2 },
+    { class: 'ALO', date: addDays(today, 7), places: 3, entries: 2 },
+    { class: 'AVO', date: addDays(today, 7), places: 1, entries: 2 },
   ],
   places: 4,
   entries: 4,

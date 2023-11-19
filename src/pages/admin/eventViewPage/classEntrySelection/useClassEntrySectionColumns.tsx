@@ -1,5 +1,5 @@
 import type { GridColDef, GridValueGetterParams } from '@mui/x-data-grid'
-import type { BreedCode, Registration } from '../../../../types'
+import type { BreedCode, Registration, RegistrationDate } from '../../../../types'
 
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -15,7 +15,7 @@ import { GridActionsCellItem } from '@mui/x-data-grid'
 
 import GroupColors from './GroupColors'
 
-export function useClassEntrySelectionColumns(eventDates: Date[], openEditDialog?: (id: string) => void) {
+export function useClassEntrySelectionColumns(available: RegistrationDate[], openEditDialog?: (id: string) => void) {
   const { t } = useTranslation()
 
   return useMemo(() => {
@@ -29,7 +29,7 @@ export function useClassEntrySelectionColumns(eventDates: Date[], openEditDialog
         renderCell: (p) => (
           <>
             <DragIndicatorOutlined />
-            <GroupColors dates={eventDates} selected={p.row.dates} />
+            <GroupColors available={available} selected={p.row.dates} />
           </>
         ),
         sortable: false,
@@ -165,5 +165,5 @@ export function useClassEntrySelectionColumns(eventDates: Date[], openEditDialog
     })
 
     return { cancelledColumns, entryColumns, participantColumns }
-  }, [eventDates, openEditDialog, t])
+  }, [available, openEditDialog, t])
 }

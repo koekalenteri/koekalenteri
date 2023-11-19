@@ -1,4 +1,4 @@
-import type { Event, RegistrationClass } from '../../../types'
+import type { DogEvent, RegistrationClass } from '../../../types'
 
 import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -21,7 +21,7 @@ import { EventInfo } from './EventInfo'
 import { EventStateInfo } from './EventStateInfo'
 
 interface Props {
-  readonly event: Event
+  readonly event: DogEvent
 }
 
 export const EventTableRow = ({ event }: Props) => {

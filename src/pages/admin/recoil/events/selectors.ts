@@ -1,4 +1,4 @@
-import type { Event } from '../../../../types'
+import type { DogEvent } from '../../../../types'
 
 import { startOfToday } from 'date-fns'
 import i18next from 'i18next'
@@ -14,7 +14,7 @@ import {
   newEventAtom,
 } from './atoms'
 
-export const adminEventSelector = selectorFamily<Event | undefined, string | undefined>({
+export const adminEventSelector = selectorFamily<DogEvent | undefined, string | undefined>({
   key: 'adminEventSelector',
   get:
     (eventId) =>

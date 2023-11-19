@@ -1,4 +1,4 @@
-import type { Event, EventClass, EventState } from './types'
+import type { DogEvent, EventClass, EventState } from './types'
 import type { AnyObject } from './utils'
 
 import {
@@ -63,7 +63,7 @@ describe('utils', () => {
         startDate: new Date(2020, 1, 1),
         endDate: new Date(2020, 1, 2),
         classes: [] as EventClass[],
-      } as Event
+      } as DogEvent
       expect(registrationDates(event, ['ap', 'ip']).length).toEqual(4)
     })
 
@@ -77,7 +77,7 @@ describe('utils', () => {
             date: new Date(2020, 1, 2),
           },
         ],
-      } as Event
+      } as DogEvent
       expect(registrationDates(event, ['ap', 'ip']).length).toEqual(2)
     })
 
@@ -103,7 +103,7 @@ describe('utils', () => {
             date: new Date(2020, 1, 3),
           },
         ],
-      } as Event
+      } as DogEvent
       expect(registrationDates(event, ['ap', 'ip'], 'ALO').length).toEqual(6)
       expect(registrationDates(event, ['ap', 'ip'], 'VOI').length).toEqual(2)
     })

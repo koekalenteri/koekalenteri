@@ -9,7 +9,7 @@ exports[`OfficialListPage renders 1`] = `
       class="MuiBox-root css-1tyz8pc"
     >
       <div
-        class="MuiStack-root css-pl8gqh-MuiStack-root"
+        class="MuiStack-root css-1hezniw-MuiStack-root"
       >
         <button
           class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-mvwufc-MuiButtonBase-root-MuiButton-root"
@@ -45,7 +45,7 @@ exports[`OfficialListPage renders 1`] = `
         role="grid"
       >
         <div
-          class="MuiStack-root css-g7lf93-MuiStack-root"
+          class="MuiStack-root css-k5y4k9-MuiStack-root"
         >
           <div
             class="MuiDataGrid-toolbarContainer css-1wrr6qg-MuiDataGrid-toolbarContainer"

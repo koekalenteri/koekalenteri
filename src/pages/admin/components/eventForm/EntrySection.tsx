@@ -14,6 +14,7 @@ import AutocompleteMulti from '../../../components/AutocompleteMulti'
 import CollapsibleSection from '../../../components/CollapsibleSection'
 import DateRange from '../../../components/DateRange'
 
+import { EventDates } from './entrySection/EventDates'
 import EventFormPlaces from './entrySection/EventFormPlaces'
 
 export default function EntrySection(props: Readonly<SectionProps>) {
@@ -44,7 +45,7 @@ export default function EntrySection(props: Readonly<SectionProps>) {
     >
       <Grid item container spacing={1}>
         <Grid item container spacing={1}>
-          <Grid item>
+          <Grid item width={600}>
             <DateRange
               disabled={disabled}
               startLabel="Ilmoittautumisaika alkaa"
@@ -61,19 +62,23 @@ export default function EntrySection(props: Readonly<SectionProps>) {
           </Grid>
         </Grid>
         <Grid item container spacing={1}>
-          <Grid item>
+          <Grid item minWidth={600} maxWidth={900}>
+            <EventDates event={event} onChange={onChange} />
+          </Grid>
+        </Grid>
+        <Grid item container spacing={1}>
+          <Grid item width={600}>
             <EventFormPlaces disabled={disabled} {...props} />
           </Grid>
         </Grid>
         <Grid item container spacing={1}>
-          <Grid item>
+          <Grid item minWidth={600} maxWidth={900}>
             <AutocompleteMulti
               disabled={disabled}
               disablePortal
               groupBy={(o) => o?.group ?? ''}
               isOptionEqualToValue={(o, v) => o?.value === v?.value}
               getOptionLabel={(o) => o?.name ?? ''}
-              sx={{ width: 600 }}
               options={PRIORITY}
               onChange={handlePriorityChange}
               value={eventPriority}

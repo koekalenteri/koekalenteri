@@ -1,4 +1,4 @@
-import type { Event } from '../../types'
+import type { DogEvent } from '../../types'
 
 import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -25,7 +25,7 @@ export default function EventEditPage() {
   const [changes, setChanges] = useState<boolean>(hasChanges(storedEvent, event))
 
   const handleChange = useCallback(
-    (newState: Event) => {
+    (newState: DogEvent) => {
       setChanges(hasChanges(storedEvent, newState))
       setEvent(newState)
     },

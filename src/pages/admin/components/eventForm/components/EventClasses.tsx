@@ -1,6 +1,6 @@
 import type { AutocompleteChangeReason } from '@mui/material'
 import type { SyntheticEvent } from 'react'
-import type { DeepPartial, Event, EventClass, EventState } from '../../../../../types'
+import type { DeepPartial, DogEvent, EventClass, EventState } from '../../../../../types'
 
 import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -23,8 +23,8 @@ interface Props {
   readonly disabled?: boolean
   readonly required?: boolean
   readonly requiredState?: EventState
-  readonly errorStates?: { [Property in keyof Event]?: boolean }
-  readonly helperTexts?: { [Property in keyof Event]?: string }
+  readonly errorStates?: { [Property in keyof DogEvent]?: boolean }
+  readonly helperTexts?: { [Property in keyof DogEvent]?: string }
   readonly showCount?: boolean
   readonly onChange?: (
     event: SyntheticEvent,

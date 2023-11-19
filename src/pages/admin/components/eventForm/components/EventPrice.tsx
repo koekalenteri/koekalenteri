@@ -1,4 +1,4 @@
-import type { Event } from '../../../../../types'
+import type { DogEvent } from '../../../../../types'
 import type { EventPropertyProps } from './EventProperty'
 
 import { useCallback } from 'react'
@@ -19,7 +19,7 @@ const numberOrUndefined = (value?: string | number) => {
 export default function EventPrice(props: Props) {
   const toString = useCallback((v?: string | number) => v?.toString() ?? '', [])
   const handleChange = useCallback(
-    (newProps: Partial<Event>) => {
+    (newProps: Partial<DogEvent>) => {
       props.onChange?.({ [props.id]: numberOrUndefined(newProps[props.id]) })
     },
     [props]
