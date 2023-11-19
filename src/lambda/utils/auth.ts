@@ -55,7 +55,7 @@ async function getOrCreateUser(event?: Partial<APIGatewayProxyEvent>) {
 
 export async function getAndUpdateUserByEmail(email: string, props: Omit<Partial<JsonUser>, 'id'>) {
   const user: JsonUser = (await findUserByEmail(email)) ?? {
-    id: nanoid(),
+    id: nanoid(10),
     name: '?',
     email,
     createdAt: new Date().toISOString(),
