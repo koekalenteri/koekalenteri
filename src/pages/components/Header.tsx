@@ -25,7 +25,7 @@ const Header = ({ toggleMenu }: Props) => {
   const idToken = useRecoilValue(idTokenAtom)
   const hasAdminAccess = useRecoilValue(hasAdminAccessSelector)
   const inAdmin = !!toggleMenu
-  const linkBorder = hasAdminAccess ? '2px solid #000' : undefined
+  const linkBorder = hasAdminAccess ? '2px solid #fcfcfc' : undefined
   const mainBorder = inAdmin ? undefined : linkBorder
 
   useEffect(() => {
