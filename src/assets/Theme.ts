@@ -31,6 +31,11 @@ const theme = createTheme({
         rowHeight: 40,
       },
     },
+    MuiStack: {
+      defaultProps: {
+        useFlexGap: true,
+      },
+    },
     MuiSwitch: {
       defaultProps: {
         color: 'success',
