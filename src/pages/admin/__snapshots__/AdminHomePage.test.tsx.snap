@@ -59,7 +59,7 @@ exports[`AdminHomePage renders the child page content when user is logged in 1`]
         </div>
       </a>
       <a
-        class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-x1z00-MuiTypography-root-MuiLink-root"
+        class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-z8zmst-MuiTypography-root-MuiLink-root"
         href="/admin/event"
       >
         <div
@@ -232,7 +232,7 @@ exports[`AdminHomePage renders the page when user is logged in 1`] = `
         </div>
       </a>
       <a
-        class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-x1z00-MuiTypography-root-MuiLink-root"
+        class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-z8zmst-MuiTypography-root-MuiLink-root"
         href="/admin/event"
       >
         <div
