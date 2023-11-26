@@ -43,7 +43,7 @@ export function DataMemoryRouter({
 }
 
 export const flushPromises = async () => {
-  for (let i = 0; i <= 6; i++) {
+  for (let i = 0; i <= 7; i++) {
     await act(async () => {
       jest.runOnlyPendingTimers()
       await new Promise(jest.requireActual('timers').setImmediate)
