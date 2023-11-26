@@ -115,7 +115,7 @@ Resources:
       ProviderDetails:
         client_id: !Ref GoogleClientId
         client_secret: !Ref GoogleClientSecret
-        authorize_scopes: "profile email openid"
+        authorize_scopes: "https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile"
       ProviderName: "Google"
       ProviderType: "Google"
       UserPoolId: !Ref KoekalenteriUserPool
