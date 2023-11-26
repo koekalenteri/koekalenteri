@@ -13,6 +13,7 @@
     "aws-embedded-metrics": "^4.1.0",
     "aws-rum-web": "^1.15.0",
     "aws-sdk": "^2.1478.0",
+    "busboy": "^1.6.0",
     "date-fns": "^2.23.0",
     "date-fns-tz": "^2.0.0",
     "deep-object-diff": "^1.1.9",
