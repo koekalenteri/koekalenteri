@@ -1,0 +1,94 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      env: ${{ steps.setEnv.outputs.env }}
+    steps:
+      - id: setEnv
+        run: |
+          if [[ "${{ github.event.release.prerelease }}" ]]; then
+            echo "env=test" >> $GITHUB_OUTPUT
+          else
+            echo "env=prod" >> $GITHUB_OUTPUT
+          fi
+
+  deploy-backend:
+    needs: [setup]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Cache node_modules
+        id: cache
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+      - name: Install packages
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm ci
+      - name: Build
+        run: npm run build-backend
+      - uses: aws-actions/setup-sam@v2
+        with:
+          use-installer: true
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - name: Configure variables
+        shell: bash
+        run: |
+          echo "branch=main" >> $GITHUB_ENV
+          echo "environment=koekalenteri-${{ needs.setup.outputs.env }}" >> $GITHUB_ENV
+          echo "stage=${{ needs.setup.outputs.env }}" >> $GITHUB_ENV
+      - name: Shared Node.js layer
+        run: |
+          npm un @aws-amplify/auth @aws-amplify/ui-react @mui/icons-material @mui/lab @mui/material @mui/x-data-grid @mui/x-date-pickers aws-rum-web identity-obj-proxy material-ui-confirm mui-tel-input notistack react react-dnd react-dnd-html5-backend react-dom react-i18next react-router-dom recoil
+          npm ci --omit=dev
+          mkdir -p layer/nodejs/lambda
+          mv node_modules layer/nodejs/
+          mv dist/i18n layer/nodejs/
+          mv -t layer/nodejs/lambda dist/lambda/lib dist/lambda/types dist/lambda/utils
+          cp dist/lambda/config.mjs layer/nodejs/lambda
+      - name: SAM Build
+        run: |
+          cp Makefile dist/
+          sam build --base-dir dist
+      - name: SAM Deploy
+        run: |
+          # Create S3 Bucket to store code
+          aws s3api head-bucket --bucket "${{ env.environment }}" 2>/dev/null \
+            || aws s3 mb s3://${{ env.environment }}
+          # Run SAM Deploy
+          sam deploy --template-file .aws-sam/build/template.yaml \
+            --stack-name ${{ env.environment }} \
+            --s3-bucket ${{ env.environment }} \
+            --parameter-overrides \
+              'ParameterKey=StageNameParam,ParameterValue=${{ env.stage }} \
+              ParameterKey=Repository,ParameterValue=https://github.com/${{ github.repository }} \
+              ParameterKey=OauthToken,ParameterValue=${{ secrets.AWS_OAUTH_TOKEN }} \
+              ParameterKey=GoogleClientId,ParameterValue=${{ secrets.GOOGLE_CLIENT_ID }} \
+              ParameterKey=GoogleClientSecret,ParameterValue=${{ secrets.GOOGLE_CLIENT_SECRET }} \
+              ParameterKey=CustomDomain,ParameterValue=${{ secrets.CUSTOM_DOMAIN }} \
+              ParameterKey=Branch,ParameterValue=${{ env.branch }}' \
+            --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
+            --no-confirm-changeset --no-fail-on-empty-changeset
+
+  deploy-frontend:
+    needs: [setup, deploy-backend]
+    runs-on: ubuntu-latest
+    environment: ${{ needs.setup.outputs.env }}
+    steps:
+      - name: Trigger deployment
+        run: curl -X POST -d {} "${{ secrets.DEPLOY_TRIGGER_HOOK }}" -H "Content-Type:application/json"
