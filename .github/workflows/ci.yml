@@ -6,8 +6,6 @@ on:
   pull_request:
     branches: [ dev, main ]
 
-  workflow_dispatch:
-
 jobs:
   changes:
     runs-on: ubuntu-latest
@@ -182,20 +180,10 @@ jobs:
          sam validate --lint
       - name: Configure variables
         shell: bash
-        env:
-          REPO: ${{ github.repository }}
-          HASH: ${{ github.sha }}
-          REF: ${{ github.ref }}
         run: |
-          # Set variables
-          BRANCH=${REF#refs/heads/}
-          REPOSITORY=`echo $REPO | cut -d "/" -f 2`
-          ENVIRONMENT=$REPOSITORY-$BRANCH
-          # In this step we are setting variables and persistenting them
-          # into the environment so that they can be utilized in other steps
-          echo "branch=$BRANCH" >> $GITHUB_ENV
-          echo "repository=$REPOSITORY" >> $GITHUB_ENV
-          echo "environment=$ENVIRONMENT" >> $GITHUB_ENV
+          echo "branch=main" >> $GITHUB_ENV
+          echo "environment=koekalenteri-dev" >> $GITHUB_ENV
+          echo "stage=dev" >> $GITHUB_ENV
       - name: Shared Node.js layer
         run: |
           npm un @aws-amplify/auth @aws-amplify/ui-react @mui/icons-material @mui/lab @mui/material @mui/x-data-grid @mui/x-date-pickers aws-rum-web identity-obj-proxy material-ui-confirm mui-tel-input notistack react react-dnd react-dnd-html5-backend react-dom react-i18next react-router-dom recoil
@@ -211,10 +199,6 @@ jobs:
           sam build --base-dir dist
       - name: SAM Deploy
         run: |
-          # Output variables to ensure their values are set correctly when ran
-          echo "The repository is ${{ env.repository }}"
-          echo "The environment is ${{ env.environment }}"
-          echo "The branch is ${{ env.branch }}"
           # Create S3 Bucket to store code
           aws s3api head-bucket --bucket "${{ env.environment }}" 2>/dev/null \
             || aws s3 mb s3://${{ env.environment }}
@@ -223,7 +207,7 @@ jobs:
             --stack-name ${{ env.environment }} \
             --s3-bucket ${{ env.environment }} \
             --parameter-overrides \
-              'ParameterKey=StageNameParam,ParameterValue=${{ env.branch }} \
+              'ParameterKey=StageNameParam,ParameterValue=${{ env.stage }} \
               ParameterKey=Repository,ParameterValue=https://github.com/${{ github.repository }} \
               ParameterKey=OauthToken,ParameterValue=${{ secrets.AWS_OAUTH_TOKEN }} \
               ParameterKey=GoogleClientId,ParameterValue=${{ secrets.GOOGLE_CLIENT_ID }} \
@@ -237,7 +221,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [changes,frontend-test,deploy-backend]
     if: ${{ always() && !failure() && !cancelled() && github.event_name == 'push' && needs.changes.outputs.frontend == 'true' }}
-    environment: ${{ github.ref_name }}
+    environment: dev
     steps:
       - name: Trigger deployment
         run: curl -X POST -d {} "${{ secrets.DEPLOY_TRIGGER_HOOK }}" -H "Content-Type:application/json"
