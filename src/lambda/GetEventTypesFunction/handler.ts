@@ -21,7 +21,7 @@ const getEventTypesHandler = metricScope(
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
       try {
         const user = await authorize(event)
-        if (!user?.admin) {
+        if (!user) {
           metricsError(metrics, event.requestContext, 'getEventTypes')
           return response(401, 'Unauthorized', event)
         }
