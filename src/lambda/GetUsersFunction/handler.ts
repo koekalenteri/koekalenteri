@@ -6,7 +6,7 @@ import type { JsonUser } from '../../types'
 import { metricScope } from 'aws-embedded-metrics'
 
 import { CONFIG } from '../config'
-import { filterRelevantUsers } from '../lib/user'
+// import { filterRelevantUsers } from '../lib/user'
 import { authorize } from '../utils/auth'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { metricsError, metricsSuccess } from '../utils/metrics'
@@ -32,7 +32,7 @@ const getUsersHandler = metricScope(
         const users = (await dynamoDB.readAll<JsonUser>()) ?? []
 
         metricsSuccess(metrics, event.requestContext, 'getUsers')
-        return response(200, filterRelevantUsers(users, user, memberOf), event)
+        return response(200, users /* filterRelevantUsers(users, user, memberOf) */, event)
       } catch (err: unknown) {
         console.error(err)
         metricsError(metrics, event.requestContext, 'getUsers')
