@@ -12,7 +12,7 @@ jobs:
     steps:
       - id: setEnv
         run: |
-          if [[ "${{ github.event.release.prerelease }}" ]]; then
+          if [[ "${{ github.event.release.prerelease }}" == "true" ]]; then
             echo "env=test" >> $GITHUB_OUTPUT
           else
             echo "env=prod" >> $GITHUB_OUTPUT
