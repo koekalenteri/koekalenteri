@@ -53,22 +53,32 @@ async function getOrCreateUser(event?: Partial<APIGatewayProxyEvent>) {
   return user
 }
 
-export async function getAndUpdateUserByEmail(email: string, props: Omit<Partial<JsonUser>, 'id'>) {
-  const user: JsonUser = (await findUserByEmail(email)) ?? {
+export async function getAndUpdateUserByEmail(rawEmail: string, props: Omit<Partial<JsonUser>, 'id' | 'email'>) {
+  const email = rawEmail.toLocaleLowerCase()
+  const existing = await findUserByEmail(email)
+  const newUser: JsonUser = {
     id: nanoid(10),
-    name: '',
+    name: '?',
     email,
     createdAt: new Date().toISOString(),
     createdBy: 'system',
     modifiedAt: new Date().toISOString(),
     modifiedBy: 'system',
   }
-  const updated = { ...user, ...props, name: user.name || props.name || '?' }
-  if (Object.keys(diff(user, updated)).length > 0) {
-    console.log('user updated', { user, updated })
-    await updateUser({ ...updated, modifiedAt: new Date().toISOString(), modifiedBy: 'system' })
+
+  const changes = { ...props }
+
+  // lets not change a stored name
+  if (existing?.name) {
+    delete changes.name
   }
-  return updated
+
+  const final: JsonUser = { ...newUser, ...existing, ...changes }
+  if (Object.keys(diff(existing, final)).length > 0) {
+    console.log('user updated', { existing, final })
+    await updateUser({ ...final, modifiedAt: new Date().toISOString(), modifiedBy: 'system' })
+  }
+  return final
 }
 
 export function getOrigin(event?: Partial<APIGatewayProxyEvent>) {
