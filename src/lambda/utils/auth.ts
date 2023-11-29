@@ -74,8 +74,9 @@ export async function getAndUpdateUserByEmail(rawEmail: string, props: Omit<Part
   }
 
   const final: JsonUser = { ...newUser, ...existing, ...changes }
-  if (Object.keys(diff(existing, final)).length > 0) {
-    console.log('user updated', { existing, final })
+  if (Object.keys(diff(existing ?? {}, final)).length > 0) {
+    if (existing) console.log('updating user', { existing, final })
+    else console.log('creating user', { ...final })
     await updateUser({ ...final, modifiedAt: new Date().toISOString(), modifiedBy: 'system' })
   }
   return final
