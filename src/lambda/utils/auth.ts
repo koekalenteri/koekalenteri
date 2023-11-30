@@ -58,7 +58,7 @@ export async function getAndUpdateUserByEmail(rawEmail: string, props: Omit<Part
   const existing = await findUserByEmail(email)
   const newUser: JsonUser = {
     id: nanoid(10),
-    name: '?',
+    name: '',
     email,
     createdAt: new Date().toISOString(),
     createdBy: 'system',
@@ -68,9 +68,13 @@ export async function getAndUpdateUserByEmail(rawEmail: string, props: Omit<Part
 
   const changes = { ...props }
 
-  // lets not change a stored name
-  if (existing?.name) {
+  // lets not change a stored name or use a non-string value as name
+  if ('name' in changes && (existing?.name || typeof changes.name !== 'string')) {
     delete changes.name
+  }
+  // if for some reason we have a non-string name in database, replace it
+  if (existing && 'name' in existing && typeof existing.name !== 'string') {
+    existing.name = changes.name ?? ''
   }
 
   const final: JsonUser = { ...newUser, ...existing, ...changes }
