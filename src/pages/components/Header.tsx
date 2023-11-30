@@ -39,7 +39,7 @@ const Header = ({ toggleMenu }: Props) => {
     <AppBar position="fixed" elevation={0}>
       <Toolbar variant="dense" disableGutters sx={{ width: '100%', px: 1, height: 36, minHeight: 36 }}>
         {toggleMenu ? (
-          <IconButton sx={{ display: { sm: 'inline-flex', md: 'none' } }} onClick={toggleMenu}>
+          <IconButton color="secondary" sx={{ display: { sm: 'inline-flex', md: 'none' } }} onClick={toggleMenu}>
             <Menu />
           </IconButton>
         ) : null}

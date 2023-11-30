@@ -9,7 +9,7 @@ exports[`AdminHomePage renders the child page content when user is logged in 1`]
       class="MuiToolbar-root MuiToolbar-dense css-1njp2ce-MuiToolbar-root"
     >
       <button
-        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-1ecacw7-MuiButtonBase-root-MuiIconButton-root"
+        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorSecondary MuiIconButton-sizeMedium css-1v3edno-MuiButtonBase-root-MuiIconButton-root"
         tabindex="0"
         type="button"
       >
@@ -182,7 +182,7 @@ exports[`AdminHomePage renders the page when user is logged in 1`] = `
       class="MuiToolbar-root MuiToolbar-dense css-1njp2ce-MuiToolbar-root"
     >
       <button
-        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-1ecacw7-MuiButtonBase-root-MuiIconButton-root"
+        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorSecondary MuiIconButton-sizeMedium css-1v3edno-MuiButtonBase-root-MuiIconButton-root"
         tabindex="0"
         type="button"
       >
