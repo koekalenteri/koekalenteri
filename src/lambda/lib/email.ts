@@ -25,6 +25,7 @@ export async function sendTemplatedMail(
   }
 
   try {
+    console.log(`Sending email ${from} -> ${to} (template=${template}) `)
     return ses.sendTemplatedEmail(params).promise()
   } catch (e) {
     // TODO: queue for retry based on error
