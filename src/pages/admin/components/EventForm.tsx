@@ -121,7 +121,7 @@ export default function EventForm({ event, changes, disabled, onSave, onCancel, 
     },
     [md, open]
   )
-  const getStateLabel = useCallback((o: EventState) => t(`event.states.${o}`), [t])
+  const getStateLabel = useCallback((o: EventState): string => t(`event.states.${o}`), [t])
   const handleStateChange = useCallback(
     (value: NonNullable<EventState>) => handleChange({ state: value || undefined }),
     [handleChange]
