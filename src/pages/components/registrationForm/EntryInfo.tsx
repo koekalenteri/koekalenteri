@@ -52,7 +52,7 @@ export function EntryInfo({
     [t]
   )
   const getReserveChoiceLabel = useCallback(
-    (o: ReserveChoise | '') => (o !== '' ? t(`registration.reserveChoises.${o}`) : ''),
+    (o: ReserveChoise | ''): string => (o !== '' ? t(`registration.reserveChoises.${o}`) : ''),
     [t]
   )
 

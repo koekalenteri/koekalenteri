@@ -70,7 +70,7 @@ const EventProperty = <P extends Property, freeSolo extends boolean>(props: Even
   const [inputValue, setInputValue] = useState(getInputInitValue(fixedValue, props))
   const isRequired = fields?.required[id] ?? false
   const error = (isRequired || fixedValue) && validateEventField(event, id, true)
-  const helperText = error ? t(`validation.event.${error.key}`, error.opts) : ''
+  const helperText: string = error ? t(`validation.event.${error.key}`, error.opts) : ''
 
   const handleChange = useCallback(
     (

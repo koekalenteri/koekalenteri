@@ -44,7 +44,7 @@ export default function JudgesSection({ event, disabled, judges, fields, onChang
     () => !!validationError || list.some((id) => id && !judges.find((j) => j.id === id)),
     [judges, list, validationError]
   )
-  const helperText = useMemo(() => {
+  const helperText: string = useMemo(() => {
     if (validationError) {
       return t(`validation.event.${validationError.key}`, {
         ...validationError.opts,

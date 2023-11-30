@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 
 import { isEntryClosed, isEntryOpen, isEventOngoing, isEventOver } from '../utils'
 
-export function getEventTitle(event: DogEvent, t: TFunction<'translation'>) {
+export function getEventTitle(event: DogEvent, t: TFunction<'translation'>): string {
   if (event.state === 'confirmed') {
     if (isEventOver(event)) {
       return t('event.states.confirmed_eventOver')
@@ -24,7 +24,7 @@ export function getEventTitle(event: DogEvent, t: TFunction<'translation'>) {
   return t(`event.states.${event.state || 'draft'}`)
 }
 
-export default function useEventTitle(event: DogEvent) {
+export default function useEventTitle(event: DogEvent): string {
   const { t } = useTranslation()
 
   return getEventTitle(event, t)
