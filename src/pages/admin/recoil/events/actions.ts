@@ -8,7 +8,7 @@ import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
 
 import { copyEventWithRegistrations, putEvent } from '../../../../api/event'
 import { Path } from '../../../../routeConfig'
-import { idTokenAtom, userSelector } from '../../../recoil'
+import { eventsAtom, idTokenAtom, userSelector } from '../../../recoil'
 
 import {
   adminEventIdAtom,
@@ -25,6 +25,7 @@ export const useAdminEventActions = () => {
   const setAdminEventId = useSetRecoilState(adminEventIdAtom)
   const [currentAdminEvent, setCurrentAdminEvent] = useRecoilState(currentAdminEventSelector)
   const setNewEvent = useSetRecoilState(newEventAtom)
+  const [publicEvents, setPublicEvents] = useRecoilState(eventsAtom)
   const { enqueueSnackbar } = useSnackbar()
   const { t } = useTranslation()
   const navigate = useNavigate()
@@ -80,6 +81,18 @@ export const useAdminEventActions = () => {
     const saved = await putEvent(event, token)
     setAdminEventId(saved.id)
     setCurrentAdminEvent(saved)
+
+    if (event.id) {
+      const index = publicEvents.findIndex((e) => e.id === event.id)
+      if (index >= 0) {
+        const newEvents = [...publicEvents]
+        newEvents.splice(index, 1, saved)
+        setPublicEvents(newEvents)
+      }
+    } else {
+      setPublicEvents([...publicEvents, saved])
+    }
+
     return saved
   }
 
