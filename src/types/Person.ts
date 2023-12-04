@@ -46,6 +46,10 @@ export interface User extends Person, Partial<DbRecord> {
   admin?: boolean
 }
 
+export interface UserWithRoles extends User {
+  roles: UserRoles
+}
+
 export type JsonUser = Omit<User, keyof DbRecord> & JsonDbRecord
 
 export interface UserRoles {

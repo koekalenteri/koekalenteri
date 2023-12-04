@@ -1,3 +1,4 @@
+import type { GridColumnVisibilityModel } from '@mui/x-data-grid'
 import type { User } from '../../../../types'
 
 import { atom } from 'recoil'
@@ -20,5 +21,17 @@ export const adminUserFilterAtom = atom<string>({
 export const adminUserIdAtom = atom<string | undefined>({
   key: 'adminUserId',
   default: '',
+  effects: [logEffect, storageEffect],
+})
+
+export const adminUsersColumnsAtom = atom<GridColumnVisibilityModel>({
+  key: 'adminUsersColumns',
+  default: {
+    district: false,
+    eventTypes: true,
+    location: false,
+    name: true,
+    roles: true,
+  },
   effects: [logEffect, storageEffect],
 })

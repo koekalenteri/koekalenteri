@@ -1,29 +1,55 @@
-import type { User } from '../../../../types'
+import type { User, UserWithRoles } from '../../../../types'
 
 import i18next from 'i18next'
 import { selector, selectorFamily } from 'recoil'
 
+import { unique } from '../../../../utils'
 import { eventsAtom, userSelector } from '../../../recoil'
 import { adminEventOrganizersSelector, filteredAdminEventsSelector } from '../events'
-import { adminEventOrganizerIdAtom, adminOrganizersAtom } from '../organizers'
+import { adminEventOrganizerIdAtom, adminOrganizersAtom, adminUsersOrganizerIdAtom } from '../organizers'
 
 import { adminUserFilterAtom, adminUserIdAtom, adminUsersAtom } from './atoms'
+
+export const adminUsersOrganizersSelector = selector({
+  key: 'adminUserOrganizersSelector',
+  get: ({ get }) => {
+    const users = get(adminUsersAtom)
+    const orgs = get(adminOrganizersAtom)
+
+    const orgIds = unique(users.filter((u): u is UserWithRoles => !!u.roles).flatMap((u) => Object.keys(u.roles)))
+
+    const filteredOrgs = orgs.filter((o) => orgIds.includes(o.id))
+    orgIds
+      .filter((id) => !filteredOrgs.find((o) => o.id === id))
+      .map((id) => filteredOrgs.push({ id, name: `(tuntematon/poistettu yhdistys: ${id})` }))
+
+    return filteredOrgs
+  },
+})
 
 export const filteredUsersSelector = selector({
   key: 'filteredUsers',
   get: ({ get }) => {
     const filter = get(adminUserFilterAtom).toLocaleLowerCase(i18next.language)
-    const list = get(adminUsersAtom)
+    const users = get(adminUsersAtom)
+    const orgId = get(adminUsersOrganizerIdAtom)
 
-    if (!filter) {
-      return list
+    let result = users
+
+    if (orgId) {
+      result = result.filter((u) => u.roles?.[orgId])
     }
-    return list.filter((user) =>
-      [user.id, user.email, user.name, user.location, user.phone]
-        .join(' ')
-        .toLocaleLowerCase(i18next.language)
-        .includes(filter)
-    )
+
+    if (filter) {
+      result = result.filter((user) =>
+        [user.id, user.email, user.name, user.location, user.phone]
+          .join(' ')
+          .toLocaleLowerCase(i18next.language)
+          .includes(filter)
+      )
+    }
+
+    return result
   },
 })
 
@@ -69,9 +95,9 @@ export const adminUserAdminOrganizersSelector = selector({
   key: 'adminUserAdminOrganizers',
   get: ({ get }) => {
     const user = get(userSelector)
-    const list = get(adminOrganizersAtom)
+    const organizers = get(adminOrganizersAtom)
 
-    return user?.admin ? list : list.filter((o) => user?.roles?.[o.id] === 'admin')
+    return user?.admin ? organizers : organizers.filter((o) => user?.roles?.[o.id] === 'admin')
   },
 })
 

@@ -35,3 +35,9 @@ export const adminEventOrganizerIdAtom = atom<string>({
   default: '',
   effects: [logEffect, storageEffect],
 })
+
+export const adminUsersOrganizerIdAtom = atom<string>({
+  key: 'adminUsersOrganizerId',
+  default: '',
+  effects: [logEffect, storageEffect],
+})

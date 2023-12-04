@@ -2,7 +2,7 @@ import type { Theme } from '@mui/material'
 import type { GridColDef, GridRowSelectionModel } from '@mui/x-data-grid'
 import type { User } from '../../types'
 
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import AddCircleOutline from '@mui/icons-material/AddCircleOutline'
 import EditOutlined from '@mui/icons-material/EditOutlined'
@@ -13,15 +13,24 @@ import Badge from '@mui/material/Badge'
 import Stack from '@mui/material/Stack'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
+import AutocompleteSingle from '../components/AutocompleteSingle'
 import StyledDataGrid from '../components/StyledDataGrid'
 import { isOrgAdminSelector, userSelector } from '../recoil'
 
 import FullPageFlex from './components/FullPageFlex'
 import { QuickSearchToolbar } from './components/QuickSearchToolbar'
 import AutoButton from './eventListPage/AutoButton'
-import { adminUserFilterAtom, adminUserIdAtom, currentAdminUserSelector, filteredUsersSelector } from './recoil/user'
 import { CreateUserDialog } from './usersPage/CreateUserDialog'
 import { EditUserRolesDialog } from './usersPage/EditUserRolesDialog'
+import {
+  adminUserFilterAtom,
+  adminUserIdAtom,
+  adminUsersColumnsAtom,
+  adminUsersOrganizerIdAtom,
+  adminUsersOrganizersSelector,
+  currentAdminUserSelector,
+  filteredUsersSelector,
+} from './recoil'
 
 const RoleInfo = ({ admin, roles }: User) => {
   if (admin) {
@@ -43,9 +52,16 @@ export default function UsersPage() {
   const large = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
   const [searchText, setSearchText] = useRecoilState(adminUserFilterAtom)
   const { t } = useTranslation()
+
+  const [visibilityModel, setVisibilityModel] = useRecoilState(adminUsersColumnsAtom)
+
   const user = useRecoilValue(userSelector)
-  const users = useRecoilValue(filteredUsersSelector)
   const isOrgAdmin = useRecoilValue(isOrgAdminSelector)
+  const orgs = useRecoilValue(adminUsersOrganizersSelector)
+  const [orgId, setOrgId] = useRecoilState(adminUsersOrganizerIdAtom)
+  const options = useMemo(() => [{ id: '', name: 'Kaikki' }, ...orgs], [orgs])
+  const users = useRecoilValue(filteredUsersSelector)
+
   const [selectedUserID, setSelectedUserID] = useRecoilState(adminUserIdAtom)
   const selectedUser = useRecoilValue(currentAdminUserSelector)
   const [createOpen, setCreateOpen] = useState(false)
@@ -123,18 +139,35 @@ export default function UsersPage() {
         </Stack>
         <StyledDataGrid
           columns={columns}
-          columnVisibilityModel={{
-            district: large,
-            eventTypes: large,
-            id: large,
-            location: large,
-          }}
+          columnVisibilityModel={visibilityModel}
+          onColumnVisibilityModelChange={setVisibilityModel}
           slots={{ toolbar: QuickSearchToolbar }}
           slotProps={{
             toolbar: {
               value: searchText,
               onChange: (event: React.ChangeEvent<HTMLInputElement>) => setSearchText(event.target.value),
               clearSearch: () => setSearchText(''),
+              columnSelector: true,
+              children: (
+                <Stack direction="row" mx={1} flex={1}>
+                  <AutocompleteSingle
+                    disabled={orgs.length < 2}
+                    size="small"
+                    options={options}
+                    label={'Yhdistys'}
+                    getOptionLabel={(o) => o.name}
+                    renderOption={(props, option) => {
+                      return (
+                        <li {...props} key={option.id}>
+                          {option.name}
+                        </li>
+                      )
+                    }}
+                    value={options.find((o) => o.id === orgId) ?? null}
+                    onChange={(o) => setOrgId(o?.id ?? '')}
+                  />
+                </Stack>
+              ),
             },
           }}
           rowHeight={50}
