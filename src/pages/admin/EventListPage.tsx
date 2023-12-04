@@ -33,7 +33,7 @@ import {
   useAdminEventActions,
 } from './recoil'
 
-export default function EventListPage() {
+export default function EventListPage({ isDev }: { isDev?: boolean }) {
   const confirm = useConfirm()
   const { t } = useTranslation()
   const navigate = useNavigate()
@@ -119,12 +119,14 @@ export default function EventListPage() {
           onClick={actions.copyCurrent}
           text={t('copy')}
         />
-        <AutoButton
-          startIcon={<ContentCopyOutlined />}
-          disabled={!selectedEventID}
-          onClick={actions.copyCurrentTest}
-          text={t('copyTest')}
-        />
+        {isDev && (
+          <AutoButton
+            startIcon={<ContentCopyOutlined />}
+            disabled={!selectedEventID}
+            onClick={actions.copyCurrentTest}
+            text={t('copyTest')}
+          />
+        )}
         <AutoButton
           startIcon={<DeleteOutline />}
           disabled={!selectedEventID}

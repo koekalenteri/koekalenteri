@@ -111,7 +111,7 @@ const routes: RouteObject[] = [
       },
       {
         path: Path.admin.events,
-        element: <EventListPage />,
+        element: <EventListPage isDev={process.env.NODE_ENV === 'development'} />,
       },
       {
         path: Path.admin.newEvent,
