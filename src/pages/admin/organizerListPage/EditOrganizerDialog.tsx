@@ -1,7 +1,7 @@
 import type { ChangeEvent } from 'react'
 import type { Organizer } from '../../../types'
 
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import Save from '@mui/icons-material/Save'
 import Button from '@mui/material/Button'
@@ -31,6 +31,10 @@ export const EditOrganizerDialog = ({ onClose, onSave, open, organizer }: Props)
     if (!organizer) return
     onSave?.({ ...organizer, paytrailMerchantId: merchantId })
   }, [organizer, merchantId, onSave])
+
+  useEffect(() => {
+    setMerchantId(organizer?.paytrailMerchantId ?? '')
+  }, [organizer])
 
   if (!organizer) {
     return null
