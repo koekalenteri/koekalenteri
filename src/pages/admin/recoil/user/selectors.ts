@@ -21,7 +21,7 @@ export const adminUsersOrganizersSelector = selector({
     const filteredOrgs = orgs.filter((o) => orgIds.includes(o.id))
     orgIds
       .filter((id) => !filteredOrgs.find((o) => o.id === id))
-      .map((id) => filteredOrgs.push({ id, name: `(tuntematon/poistettu yhdistys: ${id})` }))
+      .forEach((id) => filteredOrgs.push({ id, name: `(tuntematon/poistettu yhdistys: ${id})` }))
 
     return filteredOrgs
   },

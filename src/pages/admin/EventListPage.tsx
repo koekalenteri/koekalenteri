@@ -33,7 +33,11 @@ import {
   useAdminEventActions,
 } from './recoil'
 
-export default function EventListPage({ isDev }: { isDev?: boolean }) {
+interface Props {
+  readonly isDev?: boolean
+}
+
+export default function EventListPage({ isDev }: Props) {
   const confirm = useConfirm()
   const { t } = useTranslation()
   const navigate = useNavigate()

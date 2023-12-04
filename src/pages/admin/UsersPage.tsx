@@ -1,4 +1,3 @@
-import type { Theme } from '@mui/material'
 import type { GridColDef, GridRowSelectionModel } from '@mui/x-data-grid'
 import type { User } from '../../types'
 
@@ -8,7 +7,6 @@ import AddCircleOutline from '@mui/icons-material/AddCircleOutline'
 import EditOutlined from '@mui/icons-material/EditOutlined'
 import StarsOutlined from '@mui/icons-material/StarsOutlined'
 import Support from '@mui/icons-material/Support'
-import { useMediaQuery } from '@mui/material'
 import Badge from '@mui/material/Badge'
 import Stack from '@mui/material/Stack'
 import { useRecoilState, useRecoilValue } from 'recoil'
@@ -49,7 +47,6 @@ const RoleInfo = ({ admin, roles }: User) => {
 }
 
 export default function UsersPage() {
-  const large = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
   const [searchText, setSearchText] = useRecoilState(adminUserFilterAtom)
   const { t } = useTranslation()
 
