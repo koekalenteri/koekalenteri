@@ -125,7 +125,7 @@ export default function UsersPage() {
         const admin = a.admin - b.admin
         return admin === 0 ? Object.keys(a.roles).length - Object.keys(b.roles).length : admin
       },
-      valueGetter: (params) => params.row,
+      valueGetter: (params) => ({ admin: false, roles: {}, ...params.row }),
       renderCell: ({ value }) => <RoleInfo {...value} />,
     },
     {
