@@ -86,10 +86,9 @@ export function EditUserRolesDialog({ onClose, open, user }: Props) {
             <TableBody>
               {Object.keys(roles).map((orgId) => {
                 const o = organizers.find((o) => o.id === orgId)
-                if (!o) return null
                 return (
                   <TableRow key={orgId}>
-                    <TableCell>{o.name}</TableCell>
+                    <TableCell>{o?.name ?? `(tuntematon/poistettu yhdistys: ${orgId})`}</TableCell>
                     <TableCell>{t(`user.roles.${roles[orgId]}`)}</TableCell>
                     <TableCell>
                       <Button variant="outlined" onClick={() => actions.removeRole(user, orgId)}>
