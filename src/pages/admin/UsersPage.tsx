@@ -1,14 +1,20 @@
+import type { TooltipProps } from '@mui/material/Tooltip'
 import type { GridColDef, GridRowSelectionModel } from '@mui/x-data-grid'
 import type { User } from '../../types'
 
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import Accessibility from '@mui/icons-material/Accessibility'
 import AddCircleOutline from '@mui/icons-material/AddCircleOutline'
 import EditOutlined from '@mui/icons-material/EditOutlined'
 import StarsOutlined from '@mui/icons-material/StarsOutlined'
+import SupervisorAccount from '@mui/icons-material/SupervisorAccount'
 import Support from '@mui/icons-material/Support'
 import Badge from '@mui/material/Badge'
+import Box from '@mui/material/Box'
 import Stack from '@mui/material/Stack'
+import { styled } from '@mui/material/styles'
+import Tooltip, { tooltipClasses } from '@mui/material/Tooltip'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
 import AutocompleteSingle from '../components/AutocompleteSingle'
@@ -30,20 +36,60 @@ import {
   filteredUsersSelector,
 } from './recoil'
 
-const RoleInfo = ({ admin, roles }: User) => {
-  if (admin) {
-    return <StarsOutlined />
-  }
-  const roleCount = Object.keys(roles ?? {}).length
-  if (roleCount) {
-    return (
-      <Badge badgeContent={roleCount}>
-        <Support fontSize="small" />
-      </Badge>
-    )
-  }
+const IconPlaceholder = () => <StarsOutlined sx={{ color: 'transparent' }} fontSize="small" />
 
-  return null
+const RolesTooltip = styled(({ className, ...props }: TooltipProps) => (
+  <Tooltip {...props} classes={{ popper: className }} />
+))({
+  [`& .${tooltipClasses.tooltip}`]: {
+    maxWidth: 'none',
+  },
+})
+
+const RolesTooltipContent = ({ roles }: { roles: string }) => <Box sx={{ whiteSpace: 'pre-line' }}>{roles}</Box>
+
+const RoleInfo = ({ admin, judge, officer, roles }: User) => {
+  const { t } = useTranslation()
+  const orgs = useRecoilValue(adminUsersOrganizersSelector)
+  const roleStrings = roles
+    ? Object.keys(roles).map((orgId) => {
+        const org = orgs.find((o) => o.id === orgId)
+        const role = t(`user.roles.${roles[orgId]}`)
+        return `${role} - ${org?.name}`
+      })
+    : []
+
+  return (
+    <Stack direction="row" alignItems="center">
+      {admin ? (
+        <Tooltip placement="right" title="Koekalenterin pääkäyttäjä">
+          <StarsOutlined fontSize="small" />
+        </Tooltip>
+      ) : roleStrings.length ? (
+        <RolesTooltip placement="right" title={<RolesTooltipContent roles={roleStrings.join('\n')} />}>
+          <Badge badgeContent={roleStrings.length}>
+            <Support fontSize="small" />
+          </Badge>
+        </RolesTooltip>
+      ) : (
+        <IconPlaceholder />
+      )}
+      {judge ? (
+        <Tooltip placement="right" title="Tuomari">
+          <Accessibility fontSize="small" />
+        </Tooltip>
+      ) : (
+        <IconPlaceholder />
+      )}
+      {officer ? (
+        <Tooltip placement="right" title="Koetoimitsija">
+          <SupervisorAccount fontSize="small" />
+        </Tooltip>
+      ) : (
+        <IconPlaceholder />
+      )}
+    </Stack>
+  )
 }
 
 export default function UsersPage() {
@@ -74,12 +120,12 @@ export default function UsersPage() {
       field: 'roles',
       flex: 0,
       headerName: t('roles'),
-      width: 80,
+      width: 90,
       sortComparator: (a, b) => {
         const admin = a.admin - b.admin
         return admin === 0 ? Object.keys(a.roles).length - Object.keys(b.roles).length : admin
       },
-      valueGetter: (params) => ({ admin: params.row.admin ?? false, roles: params.row.roles ?? {} }),
+      valueGetter: (params) => params.row,
       renderCell: ({ value }) => <RoleInfo {...value} />,
     },
     {
