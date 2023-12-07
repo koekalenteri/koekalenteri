@@ -53,7 +53,11 @@ async function getOrCreateUser(event?: Partial<APIGatewayProxyEvent>) {
   return user
 }
 
-export async function getAndUpdateUserByEmail(rawEmail: string, props: Omit<Partial<JsonUser>, 'id' | 'email'>) {
+export async function getAndUpdateUserByEmail(
+  rawEmail: string,
+  props: Omit<Partial<JsonUser>, 'id' | 'email'>,
+  updateName?: boolean
+) {
   const email = rawEmail.toLocaleLowerCase()
   const existing = await findUserByEmail(email)
   const newUser: JsonUser = {
@@ -69,7 +73,7 @@ export async function getAndUpdateUserByEmail(rawEmail: string, props: Omit<Part
   const changes = { ...props }
 
   // lets not change a stored name or use a non-string value as name
-  if ('name' in changes && (existing?.name || typeof changes.name !== 'string')) {
+  if ('name' in changes && ((existing?.name && !updateName) || typeof changes.name !== 'string')) {
     delete changes.name
   }
   // if for some reason we have a non-string name in database, replace it

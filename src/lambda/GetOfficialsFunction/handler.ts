@@ -67,6 +67,19 @@ const refreshOfficials = async (event: APIGatewayProxyEvent): Promise<APIGateway
           } else {
             existingOfficials.push(official)
           }
+        } else {
+          // Make sure user info is up to date
+          await getAndUpdateUserByEmail(
+            official.email,
+            {
+              name: reverseName(official.name),
+              kcId: official.id,
+              officer: official.eventTypes,
+              location: official.location,
+              phone: official.phone,
+            },
+            true
+          )
         }
       }
     }
@@ -74,13 +87,17 @@ const refreshOfficials = async (event: APIGatewayProxyEvent): Promise<APIGateway
       await dynamoDB.batchWrite(write)
 
       for (const official of write) {
-        await getAndUpdateUserByEmail(official.email, {
-          name: reverseName(official.name),
-          kcId: official.id,
-          officer: official.eventTypes,
-          location: official.location,
-          phone: official.phone,
-        })
+        await getAndUpdateUserByEmail(
+          official.email,
+          {
+            name: reverseName(official.name),
+            kcId: official.id,
+            officer: official.eventTypes,
+            location: official.location,
+            phone: official.phone,
+          },
+          true
+        )
       }
     }
   }

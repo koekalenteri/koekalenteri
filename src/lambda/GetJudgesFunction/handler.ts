@@ -69,6 +69,19 @@ const refreshJudges = async (event: APIGatewayProxyEvent) => {
           } else {
             existingJudges.push(judge)
           }
+        } else {
+          // Make sure user info is up to date
+          await getAndUpdateUserByEmail(
+            judge.email,
+            {
+              name: reverseName(judge.name),
+              kcId: judge.id,
+              judge: judge.eventTypes,
+              location: judge.location,
+              phone: judge.phone,
+            },
+            true
+          )
         }
       }
     }
@@ -76,13 +89,17 @@ const refreshJudges = async (event: APIGatewayProxyEvent) => {
       await dynamoDB.batchWrite(write)
 
       for (const judge of write) {
-        await getAndUpdateUserByEmail(judge.email, {
-          name: reverseName(judge.name),
-          kcId: judge.id,
-          judge: judge.eventTypes,
-          location: judge.location,
-          phone: judge.phone,
-        })
+        await getAndUpdateUserByEmail(
+          judge.email,
+          {
+            name: reverseName(judge.name),
+            kcId: judge.id,
+            judge: judge.eventTypes,
+            location: judge.location,
+            phone: judge.phone,
+          },
+          true
+        )
       }
     }
   }
