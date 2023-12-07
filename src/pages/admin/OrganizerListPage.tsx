@@ -5,7 +5,9 @@ import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import CloudSync from '@mui/icons-material/CloudSync'
 import EditOutlined from '@mui/icons-material/EditOutlined'
+import FormControlLabel from '@mui/material/FormControlLabel'
 import Stack from '@mui/material/Stack'
+import Switch from '@mui/material/Switch'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
 import StyledDataGrid from '../components/StyledDataGrid'
@@ -19,6 +21,7 @@ import {
   adminOrganizerColumnsAtom,
   adminOrganizerFilterAtom,
   adminOrganizerIdAtom,
+  adminShowOnlyOrganizersWithUsersAtom,
   currentAdminOrganizerSelector,
   filteredOrganizersSelector,
   useOrganizersActions,
@@ -28,6 +31,7 @@ export default function OrganizerListPage() {
   const [searchText, setSearchText] = useRecoilState(adminOrganizerFilterAtom)
   const [selectedID, setSelectedID] = useRecoilState(adminOrganizerIdAtom)
   const [visibilityModel, setVisibilityModel] = useRecoilState(adminOrganizerColumnsAtom)
+  const [showWithUsers, setShowWithUsers] = useRecoilState(adminShowOnlyOrganizersWithUsersAtom)
   const organizers = useRecoilValue(filteredOrganizersSelector)
   const isAdmin = useRecoilValue(isAdminSelector)
   const selectedOrganizer = useRecoilValue(currentAdminOrganizerSelector)
@@ -65,6 +69,11 @@ export default function OrganizerListPage() {
   )
 
   const clearSearch = useCallback(() => setSearchText(''), [setSearchText])
+  const toggleShowWithUsers = useCallback(
+    (_event: React.SyntheticEvent<Element, Event>, checked: boolean) => setShowWithUsers(checked),
+    [setShowWithUsers]
+  )
+
   const handleSelectionModeChange = useCallback(
     (selection: GridRowSelectionModel) => {
       const value = typeof selection[0] === 'string' ? selection[0] : undefined
@@ -113,6 +122,19 @@ export default function OrganizerListPage() {
               columnSelector: true,
               onChange,
               clearSearch,
+              children: (
+                <Stack direction="row" mx={1} flex={1}>
+                  <FormControlLabel
+                    sx={{ m: 0, pl: 1 }}
+                    checked={showWithUsers}
+                    control={<Switch size="small" />}
+                    label="Näytä vain yhdistykset, joilla on käyttäjiä"
+                    labelPlacement="start"
+                    name="showWithUsers"
+                    onChange={toggleShowWithUsers}
+                  />
+                </Stack>
+              ),
             },
           }}
         />

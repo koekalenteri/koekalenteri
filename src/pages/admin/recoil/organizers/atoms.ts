@@ -41,3 +41,9 @@ export const adminUsersOrganizerIdAtom = atom<string>({
   default: '',
   effects: [logEffect, storageEffect],
 })
+
+export const adminShowOnlyOrganizersWithUsersAtom = atom<boolean>({
+  key: 'adminShowOnlyOrganizersWithUsers',
+  default: true,
+  effects: [logEffect, storageEffect],
+})

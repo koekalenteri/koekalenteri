@@ -153,6 +153,46 @@ exports[`OrganizerListPage renders 1`] = `
               </div>
             </div>
           </div>
+          <div
+            class="MuiDataGrid-toolbarContainer css-185b43u-MuiDataGrid-toolbarContainer"
+          >
+            <div
+              class="MuiStack-root css-cnn9ag-MuiStack-root"
+            >
+              <label
+                class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementStart css-512wlw-MuiFormControlLabel-root"
+              >
+                <span
+                  class="MuiSwitch-root MuiSwitch-sizeSmall css-1ycxvqq-MuiSwitch-root"
+                >
+                  <span
+                    class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-checked css-1xvpzln-MuiButtonBase-root-MuiSwitch-switchBase"
+                  >
+                    <input
+                      checked=""
+                      class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"
+                      name="showWithUsers"
+                      type="checkbox"
+                    />
+                    <span
+                      class="MuiSwitch-thumb css-jsexje-MuiSwitch-thumb"
+                    />
+                    <span
+                      class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                    />
+                  </span>
+                  <span
+                    class="MuiSwitch-track css-1yjjitx-MuiSwitch-track"
+                  />
+                </span>
+                <span
+                  class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-ahj2mt-MuiTypography-root"
+                >
+                  Näytä vain yhdistykset, joilla on käyttäjiä
+                </span>
+              </label>
+            </div>
+          </div>
         </div>
         <div
           class="MuiDataGrid-main css-204u17-MuiDataGrid-main"
