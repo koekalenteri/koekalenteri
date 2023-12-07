@@ -15,8 +15,9 @@ export const remoteEventsEffect: AtomEffect<DogEvent[]> = ({ setSelf, trigger })
     loaded = true
     getEvents()
       .then((events) => {
-        events.sort((a, b) => a.startDate.valueOf() - b.startDate.valueOf())
-        setSelf(events)
+        const result = [...events]
+        result.sort((a, b) => a.startDate.valueOf() - b.startDate.valueOf())
+        setSelf(result)
       })
       .catch((reason) => {
         console.error(reason)
