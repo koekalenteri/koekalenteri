@@ -15,9 +15,9 @@ let cache: JsonUser[] | undefined
 export const filterRelevantUsers = (users: JsonUser[], user: JsonUser, orgs: string[]) =>
   user.admin ? users : users.filter((u) => u.admin || Object.keys(u.roles ?? {}).some((orgId) => orgs.includes(orgId)))
 
-export async function getAllUsers() {
+export async function getAllUsers(): Promise<JsonUser[]> {
   if (!cache) {
-    cache = await dynamoDB.readAll<JsonUser>(userTable)
+    cache = (await dynamoDB.readAll<JsonUser>(userTable)) ?? []
   }
   return cache
 }
@@ -47,7 +47,7 @@ export async function setUserRole(
   role: UserRole | 'none',
   modifiedBy: string,
   origin?: string
-) {
+): Promise<JsonUser> {
   const t = i18n.getFixedT('fi')
   const roles = user.roles || {}
   if (role === 'none') {

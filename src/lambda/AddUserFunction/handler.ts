@@ -7,7 +7,7 @@ import { metricScope } from 'aws-embedded-metrics'
 import { nanoid } from 'nanoid'
 
 import { CONFIG } from '../config'
-import { filterRelevantUsers, setUserRole } from '../lib/user'
+import { filterRelevantUsers, getAllUsers, setUserRole } from '../lib/user'
 import { authorize, getOrigin } from '../utils/auth'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { metricsError, metricsSuccess } from '../utils/metrics'
@@ -33,7 +33,7 @@ const addUserHandler = metricScope(
         const item: JsonUser = JSON.parse(event.body || '{}')
         const timestamp = new Date().toISOString()
 
-        const users = (await dynamoDB.readAll<JsonUser>()) ?? []
+        const users = await getAllUsers()
 
         const idx = users.findIndex((u) => u.email === item.email)
         if (idx >= 0) {
