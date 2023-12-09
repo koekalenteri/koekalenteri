@@ -27,11 +27,11 @@ const addUserHandler = metricScope(
         }
         const item: JsonUser = JSON.parse(event.body || '{}')
 
-        const newUser = await getAndUpdateUserByEmail(item.email, { name: item.name })
+        let newUser = await getAndUpdateUserByEmail(item.email, { name: item.name })
 
         const origin = getOrigin(event)
         for (const orgId of Object.keys(item.roles ?? [])) {
-          await setUserRole(newUser, orgId, item.roles?.[orgId] ?? 'none', user.name, origin)
+          newUser = await setUserRole(newUser, orgId, item.roles?.[orgId] ?? 'none', user.name, origin)
         }
 
         metricsSuccess(metrics, event.requestContext, 'addUser')
