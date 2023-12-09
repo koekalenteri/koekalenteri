@@ -215,7 +215,7 @@ export const eventPricesSelector = selector({
   get: ({ get }) =>
     unique<number>(get(eventsAtom).map((e) => e.cost))
       .filter(Boolean)
-      .sort(),
+      .sort((a, b) => a - b),
 })
 
 export const eventMemerPricesSelector = selector({
@@ -223,5 +223,5 @@ export const eventMemerPricesSelector = selector({
   get: ({ get }) =>
     unique<number>(get(eventsAtom).map((e) => e.costMember))
       .filter(Boolean)
-      .sort(),
+      .sort((a, b) => a - b),
 })
