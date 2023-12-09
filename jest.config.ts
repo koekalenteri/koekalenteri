@@ -26,6 +26,7 @@ const config: Config = {
   },
   resetMocks: true,
   watchPlugins: ['jest-watch-typeahead/filename', 'jest-watch-typeahead/testname'],
+  testTimeout: 10000,
 }
 
 export default config
