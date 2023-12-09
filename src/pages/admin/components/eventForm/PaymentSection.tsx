@@ -2,8 +2,10 @@ import type { SectionProps } from '../EventForm'
 
 import { useTranslation } from 'react-i18next'
 import Grid from '@mui/material/Grid'
+import { useRecoilValue } from 'recoil'
 
 import CollapsibleSection from '../../../components/CollapsibleSection'
+import { eventMemerPricesSelector, eventPricesSelector } from '../../../recoil'
 
 import EventPrice from './components/EventPrice'
 
@@ -17,6 +19,8 @@ export default function PaymentSection({
   onOpenChange,
 }: Readonly<SectionProps>) {
   const { t } = useTranslation()
+  const priceOptions = useRecoilValue(eventPricesSelector)
+  const memberPriceOptions = useRecoilValue(eventMemerPricesSelector)
   const error = errorStates?.cost ?? errorStates?.costMember
   const helperText = error ? t('validation.event.errors') : ''
 
@@ -34,7 +38,7 @@ export default function PaymentSection({
             <EventPrice
               id="cost"
               disabled={disabled}
-              options={[30, 35, 40, 45]}
+              options={priceOptions}
               event={event}
               fields={fields}
               onChange={onChange}
@@ -44,7 +48,7 @@ export default function PaymentSection({
             <EventPrice
               id="costMember"
               disabled={disabled}
-              options={[30, 35, 40, 45]}
+              options={memberPriceOptions}
               event={event}
               fields={fields}
               onChange={onChange}

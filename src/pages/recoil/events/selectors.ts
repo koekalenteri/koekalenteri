@@ -209,3 +209,19 @@ export const filterJudgesSelector = selector({
       .sort((a, b) => a.name.localeCompare(b.name, i18next.language))
   },
 })
+
+export const eventPricesSelector = selector({
+  key: 'eventPricesSelector',
+  get: ({ get }) =>
+    unique<number>(get(eventsAtom).map((e) => e.cost))
+      .filter(Boolean)
+      .sort(),
+})
+
+export const eventMemerPricesSelector = selector({
+  key: 'eventMemberPricesSelector',
+  get: ({ get }) =>
+    unique<number>(get(eventsAtom).map((e) => e.costMember))
+      .filter(Boolean)
+      .sort(),
+})
