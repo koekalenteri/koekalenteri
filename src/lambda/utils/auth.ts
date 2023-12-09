@@ -19,12 +19,12 @@ const { userTable, userLinkTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(userLinkTable)
 
 export async function authorize(event?: Partial<APIGatewayProxyEvent>) {
-  const user = await getOrCreateUser(event)
+  const user = await getOrCreateUserFromEvent(event)
 
   return user
 }
 
-async function getOrCreateUser(event?: Partial<APIGatewayProxyEvent>) {
+async function getOrCreateUserFromEvent(event?: Partial<APIGatewayProxyEvent>) {
   let user: JsonUser | undefined
 
   if (!event?.requestContext?.authorizer?.claims) {
@@ -56,7 +56,8 @@ async function getOrCreateUser(event?: Partial<APIGatewayProxyEvent>) {
 export async function getAndUpdateUserByEmail(
   rawEmail: string,
   props: Omit<Partial<JsonUser>, 'id' | 'email'>,
-  updateName?: boolean
+  updateName?: boolean,
+  modifiedBy: string = 'system'
 ) {
   const email = rawEmail.toLocaleLowerCase()
   const existing = await findUserByEmail(email)
@@ -65,9 +66,9 @@ export async function getAndUpdateUserByEmail(
     name: '',
     email,
     createdAt: new Date().toISOString(),
-    createdBy: 'system',
+    createdBy: modifiedBy,
     modifiedAt: new Date().toISOString(),
-    modifiedBy: 'system',
+    modifiedBy,
   }
 
   const changes = { ...props }
@@ -85,7 +86,7 @@ export async function getAndUpdateUserByEmail(
   if (Object.keys(diff(existing ?? {}, final)).length > 0) {
     if (existing) console.log('updating user', { existing, final })
     else console.log('creating user', { ...final })
-    await updateUser({ ...final, modifiedAt: new Date().toISOString(), modifiedBy: 'system' })
+    await updateUser({ ...final, modifiedAt: new Date().toISOString(), modifiedBy })
   }
   return final
 }
@@ -95,6 +96,6 @@ export function getOrigin(event?: Partial<APIGatewayProxyEvent>) {
 }
 
 export async function getUsername(event: Partial<APIGatewayProxyEvent>) {
-  const user = await getOrCreateUser(event)
+  const user = await getOrCreateUserFromEvent(event)
   return user?.name ?? 'anonymous'
 }

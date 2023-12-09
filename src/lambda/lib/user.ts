@@ -56,6 +56,8 @@ export async function setUserRole(
     roles[orgId] = role
   }
 
+  const timestamp = new Date().toISOString()
+
   await dynamoDB.update(
     { id: user.id },
     'set #roles = :roles, #modAt = :modAt, #modBy = :modBy',
@@ -66,11 +68,21 @@ export async function setUserRole(
     },
     {
       ':roles': roles,
-      ':modAt': new Date().toISOString(),
+      ':modAt': timestamp,
       ':modBy': modifiedBy,
     },
     userTable
   )
+
+  if (cache) {
+    const idx = cache?.findIndex((u) => u.id === user.id)
+    const updatedUser = { ...user, roles, modifiedAt: timestamp, modifiedBy }
+    if (idx >= 0) {
+      cache[idx] = updatedUser
+    } else {
+      cache.push(updatedUser)
+    }
+  }
 
   const org = await dynamoDB.read<Organizer>({ id: orgId }, organizerTable)
 

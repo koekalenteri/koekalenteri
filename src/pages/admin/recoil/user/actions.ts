@@ -25,9 +25,8 @@ export const useAdminUserActions = () => {
   return {
     addUser: async (user: User) => {
       try {
-        const users = await putUser(user, token)
-        const added = users.find((u) => u.email === user.email) ?? user
-        setUsers(users)
+        const added = await putUser(user, token)
+        replaceUser(added)
         if (user.name !== added.name) {
           const orgId = Object.keys(user.roles ?? {})[0]
           const org = orgs.find((o) => o.id === orgId)
