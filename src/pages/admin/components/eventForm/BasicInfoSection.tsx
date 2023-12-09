@@ -12,12 +12,18 @@ import { add, differenceInDays, eachDayOfInterval, isAfter, isSameDay, startOfDa
 import { getRuleDate } from '../../../../rules'
 import CollapsibleSection from '../../../components/CollapsibleSection'
 import DateRange from '../../../components/DateRange'
+import {
+  defaultEntryEndDate,
+  defaultEntryStartDate,
+  isDetaultEntryEndDate,
+  isDetaultEntryStartDate,
+} from '../../recoil'
 
 import HelpPopover from './basicInfoSection/HelpPopover'
 import EventClasses from './components/EventClasses'
 import EventProperty from './components/EventProperty'
 
-interface Props extends Readonly<SectionProps> {
+export interface Props extends Readonly<SectionProps> {
   readonly event: PartialEvent
   readonly eventTypes?: string[]
   readonly eventTypeClasses?: Record<string, RegistrationClass[]>
@@ -70,13 +76,26 @@ export default function BasicInfoSection({
     (start: DateValue, end: DateValue) => {
       start = start ?? event.startDate
       end = end ?? event.endDate
-      if (!isSameDay(start, event.startDate) && isSameDay(end, event.endDate)) {
-        // startDate changed and endDate remained the same => change endDate based on the previous distance between days
-        end = add(start, { days: differenceInDays(event.endDate, event.startDate) })
+
+      let { entryEndDate, entryStartDate } = event
+
+      if (!isSameDay(start, event.startDate)) {
+        if (isSameDay(end, event.endDate)) {
+          // startDate changed and endDate remained the same => change endDate based on the previous distance between days
+          end = add(start, { days: differenceInDays(event.endDate, event.startDate) })
+        }
+        if (isDetaultEntryStartDate(entryStartDate, event.startDate)) {
+          entryStartDate = defaultEntryStartDate(start)
+        }
+        if (isDetaultEntryEndDate(entryEndDate, event.startDate)) {
+          entryEndDate = defaultEntryEndDate(start)
+        }
       }
       onChange?.({
         startDate: start,
         endDate: end,
+        entryStartDate,
+        entryEndDate,
         classes: updateClassDates(event, start, end),
       })
     },
