@@ -67,7 +67,7 @@ export default function DateRange({
     <Box sx={{ width: '100%' }}>
       <FormControl sx={{ pr: 0.5, width: '50%' }}>
         <DatePicker
-          defaultCalendarMonth={defaultStart}
+          referenceDate={defaultStart}
           disabled={disabled}
           label={startLabel}
           value={start}
@@ -90,7 +90,7 @@ export default function DateRange({
 
       <FormControl sx={{ pl: 0.5, width: '50%' }}>
         <DatePicker
-          defaultCalendarMonth={defaultEnd}
+          referenceDate={defaultEnd}
           disabled={disabled}
           label={endLabel}
           value={end}

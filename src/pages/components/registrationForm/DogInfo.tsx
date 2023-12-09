@@ -255,7 +255,7 @@ export const DogInfo = ({
         <Grid item xs={6} sm={3} lg={3}>
           <FormControl className={disabledByMode && reg?.dog?.dob ? 'fact' : ''} fullWidth>
             <DatePicker
-              defaultCalendarMonth={subYears(new Date(), 2)}
+              referenceDate={subYears(new Date(), 2)}
               disabled={disabledByMode}
               format={t('dateFormatString.long')}
               label={t('dog.dob')}
