@@ -105,8 +105,6 @@ describe('DateRange', () => {
         onChange: changeHandler,
       })
 
-      console.log(startInput.value)
-
       await user.type(startInput, day15String)
       await flushPromises()
 

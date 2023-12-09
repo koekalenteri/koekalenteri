@@ -5,12 +5,10 @@ import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import Grid from '@mui/material/Grid'
 import { format, isSameDay } from 'date-fns'
-import { useRecoilValue } from 'recoil'
 
 import { useEventRegistrationDates } from '../../../hooks/useEventRegistrationDates'
 import { registrationDates, unique, uniqueClasses, uniqueDate } from '../../../utils'
 import { isRegistrationClass } from '../../admin/EventViewPage'
-import { eventTypeGroupsSelector } from '../../recoil'
 import AutocompleteMulti from '../AutocompleteMulti'
 import AutocompleteSingle from '../AutocompleteSingle'
 import CollapsibleSection from '../CollapsibleSection'
@@ -43,8 +41,6 @@ export function EntryInfo({
   reg,
 }: Props) {
   const { t } = useTranslation()
-  const eventTypeGroups = useRecoilValue(eventTypeGroupsSelector(event.eventType)).filter((g) => g !== 'kp')
-
   const getRegDateLabel = useCallback((o: Date) => t('dateFormat.wdshort', { date: o }), [t])
   const getRegDateTimeLabel = useCallback(
     (o: RegistrationDate) =>
