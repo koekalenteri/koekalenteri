@@ -6,6 +6,8 @@ import FormControl from '@mui/material/FormControl'
 import { DatePicker } from '@mui/x-date-pickers'
 import { isSameDay, isValid, startOfDay } from 'date-fns'
 
+import useDebouncedCallback from '../../hooks/useDebouncedCallback'
+
 export type DateValue = Date | null
 
 export interface Props {
@@ -54,14 +56,14 @@ export default function DateRange({
   onChange,
 }: Props) {
   const { t } = useTranslation()
-  const startChanged = (date: DateValue) => {
+  const startChanged = useDebouncedCallback((date: DateValue) => {
     const d = coerceToDateValue(date)
     onChange && onChange(d, end)
-  }
-  const endChanged = (date: DateValue) => {
+  })
+  const endChanged = useDebouncedCallback((date: DateValue) => {
     const d = coerceToDateValue(date)
     onChange && onChange(start, d)
-  }
+  })
 
   return (
     <Box sx={{ width: '100%' }}>
