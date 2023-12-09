@@ -1,4 +1,4 @@
-import type { EventState, JsonEvent } from '../../types'
+import type { EventState, JsonEvent, JsonEventClass, RegistrationClass } from '../../types'
 
 import { addMonths, addWeeks, startOfDay } from 'date-fns'
 
@@ -53,7 +53,7 @@ const draft: JsonEvent = {
   state: 'draft',
 }
 
-const dates: Partial<JsonEvent>[] = [
+const dates: Pick<JsonEvent, 'startDate' | 'endDate' | 'entryStartDate' | 'entryEndDate' | 'name'>[] = [
   {
     startDate: monthAway,
     endDate: monthAway,
@@ -90,6 +90,14 @@ const t = i18n.getFixedT('fi')
 
 export const events: JsonEvent[] = []
 
+const registrationClasses: RegistrationClass[] = ['ALO', 'AVO', 'VOI']
+
+const getClasses = (eventType: string, date: string): JsonEventClass[] => {
+  if (!['NOME-B', 'NOWT'].includes(eventType)) return []
+
+  return registrationClasses.map((c) => ({ class: c, date, places: 10 }))
+}
+
 for (const date of dates) {
   for (const state of states) {
     const stateName = t(`event.states.${state}`)
@@ -98,9 +106,11 @@ for (const date of dates) {
         ...draft,
         id: `demo-${eventType}-${state}-${date.name}`,
         ...date,
+        classes: getClasses(eventType, date.startDate),
         eventType,
         state,
         name: `DEMO: ${eventType} ${date.name} [${stateName}]`,
+        places: 30,
       })
     }
   }
