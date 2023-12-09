@@ -53,11 +53,6 @@ export function EntryInfo({
   )
 
   const classes = uniqueClasses(event)
-  const error = errorStates.class ?? errorStates.dates ?? errorStates.reserve
-  const datesText = reg.dates.map(getRegDateTimeLabel).join(' / ')
-  const reserveText = reg.reserve ? t(`registration.reserveChoises.${reg.reserve}`) : ''
-  const infoText = `${reg.class ?? reg.eventType}, ${datesText}, ${reserveText}`
-  const helperText = error ? t('validation.registration.required', { field: 'classesDetails' }) : infoText
   const regDates = useEventRegistrationDates(event, reg.class)
   const dates = uniqueDate(regDates.map((rd) => rd.date))
   const [filterDates, setFilterDates] = useState<Date[]>(
@@ -68,12 +63,17 @@ export function EntryInfo({
   const groups = unique(datesAndTimes.map((dt) => dt.time))
   const showDatesFilter = dates.length > 1
   const showDatesAndTimes = groups.length > 1
+  const error = errorStates.class ?? errorStates.dates ?? errorStates.reserve
+  const datesText = showDatesFilter ? reg.dates.map(getRegDateTimeLabel).join(' / ') : ''
+  const reserveText = reg.reserve ? t(`registration.reserveChoises.${reg.reserve}`) : ''
+  const infoText = [reg.class ?? reg.eventType, datesText, reserveText].filter(Boolean).join(', ')
+  const helperText = error ? t('validation.registration.required', { field: 'classesDetails' }) : infoText
   const sizeSwitch = showDatesFilter && showDatesAndTimes
 
   useEffect(() => {
     if (!showDatesFilter) {
       const validFilters = filterDates.filter((fd) => dates.find((d) => d.valueOf() === fd.valueOf()))
-      if (!validFilters.length) {
+      if (!validFilters.length && dates.length) {
         setFilterDates(dates)
       }
     }
@@ -97,7 +97,7 @@ export function EntryInfo({
     const ddates = cdates.filter(isValidRegistrationDate)
     const rdates = reg.dates.filter((rd) => ddates.find((d) => isSameDay(d.date, rd.date) && d.time === rd.time))
     if (!rdates.length || rdates.length !== reg.dates.length) {
-      changes.dates = ddates
+      if (ddates.length) changes.dates = ddates
     }
 
     if (Object.keys(changes).length) {

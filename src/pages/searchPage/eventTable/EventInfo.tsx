@@ -103,6 +103,14 @@ export const EventInfo = ({ event }: Props) => {
             <TableCell>{printContactInfo(event.contactInfo?.official)}</TableCell>
           </TableRow>
         ) : null}
+        {event.contactInfo?.secretary ? (
+          <TableRow key={event.id + 'secretary'}>
+            <TableCell component="th" scope="row">
+              {t('event.secretary')}:
+            </TableCell>
+            <TableCell>{printContactInfo(event.contactInfo?.secretary)}</TableCell>
+          </TableRow>
+        ) : null}
         <TableRow key={event.id + 'payment'}>
           <TableCell component="th" scope="row">
             {t('paymentDetails')}:

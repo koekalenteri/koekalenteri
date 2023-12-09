@@ -1233,6 +1233,22 @@ exports[`SearchPage filters by date 1`] = `
                           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                           scope="row"
                         >
+                          event.secretary
+                          :
+                        </th>
+                        <td
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                        >
+                          Siiri Sihteeri, 040-secretary, secretary@example.com
+                        </td>
+                      </tr>
+                      <tr
+                        class="MuiTableRow-root css-1n6kcfq-MuiTableRow-root"
+                      >
+                        <th
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                          scope="row"
+                        >
                           paymentDetails
                           :
                         </th>
@@ -1547,6 +1563,22 @@ exports[`SearchPage filters by date 1`] = `
                           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                         >
                           Teemu Toimitsija, 040-official, official@example.com
+                        </td>
+                      </tr>
+                      <tr
+                        class="MuiTableRow-root css-1n6kcfq-MuiTableRow-root"
+                      >
+                        <th
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                          scope="row"
+                        >
+                          event.secretary
+                          :
+                        </th>
+                        <td
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                        >
+                          Siiri Sihteeri, 040-secretary, secretary@example.com
                         </td>
                       </tr>
                       <tr
@@ -1914,6 +1946,22 @@ exports[`SearchPage filters by date 1`] = `
                           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                           scope="row"
                         >
+                          event.secretary
+                          :
+                        </th>
+                        <td
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                        >
+                          Siiri Sihteeri, 040-secretary, secretary@example.com
+                        </td>
+                      </tr>
+                      <tr
+                        class="MuiTableRow-root css-1n6kcfq-MuiTableRow-root"
+                      >
+                        <th
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                          scope="row"
+                        >
                           paymentDetails
                           :
                         </th>
@@ -2193,6 +2241,22 @@ exports[`SearchPage filters by date 1`] = `
                           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                         >
                           Teemu Toimitsija, 040-official, official@example.com
+                        </td>
+                      </tr>
+                      <tr
+                        class="MuiTableRow-root css-1n6kcfq-MuiTableRow-root"
+                      >
+                        <th
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                          scope="row"
+                        >
+                          event.secretary
+                          :
+                        </th>
+                        <td
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                        >
+                          Siiri Sihteeri, 040-secretary, secretary@example.com
                         </td>
                       </tr>
                       <tr
@@ -2974,6 +3038,22 @@ exports[`SearchPage filters by date/end 1`] = `
                           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                           scope="row"
                         >
+                          event.secretary
+                          :
+                        </th>
+                        <td
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                        >
+                          Siiri Sihteeri, 040-secretary, secretary@example.com
+                        </td>
+                      </tr>
+                      <tr
+                        class="MuiTableRow-root css-1n6kcfq-MuiTableRow-root"
+                      >
+                        <th
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                          scope="row"
+                        >
                           paymentDetails
                           :
                         </th>
@@ -3288,6 +3368,22 @@ exports[`SearchPage filters by date/end 1`] = `
                           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                         >
                           Teemu Toimitsija, 040-official, official@example.com
+                        </td>
+                      </tr>
+                      <tr
+                        class="MuiTableRow-root css-1n6kcfq-MuiTableRow-root"
+                      >
+                        <th
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                          scope="row"
+                        >
+                          event.secretary
+                          :
+                        </th>
+                        <td
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                        >
+                          Siiri Sihteeri, 040-secretary, secretary@example.com
                         </td>
                       </tr>
                       <tr
@@ -3655,6 +3751,22 @@ exports[`SearchPage filters by date/end 1`] = `
                           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                           scope="row"
                         >
+                          event.secretary
+                          :
+                        </th>
+                        <td
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                        >
+                          Siiri Sihteeri, 040-secretary, secretary@example.com
+                        </td>
+                      </tr>
+                      <tr
+                        class="MuiTableRow-root css-1n6kcfq-MuiTableRow-root"
+                      >
+                        <th
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                          scope="row"
+                        >
                           paymentDetails
                           :
                         </th>
@@ -3934,6 +4046,22 @@ exports[`SearchPage filters by date/end 1`] = `
                           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                         >
                           Teemu Toimitsija, 040-official, official@example.com
+                        </td>
+                      </tr>
+                      <tr
+                        class="MuiTableRow-root css-1n6kcfq-MuiTableRow-root"
+                      >
+                        <th
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                          scope="row"
+                        >
+                          event.secretary
+                          :
+                        </th>
+                        <td
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                        >
+                          Siiri Sihteeri, 040-secretary, secretary@example.com
                         </td>
                       </tr>
                       <tr
@@ -4890,6 +5018,22 @@ exports[`SearchPage filters by event class 1`] = `
                           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                           scope="row"
                         >
+                          event.secretary
+                          :
+                        </th>
+                        <td
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                        >
+                          Siiri Sihteeri, 040-secretary, secretary@example.com
+                        </td>
+                      </tr>
+                      <tr
+                        class="MuiTableRow-root css-1n6kcfq-MuiTableRow-root"
+                      >
+                        <th
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                          scope="row"
+                        >
                           paymentDetails
                           :
                         </th>
@@ -5169,6 +5313,22 @@ exports[`SearchPage filters by event class 1`] = `
                           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                         >
                           Teemu Toimitsija, 040-official, official@example.com
+                        </td>
+                      </tr>
+                      <tr
+                        class="MuiTableRow-root css-1n6kcfq-MuiTableRow-root"
+                      >
+                        <th
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                          scope="row"
+                        >
+                          event.secretary
+                          :
+                        </th>
+                        <td
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                        >
+                          Siiri Sihteeri, 040-secretary, secretary@example.com
                         </td>
                       </tr>
                       <tr
@@ -5514,6 +5674,22 @@ exports[`SearchPage filters by event class 1`] = `
                           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                           scope="row"
                         >
+                          event.secretary
+                          :
+                        </th>
+                        <td
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                        >
+                          Siiri Sihteeri, 040-secretary, secretary@example.com
+                        </td>
+                      </tr>
+                      <tr
+                        class="MuiTableRow-root css-1n6kcfq-MuiTableRow-root"
+                      >
+                        <th
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                          scope="row"
+                        >
                           paymentDetails
                           :
                         </th>
@@ -5793,6 +5969,22 @@ exports[`SearchPage filters by event class 1`] = `
                           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                         >
                           Teemu Toimitsija, 040-official, official@example.com
+                        </td>
+                      </tr>
+                      <tr
+                        class="MuiTableRow-root css-1n6kcfq-MuiTableRow-root"
+                      >
+                        <th
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                          scope="row"
+                        >
+                          event.secretary
+                          :
+                        </th>
+                        <td
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                        >
+                          Siiri Sihteeri, 040-secretary, secretary@example.com
                         </td>
                       </tr>
                       <tr
@@ -6714,6 +6906,22 @@ exports[`SearchPage filters by event type 1`] = `
                           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                           scope="row"
                         >
+                          event.secretary
+                          :
+                        </th>
+                        <td
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                        >
+                          Siiri Sihteeri, 040-secretary, secretary@example.com
+                        </td>
+                      </tr>
+                      <tr
+                        class="MuiTableRow-root css-1n6kcfq-MuiTableRow-root"
+                      >
+                        <th
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                          scope="row"
+                        >
                           paymentDetails
                           :
                         </th>
@@ -7072,6 +7280,22 @@ exports[`SearchPage filters by event type 1`] = `
                           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                           scope="row"
                         >
+                          event.secretary
+                          :
+                        </th>
+                        <td
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                        >
+                          Siiri Sihteeri, 040-secretary, secretary@example.com
+                        </td>
+                      </tr>
+                      <tr
+                        class="MuiTableRow-root css-1n6kcfq-MuiTableRow-root"
+                      >
+                        <th
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                          scope="row"
+                        >
                           paymentDetails
                           :
                         </th>
@@ -7351,6 +7575,22 @@ exports[`SearchPage filters by event type 1`] = `
                           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                         >
                           Teemu Toimitsija, 040-official, official@example.com
+                        </td>
+                      </tr>
+                      <tr
+                        class="MuiTableRow-root css-1n6kcfq-MuiTableRow-root"
+                      >
+                        <th
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                          scope="row"
+                        >
+                          event.secretary
+                          :
+                        </th>
+                        <td
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                        >
+                          Siiri Sihteeri, 040-secretary, secretary@example.com
                         </td>
                       </tr>
                       <tr
@@ -7687,6 +7927,22 @@ exports[`SearchPage filters by event type 1`] = `
                           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                         >
                           Teemu Toimitsija, 040-official, official@example.com
+                        </td>
+                      </tr>
+                      <tr
+                        class="MuiTableRow-root css-1n6kcfq-MuiTableRow-root"
+                      >
+                        <th
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                          scope="row"
+                        >
+                          event.secretary
+                          :
+                        </th>
+                        <td
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                        >
+                          Siiri Sihteeri, 040-secretary, secretary@example.com
                         </td>
                       </tr>
                       <tr
@@ -8564,6 +8820,22 @@ exports[`SearchPage filters by organizer 1`] = `
                           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                         >
                           Teemu Toimitsija, 040-official, official@example.com
+                        </td>
+                      </tr>
+                      <tr
+                        class="MuiTableRow-root css-1n6kcfq-MuiTableRow-root"
+                      >
+                        <th
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                          scope="row"
+                        >
+                          event.secretary
+                          :
+                        </th>
+                        <td
+                          class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                        >
+                          Siiri Sihteeri, 040-secretary, secretary@example.com
                         </td>
                       </tr>
                       <tr

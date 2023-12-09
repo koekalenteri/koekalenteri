@@ -32,7 +32,8 @@ export const eventTypeGroupsAtom = atom<Record<string, RegistrationTime[]>>({
   default: {
     NOU: ['ap', 'ip', 'kp'],
     'NOME-B': ['ap', 'ip', 'kp'],
-    'NOME-A': [],
-    NOWT: [],
+    'NOME-A': ['kp'],
+    NOWT: ['kp'],
+    NKM: ['kp'],
   },
 })

@@ -110,12 +110,29 @@ exports[`RegistrationForm renders 1`] = `
                     <div
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-163n9ee-MuiGrid-root"
                     >
-                      Teemu Toimitsija
+                      Teemu Toimitsija, 040-official, official@example.com
+                    </div>
+                    <div
+                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-h9ezi1-MuiGrid-root"
+                    >
+                      event.secretary
+                      :
+                    </div>
+                    <div
+                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-163n9ee-MuiGrid-root"
+                    >
+                      Siiri Sihteeri, 040-secretary, secretary@example.com
                     </div>
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-sm-12 MuiGrid-grid-md-true css-1gzo6kn-MuiGrid-root"
                   >
+                    <div
+                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-h9ezi1-MuiGrid-root"
+                    >
+                      event.cost
+                      :
+                    </div>
                     <div
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-163n9ee-MuiGrid-root"
                     >

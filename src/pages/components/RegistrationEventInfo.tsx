@@ -9,6 +9,7 @@ import { useRecoilValue } from 'recoil'
 
 import useEventStatus from '../../hooks/useEventStatus'
 import { API_BASE_URL } from '../../routeConfig'
+import { printContactInfo } from '../../utils'
 import { judgesByIdsSelector } from '../recoil'
 
 import CollapsibleSection from './CollapsibleSection'
@@ -56,14 +57,31 @@ export default function RegistrationEventInfo({ event }: Props) {
             <Grid item xs={8}>
               {judges.map((j) => j.name).join(', ')}
             </Grid>
-            <Grid item xs={4}>
-              {t('event.official')}:
-            </Grid>
-            <Grid item xs={8}>
-              {event.official?.name ?? ''}
-            </Grid>
+            {event.contactInfo?.official ? (
+              <>
+                <Grid item xs={4}>
+                  {t('event.official')}:
+                </Grid>
+                <Grid item xs={8}>
+                  {printContactInfo(event.contactInfo?.official)}
+                </Grid>
+              </>
+            ) : null}
+            {event.contactInfo?.secretary ? (
+              <>
+                <Grid item xs={4}>
+                  {t('event.secretary')}:
+                </Grid>
+                <Grid item xs={8}>
+                  {printContactInfo(event.contactInfo?.secretary)}
+                </Grid>
+              </>
+            ) : null}
           </Grid>
           <Grid item container sm={12} md columnSpacing={1}>
+            <Grid item xs={4}>
+              {t('event.cost')}:
+            </Grid>
             <Grid item xs={8}>
               <CostInfo event={event} />
             </Grid>
