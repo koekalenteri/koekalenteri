@@ -161,7 +161,7 @@ describe('EventProperty', () => {
     })
 
     it('should display options when typing and fire onChange when selecting an option or clearing input', async () => {
-      const onChange = jest.fn()
+      const onChange = jest.fn((changes) => Object.assign(testEvent, changes))
 
       const { container, user } = renderWithUserEvents(
         <EventProperty id={'eventType'} options={['test-a', 'test-b']} event={testEvent} onChange={onChange} />,
@@ -181,8 +181,13 @@ describe('EventProperty', () => {
 
       await user.type(input, 'b{ArrowDown}{Enter}')
       await flushPromises()
-
+      expect(onChange).toHaveBeenCalledTimes(1)
       expect(onChange).toHaveBeenCalledWith({ eventType: 'test-b' })
+
+      await user.clear(input)
+      await flushPromises()
+      expect(onChange).toHaveBeenCalledTimes(2)
+      expect(onChange).toHaveBeenCalledWith({ eventType: undefined })
     })
   })
 })

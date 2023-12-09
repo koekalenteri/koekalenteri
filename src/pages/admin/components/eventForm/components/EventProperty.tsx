@@ -80,8 +80,8 @@ const EventProperty = <P extends Property, freeSolo extends boolean>(props: Even
       if (!acProps.options.length) {
         return
       }
-      const valueOrUndef = value ?? undefined
-      const mappedValueOrUndef = valueOrUndef && mapValue ? mapValue(valueOrUndef) : value
+      const valueOrUndef = value || undefined
+      const mappedValueOrUndef = valueOrUndef && mapValue ? mapValue(valueOrUndef) : valueOrUndef
       onChange?.({ [id]: mappedValueOrUndef })
     },
     [acProps.options.length, id, mapValue, onChange]
