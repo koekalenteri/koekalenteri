@@ -23,7 +23,7 @@ export default function UserMenu() {
   }, [greet, setGreet, user])
 
   if (user) {
-    return <LoggedInUserMenu userName={user?.name ?? user.email} />
+    return <LoggedInUserMenu userName={user?.name || user.email} />
   }
 
   return <LoginButton />

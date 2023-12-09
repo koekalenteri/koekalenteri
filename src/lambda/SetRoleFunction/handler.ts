@@ -46,7 +46,7 @@ const setRoleHandler = metricScope(
           return response(404, 'Not found', event)
         }
 
-        const saved = await setUserRole(existing, item.orgId, item.role, user.name ?? user.email, origin)
+        const saved = await setUserRole(existing, item.orgId, item.role, user.name || user.email, origin)
 
         metricsSuccess(metrics, event.requestContext, 'setRole')
         return response(200, saved, event)
