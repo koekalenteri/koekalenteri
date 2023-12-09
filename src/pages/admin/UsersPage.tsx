@@ -51,44 +51,38 @@ const RolesTooltipContent = ({ roles }: { roles: string }) => <Box sx={{ whiteSp
 const RoleInfo = ({ admin, judge, officer, roles }: User) => {
   const { t } = useTranslation()
   const orgs = useRecoilValue(adminUsersOrganizersSelector)
-  const roleStrings = roles
-    ? Object.keys(roles).map((orgId) => {
-        const org = orgs.find((o) => o.id === orgId)
-        const role = t(`user.roles.${roles[orgId]}`)
-        return `${role} - ${org?.name}`
-      })
-    : []
+  const roleStrings: string[] = []
+  const orgRoleCount = roles ? Object.keys(roles).length : 0
+
+  if (admin) roleStrings.push('Koekalenterin pääkäyttäjä')
+
+  if (roles) {
+    Object.keys(roles).forEach((orgId) => {
+      const org = orgs.find((o) => o.id === orgId)
+      const role = t(`user.roles.${roles[orgId]}`)
+      roleStrings.push(`${role} - ${org?.name}`)
+    })
+  }
+
+  if (judge) roleStrings.push(`Tuomari - ${judge.join(', ')}`)
+  if (officer) roleStrings.push(`Koetoimitsija - ${officer.join(', ')}`)
 
   return (
-    <Stack direction="row" alignItems="center">
-      {admin ? (
-        <Tooltip placement="right" title="Koekalenterin pääkäyttäjä">
+    <RolesTooltip placement="right" title={<RolesTooltipContent roles={roleStrings.join('\n')} />}>
+      <Stack direction="row" alignItems="center">
+        {admin ? (
           <StarsOutlined fontSize="small" />
-        </Tooltip>
-      ) : roleStrings.length ? (
-        <RolesTooltip placement="right" title={<RolesTooltipContent roles={roleStrings.join('\n')} />}>
-          <Badge badgeContent={roleStrings.length}>
+        ) : orgRoleCount ? (
+          <Badge badgeContent={orgRoleCount}>
             <Support fontSize="small" />
           </Badge>
-        </RolesTooltip>
-      ) : (
-        <IconPlaceholder />
-      )}
-      {judge ? (
-        <Tooltip placement="right" title="Tuomari">
-          <Accessibility fontSize="small" />
-        </Tooltip>
-      ) : (
-        <IconPlaceholder />
-      )}
-      {officer ? (
-        <Tooltip placement="right" title="Koetoimitsija">
-          <SupervisorAccount fontSize="small" />
-        </Tooltip>
-      ) : (
-        <IconPlaceholder />
-      )}
-    </Stack>
+        ) : (
+          <IconPlaceholder />
+        )}
+        {judge ? <Accessibility fontSize="small" /> : <IconPlaceholder />}
+        {officer ? <SupervisorAccount fontSize="small" /> : <IconPlaceholder />}
+      </Stack>
+    </RolesTooltip>
   )
 }
 

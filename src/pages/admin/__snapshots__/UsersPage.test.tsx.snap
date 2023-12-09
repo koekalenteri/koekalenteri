@@ -608,12 +608,11 @@ exports[`OrganizerListPage renders 1`] = `
                   >
                     <div
                       class="MuiStack-root css-1d9cypr-MuiStack-root"
+                      data-mui-internal-clone-element="true"
                     >
                       <svg
                         aria-hidden="true"
-                        aria-label="Koekalenterin pääkäyttäjä"
                         class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-ptiqhd-MuiSvgIcon-root"
-                        data-mui-internal-clone-element="true"
                         data-testid="StarsOutlinedIcon"
                         focusable="false"
                         viewBox="0 0 24 24"
