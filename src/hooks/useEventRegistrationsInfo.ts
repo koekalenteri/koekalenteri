@@ -2,7 +2,7 @@ import type { DogEvent, EventState, Registration } from '../types'
 
 import { useMemo } from 'react'
 
-import { eventDates, placesForClass, uniqueClasses } from '../utils'
+import { eventDates, placesForClass, uniqueClasses } from '../lib/utils'
 
 interface EventClassInfoNumbers {
   places: number

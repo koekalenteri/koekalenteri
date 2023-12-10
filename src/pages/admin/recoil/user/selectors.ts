@@ -3,7 +3,7 @@ import type { User, UserWithRoles } from '../../../../types'
 import i18next from 'i18next'
 import { selector, selectorFamily } from 'recoil'
 
-import { unique } from '../../../../utils'
+import { unique } from '../../../../lib/utils'
 import { eventsAtom, userSelector } from '../../../recoil'
 import { adminEventOrganizersSelector, filteredAdminEventsSelector } from '../events'
 import { adminEventOrganizerIdAtom, adminOrganizersAtom, adminUsersOrganizerIdAtom } from '../organizers'

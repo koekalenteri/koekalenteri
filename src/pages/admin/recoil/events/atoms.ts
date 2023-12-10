@@ -4,7 +4,7 @@ import type { DogEvent, RegistrationClass } from '../../../../types'
 import { addDays, isSameDay, nextSaturday, startOfDay, sub } from 'date-fns'
 import { atom, atomFamily, selector } from 'recoil'
 
-import { uniqueClasses } from '../../../../utils'
+import { uniqueClasses } from '../../../../lib/utils'
 import { logEffect, storageEffect } from '../../../recoil'
 
 import { remoteAdminEventsEffect } from './effects'

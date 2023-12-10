@@ -1,5 +1,11 @@
 import type { SyntheticEvent } from 'react'
-import type { ConfirmedEvent, Registration, RegistrationClass, RegistrationDate, ReserveChoise } from '../../../types'
+import type {
+  PublicConfirmedEvent,
+  Registration,
+  RegistrationClass,
+  RegistrationDate,
+  ReserveChoise,
+} from '../../../types'
 
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -7,7 +13,7 @@ import Grid from '@mui/material/Grid'
 import { format, isSameDay } from 'date-fns'
 
 import { useEventRegistrationDates } from '../../../hooks/useEventRegistrationDates'
-import { registrationDates, unique, uniqueClasses, uniqueDate } from '../../../utils'
+import { registrationDates, unique, uniqueClasses, uniqueDate } from '../../../lib/utils'
 import { isRegistrationClass } from '../../admin/EventViewPage'
 import AutocompleteMulti from '../AutocompleteMulti'
 import AutocompleteSingle from '../AutocompleteSingle'
@@ -19,7 +25,7 @@ interface Props {
   readonly className?: string
   readonly disabled?: boolean
   readonly errorStates: { [Property in keyof Registration]?: boolean }
-  readonly event: ConfirmedEvent
+  readonly event: PublicConfirmedEvent
   readonly helperTexts: { [Property in keyof Registration]?: string }
   readonly onChange?: (props: Partial<Registration>) => void
   readonly onOpenChange?: (value: boolean) => void

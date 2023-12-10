@@ -1,7 +1,7 @@
 import type { MetricsLogger } from 'aws-embedded-metrics'
 import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import type { AWSError } from 'aws-sdk'
-import type { JsonEvent, JsonPublicRegistration, JsonRegistration, JsonRegistrationWithGroup } from '../../types'
+import type { JsonDogEvent, JsonPublicRegistration, JsonRegistration, JsonRegistrationWithGroup } from '../../types'
 
 import { metricScope } from 'aws-embedded-metrics'
 import { unescape } from 'querystring'
@@ -19,7 +19,7 @@ const getStartListHandler = metricScope(
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
       try {
         const eventId = unescape(event.pathParameters?.eventId ?? '')
-        const confirmedEvent = await dynamoDB.read<JsonEvent>({ id: eventId }, eventTable)
+        const confirmedEvent = await dynamoDB.read<JsonDogEvent>({ id: eventId }, eventTable)
         let publicRegs: JsonPublicRegistration[] = []
 
         if (['invited', 'started', 'ended', 'completed'].includes(confirmedEvent?.state ?? '')) {

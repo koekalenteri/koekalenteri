@@ -14,7 +14,7 @@ import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
 import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
 
-import { hasChanges } from '../../utils'
+import { hasChanges } from '../../lib/utils'
 import StyledDataGrid from '../components/StyledDataGrid'
 
 import FullPageFlex from './components/FullPageFlex'

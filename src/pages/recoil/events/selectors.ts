@@ -1,10 +1,10 @@
-import type { ConfirmedEvent, DogEvent, EventClass } from '../../../types'
+import type { EventClass, PublicConfirmedEvent, PublicDogEvent } from '../../../types'
 
 import i18next from 'i18next'
 import { selector, selectorFamily } from 'recoil'
 
 import { isConfirmedEvent } from '../../../lib/typeGuards'
-import { unique, uniqueFn } from '../../../utils'
+import { unique, uniqueFn } from '../../../lib/utils'
 import { judgesAtom } from '../judges/atoms'
 
 import { eventFilterAtom, eventIdAtom, eventsAtom } from './atoms'
@@ -17,7 +17,7 @@ import {
   withinSwitchFilters,
 } from './filters'
 
-export const eventSelector = selectorFamily<DogEvent | null, string | undefined>({
+export const eventSelector = selectorFamily<PublicDogEvent | null, string | undefined>({
   key: 'event',
   get:
     (eventId) =>
@@ -29,7 +29,7 @@ export const eventSelector = selectorFamily<DogEvent | null, string | undefined>
     },
 })
 
-export const confirmedEventSelector = selectorFamily<ConfirmedEvent | null, string | undefined>({
+export const confirmedEventSelector = selectorFamily<PublicConfirmedEvent | null, string | undefined>({
   key: 'confirmedEvent',
   get:
     (eventId) =>
@@ -53,7 +53,6 @@ export const filteredEventsSelector = selector({
     return events.filter((event) => {
       return (
         event.state !== 'draft' &&
-        !event.deletedAt &&
         withinDateFilters(event, filter) &&
         withinSwitchFilters(event, filter) &&
         withinEventTypeFilter(event, filter) &&
@@ -74,7 +73,6 @@ export const filteredEventsForTypeSelector = selector({
     return events.filter((event) => {
       return (
         event.state !== 'draft' &&
-        !event.deletedAt &&
         withinDateFilters(event, filter) &&
         withinSwitchFilters(event, filter) &&
         withinEventTypeClassFilter(event, filter) &&
@@ -94,7 +92,6 @@ export const filteredEventsForEventClassSelector = selector({
     return events.filter((event) => {
       return (
         event.state !== 'draft' &&
-        !event.deletedAt &&
         withinDateFilters(event, filter) &&
         withinSwitchFilters(event, filter) &&
         withinEventTypeFilter(event, filter) &&
@@ -114,7 +111,6 @@ export const filteredEventsForOrganizerSelector = selector({
     return events.filter((event) => {
       return (
         event.state !== 'draft' &&
-        !event.deletedAt &&
         withinDateFilters(event, filter) &&
         withinSwitchFilters(event, filter) &&
         withinEventTypeFilter(event, filter) &&
@@ -134,7 +130,6 @@ export const filteredEventsForJudgeSelector = selector({
     return events.filter((event) => {
       return (
         event.state !== 'draft' &&
-        !event.deletedAt &&
         withinDateFilters(event, filter) &&
         withinSwitchFilters(event, filter) &&
         withinEventTypeFilter(event, filter) &&

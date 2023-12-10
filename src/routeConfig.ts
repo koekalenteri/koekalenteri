@@ -1,4 +1,4 @@
-import type { DogEvent, Registration } from './types'
+import type { DogEvent, PublicDogEvent, Registration } from './types'
 
 export const API_BASE_URL = process.env.REACT_APP_API_BASE_URL ?? 'http://127.0.0.1:8080'
 
@@ -12,7 +12,7 @@ export const Path = {
   login: '/login',
   logout: '/logout',
   payment: (registration: RegistrationIds) => `/p/${registration.eventId}/${registration.id}`,
-  register: (event: DogEvent, className?: string, classDate?: string) => {
+  register: (event: PublicDogEvent, className?: string, classDate?: string) => {
     if (className) {
       return classDate
         ? `/event/${event.eventType}/${event.id}/${className}/${classDate}`

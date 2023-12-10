@@ -1,12 +1,12 @@
-import type { DogEvent } from '../../../types'
+import type { PublicDogEvent } from '../../../types'
 import type { FilterProps } from './atoms'
 
 import { formatISO } from 'date-fns'
 
-import { isEntryClosing, isEntryOpen, isEntryUpcoming } from '../../../utils'
+import { isEntryClosing, isEntryOpen, isEntryUpcoming } from '../../../lib/utils'
 import { isRegistrationClass } from '../../admin/EventViewPage'
 
-export function withinDateFilters(event: DogEvent, { start, end }: FilterProps) {
+export function withinDateFilters(event: PublicDogEvent, { start, end }: FilterProps) {
   if (start && (!event.endDate || event.endDate < start)) {
     return false
   }
@@ -17,7 +17,7 @@ export function withinDateFilters(event: DogEvent, { start, end }: FilterProps) 
 }
 
 export function withinSwitchFilters(
-  event: DogEvent,
+  event: PublicDogEvent,
   { withOpenEntry, withClosingEntry, withUpcomingEntry, withFreePlaces }: FilterProps
 ): boolean {
   let result: boolean | undefined
@@ -39,28 +39,31 @@ export function withinSwitchFilters(
   return result !== false
 }
 
-export function withinEventTypeFilter(event: DogEvent, { eventType, eventClass, judge, organizer }: FilterProps) {
+export function withinEventTypeFilter(event: PublicDogEvent, { eventType, eventClass, judge, organizer }: FilterProps) {
   if (eventType.length && !eventType.includes(event.eventType)) {
     return false
   }
   return true
 }
 
-export function withinEventTypeClassFilter(event: DogEvent, { eventType, eventClass, judge, organizer }: FilterProps) {
+export function withinEventTypeClassFilter(
+  event: PublicDogEvent,
+  { eventType, eventClass, judge, organizer }: FilterProps
+) {
   if (eventClass.length && !eventClass.some((c) => event.classes.map((cl) => cl.class).includes(c))) {
     return false
   }
   return true
 }
 
-export function withinJudgeFilter(event: DogEvent, { eventType, eventClass, judge, organizer }: FilterProps) {
+export function withinJudgeFilter(event: PublicDogEvent, { eventType, eventClass, judge, organizer }: FilterProps) {
   if (judge.length && !judge.some((j) => event.judges?.includes(j))) {
     return false
   }
   return true
 }
 
-export function withinOrganizerFilter(event: DogEvent, { eventType, eventClass, judge, organizer }: FilterProps) {
+export function withinOrganizerFilter(event: PublicDogEvent, { eventType, eventClass, judge, organizer }: FilterProps) {
   if (organizer.length && !organizer.includes(event.organizer?.id)) {
     return false
   }

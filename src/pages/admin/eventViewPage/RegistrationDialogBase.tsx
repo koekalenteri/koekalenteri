@@ -10,7 +10,7 @@ import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
 import ListItemText from '@mui/material/ListItemText'
 
-import { hasChanges } from '../../../utils'
+import { hasChanges } from '../../../lib/utils'
 import CollapsibleSection from '../../components/CollapsibleSection'
 import RegistrationForm from '../../components/RegistrationForm'
 import { useAdminRegistrationActions } from '../recoil/registrations/actions'

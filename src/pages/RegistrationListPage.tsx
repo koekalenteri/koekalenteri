@@ -21,6 +21,7 @@ import { useRecoilState, useRecoilValue } from 'recoil'
 
 import { Path } from '../routeConfig'
 
+import { confirmedAdminEventSelector } from './admin/recoil'
 import Header from './components/Header'
 import LinkButton from './components/LinkButton'
 import RegistrationEventInfo from './components/RegistrationEventInfo'
@@ -29,7 +30,7 @@ import { CancelDialog } from './registrationListPage/CancelDialog'
 import { ConfirmDialog } from './registrationListPage/ConfirmDialog'
 import RegistrationList from './registrationListPage/RegistrationList'
 import { LoadingPage } from './LoadingPage'
-import { confirmedEventSelector, registrationSelector, spaAtom } from './recoil'
+import { registrationSelector, spaAtom } from './recoil'
 
 interface Props {
   readonly cancel?: boolean
@@ -40,7 +41,7 @@ interface Props {
 export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
   const params = useParams()
   const navigate = useNavigate()
-  const event = useRecoilValue(confirmedEventSelector(params.id))
+  const event = useRecoilValue(confirmedAdminEventSelector(params.id))
   const [registration, setRegistration] = useRecoilState(
     registrationSelector(`${params.id ?? ''}:${params.registrationId ?? ''}`)
   )

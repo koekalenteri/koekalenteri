@@ -10,7 +10,7 @@ import type {
   User,
 } from '.'
 
-export interface JsonEvent extends JsonDbRecord {
+export interface JsonDogEvent extends JsonDbRecord {
   classes: Array<JsonEventClass>
   contactInfo?: Partial<ContactInfo>
   cost: number
@@ -44,10 +44,35 @@ export type EventDates = EventRequiredDates | EventOptionalDates
 export type ConfirmedEventRequiredDates = EventRequiredDates | EventEntryDates
 export type DogEvent = DbRecord &
   Replace<
-    Replace<ReplaceOptional<Omit<JsonEvent, keyof JsonDbRecord>, EventOptionalDates, Date>, EventRequiredDates, Date>,
+    Replace<
+      ReplaceOptional<Omit<JsonDogEvent, keyof JsonDbRecord>, EventOptionalDates, Date>,
+      EventRequiredDates,
+      Date
+    >,
     'classes',
     Array<EventClass>
   >
+
+type NonPublicDogEventProperties =
+  | 'deletedAt'
+  | 'deletedBy'
+  | 'headquarters'
+  //| 'invitationAttachment' @todo fetch invitationAttachment separately for registrationViewPage
+  | 'kcId'
+  | 'official'
+  | 'secretary'
+  | 'createdBy'
+  | 'modifiedBy'
+
+export type JsonPublicDogEvent = Omit<JsonDogEvent, NonPublicDogEventProperties>
+export type SanitizedJsonPublicDogEvent = JsonPublicDogEvent & {
+  [K in NonPublicDogEventProperties]?: never
+}
+
+export type PublicDogEvent = Omit<DogEvent, NonPublicDogEventProperties>
+export type SanitizedPublicDogEvent = PublicDogEvent & {
+  [K in NonPublicDogEventProperties]?: never
+}
 
 export type ClassJudge = {
   id: number | string
@@ -77,20 +102,28 @@ export type Headquarters = {
 }
 
 export type ContactInfo = {
-  official: ShowContactInfo
-  secretary: ShowContactInfo
+  official: PublicContactInfo
+  secretary: PublicContactInfo
 }
 
-export interface ShowContactInfo {
+export interface PublicContactInfo {
   name?: string
   email?: string
   phone?: string
 }
 
-export type ConfirmedEvent = Replace<DogEvent, ConfirmedEventRequiredDates, Date> & {
+export type ConfirmedEvent = NotOptional<DogEvent, ConfirmedEventRequiredDates> & {
   state: 'confirmed' | EventClassState
 }
 
-export type JsonConfirmedEvent = NotOptional<JsonEvent, 'startDate' | 'endDate' | 'entryStartDate' | 'entryEndDate'> & {
+export type PublicConfirmedEvent = NotOptional<PublicDogEvent, ConfirmedEventRequiredDates> & {
+  state: 'confirmed' | EventClassState
+}
+
+export type JsonConfirmedEvent = NotOptional<JsonDogEvent, ConfirmedEventRequiredDates> & {
+  state: 'confirmed' | EventClassState
+}
+
+export type JsonPublicConfirmedEvent = NotOptional<JsonPublicDogEvent, ConfirmedEventRequiredDates> & {
   state: 'confirmed' | EventClassState
 }

@@ -1,4 +1,4 @@
-import type { DogEvent } from '../../types'
+import type { DogEvent, PublicDogEvent } from '../../types'
 
 import { parseISO } from 'date-fns'
 
@@ -11,6 +11,7 @@ import {
   eventWithStaticDatesAnd3Classes,
   eventWithStaticDatesAndClass,
 } from '../../__mockData__/events'
+import { sanitizeDogEvent } from '../../lib/event'
 import { emptyEvent } from '../test-utils/emptyEvent'
 
 export const mockEvents: DogEvent[] = [
@@ -38,7 +39,13 @@ export const mockEvents: DogEvent[] = [
   eventWithEntryClosing,
 ]
 
-export async function getEvents(signal?: AbortSignal): Promise<DogEvent[]> {
+export async function getEvents(signal?: AbortSignal): Promise<PublicDogEvent[]> {
+  return new Promise((resolve) => {
+    process.nextTick(() => resolve(mockEvents.map((item) => sanitizeDogEvent(item))))
+  })
+}
+
+export async function getAdminEvents(signal?: AbortSignal): Promise<DogEvent[]> {
   return new Promise((resolve) => {
     process.nextTick(() => resolve(mockEvents))
   })

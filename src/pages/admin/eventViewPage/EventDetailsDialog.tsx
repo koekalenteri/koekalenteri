@@ -8,7 +8,7 @@ import DialogTitle from '@mui/material/DialogTitle'
 import { useSnackbar } from 'notistack'
 import { useRecoilState, useResetRecoilState } from 'recoil'
 
-import { hasChanges } from '../../../utils'
+import { hasChanges } from '../../../lib/utils'
 import EventForm from '../components/EventForm'
 import { adminEventSelector, editableEventByIdAtom, useAdminEventActions } from '../recoil'
 

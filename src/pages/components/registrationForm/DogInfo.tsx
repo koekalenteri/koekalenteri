@@ -16,7 +16,7 @@ import { DatePicker } from '@mui/x-date-pickers'
 import { differenceInMinutes, subMonths, subYears } from 'date-fns'
 import { useRecoilValue } from 'recoil'
 
-import { hasChanges } from '../../../utils'
+import { hasChanges } from '../../../lib/utils'
 import { useDogActions } from '../../recoil/dog'
 import { cachedDogRegNumbersSelector } from '../../recoil/dog/selectors'
 import AutocompleteSingle from '../AutocompleteSingle'

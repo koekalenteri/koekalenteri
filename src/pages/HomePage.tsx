@@ -2,7 +2,7 @@ import { Suspense, useEffect } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import Box from '@mui/material/Box'
 
-import { rum } from '../lib/rum'
+import { rum } from '../lib/client/rum'
 
 import Banner from './components/Banner'
 import Header from './components/Header'

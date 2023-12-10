@@ -1,4 +1,4 @@
-import type { DogEvent } from '../../../../types'
+import type { PublicDogEvent } from '../../../../types'
 
 import { useTranslation } from 'react-i18next'
 import TableCell from '@mui/material/TableCell'
@@ -7,7 +7,7 @@ import TableRow from '@mui/material/TableRow'
 import { EventClassTable } from './EventClassTable'
 
 interface Props {
-  readonly event: DogEvent
+  readonly event: PublicDogEvent
 }
 export const EventClassRow = ({ event }: Props) => {
   const { t } = useTranslation()

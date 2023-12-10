@@ -1,4 +1,4 @@
-import type { DogEvent } from '../types'
+import type { DogEvent, PublicDogEvent } from '../types'
 
 import { addDays, nextSaturday, startOfDay } from 'date-fns'
 
@@ -7,8 +7,12 @@ import http, { withToken } from './http'
 const PATH = '/event/'
 const ADMIN_PATH = '/admin/event/'
 
-export async function getEvents(signal?: AbortSignal): Promise<DogEvent[]> {
-  return http.get<DogEvent[]>(PATH, { signal })
+export async function getEvents(signal?: AbortSignal): Promise<PublicDogEvent[]> {
+  return http.get<PublicDogEvent[]>(PATH, { signal })
+}
+
+export async function getAdminEvents(signal?: AbortSignal): Promise<DogEvent[]> {
+  return http.get<DogEvent[]>(ADMIN_PATH, { signal })
 }
 
 export async function getEvent(id: string, signal?: AbortSignal): Promise<DogEvent> {

@@ -1,5 +1,5 @@
 import type { ChangeEvent } from 'react'
-import type { ShowContactInfo } from '../../../../../types'
+import type { PublicContactInfo } from '../../../../../types'
 
 import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -10,10 +10,10 @@ import TextField from '@mui/material/TextField'
 
 interface Props {
   readonly disabled?: boolean
-  readonly defaults: ShowContactInfo | undefined
+  readonly defaults: PublicContactInfo | undefined
   readonly name: string
-  readonly show?: Partial<ShowContactInfo>
-  readonly onChange: (name: string, props: ShowContactInfo) => void
+  readonly show?: Partial<PublicContactInfo>
+  readonly onChange: (name: string, props: PublicContactInfo) => void
 }
 
 export default function ContactInfoSelect({ disabled, name, show, defaults, onChange }: Props) {
@@ -26,7 +26,7 @@ export default function ContactInfoSelect({ disabled, name, show, defaults, onCh
 
   const handleChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
-      const prop = event.target.name as keyof ShowContactInfo
+      const prop = event.target.name as keyof PublicContactInfo
       console.log(prop)
       const value = {
         ...state,
@@ -42,7 +42,7 @@ export default function ContactInfoSelect({ disabled, name, show, defaults, onCh
 
   const handleCheck = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
-      const prop = event.target.name as keyof ShowContactInfo
+      const prop = event.target.name as keyof PublicContactInfo
       const value = {
         ...state,
         [prop]: event.target.checked ? defaults?.[prop] ?? '?' : '',

@@ -32,4 +32,4 @@ jest.mock('@mui/material', () => {
   }
 })
 
-jest.mock('./lib/rum')
+jest.mock('./lib/client/rum')

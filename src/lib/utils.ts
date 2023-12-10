@@ -1,18 +1,18 @@
 import type {
   DeepPartial,
-  DogEvent,
   EventState,
   JsonValue,
+  PublicContactInfo,
+  PublicDogEvent,
   RegistrationDate,
   RegistrationTime,
-  ShowContactInfo,
-} from './types'
+} from '../types'
 
 import { eachDayOfInterval, endOfDay, startOfDay, subDays } from 'date-fns'
 import { diff } from 'deep-object-diff'
 import { toASCII } from 'punycode'
 
-type EventVitals = Partial<Pick<DogEvent, 'startDate' | 'endDate' | 'entryStartDate' | 'entryEndDate' | 'state'>>
+type EventVitals = Partial<Pick<PublicDogEvent, 'startDate' | 'endDate' | 'entryStartDate' | 'entryEndDate' | 'state'>>
 
 export const isValidForEntry = (state?: EventState) => !['draft', 'tentative', 'cancelled'].includes(state ?? '')
 
@@ -47,16 +47,20 @@ export const isEventOngoing = ({ startDate, endDate, state }: EventVitals, now =
 
 export const isEventOver = ({ endDate }: EventVitals, now = new Date()) => !!endDate && endOfDay(endDate) < now
 
-export const eventDates = (event?: DogEvent) => {
+export const eventDates = (event?: Pick<PublicDogEvent, 'classes' | 'startDate' | 'endDate'>) => {
   if (!event) return []
   return event.classes.length
     ? uniqueDate(event.classes.map((c) => c.date ?? event.startDate))
     : eachDayOfInterval({ start: event.startDate, end: event.endDate })
 }
 
-export const uniqueClasses = (event?: DogEvent) => unique((event?.classes ?? []).map((c) => c.class))
+export const uniqueClasses = (event?: Pick<PublicDogEvent, 'classes'>) =>
+  unique((event?.classes ?? []).map((c) => c.class))
 
-export const placesForClass = (event: DeepPartial<Pick<DogEvent, 'places' | 'classes'>> | undefined, cls: string) => {
+export const placesForClass = (
+  event: DeepPartial<Pick<PublicDogEvent, 'places' | 'classes'>> | undefined,
+  cls: string
+) => {
   if (!event) {
     return 0
   }
@@ -68,12 +72,12 @@ export const placesForClass = (event: DeepPartial<Pick<DogEvent, 'places' | 'cla
   )
 }
 
-export const uniqueClassDates = (event: DogEvent, cls: string) =>
+export const uniqueClassDates = (event: PublicDogEvent, cls: string) =>
   cls === event.eventType
     ? eventDates(event)
     : uniqueDate(event.classes.filter((c) => c.class === cls).map((c) => c.date ?? event.startDate))
 
-export const registrationDates = (event: DogEvent, times: RegistrationTime[], cls?: string) =>
+export const registrationDates = (event: PublicDogEvent, times: RegistrationTime[], cls?: string) =>
   (cls ? uniqueClassDates(event, cls) : eventDates(event)).flatMap<RegistrationDate>((date) =>
     times.map((time) => ({ date, time }))
   )
@@ -165,5 +169,5 @@ export const validEmail = (email: string) => {
   return true
 }
 
-export const printContactInfo = (info?: ShowContactInfo) =>
+export const printContactInfo = (info?: PublicContactInfo) =>
   [info?.name, info?.phone, info?.email].filter(Boolean).join(', ')

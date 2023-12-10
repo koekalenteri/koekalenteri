@@ -1,11 +1,14 @@
-import type { DogEvent } from '../types'
+import type { PublicDogEvent } from '../types'
 
 import { eachDayOfInterval } from 'date-fns'
 import { useRecoilValue } from 'recoil'
 
 import { eventTypeGroupsSelector } from '../pages/recoil'
 
-export const useEventRegistrationDates = (event: DogEvent, eventClass?: string) => {
+export const useEventRegistrationDates = (
+  event: Pick<PublicDogEvent, 'classes' | 'eventType' | 'startDate' | 'endDate'>,
+  eventClass?: string
+) => {
   const eventTypeGroups = useRecoilValue(eventTypeGroupsSelector(event.eventType))
 
   if (event.classes.length) {

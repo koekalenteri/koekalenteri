@@ -12,6 +12,9 @@ const dynamoDB = new CustomDynamoClient(userLinkTable)
 
 let cache: JsonUser[] | undefined
 
+export const userIsMemberOf = (user: JsonUser) =>
+  Object.keys(user?.roles ?? {}).filter((orgId) => !!user?.roles?.[orgId])
+
 export const filterRelevantUsers = (users: JsonUser[], user: JsonUser, orgs: string[]) =>
   user.admin ? users : users.filter((u) => u.admin || Object.keys(u.roles ?? {}).some((orgId) => orgs.includes(orgId)))
 

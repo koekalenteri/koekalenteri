@@ -6,15 +6,13 @@ import type { JsonUser } from '../../types'
 import { metricScope } from 'aws-embedded-metrics'
 
 import { CONFIG } from '../config'
-import { filterRelevantUsers } from '../lib/user'
+import { filterRelevantUsers, userIsMemberOf } from '../lib/user'
 import { authorize } from '../utils/auth'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { metricsError, metricsSuccess } from '../utils/metrics'
 import { response } from '../utils/response'
 
 const dynamoDB = new CustomDynamoClient(CONFIG.userTable)
-
-const userIsMemberOf = (user: JsonUser) => Object.keys(user?.roles ?? {}).filter((orgId) => !!user?.roles?.[orgId])
 
 const getUsersHandler = metricScope(
   (metrics: MetricsLogger) =>

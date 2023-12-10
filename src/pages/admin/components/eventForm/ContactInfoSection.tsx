@@ -1,4 +1,4 @@
-import type { ContactInfo, DeepPartial, ShowContactInfo, User } from '../../../../types'
+import type { ContactInfo, DeepPartial, PublicContactInfo, User } from '../../../../types'
 
 import { useTranslation } from 'react-i18next'
 import Grid from '@mui/material/Grid'
@@ -31,7 +31,7 @@ export default function ContactInfoSection({
   secretary,
 }: Props) {
   const { t } = useTranslation()
-  const handleChange = (name: string, props: Partial<ShowContactInfo>) =>
+  const handleChange = (name: string, props: Partial<PublicContactInfo>) =>
     onChange({
       contactInfo: {
         ...contactInfo,

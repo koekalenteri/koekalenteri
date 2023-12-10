@@ -1,8 +1,14 @@
-import type { DogEvent, RegistrationDate } from '../types'
+import type {
+  DogEvent,
+  JsonDogEvent,
+  RegistrationDate,
+  SanitizedJsonPublicDogEvent,
+  SanitizedPublicDogEvent,
+} from '../types'
 
 import { eachDayOfInterval, isSameDay } from 'date-fns'
 
-import { unique } from '../utils'
+import { unique } from './utils'
 
 export const getEventDays = ({ startDate, endDate }: Pick<DogEvent, 'startDate' | 'endDate'>) =>
   eachDayOfInterval({
@@ -20,3 +26,24 @@ export const getEventClassesByDays = (event: Pick<DogEvent, 'startDate' | 'endDa
   }))
 
 export const eventRegistrationDateKey = (rd: RegistrationDate) => rd.date.toISOString().slice(0, 10) + '-' + rd.time
+
+export function sanitizeDogEvent(event: JsonDogEvent): SanitizedJsonPublicDogEvent
+export function sanitizeDogEvent(event: DogEvent): SanitizedPublicDogEvent
+export function sanitizeDogEvent(
+  event: DogEvent | JsonDogEvent
+): SanitizedPublicDogEvent | SanitizedJsonPublicDogEvent {
+  const {
+    createdBy,
+    deletedAt,
+    deletedBy,
+    headquarters,
+    kcId,
+    // invitationAttachment, @todo
+    modifiedBy,
+    secretary,
+    official,
+    ...publicFields
+  } = event
+
+  return publicFields
+}

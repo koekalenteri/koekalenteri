@@ -6,7 +6,7 @@ import { useSnackbar } from 'notistack'
 import { useRecoilState } from 'recoil'
 
 import { getDog } from '../../../api/dog'
-import { hasChanges, merge } from '../../../utils'
+import { hasChanges, merge } from '../../../lib/utils'
 import { emptyDog } from '../../components/RegistrationForm'
 import { useDogCache } from '../../components/registrationForm/hooks/useDogCache'
 

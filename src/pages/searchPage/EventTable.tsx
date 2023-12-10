@@ -1,4 +1,4 @@
-import type { DogEvent } from '../../types'
+import type { PublicDogEvent } from '../../types'
 
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
@@ -8,7 +8,7 @@ import { EmptyResult } from './eventTable/EmptyResult'
 import { EventTableRow } from './eventTable/EventTableRow'
 
 interface Props {
-  readonly events: DogEvent[]
+  readonly events: PublicDogEvent[]
 }
 
 export function EventTable({ events }: Props) {

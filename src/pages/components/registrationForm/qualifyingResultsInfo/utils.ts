@@ -3,7 +3,7 @@ import type { ManualTestResult, QualifyingResult } from '../../../../types'
 
 import { nanoid } from 'nanoid'
 
-import { unique } from '../../../../utils'
+import { unique } from '../../../../lib/utils'
 import { objectContains } from '../validation'
 
 const asArray = (v: EventResultRequirements | EventResultRequirement) => (Array.isArray(v) ? v : [v])

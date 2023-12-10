@@ -1,4 +1,4 @@
-import type { ConfirmedEvent } from '../../types'
+import type { PublicConfirmedEvent } from '../../types'
 
 import { useTranslation } from 'react-i18next'
 import PictureAsPdfOutlined from '@mui/icons-material/PictureAsPdfOutlined'
@@ -8,8 +8,8 @@ import Paper from '@mui/material/Paper'
 import { useRecoilValue } from 'recoil'
 
 import useEventStatus from '../../hooks/useEventStatus'
+import { printContactInfo } from '../../lib/utils'
 import { API_BASE_URL } from '../../routeConfig'
-import { printContactInfo } from '../../utils'
 import { judgesByIdsSelector } from '../recoil'
 
 import CollapsibleSection from './CollapsibleSection'
@@ -17,7 +17,7 @@ import CostInfo from './CostInfo'
 import { PriorityChips } from './PriorityChips'
 
 interface Props {
-  readonly event: ConfirmedEvent
+  readonly event: PublicConfirmedEvent
 }
 
 export default function RegistrationEventInfo({ event }: Props) {

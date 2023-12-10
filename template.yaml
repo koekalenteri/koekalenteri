@@ -518,6 +518,33 @@ Resources:
       LogGroupName: !Join ['/', ['/aws/lambda', !Ref GetEventFunction]]
       RetentionInDays: 30
 
+  GetAdminEventsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: lambda/GetAdminEventsFunction/handler.default
+      Layers:
+        - !Ref CommonLayer
+      Tracing: Active
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref EventTable
+        - CloudWatchPutMetricPolicy: {}
+      Events:
+        GetAdminEvents:
+          Type: Api
+          Properties:
+            Path: /admin/event
+            Method: GET
+            RestApiId: !Ref KoekalenteriApi
+    Metadata:
+      BuildMethod: makefile
+
+  GetAdminEventsFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref GetAdminEventsFunction]]
+      RetentionInDays: 30
+
   PutEventFunction:
     Type: AWS::Serverless::Function
     Properties:

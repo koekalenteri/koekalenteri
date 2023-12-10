@@ -7,6 +7,7 @@ import { useSnackbar } from 'notistack'
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
 
 import { copyEventWithRegistrations, putEvent } from '../../../../api/event'
+import { sanitizeDogEvent } from '../../../../lib/event'
 import { Path } from '../../../../routeConfig'
 import { eventsAtom, idTokenAtom, userSelector } from '../../../recoil'
 
@@ -81,16 +82,17 @@ export const useAdminEventActions = () => {
     const saved = await putEvent(event, token)
     setAdminEventId(saved.id)
     setCurrentAdminEvent(saved)
+    const newPublicEvent = sanitizeDogEvent(saved)
 
     if (event.id) {
       const index = publicEvents.findIndex((e) => e.id === event.id)
       if (index >= 0) {
         const newEvents = [...publicEvents]
-        newEvents.splice(index, 1, saved)
+        newEvents.splice(index, 1, newPublicEvent)
         setPublicEvents(newEvents)
       }
     } else {
-      setPublicEvents([...publicEvents, saved])
+      setPublicEvents([...publicEvents, newPublicEvent])
     }
 
     return saved

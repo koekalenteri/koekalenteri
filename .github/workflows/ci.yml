@@ -193,6 +193,7 @@ jobs:
           mkdir -p layer/nodejs/lambda
           mv node_modules layer/nodejs/
           mv dist/i18n layer/nodejs/
+          mv dist/lib layer/nodejs/
           mv -t layer/nodejs/lambda dist/lambda/lib dist/lambda/types dist/lambda/utils
           cp dist/lambda/config.mjs layer/nodejs/lambda
       - name: SAM Build

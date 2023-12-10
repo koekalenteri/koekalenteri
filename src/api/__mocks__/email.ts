@@ -1,6 +1,6 @@
 import type { EmailTemplate, RegistrationMessage } from '../../types'
 
-import { parseJSON } from '../../utils'
+import { parseJSON } from '../../lib/utils'
 
 const mockTemplates: EmailTemplate[] = [
   parseJSON(

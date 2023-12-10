@@ -1,15 +1,20 @@
-import type { DogEvent, EventClass } from '../../../../types'
+import type { EventClass, PublicDogEvent } from '../../../../types'
 
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import TableCell from '@mui/material/TableCell'
 import TableRow from '@mui/material/TableRow'
 
+import { isEntryOpen } from '../../../../lib/utils'
 import { Path } from '../../../../routeConfig'
-import { isEntryOpen } from '../../../../utils'
 import LinkButton from '../../../components/LinkButton'
 
-export const EventClassTableRow = ({ event, eventClass }: { event: DogEvent; eventClass: EventClass }) => {
+interface Props {
+  event: PublicDogEvent
+  eventClass: EventClass
+}
+
+export const EventClassTableRow = ({ event, eventClass }: Props) => {
   const { t } = useTranslation()
 
   const date = eventClass.date ?? event.startDate ?? new Date()

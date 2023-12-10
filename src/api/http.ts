@@ -1,8 +1,8 @@
 import { enqueueSnackbar } from 'notistack'
 
-import { rum } from '../lib/rum'
+import { rum } from '../lib/client/rum'
+import { parseJSON } from '../lib/utils'
 import { API_BASE_URL } from '../routeConfig'
-import { parseJSON } from '../utils'
 
 export class APIError extends Error {
   status: number

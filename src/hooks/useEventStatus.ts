@@ -1,8 +1,8 @@
-import type { DogEvent } from '../types'
+import type { PublicDogEvent } from '../types'
 
 import { useTranslation } from 'react-i18next'
 
-function getStatusKey(event: DogEvent) {
+function getStatusKey(event: PublicDogEvent) {
   if (event.state === 'tentative' || event.state === 'cancelled') {
     return event.state
   }
@@ -11,7 +11,7 @@ function getStatusKey(event: DogEvent) {
   }
 }
 
-export default function useEventStatus(event: DogEvent) {
+export default function useEventStatus(event: PublicDogEvent) {
   const { t } = useTranslation()
 
   const statusKey = getStatusKey(event)

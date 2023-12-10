@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { isRouteErrorResponse, useAsyncError, useRouteError } from 'react-router-dom'
 import Typography from '@mui/material/Typography'
 
-import { rum } from '../../lib/rum'
+import { rum } from '../../lib/client/rum'
 
 import LinkButton from './LinkButton'
 

@@ -11,8 +11,8 @@ import { registrationDogAged20MonthsAndNoResults } from '../../../__mockData__/d
 import { registrationWithStaticDates } from '../../../__mockData__/registrations'
 import * as dogApi from '../../../api/dog'
 import { locales } from '../../../i18n'
+import { merge } from '../../../lib/utils'
 import { flushPromises, renderWithUserEvents } from '../../../test-utils/utils'
-import { merge } from '../../../utils'
 
 import { DogInfo } from './DogInfo'
 

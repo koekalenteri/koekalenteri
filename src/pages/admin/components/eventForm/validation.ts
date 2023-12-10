@@ -1,10 +1,10 @@
 import type { ValidationResult, Validators } from '../../../../i18n/validation'
-import type { DogEvent, EventState, ShowContactInfo } from '../../../../types'
+import type { DogEvent, EventState, PublicContactInfo } from '../../../../types'
 import type { PartialEvent } from '../EventForm'
 
 import { startOfDay } from 'date-fns'
 
-import { unique } from '../../../../utils'
+import { unique } from '../../../../lib/utils'
 
 type EventCallback = (event: PartialEvent) => boolean
 type EventFlag = boolean | EventCallback
@@ -65,7 +65,7 @@ const REQUIRED_BY_STATE: Record<EventState, EventFlags> = {
   completed: {},
 }
 
-const contactInfoShown = (contact?: Partial<ShowContactInfo>) => !!contact?.email || !!contact?.phone
+const contactInfoShown = (contact?: Partial<PublicContactInfo>) => !!contact?.email || !!contact?.phone
 
 const getMinJudgeCount = (event: PartialEvent) => {
   if (event.eventType === 'NOWT' || event.eventType === 'NOME-A') {

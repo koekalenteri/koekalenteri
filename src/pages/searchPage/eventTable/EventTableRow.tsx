@@ -1,4 +1,4 @@
-import type { DogEvent, RegistrationClass } from '../../../types'
+import type { PublicDogEvent, RegistrationClass } from '../../../types'
 
 import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -11,8 +11,8 @@ import TableCell from '@mui/material/TableCell'
 import TableRow from '@mui/material/TableRow'
 import { useRecoilState } from 'recoil'
 
+import { isEntryOpen } from '../../../lib/utils'
 import { Path } from '../../../routeConfig'
-import { isEntryOpen } from '../../../utils'
 import LinkButton from '../../components/LinkButton'
 import { openedEventAtom } from '../../recoil'
 
@@ -21,7 +21,7 @@ import { EventInfo } from './EventInfo'
 import { EventStateInfo } from './EventStateInfo'
 
 interface Props {
-  readonly event: DogEvent
+  readonly event: PublicDogEvent
 }
 
 export const EventTableRow = ({ event }: Props) => {

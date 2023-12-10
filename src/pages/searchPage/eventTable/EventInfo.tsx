@@ -1,4 +1,4 @@
-import type { DogEvent } from '../../../types'
+import type { PublicDogEvent } from '../../../types'
 
 import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -8,7 +8,7 @@ import TableCell from '@mui/material/TableCell'
 import TableRow from '@mui/material/TableRow'
 
 import useEventStatus from '../../../hooks/useEventStatus'
-import { isEntryOpen, printContactInfo } from '../../../utils'
+import { isEntryOpen, printContactInfo } from '../../../lib/utils'
 import CostInfo from '../../components/CostInfo'
 import { PriorityChips } from '../../components/PriorityChips'
 import { useJudgesActions } from '../../recoil'
@@ -16,7 +16,7 @@ import { useJudgesActions } from '../../recoil'
 import { EventClassRow } from './eventInfo/EventClassRow'
 
 interface Props {
-  readonly event: DogEvent
+  readonly event: PublicDogEvent
 }
 
 export const EventInfo = ({ event }: Props) => {

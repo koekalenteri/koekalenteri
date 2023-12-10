@@ -1,7 +1,7 @@
 import type { MetricsLogger } from 'aws-embedded-metrics'
 import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import type { AWSError } from 'aws-sdk'
-import type { JsonEvent, JsonRegistration } from '../../types'
+import type { JsonDogEvent, JsonRegistration } from '../../types'
 
 import { metricScope } from 'aws-embedded-metrics'
 import { addDays, differenceInDays, parseISO } from 'date-fns'
@@ -28,7 +28,7 @@ const copyEventWithRegistrations = metricScope(
 
       try {
         const { id, startDate }: { id: string; startDate: string } = JSON.parse(event.body || '{}')
-        const item = await dynamoDB.read<JsonEvent>({ id })
+        const item = await dynamoDB.read<JsonDogEvent>({ id })
 
         if (!item) {
           return response(404, 'NotFound', event)

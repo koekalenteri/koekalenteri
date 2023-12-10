@@ -1,5 +1,5 @@
 import type { AtomEffect } from 'recoil'
-import type { DogEvent } from '../../../types'
+import type { PublicDogEvent } from '../../../types'
 import type { FilterProps } from './atoms'
 
 import { DefaultValue } from 'recoil'
@@ -10,7 +10,7 @@ import { deserializeFilter, serializeFilter } from './filters'
 
 let loaded = false
 
-export const remoteEventsEffect: AtomEffect<DogEvent[]> = ({ setSelf, trigger }) => {
+export const remoteEventsEffect: AtomEffect<PublicDogEvent[]> = ({ setSelf, trigger }) => {
   if (trigger === 'get' && !loaded) {
     loaded = true
     getEvents()

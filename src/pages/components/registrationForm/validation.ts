@@ -7,9 +7,9 @@ import type {
 } from '../../../rules'
 import type {
   BreedCode,
-  ConfirmedEvent,
   Dog,
   Person,
+  PublicConfirmedEvent,
   QualifyingResult,
   Registration,
   RegistrationBreeder,
@@ -20,8 +20,8 @@ import type {
 import { differenceInMonths, startOfYear } from 'date-fns'
 import { matchIsValidTel } from 'mui-tel-input'
 
+import { validEmail } from '../../../lib/utils'
 import { getRequirements, REQUIREMENTS } from '../../../rules'
-import { validEmail } from '../../../utils'
 
 function validateBreeder(breeder: RegistrationBreeder | undefined) {
   return !breeder || !breeder.name || !breeder.location
@@ -40,7 +40,7 @@ export function validatePerson(person: Person | undefined) {
   return false
 }
 
-const VALIDATORS: Validators2<Registration, 'registration', ConfirmedEvent> = {
+const VALIDATORS: Validators2<Registration, 'registration', PublicConfirmedEvent> = {
   agreeToTerms: (reg) => (!reg.agreeToTerms ? 'terms' : false),
   breeder: (reg) => (validateBreeder(reg.breeder) ? 'required' : false),
   class: (reg, _req, evt) => evt.classes.length > 0 && !reg.class,
@@ -57,7 +57,7 @@ const VALIDATORS: Validators2<Registration, 'registration', ConfirmedEvent> = {
 export function validateRegistrationField(
   registration: Registration,
   field: keyof Registration,
-  event: ConfirmedEvent
+  event: PublicConfirmedEvent
 ): ValidationResult<Registration, 'registration'> {
   const validator = VALIDATORS[field] ?? ((value) => typeof value[field] === 'undefined' || value[field] === '')
   const result = validator(registration, true, event)
@@ -81,7 +81,7 @@ export function validateRegistrationField(
 
 const NOT_VALIDATED = ['createdAt', 'createdBy', 'modifiedAt', 'modifiedBy', 'deletedAt', 'deletedBy']
 
-export function validateRegistration(registration: Registration, event: ConfirmedEvent) {
+export function validateRegistration(registration: Registration, event: PublicConfirmedEvent) {
   const errors = []
   let field: keyof Registration
   for (field in registration) {

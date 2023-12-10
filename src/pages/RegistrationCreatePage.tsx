@@ -5,8 +5,8 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
 
+import { hasChanges } from '../lib/utils'
 import { Path } from '../routeConfig'
-import { hasChanges } from '../utils'
 
 import LinkButton from './components/LinkButton'
 import RegistrationEventInfo from './components/RegistrationEventInfo'

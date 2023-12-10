@@ -1,6 +1,6 @@
 import type { Theme } from '@mui/material'
 import type { TFunction } from 'i18next'
-import type { ConfirmedEvent, DeepPartial, Registration, TestResult } from '../../types'
+import type { DeepPartial, PublicConfirmedEvent, Registration, TestResult } from '../../types'
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
@@ -19,8 +19,8 @@ import Link from '@mui/material/Link'
 import Paper from '@mui/material/Paper'
 import Stack from '@mui/material/Stack'
 
+import { hasChanges, merge } from '../../lib/utils'
 import { getRequirements } from '../../rules'
-import { hasChanges, merge } from '../../utils'
 
 import { AdditionalInfo } from './registrationForm/AdditionalInfo'
 import { BreederInfo } from './registrationForm/Breeder'
@@ -32,7 +32,7 @@ import QualifyingResultsInfo from './registrationForm/QualifyingResultsInfo'
 import { filterRelevantResults, validateRegistration } from './registrationForm/validation'
 
 interface Props {
-  readonly event: ConfirmedEvent
+  readonly event: PublicConfirmedEvent
   readonly registration: Registration
   readonly classDisabled?: boolean
   readonly className?: string

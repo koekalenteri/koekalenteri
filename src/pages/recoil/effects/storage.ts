@@ -1,6 +1,6 @@
 import type { AtomEffect } from 'recoil'
 
-import { parseJSON } from '../../../utils'
+import { parseJSON } from '../../../lib/utils'
 
 export const parseStorageJSON = (value: string | null) => {
   let parsed

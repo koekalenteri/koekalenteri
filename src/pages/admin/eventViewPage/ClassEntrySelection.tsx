@@ -25,7 +25,7 @@ import { useSnackbar } from 'notistack'
 import { useEventRegistrationDates } from '../../../hooks/useEventRegistrationDates'
 import { useEventRegistrationGroups } from '../../../hooks/useEventRegistrationGroups'
 import { eventRegistrationDateKey } from '../../../lib/event'
-import { uniqueDate } from '../../../utils'
+import { uniqueDate } from '../../../lib/utils'
 import StyledDataGrid from '../../components/StyledDataGrid'
 import { useAdminRegistrationActions } from '../recoil/registrations/actions'
 

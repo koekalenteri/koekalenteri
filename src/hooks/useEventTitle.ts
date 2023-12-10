@@ -3,7 +3,7 @@ import type { DogEvent } from '../types'
 
 import { useTranslation } from 'react-i18next'
 
-import { isEntryClosed, isEntryOpen, isEventOngoing, isEventOver } from '../utils'
+import { isEntryClosed, isEntryOpen, isEventOngoing, isEventOver } from '../lib/utils'
 
 export function getEventTitle(event: DogEvent, t: TFunction<'translation'>): string {
   if (event.state === 'confirmed') {

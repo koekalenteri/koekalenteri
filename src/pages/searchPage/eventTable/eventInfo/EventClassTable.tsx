@@ -1,4 +1,4 @@
-import type { DogEvent, EventClass } from '../../../../types'
+import type { EventClass, PublicDogEvent } from '../../../../types'
 
 import { useCallback } from 'react'
 import Table from '@mui/material/Table'
@@ -7,7 +7,7 @@ import TableBody from '@mui/material/TableBody'
 import { EventClassTableRow } from './EventClassTableRow'
 
 interface Props {
-  readonly event: DogEvent
+  readonly event: PublicDogEvent
 }
 
 export const EventClassTable = ({ event }: Props) => {

@@ -5,8 +5,9 @@ import type { JsonDogEvent } from '../../types'
 
 import { metricScope } from 'aws-embedded-metrics'
 
-import { sanitizeDogEvent } from '../../lib/event'
 import { CONFIG } from '../config'
+import { userIsMemberOf } from '../lib/user'
+import { authorize } from '../utils/auth'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { metricsError, metricsSuccess } from '../utils/metrics'
 import { response } from '../utils/response'
@@ -17,13 +18,27 @@ const getEventsHandler = metricScope(
   (metrics: MetricsLogger) =>
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
       try {
-        const items = await dynamoDB.readAll<JsonDogEvent>()
-        const publicItems = items?.map((item) => sanitizeDogEvent(item))
+        const user = await authorize(event)
+        if (!user) {
+          return response(401, 'Unauthorized', event)
+        }
 
-        metricsSuccess(metrics, event.requestContext, 'getEvents')
-        return response(200, publicItems, event)
+        const memberOf = userIsMemberOf(user)
+        if (!memberOf.length && !user?.admin) {
+          console.error(`User ${user.id} is not admin or member of any organizations.`)
+          return response(403, 'Forbidden', event)
+        }
+
+        console.log(`User ${user.id} is member of ['${memberOf.join("', '")}'].`)
+
+        // @todo add index & use query to get relevant items
+        const items = await dynamoDB.readAll<JsonDogEvent>()
+        const allowed = items?.filter((item) => memberOf.includes(item.organizer.id))
+
+        metricsSuccess(metrics, event.requestContext, 'getAdminEvents')
+        return response(200, allowed, event)
       } catch (err) {
-        metricsError(metrics, event.requestContext, 'getEvents')
+        metricsError(metrics, event.requestContext, 'getAdminEvents')
         return response((err as AWSError).statusCode ?? 501, err, event)
       }
     }

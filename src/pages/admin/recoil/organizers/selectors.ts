@@ -3,7 +3,7 @@ import type { Organizer } from '../../../../types'
 import i18next from 'i18next'
 import { selector, selectorFamily } from 'recoil'
 
-import { unique } from '../../../../utils'
+import { unique } from '../../../../lib/utils'
 import { adminUsersAtom } from '../user'
 
 import {

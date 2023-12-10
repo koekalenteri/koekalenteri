@@ -14,7 +14,7 @@ import Paper from '@mui/material/Paper'
 import Stack from '@mui/material/Stack'
 import { useRecoilValue } from 'recoil'
 
-import { isEventOver, merge } from '../../../utils'
+import { isEventOver, merge } from '../../../lib/utils'
 import AutocompleteSingle from '../../components/AutocompleteSingle'
 import { activeEventTypesSelector, activeJudgesSelector, eventTypeClassesAtom } from '../../recoil'
 import { adminUserOrganizersSelector, adminUsersAtom } from '../recoil'

@@ -4,7 +4,7 @@ import type { DogCache, DogCachedInfo } from '../../../recoil/dog'
 import { useCallback, useMemo } from 'react'
 import { useRecoilState } from 'recoil'
 
-import { isEmpty } from '../../../../utils'
+import { isEmpty } from '../../../../lib/utils'
 import { dogCacheAtom } from '../../../recoil/dog'
 import { validateRegNo } from '../validation'
 

@@ -1,4 +1,4 @@
-import type { EventState, JsonEvent, JsonEventClass, RegistrationClass } from '../../types'
+import type { EventState, JsonDogEvent, JsonEventClass, RegistrationClass } from '../../types'
 
 import { addMonths, addWeeks, startOfDay } from 'date-fns'
 
@@ -13,7 +13,7 @@ const oneWeekAway = startOfDay(addWeeks(Date.now(), 1)).toISOString()
 const twoWeeksAway = startOfDay(addWeeks(Date.now(), 2)).toISOString()
 const monthAway = startOfDay(addMonths(Date.now(), 1)).toISOString()
 
-const draft: JsonEvent = {
+const draft: JsonDogEvent = {
   classes: [],
   contactInfo: {
     secretary: {
@@ -53,7 +53,7 @@ const draft: JsonEvent = {
   state: 'draft',
 }
 
-const dates: Pick<JsonEvent, 'startDate' | 'endDate' | 'entryStartDate' | 'entryEndDate' | 'name'>[] = [
+const dates: Pick<JsonDogEvent, 'startDate' | 'endDate' | 'entryStartDate' | 'entryEndDate' | 'name'>[] = [
   {
     startDate: monthAway,
     endDate: monthAway,
@@ -88,7 +88,7 @@ const states: EventState[] = ['draft', 'tentative', 'cancelled', 'confirmed']
 const types: string[] = ['NOU', 'NOME-B', 'NOWT', 'NOME-A', 'NKM']
 const t = i18n.getFixedT('fi')
 
-export const events: JsonEvent[] = []
+export const events: JsonDogEvent[] = []
 
 const registrationClasses: RegistrationClass[] = ['ALO', 'AVO', 'VOI']
 
