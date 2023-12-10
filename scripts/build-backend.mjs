@@ -17,11 +17,12 @@ function getEntryPoints(dir, ext) {
 }
 
 const exclude = ['src/i18n/index.ts', 'src/lambda/jest.config.ts']
-const paths = ['src/lambda', 'src/i18n']
+const paths = ['src/lambda', 'src/i18n', 'src/lib']
 const entryPoints = paths
   .map((path) => getEntryPoints(path, '.ts'))
   .flat()
   .filter((entry) => !exclude.includes(entry))
+  .filter((entry) => !entry.includes('mock') && !entry.includes('lib/client'))
 const watch = process.argv[2] === '--watch'
 const mode = watch ? 'context' : 'build'
 
