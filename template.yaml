@@ -528,6 +528,14 @@ Resources:
       Policies:
         - DynamoDBReadPolicy:
             TableName: !Ref EventTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref EventRegistrationTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserLinkTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref AuditTable
         - CloudWatchPutMetricPolicy: {}
       Events:
         GetAdminEvents:
