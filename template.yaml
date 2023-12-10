@@ -157,6 +157,13 @@ Resources:
       AttributeDefinitions:
           - AttributeName: id
             AttributeType: S
+      GlobalSecondaryIndexes:
+        - IndexName: gsiModifiedAt
+          KeySchema:
+            - AttributeName: modifiedAt
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
       Tags:
         - Key: Env
           Value: !Ref AWS::StackName
