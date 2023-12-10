@@ -24,6 +24,7 @@ jobs:
               - 'scripts/**'
               - 'src/lambda/**'
               - 'src/i18n/**'
+              - 'src/lib/**'
               - 'src/types/**'
               - 'package-lock.json'
               - 'package.json'
