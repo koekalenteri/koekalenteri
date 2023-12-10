@@ -4,8 +4,8 @@ import i18next from 'i18next'
 import { selector, selectorFamily } from 'recoil'
 
 import { unique } from '../../../../lib/utils'
-import { eventsAtom, userSelector } from '../../../recoil'
-import { adminEventOrganizersSelector, filteredAdminEventsSelector } from '../events'
+import { userSelector } from '../../../recoil'
+import { adminEventOrganizersSelector, adminEventsAtom, filteredAdminEventsSelector } from '../events'
 import { adminEventOrganizerIdAtom, adminOrganizersAtom, adminUsersOrganizerIdAtom } from '../organizers'
 
 import { adminUserFilterAtom, adminUserIdAtom, adminUsersAtom } from './atoms'
@@ -105,7 +105,7 @@ export const adminUserEventsSelector = selector({
   key: 'adminUserEvents',
   get: ({ get }) => {
     const user = get(userSelector)
-    const events = get(eventsAtom)
+    const events = get(adminEventsAtom)
 
     return user?.admin ? events : events.filter((e) => user?.roles?.[e.organizer.id])
   },
