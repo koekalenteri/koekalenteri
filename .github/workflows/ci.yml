@@ -21,6 +21,7 @@ jobs:
           filters: |
             backend:
               - '.github/**'
+              - 'scripts/**'
               - 'src/lambda/**'
               - 'src/i18n/**'
               - 'src/types/**'
@@ -31,6 +32,7 @@ jobs:
               - 'Makefile'
             frontend:
               - '.github/**'
+              - 'scripts/**'
               - 'src/!(lambda)/**'
               - 'package-lock.json'
               - 'package.json'
