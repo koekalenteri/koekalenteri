@@ -1781,29 +1781,12 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                                 class="MuiTelInput-Flag css-70qvj9"
                                 data-testid="FI"
                               >
-                                <picture
-                                  class="css-70qvj9"
-                                >
-                                  <source
-                                    srcset="https://flagcdn.com/w40/fi.webp"
-                                    type="image/webp"
-                                  />
-                                  <source
-                                    srcset="https://flagcdn.com/w40/fi.png"
-                                    type="image/png"
-                                  />
-                                  <img
-                                    alt="unknown"
-                                    loading="lazy"
-                                    src="https://flagcdn.com/w40/fi.png"
-                                    width="20"
-                                  />
-                                </picture>
-                                <span
-                                  class="css-uoe0ln"
-                                >
-                                  FI
-                                </span>
+                                <img
+                                  alt="Finland"
+                                  loading="lazy"
+                                  src="https://flagcdn.com/w40/fi.webp"
+                                  width="26"
+                                />
                               </span>
                               <span
                                 class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
@@ -2153,29 +2136,12 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                                         class="MuiTelInput-Flag css-70qvj9"
                                         data-testid="FI"
                                       >
-                                        <picture
-                                          class="css-70qvj9"
-                                        >
-                                          <source
-                                            srcset="https://flagcdn.com/w40/fi.webp"
-                                            type="image/webp"
-                                          />
-                                          <source
-                                            srcset="https://flagcdn.com/w40/fi.png"
-                                            type="image/png"
-                                          />
-                                          <img
-                                            alt="unknown"
-                                            loading="lazy"
-                                            src="https://flagcdn.com/w40/fi.png"
-                                            width="20"
-                                          />
-                                        </picture>
-                                        <span
-                                          class="css-uoe0ln"
-                                        >
-                                          FI
-                                        </span>
+                                        <img
+                                          alt="Finland"
+                                          loading="lazy"
+                                          src="https://flagcdn.com/w40/fi.webp"
+                                          width="26"
+                                        />
                                       </span>
                                       <span
                                         class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
@@ -4265,29 +4231,12 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                                 class="MuiTelInput-Flag css-70qvj9"
                                 data-testid="FI"
                               >
-                                <picture
-                                  class="css-70qvj9"
-                                >
-                                  <source
-                                    srcset="https://flagcdn.com/w40/fi.webp"
-                                    type="image/webp"
-                                  />
-                                  <source
-                                    srcset="https://flagcdn.com/w40/fi.png"
-                                    type="image/png"
-                                  />
-                                  <img
-                                    alt="unknown"
-                                    loading="lazy"
-                                    src="https://flagcdn.com/w40/fi.png"
-                                    width="20"
-                                  />
-                                </picture>
-                                <span
-                                  class="css-uoe0ln"
-                                >
-                                  FI
-                                </span>
+                                <img
+                                  alt="Finland"
+                                  loading="lazy"
+                                  src="https://flagcdn.com/w40/fi.webp"
+                                  width="26"
+                                />
                               </span>
                               <span
                                 class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
@@ -4637,29 +4586,12 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                                         class="MuiTelInput-Flag css-70qvj9"
                                         data-testid="FI"
                                       >
-                                        <picture
-                                          class="css-70qvj9"
-                                        >
-                                          <source
-                                            srcset="https://flagcdn.com/w40/fi.webp"
-                                            type="image/webp"
-                                          />
-                                          <source
-                                            srcset="https://flagcdn.com/w40/fi.png"
-                                            type="image/png"
-                                          />
-                                          <img
-                                            alt="unknown"
-                                            loading="lazy"
-                                            src="https://flagcdn.com/w40/fi.png"
-                                            width="20"
-                                          />
-                                        </picture>
-                                        <span
-                                          class="css-uoe0ln"
-                                        >
-                                          FI
-                                        </span>
+                                        <img
+                                          alt="Finland"
+                                          loading="lazy"
+                                          src="https://flagcdn.com/w40/fi.webp"
+                                          width="26"
+                                        />
                                       </span>
                                       <span
                                         class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
