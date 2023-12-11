@@ -17,7 +17,7 @@ import { response } from '../utils/response'
 import { capitalize, reverseName } from '../utils/string'
 
 const { eventTypeTable, officialTable } = CONFIG
-const dynamoDB = new CustomDynamoClient(officialTable)
+export const dynamoDB = new CustomDynamoClient(officialTable)
 
 const refreshOfficials = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   const user = await authorize(event)
@@ -111,6 +111,10 @@ const getOfficialsHandler = metricScope(
       try {
         if (event.queryStringParameters && 'refresh' in event.queryStringParameters) {
           return refreshOfficials(event)
+        }
+        const user = await authorize(event)
+        if (!user) {
+          return response(401, 'Unauthorized', event)
         }
         const items = (await dynamoDB.readAll<JsonOfficial>())?.filter((o) => !o.deletedAt)
         metricsSuccess(metrics, event.requestContext, 'getOfficials')
