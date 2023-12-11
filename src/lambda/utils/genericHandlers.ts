@@ -1,6 +1,7 @@
 import type { MetricsLogger } from 'aws-embedded-metrics'
 import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import type { AWSError } from 'aws-sdk'
+import type { JsonDbRecord } from '../../types'
 import type CustomDynamoClient from './CustomDynamoClient'
 
 import { metricScope } from 'aws-embedded-metrics'
@@ -14,10 +15,15 @@ import { authorize } from './auth'
 import { metricsError, metricsSuccess } from './metrics'
 import { response } from './response'
 
-export function createDbRecord(event: APIGatewayProxyEvent, timestamp: string, username: string) {
-  const item = {
+export function createDbRecord<T extends JsonDbRecord>(
+  event: APIGatewayProxyEvent,
+  timestamp: string,
+  username: string
+): T {
+  const item: T = {
+    // @ts-expect-error 'id' is specified more than once, so this usage will be overwritten.
     id: nanoid(10),
-    ...parseJSONWithFallback<object>(event.body),
+    ...parseJSONWithFallback(event.body),
     createdAt: timestamp,
     createdBy: username,
     modifiedAt: timestamp,

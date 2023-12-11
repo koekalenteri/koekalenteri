@@ -1,7 +1,12 @@
-import type { EventType } from '../../types'
+import type { JsonEventType } from '../../types'
 
-const mockEventTypes: EventType[] = [
+const mockEventTypes: JsonEventType[] = [
   {
+    id: 'asdf',
+    createdAt: '',
+    createdBy: '',
+    modifiedAt: '',
+    modifiedBy: '',
     eventType: 'TEST1',
     description: {
       fi: 'TEST1 tapahtymatyyppi',
@@ -11,7 +16,7 @@ const mockEventTypes: EventType[] = [
   },
 ]
 
-export async function getEventTypes(token: string, refresh?: boolean, signal?: AbortSignal): Promise<EventType[]> {
+export async function getEventTypes(token: string, refresh?: boolean, signal?: AbortSignal): Promise<JsonEventType[]> {
   return new Promise((resolve) => {
     process.nextTick(() => resolve(mockEventTypes))
   })

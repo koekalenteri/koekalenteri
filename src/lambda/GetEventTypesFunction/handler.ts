@@ -1,7 +1,7 @@
 import type { MetricsLogger } from 'aws-embedded-metrics'
 import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import type { AWSError } from 'aws-sdk'
-import type { EventType } from '../../types'
+import type { JsonEventType } from '../../types'
 
 import { metricScope } from 'aws-embedded-metrics'
 
@@ -28,8 +28,10 @@ const getEventTypesHandler = metricScope(
 
         if (event.queryStringParameters && 'refresh' in event.queryStringParameters) {
           const klapi = new KLAPI(getKLAPIConfig)
-          const insert: EventType[] = []
-          const existing = await dynamoDB.readAll<EventType>()
+          const insert: JsonEventType[] = []
+          const existing = await dynamoDB.readAll<JsonEventType>()
+          const timestamp = new Date().toISOString()
+
           for (const kieli of [KLKieli.Suomi, KLKieli.Ruotsi, KLKieli.Englanti]) {
             const { status, json } = await klapi.lueKoemuodot({ Kieli: kieli })
             if (status === 200 && json) {
@@ -39,6 +41,11 @@ const getEventTypesHandler = metricScope(
                   const oldInsert = insert.find((et) => et.eventType === item.lyhenne)
                   if (!oldInsert) {
                     insert.push({
+                      id: item.lyhenne,
+                      createdAt: timestamp,
+                      createdBy: user.name,
+                      modifiedAt: timestamp,
+                      modifiedBy: user.name,
                       eventType: item.lyhenne,
                       description: { fi: '', en: '', sv: '', [KLKieliToLang[kieli]]: item.koemuoto },
                       official: true,

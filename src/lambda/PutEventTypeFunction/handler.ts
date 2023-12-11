@@ -1,7 +1,7 @@
 import type { MetricsLogger } from 'aws-embedded-metrics'
 import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import type { AWSError } from 'aws-sdk'
-import type { EventType, JsonDbRecord, Judge, Official } from '../../types'
+import type { EventType, JsonDbRecord, JsonEventType, Judge, Official } from '../../types'
 
 import { metricScope } from 'aws-embedded-metrics'
 
@@ -26,7 +26,7 @@ const putEventTypeHandler = metricScope(
       const timestamp = new Date().toISOString()
 
       try {
-        const item = createDbRecord(event, timestamp, user.name)
+        const item = createDbRecord<JsonEventType>(event, timestamp, user.name)
         await dynamoDB.write(item)
         if (!item.active) {
           const active = (await dynamoDB.readAll<EventType>())?.filter((et) => et.active) || []
