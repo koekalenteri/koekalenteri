@@ -8,8 +8,8 @@ import { metricScope } from 'aws-embedded-metrics'
 import { CONFIG } from '../config'
 import { authorize } from '../utils/auth'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
-import { createDbRecord } from '../utils/genericHandlers'
 import { metricsError, metricsSuccess } from '../utils/metrics'
+import { createDbRecord } from '../utils/proxyEvent'
 import { response } from '../utils/response'
 
 const { eventTypeTable, judgeTable, officialTable } = CONFIG

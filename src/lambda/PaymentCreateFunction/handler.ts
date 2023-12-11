@@ -11,8 +11,8 @@ import { parseJSONWithFallback } from '../lib/json'
 import { createPayment } from '../lib/paytrail'
 import { getOrigin } from '../utils/auth'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
-import { getApiHost } from '../utils/event'
 import { metricsError, metricsSuccess } from '../utils/metrics'
+import { getApiHost } from '../utils/proxyEvent'
 import { response } from '../utils/response'
 
 const { eventTable, organizerTable, registrationTable, transactionTable } = CONFIG
