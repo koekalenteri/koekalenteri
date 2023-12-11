@@ -6,6 +6,7 @@ import type { Organizer } from '../../types'
 import { metricScope } from 'aws-embedded-metrics'
 
 import { CONFIG } from '../config'
+import { parseJSONWithFallback } from '../lib/json'
 import { authorize } from '../utils/auth'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { metricsError, metricsSuccess } from '../utils/metrics'
@@ -23,7 +24,7 @@ const putOrganizerHandler = metricScope(
           return response(401, 'Unauthorized', event)
         }
 
-        const item: Partial<Organizer> = JSON.parse(event.body || '{}')
+        const item: Partial<Organizer> = parseJSONWithFallback(event.body)
 
         if (!item.id) {
           metricsError(metrics, event.requestContext, 'putOrganizer')

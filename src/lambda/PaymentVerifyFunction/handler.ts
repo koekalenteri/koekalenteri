@@ -6,6 +6,7 @@ import type { PaytrailCallbackParams } from '../types/paytrail'
 import { metricScope } from 'aws-embedded-metrics'
 
 import { CONFIG } from '../config'
+import { parseJSONWithFallback } from '../lib/json'
 import { parseParams, verifyParams } from '../lib/payment'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { metricsError, metricsSuccess } from '../utils/metrics'
@@ -19,7 +20,7 @@ const dynamoDB = new CustomDynamoClient(CONFIG.transactionTable)
 const verifyHandler = metricScope(
   (metrics: MetricsLogger) =>
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-      const params: Partial<PaytrailCallbackParams> = JSON.parse(event.body || '{}')
+      const params: Partial<PaytrailCallbackParams> = parseJSONWithFallback(event.body)
       const { eventId, registrationId, transactionId } = parseParams(params)
 
       try {

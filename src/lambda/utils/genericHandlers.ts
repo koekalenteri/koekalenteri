@@ -8,6 +8,8 @@ import { nanoid } from 'nanoid'
 
 import 'source-map-support/register'
 
+import { parseJSONWithFallback } from '../lib/json'
+
 import { authorize } from './auth'
 import { metricsError, metricsSuccess } from './metrics'
 import { response } from './response'
@@ -15,7 +17,7 @@ import { response } from './response'
 export function createDbRecord(event: APIGatewayProxyEvent, timestamp: string, username: string) {
   const item = {
     id: nanoid(10),
-    ...JSON.parse(event.body || '{}'),
+    ...parseJSONWithFallback<object>(event.body),
     createdAt: timestamp,
     createdBy: username,
     modifiedAt: timestamp,

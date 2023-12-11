@@ -7,6 +7,7 @@ import { nanoid } from 'nanoid'
 
 import { type JsonRegistration } from '../../types'
 import { CONFIG } from '../config'
+import { parseJSONWithFallback } from '../lib/json'
 import { createPayment } from '../lib/paytrail'
 import { getOrigin } from '../utils/auth'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
@@ -29,7 +30,9 @@ const createHandler = metricScope(
   (metrics: MetricsLogger) =>
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
       try {
-        const { eventId, registrationId } = JSON.parse(event.body || '{}')
+        const { eventId, registrationId } = parseJSONWithFallback<{ eventId: string; registrationId: string }>(
+          event.body
+        )
 
         const jsonEvent = await dynamoDB.read<JsonConfirmedEvent>({ id: eventId }, eventTable)
         const registration = await dynamoDB.read<JsonRegistration>(

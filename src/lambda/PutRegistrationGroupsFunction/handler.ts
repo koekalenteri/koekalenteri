@@ -8,6 +8,7 @@ import { unescape } from 'querystring'
 
 import { CONFIG } from '../config'
 import { updateRegistrations } from '../lib/event'
+import { parseJSONWithFallback } from '../lib/json'
 import { sendTemplatedEmailToEventRegistrations } from '../lib/registration'
 import { authorize, getOrigin } from '../utils/auth'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
@@ -101,7 +102,7 @@ const putRegistrationGroupsHandler = metricScope(
         }
         const origin = getOrigin(event)
         const eventId = unescape(event.pathParameters?.eventId ?? '')
-        const groups: JsonRegistrationGroupInfo[] = JSON.parse(event.body || '[]')
+        const groups: JsonRegistrationGroupInfo[] = parseJSONWithFallback(event.body, [])
 
         if (!groups) {
           metricsError(metrics, event.requestContext, 'putRegistrationGroups')

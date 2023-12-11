@@ -6,6 +6,7 @@ import type { JsonUser } from '../../types'
 import { metricScope } from 'aws-embedded-metrics'
 
 import { CONFIG } from '../config'
+import { parseJSONWithFallback } from '../lib/json'
 import { authorize } from '../utils/auth'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { metricsError, metricsSuccess } from '../utils/metrics'
@@ -22,7 +23,7 @@ const setAdminHandler = metricScope(
           return response(401, 'Unauthorized', event)
         }
 
-        const item: { userId: string; admin: boolean } = JSON.parse(event.body || '{}')
+        const item: { userId: string; admin: boolean } = parseJSONWithFallback(event.body)
 
         if (!item?.userId) {
           return response(400, 'Bad request', event)

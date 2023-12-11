@@ -6,6 +6,7 @@ import { metricScope, type MetricsLogger } from 'aws-embedded-metrics'
 
 import { CONFIG } from '../config'
 import { markParticipants } from '../lib/event'
+import { parseJSONWithFallback } from '../lib/json'
 import { sendTemplatedEmailToEventRegistrations, setReserveNotified } from '../lib/registration'
 import { authorize, getOrigin } from '../utils/auth'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
@@ -24,7 +25,7 @@ const sendMessagesHandler = metricScope((metrics: MetricsLogger) => async (event
       metricsError(metrics, event.requestContext, 'sendMessageHandler')
       return response(401, 'Unauthorized', event)
     }
-    const message: RegistrationMessage = JSON.parse(event.body || '{}')
+    const message: RegistrationMessage = parseJSONWithFallback(event.body)
     const { template, eventId, registrationIds, text } = message
 
     const eventRegistrations = await dynamoDB.query<JsonRegistration>('eventId = :eventId', { ':eventId': eventId })

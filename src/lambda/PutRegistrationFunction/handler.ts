@@ -12,6 +12,7 @@ import { CONFIG } from '../config'
 import { audit, registrationAuditKey } from '../lib/audit'
 import { sendTemplatedMail } from '../lib/email'
 import { updateRegistrations } from '../lib/event'
+import { parseJSONWithFallback } from '../lib/json'
 import { getOrigin, getUsername } from '../utils/auth'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { metricsError, metricsSuccess } from '../utils/metrics'
@@ -30,7 +31,7 @@ const putRegistrationHandler = metricScope(
 
       try {
         let existing
-        const registration: JsonRegistration = JSON.parse(event.body || '{}')
+        const registration: JsonRegistration = parseJSONWithFallback(event.body)
         const update = !!registration.id
         let cancel = false
         let confirm = false

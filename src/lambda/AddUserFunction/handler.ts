@@ -5,6 +5,7 @@ import type { JsonUser } from '../../types'
 
 import { metricScope } from 'aws-embedded-metrics'
 
+import { parseJSONWithFallback } from '../lib/json'
 import { setUserRole } from '../lib/user'
 import { authorize, getAndUpdateUserByEmail, getOrigin } from '../utils/auth'
 import { metricsError, metricsSuccess } from '../utils/metrics'
@@ -25,7 +26,7 @@ const addUserHandler = metricScope(
         if (!adminFor.length && !user?.admin) {
           return response(403, 'Forbidden', event)
         }
-        const item: JsonUser = JSON.parse(event.body || '{}')
+        const item: JsonUser = parseJSONWithFallback(event.body)
 
         let newUser = await getAndUpdateUserByEmail(item.email, { name: item.name })
 

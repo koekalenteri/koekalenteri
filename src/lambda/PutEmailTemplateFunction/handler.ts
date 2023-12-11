@@ -7,6 +7,7 @@ import { metricScope } from 'aws-embedded-metrics'
 import AWS from 'aws-sdk'
 
 import { CONFIG } from '../config'
+import { parseJSONWithFallback } from '../lib/json'
 import { authorize, getUsername } from '../utils/auth'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { markdownToTemplate } from '../utils/email/markdown'
@@ -45,7 +46,7 @@ const putTemplateHandler = metricScope(
       const username = await getUsername(event)
 
       try {
-        const item: JsonEmailTemplate = JSON.parse(event.body || '{}')
+        const item: JsonEmailTemplate = parseJSONWithFallback(event.body)
         const existing = await dynamoDB.read<JsonEmailTemplate>({ id: item.id })
 
         // modification info is always updated

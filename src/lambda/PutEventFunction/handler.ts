@@ -7,6 +7,7 @@ import { metricScope } from 'aws-embedded-metrics'
 import { nanoid } from 'nanoid'
 
 import { CONFIG } from '../config'
+import { parseJSONWithFallback } from '../lib/json'
 import { authorize } from '../utils/auth'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { metricsError, metricsSuccess } from '../utils/metrics'
@@ -26,7 +27,7 @@ const putEventHandler = metricScope(
 
       try {
         let existing
-        const item: JsonConfirmedEvent = JSON.parse(event.body || '{}')
+        const item: JsonConfirmedEvent = parseJSONWithFallback(event.body)
         if (item.id) {
           existing = await dynamoDB.read<JsonConfirmedEvent>({ id: item.id })
           if (!user.admin && !user.roles?.[existing?.organizer?.id ?? '']) {

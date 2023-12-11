@@ -37,7 +37,7 @@ describe('getOrigin', () => {
 })
 
 describe('getAndUpdateUserByEmail', () => {
-  const logSpy = jest.spyOn(console, 'log')
+  const logSpy = jest.spyOn(console, 'log').mockImplementation(() => null)
 
   it('should use lower case email', async () => {
     await getAndUpdateUserByEmail('AddReSS@DoMaIn.COM', {})

@@ -8,6 +8,7 @@ import { addDays, differenceInDays, parseISO } from 'date-fns'
 import { nanoid } from 'nanoid'
 
 import { CONFIG } from '../config'
+import { parseJSONWithFallback } from '../lib/json'
 import { authorize } from '../utils/auth'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { metricsError, metricsSuccess } from '../utils/metrics'
@@ -27,7 +28,7 @@ const copyEventWithRegistrations = metricScope(
       const timestamp = new Date().toISOString()
 
       try {
-        const { id, startDate }: { id: string; startDate: string } = JSON.parse(event.body || '{}')
+        const { id, startDate }: { id: string; startDate: string } = parseJSONWithFallback(event.body)
         const item = await dynamoDB.read<JsonDogEvent>({ id })
 
         if (!item) {

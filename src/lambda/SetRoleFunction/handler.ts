@@ -6,6 +6,7 @@ import type { JsonUser, UserRole } from '../../types'
 import { metricScope } from 'aws-embedded-metrics'
 
 import { CONFIG } from '../config'
+import { parseJSONWithFallback } from '../lib/json'
 import { setUserRole } from '../lib/user'
 import { authorize, getOrigin } from '../utils/auth'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
@@ -24,7 +25,7 @@ const setRoleHandler = metricScope(
         }
 
         const origin = getOrigin(event)
-        const item: { userId: string; orgId: string; role: UserRole | 'none' } = JSON.parse(event.body || '{}')
+        const item: { userId: string; orgId: string; role: UserRole | 'none' } = parseJSONWithFallback(event.body)
 
         if (!item?.orgId) {
           return response(400, 'Bad request', event)
