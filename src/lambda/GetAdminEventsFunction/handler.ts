@@ -33,7 +33,7 @@ const getEventsHandler = metricScope(
 
         // @todo add index & use query to get relevant items
         const items = await dynamoDB.readAll<JsonDogEvent>()
-        const allowed = items?.filter((item) => memberOf.includes(item.organizer.id))
+        const allowed = items?.filter((item) => user.admin || memberOf.includes(item.organizer.id))
 
         metricsSuccess(metrics, event.requestContext, 'getAdminEvents')
         return response(200, allowed, event)
