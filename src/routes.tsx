@@ -25,6 +25,7 @@ import { registrationInvitationLoader } from './pages/RegistrationInvitation'
 import { RegistrationListPage } from './pages/RegistrationListPage'
 import { SearchPage } from './pages/SearchPage'
 import { startListLoader, StartListPage } from './pages/StartListPage'
+import { SupportPage } from './pages/SupportPage'
 import { TermsPage } from './pages/TermsPage'
 import { Path } from './routeConfig'
 
@@ -161,6 +162,10 @@ const routes: RouteObject[] = [
     loader: startListLoader,
     element: <StartListPage />,
     errorElement: <ErrorPage />,
+  },
+  {
+    path: 'support',
+    element: <SupportPage />,
   },
   {
     path: 'terms',

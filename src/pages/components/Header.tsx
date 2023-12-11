@@ -12,6 +12,7 @@ import logo from '../../assets/snj-logo.png'
 import { hasAdminAccessSelector, idTokenAtom, userSelector, useUserActions } from '../recoil'
 
 import { AdminLink } from './header/AdminLink'
+import HelpMenu from './header/HelpMenu'
 import LanguageMenu from './header/LanguageMenu'
 import UserMenu from './header/UserMenu'
 
@@ -64,6 +65,7 @@ const Header = ({ toggleMenu }: Props) => {
         <Suspense>
           <LanguageMenu />
           <UserMenu />
+          <HelpMenu />
         </Suspense>
       </Toolbar>
     </AppBar>

@@ -1,22 +1,18 @@
 import type { MouseEvent } from 'react'
-import type { Language } from '../../../types'
 
 import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useLocation } from 'react-router-dom'
 import ExpandMore from '@mui/icons-material/ExpandMore'
-import LanguageIcon from '@mui/icons-material/Language'
+import HelpOutlineOutlined from '@mui/icons-material/HelpOutlineOutlined'
 import Menu from '@mui/material/Menu'
-import { useRecoilValue } from 'recoil'
+import MenuItem from '@mui/material/MenuItem'
 
-import { locales } from '../../../i18n'
-import { languageAtom } from '../../recoil'
-
-import { LanguageMenuItem } from './languageMenu/LanguageMenuItem'
 import AppBarButton from './AppBarButton'
 
-export default function LanguageMenu() {
+export default function HelpMenu() {
   const { t } = useTranslation()
-  const language = useRecoilValue(languageAtom)
+  const location = useLocation()
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const open = Boolean(anchorEl)
 
@@ -25,8 +21,8 @@ export default function LanguageMenu() {
 
   return (
     <>
-      <AppBarButton onClick={handleClick} startIcon={<LanguageIcon />} endIcon={<ExpandMore />}>
-        {t(`locale.${language}`)}
+      <AppBarButton onClick={handleClick} startIcon={<HelpOutlineOutlined />} endIcon={<ExpandMore />}>
+        {t('support')}
       </AppBarButton>
       <Menu
         anchorEl={anchorEl}
@@ -36,9 +32,15 @@ export default function LanguageMenu() {
         onClose={handleClose}
         onClick={handleClose}
       >
-        {Object.keys(locales).map((locale) => (
-          <LanguageMenuItem key={locale} locale={locale as Language} />
-        ))}
+        <MenuItem
+          href="/support"
+          target="_blank"
+          component="a"
+          onClick={handleClose}
+          disabled={location.pathname === '/support'}
+        >
+          {t('supportContact')}
+        </MenuItem>
       </Menu>
     </>
   )

@@ -225,6 +225,8 @@
     "fi": "Koko suomeksi",
     "en": "Koko englanniksi"
   },
+  "support": "Support",
+  "supportContact": "Send feedback",
   "templateId": "Message name",
   "testResult": {
     "date": "Date",

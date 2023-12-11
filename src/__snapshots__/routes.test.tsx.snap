@@ -152,6 +152,10 @@ exports[`routes should match a snapshot 1`] = `
     "path": "/startlist/:id",
   },
   {
+    "element": <SupportPage />,
+    "path": "support",
+  },
+  {
     "element": <TermsPage />,
     "path": "terms",
   },

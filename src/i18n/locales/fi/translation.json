@@ -301,6 +301,8 @@
     "en": "Koko englanniksi"
   },
   "searchPlaceholder": "Hae...",
+  "support": "Tuki",
+  "supportContact": "Lähetä palautetta",
   "templateId": "Viestin nimi",
   "testResult": {
     "date": "Aika",
