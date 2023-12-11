@@ -1,16 +1,17 @@
 import type { ReactNode } from 'react'
+import type { PublicConfirmedEvent } from '../../types'
 
 import { Suspense } from 'react'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
-import { render } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import { RecoilRoot } from 'recoil'
 
 import { eventWithStaticDates } from '../../__mockData__/events'
 import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
-import { createMatchMedia, flushPromises } from '../../test-utils/utils'
+import { flushPromises } from '../../test-utils/utils'
 
 import RegistrationEventInfo from './RegistrationEventInfo'
 
@@ -29,18 +30,32 @@ function Wrapper({ children }: { readonly children: ReactNode }) {
   )
 }
 
-describe('RegistrationForm', () => {
-  beforeAll(() => {
-    // jsdom does not have matchMedia, so inject a polyfill
-    window.matchMedia = createMatchMedia(window.innerWidth)
-    jest.useFakeTimers()
-  })
+describe('RegistrationEventInfo', () => {
+  beforeAll(() => jest.useFakeTimers())
   afterEach(() => jest.runOnlyPendingTimers())
   afterAll(() => jest.useRealTimers())
 
   it('renders', async () => {
     const { container } = render(<RegistrationEventInfo event={eventWithStaticDates} />, { wrapper: Wrapper })
     await flushPromises()
+
+    expect(screen.queryByText('event.official:')).toBeInTheDocument()
+    expect(screen.queryByText('Teemu Toimitsija, 040-official, official@example.com')).toBeInTheDocument()
+    expect(screen.queryByText('event.secretary:')).toBeInTheDocument()
+    expect(screen.queryByText('Siiri Sihteeri, 040-secretary, secretary@example.com')).toBeInTheDocument()
+    expect(container).toMatchSnapshot()
+  })
+
+  it('does not render empty contact info', async () => {
+    const event: PublicConfirmedEvent = {
+      ...eventWithStaticDates,
+      contactInfo: { official: {} },
+    }
+    const { container } = render(<RegistrationEventInfo event={event} />, { wrapper: Wrapper })
+    await flushPromises()
+
+    expect(screen.queryByText('event.official:')).toBeNull()
+    expect(screen.queryByText('event.secretary:')).toBeNull()
     expect(container).toMatchSnapshot()
   })
 })

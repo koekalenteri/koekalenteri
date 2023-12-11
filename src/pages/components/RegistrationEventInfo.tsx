@@ -57,7 +57,7 @@ export default function RegistrationEventInfo({ event }: Props) {
             <Grid item xs={8}>
               {judges.map((j) => j.name).join(', ')}
             </Grid>
-            {event.contactInfo?.official ? (
+            {printContactInfo(event.contactInfo?.official) ? (
               <>
                 <Grid item xs={4}>
                   {t('event.official')}:
@@ -67,7 +67,7 @@ export default function RegistrationEventInfo({ event }: Props) {
                 </Grid>
               </>
             ) : null}
-            {event.contactInfo?.secretary ? (
+            {printContactInfo(event.contactInfo?.secretary) ? (
               <>
                 <Grid item xs={4}>
                   {t('event.secretary')}:
