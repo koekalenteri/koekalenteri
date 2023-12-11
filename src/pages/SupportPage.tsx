@@ -27,7 +27,7 @@ export const SupportPage = () => {
             Huomasitko, että koekalenteri toimii oudosti tai ei toimi niinkuin pitää?
           </Typography>
           <Typography variant="h6">
-            Voit lähettää virheraporting suoraan <Link href={issueHref}>täältä</Link>
+            Voit lähettää virheraportin suoraan <Link href={issueHref}>täältä</Link>
           </Typography>
           <Typography variant="h6">
             Tai voit lähettää sähköpostia osoitteeseen{' '}

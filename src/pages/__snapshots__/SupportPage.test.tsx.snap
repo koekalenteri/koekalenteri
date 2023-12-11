@@ -1,0 +1,43 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SupportPage should render 1`] = `
+<div>
+  header
+  <div
+    class="MuiBox-root css-ab8yd1"
+  >
+    <div
+      class="MuiBox-root css-f1a6ef"
+    >
+      <h6
+        class="MuiTypography-root MuiTypography-h6 css-6nwon9-MuiTypography-root"
+      >
+        Huomasitko, että koekalenteri toimii oudosti tai ei toimi niinkuin pitää?
+      </h6>
+      <h6
+        class="MuiTypography-root MuiTypography-h6 css-6nwon9-MuiTypography-root"
+      >
+        Voit lähettää virheraportin suoraan 
+        <a
+          class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-17vs3rc-MuiTypography-root-MuiLink-root"
+          href="https://koekalenteri.atlassian.net/servicedesk/customer/portal/1/group/1/create/1"
+        >
+          täältä
+        </a>
+      </h6>
+      <h6
+        class="MuiTypography-root MuiTypography-h6 css-6nwon9-MuiTypography-root"
+      >
+        Tai voit lähettää sähköpostia osoitteeseen
+         
+        <a
+          class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-17vs3rc-MuiTypography-root-MuiLink-root"
+          href="mailto:support@koekalenteri.atlassian.net?subject="Palaute"
+        >
+          support@koekalenteri.atlassian.net
+        </a>
+      </h6>
+    </div>
+  </div>
+</div>
+`;
