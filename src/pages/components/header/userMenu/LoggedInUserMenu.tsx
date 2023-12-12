@@ -28,7 +28,14 @@ export default function LoggedInUserMenu({ userName }: Props) {
       <AppBarButton onClick={handleClick} startIcon={<PersonOutline />} endIcon={<ExpandMore />}>
         {userName}
       </AppBarButton>
-      <Menu anchorEl={anchorEl} open={!!anchorEl} onClose={handleClose} onClick={handleClose}>
+      <Menu
+        anchorEl={anchorEl}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+        open={!!anchorEl}
+        onClose={handleClose}
+        onClick={handleClose}
+      >
         <MenuItem onClick={actions.signOut}>{t('logout')}</MenuItem>
       </Menu>
     </>

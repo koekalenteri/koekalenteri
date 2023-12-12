@@ -72,7 +72,7 @@ exports[`AdminHomePage renders the child page content when user is logged in 1`]
         class="MuiTypography-root MuiTypography-h6 MuiTypography-noWrap css-2mbm5r-MuiTypography-root"
       />
       <button
-        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textSecondary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textSecondary MuiButton-sizeMedium MuiButton-textSizeMedium css-mxyqxy-MuiButtonBase-root-MuiButton-root"
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textSecondary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textSecondary MuiButton-sizeMedium MuiButton-textSizeMedium css-1y460h9-MuiButtonBase-root-MuiButton-root"
         tabindex="0"
         type="button"
       >
@@ -92,7 +92,7 @@ exports[`AdminHomePage renders the child page content when user is logged in 1`]
           </svg>
         </span>
         <div
-          class="MuiBox-root css-130f8nx"
+          class="MuiBox-root css-13tqxrv"
         >
           locale.fi
         </div>
@@ -116,7 +116,7 @@ exports[`AdminHomePage renders the child page content when user is logged in 1`]
         />
       </button>
       <button
-        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textSecondary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textSecondary MuiButton-sizeMedium MuiButton-textSizeMedium css-mxyqxy-MuiButtonBase-root-MuiButton-root"
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textSecondary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textSecondary MuiButton-sizeMedium MuiButton-textSizeMedium css-1y460h9-MuiButtonBase-root-MuiButton-root"
         tabindex="0"
         type="button"
       >
@@ -136,7 +136,7 @@ exports[`AdminHomePage renders the child page content when user is logged in 1`]
           </svg>
         </span>
         <div
-          class="MuiBox-root css-130f8nx"
+          class="MuiBox-root css-13tqxrv"
         >
           Test User
         </div>
@@ -160,7 +160,7 @@ exports[`AdminHomePage renders the child page content when user is logged in 1`]
         />
       </button>
       <button
-        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textSecondary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textSecondary MuiButton-sizeMedium MuiButton-textSizeMedium css-mxyqxy-MuiButtonBase-root-MuiButton-root"
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textSecondary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textSecondary MuiButton-sizeMedium MuiButton-textSizeMedium css-1y460h9-MuiButtonBase-root-MuiButton-root"
         tabindex="0"
         type="button"
       >
@@ -180,7 +180,7 @@ exports[`AdminHomePage renders the child page content when user is logged in 1`]
           </svg>
         </span>
         <div
-          class="MuiBox-root css-130f8nx"
+          class="MuiBox-root css-13tqxrv"
         >
           support
         </div>
@@ -289,7 +289,7 @@ exports[`AdminHomePage renders the page when user is logged in 1`] = `
         class="MuiTypography-root MuiTypography-h6 MuiTypography-noWrap css-2mbm5r-MuiTypography-root"
       />
       <button
-        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textSecondary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textSecondary MuiButton-sizeMedium MuiButton-textSizeMedium css-mxyqxy-MuiButtonBase-root-MuiButton-root"
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textSecondary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textSecondary MuiButton-sizeMedium MuiButton-textSizeMedium css-1y460h9-MuiButtonBase-root-MuiButton-root"
         tabindex="0"
         type="button"
       >
@@ -309,7 +309,7 @@ exports[`AdminHomePage renders the page when user is logged in 1`] = `
           </svg>
         </span>
         <div
-          class="MuiBox-root css-130f8nx"
+          class="MuiBox-root css-13tqxrv"
         >
           locale.fi
         </div>
@@ -333,7 +333,7 @@ exports[`AdminHomePage renders the page when user is logged in 1`] = `
         />
       </button>
       <button
-        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textSecondary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textSecondary MuiButton-sizeMedium MuiButton-textSizeMedium css-mxyqxy-MuiButtonBase-root-MuiButton-root"
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textSecondary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textSecondary MuiButton-sizeMedium MuiButton-textSizeMedium css-1y460h9-MuiButtonBase-root-MuiButton-root"
         tabindex="0"
         type="button"
       >
@@ -353,7 +353,7 @@ exports[`AdminHomePage renders the page when user is logged in 1`] = `
           </svg>
         </span>
         <div
-          class="MuiBox-root css-130f8nx"
+          class="MuiBox-root css-13tqxrv"
         >
           Test User
         </div>
@@ -377,7 +377,7 @@ exports[`AdminHomePage renders the page when user is logged in 1`] = `
         />
       </button>
       <button
-        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textSecondary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textSecondary MuiButton-sizeMedium MuiButton-textSizeMedium css-mxyqxy-MuiButtonBase-root-MuiButton-root"
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textSecondary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textSecondary MuiButton-sizeMedium MuiButton-textSizeMedium css-1y460h9-MuiButtonBase-root-MuiButton-root"
         tabindex="0"
         type="button"
       >
@@ -397,7 +397,7 @@ exports[`AdminHomePage renders the page when user is logged in 1`] = `
           </svg>
         </span>
         <div
-          class="MuiBox-root css-130f8nx"
+          class="MuiBox-root css-13tqxrv"
         >
           support
         </div>

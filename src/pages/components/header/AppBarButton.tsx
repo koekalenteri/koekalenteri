@@ -19,11 +19,11 @@ export default function AppBarButton(props: Props) {
       color="secondary"
       sx={{
         textTransform: 'none',
-        '& .MuiButton-startIcon': { marginRight: { xs: 0, sm: 2 } },
-        '& .MuiButton-endIcon': { marginLeft: { xs: 0, sm: 2 } },
+        '& .MuiButton-startIcon': { ml: 1, mr: { xs: 0, sm: 1 } },
+        '& .MuiButton-endIcon': { ml: { xs: 0, sm: 1 } },
       }}
     >
-      <Box sx={{ display: { xs: 'none', sm: 'block' } }}>{props.children}</Box>
+      <Box sx={{ display: { xs: 'none', md: 'block' } }}>{props.children}</Box>
     </Button>
   )
 }
