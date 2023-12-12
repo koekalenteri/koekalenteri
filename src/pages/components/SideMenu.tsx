@@ -15,6 +15,7 @@ import Box from '@mui/material/Box'
 import Divider from '@mui/material/Divider'
 import { useRecoilValue } from 'recoil'
 
+import { HEADER_HEIGHT } from '../../assets/Theme'
 import { Path } from '../../routeConfig'
 import { isAdminSelector } from '../recoil'
 import { useUserActions } from '../recoil/user/actions'
@@ -44,32 +45,32 @@ export function SideMenu({ open, onClose }: Props) {
       }}
       onClose={onClose}
     >
-      <Box sx={{ height: '36px' }} />
+      <Box sx={{ height: HEADER_HEIGHT, minHeight: HEADER_HEIGHT }} />
       <DrawerList>
-        <NavLink to={Path.admin.events}>
+        <NavLink to={Path.admin.events} onClick={onClose}>
           <DrawerItem text={t('events')} icon={<Event />} />
         </NavLink>
         {isAdmin && (
-          <NavLink to={Path.admin.orgs}>
+          <NavLink to={Path.admin.orgs} onClick={onClose}>
             <DrawerItem text={t('organizations')} icon={<Support />} />
           </NavLink>
         )}
-        <NavLink to={Path.admin.judges}>
+        <NavLink to={Path.admin.judges} onClick={onClose}>
           <DrawerItem text={t('judges')} icon={<Accessibility />} />
         </NavLink>
-        <NavLink to={Path.admin.officials}>
+        <NavLink to={Path.admin.officials} onClick={onClose}>
           <DrawerItem text={t('officials')} icon={<SupervisorAccount />} />
         </NavLink>
         {isAdmin && (
-          <NavLink to={Path.admin.eventTypes}>
+          <NavLink to={Path.admin.eventTypes} onClick={onClose}>
             <DrawerItem text={t('eventTypes')} icon={<EmojiEventsOutlined />} />
           </NavLink>
         )}
-        <NavLink to={Path.admin.users}>
+        <NavLink to={Path.admin.users} onClick={onClose}>
           <DrawerItem text={t('users')} icon={<PersonOutline />} />
         </NavLink>
         {isAdmin && (
-          <NavLink to={Path.admin.emailTemplates}>
+          <NavLink to={Path.admin.emailTemplates} onClick={onClose}>
             <DrawerItem text={t('emailTemplates')} icon={<MailOutline />} />
           </NavLink>
         )}

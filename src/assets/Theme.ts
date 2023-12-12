@@ -15,6 +15,8 @@ declare module '@mui/material/styles/createPalette' {
   }
 }
 
+export const HEADER_HEIGHT = '36px'
+
 const theme = createTheme({
   breakpoints: {
     values: {

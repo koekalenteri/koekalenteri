@@ -3,6 +3,7 @@ import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import { useRecoilValue } from 'recoil'
 
+import { HEADER_HEIGHT } from '../../assets/Theme'
 import { Path } from '../../routeConfig'
 import Header from '../components/Header'
 import LoadingIndicator from '../components/LoadingIndicator'
@@ -26,7 +27,7 @@ export default function AdminHomePage() {
       <Header toggleMenu={toggleMenu} />
       <Box sx={{ display: 'flex', height: '100%' }}>
         <SideMenu open={menuOpen} onClose={closeMenu} />
-        <Box sx={{ p: 1, display: 'flex', flexDirection: 'column', flexGrow: 1, overflow: 'auto', mt: '36px' }}>
+        <Box sx={{ p: 1, display: 'flex', flexDirection: 'column', flexGrow: 1, overflow: 'auto', mt: HEADER_HEIGHT }}>
           <Suspense fallback={<LoadingIndicator />}>
             <Outlet />
           </Suspense>

@@ -4,6 +4,7 @@ import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 
 interface Props {
+  readonly active?: boolean
   readonly startIcon?: ReactNode
   readonly endIcon?: ReactNode
   readonly onClick?: MouseEventHandler
@@ -18,9 +19,13 @@ export default function AppBarButton(props: Props) {
       endIcon={props.endIcon}
       color="secondary"
       sx={{
+        borderBottom: props.active ? '2px solid #fcfcfc' : '2px solid transparent',
+        borderRadius: 0,
         textTransform: 'none',
-        '& .MuiButton-startIcon': { ml: 1, mr: { xs: 0, sm: 1 } },
-        '& .MuiButton-endIcon': { ml: { xs: 0, sm: 1 } },
+        textWrap: 'nowrap',
+        py: '4px',
+        '& .MuiButton-startIcon': { mr: { xs: 0, md: 1 } },
+        '& .MuiButton-endIcon': { ml: { xs: 0, md: 1 } },
       }}
     >
       <Box sx={{ display: { xs: 'none', md: 'block' } }}>{props.children}</Box>

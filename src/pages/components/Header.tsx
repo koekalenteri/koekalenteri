@@ -1,9 +1,9 @@
-import { Suspense, useEffect } from 'react'
-import { Link as SpaLink } from 'react-router-dom'
+import { Suspense, useCallback, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import ManageAccountsOutlined from '@mui/icons-material/ManageAccountsOutlined'
 import Menu from '@mui/icons-material/Menu'
 import AppBar from '@mui/material/AppBar'
 import IconButton from '@mui/material/IconButton'
-import Link from '@mui/material/Link'
 import Toolbar from '@mui/material/Toolbar'
 import Typography from '@mui/material/Typography'
 import { useRecoilValue } from 'recoil'
@@ -11,7 +11,7 @@ import { useRecoilValue } from 'recoil'
 import logo from '../../assets/snj-logo.png'
 import { hasAdminAccessSelector, idTokenAtom, userSelector, useUserActions } from '../recoil'
 
-import { AdminLink } from './header/AdminLink'
+import AppBarButton from './header/AppBarButton'
 import HelpMenu from './header/HelpMenu'
 import LanguageMenu from './header/LanguageMenu'
 import UserMenu from './header/UserMenu'
@@ -22,12 +22,14 @@ interface Props {
 
 const Header = ({ toggleMenu }: Props) => {
   const actions = useUserActions()
+  const navigate = useNavigate()
   const user = useRecoilValue(userSelector)
   const idToken = useRecoilValue(idTokenAtom)
   const hasAdminAccess = useRecoilValue(hasAdminAccessSelector)
   const inAdmin = !!toggleMenu
-  const linkBorder = hasAdminAccess ? '2px solid #fcfcfc' : undefined
-  const mainBorder = inAdmin ? undefined : linkBorder
+
+  const handleHomeClick = useCallback(() => navigate('/'), [navigate])
+  const handleAdminClick = useCallback(() => navigate('/admin'), [navigate])
 
   useEffect(() => {
     if (idToken && !user) {
@@ -44,17 +46,25 @@ const Header = ({ toggleMenu }: Props) => {
             <Menu />
           </IconButton>
         ) : null}
-        <Link to="/" component={SpaLink}>
-          <IconButton sx={{ mx: { xs: 1, sm: 1 }, p: 0, height: 36 }}>
-            <img src={logo} width="29" height="36" alt="Suomen noutajakoirajärjestö" />
-          </IconButton>
-        </Link>
-        <Link to="/" component={SpaLink} sx={{ textDecoration: 'none', borderBottom: mainBorder, mr: 1, px: 1 }}>
-          <Typography color="secondary" variant="subtitle1" noWrap component="div" sx={{ flexShrink: 1 }}>
-            Koekalenteri
-          </Typography>
-        </Link>
-        {hasAdminAccess && <AdminLink active={inAdmin} activeBorder={linkBorder} />}
+        <AppBarButton
+          active={!inAdmin}
+          startIcon={
+            <img
+              src={logo}
+              height="28"
+              alt="Suomen noutajakoirajärjestö"
+              style={{ marginTop: '-4px', marginBottom: '-4px' }}
+            />
+          }
+          onClick={handleHomeClick}
+        >
+          Koekalenteri
+        </AppBarButton>
+        {hasAdminAccess ? (
+          <AppBarButton active={inAdmin} startIcon={<ManageAccountsOutlined />} onClick={handleAdminClick}>
+            Ylläpito
+          </AppBarButton>
+        ) : null}
         <Typography
           variant="h6"
           color="#fdfdfd"

@@ -4,6 +4,7 @@ import Box from '@mui/material/Box'
 import Link from '@mui/material/Link'
 import Typography from '@mui/material/Typography'
 
+import { HEADER_HEIGHT } from '../assets/Theme'
 import { rum } from '../lib/client/rum'
 
 import Header from './components/Header'
@@ -22,7 +23,7 @@ export const SupportPage = () => {
     <>
       <Header />
       <Box sx={{ display: 'flex', height: '100%' }}>
-        <Box sx={{ p: 1, display: 'flex', flexDirection: 'column', flexGrow: 1, overflow: 'auto', mt: '36px' }}>
+        <Box sx={{ p: 1, display: 'flex', flexDirection: 'column', flexGrow: 1, overflow: 'auto', mt: HEADER_HEIGHT }}>
           <Typography variant="h6">
             Huomasitko, että koekalenteri toimii oudosti tai ei toimi niinkuin pitää?
           </Typography>

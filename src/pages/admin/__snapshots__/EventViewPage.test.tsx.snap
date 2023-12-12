@@ -6,7 +6,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
     class="MuiBox-root css-1uovp08"
   >
     <div
-      class="MuiBox-root css-1tyz8pc"
+      class="MuiBox-root css-10784zt"
     >
       <div
         class="MuiGrid-root MuiGrid-container css-1xzqqmo-MuiGrid-root"
@@ -5159,7 +5159,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
     class="MuiBox-root css-1uovp08"
   >
     <div
-      class="MuiBox-root css-1tyz8pc"
+      class="MuiBox-root css-10784zt"
     >
       <div
         class="MuiGrid-root MuiGrid-container css-1xzqqmo-MuiGrid-root"

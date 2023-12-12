@@ -24,7 +24,7 @@ const FullPageFlex = (props: FullPageFlexProps) => {
           flexDirection: 'column',
           flexGrow: 1,
           width: '100%',
-          minHeight: 400,
+          minHeight: 300,
         }}
       >
         {props.children}

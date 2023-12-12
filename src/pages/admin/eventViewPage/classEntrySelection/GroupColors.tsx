@@ -3,6 +3,8 @@ import type { RegistrationDate } from '../../../../types'
 import Box from '@mui/material/Box'
 import Stack from '@mui/material/Stack'
 
+import { HEADER_HEIGHT } from '../../../../assets/Theme'
+
 import GroupColorTooltip from './groupColors/GroupColorTooltip'
 
 export const GROUP_COLORS = ['#2D9CDB', '#BB6BD9', '#F2994A', '#27AE60', '#828282', '#56CCF2']
@@ -26,7 +28,7 @@ const GroupColors = ({ available, selected, disableTooltip = false }: Props) => 
         sx={{
           bgcolor: GROUP_COLORS[selIdx % GROUP_COLORS.length],
           width: 24,
-          mr: '36px',
+          mr: HEADER_HEIGHT,
           height: '100%',
           borderTopLeftRadius: '4px',
         }}
