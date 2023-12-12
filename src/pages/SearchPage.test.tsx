@@ -11,7 +11,7 @@ import { RecoilRoot } from 'recoil'
 
 import theme from '../assets/Theme'
 import { locales } from '../i18n'
-import { flushPromises } from '../test-utils/utils'
+import { createMatchMedia, flushPromises } from '../test-utils/utils'
 
 import { SearchPage } from './SearchPage'
 
@@ -40,7 +40,10 @@ const renderPage = (path: string, locale: Locale) =>
   )
 
 describe('SearchPage', () => {
-  beforeAll(() => jest.useFakeTimers())
+  beforeAll(() => {
+    window.matchMedia = createMatchMedia(1680)
+    jest.useFakeTimers()
+  })
   afterEach(() => jest.runOnlyPendingTimers())
   afterAll(() => jest.useRealTimers())
 

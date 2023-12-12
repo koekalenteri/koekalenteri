@@ -1,7 +1,7 @@
 import type { PublicDogEvent } from '../../../types'
 import type { FilterProps } from './atoms'
 
-import { formatISO } from 'date-fns'
+import { format, formatISO } from 'date-fns'
 
 import { isEntryClosing, isEntryOpen, isEntryUpcoming } from '../../../lib/utils'
 import { isRegistrationClass } from '../../admin/EventViewPage'
@@ -120,4 +120,31 @@ export function deserializeFilter(input: string) {
   }
 
   return result
+}
+
+export function filterString(filter: FilterProps): string {
+  const filters: string[] = []
+  if (filter.start) {
+    if (filter.end) {
+      filters.push(`PVM: ${format(filter.start, 'dd.MM.yyyy')} - ${format(filter.end, 'dd.MM.yyyy')}`)
+    } else {
+      filters.push(`PVM: alkaen ${format(filter.start, 'dd.MM.yyyy')}`)
+    }
+  } else if (filter.end) {
+    filters.push(`PVM: päättyen ${format(filter.end, 'dd.MM.yyyy')}`)
+  }
+  if (filter.eventType?.length) {
+    filters.push('Koemuoto: ' + filter.eventType.join(', '))
+  }
+  if (filter.eventClass?.length) {
+    filters.push('Koeluokka: ' + filter.eventClass.join(', '))
+  }
+  if (filter.organizer?.length) {
+    filters.push('Järjestäjät: ' + filter.organizer.length)
+  }
+  if (filter.judge?.length) {
+    filters.push('Tuomarit: ' + filter.judge.length)
+  }
+
+  return filters.join(' | ')
 }

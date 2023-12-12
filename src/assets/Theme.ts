@@ -28,6 +28,11 @@ const theme = createTheme({
     },
   },
   components: {
+    MuiDatePicker: {
+      defaultProps: {
+        desktopModeMediaQuery: '(min-width:600px)',
+      },
+    },
     MuiDataGrid: {
       defaultProps: {
         rowHeight: 40,
