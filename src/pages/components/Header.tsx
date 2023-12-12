@@ -47,7 +47,7 @@ const Header = ({ toggleMenu }: Props) => {
           </IconButton>
         ) : null}
         <AppBarButton
-          active={!inAdmin}
+          active={hasAdminAccess && !inAdmin}
           startIcon={
             <img
               src={logo}
