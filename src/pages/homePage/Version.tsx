@@ -3,6 +3,7 @@ import { lightFormat } from 'date-fns'
 import preval from 'preval.macro'
 
 import pkg from '../../../package.json'
+import { BANNER_HEIGHT } from '../components/Banner'
 
 const buildTimestamp = preval`module.exports = new Date().getTime();` as number
 
@@ -11,7 +12,7 @@ export default function Version() {
   return (
     <Box
       sx={{
-        top: { xs: 114, sm: 178, md: 242, lg: 306 },
+        top: `calc(${BANNER_HEIGHT} -  14px)`,
         left: 0,
         color: '#eee',
         fontSize: 6,

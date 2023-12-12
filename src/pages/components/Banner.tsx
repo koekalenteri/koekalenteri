@@ -2,6 +2,8 @@ import Box from '@mui/material/Box'
 
 import banner from '../../assets/banner.jpg'
 
+export const BANNER_HEIGHT = 'min(25vh, 32vw)'
+
 const Banner = () => {
   return (
     <Box
@@ -10,10 +12,9 @@ const Banner = () => {
         backgroundRepeat: 'no-repeat',
         backgroundSize: 'cover',
         backgroundOrigin: 'padding-box',
-        backgroundPositionY: { xs: 32, sm: 24, md: 16, lg: 8, xl: -16 },
+        backgroundPositionY: 'calc(40px - 3vw)',
         width: '100%',
-        height: { xs: 128, sm: 192, md: 256, lg: 320 },
-        maxHeight: '30vh',
+        height: BANNER_HEIGHT,
       }}
     ></Box>
   )
