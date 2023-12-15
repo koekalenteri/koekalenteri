@@ -9,7 +9,7 @@
     "@mui/lab": "^5.0.0-alpha.155",
     "@mui/material": "^5.14.20",
     "@mui/x-data-grid": "^6.18.2",
-    "@mui/x-date-pickers": "^6.18.3",
+    "@mui/x-date-pickers": "^6.18.5",
     "aws-embedded-metrics": "^4.1.0",
     "aws-rum-web": "^1.16.1",
     "aws-sdk": "^2.1519.0",
