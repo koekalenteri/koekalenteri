@@ -12,11 +12,23 @@ const dynamoDB = new CustomDynamoClient(userLinkTable)
 
 let cache: JsonUser[] | undefined
 
-export const userIsMemberOf = (user: JsonUser) =>
+export const userIsMemberOf = (user: JsonUser): string[] =>
   Object.keys(user?.roles ?? {}).filter((orgId) => !!user?.roles?.[orgId])
 
-export const filterRelevantUsers = (users: JsonUser[], user: JsonUser, orgs: string[]) =>
-  user.admin ? users : users.filter((u) => u.admin || Object.keys(u.roles ?? {}).some((orgId) => orgs.includes(orgId)))
+export const filterRelevantUsers = (users: JsonUser[], user: JsonUser, orgs: string[]) => {
+  const memberOf = userIsMemberOf(user)
+  const filteredOrgs = orgs.filter((o) => memberOf.includes(o))
+
+  return user.admin
+    ? users
+    : users.filter(
+        (u) =>
+          u.admin || // admins are always included
+          u.judge?.length || // judges are always included
+          u.officer?.length || // officers are always included
+          Object.keys(u.roles ?? {}).some((orgId) => filteredOrgs.includes(orgId))
+      )
+}
 
 export async function getAllUsers(): Promise<JsonUser[]> {
   if (!cache) {
