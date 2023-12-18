@@ -17,6 +17,9 @@ export const i18nextEffect: AtomEffect<Language> = ({ onSet, setSelf, trigger })
     if (i18n.language !== language) {
       i18n.changeLanguage(language)
     }
+    if (document.documentElement.lang !== language) {
+      document.documentElement.lang = language
+    }
   })
 }
 
