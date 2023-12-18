@@ -20,7 +20,10 @@ export default function UserMenu() {
       setGreet(true)
       enqueueSnackbar('Heippa!', { variant: 'info' })
     }
-  }, [greet, setGreet, user])
+    // greets/setGreet deliberately not in dependencies to avoid infinite loop with multiple tabs
+    // (greet is synced wia sessionStorage)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user])
 
   if (user) {
     return <LoggedInUserMenu userName={user?.name || user.email} />
