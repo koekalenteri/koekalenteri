@@ -26,7 +26,7 @@ const refreshJudges = async (event: APIGatewayProxyEvent) => {
   }
 
   const klapi = new KLAPI(getKLAPIConfig)
-  const eventTypes = (await dynamoDB.readAll<EventType>(eventTypeTable))?.filter((et) => et.active) || []
+  const eventTypes = (await dynamoDB.readAll<EventType>(eventTypeTable))?.filter((et) => et.official && et.active) || []
   const existingJudges = (await dynamoDB.readAll<JsonJudge>()) ?? []
   const write: JsonJudge[] = []
   for (const eventType of eventTypes) {

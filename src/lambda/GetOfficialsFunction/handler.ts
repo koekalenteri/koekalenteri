@@ -26,7 +26,7 @@ const refreshOfficials = async (event: APIGatewayProxyEvent): Promise<APIGateway
   }
 
   const klapi = new KLAPI(getKLAPIConfig)
-  const eventTypes = (await dynamoDB.readAll<EventType>(eventTypeTable))?.filter((et) => et.active) || []
+  const eventTypes = (await dynamoDB.readAll<EventType>(eventTypeTable))?.filter((et) => et.official && et.active) || []
   const existingOfficials = (await dynamoDB.readAll<JsonOfficial>()) ?? []
   const write: JsonOfficial[] = []
   for (const eventType of eventTypes) {
