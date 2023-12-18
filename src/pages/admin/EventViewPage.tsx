@@ -19,7 +19,6 @@ import { useRecoilState, useRecoilValue } from 'recoil'
 
 import useEventRegistrationInfo from '../../hooks/useEventRegistrationsInfo'
 import { Path } from '../../routeConfig'
-import { eventTypeGroupsSelector } from '../recoil'
 
 import FullPageFlex from './components/FullPageFlex'
 import ClassEntrySelection from './eventViewPage/ClassEntrySelection'
@@ -30,7 +29,13 @@ import RegistrationEditDialog from './eventViewPage/RegistrationEditDialog'
 import SendMessageDialog from './eventViewPage/SendMessageDialog'
 import TabPanel from './eventViewPage/TabPanel'
 import Title from './eventViewPage/Title'
-import { adminEventSelector, adminRegistrationIdAtom, eventClassAtom, eventRegistrationsAtom } from './recoil'
+import {
+  adminEventSelector,
+  adminRegistrationIdAtom,
+  eventClassAtom,
+  eventRegistrationsAtom,
+  eventTypeGroupsSelector,
+} from './recoil'
 
 const REG_CLASSES = ['ALO', 'AVO', 'VOI']
 

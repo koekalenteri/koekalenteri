@@ -1,8 +1,8 @@
-import type { EventType, RegistrationClass, RegistrationTime } from '../../../types'
+import type { EventType, RegistrationClass, RegistrationTime } from '../../../../types'
 
 import { atom } from 'recoil'
 
-import { logEffect, storageEffect } from '../effects'
+import { logEffect, storageEffect } from '../../../recoil/effects'
 
 import { remoteEventTypesEffect } from './effects'
 

@@ -6,17 +6,18 @@ import Stack from '@mui/material/Stack'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
 import StyledDataGrid from '../components/StyledDataGrid'
-import { eventTypeFilterAtom, filteredEventTypesSelector, isAdminSelector, useEventTypeActions } from '../recoil'
+import { isAdminSelector } from '../recoil'
 
 import FullPageFlex from './components/FullPageFlex'
 import { QuickSearchToolbar } from './components/QuickSearchToolbar'
 import { useEventTypeListPageColumns } from './eventTypeListPage/columns'
+import { eventTypeFilterAtom, filteredEventTypesSelector, useAdminEventTypeActions } from './recoil'
 
 export default function EventTypeListPage() {
   const [searchText, setSearchText] = useRecoilState(eventTypeFilterAtom)
   const eventTypes = useRecoilValue(filteredEventTypesSelector)
   const isAdmin = useRecoilValue(isAdminSelector)
-  const actions = useEventTypeActions()
+  const actions = useAdminEventTypeActions()
   const { t } = useTranslation()
 
   const columns = useEventTypeListPageColumns()

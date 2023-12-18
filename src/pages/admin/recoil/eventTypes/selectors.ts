@@ -1,4 +1,4 @@
-import type { Language, RegistrationTime } from '../../../types'
+import type { Language, RegistrationTime } from '../../../../types'
 
 import i18next from 'i18next'
 import { selector, selectorFamily } from 'recoil'

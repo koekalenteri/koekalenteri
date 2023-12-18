@@ -3,7 +3,7 @@ import type { PublicDogEvent } from '../types'
 import { eachDayOfInterval } from 'date-fns'
 import { useRecoilValue } from 'recoil'
 
-import { eventTypeGroupsSelector } from '../pages/recoil'
+import { eventTypeGroupsSelector } from '../pages/admin/recoil'
 
 export const useEventRegistrationDates = (
   event: Pick<PublicDogEvent, 'classes' | 'eventType' | 'startDate' | 'endDate'>,

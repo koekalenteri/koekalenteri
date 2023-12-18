@@ -1,10 +1,10 @@
 import type { AtomEffect } from 'recoil'
-import type { EventType } from '../../../types'
+import type { EventType } from '../../../../types'
 
 import i18next from 'i18next'
 
-import { getEventTypes } from '../../../api/eventType'
-import { idTokenAtom } from '../user'
+import { getEventTypes } from '../../../../api/eventType'
+import { idTokenAtom } from '../../../recoil/user'
 
 let loaded = false
 

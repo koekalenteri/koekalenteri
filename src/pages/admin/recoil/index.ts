@@ -1,5 +1,6 @@
 export * from './emailTemplates'
 export * from './events'
+export * from './eventTypes'
 export * from './officials'
 export * from './organizers'
 export * from './registrations'

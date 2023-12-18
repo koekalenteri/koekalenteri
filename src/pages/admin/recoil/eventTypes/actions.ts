@@ -1,14 +1,14 @@
-import type { EventType } from '../../../types'
+import type { EventType } from '../../../../types'
 
 import i18next from 'i18next'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
-import { getEventTypes, putEventType } from '../../../api/eventType'
-import { idTokenAtom } from '../user'
+import { getEventTypes, putEventType } from '../../../../api/eventType'
+import { idTokenAtom } from '../../../recoil/user'
 
 import { eventTypesAtom } from './atoms'
 
-export const useEventTypeActions = () => {
+export const useAdminEventTypeActions = () => {
   const [eventTypes, setEventTypes] = useRecoilState(eventTypesAtom)
   const token = useRecoilValue(idTokenAtom)
 

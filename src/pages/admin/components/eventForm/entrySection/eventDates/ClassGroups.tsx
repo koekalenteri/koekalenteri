@@ -11,7 +11,7 @@ import { useRecoilValue } from 'recoil'
 
 import { type RegistrationClass } from '../../../../../../types'
 import AutocompleteMulti from '../../../../../components/AutocompleteMulti'
-import { eventTypeGroupsSelector } from '../../../../../recoil'
+import { eventTypeGroupsSelector } from '../../../../recoil'
 
 interface Props extends Pick<SectionProps, 'event' | 'onChange'> {
   eventClass: RegistrationClass
