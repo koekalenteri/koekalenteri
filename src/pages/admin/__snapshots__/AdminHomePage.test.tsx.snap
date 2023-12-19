@@ -75,7 +75,7 @@ exports[`AdminHomePage renders the child page content when user is logged in 1`]
         <div
           class="MuiBox-root css-13tqxrv"
         >
-          Ylläpito
+          admin
         </div>
         <span
           class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
@@ -305,7 +305,7 @@ exports[`AdminHomePage renders the page when user is logged in 1`] = `
         <div
           class="MuiBox-root css-13tqxrv"
         >
-          Ylläpito
+          admin
         </div>
         <span
           class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"

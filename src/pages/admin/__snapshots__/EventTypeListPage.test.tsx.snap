@@ -22,6 +22,31 @@ exports[`EventTypeListPage renders 1`] = `
             <svg
               aria-hidden="true"
               class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+              data-testid="AddCircleOutlineIcon"
+              focusable="false"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M13 7h-2v4H7v2h4v4h2v-4h4v-2h-4V7zm-1-5C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"
+              />
+            </svg>
+          </span>
+          eventType.create
+          <span
+            class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+          />
+        </button>
+        <button
+          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-mvwufc-MuiButtonBase-root-MuiButton-root"
+          tabindex="0"
+          type="button"
+        >
+          <span
+            class="MuiButton-startIcon MuiButton-iconSizeMedium css-1d6wzja-MuiButton-startIcon"
+          >
+            <svg
+              aria-hidden="true"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
               data-testid="CloudSyncIcon"
               focusable="false"
               viewBox="0 0 24 24"
@@ -70,8 +95,8 @@ exports[`EventTypeListPage renders 1`] = `
                 <input
                   aria-invalid="false"
                   class="MuiInputBase-input MuiInput-input MuiInputBase-inputAdornedStart MuiInputBase-inputAdornedEnd css-1x51dt5-MuiInputBase-input-MuiInput-input"
-                  id=":r0:"
-                  placeholder="searchPlaceholder"
+                  id=":r1:"
+                  placeholder="search.placeholder"
                   type="text"
                   value=""
                 />
@@ -122,12 +147,12 @@ exports[`EventTypeListPage renders 1`] = `
               >
                 <div
                   aria-colindex="1"
-                  aria-label="eventType"
+                  aria-label="eventType.eventType"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
                   data-field="eventType"
                   role="columnheader"
-                  style="height: 39px; width: 100px; min-width: 100px; max-width: 100px;"
+                  style="height: 39px; width: 180px; min-width: 180px; max-width: 180px;"
                   tabindex="0"
                 >
                   <div
@@ -147,7 +172,7 @@ exports[`EventTypeListPage renders 1`] = `
                           class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
-                          eventType
+                          eventType.eventType
                         </div>
                       </div>
                       <div
@@ -347,7 +372,7 @@ exports[`EventTypeListPage renders 1`] = `
                 </div>
                 <div
                   aria-colindex="4"
-                  aria-label="eventType"
+                  aria-label="eventType.description"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
                   data-field="description"
@@ -372,7 +397,7 @@ exports[`EventTypeListPage renders 1`] = `
                           class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
-                          eventType
+                          eventType.description
                         </div>
                       </div>
                       <div
@@ -454,7 +479,7 @@ exports[`EventTypeListPage renders 1`] = `
                     data-colindex="0"
                     data-field="eventType"
                     role="cell"
-                    style="min-width: 100px; max-width: 100px; min-height: 28px; max-height: 28px;"
+                    style="min-width: 180px; max-width: 180px; min-height: 28px; max-height: 28px;"
                     tabindex="-1"
                   >
                     <div

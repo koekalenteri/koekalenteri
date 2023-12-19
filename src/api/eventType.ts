@@ -1,4 +1,4 @@
-import type { EventType } from '../types'
+import type { EventType, EventTypeData } from '../types'
 
 import http, { withToken } from './http'
 
@@ -9,6 +9,6 @@ export async function getEventTypes(token: string, refresh?: boolean, signal?: A
   return http.get<Array<EventType>>(PATH + qs, withToken({ signal }, token))
 }
 
-export async function putEventType(eventType: EventType, token?: string, signal?: AbortSignal): Promise<EventType> {
-  return http.post<EventType, EventType>(PATH, eventType, withToken({ signal }, token))
+export async function putEventType(eventType: EventTypeData, token?: string, signal?: AbortSignal): Promise<EventType> {
+  return http.post<EventTypeData, EventType>(PATH, eventType, withToken({ signal }, token))
 }

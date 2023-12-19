@@ -79,8 +79,8 @@ describe('EventFilter', () => {
       organizer: ['2'],
     })
 
-    expect(screen.getByTestId('eventType')).toHaveTextContent(/NOME-B/i)
-    expect(screen.getByTestId('eventClass')).toHaveTextContent(/ALO/i)
+    expect(screen.getByTestId('filter.eventType')).toHaveTextContent(/NOME-B/i)
+    expect(screen.getByTestId('filter.eventClass')).toHaveTextContent(/ALO/i)
     expect(screen.getByTestId('judge')).toHaveTextContent(/Tuomari 2/i)
     expect(screen.getByTestId('filter.organizer')).toHaveTextContent(/Järjestäjä 2/i)
   })
@@ -98,10 +98,10 @@ describe('EventFilter', () => {
     const changeHandler = jest.fn()
     renderComponent({ start: null, end: null, eventType: [], eventClass: [], judge: [], organizer: [] }, changeHandler)
 
-    changeAutocompleteValue('eventType', 'NOME-A')
+    changeAutocompleteValue('filter.eventType', 'NOME-A')
     expect(changeHandler).toHaveBeenCalledTimes(1)
 
-    changeAutocompleteValue('eventClass', 'VOI')
+    changeAutocompleteValue('filter.eventClass', 'VOI')
     expect(changeHandler).toHaveBeenCalledTimes(2)
 
     changeAutocompleteValue('judge', 'Tuomari 1')

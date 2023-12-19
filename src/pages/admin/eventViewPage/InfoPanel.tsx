@@ -88,7 +88,7 @@ const InfoPanel = ({ event, registrations, onOpenMessageDialog }: Props) => {
             onChange={handleTabChange}
             sx={{ minHeight: '24px', '& .MuiTab-root': { p: '4px 16px', minHeight: '24px', fontWeight: 'bold' } }}
           >
-            <Tab label="Kokeen tilanne" />
+            <Tab label="Tapahtuman tilanne" />
             <Tab label="Tehtävälista" />
           </Tabs>
         ) : (

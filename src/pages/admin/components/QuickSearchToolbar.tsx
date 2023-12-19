@@ -27,7 +27,7 @@ export function QuickSearchToolbar(props: QuickSearchToolbarProps) {
           variant="standard"
           value={props.value}
           onChange={props.onChange}
-          placeholder={t('searchPlaceholder')}
+          placeholder={t('search.placeholder')}
           InputProps={{
             startAdornment: <Search fontSize="small" />,
             endAdornment: (

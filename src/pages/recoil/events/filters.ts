@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next'
 import type { PublicDogEvent } from '../../../types'
 import type { FilterProps } from './atoms'
 
@@ -122,28 +123,34 @@ export function deserializeFilter(input: string) {
   return result
 }
 
-export function filterString(filter: FilterProps): string {
+export function filterString(filter: FilterProps, t: TFunction): string {
   const filters: string[] = []
   if (filter.start) {
     if (filter.end) {
-      filters.push(`PVM: ${format(filter.start, 'dd.MM.yyyy')} - ${format(filter.end, 'dd.MM.yyyy')}`)
+      filters.push(`${t('daterangeBoth')}: ${format(filter.start, 'dd.MM.yyyy')} - ${format(filter.end, 'dd.MM.yyyy')}`)
     } else {
-      filters.push(`PVM: alkaen ${format(filter.start, 'dd.MM.yyyy')}`)
+      filters.push(`${t('daterangeStart')}: ${format(filter.start, 'dd.MM.yyyy')}`)
     }
   } else if (filter.end) {
-    filters.push(`PVM: päättyen ${format(filter.end, 'dd.MM.yyyy')}`)
+    filters.push(`${t('daterangeEnd')}: ${format(filter.end, 'dd.MM.yyyy')}`)
   }
   if (filter.eventType?.length) {
-    filters.push('Koemuoto: ' + filter.eventType.join(', '))
+    filters.push(t('eventTypes') + ': ' + filter.eventType.join(', '))
   }
   if (filter.eventClass?.length) {
-    filters.push('Koeluokka: ' + filter.eventClass.join(', '))
+    filters.push(t('event.classes') + ': ' + filter.eventClass.join(', '))
   }
   if (filter.organizer?.length) {
     filters.push('Järjestäjät: ' + filter.organizer.length)
   }
   if (filter.judge?.length) {
     filters.push('Tuomarit: ' + filter.judge.length)
+  }
+  if (filter.withOpenEntry) {
+    filters.push(t('entryOpen'))
+  }
+  if (filter.withUpcomingEntry) {
+    filters.push(t('entryUpcoming'))
   }
 
   return filters.join(' | ')

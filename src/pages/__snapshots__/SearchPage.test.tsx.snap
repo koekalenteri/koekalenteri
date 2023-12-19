@@ -20,7 +20,7 @@ exports[`SearchPage filters by date - no-results 1`] = `
           <span
             class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-789e9x-MuiTypography-root"
           >
-            PVM: 01.03.2021 - 01.03.2021
+            daterangeBoth: 01.03.2021 - 01.03.2021
           </span>
         </div>
         <div
@@ -206,7 +206,7 @@ exports[`SearchPage filters by date - no-results 1`] = `
                   >
                     <div
                       class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1kkal6p-MuiAutocomplete-root"
-                      data-testid="eventType"
+                      data-testid="filter.eventType"
                     >
                       <div
                         class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
@@ -217,7 +217,7 @@ exports[`SearchPage filters by date - no-results 1`] = `
                           for=":r1k:"
                           id=":r1k:-label"
                         >
-                          eventType
+                          filter.eventType
                         </label>
                         <div
                           class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1tenv44-MuiInputBase-root-MuiOutlinedInput-root"
@@ -268,7 +268,7 @@ exports[`SearchPage filters by date - no-results 1`] = `
                               class="css-yjsfm1"
                             >
                               <span>
-                                eventType
+                                filter.eventType
                               </span>
                             </legend>
                           </fieldset>
@@ -281,7 +281,7 @@ exports[`SearchPage filters by date - no-results 1`] = `
                   >
                     <div
                       class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1kkal6p-MuiAutocomplete-root"
-                      data-testid="eventClass"
+                      data-testid="filter.eventClass"
                     >
                       <div
                         class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
@@ -292,7 +292,7 @@ exports[`SearchPage filters by date - no-results 1`] = `
                           for=":r1m:"
                           id=":r1m:-label"
                         >
-                          eventClass
+                          filter.eventClass
                         </label>
                         <div
                           class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1tenv44-MuiInputBase-root-MuiOutlinedInput-root"
@@ -343,7 +343,7 @@ exports[`SearchPage filters by date - no-results 1`] = `
                               class="css-yjsfm1"
                             >
                               <span>
-                                eventClass
+                                filter.eventClass
                               </span>
                             </legend>
                           </fieldset>
@@ -609,7 +609,7 @@ exports[`SearchPage filters by date 1`] = `
           <span
             class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-789e9x-MuiTypography-root"
           >
-            PVM: 01.01.2021 - 01.03.2021
+            daterangeBoth: 01.01.2021 - 01.03.2021
           </span>
         </div>
         <div
@@ -795,7 +795,7 @@ exports[`SearchPage filters by date 1`] = `
                   >
                     <div
                       class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1kkal6p-MuiAutocomplete-root"
-                      data-testid="eventType"
+                      data-testid="filter.eventType"
                     >
                       <div
                         class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
@@ -806,7 +806,7 @@ exports[`SearchPage filters by date 1`] = `
                           for=":r18:"
                           id=":r18:-label"
                         >
-                          eventType
+                          filter.eventType
                         </label>
                         <div
                           class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1tenv44-MuiInputBase-root-MuiOutlinedInput-root"
@@ -858,7 +858,7 @@ exports[`SearchPage filters by date 1`] = `
                               class="css-yjsfm1"
                             >
                               <span>
-                                eventType
+                                filter.eventType
                               </span>
                             </legend>
                           </fieldset>
@@ -871,7 +871,7 @@ exports[`SearchPage filters by date 1`] = `
                   >
                     <div
                       class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1kkal6p-MuiAutocomplete-root"
-                      data-testid="eventClass"
+                      data-testid="filter.eventClass"
                     >
                       <div
                         class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
@@ -882,7 +882,7 @@ exports[`SearchPage filters by date 1`] = `
                           for=":r1a:"
                           id=":r1a:-label"
                         >
-                          eventClass
+                          filter.eventClass
                         </label>
                         <div
                           class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1tenv44-MuiInputBase-root-MuiOutlinedInput-root"
@@ -934,7 +934,7 @@ exports[`SearchPage filters by date 1`] = `
                               class="css-yjsfm1"
                             >
                               <span>
-                                eventClass
+                                filter.eventClass
                               </span>
                             </legend>
                           </fieldset>
@@ -2471,7 +2471,7 @@ exports[`SearchPage filters by date/end 1`] = `
           <span
             class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-789e9x-MuiTypography-root"
           >
-            PVM: päättyen 01.03.2021
+            daterangeEnd: 01.03.2021
           </span>
         </div>
         <div
@@ -2657,7 +2657,7 @@ exports[`SearchPage filters by date/end 1`] = `
                   >
                     <div
                       class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1kkal6p-MuiAutocomplete-root"
-                      data-testid="eventType"
+                      data-testid="filter.eventType"
                     >
                       <div
                         class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
@@ -2668,7 +2668,7 @@ exports[`SearchPage filters by date/end 1`] = `
                           for=":rs:"
                           id=":rs:-label"
                         >
-                          eventType
+                          filter.eventType
                         </label>
                         <div
                           class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1tenv44-MuiInputBase-root-MuiOutlinedInput-root"
@@ -2720,7 +2720,7 @@ exports[`SearchPage filters by date/end 1`] = `
                               class="css-yjsfm1"
                             >
                               <span>
-                                eventType
+                                filter.eventType
                               </span>
                             </legend>
                           </fieldset>
@@ -2733,7 +2733,7 @@ exports[`SearchPage filters by date/end 1`] = `
                   >
                     <div
                       class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1kkal6p-MuiAutocomplete-root"
-                      data-testid="eventClass"
+                      data-testid="filter.eventClass"
                     >
                       <div
                         class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
@@ -2744,7 +2744,7 @@ exports[`SearchPage filters by date/end 1`] = `
                           for=":ru:"
                           id=":ru:-label"
                         >
-                          eventClass
+                          filter.eventClass
                         </label>
                         <div
                           class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1tenv44-MuiInputBase-root-MuiOutlinedInput-root"
@@ -2796,7 +2796,7 @@ exports[`SearchPage filters by date/end 1`] = `
                               class="css-yjsfm1"
                             >
                               <span>
-                                eventClass
+                                filter.eventClass
                               </span>
                             </legend>
                           </fieldset>
@@ -4333,7 +4333,7 @@ exports[`SearchPage filters by event class 1`] = `
           <span
             class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-789e9x-MuiTypography-root"
           >
-            Koeluokka: AVO
+            event.classes: AVO
           </span>
         </div>
         <div
@@ -4519,7 +4519,7 @@ exports[`SearchPage filters by event class 1`] = `
                   >
                     <div
                       class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1kkal6p-MuiAutocomplete-root"
-                      data-testid="eventType"
+                      data-testid="filter.eventType"
                     >
                       <div
                         class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
@@ -4530,7 +4530,7 @@ exports[`SearchPage filters by event class 1`] = `
                           for=":r2c:"
                           id=":r2c:-label"
                         >
-                          eventType
+                          filter.eventType
                         </label>
                         <div
                           class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1tenv44-MuiInputBase-root-MuiOutlinedInput-root"
@@ -4582,7 +4582,7 @@ exports[`SearchPage filters by event class 1`] = `
                               class="css-yjsfm1"
                             >
                               <span>
-                                eventType
+                                filter.eventType
                               </span>
                             </legend>
                           </fieldset>
@@ -4595,7 +4595,7 @@ exports[`SearchPage filters by event class 1`] = `
                   >
                     <div
                       class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasClearIcon MuiAutocomplete-hasPopupIcon css-1kkal6p-MuiAutocomplete-root"
-                      data-testid="eventClass"
+                      data-testid="filter.eventClass"
                     >
                       <div
                         class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
@@ -4606,7 +4606,7 @@ exports[`SearchPage filters by event class 1`] = `
                           for=":r2e:"
                           id=":r2e:-label"
                         >
-                          eventClass
+                          filter.eventClass
                         </label>
                         <div
                           class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1u8w1x9-MuiInputBase-root-MuiOutlinedInput-root"
@@ -4703,7 +4703,7 @@ exports[`SearchPage filters by event class 1`] = `
                               class="css-14lo706"
                             >
                               <span>
-                                eventClass
+                                filter.eventClass
                               </span>
                             </legend>
                           </fieldset>
@@ -6313,7 +6313,7 @@ exports[`SearchPage filters by event type 1`] = `
           <span
             class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-789e9x-MuiTypography-root"
           >
-            Koemuoto: NOME-B
+            eventTypes: NOME-B
           </span>
         </div>
         <div
@@ -6499,7 +6499,7 @@ exports[`SearchPage filters by event type 1`] = `
                   >
                     <div
                       class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasClearIcon MuiAutocomplete-hasPopupIcon css-1kkal6p-MuiAutocomplete-root"
-                      data-testid="eventType"
+                      data-testid="filter.eventType"
                     >
                       <div
                         class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
@@ -6510,7 +6510,7 @@ exports[`SearchPage filters by event type 1`] = `
                           for=":r20:"
                           id=":r20:-label"
                         >
-                          eventType
+                          filter.eventType
                         </label>
                         <div
                           class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1u8w1x9-MuiInputBase-root-MuiOutlinedInput-root"
@@ -6607,7 +6607,7 @@ exports[`SearchPage filters by event type 1`] = `
                               class="css-14lo706"
                             >
                               <span>
-                                eventType
+                                filter.eventType
                               </span>
                             </legend>
                           </fieldset>
@@ -6620,7 +6620,7 @@ exports[`SearchPage filters by event type 1`] = `
                   >
                     <div
                       class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1kkal6p-MuiAutocomplete-root"
-                      data-testid="eventClass"
+                      data-testid="filter.eventClass"
                     >
                       <div
                         class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
@@ -6631,7 +6631,7 @@ exports[`SearchPage filters by event type 1`] = `
                           for=":r22:"
                           id=":r22:-label"
                         >
-                          eventClass
+                          filter.eventClass
                         </label>
                         <div
                           class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1tenv44-MuiInputBase-root-MuiOutlinedInput-root"
@@ -6683,7 +6683,7 @@ exports[`SearchPage filters by event type 1`] = `
                               class="css-yjsfm1"
                             >
                               <span>
-                                eventClass
+                                filter.eventClass
                               </span>
                             </legend>
                           </fieldset>
@@ -8514,7 +8514,7 @@ exports[`SearchPage filters by organizer 1`] = `
                   >
                     <div
                       class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1kkal6p-MuiAutocomplete-root"
-                      data-testid="eventType"
+                      data-testid="filter.eventType"
                     >
                       <div
                         class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
@@ -8525,7 +8525,7 @@ exports[`SearchPage filters by organizer 1`] = `
                           for=":r2o:"
                           id=":r2o:-label"
                         >
-                          eventType
+                          filter.eventType
                         </label>
                         <div
                           class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1tenv44-MuiInputBase-root-MuiOutlinedInput-root"
@@ -8577,7 +8577,7 @@ exports[`SearchPage filters by organizer 1`] = `
                               class="css-yjsfm1"
                             >
                               <span>
-                                eventType
+                                filter.eventType
                               </span>
                             </legend>
                           </fieldset>
@@ -8590,7 +8590,7 @@ exports[`SearchPage filters by organizer 1`] = `
                   >
                     <div
                       class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1kkal6p-MuiAutocomplete-root"
-                      data-testid="eventClass"
+                      data-testid="filter.eventClass"
                     >
                       <div
                         class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
@@ -8601,7 +8601,7 @@ exports[`SearchPage filters by organizer 1`] = `
                           for=":r2q:"
                           id=":r2q:-label"
                         >
-                          eventClass
+                          filter.eventClass
                         </label>
                         <div
                           class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1tenv44-MuiInputBase-root-MuiOutlinedInput-root"
@@ -8653,7 +8653,7 @@ exports[`SearchPage filters by organizer 1`] = `
                               class="css-yjsfm1"
                             >
                               <span>
-                                eventClass
+                                filter.eventClass
                               </span>
                             </legend>
                           </fieldset>

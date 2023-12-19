@@ -62,7 +62,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         tabindex="0"
                         type="button"
                       >
-                        Kokeen tilanne
+                        Tapahtuman tilanne
                         <span
                           class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
                         />
@@ -338,7 +338,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
               />
             </svg>
           </span>
-          Näytä kokeen tiedot
+          Näytä tapahtuman tiedot
           <span
             class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
           />
@@ -5215,7 +5215,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         tabindex="0"
                         type="button"
                       >
-                        Kokeen tilanne
+                        Tapahtuman tilanne
                         <span
                           class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
                         />
@@ -5491,7 +5491,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
               />
             </svg>
           </span>
-          Näytä kokeen tiedot
+          Näytä tapahtuman tiedot
           <span
             class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
           />

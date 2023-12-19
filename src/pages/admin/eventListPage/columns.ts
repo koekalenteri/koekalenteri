@@ -31,6 +31,7 @@ export default function useEventListColumns(): GridColDef<EventWithDate>[] {
       field: 'eventType',
       headerName: t('event.eventType'),
       minWidth: 100,
+      flex: 1,
       hideable: false,
     },
     {
@@ -48,13 +49,13 @@ export default function useEventListColumns(): GridColDef<EventWithDate>[] {
       headerName: t('event.organizer'),
       minWidth: 100,
       valueGetter: (params) => params.row.organizer.name,
-      flex: 1,
+      flex: 2,
     },
     {
       field: 'name',
       headerName: t('event.name'),
       minWidth: 100,
-      flex: 1,
+      flex: 2,
     },
     {
       field: 'location',

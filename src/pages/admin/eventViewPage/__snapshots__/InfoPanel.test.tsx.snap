@@ -32,7 +32,7 @@ exports[`InfoPanel> renders with event with closed entry and registrations 1`] =
                 tabindex="0"
                 type="button"
               >
-                Kokeen tilanne
+                Tapahtuman tilanne
                 <span
                   class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
                 />
@@ -391,7 +391,7 @@ exports[`InfoPanel> renders with event with closed entry and registrations with 
                 tabindex="0"
                 type="button"
               >
-                Kokeen tilanne
+                Tapahtuman tilanne
                 <span
                   class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
                 />
@@ -750,7 +750,7 @@ exports[`InfoPanel> renders with no registrations 1`] = `
                 tabindex="0"
                 type="button"
               >
-                Kokeen tilanne
+                Tapahtuman tilanne
                 <span
                   class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
                 />

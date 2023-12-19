@@ -13,6 +13,7 @@
   "create": "Create",
   "createEvent": "Create event",
   "date": "Date",
+  "daterangeBoth": "Events between",
   "daterangeEnd": "Events to",
   "daterangeStart": "Events from",
   "delete": "Delete",
@@ -115,13 +116,16 @@
     },
     "statusText": ""
   },
-  "eventClass": "Event class",
   "eventInfo": "Event information",
   "eventTime": "Event time",
-  "eventType": "Event type",
   "eventType_short": "Abbreviation",
   "eventTypes": "Event types",
   "events": "Events",
+  "filter": {
+    "eventClass": "Event class",
+    "eventType": "Event type",
+    "organizer": "Organizer"
+  },
   "goBack": "Back",
   "goBackToSearch": "Back to search results",
   "goHome": "Home",
@@ -147,6 +151,7 @@
   "officials": "Officers",
   "organizations": "Organizations",
   "organizer": "Organizer",
+  "paymentDetails": "Payment details",
   "places": "Places",
   "register": "Register",
   "registration": {
@@ -220,7 +225,9 @@
     }
   },
   "registrations": "Registrations",
-  "searchPlaceholder": "Search...",
+  "search": {
+    "placeholder": "Search..."
+  },
   "size": {
     "fi": "Koko suomeksi",
     "en": "Koko englanniksi"

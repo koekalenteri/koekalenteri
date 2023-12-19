@@ -115,7 +115,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
             <p
               class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
             >
-              Kokeen perustiedot
+              Tapahtuman perustiedot
             </p>
             <p
               class="MuiFormHelperText-root Mui-error css-9tosq5-MuiFormHelperText-root"

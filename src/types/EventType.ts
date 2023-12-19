@@ -11,4 +11,6 @@ export interface EventType extends DbRecord {
   official?: boolean
 }
 
-export type JsonEventType = Omit<EventType, keyof DbRecord> & JsonDbRecord
+export type EventTypeData = Omit<EventType, keyof DbRecord>
+
+export type JsonEventType = EventTypeData & JsonDbRecord

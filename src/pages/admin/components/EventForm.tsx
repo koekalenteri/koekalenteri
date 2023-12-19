@@ -87,6 +87,10 @@ export default function EventForm({ event, changes, disabled, onSave, onCancel, 
       event.organizer?.id ? users.filter((u) => !!u.officer || !!u.roles?.[event.organizer?.id ?? '']) : officials,
     [event.organizer?.id, officials, users]
   )
+  const selectedEventType = useMemo(
+    () => activeEventTypes?.find((et) => et.eventType === event.eventType),
+    [activeEventTypes, event.eventType]
+  )
 
   const handleChange = useCallback(
     (props: DeepPartial<DogEvent>) => {
@@ -197,6 +201,7 @@ export default function EventForm({ event, changes, disabled, onSave, onCancel, 
           open={open.basic}
           organizers={organizers}
           secretaries={secretaries}
+          selectedEventType={selectedEventType}
         />
         <JudgesSection
           disabled={allDisabled}
@@ -208,6 +213,7 @@ export default function EventForm({ event, changes, disabled, onSave, onCancel, 
           onChange={handleChange}
           onOpenChange={handleJudgesOpenChange}
           open={open.judges}
+          selectedEventType={selectedEventType}
         />
         <EntrySection
           disabled={allDisabled}

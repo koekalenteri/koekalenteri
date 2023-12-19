@@ -118,7 +118,7 @@ export default function EventViewPage() {
 
         <Stack direction="row" spacing={2}>
           <Button startIcon={<FormatListBulleted />} onClick={() => setDetailsOpen(true)}>
-            Näytä kokeen tiedot
+            Näytä tapahtuman tiedot
           </Button>
           <Button startIcon={<EmailOutlined />} onClick={openMsgDlg}>
             Lähetä viesti

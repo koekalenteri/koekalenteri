@@ -1,4 +1,4 @@
-import type { ClassJudge, DeepPartial, EventClass, Judge } from '../../../../types'
+import type { ClassJudge, DeepPartial, EventClass, EventType, Judge } from '../../../../types'
 import type { SectionProps } from '../EventForm'
 
 import { useMemo } from 'react'
@@ -15,9 +15,9 @@ import CollapsibleSection from '../../../components/CollapsibleSection'
 import EventClasses from './components/EventClasses'
 import { validateEventField } from './validation'
 
-function filterJudges(judges: Judge[], eventJudges: number[], id: number | undefined, eventType?: string) {
+function filterJudges(judges: Judge[], eventJudges: number[], id: number | undefined, eventType?: EventType) {
   return judges
-    .filter((j) => !eventType || j.eventTypes.includes(eventType))
+    .filter((j) => !eventType?.official || j.eventTypes.includes(eventType.eventType))
     .filter((j) => j.id === id || !eventJudges.includes(j.id))
 }
 
@@ -31,9 +31,19 @@ function filterClassesByJudgeId(classes?: EventClass[], id?: number) {
 
 interface Props extends Readonly<SectionProps> {
   readonly judges: Judge[]
+  readonly selectedEventType?: EventType
 }
 
-export default function JudgesSection({ event, disabled, judges, fields, onChange, onOpenChange, open }: Props) {
+export default function JudgesSection({
+  event,
+  disabled,
+  judges,
+  fields,
+  onChange,
+  onOpenChange,
+  open,
+  selectedEventType,
+}: Props) {
   const { t } = useTranslation()
   const list = event.judges
   const validationError = useMemo(
@@ -101,7 +111,7 @@ export default function JudgesSection({ event, disabled, judges, fields, onChang
                   error={!!id && !value}
                   helperText={!!id && !value ? `Tuomari ${id} ei ole käytettävissä` : ''}
                   getOptionLabel={(o) => o?.name || ''}
-                  options={filterJudges(judges, event.judges, id, event.eventType)}
+                  options={filterJudges(judges, event.judges, id, selectedEventType)}
                   onChange={(value) => {
                     const newId = value?.id
                     const newJudges = [...event.judges]

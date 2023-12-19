@@ -14,6 +14,7 @@ exports[`useEventListColumns should match snapshot 1`] = `
   },
   {
     "field": "eventType",
+    "flex": 1,
     "headerName": "event.eventType",
     "hideable": false,
     "minWidth": 100,
@@ -27,14 +28,14 @@ exports[`useEventListColumns should match snapshot 1`] = `
   },
   {
     "field": "organizer",
-    "flex": 1,
+    "flex": 2,
     "headerName": "event.organizer",
     "minWidth": 100,
     "valueGetter": [Function],
   },
   {
     "field": "name",
-    "flex": 1,
+    "flex": 2,
     "headerName": "event.name",
     "minWidth": 100,
   },

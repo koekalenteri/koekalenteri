@@ -12,7 +12,8 @@ export function useEventTypeListPageColumns(): GridColDef<EventType>[] {
   return [
     {
       field: 'eventType',
-      headerName: t('eventType', '', { context: 'short' }),
+      headerName: t('eventType.eventType'),
+      width: 180,
     },
     {
       align: 'center',
@@ -29,7 +30,7 @@ export function useEventTypeListPageColumns(): GridColDef<EventType>[] {
     },
     {
       field: 'description',
-      headerName: t('eventType'),
+      headerName: t('eventType.description'),
       flex: 1,
       valueGetter: (params) => params.value[i18n.language],
     },

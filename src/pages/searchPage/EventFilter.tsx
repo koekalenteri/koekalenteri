@@ -36,7 +36,7 @@ const MIN_DATE = new Date(2020, 0, 1)
 export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filter, onChange }: Props) => {
   const { t } = useTranslation()
   const md = useMediaQuery((theme: Theme) => theme.breakpoints.up('sm'))
-  const filterText = useMemo(() => filterString(filter), [filter])
+  const filterText = useMemo(() => filterString(filter, t), [filter, t])
 
   const setFilter = useCallback(
     (props: Partial<FilterProps>) => onChange && onChange({ ...filter, ...props }),
@@ -120,7 +120,7 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
             <Grid item xs={12} sm={6} md={4}>
               <AutocompleteMulti
                 getOptionLabel={getString}
-                label={t('eventType')}
+                label={t('filter.eventType')}
                 onChange={handleEventTypeChange}
                 options={eventTypes}
                 value={filter.eventType}
@@ -129,7 +129,7 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
             <Grid item xs={12} sm={6} md={2}>
               <AutocompleteMulti
                 getOptionLabel={getString}
-                label={t('eventClass')}
+                label={t('filter.eventClass')}
                 onChange={handleEventClassChange}
                 options={eventClasses}
                 value={filter.eventClass}

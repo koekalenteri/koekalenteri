@@ -123,7 +123,7 @@ exports[`OrganizerListPage renders 1`] = `
                   aria-invalid="false"
                   class="MuiInputBase-input MuiInput-input MuiInputBase-inputAdornedStart MuiInputBase-inputAdornedEnd css-1x51dt5-MuiInputBase-input-MuiInput-input"
                   id=":r2:"
-                  placeholder="searchPlaceholder"
+                  placeholder="search.placeholder"
                   type="text"
                   value=""
                 />

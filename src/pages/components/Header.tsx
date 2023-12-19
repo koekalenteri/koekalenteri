@@ -1,4 +1,5 @@
 import { Suspense, useCallback, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import ManageAccountsOutlined from '@mui/icons-material/ManageAccountsOutlined'
 import Menu from '@mui/icons-material/Menu'
@@ -21,6 +22,7 @@ interface Props {
 }
 
 const Header = ({ toggleMenu }: Props) => {
+  const { t } = useTranslation()
   const actions = useUserActions()
   const navigate = useNavigate()
   const user = useRecoilValue(userSelector)
@@ -62,7 +64,7 @@ const Header = ({ toggleMenu }: Props) => {
         </AppBarButton>
         {hasAdminAccess ? (
           <AppBarButton active={inAdmin} startIcon={<ManageAccountsOutlined />} onClick={handleAdminClick}>
-            Ylläpito
+            {t('admin')}
           </AppBarButton>
         ) : null}
         <Typography

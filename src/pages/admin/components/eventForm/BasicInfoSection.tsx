@@ -1,5 +1,14 @@
 import type { ChangeEvent, SyntheticEvent } from 'react'
-import type { DeepPartial, DogEvent, EventClass, Organizer, Person, RegistrationClass, User } from '../../../../types'
+import type {
+  DeepPartial,
+  DogEvent,
+  EventClass,
+  EventType,
+  Organizer,
+  Person,
+  RegistrationClass,
+  User,
+} from '../../../../types'
 import type { DateValue } from '../../../components/DateRange'
 import type { PartialEvent, SectionProps } from '../EventForm'
 
@@ -30,6 +39,7 @@ export interface Props extends Readonly<SectionProps> {
   readonly officials?: User[]
   readonly organizers?: Organizer[]
   readonly secretaries?: User[]
+  readonly selectedEventType?: EventType
 }
 
 export default function BasicInfoSection({
@@ -46,10 +56,14 @@ export default function BasicInfoSection({
   organizers,
   onChange,
   secretaries,
+  selectedEventType,
 }: Props) {
   const { t } = useTranslation()
   const [helpAnchorEl, setHelpAnchorEl] = useState<HTMLButtonElement | null>(null)
-  const typeOptions = eventClassOptions(event, eventTypeClasses?.[event.eventType ?? ''] ?? [])
+  const typeOptions = eventClassOptions(
+    event,
+    selectedEventType?.official ? eventTypeClasses?.[event.eventType ?? ''] ?? [] : ['ALO', 'AVO', 'VOI']
+  )
   const error =
     (errorStates &&
       (errorStates.startDate ||
@@ -67,9 +81,13 @@ export default function BasicInfoSection({
     : t('validation.event.effectiveRules', { date: new Date(getRuleDate(event.startDate)) })
   const availableOfficials = useMemo(
     () =>
-      officials?.filter((o) => !event.eventType || (Array.isArray(o.officer) && o.officer.includes(event.eventType))) ??
-      [],
-    [event.eventType, officials]
+      officials?.filter(
+        (o) =>
+          !selectedEventType?.official ||
+          !event.eventType ||
+          (Array.isArray(o.officer) && o.officer.includes(event.eventType))
+      ) ?? [],
+    [event.eventType, officials, selectedEventType?.official]
   )
   const hasEntries = (event.entries ?? 0) > 0
   const handleDateChange = useCallback(
@@ -132,7 +150,7 @@ export default function BasicInfoSection({
 
   return (
     <CollapsibleSection
-      title="Kokeen perustiedot"
+      title="Tapahtuman perustiedot"
       open={open}
       onOpenChange={onOpenChange}
       error={error}

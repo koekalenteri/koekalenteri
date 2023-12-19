@@ -33,6 +33,7 @@
   },
   "datemask": "__.__.____",
   "daterange": "{{ start, datespan(end: undefined) }}",
+  "daterangeBoth": "Tapahtumat väliltä",
   "daterangeEnd": "Tapahtumat päättyen",
   "daterangeStart": "Tapahtumat alkaen",
   "delete": "Poista",
@@ -96,12 +97,12 @@
     "deletedAt": "Poistoaika",
     "deletedBy": "Poistaja",
     "description": "Lisätiedot",
-    "endDate": "Kokeen päättymispäivä",
+    "endDate": "Tapahtuman päättymispäivä",
     "entries": "Ilmoittautumisia",
     "entryEndDate": "Ilmoittautumisen päättymispäivä",
     "entryOrigEndDate": "Alkuperäinen ilmoittautumisen päättymispäivä",
     "entryStartDate": "Ilmoittautumisen alkamispäivä",
-    "eventType": "Koemuoto",
+    "eventType": "Tyyppi",
     "headquarters": {
       "address": "Katuosoite",
       "name": "Nimi",
@@ -123,7 +124,7 @@
     "places": "Paikkoja",
     "priority": "Etusijat",
     "secretary": "Koesihteeri",
-    "startDate": "Kokeen alkamispäivä",
+    "startDate": "Tapahtuman alkamispäivä",
     "state": "Tila",
     "states": {
       "cancelled": "Peruttu",
@@ -150,14 +151,29 @@
     "saved": "Muutokset tallennettu",
     "statusText": ""
   },
-  "eventClass": "Koeluokka",
   "eventInfo": "Tapahtuman tiedot",
   "eventTime": "Ajankohta",
-  "eventType": "Koemuoto",
-  "eventType_short": "Lyhenne",
-  "eventTypes": "Koemuodot",
+  "eventType": {
+    "create": "Lisää uusi tapahtumatyyppi",
+    "createDialog": {
+      "cta": "Lisää tapahtumatyyppi",
+      "done": "Tapahtumatyyppi lisätty",
+      "eventType": "Lyhenne",
+      "description": {
+        "fi": "Kuvaus suomeksi",
+        "en": "Kuvaus englanniksi",
+        "sv": "Kuvaus ruotsiksi"
+      },
+      "title": "Tapahtumatyypin lisäys"
+    },
+    "description": "Kuvaus",
+    "eventType": "Lyhenne"
+  },
+  "eventTypes": "Tapahtumatyypit",
   "events": "Tapahtumat",
   "filter": {
+    "eventClass": "Luokka",
+    "eventType": "Tapahtumatyyppi",
     "organizer": "Järjestäjä"
   },
   "goBack": "Takaisin",
@@ -300,7 +316,9 @@
     "fi": "Koko suomeksi",
     "en": "Koko englanniksi"
   },
-  "searchPlaceholder": "Hae...",
+  "search": {
+    "placeholder": "Hae..."
+  },
   "support": "Tuki",
   "supportContact": "Lähetä palautetta",
   "templateId": "Viestin nimi",
