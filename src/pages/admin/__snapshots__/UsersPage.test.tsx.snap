@@ -75,7 +75,7 @@ exports[`OrganizerListPage renders 1`] = `
             aria-haspopup="menu"
             aria-label="Select columns"
             class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall css-1ddbqw-MuiButtonBase-root-MuiButton-root"
-            id=":r2:"
+            id=":r1:"
             tabindex="0"
             type="button"
           >
@@ -122,7 +122,7 @@ exports[`OrganizerListPage renders 1`] = `
                 <input
                   aria-invalid="false"
                   class="MuiInputBase-input MuiInput-input MuiInputBase-inputAdornedStart MuiInputBase-inputAdornedEnd css-1x51dt5-MuiInputBase-input-MuiInput-input"
-                  id=":r4:"
+                  id=":r3:"
                   placeholder="search.placeholder"
                   type="text"
                   value=""
@@ -169,8 +169,8 @@ exports[`OrganizerListPage renders 1`] = `
                   <label
                     class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeSmall MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeSmall MuiInputLabel-outlined css-1cwx9dy-MuiFormLabel-root-MuiInputLabel-root"
                     data-shrink="true"
-                    for=":r5:"
-                    id=":r5:-label"
+                    for=":r4:"
+                    id=":r4:-label"
                   >
                     Yhdistys
                   </label>
@@ -185,7 +185,7 @@ exports[`OrganizerListPage renders 1`] = `
                       autocomplete="off"
                       class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputSizeSmall MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-19qh8xo-MuiInputBase-input-MuiOutlinedInput-input"
                       disabled=""
-                      id=":r5:"
+                      id=":r4:"
                       role="combobox"
                       spellcheck="false"
                       type="text"

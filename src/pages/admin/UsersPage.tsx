@@ -33,7 +33,7 @@ import {
   adminUsersOrganizerIdAtom,
   adminUsersOrganizersSelector,
   currentAdminUserSelector,
-  filteredUsersSelector,
+  filteredAdminUsersSelector,
 } from './recoil'
 
 const IconPlaceholder = () => <StarsOutlined sx={{ color: 'transparent' }} fontSize="small" />
@@ -97,7 +97,7 @@ export default function UsersPage() {
   const orgs = useRecoilValue(adminUsersOrganizersSelector)
   const [orgId, setOrgId] = useRecoilState(adminUsersOrganizerIdAtom)
   const options = useMemo(() => [{ id: '', name: 'Kaikki' }, ...orgs], [orgs])
-  const users = useRecoilValue(filteredUsersSelector)
+  const users = useRecoilValue(filteredAdminUsersSelector)
 
   const [selectedUserID, setSelectedUserID] = useRecoilState(adminUserIdAtom)
   const selectedUser = useRecoilValue(currentAdminUserSelector)
