@@ -1235,7 +1235,7 @@ exports[`EventForm should render 1`] = `
                               for="class0"
                               id="class0-label"
                             >
-                              Arvostelee koeluokat
+                              Arvostelee luokat
                             </label>
                             <div
                               class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1tenv44-MuiInputBase-root-MuiOutlinedInput-root"
@@ -1286,7 +1286,7 @@ exports[`EventForm should render 1`] = `
                                   class="css-yjsfm1"
                                 >
                                   <span>
-                                    Arvostelee koeluokat
+                                    Arvostelee luokat
                                   </span>
                                 </legend>
                               </fieldset>

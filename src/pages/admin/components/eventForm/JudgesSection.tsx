@@ -134,7 +134,7 @@ export default function JudgesSection({
                   eventEndDate={event.endDate}
                   value={filterClassesByJudgeId(event.classes, id)}
                   classes={[...event.classes]}
-                  label="Arvostelee koeluokat"
+                  label="Arvostelee luokat"
                   onChange={(_e, values) =>
                     onChange?.({
                       classes: updateJudge(id, [...values]),

@@ -150,7 +150,7 @@ exports[`JudgeSection should hide classes for NOWT event (KOE-317) 1`] = `
                           for="class0"
                           id="class0-label"
                         >
-                          Arvostelee koeluokat
+                          Arvostelee luokat
                         </label>
                         <div
                           class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-154xyx0-MuiInputBase-root-MuiOutlinedInput-root"
@@ -202,7 +202,7 @@ exports[`JudgeSection should hide classes for NOWT event (KOE-317) 1`] = `
                               class="css-yjsfm1"
                             >
                               <span>
-                                Arvostelee koeluokat
+                                Arvostelee luokat
                               </span>
                             </legend>
                           </fieldset>
@@ -429,7 +429,7 @@ exports[`JudgeSection should not warn about judge 0 not beign available (KOE-357
                           for="class0"
                           id="class0-label"
                         >
-                          Arvostelee koeluokat
+                          Arvostelee luokat
                         </label>
                         <div
                           class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-154xyx0-MuiInputBase-root-MuiOutlinedInput-root"
@@ -480,7 +480,7 @@ exports[`JudgeSection should not warn about judge 0 not beign available (KOE-357
                               class="css-yjsfm1"
                             >
                               <span>
-                                Arvostelee koeluokat
+                                Arvostelee luokat
                               </span>
                             </legend>
                           </fieldset>
@@ -729,7 +729,7 @@ exports[`JudgeSection should render properly with one judge selected 1`] = `
                           for="class0"
                           id="class0-label"
                         >
-                          Arvostelee koeluokat
+                          Arvostelee luokat
                         </label>
                         <div
                           class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-154xyx0-MuiInputBase-root-MuiOutlinedInput-root"
@@ -780,7 +780,7 @@ exports[`JudgeSection should render properly with one judge selected 1`] = `
                               class="css-yjsfm1"
                             >
                               <span>
-                                Arvostelee koeluokat
+                                Arvostelee luokat
                               </span>
                             </legend>
                           </fieldset>
@@ -1029,7 +1029,7 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
                           for="class0"
                           id="class0-label"
                         >
-                          Arvostelee koeluokat
+                          Arvostelee luokat
                         </label>
                         <div
                           class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-154xyx0-MuiInputBase-root-MuiOutlinedInput-root"
@@ -1080,7 +1080,7 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
                               class="css-yjsfm1"
                             >
                               <span>
-                                Arvostelee koeluokat
+                                Arvostelee luokat
                               </span>
                             </legend>
                           </fieldset>
@@ -1234,7 +1234,7 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
                           for="class1"
                           id="class1-label"
                         >
-                          Arvostelee koeluokat
+                          Arvostelee luokat
                         </label>
                         <div
                           class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-154xyx0-MuiInputBase-root-MuiOutlinedInput-root"
@@ -1285,7 +1285,7 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
                               class="css-yjsfm1"
                             >
                               <span>
-                                Arvostelee koeluokat
+                                Arvostelee luokat
                               </span>
                             </legend>
                           </fieldset>
@@ -1439,7 +1439,7 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
                           for="class2"
                           id="class2-label"
                         >
-                          Arvostelee koeluokat
+                          Arvostelee luokat
                         </label>
                         <div
                           class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-154xyx0-MuiInputBase-root-MuiOutlinedInput-root"
@@ -1490,7 +1490,7 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
                               class="css-yjsfm1"
                             >
                               <span>
-                                Arvostelee koeluokat
+                                Arvostelee luokat
                               </span>
                             </legend>
                           </fieldset>
@@ -1739,7 +1739,7 @@ exports[`JudgeSection should render properly with two judges selected 1`] = `
                           for="class0"
                           id="class0-label"
                         >
-                          Arvostelee koeluokat
+                          Arvostelee luokat
                         </label>
                         <div
                           class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-154xyx0-MuiInputBase-root-MuiOutlinedInput-root"
@@ -1790,7 +1790,7 @@ exports[`JudgeSection should render properly with two judges selected 1`] = `
                               class="css-yjsfm1"
                             >
                               <span>
-                                Arvostelee koeluokat
+                                Arvostelee luokat
                               </span>
                             </legend>
                           </fieldset>
@@ -1944,7 +1944,7 @@ exports[`JudgeSection should render properly with two judges selected 1`] = `
                           for="class1"
                           id="class1-label"
                         >
-                          Arvostelee koeluokat
+                          Arvostelee luokat
                         </label>
                         <div
                           class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-154xyx0-MuiInputBase-root-MuiOutlinedInput-root"
@@ -1995,7 +1995,7 @@ exports[`JudgeSection should render properly with two judges selected 1`] = `
                               class="css-yjsfm1"
                             >
                               <span>
-                                Arvostelee koeluokat
+                                Arvostelee luokat
                               </span>
                             </legend>
                           </fieldset>
