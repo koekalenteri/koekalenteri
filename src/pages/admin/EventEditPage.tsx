@@ -32,20 +32,18 @@ export default function EventEditPage() {
     [setEvent, storedEvent]
   )
 
-  const handleSave = useCallback(() => {
+  const handleSave = useCallback(async () => {
     if (!event) {
       return
     }
-    actions.save(event).then(
-      (saved) => {
-        resetEvent()
-        navigate(Path.admin.events)
-        enqueueSnackbar(t(`event.states.${saved?.state || 'draft'}`, '', { context: 'save' }), { variant: 'info' })
-      },
-      (reason) => {
-        console.error(reason)
-      }
-    )
+    try {
+      const saved = await actions.save(event)
+      resetEvent()
+      navigate(Path.admin.events)
+      enqueueSnackbar(t(`event.states.${saved?.state || 'draft'}`, '', { context: 'save' }), { variant: 'info' })
+    } catch (error) {
+      console.error(error)
+    }
   }, [actions, enqueueSnackbar, event, navigate, resetEvent, t])
 
   const handleCancel = useCallback(() => {

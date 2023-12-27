@@ -41,21 +41,19 @@ export default function EventDetailsDialog({ eventId, onClose, open }: Props) {
     onClose?.()
   }, [onClose, resetEvent])
 
-  const handleSave = useCallback(() => {
+  const handleSave = useCallback(async () => {
     if (!event) {
       return
     }
-    actions.save(event).then(
-      (saved) => {
-        resetEvent()
-        setStoredEvent(saved)
-        enqueueSnackbar(t(`event.saved`), { variant: 'info' })
-        onClose?.()
-      },
-      (reason) => {
-        console.error(reason)
-      }
-    )
+    try {
+      const saved = await actions.save(event)
+      resetEvent()
+      setStoredEvent(saved)
+      enqueueSnackbar(t(`event.saved`), { variant: 'info' })
+      onClose?.()
+    } catch (error) {
+      console.error(error)
+    }
   }, [actions, enqueueSnackbar, event, onClose, resetEvent, setStoredEvent, t])
 
   if (!event) {

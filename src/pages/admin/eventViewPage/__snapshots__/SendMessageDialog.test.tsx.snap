@@ -29,13 +29,13 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
       tabindex="-1"
     >
       <div
-        aria-labelledby=":r6:"
+        aria-labelledby=":r5:"
         class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation24 MuiDialog-paper MuiDialog-paperScrollPaper MuiDialog-paperWidthLg MuiDialog-paperFullWidth css-cyxlny-MuiPaper-root-MuiDialog-paper"
         role="dialog"
       >
         <h2
           class="MuiTypography-root MuiTypography-h6 MuiDialogTitle-root css-bdhsul-MuiTypography-root-MuiDialogTitle-root"
-          id=":r6:"
+          id=":r5:"
         >
           Viestin lähettäminen
         </h2>
@@ -160,8 +160,8 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
                     <label
                       class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1jy569b-MuiFormLabel-root-MuiInputLabel-root"
                       data-shrink="true"
-                      for=":r7:"
-                      id=":r7:-label"
+                      for=":r6:"
+                      id=":r6:-label"
                     >
                       Viestin tyyppi
                     </label>
@@ -175,7 +175,7 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
                         autocapitalize="none"
                         autocomplete="off"
                         class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
-                        id=":r7:"
+                        id=":r6:"
                         role="combobox"
                         spellcheck="false"
                         type="text"
@@ -316,7 +316,7 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
                       <textarea
                         aria-invalid="false"
                         class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-1sqnrkk-MuiInputBase-input-MuiOutlinedInput-input"
-                        id=":r9:"
+                        id=":r8:"
                         rows="4"
                         style="height: 0px; overflow: hidden;"
                       />
@@ -755,8 +755,7 @@ Vastaava koetoimitsija
           class="MuiDialogActions-root MuiDialogActions-spacing css-knqc4i-MuiDialogActions-root"
         >
           <button
-            class="MuiButtonBase-root MuiButton-root MuiLoadingButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-root MuiLoadingButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium css-1twrztz-MuiButtonBase-root-MuiButton-root-MuiLoadingButton-root"
-            id=":ra:"
+            class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium css-sghohy-MuiButtonBase-root-MuiButton-root"
             tabindex="0"
             type="button"
           >
@@ -1094,9 +1093,8 @@ exports[`SendMessageDialog renders with minimal parameters 1`] = `
           class="MuiDialogActions-root MuiDialogActions-spacing css-knqc4i-MuiDialogActions-root"
         >
           <button
-            class="MuiButtonBase-root MuiButton-root MuiLoadingButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium Mui-disabled MuiButton-root MuiLoadingButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium css-1twrztz-MuiButtonBase-root-MuiButton-root-MuiLoadingButton-root"
+            class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium css-sghohy-MuiButtonBase-root-MuiButton-root"
             disabled=""
-            id=":r5:"
             tabindex="-1"
             type="button"
           >

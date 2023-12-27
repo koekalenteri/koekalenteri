@@ -6,7 +6,6 @@ import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import Cancel from '@mui/icons-material/Cancel'
 import Save from '@mui/icons-material/Save'
-import LoadingButton from '@mui/lab/LoadingButton'
 import { useMediaQuery } from '@mui/material'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
@@ -15,6 +14,7 @@ import Stack from '@mui/material/Stack'
 import { useRecoilValue } from 'recoil'
 
 import { isEventOver, merge } from '../../../lib/utils'
+import { AsyncButton } from '../../components/AsyncButton'
 import AutocompleteSingle from '../../components/AutocompleteSingle'
 import {
   activeEventTypesSelector,
@@ -57,7 +57,7 @@ interface Props {
   readonly event: DogEvent
   readonly changes?: boolean
   readonly disabled?: boolean
-  readonly onSave?: () => void
+  readonly onSave?: () => Promise<void>
   readonly onCancel?: () => void
   readonly onChange?: (event: DogEvent) => void
 }
@@ -278,16 +278,15 @@ export default function EventForm({ event, changes, disabled, onSave, onCancel, 
         justifyContent="flex-end"
         sx={{ p: 1, borderTop: '1px solid', borderColor: '#bdbdbd' }}
       >
-        <LoadingButton
+        <AsyncButton
           color="primary"
           disabled={!changes || !valid || allDisabled}
-          loadingPosition="start"
           startIcon={<Save />}
           variant="contained"
           onClick={onSave}
         >
           Tallenna
-        </LoadingButton>
+        </AsyncButton>
         <Button startIcon={<Cancel />} variant="outlined" onClick={onCancel}>
           Peruuta
         </Button>

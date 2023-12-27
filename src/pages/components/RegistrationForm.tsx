@@ -6,7 +6,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import Cancel from '@mui/icons-material/Cancel'
 import CheckOutlined from '@mui/icons-material/CheckOutlined'
-import LoadingButton from '@mui/lab/LoadingButton'
 import { useMediaQuery } from '@mui/material'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
@@ -30,6 +29,7 @@ import { HandlerInfo } from './registrationForm/HandlerInfo'
 import { OwnerInfo } from './registrationForm/OwnerInfo'
 import QualifyingResultsInfo from './registrationForm/QualifyingResultsInfo'
 import { filterRelevantResults, validateRegistration } from './registrationForm/validation'
+import { AsyncButton } from './AsyncButton'
 
 interface Props {
   readonly event: PublicConfirmedEvent
@@ -39,7 +39,7 @@ interface Props {
   readonly classDate?: string
   readonly changes?: boolean
   readonly disabled?: boolean
-  readonly onSave?: () => void
+  readonly onSave?: () => Promise<void>
   readonly onCancel?: () => void
   readonly onChange?: (registration: Registration) => void
 }
@@ -79,7 +79,6 @@ export default function RegistrationForm({
   )
   const [errors, setErrors] = useState(validateRegistration(registration, event))
   const [open, setOpen] = useState<{ [key: string]: boolean | undefined }>({})
-  const [saving, setSaving] = useState(false)
   const valid = errors.length === 0 && qualifies
   const isMember = registration.handler?.membership || registration.owner?.membership
   const paymentAmount = event.costMember && isMember ? event.costMember : event.cost
@@ -135,11 +134,6 @@ export default function RegistrationForm({
     },
     [large, open, registration.ownerHandles]
   )
-
-  const handleSave = useCallback(() => {
-    setSaving(true)
-    onSave?.()
-  }, [onSave])
 
   const [helperTexts, errorStates] = useMemo(() => {
     const states: { [Property in keyof Registration]?: boolean } = {}
@@ -310,16 +304,15 @@ export default function RegistrationForm({
         <Box my="auto">
           <b>Summa:</b> {paymentAmount} €
         </Box>
-        <LoadingButton
+        <AsyncButton
           color="primary"
           disabled={disabled || !changes || !valid}
-          loading={saving}
-          onClick={handleSave}
+          onClick={onSave}
           startIcon={<CheckOutlined />}
           variant="contained"
         >
           {registration.id ? 'Tallenna muutokset' : 'Vahvista ja siirry maksamaan'}
-        </LoadingButton>
+        </AsyncButton>
         <Button startIcon={<Cancel />} variant="outlined" onClick={onCancel}>
           Peruuta
         </Button>

@@ -41,20 +41,18 @@ export default function RegistrationEditPage() {
     [registration, setRegistration]
   )
 
-  const handleSave = useCallback(() => {
+  const handleSave = useCallback(async () => {
     if (!registration || !event || disabled) {
       return
     }
-    actions.save(registration).then(
-      (saved) => {
-        setSavedRegistration(saved)
-        resetRegistration()
-        navigate(-1)
-      },
-      (reason) => {
-        console.error(reason)
-      }
-    )
+    try {
+      const saved = await actions.save(registration)
+      setSavedRegistration(saved)
+      resetRegistration()
+      navigate(-1)
+    } catch (error) {
+      console.error(error)
+    }
   }, [actions, disabled, event, navigate, registration, resetRegistration, setSavedRegistration])
 
   const handleCancel = useCallback(() => {

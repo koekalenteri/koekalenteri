@@ -2489,9 +2489,8 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
          €
       </div>
       <button
-        class="MuiButtonBase-root MuiButton-root MuiLoadingButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium Mui-disabled MuiButton-root MuiLoadingButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium css-15jnnye-MuiButtonBase-root-MuiButton-root-MuiLoadingButton-root"
+        class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium css-1j214pj-MuiButtonBase-root-MuiButton-root"
         disabled=""
-        id=":r10:"
         tabindex="-1"
         type="button"
       >
@@ -2813,8 +2812,8 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1cwx9dy-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="true"
-                            for=":r22:"
-                            id=":r22:-label"
+                            for=":r20:"
+                            id=":r20:-label"
                           >
                             registration.class
                           </label>
@@ -2828,7 +2827,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                               autocapitalize="none"
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r22:"
+                              id=":r20:"
                               role="combobox"
                               spellcheck="false"
                               type="text"
@@ -2889,8 +2888,8 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1cwx9dy-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="true"
-                            for=":r24:"
-                            id=":r24:-label"
+                            for=":r22:"
+                            id=":r22:-label"
                           >
                             registration.reserve
                           </label>
@@ -2899,13 +2898,13 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                           >
                             <input
                               aria-autocomplete="list"
-                              aria-describedby=":r24:-helper-text"
+                              aria-describedby=":r22:-helper-text"
                               aria-expanded="false"
                               aria-invalid="false"
                               autocapitalize="none"
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r24:"
+                              id=":r22:"
                               role="combobox"
                               spellcheck="false"
                               type="text"
@@ -2952,7 +2951,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                           </div>
                           <p
                             class="MuiFormHelperText-root MuiFormHelperText-sizeMedium MuiFormHelperText-contained MuiFormHelperText-filled css-1vg31rc-MuiFormHelperText-root"
-                            id=":r24:-helper-text"
+                            id=":r22:-helper-text"
                           >
                             registration.reserveHelp
                           </p>
@@ -2972,8 +2971,8 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1cwx9dy-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="true"
-                            for=":r26:"
-                            id=":r26:-label"
+                            for=":r24:"
+                            id=":r24:-label"
                           >
                             registration.datesFilter
                           </label>
@@ -2990,6 +2989,180 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                                 class="MuiChip-label MuiChip-labelMedium css-6od3lo-MuiChip-label"
                               >
                                 eeeeee d.M.
+                              </span>
+                              <svg
+                                aria-hidden="true"
+                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiChip-deleteIcon MuiChip-deleteIconMedium MuiChip-deleteIconColorDefault MuiChip-deleteIconFilledColorDefault css-i4bv87-MuiSvgIcon-root"
+                                data-testid="CancelIcon"
+                                focusable="false"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"
+                                />
+                              </svg>
+                            </div>
+                            <input
+                              aria-autocomplete="list"
+                              aria-describedby=":r24:-helper-text"
+                              aria-expanded="false"
+                              aria-invalid="false"
+                              autocapitalize="none"
+                              autocomplete="off"
+                              class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-152mnda-MuiInputBase-input-MuiOutlinedInput-input"
+                              id=":r24:"
+                              role="combobox"
+                              spellcheck="false"
+                              type="text"
+                              value=""
+                            />
+                            <div
+                              class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                            >
+                              <button
+                                aria-label="Clear"
+                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-clearIndicator css-1glvl0p-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-clearIndicator"
+                                tabindex="-1"
+                                title="Clear"
+                                type="button"
+                              >
+                                <svg
+                                  aria-hidden="true"
+                                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-ptiqhd-MuiSvgIcon-root"
+                                  data-testid="CloseIcon"
+                                  focusable="false"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+                                  />
+                                </svg>
+                                <span
+                                  class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                                />
+                              </button>
+                              <button
+                                aria-label="Open"
+                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                                tabindex="-1"
+                                title="Open"
+                                type="button"
+                              >
+                                <svg
+                                  aria-hidden="true"
+                                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                  data-testid="ArrowDropDownIcon"
+                                  focusable="false"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    d="M7 10l5 5 5-5z"
+                                  />
+                                </svg>
+                                <span
+                                  class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                                />
+                              </button>
+                            </div>
+                            <fieldset
+                              aria-hidden="true"
+                              class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
+                            >
+                              <legend
+                                class="css-14lo706"
+                              >
+                                <span>
+                                  registration.datesFilter
+                                </span>
+                              </legend>
+                            </fieldset>
+                          </div>
+                          <p
+                            class="MuiFormHelperText-root MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-1vg31rc-MuiFormHelperText-root"
+                            id=":r24:-helper-text"
+                          >
+                            registration.datesFilterInfo
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    <div
+                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-11eerce-MuiGrid-root"
+                    >
+                      <div
+                        class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasClearIcon MuiAutocomplete-hasPopupIcon css-1kkal6p-MuiAutocomplete-root"
+                        data-testid="registration.dates"
+                      >
+                        <div
+                          class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                        >
+                          <label
+                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1cwx9dy-MuiFormLabel-root-MuiInputLabel-root"
+                            data-shrink="true"
+                            for=":r26:"
+                            id=":r26:-label"
+                          >
+                            registration.dates
+                          </label>
+                          <div
+                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1u8w1x9-MuiInputBase-root-MuiOutlinedInput-root"
+                          >
+                            <div
+                              class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorDefault MuiChip-deletable MuiChip-deletableColorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-1u20pgy-MuiButtonBase-root-MuiChip-root"
+                              data-tag-index="0"
+                              role="button"
+                              tabindex="-1"
+                            >
+                              <span
+                                class="MuiChip-label MuiChip-labelMedium css-6od3lo-MuiChip-label"
+                              >
+                                eeeeee registration.timeLong.ap
+                              </span>
+                              <svg
+                                aria-hidden="true"
+                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiChip-deleteIcon MuiChip-deleteIconMedium MuiChip-deleteIconColorDefault MuiChip-deleteIconFilledColorDefault css-i4bv87-MuiSvgIcon-root"
+                                data-testid="CancelIcon"
+                                focusable="false"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"
+                                />
+                              </svg>
+                            </div>
+                            <div
+                              class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorDefault MuiChip-deletable MuiChip-deletableColorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-1u20pgy-MuiButtonBase-root-MuiChip-root"
+                              data-tag-index="1"
+                              role="button"
+                              tabindex="-1"
+                            >
+                              <span
+                                class="MuiChip-label MuiChip-labelMedium css-6od3lo-MuiChip-label"
+                              >
+                                eeeeee registration.timeLong.ip
+                              </span>
+                              <svg
+                                aria-hidden="true"
+                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiChip-deleteIcon MuiChip-deleteIconMedium MuiChip-deleteIconColorDefault MuiChip-deleteIconFilledColorDefault css-i4bv87-MuiSvgIcon-root"
+                                data-testid="CancelIcon"
+                                focusable="false"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"
+                                />
+                              </svg>
+                            </div>
+                            <div
+                              class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorDefault MuiChip-deletable MuiChip-deletableColorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-1u20pgy-MuiButtonBase-root-MuiChip-root"
+                              data-tag-index="2"
+                              role="button"
+                              tabindex="-1"
+                            >
+                              <span
+                                class="MuiChip-label MuiChip-labelMedium css-6od3lo-MuiChip-label"
+                              >
+                                eeeeee registration.timeLong.kp
                               </span>
                               <svg
                                 aria-hidden="true"
@@ -3073,180 +3246,6 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                                 class="css-14lo706"
                               >
                                 <span>
-                                  registration.datesFilter
-                                </span>
-                              </legend>
-                            </fieldset>
-                          </div>
-                          <p
-                            class="MuiFormHelperText-root MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-1vg31rc-MuiFormHelperText-root"
-                            id=":r26:-helper-text"
-                          >
-                            registration.datesFilterInfo
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                    <div
-                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-11eerce-MuiGrid-root"
-                    >
-                      <div
-                        class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasClearIcon MuiAutocomplete-hasPopupIcon css-1kkal6p-MuiAutocomplete-root"
-                        data-testid="registration.dates"
-                      >
-                        <div
-                          class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
-                        >
-                          <label
-                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1cwx9dy-MuiFormLabel-root-MuiInputLabel-root"
-                            data-shrink="true"
-                            for=":r28:"
-                            id=":r28:-label"
-                          >
-                            registration.dates
-                          </label>
-                          <div
-                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1u8w1x9-MuiInputBase-root-MuiOutlinedInput-root"
-                          >
-                            <div
-                              class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorDefault MuiChip-deletable MuiChip-deletableColorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-1u20pgy-MuiButtonBase-root-MuiChip-root"
-                              data-tag-index="0"
-                              role="button"
-                              tabindex="-1"
-                            >
-                              <span
-                                class="MuiChip-label MuiChip-labelMedium css-6od3lo-MuiChip-label"
-                              >
-                                eeeeee registration.timeLong.ap
-                              </span>
-                              <svg
-                                aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiChip-deleteIcon MuiChip-deleteIconMedium MuiChip-deleteIconColorDefault MuiChip-deleteIconFilledColorDefault css-i4bv87-MuiSvgIcon-root"
-                                data-testid="CancelIcon"
-                                focusable="false"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"
-                                />
-                              </svg>
-                            </div>
-                            <div
-                              class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorDefault MuiChip-deletable MuiChip-deletableColorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-1u20pgy-MuiButtonBase-root-MuiChip-root"
-                              data-tag-index="1"
-                              role="button"
-                              tabindex="-1"
-                            >
-                              <span
-                                class="MuiChip-label MuiChip-labelMedium css-6od3lo-MuiChip-label"
-                              >
-                                eeeeee registration.timeLong.ip
-                              </span>
-                              <svg
-                                aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiChip-deleteIcon MuiChip-deleteIconMedium MuiChip-deleteIconColorDefault MuiChip-deleteIconFilledColorDefault css-i4bv87-MuiSvgIcon-root"
-                                data-testid="CancelIcon"
-                                focusable="false"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"
-                                />
-                              </svg>
-                            </div>
-                            <div
-                              class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorDefault MuiChip-deletable MuiChip-deletableColorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-1u20pgy-MuiButtonBase-root-MuiChip-root"
-                              data-tag-index="2"
-                              role="button"
-                              tabindex="-1"
-                            >
-                              <span
-                                class="MuiChip-label MuiChip-labelMedium css-6od3lo-MuiChip-label"
-                              >
-                                eeeeee registration.timeLong.kp
-                              </span>
-                              <svg
-                                aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiChip-deleteIcon MuiChip-deleteIconMedium MuiChip-deleteIconColorDefault MuiChip-deleteIconFilledColorDefault css-i4bv87-MuiSvgIcon-root"
-                                data-testid="CancelIcon"
-                                focusable="false"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"
-                                />
-                              </svg>
-                            </div>
-                            <input
-                              aria-autocomplete="list"
-                              aria-describedby=":r28:-helper-text"
-                              aria-expanded="false"
-                              aria-invalid="false"
-                              autocapitalize="none"
-                              autocomplete="off"
-                              class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-152mnda-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r28:"
-                              role="combobox"
-                              spellcheck="false"
-                              type="text"
-                              value=""
-                            />
-                            <div
-                              class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
-                            >
-                              <button
-                                aria-label="Clear"
-                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-clearIndicator css-1glvl0p-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-clearIndicator"
-                                tabindex="-1"
-                                title="Clear"
-                                type="button"
-                              >
-                                <svg
-                                  aria-hidden="true"
-                                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-ptiqhd-MuiSvgIcon-root"
-                                  data-testid="CloseIcon"
-                                  focusable="false"
-                                  viewBox="0 0 24 24"
-                                >
-                                  <path
-                                    d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
-                                  />
-                                </svg>
-                                <span
-                                  class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                                />
-                              </button>
-                              <button
-                                aria-label="Open"
-                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-                                tabindex="-1"
-                                title="Open"
-                                type="button"
-                              >
-                                <svg
-                                  aria-hidden="true"
-                                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                                  data-testid="ArrowDropDownIcon"
-                                  focusable="false"
-                                  viewBox="0 0 24 24"
-                                >
-                                  <path
-                                    d="M7 10l5 5 5-5z"
-                                  />
-                                </svg>
-                                <span
-                                  class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                                />
-                              </button>
-                            </div>
-                            <fieldset
-                              aria-hidden="true"
-                              class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
-                            >
-                              <legend
-                                class="css-14lo706"
-                              >
-                                <span>
                                   registration.dates
                                 </span>
                               </legend>
@@ -3254,7 +3253,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                           </div>
                           <p
                             class="MuiFormHelperText-root MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-1vg31rc-MuiFormHelperText-root"
-                            id=":r28:-helper-text"
+                            id=":r26:-helper-text"
                           >
                             registration.datesInfo
                           </p>
@@ -3448,8 +3447,8 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                         <label
                           class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-a5n9ke-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="false"
-                          for=":r2c:"
-                          id=":r2c:-label"
+                          for=":r2a:"
+                          id=":r2a:-label"
                         >
                           dog.rfid
                         </label>
@@ -3460,7 +3459,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                             aria-invalid="false"
                             class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
                             disabled=""
-                            id=":r2c:"
+                            id=":r2a:"
                             type="text"
                             value=""
                           />
@@ -3579,8 +3578,8 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-a5n9ke-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="false"
-                            for=":r2f:"
-                            id=":r2f:-label"
+                            for=":r2d:"
+                            id=":r2d:-label"
                           >
                             dog.dob
                           </label>
@@ -3592,7 +3591,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
                               disabled=""
-                              id=":r2f:"
+                              id=":r2d:"
                               inputmode="text"
                               placeholder="DD.MM.YYYY"
                               type="text"
@@ -3650,8 +3649,8 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-a5n9ke-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="false"
-                            for=":r2h:"
-                            id=":r2h:-label"
+                            for=":r2f:"
+                            id=":r2f:-label"
                           >
                             dog.gender
                           </label>
@@ -3666,7 +3665,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
                               disabled=""
-                              id=":r2h:"
+                              id=":r2f:"
                               role="combobox"
                               spellcheck="false"
                               type="text"
@@ -3725,8 +3724,8 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-a5n9ke-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="false"
-                            for=":r2j:"
-                            id=":r2j:-label"
+                            for=":r2h:"
+                            id=":r2h:-label"
                           >
                             dog.breed
                           </label>
@@ -3741,7 +3740,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
                               disabled=""
-                              id=":r2j:"
+                              id=":r2h:"
                               role="combobox"
                               spellcheck="false"
                               type="text"
@@ -4815,8 +4814,8 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                     <label
                       class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-a5n9ke-MuiFormLabel-root-MuiInputLabel-root"
                       data-shrink="false"
-                      for=":r31:"
-                      id=":r31:-label"
+                      for=":r2v:"
+                      id=":r2v:-label"
                     >
                       registration.notes
                     </label>
@@ -4826,7 +4825,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                       <textarea
                         aria-invalid="false"
                         class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-1sqnrkk-MuiInputBase-input-MuiOutlinedInput-input"
-                        id=":r31:"
+                        id=":r2v:"
                         name="notes"
                         rows="4"
                         style="height: 0px; overflow: hidden;"
@@ -4939,9 +4938,8 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
          €
       </div>
       <button
-        class="MuiButtonBase-root MuiButton-root MuiLoadingButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium Mui-disabled MuiButton-root MuiLoadingButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium css-15jnnye-MuiButtonBase-root-MuiButton-root-MuiLoadingButton-root"
+        class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium css-1j214pj-MuiButtonBase-root-MuiButton-root"
         disabled=""
-        id=":r32:"
         tabindex="-1"
         type="button"
       >

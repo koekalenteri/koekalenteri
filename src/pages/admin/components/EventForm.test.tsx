@@ -22,7 +22,7 @@ jest.mock('../../../api/official')
 jest.mock('../../../api/organizer')
 jest.mock('../../../api/registration')
 
-const renderComponent = (event: DogEvent, onSave?: () => void, onCancel?: () => void, onChange?: () => void) =>
+const renderComponent = (event: DogEvent, onSave?: () => Promise<void>, onCancel?: () => void, onChange?: () => void) =>
   renderWithUserEvents(
     <ThemeProvider theme={theme}>
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={fi}>

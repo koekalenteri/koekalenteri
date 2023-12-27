@@ -4,7 +4,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import ArrowForwardIosSharp from '@mui/icons-material/ArrowForwardIosSharp'
 import CheckBox from '@mui/icons-material/CheckBox'
-import LoadingButton from '@mui/lab/LoadingButton'
 import Accordion from '@mui/material/Accordion'
 import AccordionDetails from '@mui/material/AccordionDetails'
 import AccordionSummary from '@mui/material/AccordionSummary'
@@ -34,6 +33,7 @@ import { useRecoilValue, useSetRecoilState } from 'recoil'
 import { sendTemplatedEmail } from '../../../api/email'
 import { formatDateSpan } from '../../../i18n/dates'
 import { Path } from '../../../routeConfig'
+import { AsyncButton } from '../../components/AsyncButton'
 import AutocompleteSingle from '../../components/AutocompleteSingle'
 import { idTokenAtom } from '../../recoil'
 import { adminEventSelector, emailTemplatesAtom } from '../recoil'
@@ -51,7 +51,6 @@ export default function SendMessageDialog({ event, registrations, templateId, op
   const { i18n, t } = useTranslation()
   const { enqueueSnackbar } = useSnackbar()
   const [text, setText] = useState('')
-  const [sending, setSending] = useState(false)
   const token = useRecoilValue(idTokenAtom)
   const templates = useRecoilValue(emailTemplatesAtom)
   const setEvent = useSetRecoilState(adminEventSelector(event.id))
@@ -86,33 +85,39 @@ export default function SendMessageDialog({ event, registrations, templateId, op
     }
   }, [compiledTemplate, compiledSubject, previewData])
 
-  const handleSend = useCallback(() => {
+  const handleSend = useCallback(async () => {
     if (!templateId) {
       return
     }
-    confirm({
-      title: 'Viestin lähettäminen',
-      content: (
-        <div>
-          Olet lähettämässä viestiä {t(`emailTemplate.${templateId}`)} {registrations.length} ilmoittautumiseen.
-          <br />
-          Oletko varma, että haluat lähettää viestin?
-        </div>
-      ),
-      confirmationText: 'Lähetä',
-      cancellationText: t('cancel'),
-      cancellationButtonProps: { variant: 'outlined' },
-      confirmationButtonProps: { autoFocus: true, variant: 'contained' },
-      dialogActionsProps: {
-        sx: {
-          flexDirection: 'row-reverse',
-          justifyContent: 'flex-start',
-          columnGap: 1,
+    try {
+      await confirm({
+        title: 'Viestin lähettäminen',
+        content: (
+          <div>
+            Olet lähettämässä viestiä {t(`emailTemplate.${templateId}`)} {registrations.length} ilmoittautumiseen.
+            <br />
+            Oletko varma, että haluat lähettää viestin?
+          </div>
+        ),
+        confirmationText: 'Lähetä',
+        cancellationText: t('cancel'),
+        cancellationButtonProps: { variant: 'outlined' },
+        confirmationButtonProps: { autoFocus: true, variant: 'contained' },
+        dialogActionsProps: {
+          sx: {
+            flexDirection: 'row-reverse',
+            justifyContent: 'flex-start',
+            columnGap: 1,
+          },
         },
-      },
-    }).then(() => {
-      setSending(true)
-      sendTemplatedEmail(
+      })
+
+      const {
+        ok = [],
+        failed = [],
+        state = event.state,
+        classes = event.classes,
+      } = await sendTemplatedEmail(
         {
           template: templateId,
           eventId: event.id,
@@ -121,28 +126,24 @@ export default function SendMessageDialog({ event, registrations, templateId, op
         },
         token
       )
-        .then(({ ok, failed, state, classes } = { ok: [], failed: [], state: event.state, classes: event.classes }) => {
-          if (ok.length) {
-            enqueueSnackbar('Viesti lähetetty onnistuneesti\n\n' + ok.join('\n'), {
-              variant: 'success',
-              style: { whiteSpace: 'pre-line' },
-            })
-          }
-          if (failed.length) {
-            enqueueSnackbar('Viestin lähetys epäonnistui 💩\n\n' + failed.join('\n'), {
-              variant: 'success',
-              style: { whiteSpace: 'pre-line' },
-            })
-          }
-          setEvent({ ...event, state, classes })
-          setSending(false)
-          onClose?.()
+      if (ok.length) {
+        enqueueSnackbar('Viesti lähetetty onnistuneesti\n\n' + ok.join('\n'), {
+          variant: 'success',
+          style: { whiteSpace: 'pre-line' },
         })
-        .catch((error: Error) => {
-          enqueueSnackbar('Viestin lähetys epäonnistui 💩', { variant: 'error' })
-          console.log(error)
+      }
+      if (failed.length) {
+        enqueueSnackbar('Viestin lähetys epäonnistui 💩\n\n' + failed.join('\n'), {
+          variant: 'success',
+          style: { whiteSpace: 'pre-line' },
         })
-    })
+      }
+      setEvent({ ...event, state, classes })
+      onClose?.()
+    } catch (error) {
+      enqueueSnackbar('Viestin lähetys epäonnistui 💩', { variant: 'error' })
+      console.log(error)
+    }
   }, [confirm, enqueueSnackbar, event, onClose, registrations, setEvent, t, templateId, text, token])
 
   return (
@@ -222,9 +223,9 @@ export default function SendMessageDialog({ event, registrations, templateId, op
         </Stack>
       </DialogContent>
       <DialogActions>
-        <LoadingButton disabled={!selectedTemplate} loading={sending} variant="contained" onClick={handleSend}>
+        <AsyncButton disabled={!selectedTemplate} variant="contained" onClick={handleSend}>
           Lähetä
-        </LoadingButton>
+        </AsyncButton>
         <Button variant="outlined" onClick={onClose}>
           {t('cancel')}
         </Button>

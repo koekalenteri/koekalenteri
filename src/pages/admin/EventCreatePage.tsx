@@ -27,20 +27,18 @@ export default function EventCreatePage() {
     [setEvent]
   )
 
-  const handleSave = useCallback(() => {
+  const handleSave = useCallback(async () => {
     if (!event) {
       return
     }
-    actions.save(event).then(
-      () => {
-        resetEvent()
-        navigate(Path.admin.events)
-        enqueueSnackbar(t(`event.states.${event?.state || 'draft'}`, '', { context: 'save' }), { variant: 'info' })
-      },
-      (reason) => {
-        console.error(reason)
-      }
-    )
+    try {
+      const saved = await actions.save(event)
+      resetEvent()
+      navigate(Path.admin.events)
+      enqueueSnackbar(t(`event.states.${event?.state || 'draft'}`, '', { context: 'save' }), { variant: 'info' })
+    } catch (error) {
+      console.error(error)
+    }
   }, [actions, enqueueSnackbar, event, navigate, resetEvent, t])
 
   const handleCancel = useCallback(() => {
