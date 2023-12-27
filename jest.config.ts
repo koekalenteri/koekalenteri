@@ -11,8 +11,8 @@ const config: Config = {
   testPathIgnorePatterns: ['/node_modules/', 'src/lambda'],
   transform: {
     '^.+\\.(js|jsx|mjs|cjs|ts|tsx)$': '<rootDir>/config/jest/babelTransform.js',
-    '^.+\\.css$': '<rootDir>/config/jest/cssTransform.js',
-    '^(?!.*\\.(js|jsx|mjs|cjs|ts|tsx|css|json)$)': '<rootDir>/config/jest/fileTransform.js',
+    '^.+\\.css$': '<rootDir>/config/jest/cssTransform.mjs',
+    '^(?!.*\\.(js|jsx|mjs|cjs|ts|tsx|css|json)$)': '<rootDir>/config/jest/fileTransform.mjs',
   },
   transformIgnorePatterns: [
     'node_modules/(?!(react-dnd|dnd-core|@react-dnd|react-dnd-html5-backend|nanoid|mui-tel-input)/)',
