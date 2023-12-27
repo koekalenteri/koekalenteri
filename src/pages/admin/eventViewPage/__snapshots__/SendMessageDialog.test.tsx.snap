@@ -49,7 +49,7 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
               class="MuiBox-root css-126n10b"
             >
               <div
-                class="MuiPaper-root MuiPaper-elevation MuiPaper-elevation0 MuiAccordion-root css-9t03kj-MuiPaper-root-MuiAccordion-root"
+                class="MuiPaper-root MuiPaper-elevation MuiPaper-elevation0 MuiAccordion-root css-11lo9i1-MuiPaper-root-MuiAccordion-root"
               >
                 <div
                   aria-expanded="false"
@@ -832,7 +832,7 @@ exports[`SendMessageDialog renders with minimal parameters 1`] = `
               class="MuiBox-root css-126n10b"
             >
               <div
-                class="MuiPaper-root MuiPaper-elevation MuiPaper-elevation0 MuiAccordion-root css-9t03kj-MuiPaper-root-MuiAccordion-root"
+                class="MuiPaper-root MuiPaper-elevation MuiPaper-elevation0 MuiAccordion-root css-11lo9i1-MuiPaper-root-MuiAccordion-root"
               >
                 <div
                   aria-expanded="false"

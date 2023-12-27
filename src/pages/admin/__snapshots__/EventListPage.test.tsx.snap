@@ -175,7 +175,7 @@ exports[`EventListPage renders 1`] = `
               class="MuiFormControl-root MuiTextField-root css-1pupl87-MuiFormControl-root-MuiTextField-root"
             >
               <div
-                class="MuiInputBase-root MuiInput-root MuiInput-underline MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd css-u7cxs7-MuiInputBase-root-MuiInput-root"
+                class="MuiInputBase-root MuiInput-root MuiInput-underline MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd css-ipm0i-MuiInputBase-root-MuiInput-root"
               >
                 <svg
                   aria-hidden="true"

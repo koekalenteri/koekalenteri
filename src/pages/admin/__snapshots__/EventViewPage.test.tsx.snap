@@ -33,7 +33,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
           class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-auto css-kcsfla-MuiGrid-root"
         >
           <div
-            class="MuiPaper-root MuiPaper-elevation MuiPaper-elevation0 MuiAccordion-root Mui-expanded css-pho1q-MuiPaper-root-MuiAccordion-root"
+            class="MuiPaper-root MuiPaper-elevation MuiPaper-elevation0 MuiAccordion-root Mui-expanded css-i34fag-MuiPaper-root-MuiAccordion-root"
           >
             <div
               aria-expanded="true"
@@ -5186,7 +5186,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
           class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-auto css-kcsfla-MuiGrid-root"
         >
           <div
-            class="MuiPaper-root MuiPaper-elevation MuiPaper-elevation0 MuiAccordion-root Mui-expanded css-pho1q-MuiPaper-root-MuiAccordion-root"
+            class="MuiPaper-root MuiPaper-elevation MuiPaper-elevation0 MuiAccordion-root Mui-expanded css-i34fag-MuiPaper-root-MuiAccordion-root"
           >
             <div
               aria-expanded="true"
