@@ -1,5 +1,4 @@
 export * from './effects'
 export * from './events'
-export * from './judges'
 export * from './registration'
 export * from './user'

@@ -59,7 +59,7 @@ export function EntryInfo({
   )
 
   const classes = uniqueClasses(event)
-  const regDates = useEventRegistrationDates(event, reg.class)
+  const regDates = useEventRegistrationDates(event, reg.class ?? className)
   const dates = uniqueDate(regDates.map((rd) => rd.date))
   const [filterDates, setFilterDates] = useState<Date[]>(
     uniqueDate(classDate ? regDates.filter((d) => format(d.date, 'dd.MM.') === classDate).map((rd) => rd.date) : dates)

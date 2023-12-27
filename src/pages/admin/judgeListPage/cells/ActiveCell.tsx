@@ -6,7 +6,8 @@ import { useCallback } from 'react'
 import Switch from '@mui/material/Switch'
 import { useRecoilValue } from 'recoil'
 
-import { isAdminSelector, useJudgesActions } from '../../../recoil'
+import { isAdminSelector } from '../../../recoil'
+import { useJudgesActions } from '../../recoil'
 
 const ActiveCell = (props: GridRenderCellParams<Judge, boolean>) => {
   const actions = useJudgesActions()

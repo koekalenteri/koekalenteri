@@ -1729,6 +1729,43 @@ Resources:
       LogGroupName: !Join ['/', ['/aws/lambda', !Ref PaymentCancelFunction]]
       RetentionInDays: 30
 
+  RunMigrationFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: lambda/RunMigrationFunction/handler.default
+      Layers:
+        - !Ref CommonLayer
+      Tracing: Active
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EventTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref JudgeTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserLinkTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuditTable
+        - CloudWatchPutMetricPolicy: {}
+      Events:
+        RunMigration:
+          Type: Api
+          Properties:
+            Path: /admin/migrate
+            Method: POST
+            RestApiId: !Ref KoekalenteriApi
+            Auth:
+              Authorizer: CognitoAuthorizer
+    Metadata:
+      BuildMethod: makefile
+
+  RunMigrationFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref RunMigrationFunction]]
+      RetentionInDays: 30
+
   CommonLayer:
     Type: AWS::Serverless::LayerVersion
     Properties:

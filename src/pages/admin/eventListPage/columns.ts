@@ -4,7 +4,6 @@ import type { DogEvent, EventClass } from '../../../types'
 import { useTranslation } from 'react-i18next'
 
 import { getEventTitle } from '../../../hooks/useEventTitle'
-import { useJudgesActions } from '../../recoil'
 
 type StartEndDate = { start: Date; end: Date }
 
@@ -14,7 +13,6 @@ type EventWithDate = DogEvent & {
 
 export default function useEventListColumns(): GridColDef<EventWithDate>[] {
   const { t } = useTranslation()
-  const judgeActions = useJudgesActions()
 
   return [
     {
@@ -82,7 +80,7 @@ export default function useEventListColumns(): GridColDef<EventWithDate>[] {
       headerName: t('judgeChief'),
       minWidth: 100,
       flex: 1,
-      valueGetter: (params) => params.row.judges && judgeActions.find(params.row.judges[0])?.name,
+      valueGetter: (params) => params.row.judges && params.row.judges[0]?.name,
     },
     {
       field: 'places',

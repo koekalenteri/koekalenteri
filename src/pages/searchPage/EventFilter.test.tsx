@@ -75,7 +75,7 @@ describe('EventFilter', () => {
       end: null,
       eventType: ['NOME-B'],
       eventClass: ['ALO'],
-      judge: [234],
+      judge: ['Tuomari 2'],
       organizer: ['2'],
     })
 

@@ -208,7 +208,9 @@ exports[`EventTable should render 1`] = `
                         </th>
                         <td
                           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
-                        />
+                        >
+                          Tuomari 1
+                        </td>
                       </tr>
                       <tr
                         class="MuiTableRow-root css-1n6kcfq-MuiTableRow-root"

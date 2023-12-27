@@ -2,6 +2,7 @@ import type {
   DbRecord,
   JsonDbRecord,
   NotOptional,
+  PublicJudge,
   PublicOrganizer,
   RegistrationClass,
   RegistrationTime,
@@ -24,7 +25,7 @@ export interface JsonDogEvent extends JsonDbRecord {
   eventType: string
   headquarters?: Partial<Headquarters>
   invitationAttachment?: string
-  judges: Array<number>
+  judges: Array<PublicJudge>
   kcId?: number
   location: string
   name: string

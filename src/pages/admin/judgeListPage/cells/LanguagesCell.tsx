@@ -8,7 +8,8 @@ import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 import { t } from 'i18next'
 import { useRecoilValue } from 'recoil'
 
-import { isAdminSelector, useJudgesActions } from '../../../recoil'
+import { isAdminSelector } from '../../../recoil'
+import { useJudgesActions } from '../../recoil'
 
 const LanguagesCell = (props: GridRenderCellParams<Judge, Judge>) => {
   const actions = useJudgesActions()

@@ -61,7 +61,7 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
     [setFilter]
   )
   const handleJudgeChange = useCallback(
-    (event: SyntheticEvent<Element, Event>, value: readonly Judge[]) => setFilter({ judge: value.map((v) => +v.id) }),
+    (event: SyntheticEvent<Element, Event>, value: readonly Judge[]) => setFilter({ judge: value.map((v) => v.name) }),
     [setFilter]
   )
   const handleWithEntryOpenChange = useCallback(
@@ -152,7 +152,7 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
                 label={t('judge')}
                 onChange={handleJudgeChange}
                 options={judges}
-                value={judges.filter((j) => filter.judge.includes(j.id))}
+                value={judges.filter((j) => filter.judge.includes(j.name))}
               />
             </Grid>
             <Grid item md={12}>

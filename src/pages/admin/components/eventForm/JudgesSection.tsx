@@ -1,4 +1,4 @@
-import type { ClassJudge, DeepPartial, EventClass, EventType, Judge } from '../../../../types'
+import type { ClassJudge, DeepPartial, EventClass, EventType, Judge, PublicJudge } from '../../../../types'
 import type { SectionProps } from '../EventForm'
 
 import { useMemo } from 'react'
@@ -15,10 +15,10 @@ import CollapsibleSection from '../../../components/CollapsibleSection'
 import EventClasses from './components/EventClasses'
 import { validateEventField } from './validation'
 
-function filterJudges(judges: Judge[], eventJudges: number[], id: number | undefined, eventType?: EventType) {
+function filterJudges(judges: Judge[], eventJudges: PublicJudge[], id: number | undefined, eventType?: EventType) {
   return judges
     .filter((j) => !eventType?.official || j.eventTypes.includes(eventType.eventType))
-    .filter((j) => j.id === id || !eventJudges.includes(j.id))
+    .filter((j) => j.id === id || !eventJudges.find((ej) => ej.id === j.id))
 }
 
 function hasJudge(c: DeepPartial<EventClass>, id?: number) {
@@ -33,6 +33,9 @@ interface Props extends Readonly<SectionProps> {
   readonly judges: Judge[]
   readonly selectedEventType?: EventType
 }
+
+type PartialClassJudge = Partial<ClassJudge>
+type PartialClassJudgeValue = PartialClassJudge | PartialClassJudge[]
 
 export default function JudgesSection({
   event,
@@ -51,7 +54,7 @@ export default function JudgesSection({
     [event, fields?.required.judges]
   )
   const error = useMemo(
-    () => !!validationError || list.some((id) => id && !judges.find((j) => j.id === id)),
+    () => !!validationError || list.some((ej) => ej.id && !judges.find((j) => j.id === ej.id)),
     [judges, list, validationError]
   )
   const helperText: string = useMemo(() => {
@@ -64,9 +67,9 @@ export default function JudgesSection({
     return error ? t('validation.event.errors') : ''
   }, [error, fields?.state?.judges, t, validationError])
 
-  const toArray = (j?: DeepPartial<ClassJudge>): DeepPartial<ClassJudge[]> => (j ? [j] : [])
-  const makeArray = (j?: DeepPartial<ClassJudge | ClassJudge[]>) => (Array.isArray(j) ? [...j] : toArray(j))
-  const selectJudge = (j?: DeepPartial<ClassJudge | ClassJudge[]>, id?: number): DeepPartial<ClassJudge[]> => {
+  const toArray = (j?: Partial<ClassJudge>): PartialClassJudge[] => (j ? [j] : [])
+  const makeArray = (j?: PartialClassJudgeValue) => (Array.isArray(j) ? [...j] : toArray(j))
+  const selectJudge = (j?: PartialClassJudgeValue, id?: number): PartialClassJudge[] => {
     const judge = id ? { id, name: judges.find((j) => j.id === id)?.name ?? '' } : undefined
     const a = makeArray(j)
     if (judge && !a.find((cj) => cj.id === id)) {
@@ -74,7 +77,7 @@ export default function JudgesSection({
     }
     return a
   }
-  const removeJudge = (j?: DeepPartial<ClassJudge | ClassJudge[]>, id?: number): DeepPartial<ClassJudge[]> => {
+  const removeJudge = (j?: PartialClassJudgeValue, id?: number): PartialClassJudge[] => {
     const a = makeArray(j)
     return a.filter((cj) => cj.id !== id)
   }
@@ -98,30 +101,32 @@ export default function JudgesSection({
       helperText={helperText}
     >
       <Grid item container spacing={1}>
-        {list.map((id, index) => {
+        {list.map((judge, index) => {
           const title = index === 0 ? t('judgeChief') : t('judge') + ` ${index + 1}`
-          const value = judges.find((j) => j.id === id)
+          const value = judges.find((j) => j.id === judge.id)
           return (
-            <Grid key={id} item container spacing={1} alignItems="center">
+            <Grid key={judge.id ?? judge.name ?? index} item container spacing={1} alignItems="center">
               <Grid item sx={{ width: 300 }}>
                 <AutocompleteSingle
                   disabled={disabled}
                   value={value}
                   label={title}
-                  error={!!id && !value}
-                  helperText={!!id && !value ? `Tuomari ${id} ei ole käytettävissä` : ''}
+                  error={!!judge.id && !value}
+                  helperText={!!judge.id && !value ? `Tuomari ${judge.name} (${judge.id}) ei ole käytettävissä` : ''}
                   getOptionLabel={(o) => o?.name || ''}
-                  options={filterJudges(judges, event.judges, id, selectedEventType)}
+                  options={filterJudges(judges, event.judges, judge.id, selectedEventType)}
                   onChange={(value) => {
-                    const newId = value?.id
+                    const newJudge: PublicJudge | undefined = value
+                      ? { id: value.id, name: value.name, official: true }
+                      : undefined
                     const newJudges = [...event.judges]
-                    const oldId = newJudges.splice(index, 1)[0]
-                    if (newId) {
-                      newJudges.splice(index, 0, newId)
+                    const oldJudge = newJudges.splice(index, 1)[0]
+                    if (newJudge) {
+                      newJudges.splice(index, 0, newJudge)
                     }
                     onChange?.({
                       judges: newJudges,
-                      classes: updateJudge(newId, filterClassesByJudgeId(event.classes, oldId)),
+                      classes: updateJudge(newJudge?.id, filterClassesByJudgeId(event.classes, oldJudge.id)),
                     })
                   }}
                 />
@@ -132,12 +137,12 @@ export default function JudgesSection({
                   disabled={disabled}
                   eventStartDate={event.startDate}
                   eventEndDate={event.endDate}
-                  value={filterClassesByJudgeId(event.classes, id)}
+                  value={filterClassesByJudgeId(event.classes, judge.id)}
                   classes={[...event.classes]}
                   label="Arvostelee luokat"
                   onChange={(_e, values) =>
                     onChange?.({
-                      classes: updateJudge(id, [...values]),
+                      classes: updateJudge(judge.id, [...values]),
                     })
                   }
                 />
@@ -148,8 +153,8 @@ export default function JudgesSection({
                   disabled={disabled}
                   onClick={() =>
                     onChange?.({
-                      judges: event.judges.filter((j) => j !== id),
-                      classes: event.classes.map((c) => (hasJudge(c, id) ? { ...c, judge: undefined } : c)),
+                      judges: event.judges.filter((j) => j.id !== judge.id),
+                      classes: event.classes.map((c) => (hasJudge(c, judge.id) ? { ...c, judge: undefined } : c)),
                     })
                   }
                 >
@@ -163,7 +168,7 @@ export default function JudgesSection({
           <Button
             disabled={disabled}
             startIcon={<AddOutlined />}
-            onClick={() => onChange?.({ judges: [...event.judges].concat(0) })}
+            onClick={() => onChange?.({ judges: [...event.judges].concat({ id: 0, name: '' }) })}
           >
             Lisää tuomari
           </Button>

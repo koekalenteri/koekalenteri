@@ -15,7 +15,7 @@ export const eventWithStaticDates: ConfirmedEvent = {
   endDate: parseISO('2021-02-11'),
   entryStartDate: parseISO('2021-02-01'),
   entryEndDate: parseISO('2021-02-07'),
-  judges: [123],
+  judges: [{ id: 123, name: 'Tuomari 1' }],
   location: 'test location',
 }
 
@@ -31,7 +31,7 @@ export const eventWithStaticDatesAndClass: ConfirmedEvent = {
   endDate: parseISO('2021-02-11'),
   entryStartDate: parseISO('2021-02-01'),
   entryEndDate: parseISO('2021-02-07'),
-  judges: [123],
+  judges: [{ id: 123, name: 'Tuomari 1' }],
   location: 'test location',
 }
 
@@ -48,7 +48,7 @@ export const eventWithStaticDatesAnd3Classes: ConfirmedEvent = {
   endDate: parseISO('2021-02-11'),
   entryStartDate: parseISO('2021-02-01'),
   entryEndDate: parseISO('2021-02-07'),
-  judges: [123],
+  judges: [{ id: 123, name: 'Tuomari 1' }],
   location: 'test location',
 }
 
@@ -61,7 +61,7 @@ export const eventWithEntryOpen: ConfirmedEvent = {
   endDate: addDays(today, 15),
   entryStartDate: today, // entry starts today
   entryEndDate: addDays(today, 8), // over week from today
-  judges: [223],
+  judges: [{ id: 223, name: 'Tuomari 2' }],
   places: 10,
   entries: 7,
 }
@@ -75,7 +75,7 @@ export const eventWithEntryNotYetOpen: ConfirmedEvent = {
   endDate: addDays(today, 15),
   entryStartDate: addDays(today, 1), // entry not open yet
   entryEndDate: addDays(today, 8),
-  judges: [223],
+  judges: [{ id: 223, name: 'Tuomari 2' }],
   places: 10,
   entries: undefined,
 }
@@ -89,7 +89,7 @@ export const eventWithEntryClosing: ConfirmedEvent = {
   endDate: addDays(today, 25),
   entryStartDate: addDays(today, -1),
   entryEndDate: addDays(today, 6),
-  judges: [223],
+  judges: [{ id: 223, name: 'Tuomari 2' }],
   places: 10,
   entries: 10,
 }
@@ -108,7 +108,10 @@ export const eventWithEntryClosed: ConfirmedEvent = {
   endDate: addDays(today, 7),
   entryStartDate: addDays(today, -14),
   entryEndDate: addDays(today, -28),
-  judges: [123, 223],
+  judges: [
+    { id: 123, name: 'Tuomari 1' },
+    { id: 223, name: 'Tuomari 2' },
+  ],
 }
 
 export const eventWithParticipantsInvited: ConfirmedEvent = {
@@ -126,5 +129,8 @@ export const eventWithParticipantsInvited: ConfirmedEvent = {
   endDate: addDays(today, 7),
   entryStartDate: addDays(today, -14),
   entryEndDate: addDays(today, -28),
-  judges: [123, 223],
+  judges: [
+    { id: 123, name: 'Tuomari 1' },
+    { id: 223, name: 'Tuomari 2' },
+  ],
 }

@@ -1,10 +1,10 @@
 import type { AtomEffect } from 'recoil'
-import type { Judge } from '../../../types'
+import type { Judge } from '../../../../types'
 
 import i18next from 'i18next'
 
-import { getJudges } from '../../../api/judge'
-import { idTokenAtom } from '../user'
+import { getJudges } from '../../../../api/judge'
+import { idTokenAtom } from '../../../recoil/user'
 
 let loaded = false
 

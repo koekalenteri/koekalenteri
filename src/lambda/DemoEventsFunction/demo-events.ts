@@ -31,7 +31,7 @@ const draft: JsonDogEvent = {
   endDate: monthAway,
   eventType: 'NOME-A',
   id: 'demo-draft-nome-a',
-  judges: [842408],
+  judges: [{ id: 842408, name: 'Fontell Ari-Pekka', official: true }],
   location: 'demo',
   modifiedAt: timestamp,
   modifiedBy: 'cron',

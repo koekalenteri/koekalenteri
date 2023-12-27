@@ -32,7 +32,7 @@ export const mockEvents: DogEvent[] = [
     endDate: parseISO('2021-02-13'),
     entryStartDate: parseISO('2021-02-01'),
     entryEndDate: parseISO('2021-02-12'),
-    judges: [223],
+    judges: [{ id: 223, name: 'Tuomari 2' }],
   },
   eventWithEntryOpen,
   eventWithEntryNotYetOpen,

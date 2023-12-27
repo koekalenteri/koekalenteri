@@ -1,11 +1,11 @@
-import type { Judge } from '../../../types'
+import type { Judge } from '../../../../types'
 
 import i18next from 'i18next'
 import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
 
-import { getJudges, putJudge } from '../../../api/judge'
-import { adminUsersAtom } from '../../admin/recoil/user'
-import { idTokenAtom } from '../user'
+import { getJudges, putJudge } from '../../../../api/judge'
+import { idTokenAtom } from '../../../recoil/user'
+import { adminUsersAtom } from '../user'
 
 import { judgesAtom } from './atoms'
 

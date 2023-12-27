@@ -41,7 +41,7 @@ describe('JudgeSection', () => {
   it('should render properly with one judge selected', () => {
     const testEvent: PartialEvent = {
       id: 'test',
-      judges: [1],
+      judges: [{ id: 1, name: 'Test Judge 1' }],
       startDate: new Date('2022-06-01'),
       endDate: new Date('2022-06-02'),
       classes: [],
@@ -53,7 +53,10 @@ describe('JudgeSection', () => {
   it('should render properly with two judges selected', () => {
     const testEvent: PartialEvent = {
       id: 'test',
-      judges: [1, 2],
+      judges: [
+        { id: 1, name: 'Test Judge 1' },
+        { id: 2, name: 'Test Judge 2' },
+      ],
       startDate: new Date('2022-06-01'),
       endDate: new Date('2022-06-02'),
       classes: [],
@@ -65,7 +68,11 @@ describe('JudgeSection', () => {
   it('should render properly with three judges selected', () => {
     const testEvent: PartialEvent = {
       id: 'test',
-      judges: [1, 2, 3],
+      judges: [
+        { id: 1, name: 'Test Judge 1' },
+        { id: 2, name: 'Test Judge 2' },
+        { id: 3, name: 'Test Judge 3' },
+      ],
       startDate: new Date('2022-06-01'),
       endDate: new Date('2022-06-02'),
       classes: [],
@@ -77,7 +84,7 @@ describe('JudgeSection', () => {
   it('should not warn about judge 0 not beign available (KOE-357)', () => {
     const testEvent: PartialEvent = {
       id: 'test',
-      judges: [0],
+      judges: [{ id: 0, name: '' }],
       startDate: new Date('2022-06-01'),
       endDate: new Date('2022-06-02'),
       classes: [],
@@ -90,7 +97,7 @@ describe('JudgeSection', () => {
     const testEvent: PartialEvent = {
       id: 'test',
       eventType: 'NOWT',
-      judges: [0],
+      judges: [{ id: 0, name: '' }],
       startDate: new Date('2022-06-01'),
       endDate: new Date('2022-06-02'),
       classes: [{ class: 'AVO', date: new Date('2022-06-01') }],
@@ -102,7 +109,7 @@ describe('JudgeSection', () => {
   it('should fire onChange', async () => {
     const testEvent: PartialEvent = {
       id: 'test',
-      judges: [1],
+      judges: [{ id: 1, name: 'Test Judge 1' }],
       startDate: new Date('2022-06-01'),
       endDate: new Date('2022-06-02'),
       classes: [
@@ -126,12 +133,12 @@ describe('JudgeSection', () => {
 
     expect(changeHandler).toHaveBeenCalledTimes(1)
     expect(testEvent.judges.length).toBe(1)
-    expect(testEvent.judges[0]).toBe(3)
+    expect(testEvent.judges[0]).toEqual(expect.objectContaining({ id: 3, name: 'Test Judge 3', official: true }))
 
     fireEvent.click(screen.getByText(/Lisää tuomari/i))
     expect(changeHandler).toHaveBeenCalledTimes(2)
     expect(testEvent.judges.length).toBe(2)
-    expect(testEvent.judges[1]).toBe(0)
+    expect(testEvent.judges[1]).toEqual(expect.objectContaining({ id: 0, name: '' }))
 
     rerender(<JudgesSection event={testEvent} judges={JUDGES} onChange={changeHandler} />)
 
@@ -139,7 +146,7 @@ describe('JudgeSection', () => {
     fireEvent.click(within(screen.getByRole('listbox')).getByText(/Test Judge 1/i))
 
     expect(changeHandler).toHaveBeenCalledTimes(3)
-    expect(testEvent.judges[1]).toBe(1)
+    expect(testEvent.judges[1]).toEqual(expect.objectContaining({ id: 1, name: 'Test Judge 1', official: true }))
 
     rerender(<JudgesSection event={testEvent} judges={JUDGES} onChange={changeHandler} />)
 
@@ -150,6 +157,6 @@ describe('JudgeSection', () => {
 
     expect(changeHandler).toHaveBeenCalledTimes(4)
     expect(testEvent.judges.length).toBe(1)
-    expect(testEvent.judges[0]).toBe(3)
+    expect(testEvent.judges[0]).toEqual(expect.objectContaining({ id: 3, name: 'Test Judge 3', official: true }))
   })
 })

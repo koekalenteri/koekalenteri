@@ -6,11 +6,12 @@ import Stack from '@mui/material/Stack'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
 import StyledDataGrid from '../components/StyledDataGrid'
-import { filteredJudgesSelector, isAdminSelector, judgeFilterAtom, useJudgesActions } from '../recoil'
+import { isAdminSelector } from '../recoil'
 
 import FullPageFlex from './components/FullPageFlex'
 import { QuickSearchToolbar } from './components/QuickSearchToolbar'
 import useJudgeListColumns from './judgeListPage/columns'
+import { filteredJudgesSelector, judgeFilterAtom, useJudgesActions } from './recoil'
 
 export default function JudgeListPage() {
   const [searchText, setSearchText] = useRecoilState(judgeFilterAtom)

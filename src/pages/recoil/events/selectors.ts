@@ -5,7 +5,7 @@ import { selector, selectorFamily } from 'recoil'
 
 import { isConfirmedEvent } from '../../../lib/typeGuards'
 import { unique, uniqueFn } from '../../../lib/utils'
-import { judgesAtom } from '../judges/atoms'
+import { judgesAtom } from '../../admin/recoil/judges/atoms'
 
 import { eventFilterAtom, eventIdAtom, eventsAtom } from './atoms'
 import {
@@ -195,12 +195,12 @@ export const filterJudgesSelector = selector({
     const events = get(filteredEventsForJudgeSelector)
     const filter = get(eventFilterAtom)
     const judges = get(judgesAtom)
-    const usedJudgeIds = unique<number>(
-      events.reduce<number[]>((acc, cur) => [...acc, ...cur.judges], [...filter.judge])
+    const usedJudgeNames = unique<string>(
+      events.reduce<string[]>((acc, cur) => [...acc, ...cur.judges.map((j) => j.name)], [...filter.judge])
     )
 
     return judges
-      .filter((j) => usedJudgeIds.includes(j.id))
+      .filter((j) => usedJudgeNames.includes(j.name))
       .sort((a, b) => a.name.localeCompare(b.name, i18next.language))
   },
 })

@@ -27,7 +27,7 @@ export type FilterProps = {
   withFreePlaces?: boolean
   eventType: string[]
   eventClass: RegistrationClass[]
-  judge: number[]
+  judge: string[]
   organizer: string[]
 }
 

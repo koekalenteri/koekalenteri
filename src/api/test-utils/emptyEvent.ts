@@ -25,7 +25,7 @@ export const emptyEvent: ConfirmedEvent = {
   entryStartDate: new Date('1990-01-01'),
   eventType: 'test',
   id: 'test',
-  judges: [123],
+  judges: [{ id: 123, name: 'Tuomari 1', official: true }],
   kcId: 123456,
   location: 'test',
   modifiedAt: new Date('1989-01-02'),

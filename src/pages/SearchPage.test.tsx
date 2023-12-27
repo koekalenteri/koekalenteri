@@ -111,7 +111,7 @@ describe('SearchPage', () => {
   })
 
   it('filters by judge', async () => {
-    renderPage('/?j=223', locales.fi)
+    renderPage('/?j=Tuomari%202', locales.fi)
     await flushPromises()
     expect(screen.getByRole('button', { name: 'Tuomari 2' })).toBeInTheDocument()
     expect(screen.getAllByRole('row').length).toEqual(5)

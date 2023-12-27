@@ -105,7 +105,7 @@ const VALIDATORS: Validators<PartialEvent, 'event'> = {
     }
 
     const minCount = getMinJudgeCount(event)
-    if (event.judges?.filter((j) => j > 0).length < minCount) {
+    if (event.judges?.filter((j) => j.id || j.name).length < minCount) {
       return { key: 'judgeCount', opts: { field: 'judges', length: minCount } }
     }
 

@@ -1,8 +1,8 @@
-import type { Judge } from '../../../types'
+import type { Judge } from '../../../../types'
 
 import { atom } from 'recoil'
 
-import { logEffect, storageEffect } from '../effects'
+import { logEffect, storageEffect } from '../../../recoil/effects'
 
 import { remoteJudgesEffect } from './effects'
 

@@ -47,24 +47,21 @@ export function withinEventTypeFilter(event: PublicDogEvent, { eventType, eventC
   return true
 }
 
-export function withinEventTypeClassFilter(
-  event: PublicDogEvent,
-  { eventType, eventClass, judge, organizer }: FilterProps
-) {
+export function withinEventTypeClassFilter(event: PublicDogEvent, { eventClass }: FilterProps) {
   if (eventClass.length && !eventClass.some((c) => event.classes.map((cl) => cl.class).includes(c))) {
     return false
   }
   return true
 }
 
-export function withinJudgeFilter(event: PublicDogEvent, { eventType, eventClass, judge, organizer }: FilterProps) {
-  if (judge.length && !judge.some((j) => event.judges?.includes(j))) {
+export function withinJudgeFilter(event: PublicDogEvent, { judge }: FilterProps) {
+  if (judge.length && !judge.some((name) => event.judges?.find((ej) => ej.name === name))) {
     return false
   }
   return true
 }
 
-export function withinOrganizerFilter(event: PublicDogEvent, { eventType, eventClass, judge, organizer }: FilterProps) {
+export function withinOrganizerFilter(event: PublicDogEvent, { organizer }: FilterProps) {
   if (organizer.length && !organizer.includes(event.organizer?.id)) {
     return false
   }
@@ -111,7 +108,7 @@ export function deserializeFilter(input: string) {
     end: readDate(searchParams.get('e')),
     eventClass: searchParams.getAll('c').filter(isRegistrationClass),
     eventType: searchParams.getAll('t'),
-    judge: searchParams.getAll('j').map((j) => parseInt(j)),
+    judge: searchParams.getAll('j'),
     organizer: searchParams.getAll('o'),
     start: readDate(searchParams.get('s')),
     withClosingEntry: bits.includes('c'),

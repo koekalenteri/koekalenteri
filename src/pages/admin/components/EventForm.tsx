@@ -16,8 +16,13 @@ import { useRecoilValue } from 'recoil'
 
 import { isEventOver, merge } from '../../../lib/utils'
 import AutocompleteSingle from '../../components/AutocompleteSingle'
-import { activeJudgesSelector } from '../../recoil'
-import { activeEventTypesSelector, adminUserOrganizersSelector, adminUsersAtom, eventTypeClassesAtom } from '../recoil'
+import {
+  activeEventTypesSelector,
+  activeJudgesSelector,
+  adminUserOrganizersSelector,
+  adminUsersAtom,
+  eventTypeClassesAtom,
+} from '../recoil'
 
 import AdditionalInfoSection from './eventForm/AdditionalInfoSection'
 import BasicInfoSection from './eventForm/BasicInfoSection'

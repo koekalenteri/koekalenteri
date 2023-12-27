@@ -5,12 +5,10 @@ import PictureAsPdfOutlined from '@mui/icons-material/PictureAsPdfOutlined'
 import Grid from '@mui/material/Grid'
 import Link from '@mui/material/Link'
 import Paper from '@mui/material/Paper'
-import { useRecoilValue } from 'recoil'
 
 import useEventStatus from '../../hooks/useEventStatus'
 import { printContactInfo } from '../../lib/utils'
 import { API_BASE_URL } from '../../routeConfig'
-import { judgesByIdsSelector } from '../recoil'
 
 import CollapsibleSection from './CollapsibleSection'
 import CostInfo from './CostInfo'
@@ -23,7 +21,6 @@ interface Props {
 export default function RegistrationEventInfo({ event }: Props) {
   const { t } = useTranslation()
   const status = useEventStatus(event)
-  const judges = useRecoilValue(judgesByIdsSelector(event.judges))
   const title = `${event.eventType} ${t('daterange', { start: event.startDate, end: event.endDate })} ${
     event.location + (event.name ? ` (${event.name})` : '')
   }`
@@ -55,7 +52,7 @@ export default function RegistrationEventInfo({ event }: Props) {
               {t('event.judges')}:
             </Grid>
             <Grid item xs={8}>
-              {judges.map((j) => j.name).join(', ')}
+              {event.judges.map((j) => j.name).join(', ')}
             </Grid>
             {printContactInfo(event.contactInfo?.official) ? (
               <>

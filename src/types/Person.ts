@@ -37,6 +37,12 @@ export interface Judge extends OfficialPerson {
 
 export type JsonJudge = Omit<Judge, keyof DbRecord> & Omit<JsonDbRecord, 'id'> & { id: number }
 
+export interface PublicJudge extends Omit<PublicPerson, 'id'> {
+  id?: number
+  country?: string
+  official?: boolean
+}
+
 export interface User extends Person, Partial<DbRecord> {
   id: string
   kcId?: number

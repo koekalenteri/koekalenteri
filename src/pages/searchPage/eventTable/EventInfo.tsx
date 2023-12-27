@@ -1,6 +1,6 @@
 import type { PublicDogEvent } from '../../../types'
 
-import { useCallback, useMemo } from 'react'
+import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
@@ -11,7 +11,6 @@ import useEventStatus from '../../../hooks/useEventStatus'
 import { isEntryOpen, printContactInfo } from '../../../lib/utils'
 import CostInfo from '../../components/CostInfo'
 import { PriorityChips } from '../../components/PriorityChips'
-import { useJudgesActions } from '../../recoil'
 
 import { EventClassRow } from './eventInfo/EventClassRow'
 
@@ -21,15 +20,15 @@ interface Props {
 
 export const EventInfo = ({ event }: Props) => {
   const { t } = useTranslation()
-  const judgeActions = useJudgesActions()
   const status = useEventStatus(event)
 
-  const judgeName = useCallback((id: number) => judgeActions.find(id)?.name ?? '', [judgeActions])
   const haveJudgesWithoutAssignedClass = useMemo(
     () =>
       event.judges.filter(
         (j) =>
-          !event.classes.find((c) => (Array.isArray(c.judge) ? c.judge.find((cj) => cj.id === j) : c.judge?.id === j))
+          !event.classes.find((c) =>
+            Array.isArray(c.judge) ? c.judge.find((cj) => cj.id === j.id) : c.judge?.id === j.id
+          )
       ).length > 0,
     [event.classes, event.judges]
   )
@@ -86,11 +85,11 @@ export const EventInfo = ({ event }: Props) => {
               <TableCell component="th" scope="row" rowSpan={event.judges.length}>
                 {t('event.judges')}:
               </TableCell>
-              <TableCell>{judgeName(event.judges[0])}</TableCell>
+              <TableCell>{event.judges[0].name}</TableCell>
             </TableRow>
-            {event.judges.slice(1).map((judgeId) => (
-              <TableRow key={event.id + 'judge' + judgeId}>
-                <TableCell>{judgeName(judgeId)}</TableCell>
+            {event.judges.slice(1).map((judge, index) => (
+              <TableRow key={event.id + 'judge' + (judge.id ?? judge.name ?? index)}>
+                <TableCell>{judge.name}</TableCell>
               </TableRow>
             ))}
           </>
