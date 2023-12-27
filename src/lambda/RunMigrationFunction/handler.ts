@@ -40,7 +40,7 @@ const runMigrationHandler = metricScope(
             item.modifiedAt = timestamp
             item.modifiedBy = 'migration'
 
-            dynamoDB.write(item, CONFIG.eventTable)
+            await dynamoDB.write(item, CONFIG.eventTable)
             count++
           }
         }
