@@ -280,7 +280,7 @@ export default function JudgesSection({
             Lisää ulkomainen tuomari
           </Button>
           <Button
-            disabled={disabled}
+            disabled={disabled || selectedEventType?.official}
             startIcon={<AddOutlined />}
             onClick={() =>
               onChange?.({
