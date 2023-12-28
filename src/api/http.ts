@@ -2,7 +2,7 @@ import { enqueueSnackbar } from 'notistack'
 
 import { rum } from '../lib/client/rum'
 import { parseJSON } from '../lib/utils'
-import { API_BASE_URL, Path } from '../routeConfig'
+import { API_BASE_URL } from '../routeConfig'
 
 export class APIError extends Error {
   status: number
@@ -92,8 +92,8 @@ async function http<T>(path: string, init: RequestInit): Promise<T> {
     if (!(err instanceof APIError)) {
       enqueueSnackbar(`${err}`, { variant: 'error' })
     } else if (err.status === 401) {
-      // move to homepage when authorization fails
-      window.location.replace(Path.home)
+      // reload for re-auth
+      window.location.reload()
     }
 
     console.error(err)
