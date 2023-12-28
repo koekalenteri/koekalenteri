@@ -52,7 +52,9 @@ export default function RegistrationEventInfo({ event }: Props) {
               {t('event.judges')}:
             </Grid>
             <Grid item xs={8}>
-              {event.judges.map((j) => j.name).join(', ')}
+              {event.judges
+                .map((j) => j.name + (j.foreing && j.country ? ` (${t(j.country, { ns: 'country' })})` : ''))
+                .join(', ')}
             </Grid>
             {printContactInfo(event.contactInfo?.official) ? (
               <>

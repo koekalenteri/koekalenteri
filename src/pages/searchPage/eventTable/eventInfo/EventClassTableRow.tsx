@@ -23,8 +23,13 @@ export const EventClassTableRow = ({ event, eventClass }: Props) => {
     eventClass.places || eventClass.entries ? `${eventClass.entries ?? 0} / ${eventClass.places ?? '-'}` : ''
   const memberStatus = eventClass.members ? t('members', { count: eventClass.members }) : ''
   const judgeNames = useMemo(
-    () => (Array.isArray(eventClass.judge) ? eventClass.judge.map((j) => j.name).join(', ') : eventClass.judge?.name),
-    [eventClass.judge]
+    () =>
+      Array.isArray(eventClass.judge)
+        ? eventClass.judge
+            .map((j) => j.name + (j.foreing && j.country ? ` (${t(j.country, { ns: 'country' })})` : ''))
+            .join(', ')
+        : eventClass.judge?.name,
+    [eventClass.judge, t]
   )
 
   return (

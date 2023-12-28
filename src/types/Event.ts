@@ -75,16 +75,11 @@ export type SanitizedPublicDogEvent = PublicDogEvent & {
   [K in NonPublicDogEventProperties]?: never
 }
 
-export type ClassJudge = {
-  id: number | string
-  name: string
-}
-
 export type JsonEventClass = {
   class: RegistrationClass
   date: string
   groups?: RegistrationTime[]
-  judge?: ClassJudge | ClassJudge[]
+  judge?: PublicJudge | PublicJudge[]
   places?: number
   entries?: number
   members?: number

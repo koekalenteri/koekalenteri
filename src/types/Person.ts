@@ -1,3 +1,4 @@
+import type { CountryCode } from './countries'
 import type { DbRecord, JsonDbRecord } from './Database'
 
 export interface PublicPerson {
@@ -39,8 +40,9 @@ export type JsonJudge = Omit<Judge, keyof DbRecord> & Omit<JsonDbRecord, 'id'> &
 
 export interface PublicJudge extends Omit<PublicPerson, 'id'> {
   id?: number
-  country?: string
+  country?: CountryCode
   official?: boolean
+  foreing?: boolean
 }
 
 export interface User extends Person, Partial<DbRecord> {

@@ -1,11 +1,10 @@
-import type { EventClass, PublicConfirmedEvent, PublicDogEvent } from '../../../types'
+import type { EventClass, PublicConfirmedEvent, PublicDogEvent, PublicJudge } from '../../../types'
 
 import i18next from 'i18next'
 import { selector, selectorFamily } from 'recoil'
 
 import { isConfirmedEvent } from '../../../lib/typeGuards'
 import { unique, uniqueFn } from '../../../lib/utils'
-import { judgesAtom } from '../../admin/recoil/judges/atoms'
 
 import { eventFilterAtom, eventIdAtom, eventsAtom } from './atoms'
 import {
@@ -194,14 +193,17 @@ export const filterJudgesSelector = selector({
   get: ({ get }) => {
     const events = get(filteredEventsForJudgeSelector)
     const filter = get(eventFilterAtom)
-    const judges = get(judgesAtom)
-    const usedJudgeNames = unique<string>(
-      events.reduce<string[]>((acc, cur) => [...acc, ...cur.judges.map((j) => j.name)], [...filter.judge])
+    const usedJudges = uniqueFn<PublicJudge>(
+      events.reduce<PublicJudge[]>((acc, cur) => [...acc, ...cur.judges], []),
+      (a, b) => a.name === b.name
     )
+    usedJudges.sort((a, b) => {
+      const level = Number(filter.judge.includes(a.name)) - Number(filter.judge.includes(b.name))
 
-    return judges
-      .filter((j) => usedJudgeNames.includes(j.name))
-      .sort((a, b) => a.name.localeCompare(b.name, i18next.language))
+      return level === 0 ? a.name.localeCompare(b.name, i18next.language) : level
+    })
+
+    return usedJudges
   },
 })
 

@@ -1,6 +1,6 @@
 import type { Theme } from '@mui/material'
 import type { SyntheticEvent } from 'react'
-import type { Judge, Organizer, RegistrationClass } from '../../types'
+import type { Organizer, PublicJudge, RegistrationClass } from '../../types'
 import type { DateValue } from '../components/DateRange'
 
 import { useCallback, useMemo } from 'react'
@@ -26,7 +26,7 @@ interface Props {
   readonly eventTypes: string[]
   readonly eventClasses: RegistrationClass[]
   readonly filter: FilterProps
-  readonly judges: Judge[]
+  readonly judges: PublicJudge[]
   readonly onChange?: (filter: FilterProps) => void
   readonly organizers: Organizer[]
 }
@@ -61,7 +61,8 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
     [setFilter]
   )
   const handleJudgeChange = useCallback(
-    (event: SyntheticEvent<Element, Event>, value: readonly Judge[]) => setFilter({ judge: value.map((v) => v.name) }),
+    (event: SyntheticEvent<Element, Event>, value: readonly PublicJudge[]) =>
+      setFilter({ judge: value.map((v) => v.name) }),
     [setFilter]
   )
   const handleWithEntryOpenChange = useCallback(
@@ -81,8 +82,13 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
     [setFilter]
   )
   const getName = useCallback((o?: { name?: string }) => o?.name ?? '', [])
+  const getJudgeName = useCallback(
+    (o?: PublicJudge) => (o?.name ?? '') + (o?.foreing && o.country ? ` (${t(o.country, { ns: 'country' })})` : ''),
+    [t]
+  )
   const getString = useCallback((o?: string) => o ?? '', [])
   const compareId = useCallback((o?: { id?: number | string }, v?: { id?: number | string }) => o?.id === v?.id, [])
+  const compareJudge = useCallback((o?: PublicJudge, v?: PublicJudge) => o?.name === v?.name, [])
 
   return (
     <Box
@@ -147,8 +153,8 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
             </Grid>
             <Grid item xs={12} sm={6}>
               <AutocompleteMulti
-                getOptionLabel={getName}
-                isOptionEqualToValue={compareId}
+                getOptionLabel={getJudgeName}
+                isOptionEqualToValue={compareJudge}
                 label={t('judge')}
                 onChange={handleJudgeChange}
                 options={judges}

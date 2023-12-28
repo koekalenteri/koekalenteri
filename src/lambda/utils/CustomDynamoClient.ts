@@ -107,11 +107,11 @@ export default class CustomDynamoClient {
     }
   }
 
-  async update(
+  async update<T extends object>(
     key: AWS.DynamoDB.DocumentClient.Key,
     expression: UpdateExpression,
     names: { [key: string]: string },
-    values: JsonObject,
+    values: T,
     table?: string
   ) {
     const params: AWS.DynamoDB.DocumentClient.UpdateItemInput = {

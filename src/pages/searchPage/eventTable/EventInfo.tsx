@@ -85,11 +85,18 @@ export const EventInfo = ({ event }: Props) => {
               <TableCell component="th" scope="row" rowSpan={event.judges.length}>
                 {t('event.judges')}:
               </TableCell>
-              <TableCell>{event.judges[0].name}</TableCell>
+              <TableCell>
+                {event.judges[0].name +
+                  (event.judges[0].foreing && event.judges[0].country
+                    ? ` (${t(event.judges[0].country, { ns: 'country' })})`
+                    : '')}
+              </TableCell>
             </TableRow>
             {event.judges.slice(1).map((judge, index) => (
               <TableRow key={event.id + 'judge' + (judge.id ?? judge.name ?? index)}>
-                <TableCell>{judge.name}</TableCell>
+                <TableCell>
+                  {judge.name + (judge.foreing && judge.country ? ` (${t(judge.country, { ns: 'country' })})` : '')}
+                </TableCell>
               </TableRow>
             ))}
           </>

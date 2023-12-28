@@ -1,15 +1,18 @@
-import type { ClassJudge, DeepPartial, EventClass, EventType, Judge, PublicJudge } from '../../../../types'
+import type { DeepPartial, EventClass, EventType, Judge, PublicJudge } from '../../../../types'
 import type { SectionProps } from '../EventForm'
 
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import AddOutlined from '@mui/icons-material/AddOutlined'
 import DeleteOutline from '@mui/icons-material/DeleteOutline'
+import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 import TextField from '@mui/material/TextField'
+import Typography from '@mui/material/Typography'
 import { isSameDay } from 'date-fns'
 
+import { countries } from '../../../../lib/countries'
 import AutocompleteSingle from '../../../components/AutocompleteSingle'
 import CollapsibleSection from '../../../components/CollapsibleSection'
 
@@ -35,8 +38,8 @@ interface Props extends Readonly<SectionProps> {
   readonly selectedEventType?: EventType
 }
 
-type PartialClassJudge = Partial<ClassJudge>
-type PartialClassJudgeValue = PartialClassJudge | PartialClassJudge[]
+type PartialPublicJudge = Partial<PublicJudge>
+type PartialPublicJudgeValue = PartialPublicJudge | PartialPublicJudge[]
 
 export default function JudgesSection({
   event,
@@ -69,16 +72,16 @@ export default function JudgesSection({
     return error ? t('validation.event.errors') : ''
   }, [error, fields?.state?.judges, t, validationError])
 
-  const toArray = (j?: Partial<ClassJudge>): PartialClassJudge[] => (j ? [j] : [])
-  const makeArray = (j?: PartialClassJudgeValue) => (Array.isArray(j) ? [...j] : toArray(j))
-  const selectJudge = (j?: PartialClassJudgeValue, judge?: PublicJudge): PartialClassJudge[] => {
+  const toArray = (j?: PartialPublicJudge): PartialPublicJudge[] => (j ? [j] : [])
+  const makeArray = (j?: PartialPublicJudgeValue) => (Array.isArray(j) ? [...j] : toArray(j))
+  const selectJudge = (j?: PartialPublicJudgeValue, judge?: PublicJudge): PartialPublicJudge[] => {
     const a = makeArray(j)
     if (judge && !a.find((cj) => cj.id === judge.id)) {
       a.push(judge)
     }
     return a
   }
-  const removeJudge = (j?: PartialClassJudgeValue, id?: number): PartialClassJudge[] => {
+  const removeJudge = (j?: PartialPublicJudgeValue, id?: number): PartialPublicJudge[] => {
     const a = makeArray(j)
     return a.filter((cj) => cj.id !== id)
   }
@@ -165,6 +168,11 @@ export default function JudgesSection({
             </Grid>
           )
         })}
+        {unofficialJudges.length > 0 ? (
+          <Typography variant="subtitle1" sx={{ pt: 1 }}>
+            Epäviralliset ja ulkomaiset tuomarit
+          </Typography>
+        ) : null}
         {unofficialJudges.map((judge, unfficialIndex) => {
           const index = officialJudges.length + unfficialIndex
           return (
@@ -194,6 +202,32 @@ export default function JudgesSection({
                       classes: updateJudge(judge.id, judge, [...values]),
                     })
                   }
+                />
+              </Grid>
+              <Grid item sx={{ width: 200 }}>
+                <AutocompleteSingle
+                  options={countries}
+                  getOptionLabel={(option) => t(option, { ns: 'country' })}
+                  renderOption={(props, option) => (
+                    <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
+                      <img
+                        loading="lazy"
+                        width="20"
+                        srcSet={`https://flagcdn.com/w40/${option.toLowerCase()}.png 2x`}
+                        src={`https://flagcdn.com/w20/${option.toLowerCase()}.png`}
+                        alt=""
+                      />
+                      {t(option, { ns: 'country' })}
+                    </Box>
+                  )}
+                  value={judge.foreing ? judge.country : 'FI'}
+                  label={'Maa'}
+                  disabled={!judge.foreing}
+                  onChange={(country) => {
+                    const newJudges = [...event.judges]
+                    newJudges[index] = { ...newJudges[index], country: country ?? undefined }
+                    onChange?.({ judges: newJudges })
+                  }}
                 />
               </Grid>
               <Grid item>
@@ -226,6 +260,24 @@ export default function JudgesSection({
             }}
           >
             Lisää tuomari
+          </Button>
+          <Button
+            disabled={disabled}
+            startIcon={<AddOutlined />}
+            onClick={() => {
+              const newJudges = [...event.judges].concat({
+                id: (unofficialJudges.length + 1) * -1,
+                name: '',
+                official: false,
+                foreing: true,
+              })
+              newJudges.sort((a, b) => Number(b.official) - Number(a.official))
+              onChange?.({
+                judges: newJudges,
+              })
+            }}
+          >
+            Lisää ulkomainen tuomari
           </Button>
           <Button
             disabled={disabled}

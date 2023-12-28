@@ -8,7 +8,7 @@ import { enUS as denUS, fiFI as dfiFI } from '@mui/x-date-pickers/locales'
 import i18n from 'i18next'
 
 import { formatDateSpan, formatDistance, getDateFormatter, locales } from './dates'
-import { en, enBreed, enBreedAbbr, fi, fiBreed, fiBreedAbbr } from './locales'
+import { en, enBreed, enBreedAbbr, enCountry, fi, fiBreed, fiBreedAbbr, fiCountry } from './locales'
 
 export { locales }
 export type { Language }
@@ -23,10 +23,10 @@ i18n
   .use(initReactI18next)
   .init({
     lng: 'fi',
-    ns: ['translation', 'breed', 'breedAbbr'],
+    ns: ['translation', 'breed', 'breedAbbr', 'country'],
     resources: {
-      fi: { translation: fi, breed: fiBreed, breedAbbr: fiBreedAbbr },
-      en: { translation: en, breed: enBreed, breedAbbr: enBreedAbbr },
+      fi: { translation: fi, breed: fiBreed, breedAbbr: fiBreedAbbr, country: fiCountry },
+      en: { translation: en, breed: enBreed, breedAbbr: enBreedAbbr, country: enCountry },
     },
     fallbackLng: 'fi',
     supportedLngs: ['fi', 'en'],
