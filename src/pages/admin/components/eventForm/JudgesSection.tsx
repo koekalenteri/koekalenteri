@@ -175,11 +175,13 @@ export default function JudgesSection({
         ) : null}
         {unofficialJudges.map((judge, unfficialIndex) => {
           const index = officialJudges.length + unfficialIndex
+          const title = index === 0 ? t('judgeChief') : t('judge') + ` ${index + 1}`
           return (
             <Grid key={'unofficial-' + index} item container spacing={1} alignItems="center">
               <Grid item sx={{ width: 300 }}>
                 <TextField
                   fullWidth
+                  label={title}
                   value={judge.name}
                   onChange={(e) => {
                     const newJudges = [...event.judges]

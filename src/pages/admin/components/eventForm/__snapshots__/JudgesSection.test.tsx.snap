@@ -70,6 +70,14 @@ exports[`JudgeSection should hide classes for NOWT event (KOE-317) 1`] = `
                     <div
                       class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                     >
+                      <label
+                        class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-14s5rfu-MuiFormLabel-root-MuiInputLabel-root"
+                        data-shrink="false"
+                        for=":r13:"
+                        id=":r13:-label"
+                      >
+                        judgeChief
+                      </label>
                       <div
                         class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-md26zr-MuiInputBase-root-MuiOutlinedInput-root"
                       >
@@ -85,12 +93,10 @@ exports[`JudgeSection should hide classes for NOWT event (KOE-317) 1`] = `
                           class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                         >
                           <legend
-                            class="css-ihdtdm"
+                            class="css-yjsfm1"
                           >
-                            <span
-                              class="notranslate"
-                            >
-                              ​
+                            <span>
+                              judgeChief
                             </span>
                           </legend>
                         </fieldset>
@@ -436,6 +442,14 @@ exports[`JudgeSection should not warn about judge 0 not beign available (KOE-357
                     <div
                       class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                     >
+                      <label
+                        class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-14s5rfu-MuiFormLabel-root-MuiInputLabel-root"
+                        data-shrink="false"
+                        for=":ru:"
+                        id=":ru:-label"
+                      >
+                        judgeChief
+                      </label>
                       <div
                         class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-md26zr-MuiInputBase-root-MuiOutlinedInput-root"
                       >
@@ -451,12 +465,10 @@ exports[`JudgeSection should not warn about judge 0 not beign available (KOE-357
                           class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                         >
                           <legend
-                            class="css-ihdtdm"
+                            class="css-yjsfm1"
                           >
-                            <span
-                              class="notranslate"
-                            >
-                              ​
+                            <span>
+                              judgeChief
                             </span>
                           </legend>
                         </fieldset>
@@ -801,6 +813,14 @@ exports[`JudgeSection should render properly with one judge selected 1`] = `
                     <div
                       class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                     >
+                      <label
+                        class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1jy569b-MuiFormLabel-root-MuiInputLabel-root"
+                        data-shrink="true"
+                        for=":r0:"
+                        id=":r0:-label"
+                      >
+                        judgeChief
+                      </label>
                       <div
                         class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-md26zr-MuiInputBase-root-MuiOutlinedInput-root"
                       >
@@ -816,12 +836,10 @@ exports[`JudgeSection should render properly with one judge selected 1`] = `
                           class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                         >
                           <legend
-                            class="css-ihdtdm"
+                            class="css-14lo706"
                           >
-                            <span
-                              class="notranslate"
-                            >
-                              ​
+                            <span>
+                              judgeChief
                             </span>
                           </legend>
                         </fieldset>
@@ -1166,6 +1184,14 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
                     <div
                       class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                     >
+                      <label
+                        class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1jy569b-MuiFormLabel-root-MuiInputLabel-root"
+                        data-shrink="true"
+                        for=":rf:"
+                        id=":rf:-label"
+                      >
+                        judgeChief
+                      </label>
                       <div
                         class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-md26zr-MuiInputBase-root-MuiOutlinedInput-root"
                       >
@@ -1181,12 +1207,10 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
                           class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                         >
                           <legend
-                            class="css-ihdtdm"
+                            class="css-14lo706"
                           >
-                            <span
-                              class="notranslate"
-                            >
-                              ​
+                            <span>
+                              judgeChief
                             </span>
                           </legend>
                         </fieldset>
@@ -1381,6 +1405,14 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
                     <div
                       class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                     >
+                      <label
+                        class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1jy569b-MuiFormLabel-root-MuiInputLabel-root"
+                        data-shrink="true"
+                        for=":rk:"
+                        id=":rk:-label"
+                      >
+                        judge 2
+                      </label>
                       <div
                         class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-md26zr-MuiInputBase-root-MuiOutlinedInput-root"
                       >
@@ -1396,12 +1428,10 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
                           class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                         >
                           <legend
-                            class="css-ihdtdm"
+                            class="css-14lo706"
                           >
-                            <span
-                              class="notranslate"
-                            >
-                              ​
+                            <span>
+                              judge 2
                             </span>
                           </legend>
                         </fieldset>
@@ -1596,6 +1626,14 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
                     <div
                       class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                     >
+                      <label
+                        class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1jy569b-MuiFormLabel-root-MuiInputLabel-root"
+                        data-shrink="true"
+                        for=":rp:"
+                        id=":rp:-label"
+                      >
+                        judge 3
+                      </label>
                       <div
                         class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-md26zr-MuiInputBase-root-MuiOutlinedInput-root"
                       >
@@ -1611,12 +1649,10 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
                           class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                         >
                           <legend
-                            class="css-ihdtdm"
+                            class="css-14lo706"
                           >
-                            <span
-                              class="notranslate"
-                            >
-                              ​
+                            <span>
+                              judge 3
                             </span>
                           </legend>
                         </fieldset>
@@ -1961,6 +1997,14 @@ exports[`JudgeSection should render properly with two judges selected 1`] = `
                     <div
                       class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                     >
+                      <label
+                        class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1jy569b-MuiFormLabel-root-MuiInputLabel-root"
+                        data-shrink="true"
+                        for=":r5:"
+                        id=":r5:-label"
+                      >
+                        judgeChief
+                      </label>
                       <div
                         class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-md26zr-MuiInputBase-root-MuiOutlinedInput-root"
                       >
@@ -1976,12 +2020,10 @@ exports[`JudgeSection should render properly with two judges selected 1`] = `
                           class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                         >
                           <legend
-                            class="css-ihdtdm"
+                            class="css-14lo706"
                           >
-                            <span
-                              class="notranslate"
-                            >
-                              ​
+                            <span>
+                              judgeChief
                             </span>
                           </legend>
                         </fieldset>
@@ -2176,6 +2218,14 @@ exports[`JudgeSection should render properly with two judges selected 1`] = `
                     <div
                       class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                     >
+                      <label
+                        class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1jy569b-MuiFormLabel-root-MuiInputLabel-root"
+                        data-shrink="true"
+                        for=":ra:"
+                        id=":ra:-label"
+                      >
+                        judge 2
+                      </label>
                       <div
                         class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-md26zr-MuiInputBase-root-MuiOutlinedInput-root"
                       >
@@ -2191,12 +2241,10 @@ exports[`JudgeSection should render properly with two judges selected 1`] = `
                           class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                         >
                           <legend
-                            class="css-ihdtdm"
+                            class="css-14lo706"
                           >
-                            <span
-                              class="notranslate"
-                            >
-                              ​
+                            <span>
+                              judge 2
                             </span>
                           </legend>
                         </fieldset>

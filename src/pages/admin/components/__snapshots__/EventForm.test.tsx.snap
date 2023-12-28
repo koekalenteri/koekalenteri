@@ -1156,6 +1156,14 @@ exports[`EventForm should render 1`] = `
                         <div
                           class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                         >
+                          <label
+                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1cwx9dy-MuiFormLabel-root-MuiInputLabel-root"
+                            data-shrink="true"
+                            for=":r25:"
+                            id=":r25:-label"
+                          >
+                            judgeChief
+                          </label>
                           <div
                             class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-78sb4c-MuiInputBase-root-MuiOutlinedInput-root"
                           >
@@ -1171,12 +1179,10 @@ exports[`EventForm should render 1`] = `
                               class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                             >
                               <legend
-                                class="css-ihdtdm"
+                                class="css-14lo706"
                               >
-                                <span
-                                  class="notranslate"
-                                >
-                                  ​
+                                <span>
+                                  judgeChief
                                 </span>
                               </legend>
                             </fieldset>
