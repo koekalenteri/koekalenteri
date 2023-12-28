@@ -109,7 +109,7 @@ describe('JudgeSection', () => {
   it('should fire onChange', async () => {
     const testEvent: PartialEvent = {
       id: 'test',
-      judges: [{ id: 1, name: 'Test Judge 1' }],
+      judges: [{ id: 1, name: 'Test Judge 1', official: true }],
       startDate: new Date('2022-06-01'),
       endDate: new Date('2022-06-02'),
       classes: [
@@ -138,7 +138,7 @@ describe('JudgeSection', () => {
     fireEvent.click(screen.getByText(/Lisää tuomari/i))
     expect(changeHandler).toHaveBeenCalledTimes(2)
     expect(testEvent.judges.length).toBe(2)
-    expect(testEvent.judges[1]).toEqual(expect.objectContaining({ id: 0, name: '' }))
+    expect(testEvent.judges[1]).toEqual(expect.objectContaining({ id: 0, name: '', official: true }))
 
     rerender(<JudgesSection event={testEvent} judges={JUDGES} onChange={changeHandler} />)
 

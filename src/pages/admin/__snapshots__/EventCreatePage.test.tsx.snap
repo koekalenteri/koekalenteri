@@ -1125,6 +1125,29 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                         </span>
                         Lisää tuomari
                       </button>
+                      <button
+                        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-mvwufc-MuiButtonBase-root-MuiButton-root"
+                        disabled=""
+                        tabindex="-1"
+                        type="button"
+                      >
+                        <span
+                          class="MuiButton-startIcon MuiButton-iconSizeMedium css-1d6wzja-MuiButton-startIcon"
+                        >
+                          <svg
+                            aria-hidden="true"
+                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                            data-testid="AddOutlinedIcon"
+                            focusable="false"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"
+                            />
+                          </svg>
+                        </span>
+                        Lisää epävirallinen tuomari
+                      </button>
                     </div>
                   </div>
                 </div>

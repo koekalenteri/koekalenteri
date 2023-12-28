@@ -63,75 +63,32 @@ exports[`JudgeSection should hide classes for NOWT event (KOE-317) 1`] = `
                     class="MuiGrid-root MuiGrid-item css-17sva53-MuiGrid-root"
                   >
                     <div
-                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1kkal6p-MuiAutocomplete-root"
-                      data-testid="judgeChief"
+                      class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                     >
                       <div
-                        class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-md26zr-MuiInputBase-root-MuiOutlinedInput-root"
                       >
-                        <label
-                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-14s5rfu-MuiFormLabel-root-MuiInputLabel-root"
-                          data-shrink="false"
-                          for=":rs:"
-                          id=":rs:-label"
+                        <input
+                          aria-invalid="false"
+                          class="MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
+                          id=":rl:"
+                          type="text"
+                          value=""
+                        />
+                        <fieldset
+                          aria-hidden="true"
+                          class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                         >
-                          judgeChief
-                        </label>
-                        <div
-                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-154xyx0-MuiInputBase-root-MuiOutlinedInput-root"
-                        >
-                          <input
-                            aria-autocomplete="list"
-                            aria-expanded="false"
-                            aria-invalid="false"
-                            autocapitalize="none"
-                            autocomplete="off"
-                            class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
-                            id=":rs:"
-                            role="combobox"
-                            spellcheck="false"
-                            type="text"
-                            value=""
-                          />
-                          <div
-                            class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                          <legend
+                            class="css-ihdtdm"
                           >
-                            <button
-                              aria-label="Open"
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-                              tabindex="-1"
-                              title="Open"
-                              type="button"
+                            <span
+                              class="notranslate"
                             >
-                              <svg
-                                aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                                data-testid="ArrowDropDownIcon"
-                                focusable="false"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  d="M7 10l5 5 5-5z"
-                                />
-                              </svg>
-                              <span
-                                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                              />
-                            </button>
-                          </div>
-                          <fieldset
-                            aria-hidden="true"
-                            class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
-                          >
-                            <legend
-                              class="css-yjsfm1"
-                            >
-                              <span>
-                                judgeChief
-                              </span>
-                            </legend>
-                          </fieldset>
-                        </div>
+                              ​
+                            </span>
+                          </legend>
+                        </fieldset>
                       </div>
                     </div>
                   </div>
@@ -268,6 +225,31 @@ exports[`JudgeSection should hide classes for NOWT event (KOE-317) 1`] = `
                       class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
                     />
                   </button>
+                  <button
+                    class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-1e6y48t-MuiButtonBase-root-MuiButton-root"
+                    tabindex="0"
+                    type="button"
+                  >
+                    <span
+                      class="MuiButton-startIcon MuiButton-iconSizeMedium css-1d6wzja-MuiButton-startIcon"
+                    >
+                      <svg
+                        aria-hidden="true"
+                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                        data-testid="AddOutlinedIcon"
+                        focusable="false"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"
+                        />
+                      </svg>
+                    </span>
+                    Lisää epävirallinen tuomari
+                    <span
+                      class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                    />
+                  </button>
                 </div>
               </div>
             </div>
@@ -342,75 +324,32 @@ exports[`JudgeSection should not warn about judge 0 not beign available (KOE-357
                     class="MuiGrid-root MuiGrid-item css-17sva53-MuiGrid-root"
                   >
                     <div
-                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1kkal6p-MuiAutocomplete-root"
-                      data-testid="judgeChief"
+                      class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                     >
                       <div
-                        class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-md26zr-MuiInputBase-root-MuiOutlinedInput-root"
                       >
-                        <label
-                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-14s5rfu-MuiFormLabel-root-MuiInputLabel-root"
-                          data-shrink="false"
-                          for=":ro:"
-                          id=":ro:-label"
+                        <input
+                          aria-invalid="false"
+                          class="MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
+                          id=":ri:"
+                          type="text"
+                          value=""
+                        />
+                        <fieldset
+                          aria-hidden="true"
+                          class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                         >
-                          judgeChief
-                        </label>
-                        <div
-                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-154xyx0-MuiInputBase-root-MuiOutlinedInput-root"
-                        >
-                          <input
-                            aria-autocomplete="list"
-                            aria-expanded="false"
-                            aria-invalid="false"
-                            autocapitalize="none"
-                            autocomplete="off"
-                            class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
-                            id=":ro:"
-                            role="combobox"
-                            spellcheck="false"
-                            type="text"
-                            value=""
-                          />
-                          <div
-                            class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                          <legend
+                            class="css-ihdtdm"
                           >
-                            <button
-                              aria-label="Open"
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-                              tabindex="-1"
-                              title="Open"
-                              type="button"
+                            <span
+                              class="notranslate"
                             >
-                              <svg
-                                aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                                data-testid="ArrowDropDownIcon"
-                                focusable="false"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  d="M7 10l5 5 5-5z"
-                                />
-                              </svg>
-                              <span
-                                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                              />
-                            </button>
-                          </div>
-                          <fieldset
-                            aria-hidden="true"
-                            class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
-                          >
-                            <legend
-                              class="css-yjsfm1"
-                            >
-                              <span>
-                                judgeChief
-                              </span>
-                            </legend>
-                          </fieldset>
-                        </div>
+                              ​
+                            </span>
+                          </legend>
+                        </fieldset>
                       </div>
                     </div>
                   </div>
@@ -542,6 +481,31 @@ exports[`JudgeSection should not warn about judge 0 not beign available (KOE-357
                       </svg>
                     </span>
                     Lisää tuomari
+                    <span
+                      class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                    />
+                  </button>
+                  <button
+                    class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-1e6y48t-MuiButtonBase-root-MuiButton-root"
+                    tabindex="0"
+                    type="button"
+                  >
+                    <span
+                      class="MuiButton-startIcon MuiButton-iconSizeMedium css-1d6wzja-MuiButton-startIcon"
+                    >
+                      <svg
+                        aria-hidden="true"
+                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                        data-testid="AddOutlinedIcon"
+                        focusable="false"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"
+                        />
+                      </svg>
+                    </span>
+                    Lisää epävirallinen tuomari
                     <span
                       class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
                     />
@@ -620,97 +584,32 @@ exports[`JudgeSection should render properly with one judge selected 1`] = `
                     class="MuiGrid-root MuiGrid-item css-17sva53-MuiGrid-root"
                   >
                     <div
-                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasClearIcon MuiAutocomplete-hasPopupIcon css-1kkal6p-MuiAutocomplete-root"
-                      data-testid="judgeChief"
+                      class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                     >
                       <div
-                        class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-md26zr-MuiInputBase-root-MuiOutlinedInput-root"
                       >
-                        <label
-                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1jy569b-MuiFormLabel-root-MuiInputLabel-root"
-                          data-shrink="true"
-                          for=":r0:"
-                          id=":r0:-label"
+                        <input
+                          aria-invalid="false"
+                          class="MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
+                          id=":r0:"
+                          type="text"
+                          value="Test Judge 1"
+                        />
+                        <fieldset
+                          aria-hidden="true"
+                          class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                         >
-                          judgeChief
-                        </label>
-                        <div
-                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-154xyx0-MuiInputBase-root-MuiOutlinedInput-root"
-                        >
-                          <input
-                            aria-autocomplete="list"
-                            aria-expanded="false"
-                            aria-invalid="false"
-                            autocapitalize="none"
-                            autocomplete="off"
-                            class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
-                            id=":r0:"
-                            role="combobox"
-                            spellcheck="false"
-                            type="text"
-                            value="Test Judge 1"
-                          />
-                          <div
-                            class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                          <legend
+                            class="css-ihdtdm"
                           >
-                            <button
-                              aria-label="Clear"
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-clearIndicator css-1glvl0p-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-clearIndicator"
-                              tabindex="-1"
-                              title="Clear"
-                              type="button"
+                            <span
+                              class="notranslate"
                             >
-                              <svg
-                                aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-ptiqhd-MuiSvgIcon-root"
-                                data-testid="CloseIcon"
-                                focusable="false"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
-                                />
-                              </svg>
-                              <span
-                                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                              />
-                            </button>
-                            <button
-                              aria-label="Open"
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-                              tabindex="-1"
-                              title="Open"
-                              type="button"
-                            >
-                              <svg
-                                aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                                data-testid="ArrowDropDownIcon"
-                                focusable="false"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  d="M7 10l5 5 5-5z"
-                                />
-                              </svg>
-                              <span
-                                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                              />
-                            </button>
-                          </div>
-                          <fieldset
-                            aria-hidden="true"
-                            class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
-                          >
-                            <legend
-                              class="css-14lo706"
-                            >
-                              <span>
-                                judgeChief
-                              </span>
-                            </legend>
-                          </fieldset>
-                        </div>
+                              ​
+                            </span>
+                          </legend>
+                        </fieldset>
                       </div>
                     </div>
                   </div>
@@ -846,6 +745,31 @@ exports[`JudgeSection should render properly with one judge selected 1`] = `
                       class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
                     />
                   </button>
+                  <button
+                    class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-1e6y48t-MuiButtonBase-root-MuiButton-root"
+                    tabindex="0"
+                    type="button"
+                  >
+                    <span
+                      class="MuiButton-startIcon MuiButton-iconSizeMedium css-1d6wzja-MuiButton-startIcon"
+                    >
+                      <svg
+                        aria-hidden="true"
+                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                        data-testid="AddOutlinedIcon"
+                        focusable="false"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"
+                        />
+                      </svg>
+                    </span>
+                    Lisää epävirallinen tuomari
+                    <span
+                      class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                    />
+                  </button>
                 </div>
               </div>
             </div>
@@ -920,97 +844,32 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
                     class="MuiGrid-root MuiGrid-item css-17sva53-MuiGrid-root"
                   >
                     <div
-                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasClearIcon MuiAutocomplete-hasPopupIcon css-1kkal6p-MuiAutocomplete-root"
-                      data-testid="judgeChief"
+                      class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                     >
                       <div
-                        class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-md26zr-MuiInputBase-root-MuiOutlinedInput-root"
                       >
-                        <label
-                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1jy569b-MuiFormLabel-root-MuiInputLabel-root"
-                          data-shrink="true"
-                          for=":rc:"
-                          id=":rc:-label"
+                        <input
+                          aria-invalid="false"
+                          class="MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
+                          id=":r9:"
+                          type="text"
+                          value="Test Judge 1"
+                        />
+                        <fieldset
+                          aria-hidden="true"
+                          class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                         >
-                          judgeChief
-                        </label>
-                        <div
-                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-154xyx0-MuiInputBase-root-MuiOutlinedInput-root"
-                        >
-                          <input
-                            aria-autocomplete="list"
-                            aria-expanded="false"
-                            aria-invalid="false"
-                            autocapitalize="none"
-                            autocomplete="off"
-                            class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
-                            id=":rc:"
-                            role="combobox"
-                            spellcheck="false"
-                            type="text"
-                            value="Test Judge 1"
-                          />
-                          <div
-                            class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                          <legend
+                            class="css-ihdtdm"
                           >
-                            <button
-                              aria-label="Clear"
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-clearIndicator css-1glvl0p-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-clearIndicator"
-                              tabindex="-1"
-                              title="Clear"
-                              type="button"
+                            <span
+                              class="notranslate"
                             >
-                              <svg
-                                aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-ptiqhd-MuiSvgIcon-root"
-                                data-testid="CloseIcon"
-                                focusable="false"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
-                                />
-                              </svg>
-                              <span
-                                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                              />
-                            </button>
-                            <button
-                              aria-label="Open"
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-                              tabindex="-1"
-                              title="Open"
-                              type="button"
-                            >
-                              <svg
-                                aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                                data-testid="ArrowDropDownIcon"
-                                focusable="false"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  d="M7 10l5 5 5-5z"
-                                />
-                              </svg>
-                              <span
-                                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                              />
-                            </button>
-                          </div>
-                          <fieldset
-                            aria-hidden="true"
-                            class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
-                          >
-                            <legend
-                              class="css-14lo706"
-                            >
-                              <span>
-                                judgeChief
-                              </span>
-                            </legend>
-                          </fieldset>
-                        </div>
+                              ​
+                            </span>
+                          </legend>
+                        </fieldset>
                       </div>
                     </div>
                   </div>
@@ -1125,97 +984,32 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
                     class="MuiGrid-root MuiGrid-item css-17sva53-MuiGrid-root"
                   >
                     <div
-                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasClearIcon MuiAutocomplete-hasPopupIcon css-1kkal6p-MuiAutocomplete-root"
-                      data-testid="judge 2"
+                      class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                     >
                       <div
-                        class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-md26zr-MuiInputBase-root-MuiOutlinedInput-root"
                       >
-                        <label
-                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1jy569b-MuiFormLabel-root-MuiInputLabel-root"
-                          data-shrink="true"
-                          for=":rg:"
-                          id=":rg:-label"
+                        <input
+                          aria-invalid="false"
+                          class="MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
+                          id=":rc:"
+                          type="text"
+                          value="Test Judge 2"
+                        />
+                        <fieldset
+                          aria-hidden="true"
+                          class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                         >
-                          judge 2
-                        </label>
-                        <div
-                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-154xyx0-MuiInputBase-root-MuiOutlinedInput-root"
-                        >
-                          <input
-                            aria-autocomplete="list"
-                            aria-expanded="false"
-                            aria-invalid="false"
-                            autocapitalize="none"
-                            autocomplete="off"
-                            class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
-                            id=":rg:"
-                            role="combobox"
-                            spellcheck="false"
-                            type="text"
-                            value="Test Judge 2"
-                          />
-                          <div
-                            class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                          <legend
+                            class="css-ihdtdm"
                           >
-                            <button
-                              aria-label="Clear"
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-clearIndicator css-1glvl0p-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-clearIndicator"
-                              tabindex="-1"
-                              title="Clear"
-                              type="button"
+                            <span
+                              class="notranslate"
                             >
-                              <svg
-                                aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-ptiqhd-MuiSvgIcon-root"
-                                data-testid="CloseIcon"
-                                focusable="false"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
-                                />
-                              </svg>
-                              <span
-                                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                              />
-                            </button>
-                            <button
-                              aria-label="Open"
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-                              tabindex="-1"
-                              title="Open"
-                              type="button"
-                            >
-                              <svg
-                                aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                                data-testid="ArrowDropDownIcon"
-                                focusable="false"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  d="M7 10l5 5 5-5z"
-                                />
-                              </svg>
-                              <span
-                                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                              />
-                            </button>
-                          </div>
-                          <fieldset
-                            aria-hidden="true"
-                            class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
-                          >
-                            <legend
-                              class="css-14lo706"
-                            >
-                              <span>
-                                judge 2
-                              </span>
-                            </legend>
-                          </fieldset>
-                        </div>
+                              ​
+                            </span>
+                          </legend>
+                        </fieldset>
                       </div>
                     </div>
                   </div>
@@ -1330,97 +1124,32 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
                     class="MuiGrid-root MuiGrid-item css-17sva53-MuiGrid-root"
                   >
                     <div
-                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasClearIcon MuiAutocomplete-hasPopupIcon css-1kkal6p-MuiAutocomplete-root"
-                      data-testid="judge 3"
+                      class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                     >
                       <div
-                        class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-md26zr-MuiInputBase-root-MuiOutlinedInput-root"
                       >
-                        <label
-                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1jy569b-MuiFormLabel-root-MuiInputLabel-root"
-                          data-shrink="true"
-                          for=":rk:"
-                          id=":rk:-label"
+                        <input
+                          aria-invalid="false"
+                          class="MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
+                          id=":rf:"
+                          type="text"
+                          value="Test Judge 3"
+                        />
+                        <fieldset
+                          aria-hidden="true"
+                          class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                         >
-                          judge 3
-                        </label>
-                        <div
-                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-154xyx0-MuiInputBase-root-MuiOutlinedInput-root"
-                        >
-                          <input
-                            aria-autocomplete="list"
-                            aria-expanded="false"
-                            aria-invalid="false"
-                            autocapitalize="none"
-                            autocomplete="off"
-                            class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
-                            id=":rk:"
-                            role="combobox"
-                            spellcheck="false"
-                            type="text"
-                            value="Test Judge 3"
-                          />
-                          <div
-                            class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                          <legend
+                            class="css-ihdtdm"
                           >
-                            <button
-                              aria-label="Clear"
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-clearIndicator css-1glvl0p-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-clearIndicator"
-                              tabindex="-1"
-                              title="Clear"
-                              type="button"
+                            <span
+                              class="notranslate"
                             >
-                              <svg
-                                aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-ptiqhd-MuiSvgIcon-root"
-                                data-testid="CloseIcon"
-                                focusable="false"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
-                                />
-                              </svg>
-                              <span
-                                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                              />
-                            </button>
-                            <button
-                              aria-label="Open"
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-                              tabindex="-1"
-                              title="Open"
-                              type="button"
-                            >
-                              <svg
-                                aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                                data-testid="ArrowDropDownIcon"
-                                focusable="false"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  d="M7 10l5 5 5-5z"
-                                />
-                              </svg>
-                              <span
-                                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                              />
-                            </button>
-                          </div>
-                          <fieldset
-                            aria-hidden="true"
-                            class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
-                          >
-                            <legend
-                              class="css-14lo706"
-                            >
-                              <span>
-                                judge 3
-                              </span>
-                            </legend>
-                          </fieldset>
-                        </div>
+                              ​
+                            </span>
+                          </legend>
+                        </fieldset>
                       </div>
                     </div>
                   </div>
@@ -1556,6 +1285,31 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
                       class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
                     />
                   </button>
+                  <button
+                    class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-1e6y48t-MuiButtonBase-root-MuiButton-root"
+                    tabindex="0"
+                    type="button"
+                  >
+                    <span
+                      class="MuiButton-startIcon MuiButton-iconSizeMedium css-1d6wzja-MuiButton-startIcon"
+                    >
+                      <svg
+                        aria-hidden="true"
+                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                        data-testid="AddOutlinedIcon"
+                        focusable="false"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"
+                        />
+                      </svg>
+                    </span>
+                    Lisää epävirallinen tuomari
+                    <span
+                      class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                    />
+                  </button>
                 </div>
               </div>
             </div>
@@ -1630,97 +1384,32 @@ exports[`JudgeSection should render properly with two judges selected 1`] = `
                     class="MuiGrid-root MuiGrid-item css-17sva53-MuiGrid-root"
                   >
                     <div
-                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasClearIcon MuiAutocomplete-hasPopupIcon css-1kkal6p-MuiAutocomplete-root"
-                      data-testid="judgeChief"
+                      class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                     >
                       <div
-                        class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-md26zr-MuiInputBase-root-MuiOutlinedInput-root"
                       >
-                        <label
-                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1jy569b-MuiFormLabel-root-MuiInputLabel-root"
-                          data-shrink="true"
-                          for=":r4:"
-                          id=":r4:-label"
+                        <input
+                          aria-invalid="false"
+                          class="MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
+                          id=":r3:"
+                          type="text"
+                          value="Test Judge 1"
+                        />
+                        <fieldset
+                          aria-hidden="true"
+                          class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                         >
-                          judgeChief
-                        </label>
-                        <div
-                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-154xyx0-MuiInputBase-root-MuiOutlinedInput-root"
-                        >
-                          <input
-                            aria-autocomplete="list"
-                            aria-expanded="false"
-                            aria-invalid="false"
-                            autocapitalize="none"
-                            autocomplete="off"
-                            class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
-                            id=":r4:"
-                            role="combobox"
-                            spellcheck="false"
-                            type="text"
-                            value="Test Judge 1"
-                          />
-                          <div
-                            class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                          <legend
+                            class="css-ihdtdm"
                           >
-                            <button
-                              aria-label="Clear"
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-clearIndicator css-1glvl0p-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-clearIndicator"
-                              tabindex="-1"
-                              title="Clear"
-                              type="button"
+                            <span
+                              class="notranslate"
                             >
-                              <svg
-                                aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-ptiqhd-MuiSvgIcon-root"
-                                data-testid="CloseIcon"
-                                focusable="false"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
-                                />
-                              </svg>
-                              <span
-                                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                              />
-                            </button>
-                            <button
-                              aria-label="Open"
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-                              tabindex="-1"
-                              title="Open"
-                              type="button"
-                            >
-                              <svg
-                                aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                                data-testid="ArrowDropDownIcon"
-                                focusable="false"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  d="M7 10l5 5 5-5z"
-                                />
-                              </svg>
-                              <span
-                                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                              />
-                            </button>
-                          </div>
-                          <fieldset
-                            aria-hidden="true"
-                            class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
-                          >
-                            <legend
-                              class="css-14lo706"
-                            >
-                              <span>
-                                judgeChief
-                              </span>
-                            </legend>
-                          </fieldset>
-                        </div>
+                              ​
+                            </span>
+                          </legend>
+                        </fieldset>
                       </div>
                     </div>
                   </div>
@@ -1835,97 +1524,32 @@ exports[`JudgeSection should render properly with two judges selected 1`] = `
                     class="MuiGrid-root MuiGrid-item css-17sva53-MuiGrid-root"
                   >
                     <div
-                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasClearIcon MuiAutocomplete-hasPopupIcon css-1kkal6p-MuiAutocomplete-root"
-                      data-testid="judge 2"
+                      class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                     >
                       <div
-                        class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-md26zr-MuiInputBase-root-MuiOutlinedInput-root"
                       >
-                        <label
-                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1jy569b-MuiFormLabel-root-MuiInputLabel-root"
-                          data-shrink="true"
-                          for=":r8:"
-                          id=":r8:-label"
+                        <input
+                          aria-invalid="false"
+                          class="MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
+                          id=":r6:"
+                          type="text"
+                          value="Test Judge 2"
+                        />
+                        <fieldset
+                          aria-hidden="true"
+                          class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                         >
-                          judge 2
-                        </label>
-                        <div
-                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-154xyx0-MuiInputBase-root-MuiOutlinedInput-root"
-                        >
-                          <input
-                            aria-autocomplete="list"
-                            aria-expanded="false"
-                            aria-invalid="false"
-                            autocapitalize="none"
-                            autocomplete="off"
-                            class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
-                            id=":r8:"
-                            role="combobox"
-                            spellcheck="false"
-                            type="text"
-                            value="Test Judge 2"
-                          />
-                          <div
-                            class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                          <legend
+                            class="css-ihdtdm"
                           >
-                            <button
-                              aria-label="Clear"
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-clearIndicator css-1glvl0p-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-clearIndicator"
-                              tabindex="-1"
-                              title="Clear"
-                              type="button"
+                            <span
+                              class="notranslate"
                             >
-                              <svg
-                                aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-ptiqhd-MuiSvgIcon-root"
-                                data-testid="CloseIcon"
-                                focusable="false"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
-                                />
-                              </svg>
-                              <span
-                                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                              />
-                            </button>
-                            <button
-                              aria-label="Open"
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-                              tabindex="-1"
-                              title="Open"
-                              type="button"
-                            >
-                              <svg
-                                aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                                data-testid="ArrowDropDownIcon"
-                                focusable="false"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  d="M7 10l5 5 5-5z"
-                                />
-                              </svg>
-                              <span
-                                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                              />
-                            </button>
-                          </div>
-                          <fieldset
-                            aria-hidden="true"
-                            class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
-                          >
-                            <legend
-                              class="css-14lo706"
-                            >
-                              <span>
-                                judge 2
-                              </span>
-                            </legend>
-                          </fieldset>
-                        </div>
+                              ​
+                            </span>
+                          </legend>
+                        </fieldset>
                       </div>
                     </div>
                   </div>
@@ -2057,6 +1681,31 @@ exports[`JudgeSection should render properly with two judges selected 1`] = `
                       </svg>
                     </span>
                     Lisää tuomari
+                    <span
+                      class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                    />
+                  </button>
+                  <button
+                    class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-1e6y48t-MuiButtonBase-root-MuiButton-root"
+                    tabindex="0"
+                    type="button"
+                  >
+                    <span
+                      class="MuiButton-startIcon MuiButton-iconSizeMedium css-1d6wzja-MuiButton-startIcon"
+                    >
+                      <svg
+                        aria-hidden="true"
+                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                        data-testid="AddOutlinedIcon"
+                        focusable="false"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"
+                        />
+                      </svg>
+                    </span>
+                    Lisää epävirallinen tuomari
                     <span
                       class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
                     />
