@@ -1,31 +1,41 @@
 import { useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { Auth } from '@aws-amplify/auth'
-import { useSetRecoilState } from 'recoil'
+import { useRecoilState, useSetRecoilState } from 'recoil'
 
-import { idTokenAtom } from './atoms'
+import { Path } from '../../../routeConfig'
+
+import { idTokenAtom, loginPathAtom } from './atoms'
 
 export const useUserActions = () => {
+  const location = useLocation()
   const navigate = useNavigate()
   const setIdToken = useSetRecoilState(idTokenAtom)
+  const [loginPath, setLoginPath] = useRecoilState(loginPathAtom)
+
+  const login = useCallback(() => {
+    setLoginPath(location.pathname)
+    navigate(Path.login, { replace: true })
+  }, [location.pathname, navigate, setLoginPath])
 
   const signIn = useCallback(
-    async (idToken: string) => {
+    (idToken: string) => {
       setIdToken(idToken)
-      navigate('/', { replace: true })
+      console.log(loginPath)
+      navigate(loginPath ?? Path.home, { replace: true })
     },
-    [navigate, setIdToken]
+    [loginPath, navigate, setIdToken]
   )
 
   const signOut = useCallback(() => {
     Auth.signOut().then(
       () => {
         setIdToken(undefined)
-        navigate('/', { replace: true })
+        navigate(Path.home, { replace: true })
       },
       (reason) => console.error(reason)
     )
   }, [navigate, setIdToken])
 
-  return { signIn, signOut }
+  return { login, signIn, signOut }
 }

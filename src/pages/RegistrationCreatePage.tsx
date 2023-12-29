@@ -61,7 +61,7 @@ export default function RegistrationCreatePage() {
 
   const handleCancel = useCallback(() => {
     resetRegistration()
-    navigate('/')
+    navigate(Path.home)
     return true
   }, [navigate, resetRegistration])
 

@@ -1,26 +1,27 @@
-import { Suspense, useCallback, useState } from 'react'
-import { Navigate, Outlet, useLocation } from 'react-router-dom'
+import { Suspense, useCallback, useEffect, useState } from 'react'
+import { Outlet } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import { useRecoilValue } from 'recoil'
 
 import { HEADER_HEIGHT } from '../../assets/Theme'
-import { Path } from '../../routeConfig'
 import Header from '../components/Header'
 import LoadingIndicator from '../components/LoadingIndicator'
 import { SideMenu } from '../components/SideMenu'
-import { hasAdminAccessSelector } from '../recoil'
+import { hasAdminAccessSelector, useUserActions } from '../recoil'
 
 export default function AdminHomePage() {
-  const location = useLocation()
+  const actions = useUserActions()
   const hasAccess = useRecoilValue(hasAdminAccessSelector)
   const [menuOpen, setMenuOpen] = useState(false)
 
   const closeMenu = useCallback(() => setMenuOpen(false), [setMenuOpen])
   const toggleMenu = useCallback(() => setMenuOpen(!menuOpen), [setMenuOpen, menuOpen])
 
-  if (!hasAccess) {
-    return <Navigate to={Path.login} state={{ from: location }} replace />
-  }
+  useEffect(() => {
+    if (!hasAccess) actions.login()
+  }, [actions, hasAccess])
+
+  if (!hasAccess) return null
 
   return (
     <>

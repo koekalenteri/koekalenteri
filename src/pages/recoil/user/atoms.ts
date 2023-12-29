@@ -39,6 +39,12 @@ export const spaAtom = atom<boolean>({
   default: false,
 })
 
+export const loginPathAtom = atom<string | undefined>({
+  key: 'loginPath',
+  default: '/',
+  effects: [logEffect, storageEffect],
+})
+
 export const openedEventAtom = atomFamily<boolean, string>({
   key: 'open/eventId',
   default: false,

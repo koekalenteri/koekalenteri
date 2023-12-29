@@ -1,7 +1,8 @@
 import type { Registration, RegistrationTime } from '../../types'
 
+import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Navigate, useLocation, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import Paper from '@mui/material/Paper'
 import Table from '@mui/material/Table'
@@ -11,8 +12,7 @@ import TableRow from '@mui/material/TableRow'
 import Typography from '@mui/material/Typography'
 import { useRecoilValue } from 'recoil'
 
-import { Path } from '../../routeConfig'
-import { hasAdminAccessSelector } from '../recoil'
+import { hasAdminAccessSelector, useUserActions } from '../recoil'
 
 import { eventRegistrationsAtom } from './recoil'
 
@@ -20,7 +20,7 @@ type GroupedRegs = Record<string, Record<string, Record<string, Registration[]>>
 
 export default function AdminStartListPage() {
   const { t } = useTranslation()
-  const location = useLocation()
+  const actions = useUserActions()
   const hasAccess = useRecoilValue(hasAdminAccessSelector)
   const params = useParams()
   const eventId = params.id ?? ''
@@ -40,9 +40,11 @@ export default function AdminStartListPage() {
   const dates = Object.keys(grouped)
   dates.sort((a, b) => a.localeCompare(b))
 
-  if (!hasAccess) {
-    return <Navigate to={Path.login} state={{ from: location }} replace />
-  }
+  useEffect(() => {
+    if (!hasAccess) actions.login()
+  }, [actions, hasAccess])
+
+  if (!hasAccess) return null
 
   return (
     <Box p={1}>

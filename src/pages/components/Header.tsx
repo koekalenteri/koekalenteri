@@ -10,6 +10,7 @@ import Typography from '@mui/material/Typography'
 import { useRecoilValue } from 'recoil'
 
 import logo from '../../assets/snj-logo.png'
+import { Path } from '../../routeConfig'
 import { hasAdminAccessSelector, idTokenAtom, userSelector, useUserActions } from '../recoil'
 
 import AppBarButton from './header/AppBarButton'
@@ -30,8 +31,8 @@ const Header = ({ toggleMenu }: Props) => {
   const hasAdminAccess = useRecoilValue(hasAdminAccessSelector)
   const inAdmin = !!toggleMenu
 
-  const handleHomeClick = useCallback(() => navigate('/'), [navigate])
-  const handleAdminClick = useCallback(() => navigate('/admin'), [navigate])
+  const handleHomeClick = useCallback(() => navigate(Path.home), [navigate])
+  const handleAdminClick = useCallback(() => navigate(Path.admin.root), [navigate])
 
   useEffect(() => {
     if (idToken && !user) {
