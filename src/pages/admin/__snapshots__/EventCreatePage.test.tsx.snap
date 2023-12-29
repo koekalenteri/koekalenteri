@@ -1329,7 +1329,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                         Lisää ulkomainen tuomari
                       </button>
                       <button
-                        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-mvwufc-MuiButtonBase-root-MuiButton-root"
+                        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-1k0243r-MuiButtonBase-root-MuiButton-root"
                         disabled=""
                         tabindex="-1"
                         type="button"

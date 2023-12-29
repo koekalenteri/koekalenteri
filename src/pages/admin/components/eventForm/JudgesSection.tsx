@@ -301,6 +301,7 @@ export default function JudgesSection({
           <Button
             disabled={disabled || (selectedEventType?.official ?? true)}
             startIcon={<AddOutlined />}
+            sx={{ display: selectedEventType?.official ?? true ? 'NONE' : undefined }}
             onClick={() =>
               onChange?.({
                 judges: [...event.judges].concat({ id: (unofficialJudges.length + 1) * -1, name: '', official: false }),
