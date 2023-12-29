@@ -38,6 +38,23 @@ export const useAdminEventActions = () => {
     save,
   }
 
+  function updatePublicEvents(event: DogEvent, remove?: boolean): void {
+    if (event.id) {
+      const index = publicEvents.findIndex((e) => e.id === event.id)
+      if (index >= 0) {
+        const newEvents = [...publicEvents]
+        if (remove) {
+          newEvents.splice(index, 1)
+        } else {
+          newEvents.splice(index, 1, sanitizeDogEvent(event))
+        }
+        setPublicEvents(newEvents)
+      }
+    } else if (!remove) {
+      setPublicEvents([...publicEvents, sanitizeDogEvent(event)])
+    }
+  }
+
   function copyCurrent() {
     if (!currentAdminEvent) {
       return
@@ -75,6 +92,7 @@ export const useAdminEventActions = () => {
     const saved = await copyEventWithRegistrations(currentAdminEvent.id, token)
     setAdminEventId(saved.id)
     setCurrentAdminEvent(saved)
+    updatePublicEvents(saved)
     return saved
   }
 
@@ -82,18 +100,7 @@ export const useAdminEventActions = () => {
     const saved = await putEvent(event, token)
     setAdminEventId(saved.id)
     setCurrentAdminEvent(saved)
-    const newPublicEvent = sanitizeDogEvent(saved)
-
-    if (event.id) {
-      const index = publicEvents.findIndex((e) => e.id === event.id)
-      if (index >= 0) {
-        const newEvents = [...publicEvents]
-        newEvents.splice(index, 1, newPublicEvent)
-        setPublicEvents(newEvents)
-      }
-    } else {
-      setPublicEvents([...publicEvents, newPublicEvent])
-    }
+    updatePublicEvents(saved)
 
     return saved
   }
@@ -108,6 +115,8 @@ export const useAdminEventActions = () => {
       deletedAt: new Date(),
       deletedBy: user?.name ?? user?.email,
     })
+
+    updatePublicEvents(currentAdminEvent, true)
 
     enqueueSnackbar(t('deleteEventComplete'), { variant: 'info' })
   }
