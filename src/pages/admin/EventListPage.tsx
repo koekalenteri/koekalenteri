@@ -72,12 +72,12 @@ export default function EventListPage({ isDev }: Props) {
     if (newEvent.modifiedAt) {
       confirm({
         title: t('confirmTitle'),
-        description: `Selaimestasi löytyy jo aloitettu uusi tapahtuma (moukattu ${formatDistance(
+        description: `Sinulla on tallentamaton tapahtuman luonnos (muokattu ${formatDistance(
           newEvent.modifiedAt,
           'fi'
-        )} sitten), haluatko jatkaa sen muokkaamista vai aloittaa tyhjästä?`,
+        )} sitten). Haluatko jatkaa muokkaamista vai luoda kokonaan uuden tapahtuman?`,
         confirmationText: 'Jatka muokkausta',
-        cancellationText: 'Aloita tyhjästä',
+        cancellationText: 'Luo uusi tapahtuma',
       })
         .then(async () => {
           navigate(Path.admin.newEvent)
