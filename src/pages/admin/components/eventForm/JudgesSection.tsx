@@ -1,76 +1,22 @@
-import type { DeepPartial, EventClass, EventType, Judge, PublicJudge } from '../../../../types'
-import type { PartialEvent, SectionProps } from '../EventForm'
+import type { EventType, Judge } from '../../../../types'
+import type { SectionProps } from '../EventForm'
 
 import { useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import AddOutlined from '@mui/icons-material/AddOutlined'
-import DeleteOutline from '@mui/icons-material/DeleteOutline'
-import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
-import TextField from '@mui/material/TextField'
-import { isSameDay } from 'date-fns'
 
-import { countries } from '../../../../lib/countries'
-import AutocompleteSingle from '../../../components/AutocompleteSingle'
 import CollapsibleSection from '../../../components/CollapsibleSection'
 
-import EventClasses from './components/EventClasses'
+import { OfficialJudge } from './judgeSection/OfficialJudge'
+import { UnofficialJudge } from './judgeSection/UnofficialJudge'
+import { makeArray } from './judgeSection/utils'
 import { validateEventField } from './validation'
-
-function filterJudges(judges: Judge[], eventJudges: PublicJudge[], id: number | undefined, eventType?: EventType) {
-  return judges
-    .filter((j) => !eventType?.official || j.eventTypes.includes(eventType.eventType))
-    .filter((j) => j.id === id || !eventJudges.find((ej) => ej.id === j.id))
-}
-
-function hasJudge(c: DeepPartial<EventClass>, id?: number) {
-  return Array.isArray(c.judge) ? c.judge.find((j) => j.id === id) : c.judge?.id === id
-}
-
-function filterClassesByJudgeId(classes?: EventClass[], id?: number) {
-  return classes?.filter((c) => hasJudge(c, id))
-}
 
 interface Props extends Readonly<SectionProps> {
   readonly judges: Judge[]
   readonly selectedEventType?: EventType
-}
-
-type PartialPublicJudge = Partial<PublicJudge>
-type PartialPublicJudgeValue = PartialPublicJudge | PartialPublicJudge[]
-
-const toArray = (j?: PartialPublicJudge): PartialPublicJudge[] => (j ? [j] : [])
-const makeArray = (j?: PartialPublicJudgeValue) => (Array.isArray(j) ? [...j] : toArray(j))
-const selectJudge = (j?: PartialPublicJudgeValue, judge?: PublicJudge): PartialPublicJudge[] => {
-  const a = makeArray(j)
-  if (judge) {
-    const index = a.findIndex((cj) => cj.id === judge.id)
-    if (index === -1) {
-      a.push(judge)
-    } else {
-      a[index] = judge
-    }
-  }
-  return a
-}
-const removeJudge = (j?: PartialPublicJudgeValue, id?: number): PartialPublicJudge[] => {
-  const a = makeArray(j)
-  return a.filter((cj) => cj.id !== id)
-}
-
-const updateJudge = (
-  event: PartialEvent,
-  id: number | undefined,
-  judge: PublicJudge | undefined,
-  values?: DeepPartial<EventClass>[]
-) => {
-  const isSelected = (c: DeepPartial<EventClass>) =>
-    values?.find((v) => event && isSameDay(v.date ?? event.startDate, c.date ?? event.startDate) && v.class === c.class)
-  return event.classes?.map((c) => ({
-    ...c,
-    judge: isSelected(c) ? selectJudge(c.judge, judge) : removeJudge(c.judge, id),
-  }))
 }
 
 export default function JudgesSection({
@@ -127,165 +73,35 @@ export default function JudgesSection({
       helperText={helperText}
     >
       <Grid item container spacing={1}>
-        {officialJudges.map((judge, index) => {
-          const title = index === 0 ? t('judgeChief') : t('judge') + ` ${index + 1}`
-          const value = judges.find((j) => j.id === judge.id)
-          return (
-            <Grid key={judge.id || judge.name || index} item container spacing={1} alignItems="center">
-              <Grid item sx={{ width: 300 }}>
-                <AutocompleteSingle
-                  disabled={disabled}
-                  value={value}
-                  label={title}
-                  error={!!judge.id && !value}
-                  helperText={!!judge.id && !value ? `Tuomari ${judge.name} (${judge.id}) ei ole käytettävissä` : ''}
-                  getOptionLabel={(o) => o?.name || ''}
-                  options={filterJudges(judges, event.judges, judge.id, selectedEventType)}
-                  onChange={(value) => {
-                    const newJudge: PublicJudge | undefined = value
-                      ? { id: value.id, name: value.name, official: true }
-                      : undefined
-                    const newJudges = [...event.judges]
-                    const oldJudge = newJudges.splice(index, 1)[0]
-                    if (newJudge) {
-                      newJudges.splice(index, 0, newJudge)
-                    }
-                    onChange?.({
-                      judges: newJudges,
-                      classes: updateJudge(
-                        event,
-                        newJudge?.id,
-                        newJudge,
-                        filterClassesByJudgeId(event.classes, oldJudge.id)
-                      ),
-                    })
-                  }}
-                />
-              </Grid>
-              <Grid item sx={{ width: 300 }} display={event.eventType === 'NOWT' ? 'NONE' : undefined}>
-                <EventClasses
-                  id={`class${index}`}
-                  disabled={disabled}
-                  eventStartDate={event.startDate}
-                  eventEndDate={event.endDate}
-                  value={filterClassesByJudgeId(event.classes, judge.id)}
-                  classes={[...event.classes]}
-                  label="Arvostelee luokat"
-                  onChange={(_e, values) =>
-                    onChange?.({
-                      classes: updateJudge(event, judge.id, judge, [...values]),
-                    })
-                  }
-                />
-              </Grid>
-              <Grid item>
-                <Button
-                  startIcon={<DeleteOutline />}
-                  disabled={disabled}
-                  onClick={() =>
-                    onChange?.({
-                      judges: event.judges.filter((j) => j !== judge),
-                      classes: event.classes.map((c) => (hasJudge(c, judge.id) ? { ...c, judge: undefined } : c)),
-                    })
-                  }
-                >
-                  Poista tuomari
-                </Button>
-              </Grid>
-            </Grid>
+        {event.judges.map((judge, index) =>
+          judge.official ? (
+            <OfficialJudge
+              event={event}
+              disabled={disabled}
+              judges={judges}
+              onChange={onChange}
+              selectedEventType={selectedEventType}
+              judge={judge}
+              index={index}
+            />
+          ) : (
+            <UnofficialJudge
+              event={event}
+              disabled={disabled}
+              onChange={onChange}
+              selectedEventType={selectedEventType}
+              judge={judge}
+              index={index}
+            />
           )
-        })}
-        {otherJudges.map((judge, unfficialIndex) => {
-          const index = officialJudges.length + unfficialIndex
-          const title = index === 0 ? t('judgeChief') : t('judge') + ` ${index + 1}`
-          return (
-            <Grid key={'unofficial-' + index} item container spacing={1} alignItems="center">
-              <Grid item sx={{ width: 300 }}>
-                <TextField
-                  fullWidth
-                  label={title}
-                  value={judge.name}
-                  onChange={(e) => {
-                    const newJudges = [...event.judges]
-                    const newJudge = (newJudges[index] = { ...newJudges[index], name: e.target.value })
-                    onChange?.({
-                      judges: newJudges,
-                      classes: updateJudge(event, judge.id, newJudge, filterClassesByJudgeId(event.classes, judge.id)),
-                    })
-                  }}
-                />
-              </Grid>
-              <Grid item sx={{ width: 300 }} display={event.eventType === 'NOWT' ? 'NONE' : undefined}>
-                <EventClasses
-                  id={`class${index}`}
-                  disabled={disabled}
-                  eventStartDate={event.startDate}
-                  eventEndDate={event.endDate}
-                  value={filterClassesByJudgeId(event.classes, judge.id)}
-                  classes={[...event.classes]}
-                  label="Arvostelee luokat"
-                  onChange={(_e, values) =>
-                    onChange?.({
-                      classes: updateJudge(event, judge.id, judge, [...values]),
-                    })
-                  }
-                />
-              </Grid>
-              <Grid item sx={{ width: 200 }}>
-                <AutocompleteSingle
-                  options={countries}
-                  getOptionLabel={(option) => t(option, { ns: 'country' })}
-                  renderOption={(props, option) => (
-                    <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
-                      <img
-                        loading="lazy"
-                        width="20"
-                        srcSet={`https://flagcdn.com/w40/${option.toLowerCase()}.png 2x`}
-                        src={`https://flagcdn.com/w20/${option.toLowerCase()}.png`}
-                        alt=""
-                      />
-                      {t(option, { ns: 'country' })}
-                    </Box>
-                  )}
-                  value={judge.foreing ? judge.country : 'FI'}
-                  label={'Maa'}
-                  disabled={!judge.foreing}
-                  onChange={(country) => {
-                    const newJudges = [...event.judges]
-                    const newJudge = (newJudges[index] = { ...newJudges[index], country: country ?? undefined })
-                    onChange?.({
-                      judges: newJudges,
-                      classes: updateJudge(event, judge.id, newJudge, filterClassesByJudgeId(event.classes, judge.id)),
-                    })
-                  }}
-                />
-              </Grid>
-              <Grid item>
-                <Button
-                  startIcon={<DeleteOutline />}
-                  disabled={disabled}
-                  onClick={() =>
-                    onChange?.({
-                      judges: event.judges.filter((j) => j !== judge),
-                      classes: event.classes.map((c) => (hasJudge(c, judge.id) ? { ...c, judge: undefined } : c)),
-                    })
-                  }
-                >
-                  Poista tuomari
-                </Button>
-              </Grid>
-            </Grid>
-          )
-        })}
+        )}
         <Grid item>
           <Button
             disabled={disabled}
             startIcon={<AddOutlined />}
             onClick={() => {
-              const newJudges = [...event.judges].concat({ id: 0, name: '', official: true })
-              newJudges.sort((a, b) => Number(b.official) - Number(a.official))
               onChange?.({
-                judges: newJudges,
+                judges: [...event.judges].concat({ id: 0, name: '', official: true }),
               })
             }}
           >
@@ -295,15 +111,13 @@ export default function JudgesSection({
             disabled={disabled}
             startIcon={<AddOutlined />}
             onClick={() => {
-              const newJudges = [...event.judges].concat({
-                id: (otherJudges.length + 1) * -1,
-                name: '',
-                official: false,
-                foreing: true,
-              })
-              newJudges.sort((a, b) => Number(b.official) - Number(a.official))
               onChange?.({
-                judges: newJudges,
+                judges: [...event.judges].concat({
+                  id: (otherJudges.length + 1) * -1,
+                  name: '',
+                  official: false,
+                  foreing: true,
+                }),
               })
             }}
           >

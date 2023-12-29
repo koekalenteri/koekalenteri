@@ -1107,7 +1107,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                       >
                         <div
                           class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1kkal6p-MuiAutocomplete-root"
-                          data-testid="judgeChief"
+                          data-testid="judge 1"
                         >
                           <div
                             class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
@@ -1118,7 +1118,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                               for=":rl:"
                               id=":rl:-label"
                             >
-                              judgeChief
+                              judge 1
                             </label>
                             <div
                               class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1tenv44-MuiInputBase-root-MuiOutlinedInput-root"
@@ -1169,7 +1169,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                   class="css-yjsfm1"
                                 >
                                   <span>
-                                    judgeChief
+                                    judge 1
                                   </span>
                                 </legend>
                               </fieldset>

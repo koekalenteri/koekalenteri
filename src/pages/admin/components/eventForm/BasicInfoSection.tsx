@@ -131,9 +131,14 @@ export default function BasicInfoSection({
     ({ eventType }: Partial<DogEvent>) => {
       const filterClasses = getTypeClasses(eventType, eventTypeClasses)
       const classes = event.classes.filter((c) => filterClasses.includes(c.class))
-      onChange?.({ eventType, classes })
+      const official = OFFICIAL_EVENT_TYPES.includes(eventType ?? '')
+      const judges =
+        official && (event.judges.length === 0 || !event.judges[0].official)
+          ? [{ id: 0, name: '', official: true }, ...event.judges]
+          : event.judges
+      onChange?.({ eventType, classes, judges })
     },
-    [event.classes, eventTypeClasses, onChange]
+    [event.classes, event.judges, eventTypeClasses, onChange]
   )
   const handleClassesChange = useCallback(
     (e: SyntheticEvent<Element, Event>, values: readonly DeepPartial<EventClass>[]) =>

@@ -1,3 +1,4 @@
+import type { EventType } from '../../../../types'
 import type { PartialEvent } from '../EventForm'
 
 import { fireEvent, render, screen, within } from '@testing-library/react'
@@ -14,6 +15,7 @@ const JUDGES = [
     district: 'Pohjois-Karjalan Kennelpiiri ry',
     languages: ['fi'],
     eventTypes: ['NOWT'],
+    official: true,
   },
   {
     id: 2,
@@ -24,6 +26,7 @@ const JUDGES = [
     district: 'Pohjois-Karjalan Kennelpiiri ry',
     languages: ['fi'],
     eventTypes: ['NOWT'],
+    official: true,
   },
   {
     id: 3,
@@ -34,6 +37,7 @@ const JUDGES = [
     district: 'Pohjois-Karjalan Kennelpiiri ry',
     languages: ['fi'],
     eventTypes: ['NOWT'],
+    official: true,
   },
 ]
 
@@ -109,6 +113,7 @@ describe('JudgeSection', () => {
   it('should fire onChange', async () => {
     const testEvent: PartialEvent = {
       id: 'test',
+      eventType: 'NOWT',
       judges: [{ id: 1, name: 'Test Judge 1', official: true }],
       startDate: new Date('2022-06-01'),
       endDate: new Date('2022-06-02'),
@@ -123,13 +128,29 @@ describe('JudgeSection', () => {
     }
 
     const changeHandler = jest.fn((props) => Object.assign(testEvent, props))
+    const eventType: EventType = {
+      eventType: 'NOWT',
+      official: true,
+      description: {
+        fi: 'NOWT',
+        en: 'NOWT',
+        sv: 'NOWT',
+      },
+      createdAt: new Date(),
+      modifiedAt: new Date(),
+      id: 'NOWT',
+      createdBy: '',
+      modifiedBy: '',
+    }
 
-    const { rerender } = render(<JudgesSection event={testEvent} judges={JUDGES} onChange={changeHandler} />)
+    const { rerender } = render(
+      <JudgesSection event={testEvent} judges={JUDGES} onChange={changeHandler} selectedEventType={eventType} />
+    )
 
     fireEvent.mouseDown(screen.getByLabelText('judgeChief'))
     fireEvent.click(within(screen.getByRole('listbox')).getByText(/Test Judge 3/i))
 
-    rerender(<JudgesSection event={testEvent} judges={JUDGES} onChange={changeHandler} />)
+    rerender(<JudgesSection event={testEvent} judges={JUDGES} onChange={changeHandler} selectedEventType={eventType} />)
 
     expect(changeHandler).toHaveBeenCalledTimes(1)
     expect(testEvent.judges.length).toBe(1)
@@ -140,7 +161,7 @@ describe('JudgeSection', () => {
     expect(testEvent.judges.length).toBe(2)
     expect(testEvent.judges[1]).toEqual(expect.objectContaining({ id: 0, name: '', official: true }))
 
-    rerender(<JudgesSection event={testEvent} judges={JUDGES} onChange={changeHandler} />)
+    rerender(<JudgesSection event={testEvent} judges={JUDGES} onChange={changeHandler} selectedEventType={eventType} />)
 
     fireEvent.mouseDown(screen.getByLabelText('judge 2'))
     fireEvent.click(within(screen.getByRole('listbox')).getByText(/Test Judge 1/i))
@@ -148,7 +169,7 @@ describe('JudgeSection', () => {
     expect(changeHandler).toHaveBeenCalledTimes(3)
     expect(testEvent.judges[1]).toEqual(expect.objectContaining({ id: 1, name: 'Test Judge 1', official: true }))
 
-    rerender(<JudgesSection event={testEvent} judges={JUDGES} onChange={changeHandler} />)
+    rerender(<JudgesSection event={testEvent} judges={JUDGES} onChange={changeHandler} selectedEventType={eventType} />)
 
     const buttons = screen.getAllByText(/Poista Tuomari/i)
     expect(buttons.length).toBe(2)
