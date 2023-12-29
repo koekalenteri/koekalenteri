@@ -3,6 +3,8 @@ import type { Language, RegistrationTime } from '../../../../types'
 import i18next from 'i18next'
 import { selector, selectorFamily } from 'recoil'
 
+import { OFFICIAL_EVENT_TYPES } from '../../components/eventForm/validation'
+
 import { eventTypeFilterAtom, eventTypeGroupsAtom, eventTypesAtom } from './atoms'
 
 export const activeEventTypesSelector = selector({
@@ -31,7 +33,11 @@ export const filteredEventTypesSelector = selector({
 export const eventTypeGroupsSelector = selectorFamily<RegistrationTime[], string | undefined>({
   key: 'eventTypeGroupsSelector',
   get:
-    (eventClass) =>
-    ({ get }) =>
-      eventClass ? get(eventTypeGroupsAtom)[eventClass] ?? [] : [],
+    (eventType) =>
+    ({ get }) => {
+      if (!eventType) return []
+      const groups = get(eventTypeGroupsAtom)
+
+      return OFFICIAL_EVENT_TYPES.includes(eventType) ? groups[eventType] ?? [] : groups.unofficialEvents
+    },
 })

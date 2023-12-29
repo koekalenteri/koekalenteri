@@ -1,7 +1,7 @@
 import type { DeepPartial, EventClass, EventType, Judge, PublicJudge } from '../../../../types'
-import type { SectionProps } from '../EventForm'
+import type { PartialEvent, SectionProps } from '../EventForm'
 
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import AddOutlined from '@mui/icons-material/AddOutlined'
 import DeleteOutline from '@mui/icons-material/DeleteOutline'
@@ -40,6 +40,39 @@ interface Props extends Readonly<SectionProps> {
 type PartialPublicJudge = Partial<PublicJudge>
 type PartialPublicJudgeValue = PartialPublicJudge | PartialPublicJudge[]
 
+const toArray = (j?: PartialPublicJudge): PartialPublicJudge[] => (j ? [j] : [])
+const makeArray = (j?: PartialPublicJudgeValue) => (Array.isArray(j) ? [...j] : toArray(j))
+const selectJudge = (j?: PartialPublicJudgeValue, judge?: PublicJudge): PartialPublicJudge[] => {
+  const a = makeArray(j)
+  if (judge) {
+    const index = a.findIndex((cj) => cj.id === judge.id)
+    if (index === -1) {
+      a.push(judge)
+    } else {
+      a[index] = judge
+    }
+  }
+  return a
+}
+const removeJudge = (j?: PartialPublicJudgeValue, id?: number): PartialPublicJudge[] => {
+  const a = makeArray(j)
+  return a.filter((cj) => cj.id !== id)
+}
+
+const updateJudge = (
+  event: PartialEvent,
+  id: number | undefined,
+  judge: PublicJudge | undefined,
+  values?: DeepPartial<EventClass>[]
+) => {
+  const isSelected = (c: DeepPartial<EventClass>) =>
+    values?.find((v) => event && isSameDay(v.date ?? event.startDate, c.date ?? event.startDate) && v.class === c.class)
+  return event.classes?.map((c) => ({
+    ...c,
+    judge: isSelected(c) ? selectJudge(c.judge, judge) : removeJudge(c.judge, id),
+  }))
+}
+
 export default function JudgesSection({
   event,
   disabled,
@@ -52,7 +85,8 @@ export default function JudgesSection({
 }: Props) {
   const { t } = useTranslation()
   const officialJudges = event.judges.filter((j) => j.official)
-  const unofficialJudges = event.judges.filter((j) => !j.official)
+  const otherJudges = event.judges.filter((j) => !j.official)
+  const unofficialJudges = otherJudges.filter((j) => !j.foreing)
   const validationError = useMemo(
     () => event && fields?.required.judges && validateEventField(event, 'judges', true),
     [event, fields?.required.judges]
@@ -71,34 +105,18 @@ export default function JudgesSection({
     return error ? t('validation.event.errors') : ''
   }, [error, fields?.state?.judges, t, validationError])
 
-  const toArray = (j?: PartialPublicJudge): PartialPublicJudge[] => (j ? [j] : [])
-  const makeArray = (j?: PartialPublicJudgeValue) => (Array.isArray(j) ? [...j] : toArray(j))
-  const selectJudge = (j?: PartialPublicJudgeValue, judge?: PublicJudge): PartialPublicJudge[] => {
-    const a = makeArray(j)
-    if (judge) {
-      const index = a.findIndex((cj) => cj.id === judge.id)
-      if (index === -1) {
-        a.push(judge)
-      } else {
-        a[index] = judge
-      }
+  useEffect(() => {
+    if (selectedEventType?.official && unofficialJudges.length) {
+      const validJudges = event.judges.filter((j) => j.official || j.foreing)
+      onChange?.({
+        judges: validJudges,
+        classes: event.classes.map((c) => ({
+          ...c,
+          judge: makeArray(c.judge).filter((j) => validJudges.find((vj) => vj.id === j.id)),
+        })),
+      })
     }
-    return a
-  }
-  const removeJudge = (j?: PartialPublicJudgeValue, id?: number): PartialPublicJudge[] => {
-    const a = makeArray(j)
-    return a.filter((cj) => cj.id !== id)
-  }
-  const updateJudge = (id: number | undefined, judge: PublicJudge | undefined, values?: DeepPartial<EventClass>[]) => {
-    const isSelected = (c: DeepPartial<EventClass>) =>
-      values?.find(
-        (v) => event && isSameDay(v.date ?? event.startDate, c.date ?? event.startDate) && v.class === c.class
-      )
-    return event.classes?.map((c) => ({
-      ...c,
-      judge: isSelected(c) ? selectJudge(c.judge, judge) : removeJudge(c.judge, id),
-    }))
-  }
+  }, [event.classes, event.judges, onChange, selectedEventType?.official, unofficialJudges.length])
 
   return (
     <CollapsibleSection
@@ -134,7 +152,12 @@ export default function JudgesSection({
                     }
                     onChange?.({
                       judges: newJudges,
-                      classes: updateJudge(newJudge?.id, newJudge, filterClassesByJudgeId(event.classes, oldJudge.id)),
+                      classes: updateJudge(
+                        event,
+                        newJudge?.id,
+                        newJudge,
+                        filterClassesByJudgeId(event.classes, oldJudge.id)
+                      ),
                     })
                   }}
                 />
@@ -150,7 +173,7 @@ export default function JudgesSection({
                   label="Arvostelee luokat"
                   onChange={(_e, values) =>
                     onChange?.({
-                      classes: updateJudge(judge.id, judge, [...values]),
+                      classes: updateJudge(event, judge.id, judge, [...values]),
                     })
                   }
                 />
@@ -172,7 +195,7 @@ export default function JudgesSection({
             </Grid>
           )
         })}
-        {unofficialJudges.map((judge, unfficialIndex) => {
+        {otherJudges.map((judge, unfficialIndex) => {
           const index = officialJudges.length + unfficialIndex
           const title = index === 0 ? t('judgeChief') : t('judge') + ` ${index + 1}`
           return (
@@ -187,7 +210,7 @@ export default function JudgesSection({
                     const newJudge = (newJudges[index] = { ...newJudges[index], name: e.target.value })
                     onChange?.({
                       judges: newJudges,
-                      classes: updateJudge(judge.id, newJudge, filterClassesByJudgeId(event.classes, judge.id)),
+                      classes: updateJudge(event, judge.id, newJudge, filterClassesByJudgeId(event.classes, judge.id)),
                     })
                   }}
                 />
@@ -203,7 +226,7 @@ export default function JudgesSection({
                   label="Arvostelee luokat"
                   onChange={(_e, values) =>
                     onChange?.({
-                      classes: updateJudge(judge.id, judge, [...values]),
+                      classes: updateJudge(event, judge.id, judge, [...values]),
                     })
                   }
                 />
@@ -232,7 +255,7 @@ export default function JudgesSection({
                     const newJudge = (newJudges[index] = { ...newJudges[index], country: country ?? undefined })
                     onChange?.({
                       judges: newJudges,
-                      classes: updateJudge(judge.id, newJudge, filterClassesByJudgeId(event.classes, judge.id)),
+                      classes: updateJudge(event, judge.id, newJudge, filterClassesByJudgeId(event.classes, judge.id)),
                     })
                   }}
                 />
@@ -273,7 +296,7 @@ export default function JudgesSection({
             startIcon={<AddOutlined />}
             onClick={() => {
               const newJudges = [...event.judges].concat({
-                id: (unofficialJudges.length + 1) * -1,
+                id: (otherJudges.length + 1) * -1,
                 name: '',
                 official: false,
                 foreing: true,
@@ -292,7 +315,7 @@ export default function JudgesSection({
             sx={{ display: selectedEventType?.official ?? true ? 'NONE' : undefined }}
             onClick={() =>
               onChange?.({
-                judges: [...event.judges].concat({ id: (unofficialJudges.length + 1) * -1, name: '', official: false }),
+                judges: [...event.judges].concat({ id: (otherJudges.length + 1) * -1, name: '', official: false }),
               })
             }
           >

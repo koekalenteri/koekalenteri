@@ -31,6 +31,7 @@ import {
 import HelpPopover from './basicInfoSection/HelpPopover'
 import EventClasses from './components/EventClasses'
 import EventProperty from './components/EventProperty'
+import { OFFICIAL_EVENT_TYPES } from './validation'
 
 export interface Props extends Readonly<SectionProps> {
   readonly event: PartialEvent
@@ -41,6 +42,11 @@ export interface Props extends Readonly<SectionProps> {
   readonly secretaries?: User[]
   readonly selectedEventType?: EventType
 }
+
+const getTypeClasses = (eventType?: string, eventTypeClasses?: Record<string, RegistrationClass[]>) =>
+  OFFICIAL_EVENT_TYPES.includes(eventType ?? '')
+    ? eventTypeClasses?.[eventType ?? ''] ?? []
+    : eventTypeClasses?.unofficialEvents ?? []
 
 export default function BasicInfoSection({
   disabled,
@@ -60,10 +66,7 @@ export default function BasicInfoSection({
 }: Props) {
   const { t } = useTranslation()
   const [helpAnchorEl, setHelpAnchorEl] = useState<HTMLButtonElement | null>(null)
-  const typeOptions = eventClassOptions(
-    event,
-    selectedEventType?.official ? eventTypeClasses?.[event.eventType ?? ''] ?? [] : ['ALO', 'AVO', 'VOI']
-  )
+  const typeOptions = eventClassOptions(event, getTypeClasses(event.eventType, eventTypeClasses))
   const error =
     (errorStates &&
       (errorStates.startDate ||
@@ -126,7 +129,7 @@ export default function BasicInfoSection({
   const closeHelp = useCallback(() => setHelpAnchorEl(null), [])
   const handleTypeChange = useCallback(
     ({ eventType }: Partial<DogEvent>) => {
-      const filterClasses = eventTypeClasses?.[eventType ?? ''] ?? []
+      const filterClasses = getTypeClasses(eventType, eventTypeClasses)
       const classes = event.classes.filter((c) => filterClasses.includes(c.class))
       onChange?.({ eventType, classes })
     },

@@ -20,6 +20,7 @@ export const eventTypeFilterAtom = atom<string>({
 export const eventTypeClassesAtom = atom<Record<string, RegistrationClass[]>>({
   key: 'eventTypeClasses',
   default: {
+    unofficialEvents: ['ALO', 'AVO', 'VOI'],
     NOU: [],
     'NOME-B': ['ALO', 'AVO', 'VOI'],
     'NOME-A': [],
@@ -30,6 +31,7 @@ export const eventTypeClassesAtom = atom<Record<string, RegistrationClass[]>>({
 export const eventTypeGroupsAtom = atom<Record<string, RegistrationTime[]>>({
   key: 'eventTypeGroups',
   default: {
+    unofficialEvents: ['ap', 'ip', 'kp'],
     NOU: ['ap', 'ip', 'kp'],
     'NOME-B': ['ap', 'ip', 'kp'],
     'NOME-A': ['kp'],
