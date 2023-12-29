@@ -101,15 +101,6 @@ export default function SendMessageDialog({ event, registrations, templateId, op
         ),
         confirmationText: 'Lähetä',
         cancellationText: t('cancel'),
-        cancellationButtonProps: { variant: 'outlined' },
-        confirmationButtonProps: { autoFocus: true, variant: 'contained' },
-        dialogActionsProps: {
-          sx: {
-            flexDirection: 'row-reverse',
-            justifyContent: 'flex-start',
-            columnGap: 1,
-          },
-        },
       })
 
       const {

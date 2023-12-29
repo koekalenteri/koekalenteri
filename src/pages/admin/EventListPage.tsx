@@ -12,8 +12,9 @@ import FormControlLabel from '@mui/material/FormControlLabel'
 import Stack from '@mui/material/Stack'
 import Switch from '@mui/material/Switch'
 import { useConfirm } from 'material-ui-confirm'
-import { useRecoilState, useRecoilValue } from 'recoil'
+import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
 
+import { formatDistance } from '../../i18n/dates'
 import { Path } from '../../routeConfig'
 import AutocompleteSingle from '../components/AutocompleteSingle'
 import StyledDataGrid from '../components/StyledDataGrid'
@@ -30,6 +31,7 @@ import {
   adminEventOrganizerIdAtom,
   adminShowPastEventsAtom,
   currentAdminEventSelector,
+  newEventAtom,
   useAdminEventActions,
 } from './recoil'
 
@@ -52,6 +54,8 @@ export default function EventListPage({ isDev }: Props) {
   const orgs = useRecoilValue(adminUserEventOrganizersSelector)
   const [orgId, setOrgId] = useRecoilState(adminEventOrganizerIdAtom)
   const options = useMemo(() => [{ id: '', name: 'Kaikki' }, ...orgs], [orgs])
+  const newEvent = useRecoilValue(newEventAtom)
+  const resetNewEvent = useResetRecoilState(newEventAtom)
 
   const deleteAction = useCallback(() => {
     confirm({
@@ -59,20 +63,33 @@ export default function EventListPage({ isDev }: Props) {
       description: t('deleteEventText'),
       confirmationText: t('delete'),
       cancellationText: t('cancel'),
-      cancellationButtonProps: { variant: 'outlined' },
-      confirmationButtonProps: { autoFocus: true, variant: 'contained' },
-      dialogActionsProps: {
-        sx: {
-          flexDirection: 'row-reverse',
-          justifyContent: 'flex-start',
-        },
-      },
     }).then(async () => {
       await actions.deleteCurrent()
     })
   }, [actions, confirm, t])
 
-  const createAction = useCallback(() => navigate(Path.admin.newEvent), [navigate])
+  const createAction = useCallback(() => {
+    if (newEvent.modifiedAt) {
+      confirm({
+        title: t('confirmTitle'),
+        description: `Selaimestasi löytyy jo aloitettu uusi tapahtuma (moukattu ${formatDistance(
+          newEvent.modifiedAt,
+          'fi'
+        )} sitten), haluatko jatkaa sen muokkaamista vai aloittaa tyhjästä?`,
+        confirmationText: 'Jatka muokkausta',
+        cancellationText: 'Aloita tyhjästä',
+      })
+        .then(async () => {
+          navigate(Path.admin.newEvent)
+        })
+        .catch(() => {
+          resetNewEvent()
+          navigate(Path.admin.newEvent)
+        })
+    } else {
+      navigate(Path.admin.newEvent)
+    }
+  }, [confirm, navigate, newEvent.modifiedAt, resetNewEvent, t])
   const editAction = useCallback(() => navigate(Path.admin.editEvent(selectedEventID)), [navigate, selectedEventID])
   const viewAction = useCallback(() => navigate(Path.admin.viewEvent(selectedEventID)), [navigate, selectedEventID])
 

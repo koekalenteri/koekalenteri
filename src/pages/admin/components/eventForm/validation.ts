@@ -25,7 +25,7 @@ const STATE_INCLUSION: Record<EventState, EventState[]> = {
   tentative: ['tentative', 'draft'],
   confirmed: ['confirmed', 'tentative', 'draft'],
   cancelled: ['cancelled'],
-  // next are not user-selectable stated
+  // following are not user-selectable states
   picked: ['confirmed'],
   invited: ['confirmed'],
   started: ['confirmed'],
@@ -177,21 +177,22 @@ export function validateEventField(
   if (!result) {
     return false
   }
+  const state = event.state ?? 'draft'
   if (result === true) {
     return {
       key: 'validationError',
-      opts: { field, state: event.state },
+      opts: { field, state },
     }
   }
   if (typeof result === 'string') {
     return {
       key: result,
-      opts: { field, state: event.state, type: event.eventType },
+      opts: { field, state, type: event.eventType },
     }
   }
   return {
     key: result.key,
-    opts: { state: event.state, type: event.eventType, ...result.opts },
+    opts: { state, type: event.eventType, ...result.opts },
   }
 }
 

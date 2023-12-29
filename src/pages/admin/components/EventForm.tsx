@@ -180,7 +180,7 @@ export default function EventForm({ event, changes, disabled, onSave, onCancel, 
           onChange={handleStateChange}
           options={SELECTABLE_EVENT_STATES}
           sx={{ width: 200 }}
-          value={event?.state}
+          value={event?.state ?? 'draft'}
         />
       </Box>
 

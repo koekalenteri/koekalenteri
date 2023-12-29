@@ -41,7 +41,14 @@ function App() {
           maxSnack={3}
           action={closeAction}
         >
-          <ConfirmProvider>
+          <ConfirmProvider
+            defaultOptions={{
+              allowClose: true,
+              buttonOrder: ['confirm', 'cancel'],
+              cancellationButtonProps: { variant: 'outlined' },
+              confirmationButtonProps: { autoFocus: true, variant: 'contained' },
+            }}
+          >
             <Authenticator.Provider>
               <Suspense fallback={<LoadingPage />}>
                 <RouterProvider router={router} />

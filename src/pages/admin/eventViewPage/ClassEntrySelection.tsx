@@ -122,14 +122,6 @@ const ClassEntrySelection = ({
           description: `Kun koirakko on lisätty, koirakolle lähtee vahvistusviesti koepaikasta${extra}. Oletko varma että haluat lisätä tämän koirakon osallistujiin?`,
           confirmationText: 'Lisää osallistujiin',
           cancellationText: t('cancel'),
-          cancellationButtonProps: { variant: 'outlined' },
-          confirmationButtonProps: { autoFocus: true, variant: 'contained' },
-          dialogActionsProps: {
-            sx: {
-              flexDirection: 'row-reverse',
-              justifyContent: 'flex-start',
-            },
-          },
         })
       } catch {
         return
