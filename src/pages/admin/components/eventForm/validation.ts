@@ -33,6 +33,8 @@ const STATE_INCLUSION: Record<EventState, EventState[]> = {
   completed: ['confirmed'],
 }
 
+const OFFICIAL_EVENT_TYPES = ['NOU', 'NOME-B', 'NOME-A', 'NOWT', 'NKM']
+
 const REQUIRED_BY_STATE: Record<EventState, EventFlags> = {
   draft: {
     startDate: true,
@@ -47,7 +49,7 @@ const REQUIRED_BY_STATE: Record<EventState, EventFlags> = {
   confirmed: {
     classes: (event: PartialEvent) => event.eventType === 'NOME-B' || event.eventType === 'NOWT',
     // kcId: true,
-    official: true,
+    official: (event: PartialEvent) => !!event.eventType && OFFICIAL_EVENT_TYPES.includes(event.eventType),
     judges: true,
     places: true,
     entryStartDate: true,
