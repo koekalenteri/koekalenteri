@@ -8,6 +8,7 @@ import TableCell from '@mui/material/TableCell'
 import TableRow from '@mui/material/TableRow'
 
 import useEventStatus from '../../../hooks/useEventStatus'
+import { judgeName } from '../../../lib/judge'
 import { isEntryOpen, printContactInfo } from '../../../lib/utils'
 import CostInfo from '../../components/CostInfo'
 import { PriorityChips } from '../../components/PriorityChips'
@@ -85,18 +86,11 @@ export const EventInfo = ({ event }: Props) => {
               <TableCell component="th" scope="row" rowSpan={event.judges.length}>
                 {t('event.judges')}:
               </TableCell>
-              <TableCell>
-                {event.judges[0].name +
-                  (event.judges[0].foreing && event.judges[0].country
-                    ? ` (${t(event.judges[0].country, { ns: 'country' })})`
-                    : '')}
-              </TableCell>
+              <TableCell>{judgeName(event.judges[0], t)}</TableCell>
             </TableRow>
             {event.judges.slice(1).map((judge, index) => (
               <TableRow key={event.id + 'judge' + (judge.id ?? judge.name ?? index)}>
-                <TableCell>
-                  {judge.name + (judge.foreing && judge.country ? ` (${t(judge.country, { ns: 'country' })})` : '')}
-                </TableCell>
+                <TableCell>{judgeName(judge, t)}</TableCell>
               </TableRow>
             ))}
           </>

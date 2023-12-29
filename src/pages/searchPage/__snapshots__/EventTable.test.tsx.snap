@@ -174,7 +174,9 @@ exports[`EventTable should render 1`] = `
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                                   scope="row"
-                                />
+                                >
+                                  undefined
+                                </th>
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-dv0mq-MuiTableCell-root"
                                   scope="row"

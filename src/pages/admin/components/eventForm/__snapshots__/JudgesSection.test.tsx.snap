@@ -59,7 +59,7 @@ exports[`JudgeSection should hide classes for NOWT event (KOE-317) 1`] = `
                 <h6
                   class="MuiTypography-root MuiTypography-subtitle1 css-18ib2sp-MuiTypography-root"
                 >
-                  Epäviralliset ja ulkomaiset tuomarit
+                  Epäviralliset tuomarit
                 </h6>
                 <div
                   class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-1bzbk8b-MuiGrid-root"
@@ -337,8 +337,9 @@ exports[`JudgeSection should hide classes for NOWT event (KOE-317) 1`] = `
                     />
                   </button>
                   <button
-                    class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-1e6y48t-MuiButtonBase-root-MuiButton-root"
-                    tabindex="0"
+                    class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-1e6y48t-MuiButtonBase-root-MuiButton-root"
+                    disabled=""
+                    tabindex="-1"
                     type="button"
                   >
                     <span
@@ -357,9 +358,6 @@ exports[`JudgeSection should hide classes for NOWT event (KOE-317) 1`] = `
                       </svg>
                     </span>
                     Lisää epävirallinen tuomari
-                    <span
-                      class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                    />
                   </button>
                 </div>
               </div>
@@ -431,7 +429,7 @@ exports[`JudgeSection should not warn about judge 0 not beign available (KOE-357
                 <h6
                   class="MuiTypography-root MuiTypography-subtitle1 css-18ib2sp-MuiTypography-root"
                 >
-                  Epäviralliset ja ulkomaiset tuomarit
+                  Epäviralliset tuomarit
                 </h6>
                 <div
                   class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-1bzbk8b-MuiGrid-root"
@@ -708,8 +706,9 @@ exports[`JudgeSection should not warn about judge 0 not beign available (KOE-357
                     />
                   </button>
                   <button
-                    class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-1e6y48t-MuiButtonBase-root-MuiButton-root"
-                    tabindex="0"
+                    class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-1e6y48t-MuiButtonBase-root-MuiButton-root"
+                    disabled=""
+                    tabindex="-1"
                     type="button"
                   >
                     <span
@@ -728,9 +727,6 @@ exports[`JudgeSection should not warn about judge 0 not beign available (KOE-357
                       </svg>
                     </span>
                     Lisää epävirallinen tuomari
-                    <span
-                      class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                    />
                   </button>
                 </div>
               </div>
@@ -802,7 +798,7 @@ exports[`JudgeSection should render properly with one judge selected 1`] = `
                 <h6
                   class="MuiTypography-root MuiTypography-subtitle1 css-18ib2sp-MuiTypography-root"
                 >
-                  Epäviralliset ja ulkomaiset tuomarit
+                  Epäviralliset tuomarit
                 </h6>
                 <div
                   class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-1bzbk8b-MuiGrid-root"
@@ -1079,8 +1075,9 @@ exports[`JudgeSection should render properly with one judge selected 1`] = `
                     />
                   </button>
                   <button
-                    class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-1e6y48t-MuiButtonBase-root-MuiButton-root"
-                    tabindex="0"
+                    class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-1e6y48t-MuiButtonBase-root-MuiButton-root"
+                    disabled=""
+                    tabindex="-1"
                     type="button"
                   >
                     <span
@@ -1099,9 +1096,6 @@ exports[`JudgeSection should render properly with one judge selected 1`] = `
                       </svg>
                     </span>
                     Lisää epävirallinen tuomari
-                    <span
-                      class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                    />
                   </button>
                 </div>
               </div>
@@ -1173,7 +1167,7 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
                 <h6
                   class="MuiTypography-root MuiTypography-subtitle1 css-18ib2sp-MuiTypography-root"
                 >
-                  Epäviralliset ja ulkomaiset tuomarit
+                  Epäviralliset tuomarit
                 </h6>
                 <div
                   class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-1bzbk8b-MuiGrid-root"
@@ -1892,8 +1886,9 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
                     />
                   </button>
                   <button
-                    class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-1e6y48t-MuiButtonBase-root-MuiButton-root"
-                    tabindex="0"
+                    class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-1e6y48t-MuiButtonBase-root-MuiButton-root"
+                    disabled=""
+                    tabindex="-1"
                     type="button"
                   >
                     <span
@@ -1912,9 +1907,6 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
                       </svg>
                     </span>
                     Lisää epävirallinen tuomari
-                    <span
-                      class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                    />
                   </button>
                 </div>
               </div>
@@ -1986,7 +1978,7 @@ exports[`JudgeSection should render properly with two judges selected 1`] = `
                 <h6
                   class="MuiTypography-root MuiTypography-subtitle1 css-18ib2sp-MuiTypography-root"
                 >
-                  Epäviralliset ja ulkomaiset tuomarit
+                  Epäviralliset tuomarit
                 </h6>
                 <div
                   class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-1bzbk8b-MuiGrid-root"
@@ -2484,8 +2476,9 @@ exports[`JudgeSection should render properly with two judges selected 1`] = `
                     />
                   </button>
                   <button
-                    class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-1e6y48t-MuiButtonBase-root-MuiButton-root"
-                    tabindex="0"
+                    class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-1e6y48t-MuiButtonBase-root-MuiButton-root"
+                    disabled=""
+                    tabindex="-1"
                     type="button"
                   >
                     <span
@@ -2504,9 +2497,6 @@ exports[`JudgeSection should render properly with two judges selected 1`] = `
                       </svg>
                     </span>
                     Lisää epävirallinen tuomari
-                    <span
-                      class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                    />
                   </button>
                 </div>
               </div>

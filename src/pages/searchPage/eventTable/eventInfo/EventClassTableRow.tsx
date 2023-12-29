@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import TableCell from '@mui/material/TableCell'
 import TableRow from '@mui/material/TableRow'
 
+import { judgeName } from '../../../../lib/judge'
 import { isEntryOpen } from '../../../../lib/utils'
 import { Path } from '../../../../routeConfig'
 import LinkButton from '../../../components/LinkButton'
@@ -25,10 +26,8 @@ export const EventClassTableRow = ({ event, eventClass }: Props) => {
   const judgeNames = useMemo(
     () =>
       Array.isArray(eventClass.judge)
-        ? eventClass.judge
-            .map((j) => j.name + (j.foreing && j.country ? ` (${t(j.country, { ns: 'country' })})` : ''))
-            .join(', ')
-        : eventClass.judge?.name,
+        ? eventClass.judge.map((j) => judgeName(j, t)).join(', ')
+        : judgeName(eventClass.judge, t),
     [eventClass.judge, t]
   )
 

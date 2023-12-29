@@ -7,6 +7,7 @@ import Link from '@mui/material/Link'
 import Paper from '@mui/material/Paper'
 
 import useEventStatus from '../../hooks/useEventStatus'
+import { judgeName } from '../../lib/judge'
 import { printContactInfo } from '../../lib/utils'
 import { API_BASE_URL } from '../../routeConfig'
 
@@ -52,9 +53,7 @@ export default function RegistrationEventInfo({ event }: Props) {
               {t('event.judges')}:
             </Grid>
             <Grid item xs={8}>
-              {event.judges
-                .map((j) => j.name + (j.foreing && j.country ? ` (${t(j.country, { ns: 'country' })})` : ''))
-                .join(', ')}
+              {event.judges.map((j) => judgeName(j, t)).join(', ')}
             </Grid>
             {printContactInfo(event.contactInfo?.official) ? (
               <>

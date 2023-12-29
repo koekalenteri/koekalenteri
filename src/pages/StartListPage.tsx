@@ -13,6 +13,7 @@ import TableRow from '@mui/material/TableRow'
 import { useRecoilValue } from 'recoil'
 
 import { getStartList } from '../api/registration'
+import { judgeName } from '../lib/judge'
 
 import { confirmedEventSelector } from './recoil'
 
@@ -89,7 +90,11 @@ export const StartListPage = () => {
                       {reg.class}{' '}
                       {event.classes
                         .filter((c) => c.class === reg.class && c.date?.valueOf() === lastDate?.valueOf())
-                        .map((c) => (Array.isArray(c.judge) ? c.judge.map((j) => j.name).join(', ') : c.judge?.name))
+                        .map((c) =>
+                          Array.isArray(c.judge)
+                            ? c.judge.map((j) => judgeName(j, t)).join(', ')
+                            : judgeName(c.judge, t)
+                        )
                         .filter(Boolean)
                         .join(', ')}
                     </TableCell>

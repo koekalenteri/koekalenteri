@@ -40,7 +40,7 @@ export const newEventAtom = atom<DogEvent>({
     entryStartDate: newEventEntryStartDate,
     entryEndDate: newEventEntryEndDate,
     classes: [],
-    judges: [],
+    judges: [{ id: 0, name: '', official: true }],
   } as unknown as DogEvent,
   effects: [logEffect, storageEffect],
 })

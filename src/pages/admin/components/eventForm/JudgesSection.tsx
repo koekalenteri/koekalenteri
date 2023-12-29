@@ -54,6 +54,8 @@ export default function JudgesSection({
   const { t } = useTranslation()
   const officialJudges = event.judges.filter((j) => j.official)
   const unofficialJudges = event.judges.filter((j) => !j.official)
+  const foreingCount = unofficialJudges.filter((j) => j.foreing).length
+  const unofficialCount = unofficialJudges.length - foreingCount
   const validationError = useMemo(
     () => event && fields?.required.judges && validateEventField(event, 'judges', true),
     [event, fields?.required.judges]
@@ -76,8 +78,13 @@ export default function JudgesSection({
   const makeArray = (j?: PartialPublicJudgeValue) => (Array.isArray(j) ? [...j] : toArray(j))
   const selectJudge = (j?: PartialPublicJudgeValue, judge?: PublicJudge): PartialPublicJudge[] => {
     const a = makeArray(j)
-    if (judge && !a.find((cj) => cj.id === judge.id)) {
-      a.push(judge)
+    if (judge) {
+      const index = a.findIndex((cj) => cj.id === judge.id)
+      if (index === -1) {
+        a.push(judge)
+      } else {
+        a[index] = judge
+      }
     }
     return a
   }
@@ -170,7 +177,11 @@ export default function JudgesSection({
         })}
         {unofficialJudges.length > 0 ? (
           <Typography variant="subtitle1" sx={{ pt: 1 }}>
-            Epäviralliset ja ulkomaiset tuomarit
+            {unofficialCount > 0
+              ? foreingCount > 0
+                ? 'Epäviralliset ja ulkomaiset tuomarit'
+                : 'Epäviralliset tuomarit'
+              : 'Ulkomaiset tuomarit'}
           </Typography>
         ) : null}
         {unofficialJudges.map((judge, unfficialIndex) => {
@@ -185,8 +196,11 @@ export default function JudgesSection({
                   value={judge.name}
                   onChange={(e) => {
                     const newJudges = [...event.judges]
-                    newJudges[index] = { ...newJudges[index], name: e.target.value }
-                    onChange?.({ judges: newJudges })
+                    const newJudge = (newJudges[index] = { ...newJudges[index], name: e.target.value })
+                    onChange?.({
+                      judges: newJudges,
+                      classes: updateJudge(judge.id, newJudge, filterClassesByJudgeId(event.classes, judge.id)),
+                    })
                   }}
                 />
               </Grid>
@@ -227,8 +241,11 @@ export default function JudgesSection({
                   disabled={!judge.foreing}
                   onChange={(country) => {
                     const newJudges = [...event.judges]
-                    newJudges[index] = { ...newJudges[index], country: country ?? undefined }
-                    onChange?.({ judges: newJudges })
+                    const newJudge = (newJudges[index] = { ...newJudges[index], country: country ?? undefined })
+                    onChange?.({
+                      judges: newJudges,
+                      classes: updateJudge(judge.id, newJudge, filterClassesByJudgeId(event.classes, judge.id)),
+                    })
                   }}
                 />
               </Grid>
@@ -282,7 +299,7 @@ export default function JudgesSection({
             Lisää ulkomainen tuomari
           </Button>
           <Button
-            disabled={disabled || selectedEventType?.official}
+            disabled={disabled || (selectedEventType?.official ?? true)}
             startIcon={<AddOutlined />}
             onClick={() =>
               onChange?.({

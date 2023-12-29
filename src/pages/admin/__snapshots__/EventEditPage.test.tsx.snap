@@ -1101,7 +1101,7 @@ exports[`EventEditPage renders properly 1`] = `
                     <h6
                       class="MuiTypography-root MuiTypography-subtitle1 css-18ib2sp-MuiTypography-root"
                     >
-                      Epäviralliset ja ulkomaiset tuomarit
+                      Epäviralliset tuomarit
                     </h6>
                     <div
                       class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-1bzbk8b-MuiGrid-root"

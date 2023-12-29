@@ -1590,7 +1590,9 @@ exports[`SearchPage filters by date 1`] = `
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                                   scope="row"
-                                />
+                                >
+                                  undefined
+                                </th>
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-dv0mq-MuiTableCell-root"
                                   scope="row"
@@ -1625,7 +1627,9 @@ exports[`SearchPage filters by date 1`] = `
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                                   scope="row"
-                                />
+                                >
+                                  undefined
+                                </th>
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-dv0mq-MuiTableCell-root"
                                   scope="row"
@@ -1929,7 +1933,9 @@ exports[`SearchPage filters by date 1`] = `
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                                   scope="row"
-                                />
+                                >
+                                  undefined
+                                </th>
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-dv0mq-MuiTableCell-root"
                                   scope="row"
@@ -1964,7 +1970,9 @@ exports[`SearchPage filters by date 1`] = `
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                                   scope="row"
-                                />
+                                >
+                                  undefined
+                                </th>
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-dv0mq-MuiTableCell-root"
                                   scope="row"
@@ -1999,7 +2007,9 @@ exports[`SearchPage filters by date 1`] = `
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                                   scope="row"
-                                />
+                                >
+                                  undefined
+                                </th>
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-dv0mq-MuiTableCell-root"
                                   scope="row"
@@ -2303,7 +2313,9 @@ exports[`SearchPage filters by date 1`] = `
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                                   scope="row"
-                                />
+                                >
+                                  undefined
+                                </th>
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-dv0mq-MuiTableCell-root"
                                   scope="row"
@@ -3452,7 +3464,9 @@ exports[`SearchPage filters by date/end 1`] = `
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                                   scope="row"
-                                />
+                                >
+                                  undefined
+                                </th>
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-dv0mq-MuiTableCell-root"
                                   scope="row"
@@ -3487,7 +3501,9 @@ exports[`SearchPage filters by date/end 1`] = `
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                                   scope="row"
-                                />
+                                >
+                                  undefined
+                                </th>
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-dv0mq-MuiTableCell-root"
                                   scope="row"
@@ -3791,7 +3807,9 @@ exports[`SearchPage filters by date/end 1`] = `
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                                   scope="row"
-                                />
+                                >
+                                  undefined
+                                </th>
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-dv0mq-MuiTableCell-root"
                                   scope="row"
@@ -3826,7 +3844,9 @@ exports[`SearchPage filters by date/end 1`] = `
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                                   scope="row"
-                                />
+                                >
+                                  undefined
+                                </th>
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-dv0mq-MuiTableCell-root"
                                   scope="row"
@@ -3861,7 +3881,9 @@ exports[`SearchPage filters by date/end 1`] = `
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                                   scope="row"
-                                />
+                                >
+                                  undefined
+                                </th>
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-dv0mq-MuiTableCell-root"
                                   scope="row"
@@ -4165,7 +4187,9 @@ exports[`SearchPage filters by date/end 1`] = `
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                                   scope="row"
-                                />
+                                >
+                                  undefined
+                                </th>
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-dv0mq-MuiTableCell-root"
                                   scope="row"
@@ -5115,7 +5139,9 @@ exports[`SearchPage filters by event class 1`] = `
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                                   scope="row"
-                                />
+                                >
+                                  undefined
+                                </th>
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-dv0mq-MuiTableCell-root"
                                   scope="row"
@@ -5150,7 +5176,9 @@ exports[`SearchPage filters by event class 1`] = `
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                                   scope="row"
-                                />
+                                >
+                                  undefined
+                                </th>
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-dv0mq-MuiTableCell-root"
                                   scope="row"
@@ -5185,7 +5213,9 @@ exports[`SearchPage filters by event class 1`] = `
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                                   scope="row"
-                                />
+                                >
+                                  undefined
+                                </th>
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-dv0mq-MuiTableCell-root"
                                   scope="row"
@@ -5489,7 +5519,9 @@ exports[`SearchPage filters by event class 1`] = `
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                                   scope="row"
-                                />
+                                >
+                                  undefined
+                                </th>
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-dv0mq-MuiTableCell-root"
                                   scope="row"
@@ -5793,7 +5825,9 @@ exports[`SearchPage filters by event class 1`] = `
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                                   scope="row"
-                                />
+                                >
+                                  undefined
+                                </th>
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-dv0mq-MuiTableCell-root"
                                   scope="row"
@@ -5830,7 +5864,9 @@ exports[`SearchPage filters by event class 1`] = `
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                                   scope="row"
-                                />
+                                >
+                                  undefined
+                                </th>
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-dv0mq-MuiTableCell-root"
                                   scope="row"
@@ -6145,7 +6181,9 @@ exports[`SearchPage filters by event class 1`] = `
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                                   scope="row"
-                                />
+                                >
+                                  undefined
+                                </th>
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-dv0mq-MuiTableCell-root"
                                   scope="row"
@@ -7095,7 +7133,9 @@ exports[`SearchPage filters by event type 1`] = `
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                                   scope="row"
-                                />
+                                >
+                                  undefined
+                                </th>
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-dv0mq-MuiTableCell-root"
                                   scope="row"
@@ -7130,7 +7170,9 @@ exports[`SearchPage filters by event type 1`] = `
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                                   scope="row"
-                                />
+                                >
+                                  undefined
+                                </th>
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-dv0mq-MuiTableCell-root"
                                   scope="row"
@@ -7434,7 +7476,9 @@ exports[`SearchPage filters by event type 1`] = `
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                                   scope="row"
-                                />
+                                >
+                                  undefined
+                                </th>
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-dv0mq-MuiTableCell-root"
                                   scope="row"
@@ -7469,7 +7513,9 @@ exports[`SearchPage filters by event type 1`] = `
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                                   scope="row"
-                                />
+                                >
+                                  undefined
+                                </th>
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-dv0mq-MuiTableCell-root"
                                   scope="row"
@@ -7504,7 +7550,9 @@ exports[`SearchPage filters by event type 1`] = `
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                                   scope="row"
-                                />
+                                >
+                                  undefined
+                                </th>
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-dv0mq-MuiTableCell-root"
                                   scope="row"
@@ -7808,7 +7856,9 @@ exports[`SearchPage filters by event type 1`] = `
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                                   scope="row"
-                                />
+                                >
+                                  undefined
+                                </th>
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-dv0mq-MuiTableCell-root"
                                   scope="row"
@@ -8112,7 +8162,9 @@ exports[`SearchPage filters by event type 1`] = `
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                                   scope="row"
-                                />
+                                >
+                                  undefined
+                                </th>
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-dv0mq-MuiTableCell-root"
                                   scope="row"
@@ -8149,7 +8201,9 @@ exports[`SearchPage filters by event type 1`] = `
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                                   scope="row"
-                                />
+                                >
+                                  undefined
+                                </th>
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-dv0mq-MuiTableCell-root"
                                   scope="row"
@@ -9110,7 +9164,9 @@ exports[`SearchPage filters by organizer 1`] = `
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                                   scope="row"
-                                />
+                                >
+                                  undefined
+                                </th>
                                 <th
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-dv0mq-MuiTableCell-root"
                                   scope="row"
