@@ -9,7 +9,6 @@ import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 import TextField from '@mui/material/TextField'
-import Typography from '@mui/material/Typography'
 import { isSameDay } from 'date-fns'
 
 import { countries } from '../../../../lib/countries'
@@ -54,8 +53,6 @@ export default function JudgesSection({
   const { t } = useTranslation()
   const officialJudges = event.judges.filter((j) => j.official)
   const unofficialJudges = event.judges.filter((j) => !j.official)
-  const foreingCount = unofficialJudges.filter((j) => j.foreing).length
-  const unofficialCount = unofficialJudges.length - foreingCount
   const validationError = useMemo(
     () => event && fields?.required.judges && validateEventField(event, 'judges', true),
     [event, fields?.required.judges]
@@ -175,15 +172,6 @@ export default function JudgesSection({
             </Grid>
           )
         })}
-        {unofficialJudges.length > 0 ? (
-          <Typography variant="subtitle1" sx={{ pt: 1 }}>
-            {unofficialCount > 0
-              ? foreingCount > 0
-                ? 'Epäviralliset ja ulkomaiset tuomarit'
-                : 'Epäviralliset tuomarit'
-              : 'Ulkomaiset tuomarit'}
-          </Typography>
-        ) : null}
         {unofficialJudges.map((judge, unfficialIndex) => {
           const index = officialJudges.length + unfficialIndex
           const title = index === 0 ? t('judgeChief') : t('judge') + ` ${index + 1}`

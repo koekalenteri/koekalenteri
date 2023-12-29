@@ -56,11 +56,6 @@ exports[`JudgeSection should hide classes for NOWT event (KOE-317) 1`] = `
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
               >
-                <h6
-                  class="MuiTypography-root MuiTypography-subtitle1 css-18ib2sp-MuiTypography-root"
-                >
-                  Epäviralliset tuomarit
-                </h6>
                 <div
                   class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-1bzbk8b-MuiGrid-root"
                 >
@@ -426,11 +421,6 @@ exports[`JudgeSection should not warn about judge 0 not beign available (KOE-357
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
               >
-                <h6
-                  class="MuiTypography-root MuiTypography-subtitle1 css-18ib2sp-MuiTypography-root"
-                >
-                  Epäviralliset tuomarit
-                </h6>
                 <div
                   class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-1bzbk8b-MuiGrid-root"
                 >
@@ -795,11 +785,6 @@ exports[`JudgeSection should render properly with one judge selected 1`] = `
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
               >
-                <h6
-                  class="MuiTypography-root MuiTypography-subtitle1 css-18ib2sp-MuiTypography-root"
-                >
-                  Epäviralliset tuomarit
-                </h6>
                 <div
                   class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-1bzbk8b-MuiGrid-root"
                 >
@@ -1164,11 +1149,6 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
               >
-                <h6
-                  class="MuiTypography-root MuiTypography-subtitle1 css-18ib2sp-MuiTypography-root"
-                >
-                  Epäviralliset tuomarit
-                </h6>
                 <div
                   class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-1bzbk8b-MuiGrid-root"
                 >
@@ -1975,11 +1955,6 @@ exports[`JudgeSection should render properly with two judges selected 1`] = `
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
               >
-                <h6
-                  class="MuiTypography-root MuiTypography-subtitle1 css-18ib2sp-MuiTypography-root"
-                >
-                  Epäviralliset tuomarit
-                </h6>
                 <div
                   class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-1bzbk8b-MuiGrid-root"
                 >
