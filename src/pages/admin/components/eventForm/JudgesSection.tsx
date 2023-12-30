@@ -76,6 +76,7 @@ export default function JudgesSection({
         {event.judges.map((judge, index) =>
           judge.official ? (
             <OfficialJudge
+              key={judge.id || judge.name || index}
               event={event}
               disabled={disabled}
               judges={judges}
@@ -86,6 +87,7 @@ export default function JudgesSection({
             />
           ) : (
             <UnofficialJudge
+              key={judge.name || index}
               event={event}
               disabled={disabled}
               onChange={onChange}

@@ -25,7 +25,7 @@ export const OfficialJudge = ({ event, judge, index, selectedEventType, judges, 
   const value = judges.find((j) => j.id === judge.id)
 
   return (
-    <Grid key={judge.id || judge.name || index} item container spacing={1} alignItems="center">
+    <Grid item container spacing={1} alignItems="center">
       <Grid item sx={{ width: 300 }}>
         <AutocompleteSingle
           disabled={disabled}
