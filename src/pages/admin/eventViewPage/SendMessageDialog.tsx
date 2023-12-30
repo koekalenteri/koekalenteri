@@ -255,8 +255,8 @@ function useRegistrationEmailTemplateData(registration: Registration, event: Dog
   const invitationLink = Path.invitation(registration)
 
   return {
-    subject: t('registration.email.subject', '', { context }),
-    title: t('registration.email.title', '', { context }),
+    subject: t('registration.email.subject', { context }),
+    title: t('registration.email.title', { context }),
     dogBreed,
     link,
     event: {

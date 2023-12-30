@@ -42,8 +42,8 @@ export function registrationEmailTemplateData(
   confirmedEvent.official.name = reverseName(confirmedEvent.official?.name ?? '')
 
   return {
-    subject: t('registration.email.subject', '', { context }),
-    title: t('registration.email.title', '', { context }),
+    subject: t('registration.email.subject', { context }),
+    title: t('registration.email.title', { context }),
     dogBreed,
     link,
     event: confirmedEvent,
