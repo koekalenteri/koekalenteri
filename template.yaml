@@ -768,8 +768,10 @@ Resources:
         - !Ref CommonLayer
       Tracing: Active
       Policies:
-        - DynamoDBCrudPolicy:
+        - DynamoDBReadPolicy:
             TableName: !Ref EventRegistrationTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref EventTable
         - CloudWatchPutMetricPolicy: {}
       Events:
         GetEvent:

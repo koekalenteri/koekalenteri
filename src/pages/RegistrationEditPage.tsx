@@ -65,7 +65,7 @@ export default function RegistrationEditPage() {
     if (event === null) {
       throw new Response('Event not found', { status: 404, statusText: t('error.eventNotFound') })
     } else if (registration === null) {
-      throw new Response('Event not found', { status: 404, statusText: t('error.registrationNotFound') })
+      throw new Response('Registration not found', { status: 404, statusText: t('error.registrationNotFound') })
     }
   }, [event, registration, t])
 
@@ -76,7 +76,7 @@ export default function RegistrationEditPage() {
   return (
     <>
       <LinkButton sx={{ mb: 1 }} to="/" back={spa} text={spa ? t('goBack') : t('goHome')} />
-      <RegistrationEventInfo event={event} />
+      <RegistrationEventInfo event={event} invitationAttachment={registration.invitationAttachment} />
       <RegistrationForm
         changes={changes}
         disabled={disabled}

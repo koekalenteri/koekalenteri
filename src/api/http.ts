@@ -93,7 +93,7 @@ async function http<T>(path: string, init: RequestInit): Promise<T> {
       enqueueSnackbar(`${err}`, { variant: 'error' })
     } else if (err.status === 401) {
       // reload for re-auth
-      window.location.reload()
+      if (err.message !== 'Unauthorized') window.location.reload()
     }
 
     console.error(err)

@@ -17,9 +17,10 @@ import { PriorityChips } from './PriorityChips'
 
 interface Props {
   readonly event: PublicConfirmedEvent
+  readonly invitationAttachment: string | undefined
 }
 
-export default function RegistrationEventInfo({ event }: Props) {
+export default function RegistrationEventInfo({ event, invitationAttachment }: Props) {
   const { t } = useTranslation()
   const status = useEventStatus(event)
   const title = `${event.eventType} ${t('daterange', { start: event.startDate, end: event.endDate })} ${
@@ -103,7 +104,7 @@ export default function RegistrationEventInfo({ event }: Props) {
                 </Grid>
               </>
             ) : null}
-            {event.invitationAttachment && event.state === 'invited' ? (
+            {invitationAttachment && event.state === 'invited' ? (
               <>
                 <Grid item xs={4}>
                   {t('event.attachments')}:
@@ -111,7 +112,7 @@ export default function RegistrationEventInfo({ event }: Props) {
                 <Grid item xs={8}>
                   <PictureAsPdfOutlined fontSize="small" sx={{ verticalAlign: 'middle', pr: 0.5 }} />
                   <Link
-                    href={`${API_BASE_URL}/file/${event.invitationAttachment}/kutsu.pdf`}
+                    href={`${API_BASE_URL}/file/${invitationAttachment}/kutsu.pdf`}
                     rel="noopener"
                     target="_blank"
                     type="application/pdf"

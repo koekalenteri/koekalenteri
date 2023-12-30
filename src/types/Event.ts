@@ -58,7 +58,7 @@ type NonPublicDogEventProperties =
   | 'deletedAt'
   | 'deletedBy'
   | 'headquarters'
-  //| 'invitationAttachment' @todo fetch invitationAttachment separately for registrationViewPage
+  | 'invitationAttachment'
   | 'kcId'
   | 'official'
   | 'secretary'

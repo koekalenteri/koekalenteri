@@ -1,11 +1,12 @@
 import type { MetricsLogger } from 'aws-embedded-metrics'
 import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import type { AWSError } from 'aws-sdk'
-import type { JsonRegistration } from '../../types'
+import type { JsonDogEvent } from '../../types'
 
 import { metricScope } from 'aws-embedded-metrics'
 import { unescape } from 'querystring'
 
+import { type JsonRegistration } from '../../types'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { metricsError, metricsSuccess } from '../utils/metrics'
@@ -30,6 +31,9 @@ const getRegistrationHandler = metricScope(
         if (item) {
           // Make sure not to leak group information to user
           delete item.group
+
+          const dogEvent = await dynamoDB.read<JsonDogEvent>({ id: eventId }, CONFIG.eventTable)
+          item.invitationAttachment = dogEvent?.invitationAttachment
         }
         metricsSuccess(metrics, event.requestContext, 'getRegistration')
         return response(200, item, event)

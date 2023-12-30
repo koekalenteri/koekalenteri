@@ -4,31 +4,32 @@ export type RegistrationClass = 'ALO' | 'AVO' | 'VOI'
 export interface JsonRegistration extends JsonDbRecord {
   agreeToTerms: boolean
   breeder: RegistrationBreeder
+  cancelled?: boolean
+  cancelReason?: string
   class?: RegistrationClass
+  confirmed?: boolean
   dates: JsonRegistrationDate[]
   dog: JsonDog
   eventId: string
   eventType: string
+  group?: JsonRegistrationGroup
   handler: RegistrationPerson
+  invitationAttachment?: string
+  invitationRead?: boolean
   language: Language
+  lastEmail?: string
   notes: string
   owner: RegistrationPerson
   ownerHandles?: boolean
-  qualifyingResults: JsonQualifyingResult[]
-  reserve: ReserveChoise | ''
-  results?: Array<JsonTestResult & { id: string }>
-  cancelled?: boolean
-  cancelReason?: string
-  confirmed?: boolean
-  invitationRead?: boolean
-  receiptSent?: boolean
   paidAmount?: number
   paidAt?: string
   paymentStatus?: PaymentStatus
-  group?: JsonRegistrationGroup
   priorityByInvitation?: boolean
-  lastEmail?: string
+  qualifyingResults: JsonQualifyingResult[]
+  receiptSent?: boolean
+  reserve: ReserveChoise | ''
   reserveNotified?: boolean
+  results?: Array<JsonTestResult & { id: string }>
   totalAmount?: number
 }
 

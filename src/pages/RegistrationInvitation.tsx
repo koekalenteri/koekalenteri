@@ -28,7 +28,7 @@ export const registrationInvitationLoader = async ({
   }
 
   if (event.invitationAttachment) {
-    return redirect(Path.invitationAttachment(event))
+    return redirect(Path.invitationAttachment(registration))
   } else {
     return redirect(Path.registration(registration))
   }

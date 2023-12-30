@@ -1,4 +1,4 @@
-import type { ConfirmedEvent, Registration } from '../types'
+import type { PublicConfirmedEvent, Registration } from '../types'
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -21,7 +21,6 @@ import { useRecoilState, useRecoilValue } from 'recoil'
 
 import { Path } from '../routeConfig'
 
-import { confirmedAdminEventSelector } from './admin/recoil'
 import Header from './components/Header'
 import LinkButton from './components/LinkButton'
 import RegistrationEventInfo from './components/RegistrationEventInfo'
@@ -30,7 +29,7 @@ import { CancelDialog } from './registrationListPage/CancelDialog'
 import { ConfirmDialog } from './registrationListPage/ConfirmDialog'
 import RegistrationList from './registrationListPage/RegistrationList'
 import { LoadingPage } from './LoadingPage'
-import { registrationSelector, spaAtom } from './recoil'
+import { confirmedEventSelector, registrationSelector, spaAtom } from './recoil'
 
 interface Props {
   readonly cancel?: boolean
@@ -41,7 +40,7 @@ interface Props {
 export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
   const params = useParams()
   const navigate = useNavigate()
-  const event = useRecoilValue(confirmedAdminEventSelector(params.id))
+  const event = useRecoilValue(confirmedEventSelector(params.id))
   const [registration, setRegistration] = useRecoilState(
     registrationSelector(`${params.id ?? ''}:${params.registrationId ?? ''}`)
   )
@@ -100,9 +99,8 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
           if (saved !== registration) {
             setRegistration(saved)
           }
-          if (event.invitationAttachment && event.state === 'invited') {
-            console.log('but why?', redirecting)
-            window.location.replace(Path.invitationAttachment(event))
+          if (registration.invitationAttachment && event.state === 'invited') {
+            window.location.replace(Path.invitationAttachment(registration))
           } else {
             navigate(Path.registration(registration))
           }
@@ -118,7 +116,7 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
     if (event === null) {
       throw new Response('Event not found', { status: 404, statusText: t('error.eventNotFound') })
     } else if (registration === null) {
-      throw new Response('Event not found', { status: 404, statusText: t('error.registrationNotFound') })
+      throw new Response('Registration not found', { status: 404, statusText: t('error.registrationNotFound') })
     }
   }, [event, registration, t])
 
@@ -142,7 +140,7 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
           <Grid item>
             <LinkButton sx={{ mb: 1, pl: 0 }} to="/" back={spa} text={spa ? t('goBack') : t('goHome')} />
             <Typography variant="h5">Ilmoittautumistiedot</Typography>
-            <RegistrationEventInfo event={event} />
+            <RegistrationEventInfo event={event} invitationAttachment={registration.invitationAttachment} />
           </Grid>
           <Grid item>
             <Paper sx={{ bgcolor: 'background.selected', p: 1, m: 1, width: 350 }}>
@@ -206,7 +204,7 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
   )
 }
 
-const hasPriority = (event: ConfirmedEvent, registration: Registration) => {
+const hasPriority = (event: PublicConfirmedEvent, registration: Registration) => {
   if (event.priority?.includes('member') && (registration.handler.membership || registration.owner.membership)) {
     return true
   }
@@ -219,14 +217,14 @@ const hasPriority = (event: ConfirmedEvent, registration: Registration) => {
   return false
 }
 
-function membershipIconColor(event: ConfirmedEvent, registration: Registration) {
+function membershipIconColor(event: PublicConfirmedEvent, registration: Registration) {
   if (hasPriority(event, registration)) {
     return 'primary.main'
   }
   return 'transparent'
 }
 
-function membershipStatus(event: ConfirmedEvent, registration: Registration) {
+function membershipStatus(event: PublicConfirmedEvent, registration: Registration) {
   if (hasPriority(event, registration)) {
     return 'Olen etusijalla'
   }

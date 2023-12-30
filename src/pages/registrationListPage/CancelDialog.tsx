@@ -1,4 +1,4 @@
-import type { ConfirmedEvent, Registration } from '../../types'
+import type { PublicConfirmedEvent, Registration } from '../../types'
 
 import { Trans, useTranslation } from 'react-i18next'
 import Button from '@mui/material/Button'
@@ -11,7 +11,7 @@ import Link from '@mui/material/Link'
 
 interface Props {
   readonly disabled: boolean
-  readonly event: ConfirmedEvent | null | undefined
+  readonly event: PublicConfirmedEvent | null | undefined
   readonly onCancel: () => void
   readonly onClose: () => void
   readonly open: boolean

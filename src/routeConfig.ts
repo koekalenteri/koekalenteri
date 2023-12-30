@@ -1,4 +1,4 @@
-import type { DogEvent, PublicDogEvent, Registration } from './types'
+import type { ConfirmedEvent, PublicDogEvent, Registration } from './types'
 
 export const API_BASE_URL = process.env.REACT_APP_API_BASE_URL ?? 'http://127.0.0.1:8080'
 
@@ -22,7 +22,8 @@ export const Path = {
   },
   registration: (registration: RegistrationIds) => `/r/${registration.eventId}/${registration.id}`,
   invitation: (registration: RegistrationIds) => `/r/${registration.eventId}/${registration.id}/invitation`,
-  invitationAttachment: (event: DogEvent) => `${API_BASE_URL}/file/${event.invitationAttachment}/kutsu.pdf`,
+  invitationAttachment: (item: ConfirmedEvent | Registration) =>
+    `${API_BASE_URL}/file/${item.invitationAttachment}/kutsu.pdf`,
   startList: (id: string = ':id') => `/startlist/${id}`,
   admin: {
     root: ADMIN_ROOT,

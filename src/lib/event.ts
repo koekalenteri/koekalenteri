@@ -38,7 +38,7 @@ export function sanitizeDogEvent(
     deletedBy,
     headquarters,
     kcId,
-    // invitationAttachment, @todo
+    invitationAttachment,
     modifiedBy,
     secretary,
     official,

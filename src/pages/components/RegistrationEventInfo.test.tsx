@@ -36,7 +36,10 @@ describe('RegistrationEventInfo', () => {
   afterAll(() => jest.useRealTimers())
 
   it('renders', async () => {
-    const { container } = render(<RegistrationEventInfo event={eventWithStaticDates} />, { wrapper: Wrapper })
+    const { container } = render(
+      <RegistrationEventInfo event={eventWithStaticDates} invitationAttachment={undefined} />,
+      { wrapper: Wrapper }
+    )
     await flushPromises()
 
     expect(screen.queryByText('event.official:')).toBeInTheDocument()
@@ -51,7 +54,9 @@ describe('RegistrationEventInfo', () => {
       ...eventWithStaticDates,
       contactInfo: { official: {} },
     }
-    const { container } = render(<RegistrationEventInfo event={event} />, { wrapper: Wrapper })
+    const { container } = render(<RegistrationEventInfo event={event} invitationAttachment={undefined} />, {
+      wrapper: Wrapper,
+    })
     await flushPromises()
 
     expect(screen.queryByText('event.official:')).toBeNull()
