@@ -92,8 +92,8 @@ async function http<T>(path: string, init: RequestInit): Promise<T> {
     if (!(err instanceof APIError)) {
       enqueueSnackbar(`${err}`, { variant: 'error' })
     } else if (err.status === 401) {
-      // reload for re-auth
-      if (err.message !== 'Unauthorized') window.location.reload()
+      // reload if token has expired
+      if (err.message == 'The incoming token has expired') window.location.reload()
     }
 
     console.error(err)
