@@ -20,7 +20,7 @@ exports[`SearchPage filters by date - no-results 1`] = `
           <span
             class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-789e9x-MuiTypography-root"
           >
-            daterangeBoth: 01.03.2021 - 01.03.2021
+            daterangeBoth: 1.–2.3.2021
           </span>
         </div>
         <div
@@ -157,13 +157,13 @@ exports[`SearchPage filters by date - no-results 1`] = `
                               inputmode="text"
                               placeholder="DD.MM.YYYY"
                               type="text"
-                              value="01.03.2021"
+                              value="02.03.2021"
                             />
                             <div
                               class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1laqsz7-MuiInputAdornment-root"
                             >
                               <button
-                                aria-label="Choose date, selected date is 1. maalis 2021"
+                                aria-label="Choose date, selected date is 2. maalis 2021"
                                 class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1yq5fb3-MuiButtonBase-root-MuiIconButton-root"
                                 tabindex="0"
                                 type="button"
@@ -609,7 +609,7 @@ exports[`SearchPage filters by date 1`] = `
           <span
             class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-789e9x-MuiTypography-root"
           >
-            daterangeBoth: 01.01.2021 - 01.03.2021
+            daterangeBoth: 1.1.–1.3.2021
           </span>
         </div>
         <div

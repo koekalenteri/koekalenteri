@@ -33,7 +33,7 @@
   },
   "datemask": "__.__.____",
   "daterange": "{{ start, datespan(end: undefined) }}",
-  "daterangeBoth": "Tapahtumat väliltä",
+  "daterangeBoth": "Tapahtumat ajalta",
   "daterangeEnd": "Tapahtumat päättyen",
   "daterangeStart": "Tapahtumat alkaen",
   "delete": "Poista",

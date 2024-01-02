@@ -78,10 +78,10 @@ describe('SearchPage', () => {
   })
 
   it('filters by date - no-results', async () => {
-    const { container } = renderPage('/?s=2021-03-01&e=2021-03-01', locales.fi)
+    const { container } = renderPage('/?s=2021-03-01&e=2021-03-02', locales.fi)
     await flushPromises()
     expect(screen.getByRole('textbox', { name: 'daterangeStart' })).toHaveValue('01.03.2021')
-    expect(screen.getByRole('textbox', { name: 'daterangeEnd' })).toHaveValue('01.03.2021')
+    expect(screen.getByRole('textbox', { name: 'daterangeEnd' })).toHaveValue('02.03.2021')
     expect(screen.getByText('noResults')).toBeInTheDocument()
     expect(container).toMatchSnapshot()
   })

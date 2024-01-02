@@ -4,6 +4,7 @@ import type { FilterProps } from './atoms'
 
 import { endOfDay, format, formatISO, startOfDay } from 'date-fns'
 
+import { formatDateSpan } from '../../../i18n/dates'
 import { isEntryClosing, isEntryOpen, isEntryUpcoming } from '../../../lib/utils'
 import { isRegistrationClass } from '../../admin/EventViewPage'
 
@@ -127,7 +128,7 @@ export function filterString(filter: FilterProps, t: TFunction): string {
   const filters: string[] = []
   if (filter.start) {
     if (filter.end) {
-      filters.push(`${t('daterangeBoth')}: ${format(filter.start, 'dd.MM.yyyy')} - ${format(filter.end, 'dd.MM.yyyy')}`)
+      filters.push(`${t('daterangeBoth')}: ${formatDateSpan(filter.start, undefined, { end: filter.end })}`)
     } else {
       filters.push(`${t('daterangeStart')}: ${format(filter.start, 'dd.MM.yyyy')}`)
     }
