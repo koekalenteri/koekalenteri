@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
 import FormControl from '@mui/material/FormControl'
 import { DatePicker } from '@mui/x-date-pickers'
-import { isSameDay, isValid, startOfDay } from 'date-fns'
+import { isSameDay, isValid } from 'date-fns'
 
 import useDebouncedCallback from '../../hooks/useDebouncedCallback'
 
@@ -36,7 +36,7 @@ function dayStyle(date: Date, selected: boolean, defaultDate?: Date) {
 }
 
 function coerceToDateValue(d: DateValue) {
-  return d && isValid(d) ? startOfDay(d) : null
+  return d && isValid(d) ? d : null
 }
 
 export default function DateRange({

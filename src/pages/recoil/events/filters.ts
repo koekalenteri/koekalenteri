@@ -2,16 +2,22 @@ import type { TFunction } from 'i18next'
 import type { PublicDogEvent } from '../../../types'
 import type { FilterProps } from './atoms'
 
-import { format, formatISO } from 'date-fns'
+import { endOfDay, format, formatISO, startOfDay } from 'date-fns'
 
 import { isEntryClosing, isEntryOpen, isEntryUpcoming } from '../../../lib/utils'
 import { isRegistrationClass } from '../../admin/EventViewPage'
 
-export function withinDateFilters(event: PublicDogEvent, { start, end }: FilterProps) {
-  if (start && (!event.endDate || event.endDate < start)) {
+export const readDate = (date: string | null) => (date ? new Date(date) : null)
+export const writeDate = (date: Date | null) => (date ? formatISO(date, { representation: 'date' }) : '')
+
+export function withinDateFilters(
+  event: Partial<Pick<PublicDogEvent, 'startDate' | 'endDate'>>,
+  { start, end }: Pick<FilterProps, 'start' | 'end'>
+) {
+  if (start && (!event.endDate || endOfDay(event.endDate) < endOfDay(start))) {
     return false
   }
-  if (end && (!event.startDate || event.startDate > end)) {
+  if (end && (!event.startDate || startOfDay(event.startDate) > startOfDay(end))) {
     return false
   }
   return true
@@ -67,9 +73,6 @@ export function withinOrganizerFilter(event: PublicDogEvent, { organizer }: Filt
   }
   return true
 }
-
-const readDate = (date: string | null) => (date ? new Date(date) : null)
-const writeDate = (date: Date | null) => (date ? formatISO(date, { representation: 'date' }) : '')
 
 export function serializeFilter(eventFilter: FilterProps): string {
   const params = new URLSearchParams()
