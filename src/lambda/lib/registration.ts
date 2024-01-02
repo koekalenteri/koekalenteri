@@ -1,9 +1,9 @@
 import type { EmailTemplateId, JsonConfirmedEvent, JsonRegistration } from '../../types'
 
+import { formatDate } from '../../i18n/dates'
 import { i18n } from '../../i18n/lambda'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
-import { formatDate } from '../utils/dates'
 import { emailTo, registrationEmailTemplateData } from '../utils/registration'
 
 import { audit, registrationAuditKey } from './audit'

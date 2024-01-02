@@ -11,7 +11,7 @@ import { createHmac } from 'crypto'
 import { nanoid } from 'nanoid'
 import fetch from 'node-fetch'
 
-import { currentFinnishTime } from '../utils/dates'
+import { currentFinnishTime } from '../../i18n/dates'
 
 import { getPaytrailConfig } from './secrets'
 
