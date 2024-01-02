@@ -7,7 +7,7 @@ describe('recoil.events.filters', () => {
     it('should produce a date in local timezone', () => {
       expect(readDate('2024-01-01')?.getDate()).toEqual(1)
       expect(readDate('2024-01-01')?.getUTCDate()).toEqual(1)
-      expect(readDate('2024-01-01')?.getHours()).toEqual(new Date().getTimezoneOffset() / -60)
+      expect(readDate('2024-01-01')?.getHours()).toBeCloseTo(new Date().getTimezoneOffset() / -60, 10)
     })
   })
 
