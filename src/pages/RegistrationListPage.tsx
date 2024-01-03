@@ -2,7 +2,7 @@ import type { PublicConfirmedEvent, Registration } from '../types'
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import CheckOutlined from '@mui/icons-material/CheckOutlined'
 import EuroOutlined from '@mui/icons-material/EuroOutlined'
 import PersonOutline from '@mui/icons-material/PersonOutline'
@@ -17,6 +17,7 @@ import ListItemText from '@mui/material/ListItemText'
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
 import { isPast, isToday } from 'date-fns'
+import { enqueueSnackbar } from 'notistack'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
 import { Path } from '../routeConfig'
@@ -39,6 +40,7 @@ interface Props {
 
 export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
   const params = useParams()
+  const location = useLocation()
   const navigate = useNavigate()
   const event = useRecoilValue(confirmedEventSelector(params.id))
   const [registration, setRegistration] = useRecoilState(
@@ -119,6 +121,28 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
       throw new Response('Registration not found', { status: 404, statusText: t('error.registrationNotFound') })
     }
   }, [event, registration, t])
+
+  useEffect(() => {
+    if (!registration) return
+
+    if (location.pathname.endsWith('/saved')) {
+      const emails = [registration.handler.email]
+      if (registration.owner.email !== registration.handler.email) {
+        emails.push(registration.owner.email)
+      }
+
+      if (registration.paymentStatus === 'SUCCESS') {
+        enqueueSnackbar(
+          t('registration.saved', {
+            count: emails.length,
+            to: emails.join('\n'),
+          }),
+          { variant: 'success', style: { whiteSpace: 'pre-line' } }
+        )
+      }
+      navigate(Path.registration(registration), { replace: true })
+    }
+  }, [location.pathname, navigate, registration, t])
 
   if (!event || !registration) {
     return <LoadingPage />

@@ -19,8 +19,8 @@ export const paymentResultLoader = async ({ request }: LoaderFunctionArgs) => {
   const response = await verifyPayment(params)
 
   if (response?.eventId && response.registrationId) {
-    if (response?.status === 'ok' || params['checkout-status'] === 'fail') {
-      return redirect(Path.registration({ eventId: response.eventId, id: response.registrationId }))
+    if (response.status === 'ok') {
+      return redirect(Path.registrationOk({ eventId: response.eventId, id: response.registrationId }))
     }
     return redirect(Path.payment({ eventId: response.eventId, id: response.registrationId }))
   }

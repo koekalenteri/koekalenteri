@@ -64,6 +64,10 @@ exports[`routes should match a snapshot 1`] = `
       },
       {
         "element": <RegistrationListPage />,
+        "path": "r/:id/:registrationId/saved",
+      },
+      {
+        "element": <RegistrationListPage />,
         "path": "r/:id/:registrationId",
       },
     ],

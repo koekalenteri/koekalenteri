@@ -94,6 +94,10 @@ const routes: RouteObject[] = [
         element: <>loading...</>,
       },
       {
+        path: 'r/:id/:registrationId/saved',
+        element: <RegistrationListPage />,
+      },
+      {
         path: 'r/:id/:registrationId',
         element: <RegistrationListPage />,
       },

@@ -21,6 +21,7 @@ export const Path = {
     return `/event/${event.eventType}/${event.id}`
   },
   registration: (registration: RegistrationIds) => `/r/${registration.eventId}/${registration.id}`,
+  registrationOk: (registration: RegistrationIds) => `/r/${registration.eventId}/${registration.id}/saved`,
   invitation: (registration: RegistrationIds) => `/r/${registration.eventId}/${registration.id}/invitation`,
   invitationAttachment: (item: ConfirmedEvent | Registration) =>
     `${API_BASE_URL}/file/${item.invitationAttachment}/kutsu.pdf`,

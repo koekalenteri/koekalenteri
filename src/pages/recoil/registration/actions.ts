@@ -16,13 +16,15 @@ export function useRegistrationActions() {
       if (saved.owner.email !== saved.handler.email) {
         emails.push(saved.owner.email)
       }
-      enqueueSnackbar(
-        t(reg.id ? 'registration.modified' : 'registration.saved', {
-          count: emails.length,
-          to: emails.join('\n'),
-        }),
-        { variant: 'success', style: { whiteSpace: 'pre-line' } }
-      )
+      if (reg.paymentStatus === 'SUCCESS') {
+        enqueueSnackbar(
+          t(reg.id ? 'registration.modified' : 'registration.saved', {
+            count: emails.length,
+            to: emails.join('\n'),
+          }),
+          { variant: 'success', style: { whiteSpace: 'pre-line' } }
+        )
+      }
       return saved
     },
 
