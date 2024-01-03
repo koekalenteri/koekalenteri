@@ -1,7 +1,7 @@
 import type { MetricsLogger } from 'aws-embedded-metrics'
 import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import type { AWSError } from 'aws-sdk'
-import type { JsonRegistration } from '../../types'
+import type { JsonConfirmedEvent, JsonRegistration } from '../../types'
 
 import { metricScope } from 'aws-embedded-metrics'
 import { diff } from 'deep-object-diff'
@@ -11,7 +11,6 @@ import { i18n } from '../../i18n/lambda'
 import { CONFIG } from '../config'
 import { audit, registrationAuditKey } from '../lib/audit'
 import { sendTemplatedMail } from '../lib/email'
-import { updateRegistrations } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
 import { getOrigin, getUsername } from '../utils/auth'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
@@ -52,13 +51,14 @@ const putRegistrationHandler = metricScope(
         registration.modifiedAt = timestamp
         registration.modifiedBy = username
 
-        const data = { ...existing, ...registration }
-        await dynamoDB.write(data)
+        const confirmedEvent = await dynamoDB.read<JsonConfirmedEvent>({ id: registration.eventId }, eventTable)
 
-        const confirmedEvent = await updateRegistrations(registration.eventId, eventTable)
         if (!confirmedEvent) {
           throw new Error(`Event of type "${registration.eventType}" not found with id "${registration.eventId}"`)
         }
+
+        const data: JsonRegistration = { ...existing, ...registration }
+        await dynamoDB.write(data)
 
         const message = getAuditMessage(cancel, confirm, data, existing)
         if (message) {
@@ -69,16 +69,17 @@ const putRegistrationHandler = metricScope(
           })
         }
 
-        if (registration.handler?.email && registration.owner?.email) {
+        const context = getEmailContext(update, cancel, confirm)
+        if (context && registration.handler?.email && registration.owner?.email) {
+          // send update message when registration is updated, confirmed or cancelled
           const to = emailTo(registration)
-          const context = getEmailContext(update, cancel, confirm)
           const data = registrationEmailTemplateData(registration, confirmedEvent, origin, context)
 
           await sendTemplatedMail('registration', registration.language, emailFrom, to, data)
         }
 
         metricsSuccess(metrics, event.requestContext, 'putRegistration')
-        return response(200, registration, event)
+        return response(200, data, event)
       } catch (err) {
         console.error(err)
         if (err instanceof Error) {

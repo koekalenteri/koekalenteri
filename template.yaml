@@ -1691,11 +1691,19 @@ Resources:
             TableName: !Ref TransactionTable
         - DynamoDBCrudPolicy:
             TableName: !Ref EventRegistrationTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EventTable
         - DynamoDBReadPolicy:
             TableName: !Ref OrganizerTable
-        - DynamoDBReadPolicy:
-            TableName: !Ref EventTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuditTable
         - CloudWatchPutMetricPolicy: {}
+        - Statement:
+            - Sid: SESSendEmailPolicy
+              Effect: Allow
+              Action:
+              - ses:sendTemplatedEmail
+              Resource: '*'
       Events:
         PutEvent:
           Type: Api

@@ -57,7 +57,9 @@ export const updateRegistrations = async (eventId: string, eventTable: string) =
     },
     registrationTable
   )
-  const registrations = allRegistrations?.filter((r) => !r.cancelled)
+
+  // ignore cancelled or unpaid registrations
+  const registrations = allRegistrations?.filter((r) => !r.cancelled && r.paymentStatus === 'SUCCESS')
 
   const membershipPriority = (r: JsonRegistration) =>
     Boolean(confirmedEvent.priority?.includes('member') && (r.handler?.membership || r.owner?.membership))

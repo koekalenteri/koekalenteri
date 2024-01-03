@@ -7,12 +7,16 @@ import { metricScope } from 'aws-embedded-metrics'
 
 import { type JsonRegistration } from '../../types'
 import { CONFIG } from '../config'
+import { audit, registrationAuditKey } from '../lib/audit'
+import { sendTemplatedMail } from '../lib/email'
+import { updateRegistrations } from '../lib/event'
 import { parseParams, updateTransactionStatus, verifyParams } from '../lib/payment'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { metricsError, metricsSuccess } from '../utils/metrics'
+import { emailTo, registrationEmailTemplateData } from '../utils/registration'
 import { response } from '../utils/response'
 
-const { registrationTable, transactionTable } = CONFIG
+const { emailFrom, eventTable, registrationTable, transactionTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(transactionTable)
 
 /**
@@ -58,7 +62,21 @@ const successHandler = metricScope(
               },
               registrationTable
             )
-            // send receipt
+
+            // TODO: send receipt
+
+            const confirmedEvent = await updateRegistrations(registration.eventId, eventTable)
+            audit({
+              auditKey: registrationAuditKey(registration),
+              message: 'Maksoi ilmoittautumisen',
+              user: registration.createdBy,
+            })
+
+            // send confirmation message
+            const to = emailTo(registration)
+            const data = registrationEmailTemplateData(registration, confirmedEvent, origin, '')
+
+            await sendTemplatedMail('registration', registration.language, emailFrom, to, data)
           }
         }
 

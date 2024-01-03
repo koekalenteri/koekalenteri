@@ -19,9 +19,13 @@ const getRegistrationsHandler = metricScope(
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
       try {
         const eventId = unescape(event.pathParameters?.eventId ?? '')
-        const items = await dynamoDB.query<JsonRegistration>('eventId = :eventId', {
+        const allItems = await dynamoDB.query<JsonRegistration>('eventId = :eventId', {
           ':eventId': eventId,
         })
+
+        // filter out registrations that are pending payment
+        const items = allItems?.filter((item) => item.paymentStatus === 'SUCCESS')
+
         const itemsWithGroups = await fixRegistrationGroups(items ?? [])
         metricsSuccess(metrics, event.requestContext, 'getRegistrations')
         return response(200, itemsWithGroups, event)

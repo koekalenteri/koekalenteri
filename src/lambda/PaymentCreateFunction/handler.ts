@@ -35,6 +35,11 @@ const createHandler = metricScope(
         )
 
         const jsonEvent = await dynamoDB.read<JsonConfirmedEvent>({ id: eventId }, eventTable)
+        if (!jsonEvent) {
+          metricsError(metrics, event.requestContext, 'createPayment')
+          return response<string>(404, 'Event not found', event)
+        }
+
         const registration = await dynamoDB.read<JsonRegistration>(
           {
             eventId: eventId,
@@ -42,19 +47,17 @@ const createHandler = metricScope(
           },
           registrationTable
         )
-        const organizer = await dynamoDB.read<Organizer>({ id: jsonEvent?.organizer.id }, organizerTable)
-        if (!jsonEvent) {
-          metricsError(metrics, event.requestContext, 'createPayment')
-          return response<string>(404, 'Event not found', event)
-        }
         if (!registration) {
           metricsError(metrics, event.requestContext, 'createPayment')
           return response<string>(404, 'Registration not found', event)
         }
+
+        const organizer = await dynamoDB.read<Organizer>({ id: jsonEvent?.organizer.id }, organizerTable)
         if (!organizer?.paytrailMerchantId) {
           metricsError(metrics, event.requestContext, 'createPayment')
           return response<string>(412, `Organizer ${jsonEvent.organizer.id} does not have MerchantId!`, event)
         }
+
         const reference = `${eventId}:${registrationId}`
         const amount = Math.round(100 * (registrationCost(jsonEvent, registration) - (registration.paidAmount ?? 0)))
         if (amount <= 0) {
