@@ -7,16 +7,16 @@ import { API_BASE_URL } from '../routeConfig'
 export class APIError extends Error {
   status: number
   statusText: string
-  result: string
+  body?: any
 
-  constructor(response: Response, json: any) {
-    const jsonStatus = json?.message ?? json
+  constructor(response: Response, body: any) {
+    const jsonStatus = body?.message ?? body
     const statusText = response.statusText || jsonStatus
     const message = `${response.status} ${statusText}`
     super(message)
     this.status = response.status
     this.statusText = statusText
-    this.result = json
+    this.body = body
   }
 }
 
@@ -65,8 +65,9 @@ async function httpWithTimeout<T>(path: string, init: RequestInit): Promise<T> {
         rum()?.recordError(e)
         console.error('json parsing failed', e)
       }
-      enqueueSnackbar(`${response.status} ${json ?? text}`, { variant: 'error' })
-      throw new APIError(response, json)
+      const message = json ?? text
+      enqueueSnackbar(`${response.status} ${message}`, { variant: 'error' })
+      throw new APIError(response, message)
     }
     const parsed = parseJSON(text)
     return parsed
@@ -93,7 +94,8 @@ async function http<T>(path: string, init: RequestInit): Promise<T> {
       enqueueSnackbar(`${err}`, { variant: 'error' })
     } else if (err.status === 401) {
       // reload if token has expired
-      if (err.message == 'The incoming token has expired') window.location.reload()
+      const msg = err.body?.message ?? err.body ?? err.message
+      if (msg == 'The incoming token has expired') window.location.reload()
     }
 
     console.error(err)
