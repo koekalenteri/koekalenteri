@@ -128,7 +128,7 @@ export function validateDog(
 
 function validateDogAge(event: { eventType: string; startDate: Date }, dog: { dob?: Date }) {
   const requirements = REQUIREMENTS[event.eventType]
-  const minAge = (requirements as EventRequirement).age ?? 0
+  const minAge = (requirements as EventRequirement)?.age ?? 0
   if (!dog.dob || differenceInMonths(event.startDate, dog.dob) < minAge) {
     return minAge
   }
@@ -136,7 +136,7 @@ function validateDogAge(event: { eventType: string; startDate: Date }, dog: { do
 
 function validateDogBreed(event: { eventType: string }, dog: { breedCode?: BreedCode }) {
   const requirements = REQUIREMENTS[event.eventType]
-  const breeds = (requirements as EventRequirement).breedCode ?? []
+  const breeds = (requirements as EventRequirement)?.breedCode ?? []
   if (breeds.length && dog.breedCode && !breeds.includes(dog.breedCode)) {
     return dog.breedCode
   }
