@@ -90,18 +90,22 @@ export default function SendMessageDialog({ event, registrations, templateId, op
       return
     }
     try {
-      await confirm({
-        title: 'Viestin lähettäminen',
-        content: (
-          <div>
-            Olet lähettämässä viestiä {t(`emailTemplate.${templateId}`)} {registrations.length} ilmoittautumiseen.
-            <br />
-            Oletko varma, että haluat lähettää viestin?
-          </div>
-        ),
-        confirmationText: 'Lähetä',
-        cancellationText: t('cancel'),
-      })
+      try {
+        await confirm({
+          title: 'Viestin lähettäminen',
+          content: (
+            <div>
+              Olet lähettämässä viestiä {t(`emailTemplate.${templateId}`)} {registrations.length} ilmoittautumiseen.
+              <br />
+              Oletko varma, että haluat lähettää viestin?
+            </div>
+          ),
+          confirmationText: 'Lähetä',
+          cancellationText: t('cancel'),
+        })
+      } catch (e) {
+        return // cancelled
+      }
 
       const {
         ok = [],
