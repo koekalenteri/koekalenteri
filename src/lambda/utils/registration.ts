@@ -2,8 +2,6 @@ import type { JsonConfirmedEvent, JsonRegistration } from '../../types'
 
 import { i18n } from '../../i18n/lambda'
 
-import { reverseName } from './string'
-
 export function emailTo(registration: JsonRegistration) {
   const to: string[] = [registration.handler.email]
   if (registration.owner.email !== registration.handler.email) {
@@ -36,10 +34,6 @@ export function registrationEmailTemplateData(
   const invitationLink = confirmedEvent.invitationAttachment
     ? `${origin}/r/${registration.eventId}/${registration.id}/invitation`
     : ''
-
-  // Friendly name for secretary (and official) (KOE-350)
-  confirmedEvent.secretary.name = reverseName(confirmedEvent.secretary?.name ?? '')
-  confirmedEvent.official.name = reverseName(confirmedEvent.official?.name ?? '')
 
   return {
     subject: t('registration.email.subject', { context }),
