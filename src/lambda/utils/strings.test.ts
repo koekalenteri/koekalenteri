@@ -1,6 +1,7 @@
 import { capitalize, reverseName } from './string'
 
 test('capitalize', function () {
+  expect(capitalize(undefined)).toEqual('')
   expect(capitalize('')).toEqual('')
   expect(capitalize('matti meikäläinen')).toEqual('Matti Meikäläinen')
   expect(capitalize('äijä örvelö')).toEqual('Äijä Örvelö')
@@ -10,6 +11,7 @@ test('capitalize', function () {
 })
 
 test('reverseName', function () {
+  expect(reverseName(undefined)).toEqual('')
   expect(reverseName('')).toEqual('')
   expect(reverseName('Meikäläinen Matti')).toEqual('Matti Meikäläinen')
   expect(reverseName('Puna-Kuono Petteri')).toEqual('Petteri Puna-Kuono')
