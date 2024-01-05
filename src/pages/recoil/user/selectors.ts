@@ -72,3 +72,13 @@ export const hasAdminAccessSelector = selector({
     eviction: 'most-recent',
   },
 })
+
+export const adminUserOrgIdsSelector = selector({
+  key: 'adminUserOrgIds',
+  get: async ({ get }) => {
+    const user = get(userSelector)
+    const roles = user?.roles ?? {}
+
+    return Object.keys(roles)
+  },
+})

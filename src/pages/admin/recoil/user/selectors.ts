@@ -4,7 +4,7 @@ import i18next from 'i18next'
 import { selector, selectorFamily } from 'recoil'
 
 import { unique } from '../../../../lib/utils'
-import { isAdminSelector, userSelector } from '../../../recoil'
+import { adminUserOrgIdsSelector, isAdminSelector, userSelector } from '../../../recoil'
 import { adminEventOrganizersSelector, adminEventsAtom, filteredAdminEventsSelector } from '../events'
 import { adminEventOrganizerIdAtom, adminOrganizersAtom, adminUsersOrganizerIdAtom } from '../organizers'
 
@@ -33,9 +33,12 @@ export const filteredAdminUsersSelector = selector({
     const isAdmin = get(isAdminSelector)
     const filter = get(adminUserFilterAtom).toLocaleLowerCase(i18next.language)
     const users = get(adminUsersAtom)
+    const orgIds = get(adminUserOrgIdsSelector)
     const orgId = get(adminUsersOrganizerIdAtom)
 
-    let result = isAdmin ? users : users.filter((u) => u.roles && Object.keys(u.roles).length)
+    let result = isAdmin
+      ? users
+      : users.filter((u) => u.roles && Object.keys(u.roles).some((id) => orgIds.includes(id)))
 
     if (orgId) {
       result = result.filter((u) => u.roles?.[orgId])
