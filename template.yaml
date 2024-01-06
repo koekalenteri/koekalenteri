@@ -827,6 +827,45 @@ Resources:
       LogGroupName: !Join ['/', ['/aws/lambda', !Ref PutRegistrationFunction]]
       RetentionInDays: 30
 
+  PutAdminRegistrationFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: lambda/PutAdminRegistrationFunction/handler.default
+      Layers:
+        - !Ref CommonLayer
+      Tracing: Active
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EventRegistrationTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EventTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuditTable
+        - CloudWatchPutMetricPolicy: {}
+        - Statement:
+            - Sid: SESSendEmailPolicy
+              Effect: Allow
+              Action:
+              - ses:sendTemplatedEmail
+              Resource: '*'
+      Events:
+        PutAdminRegistration:
+          Type: Api
+          Properties:
+            Path: /admin/registration
+            Method: POST
+            RestApiId: !Ref KoekalenteriApi
+            Auth:
+              Authorizer: CognitoAuthorizer
+    Metadata:
+      BuildMethod: makefile
+
+  PutAdminRegistrationFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref PutAdminRegistrationFunction]]
+      RetentionInDays: 30
+
   PutRegistrationGroupsFunction:
     Type: AWS::Serverless::Function
     Properties:

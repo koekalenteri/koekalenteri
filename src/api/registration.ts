@@ -31,6 +31,14 @@ export async function putRegistration(
   return http.post<Registration, Registration>('/registration/', registration, withToken({ signal }, token))
 }
 
+export async function putAdminRegistration(
+  registration: Registration,
+  token?: string,
+  signal?: AbortSignal
+): Promise<Registration> {
+  return http.post<Registration, Registration>('/registration/', registration, withToken({ signal }, token))
+}
+
 export async function putRegistrationGroups(
   eventId: string,
   groups: RegistrationGroupInfo[],

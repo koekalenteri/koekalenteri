@@ -14,6 +14,8 @@ import { response } from '../utils/response'
 
 const dynamoDB = new CustomDynamoClient(CONFIG.registrationTable)
 
+const VALID_PAYMENT_STATUSES: Readonly<string[]> = ['SUCCESS', 'PENDING']
+
 const getRegistrationsHandler = metricScope(
   (metrics: MetricsLogger) =>
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
@@ -24,7 +26,9 @@ const getRegistrationsHandler = metricScope(
         })
 
         // filter out registrations that are pending payment
-        const items = allItems?.filter((item) => item.paymentStatus === 'SUCCESS')
+        const items = allItems?.filter(
+          (item) => item.paymentStatus && VALID_PAYMENT_STATUSES.includes(item.paymentStatus)
+        )
 
         const itemsWithGroups = await fixRegistrationGroups(items ?? [])
         metricsSuccess(metrics, event.requestContext, 'getRegistrations')

@@ -3,7 +3,7 @@ import type { Registration, RegistrationGroupInfo } from '../../../../types'
 import { useSnackbar } from 'notistack'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
-import { putRegistration, putRegistrationGroups } from '../../../../api/registration'
+import { putAdminRegistration, putRegistrationGroups } from '../../../../api/registration'
 import { idTokenAtom } from '../../../recoil'
 import { adminEventSelector } from '../events'
 
@@ -30,7 +30,7 @@ export const useAdminRegistrationActions = (eventId: string) => {
         handler: reg.ownerHandles ? { ...reg.owner } : reg.handler,
         payer: reg.ownerPays ? { ...reg.owner } : reg.payer,
       }
-      const saved = await putRegistration(regWithOverrides, token)
+      const saved = await putAdminRegistration(regWithOverrides, token)
       updateAdminRegistration(saved)
       return saved
     },
