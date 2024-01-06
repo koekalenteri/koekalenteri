@@ -29,11 +29,15 @@ export function OwnerInfo({ reg, disabled, error, helperText, onChange, onOpenCh
   const [cache, setCache] = useDogCacheKey(reg.dog?.regNo, 'owner')
 
   const handleChange = useCallback(
-    (props: Partial<RegistrationPerson & { ownerHandles: boolean }>) => {
+    (props: Partial<RegistrationPerson & { ownerHandles: boolean; ownerPays: boolean }>) => {
       const cached = setCache({ ...cache, ...props })
       if (cached) {
-        const { ownerHandles, ...owner } = cached
-        onChange({ owner, ownerHandles: ownerHandles ?? props.ownerHandles ?? true })
+        const { ownerHandles, ownerPays, ...owner } = cached
+        onChange({
+          owner,
+          ownerHandles: ownerHandles ?? props.ownerHandles ?? true,
+          ownerPays: ownerPays ?? props.ownerPays ?? true,
+        })
       }
     },
     [cache, onChange, setCache]
@@ -125,6 +129,12 @@ export function OwnerInfo({ reg, disabled, error, helperText, onChange, onOpenCh
           }
           label={t('registration.ownerHandles')}
           name="ownerHandles"
+        />
+        <FormControlLabel
+          disabled={disabled}
+          control={<Switch checked={reg.ownerPays} onChange={(e) => handleChange({ ownerPays: e.target.checked })} />}
+          label={t('registration.ownerPays')}
+          name="ownerPays"
         />
       </FormGroup>
     </CollapsibleSection>

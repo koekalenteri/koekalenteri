@@ -2,8 +2,6 @@ import type { DeepPartial, Registration, RegistrationPerson } from '../../../typ
 
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import Checkbox from '@mui/material/Checkbox'
-import FormControlLabel from '@mui/material/FormControlLabel'
 import Grid from '@mui/material/Grid'
 import TextField from '@mui/material/TextField'
 import { MuiTelInput } from 'mui-tel-input'
@@ -22,21 +20,21 @@ interface Props {
   readonly open?: boolean
 }
 
-export function HandlerInfo({ reg, disabled, error, helperText, onChange, onOpenChange, open }: Props) {
+export function PayerInfo({ reg, disabled, error, helperText, onChange, onOpenChange, open }: Props) {
   const { t, i18n } = useTranslation()
-  const [cache, setCache] = useDogCacheKey(reg.dog?.regNo, 'handler')
+  const [cache, setCache] = useDogCacheKey(reg.dog?.regNo, 'payer')
 
   const handleChange = useCallback(
     (props: Partial<RegistrationPerson>) => {
-      const handler = setCache({ ...cache, ...props })
-      onChange({ handler })
+      const payer = setCache({ ...cache, ...props })
+      onChange({ payer })
     },
     [cache, onChange, setCache]
   )
 
   return (
     <CollapsibleSection
-      title={t('registration.handler')}
+      title={t('registration.payer')}
       error={error}
       helperText={helperText}
       open={open}
@@ -47,39 +45,26 @@ export function HandlerInfo({ reg, disabled, error, helperText, onChange, onOpen
           <TextField
             InputProps={{ autoComplete: 'name' }}
             disabled={disabled}
-            error={!reg.handler?.name}
+            error={!reg.payer?.name}
             fullWidth
-            id="handler_name"
+            id="payer_name"
             label={t('contact.name')}
             name="name"
             onChange={(e) => handleChange({ name: e.target.value || '' })}
-            value={reg.handler?.name ?? ''}
-          />
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <TextField
-            InputProps={{ autoComplete: 'address-level2' }}
-            disabled={disabled}
-            error={!reg.handler?.location}
-            fullWidth
-            id="handler_city"
-            label={t('contact.city')}
-            name="city"
-            onChange={(e) => handleChange({ location: e.target.value || '' })}
-            value={reg.handler?.location ?? ''}
+            value={reg.payer?.name ?? ''}
           />
         </Grid>
         <Grid item xs={12} sm={6}>
           <TextField
             InputProps={{ autoComplete: 'email' }}
             disabled={disabled}
-            error={!reg.handler?.email}
+            error={!reg.payer?.email}
             fullWidth
-            id="handler_email"
+            id="payer_email"
             label={t('contact.email')}
             name="email"
             onChange={(e) => handleChange({ email: e.target.value ?? '' })}
-            value={reg.handler?.email ?? ''}
+            value={reg.payer?.email ?? ''}
           />
         </Grid>
         <Grid item xs={12} sm={6}>
@@ -89,27 +74,16 @@ export function HandlerInfo({ reg, disabled, error, helperText, onChange, onOpen
             forceCallingCode
             InputProps={{ autoComplete: 'tel' }}
             disabled={disabled}
-            error={!reg.handler?.phone}
+            error={!reg.payer?.phone}
             fullWidth
-            id="handler_phone"
+            id="payer_phone"
             label={t('contact.phone')}
             name="phone"
             onChange={(phone) => handleChange({ phone })}
-            value={reg.handler?.phone ?? ''}
+            value={reg.payer?.phone ?? ''}
           />
         </Grid>
       </Grid>
-      <FormControlLabel
-        disabled={disabled}
-        control={
-          <Checkbox
-            checked={reg.handler?.membership ?? false}
-            onChange={(e) => handleChange({ membership: e.target.checked })}
-          />
-        }
-        label={t('registration.handlerIsMember')}
-        name="handlerIsMember"
-      />
     </CollapsibleSection>
   )
 }

@@ -21,8 +21,10 @@ export interface JsonRegistration extends JsonDbRecord {
   notes: string
   owner: RegistrationPerson
   ownerHandles?: boolean
+  ownerPays?: boolean
   paidAmount?: number
   paidAt?: string
+  payer: Omit<RegistrationPerson, 'location' | 'membership'>
   paymentStatus?: PaymentStatus
   priorityByInvitation?: boolean
   qualifyingResults: JsonQualifyingResult[]

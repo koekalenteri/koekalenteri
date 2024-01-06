@@ -34,6 +34,11 @@ const mockRegistrationDefaults = {
     phone: '+3584012345',
     membership: false,
   },
+  payer: {
+    name: 'Payer Name',
+    email: 'payer@exmaple.com',
+    phone: '+3584055555',
+  },
   language: 'fi' as const,
   notes: 'additional notes',
   qualifyingResults: [],
@@ -67,6 +72,11 @@ export const registrationWithStaticDates: Registration = {
     email: 'owner@exmaple.com',
     phone: '+3584012345',
     membership: false,
+  },
+  payer: {
+    name: 'Owner Name',
+    email: 'owner@exmaple.com',
+    phone: '+3584012345',
   },
   language: 'fi',
   notes: 'additional notes',

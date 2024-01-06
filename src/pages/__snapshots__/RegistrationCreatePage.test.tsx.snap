@@ -1896,6 +1896,38 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                         registration.ownerHandles
                       </span>
                     </label>
+                    <label
+                      class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
+                    >
+                      <span
+                        class="MuiSwitch-root MuiSwitch-sizeMedium css-julti5-MuiSwitch-root"
+                      >
+                        <span
+                          class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-checked css-1xvpzln-MuiButtonBase-root-MuiSwitch-switchBase"
+                        >
+                          <input
+                            checked=""
+                            class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"
+                            name="ownerPays"
+                            type="checkbox"
+                          />
+                          <span
+                            class="MuiSwitch-thumb css-jsexje-MuiSwitch-thumb"
+                          />
+                          <span
+                            class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                          />
+                        </span>
+                        <span
+                          class="MuiSwitch-track css-1yjjitx-MuiSwitch-track"
+                        />
+                      </span>
+                      <span
+                        class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-ahj2mt-MuiTypography-root"
+                      >
+                        registration.ownerPays
+                      </span>
+                    </label>
                   </div>
                 </div>
               </div>
@@ -1970,212 +2002,204 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                           class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
                         >
                           <div
-                            class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
+                            class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-wfcdf7-MuiGrid-root"
                           >
                             <div
-                              class="MuiGrid-root MuiGrid-item css-17sva53-MuiGrid-root"
+                              class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                             >
-                              <div
-                                class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                              <label
+                                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-error MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-a5n9ke-MuiFormLabel-root-MuiInputLabel-root"
+                                data-shrink="false"
+                                for="handler_name"
+                                id="handler_name-label"
                               >
-                                <label
-                                  class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-error MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-a5n9ke-MuiFormLabel-root-MuiInputLabel-root"
-                                  data-shrink="false"
-                                  for="handler_name"
-                                  id="handler_name-label"
-                                >
-                                  contact.name
-                                </label>
-                                <div
-                                  class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-error MuiInputBase-fullWidth MuiInputBase-formControl css-78sb4c-MuiInputBase-root-MuiOutlinedInput-root"
-                                >
-                                  <input
-                                    aria-invalid="true"
-                                    autocomplete="name"
-                                    class="MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
-                                    id="handler_name"
-                                    name="name"
-                                    type="text"
-                                    value=""
-                                  />
-                                  <fieldset
-                                    aria-hidden="true"
-                                    class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
-                                  >
-                                    <legend
-                                      class="css-yjsfm1"
-                                    >
-                                      <span>
-                                        contact.name
-                                      </span>
-                                    </legend>
-                                  </fieldset>
-                                </div>
-                              </div>
-                            </div>
-                            <div
-                              class="MuiGrid-root MuiGrid-item css-17sva53-MuiGrid-root"
-                            >
+                                contact.name
+                              </label>
                               <div
-                                class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-error MuiInputBase-fullWidth MuiInputBase-formControl css-78sb4c-MuiInputBase-root-MuiOutlinedInput-root"
                               >
-                                <label
-                                  class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-error MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-a5n9ke-MuiFormLabel-root-MuiInputLabel-root"
-                                  data-shrink="false"
-                                  for="handler_city"
-                                  id="handler_city-label"
+                                <input
+                                  aria-invalid="true"
+                                  autocomplete="name"
+                                  class="MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
+                                  id="handler_name"
+                                  name="name"
+                                  type="text"
+                                  value=""
+                                />
+                                <fieldset
+                                  aria-hidden="true"
+                                  class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                                 >
-                                  contact.city
-                                </label>
-                                <div
-                                  class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-error MuiInputBase-fullWidth MuiInputBase-formControl css-78sb4c-MuiInputBase-root-MuiOutlinedInput-root"
-                                >
-                                  <input
-                                    aria-invalid="true"
-                                    autocomplete="address-level2"
-                                    class="MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
-                                    id="handler_city"
-                                    name="city"
-                                    type="text"
-                                    value=""
-                                  />
-                                  <fieldset
-                                    aria-hidden="true"
-                                    class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
+                                  <legend
+                                    class="css-yjsfm1"
                                   >
-                                    <legend
-                                      class="css-yjsfm1"
-                                    >
-                                      <span>
-                                        contact.city
-                                      </span>
-                                    </legend>
-                                  </fieldset>
-                                </div>
+                                    <span>
+                                      contact.name
+                                    </span>
+                                  </legend>
+                                </fieldset>
                               </div>
                             </div>
                           </div>
                           <div
-                            class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
+                            class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-wfcdf7-MuiGrid-root"
                           >
                             <div
-                              class="MuiGrid-root MuiGrid-item css-17sva53-MuiGrid-root"
+                              class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                             >
-                              <div
-                                class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                              <label
+                                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-error MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-a5n9ke-MuiFormLabel-root-MuiInputLabel-root"
+                                data-shrink="false"
+                                for="handler_city"
+                                id="handler_city-label"
                               >
-                                <label
-                                  class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-error MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-a5n9ke-MuiFormLabel-root-MuiInputLabel-root"
-                                  data-shrink="false"
-                                  for="handler_email"
-                                  id="handler_email-label"
+                                contact.city
+                              </label>
+                              <div
+                                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-error MuiInputBase-fullWidth MuiInputBase-formControl css-78sb4c-MuiInputBase-root-MuiOutlinedInput-root"
+                              >
+                                <input
+                                  aria-invalid="true"
+                                  autocomplete="address-level2"
+                                  class="MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
+                                  id="handler_city"
+                                  name="city"
+                                  type="text"
+                                  value=""
+                                />
+                                <fieldset
+                                  aria-hidden="true"
+                                  class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                                 >
-                                  contact.email
-                                </label>
-                                <div
-                                  class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-error MuiInputBase-fullWidth MuiInputBase-formControl css-78sb4c-MuiInputBase-root-MuiOutlinedInput-root"
-                                >
-                                  <input
-                                    aria-invalid="true"
-                                    autocomplete="email"
-                                    class="MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
-                                    id="handler_email"
-                                    name="email"
-                                    type="text"
-                                    value=""
-                                  />
-                                  <fieldset
-                                    aria-hidden="true"
-                                    class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
+                                  <legend
+                                    class="css-yjsfm1"
                                   >
-                                    <legend
-                                      class="css-yjsfm1"
-                                    >
-                                      <span>
-                                        contact.email
-                                      </span>
-                                    </legend>
-                                  </fieldset>
-                                </div>
+                                    <span>
+                                      contact.city
+                                    </span>
+                                  </legend>
+                                </fieldset>
                               </div>
                             </div>
+                          </div>
+                          <div
+                            class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-wfcdf7-MuiGrid-root"
+                          >
                             <div
-                              class="MuiGrid-root MuiGrid-item css-17sva53-MuiGrid-root"
+                              class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                             >
-                              <div
-                                class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root MuiTelInput-TextField  css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                              <label
+                                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-error MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-a5n9ke-MuiFormLabel-root-MuiInputLabel-root"
+                                data-shrink="false"
+                                for="handler_email"
+                                id="handler_email-label"
                               >
-                                <label
-                                  class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-error MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1cwx9dy-MuiFormLabel-root-MuiInputLabel-root"
-                                  data-shrink="true"
-                                  for="handler_phone"
-                                  id="handler_phone-label"
+                                contact.email
+                              </label>
+                              <div
+                                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-error MuiInputBase-fullWidth MuiInputBase-formControl css-78sb4c-MuiInputBase-root-MuiOutlinedInput-root"
+                              >
+                                <input
+                                  aria-invalid="true"
+                                  autocomplete="email"
+                                  class="MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
+                                  id="handler_email"
+                                  name="email"
+                                  type="text"
+                                  value=""
+                                />
+                                <fieldset
+                                  aria-hidden="true"
+                                  class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                                 >
-                                  contact.phone
-                                </label>
+                                  <legend
+                                    class="css-yjsfm1"
+                                  >
+                                    <span>
+                                      contact.email
+                                    </span>
+                                  </legend>
+                                </fieldset>
+                              </div>
+                            </div>
+                          </div>
+                          <div
+                            class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-wfcdf7-MuiGrid-root"
+                          >
+                            <div
+                              class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root MuiTelInput-TextField  css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                            >
+                              <label
+                                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-error MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1cwx9dy-MuiFormLabel-root-MuiInputLabel-root"
+                                data-shrink="true"
+                                for="handler_phone"
+                                id="handler_phone-label"
+                              >
+                                contact.phone
+                              </label>
+                              <div
+                                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-error MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart css-fx6mn2-MuiInputBase-root-MuiOutlinedInput-root"
+                              >
                                 <div
-                                  class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-error MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart css-fx6mn2-MuiInputBase-root-MuiOutlinedInput-root"
+                                  class="MuiInputAdornment-root MuiInputAdornment-positionStart MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-74b6xz-MuiInputAdornment-root"
                                 >
-                                  <div
-                                    class="MuiInputAdornment-root MuiInputAdornment-positionStart MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-74b6xz-MuiInputAdornment-root"
+                                  <span
+                                    class="notranslate"
+                                  >
+                                    ​
+                                  </span>
+                                  <button
+                                    aria-expanded="false"
+                                    aria-haspopup="listbox"
+                                    aria-label="Select country"
+                                    class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiTelInput-IconButton css-104c99h-MuiButtonBase-root-MuiIconButton-root"
+                                    tabindex="0"
+                                    type="button"
                                   >
                                     <span
-                                      class="notranslate"
+                                      class="MuiTelInput-Flag css-70qvj9"
+                                      data-testid="FI"
                                     >
-                                      ​
-                                    </span>
-                                    <button
-                                      aria-expanded="false"
-                                      aria-haspopup="listbox"
-                                      aria-label="Select country"
-                                      class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiTelInput-IconButton css-104c99h-MuiButtonBase-root-MuiIconButton-root"
-                                      tabindex="0"
-                                      type="button"
-                                    >
-                                      <span
-                                        class="MuiTelInput-Flag css-70qvj9"
-                                        data-testid="FI"
-                                      >
-                                        <img
-                                          alt="Finland"
-                                          loading="lazy"
-                                          src="https://flagcdn.com/w40/fi.webp"
-                                          width="26"
-                                        />
-                                      </span>
-                                      <span
-                                        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                                      <img
+                                        alt="Finland"
+                                        loading="lazy"
+                                        src="https://flagcdn.com/w40/fi.webp"
+                                        width="26"
                                       />
-                                    </button>
-                                    <p
-                                      class="MuiTypography-root MuiTypography-body1 css-1nrbl98-MuiTypography-root"
-                                    >
-                                      +
-                                      358
-                                    </p>
-                                  </div>
-                                  <input
-                                    aria-invalid="true"
-                                    autocomplete="tel"
-                                    class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart css-1o9s3wi-MuiInputBase-input-MuiOutlinedInput-input"
-                                    id="handler_phone"
-                                    name="phone"
-                                    type="tel"
-                                    value=""
-                                  />
-                                  <fieldset
-                                    aria-hidden="true"
-                                    class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
+                                    </span>
+                                    <span
+                                      class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                                    />
+                                  </button>
+                                  <p
+                                    class="MuiTypography-root MuiTypography-body1 css-1nrbl98-MuiTypography-root"
                                   >
-                                    <legend
-                                      class="css-14lo706"
-                                    >
-                                      <span>
-                                        contact.phone
-                                      </span>
-                                    </legend>
-                                  </fieldset>
+                                    +
+                                    358
+                                  </p>
                                 </div>
+                                <input
+                                  aria-invalid="true"
+                                  autocomplete="tel"
+                                  class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart css-1o9s3wi-MuiInputBase-input-MuiOutlinedInput-input"
+                                  id="handler_phone"
+                                  name="phone"
+                                  type="tel"
+                                  value=""
+                                />
+                                <fieldset
+                                  aria-hidden="true"
+                                  class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
+                                >
+                                  <legend
+                                    class="css-14lo706"
+                                  >
+                                    <span>
+                                      contact.phone
+                                    </span>
+                                  </legend>
+                                </fieldset>
                               </div>
                             </div>
                           </div>
@@ -2213,6 +2237,243 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                             registration.handlerIsMember
                           </span>
                         </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-bz4dnt-MuiCollapse-root"
+        style="min-height: 0px;"
+      >
+        <div
+          class="MuiCollapse-wrapper MuiCollapse-vertical css-smkl36-MuiCollapse-wrapper"
+        >
+          <div
+            class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
+          >
+            <div
+              class="MuiBox-root css-1d8l8v2"
+            >
+              <button
+                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-tov16f-MuiButtonBase-root-MuiIconButton-root"
+                tabindex="0"
+                type="button"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                  data-testid="KeyboardArrowDownIcon"
+                  focusable="false"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"
+                  />
+                </svg>
+                <span
+                  class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                />
+              </button>
+              <div
+                class="MuiBox-root css-1qbrvqz"
+              >
+                <div
+                  class="MuiBox-root css-yxbw19"
+                >
+                  <p
+                    class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
+                  >
+                    registration.payer
+                  </p>
+                  <p
+                    class="MuiFormHelperText-root css-9tosq5-MuiFormHelperText-root"
+                  >
+                    registration.ownerPays
+                  </p>
+                </div>
+                <div
+                  class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-pwcg7p-MuiCollapse-root"
+                  style="min-height: 0px;"
+                >
+                  <div
+                    class="MuiCollapse-wrapper MuiCollapse-vertical css-smkl36-MuiCollapse-wrapper"
+                  >
+                    <div
+                      class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
+                    >
+                      <div
+                        class="MuiBox-root css-n2y79c"
+                      >
+                        <div
+                          class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
+                        >
+                          <div
+                            class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-wfcdf7-MuiGrid-root"
+                          >
+                            <div
+                              class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                            >
+                              <label
+                                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-error MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-a5n9ke-MuiFormLabel-root-MuiInputLabel-root"
+                                data-shrink="false"
+                                for="payer_name"
+                                id="payer_name-label"
+                              >
+                                contact.name
+                              </label>
+                              <div
+                                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-error MuiInputBase-fullWidth MuiInputBase-formControl css-78sb4c-MuiInputBase-root-MuiOutlinedInput-root"
+                              >
+                                <input
+                                  aria-invalid="true"
+                                  autocomplete="name"
+                                  class="MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
+                                  id="payer_name"
+                                  name="name"
+                                  type="text"
+                                  value=""
+                                />
+                                <fieldset
+                                  aria-hidden="true"
+                                  class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
+                                >
+                                  <legend
+                                    class="css-yjsfm1"
+                                  >
+                                    <span>
+                                      contact.name
+                                    </span>
+                                  </legend>
+                                </fieldset>
+                              </div>
+                            </div>
+                          </div>
+                          <div
+                            class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-wfcdf7-MuiGrid-root"
+                          >
+                            <div
+                              class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                            >
+                              <label
+                                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-error MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-a5n9ke-MuiFormLabel-root-MuiInputLabel-root"
+                                data-shrink="false"
+                                for="payer_email"
+                                id="payer_email-label"
+                              >
+                                contact.email
+                              </label>
+                              <div
+                                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-error MuiInputBase-fullWidth MuiInputBase-formControl css-78sb4c-MuiInputBase-root-MuiOutlinedInput-root"
+                              >
+                                <input
+                                  aria-invalid="true"
+                                  autocomplete="email"
+                                  class="MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
+                                  id="payer_email"
+                                  name="email"
+                                  type="text"
+                                  value=""
+                                />
+                                <fieldset
+                                  aria-hidden="true"
+                                  class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
+                                >
+                                  <legend
+                                    class="css-yjsfm1"
+                                  >
+                                    <span>
+                                      contact.email
+                                    </span>
+                                  </legend>
+                                </fieldset>
+                              </div>
+                            </div>
+                          </div>
+                          <div
+                            class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-wfcdf7-MuiGrid-root"
+                          >
+                            <div
+                              class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root MuiTelInput-TextField  css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                            >
+                              <label
+                                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-error MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1cwx9dy-MuiFormLabel-root-MuiInputLabel-root"
+                                data-shrink="true"
+                                for="payer_phone"
+                                id="payer_phone-label"
+                              >
+                                contact.phone
+                              </label>
+                              <div
+                                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-error MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart css-fx6mn2-MuiInputBase-root-MuiOutlinedInput-root"
+                              >
+                                <div
+                                  class="MuiInputAdornment-root MuiInputAdornment-positionStart MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-74b6xz-MuiInputAdornment-root"
+                                >
+                                  <span
+                                    class="notranslate"
+                                  >
+                                    ​
+                                  </span>
+                                  <button
+                                    aria-expanded="false"
+                                    aria-haspopup="listbox"
+                                    aria-label="Select country"
+                                    class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiTelInput-IconButton css-104c99h-MuiButtonBase-root-MuiIconButton-root"
+                                    tabindex="0"
+                                    type="button"
+                                  >
+                                    <span
+                                      class="MuiTelInput-Flag css-70qvj9"
+                                      data-testid="FI"
+                                    >
+                                      <img
+                                        alt="Finland"
+                                        loading="lazy"
+                                        src="https://flagcdn.com/w40/fi.webp"
+                                        width="26"
+                                      />
+                                    </span>
+                                    <span
+                                      class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                                    />
+                                  </button>
+                                  <p
+                                    class="MuiTypography-root MuiTypography-body1 css-1nrbl98-MuiTypography-root"
+                                  >
+                                    +
+                                    358
+                                  </p>
+                                </div>
+                                <input
+                                  aria-invalid="true"
+                                  autocomplete="tel"
+                                  class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart css-1o9s3wi-MuiInputBase-input-MuiOutlinedInput-input"
+                                  id="payer_phone"
+                                  name="phone"
+                                  type="tel"
+                                  value=""
+                                />
+                                <fieldset
+                                  aria-hidden="true"
+                                  class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
+                                >
+                                  <legend
+                                    class="css-14lo706"
+                                  >
+                                    <span>
+                                      contact.phone
+                                    </span>
+                                  </legend>
+                                </fieldset>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -2365,8 +2626,8 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                     <label
                       class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-a5n9ke-MuiFormLabel-root-MuiInputLabel-root"
                       data-shrink="false"
-                      for=":rv:"
-                      id=":rv:-label"
+                      for=":r12:"
+                      id=":r12:-label"
                     >
                       registration.notes
                     </label>
@@ -2376,7 +2637,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                       <textarea
                         aria-invalid="false"
                         class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-1sqnrkk-MuiInputBase-input-MuiOutlinedInput-input"
-                        id=":rv:"
+                        id=":r12:"
                         name="notes"
                         rows="4"
                         style="height: 0px; overflow: hidden;"
@@ -2812,8 +3073,8 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1cwx9dy-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="true"
-                            for=":r20:"
-                            id=":r20:-label"
+                            for=":r26:"
+                            id=":r26:-label"
                           >
                             registration.class
                           </label>
@@ -2827,7 +3088,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                               autocapitalize="none"
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r20:"
+                              id=":r26:"
                               role="combobox"
                               spellcheck="false"
                               type="text"
@@ -2888,8 +3149,8 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1cwx9dy-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="true"
-                            for=":r22:"
-                            id=":r22:-label"
+                            for=":r28:"
+                            id=":r28:-label"
                           >
                             registration.reserve
                           </label>
@@ -2898,13 +3159,13 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                           >
                             <input
                               aria-autocomplete="list"
-                              aria-describedby=":r22:-helper-text"
+                              aria-describedby=":r28:-helper-text"
                               aria-expanded="false"
                               aria-invalid="false"
                               autocapitalize="none"
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r22:"
+                              id=":r28:"
                               role="combobox"
                               spellcheck="false"
                               type="text"
@@ -2951,7 +3212,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                           </div>
                           <p
                             class="MuiFormHelperText-root MuiFormHelperText-sizeMedium MuiFormHelperText-contained MuiFormHelperText-filled css-1vg31rc-MuiFormHelperText-root"
-                            id=":r22:-helper-text"
+                            id=":r28:-helper-text"
                           >
                             registration.reserveHelp
                           </p>
@@ -2971,8 +3232,8 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1cwx9dy-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="true"
-                            for=":r24:"
-                            id=":r24:-label"
+                            for=":r2a:"
+                            id=":r2a:-label"
                           >
                             registration.datesFilter
                           </label>
@@ -3004,13 +3265,13 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                             </div>
                             <input
                               aria-autocomplete="list"
-                              aria-describedby=":r24:-helper-text"
+                              aria-describedby=":r2a:-helper-text"
                               aria-expanded="false"
                               aria-invalid="false"
                               autocapitalize="none"
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-152mnda-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r24:"
+                              id=":r2a:"
                               role="combobox"
                               spellcheck="false"
                               type="text"
@@ -3079,7 +3340,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                           </div>
                           <p
                             class="MuiFormHelperText-root MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-1vg31rc-MuiFormHelperText-root"
-                            id=":r24:-helper-text"
+                            id=":r2a:-helper-text"
                           >
                             registration.datesFilterInfo
                           </p>
@@ -3099,8 +3360,8 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1cwx9dy-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="true"
-                            for=":r26:"
-                            id=":r26:-label"
+                            for=":r2c:"
+                            id=":r2c:-label"
                           >
                             registration.dates
                           </label>
@@ -3178,13 +3439,13 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                             </div>
                             <input
                               aria-autocomplete="list"
-                              aria-describedby=":r26:-helper-text"
+                              aria-describedby=":r2c:-helper-text"
                               aria-expanded="false"
                               aria-invalid="false"
                               autocapitalize="none"
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-152mnda-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r26:"
+                              id=":r2c:"
                               role="combobox"
                               spellcheck="false"
                               type="text"
@@ -3253,7 +3514,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                           </div>
                           <p
                             class="MuiFormHelperText-root MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-1vg31rc-MuiFormHelperText-root"
-                            id=":r26:-helper-text"
+                            id=":r2c:-helper-text"
                           >
                             registration.datesInfo
                           </p>
@@ -3447,8 +3708,8 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                         <label
                           class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-a5n9ke-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="false"
-                          for=":r2a:"
-                          id=":r2a:-label"
+                          for=":r2g:"
+                          id=":r2g:-label"
                         >
                           dog.rfid
                         </label>
@@ -3459,7 +3720,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                             aria-invalid="false"
                             class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
                             disabled=""
-                            id=":r2a:"
+                            id=":r2g:"
                             type="text"
                             value=""
                           />
@@ -3578,8 +3839,8 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-a5n9ke-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="false"
-                            for=":r2d:"
-                            id=":r2d:-label"
+                            for=":r2j:"
+                            id=":r2j:-label"
                           >
                             dog.dob
                           </label>
@@ -3591,7 +3852,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
                               disabled=""
-                              id=":r2d:"
+                              id=":r2j:"
                               inputmode="text"
                               placeholder="DD.MM.YYYY"
                               type="text"
@@ -3649,8 +3910,8 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-a5n9ke-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="false"
-                            for=":r2f:"
-                            id=":r2f:-label"
+                            for=":r2l:"
+                            id=":r2l:-label"
                           >
                             dog.gender
                           </label>
@@ -3665,7 +3926,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
                               disabled=""
-                              id=":r2f:"
+                              id=":r2l:"
                               role="combobox"
                               spellcheck="false"
                               type="text"
@@ -3724,8 +3985,8 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-a5n9ke-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="false"
-                            for=":r2h:"
-                            id=":r2h:-label"
+                            for=":r2n:"
+                            id=":r2n:-label"
                           >
                             dog.breed
                           </label>
@@ -3740,7 +4001,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
                               disabled=""
-                              id=":r2h:"
+                              id=":r2n:"
                               role="combobox"
                               spellcheck="false"
                               type="text"
@@ -4345,6 +4606,38 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                         registration.ownerHandles
                       </span>
                     </label>
+                    <label
+                      class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
+                    >
+                      <span
+                        class="MuiSwitch-root MuiSwitch-sizeMedium css-julti5-MuiSwitch-root"
+                      >
+                        <span
+                          class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-checked css-1xvpzln-MuiButtonBase-root-MuiSwitch-switchBase"
+                        >
+                          <input
+                            checked=""
+                            class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"
+                            name="ownerPays"
+                            type="checkbox"
+                          />
+                          <span
+                            class="MuiSwitch-thumb css-jsexje-MuiSwitch-thumb"
+                          />
+                          <span
+                            class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                          />
+                        </span>
+                        <span
+                          class="MuiSwitch-track css-1yjjitx-MuiSwitch-track"
+                        />
+                      </span>
+                      <span
+                        class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-ahj2mt-MuiTypography-root"
+                      >
+                        registration.ownerPays
+                      </span>
+                    </label>
                   </div>
                 </div>
               </div>
@@ -4419,212 +4712,204 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                           class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
                         >
                           <div
-                            class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
+                            class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-wfcdf7-MuiGrid-root"
                           >
                             <div
-                              class="MuiGrid-root MuiGrid-item css-17sva53-MuiGrid-root"
+                              class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                             >
-                              <div
-                                class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                              <label
+                                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-error MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-a5n9ke-MuiFormLabel-root-MuiInputLabel-root"
+                                data-shrink="false"
+                                for="handler_name"
+                                id="handler_name-label"
                               >
-                                <label
-                                  class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-error MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-a5n9ke-MuiFormLabel-root-MuiInputLabel-root"
-                                  data-shrink="false"
-                                  for="handler_name"
-                                  id="handler_name-label"
-                                >
-                                  contact.name
-                                </label>
-                                <div
-                                  class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-error MuiInputBase-fullWidth MuiInputBase-formControl css-78sb4c-MuiInputBase-root-MuiOutlinedInput-root"
-                                >
-                                  <input
-                                    aria-invalid="true"
-                                    autocomplete="name"
-                                    class="MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
-                                    id="handler_name"
-                                    name="name"
-                                    type="text"
-                                    value=""
-                                  />
-                                  <fieldset
-                                    aria-hidden="true"
-                                    class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
-                                  >
-                                    <legend
-                                      class="css-yjsfm1"
-                                    >
-                                      <span>
-                                        contact.name
-                                      </span>
-                                    </legend>
-                                  </fieldset>
-                                </div>
-                              </div>
-                            </div>
-                            <div
-                              class="MuiGrid-root MuiGrid-item css-17sva53-MuiGrid-root"
-                            >
+                                contact.name
+                              </label>
                               <div
-                                class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-error MuiInputBase-fullWidth MuiInputBase-formControl css-78sb4c-MuiInputBase-root-MuiOutlinedInput-root"
                               >
-                                <label
-                                  class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-error MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-a5n9ke-MuiFormLabel-root-MuiInputLabel-root"
-                                  data-shrink="false"
-                                  for="handler_city"
-                                  id="handler_city-label"
+                                <input
+                                  aria-invalid="true"
+                                  autocomplete="name"
+                                  class="MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
+                                  id="handler_name"
+                                  name="name"
+                                  type="text"
+                                  value=""
+                                />
+                                <fieldset
+                                  aria-hidden="true"
+                                  class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                                 >
-                                  contact.city
-                                </label>
-                                <div
-                                  class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-error MuiInputBase-fullWidth MuiInputBase-formControl css-78sb4c-MuiInputBase-root-MuiOutlinedInput-root"
-                                >
-                                  <input
-                                    aria-invalid="true"
-                                    autocomplete="address-level2"
-                                    class="MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
-                                    id="handler_city"
-                                    name="city"
-                                    type="text"
-                                    value=""
-                                  />
-                                  <fieldset
-                                    aria-hidden="true"
-                                    class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
+                                  <legend
+                                    class="css-yjsfm1"
                                   >
-                                    <legend
-                                      class="css-yjsfm1"
-                                    >
-                                      <span>
-                                        contact.city
-                                      </span>
-                                    </legend>
-                                  </fieldset>
-                                </div>
+                                    <span>
+                                      contact.name
+                                    </span>
+                                  </legend>
+                                </fieldset>
                               </div>
                             </div>
                           </div>
                           <div
-                            class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
+                            class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-wfcdf7-MuiGrid-root"
                           >
                             <div
-                              class="MuiGrid-root MuiGrid-item css-17sva53-MuiGrid-root"
+                              class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                             >
-                              <div
-                                class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                              <label
+                                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-error MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-a5n9ke-MuiFormLabel-root-MuiInputLabel-root"
+                                data-shrink="false"
+                                for="handler_city"
+                                id="handler_city-label"
                               >
-                                <label
-                                  class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-error MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-a5n9ke-MuiFormLabel-root-MuiInputLabel-root"
-                                  data-shrink="false"
-                                  for="handler_email"
-                                  id="handler_email-label"
+                                contact.city
+                              </label>
+                              <div
+                                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-error MuiInputBase-fullWidth MuiInputBase-formControl css-78sb4c-MuiInputBase-root-MuiOutlinedInput-root"
+                              >
+                                <input
+                                  aria-invalid="true"
+                                  autocomplete="address-level2"
+                                  class="MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
+                                  id="handler_city"
+                                  name="city"
+                                  type="text"
+                                  value=""
+                                />
+                                <fieldset
+                                  aria-hidden="true"
+                                  class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                                 >
-                                  contact.email
-                                </label>
-                                <div
-                                  class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-error MuiInputBase-fullWidth MuiInputBase-formControl css-78sb4c-MuiInputBase-root-MuiOutlinedInput-root"
-                                >
-                                  <input
-                                    aria-invalid="true"
-                                    autocomplete="email"
-                                    class="MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
-                                    id="handler_email"
-                                    name="email"
-                                    type="text"
-                                    value=""
-                                  />
-                                  <fieldset
-                                    aria-hidden="true"
-                                    class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
+                                  <legend
+                                    class="css-yjsfm1"
                                   >
-                                    <legend
-                                      class="css-yjsfm1"
-                                    >
-                                      <span>
-                                        contact.email
-                                      </span>
-                                    </legend>
-                                  </fieldset>
-                                </div>
+                                    <span>
+                                      contact.city
+                                    </span>
+                                  </legend>
+                                </fieldset>
                               </div>
                             </div>
+                          </div>
+                          <div
+                            class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-wfcdf7-MuiGrid-root"
+                          >
                             <div
-                              class="MuiGrid-root MuiGrid-item css-17sva53-MuiGrid-root"
+                              class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                             >
-                              <div
-                                class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root MuiTelInput-TextField  css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                              <label
+                                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-error MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-a5n9ke-MuiFormLabel-root-MuiInputLabel-root"
+                                data-shrink="false"
+                                for="handler_email"
+                                id="handler_email-label"
                               >
-                                <label
-                                  class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-error MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1cwx9dy-MuiFormLabel-root-MuiInputLabel-root"
-                                  data-shrink="true"
-                                  for="handler_phone"
-                                  id="handler_phone-label"
+                                contact.email
+                              </label>
+                              <div
+                                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-error MuiInputBase-fullWidth MuiInputBase-formControl css-78sb4c-MuiInputBase-root-MuiOutlinedInput-root"
+                              >
+                                <input
+                                  aria-invalid="true"
+                                  autocomplete="email"
+                                  class="MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
+                                  id="handler_email"
+                                  name="email"
+                                  type="text"
+                                  value=""
+                                />
+                                <fieldset
+                                  aria-hidden="true"
+                                  class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                                 >
-                                  contact.phone
-                                </label>
+                                  <legend
+                                    class="css-yjsfm1"
+                                  >
+                                    <span>
+                                      contact.email
+                                    </span>
+                                  </legend>
+                                </fieldset>
+                              </div>
+                            </div>
+                          </div>
+                          <div
+                            class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-wfcdf7-MuiGrid-root"
+                          >
+                            <div
+                              class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root MuiTelInput-TextField  css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                            >
+                              <label
+                                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-error MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1cwx9dy-MuiFormLabel-root-MuiInputLabel-root"
+                                data-shrink="true"
+                                for="handler_phone"
+                                id="handler_phone-label"
+                              >
+                                contact.phone
+                              </label>
+                              <div
+                                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-error MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart css-fx6mn2-MuiInputBase-root-MuiOutlinedInput-root"
+                              >
                                 <div
-                                  class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-error MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart css-fx6mn2-MuiInputBase-root-MuiOutlinedInput-root"
+                                  class="MuiInputAdornment-root MuiInputAdornment-positionStart MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-74b6xz-MuiInputAdornment-root"
                                 >
-                                  <div
-                                    class="MuiInputAdornment-root MuiInputAdornment-positionStart MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-74b6xz-MuiInputAdornment-root"
+                                  <span
+                                    class="notranslate"
+                                  >
+                                    ​
+                                  </span>
+                                  <button
+                                    aria-expanded="false"
+                                    aria-haspopup="listbox"
+                                    aria-label="Select country"
+                                    class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiTelInput-IconButton css-104c99h-MuiButtonBase-root-MuiIconButton-root"
+                                    tabindex="0"
+                                    type="button"
                                   >
                                     <span
-                                      class="notranslate"
+                                      class="MuiTelInput-Flag css-70qvj9"
+                                      data-testid="FI"
                                     >
-                                      ​
-                                    </span>
-                                    <button
-                                      aria-expanded="false"
-                                      aria-haspopup="listbox"
-                                      aria-label="Select country"
-                                      class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiTelInput-IconButton css-104c99h-MuiButtonBase-root-MuiIconButton-root"
-                                      tabindex="0"
-                                      type="button"
-                                    >
-                                      <span
-                                        class="MuiTelInput-Flag css-70qvj9"
-                                        data-testid="FI"
-                                      >
-                                        <img
-                                          alt="Finland"
-                                          loading="lazy"
-                                          src="https://flagcdn.com/w40/fi.webp"
-                                          width="26"
-                                        />
-                                      </span>
-                                      <span
-                                        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                                      <img
+                                        alt="Finland"
+                                        loading="lazy"
+                                        src="https://flagcdn.com/w40/fi.webp"
+                                        width="26"
                                       />
-                                    </button>
-                                    <p
-                                      class="MuiTypography-root MuiTypography-body1 css-1nrbl98-MuiTypography-root"
-                                    >
-                                      +
-                                      358
-                                    </p>
-                                  </div>
-                                  <input
-                                    aria-invalid="true"
-                                    autocomplete="tel"
-                                    class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart css-1o9s3wi-MuiInputBase-input-MuiOutlinedInput-input"
-                                    id="handler_phone"
-                                    name="phone"
-                                    type="tel"
-                                    value=""
-                                  />
-                                  <fieldset
-                                    aria-hidden="true"
-                                    class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
+                                    </span>
+                                    <span
+                                      class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                                    />
+                                  </button>
+                                  <p
+                                    class="MuiTypography-root MuiTypography-body1 css-1nrbl98-MuiTypography-root"
                                   >
-                                    <legend
-                                      class="css-14lo706"
-                                    >
-                                      <span>
-                                        contact.phone
-                                      </span>
-                                    </legend>
-                                  </fieldset>
+                                    +
+                                    358
+                                  </p>
                                 </div>
+                                <input
+                                  aria-invalid="true"
+                                  autocomplete="tel"
+                                  class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart css-1o9s3wi-MuiInputBase-input-MuiOutlinedInput-input"
+                                  id="handler_phone"
+                                  name="phone"
+                                  type="tel"
+                                  value=""
+                                />
+                                <fieldset
+                                  aria-hidden="true"
+                                  class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
+                                >
+                                  <legend
+                                    class="css-14lo706"
+                                  >
+                                    <span>
+                                      contact.phone
+                                    </span>
+                                  </legend>
+                                </fieldset>
                               </div>
                             </div>
                           </div>
@@ -4662,6 +4947,243 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                             registration.handlerIsMember
                           </span>
                         </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-bz4dnt-MuiCollapse-root"
+        style="min-height: 0px;"
+      >
+        <div
+          class="MuiCollapse-wrapper MuiCollapse-vertical css-smkl36-MuiCollapse-wrapper"
+        >
+          <div
+            class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
+          >
+            <div
+              class="MuiBox-root css-1d8l8v2"
+            >
+              <button
+                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-tov16f-MuiButtonBase-root-MuiIconButton-root"
+                tabindex="0"
+                type="button"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                  data-testid="KeyboardArrowDownIcon"
+                  focusable="false"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"
+                  />
+                </svg>
+                <span
+                  class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                />
+              </button>
+              <div
+                class="MuiBox-root css-1qbrvqz"
+              >
+                <div
+                  class="MuiBox-root css-yxbw19"
+                >
+                  <p
+                    class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
+                  >
+                    registration.payer
+                  </p>
+                  <p
+                    class="MuiFormHelperText-root css-9tosq5-MuiFormHelperText-root"
+                  >
+                    registration.ownerPays
+                  </p>
+                </div>
+                <div
+                  class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-pwcg7p-MuiCollapse-root"
+                  style="min-height: 0px;"
+                >
+                  <div
+                    class="MuiCollapse-wrapper MuiCollapse-vertical css-smkl36-MuiCollapse-wrapper"
+                  >
+                    <div
+                      class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
+                    >
+                      <div
+                        class="MuiBox-root css-n2y79c"
+                      >
+                        <div
+                          class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
+                        >
+                          <div
+                            class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-wfcdf7-MuiGrid-root"
+                          >
+                            <div
+                              class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                            >
+                              <label
+                                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-error MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-a5n9ke-MuiFormLabel-root-MuiInputLabel-root"
+                                data-shrink="false"
+                                for="payer_name"
+                                id="payer_name-label"
+                              >
+                                contact.name
+                              </label>
+                              <div
+                                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-error MuiInputBase-fullWidth MuiInputBase-formControl css-78sb4c-MuiInputBase-root-MuiOutlinedInput-root"
+                              >
+                                <input
+                                  aria-invalid="true"
+                                  autocomplete="name"
+                                  class="MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
+                                  id="payer_name"
+                                  name="name"
+                                  type="text"
+                                  value=""
+                                />
+                                <fieldset
+                                  aria-hidden="true"
+                                  class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
+                                >
+                                  <legend
+                                    class="css-yjsfm1"
+                                  >
+                                    <span>
+                                      contact.name
+                                    </span>
+                                  </legend>
+                                </fieldset>
+                              </div>
+                            </div>
+                          </div>
+                          <div
+                            class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-wfcdf7-MuiGrid-root"
+                          >
+                            <div
+                              class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                            >
+                              <label
+                                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-error MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-a5n9ke-MuiFormLabel-root-MuiInputLabel-root"
+                                data-shrink="false"
+                                for="payer_email"
+                                id="payer_email-label"
+                              >
+                                contact.email
+                              </label>
+                              <div
+                                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-error MuiInputBase-fullWidth MuiInputBase-formControl css-78sb4c-MuiInputBase-root-MuiOutlinedInput-root"
+                              >
+                                <input
+                                  aria-invalid="true"
+                                  autocomplete="email"
+                                  class="MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
+                                  id="payer_email"
+                                  name="email"
+                                  type="text"
+                                  value=""
+                                />
+                                <fieldset
+                                  aria-hidden="true"
+                                  class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
+                                >
+                                  <legend
+                                    class="css-yjsfm1"
+                                  >
+                                    <span>
+                                      contact.email
+                                    </span>
+                                  </legend>
+                                </fieldset>
+                              </div>
+                            </div>
+                          </div>
+                          <div
+                            class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-wfcdf7-MuiGrid-root"
+                          >
+                            <div
+                              class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root MuiTelInput-TextField  css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                            >
+                              <label
+                                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-error MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1cwx9dy-MuiFormLabel-root-MuiInputLabel-root"
+                                data-shrink="true"
+                                for="payer_phone"
+                                id="payer_phone-label"
+                              >
+                                contact.phone
+                              </label>
+                              <div
+                                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-error MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart css-fx6mn2-MuiInputBase-root-MuiOutlinedInput-root"
+                              >
+                                <div
+                                  class="MuiInputAdornment-root MuiInputAdornment-positionStart MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-74b6xz-MuiInputAdornment-root"
+                                >
+                                  <span
+                                    class="notranslate"
+                                  >
+                                    ​
+                                  </span>
+                                  <button
+                                    aria-expanded="false"
+                                    aria-haspopup="listbox"
+                                    aria-label="Select country"
+                                    class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiTelInput-IconButton css-104c99h-MuiButtonBase-root-MuiIconButton-root"
+                                    tabindex="0"
+                                    type="button"
+                                  >
+                                    <span
+                                      class="MuiTelInput-Flag css-70qvj9"
+                                      data-testid="FI"
+                                    >
+                                      <img
+                                        alt="Finland"
+                                        loading="lazy"
+                                        src="https://flagcdn.com/w40/fi.webp"
+                                        width="26"
+                                      />
+                                    </span>
+                                    <span
+                                      class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                                    />
+                                  </button>
+                                  <p
+                                    class="MuiTypography-root MuiTypography-body1 css-1nrbl98-MuiTypography-root"
+                                  >
+                                    +
+                                    358
+                                  </p>
+                                </div>
+                                <input
+                                  aria-invalid="true"
+                                  autocomplete="tel"
+                                  class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart css-1o9s3wi-MuiInputBase-input-MuiOutlinedInput-input"
+                                  id="payer_phone"
+                                  name="phone"
+                                  type="tel"
+                                  value=""
+                                />
+                                <fieldset
+                                  aria-hidden="true"
+                                  class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
+                                >
+                                  <legend
+                                    class="css-14lo706"
+                                  >
+                                    <span>
+                                      contact.phone
+                                    </span>
+                                  </legend>
+                                </fieldset>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -4814,8 +5336,8 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                     <label
                       class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-a5n9ke-MuiFormLabel-root-MuiInputLabel-root"
                       data-shrink="false"
-                      for=":r2v:"
-                      id=":r2v:-label"
+                      for=":r38:"
+                      id=":r38:-label"
                     >
                       registration.notes
                     </label>
@@ -4825,7 +5347,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                       <textarea
                         aria-invalid="false"
                         class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-1sqnrkk-MuiInputBase-input-MuiOutlinedInput-input"
-                        id=":r2v:"
+                        id=":r38:"
                         name="notes"
                         rows="4"
                         style="height: 0px; overflow: hidden;"

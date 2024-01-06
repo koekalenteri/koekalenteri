@@ -102,6 +102,7 @@ export const DogInfo = ({
           changes.handler = cache?.handler
           changes.owner = cache?.owner
           changes.ownerHandles = cache?.owner?.ownerHandles ?? true
+          changes.ownerPays = cache?.owner?.ownerPays ?? true
           changes.results = []
           replace = true
         }

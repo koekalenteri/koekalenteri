@@ -76,6 +76,7 @@ describe('DogInfo', () => {
         owner: undefined,
         handler: undefined,
         ownerHandles: true,
+        ownerPays: true,
         results: [],
       }),
       true

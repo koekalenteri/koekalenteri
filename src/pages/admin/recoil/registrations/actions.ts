@@ -25,7 +25,12 @@ export const useAdminRegistrationActions = (eventId: string) => {
 
   return {
     async save(reg: Registration) {
-      const saved = await putRegistration(reg.ownerHandles ? { ...reg, handler: { ...reg.owner } } : reg, token)
+      const regWithOverrides = {
+        ...reg,
+        handler: reg.ownerHandles ? { ...reg.owner } : reg.handler,
+        payer: reg.ownerPays ? { ...reg.owner } : reg.payer,
+      }
+      const saved = await putRegistration(regWithOverrides, token)
       updateAdminRegistration(saved)
       return saved
     },

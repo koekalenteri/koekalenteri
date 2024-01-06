@@ -12,7 +12,7 @@ import { useDogCache } from '../../components/registrationForm/hooks/useDogCache
 
 import { dogAtom } from './atoms'
 
-const INIT_CACHE: DeepPartial<DogCachedInfo> = { owner: { ownerHandles: true } }
+const INIT_CACHE: DeepPartial<DogCachedInfo> = { owner: { ownerHandles: true, ownerPays: true } }
 const isErrObject = (err: unknown): err is object => typeof err === 'object'
 
 export function useDogActions(regNo: string) {

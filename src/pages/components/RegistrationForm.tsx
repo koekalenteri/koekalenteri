@@ -27,6 +27,7 @@ import { DogInfo } from './registrationForm/DogInfo'
 import { EntryInfo } from './registrationForm/EntryInfo'
 import { HandlerInfo } from './registrationForm/HandlerInfo'
 import { OwnerInfo } from './registrationForm/OwnerInfo'
+import { PayerInfo } from './registrationForm/PayerInfo'
 import QualifyingResultsInfo from './registrationForm/QualifyingResultsInfo'
 import { filterRelevantResults, validateRegistration } from './registrationForm/validation'
 import { AsyncButton } from './AsyncButton'
@@ -126,13 +127,14 @@ export default function RegistrationForm({
             breeder: false,
             owner: false,
             handler: registration.ownerHandles,
+            payer: registration.ownerPays,
             qr: false,
             info: false,
             [id]: value,
           }
       setOpen(newState)
     },
-    [large, open, registration.ownerHandles]
+    [large, open, registration.ownerHandles, registration.ownerPays]
   )
 
   const [helperTexts, errorStates] = useMemo(() => {
@@ -242,6 +244,17 @@ export default function RegistrationForm({
             open={open.handler}
           />
         </Collapse>
+        <Collapse in={!registration.ownerPays}>
+          <PayerInfo
+            reg={registration}
+            disabled={disabled}
+            error={errorStates.payer}
+            helperText={helperTexts.payer}
+            onChange={handleChange}
+            onOpenChange={(value) => handleOpenChange('payer', value)}
+            open={open.payer}
+          />
+        </Collapse>
         <QualifyingResultsInfo
           regNo={registration.dog?.regNo}
           disabled={disabled}
@@ -331,6 +344,7 @@ function getSectionHelperTexts(
     dog: registration.dog?.regNo ? `${registration.dog.regNo} - ${registration.dog.name}` : '',
     handler: registration.ownerHandles ? t('registration.ownerHandles') : `${registration.handler?.name || ''}`,
     owner: `${registration.owner?.name || ''}`,
+    payer: registration.ownerPays ? t('registration.ownerPays') : `${registration.payer?.name || ''}`,
     qualifyingResults: t('registration.qualifyingResultsInfo', {
       class: registration.class,
       qualifies: t(qualifies ? 'registration.qyalifyingResultsYes' : 'registration.qualifyingResultsNo'),

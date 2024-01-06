@@ -9,7 +9,8 @@ export interface DogCachedInfo {
   breeder: RegistrationBreeder
   dog: Dog
   handler: RegistrationPerson
-  owner: RegistrationPerson & { ownerHandles: boolean }
+  owner: RegistrationPerson & { ownerHandles: boolean; ownerPays: boolean }
+  payer: RegistrationPerson
   results: ManualTestResult[]
   rfid: boolean
 }

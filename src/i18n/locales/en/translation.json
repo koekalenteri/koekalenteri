@@ -212,6 +212,7 @@
     "owner": "Owner",
     "ownerHandles": "Owner handles",
     "ownerIsMember": "Owner is a member of the organizing society",
+    "ownerPays": "Owner pays",
     "paid": "Paid",
     "qualifyingResults": "Qualifying results",
     "qualifyingResultsInfo": "Bases on the results, dog {{qualifies}} qualify to the {{class}} class.",

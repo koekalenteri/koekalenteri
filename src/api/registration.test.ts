@@ -42,6 +42,11 @@ const mockRegistration: Registration = {
     membership: false,
   },
   ownerHandles: false,
+  payer: {
+    name: 'test-payer',
+    email: 'test-email',
+    phone: 'test-phone',
+  },
   qualifyingResults: [],
   reserve: '',
   results: [

@@ -33,6 +33,11 @@ export const mockRegistrations: { [key: string]: Registration[] } = {
         location: 'owner location',
         membership: false,
       },
+      payer: {
+        name: 'payer name',
+        email: 'payer@e.mail',
+        phone: 'payer phone',
+      },
       eventId: 'test2',
       eventType: 'NOME-B',
       dates: [],

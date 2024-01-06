@@ -27,8 +27,8 @@ function validateBreeder(breeder: RegistrationBreeder | undefined) {
   return !breeder || !breeder.name || !breeder.location
 }
 
-export function validatePerson(person: Person | undefined) {
-  if (!person || !person.email || !person.name || !person.location || !person.phone) {
+export function validatePerson(person: Person | undefined, location = true) {
+  if (!person || !person.email || !person.name || (location && !person.location) || !person.phone) {
     return 'required'
   }
   if (!validEmail(person.email)) return 'email'
@@ -50,6 +50,7 @@ const VALIDATORS: Validators2<Registration, 'registration', PublicConfirmedEvent
   id: () => false,
   notes: () => false,
   owner: (reg) => validatePerson(reg.owner),
+  payer: (reg) => (reg.ownerPays ? false : validatePerson(reg.payer, false)),
   reserve: (reg) => (!reg.reserve ? 'reserve' : false),
   results: () => false,
 }
