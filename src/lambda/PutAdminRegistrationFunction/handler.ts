@@ -1,7 +1,7 @@
 import type { MetricsLogger } from 'aws-embedded-metrics'
 import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import type { AWSError } from 'aws-sdk'
-import type { JsonConfirmedEvent, JsonRegistration } from '../../types'
+import type { JsonRegistration } from '../../types'
 
 import { metricScope } from 'aws-embedded-metrics'
 import { diff } from 'deep-object-diff'
@@ -12,6 +12,7 @@ import { CONFIG } from '../config'
 import { audit, registrationAuditKey } from '../lib/audit'
 import { authorize, getOrigin } from '../lib/auth'
 import { sendTemplatedMail } from '../lib/email'
+import { updateRegistrations } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { metricsError, metricsSuccess } from '../utils/metrics'
@@ -53,14 +54,10 @@ const putAdminRegistrationHandler = metricScope(
         registration.modifiedAt = timestamp
         registration.modifiedBy = user.name
 
-        const confirmedEvent = await dynamoDB.read<JsonConfirmedEvent>({ id: registration.eventId }, eventTable)
-
-        if (!confirmedEvent) {
-          throw new Error(`Event of type "${registration.eventType}" not found with id "${registration.eventId}"`)
-        }
-
         const data: JsonRegistration = { ...existing, ...registration }
         await dynamoDB.write(data)
+
+        const confirmedEvent = await updateRegistrations(registration.eventId, eventTable)
 
         const message = getAuditMessage(data, existing)
         if (message) {
