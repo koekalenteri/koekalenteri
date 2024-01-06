@@ -137,6 +137,10 @@ const putRegistrationGroupsHandler = metricScope(
           cancelledOk: [],
           cancelledFailed: [],
         }
+
+        const oldResCan =
+          oldItems?.filter((reg) => reg.group?.key === 'reserve' || reg.group?.key === 'cancelled') ?? []
+
         if (
           confirmedEvent.state === 'picked' ||
           confirmedEvent.state === 'invited' ||
@@ -145,8 +149,6 @@ const putRegistrationGroupsHandler = metricScope(
           /**
            * When event/class has already been 'picked' or 'invited', registrations moved from reserve to participants receive 'picked' email
            */
-          const oldResCan =
-            oldItems?.filter((reg) => reg.group?.key === 'reserve' || reg.group?.key === 'cancelled') ?? []
           const newParticipants = itemsWithGroups.filter(
             (reg) =>
               reg.class === cls && isParticipantGroup(reg.group?.key) && oldResCan.find((old) => old.id === reg.id)
@@ -196,24 +198,6 @@ const putRegistrationGroupsHandler = metricScope(
             user.name
           )
 
-          /**
-           * Registrations moved to cancelled group receive "cancelled" email
-           */
-          const cancelled = itemsWithGroups.filter(
-            (reg) =>
-              reg.class === cls &&
-              reg.group?.key === 'cancelled' &&
-              oldResCan.find((old) => old.id === reg.id && old.group?.key !== 'cancelled')
-          )
-          const { ok: cancelledOk, failed: cancelledFailed } = await sendTemplatedEmailToEventRegistrations(
-            'registration',
-            confirmedEvent,
-            cancelled,
-            origin,
-            '',
-            user.name
-          )
-
           Object.assign(emails, {
             invitedOk,
             invitedFailed,
@@ -221,10 +205,28 @@ const putRegistrationGroupsHandler = metricScope(
             pickedFailed,
             reserveOk,
             reserveFailed,
-            cancelledOk,
-            cancelledFailed,
           })
         }
+
+        /**
+         * Registrations moved to cancelled group receive "cancelled" email
+         */
+        const cancelled = itemsWithGroups.filter(
+          (reg) =>
+            reg.class === cls &&
+            reg.group?.key === 'cancelled' &&
+            oldResCan.find((old) => old.id === reg.id && old.group?.key !== 'cancelled')
+        )
+        const { ok: cancelledOk, failed: cancelledFailed } = await sendTemplatedEmailToEventRegistrations(
+          'registration',
+          confirmedEvent,
+          cancelled,
+          origin,
+          '',
+          user.name
+        )
+
+        Object.assign(emails, { cancelledOk, cancelledFailed })
 
         metricsSuccess(metrics, event.requestContext, 'putRegistrationGroups')
         return response(200, { items: itemsWithGroups, classes, entries, ...emails }, event)
