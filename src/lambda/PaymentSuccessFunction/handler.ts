@@ -69,7 +69,7 @@ const successHandler = metricScope(
             // send receipt
             const receiptTo = [registration.payer.email]
             const receiptData = registrationEmailTemplateData(registration, confirmedEvent, frontendURL, 'receipt')
-            await sendTemplatedMail('registration', registration.language, emailFrom, receiptTo, {
+            await sendTemplatedMail('receipt', registration.language, emailFrom, receiptTo, {
               ...receiptData,
               ...transaction,
               createdAt: t('dateFormat.long', { date: transaction.createdAt }),
