@@ -5,6 +5,7 @@ import type { PaytrailCallbackParams } from '../types/paytrail'
 
 import { metricScope } from 'aws-embedded-metrics'
 
+import { i18n } from '../../i18n/lambda'
 import { type JsonRegistration } from '../../types'
 import { CONFIG } from '../config'
 import { audit, registrationAuditKey } from '../lib/audit'
@@ -48,7 +49,7 @@ const successHandler = metricScope(
               registrationTable
             )
             if (!registration) throw new Error('registration not found')
-
+            const t = i18n.getFixedT(registration.language)
             const amount = parseInt(params['checkout-amount'] ?? '0') / 100
 
             await dynamoDB.update(
@@ -63,9 +64,18 @@ const successHandler = metricScope(
               registrationTable
             )
 
-            // TODO: send receipt
-
             const confirmedEvent = await updateRegistrations(registration.eventId, eventTable)
+
+            // send receipt
+            const receiptTo = emailTo(registration, false)
+            const receiptData = registrationEmailTemplateData(registration, confirmedEvent, frontendURL, 'receipt')
+            await sendTemplatedMail('registration', registration.language, emailFrom, receiptTo, {
+              ...receiptData,
+              ...transaction,
+              createdAt: t('dateFormat.long', { date: transaction.createdAt }),
+              amount,
+            })
+
             audit({
               auditKey: registrationAuditKey(registration),
               message: 'Maksoi ilmoittautumisen',
@@ -75,7 +85,6 @@ const successHandler = metricScope(
             // send confirmation message
             const to = emailTo(registration)
             const data = registrationEmailTemplateData(registration, confirmedEvent, frontendURL, '')
-
             await sendTemplatedMail('registration', registration.language, emailFrom, to, data)
           }
         }

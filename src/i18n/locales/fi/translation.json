@@ -269,10 +269,12 @@
       "subject": "Ilmoittautumisen vahvistus",
       "subject_cancel": "Ilmoittautumisesi on peruttu",
       "subject_confirm": "Vahvistit vastaanottavasi koepaikan",
+      "subject_receipt": "Ilmoittautumisen maksukuitti",
       "subject_update": "Ilmoittautumisesi tietoja on muokattu",
       "title": "Ilmoittautumisesi on otettu vastaan",
       "title_cancel": "Ilmoittautumisesi on peruttu",
       "title_confirm": "Vahvistit vastaanottavasi koepaikan",
+      "title_receipt": "Kuitti maksusta",
       "title_update": "Ilmoittautumisesi tietoja on muokattu"
     },
     "handler": "Ohjaajan tiedot",

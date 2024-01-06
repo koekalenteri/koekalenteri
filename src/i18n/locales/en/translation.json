@@ -191,10 +191,17 @@
     "datesInfo": "Select all suitable dates for your participation.",
     "dog": "Dog",
     "email": {
-      "subject": "Registration confirmationq",
+      "subject": "Registration confirmation",
+      "subject_cancel": "Registration cancelled",
+      "subject_confirm": "Confirmation of attendance",
+      "subject_receipt": "Receipt",
       "subject_update": "Registration modified",
       "title": "Your registration has been received",
+      "title_cancel": "Registration cancelled",
+      "title_confirm": "You confirmed that you will attend the event",
+      "title_receipt": "Receipt of your payment",
       "title_update": "Your registration has been modified"
+
     },
     "handler": "Handler",
     "handlerIsMember": "Handler is a member of the organizing society",
