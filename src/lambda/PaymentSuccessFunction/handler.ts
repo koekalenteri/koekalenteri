@@ -11,6 +11,7 @@ import { audit, registrationAuditKey } from '../lib/audit'
 import { sendTemplatedMail } from '../lib/email'
 import { updateRegistrations } from '../lib/event'
 import { parseParams, updateTransactionStatus, verifyParams } from '../lib/payment'
+import { getOrigin } from '../utils/auth'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { metricsError, metricsSuccess } from '../utils/metrics'
 import { emailTo, registrationEmailTemplateData } from '../utils/registration'
@@ -27,6 +28,7 @@ const successHandler = metricScope(
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
       const params: Partial<PaytrailCallbackParams> = event.queryStringParameters ?? {}
       const { eventId, registrationId, transactionId } = parseParams(params)
+      const origin = getOrigin(event)
 
       try {
         await verifyParams(params)
