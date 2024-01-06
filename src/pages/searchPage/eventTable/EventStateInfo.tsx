@@ -9,9 +9,10 @@ import LinkButton from '../../components/LinkButton'
 interface Props {
   readonly id: string
   readonly state: EventState
+  readonly text?: string | null
 }
 
-export function EventStateInfo({ id, state }: Props) {
+export function EventStateInfo({ id, state, text = null }: Props) {
   const { t } = useTranslation()
 
   if (state === 'invited' || state === 'started') {
@@ -20,7 +21,7 @@ export function EventStateInfo({ id, state }: Props) {
 
   return (
     <Box sx={{ textTransform: 'uppercase', mr: 1 }}>
-      {state === 'tentative' || state === 'cancelled' ? t(`event.states.${state}_info`) : null}
+      {state === 'tentative' || state === 'cancelled' ? t(`event.states.${state}_info`) : text}
     </Box>
   )
 }

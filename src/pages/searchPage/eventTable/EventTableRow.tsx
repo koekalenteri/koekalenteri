@@ -11,7 +11,7 @@ import TableCell from '@mui/material/TableCell'
 import TableRow from '@mui/material/TableRow'
 import { useRecoilState } from 'recoil'
 
-import { isEntryOpen } from '../../../lib/utils'
+import { isEntryOpen, isEntryUpcoming } from '../../../lib/utils'
 import { Path } from '../../../routeConfig'
 import LinkButton from '../../components/LinkButton'
 import { openedEventAtom } from '../../recoil'
@@ -40,6 +40,10 @@ export const EventTableRow = ({ event }: Props) => {
     return ret.join(', ')
   }, [event])
 
+  const infoText = isEntryUpcoming(event)
+    ? t('daterange', { start: event.entryStartDate, end: event.entryEndDate })
+    : null
+
   return (
     <TableRow
       sx={{
@@ -62,34 +66,34 @@ export const EventTableRow = ({ event }: Props) => {
               {open ? <KeyboardArrowDown /> : <KeyboardArrowRight />}
             </IconButton>
           </Grid>
-          <Grid item container xs onClick={handleClick}>
+          <Grid item container xs onClick={handleClick} spacing={1}>
             <Grid item container xs={12} md={6} justifyContent="flex-start" spacing={1}>
-              <Grid item xs={3}>
+              <Grid item xs={1.5}>
                 {t('daterange', { start: event.startDate, end: event.endDate })}
               </Grid>
-              <Grid item xs={2}>
+              <Grid item xs={3}>
                 {event.eventType}
               </Grid>
-              <Grid item xs={2}>
+              <Grid item xs={2.2}>
                 {classes}
               </Grid>
-              <Grid item xs={5}>
+              <Grid item xs={5.3}>
                 {event.location}
                 {event.name ? ` (${event.name})` : ''}
               </Grid>
             </Grid>
             <Grid item container xs={12} md={6} spacing={1}>
-              <Grid item xs={6} md={7}>
+              <Grid item xs={6} md={7.2}>
                 {event.organizer?.name}
               </Grid>
-              <Grid item xs={3} md={2}>
+              <Grid item xs={3} md={1.8}>
                 <EventPlaces event={event} />
               </Grid>
               <Grid item xs={3} md={3} textAlign="right">
                 {isEntryOpen(event) ? (
                   <LinkButton to={Path.register(event)} text={t('register')} />
                 ) : (
-                  <EventStateInfo id={event.id} state={event.state} />
+                  <EventStateInfo id={event.id} state={event.state} text={infoText} />
                 )}
               </Grid>
             </Grid>

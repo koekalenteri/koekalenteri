@@ -1,0 +1,66 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`EventStateInfo should render start list link for invited event 1`] = `
+<div>
+  <div
+    class="MuiBox-root css-mro3c9"
+  >
+    <a
+      class="link"
+      href="/startlist/test-id"
+    >
+      Katso osallistujalista
+    </a>
+  </div>
+   
+</div>
+`;
+
+exports[`EventStateInfo should render start list link for started event 1`] = `
+<div>
+  <div
+    class="MuiBox-root css-mro3c9"
+  >
+    <a
+      class="link"
+      href="/startlist/test-id"
+    >
+      Katso osallistujalista
+    </a>
+  </div>
+   
+</div>
+`;
+
+exports[`EventStateInfo should render state info for cancelled event 1`] = `
+<div>
+  <div
+    class="MuiBox-root css-bmuutb"
+  >
+    event.states.cancelled_info
+  </div>
+   
+</div>
+`;
+
+exports[`EventStateInfo should render state info for tenatative event 1`] = `
+<div>
+  <div
+    class="MuiBox-root css-bmuutb"
+  >
+    event.states.tentative_info
+  </div>
+   
+</div>
+`;
+
+exports[`EventStateInfo should render text 1`] = `
+<div>
+  <div
+    class="MuiBox-root css-bmuutb"
+  >
+    anything
+  </div>
+   
+</div>
+`;
