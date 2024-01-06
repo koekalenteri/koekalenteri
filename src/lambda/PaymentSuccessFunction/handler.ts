@@ -8,7 +8,6 @@ import { metricScope } from 'aws-embedded-metrics'
 import { type JsonRegistration } from '../../types'
 import { CONFIG } from '../config'
 import { audit, registrationAuditKey } from '../lib/audit'
-import { getOrigin } from '../lib/auth'
 import { sendTemplatedMail } from '../lib/email'
 import { updateRegistrations } from '../lib/event'
 import { parseParams, updateTransactionStatus, verifyParams } from '../lib/payment'
@@ -17,7 +16,7 @@ import { metricsError, metricsSuccess } from '../utils/metrics'
 import { emailTo, registrationEmailTemplateData } from '../utils/registration'
 import { response } from '../utils/response'
 
-const { emailFrom, eventTable, registrationTable, transactionTable } = CONFIG
+const { frontendURL, emailFrom, eventTable, registrationTable, transactionTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(transactionTable)
 
 /**
@@ -28,7 +27,6 @@ const successHandler = metricScope(
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
       const params: Partial<PaytrailCallbackParams> = event.queryStringParameters ?? {}
       const { eventId, registrationId, transactionId } = parseParams(params)
-      const origin = getOrigin(event)
 
       try {
         await verifyParams(params)
@@ -76,7 +74,7 @@ const successHandler = metricScope(
 
             // send confirmation message
             const to = emailTo(registration)
-            const data = registrationEmailTemplateData(registration, confirmedEvent, origin, '')
+            const data = registrationEmailTemplateData(registration, confirmedEvent, frontendURL, '')
 
             await sendTemplatedMail('registration', registration.language, emailFrom, to, data)
           }
