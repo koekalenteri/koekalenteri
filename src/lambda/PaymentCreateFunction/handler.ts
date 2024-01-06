@@ -10,6 +10,7 @@ import { CONFIG } from '../config'
 import { getOrigin } from '../lib/auth'
 import { parseJSONWithFallback } from '../lib/json'
 import { createPayment } from '../lib/paytrail'
+import { splitName } from '../lib/string'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { metricsError, metricsSuccess } from '../utils/metrics'
 import { getApiHost } from '../utils/proxyEvent'
@@ -85,6 +86,7 @@ const createHandler = metricScope(
           ],
           {
             email: registration?.handler.email ?? registration?.owner.email,
+            ...splitName(registration?.handler.name),
           }
         )
 
