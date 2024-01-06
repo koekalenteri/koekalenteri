@@ -20,12 +20,21 @@ export const paymentLoader = async ({ params }: { params: Params<string> }) =>
   params.id && params.registrationId ? defer({ response: createPayment(params.id, params.registrationId) }) : {}
 
 interface Props {
-  readonly event: PublicDogEvent
-  readonly registration: Registration
+  readonly id?: string
+  readonly event?: PublicDogEvent | null
+  readonly registration?: Registration | null
   readonly response?: CreatePaymentResponse
 }
 
-const PaymentPageWithData = ({ event, registration, response }: Props) => {
+const PaymentPageWithData = ({ id, event, registration, response }: Props) => {
+  if (!event || !registration) {
+    return <>Tapahtumaa {id} ei löydy.</>
+  }
+
+  if (registration.paymentStatus === 'SUCCESS') {
+    return <Navigate to={Path.registration(registration)} replace />
+  }
+
   if (!response) {
     return <>Jotakin meni pieleen</>
   }
@@ -61,18 +70,10 @@ export const PaymentPage = () => {
   const registration = useRecoilValue(registrationSelector(`${id ?? ''}:${registrationId ?? ''}`))
   const data = useLoaderData() as { response: CreatePaymentResponse }
 
-  if (!event || !registration) {
-    return <>Tapahtumaa {id} ei löydy.</>
-  }
-
-  if (registration.paymentStatus === 'SUCCESS') {
-    return <Navigate to={Path.registration(registration)} replace />
-  }
-
   return (
     <Suspense fallback={<LoadingPage />}>
       <Await resolve={data.response} errorElement={<ErrorInfo />}>
-        {(response) => <PaymentPageWithData event={event} registration={registration} response={response} />}
+        {(response) => <PaymentPageWithData id={id} event={event} registration={registration} response={response} />}
       </Await>
     </Suspense>
   )

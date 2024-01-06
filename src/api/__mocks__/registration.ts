@@ -76,7 +76,7 @@ export async function getRegistration(
   return new Promise((resolve, reject) => {
     const registration = (mockRegistrations[eventId] || []).find((item) => item.id === id)
     if (!registration) {
-      reject(new Error('not found'))
+      reject(new Error(`Registration not found ${eventId}/${id}`))
     } else {
       process.nextTick(() => resolve(registration))
     }
