@@ -1,6 +1,6 @@
 import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 
-import { getOrigin } from './auth'
+import { getOrigin } from '../lib/auth'
 
 export const allowOrigin = (event: APIGatewayProxyEvent) => {
   const origin = getOrigin(event)

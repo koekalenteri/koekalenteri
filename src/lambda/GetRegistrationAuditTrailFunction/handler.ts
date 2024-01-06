@@ -6,7 +6,7 @@ import { metricScope } from 'aws-embedded-metrics'
 import { unescape } from 'querystring'
 
 import { auditTrail } from '../lib/audit'
-import { authorize } from '../utils/auth'
+import { authorize } from '../lib/auth'
 import { metricsError, metricsSuccess } from '../utils/metrics'
 import { response } from '../utils/response'
 

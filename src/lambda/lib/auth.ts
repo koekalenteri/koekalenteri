@@ -5,9 +5,9 @@ import { diff } from 'deep-object-diff'
 import { nanoid } from 'nanoid'
 
 import { CONFIG } from '../config'
-import { findUserByEmail, updateUser } from '../lib/user'
+import CustomDynamoClient from '../utils/CustomDynamoClient'
 
-import CustomDynamoClient from './CustomDynamoClient'
+import { findUserByEmail, updateUser } from './user'
 
 interface UserLink {
   cognitoUser: string

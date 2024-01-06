@@ -5,9 +5,9 @@ import type { JsonUser } from '../../types'
 
 import { metricScope } from 'aws-embedded-metrics'
 
+import { authorize, getAndUpdateUserByEmail, getOrigin } from '../lib/auth'
 import { parseJSONWithFallback } from '../lib/json'
 import { setUserRole } from '../lib/user'
-import { authorize, getAndUpdateUserByEmail, getOrigin } from '../utils/auth'
 import { metricsError, metricsSuccess } from '../utils/metrics'
 import { response } from '../utils/response'
 

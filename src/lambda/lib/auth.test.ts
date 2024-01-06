@@ -11,7 +11,7 @@ jest.unstable_mockModule('../lib/user', () => ({
   updateUser: jest.fn(),
 }))
 
-const { findUserByEmail, updateUser } = await import('../lib/user')
+const { findUserByEmail, updateUser } = await import('./user')
 const { getAndUpdateUserByEmail, getOrigin } = await import('./auth')
 
 describe('getOrigin', () => {

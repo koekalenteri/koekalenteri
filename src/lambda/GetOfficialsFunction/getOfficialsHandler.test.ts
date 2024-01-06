@@ -8,7 +8,7 @@ jest.unstable_mockModule('../lib/KLAPI', () => ({
   default: jest.fn(() => ({})),
 }))
 
-jest.unstable_mockModule('../utils/auth', () => ({
+jest.unstable_mockModule('../lib/auth', () => ({
   authorize: jest.fn(),
   getOrigin: jest.fn(),
   getAndUpdateUserByEmail: jest.fn(),
@@ -18,7 +18,7 @@ jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
   default: jest.fn(() => ({ readAll: jest.fn() })),
 }))
 
-const { authorize } = await import('../utils/auth')
+const { authorize } = await import('../lib/auth')
 const authorizeMock = authorize as jest.Mock<typeof authorize>
 
 const { default: getOfficialsHandler, dynamoDB } = await import('./handler')

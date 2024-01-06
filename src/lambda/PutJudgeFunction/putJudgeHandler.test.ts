@@ -4,7 +4,7 @@ import { jest } from '@jest/globals'
 
 import { constructAPIGwEvent } from '../test-utils/helpers'
 
-jest.unstable_mockModule('../utils/auth', () => ({
+jest.unstable_mockModule('../lib/auth', () => ({
   authorize: jest.fn(),
   getOrigin: jest.fn(),
 }))
@@ -13,7 +13,7 @@ jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
   default: jest.fn(() => ({ write: jest.fn() })),
 }))
 
-const { authorize } = await import('../utils/auth')
+const { authorize } = await import('../lib/auth')
 const authorizeMock = authorize as jest.Mock<typeof authorize>
 
 const { default: putJudgeHandler, dynamoDB } = await import('./handler')

@@ -5,7 +5,7 @@ import type { AWSError } from 'aws-sdk'
 import { metricScope } from 'aws-embedded-metrics'
 
 import { CONFIG } from '../config'
-import { authorize } from '../utils/auth'
+import { authorize } from '../lib/auth'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { metricsError, metricsSuccess } from '../utils/metrics'
 import { createDbRecord } from '../utils/proxyEvent'

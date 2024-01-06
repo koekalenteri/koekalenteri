@@ -10,7 +10,7 @@ import AWS from 'aws-sdk'
 import { defaultJSONHeaders } from './headers'
 import { constructAPIGwEvent, createAWSError } from './helpers'
 
-jest.unstable_mockModule('../utils/auth', () => ({
+jest.unstable_mockModule('../lib/auth', () => ({
   authorize: jest
     .fn<(event: APIGatewayProxyEvent) => Promise<User | null | undefined>>()
     .mockResolvedValue({ id: 'userid', name: 'test user', email: 'mail@example.com', admin: true }),

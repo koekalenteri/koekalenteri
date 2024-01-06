@@ -7,14 +7,14 @@ import { metricScope } from 'aws-embedded-metrics'
 import { diff } from 'deep-object-diff'
 
 import { CONFIG } from '../config'
+import { authorize, getAndUpdateUserByEmail } from '../lib/auth'
 import KLAPI from '../lib/KLAPI'
 import { getKLAPIConfig } from '../lib/secrets'
+import { capitalize, reverseName } from '../lib/string'
 import { KLKieli } from '../types/KLAPI'
-import { authorize, getAndUpdateUserByEmail } from '../utils/auth'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { metricsError, metricsSuccess } from '../utils/metrics'
 import { response } from '../utils/response'
-import { capitalize, reverseName } from '../utils/string'
 
 const { eventTypeTable, officialTable } = CONFIG
 export const dynamoDB = new CustomDynamoClient(officialTable)
