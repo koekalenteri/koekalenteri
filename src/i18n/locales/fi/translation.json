@@ -68,11 +68,12 @@
   "editRoles": "Muokkaa rooleja",
   "emailTemplates": "Viestit",
   "emailTemplate": {
+    "access": "Lisätty käyttäjäoikeus",
     "invitation": "Koekutsu",
     "picked": "Koepaikkailmoitus",
+    "receipt": "Kuitti",
     "registration": "Vahvistusviesti",
-    "reserve": "Varasijailmoitus",
-    "access": "Lisätty käyttäjäoikeus"
+    "reserve": "Varasijailmoitus"
   },
   "error": {
     "eventNotFound": "Tapahtumaa ei löydy",

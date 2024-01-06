@@ -45,6 +45,7 @@
   "emailTemplate": {
     "invitation": "Invitation",
     "picked": "Picked notification",
+    "receipt": "Receipt",
     "registration": "Confirmation",
     "reserve": "Reserve notification"
   },
