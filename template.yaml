@@ -15,6 +15,7 @@ Globals:
     Environment:
       Variables:
         AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
+        CUSTOM_DOMAIN: !Ref CustomDomain
         STACK_NAME: !Ref AWS::StackName
         STAGE_NAME: !Ref StageNameParam
         AUDIT_TABLE_NAME: !Ref AuditTable
