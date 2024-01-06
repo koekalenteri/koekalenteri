@@ -49,7 +49,8 @@ const sendMessagesHandler = metricScope((metrics: MetricsLogger) => async (event
       registrations,
       origin,
       text,
-      user.name
+      user.name,
+      ''
     )
 
     if (template === 'reserve') {

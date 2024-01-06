@@ -2,6 +2,8 @@ import type { JsonConfirmedEvent, JsonRegistration } from '../../types'
 
 import { i18n } from '../../i18n/lambda'
 
+export type RegistrationTemplateContext = '' | 'cancel' | 'confirm' | 'receipt' | 'update'
+
 export function emailTo(registration: JsonRegistration) {
   const to: string[] = [registration.handler.email]
   if (registration.owner.email !== registration.handler.email) {
@@ -14,7 +16,7 @@ export function registrationEmailTemplateData(
   registration: JsonRegistration,
   confirmedEvent: JsonConfirmedEvent,
   origin: string | undefined,
-  context: string
+  context: RegistrationTemplateContext
 ) {
   const t = i18n.getFixedT(registration.language)
 

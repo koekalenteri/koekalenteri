@@ -1,4 +1,5 @@
 import type { EmailTemplateId, JsonConfirmedEvent, JsonRegistration } from '../../types'
+import type { RegistrationTemplateContext } from '../utils/registration'
 
 import { formatDate } from '../../i18n/dates'
 import { i18n } from '../../i18n/lambda'
@@ -48,7 +49,8 @@ export const sendTemplatedEmailToEventRegistrations = async (
   registrations: JsonRegistration[],
   origin: string | undefined,
   text: string,
-  user: string
+  user: string,
+  context: RegistrationTemplateContext
 ) => {
   const t = i18n.getFixedT('fi')
   const lastEmailDate = formatDate(new Date(), 'd.M.yyyy HH:mm')
@@ -57,7 +59,7 @@ export const sendTemplatedEmailToEventRegistrations = async (
   const failed: string[] = []
   for (const registration of registrations) {
     const to = emailTo(registration)
-    const data = registrationEmailTemplateData(registration, confirmedEvent, origin, '')
+    const data = registrationEmailTemplateData(registration, confirmedEvent, origin, context)
     try {
       await sendTemplatedMail(template, registration.language, emailFrom, to, { ...data, text })
       ok.push(...to)

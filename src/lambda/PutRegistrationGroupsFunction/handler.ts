@@ -160,7 +160,8 @@ const putRegistrationGroupsHandler = metricScope(
             newParticipants,
             origin,
             '',
-            user.name
+            user.name,
+            ''
           )
 
           const { ok: invitedOk, failed: invitedFailed } =
@@ -171,7 +172,8 @@ const putRegistrationGroupsHandler = metricScope(
                   newParticipants,
                   origin,
                   '',
-                  user.name
+                  user.name,
+                  ''
                 )
               : { ok: [], failed: [] }
 
@@ -195,7 +197,8 @@ const putRegistrationGroupsHandler = metricScope(
             movedReserve,
             origin,
             '',
-            user.name
+            user.name,
+            ''
           )
 
           Object.assign(emails, {
@@ -223,7 +226,8 @@ const putRegistrationGroupsHandler = metricScope(
           cancelled,
           origin,
           '',
-          user.name
+          user.name,
+          'cancel'
         )
 
         Object.assign(emails, { cancelledOk, cancelledFailed })

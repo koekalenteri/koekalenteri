@@ -15,7 +15,11 @@ import { GridActionsCellItem } from '@mui/x-data-grid'
 
 import GroupColors from './GroupColors'
 
-export function useClassEntrySelectionColumns(available: RegistrationDate[], openEditDialog?: (id: string) => void) {
+export function useClassEntrySelectionColumns(
+  available: RegistrationDate[],
+  openEditDialog?: (id: string) => void,
+  cancelRegistration?: (id: string) => void
+) {
   const { t } = useTranslation()
 
   return useMemo(() => {
@@ -148,7 +152,7 @@ export function useClassEntrySelectionColumns(available: RegistrationDate[], ope
           <GridActionsCellItem
             icon={<EventBusyOutlined fontSize="small" />}
             label={t('withdraw')}
-            onClick={() => openEditDialog?.(p.row.id)}
+            onClick={() => cancelRegistration?.(p.row.id)}
             showInMenu
           />,
         ],
@@ -165,5 +169,5 @@ export function useClassEntrySelectionColumns(available: RegistrationDate[], ope
     })
 
     return { cancelledColumns, entryColumns, participantColumns }
-  }, [available, openEditDialog, t])
+  }, [available, cancelRegistration, openEditDialog, t])
 }
