@@ -85,8 +85,9 @@ const createHandler = metricScope(
             },
           ],
           {
-            email: registration?.handler.email ?? registration?.owner.email,
-            ...splitName(registration?.handler.name),
+            email: registration?.payer.email ?? registration?.owner.email,
+            ...splitName(registration?.payer.name),
+            phone: registration?.payer.phone,
           }
         )
 

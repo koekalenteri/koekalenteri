@@ -2,9 +2,9 @@ import type { JsonConfirmedEvent, JsonRegistration } from '../../types'
 
 import { i18n } from '../../i18n/lambda'
 
-export function emailTo(registration: JsonRegistration, includeOwner = true) {
+export function emailTo(registration: JsonRegistration) {
   const to: string[] = [registration.handler.email]
-  if (registration.owner.email !== registration.handler.email && includeOwner) {
+  if (registration.owner.email !== registration.handler.email) {
     to.push(registration.owner.email)
   }
   return to

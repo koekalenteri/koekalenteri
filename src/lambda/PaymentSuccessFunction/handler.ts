@@ -67,7 +67,7 @@ const successHandler = metricScope(
             const confirmedEvent = await updateRegistrations(registration.eventId, eventTable)
 
             // send receipt
-            const receiptTo = emailTo(registration, false)
+            const receiptTo = [registration.payer.email]
             const receiptData = registrationEmailTemplateData(registration, confirmedEvent, frontendURL, 'receipt')
             await sendTemplatedMail('registration', registration.language, emailFrom, receiptTo, {
               ...receiptData,
