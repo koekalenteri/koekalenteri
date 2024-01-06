@@ -8,6 +8,7 @@ import type { DataGridProps } from '@mui/x-data-grid'
 // https://github.com/jsdom/jsdom/issues/3363
 import 'core-js/stable/structured-clone'
 import '@testing-library/jest-dom'
+// initialize i18n
 import './i18n'
 
 // https://github.com/mui/mui-x/issues/1151#issuecomment-1108349639

@@ -1,6 +1,7 @@
+import type { TFunction } from 'i18next'
 import type { PublicConfirmedEvent, Registration } from '../../types'
 
-import { Trans, useTranslation } from 'react-i18next'
+import { Trans } from 'react-i18next'
 import Button from '@mui/material/Button'
 import Dialog from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
@@ -10,17 +11,16 @@ import DialogTitle from '@mui/material/DialogTitle'
 import Link from '@mui/material/Link'
 
 interface Props {
-  readonly disabled: boolean
+  readonly disabled?: boolean
   readonly event: PublicConfirmedEvent | null | undefined
-  readonly onCancel: () => void
-  readonly onClose: () => void
+  readonly onCancel?: () => void
+  readonly onClose?: () => void
   readonly open: boolean
   readonly registration: Registration | null | undefined
+  readonly t: TFunction
 }
 
-export function CancelDialog({ disabled, event, onCancel, onClose, open, registration }: Props) {
-  const { t } = useTranslation()
-
+export function CancelDialog({ disabled, event, onCancel, onClose, open, registration, t }: Props) {
   if (!event || !registration) {
     return null
   }

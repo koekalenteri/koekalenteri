@@ -209,12 +209,13 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
         </Grid>
         <RegistrationList rows={registration ? [registration] : []} onUnregister={() => setCancelOpen(true)} />
         <CancelDialog
-          open={cancelOpen}
-          onClose={handleCalcelClose}
           disabled={cancelDisabled}
-          registration={registration}
           event={event}
           onCancel={handleCancel}
+          onClose={handleCalcelClose}
+          open={cancelOpen}
+          registration={registration}
+          t={t}
         />
         <ConfirmDialog
           open={confirmOpen}

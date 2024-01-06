@@ -1,8 +1,10 @@
 import type {
+  ConfirmedEvent,
   DogEvent,
   JsonDogEvent,
   RegistrationDate,
   SanitizedJsonPublicDogEvent,
+  SanitizedPublicConfirmedDogEvent,
   SanitizedPublicDogEvent,
 } from '../types'
 
@@ -28,6 +30,7 @@ export const getEventClassesByDays = (event: Pick<DogEvent, 'startDate' | 'endDa
 export const eventRegistrationDateKey = (rd: RegistrationDate) => rd.date.toISOString().slice(0, 10) + '-' + rd.time
 
 export function sanitizeDogEvent(event: JsonDogEvent): SanitizedJsonPublicDogEvent
+export function sanitizeDogEvent(event: ConfirmedEvent): SanitizedPublicConfirmedDogEvent
 export function sanitizeDogEvent(event: DogEvent): SanitizedPublicDogEvent
 export function sanitizeDogEvent(
   event: DogEvent | JsonDogEvent
