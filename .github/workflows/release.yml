@@ -21,6 +21,7 @@ jobs:
   deploy-backend:
     needs: [setup]
     runs-on: ubuntu-latest
+    environment: ${{ needs.setup.outputs.env }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
