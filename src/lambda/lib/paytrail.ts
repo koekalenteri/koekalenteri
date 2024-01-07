@@ -5,6 +5,7 @@ import type {
   PaymentCustomer,
   PaymentItem,
   PaytrailHeaders,
+  RefundRequest,
 } from '../types/paytrail'
 
 import { createHmac } from 'crypto'
@@ -100,15 +101,14 @@ export const paytrailRequest = async <T extends object>(
   return json
 }
 
-export const createRedirectUrls = (origin: string): CallbackUrl => ({
-  success: `${origin}/p/success`,
-  cancel: `${origin}/p/cancel`,
+const createCallbackUrls = (baseUrl: string): CallbackUrl => ({
+  success: `${baseUrl}/success`,
+  cancel: `${baseUrl}/cancel`,
 })
 
-export const createCallbackUrls = (host: string): CallbackUrl => ({
-  success: `https://${host}/payment/success`,
-  cancel: `https://${host}/payment/cancel`,
-})
+export const createPaymentRedirectUrls = (origin: string): CallbackUrl => createCallbackUrls(`${origin}/p`)
+
+export const createPaymentCallbackUrls = (host: string): CallbackUrl => createCallbackUrls(`https://${host}/payment`)
 
 export const createPayment = async (
   apiHost: string,
@@ -119,8 +119,8 @@ export const createPayment = async (
   items: PaymentItem[],
   customer: PaymentCustomer
 ): Promise<CreatePaymentResponse | undefined> => {
-  const redirectUrls = createRedirectUrls(origin)
-  const callbackUrls = createCallbackUrls(apiHost)
+  const redirectUrls = createPaymentRedirectUrls(origin)
+  const callbackUrls = createPaymentCallbackUrls(apiHost)
 
   const body: CreatePaymentRequest = {
     stamp,
@@ -135,4 +135,27 @@ export const createPayment = async (
   }
 
   return paytrailRequest<CreatePaymentResponse>('POST', 'payments', body)
+}
+
+export const createRefundCallbackUrls = (host: string): CallbackUrl => createCallbackUrls(`https://${host}/refund`)
+
+export const refundPaymentFully = async (
+  apiHost: string,
+  transactionId: string,
+  amount: number,
+  refundReference: string,
+  refundStamp: string,
+  email: PaymentCustomer['email']
+) => {
+  const callbackUrls = createPaymentCallbackUrls(apiHost)
+
+  const body: RefundRequest = {
+    amount,
+    email,
+    refundStamp,
+    refundReference,
+    callbackUrls,
+  }
+
+  return paytrailRequest<CreatePaymentResponse>('POST', `payments/${transactionId}/refund`, body)
 }

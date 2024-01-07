@@ -287,3 +287,34 @@ export interface CallbackUrl {
    */
   cancel: string
 }
+
+export interface RefundRequest {
+  /**
+   * Merchant unique identifier for the refund. Maximum of 200 characters.
+   */
+  refundStamp: string
+  /**
+   * Refund reference. Maximum of 200 characters.
+   */
+  refundReference: string
+  /**
+   * Total amount to refund, in currency's minor units (ie. EUR cents). Required for normal payment refunds.
+   * Shop-in-Shop payments can be refunded to full amount by giving the full payment amount here without items.
+   */
+  amount: number
+  /**
+   * Refund recipient email address. Some payment methods do not support API refunds, and some have refund related
+   * limitations. If email address is given, email refund will be executed as a fallback method if API refund is
+   * unsuccessful, or as the default method if the provider does not support API refunds.
+   */
+  email: string
+  /**
+   * Array of items to refund. Requires item stamps to be sent when creating the payment. Not needed for full refund.
+   */
+  items?: never[]
+  /**
+   * Which urls to ping after the refund has been processed. The callback is called with HTTP GET and with the same
+   * query string parameters as in the payment request callback. The server should respond with HTTP 20x.
+   */
+  callbackUrls?: CallbackUrl
+}
