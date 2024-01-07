@@ -172,6 +172,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [setup,backend,frontend-test]
     if: ${{ always() && !failure() && !cancelled() && github.event_name == 'push' && needs.setup.outputs.backend == 'true' }}
+    environment: dev
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
