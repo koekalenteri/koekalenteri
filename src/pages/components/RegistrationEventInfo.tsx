@@ -1,4 +1,4 @@
-import type { PublicConfirmedEvent } from '../../types'
+import type { PublicDogEvent } from '../../types'
 
 import { useTranslation } from 'react-i18next'
 import PictureAsPdfOutlined from '@mui/icons-material/PictureAsPdfOutlined'
@@ -16,7 +16,7 @@ import CostInfo from './CostInfo'
 import { PriorityChips } from './PriorityChips'
 
 interface Props {
-  readonly event: PublicConfirmedEvent
+  readonly event: PublicDogEvent
   readonly invitationAttachment: string | undefined
 }
 

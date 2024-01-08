@@ -1,4 +1,4 @@
-import type { PublicConfirmedEvent, Registration } from '../types'
+import type { PublicDogEvent, Registration } from '../types'
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -20,6 +20,7 @@ import { isPast, isToday } from 'date-fns'
 import { enqueueSnackbar } from 'notistack'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
+import { isConfirmedEvent } from '../lib/typeGuards'
 import { Path } from '../routeConfig'
 
 import Header from './components/Header'
@@ -30,7 +31,7 @@ import { CancelDialog } from './registrationListPage/CancelDialog'
 import { ConfirmDialog } from './registrationListPage/ConfirmDialog'
 import RegistrationList from './registrationListPage/RegistrationList'
 import { LoadingPage } from './LoadingPage'
-import { confirmedEventSelector, registrationSelector, spaAtom } from './recoil'
+import { eventSelector, registrationSelector, spaAtom } from './recoil'
 
 interface Props {
   readonly cancel?: boolean
@@ -42,7 +43,7 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
   const params = useParams()
   const location = useLocation()
   const navigate = useNavigate()
-  const event = useRecoilValue(confirmedEventSelector(params.id))
+  const event = useRecoilValue(eventSelector(params.id))
   const [registration, setRegistration] = useRecoilState(
     registrationSelector(`${params.id ?? ''}:${params.registrationId ?? ''}`)
   )
@@ -52,10 +53,14 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
   const [confirmOpen, setConfirmOpen] = useState(!!confirm)
   const [redirecting, setRedirecting] = useState(false)
   const actions = useRegistrationActions()
-  const cancelDisabled = useMemo(() => !event || isPast(event.startDate) || isToday(event.startDate), [event])
+  const allDisabled = useMemo(() => !event || !isConfirmedEvent(event) || isPast(event.endDate), [event])
+  const cancelDisabled = useMemo(
+    () => !event || allDisabled || isPast(event.startDate) || isToday(event.startDate),
+    [allDisabled, event]
+  )
 
   const handleCancel = useCallback(() => {
-    if (!registration) {
+    if (allDisabled || !registration) {
       return
     }
     actions.cancel(registration).then(
@@ -67,10 +72,10 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
         console.error(reason)
       }
     )
-  }, [actions, registration, setRegistration])
+  }, [actions, allDisabled, registration, setRegistration])
 
   const handleConfirm = useCallback(() => {
-    if (!registration || registration.confirmed || registration.cancelled) {
+    if (allDisabled || !registration || registration.confirmed || registration.cancelled) {
       return
     }
     actions.confirm(registration).then(
@@ -82,7 +87,7 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
         console.error(reason)
       }
     )
-  }, [actions, registration, setRegistration])
+  }, [actions, allDisabled, registration, setRegistration])
 
   const handleCalcelClose = useCallback(() => setCancelOpen(false), [])
   const handleConfirmClose = useCallback(() => setConfirmOpen(false), [])
@@ -207,7 +212,11 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
             </Paper>
           </Grid>
         </Grid>
-        <RegistrationList rows={registration ? [registration] : []} onUnregister={() => setCancelOpen(true)} />
+        <RegistrationList
+          disabled={allDisabled}
+          rows={registration ? [registration] : []}
+          onUnregister={() => setCancelOpen(true)}
+        />
         <CancelDialog
           disabled={cancelDisabled}
           event={event}
@@ -229,7 +238,7 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
   )
 }
 
-const hasPriority = (event: PublicConfirmedEvent, registration: Registration) => {
+const hasPriority = (event: PublicDogEvent, registration: Registration) => {
   if (event.priority?.includes('member') && (registration.handler.membership || registration.owner.membership)) {
     return true
   }
@@ -242,14 +251,14 @@ const hasPriority = (event: PublicConfirmedEvent, registration: Registration) =>
   return false
 }
 
-function membershipIconColor(event: PublicConfirmedEvent, registration: Registration) {
+function membershipIconColor(event: PublicDogEvent, registration: Registration) {
   if (hasPriority(event, registration)) {
     return 'primary.main'
   }
   return 'transparent'
 }
 
-function membershipStatus(event: PublicConfirmedEvent, registration: Registration) {
+function membershipStatus(event: PublicDogEvent, registration: Registration) {
   if (hasPriority(event, registration)) {
     return 'Olen etusijalla'
   }

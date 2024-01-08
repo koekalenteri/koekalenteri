@@ -16,11 +16,12 @@ import { Path } from '../../routeConfig'
 import StyledDataGrid from '../components/StyledDataGrid'
 
 interface Props {
+  readonly disabled?: boolean
   readonly rows: Registration[]
   readonly onUnregister: (registration: Registration) => void
 }
 
-export default function RegistrationList({ rows, onUnregister }: Props) {
+export default function RegistrationList({ disabled, rows, onUnregister }: Props) {
   const { t } = useTranslation()
   const { t: breed } = useTranslation('breed')
   const navigate = useNavigate()
@@ -78,6 +79,7 @@ export default function RegistrationList({ rows, onUnregister }: Props) {
         }
         const always = [
           <GridActionsCellItem
+            disabled={disabled}
             key="edit"
             color="info"
             icon={<EditOutlined />}
@@ -85,6 +87,7 @@ export default function RegistrationList({ rows, onUnregister }: Props) {
             onClick={() => onEdit(params.row)}
           />,
           <GridActionsCellItem
+            disabled={disabled}
             key="cancel"
             color="error"
             icon={<CancelOutlined />}
@@ -92,9 +95,10 @@ export default function RegistrationList({ rows, onUnregister }: Props) {
             onClick={() => onUnregister(params.row)}
           />,
         ]
-        if (!['SUCCESS', 'PENDING'].includes(params.row.paymentStatus ?? '')) {
+        if (params.row.paymentStatus !== 'SUCCESS') {
           return [
             <GridActionsCellItem
+              disabled={disabled}
               key="pay"
               color="info"
               icon={<EuroOutlined />}

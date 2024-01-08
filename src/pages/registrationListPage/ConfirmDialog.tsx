@@ -1,4 +1,4 @@
-import type { PublicConfirmedEvent, Registration } from '../../types'
+import type { PublicDogEvent, Registration } from '../../types'
 
 import { useTranslation } from 'react-i18next'
 import Button from '@mui/material/Button'
@@ -8,8 +8,10 @@ import DialogContent from '@mui/material/DialogContent'
 import DialogContentText from '@mui/material/DialogContentText'
 import DialogTitle from '@mui/material/DialogTitle'
 
+import { isConfirmedEvent } from '../../lib/typeGuards'
+
 interface Props {
-  readonly event: PublicConfirmedEvent | null | undefined
+  readonly event: PublicDogEvent | null | undefined
   readonly onConfirm: () => void
   readonly onClose: () => void
   readonly open: boolean
@@ -19,7 +21,7 @@ interface Props {
 export function ConfirmDialog({ event, onConfirm, onClose, open, registration }: Props) {
   const { t } = useTranslation()
 
-  if (!event || !registration) {
+  if (!event || !registration || !isConfirmedEvent(event)) {
     return null
   }
 

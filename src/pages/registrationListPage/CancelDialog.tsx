@@ -1,5 +1,5 @@
 import type { TFunction } from 'i18next'
-import type { PublicConfirmedEvent, Registration } from '../../types'
+import type { PublicDogEvent, Registration } from '../../types'
 
 import { Trans } from 'react-i18next'
 import Button from '@mui/material/Button'
@@ -12,7 +12,7 @@ import Link from '@mui/material/Link'
 
 interface Props {
   readonly disabled?: boolean
-  readonly event: PublicConfirmedEvent | null | undefined
+  readonly event: PublicDogEvent | null | undefined
   readonly onCancel?: () => void
   readonly onClose?: () => void
   readonly open: boolean
