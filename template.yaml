@@ -1814,6 +1814,8 @@ Resources:
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref EventTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EventRegistrationTable
         - DynamoDBReadPolicy:
             TableName: !Ref JudgeTable
         - DynamoDBReadPolicy:

@@ -1,7 +1,7 @@
 import type { MetricsLogger } from 'aws-embedded-metrics'
 import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import type { AWSError } from 'aws-sdk'
-import type { JsonDogEvent, JsonJudge } from '../../types'
+import type { JsonRegistration } from '../../types'
 
 import { metricScope } from 'aws-embedded-metrics'
 
@@ -24,23 +24,16 @@ const runMigrationHandler = metricScope(
       const timestamp = new Date().toISOString()
 
       try {
-        const events = (await dynamoDB.readAll<JsonDogEvent>(CONFIG.eventTable)) ?? []
-        const judges = (await dynamoDB.readAll<JsonJudge>(CONFIG.judgeTable)) ?? []
+        const registrations = (await dynamoDB.readAll<JsonRegistration>(CONFIG.registrationTable)) ?? []
         let count = 0
 
-        for (const item of events) {
-          if (item.judges?.length && typeof item.judges[0] === 'number') {
-            // @ts-expect-error migrated types
-            const judgeIds: number[] = item.judges
-            item.judges = []
-            for (const judgeId of judgeIds) {
-              const judge = judges.find((j) => j.id === judgeId)
-              item.judges.push({ id: judgeId, name: judge?.name ?? '?' })
-            }
+        for (const item of registrations) {
+          if (!item.state) {
+            item.state = item.paidAt ? 'ready' : 'creating'
             item.modifiedAt = timestamp
             item.modifiedBy = 'migration'
 
-            await dynamoDB.write(item, CONFIG.eventTable)
+            await dynamoDB.write(item, CONFIG.registrationTable)
             count++
           }
         }
