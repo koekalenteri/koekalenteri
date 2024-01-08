@@ -33,9 +33,7 @@ export function registrationEmailTemplateData(
   }))
   const groupDate = registration.group?.date ? t('dateFormat.wdshort', { date: registration.group.date }) : ''
   const groupTime = registration.group?.time ? t(`registration.timeLong.${registration.group.time}`) : ''
-  const invitationLink = confirmedEvent.invitationAttachment
-    ? `${origin}/r/${registration.eventId}/${registration.id}/invitation`
-    : ''
+  const invitationLink = `${origin}/r/${registration.eventId}/${registration.id}/invitation`
 
   return {
     subject: t('registration.email.subject', { context }),

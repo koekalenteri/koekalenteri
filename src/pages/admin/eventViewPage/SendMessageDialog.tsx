@@ -263,12 +263,7 @@ function useRegistrationEmailTemplateData(registration: Registration, event: Dog
     title: t('registration.email.title', { context }),
     dogBreed,
     link,
-    event: {
-      ...event,
-      // Friendly name for secretary (and official) (KOE-350)
-      secretary: { ...event.secretary, name: reverseName(event.secretary?.name ?? '') },
-      official: { ...event.official, name: reverseName(event.official?.name ?? '') },
-    },
+    event,
     eventDate,
     invitationLink,
     qualifyingResults,
