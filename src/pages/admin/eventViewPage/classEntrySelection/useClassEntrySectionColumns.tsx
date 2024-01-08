@@ -20,8 +20,6 @@ import { GridActionsCellItem } from '@mui/x-data-grid'
 
 import GroupColors from './GroupColors'
 
-const IconPlaceholder = () => <PersonOutline sx={{ color: 'transparent' }} fontSize="small" />
-
 const IconsTooltip = styled(({ className, ...props }: TooltipProps) => (
   <Tooltip {...props} classes={{ popper: className }} />
 ))({
@@ -37,8 +35,8 @@ const RegistrationIcons = ({ confirmed, invitationRead, handler, paidAt, qualify
   const iconStrings: string[] = []
 
   const manualResultCount = qualifyingResults.filter((r) => !r.official).length
-  if (handler.membership) iconStrings.push('Ilmoittuja on järjestävän yhdistyksen jäsen')
-  if (paidAt) iconStrings.push('Ilmoittuja on maksanut ilmoittautumisen')
+  if (handler.membership) iconStrings.push('Ilmoittautuja on järjestävän yhdistyksen jäsen')
+  if (paidAt) iconStrings.push('Ilmoittautuja on maksanut ilmoittautumisen')
   if (confirmed) iconStrings.push('Ilmoittautuja on vahvistanut ottavansa koepaikan vastaan')
   if (invitationRead) iconStrings.push('Ilmoittautuja on kuitannut koekutsun')
   if (manualResultCount > 0) iconStrings.push('Ilmoittautuja on lisännyt koetuloksia')
