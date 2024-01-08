@@ -7,7 +7,7 @@ import { metricScope } from 'aws-embedded-metrics'
 import { unescape } from 'querystring'
 
 import { CONFIG } from '../config'
-import { fixRegistrationGroups, VALID_PAYMENT_STATUSES } from '../lib/event'
+import { fixRegistrationGroups } from '../lib/event'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { metricsError, metricsSuccess } from '../utils/metrics'
 import { response } from '../utils/response'
@@ -24,9 +24,7 @@ const getRegistrationsHandler = metricScope(
         })
 
         // filter out registrations that are pending payment
-        const items = allItems?.filter(
-          (item) => item.paymentStatus && VALID_PAYMENT_STATUSES.includes(item.paymentStatus)
-        )
+        const items = allItems?.filter((item) => item.state === 'ready')
 
         const itemsWithGroups = await fixRegistrationGroups(items ?? [])
         metricsSuccess(metrics, event.requestContext, 'getRegistrations')

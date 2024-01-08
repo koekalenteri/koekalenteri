@@ -54,12 +54,18 @@ const successHandler = metricScope(
 
             await dynamoDB.update(
               { eventId, id: registrationId },
-              'set #paidAmount = :paidAmount, #paidAt = :paidAt, #paymentStatus = :paymentStatus',
-              { '#paidAmount': 'paidAmount', '#paidAt': 'paidAt', '#paymentStatus': 'paymentStatus' },
+              'set #paidAmount = :paidAmount, #paidAt = :paidAt, #paymentStatus = :paymentStatus, #state = :state',
+              {
+                '#paidAmount': 'paidAmount',
+                '#paidAt': 'paidAt',
+                '#paymentStatus': 'paymentStatus',
+                '#state': 'state',
+              },
               {
                 ':paidAmount': (registration.paidAmount ?? 0) + amount,
                 ':paidAt': new Date().toISOString(),
                 ':paymentStatus': 'SUCCESS',
+                ':state': 'ready',
               },
               registrationTable
             )
@@ -67,14 +73,19 @@ const successHandler = metricScope(
             const confirmedEvent = await updateRegistrations(registration.eventId, eventTable)
 
             // send receipt
-            const receiptTo = [registration.payer.email]
-            const receiptData = registrationEmailTemplateData(registration, confirmedEvent, frontendURL, 'receipt')
-            await sendTemplatedMail('receipt', registration.language, emailFrom, receiptTo, {
-              ...receiptData,
-              ...transaction,
-              createdAt: t('dateFormat.long', { date: transaction.createdAt }),
-              amount,
-            })
+            try {
+              const receiptTo = [registration.payer.email]
+              const receiptData = registrationEmailTemplateData(registration, confirmedEvent, frontendURL, 'receipt')
+              await sendTemplatedMail('receipt', registration.language, emailFrom, receiptTo, {
+                ...receiptData,
+                ...transaction,
+                createdAt: t('dateFormat.long', { date: transaction.createdAt }),
+                amount,
+              })
+            } catch (e) {
+              // this is not fatal
+              console.error('failed to send receipt', e)
+            }
 
             audit({
               auditKey: registrationAuditKey(registration),

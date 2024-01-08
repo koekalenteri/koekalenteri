@@ -37,6 +37,7 @@ export const newRegistrationAtom = atom<Registration | undefined>({
     payer: { ...emptyPerson },
     qualifyingResults: [],
     reserve: 'DAY',
+    state: 'creating',
   },
   effects: [logEffect, storageEffect],
 })

@@ -15,7 +15,7 @@ describe('CostInfo', () => {
     expect(screen.queryByText(/event.costMember/)).not.toBeInTheDocument()
   })
 
-  it('should not render paymetDefauils when it is empty', () => {
+  it('should not render paymentDefauils when it is empty', () => {
     const { container } = render(<CostInfo event={{ cost: 50, costMember: 0 }} />)
     expect(container).toMatchSnapshot()
   })

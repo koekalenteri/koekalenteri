@@ -186,7 +186,7 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
                     primary={paymentStatus(registration)}
                     primaryTypographyProps={{ variant: 'subtitle1', fontWeight: 'bold' }}
                   />
-                  {(registration.paymentStatus ?? 'CANCEL') === 'CANCEL' ? (
+                  {registration.paymentStatus !== 'SUCCESS' ? (
                     <ListItemSecondaryAction>
                       <Button aria-label="Maksa ilmoittautuminen" onClick={() => navigate(Path.payment(registration))}>
                         MAKSA

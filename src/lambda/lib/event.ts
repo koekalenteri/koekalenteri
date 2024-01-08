@@ -1,18 +1,10 @@
-import type {
-  EventClassState,
-  JsonConfirmedEvent,
-  JsonRegistration,
-  JsonRegistrationGroupInfo,
-  PaymentStatus,
-} from '../../types'
+import type { EventClassState, JsonConfirmedEvent, JsonRegistration, JsonRegistrationGroupInfo } from '../../types'
 
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
 const { eventTable, registrationTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(eventTable)
-
-export const VALID_PAYMENT_STATUSES: Readonly<PaymentStatus[]> = ['SUCCESS', 'PENDING']
 
 export const markParticipants = async (
   confirmedEvent: JsonConfirmedEvent,
@@ -67,9 +59,7 @@ export const updateRegistrations = async (eventId: string, eventTable: string) =
   )
 
   // ignore cancelled or unpaid registrations
-  const registrations = allRegistrations?.filter(
-    (r) => !r.cancelled && r.paymentStatus && VALID_PAYMENT_STATUSES.includes(r.paymentStatus)
-  )
+  const registrations = allRegistrations?.filter((r) => r.state === 'ready' && !r.cancelled)
 
   const membershipPriority = (r: JsonRegistration) =>
     Boolean(confirmedEvent.priority?.includes('member') && (r.handler?.membership || r.owner?.membership))

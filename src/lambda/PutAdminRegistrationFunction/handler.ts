@@ -46,8 +46,8 @@ const putAdminRegistrationHandler = metricScope(
           registration.id = nanoid(10)
           registration.createdAt = timestamp
           registration.createdBy = user.name
-          // registrations created by secretary / admin have pending payment
-          registration.paymentStatus = 'PENDING'
+          // registrations created by secretary / admin are initially ready (but unpaid)
+          registration.state = 'ready'
         }
 
         // modification info is always updated

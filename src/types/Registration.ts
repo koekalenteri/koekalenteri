@@ -28,10 +28,10 @@ export interface JsonRegistration extends JsonDbRecord {
   paymentStatus?: PaymentStatus
   priorityByInvitation?: boolean
   qualifyingResults: JsonQualifyingResult[]
-  receiptSent?: boolean
   reserve: ReserveChoise | ''
   reserveNotified?: boolean
   results?: Array<JsonTestResult & { id: string }>
+  state?: 'creating' | 'ready'
   totalAmount?: number
 }
 
