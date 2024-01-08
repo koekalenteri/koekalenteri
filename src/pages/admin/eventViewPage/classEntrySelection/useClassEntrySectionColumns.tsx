@@ -1,3 +1,4 @@
+import type { TooltipProps } from '@mui/material/Tooltip'
 import type { GridColDef, GridValueGetterParams } from '@mui/x-data-grid'
 import type { BreedCode, Registration, RegistrationDate } from '../../../../types'
 
@@ -6,14 +7,54 @@ import { useTranslation } from 'react-i18next'
 import CheckOutlined from '@mui/icons-material/CheckOutlined'
 import DragIndicatorOutlined from '@mui/icons-material/DragIndicatorOutlined'
 import EditOutlined from '@mui/icons-material/EditOutlined'
+import ErrorOutlineOutlined from '@mui/icons-material/ErrorOutlineOutlined'
 import EuroOutlined from '@mui/icons-material/EuroOutlined'
 import EventBusyOutlined from '@mui/icons-material/EventBusyOutlined'
 import MarkEmailReadOutlined from '@mui/icons-material/MarkEmailReadOutlined'
 import PersonOutline from '@mui/icons-material/PersonOutline'
-import Tooltip from '@mui/material/Tooltip'
+import { styled } from '@mui/material'
+import Box from '@mui/material/Box'
+import Stack from '@mui/material/Stack'
+import Tooltip, { tooltipClasses } from '@mui/material/Tooltip'
 import { GridActionsCellItem } from '@mui/x-data-grid'
 
 import GroupColors from './GroupColors'
+
+const IconPlaceholder = () => <PersonOutline sx={{ color: 'transparent' }} fontSize="small" />
+
+const IconsTooltip = styled(({ className, ...props }: TooltipProps) => (
+  <Tooltip {...props} classes={{ popper: className }} />
+))({
+  [`& .${tooltipClasses.tooltip}`]: {
+    maxWidth: 'none',
+  },
+})
+
+const IconsTooltipContent = ({ roles }: { roles: string }) => <Box sx={{ whiteSpace: 'pre-line' }}>{roles}</Box>
+
+const RegistrationIcons = ({ confirmed, invitationRead, handler, paidAt, qualifyingResults }: Registration) => {
+  const { t } = useTranslation()
+  const iconStrings: string[] = []
+
+  const manualResultCount = qualifyingResults.filter((r) => !r.official).length
+  if (handler.membership) iconStrings.push('Ilmoittuja on järjestävän yhdistyksen jäsen')
+  if (paidAt) iconStrings.push('Ilmoittuja on maksanut ilmoittautumisen')
+  if (confirmed) iconStrings.push('Ilmoittautuja on vahvistanut ottavansa koepaikan vastaan')
+  if (invitationRead) iconStrings.push('Ilmoittautuja on kuitannut koekutsun')
+  if (manualResultCount > 0) iconStrings.push('Ilmoittautuja on lisännyt koetuloksia')
+
+  return (
+    <IconsTooltip placement="right" title={<IconsTooltipContent roles={iconStrings.join('\n')} />}>
+      <Stack direction="row" alignItems="center">
+        <PersonOutline fontSize="small" sx={{ opacity: handler.membership ? 1 : 0.05 }} />
+        <EuroOutlined fontSize="small" sx={{ opacity: paidAt ? 1 : 0.05 }} />
+        <CheckOutlined fontSize="small" sx={{ opacity: confirmed ? 1 : 0.05 }} />
+        <MarkEmailReadOutlined fontSize="small" sx={{ opacity: invitationRead ? 1 : 0.05 }} />
+        <ErrorOutlineOutlined fontSize="small" sx={{ opacity: manualResultCount ? 1 : 0 }} />
+      </Stack>
+    </IconsTooltip>
+  )
+}
 
 export function useClassEntrySelectionColumns(
   available: RegistrationDate[],
@@ -94,44 +135,9 @@ export function useClassEntrySelectionColumns(
       {
         field: 'icons',
         headerName: '',
-        width: 90,
+        width: 100,
         align: 'center',
-        renderCell: (p) => (
-          <>
-            <Tooltip
-              title={`Ilmoittautuja ${p.row.handler.membership ? 'on' : 'ei ole'} järjestävän yhdistyksen jäsen`}
-              placement="left"
-            >
-              <PersonOutline fontSize="small" sx={{ opacity: p.row.handler.membership ? 1 : 0.05 }} />
-            </Tooltip>
-            <Tooltip
-              title={`Ilmoittautuja ${
-                p.row.paidAt ? 'on maksanut ilmoittautumisen' : 'ei ole maksanut ilmoittautumista'
-              }`}
-              placement="left"
-            >
-              <EuroOutlined fontSize="small" sx={{ opacity: p.row.paidAt ? 1 : 0.05 }} />
-            </Tooltip>
-            <Tooltip
-              title={`Ilmoittautuja ${
-                p.row.confirmed
-                  ? 'on vahvistanut ottavansa koepaikan vastaan'
-                  : 'ei ole vahvistanut ottavansa koepaikkaa vastaan'
-              }`}
-              placement="left"
-            >
-              <CheckOutlined fontSize="small" sx={{ opacity: p.row.confirmed ? 1 : 0.05 }} />
-            </Tooltip>
-            <Tooltip
-              title={`Ilmoittautuja ${
-                p.row.invitationRead ? 'on kuitannut koekutsun' : 'ei ole kuitannut koekutsua'
-              } luetuksi`}
-              placement="left"
-            >
-              <MarkEmailReadOutlined fontSize="small" sx={{ opacity: p.row.invitationRead ? 1 : 0.05 }} />
-            </Tooltip>
-          </>
-        ),
+        renderCell: (p) => <RegistrationIcons {...p.row} />,
         sortable: false,
       },
       {
