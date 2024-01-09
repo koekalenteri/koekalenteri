@@ -1,8 +1,6 @@
 interface Props {
   readonly name: string
-  readonly value: string | Date
+  readonly value: string
 }
 
-export const ParameterInput = ({ name, value }: Props) => (
-  <input type="hidden" name={name} value={typeof value === 'object' ? value.toISOString() : value} />
-)
+export const ParameterInput = ({ name, value }: Props) => <input type="hidden" name={name} value={value} />

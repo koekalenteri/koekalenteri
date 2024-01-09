@@ -8,7 +8,7 @@ export const createPayment = async (
   token?: string,
   signal?: AbortSignal
 ): Promise<CreatePaymentResponse | undefined> =>
-  http.post(`/payment/create`, { eventId, registrationId }, withToken({ signal }, token))
+  http.post(`/payment/create`, { eventId, registrationId }, withToken({ signal }, token), false)
 
 export const verifyPayment = async (
   params: Record<string, string>,

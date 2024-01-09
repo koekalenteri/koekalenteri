@@ -37,7 +37,7 @@ function anySignal(signals: AbortSignal[]): AbortSignal {
   return controller.signal
 }
 
-async function httpWithTimeout<T>(path: string, init: RequestInit): Promise<T> {
+async function httpWithTimeout<T>(path: string, init: RequestInit, reviveDates: boolean = true): Promise<T> {
   const url = API_BASE_URL + path
 
   const controller = new AbortController()
@@ -60,7 +60,7 @@ async function httpWithTimeout<T>(path: string, init: RequestInit): Promise<T> {
     if (!response.ok) {
       let json = text
       try {
-        json = parseJSON(text)
+        json = parseJSON(text, reviveDates)
       } catch (e) {
         rum()?.recordError(e)
         console.error('json parsing failed', e)
@@ -69,7 +69,7 @@ async function httpWithTimeout<T>(path: string, init: RequestInit): Promise<T> {
       enqueueSnackbar(`${response.status} ${message}`, { variant: 'error' })
       throw new APIError(response, message)
     }
-    const parsed = parseJSON(text)
+    const parsed = parseJSON(text, reviveDates)
     return parsed
   } catch (err) {
     clearTimeout(timer)
@@ -82,9 +82,9 @@ async function httpWithTimeout<T>(path: string, init: RequestInit): Promise<T> {
   }
 }
 
-async function http<T>(path: string, init: RequestInit): Promise<T> {
+async function http<T>(path: string, init: RequestInit, reviveDates: boolean = true): Promise<T> {
   try {
-    const result = await httpWithTimeout<T>(path, init)
+    const result = await httpWithTimeout<T>(path, init, reviveDates)
 
     return result
   } catch (err) {
@@ -104,20 +104,25 @@ async function http<T>(path: string, init: RequestInit): Promise<T> {
 }
 
 const HTTP = {
-  async get<T>(path: string, init?: RequestInit): Promise<T> {
-    return http<T>(path, { method: 'get', ...init })
+  async get<T>(path: string, init?: RequestInit, reviveDates: boolean = true): Promise<T> {
+    return http<T>(path, { method: 'get', ...init }, reviveDates)
   },
-  async post<T, U>(path: string, body: T, init?: RequestInit): Promise<U> {
-    return http<U>(path, { method: 'post', body: JSON.stringify(body), ...init })
+  async post<T, U>(path: string, body: T, init?: RequestInit, reviveDates: boolean = true): Promise<U> {
+    return http<U>(path, { method: 'post', body: JSON.stringify(body), ...init }, reviveDates)
   },
-  async postRaw<T extends BodyInit, U>(path: string, body: T, init?: RequestInit): Promise<U> {
-    return http<U>(path, { method: 'post', body, ...init })
+  async postRaw<T extends BodyInit, U>(
+    path: string,
+    body: T,
+    init?: RequestInit,
+    reviveDates: boolean = true
+  ): Promise<U> {
+    return http<U>(path, { method: 'post', body, ...init }, reviveDates)
   },
-  async put<T, U>(path: string, body: T, init?: RequestInit): Promise<U> {
-    return http<U>(path, { method: 'put', body: JSON.stringify(body), ...init })
+  async put<T, U>(path: string, body: T, init?: RequestInit, reviveDates: boolean = true): Promise<U> {
+    return http<U>(path, { method: 'put', body: JSON.stringify(body), ...init }, reviveDates)
   },
-  async delete<T, U>(path: string, body: T, init?: RequestInit): Promise<U> {
-    return http<U>(path, { method: 'delete', body: JSON.stringify(body), ...init })
+  async delete<T, U>(path: string, body: T, init?: RequestInit, reviveDates: boolean = true): Promise<U> {
+    return http<U>(path, { method: 'delete', body: JSON.stringify(body), ...init }, reviveDates)
   },
 }
 

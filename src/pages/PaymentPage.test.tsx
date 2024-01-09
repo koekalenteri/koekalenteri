@@ -10,6 +10,7 @@ import { SnackbarProvider } from 'notistack'
 import { RecoilRoot } from 'recoil'
 
 import { registrationWithStaticDatesAndClass } from '../__mockData__/registrations'
+import mockResponse from '../api/__mocks__/paymentCreate.response.json'
 import theme from '../assets/Theme'
 import { locales } from '../i18n'
 import { Path } from '../routeConfig'
@@ -76,5 +77,51 @@ describe('PaymentPage', () => {
     await flushPromises()
     expect(container).toMatchSnapshot()
     expect(screen.getByRole('progressbar')).toBeInTheDocument()
+  })
+
+  it('renders properly', async () => {
+    mockUseParams.mockImplementation(() => ({
+      registrationId: registrationWithStaticDatesAndClass.id,
+      id: registrationWithStaticDatesAndClass.eventId,
+    }))
+
+    const response: CreatePaymentResponse = {
+      transactionId: '',
+      href: '',
+      terms: '',
+      groups: [],
+      reference: '',
+      providers: [],
+      customProviders: {},
+    }
+
+    const path = Path.payment(registrationWithStaticDatesAndClass)
+    const routes: RouteObject[] = [
+      {
+        path,
+        element: <PaymentPage />,
+        loader: async () =>
+          defer({
+            response: new Promise((resolve) => resolve(mockResponse)),
+          }),
+      },
+    ]
+
+    const { container } = render(
+      <ThemeProvider theme={theme}>
+        <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
+          <RecoilRoot>
+            <Suspense fallback={<div>loading...</div>}>
+              <SnackbarProvider>
+                <DataMemoryRouter initialEntries={[path]} routes={routes} />
+              </SnackbarProvider>
+            </Suspense>
+          </RecoilRoot>
+        </LocalizationProvider>
+      </ThemeProvider>
+    )
+    await flushPromises()
+    expect(container).toMatchSnapshot()
+    expect(screen.queryByRole('progressbar')).toBeNull()
   })
 })
