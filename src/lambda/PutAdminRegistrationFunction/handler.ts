@@ -71,9 +71,9 @@ const putAdminRegistrationHandler = metricScope(
         const context = update ? 'update' : ''
         if (registration.handler?.email && registration.owner?.email) {
           const to = emailTo(registration)
-          const data = registrationEmailTemplateData(registration, confirmedEvent, origin, context)
+          const templateData = registrationEmailTemplateData(registration, confirmedEvent, origin, context)
 
-          await sendTemplatedMail('registration', registration.language, emailFrom, to, data)
+          await sendTemplatedMail('registration', registration.language, emailFrom, to, templateData)
         }
 
         metricsSuccess(metrics, event.requestContext, 'putRegistration')

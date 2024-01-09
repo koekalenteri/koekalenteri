@@ -73,9 +73,9 @@ const putRegistrationHandler = metricScope(
         if (context && registration.handler?.email && registration.owner?.email) {
           // send update message when registration is updated, confirmed or cancelled
           const to = emailTo(registration)
-          const data = registrationEmailTemplateData(registration, confirmedEvent, origin, context)
+          const templateData = registrationEmailTemplateData(registration, confirmedEvent, origin, context)
 
-          await sendTemplatedMail('registration', registration.language, emailFrom, to, data)
+          await sendTemplatedMail('registration', registration.language, emailFrom, to, templateData)
         }
 
         metricsSuccess(metrics, event.requestContext, 'putRegistration')

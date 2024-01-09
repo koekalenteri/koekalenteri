@@ -28,7 +28,9 @@ const sendMessagesHandler = metricScope((metrics: MetricsLogger) => async (event
     const message: RegistrationMessage = parseJSONWithFallback(event.body)
     const { template, eventId, registrationIds, text } = message
 
-    const eventRegistrations = await dynamoDB.query<JsonRegistration>('eventId = :eventId', { ':eventId': eventId })
+    const eventRegistrations = (
+      await dynamoDB.query<JsonRegistration>('eventId = :eventId', { ':eventId': eventId })
+    )?.filter((r) => r.state === 'ready')
     const registrations = eventRegistrations?.filter((r) => registrationIds.includes(r.id))
 
     if (registrations?.length !== registrationIds.length) {

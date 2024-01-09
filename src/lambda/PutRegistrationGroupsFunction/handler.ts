@@ -111,17 +111,21 @@ const putRegistrationGroupsHandler = metricScope(
 
         const eventGroups = groups.filter((g) => g.eventId === eventId)
 
-        const oldItems = await dynamoDB.query<JsonRegistration>('eventId = :eventId', {
-          ':eventId': eventId,
-        })
+        const oldItems = (
+          await dynamoDB.query<JsonRegistration>('eventId = :eventId', {
+            ':eventId': eventId,
+          })
+        )?.filter((r) => r.state === 'ready')
 
         for (const group of eventGroups) {
           await saveGroup(group)
         }
 
-        const items = await dynamoDB.query<JsonRegistration>('eventId = :eventId', {
-          ':eventId': eventId,
-        })
+        const items = (
+          await dynamoDB.query<JsonRegistration>('eventId = :eventId', {
+            ':eventId': eventId,
+          })
+        )?.filter((r) => r.state === 'ready')
         const itemsWithGroups = await fixGroups(items ?? [])
         const confirmedEvent = await updateRegistrations(eventId, eventTable)
         const { classes, entries } = confirmedEvent
