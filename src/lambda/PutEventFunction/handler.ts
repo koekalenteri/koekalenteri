@@ -8,6 +8,7 @@ import { nanoid } from 'nanoid'
 
 import { CONFIG } from '../config'
 import { authorize } from '../lib/auth'
+import { updateRegistrations } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { metricsError, metricsSuccess } from '../utils/metrics'
@@ -59,6 +60,12 @@ const putEventHandler = metricScope(
           return response(403, 'Forbidden', event)
         }
         await dynamoDB.write(data)
+
+        if (existing && existing.entries) {
+          // update registrations in case the secretary version was out of date
+          updateRegistrations(data.id, CONFIG.eventTable)
+        }
+
         metricsSuccess(metrics, event.requestContext, 'putEvent')
         return response(200, data, event)
       } catch (err) {
