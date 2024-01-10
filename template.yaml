@@ -239,18 +239,10 @@ Resources:
             AttributeType: S
           - AttributeName: email
             AttributeType: S
-          - AttributeName: modifiedAt
-            AttributeType: S
       GlobalSecondaryIndexes:
         - IndexName: gsiEmail
           KeySchema:
             - AttributeName: email
-              KeyType: HASH
-          Projection:
-            ProjectionType: ALL
-        - IndexName: gsiModifiedAt
-          KeySchema:
-            - AttributeName: modifiedAt
               KeyType: HASH
           Projection:
             ProjectionType: ALL
