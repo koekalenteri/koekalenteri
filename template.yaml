@@ -209,13 +209,15 @@ Resources:
       AttributeDefinitions:
           - AttributeName: transactionId
             AttributeType: S
-      #GlobalSecondaryIndexes:
-      #  - IndexName: gsiReference
-      #    KeySchema:
-      #      - AttributeName: reference
-      #        KeyType: HASH
-      #    Projection:
-      #      ProjectionType: ALL
+          - AttributeName: reference
+            AttributeType: S
+      GlobalSecondaryIndexes:
+        - IndexName: gsiReference
+          KeySchema:
+            - AttributeName: reference
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
       Tags:
         - Key: Env
           Value: !Ref AWS::StackName
@@ -235,6 +237,24 @@ Resources:
       AttributeDefinitions:
           - AttributeName: id
             AttributeType: S
+          - AttributeName: email
+            AttributeType: S
+          - AttributeName: modifiedAt
+            AttributeType: S
+      GlobalSecondaryIndexes:
+        - IndexName: gsiEmail
+          KeySchema:
+            - AttributeName: email
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+      GlobalSecondaryIndexes:
+        - IndexName: gsiModifiedAt
+          KeySchema:
+            - AttributeName: modifiedAt
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
       Tags:
         - Key: Env
           Value: !Ref AWS::StackName
@@ -273,6 +293,15 @@ Resources:
       AttributeDefinitions:
           - AttributeName: id
             AttributeType: N
+          - AttributeName: modifiedAt
+            AttributeType: S
+      GlobalSecondaryIndexes:
+        - IndexName: gsiModifiedAt
+          KeySchema:
+            - AttributeName: modifiedAt
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
       Tags:
         - Key: Env
           Value: !Ref AWS::StackName
@@ -292,6 +321,15 @@ Resources:
       AttributeDefinitions:
           - AttributeName: id
             AttributeType: N
+          - AttributeName: modifiedAt
+            AttributeType: S
+      GlobalSecondaryIndexes:
+        - IndexName: gsiModifiedAt
+          KeySchema:
+            - AttributeName: modifiedAt
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
       Tags:
         - Key: Env
           Value: !Ref AWS::StackName
@@ -311,6 +349,15 @@ Resources:
       AttributeDefinitions:
           - AttributeName: id
             AttributeType: S
+          - AttributeName: modifiedAt
+            AttributeType: S
+      GlobalSecondaryIndexes:
+        - IndexName: gsiModifiedAt
+          KeySchema:
+            - AttributeName: modifiedAt
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
       Tags:
         - Key: Env
           Value: !Ref AWS::StackName
