@@ -9,6 +9,7 @@ import { type JsonRegistration } from '../../types'
 import { CONFIG } from '../config'
 import { getOrigin } from '../lib/auth'
 import { parseJSONWithFallback } from '../lib/json'
+import { debugProxyEvent } from '../lib/log'
 import { createPayment } from '../lib/paytrail'
 import { splitName } from '../lib/string'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
@@ -30,6 +31,8 @@ const registrationCost = (event: JsonConfirmedEvent, registration: JsonRegistrat
 const createHandler = metricScope(
   (metrics: MetricsLogger) =>
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+      debugProxyEvent(event)
+
       try {
         const { eventId, registrationId } = parseJSONWithFallback<{ eventId: string; registrationId: string }>(
           event.body

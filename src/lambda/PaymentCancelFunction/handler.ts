@@ -7,6 +7,7 @@ import { metricScope } from 'aws-embedded-metrics'
 
 import { type JsonRegistration } from '../../types'
 import { CONFIG } from '../config'
+import { debugProxyEvent } from '../lib/log'
 import { parseParams, updateTransactionStatus, verifyParams } from '../lib/payment'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { metricsError, metricsSuccess } from '../utils/metrics'
@@ -21,6 +22,8 @@ const dynamoDB = new CustomDynamoClient(transactionTable)
 const cancelHandler = metricScope(
   (metrics: MetricsLogger) =>
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+      debugProxyEvent(event)
+
       const params: Partial<PaytrailCallbackParams> = event.queryStringParameters ?? {}
       const { eventId, registrationId, transactionId } = parseParams(params)
 
@@ -53,6 +56,8 @@ const cancelHandler = metricScope(
               registrationTable
             )
           }
+        } else {
+          console.log(`Transaction '${transactionId}' already marked as failed`)
         }
 
         metricsSuccess(metrics, event.requestContext, 'cancelHandler')

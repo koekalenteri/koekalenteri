@@ -11,6 +11,7 @@ import { CONFIG } from '../config'
 import { audit, registrationAuditKey } from '../lib/audit'
 import { sendTemplatedMail } from '../lib/email'
 import { updateRegistrations } from '../lib/event'
+import { debugProxyEvent } from '../lib/log'
 import { parseParams, updateTransactionStatus, verifyParams } from '../lib/payment'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { metricsError, metricsSuccess } from '../utils/metrics'
@@ -26,6 +27,8 @@ const dynamoDB = new CustomDynamoClient(transactionTable)
 const successHandler = metricScope(
   (metrics: MetricsLogger) =>
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+      debugProxyEvent(event)
+
       const params: Partial<PaytrailCallbackParams> = event.queryStringParameters ?? {}
       const { eventId, registrationId, transactionId } = parseParams(params)
 

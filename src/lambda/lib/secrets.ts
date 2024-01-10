@@ -40,5 +40,6 @@ export const getPaytrailConfig = async (): Promise<PaytrailConfig> => {
   if (!cfg.PAYTRAIL_SECRET || !cfg.PAYTRAIL_MERCHANT_ID) {
     throw new Error('Missing Paytrail Config!')
   }
+  console.log('merchantId: ' + cfg.PAYTRAIL_MERCHANT_ID)
   return cfg
 }
