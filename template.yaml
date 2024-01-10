@@ -248,7 +248,6 @@ Resources:
               KeyType: HASH
           Projection:
             ProjectionType: ALL
-      GlobalSecondaryIndexes:
         - IndexName: gsiModifiedAt
           KeySchema:
             - AttributeName: modifiedAt
