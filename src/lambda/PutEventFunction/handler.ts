@@ -61,7 +61,7 @@ const putEventHandler = metricScope(
         }
         await dynamoDB.write(data)
 
-        if (existing && existing.entries) {
+        if (existing && existing.entries !== data.entries) {
           // update registrations in case the secretary version was out of date
           updateRegistrations(data.id, CONFIG.eventTable)
         }
