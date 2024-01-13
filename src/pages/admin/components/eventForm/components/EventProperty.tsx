@@ -31,7 +31,7 @@ export type Property = keyof Omit<
 
 export type EventPropertyProps<P extends Property, freeSolo extends boolean> = Omit<
   AutocompleteProps<PartialEvent[P], false, false, freeSolo>,
-  'renderInput' | 'onChange' | 'value'
+  'id' | 'renderInput' | 'onChange' | 'value'
 > & {
   id: P
   event: PartialEvent
@@ -111,7 +111,7 @@ const EventProperty = <P extends Property, freeSolo extends boolean>(props: Even
       <Box sx={{ display: 'flex', flex: '0 0 auto', position: 'relative' }}>
         <TextField
           {...params}
-          label={t(`event.${id}`)}
+          label={t(`event.${id}`, '')}
           required={isRequired}
           error={!!error}
           helperText={helperText}

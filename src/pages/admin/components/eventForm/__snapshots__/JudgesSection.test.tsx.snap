@@ -18,7 +18,7 @@ exports[`JudgeSection should hide classes for NOWT event (KOE-317) 1`] = `
         viewBox="0 0 24 24"
       >
         <path
-          d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"
+          d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"
         />
       </svg>
       <span
@@ -267,7 +267,7 @@ exports[`JudgeSection should hide classes for NOWT event (KOE-317) 1`] = `
                           viewBox="0 0 24 24"
                         >
                           <path
-                            d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM8 9h8v10H8V9zm7.5-5-1-1h-5l-1 1H5v2h14V4z"
+                            d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6zM8 9h8v10H8zm7.5-5-1-1h-5l-1 1H5v2h14V4z"
                           />
                         </svg>
                       </span>
@@ -297,7 +297,7 @@ exports[`JudgeSection should hide classes for NOWT event (KOE-317) 1`] = `
                         viewBox="0 0 24 24"
                       >
                         <path
-                          d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"
+                          d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6z"
                         />
                       </svg>
                     </span>
@@ -322,7 +322,7 @@ exports[`JudgeSection should hide classes for NOWT event (KOE-317) 1`] = `
                         viewBox="0 0 24 24"
                       >
                         <path
-                          d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"
+                          d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6z"
                         />
                       </svg>
                     </span>
@@ -348,7 +348,7 @@ exports[`JudgeSection should hide classes for NOWT event (KOE-317) 1`] = `
                         viewBox="0 0 24 24"
                       >
                         <path
-                          d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"
+                          d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6z"
                         />
                       </svg>
                     </span>
@@ -383,7 +383,7 @@ exports[`JudgeSection should not warn about judge 0 not beign available (KOE-357
         viewBox="0 0 24 24"
       >
         <path
-          d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"
+          d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"
         />
       </svg>
       <span
@@ -631,7 +631,7 @@ exports[`JudgeSection should not warn about judge 0 not beign available (KOE-357
                           viewBox="0 0 24 24"
                         >
                           <path
-                            d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM8 9h8v10H8V9zm7.5-5-1-1h-5l-1 1H5v2h14V4z"
+                            d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6zM8 9h8v10H8zm7.5-5-1-1h-5l-1 1H5v2h14V4z"
                           />
                         </svg>
                       </span>
@@ -661,7 +661,7 @@ exports[`JudgeSection should not warn about judge 0 not beign available (KOE-357
                         viewBox="0 0 24 24"
                       >
                         <path
-                          d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"
+                          d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6z"
                         />
                       </svg>
                     </span>
@@ -686,7 +686,7 @@ exports[`JudgeSection should not warn about judge 0 not beign available (KOE-357
                         viewBox="0 0 24 24"
                       >
                         <path
-                          d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"
+                          d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6z"
                         />
                       </svg>
                     </span>
@@ -712,7 +712,7 @@ exports[`JudgeSection should not warn about judge 0 not beign available (KOE-357
                         viewBox="0 0 24 24"
                       >
                         <path
-                          d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"
+                          d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6z"
                         />
                       </svg>
                     </span>
@@ -747,7 +747,7 @@ exports[`JudgeSection should render properly with one judge selected 1`] = `
         viewBox="0 0 24 24"
       >
         <path
-          d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"
+          d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"
         />
       </svg>
       <span
@@ -995,7 +995,7 @@ exports[`JudgeSection should render properly with one judge selected 1`] = `
                           viewBox="0 0 24 24"
                         >
                           <path
-                            d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM8 9h8v10H8V9zm7.5-5-1-1h-5l-1 1H5v2h14V4z"
+                            d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6zM8 9h8v10H8zm7.5-5-1-1h-5l-1 1H5v2h14V4z"
                           />
                         </svg>
                       </span>
@@ -1025,7 +1025,7 @@ exports[`JudgeSection should render properly with one judge selected 1`] = `
                         viewBox="0 0 24 24"
                       >
                         <path
-                          d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"
+                          d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6z"
                         />
                       </svg>
                     </span>
@@ -1050,7 +1050,7 @@ exports[`JudgeSection should render properly with one judge selected 1`] = `
                         viewBox="0 0 24 24"
                       >
                         <path
-                          d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"
+                          d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6z"
                         />
                       </svg>
                     </span>
@@ -1076,7 +1076,7 @@ exports[`JudgeSection should render properly with one judge selected 1`] = `
                         viewBox="0 0 24 24"
                       >
                         <path
-                          d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"
+                          d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6z"
                         />
                       </svg>
                     </span>
@@ -1111,7 +1111,7 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
         viewBox="0 0 24 24"
       >
         <path
-          d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"
+          d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"
         />
       </svg>
       <span
@@ -1359,7 +1359,7 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
                           viewBox="0 0 24 24"
                         >
                           <path
-                            d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM8 9h8v10H8V9zm7.5-5-1-1h-5l-1 1H5v2h14V4z"
+                            d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6zM8 9h8v10H8zm7.5-5-1-1h-5l-1 1H5v2h14V4z"
                           />
                         </svg>
                       </span>
@@ -1580,7 +1580,7 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
                           viewBox="0 0 24 24"
                         >
                           <path
-                            d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM8 9h8v10H8V9zm7.5-5-1-1h-5l-1 1H5v2h14V4z"
+                            d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6zM8 9h8v10H8zm7.5-5-1-1h-5l-1 1H5v2h14V4z"
                           />
                         </svg>
                       </span>
@@ -1801,7 +1801,7 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
                           viewBox="0 0 24 24"
                         >
                           <path
-                            d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM8 9h8v10H8V9zm7.5-5-1-1h-5l-1 1H5v2h14V4z"
+                            d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6zM8 9h8v10H8zm7.5-5-1-1h-5l-1 1H5v2h14V4z"
                           />
                         </svg>
                       </span>
@@ -1831,7 +1831,7 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
                         viewBox="0 0 24 24"
                       >
                         <path
-                          d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"
+                          d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6z"
                         />
                       </svg>
                     </span>
@@ -1856,7 +1856,7 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
                         viewBox="0 0 24 24"
                       >
                         <path
-                          d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"
+                          d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6z"
                         />
                       </svg>
                     </span>
@@ -1882,7 +1882,7 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
                         viewBox="0 0 24 24"
                       >
                         <path
-                          d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"
+                          d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6z"
                         />
                       </svg>
                     </span>
@@ -1917,7 +1917,7 @@ exports[`JudgeSection should render properly with two judges selected 1`] = `
         viewBox="0 0 24 24"
       >
         <path
-          d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"
+          d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"
         />
       </svg>
       <span
@@ -2165,7 +2165,7 @@ exports[`JudgeSection should render properly with two judges selected 1`] = `
                           viewBox="0 0 24 24"
                         >
                           <path
-                            d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM8 9h8v10H8V9zm7.5-5-1-1h-5l-1 1H5v2h14V4z"
+                            d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6zM8 9h8v10H8zm7.5-5-1-1h-5l-1 1H5v2h14V4z"
                           />
                         </svg>
                       </span>
@@ -2386,7 +2386,7 @@ exports[`JudgeSection should render properly with two judges selected 1`] = `
                           viewBox="0 0 24 24"
                         >
                           <path
-                            d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM8 9h8v10H8V9zm7.5-5-1-1h-5l-1 1H5v2h14V4z"
+                            d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6zM8 9h8v10H8zm7.5-5-1-1h-5l-1 1H5v2h14V4z"
                           />
                         </svg>
                       </span>
@@ -2416,7 +2416,7 @@ exports[`JudgeSection should render properly with two judges selected 1`] = `
                         viewBox="0 0 24 24"
                       >
                         <path
-                          d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"
+                          d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6z"
                         />
                       </svg>
                     </span>
@@ -2441,7 +2441,7 @@ exports[`JudgeSection should render properly with two judges selected 1`] = `
                         viewBox="0 0 24 24"
                       >
                         <path
-                          d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"
+                          d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6z"
                         />
                       </svg>
                     </span>
@@ -2467,7 +2467,7 @@ exports[`JudgeSection should render properly with two judges selected 1`] = `
                         viewBox="0 0 24 24"
                       >
                         <path
-                          d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"
+                          d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6z"
                         />
                       </svg>
                     </span>

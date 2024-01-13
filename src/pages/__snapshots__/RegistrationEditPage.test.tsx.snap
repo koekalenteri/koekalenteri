@@ -24,7 +24,7 @@ exports[`RegistrationEditPage should render 1`] = `
           viewBox="0 0 24 24"
         >
           <path
-            d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"
+            d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"
           />
         </svg>
         <span
@@ -211,7 +211,7 @@ exports[`RegistrationEditPage should render 1`] = `
             viewBox="0 0 24 24"
           >
             <path
-              d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"
+              d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"
             />
           </svg>
           <span
@@ -664,7 +664,7 @@ exports[`RegistrationEditPage should render 1`] = `
             viewBox="0 0 24 24"
           >
             <path
-              d="M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"
+              d="M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6z"
             />
           </svg>
           <span
@@ -1245,7 +1245,7 @@ exports[`RegistrationEditPage should render 1`] = `
             viewBox="0 0 24 24"
           >
             <path
-              d="M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"
+              d="M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6z"
             />
           </svg>
           <span
@@ -1388,7 +1388,7 @@ exports[`RegistrationEditPage should render 1`] = `
             viewBox="0 0 24 24"
           >
             <path
-              d="M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"
+              d="M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6z"
             />
           </svg>
           <span
@@ -1768,7 +1768,7 @@ exports[`RegistrationEditPage should render 1`] = `
                   viewBox="0 0 24 24"
                 >
                   <path
-                    d="M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"
+                    d="M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6z"
                   />
                 </svg>
                 <span
@@ -2081,7 +2081,7 @@ exports[`RegistrationEditPage should render 1`] = `
                   viewBox="0 0 24 24"
                 >
                   <path
-                    d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"
+                    d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"
                   />
                 </svg>
                 <span
@@ -2309,7 +2309,7 @@ exports[`RegistrationEditPage should render 1`] = `
             viewBox="0 0 24 24"
           >
             <path
-              d="M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"
+              d="M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6z"
             />
           </svg>
           <span
@@ -2366,7 +2366,7 @@ exports[`RegistrationEditPage should render 1`] = `
                           viewBox="0 0 24 24"
                         >
                           <path
-                            d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"
+                            d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6z"
                           />
                         </svg>
                       </span>
@@ -2395,7 +2395,7 @@ exports[`RegistrationEditPage should render 1`] = `
             viewBox="0 0 24 24"
           >
             <path
-              d="M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"
+              d="M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6z"
             />
           </svg>
           <span
@@ -2578,7 +2578,7 @@ exports[`RegistrationEditPage should render 1`] = `
             viewBox="0 0 24 24"
           >
             <path
-              d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"
+              d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"
             />
           </svg>
         </span>
@@ -2600,7 +2600,7 @@ exports[`RegistrationEditPage should render 1`] = `
             viewBox="0 0 24 24"
           >
             <path
-              d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"
+              d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2m5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12z"
             />
           </svg>
         </span>

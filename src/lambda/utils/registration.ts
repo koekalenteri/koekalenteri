@@ -36,8 +36,8 @@ export function registrationEmailTemplateData(
   const invitationLink = `${origin}/r/${registration.eventId}/${registration.id}/invitation`
 
   return {
-    subject: t('registration.email.subject', { context }),
-    title: t('registration.email.title', { context }),
+    subject: t('registration.email.subject', { context, defaultValue: '' }),
+    title: t('registration.email.title', { context, defaultValue: '' }),
     dogBreed,
     link,
     event: confirmedEvent,

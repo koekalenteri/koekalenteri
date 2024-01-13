@@ -36,7 +36,9 @@ export default function EventCreatePage() {
       const saved = await actions.save(event)
       resetEvent()
       navigate(Path.admin.events)
-      enqueueSnackbar(t(`event.states.${saved.state ?? 'draft'}`, { context: 'save' }), { variant: 'info' })
+      enqueueSnackbar(t(`event.states.${saved.state ?? 'draft'}`, { context: 'save', defaultValue: '' }), {
+        variant: 'info',
+      })
     } catch (error) {
       console.error(error)
     }
