@@ -156,7 +156,7 @@ export default function EventListPage({ isDev }: Props) {
         />
         <AutoButton
           startIcon={<FormatListNumberedOutlined />}
-          disabled={!selectedEvent?.entries}
+          disabled={!selectedEventID}
           onClick={viewAction}
           text={t('registrations')}
         />
