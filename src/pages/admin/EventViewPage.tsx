@@ -29,13 +29,7 @@ import RegistrationEditDialog from './eventViewPage/RegistrationEditDialog'
 import SendMessageDialog from './eventViewPage/SendMessageDialog'
 import TabPanel from './eventViewPage/TabPanel'
 import Title from './eventViewPage/Title'
-import {
-  adminEventSelector,
-  adminRegistrationIdAtom,
-  eventClassAtom,
-  eventRegistrationsAtom,
-  eventTypeGroupsSelector,
-} from './recoil'
+import { adminEventSelector, adminRegistrationIdAtom, eventClassAtom, eventRegistrationsAtom } from './recoil'
 
 const REG_CLASSES = ['ALO', 'AVO', 'VOI']
 
@@ -53,7 +47,6 @@ export default function EventViewPage() {
   const eventId = params.id ?? ''
   const event = useRecoilValue(adminEventSelector(eventId))
 
-  const defaultGroups = useRecoilValue(eventTypeGroupsSelector(event?.eventType))
   const [selectedEventClass, setSelectedEventClass] = useRecoilState(eventClassAtom)
   const [selectedRegistrationId, setSelectedRegistrationId] = useRecoilState(adminRegistrationIdAtom)
   const allRegistrations = useRecoilValue(eventRegistrationsAtom(eventId))
