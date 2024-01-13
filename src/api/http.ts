@@ -65,9 +65,10 @@ async function httpWithTimeout<T>(path: string, init: RequestInit, reviveDates: 
         rum()?.recordError(e)
         console.error('json parsing failed', e)
       }
-      const message = json ?? text
-      enqueueSnackbar(`${response.status} ${message}`, { variant: 'error' })
-      throw new APIError(response, message)
+      if (response.status !== 404) {
+        enqueueSnackbar(`${response.status} ${text}`, { variant: 'error' })
+      }
+      throw new APIError(response, text)
     }
     const parsed = parseJSON(text, reviveDates)
     return parsed
