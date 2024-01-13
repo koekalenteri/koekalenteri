@@ -10,8 +10,6 @@ const { userTable, userLinkTable, organizerTable, emailFrom } = CONFIG
 
 const dynamoDB = new CustomDynamoClient(userLinkTable)
 
-let cache: JsonUser[] | undefined
-
 export const userIsMemberOf = (user: JsonUser): string[] =>
   Object.keys(user?.roles ?? {}).filter((orgId) => !!user?.roles?.[orgId])
 
@@ -30,39 +28,27 @@ export const filterRelevantUsers = (users: JsonUser[], user: JsonUser, orgs: str
       )
 }
 
-export async function getAllUsers(): Promise<JsonUser[]> {
-  if (!cache) {
-    cache = (await dynamoDB.readAll<JsonUser>(userTable)) ?? []
-  }
-  return cache
+export const getAllUsers = async (): Promise<JsonUser[]> => {
+  const users = await dynamoDB.readAll<JsonUser>(userTable)
+
+  return users ?? []
 }
 
-export async function findUserByEmail(email: string) {
-  const users = await getAllUsers()
+export const findUserByEmail = async (email: string): Promise<JsonUser | undefined> => {
+  const users = await dynamoDB.query<JsonUser>('email = :email', { ':email': email }, userTable, 'gsiEmail')
 
   return users?.find((user) => user.email === email)
 }
 
-export async function updateUser(user: JsonUser) {
-  await dynamoDB.write(user, userTable)
+export const updateUser = async (user: JsonUser) => dynamoDB.write(user, userTable)
 
-  if (cache) {
-    const idx = cache?.findIndex((u) => u.id === user.id)
-    if (idx >= 0) {
-      cache[idx] = user
-    } else {
-      cache.push(user)
-    }
-  }
-}
-
-export async function setUserRole(
+export const setUserRole = async (
   user: JsonUser,
   orgId: string,
   role: UserRole | 'none',
   modifiedBy: string,
   origin?: string
-): Promise<JsonUser> {
+): Promise<JsonUser> => {
   const t = i18n.getFixedT('fi')
   const roles = user.roles || {}
   if (role === 'none') {
@@ -88,16 +74,6 @@ export async function setUserRole(
     },
     userTable
   )
-
-  if (cache) {
-    const idx = cache?.findIndex((u) => u.id === user.id)
-    const updatedUser = { ...user, roles, modifiedAt: timestamp, modifiedBy }
-    if (idx >= 0) {
-      cache[idx] = updatedUser
-    } else {
-      cache.push(updatedUser)
-    }
-  }
 
   const org = await dynamoDB.read<Organizer>({ id: orgId }, organizerTable)
 
