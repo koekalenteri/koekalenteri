@@ -114,9 +114,13 @@ export default class KLAPI {
       return { status: 404 }
     }
     const result = await this.get<KLKoira>('Koira/Lue/Perustiedot', parametrit)
-    if (result.status === 200 && !result.json?.rekisterinumero) {
+    if (!result.json?.rekisterinumero) {
       console.warn('KLAPI returned json without rekisterinumero, converting to 404')
-      return { status: 404 }
+      return { status: 404, error: 'not found' }
+    }
+    if (result.json?.kuollut) {
+      console.warn('KLAPI returned json with kuollut -date, converting to 404')
+      return { status: 404, error: 'diseased' }
     }
     return result
   }
