@@ -2,7 +2,7 @@ import type { TooltipProps } from '@mui/material/Tooltip'
 import type { GridColDef, GridRowSelectionModel } from '@mui/x-data-grid'
 import type { User } from '../../types'
 
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import Accessibility from '@mui/icons-material/Accessibility'
 import AddCircleOutline from '@mui/icons-material/AddCircleOutline'
@@ -96,7 +96,13 @@ export default function UsersPage() {
   const isOrgAdmin = useRecoilValue(isOrgAdminSelector)
   const orgs = useRecoilValue(adminUsersOrganizersSelector)
   const [orgId, setOrgId] = useRecoilState(adminUsersOrganizerIdAtom)
-  const options = useMemo(() => [{ id: '', name: 'Kaikki' }, ...orgs], [orgs])
+  const options = useMemo(() => {
+    const userOrgs = user?.admin ? orgs : orgs.filter((o) => user?.roles?.[o.id])
+    if (userOrgs.length === 1) {
+      return userOrgs
+    }
+    return [{ id: '', name: 'Kaikki' }, ...userOrgs]
+  }, [orgs, user?.admin, user?.roles])
   const users = useRecoilValue(filteredAdminUsersSelector)
 
   const [selectedUserID, setSelectedUserID] = useRecoilState(adminUserIdAtom)
@@ -157,6 +163,12 @@ export default function UsersPage() {
     [setSelectedUserID]
   )
 
+  useEffect(() => {
+    if (options.length === 1 && orgId !== options[0].id) {
+      setOrgId(options[0].id)
+    }
+  }, [options, orgId, setOrgId])
+
   return (
     <>
       <FullPageFlex>
@@ -188,7 +200,7 @@ export default function UsersPage() {
               children: (
                 <Stack direction="row" mx={1} flex={1}>
                   <AutocompleteSingle
-                    disabled={orgs.length < 2}
+                    disabled={options.length < 2}
                     size="small"
                     options={options}
                     label={'Yhdistys'}
