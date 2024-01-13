@@ -42,7 +42,7 @@ const getDogHandler = metricScope(
             Kieli: KLKieli.Suomi,
           })
 
-          if (status === 200 && json) {
+          if (status === 200 && json && json.rekisterinumero) {
             // Cache
             item = {
               ...item, // keep refined info on refres
