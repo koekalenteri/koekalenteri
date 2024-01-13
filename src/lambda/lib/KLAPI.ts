@@ -95,11 +95,11 @@ export default class KLAPI {
           console.error('KLAPI not ok', status, error)
         }
       } catch (jse) {
-        console.error(jse)
+        console.error('KLAPI JSON expection', jse)
         console.log(status, JSON.stringify(res))
       }
     } catch (e: unknown) {
-      console.error(e)
+      console.error('KLAPI exception', e)
       if (e instanceof Error) {
         error = e.message
       }
@@ -113,7 +113,12 @@ export default class KLAPI {
     if (!parametrit.Rekisterinumero && !parametrit.Tunnistusmerkintä) {
       return { status: 404 }
     }
-    return this.get('Koira/Lue/Perustiedot', parametrit)
+    const result = await this.get<KLKoira>('Koira/Lue/Perustiedot', parametrit)
+    if (result.status === 200 && !result.json?.rekisterinumero) {
+      console.warn('KLAPI returned json without rekisterinumero, converting to 404')
+      return { status: 404 }
+    }
+    return result
   }
 
   async lueKoiranKoetulokset(parametrit: KLKoetulosParametrit): KLAPIResult<Array<KLKoetulos>> {
