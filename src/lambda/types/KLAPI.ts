@@ -42,12 +42,20 @@ export type KLKoira = {
    */
   tunnistusmerkintä: string
   nimi: string
+  kokonimi: string
   tittelit: string
   syntymäaika: string
+  kuollut: boolean
   sukupuoli: string
   rotukoodi: string
   rotunimi: string
   väri: string
+
+  // ?
+  id_Rotu: number
+  id_Sukupuoli: number
+  id_Alkuperä: number
+  id_Tila: number
 }
 
 export type KLKoemuotoParametrit = {
