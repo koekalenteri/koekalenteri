@@ -79,13 +79,20 @@ export default class KLAPI {
       try {
         if (res.ok) {
           json = (await res.json()) as T
+        } else {
+          console.error('KLAPI: !res.ok', {
+            headers: res.headers,
+            status: res.status,
+            statusText: res.statusText,
+            body: res.body,
+          })
         }
         if (json) {
           const time = Number((process.hrtime.bigint() - start) / 100000n) / 10
           console.log(`KLAPI response (in ${time}ms):` + JSON.stringify(json))
         } else {
           error = await res.text()
-          console.error('not ok', status, error)
+          console.error('KLAPI not ok', status, error)
         }
       } catch (jse) {
         console.error(jse)
@@ -97,6 +104,8 @@ export default class KLAPI {
         error = e.message
       }
     }
+
+    console.log('KPLAPI.get returning', { status, error, json })
     return { status, error, json }
   }
 
