@@ -33,16 +33,17 @@ import { filterRelevantResults, validateRegistration } from './registrationForm/
 import { AsyncButton } from './AsyncButton'
 
 interface Props {
-  readonly event: PublicConfirmedEvent
-  readonly registration: Registration
+  readonly admin?: boolean
+  readonly changes?: boolean
+  readonly classDate?: string
   readonly classDisabled?: boolean
   readonly className?: string
-  readonly classDate?: string
-  readonly changes?: boolean
   readonly disabled?: boolean
-  readonly onSave?: () => Promise<void>
+  readonly event: PublicConfirmedEvent
   readonly onCancel?: () => void
   readonly onChange?: (registration: Registration) => void
+  readonly onSave?: () => Promise<void>
+  readonly registration: Registration
 }
 
 export const emptyDog = {
@@ -62,16 +63,17 @@ export const emptyPerson = {
 }
 
 export default function RegistrationForm({
-  event,
+  admin,
+  changes,
+  classDate,
   classDisabled,
   className,
-  registration,
-  classDate,
-  changes,
   disabled,
-  onSave,
+  event,
   onCancel,
   onChange,
+  onSave,
+  registration,
 }: Props) {
   const { t } = useTranslation()
   const large = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
@@ -83,6 +85,11 @@ export default function RegistrationForm({
   const valid = errors.length === 0 && qualifies
   const isMember = registration.handler?.membership || registration.owner?.membership
   const paymentAmount = event.costMember && isMember ? event.costMember : event.cost
+  const ctaText = useMemo(() => {
+    if (registration.id) return 'Tallenna muutokset'
+    if (admin) return 'Vahvista ja lähetä maksulinkki'
+    return 'Vahvista ja siirry maksamaan'
+  }, [admin, registration.id])
 
   const requirements = useMemo(
     () =>
@@ -324,7 +331,7 @@ export default function RegistrationForm({
           startIcon={<CheckOutlined />}
           variant="contained"
         >
-          {registration.id ? 'Tallenna muutokset' : 'Vahvista ja siirry maksamaan'}
+          {ctaText}
         </AsyncButton>
         <Button startIcon={<Cancel />} variant="outlined" onClick={onCancel}>
           Peruuta

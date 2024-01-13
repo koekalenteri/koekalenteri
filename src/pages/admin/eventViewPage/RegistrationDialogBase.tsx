@@ -16,25 +16,27 @@ import RegistrationForm from '../../components/RegistrationForm'
 import { useAdminRegistrationActions } from '../recoil/registrations/actions'
 
 interface Props {
+  readonly admin?: boolean
+  readonly auditTrail?: AuditRecord[]
   readonly changes: boolean
   readonly classDisabled?: boolean
   readonly event: DogEvent
   readonly onClose?: () => void
   readonly open: boolean
   readonly registration?: Registration
-  readonly auditTrail?: AuditRecord[]
   readonly resetRegistration: Resetter
   readonly setRegistration: SetterOrUpdater<Registration | undefined>
 }
 
 export default function RegistrationDialogBase({
+  admin,
+  auditTrail,
   changes,
   classDisabled,
   event,
   onClose,
   open,
   registration,
-  auditTrail,
   resetRegistration,
   setRegistration,
 }: Props) {
@@ -104,13 +106,14 @@ export default function RegistrationDialogBase({
       <DialogTitle id="reg-dialog-title">{title}</DialogTitle>
       <DialogContent dividers sx={{ height: '100%', p: 0 }}>
         <RegistrationForm
-          event={event as ConfirmedEvent}
-          registration={registration}
+          admin={admin}
+          changes={changes}
           classDisabled={classDisabled}
-          onSave={handleSave}
+          event={event as ConfirmedEvent}
           onCancel={handleCancel}
           onChange={handleChange}
-          changes={changes}
+          onSave={handleSave}
+          registration={registration}
         />
         {auditTrail ? (
           <CollapsibleSection title={`Audit trail (${auditTrail.length})`} initOpen={false}>

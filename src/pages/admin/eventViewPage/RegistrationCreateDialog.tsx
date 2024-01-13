@@ -38,6 +38,7 @@ export default function RegistrationCreateDialog({ event, eventClass, open, onCl
 
   return (
     <RegistrationDialogBase
+      admin
       changes
       classDisabled
       event={event}
