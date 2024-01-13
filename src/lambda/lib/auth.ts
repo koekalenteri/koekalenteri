@@ -41,12 +41,15 @@ async function getOrCreateUserFromEvent(event?: Partial<APIGatewayProxyEvent>) {
   console.log('claims', event.requestContext.authorizer.claims)
 
   const link = await dynamoDB.read<UserLink>({ cognitoUser })
+  const { name, email } = event.requestContext.authorizer.claims
 
   if (link) {
     user = await dynamoDB.read<JsonUser>({ id: link.userId }, userTable)
+    if (user && !user.name && name) {
+      user = await getAndUpdateUserByEmail(email, { name })
+    }
   } else {
     // no user link found for the cognitoUser
-    const { name, email } = event.requestContext.authorizer.claims
 
     user = await getAndUpdateUserByEmail(email, { name })
     await dynamoDB.write({ cognitoUser, userId: user.id }, userLinkTable)
