@@ -1,4 +1,4 @@
-import type { ConfirmedEvent } from '../../types'
+import type { ConfirmedEvent } from '../types'
 
 export const emptyEvent: ConfirmedEvent = {
   classes: [{ class: 'ALO', date: new Date('1990-01-01') }],

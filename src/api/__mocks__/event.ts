@@ -2,6 +2,7 @@ import type { DogEvent, PublicDogEvent } from '../../types'
 
 import { parseISO } from 'date-fns'
 
+import { emptyEvent } from '../../__mockData__/emptyEvent'
 import {
   eventWithEntryClosed,
   eventWithEntryClosing,
@@ -12,7 +13,6 @@ import {
   eventWithStaticDatesAndClass,
 } from '../../__mockData__/events'
 import { sanitizeDogEvent } from '../../lib/event'
-import { emptyEvent } from '../test-utils/emptyEvent'
 
 export const mockEvents: DogEvent[] = [
   eventWithStaticDates,

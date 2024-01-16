@@ -2,7 +2,7 @@ import type { ConfirmedEvent } from '../types'
 
 import { addDays, parseISO, startOfDay } from 'date-fns'
 
-import { emptyEvent } from '../api/test-utils/emptyEvent'
+import { emptyEvent } from './emptyEvent'
 
 const today = startOfDay(new Date())
 

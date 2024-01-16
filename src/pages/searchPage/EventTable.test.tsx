@@ -6,8 +6,8 @@ import { render, screen } from '@testing-library/react'
 import { parseISO } from 'date-fns'
 import { RecoilRoot } from 'recoil'
 
+import { emptyEvent } from '../../__mockData__/emptyEvent'
 import { eventWithEntryOpen } from '../../__mockData__/events'
-import { emptyEvent } from '../../api/test-utils/emptyEvent'
 import theme from '../../assets/Theme'
 
 import { EventTable } from './EventTable'

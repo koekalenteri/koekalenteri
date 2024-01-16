@@ -6,7 +6,7 @@ import fetchMock from 'jest-fetch-mock'
 import { isEntryClosing, isEntryOpen, isEntryUpcoming } from '../lib/utils'
 import { API_BASE_URL } from '../routeConfig'
 
-import { emptyEvent } from './test-utils/emptyEvent'
+import { emptyEvent } from '../__mockData__/emptyEvent'
 import { getEvent, getEvents, putEvent } from './event'
 
 fetchMock.enableMocks()
