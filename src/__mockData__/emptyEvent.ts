@@ -1,4 +1,4 @@
-import type { ConfirmedEvent } from '../types'
+import type { ConfirmedEvent, JsonDogEvent } from '../types'
 
 export const emptyEvent: ConfirmedEvent = {
   classes: [{ class: 'ALO', date: new Date('1990-01-01') }],
@@ -48,3 +48,5 @@ export const emptyEvent: ConfirmedEvent = {
   startDate: new Date('1990-01-01'),
   state: 'confirmed' as const,
 }
+
+export const jsonEmptyEvent: JsonDogEvent = JSON.parse(JSON.stringify(emptyEvent))

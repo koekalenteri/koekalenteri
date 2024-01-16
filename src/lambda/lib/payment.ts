@@ -1,6 +1,7 @@
-import type { JsonTransaction } from '../../types'
+import type { DogEvent, JsonDogEvent, JsonTransaction, Language } from '../../types'
 import type { PaytrailCallbackParams } from '../types/paytrail'
 
+import { i18n } from '../../i18n/lambda'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
@@ -49,4 +50,18 @@ export const updateTransactionStatus = async (transactionId: string | undefined,
     },
     transactionTable
   )
+}
+
+export const paymentDescription = (
+  jsonEvent: Pick<JsonDogEvent | DogEvent, 'eventType' | 'startDate' | 'endDate' | 'name' | 'location'>,
+  language: Language
+) => {
+  const t = i18n.getFixedT(language)
+  const eventDate = t('dateFormat.datespan', {
+    start: jsonEvent.startDate,
+    end: jsonEvent.endDate,
+    noYear: true,
+  })
+
+  return [jsonEvent.eventType, eventDate, jsonEvent.location, jsonEvent.name].filter(Boolean).join(' ')
 }

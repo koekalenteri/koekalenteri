@@ -16,5 +16,5 @@
     "useUnknownInCatchVariables": true,
     "target": "es2022",
   },
-  "include": ["../i18n", "../lib", "./**/*.ts"]
+  "include": ["../i18n", "../lib", "../__mockData__", "./**/*.ts"]
 }
