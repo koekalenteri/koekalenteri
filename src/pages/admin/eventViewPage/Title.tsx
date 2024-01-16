@@ -12,7 +12,7 @@ export default function Title({ event }: { readonly event: DogEvent }) {
 
   return (
     <Typography variant="h5">
-      {event.eventType}, {t('daterange', { start: event.startDate, end: event.endDate })}, {event.location}
+      {event.eventType}, {t('dateFormat.datespan', { start: event.startDate, end: event.endDate })}, {event.location}
       <Box sx={{ display: 'inline-block', mx: 2, color: '#018786' }}>{title}</Box>
     </Typography>
   )

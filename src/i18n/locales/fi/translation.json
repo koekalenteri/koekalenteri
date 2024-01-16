@@ -18,6 +18,7 @@
   "date": "Aika",
   "dateFormat": {
     "date": "{{ date, date }}",
+    "datespan": "{{ start, datespan(end: undefined) }}",
     "distance": "{{ date, distance }}",
     "distanceLeft": "{{ date, distance }} jäljellä",
     "dtshort": "{{ date, dtshort }}",
@@ -32,7 +33,6 @@
     "short": "dd.MM."
   },
   "datemask": "__.__.____",
-  "daterange": "{{ start, datespan(end: undefined) }}",
   "daterangeBoth": "Tapahtumat ajalta",
   "daterangeEnd": "Tapahtumat päättyen",
   "daterangeStart": "Tapahtumat alkaen",

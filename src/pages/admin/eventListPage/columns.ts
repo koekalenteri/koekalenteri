@@ -22,7 +22,7 @@ export default function useEventListColumns(): GridColDef<EventWithDate>[] {
       width: 120,
       sortComparator: (a, b) => (b as StartEndDate).start.valueOf() - (a as StartEndDate).start.valueOf(),
       valueGetter: (params) => ({ start: params.row.startDate, end: params.row.endDate }),
-      valueFormatter: ({ value }) => t('daterange', value as StartEndDate),
+      valueFormatter: ({ value }) => t('dateFormat.datespan', value as StartEndDate),
       hideable: false,
     },
     {

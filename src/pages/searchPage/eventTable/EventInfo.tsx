@@ -74,7 +74,7 @@ export const EventInfo = ({ event }: Props) => {
             {t('entryTime')}:
           </TableCell>
           <TableCell>
-            {t('daterange', { start: event.entryStartDate, end: event.entryEndDate })}
+            {t('dateFormat.datespan', { start: event.entryStartDate, end: event.entryEndDate })}
             <span className="info">{status}</span>
             {isEntryOpen(event) ? t('dateFormat.distanceLeft', { date: event.entryEndDate }) : ''}
           </TableCell>

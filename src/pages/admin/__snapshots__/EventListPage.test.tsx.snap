@@ -1239,9 +1239,9 @@ exports[`EventListPage renders 1`] = `
                     <div
                       class="MuiDataGrid-cellContent"
                       role="presentation"
-                      title="daterange"
+                      title="dateFormat.datespan"
                     >
-                      daterange
+                      dateFormat.datespan
                     </div>
                   </div>
                   <div
@@ -1447,9 +1447,9 @@ exports[`EventListPage renders 1`] = `
                     <div
                       class="MuiDataGrid-cellContent"
                       role="presentation"
-                      title="daterange"
+                      title="dateFormat.datespan"
                     >
-                      daterange
+                      dateFormat.datespan
                     </div>
                   </div>
                   <div
@@ -1655,9 +1655,9 @@ exports[`EventListPage renders 1`] = `
                     <div
                       class="MuiDataGrid-cellContent"
                       role="presentation"
-                      title="daterange"
+                      title="dateFormat.datespan"
                     >
-                      daterange
+                      dateFormat.datespan
                     </div>
                   </div>
                   <div
@@ -1863,9 +1863,9 @@ exports[`EventListPage renders 1`] = `
                     <div
                       class="MuiDataGrid-cellContent"
                       role="presentation"
-                      title="daterange"
+                      title="dateFormat.datespan"
                     >
-                      daterange
+                      dateFormat.datespan
                     </div>
                   </div>
                   <div

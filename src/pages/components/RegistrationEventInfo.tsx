@@ -23,7 +23,7 @@ interface Props {
 export default function RegistrationEventInfo({ event, invitationAttachment }: Props) {
   const { t } = useTranslation()
   const status = useEventStatus(event)
-  const title = `${event.eventType} ${t('daterange', { start: event.startDate, end: event.endDate })} ${
+  const title = `${event.eventType} ${t('dateFormat.datespan', { start: event.startDate, end: event.endDate })} ${
     event.location + (event.name ? ` (${event.name})` : '')
   }`
 
@@ -41,7 +41,7 @@ export default function RegistrationEventInfo({ event, invitationAttachment }: P
               {t('entryTime')}:
             </Grid>
             <Grid item xs={8} sx={{ '& .info': { px: 1 } }}>
-              <b>{t('daterange', { start: event.entryStartDate, end: event.entryEndDate })}</b>&nbsp;
+              <b>{t('dateFormat.datespan', { start: event.entryStartDate, end: event.entryEndDate })}</b>&nbsp;
               <span className="info">{status}</span>
             </Grid>
             <Grid item xs={4}>

@@ -41,7 +41,7 @@ export const EventTableRow = ({ event }: Props) => {
   }, [event])
 
   const infoText = isEntryUpcoming(event)
-    ? t('daterange', { start: event.entryStartDate, end: event.entryEndDate })
+    ? t('dateFormat.datespan', { start: event.entryStartDate, end: event.entryEndDate })
     : null
 
   return (
@@ -69,7 +69,7 @@ export const EventTableRow = ({ event }: Props) => {
           <Grid item container xs onClick={handleClick} spacing={1}>
             <Grid item container xs={12} md={6} justifyContent="flex-start" spacing={1}>
               <Grid item xs={1.5}>
-                {t('daterange', { start: event.startDate, end: event.endDate })}
+                {t('dateFormat.datespan', { start: event.startDate, end: event.endDate })}
               </Grid>
               <Grid item xs={3}>
                 {event.eventType}

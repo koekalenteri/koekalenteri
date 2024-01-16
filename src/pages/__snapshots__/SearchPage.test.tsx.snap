@@ -1227,7 +1227,7 @@ exports[`SearchPage filters by date 1`] = `
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-1.5 css-nad1t9-MuiGrid-root"
                   >
-                    daterange
+                    dateFormat.datespan
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 css-19p55ea-MuiGrid-root"
@@ -1301,7 +1301,7 @@ exports[`SearchPage filters by date 1`] = `
                         <td
                           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                         >
-                          daterange
+                          dateFormat.datespan
                           <span
                             class="info"
                           />
@@ -1471,7 +1471,7 @@ exports[`SearchPage filters by date 1`] = `
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-1.5 css-nad1t9-MuiGrid-root"
                   >
-                    daterange
+                    dateFormat.datespan
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 css-19p55ea-MuiGrid-root"
@@ -1547,7 +1547,7 @@ exports[`SearchPage filters by date 1`] = `
                         <td
                           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                         >
-                          daterange
+                          dateFormat.datespan
                           <span
                             class="info"
                           />
@@ -1810,7 +1810,7 @@ exports[`SearchPage filters by date 1`] = `
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-1.5 css-nad1t9-MuiGrid-root"
                   >
-                    daterange
+                    dateFormat.datespan
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 css-19p55ea-MuiGrid-root"
@@ -1886,7 +1886,7 @@ exports[`SearchPage filters by date 1`] = `
                         <td
                           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                         >
-                          daterange
+                          dateFormat.datespan
                           <span
                             class="info"
                           />
@@ -2184,7 +2184,7 @@ exports[`SearchPage filters by date 1`] = `
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-1.5 css-nad1t9-MuiGrid-root"
                   >
-                    daterange
+                    dateFormat.datespan
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 css-19p55ea-MuiGrid-root"
@@ -2260,7 +2260,7 @@ exports[`SearchPage filters by date 1`] = `
                         <td
                           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                         >
-                          daterange
+                          dateFormat.datespan
                           <span
                             class="info"
                           />
@@ -3089,7 +3089,7 @@ exports[`SearchPage filters by date/end 1`] = `
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-1.5 css-nad1t9-MuiGrid-root"
                   >
-                    daterange
+                    dateFormat.datespan
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 css-19p55ea-MuiGrid-root"
@@ -3163,7 +3163,7 @@ exports[`SearchPage filters by date/end 1`] = `
                         <td
                           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                         >
-                          daterange
+                          dateFormat.datespan
                           <span
                             class="info"
                           />
@@ -3333,7 +3333,7 @@ exports[`SearchPage filters by date/end 1`] = `
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-1.5 css-nad1t9-MuiGrid-root"
                   >
-                    daterange
+                    dateFormat.datespan
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 css-19p55ea-MuiGrid-root"
@@ -3409,7 +3409,7 @@ exports[`SearchPage filters by date/end 1`] = `
                         <td
                           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                         >
-                          daterange
+                          dateFormat.datespan
                           <span
                             class="info"
                           />
@@ -3672,7 +3672,7 @@ exports[`SearchPage filters by date/end 1`] = `
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-1.5 css-nad1t9-MuiGrid-root"
                   >
-                    daterange
+                    dateFormat.datespan
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 css-19p55ea-MuiGrid-root"
@@ -3748,7 +3748,7 @@ exports[`SearchPage filters by date/end 1`] = `
                         <td
                           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                         >
-                          daterange
+                          dateFormat.datespan
                           <span
                             class="info"
                           />
@@ -4046,7 +4046,7 @@ exports[`SearchPage filters by date/end 1`] = `
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-1.5 css-nad1t9-MuiGrid-root"
                   >
-                    daterange
+                    dateFormat.datespan
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 css-19p55ea-MuiGrid-root"
@@ -4122,7 +4122,7 @@ exports[`SearchPage filters by date/end 1`] = `
                         <td
                           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                         >
-                          daterange
+                          dateFormat.datespan
                           <span
                             class="info"
                           />
@@ -4996,7 +4996,7 @@ exports[`SearchPage filters by event class 1`] = `
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-1.5 css-nad1t9-MuiGrid-root"
                   >
-                    daterange
+                    dateFormat.datespan
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 css-19p55ea-MuiGrid-root"
@@ -5072,7 +5072,7 @@ exports[`SearchPage filters by event class 1`] = `
                         <td
                           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                         >
-                          daterange
+                          dateFormat.datespan
                           <span
                             class="info"
                           />
@@ -5370,7 +5370,7 @@ exports[`SearchPage filters by event class 1`] = `
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-1.5 css-nad1t9-MuiGrid-root"
                   >
-                    daterange
+                    dateFormat.datespan
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 css-19p55ea-MuiGrid-root"
@@ -5446,7 +5446,7 @@ exports[`SearchPage filters by event class 1`] = `
                         <td
                           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                         >
-                          daterange
+                          dateFormat.datespan
                           <span
                             class="info"
                           />
@@ -5674,7 +5674,7 @@ exports[`SearchPage filters by event class 1`] = `
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-1.5 css-nad1t9-MuiGrid-root"
                   >
-                    daterange
+                    dateFormat.datespan
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 css-19p55ea-MuiGrid-root"
@@ -5750,7 +5750,7 @@ exports[`SearchPage filters by event class 1`] = `
                         <td
                           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                         >
-                          daterange
+                          dateFormat.datespan
                           <span
                             class="info"
                           />
@@ -6026,7 +6026,7 @@ exports[`SearchPage filters by event class 1`] = `
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-1.5 css-nad1t9-MuiGrid-root"
                   >
-                    daterange
+                    dateFormat.datespan
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 css-19p55ea-MuiGrid-root"
@@ -6068,7 +6068,7 @@ exports[`SearchPage filters by event class 1`] = `
                     <div
                       class="MuiBox-root css-bmuutb"
                     >
-                      daterange
+                      dateFormat.datespan
                     </div>
                   </div>
                 </div>
@@ -6104,7 +6104,7 @@ exports[`SearchPage filters by event class 1`] = `
                         <td
                           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                         >
-                          daterange
+                          dateFormat.datespan
                           <span
                             class="info"
                           />
@@ -6978,7 +6978,7 @@ exports[`SearchPage filters by event type 1`] = `
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-1.5 css-nad1t9-MuiGrid-root"
                   >
-                    daterange
+                    dateFormat.datespan
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 css-19p55ea-MuiGrid-root"
@@ -7054,7 +7054,7 @@ exports[`SearchPage filters by event type 1`] = `
                         <td
                           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                         >
-                          daterange
+                          dateFormat.datespan
                           <span
                             class="info"
                           />
@@ -7317,7 +7317,7 @@ exports[`SearchPage filters by event type 1`] = `
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-1.5 css-nad1t9-MuiGrid-root"
                   >
-                    daterange
+                    dateFormat.datespan
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 css-19p55ea-MuiGrid-root"
@@ -7393,7 +7393,7 @@ exports[`SearchPage filters by event type 1`] = `
                         <td
                           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                         >
-                          daterange
+                          dateFormat.datespan
                           <span
                             class="info"
                           />
@@ -7691,7 +7691,7 @@ exports[`SearchPage filters by event type 1`] = `
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-1.5 css-nad1t9-MuiGrid-root"
                   >
-                    daterange
+                    dateFormat.datespan
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 css-19p55ea-MuiGrid-root"
@@ -7767,7 +7767,7 @@ exports[`SearchPage filters by event type 1`] = `
                         <td
                           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                         >
-                          daterange
+                          dateFormat.datespan
                           <span
                             class="info"
                           />
@@ -7995,7 +7995,7 @@ exports[`SearchPage filters by event type 1`] = `
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-1.5 css-nad1t9-MuiGrid-root"
                   >
-                    daterange
+                    dateFormat.datespan
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 css-19p55ea-MuiGrid-root"
@@ -8071,7 +8071,7 @@ exports[`SearchPage filters by event type 1`] = `
                         <td
                           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                         >
-                          daterange
+                          dateFormat.datespan
                           <span
                             class="info"
                           />
@@ -8993,7 +8993,7 @@ exports[`SearchPage filters by organizer 1`] = `
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-1.5 css-nad1t9-MuiGrid-root"
                   >
-                    daterange
+                    dateFormat.datespan
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-3 css-19p55ea-MuiGrid-root"
@@ -9069,7 +9069,7 @@ exports[`SearchPage filters by organizer 1`] = `
                         <td
                           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
                         >
-                          daterange
+                          dateFormat.datespan
                           <span
                             class="info"
                           />

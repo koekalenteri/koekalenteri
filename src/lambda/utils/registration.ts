@@ -20,7 +20,7 @@ export function registrationEmailTemplateData(
 ) {
   const t = i18n.getFixedT(registration.language)
 
-  const eventDate = t('daterange', { start: confirmedEvent.startDate, end: confirmedEvent.endDate })
+  const eventDate = t('dateFormat.datespan', { start: confirmedEvent.startDate, end: confirmedEvent.endDate })
   const reserveText = t(`registration.reserveChoises.${registration.reserve || 'ANY'}`)
   const dogBreed = registration.dog.breedCode ? t(`${registration.dog.breedCode}`, { ns: 'breed' }) : '?'
   const regDates = registration.dates
