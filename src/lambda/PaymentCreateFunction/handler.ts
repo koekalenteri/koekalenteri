@@ -10,6 +10,7 @@ import { CONFIG } from '../config'
 import { getOrigin } from '../lib/auth'
 import { parseJSONWithFallback } from '../lib/json'
 import { debugProxyEvent } from '../lib/log'
+import { paymentDescription } from '../lib/payment'
 import { createPayment } from '../lib/paytrail'
 import { splitName } from '../lib/string'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
@@ -81,7 +82,8 @@ const createHandler = metricScope(
               unitPrice: amount,
               units: 1,
               vatPercentage: 0,
-              productCode: 'registration',
+              productCode: eventId,
+              description: paymentDescription(jsonEvent, 'fi'),
               stamp: nanoid(),
               reference: registrationId,
               merchant: organizer.paytrailMerchantId,
