@@ -39,9 +39,10 @@ export const getDateFormatter =
 export function formatDateSpan(
   start: Date | string,
   lng: string | undefined,
-  { end }: { end: Date | string },
+  { end, noYear }: { end: Date | string; noYear?: boolean },
   tz = 'Europe/Helsinki'
 ): string {
+  const y = noYear ? '' : 'yyyy'
   if (typeof start === 'string') {
     start = parseISO(start)
   }
@@ -55,15 +56,15 @@ export function formatDateSpan(
     end = start
   }
   if (isSameDay(start, end)) {
-    return formatInTimeZone(start, tz, 'd.M.yyyy')
+    return formatInTimeZone(start, tz, `d.M.${y}`)
   }
   if (isSameMonth(start, end)) {
-    return formatInTimeZone(start, tz, 'd.') + '–' + formatInTimeZone(end, tz, 'd.M.yyyy')
+    return formatInTimeZone(start, tz, 'd.') + '–' + formatInTimeZone(end, tz, `d.M.${y}`)
   }
   if (isSameYear(start, end)) {
-    return formatInTimeZone(start, tz, 'd.M.') + '–' + formatInTimeZone(end, tz, 'd.M.yyyy')
+    return formatInTimeZone(start, tz, 'd.M.') + '–' + formatInTimeZone(end, tz, `d.M.${y}`)
   }
-  return formatInTimeZone(start, tz, 'd.M.yyyy') + '–' + formatInTimeZone(end, tz, 'd.M.yyyy')
+  return formatInTimeZone(start, tz, `d.M.${y}`) + '–' + formatInTimeZone(end, tz, `d.M.${y}`)
 }
 
 export function formatDistance(date?: Date, lng?: string): string {
