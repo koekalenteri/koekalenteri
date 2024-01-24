@@ -19,12 +19,6 @@ const getIdToken = async (): Promise<string | undefined> => {
 export const idTokenAtom = atom<string | undefined>({
   key: 'idToken',
   default: getIdToken(),
-  effects: [logEffect],
-})
-
-export const greetAtom = atom<boolean>({
-  key: 'greet',
-  default: true,
   effects: [logEffect, storageEffect],
 })
 

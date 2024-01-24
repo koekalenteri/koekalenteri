@@ -1,11 +1,14 @@
 import { useCallback } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Auth } from '@aws-amplify/auth'
-import { useRecoilState, useSetRecoilState } from 'recoil'
+import { enqueueSnackbar } from 'notistack'
+import { useRecoilCallback, useRecoilState, useSetRecoilState } from 'recoil'
 
 import { Path } from '../../../routeConfig'
+import { adminEventsAtom } from '../../admin/recoil'
 
 import { idTokenAtom, loginPathAtom } from './atoms'
+import { userSelector } from './selectors'
 
 export const useUserActions = () => {
   const location = useLocation()
@@ -18,24 +21,31 @@ export const useUserActions = () => {
     navigate(Path.login, { replace: true })
   }, [location.pathname, navigate, setLoginPath])
 
-  const signIn = useCallback(
-    (idToken: string) => {
-      setIdToken(idToken)
-      console.log(loginPath)
-      navigate(loginPath ?? Path.home, { replace: true })
-    },
+  const signIn = useRecoilCallback(
+    ({ snapshot }) =>
+      async (idToken: string) => {
+        setIdToken(idToken)
+        const user = await snapshot.getPromise(userSelector)
+        enqueueSnackbar(`Tervetuloa, ${user?.name || user?.email}!`, { variant: 'info' })
+        navigate(loginPath ?? Path.home, { replace: true })
+      },
     [loginPath, navigate, setIdToken]
   )
 
-  const signOut = useCallback(() => {
-    Auth.signOut().then(
-      () => {
-        setIdToken(undefined)
-        navigate(Path.home, { replace: true })
+  const signOut = useRecoilCallback(
+    ({ reset }) =>
+      async () => {
+        try {
+          reset(idTokenAtom)
+          reset(adminEventsAtom)
+          enqueueSnackbar('Heippa!', { variant: 'info' })
+          return Auth.signOut()
+        } catch (e) {
+          console.error(e)
+        }
       },
-      (reason) => console.error(reason)
-    )
-  }, [navigate, setIdToken])
+    []
+  )
 
   return { login, signIn, signOut }
 }
