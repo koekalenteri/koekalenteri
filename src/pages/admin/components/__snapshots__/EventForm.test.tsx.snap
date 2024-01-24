@@ -535,7 +535,7 @@ exports[`EventForm should render 1`] = `
                                 tabindex="-1"
                               >
                                 <div
-                                  class="MuiAvatar-root MuiAvatar-circular MuiAvatar-colorDefault MuiChip-avatar MuiChip-avatarSmall MuiChip-avatarColorDefault css-y9emw0-MuiAvatar-root"
+                                  class="MuiAvatar-root MuiAvatar-circular MuiAvatar-colorDefault MuiChip-avatar MuiChip-avatarSmall MuiChip-avatarColorDefault css-aohovk-MuiAvatar-root"
                                 >
                                   eeeeee
                                 </div>
@@ -551,7 +551,7 @@ exports[`EventForm should render 1`] = `
                                 tabindex="-1"
                               >
                                 <div
-                                  class="MuiAvatar-root MuiAvatar-circular MuiAvatar-colorDefault MuiChip-avatar MuiChip-avatarSmall MuiChip-avatarColorDefault css-f29i27-MuiAvatar-root"
+                                  class="MuiAvatar-root MuiAvatar-circular MuiAvatar-colorDefault MuiChip-avatar MuiChip-avatarSmall MuiChip-avatarColorDefault css-dg0oqv-MuiAvatar-root"
                                 >
                                   eeeeee
                                 </div>
