@@ -14,7 +14,7 @@ export const parseStorageJSON = (value: string | null) => {
   return parsed
 }
 
-export const storageEffect: AtomEffect<any> = ({ node, setSelf, onSet, trigger }) => {
+export const storageEffect: AtomEffect<any> = ({ node, setSelf, onSet, trigger, resetSelf }) => {
   if (trigger === 'get') {
     const savedValue = localStorage.getItem(node.key)
     if (savedValue !== null) {
@@ -34,7 +34,11 @@ export const storageEffect: AtomEffect<any> = ({ node, setSelf, onSet, trigger }
   const handleStorageChange = (e: StorageEvent) => {
     if (e.storageArea === localStorage && e.key === node.key) {
       const parsed = parseStorageJSON(e.newValue)
-      setSelf(parsed)
+      if (parsed === undefined) {
+        resetSelf()
+      } else {
+        setSelf(parsed)
+      }
     }
   }
 
