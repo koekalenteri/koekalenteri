@@ -26,7 +26,10 @@ export const useUserActions = () => {
       async (idToken: string) => {
         setIdToken(idToken)
         const user = await snapshot.getPromise(userSelector)
-        enqueueSnackbar(`Tervetuloa, ${user?.name || user?.email}!`, { variant: 'info' })
+        const nameOrEmail = user?.name ?? user?.email
+        if (nameOrEmail) {
+          enqueueSnackbar(`Tervetuloa, ${nameOrEmail}!`, { variant: 'info' })
+        }
         navigate(loginPath ?? Path.home, { replace: true })
       },
     [loginPath, navigate, setIdToken]
