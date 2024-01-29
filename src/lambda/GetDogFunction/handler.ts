@@ -81,7 +81,7 @@ const getDogHandler = metricScope(
               }
               item.results = res
             } else {
-              console.error('lueKoiranKoetulokset failedß: ', JSON.stringify(results))
+              console.error('lueKoiranKoetulokset failed: ', JSON.stringify(results))
             }
 
             await dynamoDB.write(item)
