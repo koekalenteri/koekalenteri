@@ -7,7 +7,7 @@ import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import FormHelperText from '@mui/material/FormHelperText'
 import Grid from '@mui/material/Grid'
-import { sub } from 'date-fns'
+import { endOfDay, startOfDay, sub } from 'date-fns'
 
 import { PRIORITY, priorityValuesToPriority } from '../../../../lib/priority'
 import AutocompleteMulti from '../../../components/AutocompleteMulti'
@@ -26,7 +26,10 @@ export default function EntrySection(props: Readonly<SectionProps>) {
 
   const handleDateChange = useCallback(
     (start: DateValue, end: DateValue) =>
-      onChange?.({ entryStartDate: start ?? undefined, entryEndDate: end ?? undefined }),
+      onChange?.({
+        entryStartDate: start ? startOfDay(start) : undefined,
+        entryEndDate: end ? endOfDay(end) : undefined,
+      }),
     [onChange]
   )
   const handlePriorityChange = useCallback(

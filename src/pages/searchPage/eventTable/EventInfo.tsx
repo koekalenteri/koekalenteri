@@ -6,6 +6,7 @@ import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
 import TableRow from '@mui/material/TableRow'
+import { endOfDay } from 'date-fns'
 
 import useEventStatus from '../../../hooks/useEventStatus'
 import { judgeName } from '../../../lib/judge'
@@ -76,7 +77,7 @@ export const EventInfo = ({ event }: Props) => {
           <TableCell>
             {t('dateFormat.datespan', { start: event.entryStartDate, end: event.entryEndDate })}
             <span className="info">{status}</span>
-            {isEntryOpen(event) ? t('dateFormat.distanceLeft', { date: event.entryEndDate }) : ''}
+            {isEntryOpen(event) ? t('dateFormat.distanceLeft', { date: endOfDay(event.entryEndDate!) }) : ''}
           </TableCell>
         </TableRow>
         {event.classes.length !== 0 && <EventClassRow key={event.id + 'classes'} event={event} />}
