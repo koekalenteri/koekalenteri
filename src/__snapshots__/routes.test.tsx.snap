@@ -163,5 +163,19 @@ exports[`routes should match a snapshot 1`] = `
     "element": <TermsPage />,
     "path": "terms",
   },
+  {
+    "element": <Navigate
+      replace={true}
+      to="/"
+    />,
+    "path": "frmEtusivu.aspx",
+  },
+  {
+    "element": <Navigate
+      replace={true}
+      to="/"
+    />,
+    "path": "frmKalenteri.aspx",
+  },
 ]
 `;

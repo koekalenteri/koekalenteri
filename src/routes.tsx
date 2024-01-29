@@ -175,6 +175,15 @@ const routes: RouteObject[] = [
     path: 'terms',
     element: <TermsPage />,
   },
+  // Move users with old bookmarks to front page
+  {
+    path: 'frmEtusivu.aspx',
+    element: <Navigate to="/" replace />,
+  },
+  {
+    path: 'frmKalenteri.aspx',
+    element: <Navigate to="/" replace />,
+  },
 ]
 
 export default routes
