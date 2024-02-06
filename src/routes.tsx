@@ -181,6 +181,10 @@ const routes: RouteObject[] = [
     element: <Navigate to="/" replace />,
   },
   {
+    path: 'frmKoekalenteri.aspx',
+    element: <Navigate to="/" replace />,
+  },
+  {
     path: 'frmKalenteri.aspx',
     element: <Navigate to="/" replace />,
   },

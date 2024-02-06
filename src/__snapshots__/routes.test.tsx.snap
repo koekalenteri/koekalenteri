@@ -175,6 +175,13 @@ exports[`routes should match a snapshot 1`] = `
       replace={true}
       to="/"
     />,
+    "path": "frmKoekalenteri.aspx",
+  },
+  {
+    "element": <Navigate
+      replace={true}
+      to="/"
+    />,
     "path": "frmKalenteri.aspx",
   },
 ]
