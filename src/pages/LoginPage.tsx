@@ -1,17 +1,20 @@
 import { useEffect } from 'react'
+import { I18n } from '@aws-amplify/core'
 import { Authenticator, useAuthenticator } from '@aws-amplify/ui-react'
 import Box from '@mui/material/Box'
 import { fetchAuthSession } from 'aws-amplify/auth'
+import { useRecoilValue } from 'recoil'
 
 import Header from './components/Header'
 import { useUserActions } from './recoil/user/actions'
+import { languageAtom } from './recoil'
 
 import '@aws-amplify/ui-react/styles.css'
 
 export function LoginPage() {
   const { route } = useAuthenticator((context) => [context.route])
   const actions = useUserActions()
-  // const language = useRecoilValue(languageAtom)
+  const language = useRecoilValue(languageAtom)
 
   useEffect(() => {
     if (route === 'authenticated') {
@@ -24,11 +27,9 @@ export function LoginPage() {
     }
   }, [actions, route])
 
-  /*
   useEffect(() => {
     I18n.setLanguage(language)
   }, [language])
-  */
 
   return (
     <>
@@ -44,7 +45,7 @@ export function LoginPage() {
         }}
       >
         <Authenticator
-          // key={`authenticator-${language}`}
+          key={`authenticator-${language}`}
           socialProviders={['google' /*, 'facebook'*/]}
           loginMechanisms={['email']}
         />
