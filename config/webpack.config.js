@@ -308,6 +308,7 @@ module.exports = function (webpackEnv) {
               loader: require.resolve('esbuild-loader'),
               options: {
                 target: 'es2020',
+                tsconfigRaw: '',
               },
             },
             // "css" loader resolves paths in CSS and adds assets as dependencies.

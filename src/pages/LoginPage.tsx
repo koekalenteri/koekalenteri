@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { fetchAuthSession } from '@aws-amplify/auth'
 import { Authenticator, useAuthenticator } from '@aws-amplify/ui-react'
 
 import { useUserActions } from './recoil/user/actions'
@@ -6,17 +7,19 @@ import { useUserActions } from './recoil/user/actions'
 import '@aws-amplify/ui-react/styles.css'
 
 export function LoginPage() {
-  const { user, route } = useAuthenticator((context) => [context.user, context.route])
+  const { route } = useAuthenticator((context) => [context.route])
   const actions = useUserActions()
 
   useEffect(() => {
     if (route === 'authenticated') {
-      const token = user.getSignInUserSession()?.getIdToken().getJwtToken()
-      if (token) {
-        actions.signIn(token)
-      }
+      fetchAuthSession().then((session) => {
+        const token = session.tokens?.idToken?.toString()
+        if (token) {
+          actions.signIn(token)
+        }
+      })
     }
-  }, [actions, route, user])
+  }, [actions, route])
 
   return <Authenticator socialProviders={['google' /*, 'facebook'*/]} loginMechanisms={['email']} />
 }

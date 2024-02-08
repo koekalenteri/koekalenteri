@@ -2,7 +2,12 @@ import type { User, UserRole } from '../types'
 
 import http, { withToken } from './http'
 
-export async function getUser(token: string, signal?: AbortSignal) {
+let getUserController: AbortController
+export async function getUser(token: string) {
+  if (getUserController) getUserController.abort()
+  getUserController = new AbortController()
+  const signal = getUserController.signal
+
   return http.get<User>('/user', withToken({ signal }, token))
 }
 

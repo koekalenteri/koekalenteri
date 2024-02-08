@@ -1,6 +1,6 @@
 import type { Language } from '../../../types'
 
-import { Auth } from '@aws-amplify/auth'
+import { fetchAuthSession } from 'aws-amplify/auth'
 import { atom, atomFamily } from 'recoil'
 
 import { logEffect, storageEffect, stringStorageEffect } from '../effects'
@@ -9,9 +9,10 @@ import { i18nextEffect } from './effects'
 
 const getIdToken = async (): Promise<string | undefined> => {
   try {
-    const user = await Auth.currentAuthenticatedUser()
-    return user?.getSignInUserSession()?.getIdToken().getJwtToken()
+    const session = await fetchAuthSession()
+    return session.tokens?.idToken?.toString()
   } catch (e) {
+    console.error('getIdToken', e)
     return
   }
 }

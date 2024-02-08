@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { Auth } from '@aws-amplify/auth'
+import { signOut as awsSignOut } from 'aws-amplify/auth'
 import { enqueueSnackbar } from 'notistack'
 import { useRecoilCallback, useRecoilState, useSetRecoilState } from 'recoil'
 
@@ -42,7 +42,7 @@ export const useUserActions = () => {
           reset(idTokenAtom)
           reset(adminEventsAtom)
           enqueueSnackbar('Heippa!', { variant: 'info' })
-          return Auth.signOut()
+          return awsSignOut()
         } catch (e) {
           console.error(e)
         }

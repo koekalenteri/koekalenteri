@@ -2,11 +2,11 @@ import type { SnackbarKey } from 'notistack'
 
 import { Suspense, useCallback } from 'react'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-import { Auth } from '@aws-amplify/auth'
 import { Authenticator } from '@aws-amplify/ui-react'
 import { createTheme, ThemeProvider } from '@mui/material/styles'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
+import { Amplify } from 'aws-amplify'
 import { ConfirmProvider } from 'material-ui-confirm'
 import { SnackbarProvider } from 'notistack'
 import { useRecoilValue } from 'recoil'
@@ -19,7 +19,7 @@ import { locales, muiLocales } from './i18n'
 import routes from './routes'
 
 try {
-  Auth.configure(AWSConfig)
+  Amplify.configure(AWSConfig)
 } catch (e) {
   console.error(e)
 }

@@ -11,7 +11,8 @@ import { DataMemoryRouter, flushPromises } from '../../test-utils/utils'
 
 import AdminHomePage from './AdminHomePage'
 
-jest.mock('@aws-amplify/auth', () => require('../global-mocks/auth/idle'))
+jest.mock('../../api/user', () => ({ getUser: () => undefined }))
+jest.mock('aws-amplify/auth', () => require('../global-mocks/auth/idle'))
 jest.mock('@aws-amplify/ui-react', () => require('../global-mocks/auth/idle'))
 
 describe('AdminHomePage', () => {

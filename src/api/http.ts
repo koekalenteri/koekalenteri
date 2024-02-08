@@ -1,3 +1,4 @@
+import { fetchAuthSession } from 'aws-amplify/auth'
 import { enqueueSnackbar } from 'notistack'
 
 import { rum } from '../lib/client/rum'
@@ -65,10 +66,10 @@ async function httpWithTimeout<T>(path: string, init: RequestInit, reviveDates: 
         rum()?.recordError(e)
         console.error('json parsing failed', e)
       }
-      if (response.status !== 404) {
+      if (![401, 404].includes(response.status)) {
         enqueueSnackbar(`${response.status} ${text}`, { variant: 'error' })
       }
-      throw new APIError(response, text)
+      throw new APIError(response, json)
     }
     const parsed = parseJSON(text, reviveDates)
     return parsed
@@ -94,9 +95,22 @@ async function http<T>(path: string, init: RequestInit, reviveDates: boolean = t
     if (!(err instanceof APIError)) {
       enqueueSnackbar(`${err}`, { variant: 'error' })
     } else if (err.status === 401) {
-      // reload if token has expired
       const msg = err.body?.message ?? err.body ?? err.message
-      if (msg == 'The incoming token has expired') window.location.reload()
+      if (msg == 'The incoming token has expired' && init.headers && 'Authorization' in init.headers) {
+        // token expired, try to refresh
+        const session = await fetchAuthSession({ forceRefresh: true })
+        const idToken = session.tokens?.idToken?.toString()
+        if (idToken) {
+          const key = 'idToken'
+          const newValue = JSON.stringify(idToken)
+          localStorage.setItem(key, newValue)
+          dispatchEvent(new StorageEvent('storage', { storageArea: localStorage, key, newValue }))
+          // retry with new token after a little delay
+          await new Promise((resolve) => setTimeout(resolve, 50))
+          init = withToken(init, idToken)
+          return http<T>(path, init, reviveDates)
+        }
+      }
     }
 
     console.error(err)

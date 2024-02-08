@@ -1,4 +1,3 @@
-import { Auth } from '@aws-amplify/auth'
 import { selector } from 'recoil'
 
 import { getUser } from '../../../api/user'
@@ -10,7 +9,9 @@ export const userSelector = selector({
   get: async ({ get }) => {
     try {
       const token = get(idTokenAtom)
-      return token ? await getUser(token) : null
+      if (!token) return null
+
+      return getUser(token)
     } catch (e) {
       console.error(e)
     }
@@ -30,23 +31,6 @@ export const userSelector = selector({
    *    the number of unique values of all dependencies.
    *  * Note the default eviction policy (currently keep-all) may change in the future.
    **/
-  cachePolicy_UNSTABLE: {
-    eviction: 'most-recent',
-  },
-})
-
-export const accessTokenSelector = selector({
-  key: 'accessToken',
-  get: async () => {
-    try {
-      const user = await Auth.currentAuthenticatedUser()
-      return user?.getSignInUserSession()?.getAccessToken().getJwtToken()
-    } catch (e) {
-      if (e !== 'The user is not authenticated') {
-        console.error(e, typeof e)
-      }
-    }
-  },
   cachePolicy_UNSTABLE: {
     eviction: 'most-recent',
   },

@@ -37,9 +37,6 @@ export const Authenticator = ({ children }: { readonly children: React.ReactNode
 
 Authenticator.Provider = Provider
 
-export const Auth = {
-  signOut: () => undefined,
-  currentAuthenticatedUser: async () => {
-    throw new Error('The user is not authenticated')
-  },
-}
+export const signOut = () => undefined
+export const getCurrentUser = async () => mockUser
+export const fetchAuthSession = async () => ({ tokens: { idToken: { toString: () => 'id-token' } } })
