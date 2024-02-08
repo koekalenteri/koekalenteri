@@ -11,6 +11,7 @@ import { DataMemoryRouter } from '../test-utils/utils'
 import { LoginPage } from './LoginPage'
 
 jest.mock('@aws-amplify/ui-react', () => require('./global-mocks/auth/idle'))
+jest.mock('./components/Header', () => () => <>HEADER</>)
 
 describe('LoginPage', () => {
   it('should render the login page mock when user is not logged in', () => {
@@ -36,6 +37,7 @@ describe('LoginPage', () => {
         </ThemeProvider>
       </RecoilRoot>
     )
+
     expect(container).toMatchSnapshot()
   })
 })
