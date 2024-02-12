@@ -151,6 +151,11 @@ export default function UsersPage() {
       flex: 1,
       headerName: t('district'),
     },
+    {
+      field: 'lastSeen',
+      flex: 1,
+      headerName: t('user.lastSeen'),
+    },
   ]
 
   const createAction = useCallback(() => setCreateOpen(true), [])

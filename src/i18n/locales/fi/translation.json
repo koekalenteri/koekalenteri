@@ -354,6 +354,7 @@
       "title": "Käyttäjän [{{user.name}}] roolien muokkaus",
       "terms": "Katso tarkemmat peruutusehdot <2>säännöistä</2>"
     },
+    "lastSeen": "Viimeinen kirjautuminen",
     "roles": {
       "admin": "Yhdistyksen pääkäyttäjä",
       "secretary": "Koesihteeri"
