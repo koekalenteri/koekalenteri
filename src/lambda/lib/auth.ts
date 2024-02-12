@@ -46,12 +46,12 @@ async function getOrCreateUserFromEvent(event?: Partial<APIGatewayProxyEvent>) {
   if (link) {
     user = await dynamoDB.read<JsonUser>({ id: link.userId }, userTable)
     if (user && !user.name && name) {
-      user = await getAndUpdateUserByEmail(email, { name })
+      user = await getAndUpdateUserByEmail(email, { name }, false, true)
     }
   } else {
     // no user link found for the cognitoUser
 
-    user = await getAndUpdateUserByEmail(email, { name })
+    user = await getAndUpdateUserByEmail(email, { name }, false, true)
     await dynamoDB.write({ cognitoUser, userId: user.id }, userLinkTable)
     console.log('added user link', { cognitoUser, userId: user.id })
   }
@@ -62,17 +62,19 @@ export async function getAndUpdateUserByEmail(
   rawEmail: string,
   props: Omit<Partial<JsonUser>, 'id' | 'email'>,
   updateName?: boolean,
-  modifiedBy: string = 'system'
+  updateLastSeen?: boolean
 ) {
+  const modifiedBy = 'system'
+  const dateString = new Date().toISOString()
   const email = rawEmail.toLocaleLowerCase()
   const existing = await findUserByEmail(email)
   const newUser: JsonUser = {
     id: nanoid(10),
     name: '',
     email,
-    createdAt: new Date().toISOString(),
+    createdAt: dateString,
     createdBy: modifiedBy,
-    modifiedAt: new Date().toISOString(),
+    modifiedAt: dateString,
     modifiedBy,
   }
 
@@ -87,11 +89,11 @@ export async function getAndUpdateUserByEmail(
     existing.name = changes.name ?? ''
   }
 
-  const final: JsonUser = { ...newUser, ...existing, ...changes }
+  const final: JsonUser = { ...newUser, ...existing, ...changes, ...(updateLastSeen ? { lastSeen: dateString } : {}) }
   if (Object.keys(diff(existing ?? {}, final)).length > 0) {
     if (existing) console.log('updating user', { existing, final })
     else console.log('creating user', { ...final })
-    await updateUser({ ...final, modifiedAt: new Date().toISOString(), modifiedBy })
+    await updateUser({ ...final, modifiedAt: dateString, modifiedBy })
   }
   return final
 }

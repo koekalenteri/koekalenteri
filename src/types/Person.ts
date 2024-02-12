@@ -52,13 +52,14 @@ export interface User extends Person, Partial<DbRecord> {
   officer?: string[]
   roles?: UserRoles
   admin?: boolean
+  lastSeen?: Date
 }
 
 export interface UserWithRoles extends User {
   roles: UserRoles
 }
 
-export type JsonUser = Omit<User, keyof DbRecord> & JsonDbRecord
+export type JsonUser = Omit<User, keyof DbRecord | 'lastSeen'> & JsonDbRecord & { lastSeen?: string }
 
 export interface UserRoles {
   [organizer: string]: UserRole
