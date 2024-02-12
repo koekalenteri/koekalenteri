@@ -14,7 +14,7 @@ jobs:
       frontend: ${{ steps.filter.outputs.frontend }}
     steps:
       - uses: actions/checkout@v4
-      - uses: dorny/paths-filter@v2
+      - uses: dorny/paths-filter@v3
         id: filter
         with:
           base: ${{ github.ref }}
@@ -44,7 +44,7 @@ jobs:
           cache-dependency-path: package-lock.json
       - name: Cache node_modules
         id: cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: node_modules
           key: ${{ runner.os }}-${{ hashFiles('package-lock.json') }}
@@ -64,7 +64,7 @@ jobs:
           cache-dependency-path: package-lock.json
       - name: Cache node_modules
         id: cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: node_modules
           key: ${{ runner.os }}-${{ hashFiles('package-lock.json') }}
@@ -87,7 +87,7 @@ jobs:
           mkdir -p coverage
           mv src/lambda/coverage/lcov.info coverage/lcov.info
       - name: Cache coverage report
-        uses: actions/cache/save@v3
+        uses: actions/cache/save@v4
         with:
           path: coverage/lcov.info
           key: ${{ github.ref_name }}-backend-coverage-${{ github.run_id }}
@@ -104,7 +104,7 @@ jobs:
           cache-dependency-path: package-lock.json
       - name: Cache node_modules
         id: cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: node_modules
           key: ${{ runner.os }}-${{ hashFiles('package-lock.json') }}
@@ -134,7 +134,7 @@ jobs:
           cache-dependency-path: package-lock.json
       - name: Restore node_modules
         id: cache-restore
-        uses: actions/cache/restore@v3
+        uses: actions/cache/restore@v4
         with:
           path: node_modules
           key: ${{ runner.os }}-${{ hashFiles('package-lock.json') }}
@@ -163,7 +163,7 @@ jobs:
           name: frontend-coverage
           path: coverage
       - name: Cache frotnend coverage reports
-        uses: actions/cache/save@v3
+        uses: actions/cache/save@v4
         with:
           path: coverage
           key: ${{ github.ref_name }}-frontend-coverage-${{ github.run_id }}
@@ -259,18 +259,18 @@ jobs:
           cache-dependency-path: package-lock.json
       - name: Restore node_modules
         id: cache-restore
-        uses: actions/cache/restore@v3
+        uses: actions/cache/restore@v4
         with:
           path: node_modules
           key: ${{ runner.os }}-${{ hashFiles('package-lock.json') }}
       - name: Download frontend coverage
-        uses: actions/cache/restore@v3
+        uses: actions/cache/restore@v4
         with:
           path: coverage
           key: ${{ github.ref_name }}-frontend-coverage
           restore-keys: ${{ github.ref_name }}-frontend-coverage
       - name: Download backend coverage
-        uses: actions/cache/restore@v3
+        uses: actions/cache/restore@v4
         with:
           path: coverage/lcov.info
           key: ${{ github.ref_name }}-backend-coverage
