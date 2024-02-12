@@ -83,7 +83,7 @@ const successHandler = metricScope(
                 ...receiptData,
                 ...transaction,
                 createdAt: t('dateFormat.long', { date: transaction.createdAt }),
-                amount,
+                amount: `${amount},00 €`,
               })
             } catch (e) {
               // this is not fatal
