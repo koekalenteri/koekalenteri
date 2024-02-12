@@ -392,7 +392,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
               />
             </svg>
           </span>
-          Starttilista
+          Katso sihteerin starttilista
           <span
             class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
           />
@@ -4523,7 +4523,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
               />
             </svg>
           </span>
-          Starttilista
+          Katso sihteerin starttilista
           <span
             class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
           />

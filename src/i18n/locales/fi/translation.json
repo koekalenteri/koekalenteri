@@ -14,7 +14,7 @@
   "copyTest": "Kopioi ilmoineen",
   "create": "Lisää uusi",
   "createEvent": "Uusi tapahtuma",
-  "createRegistration": "Uusi ilmoittautuminen",
+  "createRegistration": "Lisää uusi ilmoittautuminen",
   "date": "Aika",
   "dateFormat": {
     "date": "{{ date, date }}",

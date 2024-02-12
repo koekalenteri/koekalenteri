@@ -118,7 +118,7 @@ export default function EventViewPage() {
           </Button>
           <Divider orientation="vertical"></Divider>
           <Button startIcon={<FormatListNumberedOutlined />} href={Path.admin.startList(eventId)} target="_blank">
-            Starttilista
+            Katso sihteerin starttilista
           </Button>
           <Divider orientation="vertical"></Divider>
           <Button
