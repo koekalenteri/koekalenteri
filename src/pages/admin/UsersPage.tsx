@@ -142,7 +142,7 @@ export default function UsersPage() {
     },
     {
       field: 'email',
-      flex: 1,
+      flex: 2,
       headerName: t('contact.email'),
       minWidth: 150,
     },
@@ -153,8 +153,11 @@ export default function UsersPage() {
     },
     {
       field: 'lastSeen',
+      minWidth: 150,
       flex: 1,
       headerName: t('user.lastSeen'),
+      valueFormatter: (params) => t('dateFormat.long', { date: params.value }),
+      align: 'center',
     },
   ]
 

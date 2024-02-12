@@ -756,7 +756,7 @@ exports[`OrganizerListPage renders 1`] = `
                   <div
                     aria-colindex="5"
                     aria-colspan="1"
-                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft MuiDataGrid-withBorderColor"
+                    class="MuiDataGrid-cell MuiDataGrid-cell--textCenter MuiDataGrid-withBorderColor"
                     data-colindex="4"
                     data-field="lastSeen"
                     role="cell"
@@ -766,7 +766,10 @@ exports[`OrganizerListPage renders 1`] = `
                     <div
                       class="MuiDataGrid-cellContent"
                       role="presentation"
-                    />
+                      title="dd.MM.yyyy"
+                    >
+                      dd.MM.yyyy
+                    </div>
                   </div>
                 </div>
               </div>
