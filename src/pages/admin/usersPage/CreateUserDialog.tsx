@@ -97,7 +97,7 @@ export function CreateUserDialog({ onClose, open }: Props) {
       </DialogContent>
       <DialogActions>
         <Button onClick={onSave} variant="contained" disabled={!org || !role || !email || !name}>
-          Tallenna
+          {t('user.createDialog.cta')}
         </Button>
         <Button onClick={onClose} variant="outlined">
           Peruuta

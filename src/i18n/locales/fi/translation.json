@@ -340,13 +340,13 @@
     "admin": "Koekalenterin pääkäyttäjä",
     "adminRoles": "Koekalenterin pääkäyttäjällä on pääkäyttäjä-oikeus kaikkiin yhdistyksiin",
     "createDialog": {
-      "cta": "Lisää käyttäjä",
+      "cta": "Tallenna",
       "done": "Käyttäjä lisätty",
       "email": "Sähköposti",
       "name": "Nimi (etunimi sukunimi)",
       "organization": "Yhdistys",
       "role": "Rooli",
-      "title": "Käyttäjän lisäys"
+      "title": "Lisää uusi käyttäjärooli"
     },
     "editRolesDialog": {
       "cta": "Tallenna roolit",
