@@ -45,7 +45,7 @@ async function getOrCreateUserFromEvent(event?: Partial<APIGatewayProxyEvent>) {
 
   if (link) {
     user = await dynamoDB.read<JsonUser>({ id: link.userId }, userTable)
-    if (user && !user.name && name) {
+    if (user) {
       user = await getAndUpdateUserByEmail(email, { name }, false, true)
     }
   } else {
