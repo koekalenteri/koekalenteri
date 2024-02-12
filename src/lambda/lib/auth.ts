@@ -18,13 +18,13 @@ const { userTable, userLinkTable } = CONFIG
 
 const dynamoDB = new CustomDynamoClient(userLinkTable)
 
-export async function authorize(event?: Partial<APIGatewayProxyEvent>) {
-  const user = await getOrCreateUserFromEvent(event)
+export async function authorize(event?: Partial<APIGatewayProxyEvent>, updateLastSeen?: boolean) {
+  const user = await getOrCreateUserFromEvent(event, updateLastSeen)
 
   return user
 }
 
-async function getOrCreateUserFromEvent(event?: Partial<APIGatewayProxyEvent>) {
+async function getOrCreateUserFromEvent(event?: Partial<APIGatewayProxyEvent>, updateLastSeen?: boolean) {
   let user: JsonUser | undefined
 
   if (!event?.requestContext?.authorizer?.claims) {
@@ -46,12 +46,12 @@ async function getOrCreateUserFromEvent(event?: Partial<APIGatewayProxyEvent>) {
   if (link) {
     user = await dynamoDB.read<JsonUser>({ id: link.userId }, userTable)
     if (user) {
-      user = await getAndUpdateUserByEmail(email, { name }, false, true)
+      user = await getAndUpdateUserByEmail(email, { name }, false, updateLastSeen)
     }
   } else {
     // no user link found for the cognitoUser
 
-    user = await getAndUpdateUserByEmail(email, { name }, false, true)
+    user = await getAndUpdateUserByEmail(email, { name }, false, updateLastSeen)
     await dynamoDB.write({ cognitoUser, userId: user.id }, userLinkTable)
     console.log('added user link', { cognitoUser, userId: user.id })
   }
@@ -89,7 +89,12 @@ export async function getAndUpdateUserByEmail(
     existing.name = changes.name ?? ''
   }
 
-  const final: JsonUser = { ...newUser, ...existing, ...changes, ...(updateLastSeen ? { lastSeen: dateString } : {}) }
+  const final: JsonUser = {
+    ...newUser,
+    ...existing,
+    ...changes,
+    ...(updateLastSeen ? { lastSeen: dateString } : {}),
+  }
   if (Object.keys(diff(existing ?? {}, final)).length > 0) {
     if (existing) console.log('updating user', { existing, final })
     else console.log('creating user', { ...final })

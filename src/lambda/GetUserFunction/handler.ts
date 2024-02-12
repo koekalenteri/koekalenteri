@@ -12,7 +12,7 @@ const getUserHandler = metricScope(
   (metrics: MetricsLogger) =>
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
       try {
-        const user = await authorize(event)
+        const user = await authorize(event, true)
         if (!user) {
           return response(401, 'Unauthorized', event)
         }
