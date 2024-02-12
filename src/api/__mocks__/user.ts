@@ -7,10 +7,6 @@ const MOCK_ADMIN: User = {
   admin: true,
 }
 
-export async function getUser(token: string, signal?: AbortSignal) {
-  return MOCK_ADMIN
-}
+export const getUser = async (token: string, signal?: AbortSignal) => MOCK_ADMIN
 
-export async function getUsers(token: string, signal?: AbortSignal) {
-  return [MOCK_ADMIN]
-}
+export const getUsers = async (token: string, signal?: AbortSignal) => [MOCK_ADMIN]

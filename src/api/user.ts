@@ -2,30 +2,21 @@ import type { User, UserRole } from '../types'
 
 import http, { withToken } from './http'
 
-let getUserController: AbortController
-export async function getUser(token: string) {
-  if (getUserController) getUserController.abort()
-  getUserController = new AbortController()
-  const signal = getUserController.signal
+export const getUser = async (token: string, signal?: AbortSignal) =>
+  http.get<User>('/user', withToken({ signal }, token))
 
-  return http.get<User>('/user', withToken({ signal }, token))
-}
+export const getUsers = async (token: string, signal?: AbortSignal) =>
+  http.get<User[]>('/admin/user', withToken({ signal }, token))
 
-export async function getUsers(token: string, signal?: AbortSignal) {
-  return http.get<User[]>('/admin/user', withToken({ signal }, token))
-}
+export const putUser = async (user: User, token?: string, signal?: AbortSignal): Promise<User> =>
+  http.post<User, User>('/admin/user', user, withToken({ signal }, token))
 
-export async function putUser(user: User, token?: string, signal?: AbortSignal): Promise<User> {
-  return http.post<User, User>('/admin/user', user, withToken({ signal }, token))
-}
-
-export async function putAdmin(
+export const putAdmin = async (
   item: { userId: string; admin: boolean },
   token: string | undefined,
   signal?: AbortSignal
-): Promise<User> {
-  return http.post<{ userId: string; admin: boolean }, User>('/admin/user/admin', item, withToken({ signal }, token))
-}
+): Promise<User> =>
+  http.post<{ userId: string; admin: boolean }, User>('/admin/user/admin', item, withToken({ signal }, token))
 
 export interface RoleItem {
   userId: string
@@ -33,6 +24,5 @@ export interface RoleItem {
   role: UserRole | 'none'
 }
 
-export async function putRole(item: RoleItem, token: string | undefined, signal?: AbortSignal): Promise<User> {
-  return http.post<RoleItem, User>('/admin/user/role', item, withToken({ signal }, token))
-}
+export const putRole = async (item: RoleItem, token: string | undefined, signal?: AbortSignal): Promise<User> =>
+  http.post<RoleItem, User>('/admin/user/role', item, withToken({ signal }, token))
