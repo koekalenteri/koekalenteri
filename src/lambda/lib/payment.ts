@@ -10,6 +10,9 @@ import { getPaytrailConfig } from './secrets'
 
 const { transactionTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(transactionTable)
+const moneyFormatter = Intl.NumberFormat('fi-FI', { style: 'currency', currency: 'EUR' })
+
+export const formatMoney = (amount: number) => moneyFormatter.format(amount)
 
 export const parseParams = (headers: Partial<PaytrailCallbackParams>) => {
   const [eventId, registrationId] = headers['checkout-reference']?.split(':') ?? []

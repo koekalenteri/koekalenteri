@@ -12,7 +12,7 @@ import { audit, registrationAuditKey } from '../lib/audit'
 import { sendTemplatedMail } from '../lib/email'
 import { updateRegistrations } from '../lib/event'
 import { debugProxyEvent } from '../lib/log'
-import { parseParams, updateTransactionStatus, verifyParams } from '../lib/payment'
+import { formatMoney, parseParams, updateTransactionStatus, verifyParams } from '../lib/payment'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { metricsError, metricsSuccess } from '../utils/metrics'
 import { emailTo, registrationEmailTemplateData } from '../utils/registration'
@@ -83,7 +83,7 @@ const successHandler = metricScope(
                 ...receiptData,
                 ...transaction,
                 createdAt: t('dateFormat.long', { date: transaction.createdAt }),
-                amount: `${amount},00 €`,
+                amount: formatMoney(amount),
               })
             } catch (e) {
               // this is not fatal
