@@ -1,4 +1,6 @@
+import * as awsAuth from 'aws-amplify/auth'
 import fetchMock from 'jest-fetch-mock'
+import { enqueueSnackbar } from 'notistack'
 
 import { API_BASE_URL } from '../routeConfig'
 
@@ -6,7 +8,7 @@ import http from './http'
 
 fetchMock.enableMocks()
 jest.mock('notistack', () => ({
-  enqueueSnackbar: () => undefined,
+  enqueueSnackbar: jest.fn(),
 }))
 
 const mockConsoleError = jest.spyOn(console, 'error').mockImplementation()
@@ -41,6 +43,86 @@ describe('http', () => {
       await expect(http.get('/test/')).rejects.toThrow('500 Shit hit the fan!')
       expect(mockConsoleError).toHaveBeenCalled()
     })
+
+    it('should abort on pre-aborted signal', async () => {
+      fetchMock.mockResponseOnce(() => new Promise((resolve) => setTimeout(resolve, 5_000)))
+
+      const controller = new AbortController()
+      controller.abort('because')
+
+      const promise = http.get('/somewhere', { signal: controller.signal })
+
+      expect(promise).rejects.toEqual(expect.objectContaining({ name: 'AbortError' }))
+    })
+
+    it('should abort on post-aborted signal', async () => {
+      fetchMock.mockResponseOnce(() => new Promise((resolve) => setTimeout(resolve, 5_000)))
+
+      const controller = new AbortController()
+
+      const promise = http.get('/somewhere', { signal: controller.signal })
+      controller.abort('because')
+
+      expect(promise).rejects.toEqual(expect.objectContaining({ name: 'AbortError' }))
+    })
+
+    it.each([401, 404])('should not show a snackbar with status %p', async (status) => {
+      fetchMock.mockResponse('fail', { status, statusText: 'status text' })
+
+      const promise = http.get('/somewhere')
+
+      expect(promise).rejects.toEqual(expect.objectContaining({ status, statusText: 'status text' }))
+      expect(enqueueSnackbar).not.toHaveBeenCalled()
+    })
+
+    it('should timeout', async () => {
+      jest.useFakeTimers()
+
+      fetchMock.mockResponseOnce(() => new Promise((resolve) => setTimeout(resolve, 20_000)))
+
+      const promise = http.get('/test/')
+
+      jest.advanceTimersByTime(10_000)
+
+      await Promise.resolve()
+      expect(promise).rejects.toEqual(expect.objectContaining({ status: 408, statusText: 'timeout' }))
+
+      jest.runOnlyPendingTimers()
+      jest.useRealTimers()
+    })
+
+    it('should refresh token with 401 / The incoming token has expired', async () => {
+      fetchMock.mockResponseOnce('The incoming token has expired', {
+        status: 401,
+        statusText: 'access denied',
+      })
+
+      fetchMock.mockResponseOnce(JSON.stringify('success!'), {
+        status: 200,
+        statusText: 'ok',
+      })
+
+      jest
+        .spyOn(awsAuth, 'fetchAuthSession')
+        .mockResolvedValueOnce({ tokens: { idToken: { toString: () => 'fresh token' } } } as any)
+
+      const response = await http.get('/secure', { headers: { Authorization: 'asdf' } })
+
+      expect(response).toEqual('success!')
+    })
+
+    it('should throw if refreshing tokens fail', async () => {
+      fetchMock.mockResponseOnce('The incoming token has expired', {
+        status: 401,
+        statusText: 'access denied',
+      })
+
+      jest.spyOn(awsAuth, 'fetchAuthSession').mockResolvedValueOnce({})
+
+      const response = http.get('/secure', { headers: { Authorization: 'asdf' } })
+
+      expect(response).rejects.toEqual(expect.objectContaining({ status: 401, statusText: 'access denied' }))
+    })
   })
 
   describe('post', () => {
@@ -66,6 +148,33 @@ describe('http', () => {
 
       await expect(http.post('/test/', {})).rejects.toThrow('500 Shit hit the fan!')
       expect(mockConsoleError).toHaveBeenCalled()
+    })
+  })
+
+  describe('postRaw', () => {
+    it('should specify "POST" as method', async () => {
+      fetchMock.mockResponse((req) =>
+        req.method === 'POST'
+          ? Promise.resolve(JSON.stringify('ok'))
+          : Promise.reject(new Error(`${req.method} !== 'POST'`))
+      )
+
+      const json = await http.postRaw('/test/', 'body')
+
+      expect(json).toEqual('ok')
+      expect(fetchMock.mock.calls.length).toEqual(1)
+      expect(fetchMock.mock.calls[0][0]).toEqual(API_BASE_URL + '/test/')
+    })
+
+    it('should throw status + statusText', async () => {
+      fetchMock.mockResponse('fail', {
+        status: 500,
+        statusText: 'Shit hit the fan!',
+      })
+
+      await expect(http.put('/test/', {})).rejects.toThrow('500 Shit hit the fan!')
+      expect(mockConsoleError).toHaveBeenCalled()
+      expect(enqueueSnackbar).toHaveBeenCalledWith('500 fail', { variant: 'error' })
     })
   })
 
