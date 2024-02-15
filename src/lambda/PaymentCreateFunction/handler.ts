@@ -1,11 +1,16 @@
 import type { MetricsLogger } from 'aws-embedded-metrics'
 import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
-import type { CreatePaymentResponse, JsonConfirmedEvent, JsonTransaction, Organizer } from '../../types'
+import type {
+  CreatePaymentResponse,
+  JsonConfirmedEvent,
+  JsonRegistration,
+  JsonTransaction,
+  Organizer,
+} from '../../types'
 
 import { metricScope } from 'aws-embedded-metrics'
 import { nanoid } from 'nanoid'
 
-import { type JsonRegistration } from '../../types'
 import { CONFIG } from '../config'
 import { getOrigin } from '../lib/auth'
 import { parseJSONWithFallback } from '../lib/json'

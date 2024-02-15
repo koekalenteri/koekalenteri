@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import type { Registration } from '../../../types'
 
 import { render } from '@testing-library/react'
 import { SnackbarProvider } from 'notistack'
@@ -7,7 +8,6 @@ import { RecoilRoot } from 'recoil'
 import { eventWithStaticDatesAnd3Classes } from '../../../__mockData__/events'
 import { registrationWithStaticDates, registrationWithStaticDatesCancelled } from '../../../__mockData__/registrations'
 import { flushPromises } from '../../../test-utils/utils'
-import { type Registration } from '../../../types'
 
 import ClassEntrySelection from './ClassEntrySelection'
 

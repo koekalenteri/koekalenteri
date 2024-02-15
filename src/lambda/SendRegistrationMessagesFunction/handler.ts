@@ -1,8 +1,9 @@
+import type { MetricsLogger } from 'aws-embedded-metrics'
 import type { APIGatewayProxyEvent } from 'aws-lambda'
 import type { AWSError } from 'aws-sdk'
 import type { JsonConfirmedEvent, JsonRegistration, RegistrationMessage } from '../../types'
 
-import { metricScope, type MetricsLogger } from 'aws-embedded-metrics'
+import { metricScope } from 'aws-embedded-metrics'
 
 import { CONFIG } from '../config'
 import { authorize, getOrigin } from '../lib/auth'

@@ -1,12 +1,11 @@
 import type { MetricsLogger } from 'aws-embedded-metrics'
 import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import type { AWSError } from 'aws-sdk'
-import type { JsonDogEvent } from '../../types'
+import type { JsonDogEvent, JsonRegistration } from '../../types'
 
 import { metricScope } from 'aws-embedded-metrics'
 import { unescape } from 'querystring'
 
-import { type JsonRegistration } from '../../types'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { metricsError, metricsSuccess } from '../utils/metrics'

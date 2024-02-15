@@ -1,4 +1,5 @@
-import { type ReactNode } from 'react'
+import type { ReactNode } from 'react'
+
 import { MemoryRouter } from 'react-router-dom'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'

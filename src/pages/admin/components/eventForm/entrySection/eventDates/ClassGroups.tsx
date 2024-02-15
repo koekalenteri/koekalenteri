@@ -1,6 +1,6 @@
 import type { AutocompleteChangeReason } from '@mui/material'
 import type { SyntheticEvent } from 'react'
-import type { RegistrationDate } from '../../../../../../types'
+import type { RegistrationClass, RegistrationDate } from '../../../../../../types'
 import type { SectionProps } from '../../../EventForm'
 
 import { useCallback, useMemo } from 'react'
@@ -9,7 +9,6 @@ import Box from '@mui/material/Box'
 import Stack from '@mui/material/Stack'
 import { useRecoilValue } from 'recoil'
 
-import { type RegistrationClass } from '../../../../../../types'
 import AutocompleteMulti from '../../../../../components/AutocompleteMulti'
 import { eventTypeGroupsSelector } from '../../../../recoil'
 

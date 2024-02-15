@@ -1,12 +1,11 @@
 import type { MetricsLogger } from 'aws-embedded-metrics'
 import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
-import type { JsonTransaction } from '../../types'
+import type { JsonRegistration, JsonTransaction } from '../../types'
 import type { PaytrailCallbackParams } from '../types/paytrail'
 
 import { metricScope } from 'aws-embedded-metrics'
 
 import { i18n } from '../../i18n/lambda'
-import { type JsonRegistration } from '../../types'
 import { CONFIG } from '../config'
 import { audit, registrationAuditKey } from '../lib/audit'
 import { sendTemplatedMail } from '../lib/email'

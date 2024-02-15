@@ -2,6 +2,7 @@ import type { Theme } from '@mui/material'
 import type { SyntheticEvent } from 'react'
 import type { Organizer, PublicJudge, RegistrationClass } from '../../types'
 import type { DateValue } from '../components/DateRange'
+import type { FilterProps } from '../recoil'
 
 import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -20,7 +21,7 @@ import Typography from '@mui/material/Typography'
 import { HEADER_HEIGHT } from '../../assets/Theme'
 import AutocompleteMulti from '../components/AutocompleteMulti'
 import DateRange from '../components/DateRange'
-import { type FilterProps, filterString } from '../recoil'
+import { filterString } from '../recoil'
 
 interface Props {
   readonly eventTypes: string[]

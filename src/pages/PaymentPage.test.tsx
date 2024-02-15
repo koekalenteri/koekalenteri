@@ -1,7 +1,8 @@
+import type { RouteObject } from 'react-router-dom'
 import type { CreatePaymentResponse } from '../types'
 
 import { Suspense } from 'react'
-import { defer, type RouteObject, useParams } from 'react-router-dom'
+import { defer, useParams } from 'react-router-dom'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'

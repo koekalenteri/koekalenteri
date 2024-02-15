@@ -1,4 +1,6 @@
-import { type Params, redirect } from 'react-router-dom'
+import type { Params } from 'react-router-dom'
+
+import { redirect } from 'react-router-dom'
 
 import { getEvent } from '../api/event'
 import { getRegistration, putRegistration } from '../api/registration'
