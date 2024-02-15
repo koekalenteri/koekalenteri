@@ -66,7 +66,7 @@ exports[`EventTypeListPage renders 1`] = `
         aria-colcount="4"
         aria-multiselectable="false"
         aria-rowcount="2"
-        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1fah1r6-MuiDataGrid-root"
+        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1tkh069-MuiDataGrid-root"
         role="grid"
       >
         <div

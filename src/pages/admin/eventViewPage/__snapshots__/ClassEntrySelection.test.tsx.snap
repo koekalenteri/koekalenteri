@@ -16,7 +16,7 @@ exports[`ClassEntrySelection renders 1`] = `
       aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1uvbkxf-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-nq23a5-MuiDataGrid-root"
       role="grid"
     >
       <div
@@ -511,7 +511,7 @@ exports[`ClassEntrySelection renders 1`] = `
       aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-ahon5c-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1mnrq8f-MuiDataGrid-root"
       role="grid"
     >
       <div
@@ -1022,7 +1022,7 @@ exports[`ClassEntrySelection renders 1`] = `
       aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-ahon5c-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1mnrq8f-MuiDataGrid-root"
       role="grid"
     >
       <div
@@ -1538,7 +1538,7 @@ exports[`ClassEntrySelection renders 1`] = `
       aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-ahon5c-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1mnrq8f-MuiDataGrid-root"
       role="grid"
     >
       <div
@@ -2044,7 +2044,7 @@ exports[`ClassEntrySelection renders 1`] = `
       aria-colcount="10"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-ahon5c-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1mnrq8f-MuiDataGrid-root"
       role="grid"
     >
       <div
@@ -2631,7 +2631,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
       aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1uvbkxf-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-nq23a5-MuiDataGrid-root"
       role="grid"
     >
       <div
@@ -3126,7 +3126,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
       aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-ahon5c-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1mnrq8f-MuiDataGrid-root"
       role="grid"
     >
       <div
@@ -3637,7 +3637,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
       aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="1"
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-ahon5c-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1mnrq8f-MuiDataGrid-root"
       role="grid"
     >
       <div
@@ -4153,7 +4153,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
       aria-colcount="9"
       aria-multiselectable="false"
       aria-rowcount="2"
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-ahon5c-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1mnrq8f-MuiDataGrid-root"
       role="grid"
     >
       <div
@@ -4914,7 +4914,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
       aria-colcount="10"
       aria-multiselectable="false"
       aria-rowcount="2"
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-ahon5c-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1mnrq8f-MuiDataGrid-root"
       role="grid"
     >
       <div
