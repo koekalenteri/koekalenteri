@@ -104,7 +104,7 @@ function getAuditMessage(
   data: JsonRegistration,
   existing?: JsonRegistration
 ): string {
-  if (cancel) return 'Ilmoittautuminen peruttuun'
+  if (cancel) return 'Ilmoittautuminen peruttiin'
   if (confirm) return 'Ilmoittautumisen vahvistus'
   if (!existing) return ''
 
