@@ -1783,6 +1783,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                               >
                                 <img
                                   alt="Finland"
+                                  class="MuiTelInput-FlagImg"
                                   loading="lazy"
                                   src="https://flagcdn.com/w40/fi.webp"
                                   width="26"
@@ -2163,6 +2164,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                                     >
                                       <img
                                         alt="Finland"
+                                        class="MuiTelInput-FlagImg"
                                         loading="lazy"
                                         src="https://flagcdn.com/w40/fi.webp"
                                         width="26"
@@ -2433,6 +2435,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                                     >
                                       <img
                                         alt="Finland"
+                                        class="MuiTelInput-FlagImg"
                                         loading="lazy"
                                         src="https://flagcdn.com/w40/fi.webp"
                                         width="26"
@@ -4470,6 +4473,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                               >
                                 <img
                                   alt="Finland"
+                                  class="MuiTelInput-FlagImg"
                                   loading="lazy"
                                   src="https://flagcdn.com/w40/fi.webp"
                                   width="26"
@@ -4850,6 +4854,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                                     >
                                       <img
                                         alt="Finland"
+                                        class="MuiTelInput-FlagImg"
                                         loading="lazy"
                                         src="https://flagcdn.com/w40/fi.webp"
                                         width="26"
@@ -5120,6 +5125,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                                     >
                                       <img
                                         alt="Finland"
+                                        class="MuiTelInput-FlagImg"
                                         loading="lazy"
                                         src="https://flagcdn.com/w40/fi.webp"
                                         width="26"

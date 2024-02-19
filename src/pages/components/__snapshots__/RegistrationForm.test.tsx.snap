@@ -1473,6 +1473,7 @@ exports[`RegistrationForm renders 1`] = `
                               >
                                 <img
                                   alt="Finland"
+                                  class="MuiTelInput-FlagImg"
                                   loading="lazy"
                                   src="https://flagcdn.com/w40/fi.webp"
                                   width="26"
@@ -1851,6 +1852,7 @@ exports[`RegistrationForm renders 1`] = `
                                     >
                                       <img
                                         alt="Finland"
+                                        class="MuiTelInput-FlagImg"
                                         loading="lazy"
                                         src="https://flagcdn.com/w40/fi.webp"
                                         width="26"
@@ -2121,6 +2123,7 @@ exports[`RegistrationForm renders 1`] = `
                                     >
                                       <img
                                         alt="Finland"
+                                        class="MuiTelInput-FlagImg"
                                         loading="lazy"
                                         src="https://flagcdn.com/w40/fi.webp"
                                         width="26"
@@ -3965,6 +3968,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                               >
                                 <img
                                   alt="Finland"
+                                  class="MuiTelInput-FlagImg"
                                   loading="lazy"
                                   src="https://flagcdn.com/w40/fi.webp"
                                   width="26"
@@ -4343,6 +4347,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                                     >
                                       <img
                                         alt="Finland"
+                                        class="MuiTelInput-FlagImg"
                                         loading="lazy"
                                         src="https://flagcdn.com/w40/fi.webp"
                                         width="26"
@@ -4613,6 +4618,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                                     >
                                       <img
                                         alt="Finland"
+                                        class="MuiTelInput-FlagImg"
                                         loading="lazy"
                                         src="https://flagcdn.com/w40/fi.webp"
                                         width="26"

@@ -1594,6 +1594,7 @@ exports[`RegistrationEditPage should render 1`] = `
                               >
                                 <img
                                   alt="Finland"
+                                  class="MuiTelInput-FlagImg"
                                   loading="lazy"
                                   src="https://flagcdn.com/w40/fi.webp"
                                   width="26"
@@ -1974,6 +1975,7 @@ exports[`RegistrationEditPage should render 1`] = `
                                     >
                                       <img
                                         alt="Finland"
+                                        class="MuiTelInput-FlagImg"
                                         loading="lazy"
                                         src="https://flagcdn.com/w40/fi.webp"
                                         width="26"
@@ -2245,6 +2247,7 @@ exports[`RegistrationEditPage should render 1`] = `
                                     >
                                       <img
                                         alt="Finland"
+                                        class="MuiTelInput-FlagImg"
                                         loading="lazy"
                                         src="https://flagcdn.com/w40/fi.webp"
                                         width="26"
