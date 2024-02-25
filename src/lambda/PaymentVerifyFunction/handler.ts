@@ -16,9 +16,9 @@ import { response } from '../utils/response'
 const dynamoDB = new CustomDynamoClient(CONFIG.transactionTable)
 
 /**
- * vefiryHandler is called by client when returning from payment provider.
+ * paymentVerify is called by client when returning from payment provider.
  */
-const verifyHandler = metricScope(
+const paymentVerify = metricScope(
   (metrics: MetricsLogger) =>
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
       debugProxyEvent(event)
@@ -32,7 +32,7 @@ const verifyHandler = metricScope(
         const transaction = await dynamoDB.read<JsonTransaction>({ transactionId })
         if (!transaction) throw new Error(`Transaction with id '${transactionId}' was not found`)
 
-        metricsSuccess(metrics, event.requestContext, 'verifyHandler')
+        metricsSuccess(metrics, event.requestContext, 'paymentVerify')
         return response<VerifyPaymentResponse>(
           200,
           { status: transaction?.status === 'fail' ? 'error' : 'ok', eventId, registrationId },
@@ -40,10 +40,10 @@ const verifyHandler = metricScope(
         )
       } catch (e) {
         console.error(e)
-        metricsError(metrics, event.requestContext, 'verifyHandler')
+        metricsError(metrics, event.requestContext, 'paymentVerify')
         return response<VerifyPaymentResponse>(501, { status: 'error', eventId: '', registrationId: '' }, event)
       }
     }
 )
 
-export default verifyHandler
+export default paymentVerify

@@ -16,9 +16,9 @@ const { registrationTable, transactionTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(transactionTable)
 
 /**
- * cancelHandler is called by payment provider, to update cancelled payment status
+ * paymentCancel is called by payment provider, to update cancelled payment status
  */
-const cancelHandler = metricScope(
+const paymentCancel = metricScope(
   (metrics: MetricsLogger) =>
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
       debugProxyEvent(event)
@@ -59,14 +59,14 @@ const cancelHandler = metricScope(
           console.log(`Transaction '${transactionId}' already marked as failed`)
         }
 
-        metricsSuccess(metrics, event.requestContext, 'cancelHandler')
+        metricsSuccess(metrics, event.requestContext, 'paymentCancel')
         return response(200, undefined, event)
       } catch (e) {
         console.error(e)
-        metricsError(metrics, event.requestContext, 'cancelHandler')
+        metricsError(metrics, event.requestContext, 'paymentCancel')
         return response(500, undefined, event)
       }
     }
 )
 
-export default cancelHandler
+export default paymentCancel

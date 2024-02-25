@@ -21,9 +21,9 @@ const { frontendURL, emailFrom, eventTable, registrationTable, transactionTable 
 const dynamoDB = new CustomDynamoClient(transactionTable)
 
 /**
- * successHandler is called by payment provider, to update successful payment status
+ * paymentSuccess is called by payment provider, to update successful payment status
  */
-const successHandler = metricScope(
+const paymentSuccess = metricScope(
   (metrics: MetricsLogger) =>
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
       debugProxyEvent(event)
@@ -91,7 +91,7 @@ const successHandler = metricScope(
 
             audit({
               auditKey: registrationAuditKey(registration),
-              message: 'Maksoi ilmoittautumisen',
+              message: `Maksoi ilmoittautumisen (${formatMoney(amount)})`,
               user: registration.createdBy,
             })
 
@@ -102,14 +102,14 @@ const successHandler = metricScope(
           }
         }
 
-        metricsSuccess(metrics, event.requestContext, 'successHandler')
+        metricsSuccess(metrics, event.requestContext, 'paymentSuccess')
         return response(200, undefined, event)
       } catch (e) {
         console.error(e)
-        metricsError(metrics, event.requestContext, 'successHandler')
+        metricsError(metrics, event.requestContext, 'paymentSuccess')
         return response(500, undefined, event)
       }
     }
 )
 
-export default successHandler
+export default paymentSuccess

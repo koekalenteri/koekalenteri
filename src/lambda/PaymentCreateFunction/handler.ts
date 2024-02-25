@@ -32,9 +32,9 @@ const registrationCost = (event: JsonConfirmedEvent, registration: JsonRegistrat
 }
 
 /**
- * createHandler is called by client to start the payment process
+ * paymentCreate is called by client to start the payment process
  */
-const createHandler = metricScope(
+const paymentCreate = metricScope(
   (metrics: MetricsLogger) =>
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
       debugProxyEvent(event)
@@ -46,7 +46,7 @@ const createHandler = metricScope(
 
         const jsonEvent = await dynamoDB.read<JsonConfirmedEvent>({ id: eventId }, eventTable)
         if (!jsonEvent) {
-          metricsError(metrics, event.requestContext, 'createPayment')
+          metricsError(metrics, event.requestContext, 'paymentCreate')
           return response<string>(404, 'Event not found', event)
         }
 
@@ -58,20 +58,20 @@ const createHandler = metricScope(
           registrationTable
         )
         if (!registration) {
-          metricsError(metrics, event.requestContext, 'createPayment')
+          metricsError(metrics, event.requestContext, 'paymentCreate')
           return response<string>(404, 'Registration not found', event)
         }
 
         const organizer = await dynamoDB.read<Organizer>({ id: jsonEvent?.organizer.id }, organizerTable)
         if (!organizer?.paytrailMerchantId) {
-          metricsError(metrics, event.requestContext, 'createPayment')
+          metricsError(metrics, event.requestContext, 'paymentCreate')
           return response<string>(412, `Organizer ${jsonEvent.organizer.id} does not have MerchantId!`, event)
         }
 
         const reference = `${eventId}:${registrationId}`
         const amount = Math.round(100 * (registrationCost(jsonEvent, registration) - (registration.paidAmount ?? 0)))
         if (amount <= 0) {
-          metricsError(metrics, event.requestContext, 'createPayment')
+          metricsError(metrics, event.requestContext, 'paymentCreate')
           return response<string>(204, 'Already paid', event)
         }
         const stamp = nanoid()
@@ -102,7 +102,7 @@ const createHandler = metricScope(
         )
 
         if (!result) {
-          metricsError(metrics, event.requestContext, 'createPayment')
+          metricsError(metrics, event.requestContext, 'paymentCreate')
           return response<undefined>(500, undefined, event)
         }
 
@@ -126,14 +126,14 @@ const createHandler = metricScope(
           registrationTable
         )
 
-        metricsSuccess(metrics, event.requestContext, 'createPayment')
+        metricsSuccess(metrics, event.requestContext, 'paymentCreate')
         return response<CreatePaymentResponse>(200, result, event)
       } catch (e) {
         console.error(e)
-        metricsError(metrics, event.requestContext, 'createPayment')
+        metricsError(metrics, event.requestContext, 'paymentCreate')
         return response(500, undefined, event)
       }
     }
 )
 
-export default createHandler
+export default paymentCreate
