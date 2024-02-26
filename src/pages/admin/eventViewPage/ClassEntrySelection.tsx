@@ -89,11 +89,22 @@ const ClassEntrySelection = ({
     },
     [actions, registrations]
   )
+  const handleRefund = useCallback(
+    async (id: string) => {
+      const reg = registrations.find((r) => r.id === id)
+      if (!reg) return
+      const regs = registrations.filter((r) => r.group?.key === 'cancelled' && r.id !== id)
+      const group: RegistrationGroup = { key: 'cancelled', number: regs.length + 1 }
+      await actions.saveGroups(reg.eventId, [{ eventId: reg.eventId, id, group }])
+    },
+    [actions, registrations]
+  )
   const dates = useEventRegistrationDates(event, eventClass)
   const { cancelledColumns, entryColumns, participantColumns } = useClassEntrySelectionColumns(
     dates,
     handleOpen,
-    handleCancel
+    handleCancel,
+    handleRefund
   )
   const groups = useEventRegistrationGroups(event, eventClass)
 

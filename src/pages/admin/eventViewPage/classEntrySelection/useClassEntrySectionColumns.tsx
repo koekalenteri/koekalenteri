@@ -57,7 +57,8 @@ const RegistrationIcons = ({ confirmed, invitationRead, handler, paidAt, qualify
 export function useClassEntrySelectionColumns(
   available: RegistrationDate[],
   openEditDialog?: (id: string) => void,
-  cancelRegistration?: (id: string) => void
+  cancelRegistration?: (id: string) => void,
+  refundRegistration?: (id: string) => void
 ) {
   const { t } = useTranslation()
 
@@ -159,6 +160,12 @@ export function useClassEntrySelectionColumns(
             onClick={() => cancelRegistration?.(p.row.id)}
             showInMenu
           />,
+          <GridActionsCellItem
+            icon={<EventBusyOutlined fontSize="small" />}
+            label={t('refund')}
+            onClick={() => refundRegistration?.(p.row.id)}
+            showInMenu
+          />,
         ],
       },
     ]
@@ -173,5 +180,5 @@ export function useClassEntrySelectionColumns(
     })
 
     return { cancelledColumns, entryColumns, participantColumns }
-  }, [available, cancelRegistration, openEditDialog, t])
+  }, [available, cancelRegistration, openEditDialog, refundRegistration, t])
 }

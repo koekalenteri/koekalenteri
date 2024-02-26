@@ -217,6 +217,7 @@
   },
   "paymentDetails": "Maksutiedot",
   "places": "Paikkoja",
+  "refund": "Palauta maksu",
   "register": "Ilmoittaudu",
   "registration": {
     "breeder": "Kasvattajan tiedot",
