@@ -37,10 +37,11 @@ const paymentSuccess = metricScope(
         const transaction = await dynamoDB.read<JsonTransaction>({ transactionId })
         if (!transaction) throw new Error(`Transaction with id '${transactionId}' was not found`)
 
+        const provider = params['checkout-provider']
         const status = params['checkout-status']
 
         if (status && status !== transaction.status) {
-          await updateTransactionStatus(transactionId, status)
+          await updateTransactionStatus(transactionId, status, provider)
 
           if (status === 'ok') {
             const registration = await dynamoDB.read<JsonRegistration>(
@@ -91,7 +92,7 @@ const paymentSuccess = metricScope(
 
             audit({
               auditKey: registrationAuditKey(registration),
-              message: `Maksoi ilmoittautumisen (${formatMoney(amount)})`,
+              message: `Maksu (${provider}), ${formatMoney(amount)}`,
               user: registration.createdBy,
             })
 

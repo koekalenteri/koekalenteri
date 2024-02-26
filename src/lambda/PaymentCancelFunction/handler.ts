@@ -6,8 +6,9 @@ import type { PaytrailCallbackParams } from '../types/paytrail'
 import { metricScope } from 'aws-embedded-metrics'
 
 import { CONFIG } from '../config'
+import { audit, registrationAuditKey } from '../lib/audit'
 import { debugProxyEvent } from '../lib/log'
-import { parseParams, updateTransactionStatus, verifyParams } from '../lib/payment'
+import { formatMoney, parseParams, updateTransactionStatus, verifyParams } from '../lib/payment'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { metricsError, metricsSuccess } from '../utils/metrics'
 import { response } from '../utils/response'
@@ -32,8 +33,10 @@ const paymentCancel = metricScope(
         const transaction = await dynamoDB.read<JsonTransaction>({ transactionId })
         if (!transaction) throw new Error(`Transaction with id '${transactionId}' was not found`)
 
+        const provider = params['checkout-provider']
+
         if (transaction.status !== 'fail') {
-          await updateTransactionStatus(transactionId, 'fail')
+          await updateTransactionStatus(transactionId, 'fail', provider)
 
           const registration = await dynamoDB.read<JsonRegistration>(
             {
@@ -55,6 +58,12 @@ const paymentCancel = metricScope(
               registrationTable
             )
           }
+
+          audit({
+            auditKey: registrationAuditKey(registration),
+            message: `Maksu epäonnistui (${provider}), ${formatMoney(transaction.amount / 100)}`,
+            user: registration.createdBy,
+          })
         } else {
           console.log(`Transaction '${transactionId}' already marked as failed`)
         }

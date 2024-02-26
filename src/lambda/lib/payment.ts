@@ -37,22 +37,33 @@ export const verifyParams = async (params: Partial<PaytrailCallbackParams>) => {
   }
 }
 
-export const updateTransactionStatus = async (transactionId: string | undefined, status: JsonTransaction['status']) => {
+export const updateTransactionStatus = async (
+  transactionId: string | undefined,
+  status: JsonTransaction['status'],
+  provider?: string
+) => {
   if (!transactionId) return
 
-  dynamoDB.update(
-    { transactionId },
-    'set #status = :status, #statusAt = :statusAt',
-    {
-      '#status': 'status',
-      '#statusAt': 'statusAt',
-    },
-    {
-      ':status': status,
-      ':statusAt': new Date().toISOString(),
-    },
-    transactionTable
-  )
+  const expression = provider
+    ? 'set #status = :status, #statusAt = :statusAt, #provider = :provider'
+    : 'set #status = :status, #statusAt = :statusAt'
+
+  const names: Record<string, string> = {
+    '#status': 'status',
+    '#statusAt': 'statusAt',
+  }
+
+  const values: Record<string, string> = {
+    ':status': status,
+    ':statusAt': new Date().toISOString(),
+  }
+
+  if (provider) {
+    names['#provider'] = 'provider'
+    values[':provider'] = provider
+  }
+
+  dynamoDB.update({ transactionId }, expression, names, values, transactionTable)
 }
 
 export const paymentDescription = (
