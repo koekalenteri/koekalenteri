@@ -762,6 +762,43 @@ Resources:
       LogGroupName: !Join ['/', ['/aws/lambda', !Ref GetRegistrationsFunction]]
       RetentionInDays: 30
 
+  GetRegistrationTransactionsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: lambda/GetRegistrationTransactionsFunction/handler.default
+      Layers:
+        - !Ref CommonLayer
+      Tracing: Active
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EventRegistrationTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EventTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserLinkTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref TransactionTable
+        - CloudWatchPutMetricPolicy: {}
+      Events:
+        GetRegistrationTransactions:
+          Type: Api
+          Properties:
+            Path: /admin/registration/trasnactions/{eventId}/{id}
+            Method: GET
+            RestApiId: !Ref KoekalenteriApi
+            Auth:
+              Authorizer: CognitoAuthorizer
+    Metadata:
+      BuildMethod: makefile
+
+  GetRegistrationTransactionsFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref GetRegistrationTransactionsFunction]]
+      RetentionInDays: 30
+
   GetRegistrationAuditTrailFunction:
     Type: AWS::Serverless::Function
     Properties:

@@ -79,3 +79,6 @@ export const paymentDescription = (
 
   return [jsonEvent.eventType, eventDate, jsonEvent.location, jsonEvent.name].filter(Boolean).join(' ')
 }
+
+export const getTransactionsByReference = async (reference: string) =>
+  dynamoDB.query('reference = :reference', { ':reference': reference }, transactionTable, 'gsiReference')

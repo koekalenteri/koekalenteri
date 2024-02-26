@@ -67,3 +67,11 @@ export async function getStartList(
 ): Promise<PublicRegistration[]> {
   return http.get<PublicRegistration[]>(`/startlist/${eventId}`, withToken({ signal }, token))
 }
+
+export const getRegistrationTransactions = async (
+  eventId: string,
+  id: string,
+  token: string,
+  signal?: AbortSignal
+): Promise<AuditRecord[] | undefined> =>
+  http.get<AuditRecord[]>(`/admin/registration/transactions/${eventId}/${id}`, withToken({ signal }, token))
