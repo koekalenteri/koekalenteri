@@ -8,6 +8,27 @@ export interface CreatePaymentResponse {
   customProviders: object
 }
 
+export interface GetPaymentResponse {
+  transactionId: string
+  status: 'new' | 'ok' | 'fail' | 'pending' | 'delayed'
+  amount: number
+  currency: string
+  stamp: string
+  reference: string
+  createdAt: string
+  href: string
+  provider: string
+  filingCode: string
+  paidAt: string
+  settlementReference: string
+}
+
+export interface RefundPaymentResponse {
+  provider: string
+  status: 'pending' | 'ok' | 'fail'
+  transactionId: string
+}
+
 export interface VerifyPaymentResponse {
   status: 'ok' | 'error'
   eventId?: string

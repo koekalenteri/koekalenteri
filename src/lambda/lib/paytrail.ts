@@ -1,10 +1,11 @@
-import type { CreatePaymentResponse } from '../../types'
+import type { CreatePaymentResponse, GetPaymentResponse, RefundPaymentResponse } from '../../types'
 import type {
   CallbackUrl,
   CreatePaymentRequest,
   PaymentCustomer,
   PaymentItem,
   PaytrailHeaders,
+  RefundItem,
   RefundRequest,
 } from '../types/paytrail'
 
@@ -137,14 +138,18 @@ export const createPayment = async (
   return paytrailRequest<CreatePaymentResponse>('POST', 'payments', body)
 }
 
+export const getPayment = async (transactionId: string): Promise<GetPaymentResponse | undefined> =>
+  paytrailRequest('GET', `payments/${transactionId}`, undefined, transactionId)
+
 export const createRefundCallbackUrls = (host: string): CallbackUrl => createCallbackUrls(`https://${host}/refund`)
 
-export const refundPaymentFully = async (
+export const refundPayment = async (
   apiHost: string,
   transactionId: string,
   amount: number,
   refundReference: string,
   refundStamp: string,
+  items: RefundItem[],
   email: PaymentCustomer['email']
 ) => {
   const callbackUrls = createPaymentCallbackUrls(apiHost)
@@ -155,7 +160,8 @@ export const refundPaymentFully = async (
     refundStamp,
     refundReference,
     callbackUrls,
+    items,
   }
 
-  return paytrailRequest<CreatePaymentResponse>('POST', `payments/${transactionId}/refund`, body)
+  return paytrailRequest<RefundPaymentResponse>('POST', `payments/${transactionId}/refund`, body)
 }

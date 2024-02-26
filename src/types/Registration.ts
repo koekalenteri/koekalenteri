@@ -28,6 +28,9 @@ export interface JsonRegistration extends JsonDbRecord {
   paymentStatus?: PaymentStatus
   priorityByInvitation?: boolean
   qualifyingResults: JsonQualifyingResult[]
+  refundAmount?: number
+  refundAt?: string
+  refundStatus?: PaymentStatus
   reserve: ReserveChoise | ''
   reserveNotified?: boolean
   results?: Array<JsonTestResult & { id: string }>

@@ -1842,6 +1842,134 @@ Resources:
       LogGroupName: !Join ['/', ['/aws/lambda', !Ref PaymentCancelFunction]]
       RetentionInDays: 30
 
+  RefundCreateFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: lambda/RefundCreateFunction/handler.default
+      Layers:
+        - !Ref CommonLayer
+      Tracing: Active
+      Policies:
+        - Statement:
+            - Sid: SSMGetParameterPolicy
+              Effect: Allow
+              Action:
+              - ssm:GetParameters
+              - ssm:GetParameter
+              Resource: '*'
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TransactionTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EventRegistrationTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref OrganizerTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref EventTable
+        - CloudWatchPutMetricPolicy: {}
+      Events:
+        PutEvent:
+          Type: Api
+          Properties:
+            Path: /refund/create
+            Method: POST
+            RestApiId: !Ref KoekalenteriApi
+    Metadata:
+      BuildMethod: makefile
+
+  RefundCreateFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref RefundCreateFunction]]
+      RetentionInDays: 30
+
+  RefundSuccessFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: lambda/RefundSuccessFunction/handler.default
+      Layers:
+        - !Ref CommonLayer
+      Tracing: Active
+      Policies:
+        - Statement:
+            - Sid: SSMGetParameterPolicy
+              Effect: Allow
+              Action:
+              - ssm:GetParameters
+              - ssm:GetParameter
+              Resource: '*'
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TransactionTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EventRegistrationTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EventTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref OrganizerTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuditTable
+        - CloudWatchPutMetricPolicy: {}
+        - Statement:
+            - Sid: SESSendEmailPolicy
+              Effect: Allow
+              Action:
+              - ses:sendTemplatedEmail
+              Resource: '*'
+      Events:
+        PutEvent:
+          Type: Api
+          Properties:
+            Path: /refund/success
+            Method: GET
+            RestApiId: !Ref KoekalenteriApi
+    Metadata:
+      BuildMethod: makefile
+
+  RefundSuccessFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref RefundSuccessFunction]]
+      RetentionInDays: 30
+
+  RefundCancelFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: lambda/RefundCancelFunction/handler.default
+      Layers:
+        - !Ref CommonLayer
+      Tracing: Active
+      Policies:
+        - Statement:
+            - Sid: SSMGetParameterPolicy
+              Effect: Allow
+              Action:
+              - ssm:GetParameters
+              - ssm:GetParameter
+              Resource: '*'
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TransactionTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EventRegistrationTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref OrganizerTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref EventTable
+        - CloudWatchPutMetricPolicy: {}
+      Events:
+        PutEvent:
+          Type: Api
+          Properties:
+            Path: /refund/cancel
+            Method: GET
+            RestApiId: !Ref KoekalenteriApi
+    Metadata:
+      BuildMethod: makefile
+
+  RefundCancelFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref RefundCancelFunction]]
+      RetentionInDays: 30
+
   RunMigrationFunction:
     Type: AWS::Serverless::Function
     Properties:

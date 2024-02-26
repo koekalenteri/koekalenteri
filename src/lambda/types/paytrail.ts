@@ -311,10 +311,45 @@ export interface RefundRequest {
   /**
    * Array of items to refund. Requires item stamps to be sent when creating the payment. Not needed for full refund.
    */
-  items?: never[]
+  items: RefundItem[]
   /**
    * Which urls to ping after the refund has been processed. The callback is called with HTTP GET and with the same
    * query string parameters as in the payment request callback. The server should respond with HTTP 20x.
    */
   callbackUrls?: CallbackUrl
+}
+
+export interface RefundItem {
+  /**
+   * Total amount to refund this item, in currency's minor units (ie. EUR cents)
+   */
+  amount: number
+  /**
+   * The item unique identifier
+   */
+  stamp: string
+  /**
+   * Merchant unique identifier for the refund. Only for Shop-in-Shop payments, do not use for normal payments.
+   */
+  refundStamp: string
+  /**
+   * Refund reference. Only for Shop-in-Shop payments, do not use for normal payments.
+   */
+  refundReference: string
+  /**
+   * Shop-in-Shop commission return. In refunds, the given amount is returned from the given commission account
+   * to the item merchant account. Only for Shop-in-Shop payments, do not use for normal payments.
+   */
+  commission?: RefundCommission
+}
+
+export interface RefundCommission {
+  /**
+   * Merchant from whom the commission is returned to the submerchant.
+   */
+  merchant: string
+  /**
+   * Amount of commission in currency's minor units, e.g. for Euros use cents. VAT not applicable.
+   */
+  amount: number
 }
