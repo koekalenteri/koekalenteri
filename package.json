@@ -7,7 +7,7 @@
     "@mui/icons-material": "^5.15.10",
     "@mui/material": "^5.15.10",
     "@mui/x-data-grid": "^6.19.4",
-    "@mui/x-date-pickers": "^6.19.4",
+    "@mui/x-date-pickers": "^6.19.5",
     "aws-amplify": "^6.0.17",
     "aws-embedded-metrics": "^4.1.0",
     "aws-rum-web": "^1.17.0",
