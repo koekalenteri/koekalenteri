@@ -785,7 +785,7 @@ Resources:
         GetRegistrationTransactions:
           Type: Api
           Properties:
-            Path: /admin/registration/trasnactions/{eventId}/{id}
+            Path: /admin/registration/transactions/{eventId}/{id}
             Method: GET
             RestApiId: !Ref KoekalenteriApi
             Auth:

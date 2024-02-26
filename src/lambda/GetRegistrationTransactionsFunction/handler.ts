@@ -21,7 +21,7 @@ const getRegistrationTransactions = metricScope(
         const eventId = unescape(event.pathParameters?.eventId ?? '')
         const id = unescape(event.pathParameters?.id ?? '')
         const reference = `${eventId}:${id}`
-        const transactions = getTransactionsByReference(reference)
+        const transactions = await getTransactionsByReference(reference)
 
         metricsSuccess(metrics, event.requestContext, 'getRegistrationTransactions')
         return response(200, transactions, event)
