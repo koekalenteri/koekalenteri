@@ -25,7 +25,7 @@ exports[`EventClasses should render with classes 1`] = `
           value=""
         />
         <div
-          class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+          class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
         >
           <button
             aria-label="Open"
@@ -106,7 +106,7 @@ exports[`EventClasses should render with classes and value 1`] = `
           value=""
         />
         <div
-          class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+          class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
         >
           <button
             aria-label="Open"
@@ -198,7 +198,7 @@ exports[`EventClasses should render with classes and values 1`] = `
           value=""
         />
         <div
-          class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+          class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
         >
           <button
             aria-label="Open"
@@ -303,7 +303,7 @@ exports[`EventClasses should render with classes and values for 2 day event, ope
           value=""
         />
         <div
-          class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+          class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
         >
           <button
             aria-label="Close"
@@ -536,7 +536,7 @@ exports[`EventClasses should render with classes and values, open 1`] = `
           value=""
         />
         <div
-          class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+          class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
         >
           <button
             aria-label="Close"
@@ -699,7 +699,7 @@ exports[`EventClasses should render with minimal properties 1`] = `
           value=""
         />
         <div
-          class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+          class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
         >
           <button
             aria-label="Open"

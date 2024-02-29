@@ -99,7 +99,7 @@ exports[`RegistrationForm renders 1`] = `
                               value=""
                             />
                             <div
-                              class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                              class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
                             >
                               <button
                                 aria-label="Open"
@@ -176,7 +176,7 @@ exports[`RegistrationForm renders 1`] = `
                               value="registration.reserveChoises.ANY"
                             />
                             <div
-                              class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                              class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
                             >
                               <button
                                 aria-label="Open"
@@ -305,7 +305,7 @@ exports[`RegistrationForm renders 1`] = `
                               value=""
                             />
                             <div
-                              class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                              class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
                             >
                               <button
                                 aria-label="Clear"
@@ -433,7 +433,7 @@ exports[`RegistrationForm renders 1`] = `
                               value=""
                             />
                             <div
-                              class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                              class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
                             >
                               <button
                                 aria-label="Clear"
@@ -605,7 +605,7 @@ exports[`RegistrationForm renders 1`] = `
                                   value="TESTDOG-0010"
                                 />
                                 <div
-                                  class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                                  class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
                                 >
                                   <button
                                     aria-label="Clear"
@@ -915,7 +915,7 @@ exports[`RegistrationForm renders 1`] = `
                               value="dog.gender_choises.M"
                             />
                             <div
-                              class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                              class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
                             >
                               <button
                                 aria-label="Open"
@@ -990,7 +990,7 @@ exports[`RegistrationForm renders 1`] = `
                               value="110"
                             />
                             <div
-                              class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                              class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
                             >
                               <button
                                 aria-label="Open"
@@ -2593,7 +2593,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                               value=""
                             />
                             <div
-                              class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                              class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
                             >
                               <button
                                 aria-label="Open"
@@ -2670,7 +2670,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                               value="registration.reserveChoises.ANY"
                             />
                             <div
-                              class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                              class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
                             >
                               <button
                                 aria-label="Open"
@@ -2799,7 +2799,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                               value=""
                             />
                             <div
-                              class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                              class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
                             >
                               <button
                                 aria-label="Clear"
@@ -2927,7 +2927,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                               value=""
                             />
                             <div
-                              class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                              class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
                             >
                               <button
                                 aria-label="Clear"
@@ -3099,7 +3099,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                                   value=""
                                 />
                                 <div
-                                  class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                                  class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
                                 >
                                   <button
                                     aria-label="Clear"
@@ -3408,7 +3408,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                               value=""
                             />
                             <div
-                              class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                              class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
                             >
                               <button
                                 aria-label="Open"
@@ -3483,7 +3483,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                               value=""
                             />
                             <div
-                              class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                              class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
                             >
                               <button
                                 aria-label="Open"

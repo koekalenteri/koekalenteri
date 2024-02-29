@@ -41,7 +41,7 @@ exports[`EventEditPage renders properly 1`] = `
               value="event.states.confirmed"
             />
             <div
-              class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+              class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
             >
               <button
                 aria-label="Open"
@@ -440,7 +440,7 @@ exports[`EventEditPage renders properly 1`] = `
                                   value="NOU"
                                 />
                                 <div
-                                  class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                                  class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
                                 >
                                   <button
                                     aria-label="Open"
@@ -537,7 +537,7 @@ exports[`EventEditPage renders properly 1`] = `
                                 value=""
                               />
                               <div
-                                class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                                class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
                               >
                                 <button
                                   aria-label="Open"
@@ -670,7 +670,7 @@ exports[`EventEditPage renders properly 1`] = `
                                   value="Suomen Noutajakoirajärjestö ry"
                                 />
                                 <div
-                                  class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                                  class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
                                 >
                                   <button
                                     aria-label="Open"
@@ -866,7 +866,7 @@ exports[`EventEditPage renders properly 1`] = `
                                   value="Teemu Toimitsija"
                                 />
                                 <div
-                                  class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                                  class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
                                 >
                                   <button
                                     aria-label="Open"
@@ -974,7 +974,7 @@ exports[`EventEditPage renders properly 1`] = `
                                   value="Siiri Sihteeri"
                                 />
                                 <div
-                                  class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                                  class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
                                 >
                                   <button
                                     aria-label="Open"
@@ -1175,7 +1175,7 @@ exports[`EventEditPage renders properly 1`] = `
                                 value=""
                               />
                               <div
-                                class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                                class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
                               >
                                 <button
                                   aria-label="Open"
@@ -1250,7 +1250,7 @@ exports[`EventEditPage renders properly 1`] = `
                                 value="FI"
                               />
                               <div
-                                class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                                class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
                               >
                                 <button
                                   aria-label="Open"
@@ -1853,7 +1853,7 @@ exports[`EventEditPage renders properly 1`] = `
                                 value=""
                               />
                               <div
-                                class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                                class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
                               >
                                 <button
                                   aria-label="Open"

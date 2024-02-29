@@ -95,7 +95,7 @@ exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
                             value="NOU"
                           />
                           <div
-                            class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                            class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
                           >
                             <button
                               aria-label="Open"
@@ -170,7 +170,7 @@ exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
                             value="NOU1"
                           />
                           <div
-                            class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                            class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
                           >
                             <button
                               aria-label="Open"
@@ -519,7 +519,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                             value="NOU"
                           />
                           <div
-                            class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                            class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
                           >
                             <button
                               aria-label="Open"
@@ -594,7 +594,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                             value="NOU1"
                           />
                           <div
-                            class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                            class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
                           >
                             <button
                               aria-label="Open"
@@ -851,7 +851,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                             value="NOME-B"
                           />
                           <div
-                            class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                            class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
                           >
                             <button
                               aria-label="Open"
@@ -927,7 +927,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                             value="ALO1"
                           />
                           <div
-                            class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                            class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
                           >
                             <button
                               aria-label="Open"
@@ -1185,7 +1185,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                             value="NOME-B"
                           />
                           <div
-                            class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                            class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
                           >
                             <button
                               aria-label="Open"
@@ -1261,7 +1261,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                             value="ALO1"
                           />
                           <div
-                            class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                            class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
                           >
                             <button
                               aria-label="Open"

@@ -287,7 +287,7 @@ exports[`RegistrationEditPage should render 1`] = `
                               value=""
                             />
                             <div
-                              class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                              class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
                             >
                               <button
                                 aria-label="Open"
@@ -363,7 +363,7 @@ exports[`RegistrationEditPage should render 1`] = `
                               value="registration.reserveChoises.ANY"
                             />
                             <div
-                              class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                              class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
                             >
                               <button
                                 aria-label="Open"
@@ -491,7 +491,7 @@ exports[`RegistrationEditPage should render 1`] = `
                               value=""
                             />
                             <div
-                              class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                              class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
                             >
                               <button
                                 aria-label="Open"
@@ -596,7 +596,7 @@ exports[`RegistrationEditPage should render 1`] = `
                               value=""
                             />
                             <div
-                              class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                              class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
                             >
                               <button
                                 aria-label="Open"
@@ -1028,7 +1028,7 @@ exports[`RegistrationEditPage should render 1`] = `
                               value="dog.gender_choises.M"
                             />
                             <div
-                              class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                              class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
                             >
                               <button
                                 aria-label="Open"
@@ -1103,7 +1103,7 @@ exports[`RegistrationEditPage should render 1`] = `
                               value="110"
                             />
                             <div
-                              class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                              class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
                             >
                               <button
                                 aria-label="Open"

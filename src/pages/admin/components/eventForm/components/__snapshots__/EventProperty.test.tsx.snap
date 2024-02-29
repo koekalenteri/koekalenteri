@@ -36,7 +36,7 @@ exports[`EventProperty freeSolo=false should display options when typing and fir
             value=""
           />
           <div
-            class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+            class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
           >
             <button
               aria-label="Open"
@@ -138,7 +138,7 @@ exports[`EventProperty freeSolo=false should display options when typing and fir
             value="a"
           />
           <div
-            class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+            class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
           >
             <button
               aria-label="Close"
@@ -240,7 +240,7 @@ exports[`EventProperty freeSolo=false should display options when typing and fir
             value=""
           />
           <div
-            class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+            class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
           >
             <button
               aria-label="Close"
@@ -340,7 +340,7 @@ exports[`EventProperty freeSolo=false should render with minimal information 1`]
             value="test"
           />
           <div
-            class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+            class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
           >
             <button
               aria-label="Clear"
@@ -462,7 +462,7 @@ exports[`EventProperty freeSolo=false should render with undefined property and 
             value=""
           />
           <div
-            class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+            class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
           >
             <button
               aria-label="Open"
@@ -562,7 +562,7 @@ exports[`EventProperty freeSolo=true should display options when typing and fire
             value="test"
           />
           <div
-            class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+            class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
           >
             <button
               aria-label="Clear"
@@ -662,7 +662,7 @@ exports[`EventProperty freeSolo=true should display options when typing and fire
             value="testa"
           />
           <div
-            class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+            class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
           >
             <button
               aria-label="Clear"
@@ -764,7 +764,7 @@ exports[`EventProperty freeSolo=true should display options when typing and fire
             value=""
           />
           <div
-            class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+            class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
           >
             <button
               aria-label="Clear"
@@ -864,7 +864,7 @@ exports[`EventProperty freeSolo=true should render with minimal information 1`] 
             value="test"
           />
           <div
-            class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+            class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
           >
             <button
               aria-label="Clear"

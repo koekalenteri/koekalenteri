@@ -35,7 +35,7 @@ exports[`AutocompleteSingle when options are objects should render helperText 1`
           value=""
         />
         <div
-          class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+          class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
         >
           <button
             aria-label="Open"
@@ -119,7 +119,7 @@ exports[`AutocompleteSingle when options are objects should render helperText wi
           value=""
         />
         <div
-          class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+          class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
         >
           <button
             aria-label="Open"
@@ -202,7 +202,7 @@ exports[`AutocompleteSingle when options are objects should render with minimal 
           value=""
         />
         <div
-          class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+          class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
         >
           <button
             aria-label="Open"
@@ -280,7 +280,7 @@ exports[`AutocompleteSingle when options are strings should render helperText 1`
           value=""
         />
         <div
-          class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+          class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
         >
           <button
             aria-label="Open"
@@ -364,7 +364,7 @@ exports[`AutocompleteSingle when options are strings should render helperText wi
           value=""
         />
         <div
-          class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+          class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
         >
           <button
             aria-label="Open"
@@ -447,7 +447,7 @@ exports[`AutocompleteSingle when options are strings should render with minimal 
           value=""
         />
         <div
-          class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+          class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
         >
           <button
             aria-label="Open"

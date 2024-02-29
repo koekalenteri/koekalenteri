@@ -132,7 +132,7 @@ exports[`JudgeSection should hide classes for NOWT event (KOE-317) 1`] = `
                             value=""
                           />
                           <div
-                            class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                            class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
                           >
                             <button
                               aria-label="Open"
@@ -209,7 +209,7 @@ exports[`JudgeSection should hide classes for NOWT event (KOE-317) 1`] = `
                             value="FI"
                           />
                           <div
-                            class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                            class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
                           >
                             <button
                               aria-label="Open"
@@ -498,7 +498,7 @@ exports[`JudgeSection should not warn about judge 0 not beign available (KOE-357
                             value=""
                           />
                           <div
-                            class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                            class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
                           >
                             <button
                               aria-label="Open"
@@ -573,7 +573,7 @@ exports[`JudgeSection should not warn about judge 0 not beign available (KOE-357
                             value="FI"
                           />
                           <div
-                            class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                            class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
                           >
                             <button
                               aria-label="Open"
@@ -862,7 +862,7 @@ exports[`JudgeSection should render properly with one judge selected 1`] = `
                             value=""
                           />
                           <div
-                            class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                            class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
                           >
                             <button
                               aria-label="Open"
@@ -937,7 +937,7 @@ exports[`JudgeSection should render properly with one judge selected 1`] = `
                             value="FI"
                           />
                           <div
-                            class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                            class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
                           >
                             <button
                               aria-label="Open"
@@ -1226,7 +1226,7 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
                             value=""
                           />
                           <div
-                            class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                            class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
                           >
                             <button
                               aria-label="Open"
@@ -1301,7 +1301,7 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
                             value="FI"
                           />
                           <div
-                            class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                            class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
                           >
                             <button
                               aria-label="Open"
@@ -1447,7 +1447,7 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
                             value=""
                           />
                           <div
-                            class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                            class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
                           >
                             <button
                               aria-label="Open"
@@ -1522,7 +1522,7 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
                             value="FI"
                           />
                           <div
-                            class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                            class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
                           >
                             <button
                               aria-label="Open"
@@ -1668,7 +1668,7 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
                             value=""
                           />
                           <div
-                            class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                            class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
                           >
                             <button
                               aria-label="Open"
@@ -1743,7 +1743,7 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
                             value="FI"
                           />
                           <div
-                            class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                            class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
                           >
                             <button
                               aria-label="Open"
@@ -2032,7 +2032,7 @@ exports[`JudgeSection should render properly with two judges selected 1`] = `
                             value=""
                           />
                           <div
-                            class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                            class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
                           >
                             <button
                               aria-label="Open"
@@ -2107,7 +2107,7 @@ exports[`JudgeSection should render properly with two judges selected 1`] = `
                             value="FI"
                           />
                           <div
-                            class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                            class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
                           >
                             <button
                               aria-label="Open"
@@ -2253,7 +2253,7 @@ exports[`JudgeSection should render properly with two judges selected 1`] = `
                             value=""
                           />
                           <div
-                            class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                            class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
                           >
                             <button
                               aria-label="Open"
@@ -2328,7 +2328,7 @@ exports[`JudgeSection should render properly with two judges selected 1`] = `
                             value="FI"
                           />
                           <div
-                            class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                            class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
                           >
                             <button
                               aria-label="Open"

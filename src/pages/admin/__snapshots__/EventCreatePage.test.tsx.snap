@@ -41,7 +41,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
               value="event.states.draft"
             />
             <div
-              class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+              class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
             >
               <button
                 aria-label="Open"
@@ -441,7 +441,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                   value=""
                                 />
                                 <div
-                                  class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                                  class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
                                 >
                                   <button
                                     aria-label="Open"
@@ -544,7 +544,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                 value=""
                               />
                               <div
-                                class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                                class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
                               >
                                 <button
                                   aria-label="Open"
@@ -678,7 +678,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                   value=""
                                 />
                                 <div
-                                  class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                                  class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
                                 >
                                   <button
                                     aria-label="Open"
@@ -862,7 +862,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                   value=""
                                 />
                                 <div
-                                  class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                                  class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
                                 >
                                   <button
                                     aria-label="Open"
@@ -969,7 +969,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                   value=""
                                 />
                                 <div
-                                  class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                                  class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
                                 >
                                   <button
                                     aria-label="Open"
@@ -1138,7 +1138,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                 value=""
                               />
                               <div
-                                class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                                class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
                               >
                                 <button
                                   aria-label="Open"
@@ -1212,7 +1212,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                 value=""
                               />
                               <div
-                                class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                                class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
                               >
                                 <button
                                   aria-label="Open"
@@ -1759,7 +1759,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                 value=""
                               />
                               <div
-                                class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                                class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
                               >
                                 <button
                                   aria-label="Open"

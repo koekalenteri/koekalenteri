@@ -182,7 +182,7 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
                         value="emailTemplate.registration"
                       />
                       <div
-                        class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                        class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
                       >
                         <button
                           aria-label="Clear"
@@ -928,7 +928,7 @@ exports[`SendMessageDialog renders with minimal parameters 1`] = `
                         value=""
                       />
                       <div
-                        class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                        class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
                       >
                         <button
                           aria-label="Open"

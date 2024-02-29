@@ -96,7 +96,7 @@ exports[`DogInfo should render 1`] = `
                               value="TESTDOG-0010"
                             />
                             <div
-                              class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                              class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
                             >
                               <button
                                 aria-label="Clear"
@@ -406,7 +406,7 @@ exports[`DogInfo should render 1`] = `
                           value="dog.gender_choises.M"
                         />
                         <div
-                          class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                          class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
                         >
                           <button
                             aria-label="Open"
@@ -481,7 +481,7 @@ exports[`DogInfo should render 1`] = `
                           value="110"
                         />
                         <div
-                          class="MuiAutocomplete-endAdornment css-1q60rmi-MuiAutocomplete-endAdornment"
+                          class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
                         >
                           <button
                             aria-label="Open"
