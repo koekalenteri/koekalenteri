@@ -149,18 +149,21 @@ export function useClassEntrySelectionColumns(
         sortable: false,
         getActions: (p) => [
           <GridActionsCellItem
+            key="edit"
             icon={<EditOutlined fontSize="small" />}
             label={t('edit')}
             onClick={() => openEditDialog?.(p.row.id)}
             showInMenu
           />,
           <GridActionsCellItem
+            key="withdraw"
             icon={<EventBusyOutlined fontSize="small" />}
             label={t('withdraw')}
             onClick={() => cancelRegistration?.(p.row.id)}
             showInMenu
           />,
           <GridActionsCellItem
+            key="refund"
             icon={<EventBusyOutlined fontSize="small" />}
             label={t('refund')}
             onClick={() => refundRegistration?.(p.row.id)}

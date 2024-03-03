@@ -77,6 +77,8 @@ const getMinJudgeCount = (event: PartialEvent) => {
   return 1
 }
 
+const ZIPCODE_REGEXP = /^\d{5}$/
+
 const VALIDATORS: Validators<PartialEvent, 'event'> = {
   classes: (event, required) => {
     if (!required) {
@@ -104,7 +106,7 @@ const VALIDATORS: Validators<PartialEvent, 'event'> = {
   },
   headquarters: (event, required) => {
     const headquarters = event.headquarters
-    if (required && headquarters?.zipCode && !headquarters.zipCode.match(/^[0-9]{5}$/)) {
+    if (required && headquarters?.zipCode && !ZIPCODE_REGEXP.exec(headquarters.zipCode)) {
       return 'zipCode'
     }
     return false

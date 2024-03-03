@@ -24,7 +24,13 @@ export const EventClassTableRow = ({ event, eventClass }: Props) => {
     if (!eventClass.entries && !eventClass.places && !isEntryOpen(event)) return ''
 
     const entries = eventClass.entries ?? 0
-    const places = eventClass.places ? eventClass.places : event.classes.length === 1 ? event.places : '-'
+
+    if (eventClass.places) {
+      return `${entries} / ${eventClass.places}`
+    }
+
+    const places = event.classes.length === 1 ? event.places : '-'
+
     return `${entries} / ${places}`
   }, [event, eventClass])
   const memberStatus = eventClass.members ? t('members', { count: eventClass.members }) : ''
