@@ -1,4 +1,4 @@
-import type { CreatePaymentResponse, VerifyPaymentResponse } from '../types'
+import type { CreatePaymentResponse, RefundPaymentResponse, VerifyPaymentResponse } from '../types'
 
 import http, { withToken } from './http'
 
@@ -15,3 +15,11 @@ export const verifyPayment = async (
   token?: string,
   signal?: AbortSignal
 ): Promise<VerifyPaymentResponse | undefined> => http.post(`/payment/verify`, params, withToken({ signal }, token))
+
+export const createRefund = async (
+  transactionId: string,
+  amount: number,
+  token: string,
+  signal?: AbortSignal
+): Promise<RefundPaymentResponse | undefined> =>
+  http.post('/payment/refund', { transactionId, amount }, withToken({ signal }, token))

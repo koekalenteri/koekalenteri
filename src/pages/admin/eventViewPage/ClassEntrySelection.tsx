@@ -93,9 +93,9 @@ const ClassEntrySelection = ({
     async (id: string) => {
       const reg = registrations.find((r) => r.id === id)
       if (!reg) return
-      const regs = registrations.filter((r) => r.group?.key === 'cancelled' && r.id !== id)
-      const group: RegistrationGroup = { key: 'cancelled', number: regs.length + 1 }
-      await actions.saveGroups(reg.eventId, [{ eventId: reg.eventId, id, group }])
+
+      const transactions = await actions.transactions(reg)
+      console.log(transactions)
     },
     [actions, registrations]
   )

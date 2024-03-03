@@ -168,6 +168,7 @@ export function useClassEntrySelectionColumns(
             label={t('refund')}
             onClick={() => refundRegistration?.(p.row.id)}
             showInMenu
+            disabled
           />,
         ],
       },

@@ -3,7 +3,7 @@ import type { Registration, RegistrationGroupInfo } from '../../../../types'
 import { useSnackbar } from 'notistack'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
-import { putAdminRegistration, putRegistrationGroups } from '../../../../api/registration'
+import { getRegistrationTransactions, putAdminRegistration, putRegistrationGroups } from '../../../../api/registration'
 import { reportError } from '../../../../lib/client/rum'
 import { idTokenAtom } from '../../../recoil'
 import { adminEventSelector } from '../events'
@@ -109,6 +109,12 @@ export const useAdminRegistrationActions = (eventId: string) => {
         reportError(e)
         return false
       }
+    },
+
+    async transactions(reg: Registration) {
+      if (!token) throw new Error('missing token')
+
+      return getRegistrationTransactions(reg.eventId, reg.id, token)
     },
   }
 }
