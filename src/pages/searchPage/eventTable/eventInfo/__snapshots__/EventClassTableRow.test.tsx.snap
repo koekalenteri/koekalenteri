@@ -46,6 +46,63 @@ exports[`EventInfo render places for a class in event with multiple classes 1`] 
 </div>
 `;
 
+exports[`EventInfo render places for event entry open but no entries 1`] = `
+<div>
+  <table>
+    <tbody>
+      <tr
+        class="MuiTableRow-root css-1n6kcfq-MuiTableRow-root"
+      >
+        <th
+          class="MuiTableCell-root MuiTableCell-sizeMedium css-bsph2u-MuiTableCell-root"
+          scope="row"
+        >
+          eeeeee d.M.
+        </th>
+        <th
+          class="MuiTableCell-root MuiTableCell-sizeMedium css-bsph2u-MuiTableCell-root"
+          scope="row"
+        >
+          VOI
+        </th>
+        <th
+          class="MuiTableCell-root MuiTableCell-sizeMedium css-bsph2u-MuiTableCell-root"
+          scope="row"
+        />
+        <th
+          class="MuiTableCell-root MuiTableCell-alignRight MuiTableCell-sizeMedium css-r7oxtk-MuiTableCell-root"
+          scope="row"
+        >
+          0 / 10
+        </th>
+        <th
+          class="MuiTableCell-root MuiTableCell-alignRight MuiTableCell-sizeMedium css-r7oxtk-MuiTableCell-root"
+          scope="row"
+        />
+        <th
+          class="MuiTableCell-root MuiTableCell-sizeMedium css-bsph2u-MuiTableCell-root"
+          scope="row"
+        >
+          <div
+            class="MuiBox-root css-mro3c9"
+          >
+            <a
+              class="link"
+              href="/event/NOWT/test3/VOI/dd.MM."
+            >
+              register
+            </a>
+          </div>
+        </th>
+        <td
+          class="MuiTableCell-root MuiTableCell-sizeMedium css-bsph2u-MuiTableCell-root"
+        />
+      </tr>
+    </tbody>
+  </table>
+</div>
+`;
+
 exports[`EventInfo render places for event with single class and places defined only on event level 1`] = `
 <div>
   <table>

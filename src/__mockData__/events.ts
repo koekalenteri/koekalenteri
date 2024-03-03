@@ -66,6 +66,19 @@ export const eventWithEntryOpen: ConfirmedEvent = {
   entries: 7,
 }
 
+export const eventWithEntryOpenButNoEntries: ConfirmedEvent = {
+  ...emptyEvent,
+  id: 'test3',
+  eventType: 'NOWT',
+  classes: [{ class: 'VOI', date: addDays(today, 14) }],
+  startDate: addDays(today, 14),
+  endDate: addDays(today, 15),
+  entryStartDate: today, // entry starts today
+  entryEndDate: addDays(today, 8), // over week from today
+  judges: [{ id: 223, name: 'Tuomari 2' }],
+  places: 10,
+}
+
 export const eventWithEntryNotYetOpen: ConfirmedEvent = {
   ...emptyEvent,
   id: 'test4',

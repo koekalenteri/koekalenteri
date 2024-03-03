@@ -21,7 +21,7 @@ export const EventClassTableRow = ({ event, eventClass }: Props) => {
   const date = eventClass.date ?? event.startDate ?? new Date()
   const classDate = t('dateFormat.short', { date })
   const entryStatus = useMemo(() => {
-    if (!eventClass.entries && !eventClass.places) return ''
+    if (!eventClass.entries && !eventClass.places && !isEntryOpen(event)) return ''
 
     const entries = eventClass.entries ?? 0
     const places = eventClass.places ? eventClass.places : event.classes.length === 1 ? event.places : '-'

@@ -1,0 +1,31 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`EventInfo render places for a class in event with multiple classes 1`] = `
+<div>
+  <div
+    class="MuiBox-root css-s2uf1z"
+  >
+    4 / 4
+  </div>
+</div>
+`;
+
+exports[`EventInfo render places for event entry open but no entries 1`] = `
+<div>
+  <div
+    class="MuiBox-root css-s2uf1z"
+  >
+    0 / 10
+  </div>
+</div>
+`;
+
+exports[`EventInfo render places for event with single class and places defined only on event level 1`] = `
+<div>
+  <div
+    class="MuiBox-root css-s2uf1z"
+  >
+    7 / 10
+  </div>
+</div>
+`;
