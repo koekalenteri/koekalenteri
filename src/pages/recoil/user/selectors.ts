@@ -1,6 +1,7 @@
 import { selector } from 'recoil'
 
 import { getUser } from '../../../api/user'
+import { reportError } from '../../../lib/client/rum'
 
 import { idTokenAtom } from './atoms'
 
@@ -11,9 +12,10 @@ export const userSelector = selector({
       const token = get(idTokenAtom)
       if (!token) return null
 
-      return getUser(token)
+      const user = await getUser(token)
+      return user
     } catch (e) {
-      console.error(e)
+      reportError(e)
     }
 
     return null

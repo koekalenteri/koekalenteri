@@ -4,6 +4,7 @@ import { useSnackbar } from 'notistack'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
 import { putAdmin, putRole, putUser } from '../../../../api/user'
+import { reportError } from '../../../../lib/client/rum'
 import { idTokenAtom } from '../../../recoil'
 import { adminOrganizersAtom } from '../organizers'
 
@@ -37,7 +38,7 @@ export const useAdminUserActions = () => {
           enqueueSnackbar(`Käyttäjä '${added.name}' lisätty, sähköpostilla '${added.email}'`, { variant: 'info' })
         }
       } catch (e) {
-        console.error(e)
+        reportError(e)
       }
     },
     addRole: async (user: User, orgId: string, role: UserRole) => {
@@ -45,7 +46,7 @@ export const useAdminUserActions = () => {
         const saved = await putRole({ userId: user.id, orgId, role }, token)
         replaceUser(saved)
       } catch (e) {
-        console.error(e)
+        reportError(e)
       }
     },
     removeRole: async (user: User, orgId: string) => {
@@ -53,7 +54,7 @@ export const useAdminUserActions = () => {
         const saved = await putRole({ userId: user.id, orgId, role: 'none' }, token)
         replaceUser(saved)
       } catch (e) {
-        console.error(e)
+        reportError(e)
       }
     },
     setAdmin: async (user: User) => {
@@ -61,7 +62,7 @@ export const useAdminUserActions = () => {
         const saved = await putAdmin({ userId: user.id, admin: !!user.admin }, token)
         replaceUser(saved)
       } catch (e) {
-        console.error(e)
+        reportError(e)
       }
     },
   }

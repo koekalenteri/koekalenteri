@@ -16,3 +16,12 @@ export const rum = () => {
 
   return awsRum
 }
+
+export const reportError = (e: unknown) => {
+  const r = rum()
+  if (r) {
+    r.recordError(e)
+  } else {
+    console.error(e)
+  }
+}

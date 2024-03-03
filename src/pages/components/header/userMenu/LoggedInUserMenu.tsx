@@ -36,7 +36,7 @@ export default function LoggedInUserMenu({ userName }: Props) {
         onClose={handleClose}
         onClick={handleClose}
       >
-        <MenuItem onClick={actions.signOut}>{t('logout')}</MenuItem>
+        <MenuItem onClick={async () => actions.signOut()}>{t('logout')}</MenuItem>
       </Menu>
     </>
   )

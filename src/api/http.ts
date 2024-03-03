@@ -1,7 +1,7 @@
 import { fetchAuthSession } from 'aws-amplify/auth'
 import { enqueueSnackbar } from 'notistack'
 
-import { rum } from '../lib/client/rum'
+import { reportError } from '../lib/client/rum'
 import { parseJSON } from '../lib/utils'
 import { API_BASE_URL } from '../routeConfig'
 
@@ -63,8 +63,7 @@ async function httpWithTimeout<T>(path: string, init: RequestInit, reviveDates: 
       try {
         json = parseJSON(text, reviveDates)
       } catch (e) {
-        rum()?.recordError(e)
-        console.error('json parsing failed', e)
+        reportError(e)
       }
       if (![401, 404].includes(response.status)) {
         enqueueSnackbar(`${response.status} ${text}`, { variant: 'error' })
@@ -90,8 +89,6 @@ async function http<T>(path: string, init: RequestInit, reviveDates: boolean = t
 
     return result
   } catch (err) {
-    rum()?.recordError(err)
-
     if (!(err instanceof APIError)) {
       enqueueSnackbar(`${err}`, { variant: 'error' })
     } else if (err.status === 401) {
@@ -113,7 +110,7 @@ async function http<T>(path: string, init: RequestInit, reviveDates: boolean = t
       }
     }
 
-    console.error(err)
+    reportError(err)
     throw err
   }
 }

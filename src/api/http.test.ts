@@ -111,6 +111,20 @@ describe('http', () => {
       expect(response).toEqual('success!')
     })
 
+    it('should throw if refreshing tokens throws', async () => {
+      fetchMock.mockResponseOnce('The incoming token has expired', {
+        status: 401,
+        statusText: 'access denied',
+      })
+
+      const err = new Error('auth err')
+      jest.spyOn(awsAuth, 'fetchAuthSession').mockRejectedValueOnce(err)
+
+      const response = http.get('/secure', { headers: { Authorization: 'asdf' } })
+
+      expect(response).rejects.toEqual(err)
+    })
+
     it('should throw if refreshing tokens fail', async () => {
       fetchMock.mockResponseOnce('The incoming token has expired', {
         status: 401,

@@ -11,6 +11,7 @@ import { ConfirmProvider } from 'material-ui-confirm'
 import { SnackbarProvider } from 'notistack'
 import { useRecoilValue } from 'recoil'
 
+import { reportError } from './lib/client/rum'
 import SnackbarCloseButton from './pages/components/SnackbarCloseButton'
 import { LoadingPage } from './pages/LoadingPage'
 import { languageAtom } from './pages/recoil'
@@ -21,7 +22,7 @@ import routes from './routes'
 try {
   Amplify.configure(AWSConfig)
 } catch (e) {
-  console.error(e)
+  reportError(e)
 }
 
 const router = createBrowserRouter(routes)

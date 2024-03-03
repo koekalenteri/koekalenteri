@@ -77,7 +77,7 @@ export function SideMenu({ open, onClose }: Props) {
       </DrawerList>
       <Divider />
       <DrawerList>
-        <DrawerItem text={t('logout')} icon={<Logout />} onClick={actions.signOut} />
+        <DrawerItem text={t('logout')} icon={<Logout />} onClick={async () => actions.signOut()} />
       </DrawerList>
     </MiniDrawer>
   )

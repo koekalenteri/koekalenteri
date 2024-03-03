@@ -4,6 +4,7 @@ import { signOut as awsSignOut } from 'aws-amplify/auth'
 import { enqueueSnackbar } from 'notistack'
 import { useRecoilCallback, useRecoilState, useSetRecoilState } from 'recoil'
 
+import { reportError } from '../../../lib/client/rum'
 import { Path } from '../../../routeConfig'
 import { adminEventsAtom } from '../../admin/recoil'
 
@@ -37,14 +38,16 @@ export const useUserActions = () => {
 
   const signOut = useRecoilCallback(
     ({ reset }) =>
-      async () => {
+      async (notice: boolean = true) => {
         try {
           reset(idTokenAtom)
           reset(adminEventsAtom)
-          enqueueSnackbar('Heippa!', { variant: 'info' })
+          if (notice) {
+            enqueueSnackbar('Heippa!', { variant: 'info' })
+          }
           return awsSignOut()
         } catch (e) {
-          console.error(e)
+          reportError(e)
         }
       },
     []

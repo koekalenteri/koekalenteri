@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
 
 import { getRegistrationAuditTrail } from '../../../api/registration'
+import { reportError } from '../../../lib/client/rum'
 import { hasChanges } from '../../../lib/utils'
 import { idTokenAtom } from '../../recoil'
 import { currentAdminRegistrationSelector, editableAdminEventRegistrationByEventIdAndIdAtom } from '../recoil'
@@ -35,7 +36,7 @@ export default function RegistrationEditDialog({ event, registrationId, open, on
     getRegistrationAuditTrail(event.id, registrationId, token)
       .then((at) => setAuditTrail(at ?? []))
       .catch((e) => {
-        console.error(e)
+        reportError(e)
         setAuditTrail([])
       })
   }, [registrationId, savedRegistration, resetRegistration, event.id, open, token])

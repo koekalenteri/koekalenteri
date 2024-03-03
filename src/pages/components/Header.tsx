@@ -37,7 +37,7 @@ const Header = ({ toggleMenu }: Props) => {
   useEffect(() => {
     if (idToken && !user) {
       // SignOut if fetching user information has failed for some reason
-      actions.signOut()
+      actions.signOut(false)
     }
   }, [actions, idToken, user])
 

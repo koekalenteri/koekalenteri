@@ -4,6 +4,7 @@ import { useSnackbar } from 'notistack'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
 import { putAdminRegistration, putRegistrationGroups } from '../../../../api/registration'
+import { reportError } from '../../../../lib/client/rum'
 import { idTokenAtom } from '../../../recoil'
 import { adminEventSelector } from '../events'
 
@@ -105,7 +106,7 @@ export const useAdminRegistrationActions = (eventId: string) => {
           setEvent({ ...event, classes, entries })
         }
       } catch (e) {
-        console.error(e)
+        reportError(e)
         return false
       }
     },
