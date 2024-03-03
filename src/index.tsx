@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { ThemeProvider } from '@mui/material'
 import CssBaseline from '@mui/material/CssBaseline'
 import StyledEngineProvider from '@mui/material/StyledEngineProvider'
-import { RecoilRoot } from 'recoil'
+import { RecoilEnv, RecoilRoot } from 'recoil'
 
 import './i18n'
 
@@ -16,6 +16,12 @@ const container = document.getElementById('root')
 
 if (!container) {
   throw new Error('root element not found!')
+}
+
+if (process.env.NODE_ENV === 'development') {
+  // Recoil: disable "duplicate atom key" checking / logging in development. (Tests will log these)
+  RecoilEnv.RECOIL_DUPLICATE_ATOM_KEY_CHECKING_ENABLED = false
+  console.log(RecoilEnv)
 }
 
 const root = createRoot(container)
