@@ -57,6 +57,7 @@ const REQUIRED_BY_STATE: Record<EventState, EventFlags> = {
     cost: true,
     costMember: (event: PartialEvent) => !!event.costMember,
     contactInfo: true,
+    headquarters: true,
   },
   cancelled: {},
   //
@@ -98,6 +99,13 @@ const VALIDATORS: Validators<PartialEvent, 'event'> = {
     const cost = event.cost ?? 0
     if (event.costMember && cost < event.costMember) {
       return 'costMemberHigh'
+    }
+    return false
+  },
+  headquarters: (event, required) => {
+    const headquarters = event.headquarters
+    if (required && headquarters?.zipCode && !headquarters.zipCode.match(/^[0-9]{5}$/)) {
+      return 'zipCode'
     }
     return false
   },

@@ -13,7 +13,15 @@ interface Props extends Readonly<Omit<SectionProps, 'event'>> {
   readonly headquarters?: Partial<Headquarters>
 }
 
-export default function HeadquartersSection({ headquarters, disabled, onChange, onOpenChange, open }: Props) {
+export default function HeadquartersSection({
+  headquarters,
+  disabled,
+  onChange,
+  onOpenChange,
+  open,
+  errorStates,
+  helperTexts,
+}: Props) {
   const { t } = useTranslation()
   const handleChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>, props: Partial<Headquarters>) => {
@@ -40,7 +48,13 @@ export default function HeadquartersSection({ headquarters, disabled, onChange, 
   )
 
   return (
-    <CollapsibleSection title={t('event.headquarters.title')} open={open} onOpenChange={onOpenChange}>
+    <CollapsibleSection
+      title={t('event.headquarters.title')}
+      open={open}
+      onOpenChange={onOpenChange}
+      error={errorStates?.headquarters}
+      helperText={helperTexts?.headquarters}
+    >
       <Grid container spacing={1}>
         <Grid item container spacing={1}>
           <Grid item sx={{ width: 300 }}>

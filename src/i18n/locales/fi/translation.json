@@ -380,7 +380,8 @@
       "judges_other": "tuomaria",
       "placesClass": "Tila \"$t(event.states.{{state}})\": {{list}} $t(validation.event.classesMissing, {\"count\": {{length}} }) puuttuu koepaikat.",
       "startDate": "Alkamispäivä ei voi olla menneisyydessä",
-      "validationError": "Tila \"$t(event.states.{{state}})\": $t(event.{{field}}) on vaadittu tieto."
+      "validationError": "Tila \"$t(event.states.{{state}})\": $t(event.{{field}}) on vaadittu tieto.",
+      "zipCode": "Virheellinen postinumero"
     },
     "registration": {
       "choose": "Valitse $t(registration.{{field}},lowercase)",
