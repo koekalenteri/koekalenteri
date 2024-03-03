@@ -20,8 +20,13 @@ export const EventClassTableRow = ({ event, eventClass }: Props) => {
 
   const date = eventClass.date ?? event.startDate ?? new Date()
   const classDate = t('dateFormat.short', { date })
-  const entryStatus =
-    eventClass.places || eventClass.entries ? `${eventClass.entries ?? 0} / ${eventClass.places ?? '-'}` : ''
+  const entryStatus = useMemo(() => {
+    if (!eventClass.entries && !eventClass.places) return ''
+
+    const entries = eventClass.entries ?? 0
+    const places = eventClass.places ? eventClass.places : event.classes.length === 1 ? event.places : '-'
+    return `${entries} / ${places}`
+  }, [event, eventClass])
   const memberStatus = eventClass.members ? t('members', { count: eventClass.members }) : ''
   const judgeNames = useMemo(
     () =>

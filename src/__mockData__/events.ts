@@ -56,7 +56,7 @@ export const eventWithEntryOpen: ConfirmedEvent = {
   ...emptyEvent,
   id: 'test3',
   eventType: 'NOWT',
-  classes: [{ class: 'VOI', date: addDays(today, 14) }],
+  classes: [{ class: 'VOI', date: addDays(today, 14), entries: 7 }],
   startDate: addDays(today, 14),
   endDate: addDays(today, 15),
   entryStartDate: today, // entry starts today
