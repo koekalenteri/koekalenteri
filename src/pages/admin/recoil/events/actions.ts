@@ -49,9 +49,9 @@ export const useAdminEventActions = () => {
           newEvents.splice(index, 1, sanitizeDogEvent(event))
         }
         setPublicEvents(newEvents)
+      } else if (!remove) {
+        setPublicEvents([...publicEvents, sanitizeDogEvent(event)])
       }
-    } else if (!remove) {
-      setPublicEvents([...publicEvents, sanitizeDogEvent(event)])
     }
   }
 
