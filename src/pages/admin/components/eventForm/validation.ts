@@ -106,7 +106,7 @@ export const VALIDATORS: Validators<PartialEvent, 'event'> = {
   },
   headquarters: (event, required) => {
     const headquarters = event.headquarters
-    if ((headquarters?.zipCode && !ZIPCODE_REGEXP.exec(headquarters.zipCode)) || (required && !headquarters?.zipCode)) {
+    if (headquarters?.zipCode && !ZIPCODE_REGEXP.exec(headquarters.zipCode)) {
       return 'zipCode'
     }
     return false

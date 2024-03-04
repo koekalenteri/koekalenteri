@@ -12,8 +12,8 @@ describe('validation', () => {
         ${{ zipCode: '' }}        | ${false} | ${false}
         ${{ zipCode: '33101' }}   | ${false} | ${false}
         ${{ zipCode: '33101' }}   | ${true}  | ${false}
+        ${{ zipCode: '' }}        | ${true}  | ${false}
         ${{ zipCode: 'abba' }}    | ${false} | ${'zipCode'}
-        ${{ zipCode: '' }}        | ${true}  | ${'zipCode'}
         ${{ zipCode: '1234' }}    | ${true}  | ${'zipCode'}
         ${{ zipCode: '123456' }}  | ${true}  | ${'zipCode'}
       `('when headquarters is %p, required is %p, it should return %p', ({ headquarters, required, expected }) => {
