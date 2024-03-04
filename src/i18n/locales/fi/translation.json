@@ -278,6 +278,8 @@
       "title_receipt": "Kuitti maksusta",
       "title_update": "Ilmoittautumisesi tietoja on muokattu"
     },
+    "eventId": "Tapahtuman tunnus",
+    "eventType": "Tyyppi",
     "handler": "Ohjaajan tiedot",
     "handlerIsMember": "Ohjaaja on järjestävän yhdistyksen jäsen",
     "member": "Jäsen",
