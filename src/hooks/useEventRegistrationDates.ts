@@ -11,7 +11,10 @@ export const useEventRegistrationDates = (
   eventClass?: string
 ) => {
   const eventTypeGroups = useRecoilValue(eventTypeGroupsSelector(event.eventType))
-  const defaultGroups = useMemo(() => eventTypeGroups.filter((g) => g !== 'kp'), [eventTypeGroups])
+  const defaultGroups = useMemo(
+    () => (eventTypeGroups.length > 1 ? eventTypeGroups.filter((g) => g !== 'kp') : eventTypeGroups),
+    [eventTypeGroups]
+  )
 
   if (event.classes.length) {
     return event.classes
