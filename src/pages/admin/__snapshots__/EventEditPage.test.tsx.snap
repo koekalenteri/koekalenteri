@@ -2299,8 +2299,8 @@ exports[`EventEditPage renders properly 1`] = `
                           class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                         >
                           <label
-                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-a5n9ke-MuiFormLabel-root-MuiInputLabel-root"
-                            data-shrink="false"
+                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1cwx9dy-MuiFormLabel-root-MuiInputLabel-root"
+                            data-shrink="true"
                             for=":r17:"
                             id=":r17:-label"
                           >
@@ -2315,14 +2315,14 @@ exports[`EventEditPage renders properly 1`] = `
                               disabled=""
                               id=":r17:"
                               type="text"
-                              value=""
+                              value="33101"
                             />
                             <fieldset
                               aria-hidden="true"
                               class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                             >
                               <legend
-                                class="css-yjsfm1"
+                                class="css-14lo706"
                               >
                                 <span>
                                   event.headquarters.zipCode

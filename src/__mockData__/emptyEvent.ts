@@ -24,6 +24,7 @@ export const emptyEvent: ConfirmedEvent = {
   entryEndDate: new Date('1990-01-01'),
   entryStartDate: new Date('1990-01-01'),
   eventType: 'test',
+  headquarters: { zipCode: '33101' },
   id: 'test',
   judges: [{ id: 123, name: 'Tuomari 1', official: true }],
   kcId: 123456,
