@@ -198,6 +198,10 @@ export const genericReadTest =
     })
   }
 
+const mockPutItemOutput = {
+  promise: () => Promise.resolve(),
+} as unknown as Request<PutItemOutput, AWSError>
+
 export const genericWriteTest =
   (handler: (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult>) => (): void => {
     const putSpy = jest.spyOn(AWS.DynamoDB.DocumentClient.prototype, 'put')
@@ -211,9 +215,7 @@ export const genericWriteTest =
 
       putSpy.mockImplementation((params: PutItemInput) => {
         item = params.Item
-        return {
-          promise: () => Promise.resolve(),
-        } as unknown as Request<PutItemOutput, AWSError>
+        return mockPutItemOutput
       })
 
       const event = constructAPIGwEvent({}, { method: 'POST', username: 'TEST' })

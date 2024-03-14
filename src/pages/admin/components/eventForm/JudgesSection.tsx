@@ -1,5 +1,5 @@
-import type { EventType, Judge } from '../../../../types'
-import type { SectionProps } from '../EventForm'
+import type { DeepPartial, DogEvent, EventType, Judge } from '../../../../types'
+import type { PartialEvent, SectionProps } from '../EventForm'
 
 import { useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -17,6 +17,20 @@ import { validateEventField } from './validation'
 interface Props extends Readonly<SectionProps> {
   readonly judges: Judge[]
   readonly selectedEventType?: EventType
+}
+
+const onlyValidJudges = (
+  classes: PartialEvent['classes'],
+  judges: PartialEvent['judges']
+): Pick<DeepPartial<DogEvent>, 'judges' | 'classes'> => {
+  const validJudges = judges.filter((j) => j.official || j.foreing)
+  return {
+    judges: validJudges,
+    classes: classes.map((c) => ({
+      ...c,
+      judge: makeArray(c.judge).filter((j) => validJudges.find((vj) => vj.id === j.id)),
+    })),
+  }
 }
 
 export default function JudgesSection({
@@ -53,14 +67,7 @@ export default function JudgesSection({
 
   useEffect(() => {
     if (selectedEventType?.official && unofficialJudges.length) {
-      const validJudges = event.judges.filter((j) => j.official || j.foreing)
-      onChange?.({
-        judges: validJudges,
-        classes: event.classes.map((c) => ({
-          ...c,
-          judge: makeArray(c.judge).filter((j) => validJudges.find((vj) => vj.id === j.id)),
-        })),
-      })
+      onChange?.(onlyValidJudges(event.classes, event.judges))
     }
   }, [event.classes, event.judges, onChange, selectedEventType?.official, unofficialJudges.length])
 

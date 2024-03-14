@@ -92,19 +92,19 @@ const EventClassInfo = ({
   )
 }
 
+const findJudgesWithoutClass = (classes: PublicDogEvent['classes'], judges: PublicDogEvent['judges']) =>
+  judges.filter(
+    (j) =>
+      j?.name &&
+      !classes.find((c) => (Array.isArray(c.judge) ? c.judge.find((cj) => cj.id === j.id) : c.judge?.id === j.id))
+  )
+
 export const EventInfo = ({ event }: Props) => {
   const { t } = useTranslation()
   const status = useEventStatus(event)
 
-  const haveJudgesWithoutAssignedClass = useMemo(
-    () =>
-      event.judges.filter(
-        (j) =>
-          j?.name &&
-          !event.classes.find((c) =>
-            Array.isArray(c.judge) ? c.judge.find((cj) => cj.id === j.id) : c.judge?.id === j.id
-          )
-      ).length > 0,
+  const showJudges = useMemo(
+    () => findJudgesWithoutClass(event.classes, event.judges).length > 0,
     [event.classes, event.judges]
   )
 
@@ -125,21 +125,18 @@ export const EventInfo = ({ event }: Props) => {
           ))}
         </InfoItem>
       ) : null}
-      {haveJudgesWithoutAssignedClass ? (
+      {showJudges ? (
         <InfoItem label={t('event.judges')} order={{ xs: 3, lg: 2 }}>
           {event.judges.map((judge) => judgeName(judge, t)).join(', ')}
         </InfoItem>
       ) : null}
       {official ? (
-        <InfoItem label={t('event.official')} order={{ xs: 4, lg: haveJudgesWithoutAssignedClass ? undefined : 2 }}>
+        <InfoItem label={t('event.official')} order={{ xs: 4, lg: showJudges ? undefined : 2 }}>
           {official}
         </InfoItem>
       ) : null}
       {secretary ? (
-        <InfoItem
-          label={t('event.secretary')}
-          order={{ xs: 5, lg: haveJudgesWithoutAssignedClass || official ? undefined : 2 }}
-        >
+        <InfoItem label={t('event.secretary')} order={{ xs: 5, lg: showJudges || official ? undefined : 2 }}>
           {secretary}
         </InfoItem>
       ) : null}

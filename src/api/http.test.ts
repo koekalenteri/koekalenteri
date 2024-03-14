@@ -12,6 +12,8 @@ jest.mock('notistack', () => ({
 }))
 
 const mockConsoleError = jest.spyOn(console, 'error').mockImplementation()
+const mock5SecondFetch = () => new Promise<string>((resolve) => setTimeout(resolve, 5_000))
+const mock20SecondFetch = () => new Promise<string>((resolve) => setTimeout(resolve, 20_000))
 
 describe('http', () => {
   beforeEach(() => {
@@ -45,7 +47,7 @@ describe('http', () => {
     })
 
     it('should abort on pre-aborted signal', async () => {
-      fetchMock.mockResponseOnce(() => new Promise((resolve) => setTimeout(resolve, 5_000)))
+      fetchMock.mockResponseOnce(mock5SecondFetch)
 
       const controller = new AbortController()
       controller.abort('because')
@@ -56,7 +58,7 @@ describe('http', () => {
     })
 
     it('should abort on post-aborted signal', async () => {
-      fetchMock.mockResponseOnce(() => new Promise((resolve) => setTimeout(resolve, 5_000)))
+      fetchMock.mockResponseOnce(mock5SecondFetch)
 
       const controller = new AbortController()
 
@@ -78,7 +80,7 @@ describe('http', () => {
     it('should timeout', async () => {
       jest.useFakeTimers()
 
-      fetchMock.mockResponseOnce(() => new Promise((resolve) => setTimeout(resolve, 20_000)))
+      fetchMock.mockResponseOnce(mock20SecondFetch)
 
       const promise = http.get('/test/')
 
