@@ -514,7 +514,7 @@ exports[`SearchPage filters by date - no-results 1`] = `
                           class="MuiSwitch-root MuiSwitch-sizeMedium css-julti5-MuiSwitch-root"
                         >
                           <span
-                            class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-1xvpzln-MuiButtonBase-root-MuiSwitch-switchBase"
+                            class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-11xzqlw-MuiButtonBase-root-MuiSwitch-switchBase"
                           >
                             <input
                               class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"
@@ -546,7 +546,7 @@ exports[`SearchPage filters by date - no-results 1`] = `
                           class="MuiSwitch-root MuiSwitch-sizeMedium css-julti5-MuiSwitch-root"
                         >
                           <span
-                            class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-1xvpzln-MuiButtonBase-root-MuiSwitch-switchBase"
+                            class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-11xzqlw-MuiButtonBase-root-MuiSwitch-switchBase"
                           >
                             <input
                               class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"
@@ -1107,7 +1107,7 @@ exports[`SearchPage filters by date 1`] = `
                           class="MuiSwitch-root MuiSwitch-sizeMedium css-julti5-MuiSwitch-root"
                         >
                           <span
-                            class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-1xvpzln-MuiButtonBase-root-MuiSwitch-switchBase"
+                            class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-11xzqlw-MuiButtonBase-root-MuiSwitch-switchBase"
                           >
                             <input
                               class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"
@@ -1139,7 +1139,7 @@ exports[`SearchPage filters by date 1`] = `
                           class="MuiSwitch-root MuiSwitch-sizeMedium css-julti5-MuiSwitch-root"
                         >
                           <span
-                            class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-1xvpzln-MuiButtonBase-root-MuiSwitch-switchBase"
+                            class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-11xzqlw-MuiButtonBase-root-MuiSwitch-switchBase"
                           >
                             <input
                               class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"
@@ -2662,7 +2662,7 @@ exports[`SearchPage filters by date/end 1`] = `
                           class="MuiSwitch-root MuiSwitch-sizeMedium css-julti5-MuiSwitch-root"
                         >
                           <span
-                            class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-1xvpzln-MuiButtonBase-root-MuiSwitch-switchBase"
+                            class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-11xzqlw-MuiButtonBase-root-MuiSwitch-switchBase"
                           >
                             <input
                               class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"
@@ -2694,7 +2694,7 @@ exports[`SearchPage filters by date/end 1`] = `
                           class="MuiSwitch-root MuiSwitch-sizeMedium css-julti5-MuiSwitch-root"
                         >
                           <span
-                            class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-1xvpzln-MuiButtonBase-root-MuiSwitch-switchBase"
+                            class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-11xzqlw-MuiButtonBase-root-MuiSwitch-switchBase"
                           >
                             <input
                               class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"
@@ -4262,7 +4262,7 @@ exports[`SearchPage filters by event class 1`] = `
                           class="MuiSwitch-root MuiSwitch-sizeMedium css-julti5-MuiSwitch-root"
                         >
                           <span
-                            class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-1xvpzln-MuiButtonBase-root-MuiSwitch-switchBase"
+                            class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-11xzqlw-MuiButtonBase-root-MuiSwitch-switchBase"
                           >
                             <input
                               class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"
@@ -4294,7 +4294,7 @@ exports[`SearchPage filters by event class 1`] = `
                           class="MuiSwitch-root MuiSwitch-sizeMedium css-julti5-MuiSwitch-root"
                         >
                           <span
-                            class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-1xvpzln-MuiButtonBase-root-MuiSwitch-switchBase"
+                            class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-11xzqlw-MuiButtonBase-root-MuiSwitch-switchBase"
                           >
                             <input
                               class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"
@@ -5898,7 +5898,7 @@ exports[`SearchPage filters by event type 1`] = `
                           class="MuiSwitch-root MuiSwitch-sizeMedium css-julti5-MuiSwitch-root"
                         >
                           <span
-                            class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-1xvpzln-MuiButtonBase-root-MuiSwitch-switchBase"
+                            class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-11xzqlw-MuiButtonBase-root-MuiSwitch-switchBase"
                           >
                             <input
                               class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"
@@ -5930,7 +5930,7 @@ exports[`SearchPage filters by event type 1`] = `
                           class="MuiSwitch-root MuiSwitch-sizeMedium css-julti5-MuiSwitch-root"
                         >
                           <span
-                            class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-1xvpzln-MuiButtonBase-root-MuiSwitch-switchBase"
+                            class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-11xzqlw-MuiButtonBase-root-MuiSwitch-switchBase"
                           >
                             <input
                               class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"
@@ -7557,7 +7557,7 @@ exports[`SearchPage filters by organizer 1`] = `
                           class="MuiSwitch-root MuiSwitch-sizeMedium css-julti5-MuiSwitch-root"
                         >
                           <span
-                            class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-1xvpzln-MuiButtonBase-root-MuiSwitch-switchBase"
+                            class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-11xzqlw-MuiButtonBase-root-MuiSwitch-switchBase"
                           >
                             <input
                               class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"
@@ -7589,7 +7589,7 @@ exports[`SearchPage filters by organizer 1`] = `
                           class="MuiSwitch-root MuiSwitch-sizeMedium css-julti5-MuiSwitch-root"
                         >
                           <span
-                            class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-1xvpzln-MuiButtonBase-root-MuiSwitch-switchBase"
+                            class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-11xzqlw-MuiButtonBase-root-MuiSwitch-switchBase"
                           >
                             <input
                               class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"

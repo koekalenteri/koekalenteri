@@ -12,12 +12,12 @@ exports[`EventTypeListPage renders 1`] = `
         class="MuiStack-root css-1hezniw-MuiStack-root"
       >
         <button
-          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-mvwufc-MuiButtonBase-root-MuiButton-root"
+          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-mvwufc-MuiButtonBase-root-MuiButton-root"
           tabindex="0"
           type="button"
         >
           <span
-            class="MuiButton-startIcon MuiButton-iconSizeMedium css-1d6wzja-MuiButton-startIcon"
+            class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1d6wzja-MuiButton-startIcon"
           >
             <svg
               aria-hidden="true"
@@ -37,12 +37,12 @@ exports[`EventTypeListPage renders 1`] = `
           />
         </button>
         <button
-          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-mvwufc-MuiButtonBase-root-MuiButton-root"
+          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-mvwufc-MuiButtonBase-root-MuiButton-root"
           tabindex="0"
           type="button"
         >
           <span
-            class="MuiButton-startIcon MuiButton-iconSizeMedium css-1d6wzja-MuiButton-startIcon"
+            class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1d6wzja-MuiButton-startIcon"
           >
             <svg
               aria-hidden="true"
@@ -526,7 +526,7 @@ exports[`EventTypeListPage renders 1`] = `
                       class="MuiSwitch-root MuiSwitch-sizeMedium css-julti5-MuiSwitch-root"
                     >
                       <span
-                        class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-1xvpzln-MuiButtonBase-root-MuiSwitch-switchBase"
+                        class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-11xzqlw-MuiButtonBase-root-MuiSwitch-switchBase"
                       >
                         <input
                           class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"
