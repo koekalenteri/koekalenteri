@@ -4,7 +4,7 @@ import type { Organizer, PublicJudge, RegistrationClass } from '../../types'
 import type { DateValue } from '../components/DateRange'
 import type { FilterProps } from '../recoil'
 
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import ExpandMore from '@mui/icons-material/ExpandMore'
 import { useMediaQuery } from '@mui/material'
@@ -37,6 +37,7 @@ const MIN_DATE = new Date(2020, 0, 1)
 export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filter, onChange }: Props) => {
   const { t } = useTranslation()
   const md = useMediaQuery((theme: Theme) => theme.breakpoints.up('sm'))
+  const [expanded, setExpanded] = useState(md)
   const filterText = useMemo(() => filterString(filter, t), [filter, t])
 
   const setFilter = useCallback(
@@ -97,7 +98,7 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
       bgcolor={'white'}
       sx={{ position: 'sticky', top: HEADER_HEIGHT, zIndex: 2, borderBottom: '1px solid #eee' }}
     >
-      <Accordion defaultExpanded={md}>
+      <Accordion defaultExpanded={md} expanded={expanded} onChange={(_e, expanded) => setExpanded(expanded)}>
         <AccordionSummary
           expandIcon={<ExpandMore />}
           sx={{

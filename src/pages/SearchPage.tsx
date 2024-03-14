@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom'
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
 
 import { EventFilter } from './searchPage/EventFilter'
-import { EventTable } from './searchPage/EventTable'
+import { EventList } from './searchPage/EventList'
 import {
   deserializeFilter,
   eventFilterAtom,
@@ -43,7 +43,7 @@ export function SearchPage() {
         filter={filter}
         onChange={setFilter}
       />
-      <EventTable events={events} />
+      <EventList events={events} />
     </>
   )
 }

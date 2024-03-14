@@ -1,0 +1,250 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`EventList should render 1`] = `
+<div>
+  <div>
+    <div
+      class="MuiBox-root css-99stqg"
+      role="row"
+    >
+      <div
+        class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row css-1wlf0c6-MuiGrid2-root"
+      >
+        <div
+          class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
+        >
+          <button
+            aria-label="expand row"
+            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-tov16f-MuiButtonBase-root-MuiIconButton-root"
+            tabindex="0"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+              data-testid="KeyboardArrowRightIcon"
+              focusable="false"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6z"
+              />
+            </svg>
+            <span
+              class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+            />
+          </button>
+        </div>
+        <div
+          class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-grid-xs-true css-1bxpoof-MuiGrid2-root"
+        >
+          <div
+            class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 css-cvu9bm-MuiGrid2-root"
+          >
+            <div
+              class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-true css-1syv5ka-MuiGrid2-root"
+            >
+              <span
+                class="MuiTypography-root MuiTypography-caption css-ol7wxs-MuiTypography-root"
+              >
+                Suomen Noutajakoirajärjestö ry
+              </span>
+            </div>
+            <div
+              class="MuiGrid2-root MuiGrid2-direction-xs-row css-crfct9-MuiGrid2-root"
+            />
+          </div>
+          <div
+            class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-sm-auto css-g5vypw-MuiGrid2-root"
+          >
+            <div
+              class="MuiGrid2-root MuiGrid2-direction-xs-row css-11up7g7-MuiGrid2-root"
+            >
+              dateFormat.datespan
+            </div>
+            <div
+              class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-true MuiGrid2-grid-sm-auto css-fzjiz8-MuiGrid2-root"
+            >
+              test
+            </div>
+            <div
+              class="MuiGrid2-root MuiGrid2-direction-xs-row css-16aba0k-MuiGrid2-root"
+            />
+          </div>
+          <div
+            class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-sm-true css-1ar5pha-MuiGrid2-root"
+          >
+            <div
+              class="MuiGrid2-root MuiGrid2-direction-xs-row css-11up7g7-MuiGrid2-root"
+            >
+              test
+            </div>
+            <div
+              class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-true MuiGrid2-grid-sm-auto css-fzjiz8-MuiGrid2-root"
+            >
+              test
+            </div>
+            <div
+              class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-auto css-xvs7kq-MuiGrid2-root"
+            >
+              <span
+                class="MuiTypography-root MuiTypography-button css-g7ow3s-MuiTypography-root"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-fhr8k5-MuiCollapse-root"
+        style="min-height: 0px;"
+      >
+        <div
+          class="MuiCollapse-wrapper MuiCollapse-vertical css-smkl36-MuiCollapse-wrapper"
+        >
+          <div
+            class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
+          >
+            <div
+              class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row css-b1kjk3-MuiGrid2-root"
+            >
+              <div
+                class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-xxwg8p-MuiGrid2-root"
+              >
+                <span
+                  class="MuiTypography-root MuiTypography-caption css-19z60nk-MuiTypography-root"
+                >
+                  entryTime
+                </span>
+                dateFormat.datespan
+                 
+                <span
+                  class="info"
+                />
+              </div>
+              <div
+                class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-true css-2qi7fb-MuiGrid2-root"
+              >
+                <span
+                  class="MuiTypography-root MuiTypography-caption css-19z60nk-MuiTypography-root"
+                >
+                  event.classes
+                </span>
+                <div
+                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row css-9jcy0f-MuiGrid2-root"
+                >
+                  <div
+                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
+                  >
+                    eeeeee d.M.
+                  </div>
+                  <div
+                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
+                  >
+                    ALO
+                  </div>
+                  <div
+                    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-true css-t63qfg-MuiGrid2-root"
+                  />
+                  <div
+                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
+                  />
+                  <div
+                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
+                  />
+                </div>
+              </div>
+              <div
+                class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-rqmia2-MuiGrid2-root"
+              >
+                <span
+                  class="MuiTypography-root MuiTypography-caption css-19z60nk-MuiTypography-root"
+                >
+                  event.judges
+                </span>
+                Tuomari 1
+              </div>
+              <div
+                class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-mff7jj-MuiGrid2-root"
+              >
+                <span
+                  class="MuiTypography-root MuiTypography-caption css-19z60nk-MuiTypography-root"
+                >
+                  event.official
+                </span>
+                Teemu Toimitsija, 040-official, official@example.com
+              </div>
+              <div
+                class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-1xsjs3x-MuiGrid2-root"
+              >
+                <span
+                  class="MuiTypography-root MuiTypography-caption css-19z60nk-MuiTypography-root"
+                >
+                  event.secretary
+                </span>
+                Siiri Sihteeri, 040-secretary, secretary@example.com
+              </div>
+              <div
+                class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-4xg2f1-MuiGrid2-root"
+              >
+                <span
+                  class="MuiTypography-root MuiTypography-caption css-19z60nk-MuiTypography-root"
+                >
+                  paymentDetails
+                </span>
+                event.cost
+                : 
+                123
+                 €
+                <br />
+                event.costMember
+                : 
+                123
+                 €
+                <br />
+              </div>
+              <div
+                class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-78nh0m-MuiGrid2-root"
+              >
+                <span
+                  class="MuiTypography-root MuiTypography-caption css-19z60nk-MuiTypography-root"
+                >
+                  event.priority
+                </span>
+                <div
+                  class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-1w6a0pi-MuiChip-root"
+                >
+                  <span
+                    class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
+                  >
+                    Jäsenet
+                  </span>
+                </div>
+              </div>
+              <div
+                class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-1nsuxbh-MuiGrid2-root"
+              >
+                <span
+                  class="MuiTypography-root MuiTypography-caption css-19z60nk-MuiTypography-root"
+                >
+                  event.description
+                </span>
+                test
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`EventList should render with empty result 1`] = `
+<div>
+  <div
+    class="MuiBox-root css-fzwid6"
+  >
+    noResults
+  </div>
+</div>
+`;

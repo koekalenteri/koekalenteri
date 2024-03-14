@@ -10,16 +10,16 @@ import { emptyEvent } from '../../__mockData__/emptyEvent'
 import { eventWithEntryOpen } from '../../__mockData__/events'
 import theme from '../../assets/Theme'
 
-import { EventTable } from './EventTable'
+import { EventList } from './EventList'
 
 jest.mock('../../api/judge')
 
-describe('EventTable', () => {
+describe('EventList', () => {
   it('should render with empty result', () => {
     const { container } = render(
       <ThemeProvider theme={theme}>
         <RecoilRoot>
-          <EventTable events={[]} />
+          <EventList events={[]} />
         </RecoilRoot>
       </ThemeProvider>
     )
@@ -35,7 +35,7 @@ describe('EventTable', () => {
     const { container } = render(
       <ThemeProvider theme={theme}>
         <RecoilRoot>
-          <EventTable events={[event]} />
+          <EventList events={[event]} />
         </RecoilRoot>
       </ThemeProvider>
     )
@@ -47,7 +47,7 @@ describe('EventTable', () => {
       <ThemeProvider theme={theme}>
         <MemoryRouter>
           <RecoilRoot>
-            <EventTable events={[eventWithEntryOpen]} />
+            <EventList events={[eventWithEntryOpen]} />
           </RecoilRoot>
         </MemoryRouter>
       </ThemeProvider>

@@ -1,0 +1,277 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`EventInfo should render contact info 1`] = `
+<div>
+  <div
+    class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row css-b1kjk3-MuiGrid2-root"
+  >
+    <div
+      class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-yzd260-MuiGrid2-root"
+    >
+      <span
+        class="MuiTypography-root MuiTypography-caption css-fp3bf1-MuiTypography-root"
+      >
+        entryTime
+      </span>
+      dateFormat.datespan
+       
+      <span
+        class="info"
+      />
+    </div>
+    <div
+      class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-true css-yu5d00-MuiGrid2-root"
+    >
+      <span
+        class="MuiTypography-root MuiTypography-caption css-fp3bf1-MuiTypography-root"
+      >
+        event.classes
+      </span>
+      <div
+        class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row css-9jcy0f-MuiGrid2-root"
+      >
+        <div
+          class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
+        >
+          eeeeee d.M.
+        </div>
+        <div
+          class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
+        >
+          ALO
+        </div>
+        <div
+          class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-true css-t63qfg-MuiGrid2-root"
+        >
+          Test Judge
+        </div>
+        <div
+          class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
+        >
+          22 / 11
+        </div>
+        <div
+          class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
+        >
+          members
+        </div>
+      </div>
+    </div>
+    <div
+      class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-241rwc-MuiGrid2-root"
+    >
+      <span
+        class="MuiTypography-root MuiTypography-caption css-fp3bf1-MuiTypography-root"
+      >
+        event.judges
+      </span>
+      Tuomari 1
+    </div>
+    <div
+      class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-w8ax92-MuiGrid2-root"
+    >
+      <span
+        class="MuiTypography-root MuiTypography-caption css-fp3bf1-MuiTypography-root"
+      >
+        event.official
+      </span>
+      official name, 0700-official, official@example.com
+    </div>
+    <div
+      class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-m9ba3e-MuiGrid2-root"
+    >
+      <span
+        class="MuiTypography-root MuiTypography-caption css-fp3bf1-MuiTypography-root"
+      >
+        event.secretary
+      </span>
+      secretary name, 0700-secretary, secretary@example.com
+    </div>
+    <div
+      class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-1i1pohp-MuiGrid2-root"
+    >
+      <span
+        class="MuiTypography-root MuiTypography-caption css-fp3bf1-MuiTypography-root"
+      >
+        paymentDetails
+      </span>
+      event.cost
+      : 
+      123
+       €
+      <br />
+      event.costMember
+      : 
+      123
+       €
+      <br />
+    </div>
+    <div
+      class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-1e29lse-MuiGrid2-root"
+    >
+      <span
+        class="MuiTypography-root MuiTypography-caption css-fp3bf1-MuiTypography-root"
+      >
+        event.priority
+      </span>
+      <div
+        class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-13htn8f-MuiChip-root"
+      >
+        <span
+          class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
+        >
+          Jäsenet
+        </span>
+      </div>
+    </div>
+    <div
+      class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-kjsw1z-MuiGrid2-root"
+    >
+      <span
+        class="MuiTypography-root MuiTypography-caption css-fp3bf1-MuiTypography-root"
+      >
+        event.description
+      </span>
+      event description text
+    </div>
+  </div>
+</div>
+`;
+
+exports[`EventInfo should render event information 1`] = `
+<div>
+  <div
+    class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row css-b1kjk3-MuiGrid2-root"
+  >
+    <div
+      class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-yzd260-MuiGrid2-root"
+    >
+      <span
+        class="MuiTypography-root MuiTypography-caption css-fp3bf1-MuiTypography-root"
+      >
+        entryTime
+      </span>
+      dateFormat.datespan
+       
+      <span
+        class="info"
+      />
+    </div>
+    <div
+      class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-true css-yu5d00-MuiGrid2-root"
+    >
+      <span
+        class="MuiTypography-root MuiTypography-caption css-fp3bf1-MuiTypography-root"
+      >
+        event.classes
+      </span>
+      <div
+        class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row css-9jcy0f-MuiGrid2-root"
+      >
+        <div
+          class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
+        >
+          eeeeee d.M.
+        </div>
+        <div
+          class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
+        >
+          ALO
+        </div>
+        <div
+          class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-true css-t63qfg-MuiGrid2-root"
+        >
+          Test Judge
+        </div>
+        <div
+          class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
+        >
+          22 / 11
+        </div>
+        <div
+          class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
+        >
+          members
+        </div>
+      </div>
+    </div>
+    <div
+      class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-241rwc-MuiGrid2-root"
+    >
+      <span
+        class="MuiTypography-root MuiTypography-caption css-fp3bf1-MuiTypography-root"
+      >
+        event.judges
+      </span>
+      Tuomari 1
+    </div>
+    <div
+      class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-w8ax92-MuiGrid2-root"
+    >
+      <span
+        class="MuiTypography-root MuiTypography-caption css-fp3bf1-MuiTypography-root"
+      >
+        event.official
+      </span>
+      Teemu Toimitsija, 040-official, official@example.com
+    </div>
+    <div
+      class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-m9ba3e-MuiGrid2-root"
+    >
+      <span
+        class="MuiTypography-root MuiTypography-caption css-fp3bf1-MuiTypography-root"
+      >
+        event.secretary
+      </span>
+      Siiri Sihteeri, 040-secretary, secretary@example.com
+    </div>
+    <div
+      class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-1i1pohp-MuiGrid2-root"
+    >
+      <span
+        class="MuiTypography-root MuiTypography-caption css-fp3bf1-MuiTypography-root"
+      >
+        paymentDetails
+      </span>
+      event.cost
+      : 
+      123
+       €
+      <br />
+      event.costMember
+      : 
+      123
+       €
+      <br />
+    </div>
+    <div
+      class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-1e29lse-MuiGrid2-root"
+    >
+      <span
+        class="MuiTypography-root MuiTypography-caption css-fp3bf1-MuiTypography-root"
+      >
+        event.priority
+      </span>
+      <div
+        class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-13htn8f-MuiChip-root"
+      >
+        <span
+          class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
+        >
+          Jäsenet
+        </span>
+      </div>
+    </div>
+    <div
+      class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-kjsw1z-MuiGrid2-root"
+    >
+      <span
+        class="MuiTypography-root MuiTypography-caption css-fp3bf1-MuiTypography-root"
+      >
+        event.description
+      </span>
+      event description text
+    </div>
+  </div>
+</div>
+`;
