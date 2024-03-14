@@ -2127,7 +2127,7 @@ Resources:
         - Source: "/.well-known/apple-developer-merchantid-domain-association"
           Status: "200"
           Target: "/well-known/apple-developer-merchantid-domain-association.txt"
-        - Source: "</^((?!\\.(css|gif|ico|jpg|js|png|txt|svg|woff|ttf|json)$).)*$/>"
+        - Source: "</^((?!\\.(css|gif|ico|jpg|js|png|txt|svg|woff|webp|ttf|json)$).)*$/>"
           Status: "200"
           Target: "/index.html"
       Tags:
