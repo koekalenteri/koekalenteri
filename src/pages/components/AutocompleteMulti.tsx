@@ -31,7 +31,6 @@ export default function AutocompleteMulti<T>(props: AutocompleteMultiProps<T>) {
       disabled={disabled || (acProps.options.length === 0 && acProps.value?.length === 0)}
       data-testid={label}
       {...acProps}
-      disableCloseOnSelect
       fullWidth
       multiple
       renderInput={(inputProps) => <TextField {...inputProps} label={label} error={error} helperText={helperText} />}
