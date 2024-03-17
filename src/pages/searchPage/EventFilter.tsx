@@ -12,6 +12,7 @@ import Accordion from '@mui/material/Accordion'
 import AccordionDetails from '@mui/material/AccordionDetails'
 import AccordionSummary from '@mui/material/AccordionSummary'
 import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import Grid from '@mui/material/Grid'
 import Stack from '@mui/material/Stack'
@@ -163,26 +164,35 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
                 value={judges.filter((j) => filter.judge.includes(j.name))}
               />
             </Grid>
-            <Grid item md={12}>
-              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={0} alignItems="start" justifyContent="start">
-                <FormControlLabel
-                  value="withOpenEntry"
-                  checked={filter.withOpenEntry}
-                  control={<Switch />}
-                  label={t('entryOpen')}
-                  name="withOpenEntry"
-                  onChange={handleWithEntryOpenChange}
-                />
-                <FormControlLabel
-                  value="withUpcomingEntry"
-                  checked={filter.withUpcomingEntry}
-                  control={<Switch />}
-                  label={t('entryUpcoming')}
-                  labelPlacement="end"
-                  name="withUpcomingEntry"
-                  onChange={handleWithUpcomingEntryChange}
-                />
-              </Stack>
+            <Grid item xs={12} md={12}>
+              <Grid container>
+                <Grid item xs={true}>
+                  <Stack direction={{ xs: 'column', sm: 'row' }} spacing={0} alignItems="start" justifyContent="start">
+                    <FormControlLabel
+                      value="withOpenEntry"
+                      checked={filter.withOpenEntry}
+                      control={<Switch />}
+                      label={t('entryOpen')}
+                      name="withOpenEntry"
+                      onChange={handleWithEntryOpenChange}
+                    />
+                    <FormControlLabel
+                      value="withUpcomingEntry"
+                      checked={filter.withUpcomingEntry}
+                      control={<Switch />}
+                      label={t('entryUpcoming')}
+                      labelPlacement="end"
+                      name="withUpcomingEntry"
+                      onChange={handleWithUpcomingEntryChange}
+                    />
+                  </Stack>
+                </Grid>
+                <Grid item display={{ xs: undefined, md: 'none' }} alignSelf="end">
+                  <Button variant="contained" onClick={() => setExpanded(false)}>
+                    OK
+                  </Button>
+                </Grid>
+              </Grid>
             </Grid>
           </Grid>
         </AccordionDetails>
