@@ -30,7 +30,7 @@ const getStartListHandler = metricScope(
           publicRegs =
             items
               ?.filter<JsonRegistrationWithGroup>((reg): reg is JsonRegistrationWithGroup => !!reg.group)
-              .filter((reg) => reg.group.date)
+              .filter((reg) => reg.group.date && !reg.cancelled)
               .map<JsonPublicRegistration>((reg) => ({
                 class: reg.class,
                 dog: reg.dog,
