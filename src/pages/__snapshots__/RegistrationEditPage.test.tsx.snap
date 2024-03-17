@@ -139,16 +139,7 @@ exports[`RegistrationEditPage should render 1`] = `
                     <div
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-163n9ee-MuiGrid-root"
                     >
-                      event.cost
-                      : 
-                      123
-                       €
-                      <br />
-                      event.costMember
-                      : 
-                      123
-                       €
-                      <br />
+                      123 €event.costMember 123 €
                     </div>
                     <div
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-h9ezi1-MuiGrid-root"

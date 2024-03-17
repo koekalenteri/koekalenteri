@@ -111,7 +111,7 @@ exports[`EventList should render 1`] = `
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-xxwg8p-MuiGrid2-root"
               >
                 <span
-                  class="MuiTypography-root MuiTypography-caption css-19z60nk-MuiTypography-root"
+                  class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   entryTime
                 </span>
@@ -125,7 +125,7 @@ exports[`EventList should render 1`] = `
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-true css-2qi7fb-MuiGrid2-root"
               >
                 <span
-                  class="MuiTypography-root MuiTypography-caption css-19z60nk-MuiTypography-root"
+                  class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.classes
                 </span>
@@ -157,7 +157,7 @@ exports[`EventList should render 1`] = `
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-rqmia2-MuiGrid2-root"
               >
                 <span
-                  class="MuiTypography-root MuiTypography-caption css-19z60nk-MuiTypography-root"
+                  class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.judges
                 </span>
@@ -167,7 +167,7 @@ exports[`EventList should render 1`] = `
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-mff7jj-MuiGrid2-root"
               >
                 <span
-                  class="MuiTypography-root MuiTypography-caption css-19z60nk-MuiTypography-root"
+                  class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.official
                 </span>
@@ -177,7 +177,7 @@ exports[`EventList should render 1`] = `
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-1xsjs3x-MuiGrid2-root"
               >
                 <span
-                  class="MuiTypography-root MuiTypography-caption css-19z60nk-MuiTypography-root"
+                  class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.secretary
                 </span>
@@ -187,26 +187,17 @@ exports[`EventList should render 1`] = `
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-4xg2f1-MuiGrid2-root"
               >
                 <span
-                  class="MuiTypography-root MuiTypography-caption css-19z60nk-MuiTypography-root"
+                  class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   paymentDetails
                 </span>
-                event.cost
-                : 
-                123
-                 €
-                <br />
-                event.costMember
-                : 
-                123
-                 €
-                <br />
+                123 €event.costMember 123 €
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-78nh0m-MuiGrid2-root"
               >
                 <span
-                  class="MuiTypography-root MuiTypography-caption css-19z60nk-MuiTypography-root"
+                  class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.priority
                 </span>
@@ -224,7 +215,7 @@ exports[`EventList should render 1`] = `
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-1nsuxbh-MuiGrid2-root"
               >
                 <span
-                  class="MuiTypography-root MuiTypography-caption css-19z60nk-MuiTypography-root"
+                  class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.description
                 </span>

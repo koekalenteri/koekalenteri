@@ -1,5 +1,6 @@
 import type { DogEvent } from '../../types'
 
+import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 
 interface Props {
@@ -8,15 +9,13 @@ interface Props {
 
 export default function CostInfo({ event }: Props) {
   const { t } = useTranslation()
-
-  return (
-    <>
-      {t('event.cost')}: {event.cost} €<br />
-      {event.costMember ? (
-        <>
-          {t('event.costMember')}: {event.costMember} €<br />
-        </>
-      ) : null}
-    </>
+  const text = useMemo(
+    () =>
+      event.costMember
+        ? `${event.cost}\u00A0€${t('event.costMember')}\u00A0${event.costMember}\u00A0€`
+        : `${event.cost}\u00A0€`,
+    [event.cost, event.costMember, t]
   )
+
+  return <>{text}</>
 }

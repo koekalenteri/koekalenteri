@@ -64,8 +64,8 @@
   "event": {
     "classes": "Classes",
     "contactInfo": "Contact information",
-    "cost": "Cost",
-    "costMember": "Cost for members",
+    "cost": "Fee",
+    "costMember": ", members",
     "createdAt": "Created at",
     "createdBy": "Created by",
     "deletedAt": "Deleted at",
