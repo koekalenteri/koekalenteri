@@ -1305,7 +1305,11 @@ exports[`SearchPage filters by date 1`] = `
             >
               <span
                 class="MuiTypography-root MuiTypography-button css-g7ow3s-MuiTypography-root"
-              />
+              >
+                <div
+                  class="MuiBox-root css-bmuutb"
+                />
+              </span>
             </div>
           </div>
         </div>
@@ -1496,7 +1500,11 @@ exports[`SearchPage filters by date 1`] = `
             >
               <span
                 class="MuiTypography-root MuiTypography-button css-g7ow3s-MuiTypography-root"
-              />
+              >
+                <div
+                  class="MuiBox-root css-bmuutb"
+                />
+              </span>
             </div>
           </div>
         </div>
@@ -1742,7 +1750,11 @@ exports[`SearchPage filters by date 1`] = `
             >
               <span
                 class="MuiTypography-root MuiTypography-button css-g7ow3s-MuiTypography-root"
-              />
+              >
+                <div
+                  class="MuiBox-root css-bmuutb"
+                />
+              </span>
             </div>
           </div>
         </div>
@@ -2011,7 +2023,11 @@ exports[`SearchPage filters by date 1`] = `
             >
               <span
                 class="MuiTypography-root MuiTypography-button css-g7ow3s-MuiTypography-root"
-              />
+              >
+                <div
+                  class="MuiBox-root css-bmuutb"
+                />
+              </span>
             </div>
           </div>
         </div>
@@ -2846,7 +2862,11 @@ exports[`SearchPage filters by date/end 1`] = `
             >
               <span
                 class="MuiTypography-root MuiTypography-button css-g7ow3s-MuiTypography-root"
-              />
+              >
+                <div
+                  class="MuiBox-root css-bmuutb"
+                />
+              </span>
             </div>
           </div>
         </div>
@@ -3037,7 +3057,11 @@ exports[`SearchPage filters by date/end 1`] = `
             >
               <span
                 class="MuiTypography-root MuiTypography-button css-g7ow3s-MuiTypography-root"
-              />
+              >
+                <div
+                  class="MuiBox-root css-bmuutb"
+                />
+              </span>
             </div>
           </div>
         </div>
@@ -3283,7 +3307,11 @@ exports[`SearchPage filters by date/end 1`] = `
             >
               <span
                 class="MuiTypography-root MuiTypography-button css-g7ow3s-MuiTypography-root"
-              />
+              >
+                <div
+                  class="MuiBox-root css-bmuutb"
+                />
+              </span>
             </div>
           </div>
         </div>
@@ -3552,7 +3580,11 @@ exports[`SearchPage filters by date/end 1`] = `
             >
               <span
                 class="MuiTypography-root MuiTypography-button css-g7ow3s-MuiTypography-root"
-              />
+              >
+                <div
+                  class="MuiBox-root css-bmuutb"
+                />
+              </span>
             </div>
           </div>
         </div>
@@ -4432,7 +4464,11 @@ exports[`SearchPage filters by event class 1`] = `
             >
               <span
                 class="MuiTypography-root MuiTypography-button css-g7ow3s-MuiTypography-root"
-              />
+              >
+                <div
+                  class="MuiBox-root css-bmuutb"
+                />
+              </span>
             </div>
           </div>
         </div>
@@ -4701,7 +4737,11 @@ exports[`SearchPage filters by event class 1`] = `
             >
               <span
                 class="MuiTypography-root MuiTypography-button css-g7ow3s-MuiTypography-root"
-              />
+              >
+                <div
+                  class="MuiBox-root css-bmuutb"
+                />
+              </span>
             </div>
           </div>
         </div>
@@ -4924,7 +4964,11 @@ exports[`SearchPage filters by event class 1`] = `
             >
               <span
                 class="MuiTypography-root MuiTypography-button css-g7ow3s-MuiTypography-root"
-              />
+              >
+                <div
+                  class="MuiBox-root css-bmuutb"
+                />
+              </span>
             </div>
           </div>
         </div>
@@ -5174,7 +5218,13 @@ exports[`SearchPage filters by event class 1`] = `
             >
               <span
                 class="MuiTypography-root MuiTypography-button css-g7ow3s-MuiTypography-root"
-              />
+              >
+                <div
+                  class="MuiBox-root css-bmuutb"
+                >
+                  dateFormat.datespan
+                </div>
+              </span>
             </div>
           </div>
         </div>
@@ -6054,7 +6104,11 @@ exports[`SearchPage filters by event type 1`] = `
             >
               <span
                 class="MuiTypography-root MuiTypography-button css-g7ow3s-MuiTypography-root"
-              />
+              >
+                <div
+                  class="MuiBox-root css-bmuutb"
+                />
+              </span>
             </div>
           </div>
         </div>
@@ -6300,7 +6354,11 @@ exports[`SearchPage filters by event type 1`] = `
             >
               <span
                 class="MuiTypography-root MuiTypography-button css-g7ow3s-MuiTypography-root"
-              />
+              >
+                <div
+                  class="MuiBox-root css-bmuutb"
+                />
+              </span>
             </div>
           </div>
         </div>
@@ -6569,7 +6627,11 @@ exports[`SearchPage filters by event type 1`] = `
             >
               <span
                 class="MuiTypography-root MuiTypography-button css-g7ow3s-MuiTypography-root"
-              />
+              >
+                <div
+                  class="MuiBox-root css-bmuutb"
+                />
+              </span>
             </div>
           </div>
         </div>
@@ -6792,7 +6854,11 @@ exports[`SearchPage filters by event type 1`] = `
             >
               <span
                 class="MuiTypography-root MuiTypography-button css-g7ow3s-MuiTypography-root"
-              />
+              >
+                <div
+                  class="MuiBox-root css-bmuutb"
+                />
+              </span>
             </div>
           </div>
         </div>
@@ -7699,7 +7765,11 @@ exports[`SearchPage filters by organizer 1`] = `
             >
               <span
                 class="MuiTypography-root MuiTypography-button css-g7ow3s-MuiTypography-root"
-              />
+              >
+                <div
+                  class="MuiBox-root css-bmuutb"
+                />
+              </span>
             </div>
           </div>
         </div>

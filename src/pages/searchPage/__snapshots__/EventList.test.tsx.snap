@@ -89,7 +89,11 @@ exports[`EventList should render 1`] = `
             >
               <span
                 class="MuiTypography-root MuiTypography-button css-g7ow3s-MuiTypography-root"
-              />
+              >
+                <div
+                  class="MuiBox-root css-bmuutb"
+                />
+              </span>
             </div>
           </div>
         </div>

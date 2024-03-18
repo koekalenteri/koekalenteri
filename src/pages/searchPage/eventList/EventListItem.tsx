@@ -11,13 +11,14 @@ import Typography from '@mui/material/Typography'
 import Grid from '@mui/material/Unstable_Grid2'
 import { useRecoilState } from 'recoil'
 
-import { isEntryOpen } from '../../../lib/utils'
+import { isEntryOpen, isEntryUpcoming } from '../../../lib/utils'
 import { Path } from '../../../routeConfig'
 import LinkButton from '../../components/LinkButton'
 import { openedEventAtom } from '../../recoil'
 
 import { EventPlaces } from './eventTableRow/EventPlaces'
 import { EventInfo } from './EventInfo'
+import { EventStateInfo } from './EventStateInfo'
 
 interface Props {
   readonly event: PublicDogEvent
@@ -27,6 +28,10 @@ interface Props {
 export const EventListItem = ({ event, odd }: Props) => {
   const [open, setOpen] = useRecoilState(openedEventAtom(event.id))
   const { t } = useTranslation()
+
+  const infoText = isEntryUpcoming(event)
+    ? t('dateFormat.datespan', { start: event.entryStartDate, end: event.entryEndDate })
+    : null
 
   const handleClick = useCallback(() => setOpen(!open), [open, setOpen])
 
@@ -76,7 +81,9 @@ export const EventListItem = ({ event, odd }: Props) => {
               <Typography variant="button">
                 {isEntryOpen(event) ? (
                   <LinkButton to={Path.register(event)} text={t('register')} sx={{ pr: 0 }} />
-                ) : null}
+                ) : (
+                  <EventStateInfo id={event.id} state={event.state} text={infoText} />
+                )}
               </Typography>
             </Grid>
           </Grid>
