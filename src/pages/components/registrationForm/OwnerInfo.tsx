@@ -19,7 +19,7 @@ interface Props {
   readonly disabled?: boolean
   readonly error?: boolean
   readonly helperText?: string
-  readonly onChange: (props: DeepPartial<Registration>) => void
+  readonly onChange?: (props: DeepPartial<Registration>) => void
   readonly onOpenChange?: (value: boolean) => void
   readonly open?: boolean
 }
@@ -33,7 +33,7 @@ export function OwnerInfo({ reg, disabled, error, helperText, onChange, onOpenCh
       const cached = setCache({ ...cache, ...props })
       if (cached) {
         const { ownerHandles, ownerPays, ...owner } = cached
-        onChange({
+        onChange?.({
           owner,
           ownerHandles: ownerHandles ?? props.ownerHandles ?? true,
           ownerPays: ownerPays ?? props.ownerPays ?? true,
@@ -61,7 +61,7 @@ export function OwnerInfo({ reg, disabled, error, helperText, onChange, onOpenCh
             id="owner_name"
             label={t('contact.name')}
             name="name"
-            onChange={(e) => handleChange({ name: e.target.value ?? '' })}
+            onChange={(e) => handleChange({ name: e.target.value })}
             value={reg.owner?.name ?? ''}
           />
         </Grid>
@@ -74,7 +74,7 @@ export function OwnerInfo({ reg, disabled, error, helperText, onChange, onOpenCh
             id="owner_city"
             label={t('contact.city')}
             name="city"
-            onChange={(e) => handleChange({ location: e.target.value ?? '' })}
+            onChange={(e) => handleChange({ location: e.target.value })}
             value={reg.owner?.location ?? ''}
           />
         </Grid>
@@ -87,7 +87,7 @@ export function OwnerInfo({ reg, disabled, error, helperText, onChange, onOpenCh
             id="owner_email"
             label={t('contact.email')}
             name="email"
-            onChange={(e) => handleChange({ email: e.target.value ?? '' })}
+            onChange={(e) => handleChange({ email: e.target.value })}
             value={reg.owner?.email ?? ''}
           />
         </Grid>
@@ -125,14 +125,19 @@ export function OwnerInfo({ reg, disabled, error, helperText, onChange, onOpenCh
         <FormControlLabel
           disabled={disabled}
           control={
-            <Switch checked={reg.ownerHandles} onChange={(e) => handleChange({ ownerHandles: e.target.checked })} />
+            <Switch
+              checked={reg.ownerHandles ?? true}
+              onChange={(e) => handleChange({ ownerHandles: e.target.checked })}
+            />
           }
           label={t('registration.ownerHandles')}
           name="ownerHandles"
         />
         <FormControlLabel
           disabled={disabled}
-          control={<Switch checked={reg.ownerPays} onChange={(e) => handleChange({ ownerPays: e.target.checked })} />}
+          control={
+            <Switch checked={reg.ownerPays ?? true} onChange={(e) => handleChange({ ownerPays: e.target.checked })} />
+          }
           label={t('registration.ownerPays')}
           name="ownerPays"
         />

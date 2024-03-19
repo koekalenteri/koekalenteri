@@ -1562,9 +1562,10 @@ exports[`RegistrationForm renders 1`] = `
                         class="MuiSwitch-root MuiSwitch-sizeMedium css-julti5-MuiSwitch-root"
                       >
                         <span
-                          class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-11xzqlw-MuiButtonBase-root-MuiSwitch-switchBase"
+                          class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-checked css-11xzqlw-MuiButtonBase-root-MuiSwitch-switchBase"
                         >
                           <input
+                            checked=""
                             class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"
                             name="ownerHandles"
                             type="checkbox"
@@ -1593,9 +1594,10 @@ exports[`RegistrationForm renders 1`] = `
                         class="MuiSwitch-root MuiSwitch-sizeMedium css-julti5-MuiSwitch-root"
                       >
                         <span
-                          class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-11xzqlw-MuiButtonBase-root-MuiSwitch-switchBase"
+                          class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-checked css-11xzqlw-MuiButtonBase-root-MuiSwitch-switchBase"
                         >
                           <input
+                            checked=""
                             class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"
                             name="ownerPays"
                             type="checkbox"
@@ -4057,9 +4059,10 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                         class="MuiSwitch-root MuiSwitch-sizeMedium css-julti5-MuiSwitch-root"
                       >
                         <span
-                          class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-11xzqlw-MuiButtonBase-root-MuiSwitch-switchBase"
+                          class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-checked css-11xzqlw-MuiButtonBase-root-MuiSwitch-switchBase"
                         >
                           <input
+                            checked=""
                             class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"
                             name="ownerHandles"
                             type="checkbox"
@@ -4088,9 +4091,10 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                         class="MuiSwitch-root MuiSwitch-sizeMedium css-julti5-MuiSwitch-root"
                       >
                         <span
-                          class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-11xzqlw-MuiButtonBase-root-MuiSwitch-switchBase"
+                          class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-checked css-11xzqlw-MuiButtonBase-root-MuiSwitch-switchBase"
                         >
                           <input
+                            checked=""
                             class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"
                             name="ownerPays"
                             type="checkbox"
