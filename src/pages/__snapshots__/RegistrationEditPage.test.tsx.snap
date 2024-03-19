@@ -1288,7 +1288,7 @@ exports[`RegistrationEditPage should render 1`] = `
                           for="breeder_name"
                           id="breeder_name-label"
                         >
-                          Nimi
+                          contact.name
                         </label>
                         <div
                           class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl css-78sb4c-MuiInputBase-root-MuiOutlinedInput-root"
@@ -1309,7 +1309,7 @@ exports[`RegistrationEditPage should render 1`] = `
                               class="css-14lo706"
                             >
                               <span>
-                                Nimi
+                                contact.name
                               </span>
                             </legend>
                           </fieldset>
@@ -1328,7 +1328,7 @@ exports[`RegistrationEditPage should render 1`] = `
                           for="breeder_location"
                           id="breeder_location-label"
                         >
-                          Kotikunta
+                          contact.city
                         </label>
                         <div
                           class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl css-78sb4c-MuiInputBase-root-MuiOutlinedInput-root"
@@ -1349,7 +1349,7 @@ exports[`RegistrationEditPage should render 1`] = `
                               class="css-14lo706"
                             >
                               <span>
-                                Kotikunta
+                                contact.city
                               </span>
                             </legend>
                           </fieldset>

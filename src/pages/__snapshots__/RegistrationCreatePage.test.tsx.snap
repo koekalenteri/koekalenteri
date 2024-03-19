@@ -1483,7 +1483,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                           for="breeder_name"
                           id="breeder_name-label"
                         >
-                          Nimi
+                          contact.name
                         </label>
                         <div
                           class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-error MuiInputBase-fullWidth MuiInputBase-formControl css-78sb4c-MuiInputBase-root-MuiOutlinedInput-root"
@@ -1503,7 +1503,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                               class="css-yjsfm1"
                             >
                               <span>
-                                Nimi
+                                contact.name
                               </span>
                             </legend>
                           </fieldset>
@@ -1522,7 +1522,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                           for="breeder_location"
                           id="breeder_location-label"
                         >
-                          Kotikunta
+                          contact.city
                         </label>
                         <div
                           class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-error MuiInputBase-fullWidth MuiInputBase-formControl css-78sb4c-MuiInputBase-root-MuiOutlinedInput-root"
@@ -1542,7 +1542,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                               class="css-yjsfm1"
                             >
                               <span>
-                                Kotikunta
+                                contact.city
                               </span>
                             </legend>
                           </fieldset>
@@ -4164,7 +4164,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                           for="breeder_name"
                           id="breeder_name-label"
                         >
-                          Nimi
+                          contact.name
                         </label>
                         <div
                           class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-error MuiInputBase-fullWidth MuiInputBase-formControl css-78sb4c-MuiInputBase-root-MuiOutlinedInput-root"
@@ -4184,7 +4184,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                               class="css-yjsfm1"
                             >
                               <span>
-                                Nimi
+                                contact.name
                               </span>
                             </legend>
                           </fieldset>
@@ -4203,7 +4203,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                           for="breeder_location"
                           id="breeder_location-label"
                         >
-                          Kotikunta
+                          contact.city
                         </label>
                         <div
                           class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-error MuiInputBase-fullWidth MuiInputBase-formControl css-78sb4c-MuiInputBase-root-MuiOutlinedInput-root"
@@ -4223,7 +4223,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                               class="css-yjsfm1"
                             >
                               <span>
-                                Kotikunta
+                                contact.city
                               </span>
                             </legend>
                           </fieldset>

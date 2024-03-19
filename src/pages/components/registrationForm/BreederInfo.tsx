@@ -14,7 +14,7 @@ interface Props {
   readonly disabled?: boolean
   readonly error?: boolean
   readonly helperText?: string
-  readonly onChange: (props: DeepPartial<Registration>) => void
+  readonly onChange?: (props: DeepPartial<Registration>) => void
   readonly onOpenChange?: (value: boolean) => void
   readonly open?: boolean
 }
@@ -26,7 +26,7 @@ export function BreederInfo({ reg, disabled, error, helperText, onChange, onOpen
   const handleChange = useCallback(
     (props: Partial<RegistrationBreeder>) => {
       const breeder = setCache({ ...cache, ...props })
-      onChange({ breeder })
+      onChange?.({ breeder })
     },
     [cache, onChange, setCache]
   )
@@ -46,9 +46,9 @@ export function BreederInfo({ reg, disabled, error, helperText, onChange, onOpen
             error={!reg.breeder?.name}
             fullWidth
             id="breeder_name"
-            label="Nimi"
+            label={t('contact.name')}
             value={reg.breeder?.name ?? ''}
-            onChange={(e) => handleChange({ name: e.target.value ?? '' })}
+            onChange={(e) => handleChange({ name: e.target.value })}
           />
         </Grid>
         <Grid item xs={12} sm={6}>
@@ -57,9 +57,9 @@ export function BreederInfo({ reg, disabled, error, helperText, onChange, onOpen
             error={!reg.breeder?.location}
             fullWidth
             id="breeder_location"
-            label="Kotikunta"
+            label={t('contact.city')}
             value={reg.breeder?.location ?? ''}
-            onChange={(e) => handleChange({ location: e.target.value ?? '' })}
+            onChange={(e) => handleChange({ location: e.target.value })}
           />
         </Grid>
       </Grid>

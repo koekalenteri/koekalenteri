@@ -22,7 +22,7 @@ import { hasChanges, merge } from '../../lib/utils'
 import { getRequirements } from '../../rules'
 
 import { AdditionalInfo } from './registrationForm/AdditionalInfo'
-import { BreederInfo } from './registrationForm/Breeder'
+import { BreederInfo } from './registrationForm/BreederInfo'
 import { DogInfo } from './registrationForm/DogInfo'
 import { EntryInfo } from './registrationForm/EntryInfo'
 import { HandlerInfo } from './registrationForm/HandlerInfo'
