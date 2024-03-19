@@ -17,7 +17,7 @@ interface Props {
   readonly disabled?: boolean
   readonly error?: boolean
   readonly helperText?: string
-  readonly onChange: (props: DeepPartial<Registration>) => void
+  readonly onChange?: (props: DeepPartial<Registration>) => void
   readonly onOpenChange?: (value: boolean) => void
   readonly open?: boolean
 }
@@ -29,7 +29,7 @@ export function HandlerInfo({ reg, disabled, error, helperText, onChange, onOpen
   const handleChange = useCallback(
     (props: Partial<RegistrationPerson>) => {
       const handler = setCache({ ...cache, ...props })
-      onChange({ handler })
+      onChange?.({ handler })
     },
     [cache, onChange, setCache]
   )
@@ -52,7 +52,7 @@ export function HandlerInfo({ reg, disabled, error, helperText, onChange, onOpen
             id="handler_name"
             label={t('contact.name')}
             name="name"
-            onChange={(e) => handleChange({ name: e.target.value || '' })}
+            onChange={(e) => handleChange({ name: e.target.value })}
             value={reg.handler?.name ?? ''}
           />
         </Grid>
@@ -65,7 +65,7 @@ export function HandlerInfo({ reg, disabled, error, helperText, onChange, onOpen
             id="handler_city"
             label={t('contact.city')}
             name="city"
-            onChange={(e) => handleChange({ location: e.target.value || '' })}
+            onChange={(e) => handleChange({ location: e.target.value })}
             value={reg.handler?.location ?? ''}
           />
         </Grid>
@@ -78,7 +78,7 @@ export function HandlerInfo({ reg, disabled, error, helperText, onChange, onOpen
             id="handler_email"
             label={t('contact.email')}
             name="email"
-            onChange={(e) => handleChange({ email: e.target.value ?? '' })}
+            onChange={(e) => handleChange({ email: e.target.value })}
             value={reg.handler?.email ?? ''}
           />
         </Grid>
