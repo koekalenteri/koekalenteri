@@ -15,7 +15,7 @@ interface Props {
   readonly disabled?: boolean
   readonly error?: boolean
   readonly helperText?: string
-  readonly onChange: (props: DeepPartial<Registration>) => void
+  readonly onChange?: (props: DeepPartial<Registration>) => void
   readonly onOpenChange?: (value: boolean) => void
   readonly open?: boolean
 }
@@ -27,7 +27,7 @@ export function PayerInfo({ reg, disabled, error, helperText, onChange, onOpenCh
   const handleChange = useCallback(
     (props: Partial<RegistrationPerson>) => {
       const payer = setCache({ ...cache, ...props })
-      onChange({ payer })
+      onChange?.({ payer })
     },
     [cache, onChange, setCache]
   )
@@ -50,7 +50,7 @@ export function PayerInfo({ reg, disabled, error, helperText, onChange, onOpenCh
             id="payer_name"
             label={t('contact.name')}
             name="name"
-            onChange={(e) => handleChange({ name: e.target.value || '' })}
+            onChange={(e) => handleChange({ name: e.target.value })}
             value={reg.payer?.name ?? ''}
           />
         </Grid>
@@ -63,7 +63,7 @@ export function PayerInfo({ reg, disabled, error, helperText, onChange, onOpenCh
             id="payer_email"
             label={t('contact.email')}
             name="email"
-            onChange={(e) => handleChange({ email: e.target.value ?? '' })}
+            onChange={(e) => handleChange({ email: e.target.value })}
             value={reg.payer?.email ?? ''}
           />
         </Grid>
