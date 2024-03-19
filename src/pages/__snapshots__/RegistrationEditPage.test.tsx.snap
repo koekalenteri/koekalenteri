@@ -1673,10 +1673,11 @@ exports[`RegistrationEditPage should render 1`] = `
                       >
                         <span
                           aria-disabled="true"
-                          class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-disabled Mui-disabled PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-disabled Mui-disabled css-11xzqlw-MuiButtonBase-root-MuiSwitch-switchBase"
+                          class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-disabled Mui-disabled PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-disabled Mui-checked Mui-disabled css-11xzqlw-MuiButtonBase-root-MuiSwitch-switchBase"
                           tabindex="-1"
                         >
                           <input
+                            checked=""
                             class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"
                             disabled=""
                             name="ownerHandles"
@@ -1704,10 +1705,11 @@ exports[`RegistrationEditPage should render 1`] = `
                       >
                         <span
                           aria-disabled="true"
-                          class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-disabled Mui-disabled PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-disabled Mui-disabled css-11xzqlw-MuiButtonBase-root-MuiSwitch-switchBase"
+                          class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-disabled Mui-disabled PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-disabled Mui-checked Mui-disabled css-11xzqlw-MuiButtonBase-root-MuiSwitch-switchBase"
                           tabindex="-1"
                         >
                           <input
+                            checked=""
                             class="PrivateSwitchBase-input MuiSwitch-input css-1m9pwf3"
                             disabled=""
                             name="ownerPays"
