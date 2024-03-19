@@ -113,7 +113,7 @@ function dateReviver(_key: string, value: JsonValue): JsonValue | Date {
 export const parseJSON = (json: string, reviveDates: boolean = true) =>
   json ? JSON.parse(json, reviveDates ? dateReviver : undefined) : undefined
 
-export type AnyObject = Record<string, unknown>
+export type AnyObject = Record<string, any>
 export type EmptyObject = Record<string, never>
 export type Entries<T> = {
   [K in keyof T]: [K, T[K]]
@@ -131,7 +131,7 @@ export const hasChanges = (a: object | undefined | null, b: object | undefined |
 
 export const clone = <T extends AnyObject>(a: T): T => ({ ...a })
 
-export const merge = <T>(a: T, b: DeepPartial<T>): T => {
+export const merge = <T extends AnyObject>(a: T, b: DeepPartial<T>): T => {
   const result = isObject(a) ? clone(a) : ({} as T)
   if (!isObject(b)) {
     return result
@@ -139,7 +139,6 @@ export const merge = <T>(a: T, b: DeepPartial<T>): T => {
   for (const [key, value] of Object.entries(b) as Entries<T>) {
     if (isObject(value)) {
       const old = result[key]
-      // @ts-expect-error Argument of type 'T[keyof T] & AnyObject' is not assignable to parameter of type 'DeepPartial<T[keyof T] & AnyObject>'
       result[key] = isObject(old) ? merge(old, value) : value
     } else {
       result[key] = value
