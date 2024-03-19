@@ -1,0 +1,46 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`AdminLink should not render border when not active 1`] = `
+<div>
+  <a
+    class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-eum0yc-MuiTypography-root-MuiLink-root"
+    href="/admin/event"
+  >
+    <div
+      class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-noWrap css-vq2sim-MuiTypography-root"
+    >
+      admin
+    </div>
+  </a>
+</div>
+`;
+
+exports[`AdminLink should render active border 1`] = `
+<div>
+  <a
+    class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-1m4q2di-MuiTypography-root-MuiLink-root"
+    href="/admin/event"
+  >
+    <div
+      class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-noWrap css-vq2sim-MuiTypography-root"
+    >
+      admin
+    </div>
+  </a>
+</div>
+`;
+
+exports[`AdminLink should render with minimal properties 1`] = `
+<div>
+  <a
+    class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-eum0yc-MuiTypography-root-MuiLink-root"
+    href="/admin/event"
+  >
+    <div
+      class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-noWrap css-vq2sim-MuiTypography-root"
+    >
+      admin
+    </div>
+  </a>
+</div>
+`;
