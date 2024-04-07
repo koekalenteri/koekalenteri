@@ -229,7 +229,7 @@ exports[`EventListPage renders 1`] = `
               class="MuiStack-root css-cnn9ag-MuiStack-root"
             >
               <div
-                class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasClearIcon MuiAutocomplete-hasPopupIcon css-f34qqq-MuiAutocomplete-root"
+                class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasClearIcon MuiAutocomplete-hasPopupIcon css-81mto1-MuiAutocomplete-root"
                 data-testid="Yhdistys"
               >
                 <div

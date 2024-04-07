@@ -3,7 +3,7 @@
 exports[`EventProperty freeSolo=false should display options when typing and fire onChange when selecting an option or clearing input 1`] = `
 <div>
   <div
-    class="MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-1h51icj-MuiAutocomplete-root"
+    class="MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-clttge-MuiAutocomplete-root"
   >
     <div
       class="MuiBox-root css-91p3uw"
@@ -104,7 +104,7 @@ exports[`EventProperty freeSolo=false should display options when typing and fir
 <div>
   <div
     aria-owns="eventType-listbox"
-    class="MuiAutocomplete-root Mui-expanded Mui-focused MuiAutocomplete-hasPopupIcon css-1h51icj-MuiAutocomplete-root"
+    class="MuiAutocomplete-root Mui-expanded Mui-focused MuiAutocomplete-hasPopupIcon css-clttge-MuiAutocomplete-root"
   >
     <div
       class="MuiBox-root css-91p3uw"
@@ -142,7 +142,7 @@ exports[`EventProperty freeSolo=false should display options when typing and fir
           >
             <button
               aria-label="Close"
-              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator MuiAutocomplete-popupIndicatorOpen css-113ntv0-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator MuiAutocomplete-popupIndicatorOpen css-z0g2be-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
               tabindex="-1"
               title="Close"
               type="button"
@@ -206,7 +206,7 @@ exports[`EventProperty freeSolo=false should display options when typing and fir
 <div>
   <div
     aria-owns="eventType-listbox"
-    class="MuiAutocomplete-root Mui-expanded Mui-focused MuiAutocomplete-hasPopupIcon css-1h51icj-MuiAutocomplete-root"
+    class="MuiAutocomplete-root Mui-expanded Mui-focused MuiAutocomplete-hasPopupIcon css-clttge-MuiAutocomplete-root"
   >
     <div
       class="MuiBox-root css-91p3uw"
@@ -244,7 +244,7 @@ exports[`EventProperty freeSolo=false should display options when typing and fir
           >
             <button
               aria-label="Close"
-              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator MuiAutocomplete-popupIndicatorOpen css-113ntv0-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator MuiAutocomplete-popupIndicatorOpen css-z0g2be-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
               tabindex="-1"
               title="Close"
               type="button"
@@ -307,7 +307,7 @@ exports[`EventProperty freeSolo=false should display options when typing and fir
 exports[`EventProperty freeSolo=false should render with minimal information 1`] = `
 <div>
   <div
-    class="MuiAutocomplete-root MuiAutocomplete-hasClearIcon MuiAutocomplete-hasPopupIcon css-1h51icj-MuiAutocomplete-root"
+    class="MuiAutocomplete-root MuiAutocomplete-hasClearIcon MuiAutocomplete-hasPopupIcon css-clttge-MuiAutocomplete-root"
   >
     <div
       class="MuiBox-root css-91p3uw"
@@ -429,7 +429,7 @@ exports[`EventProperty freeSolo=false should render with minimal information 1`]
 exports[`EventProperty freeSolo=false should render with undefined property and options 1`] = `
 <div>
   <div
-    class="MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-1h51icj-MuiAutocomplete-root"
+    class="MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-clttge-MuiAutocomplete-root"
   >
     <div
       class="MuiBox-root css-91p3uw"
@@ -529,7 +529,7 @@ exports[`EventProperty freeSolo=false should render with undefined property and 
 exports[`EventProperty freeSolo=true should display options when typing and fire onChange when selecting an option or clearing input 1`] = `
 <div>
   <div
-    class="MuiAutocomplete-root MuiAutocomplete-hasClearIcon css-1h51icj-MuiAutocomplete-root"
+    class="MuiAutocomplete-root MuiAutocomplete-hasClearIcon css-clttge-MuiAutocomplete-root"
   >
     <div
       class="MuiBox-root css-91p3uw"
@@ -629,7 +629,7 @@ exports[`EventProperty freeSolo=true should display options when typing and fire
 exports[`EventProperty freeSolo=true should display options when typing and fire onChange when selecting an option or clearing input 2`] = `
 <div>
   <div
-    class="MuiAutocomplete-root Mui-expanded Mui-focused MuiAutocomplete-hasClearIcon css-1h51icj-MuiAutocomplete-root"
+    class="MuiAutocomplete-root Mui-expanded Mui-focused MuiAutocomplete-hasClearIcon css-clttge-MuiAutocomplete-root"
   >
     <div
       class="MuiBox-root css-91p3uw"
@@ -730,7 +730,7 @@ exports[`EventProperty freeSolo=true should display options when typing and fire
 <div>
   <div
     aria-owns="name-listbox"
-    class="MuiAutocomplete-root Mui-expanded Mui-focused MuiAutocomplete-hasClearIcon css-1h51icj-MuiAutocomplete-root"
+    class="MuiAutocomplete-root Mui-expanded Mui-focused MuiAutocomplete-hasClearIcon css-clttge-MuiAutocomplete-root"
   >
     <div
       class="MuiBox-root css-91p3uw"
@@ -831,7 +831,7 @@ exports[`EventProperty freeSolo=true should display options when typing and fire
 exports[`EventProperty freeSolo=true should render with minimal information 1`] = `
 <div>
   <div
-    class="MuiAutocomplete-root MuiAutocomplete-hasClearIcon css-1h51icj-MuiAutocomplete-root"
+    class="MuiAutocomplete-root MuiAutocomplete-hasClearIcon css-clttge-MuiAutocomplete-root"
   >
     <div
       class="MuiBox-root css-91p3uw"
@@ -931,7 +931,7 @@ exports[`EventProperty freeSolo=true should render with minimal information 1`] 
 exports[`EventProperty freeSolo=true should render with undefined property and options 1`] = `
 <div>
   <div
-    class="MuiAutocomplete-root css-1h51icj-MuiAutocomplete-root"
+    class="MuiAutocomplete-root css-clttge-MuiAutocomplete-root"
   >
     <div
       class="MuiBox-root css-91p3uw"
