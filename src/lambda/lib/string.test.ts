@@ -10,6 +10,8 @@ describe('string', () => {
         firstName: 'Elli-Noora',
         lastName: 'Jurvanen',
       })
+      expect(splitName('Donald Duck ')).toEqual({ firstName: 'Donald', lastName: 'Duck' })
+      expect(splitName(' Dixie  Normous ')).toEqual({ firstName: 'Dixie', lastName: 'Normous' })
     })
   })
 

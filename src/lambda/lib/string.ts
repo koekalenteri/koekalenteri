@@ -8,7 +8,7 @@ export function reverseName(name?: string): string {
 }
 
 export const splitName = (name?: string): { firstName: string; lastName: string } => {
-  const parts = name?.split(' ')
+  const parts = name?.trim().split(' ').filter(Boolean)
   const lastName = parts?.pop()?.trim() ?? ''
   const firstName = parts?.shift()?.trim() ?? ''
 
