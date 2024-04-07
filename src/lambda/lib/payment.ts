@@ -17,7 +17,12 @@ export const formatMoney = (amount: number) => moneyFormatter.format(amount)
 export const parseParams = (headers: Partial<PaytrailCallbackParams>) => {
   const [eventId, registrationId] = headers['checkout-reference']?.split(':') ?? []
 
-  return { eventId, registrationId, transactionId: headers['checkout-transaction-id'] }
+  return {
+    eventId,
+    registrationId,
+    transactionId: headers['checkout-transaction-id'],
+    status: headers['checkout-status'],
+  }
 }
 
 export const verifyParams = async (params: Partial<PaytrailCallbackParams>) => {

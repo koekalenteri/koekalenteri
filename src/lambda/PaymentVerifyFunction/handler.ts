@@ -24,24 +24,25 @@ const paymentVerify = metricScope(
       debugProxyEvent(event)
 
       const params: Partial<PaytrailCallbackParams> = parseJSONWithFallback(event.body)
-      const { eventId, registrationId, transactionId } = parseParams(params)
+      const { eventId, registrationId, transactionId, status: paymentStatus } = parseParams(params)
 
       try {
         await verifyParams(params)
 
+        /**
+         * NB: the stored transaction status is probably outdated, since its updated by callback from the payment provider.
+         */
         const transaction = await dynamoDB.read<JsonTransaction>({ transactionId })
         if (!transaction) throw new Error(`Transaction with id '${transactionId}' was not found`)
 
+        const status = paymentStatus === 'fail' ? 'error' : 'ok'
+
         metricsSuccess(metrics, event.requestContext, 'paymentVerify')
-        return response<VerifyPaymentResponse>(
-          200,
-          { status: transaction?.status === 'fail' ? 'error' : 'ok', eventId, registrationId },
-          event
-        )
+        return response<VerifyPaymentResponse>(200, { status, eventId, registrationId }, event)
       } catch (e) {
         console.error(e)
         metricsError(metrics, event.requestContext, 'paymentVerify')
-        return response<VerifyPaymentResponse>(501, { status: 'error', eventId: '', registrationId: '' }, event)
+        return response<VerifyPaymentResponse>(200, { status: 'error', eventId, registrationId }, event)
       }
     }
 )
