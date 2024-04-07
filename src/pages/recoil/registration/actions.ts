@@ -3,7 +3,7 @@ import type { Registration } from '../../../types'
 import { useTranslation } from 'react-i18next'
 import { useSnackbar } from 'notistack'
 
-import { putRegistration } from '../../../api/registration'
+import { getRegistration, putRegistration } from '../../../api/registration'
 
 export function useRegistrationActions() {
   const { t } = useTranslation()
@@ -55,6 +55,12 @@ export function useRegistrationActions() {
       mod.invitationRead = true
       const saved = await putRegistration(mod)
       return saved
+    },
+
+    reload: async ({ eventId, id }: Pick<Registration, 'eventId' | 'id'>) => {
+      const reg = await getRegistration(eventId, id)
+
+      return reg
     },
   }
 }

@@ -185,6 +185,7 @@
       "invalid": "Fetch information",
       "manual": "Change registration number",
       "notfound": "Input dog information manually",
+      "pay": "PAY",
       "update": "Update"
     },
     "dates": "Dates",
@@ -209,6 +210,9 @@
     "modified_one": "Changes saved.\nConfirmation email was sent to:\n{{to}}",
     "modified_other": "Changes saved.\nConfirmation email was sent to:\n{{to}}",
     "notes": "Notes",
+    "notifications": {
+      "paymentFailed": "Payment failed, please try again"
+    },
     "owner": "Owner",
     "ownerHandles": "Owner handles",
     "ownerIsMember": "Owner is a member of the organizing society",

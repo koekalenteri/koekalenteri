@@ -52,6 +52,7 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
   const [cancelOpen, setCancelOpen] = useState(!!cancel)
   const [confirmOpen, setConfirmOpen] = useState(!!confirm)
   const [redirecting, setRedirecting] = useState(false)
+  const [reloadCount, setReloadCount] = useState(0)
   const actions = useRegistrationActions()
   const allDisabled = useMemo(() => !event || !isConfirmedEvent(event) || isPast(event.endDate), [event])
   const cancelDisabled = useMemo(
@@ -149,6 +150,19 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
     }
   }, [location.pathname, navigate, registration, t])
 
+  useEffect(() => {
+    if (registration?.paymentStatus === 'PENDING' && reloadCount < 5) {
+      const timeout = setTimeout(() => {
+        actions.reload(registration).then((reg) => {
+          setReloadCount((old) => old + 1)
+          setRegistration(reg)
+        })
+      }, 10_000)
+
+      return () => clearTimeout(timeout)
+    }
+  }, [actions, registration, reloadCount, setRegistration])
+
   if (!event || !registration) {
     return <LoadingPage />
   }
@@ -191,10 +205,10 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
                     primary={paymentStatus(registration)}
                     primaryTypographyProps={{ variant: 'subtitle1', fontWeight: 'bold' }}
                   />
-                  {registration.paymentStatus !== 'SUCCESS' ? (
+                  {registration.paymentStatus !== 'SUCCESS' && registration.paymentStatus !== 'PENDING' ? (
                     <ListItemSecondaryAction>
                       <Button aria-label="Maksa ilmoittautuminen" onClick={() => navigate(Path.payment(registration))}>
-                        MAKSA
+                        {t('registration.cta.pay')}
                       </Button>
                     </ListItemSecondaryAction>
                   ) : null}

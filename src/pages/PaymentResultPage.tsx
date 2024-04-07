@@ -1,8 +1,11 @@
 import type { LoaderFunctionArgs } from 'react-router-dom'
 
 import { redirect } from 'react-router-dom'
+import { t } from 'i18next'
+import { enqueueSnackbar } from 'notistack'
 
 import { verifyPayment } from '../api/payment'
+import { reportError } from '../lib/client/rum'
 import { Path } from '../routeConfig'
 
 export const paymentResultLoader = async ({ request }: LoaderFunctionArgs) => {
@@ -16,13 +19,20 @@ export const paymentResultLoader = async ({ request }: LoaderFunctionArgs) => {
     return acc
   }, {})
 
-  const response = await verifyPayment(params)
+  try {
+    const response = await verifyPayment(params)
 
-  if (response?.eventId && response.registrationId) {
-    if (response.status === 'ok') {
-      return redirect(Path.registrationOk({ eventId: response.eventId, id: response.registrationId }))
+    if (response?.eventId && response.registrationId) {
+      if (response.status === 'ok') {
+        return redirect(Path.registrationOk({ eventId: response.eventId, id: response.registrationId }))
+      }
+      if (response.paymentStatus === 'fail') {
+        enqueueSnackbar(t('registration.notifications.paymentFailed'), { variant: 'info' })
+      }
+      return redirect(Path.payment({ eventId: response.eventId, id: response.registrationId }))
     }
-    return redirect(Path.payment({ eventId: response.eventId, id: response.registrationId }))
+  } catch (e) {
+    reportError(e)
   }
   return redirect(Path.home)
 }

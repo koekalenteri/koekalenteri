@@ -259,6 +259,7 @@
       "invalid": "Hae koiran tiedot",
       "manual": "Tee uusi haku",
       "notfound": "Syötä tiedot käsin",
+      "pay": "MAKSA",
       "update": "Päivitä"
     },
     "dates": "Ryhmät",
@@ -286,6 +287,9 @@
     "modified_one": "Muutokset on tallennettu.\nVahvistus on lähetetty sähköpostiosoitteeseen:\n{{to}}",
     "modified_other": "Muutokset on tallennettu.\nVahvistus on lähetetty sähköpostiosoitteisiin:\n{{to}}",
     "notes": "Lisätiedot",
+    "notifications": {
+      "paymentFailed": "Maksu epäonnistui, ole hyvä ja yritä uudelleen"
+    },
     "owner": "Omistajan tiedot",
     "ownerHandles": "Omistaja ohjaa",
     "ownerIsMember": "Omistaja on järjestävän yhdistyksen jäsen",
