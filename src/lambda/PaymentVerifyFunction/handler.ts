@@ -38,11 +38,11 @@ const paymentVerify = metricScope(
         const status = paymentStatus === 'fail' ? 'error' : 'ok'
 
         metricsSuccess(metrics, event.requestContext, 'paymentVerify')
-        return response<VerifyPaymentResponse>(200, { status, eventId, registrationId }, event)
+        return response<VerifyPaymentResponse>(200, { status, paymentStatus, eventId, registrationId }, event)
       } catch (e) {
         console.error(e)
         metricsError(metrics, event.requestContext, 'paymentVerify')
-        return response<VerifyPaymentResponse>(200, { status: 'error', eventId, registrationId }, event)
+        return response<VerifyPaymentResponse>(200, { status: 'error', paymentStatus, eventId, registrationId }, event)
       }
     }
 )
