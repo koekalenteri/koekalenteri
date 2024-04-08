@@ -95,7 +95,7 @@ export default function RegistrationList({ disabled, rows, onUnregister }: Props
             onClick={() => onUnregister(params.row)}
           />,
         ]
-        if (params.row.paymentStatus !== 'SUCCESS') {
+        if (params.row.paymentStatus !== 'SUCCESS' && params.row.paymentStatus !== 'PENDING') {
           return [
             <GridActionsCellItem
               disabled={disabled}
