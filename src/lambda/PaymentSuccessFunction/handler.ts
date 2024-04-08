@@ -73,6 +73,11 @@ const paymentSuccess = metricScope(
               registrationTable
             )
 
+            registration.paidAmount = (registration.paidAmount ?? 0) + amount
+            registration.paidAt = new Date().toISOString()
+            registration.paymentStatus = 'SUCCESS'
+            registration.state = 'ready'
+
             const confirmedEvent = await updateRegistrations(registration.eventId, eventTable)
 
             // send receipt
