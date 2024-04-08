@@ -16,6 +16,7 @@ import { styled } from '@mui/material'
 import Box from '@mui/material/Box'
 import Stack from '@mui/material/Stack'
 import Tooltip, { tooltipClasses } from '@mui/material/Tooltip'
+import Typography from '@mui/material/Typography'
 import { GridActionsCellItem } from '@mui/x-data-grid'
 
 import GroupColors from './GroupColors'
@@ -28,21 +29,60 @@ const IconsTooltip = styled(({ className, ...props }: TooltipProps) => (
   },
 })
 
-const IconsTooltipContent = ({ roles }: { roles: string }) => <Box sx={{ whiteSpace: 'pre-line' }}>{roles}</Box>
+type TooltipContent = { text: string; icon: JSX.Element }
+
+const IconsTooltipContent = ({ roles }: { roles: TooltipContent[] }) => (
+  <Box>
+    {roles.map((role) => (
+      <Box display="flex" alignItems="center">
+        {role.icon}&nbsp;<Typography fontSize="small">{role.text}</Typography>
+      </Box>
+    ))}
+  </Box>
+)
 
 const RegistrationIcons = ({ confirmed, invitationRead, handler, paidAt, qualifyingResults }: Registration) => {
   const { t } = useTranslation()
-  const iconStrings: string[] = []
 
-  const manualResultCount = qualifyingResults.filter((r) => !r.official).length
-  if (handler.membership) iconStrings.push('Ilmoittautuja on järjestävän yhdistyksen jäsen')
-  if (paidAt) iconStrings.push('Ilmoittautuja on maksanut ilmoittautumisen')
-  if (confirmed) iconStrings.push('Ilmoittautuja on vahvistanut ottavansa koepaikan vastaan')
-  if (invitationRead) iconStrings.push('Ilmoittautuja on kuitannut koekutsun')
-  if (manualResultCount > 0) iconStrings.push('Ilmoittautuja on lisännyt koetuloksia')
+  const manualResultCount = useMemo(() => qualifyingResults.filter((r) => !r.official).length, [qualifyingResults])
+
+  const tooltipContent: TooltipContent[] = useMemo(() => {
+    const result: TooltipContent[] = []
+    if (handler.membership) {
+      result.push({
+        icon: <PersonOutline fontSize="small" />,
+        text: 'Ilmoittautuja on järjestävän yhdistyksen jäsen',
+      })
+    }
+    if (paidAt) {
+      result.push({
+        icon: <EuroOutlined fontSize="small" />,
+        text: 'Ilmoittautuja on maksanut ilmoittautumisen',
+      })
+    }
+    if (confirmed) {
+      result.push({
+        icon: <CheckOutlined fontSize="small" />,
+        text: 'Ilmoittautuja on vahvistanut ottavansa koepaikan vastaan',
+      })
+    }
+    if (invitationRead) {
+      result.push({
+        icon: <MarkEmailReadOutlined fontSize="small" />,
+        text: 'Ilmoittautuja on kuitannut koekutsun',
+      })
+    }
+    if (manualResultCount > 0) {
+      result.push({
+        icon: <ErrorOutlineOutlined fontSize="small" />,
+        text: 'Ilmoittautuja on lisännyt koetuloksia',
+      })
+    }
+    return result
+  }, [confirmed, handler.membership, invitationRead, manualResultCount, paidAt])
 
   return (
-    <IconsTooltip placement="right" title={<IconsTooltipContent roles={iconStrings.join('\n')} />}>
+    <IconsTooltip placement="right" title={<IconsTooltipContent roles={tooltipContent} />}>
       <Stack direction="row" alignItems="center">
         <PersonOutline fontSize="small" sx={{ opacity: handler.membership ? 1 : 0.05 }} />
         <EuroOutlined fontSize="small" sx={{ opacity: paidAt ? 1 : 0.05 }} />
