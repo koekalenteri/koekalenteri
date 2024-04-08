@@ -1,14 +1,15 @@
 import type { MetricsLogger } from 'aws-embedded-metrics'
 import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
-import type { JsonTransaction, VerifyPaymentResponse } from '../../types'
+import type { JsonRegistration, JsonTransaction, VerifyPaymentResponse } from '../../types'
 import type { PaytrailCallbackParams } from '../types/paytrail'
 
 import { metricScope } from 'aws-embedded-metrics'
 
 import { CONFIG } from '../config'
+import { audit, registrationAuditKey } from '../lib/audit'
 import { parseJSONWithFallback } from '../lib/json'
 import { debugProxyEvent } from '../lib/log'
-import { parseParams, verifyParams } from '../lib/payment'
+import { formatMoney, parseParams, verifyParams } from '../lib/payment'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { metricsError, metricsSuccess } from '../utils/metrics'
 import { response } from '../utils/response'
@@ -36,6 +37,36 @@ const paymentVerify = metricScope(
         if (!transaction) throw new Error(`Transaction with id '${transactionId}' was not found`)
 
         const status = paymentStatus === 'fail' ? 'error' : 'ok'
+
+        if (status === 'error') {
+          const registration = await dynamoDB.read<JsonRegistration>(
+            {
+              eventId: eventId,
+              id: registrationId,
+            },
+            CONFIG.registrationTable
+          )
+
+          if (registration && registration.paymentStatus === 'PENDING') {
+            await dynamoDB.update(
+              { eventId, id: registrationId },
+              'set #paymentStatus = :paymentStatus',
+              { '#paymentStatus': 'paymentStatus' },
+              {
+                ':paymentStatus': 'CANCEL',
+              },
+              CONFIG.registrationTable
+            )
+
+            const provider = params['checkout-provider']
+
+            audit({
+              auditKey: registrationAuditKey(registration),
+              message: `Maksu epäonnistui (${provider}), ${formatMoney(transaction.amount / 100)}`,
+              user: registration.createdBy,
+            })
+          }
+        }
 
         metricsSuccess(metrics, event.requestContext, 'paymentVerify')
         return response<VerifyPaymentResponse>(200, { status, paymentStatus, eventId, registrationId }, event)

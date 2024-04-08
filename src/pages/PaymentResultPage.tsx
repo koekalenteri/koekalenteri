@@ -29,7 +29,7 @@ export const paymentResultLoader = async ({ request }: LoaderFunctionArgs) => {
       if (response.paymentStatus === 'fail') {
         enqueueSnackbar(t('registration.notifications.paymentFailed'), { variant: 'info' })
       }
-      return redirect(Path.payment({ eventId: response.eventId, id: response.registrationId }))
+      return redirect(Path.registration({ eventId: response.eventId, id: response.registrationId }))
     }
   } catch (e) {
     reportError(e)

@@ -1774,6 +1774,8 @@ Resources:
             TableName: !Ref OrganizerTable
         - DynamoDBReadPolicy:
             TableName: !Ref EventTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuditTable
         - CloudWatchPutMetricPolicy: {}
       Events:
         PutEvent:
