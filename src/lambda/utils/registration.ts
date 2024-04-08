@@ -27,6 +27,7 @@ export function registrationEmailTemplateData(
     .map((d) => t('dateFormat.short', { date: d.date }) + (d.time ? ' ' + t(`registration.time.${d.time}`) : ''))
     .join(', ')
   const link = `${origin}/r/${registration.eventId}/${registration.id}`
+  const paymentLink = `${origin}/p/${registration.eventId}/${registration.id}`
   const qualifyingResults = registration.qualifyingResults.map((r) => ({
     ...r,
     date: t('dateFormat.date', { date: r.date }),
@@ -40,6 +41,7 @@ export function registrationEmailTemplateData(
     title: t('registration.email.title', { context, defaultValue: '' }),
     dogBreed,
     link,
+    paymentLink,
     event: confirmedEvent,
     eventDate,
     invitationLink,
