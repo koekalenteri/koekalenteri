@@ -87,7 +87,9 @@ describe('http', () => {
       jest.advanceTimersByTime(10_000)
 
       await Promise.resolve()
-      expect(promise).rejects.toEqual(expect.objectContaining({ status: 408, statusText: 'timeout' }))
+      expect(promise).rejects.toEqual(
+        expect.objectContaining({ status: 408, statusText: `timeout loading ${API_BASE_URL}/test/` })
+      )
 
       jest.runOnlyPendingTimers()
       jest.useRealTimers()

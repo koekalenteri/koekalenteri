@@ -42,7 +42,7 @@ async function httpWithTimeout<T>(path: string, init: RequestInit, reviveDates: 
   const url = API_BASE_URL + path
 
   const controller = new AbortController()
-  const timer = setTimeout(() => controller.abort('timeout'), 10000)
+  const timer = setTimeout(() => controller.abort('timeout'), 10_000)
   const signal = init.signal ? anySignal([controller.signal, init.signal]) : controller.signal
 
   try {
@@ -75,8 +75,8 @@ async function httpWithTimeout<T>(path: string, init: RequestInit, reviveDates: 
   } catch (err) {
     clearTimeout(timer)
 
-    if (controller.signal.aborted) {
-      throw new APIError(new Response(null, { status: 408, statusText: 'timeout' }), {})
+    if (controller.signal.aborted && controller.signal.reason === 'timeout') {
+      throw new APIError(new Response(null, { status: 408, statusText: `timeout loading ${url}` }), {})
     }
 
     throw err
