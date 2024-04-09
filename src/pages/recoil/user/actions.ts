@@ -18,7 +18,8 @@ export const useUserActions = () => {
   const [loginPath, setLoginPath] = useRecoilState(loginPathAtom)
 
   const login = useCallback(() => {
-    setLoginPath(location.pathname)
+    const newLoginPath = location.pathname === Path.login ? Path.home : location.pathname
+    setLoginPath(newLoginPath)
     navigate(Path.login, { replace: true })
   }, [location.pathname, navigate, setLoginPath])
 
