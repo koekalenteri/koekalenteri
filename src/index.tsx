@@ -21,7 +21,6 @@ if (!container) {
 if (process.env.NODE_ENV === 'development') {
   // Recoil: disable "duplicate atom key" checking / logging in development. (Tests will log these)
   RecoilEnv.RECOIL_DUPLICATE_ATOM_KEY_CHECKING_ENABLED = false
-  console.log(RecoilEnv)
 }
 
 const root = createRoot(container)
