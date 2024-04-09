@@ -46,7 +46,7 @@ export const useUserActions = () => {
           if (notice) {
             enqueueSnackbar('Heippa!', { variant: 'info' })
           }
-          return awsSignOut()
+          await awsSignOut()
         } catch (e) {
           reportError(e)
         }
