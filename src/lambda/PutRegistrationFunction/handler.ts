@@ -33,6 +33,7 @@ const putRegistrationHandler = metricScope(
         const registration: JsonRegistration = parseJSONWithFallback(event.body)
         const update = !!registration.id
         let cancel = false
+        let invitation = false
         let confirm = false
         if (update) {
           existing = await dynamoDB.read<JsonRegistration>({ eventId: registration.eventId, id: registration.id })
@@ -41,6 +42,7 @@ const putRegistrationHandler = metricScope(
           }
           cancel = !existing.cancelled && !!registration.cancelled
           confirm = !existing.confirmed && !!registration.confirmed && !existing.cancelled
+          invitation = !existing.invitationRead && !!registration.invitationRead && !existing.cancelled
         } else {
           registration.id = nanoid(10)
           registration.createdAt = timestamp
@@ -69,7 +71,7 @@ const putRegistrationHandler = metricScope(
           })
         }
 
-        const context = getEmailContext(update, cancel, confirm)
+        const context = getEmailContext(update, cancel, confirm, invitation)
         if (context && registration.handler?.email && registration.owner?.email) {
           // send update message when registration is updated, confirmed or cancelled
           const to = emailTo(registration)
@@ -91,9 +93,10 @@ const putRegistrationHandler = metricScope(
     }
 )
 
-function getEmailContext(update: boolean, cancel: boolean, confirm: boolean) {
+function getEmailContext(update: boolean, cancel: boolean, confirm: boolean, invitation: boolean) {
   if (cancel) return 'cancel'
   if (confirm) return 'confirm'
+  if (invitation) return 'invitation'
   if (update) return 'update'
   return ''
 }

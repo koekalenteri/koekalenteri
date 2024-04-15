@@ -195,11 +195,13 @@
       "subject": "Registration confirmation",
       "subject_cancel": "Registration cancelled",
       "subject_confirm": "Confirmation of attendance",
+      "subject_invitation": "You have acknowledged your trial invitation",
       "subject_receipt": "Receipt",
       "subject_update": "Registration modified",
       "title": "Your registration has been received",
       "title_cancel": "Registration cancelled",
       "title_confirm": "You confirmed that you will attend the event",
+      "title_invitation": "You have acknowledged your trial invitation",
       "title_receipt": "Receipt of your payment",
       "title_update": "Your registration has been modified"
 
