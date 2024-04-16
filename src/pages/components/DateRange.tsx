@@ -79,7 +79,7 @@ export default function DateRange({
           onChange={startChanged}
           slotProps={{
             actionBar: {
-              actions: ['clear'],
+              actions: ['clear', 'cancel', 'accept'],
             },
             day: ({ day, selected }) => ({ sx: dayStyle(day, selected, defaultStart) }),
             textField: { required, error: startError, helperText: startHelperText },
@@ -102,7 +102,7 @@ export default function DateRange({
           onChange={endChanged}
           slotProps={{
             actionBar: {
-              actions: ['clear'],
+              actions: ['clear', 'cancel', 'accept'],
             },
             day: ({ day, selected }) => ({ sx: dayStyle(day, selected, defaultEnd) }),
             textField: { required, error: endError, helperText: endHelperText },
