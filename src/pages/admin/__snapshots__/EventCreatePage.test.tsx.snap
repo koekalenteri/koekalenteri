@@ -1565,11 +1565,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                     >
                       <div
                         class="MuiGrid-root MuiGrid-item css-9q39ia-MuiGrid-root"
-                      >
-                        <div
-                          class="MuiStack-root css-hwnj0i-MuiStack-root"
-                        />
-                      </div>
+                      />
                     </div>
                     <div
                       class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"

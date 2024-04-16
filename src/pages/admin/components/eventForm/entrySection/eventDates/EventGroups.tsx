@@ -3,7 +3,7 @@ import type { SyntheticEvent } from 'react'
 import type { RegistrationDate } from '../../../../../../types'
 import type { SectionProps } from '../../../EventForm'
 
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import Stack from '@mui/material/Stack'
 import { useRecoilValue } from 'recoil'
@@ -45,6 +45,14 @@ export const EventGroups = ({ event, onChange }: Readonly<Props>) => {
     },
     [defaultGroups, event, onChange]
   )
+
+  useEffect(() => {
+    if (typeGroups.length <= 1) return
+
+    if (event.dates?.length !== value.length) {
+      onChange?.({ classes: [], dates: value })
+    }
+  }, [event.dates?.length, onChange, typeGroups.length, value])
 
   if (typeGroups.length <= 1) return null
 
