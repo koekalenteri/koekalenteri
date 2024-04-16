@@ -5,6 +5,7 @@ import type { BreedCode, Registration, RegistrationDate } from '../../../../type
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import CheckOutlined from '@mui/icons-material/CheckOutlined'
+import CommentOutlined from '@mui/icons-material/CommentOutlined'
 import DragIndicatorOutlined from '@mui/icons-material/DragIndicatorOutlined'
 import EditOutlined from '@mui/icons-material/EditOutlined'
 import ErrorOutlineOutlined from '@mui/icons-material/ErrorOutlineOutlined'
@@ -41,10 +42,11 @@ const IconsTooltipContent = ({ roles }: { roles: TooltipContent[] }) => (
   </Box>
 )
 
-const RegistrationIcons = ({ confirmed, invitationRead, handler, paidAt, qualifyingResults }: Registration) => {
+const RegistrationIcons = ({ confirmed, invitationRead, handler, paidAt, qualifyingResults, notes }: Registration) => {
   const { t } = useTranslation()
 
   const manualResultCount = useMemo(() => qualifyingResults.filter((r) => !r.official).length, [qualifyingResults])
+  const exclamation = manualResultCount > 0 || notes.trim().length > 0
 
   const tooltipContent: TooltipContent[] = useMemo(() => {
     const result: TooltipContent[] = []
@@ -78,8 +80,14 @@ const RegistrationIcons = ({ confirmed, invitationRead, handler, paidAt, qualify
         text: 'Ilmoittautuja on lisännyt koetuloksia',
       })
     }
+    if (notes.trim()) {
+      result.push({
+        icon: <CommentOutlined fontSize="small" />,
+        text: 'Ilmoittautuja on lisännyt lisätietoja',
+      })
+    }
     return result
-  }, [confirmed, handler.membership, invitationRead, manualResultCount, paidAt])
+  }, [confirmed, handler.membership, invitationRead, manualResultCount, notes, paidAt])
 
   return (
     <IconsTooltip placement="right" title={<IconsTooltipContent roles={tooltipContent} />}>
@@ -88,7 +96,8 @@ const RegistrationIcons = ({ confirmed, invitationRead, handler, paidAt, qualify
         <EuroOutlined fontSize="small" sx={{ opacity: paidAt ? 1 : 0.05 }} />
         <CheckOutlined fontSize="small" sx={{ opacity: confirmed ? 1 : 0.05 }} />
         <MarkEmailReadOutlined fontSize="small" sx={{ opacity: invitationRead ? 1 : 0.05 }} />
-        <ErrorOutlineOutlined fontSize="small" sx={{ opacity: manualResultCount ? 1 : 0 }} />
+        <ErrorOutlineOutlined fontSize="small" sx={{ opacity: manualResultCount ? 1 : 0.05 }} />
+        <CommentOutlined fontSize="small" sx={{ opacity: notes.trim() ? 1 : 0.05 }} />
       </Stack>
     </IconsTooltip>
   )
@@ -174,7 +183,7 @@ export function useClassEntrySelectionColumns(
       {
         field: 'icons',
         headerName: '',
-        width: 100,
+        width: 120,
         align: 'center',
         renderCell: (p) => <RegistrationIcons {...p.row} />,
         sortable: false,
