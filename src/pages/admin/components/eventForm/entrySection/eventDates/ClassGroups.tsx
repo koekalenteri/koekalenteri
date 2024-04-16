@@ -9,6 +9,7 @@ import Box from '@mui/material/Box'
 import Stack from '@mui/material/Stack'
 import { useRecoilValue } from 'recoil'
 
+import { applyNewGroupsToDogEventClass } from '../../../../../../lib/event'
 import AutocompleteMulti from '../../../../../components/AutocompleteMulti'
 import { eventTypeGroupsSelector } from '../../../../recoil'
 
@@ -43,41 +44,9 @@ export const ClassGroups = ({ event, eventClass, onChange }: Readonly<Props>) =>
 
   const handleChange = useCallback(
     (e: SyntheticEvent<Element, Event>, value: RegistrationDate[], _reason: AutocompleteChangeReason) => {
-      const newClasses = event.classes.map((c) => ({
-        ...c,
-        groups: c.class === eventClass ? [] : c.groups ?? defaultGroups,
-      }))
-      value.forEach((cg) => {
-        newClasses.find((c) => c.date === cg.date)?.groups?.push(cg.time ?? 'kp')
-      })
-      // kp is a special group that can not exist with other groups
-      // for those classes that previously included 'kp' and now include something more, remove 'kp'
-      classes
-        .filter((c) => c.groups?.includes('kp'))
-        .forEach((c) => {
-          const nc = newClasses.find((nc) => nc.class === eventClass && nc.date === c.date)
-          if (nc?.groups) {
-            if (nc.groups.length > 1) {
-              // another group was added, remove kp
-              nc.groups = nc.groups.filter((g) => g !== 'kp')
-            }
-
-            if (nc.groups.length === 0) {
-              // kp was removed, restore defaults
-              nc.groups = [...defaultGroups]
-            }
-          }
-        })
-      // for those classes that still include 'kp' or are empty, select 'kp'
-      newClasses.forEach((c) => {
-        if (c.groups?.includes('kp') || (c.groups?.length ?? 0) == 0) {
-          c.groups = ['kp']
-        }
-      })
-
-      onChange?.({ classes: newClasses })
+      onChange?.(applyNewGroupsToDogEventClass(event, eventClass, defaultGroups, value))
     },
-    [classes, defaultGroups, event.classes, eventClass, onChange]
+    [defaultGroups, event, eventClass, onChange]
   )
 
   return (

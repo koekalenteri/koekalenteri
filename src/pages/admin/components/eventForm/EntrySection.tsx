@@ -1,5 +1,6 @@
 import type { SyntheticEvent } from 'react'
 import type { Priority } from '../../../../lib/priority'
+import type { RegistrationClass } from '../../../../types'
 import type { DateValue } from '../../../components/DateRange'
 import type { SectionProps } from '../EventForm'
 
@@ -17,9 +18,13 @@ import DateRange from '../../../components/DateRange'
 import { EventDates } from './entrySection/EventDates'
 import EventFormPlaces from './entrySection/EventFormPlaces'
 
-export default function EntrySection(props: Readonly<SectionProps>) {
+export interface Props extends Readonly<SectionProps> {
+  readonly eventTypeClasses?: RegistrationClass[]
+}
+
+export default function EntrySection(props: Props) {
   const { t } = useTranslation()
-  const { disabled, event, fields, helperTexts, onChange, onOpenChange, open } = props
+  const { disabled, event, eventTypeClasses, fields, helperTexts, onChange, onOpenChange, open } = props
   const error = helperTexts?.entryStartDate ?? helperTexts?.entryEndDate ?? helperTexts?.places
   const helperText = error ? t('validation.event.errors') : ''
   const eventPriority = useMemo(() => priorityValuesToPriority(event.priority), [event.priority])
@@ -66,7 +71,7 @@ export default function EntrySection(props: Readonly<SectionProps>) {
         </Grid>
         <Grid item container spacing={1}>
           <Grid item minWidth={600} maxWidth={900}>
-            <EventDates event={event} onChange={onChange} />
+            <EventDates event={event} eventTypeClasses={eventTypeClasses} onChange={onChange} />
           </Grid>
         </Grid>
         <Grid item container spacing={1}>

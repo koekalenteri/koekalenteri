@@ -1,10 +1,12 @@
 import type {
   DbRecord,
   JsonDbRecord,
+  JsonRegistrationDate,
   NotOptional,
   PublicJudge,
   PublicOrganizer,
   RegistrationClass,
+  RegistrationDate,
   RegistrationTime,
   Replace,
   ReplaceOptional,
@@ -23,6 +25,7 @@ export interface JsonDogEvent extends JsonDbRecord {
   entryOrigEndDate?: string
   entryStartDate?: string
   eventType: string
+  dates?: JsonRegistrationDate[]
   headquarters?: Partial<Headquarters>
   invitationAttachment?: string
   judges: Array<PublicJudge>
@@ -46,7 +49,11 @@ export type ConfirmedEventRequiredDates = EventRequiredDates | EventEntryDates
 export type DogEvent = DbRecord &
   Replace<
     Replace<
-      ReplaceOptional<Omit<JsonDogEvent, keyof JsonDbRecord>, EventOptionalDates, Date>,
+      ReplaceOptional<
+        ReplaceOptional<Omit<JsonDogEvent, keyof JsonDbRecord>, EventOptionalDates, Date>,
+        'dates',
+        RegistrationDate[]
+      >,
       EventRequiredDates,
       Date
     >,

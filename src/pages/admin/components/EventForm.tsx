@@ -33,13 +33,18 @@ import JudgesSection from './eventForm/JudgesSection'
 import PaymentSection from './eventForm/PaymentSection'
 import { requiredFields, validateEvent } from './eventForm/validation'
 
-export interface PartialEvent extends DeepPartial<DogEvent> {
+export interface PartialEvent
+  extends Omit<
+    DeepPartial<DogEvent>,
+    'startDate' | 'endDate' | 'classes' | 'judges' | 'official' | 'secretary' | 'dates'
+  > {
   startDate: DogEvent['startDate']
   endDate: DogEvent['endDate']
   classes: DogEvent['classes']
   judges: DogEvent['judges']
   official?: Partial<DogEvent['official']>
   secretary?: Partial<DogEvent['secretary']>
+  dates?: DogEvent['dates']
 }
 
 export interface SectionProps {
@@ -95,6 +100,10 @@ export default function EventForm({ event, changes, disabled, onSave, onCancel, 
   const selectedEventType = useMemo(
     () => activeEventTypes?.find((et) => et.eventType === event.eventType),
     [activeEventTypes, event.eventType]
+  )
+  const selectedEventTypeClasses = useMemo(
+    () => eventTypeClasses && eventTypeClasses[event.eventType],
+    [event.eventType, eventTypeClasses]
   )
 
   const handleChange = useCallback(
@@ -224,6 +233,7 @@ export default function EventForm({ event, changes, disabled, onSave, onCancel, 
           disabled={allDisabled}
           errorStates={errorStates}
           event={event}
+          eventTypeClasses={selectedEventTypeClasses}
           fields={fields}
           helperTexts={helperTexts}
           onChange={handleChange}

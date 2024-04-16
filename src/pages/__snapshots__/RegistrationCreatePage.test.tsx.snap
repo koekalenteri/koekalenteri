@@ -230,7 +230,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
             <p
               class="MuiFormHelperText-root css-9tosq5-MuiFormHelperText-root"
             >
-              NOU, eeeeee registration.timeLong.ap / eeeeee registration.timeLong.ip / eeeeee registration.timeLong.kp / eeeeee registration.timeLong.ap / eeeeee registration.timeLong.ip / eeeeee registration.timeLong.kp, registration.reserveChoises.DAY
+              NOU, eeeeee registration.timeLong.ap / eeeeee registration.timeLong.ip / eeeeee registration.timeLong.ap / eeeeee registration.timeLong.ip, registration.reserveChoises.DAY
             </p>
           </div>
           <div
@@ -635,7 +635,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                               <span
                                 class="MuiChip-label MuiChip-labelMedium css-6od3lo-MuiChip-label"
                               >
-                                eeeeee registration.timeLong.kp
+                                eeeeee registration.timeLong.ap
                               </span>
                               <svg
                                 aria-hidden="true"
@@ -658,53 +658,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                               <span
                                 class="MuiChip-label MuiChip-labelMedium css-6od3lo-MuiChip-label"
                               >
-                                eeeeee registration.timeLong.ap
-                              </span>
-                              <svg
-                                aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiChip-deleteIcon MuiChip-deleteIconMedium MuiChip-deleteIconColorDefault MuiChip-deleteIconFilledColorDefault css-i4bv87-MuiSvgIcon-root"
-                                data-testid="CancelIcon"
-                                focusable="false"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"
-                                />
-                              </svg>
-                            </div>
-                            <div
-                              class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorDefault MuiChip-deletable MuiChip-deletableColorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-1u20pgy-MuiButtonBase-root-MuiChip-root"
-                              data-tag-index="4"
-                              role="button"
-                              tabindex="-1"
-                            >
-                              <span
-                                class="MuiChip-label MuiChip-labelMedium css-6od3lo-MuiChip-label"
-                              >
                                 eeeeee registration.timeLong.ip
-                              </span>
-                              <svg
-                                aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiChip-deleteIcon MuiChip-deleteIconMedium MuiChip-deleteIconColorDefault MuiChip-deleteIconFilledColorDefault css-i4bv87-MuiSvgIcon-root"
-                                data-testid="CancelIcon"
-                                focusable="false"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"
-                                />
-                              </svg>
-                            </div>
-                            <div
-                              class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorDefault MuiChip-deletable MuiChip-deletableColorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-1u20pgy-MuiButtonBase-root-MuiChip-root"
-                              data-tag-index="5"
-                              role="button"
-                              tabindex="-1"
-                            >
-                              <span
-                                class="MuiChip-label MuiChip-labelMedium css-6od3lo-MuiChip-label"
-                              >
-                                eeeeee registration.timeLong.kp
                               </span>
                               <svg
                                 aria-hidden="true"
