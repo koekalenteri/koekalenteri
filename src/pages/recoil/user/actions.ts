@@ -41,6 +41,7 @@ export const useUserActions = () => {
     ({ reset }) =>
       async (notice: boolean = true) => {
         try {
+          navigate(Path.home, { replace: true })
           reset(idTokenAtom)
           reset(adminEventsAtom)
           if (notice) {
