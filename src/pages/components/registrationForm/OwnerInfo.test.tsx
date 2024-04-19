@@ -35,7 +35,7 @@ describe('OwnerInfo', () => {
   afterAll(() => jest.useRealTimers())
 
   it('should render with minimal info', () => {
-    const { container } = render(<OwnerInfo reg={{}} />, { wrapper: Wrapper })
+    const { container } = render(<OwnerInfo reg={{}} orgId="test" />, { wrapper: Wrapper })
     expect(container).toMatchSnapshot()
   })
 
@@ -43,7 +43,7 @@ describe('OwnerInfo', () => {
     const reg = clone<Registration>(registrationWithStaticDates)
     const onChange = jest.fn((props) => Object.assign(reg, props))
     const { user } = renderWithUserEvents(
-      <OwnerInfo reg={reg} onChange={onChange} />,
+      <OwnerInfo reg={reg} onChange={onChange} orgId="test" />,
       { wrapper: Wrapper },
       {
         advanceTimers: jest.advanceTimersByTime,
@@ -63,9 +63,11 @@ describe('OwnerInfo', () => {
 
     await user.clear(input)
     expect(onChange).toHaveBeenLastCalledWith({ owner: { name: '' }, ownerHandles: true, ownerPays: true })
+    onChange.mockClear()
 
     await user.type(input, 'test handler')
     expect(onChange).toHaveBeenLastCalledWith({ owner: { name: 'test handler' }, ownerHandles: true, ownerPays: true })
+    onChange.mockClear()
 
     await user.type(locationInput, 'test city')
     expect(onChange).toHaveBeenLastCalledWith({
@@ -73,6 +75,7 @@ describe('OwnerInfo', () => {
       ownerHandles: true,
       ownerPays: true,
     })
+    onChange.mockClear()
 
     await user.type(emailInput, 'test@exmaple.com')
     expect(onChange).toHaveBeenLastCalledWith({
@@ -80,6 +83,7 @@ describe('OwnerInfo', () => {
       ownerHandles: true,
       ownerPays: true,
     })
+    onChange.mockClear()
 
     await user.type(phoneInput, '40123456')
     expect(onChange).toHaveBeenLastCalledWith({
@@ -87,6 +91,7 @@ describe('OwnerInfo', () => {
       ownerHandles: true,
       ownerPays: true,
     })
+    onChange.mockClear()
 
     await user.click(memberCheckbox)
     expect(onChange).toHaveBeenLastCalledWith({
@@ -100,6 +105,7 @@ describe('OwnerInfo', () => {
       ownerHandles: true,
       ownerPays: true,
     })
+    onChange.mockClear()
 
     await user.click(handlerCheckbox)
     expect(onChange).toHaveBeenLastCalledWith({
@@ -113,6 +119,7 @@ describe('OwnerInfo', () => {
       ownerHandles: false,
       ownerPays: true,
     })
+    onChange.mockClear()
 
     await user.click(payerCheckbox)
     expect(onChange).toHaveBeenLastCalledWith({
@@ -126,6 +133,7 @@ describe('OwnerInfo', () => {
       ownerHandles: false,
       ownerPays: false,
     })
+    onChange.mockClear()
 
     await flushPromises()
   })
@@ -134,7 +142,7 @@ describe('OwnerInfo', () => {
     const reg = {} // no registration number
     const onChange = jest.fn((props) => Object.assign(reg, props))
     const { user } = renderWithUserEvents(
-      <OwnerInfo reg={reg} onChange={onChange} />,
+      <OwnerInfo reg={reg} onChange={onChange} orgId="test" />,
       { wrapper: Wrapper },
       {
         advanceTimers: jest.advanceTimersByTime,

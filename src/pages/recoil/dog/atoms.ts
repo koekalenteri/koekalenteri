@@ -5,11 +5,22 @@ import { atom, atomFamily } from 'recoil'
 import { logEffect } from '../effects'
 import { storageEffect } from '../effects/storage'
 
+interface DogCachedBasePerson extends Omit<RegistrationPerson, 'membership'> {}
+interface DogCachedHandlerPerson extends DogCachedBasePerson {
+  membership: Record<string, boolean>
+}
+
+interface DogCachedOwnerPerson extends DogCachedBasePerson {
+  ownerHandles: boolean
+  ownerPays: boolean
+  membership: Record<string, boolean>
+}
+
 export interface DogCachedInfo {
   breeder: RegistrationBreeder
   dog: Dog
-  handler: RegistrationPerson
-  owner: RegistrationPerson & { ownerHandles: boolean; ownerPays: boolean }
+  handler: DogCachedHandlerPerson
+  owner: DogCachedOwnerPerson
   payer: RegistrationPerson
   results: ManualTestResult[]
   rfid: boolean

@@ -43,7 +43,7 @@ describe('DogInfo', () => {
 
   it('should render', async () => {
     const { container } = render(
-      <DogInfo reg={registrationWithStaticDates} eventDate={eventDate} minDogAgeMonths={0} />,
+      <DogInfo reg={registrationWithStaticDates} eventDate={eventDate} minDogAgeMonths={0} orgId="test" />,
       { wrapper: Wrapper }
     )
     await flushPromises()
@@ -57,7 +57,7 @@ describe('DogInfo', () => {
     const newDog = registrationDogAged20MonthsAndNoResults
 
     const { user } = renderWithUserEvents(
-      <DogInfo reg={reg} eventDate={eventDate} minDogAgeMonths={15} onChange={changeHandler} />,
+      <DogInfo reg={reg} eventDate={eventDate} minDogAgeMonths={15} onChange={changeHandler} orgId="test" />,
       { wrapper: Wrapper },
       { advanceTimers: jest.advanceTimersByTime }
     )
@@ -105,7 +105,7 @@ describe('DogInfo', () => {
     })
 
     const { user } = renderWithUserEvents(
-      <DogInfo reg={reg} eventDate={eventDate} minDogAgeMonths={15} onChange={changeHandler} />,
+      <DogInfo reg={reg} eventDate={eventDate} minDogAgeMonths={15} onChange={changeHandler} orgId="test" />,
       { wrapper: Wrapper },
       { advanceTimers: jest.advanceTimersByTime }
     )
@@ -129,7 +129,7 @@ describe('DogInfo', () => {
 
     const reg = {}
     const { user } = renderWithUserEvents(
-      <DogInfo reg={reg} eventDate={eventDate} minDogAgeMonths={15} />,
+      <DogInfo reg={reg} eventDate={eventDate} minDogAgeMonths={15} orgId="test" />,
       {
         wrapper: Wrapper,
       },
@@ -154,7 +154,7 @@ describe('DogInfo', () => {
 
     const reg = {}
     const { user } = renderWithUserEvents(
-      <DogInfo reg={reg} eventDate={eventDate} minDogAgeMonths={15} />,
+      <DogInfo reg={reg} eventDate={eventDate} minDogAgeMonths={15} orgId="test" />,
       {
         wrapper: Wrapper,
       },
