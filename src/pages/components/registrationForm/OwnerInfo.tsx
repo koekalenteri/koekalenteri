@@ -1,6 +1,6 @@
 import type { DeepPartial, Registration, RegistrationPerson } from '../../../types'
 
-import { useCallback } from 'react'
+import { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import Checkbox from '@mui/material/Checkbox'
 import FormControlLabel from '@mui/material/FormControlLabel'
@@ -22,26 +22,37 @@ interface Props {
   readonly onChange?: (props: DeepPartial<Registration>) => void
   readonly onOpenChange?: (value: boolean) => void
   readonly open?: boolean
+  readonly orgId: string
 }
 
-export function OwnerInfo({ reg, disabled, error, helperText, onChange, onOpenChange, open }: Props) {
+export function OwnerInfo({ reg, disabled, error, helperText, onChange, onOpenChange, open, orgId }: Props) {
   const { t, i18n } = useTranslation()
   const [cache, setCache] = useDogCacheKey(reg.dog?.regNo, 'owner')
 
   const handleChange = useCallback(
     (props: Partial<RegistrationPerson & { ownerHandles: boolean; ownerPays: boolean }>) => {
-      const cached = setCache({ ...cache, ...props })
+      const membership =
+        props.membership === undefined ? cache?.membership : { ...cache?.membership, [orgId]: props.membership }
+      const cached = setCache({ ...cache, ...props, membership })
+
       if (cached) {
         const { ownerHandles, ownerPays, ...owner } = cached
         onChange?.({
-          owner,
+          owner: { ...owner, membership: owner.membership?.[orgId] },
           ownerHandles: ownerHandles ?? props.ownerHandles ?? true,
           ownerPays: ownerPays ?? props.ownerPays ?? true,
         })
       }
     },
-    [cache, onChange, setCache]
+    [cache, onChange, orgId, setCache]
   )
+
+  useEffect(() => {
+    const cachedMembership = cache?.membership?.[orgId]
+    if (cachedMembership !== undefined && reg.owner?.membership !== cachedMembership) {
+      onChange?.({ owner: { ...reg.owner, membership: cachedMembership } })
+    }
+  }, [cache, onChange, orgId, reg.owner])
 
   return (
     <CollapsibleSection

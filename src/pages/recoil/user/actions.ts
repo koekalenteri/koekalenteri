@@ -52,7 +52,7 @@ export const useUserActions = () => {
           reportError(e)
         }
       },
-    []
+    [navigate]
   )
 
   return { login, signIn, signOut }

@@ -46,6 +46,7 @@ interface Props {
   readonly onChange?: (props: DeepPartial<Registration>, replace?: boolean) => void
   readonly onOpenChange?: (value: boolean) => void
   readonly open?: boolean
+  readonly orgId: string
 }
 
 interface State {
@@ -64,6 +65,7 @@ export const DogInfo = ({
   onChange,
   onOpenChange,
   open,
+  orgId,
 }: Props) => {
   const { t } = useTranslation()
   const { t: breed } = useTranslation('breed')
@@ -98,18 +100,24 @@ export const DogInfo = ({
       if (hasChanges(oldDog, dog)) {
         const changes: DeepPartial<Registration> = { dog: cache?.dog }
         if (reg?.dog?.regNo !== cache?.dog?.regNo) {
+          const {
+            ownerHandles,
+            ownerPays,
+            membership: ownerMembership,
+            ...owner
+          } = cache?.owner || { ownerHandles: true, ownerPays: true }
           changes.breeder = cache?.breeder
-          changes.handler = cache?.handler
-          changes.owner = cache?.owner
-          changes.ownerHandles = cache?.owner?.ownerHandles ?? true
-          changes.ownerPays = cache?.owner?.ownerPays ?? true
+          changes.handler = cache?.handler && { ...cache?.handler, membership: cache?.handler?.membership?.[orgId] }
+          changes.owner = cache?.owner && { ...owner, membership: ownerMembership?.[orgId] }
+          changes.ownerHandles = ownerHandles
+          changes.ownerPays = ownerPays
           changes.results = []
           replace = true
         }
         onChange?.(changes, replace)
       }
     },
-    [onChange, reg?.dog]
+    [onChange, orgId, reg?.dog]
   )
 
   const buttonClick = useCallback(() => {

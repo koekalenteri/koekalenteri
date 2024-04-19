@@ -230,6 +230,7 @@ export default function RegistrationForm({
           onChange={handleChange}
           onOpenChange={(value) => handleOpenChange('dog', value)}
           open={open.dog}
+          orgId={event.organizer.id}
         />
         <BreederInfo
           reg={registration}
@@ -248,6 +249,7 @@ export default function RegistrationForm({
           onChange={handleChange}
           onOpenChange={(value) => handleOpenChange('owner', value)}
           open={open.owner}
+          orgId={event.organizer.id}
         />
         <Collapse in={!registration.ownerHandles}>
           <HandlerInfo
@@ -258,6 +260,7 @@ export default function RegistrationForm({
             onChange={handleChange}
             onOpenChange={(value) => handleOpenChange('handler', value)}
             open={open.handler}
+            orgId={event.organizer.id}
           />
         </Collapse>
         <Collapse in={!registration.ownerPays}>

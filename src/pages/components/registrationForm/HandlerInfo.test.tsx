@@ -35,7 +35,7 @@ describe('HadnlerInfo', () => {
   afterAll(() => jest.useRealTimers())
 
   it('should render with minimal info', () => {
-    const { container } = render(<HandlerInfo reg={{}} />, { wrapper: Wrapper })
+    const { container } = render(<HandlerInfo reg={{}} orgId="test" />, { wrapper: Wrapper })
     expect(container).toMatchSnapshot()
   })
 
@@ -43,7 +43,7 @@ describe('HadnlerInfo', () => {
     const reg = clone<Registration>(registrationWithStaticDates)
     const onChange = jest.fn((props) => Object.assign(reg, props))
     const { user } = renderWithUserEvents(
-      <HandlerInfo reg={reg} onChange={onChange} />,
+      <HandlerInfo reg={reg} onChange={onChange} orgId="test" />,
       { wrapper: Wrapper },
       {
         advanceTimers: jest.advanceTimersByTime,
