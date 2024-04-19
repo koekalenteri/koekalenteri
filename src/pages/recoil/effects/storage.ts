@@ -1,5 +1,6 @@
 import type { AtomEffect } from 'recoil'
 
+import { reportError } from '../../../lib/client/rum'
 import { parseJSON } from '../../../lib/utils'
 
 export const parseStorageJSON = (value: string | null) => {
@@ -23,7 +24,15 @@ export const storageEffect: AtomEffect<any> = ({ node, setSelf, onSet, trigger, 
     }
   }
 
+  let visible = document.visibilityState === 'visible'
+  const handleVisibilityChange = () => (visible = document.visibilityState === 'visible')
+
   onSet((newValue, _, isReset) => {
+    if (!visible) {
+      reportError(new Error(`Preventing change from invisible window to local storage. Key: ${node.key}`))
+      return
+    }
+
     if (isReset || newValue === null || newValue === undefined) {
       localStorage.removeItem(node.key)
     } else {
@@ -42,9 +51,13 @@ export const storageEffect: AtomEffect<any> = ({ node, setSelf, onSet, trigger, 
     }
   }
 
+  window.addEventListener('visibilitychange', handleVisibilityChange)
   window.addEventListener('storage', handleStorageChange)
 
-  return () => window.removeEventListener('storage', handleStorageChange)
+  return () => {
+    window.removeEventListener('storage', handleStorageChange)
+    window.removeEventListener('visibilitychange', handleVisibilityChange)
+  }
 }
 
 export function stringStorageEffect<T extends string>(defaultValue: string): AtomEffect<T> {
