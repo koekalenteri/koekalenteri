@@ -27,6 +27,7 @@ export interface JsonRegistration extends JsonDbRecord {
   payer: Omit<RegistrationPerson, 'location' | 'membership'>
   paymentStatus?: PaymentStatus
   priorityByInvitation?: boolean
+  qualifies?: boolean
   qualifyingResults: JsonQualifyingResult[]
   refundAmount?: number
   refundAt?: string

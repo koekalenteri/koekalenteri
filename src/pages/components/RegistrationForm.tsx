@@ -77,12 +77,9 @@ export default function RegistrationForm({
 }: Props) {
   const { t } = useTranslation()
   const large = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
-  const [qualifies, setQualifies] = useState<boolean>(
-    filterRelevantResults(event, registration?.class, registration?.dog?.results ?? [], registration?.results).qualifies
-  )
   const [errors, setErrors] = useState(validateRegistration(registration, event))
   const [open, setOpen] = useState<{ [key: string]: boolean | undefined }>({})
-  const valid = errors.length === 0 && qualifies
+  const valid = errors.length === 0 && registration.qualifies
   const isMember = registration.handler?.membership || registration.owner?.membership
   const paymentAmount = event.costMember && isMember ? event.costMember : event.cost
   const ctaText = useMemo(() => {
@@ -110,11 +107,10 @@ export default function RegistrationForm({
         const results = props.results ?? registration.results ?? []
         const filtered = filterRelevantResults(event, cls, dogResults as TestResult[], results)
         props.qualifyingResults = filtered.relevant
-        setQualifies(filtered.qualifies)
+        props.qualifies = filtered.qualifies
       }
       const newState = replace ? Object.assign({}, registration, props) : merge<Registration>(registration, props ?? {})
       if (hasChanges(registration, newState)) {
-        setErrors(validateRegistration(newState, event))
         onChange?.(newState)
       }
     },
@@ -146,7 +142,7 @@ export default function RegistrationForm({
 
   const [helperTexts, errorStates] = useMemo(() => {
     const states: { [Property in keyof Registration]?: boolean } = {}
-    const texts = getSectionHelperTexts(registration, qualifies, t)
+    const texts = getSectionHelperTexts(registration, t)
     for (const error of errors) {
       texts[error.opts.field] = t(`validation.registration.${error.key}`, error.opts)
       states[error.opts.field] = true
@@ -156,7 +152,7 @@ export default function RegistrationForm({
       states.breeder = states.owner = states.qualifyingResults = true
     }
     return [texts, states]
-  }, [errors, qualifies, registration, t])
+  }, [errors, registration, t])
 
   useEffect(() => {
     setOpen({
@@ -169,6 +165,19 @@ export default function RegistrationForm({
       info: large,
     })
   }, [large])
+
+  useEffect(() => {
+    setErrors(validateRegistration(registration, event))
+    if (registration.qualifies === undefined) {
+      const filtered = filterRelevantResults(
+        event,
+        registration?.class,
+        registration?.dog?.results ?? [],
+        registration?.results
+      )
+      handleChange({ qualifies: filtered.qualifies, qualifyingResults: filtered.relevant })
+    }
+  }, [event, handleChange, registration])
 
   return (
     <Paper
@@ -268,7 +277,7 @@ export default function RegistrationForm({
           requirements={requirements}
           results={registration.results}
           qualifyingResults={registration.qualifyingResults}
-          error={!qualifies}
+          error={!registration.qualifies}
           helperText={helperTexts.qualifyingResults}
           onChange={handleChange}
           onOpenChange={(value) => handleOpenChange('qr', value)}
@@ -343,7 +352,6 @@ export default function RegistrationForm({
 
 function getSectionHelperTexts(
   registration: Registration,
-  qualifies: boolean,
   t: TFunction<'translation', undefined>
 ): { [Property in keyof Registration]?: string } {
   return {
@@ -354,7 +362,7 @@ function getSectionHelperTexts(
     payer: registration.ownerPays ? t('registration.ownerPays') : `${registration.payer?.name || ''}`,
     qualifyingResults: t('registration.qualifyingResultsInfo', {
       class: registration.class,
-      qualifies: t(qualifies ? 'registration.qyalifyingResultsYes' : 'registration.qualifyingResultsNo'),
+      qualifies: t(registration.qualifies ? 'registration.qyalifyingResultsYes' : 'registration.qualifyingResultsNo'),
     }),
     reserve: t('registration.reserveHelp'),
   }

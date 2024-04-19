@@ -185,6 +185,10 @@ export const DogInfo = ({
 
   useEffect(() => {
     if (state.regNo !== (reg.dog?.regNo ?? '')) {
+      if (document.visibilityState === 'hidden') {
+        setState((prev) => ({ ...prev, regNo: reg.dog?.regNo ?? '' }))
+        return
+      }
       if ((validRegNo && state.mode === 'autofetch') || state.regNo === '') {
         buttonClick()
       }

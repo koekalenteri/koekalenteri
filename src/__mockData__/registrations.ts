@@ -41,6 +41,7 @@ const mockRegistrationDefaults = {
   },
   language: 'fi' as const,
   notes: 'additional notes',
+  qualifies: true,
   qualifyingResults: [],
   reserve: 'ANY' as const,
 }
@@ -80,6 +81,7 @@ export const registrationWithStaticDates: Registration = {
   },
   language: 'fi',
   notes: 'additional notes',
+  qualifies: true,
   qualifyingResults: [],
   reserve: 'ANY',
   dog: registrationDogAged10MonthsAndNoResults,
@@ -94,6 +96,7 @@ export const registrationWithStaticDatesAndClass: Registration = {
   class: 'ALO',
   createdAt: eventWithStaticDatesAndClass.entryStartDate,
   modifiedAt: eventWithStaticDatesAndClass.entryStartDate,
+  qualifies: true,
   qualifyingResults: registrationDogAged28MonthsWithNOUResult.results.map((r) => ({ ...r, official: true })),
   dog: registrationDogAged28MonthsWithNOUResult,
 }

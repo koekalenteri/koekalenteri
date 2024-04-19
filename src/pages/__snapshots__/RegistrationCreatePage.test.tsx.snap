@@ -2466,7 +2466,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
               registration.qualifyingResults
             </p>
             <p
-              class="MuiFormHelperText-root css-9tosq5-MuiFormHelperText-root"
+              class="MuiFormHelperText-root Mui-error css-9tosq5-MuiFormHelperText-root"
             >
               validation.registration.choose
             </p>
