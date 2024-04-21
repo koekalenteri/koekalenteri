@@ -16,7 +16,7 @@ import { metricsError, metricsSuccess } from '../utils/metrics'
 import { response } from '../utils/response'
 
 const { eventTable, registrationTable } = CONFIG
-const dynamoDB = new CustomDynamoClient(registrationTable)
+export const dynamoDB = new CustomDynamoClient(registrationTable)
 
 const groupKey = <T extends JsonRegistration>(reg: T) => {
   if (reg.cancelled) {
@@ -104,7 +104,7 @@ const putRegistrationGroupsHandler = metricScope(
         const eventId = unescape(event.pathParameters?.eventId ?? '')
         const groups: JsonRegistrationGroupInfo[] = parseJSONWithFallback(event.body, [])
 
-        if (!groups) {
+        if (!groups || !Array.isArray(groups) || groups.length === 0) {
           metricsError(metrics, event.requestContext, 'putRegistrationGroups')
           return response(422, 'no groups', event)
         }
@@ -188,6 +188,7 @@ const putRegistrationGroupsHandler = metricScope(
             (reg) =>
               reg.class === cls &&
               reg.group?.key === 'reserve' &&
+              reg.reserveNotified &&
               oldResCan.find(
                 (old) =>
                   old.id === reg.id &&
@@ -195,6 +196,7 @@ const putRegistrationGroupsHandler = metricScope(
                   (old.group?.number ?? 999) > (reg.group?.number ?? 999)
               )
           )
+
           const { ok: reserveOk, failed: reserveFailed } = await sendTemplatedEmailToEventRegistrations(
             'reserve',
             confirmedEvent,
