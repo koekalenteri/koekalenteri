@@ -12,7 +12,10 @@ import {
   eventWithStaticDatesAndClass,
 } from './events'
 
-const mockRegistrationDefaults = {
+const mockRegistrationDefaults: Omit<
+  Registration,
+  'id' | 'createdAt' | 'modifiedAt' | 'eventId' | 'eventType' | 'dates' | 'dog'
+> = {
   createdBy: 'anonymous',
   modifiedBy: 'anonymous',
   agreeToTerms: true,
@@ -44,6 +47,7 @@ const mockRegistrationDefaults = {
   qualifies: true,
   qualifyingResults: [],
   reserve: 'ANY' as const,
+  state: 'ready' as const,
 }
 
 export const registrationWithStaticDates: Registration = {
@@ -138,7 +142,7 @@ export const registrationWithStaticDatesCancelled: Registration = {
   dog: registrationDogAged20MonthsAndNoResults,
 }
 
-const registrationToEventWithEntryClosedBase = {
+const registrationToEventWithEntryClosedBase: Omit<Registration, 'id' | 'dates'> = {
   ...mockRegistrationDefaults,
   eventId: eventWithEntryClosed.id,
   eventType: eventWithEntryClosed.eventType,
@@ -200,6 +204,7 @@ export const registrationsToEventWithParticipantsInvited: Registration[] = [
     id: eventWithParticipantsInvited.id + '1',
     class: 'ALO',
     dates: [{ date: eventWithParticipantsInvited.startDate, time: 'ap' }],
+    group: { date: eventWithParticipantsInvited.startDate, time: 'ap', number: 1, key: 'ALO-AP' },
   },
   {
     ...registrationToEventWithParticipantsInvitedBase,
@@ -209,18 +214,21 @@ export const registrationsToEventWithParticipantsInvited: Registration[] = [
       { date: eventWithParticipantsInvited.startDate, time: 'ap' },
       { date: eventWithParticipantsInvited.startDate, time: 'ip' },
     ],
+    group: { date: eventWithParticipantsInvited.startDate, time: 'ip', number: 2, key: 'ALO-IP' },
   },
   {
     ...registrationToEventWithParticipantsInvitedBase,
     id: eventWithParticipantsInvited.id + '3',
     class: 'AVO',
     dates: [{ date: eventWithParticipantsInvited.startDate, time: 'ap' }],
+    group: { date: eventWithParticipantsInvited.startDate, time: 'ap', number: 3, key: 'AVO-AP' },
   },
   {
     ...registrationToEventWithParticipantsInvitedBase,
     id: eventWithParticipantsInvited.id + '4',
     class: 'AVO',
     dates: [{ date: eventWithParticipantsInvited.startDate, time: 'ip' }],
+    group: { date: eventWithParticipantsInvited.startDate, time: 'ip', number: 4, key: 'AVO-IP' },
   },
   {
     ...registrationToEventWithParticipantsInvitedBase,
@@ -229,6 +237,21 @@ export const registrationsToEventWithParticipantsInvited: Registration[] = [
     dates: [{ date: eventWithParticipantsInvited.startDate, time: 'ip' }],
     cancelled: true,
     cancelReason: 'koska mä voin',
+    group: { number: 1, key: 'cancelled' },
+  },
+  {
+    ...registrationToEventWithParticipantsInvitedBase,
+    id: eventWithParticipantsInvited.id + '6',
+    class: 'ALO',
+    dates: [{ date: eventWithParticipantsInvited.startDate, time: 'ap' }],
+    group: { number: 1, key: 'reserve' },
+  },
+  {
+    ...registrationToEventWithParticipantsInvitedBase,
+    id: eventWithParticipantsInvited.id + '7',
+    class: 'ALO',
+    dates: [{ date: eventWithParticipantsInvited.startDate, time: 'ap' }],
+    group: { number: 2, key: 'reserve' },
   },
 ]
 
