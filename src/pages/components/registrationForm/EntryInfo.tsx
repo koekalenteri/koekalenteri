@@ -4,6 +4,7 @@ import type {
   Registration,
   RegistrationClass,
   RegistrationDate,
+  RegistrationTime,
   ReserveChoise,
 } from '../../../types'
 
@@ -66,7 +67,7 @@ export function EntryInfo({
   )
   const isValidRegistrationDate = (rd: RegistrationDate) => filterDates.find((fd) => isSameDay(fd, rd.date))
   const datesAndTimes = regDates.filter(isValidRegistrationDate)
-  const groups = unique(datesAndTimes.map((dt) => dt.time))
+  const groups = unique(datesAndTimes.map((dt) => dt.time).filter((time): time is RegistrationTime => !!time))
   const showDatesFilter = dates.length > 1
   const showDatesAndTimes = groups.length > 1
   const error = errorStates.class ?? errorStates.dates ?? errorStates.reserve

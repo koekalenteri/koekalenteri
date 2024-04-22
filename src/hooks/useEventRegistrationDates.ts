@@ -7,7 +7,8 @@ import { getEventDays } from '../lib/event'
 import { eventTypeGroupsSelector } from '../pages/admin/recoil'
 
 export const useEventRegistrationDates = (
-  event: Pick<PublicDogEvent, 'classes' | 'endDate' | 'startDate'> & Partial<Pick<PublicDogEvent, 'eventType'>>,
+  event: Pick<PublicDogEvent, 'classes' | 'endDate' | 'startDate' | 'dates'> &
+    Partial<Pick<PublicDogEvent, 'eventType'>>,
   eventClass?: string
 ) => {
   const eventTypeGroups = useRecoilValue(eventTypeGroupsSelector(event.eventType))
@@ -21,6 +22,8 @@ export const useEventRegistrationDates = (
       .filter((c) => (eventClass ? c.class === eventClass : true))
       .flatMap((c) => (c.groups ?? defaultGroups).map((time) => ({ date: c.date, time })))
   }
+
+  if (event.dates) return event.dates
 
   return getEventDays(event).flatMap((date) => defaultGroups.map((time) => ({ date, time })))
 }
