@@ -33,20 +33,20 @@ export default function RegistrationList({ disabled, rows, onUnregister }: Props
   const columns: GridColDef<Registration>[] = [
     {
       field: 'dog.name',
-      valueGetter: (params) => params.row.dog.name,
+      valueGetter: (_value, row) => row.dog.name,
       headerName: t('dog.name'),
       renderCell: (params) => <strong>{params.value}</strong>,
       flex: 256,
     },
     {
       field: 'dog.regNo',
-      valueGetter: (params) => params.row.dog.regNo,
+      valueGetter: (_value, row) => row.dog.regNo,
       headerName: t('dog.regNo'),
       flex: 128,
     },
     {
       field: 'dog.breedCode',
-      valueGetter: (params) => breed(params.row.dog.breedCode as BreedCode),
+      valueGetter: (_value, row) => breed(row.dog.breedCode as BreedCode),
       headerName: t('dog.breed'),
       flex: 192,
     },
@@ -55,7 +55,7 @@ export default function RegistrationList({ disabled, rows, onUnregister }: Props
       headerName: t('registration.member'),
       headerAlign: 'center',
       align: 'center',
-      valueGetter: (params) => params.row.handler.membership,
+      valueGetter: (_value, row) => row.handler.membership,
       renderCell: (params) => (params.value ? <PersonOutline /> : ''),
     },
     {
@@ -63,7 +63,7 @@ export default function RegistrationList({ disabled, rows, onUnregister }: Props
       headerName: t('registration.paid'),
       headerAlign: 'center',
       align: 'center',
-      valueGetter: (params) => !!params.row.paidAt,
+      valueGetter: (_value, row) => !!row.paidAt,
       renderCell: (params) => (params.value ? <EuroOutlined /> : ''),
     },
     {
@@ -120,7 +120,7 @@ export default function RegistrationList({ disabled, rows, onUnregister }: Props
         <StyledDataGrid
           hideFooter={true}
           columns={columns}
-          density="compact"
+          initialState={{ density: 'compact' }}
           disableRowSelectionOnClick
           rows={rows}
           getRowId={(row) => row.id}

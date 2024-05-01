@@ -1,19 +1,9 @@
 import { jsonEmptyEvent } from '../../__mockData__/emptyEvent'
 import { eventWithStaticDatesAnd3Classes } from '../../__mockData__/events'
 
-import { formatMoney, paymentDescription } from './payment'
+import { paymentDescription } from './payment'
 
 describe('payment', () => {
-  describe('formatMoney', () => {
-    it.each`
-      value  | expected
-      ${0}   | ${'0,00\u00A0€'}
-      ${0.5} | ${'0,50\u00A0€'}
-      ${34}  | ${'34,00\u00A0€'}
-    `('should format %p as %p', ({ value, expected }) => {
-      expect(formatMoney(value)).toEqual(expected)
-    })
-  })
   describe('paymentDescription', () => {
     it('works correctly for single day event', () => {
       expect(paymentDescription(jsonEmptyEvent, 'fi')).toEqual('test 1.1. test test')

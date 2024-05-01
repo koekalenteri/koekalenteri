@@ -38,7 +38,7 @@ export default function EmailTemplateListPage() {
       field: 'id',
       flex: 1,
       headerName: t('templateId'),
-      valueGetter: (params) => t(`emailTemplate.${params.row.id}` as any),
+      valueGetter: (value: EmailTemplate['id']) => t(`emailTemplate.${value}`),
     },
   ]
 

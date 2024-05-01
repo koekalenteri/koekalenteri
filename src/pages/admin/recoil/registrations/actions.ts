@@ -1,8 +1,9 @@
-import type { Registration, RegistrationGroupInfo } from '../../../../types'
+import type { PublicDogEvent, Registration, RegistrationGroupInfo } from '../../../../types'
 
 import { useSnackbar } from 'notistack'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
+import { createRefund } from '../../../../api/payment'
 import { getRegistrationTransactions, putAdminRegistration, putRegistrationGroups } from '../../../../api/registration'
 import { reportError } from '../../../../lib/client/rum'
 import { idTokenAtom } from '../../../recoil'
@@ -111,10 +112,16 @@ export const useAdminRegistrationActions = (eventId: string) => {
       }
     },
 
-    async transactions(reg: Registration) {
+    async transactions(eventId: PublicDogEvent['id'], registrationId: Registration['id']) {
       if (!token) throw new Error('missing token')
 
-      return getRegistrationTransactions(reg.eventId, reg.id, token)
+      return getRegistrationTransactions(eventId, registrationId, token)
+    },
+
+    async refund(transactionId: string, amount: number) {
+      if (!token) throw new Error('missing token')
+
+      return createRefund(transactionId, amount, token)
     },
   }
 }

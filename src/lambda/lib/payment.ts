@@ -14,12 +14,10 @@ import CustomDynamoClient from '../utils/CustomDynamoClient'
 
 import { calculateHmac, HMAC_KEY_PREFIX } from './paytrail'
 import { getPaytrailConfig } from './secrets'
+export { formatMoney } from '../../lib/money'
 
 const { transactionTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(transactionTable)
-const moneyFormatter = Intl.NumberFormat('fi-FI', { style: 'currency', currency: 'EUR' })
-
-export const formatMoney = (amount: number) => moneyFormatter.format(amount)
 
 export const parseParams = (headers: Partial<PaytrailCallbackParams>) => {
   const [eventId, registrationId] = headers['checkout-reference']?.split(':') ?? []

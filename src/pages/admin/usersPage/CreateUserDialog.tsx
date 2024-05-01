@@ -100,7 +100,7 @@ export function CreateUserDialog({ onClose, open }: Props) {
           {t('user.createDialog.cta')}
         </Button>
         <Button onClick={onClose} variant="outlined">
-          Peruuta
+          {t('cancel')}
         </Button>
       </DialogActions>
     </Dialog>

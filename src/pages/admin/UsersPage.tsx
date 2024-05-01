@@ -120,12 +120,13 @@ export default function UsersPage() {
       field: 'roles',
       flex: 0,
       headerName: t('roles'),
+      display: 'flex',
       width: 90,
       sortComparator: (a, b) => {
         const admin = a.admin - b.admin
         return admin === 0 ? Object.keys(a.roles).length - Object.keys(b.roles).length : admin
       },
-      valueGetter: (params) => ({ admin: false, roles: {}, ...params.row }),
+      valueGetter: (_value, row) => ({ admin: false, roles: {}, ...row }),
       renderCell: ({ value }) => <RoleInfo {...value} />,
     },
     {
@@ -156,7 +157,7 @@ export default function UsersPage() {
       minWidth: 150,
       flex: 1,
       headerName: t('user.lastSeen'),
-      valueFormatter: (params) => t('dateFormat.long', { date: params.value }),
+      valueFormatter: (value: User['lastSeen']) => t('dateFormat.long', { date: value }),
       align: 'center',
     },
   ]
