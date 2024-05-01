@@ -22,4 +22,4 @@ export const createRefund = async (
   token: string,
   signal?: AbortSignal
 ): Promise<RefundPaymentResponse | undefined> =>
-  http.post('/payment/refund', { transactionId, amount }, withToken({ signal }, token))
+  http.post('/refund/create', { transactionId, amount }, withToken({ signal }, token))

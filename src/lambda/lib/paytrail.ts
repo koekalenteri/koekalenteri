@@ -152,7 +152,7 @@ export const refundPayment = async (
   items: RefundItem[],
   email: PaymentCustomer['email']
 ) => {
-  const callbackUrls = createPaymentCallbackUrls(apiHost)
+  const callbackUrls = createRefundCallbackUrls(apiHost)
 
   const body: RefundRequest = {
     amount,
@@ -163,5 +163,5 @@ export const refundPayment = async (
     items,
   }
 
-  return paytrailRequest<RefundPaymentResponse>('POST', `payments/${transactionId}/refund`, body)
+  return paytrailRequest<RefundPaymentResponse>('POST', `payments/${transactionId}/refund`, body, transactionId)
 }
