@@ -16,6 +16,14 @@ import FullPageFlex from './components/FullPageFlex'
 import { QuickSearchToolbar } from './components/QuickSearchToolbar'
 import { filteredOfficialsSelector, officialFilterAtom, useOfficialsActions } from './recoil'
 
+declare module '@mui/x-data-grid' {
+  interface ToolbarPropsOverrides {
+    value: string
+    onChange: (event: React.ChangeEvent<HTMLInputElement>) => void
+    clearSearch: () => void
+  }
+}
+
 export default function OfficialListPage() {
   const large = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
   const [searchText, setSearchText] = useRecoilState(officialFilterAtom)
@@ -64,7 +72,7 @@ export default function OfficialListPage() {
       field: 'eventTypes',
       flex: 1,
       headerName: t('eventTypes'),
-      valueGetter: (params) => params.row.eventTypes?.join(', '),
+      valueGetter: (value: Official['eventTypes']) => value?.join(', '),
     },
   ]
 

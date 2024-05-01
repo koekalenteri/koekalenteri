@@ -84,7 +84,7 @@ export function CreateEventTypeDialog({ onClose, open }: Props) {
           Tallenna
         </Button>
         <Button onClick={onClose} variant="outlined">
-          Peruuta
+          t{'cancel'}
         </Button>
       </DialogActions>
     </Dialog>

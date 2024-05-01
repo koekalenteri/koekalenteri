@@ -302,6 +302,20 @@
     "qualifyingResultsInfo": "Tulosten perusteella koiralla {{qualifies}} osallistua {{class}} luokkaan.",
     "qualifyingResultsNo": "ei ole oikeutta",
     "qyalifyingResultsYes": "on oikeus",
+    "refundDialog": {
+      "columns": {
+        "provider": "Maksutapa",
+        "status": "Tila",
+        "bankReference": "Pankkiviite",
+        "reference": "Viite",
+        "type": "Tyyppi",
+        "statusAt": "Aikaleima",
+        "amount": "Summa"
+
+      },
+      "title": "Maksun palautus, {{regNo}} / {{payer}}",
+      "text": "Valitse palautettava maksu.\nJos palautuksesta peritään käsittelykulu, täytä se alla olevaan kohtaan.\nJos maksurivi ei ole valittavissa, täytyy palautus hoitaa Paytrailin kauppiaspaneelista."
+    },
     "reserve": "Pystyn ottamaan koepaikan vastaan varasijalta",
     "reserveChoises": {
       "ANY": "Koepäivänä",

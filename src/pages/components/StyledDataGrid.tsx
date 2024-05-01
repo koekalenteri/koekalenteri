@@ -12,7 +12,7 @@ const DataGridWithDefaults = (props: DataGridProps) => {
       paginationModel={{ page, pageSize: 100 }}
       onPaginationModelChange={(model) => setPage(model.page)}
       pageSizeOptions={[100]}
-      density="compact"
+      initialState={{ density: 'compact' }}
       disableColumnMenu
       {...props}
     />
@@ -21,9 +21,6 @@ const DataGridWithDefaults = (props: DataGridProps) => {
 
 const StyledDataGrid = styled(DataGridWithDefaults)(({ theme }: { theme: Theme }) => {
   return {
-    '& .MuiDataGrid-columnHeaders': {
-      backgroundColor: theme.palette.background.tableHead,
-    },
     '& .MuiDataGrid-row:nth-of-type(2n+1)': {
       backgroundColor: theme.palette.background.oddRow,
     },

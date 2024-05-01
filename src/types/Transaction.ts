@@ -14,6 +14,11 @@ export interface JsonTransaction {
   statusAt?: string
 }
 
+export interface Transaction extends Omit<JsonTransaction, 'createdAt' | 'statusAt'> {
+  createdAt: Date
+  statusAt?: Date
+}
+
 export interface JsonPaymentTransaction extends JsonTransaction {
   type: 'payment'
   items?: PaymentItem[]
@@ -22,4 +27,5 @@ export interface JsonPaymentTransaction extends JsonTransaction {
 export interface JsonRefundTransaction extends JsonTransaction {
   type: 'refund'
   items?: RefundItem[]
+  user: string
 }

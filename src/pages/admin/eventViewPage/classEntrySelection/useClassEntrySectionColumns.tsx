@@ -1,6 +1,6 @@
 import type { TooltipProps } from '@mui/material/Tooltip'
-import type { GridColDef, GridValueGetterParams } from '@mui/x-data-grid'
-import type { BreedCode, Registration, RegistrationDate } from '../../../../types'
+import type { GridColDef } from '@mui/x-data-grid'
+import type { Registration, RegistrationDate } from '../../../../types'
 
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -35,7 +35,7 @@ type TooltipContent = { text: string; icon: JSX.Element }
 const IconsTooltipContent = ({ roles }: { roles: TooltipContent[] }) => (
   <Box>
     {roles.map((role) => (
-      <Box display="flex" alignItems="center">
+      <Box key={role.text} display="flex" alignItems="center">
         {role.icon}&nbsp;<Typography fontSize="small">{role.text}</Typography>
       </Box>
     ))}
@@ -137,7 +137,7 @@ export function useClassEntrySelectionColumns(
         width: 20,
         minWidth: 20,
         sortable: false,
-        valueGetter: (p) => (p.row.group?.number ? `${p.row.group.number}.` : ''),
+        valueGetter: (_value, row) => (row.group?.number ? `${row.group.number}.` : ''),
       },
       {
         field: 'dog.name',
@@ -145,23 +145,23 @@ export function useClassEntrySelectionColumns(
         width: 250,
         flex: 1,
         sortable: false,
-        valueGetter: (p: GridValueGetterParams<Registration, string>) => p.row.dog.name,
+        valueGetter: (_value, row) => row.dog.name,
       },
       {
         field: 'dog.regNo',
         headerName: t('dog.regNo'),
         width: 130,
         sortable: false,
-        valueGetter: (p) => p.row.dog.regNo,
+        valueGetter: (_value, row) => row.dog.regNo,
       },
       {
         field: 'dob.breed',
         headerName: t('dog.breed'),
         width: 150,
         sortable: false,
-        valueGetter: (p: GridValueGetterParams<Registration, BreedCode>) =>
-          p.row.dog?.breedCode && p.row.dog?.gender
-            ? t(`${p.row.dog.breedCode}.${p.row.dog.gender}`, { ns: 'breedAbbr', defaultValue: p.row.dog.breedCode })
+        valueGetter: (_value, row) =>
+          row.dog?.breedCode && row.dog?.gender
+            ? t(`${row.dog.breedCode}.${row.dog.gender}`, { ns: 'breedAbbr', defaultValue: row.dog.breedCode })
             : '',
       },
       {
@@ -170,7 +170,7 @@ export function useClassEntrySelectionColumns(
         width: 150,
         flex: 1,
         sortable: false,
-        valueGetter: (p) => p.row.handler.name,
+        valueGetter: (_value, row) => row.handler.name,
       },
       {
         field: 'lastEmail',
@@ -178,7 +178,7 @@ export function useClassEntrySelectionColumns(
         width: 130,
         flex: 1,
         sortable: false,
-        valueGetter: (p) => p.row.lastEmail ?? '',
+        valueGetter: (_value, row) => row.lastEmail ?? '',
       },
       {
         field: 'icons',
@@ -217,7 +217,7 @@ export function useClassEntrySelectionColumns(
             label={t('refund')}
             onClick={() => refundRegistration?.(p.row.id)}
             showInMenu
-            disabled
+            disabled={(p.row.refundAmount ?? 0) > 0}
           />,
         ],
       },

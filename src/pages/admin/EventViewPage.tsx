@@ -24,6 +24,7 @@ import FullPageFlex from './components/FullPageFlex'
 import ClassEntrySelection from './eventViewPage/ClassEntrySelection'
 import EventDetailsDialog from './eventViewPage/EventDetailsDialog'
 import InfoPanel from './eventViewPage/InfoPanel'
+import { RefundDailog } from './eventViewPage/RefundDialog'
 import RegistrationCreateDialog from './eventViewPage/RegistrationCreateDialog'
 import RegistrationEditDialog from './eventViewPage/RegistrationEditDialog'
 import SendMessageDialog from './eventViewPage/SendMessageDialog'
@@ -42,6 +43,7 @@ export default function EventViewPage() {
   const [detailsOpen, setDetailsOpen] = useState(false)
   const [createOpen, setCreateOpen] = useState(false)
   const [msgDlgOpen, setMsgDlgOpen] = useState(false)
+  const [refundOpen, setRefundOpen] = useState(false)
 
   const params = useParams()
   const eventId = params.id ?? ''
@@ -53,6 +55,10 @@ export default function EventViewPage() {
   const registrations = useMemo(
     () => allRegistrations.filter((r) => r.class === selectedEventClass || r.eventType === selectedEventClass),
     [allRegistrations, selectedEventClass]
+  )
+  const selectedRegistration = useMemo(
+    () => selectedRegistrationId && registrations.find((r) => r.id === selectedRegistrationId),
+    [registrations, selectedRegistrationId]
   )
   const [recipientRegistrations, setRecipientRegistrations] = useState<Registration[]>([])
   const [messageTemplateId, setMessageTemplateId] = useState<EmailTemplateId>()
@@ -73,6 +79,7 @@ export default function EventViewPage() {
   const handleClose = useCallback(() => setOpen(false), [])
   const handleCreateClose = useCallback(() => setCreateOpen(false), [])
   const handleDetailsClose = useCallback(() => setDetailsOpen(false), [])
+  const handleRefundClose = useCallback(() => setRefundOpen(false), [])
 
   function openMsgDlg() {
     setMsgDlgOpen(true)
@@ -169,6 +176,7 @@ export default function EventViewPage() {
                 eventClass={eventClass}
                 registrations={registrations}
                 setOpen={setOpen}
+                setRefundOpen={setRefundOpen}
                 selectedRegistrationId={selectedRegistrationId}
                 setSelectedRegistrationId={setSelectedRegistrationId}
                 state={stateByClass[eventClass]}
@@ -204,6 +212,11 @@ export default function EventViewPage() {
       </Suspense>
       <Suspense>
         <EventDetailsDialog eventId={eventId} open={detailsOpen} onClose={handleDetailsClose} />
+      </Suspense>
+      <Suspense>
+        {selectedRegistration && (
+          <RefundDailog registration={selectedRegistration} open={refundOpen} onClose={handleRefundClose} />
+        )}
       </Suspense>
     </>
   )

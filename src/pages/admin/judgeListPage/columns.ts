@@ -60,7 +60,7 @@ export default function useJudgeListColumns(): GridColDef<Judge>[] {
       field: 'eventTypes',
       flex: 2,
       headerName: t('eventTypes'),
-      valueGetter: (params) => params.row.eventTypes?.join(', '),
+      valueGetter: (value: Judge['eventTypes']) => value?.join(', '),
     },
     {
       field: 'languages',

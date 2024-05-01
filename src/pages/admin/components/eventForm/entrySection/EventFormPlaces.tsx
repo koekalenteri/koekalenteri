@@ -17,10 +17,10 @@ import TableRow from '@mui/material/TableRow'
 import Typography from '@mui/material/Typography'
 
 import { getEventClassesByDays, getUniqueEventClasses } from '../../../../../lib/event'
+import { NumberInput } from '../../../../components/NumberInput'
 import { compareEventClass } from '../components/EventClasses'
 
 import PlacesDisplay from './eventFormPlaces/PlacesDisplay'
-import PlacesInput from './eventFormPlaces/PlacesInput'
 
 export default function EventFormPlaces({ event, disabled, helperTexts, onChange }: Readonly<SectionProps>) {
   const { t } = useTranslation()
@@ -30,18 +30,18 @@ export default function EventFormPlaces({ event, disabled, helperTexts, onChange
   const uniqueClasses = getUniqueEventClasses(event)
   const classesByDays = getEventClassesByDays(event)
 
-  const handleChange = (c: DeepPartial<EventClass>) => (value: number) => {
+  const handleChange = (c: DeepPartial<EventClass>) => (value?: number) => {
     const newClasses = event.classes.map((ec) => structuredClone(ec))
     const cls = newClasses.find((ec) => compareEventClass(ec, c) === 0)
     if (cls) {
-      cls.places = Math.max(0, Math.min(value, 200))
+      cls.places = Math.max(0, Math.min(value ?? 0, 200))
     }
     const total = newClasses.reduce((prev, cur) => prev + (cur?.places ?? 0), 0)
     onChange?.({ classes: newClasses, places: total ? total : event.places })
   }
 
   const handlePlacesChange = useCallback(
-    (value: number) => onChange?.({ places: Math.min(Math.max(value, 0), 999) }),
+    (value?: number) => onChange?.({ places: Math.min(Math.max(value ?? 0, 0), 999) }),
     [onChange]
   )
 
@@ -99,7 +99,7 @@ export default function EventFormPlaces({ event, disabled, helperTexts, onChange
                     return (
                       <TableCell key={c} align="center">
                         {cls ? (
-                          <PlacesInput
+                          <NumberInput
                             disabled={disabled || !classesEnabled}
                             value={cls.places}
                             onChange={handleChange(cls)}
@@ -130,7 +130,7 @@ export default function EventFormPlaces({ event, disabled, helperTexts, onChange
                 </TableCell>
               ))}
               <TableCell align="center">
-                <PlacesInput
+                <NumberInput
                   id="event.places"
                   disabled={disabled || classesEnabled}
                   value={event.places}

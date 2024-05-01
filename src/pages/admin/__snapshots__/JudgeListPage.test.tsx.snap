@@ -38,12 +38,14 @@ exports[`JudgeListPage renders 1`] = `
         </button>
       </div>
       <div
-        aria-colcount="10"
-        aria-multiselectable="false"
-        aria-rowcount="4"
-        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1tkh069-MuiDataGrid-root"
-        role="grid"
+        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-68eyva-MuiDataGrid-root"
+        style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 1; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 470px; --DataGrid-columnsTotalWidth: 470px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
       >
+        <div
+          class="css-qtdhae"
+          data-id="gridPanelAnchor"
+          role="presentation"
+        />
         <div
           class="MuiStack-root css-k5y4k9-MuiStack-root"
         >
@@ -103,808 +105,829 @@ exports[`JudgeListPage renders 1`] = `
           </div>
         </div>
         <div
-          class="MuiDataGrid-main css-204u17-MuiDataGrid-main"
+          aria-colcount="10"
+          aria-multiselectable="false"
+          aria-rowcount="4"
+          class="MuiDataGrid-main css-3eek4p-MuiDataGrid-main"
+          role="grid"
+          tabindex="-1"
         >
           <div
-            class="MuiDataGrid-columnHeaders MuiDataGrid-withBorderColor css-1iyq7zh-MuiDataGrid-columnHeaders"
+            class="MuiDataGrid-virtualScroller css-1793420-MuiDataGrid-virtualScroller"
             role="presentation"
-            style="min-height: 39px; max-height: 39px; line-height: 39px;"
+            style="overflow-x: hidden;"
+            tabindex="-1"
           >
             <div
-              class="MuiDataGrid-columnHeadersInner MuiDataGrid-columnHeadersInner--scrollable css-gl260s-MuiDataGrid-columnHeadersInner"
-              role="rowgroup"
-              style="transform: translate3d(0px, 0px, 0px);"
+              class="MuiDataGrid-topContainer MuiDataGrid-container--top css-1oudwrl"
+              role="presentation"
             >
               <div
-                aria-rowindex="1"
-                class="css-yrdy0g-MuiDataGrid-columnHeaderRow"
-                role="row"
+                class="MuiDataGrid-columnHeaders css-1pmk00y-MuiDataGrid-columnHeaders"
+                role="presentation"
               >
                 <div
-                  aria-colindex="1"
-                  aria-label="judgeActive"
-                  aria-sort="none"
-                  class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
-                  data-field="active"
-                  role="columnheader"
-                  style="height: 39px; width: 90px; min-width: 90px; max-width: 90px;"
-                  tabindex="0"
+                  aria-rowindex="1"
+                  class="css-yrdy0g-MuiDataGrid-columnHeaderRow"
+                  role="row"
                 >
                   <div
-                    class="MuiDataGrid-columnHeaderDraggableContainer"
-                    draggable="false"
                     role="presentation"
+                    style="width: 0px;"
+                  />
+                  <div
+                    aria-colindex="1"
+                    aria-label="judgeActive"
+                    aria-sort="none"
+                    class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
+                    data-field="active"
+                    role="columnheader"
+                    style="height: 39px; width: 90px; min-width: 90px; max-width: 90px;"
+                    tabindex="0"
                   >
                     <div
-                      class="MuiDataGrid-columnHeaderTitleContainer"
+                      class="MuiDataGrid-columnHeaderDraggableContainer"
+                      draggable="false"
                       role="presentation"
                     >
                       <div
-                        class="MuiDataGrid-columnHeaderTitleContainerContent"
+                        class="MuiDataGrid-columnHeaderTitleContainer"
+                        role="presentation"
                       >
                         <div
-                          aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
-                          data-mui-internal-clone-element="true"
+                          class="MuiDataGrid-columnHeaderTitleContainerContent"
                         >
-                          judgeActive
+                          <div
+                            aria-label=""
+                            class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                            data-mui-internal-clone-element="true"
+                          >
+                            judgeActive
+                          </div>
+                        </div>
+                        <div
+                          class="MuiDataGrid-iconButtonContainer css-ltf0zy-MuiDataGrid-iconButtonContainer"
+                        >
+                          <button
+                            aria-label="Sort"
+                            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
+                            tabindex="-1"
+                            title="Sort"
+                            type="button"
+                          >
+                            <svg
+                              aria-hidden="true"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-ptiqhd-MuiSvgIcon-root"
+                              data-testid="ArrowUpwardIcon"
+                              focusable="false"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"
+                              />
+                            </svg>
+                            <span
+                              class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                            />
+                          </button>
                         </div>
                       </div>
-                      <div
-                        class="MuiDataGrid-iconButtonContainer css-ltf0zy-MuiDataGrid-iconButtonContainer"
+                    </div>
+                    <div
+                      class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
+                      style="min-height: 39px; opacity: 1;"
+                    >
+                      <svg
+                        aria-hidden="true"
+                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                        data-testid="SeparatorIcon"
+                        focusable="false"
+                        viewBox="0 0 24 24"
                       >
-                        <button
-                          aria-label="Sort"
-                          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
-                          tabindex="-1"
-                          title="Sort"
-                          type="button"
-                        >
-                          <svg
-                            aria-hidden="true"
-                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-ptiqhd-MuiSvgIcon-root"
-                            data-testid="ArrowUpwardIcon"
-                            focusable="false"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"
-                            />
-                          </svg>
-                          <span
-                            class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                          />
-                        </button>
-                      </div>
+                        <path
+                          d="M11 19V5h2v14z"
+                        />
+                      </svg>
                     </div>
                   </div>
                   <div
-                    class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 39px; opacity: 1;"
-                  >
-                    <svg
-                      aria-hidden="true"
-                      class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
-                      data-testid="SeparatorIcon"
-                      focusable="false"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        d="M11 19V5h2v14z"
-                      />
-                    </svg>
-                  </div>
-                </div>
-                <div
-                  aria-colindex="2"
-                  aria-label="official"
-                  aria-sort="none"
-                  class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
-                  data-field="official"
-                  role="columnheader"
-                  style="height: 39px; width: 80px; min-width: 80px; max-width: 80px;"
-                  tabindex="-1"
-                >
-                  <div
-                    class="MuiDataGrid-columnHeaderDraggableContainer"
-                    draggable="false"
-                    role="presentation"
+                    aria-colindex="2"
+                    aria-label="official"
+                    aria-sort="none"
+                    class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
+                    data-field="official"
+                    role="columnheader"
+                    style="height: 39px; width: 80px; min-width: 80px; max-width: 80px;"
+                    tabindex="-1"
                   >
                     <div
-                      class="MuiDataGrid-columnHeaderTitleContainer"
+                      class="MuiDataGrid-columnHeaderDraggableContainer"
+                      draggable="false"
                       role="presentation"
                     >
                       <div
-                        class="MuiDataGrid-columnHeaderTitleContainerContent"
+                        class="MuiDataGrid-columnHeaderTitleContainer"
+                        role="presentation"
                       >
                         <div
-                          aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
-                          data-mui-internal-clone-element="true"
+                          class="MuiDataGrid-columnHeaderTitleContainerContent"
                         >
-                          official
+                          <div
+                            aria-label=""
+                            class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                            data-mui-internal-clone-element="true"
+                          >
+                            official
+                          </div>
+                        </div>
+                        <div
+                          class="MuiDataGrid-iconButtonContainer css-ltf0zy-MuiDataGrid-iconButtonContainer"
+                        >
+                          <button
+                            aria-label="Sort"
+                            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
+                            tabindex="-1"
+                            title="Sort"
+                            type="button"
+                          >
+                            <svg
+                              aria-hidden="true"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-ptiqhd-MuiSvgIcon-root"
+                              data-testid="ArrowUpwardIcon"
+                              focusable="false"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"
+                              />
+                            </svg>
+                            <span
+                              class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                            />
+                          </button>
                         </div>
                       </div>
-                      <div
-                        class="MuiDataGrid-iconButtonContainer css-ltf0zy-MuiDataGrid-iconButtonContainer"
+                    </div>
+                    <div
+                      class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
+                      style="min-height: 39px; opacity: 1;"
+                    >
+                      <svg
+                        aria-hidden="true"
+                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                        data-testid="SeparatorIcon"
+                        focusable="false"
+                        viewBox="0 0 24 24"
                       >
-                        <button
-                          aria-label="Sort"
-                          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
-                          tabindex="-1"
-                          title="Sort"
-                          type="button"
-                        >
-                          <svg
-                            aria-hidden="true"
-                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-ptiqhd-MuiSvgIcon-root"
-                            data-testid="ArrowUpwardIcon"
-                            focusable="false"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"
-                            />
-                          </svg>
-                          <span
-                            class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                          />
-                        </button>
-                      </div>
+                        <path
+                          d="M11 19V5h2v14z"
+                        />
+                      </svg>
                     </div>
                   </div>
                   <div
-                    class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 39px; opacity: 1;"
-                  >
-                    <svg
-                      aria-hidden="true"
-                      class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
-                      data-testid="SeparatorIcon"
-                      focusable="false"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        d="M11 19V5h2v14z"
-                      />
-                    </svg>
-                  </div>
-                </div>
-                <div
-                  aria-colindex="3"
-                  aria-label="name"
-                  aria-sort="none"
-                  class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
-                  data-field="name"
-                  role="columnheader"
-                  style="height: 39px; width: 0px; min-width: 0; max-width: 0;"
-                  tabindex="-1"
-                >
-                  <div
-                    class="MuiDataGrid-columnHeaderDraggableContainer"
-                    draggable="false"
-                    role="presentation"
+                    aria-colindex="3"
+                    aria-label="name"
+                    aria-sort="none"
+                    class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
+                    data-field="name"
+                    role="columnheader"
+                    style="height: 39px; width: 0px; min-width: 0; max-width: 0;"
+                    tabindex="-1"
                   >
                     <div
-                      class="MuiDataGrid-columnHeaderTitleContainer"
+                      class="MuiDataGrid-columnHeaderDraggableContainer"
+                      draggable="false"
                       role="presentation"
                     >
                       <div
-                        class="MuiDataGrid-columnHeaderTitleContainerContent"
+                        class="MuiDataGrid-columnHeaderTitleContainer"
+                        role="presentation"
                       >
                         <div
-                          aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
-                          data-mui-internal-clone-element="true"
+                          class="MuiDataGrid-columnHeaderTitleContainerContent"
                         >
-                          name
+                          <div
+                            aria-label=""
+                            class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                            data-mui-internal-clone-element="true"
+                          >
+                            name
+                          </div>
+                        </div>
+                        <div
+                          class="MuiDataGrid-iconButtonContainer css-ltf0zy-MuiDataGrid-iconButtonContainer"
+                        >
+                          <button
+                            aria-label="Sort"
+                            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
+                            tabindex="-1"
+                            title="Sort"
+                            type="button"
+                          >
+                            <svg
+                              aria-hidden="true"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-ptiqhd-MuiSvgIcon-root"
+                              data-testid="ArrowUpwardIcon"
+                              focusable="false"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"
+                              />
+                            </svg>
+                            <span
+                              class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                            />
+                          </button>
                         </div>
                       </div>
-                      <div
-                        class="MuiDataGrid-iconButtonContainer css-ltf0zy-MuiDataGrid-iconButtonContainer"
+                    </div>
+                    <div
+                      class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
+                      style="min-height: 39px; opacity: 1;"
+                    >
+                      <svg
+                        aria-hidden="true"
+                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                        data-testid="SeparatorIcon"
+                        focusable="false"
+                        viewBox="0 0 24 24"
                       >
-                        <button
-                          aria-label="Sort"
-                          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
-                          tabindex="-1"
-                          title="Sort"
-                          type="button"
-                        >
-                          <svg
-                            aria-hidden="true"
-                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-ptiqhd-MuiSvgIcon-root"
-                            data-testid="ArrowUpwardIcon"
-                            focusable="false"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"
-                            />
-                          </svg>
-                          <span
-                            class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                          />
-                        </button>
-                      </div>
+                        <path
+                          d="M11 19V5h2v14z"
+                        />
+                      </svg>
                     </div>
                   </div>
                   <div
-                    class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 39px; opacity: 1;"
-                  >
-                    <svg
-                      aria-hidden="true"
-                      class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
-                      data-testid="SeparatorIcon"
-                      focusable="false"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        d="M11 19V5h2v14z"
-                      />
-                    </svg>
-                  </div>
-                </div>
-                <div
-                  aria-colindex="4"
-                  aria-label="id"
-                  aria-sort="none"
-                  class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
-                  data-field="id"
-                  role="columnheader"
-                  style="height: 39px; width: 80px; min-width: 80px; max-width: 80px;"
-                  tabindex="-1"
-                >
-                  <div
-                    class="MuiDataGrid-columnHeaderDraggableContainer"
-                    draggable="false"
-                    role="presentation"
+                    aria-colindex="4"
+                    aria-label="id"
+                    aria-sort="none"
+                    class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
+                    data-field="id"
+                    role="columnheader"
+                    style="height: 39px; width: 80px; min-width: 80px; max-width: 80px;"
+                    tabindex="-1"
                   >
                     <div
-                      class="MuiDataGrid-columnHeaderTitleContainer"
+                      class="MuiDataGrid-columnHeaderDraggableContainer"
+                      draggable="false"
                       role="presentation"
                     >
                       <div
-                        class="MuiDataGrid-columnHeaderTitleContainerContent"
+                        class="MuiDataGrid-columnHeaderTitleContainer"
+                        role="presentation"
                       >
                         <div
-                          aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
-                          data-mui-internal-clone-element="true"
+                          class="MuiDataGrid-columnHeaderTitleContainerContent"
                         >
-                          id
+                          <div
+                            aria-label=""
+                            class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                            data-mui-internal-clone-element="true"
+                          >
+                            id
+                          </div>
+                        </div>
+                        <div
+                          class="MuiDataGrid-iconButtonContainer css-ltf0zy-MuiDataGrid-iconButtonContainer"
+                        >
+                          <button
+                            aria-label="Sort"
+                            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
+                            tabindex="-1"
+                            title="Sort"
+                            type="button"
+                          >
+                            <svg
+                              aria-hidden="true"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-ptiqhd-MuiSvgIcon-root"
+                              data-testid="ArrowUpwardIcon"
+                              focusable="false"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"
+                              />
+                            </svg>
+                            <span
+                              class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                            />
+                          </button>
                         </div>
                       </div>
-                      <div
-                        class="MuiDataGrid-iconButtonContainer css-ltf0zy-MuiDataGrid-iconButtonContainer"
+                    </div>
+                    <div
+                      class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
+                      style="min-height: 39px; opacity: 1;"
+                    >
+                      <svg
+                        aria-hidden="true"
+                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                        data-testid="SeparatorIcon"
+                        focusable="false"
+                        viewBox="0 0 24 24"
                       >
-                        <button
-                          aria-label="Sort"
-                          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
-                          tabindex="-1"
-                          title="Sort"
-                          type="button"
-                        >
-                          <svg
-                            aria-hidden="true"
-                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-ptiqhd-MuiSvgIcon-root"
-                            data-testid="ArrowUpwardIcon"
-                            focusable="false"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"
-                            />
-                          </svg>
-                          <span
-                            class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                          />
-                        </button>
-                      </div>
+                        <path
+                          d="M11 19V5h2v14z"
+                        />
+                      </svg>
                     </div>
                   </div>
                   <div
-                    class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 39px; opacity: 1;"
-                  >
-                    <svg
-                      aria-hidden="true"
-                      class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
-                      data-testid="SeparatorIcon"
-                      focusable="false"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        d="M11 19V5h2v14z"
-                      />
-                    </svg>
-                  </div>
-                </div>
-                <div
-                  aria-colindex="5"
-                  aria-label="contact.city"
-                  aria-sort="none"
-                  class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
-                  data-field="location"
-                  role="columnheader"
-                  style="height: 39px; width: 0px; min-width: 0; max-width: 0;"
-                  tabindex="-1"
-                >
-                  <div
-                    class="MuiDataGrid-columnHeaderDraggableContainer"
-                    draggable="false"
-                    role="presentation"
+                    aria-colindex="5"
+                    aria-label="contact.city"
+                    aria-sort="none"
+                    class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
+                    data-field="location"
+                    role="columnheader"
+                    style="height: 39px; width: 0px; min-width: 0; max-width: 0;"
+                    tabindex="-1"
                   >
                     <div
-                      class="MuiDataGrid-columnHeaderTitleContainer"
+                      class="MuiDataGrid-columnHeaderDraggableContainer"
+                      draggable="false"
                       role="presentation"
                     >
                       <div
-                        class="MuiDataGrid-columnHeaderTitleContainerContent"
+                        class="MuiDataGrid-columnHeaderTitleContainer"
+                        role="presentation"
                       >
                         <div
-                          aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
-                          data-mui-internal-clone-element="true"
+                          class="MuiDataGrid-columnHeaderTitleContainerContent"
                         >
-                          contact.city
+                          <div
+                            aria-label=""
+                            class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                            data-mui-internal-clone-element="true"
+                          >
+                            contact.city
+                          </div>
+                        </div>
+                        <div
+                          class="MuiDataGrid-iconButtonContainer css-ltf0zy-MuiDataGrid-iconButtonContainer"
+                        >
+                          <button
+                            aria-label="Sort"
+                            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
+                            tabindex="-1"
+                            title="Sort"
+                            type="button"
+                          >
+                            <svg
+                              aria-hidden="true"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-ptiqhd-MuiSvgIcon-root"
+                              data-testid="ArrowUpwardIcon"
+                              focusable="false"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"
+                              />
+                            </svg>
+                            <span
+                              class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                            />
+                          </button>
                         </div>
                       </div>
-                      <div
-                        class="MuiDataGrid-iconButtonContainer css-ltf0zy-MuiDataGrid-iconButtonContainer"
+                    </div>
+                    <div
+                      class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
+                      style="min-height: 39px; opacity: 1;"
+                    >
+                      <svg
+                        aria-hidden="true"
+                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                        data-testid="SeparatorIcon"
+                        focusable="false"
+                        viewBox="0 0 24 24"
                       >
-                        <button
-                          aria-label="Sort"
-                          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
-                          tabindex="-1"
-                          title="Sort"
-                          type="button"
-                        >
-                          <svg
-                            aria-hidden="true"
-                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-ptiqhd-MuiSvgIcon-root"
-                            data-testid="ArrowUpwardIcon"
-                            focusable="false"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"
-                            />
-                          </svg>
-                          <span
-                            class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                          />
-                        </button>
-                      </div>
+                        <path
+                          d="M11 19V5h2v14z"
+                        />
+                      </svg>
                     </div>
                   </div>
                   <div
-                    class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 39px; opacity: 1;"
-                  >
-                    <svg
-                      aria-hidden="true"
-                      class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
-                      data-testid="SeparatorIcon"
-                      focusable="false"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        d="M11 19V5h2v14z"
-                      />
-                    </svg>
-                  </div>
-                </div>
-                <div
-                  aria-colindex="6"
-                  aria-label="contact.phone"
-                  aria-sort="none"
-                  class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
-                  data-field="phone"
-                  role="columnheader"
-                  style="height: 39px; width: 0px; min-width: 0; max-width: 0;"
-                  tabindex="-1"
-                >
-                  <div
-                    class="MuiDataGrid-columnHeaderDraggableContainer"
-                    draggable="false"
-                    role="presentation"
+                    aria-colindex="6"
+                    aria-label="contact.phone"
+                    aria-sort="none"
+                    class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
+                    data-field="phone"
+                    role="columnheader"
+                    style="height: 39px; width: 0px; min-width: 0; max-width: 0;"
+                    tabindex="-1"
                   >
                     <div
-                      class="MuiDataGrid-columnHeaderTitleContainer"
+                      class="MuiDataGrid-columnHeaderDraggableContainer"
+                      draggable="false"
                       role="presentation"
                     >
                       <div
-                        class="MuiDataGrid-columnHeaderTitleContainerContent"
+                        class="MuiDataGrid-columnHeaderTitleContainer"
+                        role="presentation"
                       >
                         <div
-                          aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
-                          data-mui-internal-clone-element="true"
+                          class="MuiDataGrid-columnHeaderTitleContainerContent"
                         >
-                          contact.phone
+                          <div
+                            aria-label=""
+                            class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                            data-mui-internal-clone-element="true"
+                          >
+                            contact.phone
+                          </div>
+                        </div>
+                        <div
+                          class="MuiDataGrid-iconButtonContainer css-ltf0zy-MuiDataGrid-iconButtonContainer"
+                        >
+                          <button
+                            aria-label="Sort"
+                            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
+                            tabindex="-1"
+                            title="Sort"
+                            type="button"
+                          >
+                            <svg
+                              aria-hidden="true"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-ptiqhd-MuiSvgIcon-root"
+                              data-testid="ArrowUpwardIcon"
+                              focusable="false"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"
+                              />
+                            </svg>
+                            <span
+                              class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                            />
+                          </button>
                         </div>
                       </div>
-                      <div
-                        class="MuiDataGrid-iconButtonContainer css-ltf0zy-MuiDataGrid-iconButtonContainer"
+                    </div>
+                    <div
+                      class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
+                      style="min-height: 39px; opacity: 1;"
+                    >
+                      <svg
+                        aria-hidden="true"
+                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                        data-testid="SeparatorIcon"
+                        focusable="false"
+                        viewBox="0 0 24 24"
                       >
-                        <button
-                          aria-label="Sort"
-                          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
-                          tabindex="-1"
-                          title="Sort"
-                          type="button"
-                        >
-                          <svg
-                            aria-hidden="true"
-                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-ptiqhd-MuiSvgIcon-root"
-                            data-testid="ArrowUpwardIcon"
-                            focusable="false"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"
-                            />
-                          </svg>
-                          <span
-                            class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                          />
-                        </button>
-                      </div>
+                        <path
+                          d="M11 19V5h2v14z"
+                        />
+                      </svg>
                     </div>
                   </div>
                   <div
-                    class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 39px; opacity: 1;"
-                  >
-                    <svg
-                      aria-hidden="true"
-                      class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
-                      data-testid="SeparatorIcon"
-                      focusable="false"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        d="M11 19V5h2v14z"
-                      />
-                    </svg>
-                  </div>
-                </div>
-                <div
-                  aria-colindex="7"
-                  aria-label="contact.email"
-                  aria-sort="none"
-                  class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
-                  data-field="email"
-                  role="columnheader"
-                  style="height: 39px; width: 0px; min-width: 0; max-width: 0;"
-                  tabindex="-1"
-                >
-                  <div
-                    class="MuiDataGrid-columnHeaderDraggableContainer"
-                    draggable="false"
-                    role="presentation"
+                    aria-colindex="7"
+                    aria-label="contact.email"
+                    aria-sort="none"
+                    class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
+                    data-field="email"
+                    role="columnheader"
+                    style="height: 39px; width: 0px; min-width: 0; max-width: 0;"
+                    tabindex="-1"
                   >
                     <div
-                      class="MuiDataGrid-columnHeaderTitleContainer"
+                      class="MuiDataGrid-columnHeaderDraggableContainer"
+                      draggable="false"
                       role="presentation"
                     >
                       <div
-                        class="MuiDataGrid-columnHeaderTitleContainerContent"
+                        class="MuiDataGrid-columnHeaderTitleContainer"
+                        role="presentation"
                       >
                         <div
-                          aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
-                          data-mui-internal-clone-element="true"
+                          class="MuiDataGrid-columnHeaderTitleContainerContent"
                         >
-                          contact.email
+                          <div
+                            aria-label=""
+                            class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                            data-mui-internal-clone-element="true"
+                          >
+                            contact.email
+                          </div>
+                        </div>
+                        <div
+                          class="MuiDataGrid-iconButtonContainer css-ltf0zy-MuiDataGrid-iconButtonContainer"
+                        >
+                          <button
+                            aria-label="Sort"
+                            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
+                            tabindex="-1"
+                            title="Sort"
+                            type="button"
+                          >
+                            <svg
+                              aria-hidden="true"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-ptiqhd-MuiSvgIcon-root"
+                              data-testid="ArrowUpwardIcon"
+                              focusable="false"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"
+                              />
+                            </svg>
+                            <span
+                              class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                            />
+                          </button>
                         </div>
                       </div>
-                      <div
-                        class="MuiDataGrid-iconButtonContainer css-ltf0zy-MuiDataGrid-iconButtonContainer"
+                    </div>
+                    <div
+                      class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
+                      style="min-height: 39px; opacity: 1;"
+                    >
+                      <svg
+                        aria-hidden="true"
+                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                        data-testid="SeparatorIcon"
+                        focusable="false"
+                        viewBox="0 0 24 24"
                       >
-                        <button
-                          aria-label="Sort"
-                          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
-                          tabindex="-1"
-                          title="Sort"
-                          type="button"
-                        >
-                          <svg
-                            aria-hidden="true"
-                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-ptiqhd-MuiSvgIcon-root"
-                            data-testid="ArrowUpwardIcon"
-                            focusable="false"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"
-                            />
-                          </svg>
-                          <span
-                            class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                          />
-                        </button>
-                      </div>
+                        <path
+                          d="M11 19V5h2v14z"
+                        />
+                      </svg>
                     </div>
                   </div>
                   <div
-                    class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 39px; opacity: 1;"
-                  >
-                    <svg
-                      aria-hidden="true"
-                      class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
-                      data-testid="SeparatorIcon"
-                      focusable="false"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        d="M11 19V5h2v14z"
-                      />
-                    </svg>
-                  </div>
-                </div>
-                <div
-                  aria-colindex="8"
-                  aria-label="Kennelpiiri"
-                  aria-sort="none"
-                  class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
-                  data-field="district"
-                  role="columnheader"
-                  style="height: 39px; width: 0px; min-width: 0; max-width: 0;"
-                  tabindex="-1"
-                >
-                  <div
-                    class="MuiDataGrid-columnHeaderDraggableContainer"
-                    draggable="false"
-                    role="presentation"
+                    aria-colindex="8"
+                    aria-label="Kennelpiiri"
+                    aria-sort="none"
+                    class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
+                    data-field="district"
+                    role="columnheader"
+                    style="height: 39px; width: 0px; min-width: 0; max-width: 0;"
+                    tabindex="-1"
                   >
                     <div
-                      class="MuiDataGrid-columnHeaderTitleContainer"
+                      class="MuiDataGrid-columnHeaderDraggableContainer"
+                      draggable="false"
                       role="presentation"
                     >
                       <div
-                        class="MuiDataGrid-columnHeaderTitleContainerContent"
+                        class="MuiDataGrid-columnHeaderTitleContainer"
+                        role="presentation"
                       >
                         <div
-                          aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
-                          data-mui-internal-clone-element="true"
+                          class="MuiDataGrid-columnHeaderTitleContainerContent"
                         >
-                          Kennelpiiri
+                          <div
+                            aria-label=""
+                            class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                            data-mui-internal-clone-element="true"
+                          >
+                            Kennelpiiri
+                          </div>
+                        </div>
+                        <div
+                          class="MuiDataGrid-iconButtonContainer css-ltf0zy-MuiDataGrid-iconButtonContainer"
+                        >
+                          <button
+                            aria-label="Sort"
+                            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
+                            tabindex="-1"
+                            title="Sort"
+                            type="button"
+                          >
+                            <svg
+                              aria-hidden="true"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-ptiqhd-MuiSvgIcon-root"
+                              data-testid="ArrowUpwardIcon"
+                              focusable="false"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"
+                              />
+                            </svg>
+                            <span
+                              class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                            />
+                          </button>
                         </div>
                       </div>
-                      <div
-                        class="MuiDataGrid-iconButtonContainer css-ltf0zy-MuiDataGrid-iconButtonContainer"
+                    </div>
+                    <div
+                      class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
+                      style="min-height: 39px; opacity: 1;"
+                    >
+                      <svg
+                        aria-hidden="true"
+                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                        data-testid="SeparatorIcon"
+                        focusable="false"
+                        viewBox="0 0 24 24"
                       >
-                        <button
-                          aria-label="Sort"
-                          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
-                          tabindex="-1"
-                          title="Sort"
-                          type="button"
-                        >
-                          <svg
-                            aria-hidden="true"
-                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-ptiqhd-MuiSvgIcon-root"
-                            data-testid="ArrowUpwardIcon"
-                            focusable="false"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"
-                            />
-                          </svg>
-                          <span
-                            class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                          />
-                        </button>
-                      </div>
+                        <path
+                          d="M11 19V5h2v14z"
+                        />
+                      </svg>
                     </div>
                   </div>
                   <div
-                    class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 39px; opacity: 1;"
-                  >
-                    <svg
-                      aria-hidden="true"
-                      class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
-                      data-testid="SeparatorIcon"
-                      focusable="false"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        d="M11 19V5h2v14z"
-                      />
-                    </svg>
-                  </div>
-                </div>
-                <div
-                  aria-colindex="9"
-                  aria-label="eventTypes"
-                  aria-sort="none"
-                  class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
-                  data-field="eventTypes"
-                  role="columnheader"
-                  style="height: 39px; width: 0px; min-width: 0; max-width: 0;"
-                  tabindex="-1"
-                >
-                  <div
-                    class="MuiDataGrid-columnHeaderDraggableContainer"
-                    draggable="false"
-                    role="presentation"
+                    aria-colindex="9"
+                    aria-label="eventTypes"
+                    aria-sort="none"
+                    class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
+                    data-field="eventTypes"
+                    role="columnheader"
+                    style="height: 39px; width: 0px; min-width: 0; max-width: 0;"
+                    tabindex="-1"
                   >
                     <div
-                      class="MuiDataGrid-columnHeaderTitleContainer"
+                      class="MuiDataGrid-columnHeaderDraggableContainer"
+                      draggable="false"
                       role="presentation"
                     >
                       <div
-                        class="MuiDataGrid-columnHeaderTitleContainerContent"
+                        class="MuiDataGrid-columnHeaderTitleContainer"
+                        role="presentation"
                       >
                         <div
-                          aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
-                          data-mui-internal-clone-element="true"
+                          class="MuiDataGrid-columnHeaderTitleContainerContent"
                         >
-                          eventTypes
+                          <div
+                            aria-label=""
+                            class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                            data-mui-internal-clone-element="true"
+                          >
+                            eventTypes
+                          </div>
+                        </div>
+                        <div
+                          class="MuiDataGrid-iconButtonContainer css-ltf0zy-MuiDataGrid-iconButtonContainer"
+                        >
+                          <button
+                            aria-label="Sort"
+                            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
+                            tabindex="-1"
+                            title="Sort"
+                            type="button"
+                          >
+                            <svg
+                              aria-hidden="true"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-ptiqhd-MuiSvgIcon-root"
+                              data-testid="ArrowUpwardIcon"
+                              focusable="false"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"
+                              />
+                            </svg>
+                            <span
+                              class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                            />
+                          </button>
                         </div>
                       </div>
-                      <div
-                        class="MuiDataGrid-iconButtonContainer css-ltf0zy-MuiDataGrid-iconButtonContainer"
+                    </div>
+                    <div
+                      class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
+                      style="min-height: 39px; opacity: 1;"
+                    >
+                      <svg
+                        aria-hidden="true"
+                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                        data-testid="SeparatorIcon"
+                        focusable="false"
+                        viewBox="0 0 24 24"
                       >
-                        <button
-                          aria-label="Sort"
-                          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
-                          tabindex="-1"
-                          title="Sort"
-                          type="button"
-                        >
-                          <svg
-                            aria-hidden="true"
-                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-ptiqhd-MuiSvgIcon-root"
-                            data-testid="ArrowUpwardIcon"
-                            focusable="false"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"
-                            />
-                          </svg>
-                          <span
-                            class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                          />
-                        </button>
-                      </div>
+                        <path
+                          d="M11 19V5h2v14z"
+                        />
+                      </svg>
                     </div>
                   </div>
                   <div
-                    class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 39px; opacity: 1;"
-                  >
-                    <svg
-                      aria-hidden="true"
-                      class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
-                      data-testid="SeparatorIcon"
-                      focusable="false"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        d="M11 19V5h2v14z"
-                      />
-                    </svg>
-                  </div>
-                </div>
-                <div
-                  aria-colindex="10"
-                  aria-label="languages"
-                  aria-sort="none"
-                  class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
-                  data-field="languages"
-                  role="columnheader"
-                  style="height: 39px; width: 220px; min-width: 220px; max-width: 220px;"
-                  tabindex="-1"
-                >
-                  <div
-                    class="MuiDataGrid-columnHeaderDraggableContainer"
-                    draggable="false"
-                    role="presentation"
+                    aria-colindex="10"
+                    aria-label="languages"
+                    aria-sort="none"
+                    class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor MuiDataGrid-columnHeader--last"
+                    data-field="languages"
+                    role="columnheader"
+                    style="height: 39px; width: 220px; min-width: 220px; max-width: 220px;"
+                    tabindex="-1"
                   >
                     <div
-                      class="MuiDataGrid-columnHeaderTitleContainer"
+                      class="MuiDataGrid-columnHeaderDraggableContainer"
+                      draggable="false"
                       role="presentation"
                     >
                       <div
-                        class="MuiDataGrid-columnHeaderTitleContainerContent"
+                        class="MuiDataGrid-columnHeaderTitleContainer"
+                        role="presentation"
                       >
                         <div
-                          aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
-                          data-mui-internal-clone-element="true"
+                          class="MuiDataGrid-columnHeaderTitleContainerContent"
                         >
-                          languages
+                          <div
+                            aria-label=""
+                            class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                            data-mui-internal-clone-element="true"
+                          >
+                            languages
+                          </div>
+                        </div>
+                        <div
+                          class="MuiDataGrid-iconButtonContainer css-ltf0zy-MuiDataGrid-iconButtonContainer"
+                        >
+                          <button
+                            aria-label="Sort"
+                            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
+                            tabindex="-1"
+                            title="Sort"
+                            type="button"
+                          >
+                            <svg
+                              aria-hidden="true"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-ptiqhd-MuiSvgIcon-root"
+                              data-testid="ArrowUpwardIcon"
+                              focusable="false"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"
+                              />
+                            </svg>
+                            <span
+                              class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                            />
+                          </button>
                         </div>
                       </div>
-                      <div
-                        class="MuiDataGrid-iconButtonContainer css-ltf0zy-MuiDataGrid-iconButtonContainer"
+                    </div>
+                    <div
+                      class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
+                      style="min-height: 39px; opacity: 1;"
+                    >
+                      <svg
+                        aria-hidden="true"
+                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                        data-testid="SeparatorIcon"
+                        focusable="false"
+                        viewBox="0 0 24 24"
                       >
-                        <button
-                          aria-label="Sort"
-                          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
-                          tabindex="-1"
-                          title="Sort"
-                          type="button"
-                        >
-                          <svg
-                            aria-hidden="true"
-                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-ptiqhd-MuiSvgIcon-root"
-                            data-testid="ArrowUpwardIcon"
-                            focusable="false"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"
-                            />
-                          </svg>
-                          <span
-                            class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                          />
-                        </button>
-                      </div>
+                        <path
+                          d="M11 19V5h2v14z"
+                        />
+                      </svg>
                     </div>
                   </div>
                   <div
-                    class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 39px; opacity: 1;"
-                  >
-                    <svg
-                      aria-hidden="true"
-                      class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
-                      data-testid="SeparatorIcon"
-                      focusable="false"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        d="M11 19V5h2v14z"
-                      />
-                    </svg>
-                  </div>
+                    class="MuiDataGrid-filler"
+                    role="presentation"
+                  />
+                  <div
+                    class="MuiDataGrid-scrollbarFiller MuiDataGrid-scrollbarFiller--header"
+                    role="presentation"
+                  />
                 </div>
               </div>
             </div>
-          </div>
-          <div
-            class="MuiDataGrid-virtualScroller css-qvtrhg-MuiDataGrid-virtualScroller"
-            role="presentation"
-            style="overflow-x: hidden;"
-          >
             <div
-              class="MuiDataGrid-virtualScrollerContent MuiDataGrid-virtualScrollerContent--overflowed css-1kwdphh-MuiDataGrid-virtualScrollerContent"
+              class="MuiDataGrid-virtualScrollerContent css-1kwdphh-MuiDataGrid-virtualScrollerContent"
               role="presentation"
-              style="width: auto; height: 84px; min-height: auto;"
+              style="width: auto; height: 84px;"
             >
               <div
                 class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"
                 role="rowgroup"
-                style="transform: translate3d(0px, 0px, 0px);"
+                style="transform: translate3d(0, 0px, 0);"
               >
                 <div
                   aria-rowindex="2"
                   aria-selected="false"
-                  class="MuiDataGrid-row"
+                  class="MuiDataGrid-row MuiDataGrid-row--firstVisible"
                   data-id="123"
                   data-rowindex="0"
                   role="row"
-                  style="max-height: 28px; min-height: 28px;"
+                  style="max-height: 28px; min-height: 28px; --height: 28px;"
                 >
+                  <div
+                    class="MuiDataGrid-cellOffsetLeft"
+                    role="presentation"
+                    style="width: 0px;"
+                  />
                   <div
                     aria-colindex="1"
                     aria-colspan="1"
-                    class="MuiDataGrid-cell--withRenderer MuiDataGrid-cell MuiDataGrid-cell--textLeft MuiDataGrid-withBorderColor"
+                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="0"
                     data-field="active"
-                    role="cell"
-                    style="min-width: 90px; max-width: 90px; min-height: 28px; max-height: 28px;"
+                    role="gridcell"
+                    style="--width: 90px;"
                     tabindex="-1"
                   >
                     <span
@@ -933,11 +956,11 @@ exports[`JudgeListPage renders 1`] = `
                   <div
                     aria-colindex="2"
                     aria-colspan="1"
-                    class="MuiDataGrid-cell--withRenderer MuiDataGrid-cell MuiDataGrid-cell--textCenter MuiDataGrid-withBorderColor"
+                    class="MuiDataGrid-cell MuiDataGrid-cell--textCenter"
                     data-colindex="1"
                     data-field="official"
-                    role="cell"
-                    style="min-width: 80px; max-width: 80px; min-height: 28px; max-height: 28px;"
+                    role="gridcell"
+                    style="--width: 80px;"
                     tabindex="-1"
                   >
                     <svg
@@ -955,135 +978,100 @@ exports[`JudgeListPage renders 1`] = `
                   <div
                     aria-colindex="3"
                     aria-colspan="1"
-                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft MuiDataGrid-withBorderColor"
+                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="2"
                     data-field="name"
-                    role="cell"
-                    style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
+                    role="gridcell"
+                    style="--width: 0px;"
                     tabindex="-1"
+                    title="Tuomari 1"
                   >
-                    <div
-                      class="MuiDataGrid-cellContent"
-                      role="presentation"
-                      title="Tuomari 1"
-                    >
-                      Tuomari 1
-                    </div>
+                    Tuomari 1
                   </div>
                   <div
                     aria-colindex="4"
                     aria-colspan="1"
-                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft MuiDataGrid-withBorderColor"
+                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="3"
                     data-field="id"
-                    role="cell"
-                    style="min-width: 80px; max-width: 80px; min-height: 28px; max-height: 28px;"
+                    role="gridcell"
+                    style="--width: 80px;"
                     tabindex="-1"
+                    title="123"
                   >
-                    <div
-                      class="MuiDataGrid-cellContent"
-                      role="presentation"
-                      title="123"
-                    >
-                      123
-                    </div>
+                    123
                   </div>
                   <div
                     aria-colindex="5"
                     aria-colspan="1"
-                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft MuiDataGrid-withBorderColor"
+                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="4"
                     data-field="location"
-                    role="cell"
-                    style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
+                    role="gridcell"
+                    style="--width: 0px;"
                     tabindex="-1"
+                    title="Helsinki"
                   >
-                    <div
-                      class="MuiDataGrid-cellContent"
-                      role="presentation"
-                      title="Helsinki"
-                    >
-                      Helsinki
-                    </div>
+                    Helsinki
                   </div>
                   <div
                     aria-colindex="6"
                     aria-colspan="1"
-                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft MuiDataGrid-withBorderColor"
+                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="5"
                     data-field="phone"
-                    role="cell"
-                    style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
+                    role="gridcell"
+                    style="--width: 0px;"
                     tabindex="-1"
+                    title="123456789"
                   >
-                    <div
-                      class="MuiDataGrid-cellContent"
-                      role="presentation"
-                      title="123456789"
-                    >
-                      123456789
-                    </div>
+                    123456789
                   </div>
                   <div
                     aria-colindex="7"
                     aria-colspan="1"
-                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft MuiDataGrid-withBorderColor"
+                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="6"
                     data-field="email"
-                    role="cell"
-                    style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
+                    role="gridcell"
+                    style="--width: 0px;"
                     tabindex="-1"
+                    title="tuomari1@sposti.not"
                   >
-                    <div
-                      class="MuiDataGrid-cellContent"
-                      role="presentation"
-                      title="tuomari1@sposti.not"
-                    >
-                      tuomari1@sposti.not
-                    </div>
+                    tuomari1@sposti.not
                   </div>
                   <div
                     aria-colindex="8"
                     aria-colspan="1"
-                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft MuiDataGrid-withBorderColor"
+                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="7"
                     data-field="district"
-                    role="cell"
-                    style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
+                    role="gridcell"
+                    style="--width: 0px;"
                     tabindex="-1"
+                    title="Uusimaa"
                   >
-                    <div
-                      class="MuiDataGrid-cellContent"
-                      role="presentation"
-                      title="Uusimaa"
-                    >
-                      Uusimaa
-                    </div>
+                    Uusimaa
                   </div>
                   <div
                     aria-colindex="9"
                     aria-colspan="1"
-                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft MuiDataGrid-withBorderColor"
+                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="8"
                     data-field="eventTypes"
-                    role="cell"
-                    style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
+                    role="gridcell"
+                    style="--width: 0px;"
                     tabindex="-1"
-                  >
-                    <div
-                      class="MuiDataGrid-cellContent"
-                      role="presentation"
-                      title=""
-                    />
-                  </div>
+                    title=""
+                  />
                   <div
                     aria-colindex="10"
                     aria-colspan="1"
-                    class="MuiDataGrid-cell--withRenderer MuiDataGrid-cell MuiDataGrid-cell--textLeft MuiDataGrid-withBorderColor"
+                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="9"
                     data-field="languages"
-                    role="cell"
-                    style="min-width: 220px; max-width: 220px; min-height: 28px; max-height: 28px;"
+                    role="gridcell"
+                    style="--width: 220px;"
                     tabindex="-1"
                   >
                     <div
@@ -1136,16 +1124,21 @@ exports[`JudgeListPage renders 1`] = `
                   data-id="223"
                   data-rowindex="1"
                   role="row"
-                  style="max-height: 28px; min-height: 28px;"
+                  style="max-height: 28px; min-height: 28px; --height: 28px;"
                 >
+                  <div
+                    class="MuiDataGrid-cellOffsetLeft"
+                    role="presentation"
+                    style="width: 0px;"
+                  />
                   <div
                     aria-colindex="1"
                     aria-colspan="1"
-                    class="MuiDataGrid-cell--withRenderer MuiDataGrid-cell MuiDataGrid-cell--textLeft MuiDataGrid-withBorderColor"
+                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="0"
                     data-field="active"
-                    role="cell"
-                    style="min-width: 90px; max-width: 90px; min-height: 28px; max-height: 28px;"
+                    role="gridcell"
+                    style="--width: 90px;"
                     tabindex="-1"
                   >
                     <span
@@ -1174,11 +1167,11 @@ exports[`JudgeListPage renders 1`] = `
                   <div
                     aria-colindex="2"
                     aria-colspan="1"
-                    class="MuiDataGrid-cell--withRenderer MuiDataGrid-cell MuiDataGrid-cell--textCenter MuiDataGrid-withBorderColor"
+                    class="MuiDataGrid-cell MuiDataGrid-cell--textCenter"
                     data-colindex="1"
                     data-field="official"
-                    role="cell"
-                    style="min-width: 80px; max-width: 80px; min-height: 28px; max-height: 28px;"
+                    role="gridcell"
+                    style="--width: 80px;"
                     tabindex="-1"
                   >
                     <svg
@@ -1196,135 +1189,100 @@ exports[`JudgeListPage renders 1`] = `
                   <div
                     aria-colindex="3"
                     aria-colspan="1"
-                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft MuiDataGrid-withBorderColor"
+                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="2"
                     data-field="name"
-                    role="cell"
-                    style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
+                    role="gridcell"
+                    style="--width: 0px;"
                     tabindex="-1"
+                    title="Tuomari 2"
                   >
-                    <div
-                      class="MuiDataGrid-cellContent"
-                      role="presentation"
-                      title="Tuomari 2"
-                    >
-                      Tuomari 2
-                    </div>
+                    Tuomari 2
                   </div>
                   <div
                     aria-colindex="4"
                     aria-colspan="1"
-                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft MuiDataGrid-withBorderColor"
+                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="3"
                     data-field="id"
-                    role="cell"
-                    style="min-width: 80px; max-width: 80px; min-height: 28px; max-height: 28px;"
+                    role="gridcell"
+                    style="--width: 80px;"
                     tabindex="-1"
+                    title="223"
                   >
-                    <div
-                      class="MuiDataGrid-cellContent"
-                      role="presentation"
-                      title="223"
-                    >
-                      223
-                    </div>
+                    223
                   </div>
                   <div
                     aria-colindex="5"
                     aria-colspan="1"
-                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft MuiDataGrid-withBorderColor"
+                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="4"
                     data-field="location"
-                    role="cell"
-                    style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
+                    role="gridcell"
+                    style="--width: 0px;"
                     tabindex="-1"
+                    title="Tampere"
                   >
-                    <div
-                      class="MuiDataGrid-cellContent"
-                      role="presentation"
-                      title="Tampere"
-                    >
-                      Tampere
-                    </div>
+                    Tampere
                   </div>
                   <div
                     aria-colindex="6"
                     aria-colspan="1"
-                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft MuiDataGrid-withBorderColor"
+                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="5"
                     data-field="phone"
-                    role="cell"
-                    style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
+                    role="gridcell"
+                    style="--width: 0px;"
                     tabindex="-1"
+                    title="123456788"
                   >
-                    <div
-                      class="MuiDataGrid-cellContent"
-                      role="presentation"
-                      title="123456788"
-                    >
-                      123456788
-                    </div>
+                    123456788
                   </div>
                   <div
                     aria-colindex="7"
                     aria-colspan="1"
-                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft MuiDataGrid-withBorderColor"
+                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="6"
                     data-field="email"
-                    role="cell"
-                    style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
+                    role="gridcell"
+                    style="--width: 0px;"
                     tabindex="-1"
+                    title="tuomari2@sposti.not"
                   >
-                    <div
-                      class="MuiDataGrid-cellContent"
-                      role="presentation"
-                      title="tuomari2@sposti.not"
-                    >
-                      tuomari2@sposti.not
-                    </div>
+                    tuomari2@sposti.not
                   </div>
                   <div
                     aria-colindex="8"
                     aria-colspan="1"
-                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft MuiDataGrid-withBorderColor"
+                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="7"
                     data-field="district"
-                    role="cell"
-                    style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
+                    role="gridcell"
+                    style="--width: 0px;"
                     tabindex="-1"
+                    title="Tampere"
                   >
-                    <div
-                      class="MuiDataGrid-cellContent"
-                      role="presentation"
-                      title="Tampere"
-                    >
-                      Tampere
-                    </div>
+                    Tampere
                   </div>
                   <div
                     aria-colindex="9"
                     aria-colspan="1"
-                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft MuiDataGrid-withBorderColor"
+                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="8"
                     data-field="eventTypes"
-                    role="cell"
-                    style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
+                    role="gridcell"
+                    style="--width: 0px;"
                     tabindex="-1"
-                  >
-                    <div
-                      class="MuiDataGrid-cellContent"
-                      role="presentation"
-                      title=""
-                    />
-                  </div>
+                    title=""
+                  />
                   <div
                     aria-colindex="10"
                     aria-colspan="1"
-                    class="MuiDataGrid-cell--withRenderer MuiDataGrid-cell MuiDataGrid-cell--textLeft MuiDataGrid-withBorderColor"
+                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="9"
                     data-field="languages"
-                    role="cell"
-                    style="min-width: 220px; max-width: 220px; min-height: 28px; max-height: 28px;"
+                    role="gridcell"
+                    style="--width: 220px;"
                     tabindex="-1"
                   >
                     <div
@@ -1377,16 +1335,21 @@ exports[`JudgeListPage renders 1`] = `
                   data-id="323"
                   data-rowindex="2"
                   role="row"
-                  style="max-height: 28px; min-height: 28px;"
+                  style="max-height: 28px; min-height: 28px; --height: 28px;"
                 >
+                  <div
+                    class="MuiDataGrid-cellOffsetLeft"
+                    role="presentation"
+                    style="width: 0px;"
+                  />
                   <div
                     aria-colindex="1"
                     aria-colspan="1"
-                    class="MuiDataGrid-cell--withRenderer MuiDataGrid-cell MuiDataGrid-cell--textLeft MuiDataGrid-withBorderColor"
+                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="0"
                     data-field="active"
-                    role="cell"
-                    style="min-width: 90px; max-width: 90px; min-height: 28px; max-height: 28px;"
+                    role="gridcell"
+                    style="--width: 90px;"
                     tabindex="-1"
                   >
                     <span
@@ -1415,11 +1378,11 @@ exports[`JudgeListPage renders 1`] = `
                   <div
                     aria-colindex="2"
                     aria-colspan="1"
-                    class="MuiDataGrid-cell--withRenderer MuiDataGrid-cell MuiDataGrid-cell--textCenter MuiDataGrid-withBorderColor"
+                    class="MuiDataGrid-cell MuiDataGrid-cell--textCenter"
                     data-colindex="1"
                     data-field="official"
-                    role="cell"
-                    style="min-width: 80px; max-width: 80px; min-height: 28px; max-height: 28px;"
+                    role="gridcell"
+                    style="--width: 80px;"
                     tabindex="-1"
                   >
                     <svg
@@ -1437,135 +1400,100 @@ exports[`JudgeListPage renders 1`] = `
                   <div
                     aria-colindex="3"
                     aria-colspan="1"
-                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft MuiDataGrid-withBorderColor"
+                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="2"
                     data-field="name"
-                    role="cell"
-                    style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
+                    role="gridcell"
+                    style="--width: 0px;"
                     tabindex="-1"
+                    title="Tuomari 3"
                   >
-                    <div
-                      class="MuiDataGrid-cellContent"
-                      role="presentation"
-                      title="Tuomari 3"
-                    >
-                      Tuomari 3
-                    </div>
+                    Tuomari 3
                   </div>
                   <div
                     aria-colindex="4"
                     aria-colspan="1"
-                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft MuiDataGrid-withBorderColor"
+                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="3"
                     data-field="id"
-                    role="cell"
-                    style="min-width: 80px; max-width: 80px; min-height: 28px; max-height: 28px;"
+                    role="gridcell"
+                    style="--width: 80px;"
                     tabindex="-1"
+                    title="323"
                   >
-                    <div
-                      class="MuiDataGrid-cellContent"
-                      role="presentation"
-                      title="323"
-                    >
-                      323
-                    </div>
+                    323
                   </div>
                   <div
                     aria-colindex="5"
                     aria-colspan="1"
-                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft MuiDataGrid-withBorderColor"
+                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="4"
                     data-field="location"
-                    role="cell"
-                    style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
+                    role="gridcell"
+                    style="--width: 0px;"
                     tabindex="-1"
+                    title="Turku"
                   >
-                    <div
-                      class="MuiDataGrid-cellContent"
-                      role="presentation"
-                      title="Turku"
-                    >
-                      Turku
-                    </div>
+                    Turku
                   </div>
                   <div
                     aria-colindex="6"
                     aria-colspan="1"
-                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft MuiDataGrid-withBorderColor"
+                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="5"
                     data-field="phone"
-                    role="cell"
-                    style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
+                    role="gridcell"
+                    style="--width: 0px;"
                     tabindex="-1"
+                    title="123456787"
                   >
-                    <div
-                      class="MuiDataGrid-cellContent"
-                      role="presentation"
-                      title="123456787"
-                    >
-                      123456787
-                    </div>
+                    123456787
                   </div>
                   <div
                     aria-colindex="7"
                     aria-colspan="1"
-                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft MuiDataGrid-withBorderColor"
+                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="6"
                     data-field="email"
-                    role="cell"
-                    style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
+                    role="gridcell"
+                    style="--width: 0px;"
                     tabindex="-1"
+                    title="tuomari3@sposti.not"
                   >
-                    <div
-                      class="MuiDataGrid-cellContent"
-                      role="presentation"
-                      title="tuomari3@sposti.not"
-                    >
-                      tuomari3@sposti.not
-                    </div>
+                    tuomari3@sposti.not
                   </div>
                   <div
                     aria-colindex="8"
                     aria-colspan="1"
-                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft MuiDataGrid-withBorderColor"
+                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="7"
                     data-field="district"
-                    role="cell"
-                    style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
+                    role="gridcell"
+                    style="--width: 0px;"
                     tabindex="-1"
+                    title="Turku"
                   >
-                    <div
-                      class="MuiDataGrid-cellContent"
-                      role="presentation"
-                      title="Turku"
-                    >
-                      Turku
-                    </div>
+                    Turku
                   </div>
                   <div
                     aria-colindex="9"
                     aria-colspan="1"
-                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft MuiDataGrid-withBorderColor"
+                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="8"
                     data-field="eventTypes"
-                    role="cell"
-                    style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
+                    role="gridcell"
+                    style="--width: 0px;"
                     tabindex="-1"
-                  >
-                    <div
-                      class="MuiDataGrid-cellContent"
-                      role="presentation"
-                      title=""
-                    />
-                  </div>
+                    title=""
+                  />
                   <div
                     aria-colindex="10"
                     aria-colspan="1"
-                    class="MuiDataGrid-cell--withRenderer MuiDataGrid-cell MuiDataGrid-cell--textLeft MuiDataGrid-withBorderColor"
+                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="9"
                     data-field="languages"
-                    role="cell"
-                    style="min-width: 220px; max-width: 220px; min-height: 28px; max-height: 28px;"
+                    role="gridcell"
+                    style="--width: 220px;"
                     tabindex="-1"
                   >
                     <div
@@ -1613,6 +1541,26 @@ exports[`JudgeListPage renders 1`] = `
                 </div>
               </div>
             </div>
+            <div
+              class="MuiDataGrid-bottomContainer MuiDataGrid-container--bottom css-14egwce"
+              role="presentation"
+            />
+          </div>
+          <div
+            class="MuiDataGrid-scrollbar MuiDataGrid-scrollbar--vertical css-1b9e9gy"
+            tabindex="-1"
+          >
+            <div
+              class="MuiDataGrid-scrollbarContent css-1baulvz"
+            />
+          </div>
+          <div
+            class="MuiDataGrid-scrollbar MuiDataGrid-scrollbar--horizontal css-1rtad1"
+            tabindex="-1"
+          >
+            <div
+              class="MuiDataGrid-scrollbarContent css-1baulvz"
+            />
           </div>
         </div>
         <div
@@ -1694,6 +1642,10 @@ exports[`JudgeListPage renders 2`] = `
     role="row"
   >
     <div
+      role="presentation"
+      style="width: 0px;"
+    />
+    <div
       aria-colindex="1"
       aria-label="judgeActive"
       aria-sort="none"
@@ -1752,7 +1704,7 @@ exports[`JudgeListPage renders 2`] = `
         </div>
       </div>
       <div
-        class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--sideRight"
+        class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
         style="min-height: 39px; opacity: 1;"
       >
         <svg
@@ -1827,7 +1779,7 @@ exports[`JudgeListPage renders 2`] = `
         </div>
       </div>
       <div
-        class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--sideRight"
+        class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
         style="min-height: 39px; opacity: 1;"
       >
         <svg
@@ -1902,7 +1854,7 @@ exports[`JudgeListPage renders 2`] = `
         </div>
       </div>
       <div
-        class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--sideRight"
+        class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
         style="min-height: 39px; opacity: 1;"
       >
         <svg
@@ -1977,7 +1929,7 @@ exports[`JudgeListPage renders 2`] = `
         </div>
       </div>
       <div
-        class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--sideRight"
+        class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
         style="min-height: 39px; opacity: 1;"
       >
         <svg
@@ -2052,7 +2004,7 @@ exports[`JudgeListPage renders 2`] = `
         </div>
       </div>
       <div
-        class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--sideRight"
+        class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
         style="min-height: 39px; opacity: 1;"
       >
         <svg
@@ -2127,7 +2079,7 @@ exports[`JudgeListPage renders 2`] = `
         </div>
       </div>
       <div
-        class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--sideRight"
+        class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
         style="min-height: 39px; opacity: 1;"
       >
         <svg
@@ -2202,7 +2154,7 @@ exports[`JudgeListPage renders 2`] = `
         </div>
       </div>
       <div
-        class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--sideRight"
+        class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
         style="min-height: 39px; opacity: 1;"
       >
         <svg
@@ -2277,7 +2229,7 @@ exports[`JudgeListPage renders 2`] = `
         </div>
       </div>
       <div
-        class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--sideRight"
+        class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
         style="min-height: 39px; opacity: 1;"
       >
         <svg
@@ -2352,7 +2304,7 @@ exports[`JudgeListPage renders 2`] = `
         </div>
       </div>
       <div
-        class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--sideRight"
+        class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
         style="min-height: 39px; opacity: 1;"
       >
         <svg
@@ -2372,7 +2324,7 @@ exports[`JudgeListPage renders 2`] = `
       aria-colindex="10"
       aria-label="languages"
       aria-sort="none"
-      class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
+      class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor MuiDataGrid-columnHeader--last"
       data-field="languages"
       role="columnheader"
       style="height: 39px; width: 220px; min-width: 220px; max-width: 220px;"
@@ -2427,7 +2379,7 @@ exports[`JudgeListPage renders 2`] = `
         </div>
       </div>
       <div
-        class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--sideRight"
+        class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
         style="min-height: 39px; opacity: 1;"
       >
         <svg
@@ -2443,24 +2395,37 @@ exports[`JudgeListPage renders 2`] = `
         </svg>
       </div>
     </div>
+    <div
+      class="MuiDataGrid-filler"
+      role="presentation"
+    />
+    <div
+      class="MuiDataGrid-scrollbarFiller MuiDataGrid-scrollbarFiller--header"
+      role="presentation"
+    />
   </div>,
   <div
     aria-rowindex="2"
     aria-selected="false"
-    class="MuiDataGrid-row"
+    class="MuiDataGrid-row MuiDataGrid-row--firstVisible"
     data-id="123"
     data-rowindex="0"
     role="row"
-    style="max-height: 28px; min-height: 28px;"
+    style="max-height: 28px; min-height: 28px; --height: 28px;"
   >
+    <div
+      class="MuiDataGrid-cellOffsetLeft"
+      role="presentation"
+      style="width: 0px;"
+    />
     <div
       aria-colindex="1"
       aria-colspan="1"
-      class="MuiDataGrid-cell--withRenderer MuiDataGrid-cell MuiDataGrid-cell--textLeft MuiDataGrid-withBorderColor"
+      class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
       data-colindex="0"
       data-field="active"
-      role="cell"
-      style="min-width: 90px; max-width: 90px; min-height: 28px; max-height: 28px;"
+      role="gridcell"
+      style="--width: 90px;"
       tabindex="-1"
     >
       <span
@@ -2489,11 +2454,11 @@ exports[`JudgeListPage renders 2`] = `
     <div
       aria-colindex="2"
       aria-colspan="1"
-      class="MuiDataGrid-cell--withRenderer MuiDataGrid-cell MuiDataGrid-cell--textCenter MuiDataGrid-withBorderColor"
+      class="MuiDataGrid-cell MuiDataGrid-cell--textCenter"
       data-colindex="1"
       data-field="official"
-      role="cell"
-      style="min-width: 80px; max-width: 80px; min-height: 28px; max-height: 28px;"
+      role="gridcell"
+      style="--width: 80px;"
       tabindex="-1"
     >
       <svg
@@ -2511,135 +2476,100 @@ exports[`JudgeListPage renders 2`] = `
     <div
       aria-colindex="3"
       aria-colspan="1"
-      class="MuiDataGrid-cell MuiDataGrid-cell--textLeft MuiDataGrid-withBorderColor"
+      class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
       data-colindex="2"
       data-field="name"
-      role="cell"
-      style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
+      role="gridcell"
+      style="--width: 0px;"
       tabindex="-1"
+      title="Tuomari 1"
     >
-      <div
-        class="MuiDataGrid-cellContent"
-        role="presentation"
-        title="Tuomari 1"
-      >
-        Tuomari 1
-      </div>
+      Tuomari 1
     </div>
     <div
       aria-colindex="4"
       aria-colspan="1"
-      class="MuiDataGrid-cell MuiDataGrid-cell--textLeft MuiDataGrid-withBorderColor"
+      class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
       data-colindex="3"
       data-field="id"
-      role="cell"
-      style="min-width: 80px; max-width: 80px; min-height: 28px; max-height: 28px;"
+      role="gridcell"
+      style="--width: 80px;"
       tabindex="-1"
+      title="123"
     >
-      <div
-        class="MuiDataGrid-cellContent"
-        role="presentation"
-        title="123"
-      >
-        123
-      </div>
+      123
     </div>
     <div
       aria-colindex="5"
       aria-colspan="1"
-      class="MuiDataGrid-cell MuiDataGrid-cell--textLeft MuiDataGrid-withBorderColor"
+      class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
       data-colindex="4"
       data-field="location"
-      role="cell"
-      style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
+      role="gridcell"
+      style="--width: 0px;"
       tabindex="-1"
+      title="Helsinki"
     >
-      <div
-        class="MuiDataGrid-cellContent"
-        role="presentation"
-        title="Helsinki"
-      >
-        Helsinki
-      </div>
+      Helsinki
     </div>
     <div
       aria-colindex="6"
       aria-colspan="1"
-      class="MuiDataGrid-cell MuiDataGrid-cell--textLeft MuiDataGrid-withBorderColor"
+      class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
       data-colindex="5"
       data-field="phone"
-      role="cell"
-      style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
+      role="gridcell"
+      style="--width: 0px;"
       tabindex="-1"
+      title="123456789"
     >
-      <div
-        class="MuiDataGrid-cellContent"
-        role="presentation"
-        title="123456789"
-      >
-        123456789
-      </div>
+      123456789
     </div>
     <div
       aria-colindex="7"
       aria-colspan="1"
-      class="MuiDataGrid-cell MuiDataGrid-cell--textLeft MuiDataGrid-withBorderColor"
+      class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
       data-colindex="6"
       data-field="email"
-      role="cell"
-      style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
+      role="gridcell"
+      style="--width: 0px;"
       tabindex="-1"
+      title="tuomari1@sposti.not"
     >
-      <div
-        class="MuiDataGrid-cellContent"
-        role="presentation"
-        title="tuomari1@sposti.not"
-      >
-        tuomari1@sposti.not
-      </div>
+      tuomari1@sposti.not
     </div>
     <div
       aria-colindex="8"
       aria-colspan="1"
-      class="MuiDataGrid-cell MuiDataGrid-cell--textLeft MuiDataGrid-withBorderColor"
+      class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
       data-colindex="7"
       data-field="district"
-      role="cell"
-      style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
+      role="gridcell"
+      style="--width: 0px;"
       tabindex="-1"
+      title="Uusimaa"
     >
-      <div
-        class="MuiDataGrid-cellContent"
-        role="presentation"
-        title="Uusimaa"
-      >
-        Uusimaa
-      </div>
+      Uusimaa
     </div>
     <div
       aria-colindex="9"
       aria-colspan="1"
-      class="MuiDataGrid-cell MuiDataGrid-cell--textLeft MuiDataGrid-withBorderColor"
+      class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
       data-colindex="8"
       data-field="eventTypes"
-      role="cell"
-      style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
+      role="gridcell"
+      style="--width: 0px;"
       tabindex="-1"
-    >
-      <div
-        class="MuiDataGrid-cellContent"
-        role="presentation"
-        title=""
-      />
-    </div>
+      title=""
+    />
     <div
       aria-colindex="10"
       aria-colspan="1"
-      class="MuiDataGrid-cell--withRenderer MuiDataGrid-cell MuiDataGrid-cell--textLeft MuiDataGrid-withBorderColor"
+      class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
       data-colindex="9"
       data-field="languages"
-      role="cell"
-      style="min-width: 220px; max-width: 220px; min-height: 28px; max-height: 28px;"
+      role="gridcell"
+      style="--width: 220px;"
       tabindex="-1"
     >
       <div
@@ -2688,20 +2618,25 @@ exports[`JudgeListPage renders 2`] = `
   <div
     aria-rowindex="3"
     aria-selected="true"
-    class="MuiDataGrid-row Mui-selected Mui-hovered"
+    class="MuiDataGrid-row Mui-selected"
     data-id="223"
     data-rowindex="1"
     role="row"
-    style="max-height: 28px; min-height: 28px;"
+    style="max-height: 28px; min-height: 28px; --height: 28px;"
   >
+    <div
+      class="MuiDataGrid-cellOffsetLeft"
+      role="presentation"
+      style="width: 0px;"
+    />
     <div
       aria-colindex="1"
       aria-colspan="1"
-      class="MuiDataGrid-cell--withRenderer MuiDataGrid-cell MuiDataGrid-cell--textLeft MuiDataGrid-withBorderColor"
+      class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
       data-colindex="0"
       data-field="active"
-      role="cell"
-      style="min-width: 90px; max-width: 90px; min-height: 28px; max-height: 28px;"
+      role="gridcell"
+      style="--width: 90px;"
       tabindex="-1"
     >
       <span
@@ -2730,11 +2665,11 @@ exports[`JudgeListPage renders 2`] = `
     <div
       aria-colindex="2"
       aria-colspan="1"
-      class="MuiDataGrid-cell--withRenderer MuiDataGrid-cell MuiDataGrid-cell--textCenter MuiDataGrid-withBorderColor"
+      class="MuiDataGrid-cell MuiDataGrid-cell--textCenter"
       data-colindex="1"
       data-field="official"
-      role="cell"
-      style="min-width: 80px; max-width: 80px; min-height: 28px; max-height: 28px;"
+      role="gridcell"
+      style="--width: 80px;"
       tabindex="-1"
     >
       <svg
@@ -2752,135 +2687,100 @@ exports[`JudgeListPage renders 2`] = `
     <div
       aria-colindex="3"
       aria-colspan="1"
-      class="MuiDataGrid-cell MuiDataGrid-cell--textLeft MuiDataGrid-withBorderColor"
+      class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
       data-colindex="2"
       data-field="name"
-      role="cell"
-      style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
+      role="gridcell"
+      style="--width: 0px;"
       tabindex="-1"
+      title="Tuomari 2"
     >
-      <div
-        class="MuiDataGrid-cellContent"
-        role="presentation"
-        title="Tuomari 2"
-      >
-        Tuomari 2
-      </div>
+      Tuomari 2
     </div>
     <div
       aria-colindex="4"
       aria-colspan="1"
-      class="MuiDataGrid-cell MuiDataGrid-cell--textLeft MuiDataGrid-withBorderColor"
+      class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
       data-colindex="3"
       data-field="id"
-      role="cell"
-      style="min-width: 80px; max-width: 80px; min-height: 28px; max-height: 28px;"
+      role="gridcell"
+      style="--width: 80px;"
       tabindex="-1"
+      title="223"
     >
-      <div
-        class="MuiDataGrid-cellContent"
-        role="presentation"
-        title="223"
-      >
-        223
-      </div>
+      223
     </div>
     <div
       aria-colindex="5"
       aria-colspan="1"
-      class="MuiDataGrid-cell MuiDataGrid-cell--textLeft MuiDataGrid-withBorderColor"
+      class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
       data-colindex="4"
       data-field="location"
-      role="cell"
-      style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
+      role="gridcell"
+      style="--width: 0px;"
       tabindex="-1"
+      title="Tampere"
     >
-      <div
-        class="MuiDataGrid-cellContent"
-        role="presentation"
-        title="Tampere"
-      >
-        Tampere
-      </div>
+      Tampere
     </div>
     <div
       aria-colindex="6"
       aria-colspan="1"
-      class="MuiDataGrid-cell MuiDataGrid-cell--textLeft MuiDataGrid-withBorderColor"
+      class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
       data-colindex="5"
       data-field="phone"
-      role="cell"
-      style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
+      role="gridcell"
+      style="--width: 0px;"
       tabindex="-1"
+      title="123456788"
     >
-      <div
-        class="MuiDataGrid-cellContent"
-        role="presentation"
-        title="123456788"
-      >
-        123456788
-      </div>
+      123456788
     </div>
     <div
       aria-colindex="7"
       aria-colspan="1"
-      class="MuiDataGrid-cell MuiDataGrid-cell--textLeft MuiDataGrid-withBorderColor"
+      class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
       data-colindex="6"
       data-field="email"
-      role="cell"
-      style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
+      role="gridcell"
+      style="--width: 0px;"
       tabindex="-1"
+      title="tuomari2@sposti.not"
     >
-      <div
-        class="MuiDataGrid-cellContent"
-        role="presentation"
-        title="tuomari2@sposti.not"
-      >
-        tuomari2@sposti.not
-      </div>
+      tuomari2@sposti.not
     </div>
     <div
       aria-colindex="8"
       aria-colspan="1"
-      class="MuiDataGrid-cell MuiDataGrid-cell--textLeft MuiDataGrid-withBorderColor"
+      class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
       data-colindex="7"
       data-field="district"
-      role="cell"
-      style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
+      role="gridcell"
+      style="--width: 0px;"
       tabindex="-1"
+      title="Tampere"
     >
-      <div
-        class="MuiDataGrid-cellContent"
-        role="presentation"
-        title="Tampere"
-      >
-        Tampere
-      </div>
+      Tampere
     </div>
     <div
       aria-colindex="9"
       aria-colspan="1"
-      class="MuiDataGrid-cell MuiDataGrid-cell--textLeft MuiDataGrid-withBorderColor"
+      class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
       data-colindex="8"
       data-field="eventTypes"
-      role="cell"
-      style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
+      role="gridcell"
+      style="--width: 0px;"
       tabindex="-1"
-    >
-      <div
-        class="MuiDataGrid-cellContent"
-        role="presentation"
-        title=""
-      />
-    </div>
+      title=""
+    />
     <div
       aria-colindex="10"
       aria-colspan="1"
-      class="MuiDataGrid-cell--withRenderer MuiDataGrid-cell MuiDataGrid-cell--textLeft MuiDataGrid-withBorderColor"
+      class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
       data-colindex="9"
       data-field="languages"
-      role="cell"
-      style="min-width: 220px; max-width: 220px; min-height: 28px; max-height: 28px;"
+      role="gridcell"
+      style="--width: 220px;"
       tabindex="-1"
     >
       <div
@@ -2933,16 +2833,21 @@ exports[`JudgeListPage renders 2`] = `
     data-id="323"
     data-rowindex="2"
     role="row"
-    style="max-height: 28px; min-height: 28px;"
+    style="max-height: 28px; min-height: 28px; --height: 28px;"
   >
+    <div
+      class="MuiDataGrid-cellOffsetLeft"
+      role="presentation"
+      style="width: 0px;"
+    />
     <div
       aria-colindex="1"
       aria-colspan="1"
-      class="MuiDataGrid-cell--withRenderer MuiDataGrid-cell MuiDataGrid-cell--textLeft MuiDataGrid-withBorderColor"
+      class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
       data-colindex="0"
       data-field="active"
-      role="cell"
-      style="min-width: 90px; max-width: 90px; min-height: 28px; max-height: 28px;"
+      role="gridcell"
+      style="--width: 90px;"
       tabindex="-1"
     >
       <span
@@ -2971,11 +2876,11 @@ exports[`JudgeListPage renders 2`] = `
     <div
       aria-colindex="2"
       aria-colspan="1"
-      class="MuiDataGrid-cell--withRenderer MuiDataGrid-cell MuiDataGrid-cell--textCenter MuiDataGrid-withBorderColor"
+      class="MuiDataGrid-cell MuiDataGrid-cell--textCenter"
       data-colindex="1"
       data-field="official"
-      role="cell"
-      style="min-width: 80px; max-width: 80px; min-height: 28px; max-height: 28px;"
+      role="gridcell"
+      style="--width: 80px;"
       tabindex="-1"
     >
       <svg
@@ -2993,135 +2898,100 @@ exports[`JudgeListPage renders 2`] = `
     <div
       aria-colindex="3"
       aria-colspan="1"
-      class="MuiDataGrid-cell MuiDataGrid-cell--textLeft MuiDataGrid-withBorderColor"
+      class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
       data-colindex="2"
       data-field="name"
-      role="cell"
-      style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
+      role="gridcell"
+      style="--width: 0px;"
       tabindex="-1"
+      title="Tuomari 3"
     >
-      <div
-        class="MuiDataGrid-cellContent"
-        role="presentation"
-        title="Tuomari 3"
-      >
-        Tuomari 3
-      </div>
+      Tuomari 3
     </div>
     <div
       aria-colindex="4"
       aria-colspan="1"
-      class="MuiDataGrid-cell MuiDataGrid-cell--textLeft MuiDataGrid-withBorderColor"
+      class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
       data-colindex="3"
       data-field="id"
-      role="cell"
-      style="min-width: 80px; max-width: 80px; min-height: 28px; max-height: 28px;"
+      role="gridcell"
+      style="--width: 80px;"
       tabindex="-1"
+      title="323"
     >
-      <div
-        class="MuiDataGrid-cellContent"
-        role="presentation"
-        title="323"
-      >
-        323
-      </div>
+      323
     </div>
     <div
       aria-colindex="5"
       aria-colspan="1"
-      class="MuiDataGrid-cell MuiDataGrid-cell--textLeft MuiDataGrid-withBorderColor"
+      class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
       data-colindex="4"
       data-field="location"
-      role="cell"
-      style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
+      role="gridcell"
+      style="--width: 0px;"
       tabindex="-1"
+      title="Turku"
     >
-      <div
-        class="MuiDataGrid-cellContent"
-        role="presentation"
-        title="Turku"
-      >
-        Turku
-      </div>
+      Turku
     </div>
     <div
       aria-colindex="6"
       aria-colspan="1"
-      class="MuiDataGrid-cell MuiDataGrid-cell--textLeft MuiDataGrid-withBorderColor"
+      class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
       data-colindex="5"
       data-field="phone"
-      role="cell"
-      style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
+      role="gridcell"
+      style="--width: 0px;"
       tabindex="-1"
+      title="123456787"
     >
-      <div
-        class="MuiDataGrid-cellContent"
-        role="presentation"
-        title="123456787"
-      >
-        123456787
-      </div>
+      123456787
     </div>
     <div
       aria-colindex="7"
       aria-colspan="1"
-      class="MuiDataGrid-cell MuiDataGrid-cell--textLeft MuiDataGrid-withBorderColor"
+      class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
       data-colindex="6"
       data-field="email"
-      role="cell"
-      style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
+      role="gridcell"
+      style="--width: 0px;"
       tabindex="-1"
+      title="tuomari3@sposti.not"
     >
-      <div
-        class="MuiDataGrid-cellContent"
-        role="presentation"
-        title="tuomari3@sposti.not"
-      >
-        tuomari3@sposti.not
-      </div>
+      tuomari3@sposti.not
     </div>
     <div
       aria-colindex="8"
       aria-colspan="1"
-      class="MuiDataGrid-cell MuiDataGrid-cell--textLeft MuiDataGrid-withBorderColor"
+      class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
       data-colindex="7"
       data-field="district"
-      role="cell"
-      style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
+      role="gridcell"
+      style="--width: 0px;"
       tabindex="-1"
+      title="Turku"
     >
-      <div
-        class="MuiDataGrid-cellContent"
-        role="presentation"
-        title="Turku"
-      >
-        Turku
-      </div>
+      Turku
     </div>
     <div
       aria-colindex="9"
       aria-colspan="1"
-      class="MuiDataGrid-cell MuiDataGrid-cell--textLeft MuiDataGrid-withBorderColor"
+      class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
       data-colindex="8"
       data-field="eventTypes"
-      role="cell"
-      style="min-width: 0; max-width: 0; min-height: 28px; max-height: 28px;"
+      role="gridcell"
+      style="--width: 0px;"
       tabindex="-1"
-    >
-      <div
-        class="MuiDataGrid-cellContent"
-        role="presentation"
-        title=""
-      />
-    </div>
+      title=""
+    />
     <div
       aria-colindex="10"
       aria-colspan="1"
-      class="MuiDataGrid-cell--withRenderer MuiDataGrid-cell MuiDataGrid-cell--textLeft MuiDataGrid-withBorderColor"
+      class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
       data-colindex="9"
       data-field="languages"
-      role="cell"
-      style="min-width: 220px; max-width: 220px; min-height: 28px; max-height: 28px;"
+      role="gridcell"
+      style="--width: 220px;"
       tabindex="-1"
     >
       <div

@@ -21,8 +21,8 @@ export default function useEventListColumns(): GridColDef<EventWithDate>[] {
       headerName: t('date'),
       width: 120,
       sortComparator: (a, b) => (b as StartEndDate).start.valueOf() - (a as StartEndDate).start.valueOf(),
-      valueGetter: (params) => ({ start: params.row.startDate, end: params.row.endDate }),
-      valueFormatter: ({ value }) => t('dateFormat.datespan', value as StartEndDate),
+      valueGetter: (_value, row) => ({ start: row.startDate, end: row.endDate }),
+      valueFormatter: (value) => t('dateFormat.datespan', value as StartEndDate),
       hideable: false,
     },
     {
@@ -37,8 +37,8 @@ export default function useEventListColumns(): GridColDef<EventWithDate>[] {
       headerName: t('event.classes'),
       minWidth: 100,
       flex: 1,
-      valueGetter: (params) =>
-        ((params.row.classes || []) as Array<EventClass | string>)
+      valueGetter: (_value, row) =>
+        ((row.classes || []) as Array<EventClass | string>)
           .map((c) => (typeof c === 'string' ? c : c.class))
           .join(', '),
     },
@@ -46,7 +46,7 @@ export default function useEventListColumns(): GridColDef<EventWithDate>[] {
       field: 'organizer',
       headerName: t('event.organizer'),
       minWidth: 100,
-      valueGetter: (params) => params.row.organizer.name,
+      valueGetter: (_value, row) => row.organizer.name,
       flex: 2,
     },
     {
@@ -66,35 +66,35 @@ export default function useEventListColumns(): GridColDef<EventWithDate>[] {
       headerName: t('event.secretary'),
       minWidth: 100,
       flex: 1,
-      valueGetter: (params) => params.row.secretary?.name ?? '',
+      valueGetter: (_value, row) => row.secretary?.name ?? '',
     },
     {
       field: 'official',
       headerName: t('event.official'),
       minWidth: 100,
       flex: 1,
-      valueGetter: (params) => params.row.official?.name,
+      valueGetter: (_value, row) => row.official?.name,
     },
     {
       field: 'judges',
       headerName: t('judgeChief'),
       minWidth: 100,
       flex: 1,
-      valueGetter: (params) => params.row.judges && params.row.judges[0]?.name,
+      valueGetter: (_value, row) => row.judges && row.judges[0]?.name,
     },
     {
       field: 'places',
       headerName: t('places'),
       align: 'right',
       width: 80,
-      valueGetter: (params) => `${params.row.entries ?? '0'} / ${params.row.places ?? '0'}`,
+      valueGetter: (_value, row) => `${row.entries ?? '0'} / ${row.places ?? '0'}`,
     },
     {
       field: 'state',
       headerName: t('event.state'),
       flex: 1,
       type: 'string',
-      valueGetter: (params) => getEventTitle(params.row, t),
+      valueGetter: (_value, row) => getEventTitle(row, t),
       hideable: false,
     },
   ]

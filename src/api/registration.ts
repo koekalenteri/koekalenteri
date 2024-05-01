@@ -1,4 +1,11 @@
-import type { AuditRecord, ConfirmedEvent, PublicRegistration, Registration, RegistrationGroupInfo } from '../types'
+import type {
+  AuditRecord,
+  ConfirmedEvent,
+  PublicRegistration,
+  Registration,
+  RegistrationGroupInfo,
+  Transaction,
+} from '../types'
 
 import http, { withToken } from './http'
 
@@ -73,5 +80,5 @@ export const getRegistrationTransactions = async (
   id: string,
   token: string,
   signal?: AbortSignal
-): Promise<AuditRecord[] | undefined> =>
-  http.get<AuditRecord[]>(`/admin/registration/transactions/${eventId}/${id}`, withToken({ signal }, token))
+): Promise<Transaction[] | undefined> =>
+  http.get<Transaction[]>(`/admin/registration/transactions/${eventId}/${id}`, withToken({ signal }, token))

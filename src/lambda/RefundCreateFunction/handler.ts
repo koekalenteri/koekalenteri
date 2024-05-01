@@ -3,8 +3,8 @@ import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import type {
   JsonConfirmedEvent,
   JsonPaymentTransaction,
+  JsonRefundTransaction,
   JsonRegistration,
-  JsonTransaction,
   Organizer,
   RefundPaymentResponse,
 } from '../../types'
@@ -15,6 +15,7 @@ import { nanoid } from 'nanoid'
 
 import { CONFIG } from '../config'
 import { audit, registrationAuditKey } from '../lib/audit'
+import { authorize } from '../lib/auth'
 import { parseJSONWithFallback } from '../lib/json'
 import { debugProxyEvent } from '../lib/log'
 import { formatMoney } from '../lib/payment'
@@ -41,6 +42,11 @@ const refundCreate = metricScope(
       debugProxyEvent(event)
 
       try {
+        const user = await authorize(event)
+        if (!user) {
+          return response(401, 'Unauthorized', event)
+        }
+
         const { transactionId, amount } = parseJSONWithFallback<{
           transactionId: string
           amount: number
@@ -117,7 +123,7 @@ const refundCreate = metricScope(
           return response<undefined>(500, undefined, event)
         }
 
-        const transaction: JsonTransaction = {
+        const transaction: JsonRefundTransaction = {
           transactionId: result.transactionId,
           status: result.status,
           amount,
@@ -127,6 +133,7 @@ const refundCreate = metricScope(
           stamp,
           items,
           createdAt: new Date().toISOString(),
+          user: user.name,
         }
         await dynamoDB.write(transaction)
 
@@ -142,7 +149,7 @@ const refundCreate = metricScope(
           audit({
             auditKey: registrationAuditKey(registration),
             message: `Palautus (${result.provider}), ${formatMoney(amount)}`,
-            user: registration.createdBy,
+            user: user.name,
           })
         }
 

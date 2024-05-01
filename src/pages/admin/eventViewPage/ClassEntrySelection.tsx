@@ -39,6 +39,7 @@ interface Props {
   readonly eventClass: string
   readonly registrations?: Registration[]
   readonly setOpen?: Dispatch<SetStateAction<boolean>>
+  readonly setRefundOpen?: Dispatch<SetStateAction<boolean>>
   readonly selectedRegistrationId?: string
   readonly setSelectedRegistrationId?: SetterOrUpdater<string | undefined>
   readonly state?: EventClassState | EventState
@@ -47,6 +48,13 @@ interface Props {
 interface RegistrationWithGroups extends Registration {
   groups: string[]
   dropGroups: string[]
+}
+
+declare module '@mui/x-data-grid' {
+  interface ToolbarPropsOverrides {
+    available: any // TODO: use proper type
+    group: any // TODO: use proper type
+  }
 }
 
 const listKey = (reg: Registration, eventGroups: RegistrationGroup[]) => {
@@ -64,6 +72,7 @@ const ClassEntrySelection = ({
   eventClass,
   registrations = [],
   setOpen,
+  setRefundOpen,
   selectedRegistrationId,
   setSelectedRegistrationId,
   state,
@@ -91,13 +100,10 @@ const ClassEntrySelection = ({
   )
   const handleRefund = useCallback(
     async (id: string) => {
-      const reg = registrations.find((r) => r.id === id)
-      if (!reg) return
-
-      const transactions = await actions.transactions(reg)
-      console.log(transactions)
+      setSelectedRegistrationId?.(id)
+      setRefundOpen?.(true)
     },
-    [actions, registrations]
+    [setRefundOpen, setSelectedRegistrationId]
   )
   const dates = useEventRegistrationDates(event, eventClass)
   const { cancelledColumns, entryColumns, participantColumns } = useClassEntrySelectionColumns(
@@ -253,7 +259,7 @@ const ClassEntrySelection = ({
       <Box sx={{ height: 40, flexShrink: 0, width: '100%', overflow: 'hidden' }}>
         <StyledDataGrid
           columns={participantColumns}
-          density="compact"
+          initialState={{ density: 'compact' }}
           disableColumnMenu
           hideFooter
           rows={[]}

@@ -54,6 +54,11 @@ const theme = createTheme({
       },
     },
   },
+  mixins: {
+    MuiDataGrid: {
+      containerBackground: '#d8d8d8',
+    },
+  },
   palette: {
     primary: {
       light: '#547463',
