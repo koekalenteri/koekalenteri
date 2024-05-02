@@ -5,7 +5,7 @@
   "dependencies": {
     "@aws-amplify/ui-react": "^6.1.8",
     "@mui/icons-material": "^5.15.15",
-    "@mui/material": "^5.15.15",
+    "@mui/material": "^5.15.16",
     "@mui/x-data-grid": "^6.19.11",
     "@mui/x-date-pickers": "^6.19.9",
     "aws-amplify": "^6.2.0",
