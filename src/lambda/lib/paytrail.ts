@@ -116,7 +116,7 @@ export const paytrailRequest = async <T extends object>(
     if (e instanceof Error) error = e.message
   }
 
-  if (status !== 200) {
+  if (status >= 400) {
     throw new PaytrailError(status, error)
   }
 
