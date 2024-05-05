@@ -7,6 +7,7 @@ import type {
   JsonTransaction,
   Organizer,
 } from '../../types'
+import type { PaymentCustomer, PaymentItem } from '../types/paytrail'
 
 import { metricScope } from 'aws-embedded-metrics'
 import { nanoid } from 'nanoid'
@@ -76,29 +77,33 @@ const paymentCreate = metricScope(
         }
         const stamp = nanoid()
 
+        const items: PaymentItem[] = [
+          {
+            unitPrice: amount,
+            units: 1,
+            vatPercentage: 0,
+            productCode: eventId,
+            description: paymentDescription(jsonEvent, 'fi'),
+            stamp: nanoid(),
+            reference: registrationId,
+            merchant: organizer.paytrailMerchantId,
+          },
+        ]
+
+        const customer: PaymentCustomer = {
+          email: registration?.payer.email,
+          ...splitName(registration?.payer.name),
+          phone: registration?.payer.phone,
+        }
+
         const result = await createPayment(
           getApiHost(event),
           getOrigin(event),
           amount,
           reference,
           stamp,
-          [
-            {
-              unitPrice: amount,
-              units: 1,
-              vatPercentage: 0,
-              productCode: eventId,
-              description: paymentDescription(jsonEvent, 'fi'),
-              stamp: nanoid(),
-              reference: registrationId,
-              merchant: organizer.paytrailMerchantId,
-            },
-          ],
-          {
-            email: registration?.payer.email ?? registration?.owner.email,
-            ...splitName(registration?.payer.name),
-            phone: registration?.payer.phone,
-          }
+          items,
+          customer
         )
 
         if (!result) {
@@ -114,6 +119,7 @@ const paymentCreate = metricScope(
           bankReference: result.reference,
           type: 'payment',
           stamp,
+          items,
           createdAt: new Date().toISOString(),
         }
         await dynamoDB.write(transaction)

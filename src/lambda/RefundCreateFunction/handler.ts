@@ -7,6 +7,7 @@ import type {
   Organizer,
   RefundPaymentResponse,
 } from '../../types'
+import type { RefundItem } from '../types/paytrail'
 
 import { metricScope } from 'aws-embedded-metrics'
 import { nanoid } from 'nanoid'
@@ -80,22 +81,24 @@ const refundCreate = metricScope(
         }
         const stamp = nanoid()
 
+        const items: RefundItem[] = [
+          {
+            amount,
+            stamp: nanoid(),
+            refundStamp: stamp,
+            refundReference: registrationId,
+            // commission:
+          },
+        ]
+
         const result = await refundPayment(
           getApiHost(event),
           transactionId,
           amount,
           reference,
           stamp,
-          [
-            {
-              amount,
-              stamp: nanoid(),
-              refundStamp: stamp,
-              refundReference: registrationId,
-              // commission:
-            },
-          ],
-          registration?.payer.email ?? registration?.owner.email
+          items,
+          registration?.payer.email
         )
 
         if (!result) {
@@ -111,6 +114,7 @@ const refundCreate = metricScope(
           provider: result.provider,
           type: 'refund',
           stamp,
+          items,
           createdAt: new Date().toISOString(),
         }
         await dynamoDB.write(transaction)
