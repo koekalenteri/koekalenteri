@@ -167,7 +167,6 @@ export const createRefundCallbackUrls = (host: string): CallbackUrl => createCal
 export const refundPayment = async (
   apiHost: string,
   transactionId: string,
-  amount: number,
   refundReference: string,
   refundStamp: string,
   items: RefundItem[],
@@ -176,7 +175,6 @@ export const refundPayment = async (
   const callbackUrls = createRefundCallbackUrls(apiHost)
 
   const body: RefundRequest = {
-    amount,
     email,
     refundStamp,
     refundReference,

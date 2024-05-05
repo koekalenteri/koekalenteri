@@ -8,7 +8,7 @@ import type {
   Organizer,
   RefundPaymentResponse,
 } from '../../types'
-import type { PaymentItem, RefundItem } from '../types/paytrail'
+import type { RefundItem } from '../types/paytrail'
 
 import { metricScope } from 'aws-embedded-metrics'
 import { nanoid } from 'nanoid'
@@ -87,25 +87,25 @@ const refundCreate = metricScope(
         const reference = `${eventId}:${registrationId}`
         const stamp = nanoid()
 
-        const items: RefundItem[] = paymentTransaction.items?.map((item: PaymentItem, index) => ({
-          amount: index === 0 ? amount : 0, // NB: when/if supporting multiple items per transaction, this needs to be fixed.
-          stamp: item.stamp,
-          refundStamp: nanoid(),
-          refundReference: registrationId,
-        })) ?? [
+        if (paymentTransaction.items?.length !== 1) {
+          metricsError(metrics, event.requestContext, 'refundCreate')
+          return response<string>(412, 'Unsupported transaction', event)
+        }
+
+        const paymentItem = paymentTransaction.items[0]
+
+        const items: RefundItem[] = [
           {
             amount,
-            stamp: nanoid(),
-            refundStamp: stamp,
+            stamp: paymentItem.stamp,
+            refundStamp: nanoid(),
             refundReference: registrationId,
-            // commission:
           },
         ]
 
         const result = await refundPayment(
           getApiHost(event),
           transactionId,
-          amount,
           reference,
           stamp,
           items,

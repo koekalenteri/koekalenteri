@@ -301,7 +301,7 @@ export interface RefundRequest {
    * Total amount to refund, in currency's minor units (ie. EUR cents). Required for normal payment refunds.
    * Shop-in-Shop payments can be refunded to full amount by giving the full payment amount here without items.
    */
-  amount: number
+  amount?: number
   /**
    * Refund recipient email address. Some payment methods do not support API refunds, and some have refund related
    * limitations. If email address is given, email refund will be executed as a fallback method if API refund is
