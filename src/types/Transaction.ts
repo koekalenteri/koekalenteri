@@ -13,3 +13,13 @@ export interface JsonTransaction {
   createdAt: string
   statusAt?: string
 }
+
+export interface JsonPaymentTransaction extends JsonTransaction {
+  type: 'payment'
+  items?: PaymentItem[]
+}
+
+export interface JsonRefundTransaction extends JsonTransaction {
+  type: 'refund'
+  items?: RefundItem[]
+}

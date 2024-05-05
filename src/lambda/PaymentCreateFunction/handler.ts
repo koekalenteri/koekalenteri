@@ -17,7 +17,7 @@ import { getOrigin } from '../lib/auth'
 import { parseJSONWithFallback } from '../lib/json'
 import { debugProxyEvent } from '../lib/log'
 import { paymentDescription } from '../lib/payment'
-import { createPayment } from '../lib/paytrail'
+import { createPayment, PaytrailError } from '../lib/paytrail'
 import { splitName } from '../lib/string'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { metricsError, metricsSuccess } from '../utils/metrics'
@@ -137,7 +137,13 @@ const paymentCreate = metricScope(
       } catch (e) {
         console.error(e)
         metricsError(metrics, event.requestContext, 'paymentCreate')
-        return response(500, undefined, event)
+
+        if (e instanceof PaytrailError) {
+          return response(e.status, { error: e.error }, event)
+        }
+
+        const error = e instanceof Error ? e.message : 'unknown'
+        return response(500, { error }, event)
       }
     }
 )

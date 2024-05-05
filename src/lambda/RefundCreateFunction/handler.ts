@@ -2,12 +2,13 @@ import type { MetricsLogger } from 'aws-embedded-metrics'
 import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import type {
   JsonConfirmedEvent,
+  JsonPaymentTransaction,
   JsonRegistration,
   JsonTransaction,
   Organizer,
   RefundPaymentResponse,
 } from '../../types'
-import type { RefundItem } from '../types/paytrail'
+import type { PaymentItem, RefundItem } from '../types/paytrail'
 
 import { metricScope } from 'aws-embedded-metrics'
 import { nanoid } from 'nanoid'
@@ -17,7 +18,7 @@ import { audit, registrationAuditKey } from '../lib/audit'
 import { parseJSONWithFallback } from '../lib/json'
 import { debugProxyEvent } from '../lib/log'
 import { formatMoney } from '../lib/payment'
-import { refundPayment } from '../lib/paytrail'
+import { PaytrailError, refundPayment } from '../lib/paytrail'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { metricsError, metricsSuccess } from '../utils/metrics'
 import { getApiHost } from '../utils/proxyEvent'
@@ -45,8 +46,12 @@ const refundCreate = metricScope(
           amount: number
         }>(event.body)
 
-        const paymentTransaction = await dynamoDB.read<JsonTransaction>({ transactionId }, transactionTable)
-        if (!paymentTransaction) throw new Error(`Transaction with id '${transactionId}' was not found`)
+        const paymentTransaction = await dynamoDB.read<JsonPaymentTransaction>({ transactionId }, transactionTable)
+
+        if (!paymentTransaction) {
+          metricsError(metrics, event.requestContext, 'refundCreate')
+          return response<string>(404, `Transaction with id '${transactionId}' was not found`, event)
+        }
 
         const [eventId, registrationId] = paymentTransaction.reference.split(':')
 
@@ -74,14 +79,20 @@ const refundCreate = metricScope(
           return response<string>(412, `Organizer ${jsonEvent.organizer.id} does not have MerchantId!`, event)
         }
 
-        const reference = `${eventId}:${registrationId}`
         if (amount <= 0) {
           metricsError(metrics, event.requestContext, 'refundCreate')
           return response<string>(400, 'Invalid amount', event)
         }
+
+        const reference = `${eventId}:${registrationId}`
         const stamp = nanoid()
 
-        const items: RefundItem[] = [
+        const items: RefundItem[] = paymentTransaction.items?.map((item: PaymentItem, index) => ({
+          amount: index === 0 ? amount : 0, // NB: when/if supporting multiple items per transaction, this needs to be fixed.
+          stamp: item.stamp,
+          refundStamp: nanoid(),
+          refundReference: registrationId,
+        })) ?? [
           {
             amount,
             stamp: nanoid(),
@@ -140,7 +151,13 @@ const refundCreate = metricScope(
       } catch (e) {
         console.error(e)
         metricsError(metrics, event.requestContext, 'refundCreate')
-        return response(500, undefined, event)
+
+        if (e instanceof PaytrailError) {
+          return response(e.status, { error: e.error }, event)
+        }
+
+        const error = e instanceof Error ? e.message : 'unknown'
+        return response(500, { error }, event)
       }
     }
 )

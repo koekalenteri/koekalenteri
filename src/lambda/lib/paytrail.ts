@@ -43,6 +43,18 @@ export const calculateHmac = (secret: string, params: Partial<PaytrailHeaders>, 
   return createHmac('sha256', secret).update(hmacPayload).digest('hex')
 }
 
+export class PaytrailError extends Error {
+  status: number
+  error: string | undefined
+
+  constructor(status: number, error: string | undefined) {
+    const message = `${status} ${error}`
+    super(message)
+    this.status = status
+    this.error = error
+  }
+}
+
 export const paytrailRequest = async <T extends object>(
   method: 'GET' | 'POST',
   path: string,
@@ -78,27 +90,36 @@ export const paytrailRequest = async <T extends object>(
   console.log(headers, body)
 
   let json: T | undefined
+  let status = 500
+  let error: string | undefined
   try {
     const res = await fetch(`${PAYTRAIL_API_ENDPOINT}/${path}`, {
       method,
       headers,
       body: JSON.stringify(body),
     })
-    const status = res.status
+    status = res.status
     try {
       if (res.ok) {
         json = (await res.json()) as T
       }
       if (!json) {
-        const error = await res.text()
+        error = await res.text()
         console.error('not ok', status, error)
       }
     } catch (jse) {
       console.error(jse)
+      if (jse instanceof Error) error = jse.message
     }
   } catch (e: unknown) {
     console.error(e)
+    if (e instanceof Error) error = e.message
   }
+
+  if (status !== 200) {
+    throw new PaytrailError(status, error)
+  }
+
   return json
 }
 

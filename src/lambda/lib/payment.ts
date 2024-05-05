@@ -1,4 +1,11 @@
-import type { DogEvent, JsonDogEvent, JsonTransaction, Language } from '../../types'
+import type {
+  DogEvent,
+  JsonDogEvent,
+  JsonPaymentTransaction,
+  JsonRefundTransaction,
+  JsonTransaction,
+  Language,
+} from '../../types'
 import type { PaytrailCallbackParams } from '../types/paytrail'
 
 import { i18n } from '../../i18n/lambda'
@@ -86,6 +93,12 @@ export const paymentDescription = (
 }
 
 export const getTransactionsByReference = async (reference: string) =>
-  dynamoDB.query('#reference = :reference', { ':reference': reference }, transactionTable, 'gsiReference', {
-    '#reference': 'reference',
-  })
+  dynamoDB.query<JsonPaymentTransaction | JsonRefundTransaction>(
+    '#reference = :reference',
+    { ':reference': reference },
+    transactionTable,
+    'gsiReference',
+    {
+      '#reference': 'reference',
+    }
+  )
