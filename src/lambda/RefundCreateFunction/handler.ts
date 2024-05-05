@@ -133,7 +133,7 @@ const refundCreate = metricScope(
         await dynamoDB.update(
           { eventId, id: registrationId },
           'set #refundStatus = :refundStatus',
-          { '#refundtStatus': 'refundStatus' },
+          { '#refundStatus': 'refundStatus' },
           { ':refundStatus': result.status === 'pending' ? 'PENDING' : 'OK' },
           registrationTable
         )

@@ -56,7 +56,7 @@ const PaymentPageWithData = ({ id, registrationId, event, registration, response
     return <Navigate to={Path.registration(registration)} replace />
   }
 
-  if (!response) {
+  if (!response?.groups) {
     return <>Jotakin meni pieleen</>
   }
 
