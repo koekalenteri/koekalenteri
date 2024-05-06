@@ -28,7 +28,7 @@ export const useRefundColumns = (): readonly GridColDef<Transaction>[] => {
       { field: 'provider', width: 100, headerName: t('registration.refundDialog.columns.provider') },
       { field: 'status', width: 60, headerName: t('registration.refundDialog.columns.status') },
       { field: 'bankReference', flex: 3, headerName: t('registration.refundDialog.columns.bankReference') },
-      { field: 'reference', flex: 5, headerName: t('registration.refundDialog.columns.reference') },
+      // { field: 'reference', flex: 5, headerName: t('registration.refundDialog.columns.reference') },
       { field: 'type', width: 80, headerName: t('registration.refundDialog.columns.type') },
       {
         field: 'statusAt',

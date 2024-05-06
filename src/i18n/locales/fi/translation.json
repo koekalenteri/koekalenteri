@@ -306,8 +306,8 @@
       "columns": {
         "provider": "Maksutapa",
         "status": "Tila",
-        "bankReference": "Pankkiviite",
-        "reference": "Viite",
+        "bankReference": "Paytrailin viite",
+        "reference": "Koekalenterin viite",
         "type": "Tyyppi",
         "statusAt": "Aikaleima",
         "amount": "Summa"

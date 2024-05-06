@@ -1900,6 +1900,10 @@ Resources:
               - ssm:GetParameters
               - ssm:GetParameter
               Resource: '*'
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserLinkTable
         - DynamoDBCrudPolicy:
             TableName: !Ref TransactionTable
         - DynamoDBCrudPolicy:
