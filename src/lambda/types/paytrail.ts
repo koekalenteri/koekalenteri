@@ -311,7 +311,7 @@ export interface RefundRequest {
   /**
    * Array of items to refund. Requires item stamps to be sent when creating the payment. Not needed for full refund.
    */
-  items: RefundItem[]
+  items: RefundItem[] | undefined
   /**
    * Which urls to ping after the refund has been processed. The callback is called with HTTP GET and with the same
    * query string parameters as in the payment request callback. The server should respond with HTTP 20x.

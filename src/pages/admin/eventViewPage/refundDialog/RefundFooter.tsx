@@ -44,6 +44,9 @@ export const RefundFooter = ({
   }, [])
   const formatAmount = useCallback((amount: number | undefined) => formatMoneyWithoutCurrency((amount ?? 0) / 100), [])
 
+  const refundBase = Math.min(total, selectedTotal)
+  const refundTotal = refundBase - handlingCost
+
   return (
     <GridFooterContainer>
       <FooterCell></FooterCell>
@@ -81,8 +84,13 @@ export const RefundFooter = ({
           </TableRow>
           <TableRow>
             <TableCell align="right">Palautetaan:</TableCell>
-            <ValueCell align="right" sx={{ color: handlingCost > selectedTotal ? 'error.main' : undefined }}>
-              <strong>{formatMoney((selectedTotal - handlingCost) / 100)}</strong>
+            <ValueCell
+              align="right"
+              sx={{
+                color: refundTotal !== 0 && handlingCost > refundBase ? 'error.main' : undefined,
+              }}
+            >
+              <strong>{selectedTotal > 0 && refundTotal !== 0 ? formatMoney(refundTotal / 100) : '-'}</strong>
             </ValueCell>
           </TableRow>
         </Table>

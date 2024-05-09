@@ -315,7 +315,7 @@
       },
       "title": "Maksun palautus, {{regNo}} / {{payer}}",
       "text": "Valitse palautettava maksu.",
-      "costsText": "Jos palautuksesta peritään käsittelykulu, täytä se taulukon alla olevaan kohtaan.",
+      "costsText": "Jos palautuksesta peritään käsittelykulu, täytä kulun määrä sille varattuun kohtaan.",
       "noCostsText": "Valittu maksu on tehty koekalenterin maksupalautuksia edeltävässä versiossa. Tällaisen maksun voi palauttaa ainoastaan kokonaisena koekalenterin kautta."
     },
     "reserve": "Pystyn ottamaan koepaikan vastaan varasijalta",

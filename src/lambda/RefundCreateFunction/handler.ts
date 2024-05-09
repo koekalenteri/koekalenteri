@@ -27,11 +27,6 @@ import { response } from '../utils/response'
 const { eventTable, organizerTable, registrationTable, transactionTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(transactionTable)
 
-const registrationCost = (event: JsonConfirmedEvent, registration: JsonRegistration): number => {
-  const isMember = registration.handler?.membership || registration.owner?.membership
-  return event.costMember && isMember ? event.costMember : event.cost
-}
-
 /**
  * refundCreate is called by client to refund a payment
  */
@@ -92,14 +87,14 @@ const refundCreate = metricScope(
         const reference = `${eventId}:${registrationId}`
         const stamp = nanoid()
 
-        if (paymentTransaction.items?.length !== 1) {
+        if (paymentTransaction.items && paymentTransaction.items.length !== 1) {
           metricsError(metrics, event.requestContext, 'refundCreate')
           return response<string>(412, 'Unsupported transaction', event)
         }
 
-        const paymentItem = paymentTransaction.items[0]
+        const paymentItem = paymentTransaction.items?.[0]
 
-        const items: RefundItem[] = [
+        const items: RefundItem[] | undefined = paymentItem && [
           {
             amount,
             stamp: paymentItem.stamp,
@@ -114,6 +109,8 @@ const refundCreate = metricScope(
           reference,
           stamp,
           items,
+          // if there are no items, this is a full refund and needs amount provided.
+          items ? undefined : amount,
           registration?.payer.email
         )
 

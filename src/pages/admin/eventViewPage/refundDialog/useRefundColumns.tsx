@@ -36,7 +36,7 @@ export const useRefundColumns = (): readonly GridColDef<Transaction>[] => {
         field: 'provider',
         flex: 1,
         headerName: t('registration.refundDialog.columns.provider'),
-        valueFormatter: (value) => capitalize(value ?? ''),
+        valueFormatter: (value) => (value === 'email refund' ? 'Sähköposti + tilisiirto' : capitalize(value ?? '')),
       },
       { field: 'status', width: 60, headerName: t('registration.refundDialog.columns.status') },
       { field: 'bankReference', width: 120, headerName: t('registration.refundDialog.columns.bankReference') },

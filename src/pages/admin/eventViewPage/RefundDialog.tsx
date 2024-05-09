@@ -102,6 +102,7 @@ export const RefundDailog = ({ open, registration, onClose }: Props) => {
 
   const handleClose = useCallback(() => {
     setLoading(false)
+    setLoadedId('')
     setTransactions([])
     setSelection(undefined)
     onClose?.()
@@ -155,7 +156,7 @@ export const RefundDailog = ({ open, registration, onClose }: Props) => {
         <Button
           variant="contained"
           onClick={handleRefund}
-          disabled={total === 0 || handlingCost < 0 || refundAmount <= handlingCost}
+          disabled={total === 0 || total <= handlingCost || handlingCost < 0 || refundAmount <= handlingCost}
         >
           {t('refund')}
         </Button>
