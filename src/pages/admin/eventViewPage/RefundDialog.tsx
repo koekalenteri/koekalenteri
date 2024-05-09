@@ -10,6 +10,7 @@ import DialogContent from '@mui/material/DialogContent'
 import DialogContentText from '@mui/material/DialogContentText'
 import DialogTitle from '@mui/material/DialogTitle'
 
+import { NullComponent } from '../../components/NullComponent'
 import StyledDataGrid from '../../components/StyledDataGrid'
 import { useAdminRegistrationActions } from '../recoil/registrations/actions'
 
@@ -50,7 +51,7 @@ export const RefundDailog = ({ open, registration, onClose }: Props) => {
     [selectedTransactions]
   )
 
-  console.debug(selection)
+  const canHaveHandlingCosts = selectedTransactions.some((t) => !!t.items)
 
   useEffect(() => {
     if (!open || !registration || registration.id === loadedId || loading) return
@@ -60,7 +61,7 @@ export const RefundDailog = ({ open, registration, onClose }: Props) => {
     actions
       .transactions(registration.eventId, registration.id)
       .then((loaded) => {
-        setTransactions(loaded ?? [])
+        setTransactions((loaded ?? []).filter((t) => t.status !== 'fail' && t.status !== 'new'))
         setLoading(false)
         setLoadedId(registration.id)
       })
@@ -72,12 +73,15 @@ export const RefundDailog = ({ open, registration, onClose }: Props) => {
   }, [actions, loadedId, loading, open, registration])
 
   useEffect(() => {
-    if (okTransactions.length === 1 && okTransactions[0].items) {
+    if (okTransactions.length === 1) {
       setSelection([okTransactions[0].transactionId!])
+      if (!okTransactions[0].items && handlingCost) {
+        setHandlingCost(0)
+      }
     }
-  }, [okTransactions])
+  }, [handlingCost, okTransactions])
 
-  const handleCostChange = useCallback((value?: number) => setHandlingCost((value ?? 0) * 100), [])
+  const handleCostChange = useCallback((value?: number) => setHandlingCost(value ?? 0), [])
 
   const handleRefund = useCallback(async () => {
     let costLeft = handlingCost
@@ -96,39 +100,56 @@ export const RefundDailog = ({ open, registration, onClose }: Props) => {
     return Promise.allSettled(promises)
   }, [actions, handlingCost, selectedTransactions])
 
+  const handleClose = useCallback(() => {
+    setLoading(false)
+    setTransactions([])
+    setSelection(undefined)
+    onClose?.()
+  }, [onClose])
+
   return (
     <Dialog open={!!open} maxWidth="md" fullWidth>
       <DialogTitle>
         {t('registration.refundDialog.title', { regNo: registration.dog.regNo, payer: registration.payer.name })}
       </DialogTitle>
       <DialogContent>
-        <DialogContentText sx={{ whiteSpace: 'pre', mb: 1 }}>{t('registration.refundDialog.text')}</DialogContentText>
+        <DialogContentText sx={{ mb: 1 }}>{t('registration.refundDialog.text')}</DialogContentText>
         <StyledDataGrid
+          autoHeight
           loading={loading}
           checkboxSelection
           columns={columns}
+          disableColumnResize
           disableMultipleRowSelection
           getRowId={(row) => row.transactionId}
           hideFooterPagination
           hideFooterSelectedRowCount
-          isRowSelectable={(params) =>
-            params.row.status === 'ok' && params.row.type === 'payment' && params.row.items && total > 0
-          }
+          initialState={{
+            sorting: {
+              sortModel: [{ field: 'createdAt', sort: 'asc' }],
+            },
+          }}
+          isRowSelectable={(params) => params.row.status === 'ok' && params.row.type === 'payment' && total > 0}
           onRowSelectionModelChange={setSelection}
           rows={transactions}
           rowSelectionModel={selection}
           slots={{
             footer: RefundFooter,
+            noRowsOverlay: NullComponent,
           }}
           slotProps={{
             footer: {
+              canHaveHandlingCosts,
               total,
               selectedTotal: refundAmount,
-              handlingCost: (handlingCost ?? 0) / 100,
+              handlingCost: handlingCost ?? 0,
               onHandlingCostChange: handleCostChange,
             },
           }}
         ></StyledDataGrid>
+        <DialogContentText sx={{ mb: 1 }} display={selectedTransactions.length ? undefined : 'none'}>
+          {t(canHaveHandlingCosts ? 'registration.refundDialog.costsText' : 'registration.refundDialog.noCostsText')}
+        </DialogContentText>
       </DialogContent>
       <DialogActions>
         <Button
@@ -138,11 +159,10 @@ export const RefundDailog = ({ open, registration, onClose }: Props) => {
         >
           {t('refund')}
         </Button>
-        <Button variant="outlined" onClick={onClose}>
+        <Button variant="outlined" onClick={handleClose}>
           {t('cancel')}
         </Button>
       </DialogActions>
-      1
     </Dialog>
   )
 }

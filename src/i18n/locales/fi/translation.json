@@ -314,7 +314,9 @@
 
       },
       "title": "Maksun palautus, {{regNo}} / {{payer}}",
-      "text": "Valitse palautettava maksu.\nJos palautuksesta peritään käsittelykulu, täytä se alla olevaan kohtaan.\nJos maksurivi ei ole valittavissa, täytyy palautus hoitaa Paytrailin kauppiaspaneelista."
+      "text": "Valitse palautettava maksu.",
+      "costsText": "Jos palautuksesta peritään käsittelykulu, täytä se taulukon alla olevaan kohtaan.",
+      "noCostsText": "Valittu maksu on tehty koekalenterin maksupalautuksia edeltävässä versiossa. Tällaisen maksun voi palauttaa ainoastaan kokonaisena koekalenterin kautta."
     },
     "reserve": "Pystyn ottamaan koepaikan vastaan varasijalta",
     "reserveChoises": {

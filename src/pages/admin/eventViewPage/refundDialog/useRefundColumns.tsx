@@ -3,6 +3,7 @@ import type { Transaction } from '../../../../types'
 
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { capitalize } from '@mui/material'
 
 import { formatDate } from '../../../../i18n/dates'
 import { formatMoney } from '../../../../lib/money'
@@ -25,18 +26,28 @@ export const useRefundColumns = (): readonly GridColDef<Transaction>[] => {
 
   return useMemo<GridColDef<Transaction>[]>(
     () => [
-      { field: 'provider', width: 100, headerName: t('registration.refundDialog.columns.provider') },
-      { field: 'status', width: 60, headerName: t('registration.refundDialog.columns.status') },
-      { field: 'bankReference', flex: 3, headerName: t('registration.refundDialog.columns.bankReference') },
-      // { field: 'reference', flex: 5, headerName: t('registration.refundDialog.columns.reference') },
-      { field: 'type', width: 80, headerName: t('registration.refundDialog.columns.type') },
       {
-        field: 'statusAt',
-        valueFormatter: (value) => formatDate(value, 'dd.MM.yy HH:mm'),
-        width: 120,
+        field: 'createdAt',
+        width: 140,
+        valueFormatter: (value) => formatDate(value, 'dd.MM.yy HH:mm:ss'),
         headerName: t('registration.refundDialog.columns.statusAt'),
       },
       {
+        field: 'provider',
+        flex: 1,
+        headerName: t('registration.refundDialog.columns.provider'),
+        valueFormatter: (value) => capitalize(value ?? ''),
+      },
+      { field: 'status', width: 60, headerName: t('registration.refundDialog.columns.status') },
+      { field: 'bankReference', width: 120, headerName: t('registration.refundDialog.columns.bankReference') },
+      {
+        field: 'type',
+        width: 80,
+        headerName: t('registration.refundDialog.columns.type'),
+        valueFormatter: (value) => (value === 'payment' ? 'Maksu' : 'Palautus'),
+      },
+      {
+        align: 'right',
         field: 'amount',
         valueGetter: (value, row) =>
           row.status === 'ok' ? formatMoney(value / (row.type === 'refund' ? -100 : 100)) : '',

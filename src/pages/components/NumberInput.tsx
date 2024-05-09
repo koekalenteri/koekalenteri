@@ -7,44 +7,67 @@ import TextField from '@mui/material/TextField'
 import useDebouncedCallback from '../../hooks/useDebouncedCallback'
 
 interface Props extends Omit<StandardTextFieldProps, 'onChange'> {
+  readonly formatValue?: (value: number | undefined) => string
+  readonly parseInput?: (value: string) => number
+  readonly pattern?: string
   readonly value?: number
   readonly onChange?: (value: number | undefined) => void
 }
 
-export const NumberInput = (props: Props) => {
-  const [value, setValue] = useState<number | undefined>(props.value)
+const defaultFormatter = (value: number | undefined) => (value !== undefined ? `${value}` : '')
 
-  const dispatchChange = useDebouncedCallback((value: number | undefined) => props.onChange?.(value))
+export const NumberInput = ({
+  formatValue = defaultFormatter,
+  parseInput = parseInt,
+  pattern = '[0-9]{1,3}',
+  value,
+  onChange,
+  ...props
+}: Props) => {
+  const [stringValue, setStringValue] = useState<string>(formatValue(value))
+  const [focused, setFocused] = useState(false)
+
+  const dispatchChange = useDebouncedCallback((value: number | undefined) => onChange?.(value))
   const handleChange = useCallback<ChangeEventHandler<HTMLInputElement>>(
     (e) => {
-      let newValue: number | undefined = parseInt(e.target.value)
+      if (e.target.value !== stringValue) {
+        setStringValue(e.target.value)
+      }
+      let newValue: number | undefined = parseInput(e.target.value)
       if (isNaN(newValue)) {
         newValue = undefined
       }
       if (newValue !== value) {
-        setValue(newValue)
         dispatchChange(newValue)
       }
     },
-    [dispatchChange, value]
+    [dispatchChange, parseInput, stringValue, value]
   )
 
+  const handleFocus = useCallback(() => setFocused(true), [])
+  const handleBlur = useCallback(() => {
+    setStringValue(formatValue(value))
+    setFocused(false)
+  }, [formatValue, value])
+
   useEffect(() => {
-    setValue(props.value)
-  }, [props.value])
+    if (!focused) setStringValue(formatValue(value))
+  }, [focused, formatValue, value])
 
   return (
     <TextField
       {...props}
       onChange={handleChange}
-      value={value ?? ''}
+      onBlur={handleBlur}
+      onFocus={handleFocus}
+      value={stringValue}
       type="text"
       inputMode="numeric"
       size="small"
       InputProps={{
         ...props.InputProps,
         inputProps: {
-          pattern: '[0-9]{1,3}',
+          pattern,
           style: { textAlign: 'right', padding: 4, ...props.InputProps?.inputProps },
         },
       }}

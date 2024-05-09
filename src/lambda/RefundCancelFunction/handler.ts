@@ -5,10 +5,11 @@ import type { PaytrailCallbackParams } from '../types/paytrail'
 
 import { metricScope } from 'aws-embedded-metrics'
 
+import { formatMoney } from '../../lib/money'
 import { CONFIG } from '../config'
 import { audit, registrationAuditKey } from '../lib/audit'
 import { debugProxyEvent } from '../lib/log'
-import { formatMoney, parseParams, updateTransactionStatus, verifyParams } from '../lib/payment'
+import { parseParams, updateTransactionStatus, verifyParams } from '../lib/payment'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { metricsError, metricsSuccess } from '../utils/metrics'
 import { response } from '../utils/response'

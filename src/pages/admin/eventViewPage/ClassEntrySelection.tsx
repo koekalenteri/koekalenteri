@@ -26,6 +26,7 @@ import { useEventRegistrationDates } from '../../../hooks/useEventRegistrationDa
 import { useEventRegistrationGroups } from '../../../hooks/useEventRegistrationGroups'
 import { eventRegistrationDateKey } from '../../../lib/event'
 import { uniqueDate } from '../../../lib/utils'
+import { NullComponent } from '../../components/NullComponent'
 import StyledDataGrid from '../../components/StyledDataGrid'
 import { useAdminRegistrationActions } from '../recoil/registrations/actions'
 
@@ -345,10 +346,6 @@ const ClassEntrySelection = ({
       />
     </DndProvider>
   )
-}
-
-function NullComponent() {
-  return null
 }
 
 export default ClassEntrySelection
