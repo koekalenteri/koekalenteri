@@ -14,11 +14,10 @@ import { metricScope } from 'aws-embedded-metrics'
 import { nanoid } from 'nanoid'
 
 import { CONFIG } from '../config'
-import { audit, registrationAuditKey } from '../lib/audit'
+import { auditRefund } from '../lib/audit'
 import { authorize } from '../lib/auth'
 import { parseJSONWithFallback } from '../lib/json'
 import { debugProxyEvent } from '../lib/log'
-import { formatMoney } from '../lib/payment'
 import { PaytrailError, refundPayment } from '../lib/paytrail'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { metricsError, metricsSuccess } from '../utils/metrics'
@@ -146,11 +145,7 @@ const refundCreate = metricScope(
         )
 
         if (result.status === 'ok') {
-          audit({
-            auditKey: registrationAuditKey(registration),
-            message: `Palautus (${result.provider}), ${formatMoney(amount)}`,
-            user: user.name,
-          })
+          auditRefund(registration, result.provider, amount, user.name)
         }
 
         metricsSuccess(metrics, event.requestContext, 'refundCreate')

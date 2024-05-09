@@ -14,7 +14,6 @@ import CustomDynamoClient from '../utils/CustomDynamoClient'
 
 import { calculateHmac, HMAC_KEY_PREFIX } from './paytrail'
 import { getPaytrailConfig } from './secrets'
-export { formatMoney } from '../../lib/money'
 
 const { transactionTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(transactionTable)

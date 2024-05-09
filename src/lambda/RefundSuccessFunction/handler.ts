@@ -7,9 +7,9 @@ import { metricScope } from 'aws-embedded-metrics'
 
 import { i18n } from '../../i18n/lambda'
 import { CONFIG } from '../config'
-import { audit, registrationAuditKey } from '../lib/audit'
+import { auditRefund } from '../lib/audit'
 import { debugProxyEvent } from '../lib/log'
-import { formatMoney, parseParams, updateTransactionStatus, verifyParams } from '../lib/payment'
+import { parseParams, updateTransactionStatus, verifyParams } from '../lib/payment'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { metricsError, metricsSuccess } from '../utils/metrics'
 import { response } from '../utils/response'
@@ -86,11 +86,7 @@ const refundSuccess = metricScope(
             }
             */
 
-            audit({
-              auditKey: registrationAuditKey(registration),
-              message: `Palautus (${transaction.provider}), ${formatMoney(amount)}`,
-              user: transaction.user,
-            })
+            auditRefund(registration, transaction.provider, amount, transaction.user)
           }
         }
 
