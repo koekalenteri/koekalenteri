@@ -56,9 +56,9 @@ const refundSuccess = metricScope(
 
             await dynamoDB.update(
               { eventId, id: registrationId },
-              'set #refundedAmount = :refundedAmount, #refundedAt = :refundedAt, #refundStatus = :refundStatus',
+              'set #refundAmount = :refundAmount, #refundAt = :refundAt, #refundStatus = :refundStatus',
               {
-                '#refundedAmount': 'refundAmount',
+                '#refundAmount': 'refundAmount',
                 '#refundAt': 'refundAt',
                 '#refundStatus': 'refundStatus',
               },
