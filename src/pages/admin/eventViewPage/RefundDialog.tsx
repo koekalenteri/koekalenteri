@@ -126,7 +126,16 @@ export const RefundDailog = ({ open, registration, onClose }: Props) => {
         enqueueSnackbar('Maksu palautettu', { variant: 'success' })
         handleClose()
       } else if (response?.status === 'pending') {
-        enqueueSnackbar('Maksun palautus aloitettu, palautuksen tila päivittyy myöhemmin', { variant: 'success' })
+        if (response.provider === 'email refund') {
+          enqueueSnackbar(
+            'Maksun palautus on aloitettu. Ilmoittautujalle on lähetetty sähköposti rahojen palautuksen viimeistelyä varten. Näet audit trailista, kun palautus on käsitelty loppuun.',
+            { variant: 'success' }
+          )
+        } else {
+          enqueueSnackbar('Maksun palautus on aloitettu. Näet audit trailista, kun palautus on käsitelty loppuun.', {
+            variant: 'success',
+          })
+        }
         handleClose()
       } else {
         enqueueSnackbar(
