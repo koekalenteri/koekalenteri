@@ -158,13 +158,25 @@
   "registration": {
     "breeder": "Breeder information",
     "cancelDialog": {
-      "cta": "Peru ilmoittautuminen",
-      "done": "Ilmoittautumisesi on peruttu",
-      "title": "Ilmoittautumisen peruminen",
-      "text": "Olet perumassa koiran {{registration.dog.regNo}} {{registration.dog.name}} ilmoittautumista kokeeseen {{event.startDate, date}} {{event.eventType}} {{event.location}}",
-      "lateText": "Ilmoittautumisen voi perua koepäivänä vain ottamalla yhteyttä suoraan koesihteeriin {{event.contactInfo.secretary.name}} {{contact}}",
-      "confirmation": "Oletko varma, että haluat perua ilmoittautumisen?",
-      "terms": "Katso tarkemmat peruutusehdot <2>säännöistä</2>"
+      "cta": "Cancel registration",
+      "done": "Your registration has been canceled",
+      "title": "Cancellation of registration",
+      "text": "You are canceling the registration of the dog {{registration.dog.regNo}} {{registration.dog.name}} for the event {{event.startDate, date}} {{event.eventType}} {{event.location}}",
+      "lateText": "The registration can only be canceled on the day of the trial by contacting the trial secretary directly, {{event.contactInfo.secretary.name}} {{contact}}.",
+      "confirmation": "Are you sure you want to cancel your registration?",
+      "terms": "See detailed cancellation terms in the <2>rules</2>",
+      "reason": "Reason for cancellation",
+      "reason_other": "Please specify"
+    },
+    "cancelReason": {
+      "dog-heat": "The dog being in heat",
+      "handler-sick": "The handler falling ill",
+      "handler-sick-info": "For refunds due to handler illness, a medical certificate must be sent to the secretary",
+      "dog-sick": "The dog falling ill",
+      "dog-sick-info": "For refunds due to dog illness, a veterinary certificate must be sent to the secretary",
+      "moved-classes": "No longer eligible to participate in that class",
+      "other": "Other reason",
+      "gdpr": "I don't want to disclose"
     },
     "class": "Event class",
     "classesDetails": "Event class details",
@@ -204,7 +216,6 @@
       "title_invitation": "You have acknowledged your trial invitation",
       "title_receipt": "Receipt of your payment",
       "title_update": "Your registration has been modified"
-
     },
     "handler": "Handler",
     "handlerIsMember": "Handler is a member of the organizing society",

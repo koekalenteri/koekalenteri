@@ -33,9 +33,10 @@ export function useRegistrationActions() {
       return saved
     },
 
-    cancel: async (reg: Registration) => {
+    cancel: async (reg: Registration, reason: string) => {
       const mod = structuredClone(reg)
       mod.cancelled = true
+      mod.cancelReason = reason
       const saved = await putRegistration(mod)
       enqueueSnackbar(t('registration.cancelDialog.done'), { variant: 'info' })
       return saved

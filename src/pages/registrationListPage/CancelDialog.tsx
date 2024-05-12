@@ -1,6 +1,9 @@
+import type { SelectChangeEvent } from '@mui/material/Select'
 import type { TFunction } from 'i18next'
+import type { ChangeEvent } from 'react'
 import type { PublicDogEvent, Registration } from '../../types'
 
+import { useCallback, useState } from 'react'
 import { Trans } from 'react-i18next'
 import Button from '@mui/material/Button'
 import Dialog from '@mui/material/Dialog'
@@ -8,12 +11,18 @@ import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
 import DialogContentText from '@mui/material/DialogContentText'
 import DialogTitle from '@mui/material/DialogTitle'
+import FormControl from '@mui/material/FormControl'
+import FormHelperText from '@mui/material/FormHelperText'
+import InputLabel from '@mui/material/InputLabel'
 import Link from '@mui/material/Link'
+import MenuItem from '@mui/material/MenuItem'
+import Select from '@mui/material/Select'
+import TextField from '@mui/material/TextField'
 
 interface Props {
   readonly disabled?: boolean
   readonly event: PublicDogEvent | null | undefined
-  readonly onCancel?: () => void
+  readonly onCancel?: (reason: string) => void
   readonly onClose?: () => void
   readonly open: boolean
   readonly registration: Registration | null | undefined
@@ -21,6 +30,22 @@ interface Props {
 }
 
 export function CancelDialog({ disabled, event, onCancel, onClose, open, registration, t }: Props) {
+  const [reason, setReason] = useState('')
+  const [freeReason, setFreeReason] = useState('')
+
+  const handleReasonChange = useCallback((event: SelectChangeEvent) => {
+    setReason(event.target.value)
+  }, [])
+
+  const handleFreeReasonChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
+    setFreeReason(event.target.value)
+  }, [])
+
+  const handleCancel = useCallback(
+    () => onCancel?.(reason === 'other' ? freeReason : reason),
+    [freeReason, onCancel, reason]
+  )
+
   if (!event || !registration) {
     return null
   }
@@ -46,6 +71,39 @@ export function CancelDialog({ disabled, event, onCancel, onClose, open, registr
         <DialogContentText id="cancel-dialog-description2" sx={{ py: 1, display: disabled ? 'none' : 'block' }}>
           {t('registration.cancelDialog.confirmation')}
         </DialogContentText>
+        <FormControl fullWidth sx={{ my: 1 }}>
+          <InputLabel id="reason-label">{t('registration.cancelDialog.reason')}</InputLabel>
+          <Select
+            id="reaseon"
+            labelId="reason-label"
+            label={t('registration.cancelDialog.reason')}
+            value={reason}
+            onChange={handleReasonChange}
+          >
+            <MenuItem value="dog-heat">{t('registration.cancelReason.dog-heat')}</MenuItem>
+            <MenuItem value="handler-sick">{t('registration.cancelReason.handler-sick')}</MenuItem>
+            <MenuItem value="dog-sick">{t('registration.cancelReason.dog-sick')}</MenuItem>
+            <MenuItem value="moved-classes">{t('registration.cancelReason.moved-classes')}</MenuItem>
+            <MenuItem value="other">{t('registration.cancelReason.other')}</MenuItem>
+            <MenuItem value="gdpr">{t('registration.cancelReason.gdpr')}</MenuItem>
+          </Select>
+          <FormHelperText>
+            {(reason === 'handler-sick' || reason === 'dog-sick') && (
+              <>
+                {t(`registration.cancelReason.${reason}-info`)} &nbsp;
+                <a href={`mailto://${event.contactInfo?.secretary?.email}`}>{event.contactInfo?.secretary?.email}</a>
+              </>
+            )}
+          </FormHelperText>
+        </FormControl>
+        {reason === 'other' && (
+          <TextField
+            fullWidth
+            label={t('registration.cancelDialog.reason_other')}
+            value={freeReason}
+            onChange={handleFreeReasonChange}
+          />
+        )}
         <DialogContentText id="cancel-dialog-description3" sx={{ py: 1 }}>
           <Trans t={t} i18nKey="registration.cancelDialog.terms">
             Katso tarkemmat peruutusehdot{' '}
@@ -61,7 +119,12 @@ export function CancelDialog({ disabled, event, onCancel, onClose, open, registr
         </DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onCancel} disabled={disabled} autoFocus variant="contained">
+        <Button
+          onClick={handleCancel}
+          disabled={disabled || reason === '' || (reason === 'other' && freeReason === '')}
+          autoFocus
+          variant="contained"
+        >
           {t('registration.cancelDialog.cta')}
         </Button>
         <Button onClick={onClose} variant="outlined">

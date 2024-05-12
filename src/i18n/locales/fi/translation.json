@@ -228,7 +228,19 @@
       "text": "Olet perumassa koiran {{registration.dog.regNo}} {{registration.dog.name}} ilmoittautumista kokeeseen {{event.startDate, date}} {{event.eventType}} {{event.location}}",
       "lateText": "Ilmoittautumisen voi perua koepäivänä vain ottamalla yhteyttä suoraan koesihteeriin {{event.contactInfo.secretary.name}} {{contact}}",
       "confirmation": "Oletko varma, että haluat perua ilmoittautumisen?",
-      "terms": "Katso tarkemmat peruutusehdot <2>säännöistä</2>"
+      "terms": "Katso tarkemmat peruutusehdot <2>säännöistä</2>",
+      "reason": "Perumisen syy",
+      "reason_other": "Kerro tarkemmin mikä"
+    },
+    "cancelReason": {
+      "dog-heat": "Koiran juoksut",
+      "handler-sick": "Ohjaajan sairastuminen",
+      "handler-sick-info": "Maksun palautusta varten sairastapauksista on lähetettävä lääkärintodistus koesihteerille",
+      "dog-sick": "Koiran sairastuminen",
+      "dog-sick-info": "Maksun palautusta varten sairastapauksista on lähetettävä eläinlääkärintodistus koesihteerille",
+      "moved-classes": "Ei enää osallistumisoikeutta kyseiseen luokkaan",
+      "other": "Muu syy",
+      "gdpr": "En halua kertoa"
     },
     "confirmDialog": {
       "alreadyConfirmed": "Koepaikka on jo vahvistettu",

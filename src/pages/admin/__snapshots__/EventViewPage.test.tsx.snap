@@ -3734,7 +3734,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
           >
             <div
               class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-jqsrkn-MuiDataGrid-root"
-              style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 626px; --DataGrid-columnsTotalWidth: 626px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
+              style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 686px; --DataGrid-columnsTotalWidth: 686px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
             >
               <div
                 class="css-qtdhae"
@@ -4120,7 +4120,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
                           data-field="cancelReason"
                           role="columnheader"
-                          style="height: 39px; width: 90px; min-width: 90px; max-width: 90px;"
+                          style="height: 39px; width: 150px; min-width: 150px; max-width: 150px;"
                           tabindex="-1"
                         >
                           <div
@@ -8333,7 +8333,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
           >
             <div
               class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-jqsrkn-MuiDataGrid-root"
-              style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 626px; --DataGrid-columnsTotalWidth: 626px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
+              style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 686px; --DataGrid-columnsTotalWidth: 686px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
             >
               <div
                 class="css-qtdhae"
@@ -8719,7 +8719,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
                           data-field="cancelReason"
                           role="columnheader"
-                          style="height: 39px; width: 90px; min-width: 90px; max-width: 90px;"
+                          style="height: 39px; width: 150px; min-width: 150px; max-width: 150px;"
                           tabindex="-1"
                         >
                           <div
@@ -9043,7 +9043,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                             data-colindex="7"
                             data-field="cancelReason"
                             role="gridcell"
-                            style="--width: 90px;"
+                            style="--width: 150px;"
                             tabindex="-1"
                           />
                           <div

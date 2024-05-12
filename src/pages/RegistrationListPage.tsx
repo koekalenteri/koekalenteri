@@ -60,20 +60,23 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
     [allDisabled, event]
   )
 
-  const handleCancel = useCallback(() => {
-    if (allDisabled || !registration) {
-      return
-    }
-    actions.cancel(registration).then(
-      (saved) => {
-        setRegistration(saved)
-        setCancelOpen(false)
-      },
-      (reason) => {
-        console.error(reason)
+  const handleCancel = useCallback(
+    (reason: string) => {
+      if (allDisabled || !registration) {
+        return
       }
-    )
-  }, [actions, allDisabled, registration, setRegistration])
+      actions.cancel(registration, reason).then(
+        (saved) => {
+          setRegistration(saved)
+          setCancelOpen(false)
+        },
+        (reason) => {
+          console.error(reason)
+        }
+      )
+    },
+    [actions, allDisabled, registration, setRegistration]
+  )
 
   const handleConfirm = useCallback(() => {
     if (allDisabled || !registration || registration.confirmed || registration.cancelled) {
