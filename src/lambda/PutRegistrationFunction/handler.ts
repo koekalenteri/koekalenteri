@@ -109,7 +109,7 @@ function getAuditMessage(
 ): string {
   if (cancel) return 'Ilmoittautuminen peruttiin'
   if (confirm) return 'Ilmoittautumisen vahvistus'
-  if (!existing) return ''
+  if (!existing) return 'Ilmoittautui'
 
   const t = i18n.getFixedT('fi')
   const changes: Partial<JsonRegistration> = diff(existing, data)
