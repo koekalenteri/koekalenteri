@@ -21,6 +21,34 @@ import { formatMoney } from '../../../../lib/money'
 "type": "payment"
 */
 
+const providerNames = {
+  'apple-pay': 'Apple Pay',
+  'danske-business': 'Danske B2B',
+  'email refund': 'Sähköposti + tilisiirto',
+  'nordea-business': 'Nordea B2B',
+  'op-tililuotto': 'OP Tililuotto',
+  aktia: 'Aktia',
+  alandsbanken: 'Ålandsbanken',
+  alisa: 'Alisa Yrityslasku',
+  amex: 'American Express',
+  collectorb2b: 'Walley B2B',
+  collectorb2c: 'Walley',
+  creditcard: 'Visa / Mastercard',
+  handelsbanken: 'Handkesbanken',
+  jousto: 'Jousto',
+  mobilepay: 'MobilePay',
+  nordea: 'Nordea',
+  omasp: 'OmaSP',
+  oplasku: 'OP Lasku',
+  osuuspankki: 'OP',
+  paypal: 'PayPal',
+  pivo: 'Pivo',
+  pop: 'POP Pankki',
+  saastopankki: 'Säästöpankki',
+  siirto: 'Siirto',
+  spankki: 'S-Pankki',
+}
+
 export const useRefundColumns = (): readonly GridColDef<Transaction>[] => {
   const { t } = useTranslation()
 
@@ -36,7 +64,7 @@ export const useRefundColumns = (): readonly GridColDef<Transaction>[] => {
         field: 'provider',
         flex: 1,
         headerName: t('registration.refundDialog.columns.provider'),
-        valueFormatter: (value) => (value === 'email refund' ? 'Sähköposti + tilisiirto' : capitalize(value ?? '')),
+        valueFormatter: (value) => (providerNames[value] ? providerNames[value] : capitalize(value ?? '')),
       },
       { field: 'status', width: 60, headerName: t('registration.refundDialog.columns.status') },
       { field: 'bankReference', width: 120, headerName: t('registration.refundDialog.columns.bankReference') },

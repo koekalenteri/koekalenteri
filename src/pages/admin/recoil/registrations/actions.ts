@@ -4,7 +4,12 @@ import { useSnackbar } from 'notistack'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
 import { createRefund } from '../../../../api/payment'
-import { getRegistrationTransactions, putAdminRegistration, putRegistrationGroups } from '../../../../api/registration'
+import {
+  getRegistrationTransactions,
+  putAdminRegistration,
+  putAdminRegistrationNotes,
+  putRegistrationGroups,
+} from '../../../../api/registration'
 import { reportError } from '../../../../lib/client/rum'
 import { idTokenAtom } from '../../../recoil'
 import { adminEventSelector } from '../events'
@@ -27,6 +32,7 @@ export const useAdminRegistrationActions = (eventId: string) => {
 
   return {
     async save(reg: Registration) {
+      if (!token) throw new Error('missing token')
       const regWithOverrides = {
         ...reg,
         handler: reg.ownerHandles ? { ...reg.owner } : reg.handler,
@@ -122,6 +128,20 @@ export const useAdminRegistrationActions = (eventId: string) => {
       if (!token) throw new Error('missing token')
 
       return createRefund(transactionId, amount, token)
+    },
+
+    async putInternalNotes(
+      eventId: Registration['eventId'],
+      id: Registration['id'],
+      internalNotes: Registration['internalNotes']
+    ) {
+      if (!token) throw new Error('missing token')
+
+      const reg = adminRegistrations.find((r) => r.id === id)
+      if (!reg) throw new Error('unexpected error occured')
+
+      await putAdminRegistrationNotes({ eventId, id, internalNotes }, token)
+      updateAdminRegistration({ ...reg, internalNotes })
     },
   }
 }

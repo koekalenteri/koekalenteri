@@ -40,10 +40,23 @@ export async function putRegistration(
 
 export async function putAdminRegistration(
   registration: Registration,
-  token?: string,
+  token: string,
   signal?: AbortSignal
 ): Promise<Registration> {
   return http.post<Registration, Registration>('/admin/registration/', registration, withToken({ signal }, token))
+}
+
+type RegistrationInternalNotes = Pick<Registration, 'eventId' | 'id' | 'internalNotes'>
+export async function putAdminRegistrationNotes(
+  registration: RegistrationInternalNotes,
+  token: string,
+  signal?: AbortSignal
+): Promise<void> {
+  return http.post<RegistrationInternalNotes, void>(
+    '/admin/registration/note',
+    registration,
+    withToken({ signal }, token)
+  )
 }
 
 export async function putRegistrationGroups(

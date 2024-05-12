@@ -1,5 +1,6 @@
 import type { TooltipProps } from '@mui/material/Tooltip'
 import type { GridColDef } from '@mui/x-data-grid'
+import type { ReactElement } from 'react'
 import type { Registration, RegistrationDate } from '../../../../types'
 
 import { useMemo } from 'react'
@@ -13,12 +14,16 @@ import EuroOutlined from '@mui/icons-material/EuroOutlined'
 import EventBusyOutlined from '@mui/icons-material/EventBusyOutlined'
 import MarkEmailReadOutlined from '@mui/icons-material/MarkEmailReadOutlined'
 import PersonOutline from '@mui/icons-material/PersonOutline'
+import SavingsOutlined from '@mui/icons-material/SavingsOutlined'
+import SpeakerNotesOutlined from '@mui/icons-material/SpeakerNotesOutlined'
 import { styled } from '@mui/material'
 import Box from '@mui/material/Box'
 import Stack from '@mui/material/Stack'
 import Tooltip, { tooltipClasses } from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 import { GridActionsCellItem } from '@mui/x-data-grid'
+
+import { formatMoney } from '../../../../lib/money'
 
 import GroupColors from './GroupColors'
 
@@ -42,33 +47,42 @@ const IconsTooltipContent = ({ roles }: { roles: TooltipContent[] }) => (
   </Box>
 )
 
-const RegistrationIcons = ({ confirmed, invitationRead, handler, paidAt, qualifyingResults, notes }: Registration) => {
+const RegistrationIcons = (reg: Registration) => {
   const { t } = useTranslation()
 
-  const manualResultCount = useMemo(() => qualifyingResults.filter((r) => !r.official).length, [qualifyingResults])
-  const exclamation = manualResultCount > 0 || notes.trim().length > 0
+  const manualResultCount = useMemo(
+    () => reg.qualifyingResults.filter((r) => !r.official).length,
+    [reg.qualifyingResults]
+  )
 
   const tooltipContent: TooltipContent[] = useMemo(() => {
     const result: TooltipContent[] = []
-    if (handler.membership) {
+    if (reg.handler.membership) {
       result.push({
         icon: <PersonOutline fontSize="small" />,
         text: 'Ilmoittautuja on järjestävän yhdistyksen jäsen',
       })
     }
-    if (paidAt) {
-      result.push({
-        icon: <EuroOutlined fontSize="small" />,
-        text: 'Ilmoittautuja on maksanut ilmoittautumisen',
-      })
+    if (reg.paidAt) {
+      if (reg.refundAt) {
+        result.push({
+          icon: <SavingsOutlined fontSize="small" />,
+          text: `Ilmoittautumismaksua on palautettu. Palautettu ${formatMoney(reg.refundAmount ?? 0)}, maksoi ${formatMoney(reg.paidAmount ?? 0)}`,
+        })
+      } else {
+        result.push({
+          icon: <EuroOutlined fontSize="small" />,
+          text: `Ilmoittautuja on maksanut ilmoittautumisen: ${formatMoney(reg.paidAmount ?? 0)}`,
+        })
+      }
     }
-    if (confirmed) {
+    if (reg.confirmed) {
       result.push({
         icon: <CheckOutlined fontSize="small" />,
         text: 'Ilmoittautuja on vahvistanut ottavansa koepaikan vastaan',
       })
     }
-    if (invitationRead) {
+    if (reg.invitationRead) {
       result.push({
         icon: <MarkEmailReadOutlined fontSize="small" />,
         text: 'Ilmoittautuja on kuitannut koekutsun',
@@ -80,24 +94,46 @@ const RegistrationIcons = ({ confirmed, invitationRead, handler, paidAt, qualify
         text: 'Ilmoittautuja on lisännyt koetuloksia',
       })
     }
-    if (notes.trim()) {
+    if (reg.notes.trim()) {
       result.push({
         icon: <CommentOutlined fontSize="small" />,
         text: 'Ilmoittautuja on lisännyt lisätietoja',
       })
     }
+    if (reg.internalNotes?.trim()) {
+      result.push({
+        icon: <SpeakerNotesOutlined fontSize="small" />,
+        text: 'Sisäinen kommentti: ' + reg.internalNotes,
+      })
+    }
     return result
-  }, [confirmed, handler.membership, invitationRead, manualResultCount, notes, paidAt])
+  }, [
+    manualResultCount,
+    reg.confirmed,
+    reg.handler.membership,
+    reg.internalNotes,
+    reg.invitationRead,
+    reg.notes,
+    reg.paidAmount,
+    reg.paidAt,
+    reg.refundAmount,
+    reg.refundAt,
+  ])
 
   return (
     <IconsTooltip placement="right" title={<IconsTooltipContent roles={tooltipContent} />}>
       <Stack direction="row" alignItems="center">
-        <PersonOutline fontSize="small" sx={{ opacity: handler.membership ? 1 : 0.05 }} />
-        <EuroOutlined fontSize="small" sx={{ opacity: paidAt ? 1 : 0.05 }} />
-        <CheckOutlined fontSize="small" sx={{ opacity: confirmed ? 1 : 0.05 }} />
-        <MarkEmailReadOutlined fontSize="small" sx={{ opacity: invitationRead ? 1 : 0.05 }} />
+        <PersonOutline fontSize="small" sx={{ opacity: reg.handler.membership ? 1 : 0.05 }} />
+        {reg.refundAt ? (
+          <SavingsOutlined fontSize="small" />
+        ) : (
+          <EuroOutlined fontSize="small" sx={{ opacity: reg.paidAt ? 1 : 0.05 }} />
+        )}
+        <CheckOutlined fontSize="small" sx={{ opacity: reg.confirmed ? 1 : 0.05 }} />
+        <MarkEmailReadOutlined fontSize="small" sx={{ opacity: reg.invitationRead ? 1 : 0.05 }} />
         <ErrorOutlineOutlined fontSize="small" sx={{ opacity: manualResultCount ? 1 : 0.05 }} />
-        <CommentOutlined fontSize="small" sx={{ opacity: notes.trim() ? 1 : 0.05 }} />
+        <CommentOutlined fontSize="small" sx={{ opacity: reg.notes.trim() ? 1 : 0.05 }} />
+        <SpeakerNotesOutlined fontSize="small" sx={{ opacity: reg.internalNotes?.trim() ? 1 : 0.05 }} />
       </Stack>
     </IconsTooltip>
   )
@@ -183,7 +219,7 @@ export function useClassEntrySelectionColumns(
       {
         field: 'icons',
         headerName: '',
-        width: 120,
+        width: 150,
         align: 'center',
         renderCell: (p) => <RegistrationIcons {...p.row} />,
         sortable: false,
@@ -196,30 +232,33 @@ export function useClassEntrySelectionColumns(
         width: 30,
         minWidth: 30,
         sortable: false,
-        getActions: (p) => [
-          <GridActionsCellItem
-            key="edit"
-            icon={<EditOutlined fontSize="small" />}
-            label={t('edit')}
-            onClick={() => openEditDialog?.(p.row.id)}
-            showInMenu
-          />,
-          <GridActionsCellItem
-            key="withdraw"
-            icon={<EventBusyOutlined fontSize="small" />}
-            label={t('withdraw')}
-            onClick={() => cancelRegistration?.(p.row.id)}
-            showInMenu
-          />,
-          <GridActionsCellItem
-            key="refund"
-            icon={<EventBusyOutlined fontSize="small" />}
-            label={t('refund')}
-            onClick={() => refundRegistration?.(p.row.id)}
-            showInMenu
-            disabled={(p.row.refundAmount ?? 0) > 0}
-          />,
-        ],
+        getActions: (p) =>
+          [
+            <GridActionsCellItem
+              key="edit"
+              icon={<EditOutlined fontSize="small" />}
+              label={t('edit')}
+              onClick={() => openEditDialog?.(p.row.id)}
+              showInMenu
+            />,
+            <GridActionsCellItem
+              key="withdraw"
+              icon={<EventBusyOutlined fontSize="small" />}
+              label={t('withdraw')}
+              onClick={() => cancelRegistration?.(p.row.id)}
+              showInMenu
+            />,
+            p.row.cancelled ? (
+              <GridActionsCellItem
+                key="refund"
+                icon={<EventBusyOutlined fontSize="small" />}
+                label={t('refund')}
+                onClick={() => refundRegistration?.(p.row.id)}
+                showInMenu
+                disabled={(p.row.refundAmount ?? 0) === (p.row.paidAmount ?? 0)}
+              />
+            ) : null,
+          ].filter((a): a is ReactElement => a !== null),
       },
     ]
 

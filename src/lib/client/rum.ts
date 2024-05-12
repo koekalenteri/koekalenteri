@@ -22,6 +22,6 @@ export const reportError = (e: unknown) => {
   if (r) {
     r.recordError(e)
   } else {
-    console.error(e)
+    console.error('reportError', e)
   }
 }

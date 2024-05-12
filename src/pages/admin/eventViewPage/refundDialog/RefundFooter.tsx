@@ -28,7 +28,7 @@ declare module '@mui/x-data-grid' {
 }
 
 const ValueCell = styled(TableCell)(() => ({
-  'padding-right': 10,
+  paddingRight: 10,
 }))
 
 export const RefundFooter = ({

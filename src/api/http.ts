@@ -65,9 +65,11 @@ async function httpWithTimeout<T>(path: string, init: RequestInit, reviveDates: 
       } catch (e) {
         reportError(e)
       }
+      /*
       if (![401, 404].includes(response.status)) {
         enqueueSnackbar(`${response.status} ${text}`, { variant: 'error' })
       }
+      */
       throw new APIError(response, json)
     }
     const parsed = parseJSON(text, reviveDates)

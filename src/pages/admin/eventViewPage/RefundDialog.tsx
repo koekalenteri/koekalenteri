@@ -1,5 +1,6 @@
 import type { GridRowSelectionModel } from '@mui/x-data-grid'
-import type { RefundPaymentResponse, Registration, Transaction } from '../../../types'
+import type { ChangeEventHandler } from 'react'
+import type { Registration, Transaction } from '../../../types'
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -9,7 +10,12 @@ import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
 import DialogContentText from '@mui/material/DialogContentText'
 import DialogTitle from '@mui/material/DialogTitle'
+import TextField from '@mui/material/TextField'
+import { useSnackbar } from 'notistack'
 
+import { APIError } from '../../../api/http'
+import useDebouncedCallback from '../../../hooks/useDebouncedCallback'
+import { formatMoney } from '../../../lib/money'
 import { NullComponent } from '../../components/NullComponent'
 import StyledDataGrid from '../../components/StyledDataGrid'
 import { useAdminRegistrationActions } from '../recoil/registrations/actions'
@@ -27,11 +33,13 @@ const transactionAmount = (t: Transaction) => (t.type === 'refund' ? -1 * t.amou
 
 export const RefundDailog = ({ open, registration, onClose }: Props) => {
   const { t } = useTranslation()
+  const { enqueueSnackbar } = useSnackbar()
   const [loading, setLoading] = useState<boolean>(false)
   const [loadedId, setLoadedId] = useState<string>('')
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [selection, setSelection] = useState<GridRowSelectionModel>()
   const [handlingCost, setHandlingCost] = useState<number>(0)
+  const [internalNotes, setInternalNotes] = useState(registration.internalNotes ?? '')
   const actions = useAdminRegistrationActions(registration.eventId)
   const columns = useRefundColumns()
 
@@ -73,32 +81,33 @@ export const RefundDailog = ({ open, registration, onClose }: Props) => {
   }, [actions, loadedId, loading, open, registration])
 
   useEffect(() => {
-    if (okTransactions.length === 1) {
-      setSelection([okTransactions[0].transactionId!])
-      if (!okTransactions[0].items && handlingCost) {
+    const payments = okTransactions.filter((t) => t.type === 'payment')
+    if (payments.length === 1) {
+      setSelection([payments[0].transactionId!])
+      if (!payments[0].items && handlingCost) {
         setHandlingCost(0)
       }
     }
   }, [handlingCost, okTransactions])
 
+  useEffect(() => {
+    setInternalNotes(registration.internalNotes ?? '')
+  }, [registration.internalNotes])
+
+  const dispatchNotesChange = useDebouncedCallback(async (notes: string) => {
+    await actions.putInternalNotes(registration.eventId, registration.id, notes)
+  }, 1000)
+
+  const handleNotesChange = useCallback<ChangeEventHandler<HTMLTextAreaElement>>(
+    (e) => {
+      const newValue = e.target.value
+      setInternalNotes(newValue)
+      dispatchNotesChange(newValue)
+    },
+    [dispatchNotesChange]
+  )
+
   const handleCostChange = useCallback((value?: number) => setHandlingCost(value ?? 0), [])
-
-  const handleRefund = useCallback(async () => {
-    let costLeft = handlingCost
-    const promises: Promise<RefundPaymentResponse | undefined>[] = []
-
-    for (const t of selectedTransactions) {
-      if (t.amount < costLeft) {
-        costLeft -= t.amount
-
-        continue
-      }
-      promises.push(actions.refund(t.transactionId, t.amount - costLeft))
-      costLeft = 0
-    }
-
-    return Promise.allSettled(promises)
-  }, [actions, handlingCost, selectedTransactions])
 
   const handleClose = useCallback(() => {
     setLoading(false)
@@ -107,6 +116,49 @@ export const RefundDailog = ({ open, registration, onClose }: Props) => {
     setSelection(undefined)
     onClose?.()
   }, [onClose])
+
+  const handleRefund = useCallback(async () => {
+    const transaction = selectedTransactions[0]
+    try {
+      const amount = Math.min(total, transaction.amount) - handlingCost
+      const response = await actions.refund(transaction.transactionId, amount)
+      if (response?.status === 'ok') {
+        enqueueSnackbar('Maksu palautettu', { variant: 'success' })
+        handleClose()
+      } else if (response?.status === 'pending') {
+        enqueueSnackbar('Maksun palautus aloitettu, palautuksen tila päivittyy myöhemmin', { variant: 'success' })
+        handleClose()
+      } else {
+        enqueueSnackbar('Maksun palautus ei jostain syystä onnistunut', { variant: 'error' })
+      }
+    } catch (e) {
+      if (e instanceof APIError) {
+        if (e.status === 404) {
+          enqueueSnackbar('Maksutapahtumaa ei löydy. Tapahtuma on todennäköisesti liian vanha palautettavaksi.', {
+            variant: 'error',
+          })
+          return
+        }
+        if (e.status === 400) {
+          const details = JSON.parse(e.body?.error)
+          if (details?.message === 'Refund amount exceeds the remaining refund balance') {
+            const remaining = details?.meta?.invalidRefunds?.[0].remainingRefundBalance
+            const remainingAmount = remaining ? formatMoney(remaining / 100) : '(ei tiedossa)'
+            enqueueSnackbar(
+              `Palautettava määrä ylittää palauttamattoman maksun osuuden. Palauttamatta: ${remainingAmount}`,
+              {
+                variant: 'error',
+              }
+            )
+            return
+          }
+        }
+        enqueueSnackbar('Palautus ei onnistunut, tuntematon virhe.', {
+          variant: 'error',
+        })
+      }
+    }
+  }, [actions, enqueueSnackbar, handlingCost, handleClose, selectedTransactions, total])
 
   return (
     <Dialog open={!!open} maxWidth="md" fullWidth>
@@ -148,9 +200,18 @@ export const RefundDailog = ({ open, registration, onClose }: Props) => {
             },
           }}
         ></StyledDataGrid>
-        <DialogContentText sx={{ mb: 1 }} display={selectedTransactions.length ? undefined : 'none'}>
+        <DialogContentText sx={{ my: 1 }} display={selectedTransactions.length ? undefined : 'none'}>
           {t(canHaveHandlingCosts ? 'registration.refundDialog.costsText' : 'registration.refundDialog.noCostsText')}
         </DialogContentText>
+        <TextField
+          label={t('registration.internalNotes')}
+          multiline
+          name="internalNotes"
+          onChange={handleNotesChange}
+          rows={2}
+          sx={{ width: '100%', mt: 1 }}
+          value={registration.internalNotes}
+        />
       </DialogContent>
       <DialogActions>
         <Button
