@@ -91,7 +91,7 @@ const refundSuccess = metricScope(
 
             audit({
               auditKey: registrationAuditKey(registration),
-              message: `Palautus (${transaction.provider}), ${formatMoney(amount / 100)}`,
+              message: `Palautus (${transaction.provider}), ${formatMoney(amount)}`,
               user: transaction.user,
             })
           }
