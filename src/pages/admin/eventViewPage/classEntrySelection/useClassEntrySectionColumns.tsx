@@ -57,7 +57,7 @@ const RegistrationIcons = (reg: Registration) => {
 
   const tooltipContent: TooltipContent[] = useMemo(() => {
     const result: TooltipContent[] = []
-    if (reg.handler.membership) {
+    if (reg.handler.membership || reg.owner.membership) {
       result.push({
         icon: <PersonOutline fontSize="small" />,
         text: 'Ilmoittautuja on järjestävän yhdistyksen jäsen',
@@ -114,6 +114,7 @@ const RegistrationIcons = (reg: Registration) => {
     reg.internalNotes,
     reg.invitationRead,
     reg.notes,
+    reg.owner.membership,
     reg.paidAmount,
     reg.paidAt,
     reg.refundAmount,
@@ -123,7 +124,7 @@ const RegistrationIcons = (reg: Registration) => {
   return (
     <IconsTooltip placement="right" title={<IconsTooltipContent roles={tooltipContent} />}>
       <Stack direction="row" alignItems="center">
-        <PersonOutline fontSize="small" sx={{ opacity: reg.handler.membership ? 1 : 0.05 }} />
+        <PersonOutline fontSize="small" sx={{ opacity: reg.handler.membership || reg.owner.membership ? 1 : 0.05 }} />
         {reg.refundAt ? (
           <SavingsOutlined fontSize="small" />
         ) : (

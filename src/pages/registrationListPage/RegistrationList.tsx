@@ -51,11 +51,11 @@ export default function RegistrationList({ disabled, rows, onUnregister }: Props
       flex: 192,
     },
     {
-      field: 'handler.membership',
+      field: 'membership',
       headerName: t('registration.member'),
       headerAlign: 'center',
       align: 'center',
-      valueGetter: (_value, row) => row.handler.membership,
+      valueGetter: (_value, row) => row.handler.membership || row.owner.membership,
       renderCell: (params) => (params.value ? <PersonOutline /> : ''),
     },
     {
