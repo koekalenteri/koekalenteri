@@ -285,6 +285,7 @@
     "eventType": "Tyyppi",
     "handler": "Ohjaajan tiedot",
     "handlerIsMember": "Ohjaaja on järjestävän yhdistyksen jäsen",
+    "internalNotes": "Sisäinen kommentti (ei näy ilmoittautujalle)",
     "member": "Jäsen",
     "modified_one": "Muutokset on tallennettu.\nVahvistus on lähetetty sähköpostiosoitteeseen:\n{{to}}",
     "modified_other": "Muutokset on tallennettu.\nVahvistus on lähetetty sähköpostiosoitteisiin:\n{{to}}",

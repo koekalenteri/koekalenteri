@@ -6,7 +6,7 @@ import CustomDynamoClient from '../utils/CustomDynamoClient'
 const { auditTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(auditTable)
 
-export const registrationAuditKey = (reg: JsonRegistration) => `${reg.eventId}:${reg.id}`
+export const registrationAuditKey = (reg: Pick<JsonRegistration, 'eventId' | 'id'>) => `${reg.eventId}:${reg.id}`
 
 export const audit = async (item: Omit<AuditRecord, 'timestamp'>) => {
   try {

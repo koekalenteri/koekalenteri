@@ -28,8 +28,9 @@ const getRegistrationHandler = metricScope(
           id,
         })
         if (item) {
-          // Make sure not to leak group information to user
+          // Make sure not to leak information to user
           delete item.group
+          delete item.internalNotes
 
           const dogEvent = await dynamoDB.read<JsonDogEvent>({ id: eventId }, CONFIG.eventTable)
           item.invitationAttachment = dogEvent?.invitationAttachment

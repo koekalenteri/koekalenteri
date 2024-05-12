@@ -988,6 +988,48 @@ Resources:
       LogGroupName: !Join ['/', ['/aws/lambda', !Ref PutRegistrationGroupsFunction]]
       RetentionInDays: 30
 
+  PutAdminRegistrationNotesFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: lambda/PutAdminRegistrationNotesFunction/handler.default
+      Layers:
+        - !Ref CommonLayer
+      Tracing: Active
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EventRegistrationTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuditTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserLinkTable
+        - CloudWatchPutMetricPolicy: {}
+        - Statement:
+            - Sid: SESSendEmailPolicy
+              Effect: Allow
+              Action:
+              - ses:sendTemplatedEmail
+              Resource: '*'
+      Events:
+        PutAdminRegistrationNotes:
+          Type: Api
+          Properties:
+            Path: /admin/registration/note
+            Method: POST
+            RestApiId: !Ref KoekalenteriApi
+            Auth:
+              Authorizer: CognitoAuthorizer
+    Metadata:
+      BuildMethod: makefile
+
+  PutAdminRegistrationNotesFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref PutAdminRegistrationNotesFunction]]
+      RetentionInDays: 30
+
+
   GetJudgesFunction:
     Type: AWS::Serverless::Function
     Properties:

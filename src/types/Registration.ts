@@ -14,6 +14,7 @@ export interface JsonRegistration extends JsonDbRecord {
   eventType: string
   group?: JsonRegistrationGroup
   handler: RegistrationPerson
+  internalNotes?: string
   invitationAttachment?: string
   invitationRead?: boolean
   language: Language

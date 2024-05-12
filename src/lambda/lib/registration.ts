@@ -25,22 +25,28 @@ const setLastEmail = async ({ eventId, id }: JsonRegistration, value: string) =>
     }
   )
 
+export const updateRegistrationField = async <F extends keyof JsonRegistration>(
+  eventId: JsonRegistration['eventId'],
+  id: JsonRegistration['id'],
+  field: F,
+  value: JsonRegistration[F]
+) =>
+  dynamoDB.update(
+    { eventId, id },
+    'set #field = :value',
+    {
+      '#field': field,
+    },
+    {
+      ':value': value,
+    }
+  )
+
 export const setReserveNotified = async (registrations: JsonRegistration[]) =>
   Promise.all(
     registrations
       .filter((r) => !r.reserveNotified)
-      .map(({ eventId, id }) =>
-        dynamoDB.update(
-          { eventId, id },
-          'set #field = :value',
-          {
-            '#field': 'reserveNotified',
-          },
-          {
-            ':value': true,
-          }
-        )
-      )
+      .map(({ eventId, id }) => updateRegistrationField(eventId, id, 'reserveNotified', true))
   )
 
 export const sendTemplatedEmailToEventRegistrations = async (
