@@ -14,7 +14,6 @@ import { metricScope } from 'aws-embedded-metrics'
 import { nanoid } from 'nanoid'
 
 import { CONFIG } from '../config'
-import { auditRefund } from '../lib/audit'
 import { authorize } from '../lib/auth'
 import { parseJSONWithFallback } from '../lib/json'
 import { debugProxyEvent } from '../lib/log'
@@ -140,10 +139,6 @@ const refundCreate = metricScope(
           { ':refundStatus': result.status === 'pending' ? 'PENDING' : 'OK' },
           registrationTable
         )
-
-        if (result.status === 'ok') {
-          auditRefund(registration, result.provider, amount, user.name)
-        }
 
         metricsSuccess(metrics, event.requestContext, 'refundCreate')
         return response<RefundPaymentResponse>(200, result, event)

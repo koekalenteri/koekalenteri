@@ -1,6 +1,5 @@
 import type { AuditRecord, JsonAuditRecord, JsonRegistration } from '../../types'
 
-import { formatMoney } from '../../lib/money'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
@@ -15,19 +14,6 @@ export const audit = async (item: Omit<AuditRecord, 'timestamp'>) => {
   } catch (e) {
     console.error(e)
   }
-}
-
-export const auditRefund = (
-  registration: JsonRegistration,
-  provider: string | undefined,
-  amount: number,
-  user: string
-) => {
-  audit({
-    auditKey: registrationAuditKey(registration),
-    message: `Palautus (${provider}), ${formatMoney(amount / 100)}`,
-    user,
-  })
 }
 
 export const auditTrail = async (auditKey: string) => {

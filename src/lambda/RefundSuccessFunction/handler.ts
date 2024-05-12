@@ -6,8 +6,9 @@ import type { PaytrailCallbackParams } from '../types/paytrail'
 import { metricScope } from 'aws-embedded-metrics'
 
 import { i18n } from '../../i18n/lambda'
+import { formatMoney } from '../../lib/money'
 import { CONFIG } from '../config'
-import { auditRefund } from '../lib/audit'
+import { audit, registrationAuditKey } from '../lib/audit'
 import { debugProxyEvent } from '../lib/log'
 import { parseParams, updateTransactionStatus, verifyParams } from '../lib/payment'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
@@ -86,7 +87,11 @@ const refundSuccess = metricScope(
             }
             */
 
-            auditRefund(registration, transaction.provider, amount, transaction.user)
+            audit({
+              auditKey: registrationAuditKey(registration),
+              message: `Palautus (${transaction.provider}), ${formatMoney(amount / 100)}`,
+              user: transaction.user,
+            })
           }
         }
 
