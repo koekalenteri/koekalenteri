@@ -90,7 +90,7 @@ const putAdminRegistrationHandler = metricScope(
 )
 
 function getAuditMessage(data: JsonRegistration, existing?: JsonRegistration): string {
-  if (!existing) return ''
+  if (!existing) return 'Lisäsi ilmoittautumisen'
 
   const t = i18n.getFixedT('fi')
   const changes: Partial<JsonRegistration> = diff(existing, data)
