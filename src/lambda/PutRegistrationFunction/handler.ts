@@ -112,7 +112,7 @@ function getAuditMessage(
   if (!existing) return ''
 
   const t = i18n.getFixedT('fi')
-  const changes: Partial<JsonRegistration> = diff(data, existing)
+  const changes: Partial<JsonRegistration> = diff(existing, data)
   console.debug('Audit changes', changes)
   const keys = ['class', 'dog', 'breeder', 'owner', 'handler', 'qualifyingResults', 'notes'] as const
   const modified: string[] = []

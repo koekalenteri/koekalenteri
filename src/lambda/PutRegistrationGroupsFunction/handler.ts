@@ -7,6 +7,7 @@ import { metricScope } from 'aws-embedded-metrics'
 import { unescape } from 'querystring'
 
 import { CONFIG } from '../config'
+import { audit, registrationAuditKey } from '../lib/audit'
 import { authorize, getOrigin } from '../lib/auth'
 import { updateRegistrations } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
@@ -119,6 +120,11 @@ const putRegistrationGroupsHandler = metricScope(
 
         for (const group of eventGroups) {
           await saveGroup(group)
+          await audit({
+            auditKey: registrationAuditKey(group),
+            user: user.name,
+            message: `Ryhmä: ${group.group?.key}/${group.group?.number}`,
+          })
         }
 
         const items = (

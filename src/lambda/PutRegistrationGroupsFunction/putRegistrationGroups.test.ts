@@ -99,7 +99,7 @@ describe('putRegistrationGroupsHandler', () => {
     expect(res.statusCode).toBe(200)
   })
 
-  it('should send "reserve" message, when reserve is not notified', async () => {
+  it('should send "reserve" message, when reserve is notified', async () => {
     const event = eventWithParticipantsInvited
     authorizeMock.mockResolvedValueOnce(mockUser)
 
