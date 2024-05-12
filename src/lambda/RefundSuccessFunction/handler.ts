@@ -37,8 +37,10 @@ const refundSuccess = metricScope(
 
         const status = params['checkout-status']
 
-        if (status && (status !== transaction.status || !transaction.statusAt)) {
-          await updateTransactionStatus(transactionId, status)
+        if (status) {
+          if (status !== transaction.status || !transaction.statusAt) {
+            await updateTransactionStatus(transactionId, status)
+          }
 
           if (status === 'ok') {
             const registration = await dynamoDB.read<JsonRegistration>(
