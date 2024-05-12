@@ -3,8 +3,11 @@ import type CustomDynamoClient from '../utils/CustomDynamoClient'
 
 import { jest } from '@jest/globals'
 
-import { eventWithParticipantsInvited } from '../../__mockData__/events'
-import { registrationsToEventWithParticipantsInvited } from '../../__mockData__/registrations'
+import { eventWithALOClassInvited, eventWithParticipantsInvited } from '../../__mockData__/events'
+import {
+  registrationsToEventWithALOInvited,
+  registrationsToEventWithParticipantsInvited,
+} from '../../__mockData__/registrations'
 import { constructAPIGwEvent } from '../test-utils/helpers'
 
 jest.unstable_mockModule('../lib/auth', () => ({
@@ -131,6 +134,47 @@ describe('putRegistrationGroupsHandler', () => {
 
     expect(mockSend).toHaveBeenNthCalledWith(1, 'picked', event, [], undefined, '', 'Test User', '')
     expect(mockSend).toHaveBeenNthCalledWith(2, 'invitation', event, [], undefined, '', 'Test User', '')
+
+    expect(mockSend).toHaveBeenNthCalledWith(3, 'reserve', event, [updated[6]], undefined, '', 'Test User', '')
+
+    expect(mockSend).toHaveBeenNthCalledWith(4, 'registration', event, [], undefined, '', 'Test User', 'cancel')
+    expect(mockSend).toHaveBeenCalledTimes(4)
+    expect(res.statusCode).toBe(200)
+  })
+
+  it('should send "invitation" message, when moved to a class that is invited (and event is only picked)', async () => {
+    const event = eventWithALOClassInvited
+    authorizeMock.mockResolvedValueOnce(mockUser)
+
+    // stored registrations before update
+    mockDynamoDB.query.mockResolvedValueOnce(registrationsToEventWithALOInvited)
+
+    const updated = registrationsToEventWithALOInvited.map((r) => ({
+      ...r,
+      group:
+        r.class === 'ALO' && r.group?.key === 'reserve' && r.group?.number === 1
+          ? { date: eventWithParticipantsInvited.startDate, time: 'ap', number: 2, key: 'ALO-AP' }
+          : r.group,
+      reserveNotified: r.group?.key === 'reserve' ? true : undefined,
+    }))
+
+    // stored registrations after update
+    mockDynamoDB.query.mockResolvedValueOnce(updated)
+
+    // event
+    mockDynamoDB.read.mockResolvedValueOnce(event)
+
+    const res = await putRegistrationGroupsHandler(
+      constructAPIGwEvent(
+        [
+          { eventId: 'testInvited', id: updated[6].id, group: updated[6].group, cancelled: false },
+        ] as JsonRegistrationGroupInfo[],
+        { pathParameters: { eventId: 'testInvited' } }
+      )
+    )
+
+    expect(mockSend).toHaveBeenNthCalledWith(1, 'picked', event, [updated[5]], undefined, '', 'Test User', '')
+    expect(mockSend).toHaveBeenNthCalledWith(2, 'invitation', event, [updated[5]], undefined, '', 'Test User', '')
 
     expect(mockSend).toHaveBeenNthCalledWith(3, 'reserve', event, [updated[6]], undefined, '', 'Test User', '')
 

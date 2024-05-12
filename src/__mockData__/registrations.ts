@@ -6,6 +6,7 @@ import {
   registrationDogAged28MonthsWithNOUResult,
 } from './dogs'
 import {
+  eventWithALOClassInvited,
   eventWithEntryClosed,
   eventWithParticipantsInvited,
   eventWithStaticDates,
@@ -254,6 +255,12 @@ export const registrationsToEventWithParticipantsInvited: Registration[] = [
     group: { number: 2, key: 'reserve' },
   },
 ]
+
+export const registrationsToEventWithALOInvited = registrationsToEventWithParticipantsInvited.map((r, i) => ({
+  ...r,
+  eventId: eventWithALOClassInvited.id,
+  id: `${eventWithALOClassInvited.id}${i + 1}`,
+}))
 
 export const mockRegistrationData = [
   registrationWithStaticDates,

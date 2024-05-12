@@ -151,11 +151,12 @@ const putRegistrationGroupsHandler = metricScope(
         const oldResCan =
           oldItems?.filter((reg) => reg.group?.key === 'reserve' || reg.group?.key === 'cancelled') ?? []
 
-        if (
-          confirmedEvent.state === 'picked' ||
-          confirmedEvent.state === 'invited' ||
-          (cls && classes.find((c) => c.class === cls && (c.state === 'picked' || c.state === 'invited')))
-        ) {
+        const picked =
+          confirmedEvent.state === 'picked' || (cls && classes.find((c) => c.class === cls && c.state === 'picked'))
+        const invited =
+          confirmedEvent.state === 'invited' || (cls && classes.find((c) => c.class === cls && c.state === 'invited'))
+
+        if (picked || invited) {
           /**
            * When event/class has already been 'picked' or 'invited', registrations moved from reserve to participants receive 'picked' email
            */
@@ -174,18 +175,17 @@ const putRegistrationGroupsHandler = metricScope(
             ''
           )
 
-          const { ok: invitedOk, failed: invitedFailed } =
-            confirmedEvent.state === 'invited'
-              ? await sendTemplatedEmailToEventRegistrations(
-                  'invitation',
-                  confirmedEvent,
-                  newParticipants,
-                  origin,
-                  '',
-                  user.name,
-                  ''
-                )
-              : { ok: [], failed: [] }
+          const { ok: invitedOk, failed: invitedFailed } = invited
+            ? await sendTemplatedEmailToEventRegistrations(
+                'invitation',
+                confirmedEvent,
+                newParticipants,
+                origin,
+                '',
+                user.name,
+                ''
+              )
+            : { ok: [], failed: [] }
 
           /**
            * Registrations in reserve group that moved up, receive updated 'reserve' email

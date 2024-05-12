@@ -147,3 +147,24 @@ export const eventWithParticipantsInvited: ConfirmedEvent = {
     { id: 223, name: 'Tuomari 2' },
   ],
 }
+
+export const eventWithALOClassInvited: ConfirmedEvent = {
+  ...emptyEvent,
+  id: 'testALOInvited',
+  eventType: 'NOME-B',
+  state: 'picked',
+  classes: [
+    { class: 'ALO', date: addDays(today, 7), places: 3, entries: 2, state: 'invited' },
+    { class: 'AVO', date: addDays(today, 7), places: 1, entries: 2 },
+  ],
+  places: 4,
+  entries: 4,
+  startDate: addDays(today, 7),
+  endDate: addDays(today, 7),
+  entryStartDate: addDays(today, -14),
+  entryEndDate: addDays(today, -28),
+  judges: [
+    { id: 123, name: 'Tuomari 1' },
+    { id: 223, name: 'Tuomari 2' },
+  ],
+}
