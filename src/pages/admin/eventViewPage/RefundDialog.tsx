@@ -129,7 +129,10 @@ export const RefundDailog = ({ open, registration, onClose }: Props) => {
         enqueueSnackbar('Maksun palautus aloitettu, palautuksen tila päivittyy myöhemmin', { variant: 'success' })
         handleClose()
       } else {
-        enqueueSnackbar('Maksun palautus ei jostain syystä onnistunut', { variant: 'error' })
+        enqueueSnackbar(
+          'MMaksun palautus epäonnistui. Tarkista että Paytrailin tilillä on tarpeeksi katetta palautukseen, tai yritä myöhemmin uudelleen.',
+          { variant: 'error' }
+        )
       }
     } catch (e) {
       if (e instanceof APIError) {
@@ -153,9 +156,12 @@ export const RefundDailog = ({ open, registration, onClose }: Props) => {
             return
           }
         }
-        enqueueSnackbar('Palautus ei onnistunut, tuntematon virhe.', {
-          variant: 'error',
-        })
+        enqueueSnackbar(
+          'Maksun palautus epäonnistui. Tarkista että Paytrailin tilillä on tarpeeksi katetta palautukseen, tai yritä myöhemmin uudelleen.',
+          {
+            variant: 'error',
+          }
+        )
       }
     }
   }, [actions, enqueueSnackbar, handlingCost, handleClose, selectedTransactions, total])
