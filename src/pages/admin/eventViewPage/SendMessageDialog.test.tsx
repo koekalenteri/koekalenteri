@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 import type { Registration } from '../../../types'
 
 import { render } from '@testing-library/react'
+import { ConfirmProvider } from 'material-ui-confirm'
 import { SnackbarProvider } from 'notistack'
 import { RecoilRoot } from 'recoil'
 
@@ -16,7 +17,9 @@ jest.mock('../../../api/email')
 function Wrapper(props: { readonly children?: ReactNode }) {
   return (
     <RecoilRoot>
-      <SnackbarProvider>{props.children}</SnackbarProvider>
+      <SnackbarProvider>
+        <ConfirmProvider>{props.children}</ConfirmProvider>
+      </SnackbarProvider>
     </RecoilRoot>
   )
 }

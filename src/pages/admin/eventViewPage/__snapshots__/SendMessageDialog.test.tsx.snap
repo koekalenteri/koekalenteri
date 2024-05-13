@@ -29,13 +29,13 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
       tabindex="-1"
     >
       <div
-        aria-labelledby=":r5:"
+        aria-labelledby=":r7:"
         class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation24 MuiDialog-paper MuiDialog-paperScrollPaper MuiDialog-paperWidthLg MuiDialog-paperFullWidth css-cyxlny-MuiPaper-root-MuiDialog-paper"
         role="dialog"
       >
         <h2
           class="MuiTypography-root MuiTypography-h6 MuiDialogTitle-root css-bdhsul-MuiTypography-root-MuiDialogTitle-root"
-          id=":r5:"
+          id=":r7:"
         >
           Viestin lähettäminen
         </h2>
@@ -160,8 +160,8 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
                     <label
                       class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1jy569b-MuiFormLabel-root-MuiInputLabel-root"
                       data-shrink="true"
-                      for=":r6:"
-                      id=":r6:-label"
+                      for=":r9:"
+                      id=":r9:-label"
                     >
                       Viestin tyyppi
                     </label>
@@ -175,7 +175,7 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
                         autocapitalize="none"
                         autocomplete="off"
                         class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
-                        id=":r6:"
+                        id=":r9:"
                         role="combobox"
                         spellcheck="false"
                         type="text"
@@ -316,7 +316,7 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
                       <textarea
                         aria-invalid="false"
                         class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-1sqnrkk-MuiInputBase-input-MuiOutlinedInput-input"
-                        id=":r8:"
+                        id=":rb:"
                         rows="4"
                         style="height: 0px; overflow: hidden;"
                       />
@@ -812,13 +812,13 @@ exports[`SendMessageDialog renders with minimal parameters 1`] = `
       tabindex="-1"
     >
       <div
-        aria-labelledby=":r1:"
+        aria-labelledby=":r2:"
         class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation24 MuiDialog-paper MuiDialog-paperScrollPaper MuiDialog-paperWidthLg MuiDialog-paperFullWidth css-cyxlny-MuiPaper-root-MuiDialog-paper"
         role="dialog"
       >
         <h2
           class="MuiTypography-root MuiTypography-h6 MuiDialogTitle-root css-bdhsul-MuiTypography-root-MuiDialogTitle-root"
-          id=":r1:"
+          id=":r2:"
         >
           Viestin lähettäminen
         </h2>
@@ -906,8 +906,8 @@ exports[`SendMessageDialog renders with minimal parameters 1`] = `
                     <label
                       class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-14s5rfu-MuiFormLabel-root-MuiInputLabel-root"
                       data-shrink="false"
-                      for=":r2:"
-                      id=":r2:-label"
+                      for=":r4:"
+                      id=":r4:-label"
                     >
                       Viestin tyyppi
                     </label>
@@ -921,7 +921,7 @@ exports[`SendMessageDialog renders with minimal parameters 1`] = `
                         autocapitalize="none"
                         autocomplete="off"
                         class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
-                        id=":r2:"
+                        id=":r4:"
                         role="combobox"
                         spellcheck="false"
                         type="text"
@@ -1040,7 +1040,7 @@ exports[`SendMessageDialog renders with minimal parameters 1`] = `
                       <textarea
                         aria-invalid="false"
                         class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-1sqnrkk-MuiInputBase-input-MuiOutlinedInput-input"
-                        id=":r4:"
+                        id=":r6:"
                         rows="4"
                         style="height: 0px; overflow: hidden;"
                       />

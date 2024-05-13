@@ -147,7 +147,7 @@ exports[`EventListPage renders 1`] = `
             aria-label="Select columns"
             class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-1ddbqw-MuiButtonBase-root-MuiButton-root"
             data-mui-internal-clone-element="true"
-            id=":r0:"
+            id=":r3:"
             tabindex="0"
             type="button"
           >
@@ -194,7 +194,7 @@ exports[`EventListPage renders 1`] = `
                 <input
                   aria-invalid="false"
                   class="MuiInputBase-input MuiInput-input MuiInputBase-inputAdornedStart MuiInputBase-inputAdornedEnd css-1x51dt5-MuiInputBase-input-MuiInput-input"
-                  id=":r3:"
+                  id=":r6:"
                   placeholder="search.placeholder"
                   type="text"
                   value=""
@@ -241,8 +241,8 @@ exports[`EventListPage renders 1`] = `
                   <label
                     class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeSmall MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeSmall MuiInputLabel-outlined css-1cwx9dy-MuiFormLabel-root-MuiInputLabel-root"
                     data-shrink="true"
-                    for=":r4:"
-                    id=":r4:-label"
+                    for=":r7:"
+                    id=":r7:-label"
                   >
                     Yhdistys
                   </label>
@@ -256,7 +256,7 @@ exports[`EventListPage renders 1`] = `
                       autocapitalize="none"
                       autocomplete="off"
                       class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputSizeSmall MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-19qh8xo-MuiInputBase-input-MuiOutlinedInput-input"
-                      id=":r4:"
+                      id=":r7:"
                       role="combobox"
                       spellcheck="false"
                       type="text"

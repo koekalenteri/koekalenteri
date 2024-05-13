@@ -2,6 +2,7 @@ import { Suspense } from 'react'
 import { MemoryRouter } from 'react-router-dom'
 import { ThemeProvider } from '@mui/material'
 import { screen } from '@testing-library/react'
+import { ConfirmProvider } from 'material-ui-confirm'
 import { SnackbarProvider } from 'notistack'
 import { RecoilRoot } from 'recoil'
 
@@ -31,7 +32,9 @@ describe('EventListPage', () => {
           <MemoryRouter>
             <Suspense fallback={<div>loading...</div>}>
               <SnackbarProvider>
-                <EventListPage />
+                <ConfirmProvider>
+                  <EventListPage />
+                </ConfirmProvider>
               </SnackbarProvider>
             </Suspense>
           </MemoryRouter>
