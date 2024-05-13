@@ -98,33 +98,37 @@ export default function EventClasses(props: Props) {
         <TextField {...inputProps} required={required} error={!!error} helperText={helperText} label={label} />
       )}
       renderTags={(tagValue, getTagProps) =>
-        tagValue.map((option, index) => (
-          <Chip
-            {...getTagProps({ index })}
-            avatar={
-              groupBy ? (
-                <Avatar
-                  sx={{
-                    fontWeight: 'bold',
-                    bgcolor: isSameDay(option.date || eventStartDate, eventStartDate)
-                      ? 'secondary.light'
-                      : 'secondary.dark',
-                  }}
-                >
-                  {t('dateFormat.weekday', { date: option.date })}
-                </Avatar>
-              ) : undefined
-            }
-            label={
-              (option.class ?? '') +
-              (showCount && Array.isArray(option.judge) && option.judge.length > 1 ? ` x${option.judge.length}` : '')
-            }
-            onDelete={undefined}
-            size="small"
-            sx={{ bgcolor: hasJudge(option) ? 'background.ok' : 'transparent' }}
-            variant={hasJudge(option) ? 'filled' : 'outlined'}
-          />
-        ))
+        tagValue.map((option, index) => {
+          const { key, ...props } = getTagProps({ index })
+          return (
+            <Chip
+              key={key}
+              {...props}
+              avatar={
+                groupBy ? (
+                  <Avatar
+                    sx={{
+                      fontWeight: 'bold',
+                      bgcolor: isSameDay(option.date || eventStartDate, eventStartDate)
+                        ? 'secondary.light'
+                        : 'secondary.dark',
+                    }}
+                  >
+                    {t('dateFormat.weekday', { date: option.date })}
+                  </Avatar>
+                ) : undefined
+              }
+              label={
+                (option.class ?? '') +
+                (showCount && Array.isArray(option.judge) && option.judge.length > 1 ? ` x${option.judge.length}` : '')
+              }
+              onDelete={undefined}
+              size="small"
+              sx={{ bgcolor: hasJudge(option) ? 'background.ok' : 'transparent' }}
+              variant={hasJudge(option) ? 'filled' : 'outlined'}
+            />
+          )
+        })
       }
     />
   )
