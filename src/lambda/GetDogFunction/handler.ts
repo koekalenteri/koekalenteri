@@ -4,6 +4,7 @@ import type { AWSError } from 'aws-sdk'
 import type { BreedCode, JsonDog, JsonTestResult } from '../../types'
 
 import { metricScope } from 'aws-embedded-metrics'
+import { differenceInMinutes } from 'date-fns'
 import { unescape } from 'querystring'
 
 import { CONFIG } from '../config'
@@ -30,10 +31,14 @@ const getDogHandler = metricScope(
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
       try {
         const regNo = unescape(event.pathParameters?.regNo?.replace('~', '/') ?? '')
-        const refresh = event.queryStringParameters && 'refresh' in event.queryStringParameters
 
         let item = await dynamoDB.read<JsonDog>({ regNo })
+        const itemAge = item?.refreshDate ? differenceInMinutes(new Date(), new Date(item.refreshDate)) : 0
+
+        const refresh = (event.queryStringParameters && 'refresh' in event.queryStringParameters) || itemAge > 60
+
         console.log('cached: ' + JSON.stringify(item))
+        console.log(`itemAge: ${itemAge}, refresh: ${refresh}`)
 
         if (!item || refresh) {
           const klapi = new KLAPI(getKLAPIConfig)
@@ -86,8 +91,11 @@ const getDogHandler = metricScope(
 
             await dynamoDB.write(item)
           } else {
-            metricsError(metrics, event.requestContext, 'getDog')
-            return response(status, 'Upstream error: ' + error, event)
+            console.error('lueKoiranPerustiedot failed: ', status, json, error)
+            if (!item) {
+              metricsError(metrics, event.requestContext, 'getDog')
+              return response(status, 'Upstream error: ' + error, event)
+            }
           }
         }
 
