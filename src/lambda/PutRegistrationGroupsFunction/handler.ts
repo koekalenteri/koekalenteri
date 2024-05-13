@@ -123,7 +123,7 @@ const putRegistrationGroupsHandler = metricScope(
           await audit({
             auditKey: registrationAuditKey(group),
             user: user.name,
-            message: `Ryhmä: ${group.group?.key}/${group.group?.number}`,
+            message: `Ryhmä: ${group.group?.key} #${group.group?.number}`,
           })
         }
 
