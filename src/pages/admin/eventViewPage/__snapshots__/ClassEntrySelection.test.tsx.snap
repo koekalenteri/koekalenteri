@@ -4908,7 +4908,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   <div
                     aria-colindex="1"
                     aria-colspan="1"
-                    class="nopad MuiDataGrid-cell MuiDataGrid-cell--textLeft"
+                    class="nopad MuiDataGrid-cell--flex MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="0"
                     data-field="dates"
                     role="gridcell"
@@ -5771,7 +5771,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   <div
                     aria-colindex="1"
                     aria-colspan="1"
-                    class="nopad MuiDataGrid-cell MuiDataGrid-cell--textLeft"
+                    class="nopad MuiDataGrid-cell--flex MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="0"
                     data-field="dates"
                     role="gridcell"

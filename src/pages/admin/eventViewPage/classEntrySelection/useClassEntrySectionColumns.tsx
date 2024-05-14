@@ -156,6 +156,7 @@ export function useClassEntrySelectionColumns(
         headerName: '',
         width: 56,
         minWidth: 56,
+        display: 'flex',
         renderCell: (p) => (
           <>
             <DragIndicatorOutlined />
