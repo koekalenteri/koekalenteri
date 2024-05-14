@@ -6,7 +6,11 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import Cancel from '@mui/icons-material/Cancel'
 import CheckOutlined from '@mui/icons-material/CheckOutlined'
+import ExpandMore from '@mui/icons-material/ExpandMore'
 import { useMediaQuery } from '@mui/material'
+import Accordion from '@mui/material/Accordion'
+import AccordionDetails from '@mui/material/AccordionDetails'
+import AccordionSummary from '@mui/material/AccordionSummary'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Checkbox from '@mui/material/Checkbox'
@@ -350,6 +354,20 @@ export default function RegistrationForm({
           Peruuta
         </Button>
       </Stack>
+      {!valid && (
+        <Accordion variant="outlined" sx={{ backgroundColor: 'background.form' }}>
+          <AccordionSummary expandIcon={<ExpandMore />}>Miksi en voi siirtyä eteenpäin?</AccordionSummary>
+          <AccordionDetails>
+            Puutteelliset tiedot:
+            <ul style={{ margin: 0 }}>
+              {errors.map((e, i) => (
+                <li key={i}>{t(`registration.${e.opts.field}` as any)} </li>
+              ))}
+              {!registration.qualifies ? <li>{t('registration.qualifyingResults')}</li> : null}
+            </ul>
+          </AccordionDetails>
+        </Accordion>
+      )}
     </Paper>
   )
 }

@@ -84,7 +84,7 @@ export default function RegistrationCreatePage() {
   return (
     <>
       <LinkButton sx={{ mb: 1 }} to="/" back={spa} text={spa ? t('goBackToSearch') : t('goHome')} />
-      <RegistrationEventInfo event={event} invitationAttachment={registration.invitationAttachment} />
+      <RegistrationEventInfo event={event} />
       <RegistrationForm
         changes
         event={event}

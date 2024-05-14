@@ -17,7 +17,7 @@ import { PriorityChips } from './PriorityChips'
 
 interface Props {
   readonly event: PublicDogEvent
-  readonly invitationAttachment: string | undefined
+  readonly invitationAttachment?: string | undefined
 }
 
 export default function RegistrationEventInfo({ event, invitationAttachment }: Props) {

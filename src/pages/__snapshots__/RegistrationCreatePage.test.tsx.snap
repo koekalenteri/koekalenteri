@@ -2746,6 +2746,83 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
         />
       </button>
     </div>
+    <div
+      class="MuiPaper-root MuiPaper-outlined MuiPaper-rounded MuiAccordion-root MuiAccordion-rounded MuiAccordion-gutters css-162r657-MuiPaper-root-MuiAccordion-root"
+    >
+      <div
+        aria-expanded="false"
+        class="MuiButtonBase-root MuiAccordionSummary-root MuiAccordionSummary-gutters css-1f773le-MuiButtonBase-root-MuiAccordionSummary-root"
+        role="button"
+        tabindex="0"
+      >
+        <div
+          class="MuiAccordionSummary-content MuiAccordionSummary-contentGutters css-eqpfi5-MuiAccordionSummary-content"
+        >
+          Miksi en voi siirtyä eteenpäin?
+        </div>
+        <div
+          class="MuiAccordionSummary-expandIconWrapper css-yw020d-MuiAccordionSummary-expandIconWrapper"
+        >
+          <svg
+            aria-hidden="true"
+            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+            data-testid="ExpandMoreIcon"
+            focusable="false"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"
+            />
+          </svg>
+        </div>
+      </div>
+      <div
+        class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-bz4dnt-MuiCollapse-root"
+        style="min-height: 0px;"
+      >
+        <div
+          class="MuiCollapse-wrapper MuiCollapse-vertical css-smkl36-MuiCollapse-wrapper"
+        >
+          <div
+            class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
+          >
+            <div
+              class="MuiAccordion-region"
+              role="region"
+            >
+              <div
+                class="MuiAccordionDetails-root css-15v22id-MuiAccordionDetails-root"
+              >
+                Puutteelliset tiedot:
+                <ul
+                  style="margin: 0px;"
+                >
+                  <li>
+                    registration.agreeToTerms
+                     
+                  </li>
+                  <li>
+                    registration.breeder
+                     
+                  </li>
+                  <li>
+                    registration.dog
+                     
+                  </li>
+                  <li>
+                    registration.owner
+                     
+                  </li>
+                  <li>
+                    registration.qualifyingResults
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 `;
@@ -5426,6 +5503,83 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
           class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
         />
       </button>
+    </div>
+    <div
+      class="MuiPaper-root MuiPaper-outlined MuiPaper-rounded MuiAccordion-root MuiAccordion-rounded MuiAccordion-gutters css-162r657-MuiPaper-root-MuiAccordion-root"
+    >
+      <div
+        aria-expanded="false"
+        class="MuiButtonBase-root MuiAccordionSummary-root MuiAccordionSummary-gutters css-1f773le-MuiButtonBase-root-MuiAccordionSummary-root"
+        role="button"
+        tabindex="0"
+      >
+        <div
+          class="MuiAccordionSummary-content MuiAccordionSummary-contentGutters css-eqpfi5-MuiAccordionSummary-content"
+        >
+          Miksi en voi siirtyä eteenpäin?
+        </div>
+        <div
+          class="MuiAccordionSummary-expandIconWrapper css-yw020d-MuiAccordionSummary-expandIconWrapper"
+        >
+          <svg
+            aria-hidden="true"
+            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+            data-testid="ExpandMoreIcon"
+            focusable="false"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"
+            />
+          </svg>
+        </div>
+      </div>
+      <div
+        class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-bz4dnt-MuiCollapse-root"
+        style="min-height: 0px;"
+      >
+        <div
+          class="MuiCollapse-wrapper MuiCollapse-vertical css-smkl36-MuiCollapse-wrapper"
+        >
+          <div
+            class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
+          >
+            <div
+              class="MuiAccordion-region"
+              role="region"
+            >
+              <div
+                class="MuiAccordionDetails-root css-15v22id-MuiAccordionDetails-root"
+              >
+                Puutteelliset tiedot:
+                <ul
+                  style="margin: 0px;"
+                >
+                  <li>
+                    registration.agreeToTerms
+                     
+                  </li>
+                  <li>
+                    registration.breeder
+                     
+                  </li>
+                  <li>
+                    registration.dog
+                     
+                  </li>
+                  <li>
+                    registration.owner
+                     
+                  </li>
+                  <li>
+                    registration.qualifyingResults
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>

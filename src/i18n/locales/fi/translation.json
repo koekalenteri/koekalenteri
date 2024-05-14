@@ -220,6 +220,7 @@
   "refund": "Palauta maksu",
   "register": "Ilmoittaudu",
   "registration": {
+    "agreeToTerms": "Ehdot ja tietosuojaseloste",
     "breeder": "Kasvattajan tiedot",
     "cancelDialog": {
       "cta": "Peru ilmoittautuminen",
