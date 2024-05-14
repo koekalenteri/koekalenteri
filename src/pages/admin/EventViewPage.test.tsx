@@ -5,6 +5,7 @@ import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { render } from '@testing-library/react'
+import { ConfirmProvider } from 'material-ui-confirm'
 import { SnackbarProvider } from 'notistack'
 import { RecoilRoot } from 'recoil'
 
@@ -44,7 +45,9 @@ describe('EventViewPage', () => {
           <RecoilRoot>
             <Suspense fallback={<div>loading...</div>}>
               <SnackbarProvider>
-                <DataMemoryRouter initialEntries={[Path.admin.viewEvent(eventWithStaticDates.id)]} routes={routes} />
+                <ConfirmProvider>
+                  <DataMemoryRouter initialEntries={[Path.admin.viewEvent(eventWithStaticDates.id)]} routes={routes} />
+                </ConfirmProvider>
               </SnackbarProvider>
             </Suspense>
           </RecoilRoot>
@@ -69,10 +72,12 @@ describe('EventViewPage', () => {
           <RecoilRoot>
             <Suspense fallback={<div>loading...</div>}>
               <SnackbarProvider>
-                <DataMemoryRouter
-                  initialEntries={[Path.admin.viewEvent(eventWithStaticDatesAndClass.id)]}
-                  routes={routes}
-                />
+                <ConfirmProvider>
+                  <DataMemoryRouter
+                    initialEntries={[Path.admin.viewEvent(eventWithStaticDatesAndClass.id)]}
+                    routes={routes}
+                  />
+                </ConfirmProvider>
               </SnackbarProvider>
             </Suspense>
           </RecoilRoot>
