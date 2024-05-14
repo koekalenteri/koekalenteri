@@ -14,6 +14,7 @@ import { createMissingResult, getResultId } from './qualifyingResultsInfo/utils'
 
 interface Props {
   readonly regNo?: string
+  readonly dob?: Date
   readonly results?: ManualTestResult[]
   readonly requirements?: EventResultRequirementsByDate
   readonly qualifyingResults?: QualifyingResult[]
@@ -27,6 +28,7 @@ interface Props {
 
 export default function QualifyingResultsInfo({
   regNo,
+  dob,
   results,
   requirements,
   qualifyingResults,
@@ -97,8 +99,9 @@ export default function QualifyingResultsInfo({
       onOpenChange={onOpenChange}
     >
       <Grid item container spacing={1}>
-        {qualifying.map((result, index) => (
+        {qualifying.map((result) => (
           <QualifyingResultRow
+            dob={dob}
             key={getResultId(result)}
             disabled={disabled}
             result={result}

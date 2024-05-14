@@ -9,13 +9,14 @@ import FormControl from '@mui/material/FormControl'
 import Grid from '@mui/material/Grid'
 import TextField from '@mui/material/TextField'
 import { DatePicker } from '@mui/x-date-pickers'
-import { subYears } from 'date-fns'
+import { addMonths } from 'date-fns'
 
 import AutocompleteSingle from '../../AutocompleteSingle'
 
 import { availableResults, availableTypes, resultBorderColor } from './utils'
 
 interface Props {
+  readonly dob?: Date
   readonly result: ManualTestResult
   readonly disabled?: boolean
   readonly requirements?: EventResultRequirementsByDate
@@ -23,7 +24,7 @@ interface Props {
   readonly onRemove?: (result: ManualTestResult) => void
 }
 
-export default function QualifyingResultRow({ result, disabled, requirements, onChange, onRemove }: Props) {
+export default function QualifyingResultRow({ dob, result, disabled, requirements, onChange, onRemove }: Props) {
   const { t } = useTranslation()
   const handleChange = useCallback(
     (result: ManualTestResult, props: Partial<TestResult>) => {
@@ -32,6 +33,9 @@ export default function QualifyingResultRow({ result, disabled, requirements, on
     [onChange]
   )
   const handleRemove = useCallback(() => onRemove?.(result), [onRemove, result])
+  const maxDate = new Date()
+  const date9Months = dob ? addMonths(dob, 9) : maxDate
+  const minDate = date9Months < maxDate ? date9Months : maxDate
 
   return (
     <Grid item container spacing={1} alignItems="center">
@@ -76,8 +80,8 @@ export default function QualifyingResultRow({ result, disabled, requirements, on
             disabled={result.official || disabled}
             format={t('dateFormatString.long')}
             label={t('testResult.date')}
-            maxDate={new Date()}
-            minDate={subYears(new Date(), 15)}
+            maxDate={maxDate}
+            minDate={minDate}
             onChange={(value: any) => handleChange(result, { date: value || undefined })}
             slotProps={{
               textField: { error: !result.date },
