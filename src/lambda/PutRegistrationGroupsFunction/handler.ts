@@ -135,7 +135,7 @@ const putRegistrationGroupsHandler = metricScope(
         const itemsWithGroups = await fixGroups(items ?? [])
         const confirmedEvent = await updateRegistrations(eventId, eventTable)
         const { classes, entries } = confirmedEvent
-        const cls = itemsWithGroups[0].class
+        const cls = itemsWithGroups.find((item) => item.id === groups[0].id)?.class
 
         const emails = {
           invitedOk: [],
