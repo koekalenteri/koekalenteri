@@ -156,7 +156,7 @@ const putRegistrationGroupsHandler = metricScope(
         const invited =
           confirmedEvent.state === 'invited' || (cls && classes.find((c) => c.class === cls && c.state === 'invited'))
 
-        console.log({ state: confirmedEvent.state, cls, picked, invited, oldItems, items })
+        console.log({ state: confirmedEvent.state, cls, classes, picked, invited, oldItems, items })
 
         if (picked || invited) {
           /**
