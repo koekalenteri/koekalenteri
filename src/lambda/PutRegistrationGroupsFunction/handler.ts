@@ -156,6 +156,8 @@ const putRegistrationGroupsHandler = metricScope(
         const invited =
           confirmedEvent.state === 'invited' || (cls && classes.find((c) => c.class === cls && c.state === 'invited'))
 
+        console.log({ state: confirmedEvent.state, cls, picked, invited, oldItems, items })
+
         if (picked || invited) {
           /**
            * When event/class has already been 'picked' or 'invited', registrations moved from reserve to participants receive 'picked' email
@@ -164,6 +166,8 @@ const putRegistrationGroupsHandler = metricScope(
             (reg) =>
               reg.class === cls && isParticipantGroup(reg.group?.key) && oldResCan.find((old) => old.id === reg.id)
           )
+
+          console.log({ newParticipants })
 
           const { ok: pickedOk, failed: pickedFailed } = await sendTemplatedEmailToEventRegistrations(
             'picked',
@@ -203,6 +207,8 @@ const putRegistrationGroupsHandler = metricScope(
               )
           )
 
+          console.log({ movedReserve })
+
           const { ok: reserveOk, failed: reserveFailed } = await sendTemplatedEmailToEventRegistrations(
             'reserve',
             confirmedEvent,
@@ -232,6 +238,9 @@ const putRegistrationGroupsHandler = metricScope(
             reg.group?.key === 'cancelled' &&
             oldResCan.find((old) => old.id === reg.id && old.group?.key !== 'cancelled')
         )
+
+        console.log({ cancelled })
+
         const { ok: cancelledOk, failed: cancelledFailed } = await sendTemplatedEmailToEventRegistrations(
           'registration',
           confirmedEvent,
