@@ -63,6 +63,7 @@
   "entryUpcoming": "Upcoming registration",
   "event": {
     "classes": "Classes",
+    "classPlaces": "Places",
     "contactInfo": "Contact information",
     "cost": "Fee",
     "costMember": ", members",

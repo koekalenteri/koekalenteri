@@ -1342,6 +1342,36 @@ exports[`SearchPage filters by date 1`] = `
                 />
               </div>
               <div
+                class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-true css-2qi7fb-MuiGrid2-root"
+              >
+                <span
+                  class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
+                >
+                  event.classPlaces
+                </span>
+                <div
+                  class="MuiGrid-root MuiGrid-container css-1l4fi4z-MuiGrid-root"
+                >
+                  <div
+                    class="MuiGrid-root MuiGrid-grid-xs-7 css-m6dwwr-MuiGrid-root"
+                  >
+                    NOU
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-grid-xs-2 css-1ppzlxj-MuiGrid-root"
+                  >
+                    0
+                     / 
+                    10
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-grid-xs-3.5 css-1sjrap4-MuiGrid-root"
+                  >
+                    members
+                  </div>
+                </div>
+              </div>
+              <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-rqmia2-MuiGrid2-root"
               >
                 <span
@@ -1349,10 +1379,14 @@ exports[`SearchPage filters by date 1`] = `
                 >
                   event.judges
                 </span>
-                Tuomari 1
+                <div
+                  class="MuiBox-root css-0"
+                >
+                  Tuomari 1
+                </div>
               </div>
               <div
-                class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-mff7jj-MuiGrid2-root"
+                class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-du4ln6-MuiGrid2-root"
               >
                 <span
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
@@ -1542,53 +1576,33 @@ exports[`SearchPage filters by date 1`] = `
                 <span
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
-                  event.classes
+                  event.classPlaces
                 </span>
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row css-9jcy0f-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container css-1l4fi4z-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  >
-                    eeeeee d.M.
-                  </div>
-                  <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-grid-xs-2 css-nw9kbv-MuiGrid-root"
                   >
                     ALO
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-true css-t63qfg-MuiGrid2-root"
-                  />
-                  <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  />
-                  <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  />
-                </div>
-                <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row css-9jcy0f-MuiGrid2-root"
-                >
-                  <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-grid-xs-4.5 css-1edybyn-MuiGrid-root"
                   >
-                    eeeeee d.M.
+                    eeeeee d.M., eeeeee d.M.
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-grid-xs-2 css-1ppzlxj-MuiGrid-root"
                   >
-                    ALO
+                    0
+                     / 
+                    0
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-true css-t63qfg-MuiGrid2-root"
-                  />
-                  <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  />
-                  <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  />
+                    class="MuiGrid-root MuiGrid-grid-xs-3.5 css-1sjrap4-MuiGrid-root"
+                  >
+                    members
+                  </div>
                 </div>
               </div>
               <div
@@ -1599,10 +1613,14 @@ exports[`SearchPage filters by date 1`] = `
                 >
                   event.judges
                 </span>
-                Tuomari 1
+                <div
+                  class="MuiBox-root css-0"
+                >
+                  Tuomari 1
+                </div>
               </div>
               <div
-                class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-mff7jj-MuiGrid2-root"
+                class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-du4ln6-MuiGrid2-root"
               >
                 <span
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
@@ -1792,76 +1810,85 @@ exports[`SearchPage filters by date 1`] = `
                 <span
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
-                  event.classes
+                  event.classPlaces
                 </span>
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row css-9jcy0f-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container css-1l4fi4z-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  >
-                    eeeeee d.M.
-                  </div>
-                  <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-grid-xs-2 css-nw9kbv-MuiGrid-root"
                   >
                     ALO
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-true css-t63qfg-MuiGrid2-root"
-                  />
-                  <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  />
-                  <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  />
-                </div>
-                <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row css-9jcy0f-MuiGrid2-root"
-                >
-                  <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-grid-xs-4.5 css-1edybyn-MuiGrid-root"
                   >
                     eeeeee d.M.
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-grid-xs-2 css-1ppzlxj-MuiGrid-root"
+                  >
+                    0
+                     / 
+                    0
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-grid-xs-3.5 css-1sjrap4-MuiGrid-root"
+                  >
+                    members
+                  </div>
+                </div>
+                <div
+                  class="MuiGrid-root MuiGrid-container css-1l4fi4z-MuiGrid-root"
+                >
+                  <div
+                    class="MuiGrid-root MuiGrid-grid-xs-2 css-nw9kbv-MuiGrid-root"
                   >
                     AVO
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-true css-t63qfg-MuiGrid2-root"
-                  />
-                  <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  />
-                  <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  />
-                </div>
-                <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row css-9jcy0f-MuiGrid2-root"
-                >
-                  <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-grid-xs-4.5 css-1edybyn-MuiGrid-root"
                   >
                     eeeeee d.M.
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-grid-xs-2 css-1ppzlxj-MuiGrid-root"
+                  >
+                    0
+                     / 
+                    0
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-grid-xs-3.5 css-1sjrap4-MuiGrid-root"
+                  >
+                    members
+                  </div>
+                </div>
+                <div
+                  class="MuiGrid-root MuiGrid-container css-1l4fi4z-MuiGrid-root"
+                >
+                  <div
+                    class="MuiGrid-root MuiGrid-grid-xs-2 css-nw9kbv-MuiGrid-root"
                   >
                     VOI
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-true css-t63qfg-MuiGrid2-root"
-                  />
+                    class="MuiGrid-root MuiGrid-grid-xs-4.5 css-1edybyn-MuiGrid-root"
+                  >
+                    eeeeee d.M.
+                  </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  />
+                    class="MuiGrid-root MuiGrid-grid-xs-2 css-1ppzlxj-MuiGrid-root"
+                  >
+                    0
+                     / 
+                    0
+                  </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  />
+                    class="MuiGrid-root MuiGrid-grid-xs-3.5 css-1sjrap4-MuiGrid-root"
+                  >
+                    members
+                  </div>
                 </div>
               </div>
               <div
@@ -1872,10 +1899,14 @@ exports[`SearchPage filters by date 1`] = `
                 >
                   event.judges
                 </span>
-                Tuomari 1
+                <div
+                  class="MuiBox-root css-0"
+                >
+                  Tuomari 1
+                </div>
               </div>
               <div
-                class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-mff7jj-MuiGrid2-root"
+                class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-du4ln6-MuiGrid2-root"
               >
                 <span
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
@@ -2065,30 +2096,33 @@ exports[`SearchPage filters by date 1`] = `
                 <span
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
-                  event.classes
+                  event.classPlaces
                 </span>
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row css-9jcy0f-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container css-1l4fi4z-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  >
-                    eeeeee d.M.
-                  </div>
-                  <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-grid-xs-2 css-nw9kbv-MuiGrid-root"
                   >
                     AVO
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-true css-t63qfg-MuiGrid2-root"
-                  />
+                    class="MuiGrid-root MuiGrid-grid-xs-4.5 css-1edybyn-MuiGrid-root"
+                  >
+                    eeeeee d.M.
+                  </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  />
+                    class="MuiGrid-root MuiGrid-grid-xs-2 css-1ppzlxj-MuiGrid-root"
+                  >
+                    0
+                     / 
+                    10
+                  </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  />
+                    class="MuiGrid-root MuiGrid-grid-xs-3.5 css-1sjrap4-MuiGrid-root"
+                  >
+                    members
+                  </div>
                 </div>
               </div>
               <div
@@ -2099,10 +2133,14 @@ exports[`SearchPage filters by date 1`] = `
                 >
                   event.judges
                 </span>
-                Tuomari 2
+                <div
+                  class="MuiBox-root css-0"
+                >
+                  Tuomari 2
+                </div>
               </div>
               <div
-                class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-mff7jj-MuiGrid2-root"
+                class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-du4ln6-MuiGrid2-root"
               >
                 <span
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
@@ -2899,6 +2937,36 @@ exports[`SearchPage filters by date/end 1`] = `
                 />
               </div>
               <div
+                class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-true css-2qi7fb-MuiGrid2-root"
+              >
+                <span
+                  class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
+                >
+                  event.classPlaces
+                </span>
+                <div
+                  class="MuiGrid-root MuiGrid-container css-1l4fi4z-MuiGrid-root"
+                >
+                  <div
+                    class="MuiGrid-root MuiGrid-grid-xs-7 css-m6dwwr-MuiGrid-root"
+                  >
+                    NOU
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-grid-xs-2 css-1ppzlxj-MuiGrid-root"
+                  >
+                    0
+                     / 
+                    10
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-grid-xs-3.5 css-1sjrap4-MuiGrid-root"
+                  >
+                    members
+                  </div>
+                </div>
+              </div>
+              <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-rqmia2-MuiGrid2-root"
               >
                 <span
@@ -2906,10 +2974,14 @@ exports[`SearchPage filters by date/end 1`] = `
                 >
                   event.judges
                 </span>
-                Tuomari 1
+                <div
+                  class="MuiBox-root css-0"
+                >
+                  Tuomari 1
+                </div>
               </div>
               <div
-                class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-mff7jj-MuiGrid2-root"
+                class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-du4ln6-MuiGrid2-root"
               >
                 <span
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
@@ -3099,53 +3171,33 @@ exports[`SearchPage filters by date/end 1`] = `
                 <span
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
-                  event.classes
+                  event.classPlaces
                 </span>
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row css-9jcy0f-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container css-1l4fi4z-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  >
-                    eeeeee d.M.
-                  </div>
-                  <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-grid-xs-2 css-nw9kbv-MuiGrid-root"
                   >
                     ALO
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-true css-t63qfg-MuiGrid2-root"
-                  />
-                  <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  />
-                  <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  />
-                </div>
-                <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row css-9jcy0f-MuiGrid2-root"
-                >
-                  <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-grid-xs-4.5 css-1edybyn-MuiGrid-root"
                   >
-                    eeeeee d.M.
+                    eeeeee d.M., eeeeee d.M.
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-grid-xs-2 css-1ppzlxj-MuiGrid-root"
                   >
-                    ALO
+                    0
+                     / 
+                    0
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-true css-t63qfg-MuiGrid2-root"
-                  />
-                  <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  />
-                  <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  />
+                    class="MuiGrid-root MuiGrid-grid-xs-3.5 css-1sjrap4-MuiGrid-root"
+                  >
+                    members
+                  </div>
                 </div>
               </div>
               <div
@@ -3156,10 +3208,14 @@ exports[`SearchPage filters by date/end 1`] = `
                 >
                   event.judges
                 </span>
-                Tuomari 1
+                <div
+                  class="MuiBox-root css-0"
+                >
+                  Tuomari 1
+                </div>
               </div>
               <div
-                class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-mff7jj-MuiGrid2-root"
+                class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-du4ln6-MuiGrid2-root"
               >
                 <span
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
@@ -3349,76 +3405,85 @@ exports[`SearchPage filters by date/end 1`] = `
                 <span
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
-                  event.classes
+                  event.classPlaces
                 </span>
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row css-9jcy0f-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container css-1l4fi4z-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  >
-                    eeeeee d.M.
-                  </div>
-                  <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-grid-xs-2 css-nw9kbv-MuiGrid-root"
                   >
                     ALO
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-true css-t63qfg-MuiGrid2-root"
-                  />
-                  <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  />
-                  <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  />
-                </div>
-                <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row css-9jcy0f-MuiGrid2-root"
-                >
-                  <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-grid-xs-4.5 css-1edybyn-MuiGrid-root"
                   >
                     eeeeee d.M.
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-grid-xs-2 css-1ppzlxj-MuiGrid-root"
+                  >
+                    0
+                     / 
+                    0
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-grid-xs-3.5 css-1sjrap4-MuiGrid-root"
+                  >
+                    members
+                  </div>
+                </div>
+                <div
+                  class="MuiGrid-root MuiGrid-container css-1l4fi4z-MuiGrid-root"
+                >
+                  <div
+                    class="MuiGrid-root MuiGrid-grid-xs-2 css-nw9kbv-MuiGrid-root"
                   >
                     AVO
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-true css-t63qfg-MuiGrid2-root"
-                  />
-                  <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  />
-                  <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  />
-                </div>
-                <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row css-9jcy0f-MuiGrid2-root"
-                >
-                  <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-grid-xs-4.5 css-1edybyn-MuiGrid-root"
                   >
                     eeeeee d.M.
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-grid-xs-2 css-1ppzlxj-MuiGrid-root"
+                  >
+                    0
+                     / 
+                    0
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-grid-xs-3.5 css-1sjrap4-MuiGrid-root"
+                  >
+                    members
+                  </div>
+                </div>
+                <div
+                  class="MuiGrid-root MuiGrid-container css-1l4fi4z-MuiGrid-root"
+                >
+                  <div
+                    class="MuiGrid-root MuiGrid-grid-xs-2 css-nw9kbv-MuiGrid-root"
                   >
                     VOI
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-true css-t63qfg-MuiGrid2-root"
-                  />
+                    class="MuiGrid-root MuiGrid-grid-xs-4.5 css-1edybyn-MuiGrid-root"
+                  >
+                    eeeeee d.M.
+                  </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  />
+                    class="MuiGrid-root MuiGrid-grid-xs-2 css-1ppzlxj-MuiGrid-root"
+                  >
+                    0
+                     / 
+                    0
+                  </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  />
+                    class="MuiGrid-root MuiGrid-grid-xs-3.5 css-1sjrap4-MuiGrid-root"
+                  >
+                    members
+                  </div>
                 </div>
               </div>
               <div
@@ -3429,10 +3494,14 @@ exports[`SearchPage filters by date/end 1`] = `
                 >
                   event.judges
                 </span>
-                Tuomari 1
+                <div
+                  class="MuiBox-root css-0"
+                >
+                  Tuomari 1
+                </div>
               </div>
               <div
-                class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-mff7jj-MuiGrid2-root"
+                class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-du4ln6-MuiGrid2-root"
               >
                 <span
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
@@ -3622,30 +3691,33 @@ exports[`SearchPage filters by date/end 1`] = `
                 <span
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
-                  event.classes
+                  event.classPlaces
                 </span>
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row css-9jcy0f-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container css-1l4fi4z-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  >
-                    eeeeee d.M.
-                  </div>
-                  <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-grid-xs-2 css-nw9kbv-MuiGrid-root"
                   >
                     AVO
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-true css-t63qfg-MuiGrid2-root"
-                  />
+                    class="MuiGrid-root MuiGrid-grid-xs-4.5 css-1edybyn-MuiGrid-root"
+                  >
+                    eeeeee d.M.
+                  </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  />
+                    class="MuiGrid-root MuiGrid-grid-xs-2 css-1ppzlxj-MuiGrid-root"
+                  >
+                    0
+                     / 
+                    10
+                  </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  />
+                    class="MuiGrid-root MuiGrid-grid-xs-3.5 css-1sjrap4-MuiGrid-root"
+                  >
+                    members
+                  </div>
                 </div>
               </div>
               <div
@@ -3656,10 +3728,14 @@ exports[`SearchPage filters by date/end 1`] = `
                 >
                   event.judges
                 </span>
-                Tuomari 2
+                <div
+                  class="MuiBox-root css-0"
+                >
+                  Tuomari 2
+                </div>
               </div>
               <div
-                class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-mff7jj-MuiGrid2-root"
+                class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-du4ln6-MuiGrid2-root"
               >
                 <span
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
@@ -4506,76 +4582,85 @@ exports[`SearchPage filters by event class 1`] = `
                 <span
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
-                  event.classes
+                  event.classPlaces
                 </span>
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row css-9jcy0f-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container css-1l4fi4z-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  >
-                    eeeeee d.M.
-                  </div>
-                  <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-grid-xs-2 css-nw9kbv-MuiGrid-root"
                   >
                     ALO
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-true css-t63qfg-MuiGrid2-root"
-                  />
-                  <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  />
-                  <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  />
-                </div>
-                <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row css-9jcy0f-MuiGrid2-root"
-                >
-                  <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-grid-xs-4.5 css-1edybyn-MuiGrid-root"
                   >
                     eeeeee d.M.
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-grid-xs-2 css-1ppzlxj-MuiGrid-root"
+                  >
+                    0
+                     / 
+                    0
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-grid-xs-3.5 css-1sjrap4-MuiGrid-root"
+                  >
+                    members
+                  </div>
+                </div>
+                <div
+                  class="MuiGrid-root MuiGrid-container css-1l4fi4z-MuiGrid-root"
+                >
+                  <div
+                    class="MuiGrid-root MuiGrid-grid-xs-2 css-nw9kbv-MuiGrid-root"
                   >
                     AVO
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-true css-t63qfg-MuiGrid2-root"
-                  />
-                  <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  />
-                  <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  />
-                </div>
-                <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row css-9jcy0f-MuiGrid2-root"
-                >
-                  <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-grid-xs-4.5 css-1edybyn-MuiGrid-root"
                   >
                     eeeeee d.M.
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-grid-xs-2 css-1ppzlxj-MuiGrid-root"
+                  >
+                    0
+                     / 
+                    0
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-grid-xs-3.5 css-1sjrap4-MuiGrid-root"
+                  >
+                    members
+                  </div>
+                </div>
+                <div
+                  class="MuiGrid-root MuiGrid-container css-1l4fi4z-MuiGrid-root"
+                >
+                  <div
+                    class="MuiGrid-root MuiGrid-grid-xs-2 css-nw9kbv-MuiGrid-root"
                   >
                     VOI
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-true css-t63qfg-MuiGrid2-root"
-                  />
+                    class="MuiGrid-root MuiGrid-grid-xs-4.5 css-1edybyn-MuiGrid-root"
+                  >
+                    eeeeee d.M.
+                  </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  />
+                    class="MuiGrid-root MuiGrid-grid-xs-2 css-1ppzlxj-MuiGrid-root"
+                  >
+                    0
+                     / 
+                    0
+                  </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  />
+                    class="MuiGrid-root MuiGrid-grid-xs-3.5 css-1sjrap4-MuiGrid-root"
+                  >
+                    members
+                  </div>
                 </div>
               </div>
               <div
@@ -4586,10 +4671,14 @@ exports[`SearchPage filters by event class 1`] = `
                 >
                   event.judges
                 </span>
-                Tuomari 1
+                <div
+                  class="MuiBox-root css-0"
+                >
+                  Tuomari 1
+                </div>
               </div>
               <div
-                class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-mff7jj-MuiGrid2-root"
+                class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-du4ln6-MuiGrid2-root"
               >
                 <span
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
@@ -4779,30 +4868,33 @@ exports[`SearchPage filters by event class 1`] = `
                 <span
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
-                  event.classes
+                  event.classPlaces
                 </span>
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row css-9jcy0f-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container css-1l4fi4z-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  >
-                    eeeeee d.M.
-                  </div>
-                  <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-grid-xs-2 css-nw9kbv-MuiGrid-root"
                   >
                     AVO
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-true css-t63qfg-MuiGrid2-root"
-                  />
+                    class="MuiGrid-root MuiGrid-grid-xs-4.5 css-1edybyn-MuiGrid-root"
+                  >
+                    eeeeee d.M.
+                  </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  />
+                    class="MuiGrid-root MuiGrid-grid-xs-2 css-1ppzlxj-MuiGrid-root"
+                  >
+                    0
+                     / 
+                    10
+                  </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  />
+                    class="MuiGrid-root MuiGrid-grid-xs-3.5 css-1sjrap4-MuiGrid-root"
+                  >
+                    members
+                  </div>
                 </div>
               </div>
               <div
@@ -4813,10 +4905,14 @@ exports[`SearchPage filters by event class 1`] = `
                 >
                   event.judges
                 </span>
-                Tuomari 2
+                <div
+                  class="MuiBox-root css-0"
+                >
+                  Tuomari 2
+                </div>
               </div>
               <div
-                class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-mff7jj-MuiGrid2-root"
+                class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-du4ln6-MuiGrid2-root"
               >
                 <span
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
@@ -5006,57 +5102,59 @@ exports[`SearchPage filters by event class 1`] = `
                 <span
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
-                  event.classes
+                  event.classPlaces
                 </span>
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row css-9jcy0f-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container css-1l4fi4z-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  >
-                    eeeeee d.M.
-                  </div>
-                  <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-grid-xs-2 css-nw9kbv-MuiGrid-root"
                   >
                     ALO
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-true css-t63qfg-MuiGrid2-root"
-                  />
-                  <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  >
-                    2 / 3
-                  </div>
-                  <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  />
-                </div>
-                <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row css-9jcy0f-MuiGrid2-root"
-                >
-                  <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-grid-xs-4.5 css-1edybyn-MuiGrid-root"
                   >
                     eeeeee d.M.
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-grid-xs-2 css-1ppzlxj-MuiGrid-root"
+                  >
+                    2
+                     / 
+                    3
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-grid-xs-3.5 css-1sjrap4-MuiGrid-root"
+                  >
+                    members
+                  </div>
+                </div>
+                <div
+                  class="MuiGrid-root MuiGrid-container css-1l4fi4z-MuiGrid-root"
+                >
+                  <div
+                    class="MuiGrid-root MuiGrid-grid-xs-2 css-nw9kbv-MuiGrid-root"
                   >
                     AVO
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-true css-t63qfg-MuiGrid2-root"
-                  />
-                  <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-grid-xs-4.5 css-1edybyn-MuiGrid-root"
                   >
-                    2 / 1
+                    eeeeee d.M.
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  />
+                    class="MuiGrid-root MuiGrid-grid-xs-2 css-1ppzlxj-MuiGrid-root"
+                  >
+                    2
+                     / 
+                    1
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-grid-xs-3.5 css-1sjrap4-MuiGrid-root"
+                  >
+                    members
+                  </div>
                 </div>
               </div>
               <div
@@ -5067,10 +5165,19 @@ exports[`SearchPage filters by event class 1`] = `
                 >
                   event.judges
                 </span>
-                Tuomari 1, Tuomari 2
+                <div
+                  class="MuiBox-root css-0"
+                >
+                  Tuomari 1
+                </div>
+                <div
+                  class="MuiBox-root css-0"
+                >
+                  Tuomari 2
+                </div>
               </div>
               <div
-                class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-mff7jj-MuiGrid2-root"
+                class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-du4ln6-MuiGrid2-root"
               >
                 <span
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
@@ -5262,30 +5369,33 @@ exports[`SearchPage filters by event class 1`] = `
                 <span
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
-                  event.classes
+                  event.classPlaces
                 </span>
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row css-9jcy0f-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container css-1l4fi4z-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  >
-                    eeeeee d.M.
-                  </div>
-                  <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-grid-xs-2 css-nw9kbv-MuiGrid-root"
                   >
                     AVO
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-true css-t63qfg-MuiGrid2-root"
-                  />
+                    class="MuiGrid-root MuiGrid-grid-xs-4.5 css-1edybyn-MuiGrid-root"
+                  >
+                    eeeeee d.M.
+                  </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  />
+                    class="MuiGrid-root MuiGrid-grid-xs-2 css-1ppzlxj-MuiGrid-root"
+                  >
+                    0
+                     / 
+                    10
+                  </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  />
+                    class="MuiGrid-root MuiGrid-grid-xs-3.5 css-1sjrap4-MuiGrid-root"
+                  >
+                    members
+                  </div>
                 </div>
               </div>
               <div
@@ -5296,10 +5406,14 @@ exports[`SearchPage filters by event class 1`] = `
                 >
                   event.judges
                 </span>
-                Tuomari 2
+                <div
+                  class="MuiBox-root css-0"
+                >
+                  Tuomari 2
+                </div>
               </div>
               <div
-                class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-mff7jj-MuiGrid2-root"
+                class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-du4ln6-MuiGrid2-root"
               >
                 <span
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
@@ -6146,53 +6260,33 @@ exports[`SearchPage filters by event type 1`] = `
                 <span
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
-                  event.classes
+                  event.classPlaces
                 </span>
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row css-9jcy0f-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container css-1l4fi4z-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  >
-                    eeeeee d.M.
-                  </div>
-                  <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-grid-xs-2 css-nw9kbv-MuiGrid-root"
                   >
                     ALO
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-true css-t63qfg-MuiGrid2-root"
-                  />
-                  <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  />
-                  <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  />
-                </div>
-                <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row css-9jcy0f-MuiGrid2-root"
-                >
-                  <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-grid-xs-4.5 css-1edybyn-MuiGrid-root"
                   >
-                    eeeeee d.M.
+                    eeeeee d.M., eeeeee d.M.
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-grid-xs-2 css-1ppzlxj-MuiGrid-root"
                   >
-                    ALO
+                    0
+                     / 
+                    0
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-true css-t63qfg-MuiGrid2-root"
-                  />
-                  <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  />
-                  <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  />
+                    class="MuiGrid-root MuiGrid-grid-xs-3.5 css-1sjrap4-MuiGrid-root"
+                  >
+                    members
+                  </div>
                 </div>
               </div>
               <div
@@ -6203,10 +6297,14 @@ exports[`SearchPage filters by event type 1`] = `
                 >
                   event.judges
                 </span>
-                Tuomari 1
+                <div
+                  class="MuiBox-root css-0"
+                >
+                  Tuomari 1
+                </div>
               </div>
               <div
-                class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-mff7jj-MuiGrid2-root"
+                class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-du4ln6-MuiGrid2-root"
               >
                 <span
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
@@ -6396,76 +6494,85 @@ exports[`SearchPage filters by event type 1`] = `
                 <span
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
-                  event.classes
+                  event.classPlaces
                 </span>
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row css-9jcy0f-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container css-1l4fi4z-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  >
-                    eeeeee d.M.
-                  </div>
-                  <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-grid-xs-2 css-nw9kbv-MuiGrid-root"
                   >
                     ALO
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-true css-t63qfg-MuiGrid2-root"
-                  />
-                  <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  />
-                  <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  />
-                </div>
-                <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row css-9jcy0f-MuiGrid2-root"
-                >
-                  <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-grid-xs-4.5 css-1edybyn-MuiGrid-root"
                   >
                     eeeeee d.M.
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-grid-xs-2 css-1ppzlxj-MuiGrid-root"
+                  >
+                    0
+                     / 
+                    0
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-grid-xs-3.5 css-1sjrap4-MuiGrid-root"
+                  >
+                    members
+                  </div>
+                </div>
+                <div
+                  class="MuiGrid-root MuiGrid-container css-1l4fi4z-MuiGrid-root"
+                >
+                  <div
+                    class="MuiGrid-root MuiGrid-grid-xs-2 css-nw9kbv-MuiGrid-root"
                   >
                     AVO
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-true css-t63qfg-MuiGrid2-root"
-                  />
-                  <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  />
-                  <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  />
-                </div>
-                <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row css-9jcy0f-MuiGrid2-root"
-                >
-                  <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-grid-xs-4.5 css-1edybyn-MuiGrid-root"
                   >
                     eeeeee d.M.
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-grid-xs-2 css-1ppzlxj-MuiGrid-root"
+                  >
+                    0
+                     / 
+                    0
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-grid-xs-3.5 css-1sjrap4-MuiGrid-root"
+                  >
+                    members
+                  </div>
+                </div>
+                <div
+                  class="MuiGrid-root MuiGrid-container css-1l4fi4z-MuiGrid-root"
+                >
+                  <div
+                    class="MuiGrid-root MuiGrid-grid-xs-2 css-nw9kbv-MuiGrid-root"
                   >
                     VOI
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-true css-t63qfg-MuiGrid2-root"
-                  />
+                    class="MuiGrid-root MuiGrid-grid-xs-4.5 css-1edybyn-MuiGrid-root"
+                  >
+                    eeeeee d.M.
+                  </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  />
+                    class="MuiGrid-root MuiGrid-grid-xs-2 css-1ppzlxj-MuiGrid-root"
+                  >
+                    0
+                     / 
+                    0
+                  </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  />
+                    class="MuiGrid-root MuiGrid-grid-xs-3.5 css-1sjrap4-MuiGrid-root"
+                  >
+                    members
+                  </div>
                 </div>
               </div>
               <div
@@ -6476,10 +6583,14 @@ exports[`SearchPage filters by event type 1`] = `
                 >
                   event.judges
                 </span>
-                Tuomari 1
+                <div
+                  class="MuiBox-root css-0"
+                >
+                  Tuomari 1
+                </div>
               </div>
               <div
-                class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-mff7jj-MuiGrid2-root"
+                class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-du4ln6-MuiGrid2-root"
               >
                 <span
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
@@ -6669,30 +6780,33 @@ exports[`SearchPage filters by event type 1`] = `
                 <span
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
-                  event.classes
+                  event.classPlaces
                 </span>
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row css-9jcy0f-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container css-1l4fi4z-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  >
-                    eeeeee d.M.
-                  </div>
-                  <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-grid-xs-2 css-nw9kbv-MuiGrid-root"
                   >
                     AVO
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-true css-t63qfg-MuiGrid2-root"
-                  />
+                    class="MuiGrid-root MuiGrid-grid-xs-4.5 css-1edybyn-MuiGrid-root"
+                  >
+                    eeeeee d.M.
+                  </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  />
+                    class="MuiGrid-root MuiGrid-grid-xs-2 css-1ppzlxj-MuiGrid-root"
+                  >
+                    0
+                     / 
+                    10
+                  </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  />
+                    class="MuiGrid-root MuiGrid-grid-xs-3.5 css-1sjrap4-MuiGrid-root"
+                  >
+                    members
+                  </div>
                 </div>
               </div>
               <div
@@ -6703,10 +6817,14 @@ exports[`SearchPage filters by event type 1`] = `
                 >
                   event.judges
                 </span>
-                Tuomari 2
+                <div
+                  class="MuiBox-root css-0"
+                >
+                  Tuomari 2
+                </div>
               </div>
               <div
-                class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-mff7jj-MuiGrid2-root"
+                class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-du4ln6-MuiGrid2-root"
               >
                 <span
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
@@ -6896,57 +7014,59 @@ exports[`SearchPage filters by event type 1`] = `
                 <span
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
-                  event.classes
+                  event.classPlaces
                 </span>
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row css-9jcy0f-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container css-1l4fi4z-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  >
-                    eeeeee d.M.
-                  </div>
-                  <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-grid-xs-2 css-nw9kbv-MuiGrid-root"
                   >
                     ALO
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-true css-t63qfg-MuiGrid2-root"
-                  />
-                  <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  >
-                    2 / 3
-                  </div>
-                  <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  />
-                </div>
-                <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row css-9jcy0f-MuiGrid2-root"
-                >
-                  <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-grid-xs-4.5 css-1edybyn-MuiGrid-root"
                   >
                     eeeeee d.M.
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-grid-xs-2 css-1ppzlxj-MuiGrid-root"
+                  >
+                    2
+                     / 
+                    3
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-grid-xs-3.5 css-1sjrap4-MuiGrid-root"
+                  >
+                    members
+                  </div>
+                </div>
+                <div
+                  class="MuiGrid-root MuiGrid-container css-1l4fi4z-MuiGrid-root"
+                >
+                  <div
+                    class="MuiGrid-root MuiGrid-grid-xs-2 css-nw9kbv-MuiGrid-root"
                   >
                     AVO
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-true css-t63qfg-MuiGrid2-root"
-                  />
-                  <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-grid-xs-4.5 css-1edybyn-MuiGrid-root"
                   >
-                    2 / 1
+                    eeeeee d.M.
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  />
+                    class="MuiGrid-root MuiGrid-grid-xs-2 css-1ppzlxj-MuiGrid-root"
+                  >
+                    2
+                     / 
+                    1
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-grid-xs-3.5 css-1sjrap4-MuiGrid-root"
+                  >
+                    members
+                  </div>
                 </div>
               </div>
               <div
@@ -6957,10 +7077,19 @@ exports[`SearchPage filters by event type 1`] = `
                 >
                   event.judges
                 </span>
-                Tuomari 1, Tuomari 2
+                <div
+                  class="MuiBox-root css-0"
+                >
+                  Tuomari 1
+                </div>
+                <div
+                  class="MuiBox-root css-0"
+                >
+                  Tuomari 2
+                </div>
               </div>
               <div
-                class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-mff7jj-MuiGrid2-root"
+                class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-du4ln6-MuiGrid2-root"
               >
                 <span
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
@@ -7807,30 +7936,33 @@ exports[`SearchPage filters by organizer 1`] = `
                 <span
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
-                  event.classes
+                  event.classPlaces
                 </span>
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row css-9jcy0f-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container css-1l4fi4z-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  >
-                    eeeeee d.M.
-                  </div>
-                  <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-grid-xs-2 css-nw9kbv-MuiGrid-root"
                   >
                     AVO
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-true css-t63qfg-MuiGrid2-root"
-                  />
+                    class="MuiGrid-root MuiGrid-grid-xs-4.5 css-1edybyn-MuiGrid-root"
+                  >
+                    eeeeee d.M.
+                  </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  />
+                    class="MuiGrid-root MuiGrid-grid-xs-2 css-1ppzlxj-MuiGrid-root"
+                  >
+                    0
+                     / 
+                    10
+                  </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-                  />
+                    class="MuiGrid-root MuiGrid-grid-xs-3.5 css-1sjrap4-MuiGrid-root"
+                  >
+                    members
+                  </div>
                 </div>
               </div>
               <div
@@ -7841,10 +7973,14 @@ exports[`SearchPage filters by organizer 1`] = `
                 >
                   event.judges
                 </span>
-                Tuomari 2
+                <div
+                  class="MuiBox-root css-0"
+                >
+                  Tuomari 2
+                </div>
               </div>
               <div
-                class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-mff7jj-MuiGrid2-root"
+                class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-du4ln6-MuiGrid2-root"
               >
                 <span
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"

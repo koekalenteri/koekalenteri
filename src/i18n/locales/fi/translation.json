@@ -89,6 +89,7 @@
   "event": {
     "attachments": "Liitteet",
     "classes": "Koeluokat",
+    "classPlaces": "Koepaikat",
     "contactInfo": "Yhteystiedot",
     "cost": "Maksutiedot",
     "costMember": ", jäsenille",

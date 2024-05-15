@@ -25,33 +25,30 @@ exports[`EventInfo should render contact info 1`] = `
       <span
         class="MuiTypography-root MuiTypography-caption css-ltaje5-MuiTypography-root"
       >
-        event.classes
+        event.classPlaces
       </span>
       <div
-        class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row css-9jcy0f-MuiGrid2-root"
+        class="MuiGrid-root MuiGrid-container css-1l4fi4z-MuiGrid-root"
       >
         <div
-          class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-        >
-          eeeeee d.M.
-        </div>
-        <div
-          class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
+          class="MuiGrid-root MuiGrid-grid-xs-2 css-vytt1h-MuiGrid-root"
         >
           ALO
         </div>
         <div
-          class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-true css-t63qfg-MuiGrid2-root"
+          class="MuiGrid-root MuiGrid-grid-xs-4.5 css-6b6h7b-MuiGrid-root"
         >
-          Test Judge
+          eeeeee d.M.
         </div>
         <div
-          class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
+          class="MuiGrid-root MuiGrid-grid-xs-2 css-12f80rm-MuiGrid-root"
         >
-          22 / 11
+          0
+           / 
+          10
         </div>
         <div
-          class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
+          class="MuiGrid-root MuiGrid-grid-xs-3.5 css-dbxfes-MuiGrid-root"
         >
           members
         </div>
@@ -65,10 +62,14 @@ exports[`EventInfo should render contact info 1`] = `
       >
         event.judges
       </span>
-      Tuomari 1
+      <div
+        class="MuiBox-root css-0"
+      >
+        Tuomari 1
+      </div>
     </div>
     <div
-      class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-w8ax92-MuiGrid2-root"
+      class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-1dgrg5x-MuiGrid2-root"
     >
       <span
         class="MuiTypography-root MuiTypography-caption css-ltaje5-MuiTypography-root"
@@ -154,33 +155,30 @@ exports[`EventInfo should render event information 1`] = `
       <span
         class="MuiTypography-root MuiTypography-caption css-ltaje5-MuiTypography-root"
       >
-        event.classes
+        event.classPlaces
       </span>
       <div
-        class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row css-9jcy0f-MuiGrid2-root"
+        class="MuiGrid-root MuiGrid-container css-1l4fi4z-MuiGrid-root"
       >
         <div
-          class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
-        >
-          eeeeee d.M.
-        </div>
-        <div
-          class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
+          class="MuiGrid-root MuiGrid-grid-xs-2 css-vytt1h-MuiGrid-root"
         >
           ALO
         </div>
         <div
-          class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-true css-t63qfg-MuiGrid2-root"
+          class="MuiGrid-root MuiGrid-grid-xs-4.5 css-6b6h7b-MuiGrid-root"
         >
-          Test Judge
+          eeeeee d.M.
         </div>
         <div
-          class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
+          class="MuiGrid-root MuiGrid-grid-xs-2 css-12f80rm-MuiGrid-root"
         >
-          22 / 11
+          0
+           / 
+          10
         </div>
         <div
-          class="MuiGrid2-root MuiGrid2-direction-xs-row css-o6l63k-MuiGrid2-root"
+          class="MuiGrid-root MuiGrid-grid-xs-3.5 css-dbxfes-MuiGrid-root"
         >
           members
         </div>
@@ -194,10 +192,14 @@ exports[`EventInfo should render event information 1`] = `
       >
         event.judges
       </span>
-      Tuomari 1
+      <div
+        class="MuiBox-root css-0"
+      >
+        Tuomari 1
+      </div>
     </div>
     <div
-      class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-w8ax92-MuiGrid2-root"
+      class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-1dgrg5x-MuiGrid2-root"
     >
       <span
         class="MuiTypography-root MuiTypography-caption css-ltaje5-MuiTypography-root"
