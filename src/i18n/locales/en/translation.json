@@ -64,6 +64,13 @@
   "event": {
     "classes": "Classes",
     "classPlaces": "Places",
+    "classPlacesHeader": {
+      "name": "class",
+      "dates": "date(s)",
+      "entries": "entries",
+      "places": "places",
+      "members": "members"
+    },
     "contactInfo": "Contact information",
     "cost": "Fee",
     "costMember": ", members",

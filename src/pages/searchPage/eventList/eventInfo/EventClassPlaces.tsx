@@ -2,9 +2,18 @@ import type { PublicDogEvent } from '../../../../types'
 
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { styled } from '@mui/material'
 import Grid from '@mui/material/Grid'
 
-export const EventClassInfo = ({ event, eventClass }: { event: PublicDogEvent; eventClass: string }) => {
+const TextGrid = styled(Grid)({
+  paddingLeft: 4,
+  whiteSpace: 'nowrap',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+})
+const NumberGrid = styled(Grid)({ paddingRight: 4, textAlign: 'right' })
+
+export const EventClassPlaces = ({ event, eventClass }: { event: PublicDogEvent; eventClass: string }) => {
   const { t } = useTranslation()
 
   const classes = event.classes.filter((c) => c.class === eventClass)
@@ -29,29 +38,14 @@ export const EventClassInfo = ({ event, eventClass }: { event: PublicDogEvent; e
   }, [classes, event.classes.length, event.entries, event.places])
 
   return (
-    <Grid container px={{ xs: 1, sm: 2 }} columnSpacing={{ xs: 1, sm: 2 }}>
-      <Grid
-        xs={dates.length ? 2 : 7}
-        textAlign="left"
-        sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
-      >
-        {eventClass}
-      </Grid>
+    <Grid container>
+      <TextGrid xs={dates.length ? 2 : 6}>{eventClass}</TextGrid>
       {dates.length ? (
-        <Grid xs={4.5} sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-          {dates.map((date) => t('dateFormat.wdshort', { date })).join(', ')}
-        </Grid>
+        <TextGrid xs={4}>{dates.map((date) => t('dateFormat.wdshort', { date })).join(', ')}</TextGrid>
       ) : null}
-      <Grid xs={2} textAlign="right">
-        {entryStatus.entries} / {entryStatus.places}
-      </Grid>
-      <Grid
-        xs={3.5}
-        textAlign="right"
-        sx={{ pl: 0.5, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
-      >
-        {t('members', { count: entryStatus.members })}
-      </Grid>
+      <NumberGrid xs={2}>{entryStatus.entries}</NumberGrid>
+      <NumberGrid xs={2}>{entryStatus.places}</NumberGrid>
+      <NumberGrid xs={2}>{entryStatus.members}</NumberGrid>
     </Grid>
   )
 }

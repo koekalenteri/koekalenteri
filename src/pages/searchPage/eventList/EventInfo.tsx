@@ -15,7 +15,8 @@ import { isEntryOpen, printContactInfo, unique } from '../../../lib/utils'
 import CostInfo from '../../components/CostInfo'
 import { PriorityChips } from '../../components/PriorityChips'
 
-import { EventClassInfo } from './eventInfo/EventClassInfo'
+import { EventClassPlaces } from './eventInfo/EventClassPlaces'
+import { EventClassPlacesHeader } from './eventInfo/EventClassPlacesHeader'
 
 interface Props {
   readonly event: PublicDogEvent
@@ -65,8 +66,9 @@ export const EventInfo = ({ event }: Props) => {
       </InfoItem>
       {classes.length ? (
         <InfoItem label={t('event.classPlaces')} order={{ xs: 2, lg: 3, xl: 10 }} xl={true}>
+          <EventClassPlacesHeader event={event} />
           {classes.map((c) => (
-            <EventClassInfo key={c} event={event} eventClass={c} />
+            <EventClassPlaces key={c} event={event} eventClass={c} />
           ))}
         </InfoItem>
       ) : null}

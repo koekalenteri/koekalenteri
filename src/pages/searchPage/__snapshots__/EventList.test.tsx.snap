@@ -134,29 +134,81 @@ exports[`EventList should render 1`] = `
                   event.classPlaces
                 </span>
                 <div
-                  class="MuiGrid-root MuiGrid-container css-1l4fi4z-MuiGrid-root"
+                  class="MuiGrid-root MuiGrid-container css-11lq3yg-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid-root MuiGrid-grid-xs-2 css-nw9kbv-MuiGrid-root"
+                    class="MuiGrid-root MuiGrid-grid-xs-2 css-137k60d-MuiGrid-root"
                   >
-                    ALO
+                    <span
+                      class="MuiTypography-root MuiTypography-caption css-alilem-MuiTypography-root"
+                    >
+                      event.classPlacesHeader.name
+                    </span>
                   </div>
                   <div
-                    class="MuiGrid-root MuiGrid-grid-xs-4.5 css-1edybyn-MuiGrid-root"
+                    class="MuiGrid-root MuiGrid-grid-xs-4 css-1oy25er-MuiGrid-root"
                   >
-                    eeeeee d.M.
+                    <span
+                      class="MuiTypography-root MuiTypography-caption css-alilem-MuiTypography-root"
+                    >
+                      event.classPlacesHeader.dates
+                    </span>
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-grid-xs-2 css-1ppzlxj-MuiGrid-root"
                   >
+                    <span
+                      class="MuiTypography-root MuiTypography-caption css-alilem-MuiTypography-root"
+                    >
+                      event.classPlacesHeader.entries
+                    </span>
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-grid-xs-2 css-1ppzlxj-MuiGrid-root"
+                  >
+                    <span
+                      class="MuiTypography-root MuiTypography-caption css-alilem-MuiTypography-root"
+                    >
+                      event.classPlacesHeader.places
+                    </span>
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-grid-xs-2 css-1ppzlxj-MuiGrid-root"
+                  >
+                    <span
+                      class="MuiTypography-root MuiTypography-caption css-alilem-MuiTypography-root"
+                    >
+                      event.classPlacesHeader.members
+                    </span>
+                  </div>
+                </div>
+                <div
+                  class="MuiGrid-root MuiGrid-container css-11lq3yg-MuiGrid-root"
+                >
+                  <div
+                    class="MuiGrid-root MuiGrid-grid-xs-2 css-1ec5l30-MuiGrid-root"
+                  >
+                    ALO
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-grid-xs-4 css-i1myja-MuiGrid-root"
+                  >
+                    eeeeee d.M.
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-grid-xs-2 css-dupmdn-MuiGrid-root"
+                  >
                     0
-                     / 
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-grid-xs-2 css-dupmdn-MuiGrid-root"
+                  >
                     10
                   </div>
                   <div
-                    class="MuiGrid-root MuiGrid-grid-xs-3.5 css-1sjrap4-MuiGrid-root"
+                    class="MuiGrid-root MuiGrid-grid-xs-2 css-dupmdn-MuiGrid-root"
                   >
-                    members
+                    0
                   </div>
                 </div>
               </div>

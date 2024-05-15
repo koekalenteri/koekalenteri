@@ -28,29 +28,81 @@ exports[`EventInfo should render contact info 1`] = `
         event.classPlaces
       </span>
       <div
-        class="MuiGrid-root MuiGrid-container css-1l4fi4z-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-container css-11lq3yg-MuiGrid-root"
       >
         <div
-          class="MuiGrid-root MuiGrid-grid-xs-2 css-vytt1h-MuiGrid-root"
+          class="MuiGrid-root MuiGrid-grid-xs-2 css-13x2423-MuiGrid-root"
         >
-          ALO
+          <span
+            class="MuiTypography-root MuiTypography-caption css-1hltvp8-MuiTypography-root"
+          >
+            event.classPlacesHeader.name
+          </span>
         </div>
         <div
-          class="MuiGrid-root MuiGrid-grid-xs-4.5 css-6b6h7b-MuiGrid-root"
+          class="MuiGrid-root MuiGrid-grid-xs-4 css-b8j6au-MuiGrid-root"
         >
-          eeeeee d.M.
+          <span
+            class="MuiTypography-root MuiTypography-caption css-1hltvp8-MuiTypography-root"
+          >
+            event.classPlacesHeader.dates
+          </span>
         </div>
         <div
           class="MuiGrid-root MuiGrid-grid-xs-2 css-12f80rm-MuiGrid-root"
         >
+          <span
+            class="MuiTypography-root MuiTypography-caption css-1hltvp8-MuiTypography-root"
+          >
+            event.classPlacesHeader.entries
+          </span>
+        </div>
+        <div
+          class="MuiGrid-root MuiGrid-grid-xs-2 css-12f80rm-MuiGrid-root"
+        >
+          <span
+            class="MuiTypography-root MuiTypography-caption css-1hltvp8-MuiTypography-root"
+          >
+            event.classPlacesHeader.places
+          </span>
+        </div>
+        <div
+          class="MuiGrid-root MuiGrid-grid-xs-2 css-12f80rm-MuiGrid-root"
+        >
+          <span
+            class="MuiTypography-root MuiTypography-caption css-1hltvp8-MuiTypography-root"
+          >
+            event.classPlacesHeader.members
+          </span>
+        </div>
+      </div>
+      <div
+        class="MuiGrid-root MuiGrid-container css-11lq3yg-MuiGrid-root"
+      >
+        <div
+          class="MuiGrid-root MuiGrid-grid-xs-2 css-bx5ner-MuiGrid-root"
+        >
+          ALO
+        </div>
+        <div
+          class="MuiGrid-root MuiGrid-grid-xs-4 css-e1hidd-MuiGrid-root"
+        >
+          eeeeee d.M.
+        </div>
+        <div
+          class="MuiGrid-root MuiGrid-grid-xs-2 css-dv3kpf-MuiGrid-root"
+        >
           0
-           / 
+        </div>
+        <div
+          class="MuiGrid-root MuiGrid-grid-xs-2 css-dv3kpf-MuiGrid-root"
+        >
           10
         </div>
         <div
-          class="MuiGrid-root MuiGrid-grid-xs-3.5 css-dbxfes-MuiGrid-root"
+          class="MuiGrid-root MuiGrid-grid-xs-2 css-dv3kpf-MuiGrid-root"
         >
-          members
+          2
         </div>
       </div>
     </div>
@@ -158,29 +210,81 @@ exports[`EventInfo should render event information 1`] = `
         event.classPlaces
       </span>
       <div
-        class="MuiGrid-root MuiGrid-container css-1l4fi4z-MuiGrid-root"
+        class="MuiGrid-root MuiGrid-container css-11lq3yg-MuiGrid-root"
       >
         <div
-          class="MuiGrid-root MuiGrid-grid-xs-2 css-vytt1h-MuiGrid-root"
+          class="MuiGrid-root MuiGrid-grid-xs-2 css-13x2423-MuiGrid-root"
         >
-          ALO
+          <span
+            class="MuiTypography-root MuiTypography-caption css-1hltvp8-MuiTypography-root"
+          >
+            event.classPlacesHeader.name
+          </span>
         </div>
         <div
-          class="MuiGrid-root MuiGrid-grid-xs-4.5 css-6b6h7b-MuiGrid-root"
+          class="MuiGrid-root MuiGrid-grid-xs-4 css-b8j6au-MuiGrid-root"
         >
-          eeeeee d.M.
+          <span
+            class="MuiTypography-root MuiTypography-caption css-1hltvp8-MuiTypography-root"
+          >
+            event.classPlacesHeader.dates
+          </span>
         </div>
         <div
           class="MuiGrid-root MuiGrid-grid-xs-2 css-12f80rm-MuiGrid-root"
         >
+          <span
+            class="MuiTypography-root MuiTypography-caption css-1hltvp8-MuiTypography-root"
+          >
+            event.classPlacesHeader.entries
+          </span>
+        </div>
+        <div
+          class="MuiGrid-root MuiGrid-grid-xs-2 css-12f80rm-MuiGrid-root"
+        >
+          <span
+            class="MuiTypography-root MuiTypography-caption css-1hltvp8-MuiTypography-root"
+          >
+            event.classPlacesHeader.places
+          </span>
+        </div>
+        <div
+          class="MuiGrid-root MuiGrid-grid-xs-2 css-12f80rm-MuiGrid-root"
+        >
+          <span
+            class="MuiTypography-root MuiTypography-caption css-1hltvp8-MuiTypography-root"
+          >
+            event.classPlacesHeader.members
+          </span>
+        </div>
+      </div>
+      <div
+        class="MuiGrid-root MuiGrid-container css-11lq3yg-MuiGrid-root"
+      >
+        <div
+          class="MuiGrid-root MuiGrid-grid-xs-2 css-bx5ner-MuiGrid-root"
+        >
+          ALO
+        </div>
+        <div
+          class="MuiGrid-root MuiGrid-grid-xs-4 css-e1hidd-MuiGrid-root"
+        >
+          eeeeee d.M.
+        </div>
+        <div
+          class="MuiGrid-root MuiGrid-grid-xs-2 css-dv3kpf-MuiGrid-root"
+        >
           0
-           / 
+        </div>
+        <div
+          class="MuiGrid-root MuiGrid-grid-xs-2 css-dv3kpf-MuiGrid-root"
+        >
           10
         </div>
         <div
-          class="MuiGrid-root MuiGrid-grid-xs-3.5 css-dbxfes-MuiGrid-root"
+          class="MuiGrid-root MuiGrid-grid-xs-2 css-dv3kpf-MuiGrid-root"
         >
-          members
+          2
         </div>
       </div>
     </div>

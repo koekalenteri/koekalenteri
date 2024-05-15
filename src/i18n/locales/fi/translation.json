@@ -90,6 +90,13 @@
     "attachments": "Liitteet",
     "classes": "Koeluokat",
     "classPlaces": "Koepaikat",
+    "classPlacesHeader": {
+      "name": "luokka",
+      "dates": "päivä(t)",
+      "entries": "ilmoja",
+      "places": "paikkoja",
+      "members": "jäseniä"
+    },
     "contactInfo": "Yhteystiedot",
     "cost": "Maksutiedot",
     "costMember": ", jäsenille",
