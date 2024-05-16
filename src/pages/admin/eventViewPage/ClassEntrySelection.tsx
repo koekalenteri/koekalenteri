@@ -109,6 +109,7 @@ const ClassEntrySelection = ({
   const dates = useEventRegistrationDates(event, eventClass)
   const { cancelledColumns, entryColumns, participantColumns } = useClassEntrySelectionColumns(
     dates,
+    event,
     handleOpen,
     handleCancel,
     handleRefund

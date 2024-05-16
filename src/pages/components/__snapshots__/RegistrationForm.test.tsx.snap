@@ -9,7 +9,7 @@ exports[`RegistrationForm renders 1`] = `
       class="MuiBox-root css-d9iw6n"
     >
       <div
-        class="MuiBox-root css-g7pq3x"
+        class="MuiBox-root css-i357mj"
       >
         <button
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-tov16f-MuiButtonBase-root-MuiIconButton-root"
@@ -35,7 +35,7 @@ exports[`RegistrationForm renders 1`] = `
           class="MuiBox-root css-1qbrvqz"
         >
           <div
-            class="MuiBox-root css-yxbw19"
+            class="MuiBox-root css-1jw9kr7"
           >
             <p
               class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
@@ -59,7 +59,7 @@ exports[`RegistrationForm renders 1`] = `
                 class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
               >
                 <div
-                  class="MuiBox-root css-n2y79c"
+                  class="MuiBox-root css-e1h6et"
                 >
                   <div
                     class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-1 css-a5rdam-MuiGrid-root"
@@ -510,7 +510,7 @@ exports[`RegistrationForm renders 1`] = `
         </div>
       </div>
       <div
-        class="MuiBox-root css-1d8l8v2"
+        class="MuiBox-root css-eo0ytz"
       >
         <button
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-tov16f-MuiButtonBase-root-MuiIconButton-root"
@@ -536,7 +536,7 @@ exports[`RegistrationForm renders 1`] = `
           class="MuiBox-root css-1qbrvqz"
         >
           <div
-            class="MuiBox-root css-yxbw19"
+            class="MuiBox-root css-1jw9kr7"
           >
             <p
               class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
@@ -560,7 +560,7 @@ exports[`RegistrationForm renders 1`] = `
                 class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
               >
                 <div
-                  class="MuiBox-root css-n2y79c"
+                  class="MuiBox-root css-e1h6et"
                 >
                   <div
                     class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-1 css-gjtr4m-MuiGrid-root"
@@ -1115,7 +1115,7 @@ exports[`RegistrationForm renders 1`] = `
         </div>
       </div>
       <div
-        class="MuiBox-root css-1d8l8v2"
+        class="MuiBox-root css-eo0ytz"
       >
         <button
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-tov16f-MuiButtonBase-root-MuiIconButton-root"
@@ -1141,7 +1141,7 @@ exports[`RegistrationForm renders 1`] = `
           class="MuiBox-root css-1qbrvqz"
         >
           <div
-            class="MuiBox-root css-yxbw19"
+            class="MuiBox-root css-1jw9kr7"
           >
             <p
               class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
@@ -1165,7 +1165,7 @@ exports[`RegistrationForm renders 1`] = `
                 class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
               >
                 <div
-                  class="MuiBox-root css-n2y79c"
+                  class="MuiBox-root css-e1h6et"
                 >
                   <div
                     class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
@@ -1256,7 +1256,7 @@ exports[`RegistrationForm renders 1`] = `
         </div>
       </div>
       <div
-        class="MuiBox-root css-1d8l8v2"
+        class="MuiBox-root css-eo0ytz"
       >
         <button
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-tov16f-MuiButtonBase-root-MuiIconButton-root"
@@ -1282,7 +1282,7 @@ exports[`RegistrationForm renders 1`] = `
           class="MuiBox-root css-1qbrvqz"
         >
           <div
-            class="MuiBox-root css-yxbw19"
+            class="MuiBox-root css-1jw9kr7"
           >
             <p
               class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
@@ -1306,7 +1306,7 @@ exports[`RegistrationForm renders 1`] = `
                 class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
               >
                 <div
-                  class="MuiBox-root css-n2y79c"
+                  class="MuiBox-root css-e1h6et"
                 >
                   <div
                     class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
@@ -1637,7 +1637,7 @@ exports[`RegistrationForm renders 1`] = `
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-1d8l8v2"
+              class="MuiBox-root css-eo0ytz"
             >
               <button
                 class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-tov16f-MuiButtonBase-root-MuiIconButton-root"
@@ -1663,7 +1663,7 @@ exports[`RegistrationForm renders 1`] = `
                 class="MuiBox-root css-1qbrvqz"
               >
                 <div
-                  class="MuiBox-root css-yxbw19"
+                  class="MuiBox-root css-1jw9kr7"
                 >
                   <p
                     class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
@@ -1687,7 +1687,7 @@ exports[`RegistrationForm renders 1`] = `
                       class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
                     >
                       <div
-                        class="MuiBox-root css-n2y79c"
+                        class="MuiBox-root css-e1h6et"
                       >
                         <div
                           class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
@@ -1949,7 +1949,7 @@ exports[`RegistrationForm renders 1`] = `
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-1d8l8v2"
+              class="MuiBox-root css-eo0ytz"
             >
               <button
                 class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-tov16f-MuiButtonBase-root-MuiIconButton-root"
@@ -1975,7 +1975,7 @@ exports[`RegistrationForm renders 1`] = `
                 class="MuiBox-root css-1qbrvqz"
               >
                 <div
-                  class="MuiBox-root css-yxbw19"
+                  class="MuiBox-root css-1jw9kr7"
                 >
                   <p
                     class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
@@ -1999,7 +1999,7 @@ exports[`RegistrationForm renders 1`] = `
                       class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
                     >
                       <div
-                        class="MuiBox-root css-n2y79c"
+                        class="MuiBox-root css-e1h6et"
                       >
                         <div
                           class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
@@ -2177,7 +2177,7 @@ exports[`RegistrationForm renders 1`] = `
         </div>
       </div>
       <div
-        class="MuiBox-root css-1d8l8v2"
+        class="MuiBox-root css-eo0ytz"
       >
         <button
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-tov16f-MuiButtonBase-root-MuiIconButton-root"
@@ -2203,7 +2203,7 @@ exports[`RegistrationForm renders 1`] = `
           class="MuiBox-root css-1qbrvqz"
         >
           <div
-            class="MuiBox-root css-yxbw19"
+            class="MuiBox-root css-1jw9kr7"
           >
             <p
               class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
@@ -2227,7 +2227,7 @@ exports[`RegistrationForm renders 1`] = `
                 class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
               >
                 <div
-                  class="MuiBox-root css-n2y79c"
+                  class="MuiBox-root css-e1h6et"
                 >
                   <div
                     class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
@@ -2263,7 +2263,7 @@ exports[`RegistrationForm renders 1`] = `
         </div>
       </div>
       <div
-        class="MuiBox-root css-1d8l8v2"
+        class="MuiBox-root css-eo0ytz"
       >
         <button
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-tov16f-MuiButtonBase-root-MuiIconButton-root"
@@ -2289,7 +2289,7 @@ exports[`RegistrationForm renders 1`] = `
           class="MuiBox-root css-1qbrvqz"
         >
           <div
-            class="MuiBox-root css-yxbw19"
+            class="MuiBox-root css-1jw9kr7"
           >
             <p
               class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
@@ -2311,7 +2311,7 @@ exports[`RegistrationForm renders 1`] = `
                 class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
               >
                 <div
-                  class="MuiBox-root css-n2y79c"
+                  class="MuiBox-root css-e1h6et"
                 >
                   <div
                     class="MuiFormControl-root MuiTextField-root css-136h9lv-MuiFormControl-root-MuiTextField-root"
@@ -2505,7 +2505,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
       class="MuiBox-root css-d9iw6n"
     >
       <div
-        class="MuiBox-root css-g7pq3x"
+        class="MuiBox-root css-i357mj"
       >
         <button
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-tov16f-MuiButtonBase-root-MuiIconButton-root"
@@ -2531,7 +2531,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
           class="MuiBox-root css-1qbrvqz"
         >
           <div
-            class="MuiBox-root css-yxbw19"
+            class="MuiBox-root css-1jw9kr7"
           >
             <p
               class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
@@ -2555,7 +2555,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                 class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
               >
                 <div
-                  class="MuiBox-root css-n2y79c"
+                  class="MuiBox-root css-e1h6et"
                 >
                   <div
                     class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-1 css-a5rdam-MuiGrid-root"
@@ -3006,7 +3006,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
         </div>
       </div>
       <div
-        class="MuiBox-root css-1d8l8v2"
+        class="MuiBox-root css-eo0ytz"
       >
         <button
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-tov16f-MuiButtonBase-root-MuiIconButton-root"
@@ -3032,7 +3032,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
           class="MuiBox-root css-1qbrvqz"
         >
           <div
-            class="MuiBox-root css-yxbw19"
+            class="MuiBox-root css-1jw9kr7"
           >
             <p
               class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
@@ -3056,7 +3056,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                 class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
               >
                 <div
-                  class="MuiBox-root css-n2y79c"
+                  class="MuiBox-root css-e1h6et"
                 >
                   <div
                     class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-1 css-gjtr4m-MuiGrid-root"
@@ -3612,7 +3612,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
         </div>
       </div>
       <div
-        class="MuiBox-root css-1d8l8v2"
+        class="MuiBox-root css-eo0ytz"
       >
         <button
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-tov16f-MuiButtonBase-root-MuiIconButton-root"
@@ -3638,7 +3638,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
           class="MuiBox-root css-1qbrvqz"
         >
           <div
-            class="MuiBox-root css-yxbw19"
+            class="MuiBox-root css-1jw9kr7"
           >
             <p
               class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
@@ -3662,7 +3662,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                 class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
               >
                 <div
-                  class="MuiBox-root css-n2y79c"
+                  class="MuiBox-root css-e1h6et"
                 >
                   <div
                     class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
@@ -3753,7 +3753,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
         </div>
       </div>
       <div
-        class="MuiBox-root css-1d8l8v2"
+        class="MuiBox-root css-eo0ytz"
       >
         <button
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-tov16f-MuiButtonBase-root-MuiIconButton-root"
@@ -3779,7 +3779,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
           class="MuiBox-root css-1qbrvqz"
         >
           <div
-            class="MuiBox-root css-yxbw19"
+            class="MuiBox-root css-1jw9kr7"
           >
             <p
               class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
@@ -3803,7 +3803,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                 class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
               >
                 <div
-                  class="MuiBox-root css-n2y79c"
+                  class="MuiBox-root css-e1h6et"
                 >
                   <div
                     class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
@@ -4134,7 +4134,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-1d8l8v2"
+              class="MuiBox-root css-eo0ytz"
             >
               <button
                 class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-tov16f-MuiButtonBase-root-MuiIconButton-root"
@@ -4160,7 +4160,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                 class="MuiBox-root css-1qbrvqz"
               >
                 <div
-                  class="MuiBox-root css-yxbw19"
+                  class="MuiBox-root css-1jw9kr7"
                 >
                   <p
                     class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
@@ -4184,7 +4184,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                       class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
                     >
                       <div
-                        class="MuiBox-root css-n2y79c"
+                        class="MuiBox-root css-e1h6et"
                       >
                         <div
                           class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
@@ -4446,7 +4446,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-1d8l8v2"
+              class="MuiBox-root css-eo0ytz"
             >
               <button
                 class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-tov16f-MuiButtonBase-root-MuiIconButton-root"
@@ -4472,7 +4472,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                 class="MuiBox-root css-1qbrvqz"
               >
                 <div
-                  class="MuiBox-root css-yxbw19"
+                  class="MuiBox-root css-1jw9kr7"
                 >
                   <p
                     class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
@@ -4496,7 +4496,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                       class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
                     >
                       <div
-                        class="MuiBox-root css-n2y79c"
+                        class="MuiBox-root css-e1h6et"
                       >
                         <div
                           class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
@@ -4674,7 +4674,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
         </div>
       </div>
       <div
-        class="MuiBox-root css-1d8l8v2"
+        class="MuiBox-root css-eo0ytz"
       >
         <button
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-tov16f-MuiButtonBase-root-MuiIconButton-root"
@@ -4700,7 +4700,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
           class="MuiBox-root css-1qbrvqz"
         >
           <div
-            class="MuiBox-root css-yxbw19"
+            class="MuiBox-root css-1jw9kr7"
           >
             <p
               class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
@@ -4724,7 +4724,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                 class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
               >
                 <div
-                  class="MuiBox-root css-n2y79c"
+                  class="MuiBox-root css-e1h6et"
                 >
                   <div
                     class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
@@ -4760,7 +4760,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
         </div>
       </div>
       <div
-        class="MuiBox-root css-1d8l8v2"
+        class="MuiBox-root css-eo0ytz"
       >
         <button
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-tov16f-MuiButtonBase-root-MuiIconButton-root"
@@ -4786,7 +4786,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
           class="MuiBox-root css-1qbrvqz"
         >
           <div
-            class="MuiBox-root css-yxbw19"
+            class="MuiBox-root css-1jw9kr7"
           >
             <p
               class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
@@ -4808,7 +4808,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                 class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
               >
                 <div
-                  class="MuiBox-root css-n2y79c"
+                  class="MuiBox-root css-e1h6et"
                 >
                   <div
                     class="MuiFormControl-root MuiTextField-root css-136h9lv-MuiFormControl-root-MuiTextField-root"

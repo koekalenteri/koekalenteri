@@ -84,7 +84,7 @@ exports[`EventEditPage renders properly 1`] = `
       class="MuiBox-root css-s8xsau"
     >
       <div
-        class="MuiBox-root css-1d8l8v2"
+        class="MuiBox-root css-eo0ytz"
       >
         <button
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-tov16f-MuiButtonBase-root-MuiIconButton-root"
@@ -110,7 +110,7 @@ exports[`EventEditPage renders properly 1`] = `
           class="MuiBox-root css-1qbrvqz"
         >
           <div
-            class="MuiBox-root css-yxbw19"
+            class="MuiBox-root css-1jw9kr7"
           >
             <p
               class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
@@ -134,7 +134,7 @@ exports[`EventEditPage renders properly 1`] = `
                 class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
               >
                 <div
-                  class="MuiBox-root css-n2y79c"
+                  class="MuiBox-root css-e1h6et"
                 >
                   <div
                     class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
@@ -1045,7 +1045,7 @@ exports[`EventEditPage renders properly 1`] = `
         </div>
       </div>
       <div
-        class="MuiBox-root css-1d8l8v2"
+        class="MuiBox-root css-eo0ytz"
       >
         <button
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-tov16f-MuiButtonBase-root-MuiIconButton-root"
@@ -1071,7 +1071,7 @@ exports[`EventEditPage renders properly 1`] = `
           class="MuiBox-root css-1qbrvqz"
         >
           <div
-            class="MuiBox-root css-yxbw19"
+            class="MuiBox-root css-1jw9kr7"
           >
             <p
               class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
@@ -1093,7 +1093,7 @@ exports[`EventEditPage renders properly 1`] = `
                 class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
               >
                 <div
-                  class="MuiBox-root css-n2y79c"
+                  class="MuiBox-root css-e1h6et"
                 >
                   <div
                     class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
@@ -1398,7 +1398,7 @@ exports[`EventEditPage renders properly 1`] = `
         </div>
       </div>
       <div
-        class="MuiBox-root css-1d8l8v2"
+        class="MuiBox-root css-eo0ytz"
       >
         <button
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-tov16f-MuiButtonBase-root-MuiIconButton-root"
@@ -1424,7 +1424,7 @@ exports[`EventEditPage renders properly 1`] = `
           class="MuiBox-root css-1qbrvqz"
         >
           <div
-            class="MuiBox-root css-yxbw19"
+            class="MuiBox-root css-1jw9kr7"
           >
             <p
               class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
@@ -1446,7 +1446,7 @@ exports[`EventEditPage renders properly 1`] = `
                 class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
               >
                 <div
-                  class="MuiBox-root css-n2y79c"
+                  class="MuiBox-root css-e1h6et"
                 >
                   <div
                     class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
@@ -2088,7 +2088,7 @@ exports[`EventEditPage renders properly 1`] = `
         </div>
       </div>
       <div
-        class="MuiBox-root css-1d8l8v2"
+        class="MuiBox-root css-eo0ytz"
       >
         <button
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-tov16f-MuiButtonBase-root-MuiIconButton-root"
@@ -2114,7 +2114,7 @@ exports[`EventEditPage renders properly 1`] = `
           class="MuiBox-root css-1qbrvqz"
         >
           <div
-            class="MuiBox-root css-yxbw19"
+            class="MuiBox-root css-1jw9kr7"
           >
             <p
               class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
@@ -2136,7 +2136,7 @@ exports[`EventEditPage renders properly 1`] = `
                 class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
               >
                 <div
-                  class="MuiBox-root css-n2y79c"
+                  class="MuiBox-root css-e1h6et"
                 >
                   <div
                     class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-1 css-a5rdam-MuiGrid-root"
@@ -2339,7 +2339,7 @@ exports[`EventEditPage renders properly 1`] = `
         </div>
       </div>
       <div
-        class="MuiBox-root css-1d8l8v2"
+        class="MuiBox-root css-eo0ytz"
       >
         <button
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-tov16f-MuiButtonBase-root-MuiIconButton-root"
@@ -2365,7 +2365,7 @@ exports[`EventEditPage renders properly 1`] = `
           class="MuiBox-root css-1qbrvqz"
         >
           <div
-            class="MuiBox-root css-yxbw19"
+            class="MuiBox-root css-1jw9kr7"
           >
             <p
               class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
@@ -2387,7 +2387,7 @@ exports[`EventEditPage renders properly 1`] = `
                 class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
               >
                 <div
-                  class="MuiBox-root css-n2y79c"
+                  class="MuiBox-root css-e1h6et"
                 >
                   <div
                     class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-1 css-a5rdam-MuiGrid-root"
@@ -2568,7 +2568,7 @@ exports[`EventEditPage renders properly 1`] = `
         </div>
       </div>
       <div
-        class="MuiBox-root css-1d8l8v2"
+        class="MuiBox-root css-eo0ytz"
       >
         <button
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-tov16f-MuiButtonBase-root-MuiIconButton-root"
@@ -2594,7 +2594,7 @@ exports[`EventEditPage renders properly 1`] = `
           class="MuiBox-root css-1qbrvqz"
         >
           <div
-            class="MuiBox-root css-yxbw19"
+            class="MuiBox-root css-1jw9kr7"
           >
             <p
               class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
@@ -2616,7 +2616,7 @@ exports[`EventEditPage renders properly 1`] = `
                 class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
               >
                 <div
-                  class="MuiBox-root css-n2y79c"
+                  class="MuiBox-root css-e1h6et"
                 >
                   <div
                     class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-1 css-a5rdam-MuiGrid-root"
@@ -3035,7 +3035,7 @@ exports[`EventEditPage renders properly 1`] = `
         </div>
       </div>
       <div
-        class="MuiBox-root css-1d8l8v2"
+        class="MuiBox-root css-eo0ytz"
       >
         <button
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-tov16f-MuiButtonBase-root-MuiIconButton-root"
@@ -3061,7 +3061,7 @@ exports[`EventEditPage renders properly 1`] = `
           class="MuiBox-root css-1qbrvqz"
         >
           <div
-            class="MuiBox-root css-yxbw19"
+            class="MuiBox-root css-1jw9kr7"
           >
             <p
               class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
@@ -3083,7 +3083,7 @@ exports[`EventEditPage renders properly 1`] = `
                 class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
               >
                 <div
-                  class="MuiBox-root css-n2y79c"
+                  class="MuiBox-root css-e1h6et"
                 >
                   <div
                     class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"

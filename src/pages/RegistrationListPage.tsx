@@ -175,20 +175,21 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
       <Header />
       <Box
         sx={{
-          p: 1,
           overflow: 'hidden',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'flex-start',
         }}
       >
-        <Grid container direction="row" wrap="nowrap">
+        <Grid container direction="row" wrap="nowrap" justifyContent="space-between">
           <Grid item>
-            <LinkButton sx={{ mb: 1, pl: 0 }} to="/" back={spa} text={spa ? t('goBack') : t('goHome')} />
-            <Typography variant="h5">Ilmoittautumistiedot</Typography>
+            <Box pl={1}>
+              <LinkButton sx={{ mb: 1, pl: 0 }} to="/" back={spa} text={spa ? t('goBack') : t('goHome')} />
+              <Typography variant="h5">Ilmoittautumistiedot</Typography>
+            </Box>
             <RegistrationEventInfo event={event} invitationAttachment={registration.invitationAttachment} />
           </Grid>
-          <Grid item>
+          <Grid item sx={{ display: { xs: 'none', sm: 'none', md: 'unset' } }}>
             <Paper sx={{ bgcolor: 'background.selected', p: 1, m: 1, width: 350 }}>
               <List disablePadding>
                 <ListItem disablePadding>
@@ -208,9 +209,14 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
                     primary={paymentStatus(registration)}
                     primaryTypographyProps={{ variant: 'subtitle1', fontWeight: 'bold' }}
                   />
-                  {registration.paymentStatus !== 'SUCCESS' && registration.paymentStatus !== 'PENDING' ? (
+                  {!registration.cancelled &&
+                  registration.paymentStatus !== 'SUCCESS' &&
+                  registration.paymentStatus !== 'PENDING' ? (
                     <ListItemSecondaryAction>
-                      <Button aria-label="Maksa ilmoittautuminen" onClick={() => navigate(Path.payment(registration))}>
+                      <Button
+                        aria-label={t('registration.cta.pay')}
+                        onClick={() => navigate(Path.payment(registration))}
+                      >
                         {t('registration.cta.pay')}
                       </Button>
                     </ListItemSecondaryAction>
@@ -231,6 +237,7 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
         </Grid>
         <RegistrationList
           disabled={allDisabled}
+          event={event}
           rows={registration ? [registration] : []}
           onUnregister={() => setCancelOpen(true)}
         />

@@ -42,10 +42,10 @@ describe('RegistrationEventInfo', () => {
     )
     await flushPromises()
 
-    expect(screen.queryByText('event.official:')).toBeInTheDocument()
-    expect(screen.queryByText('Teemu Toimitsija, 040-official, official@example.com')).toBeInTheDocument()
-    expect(screen.queryByText('event.secretary:')).toBeInTheDocument()
-    expect(screen.queryByText('Siiri Sihteeri, 040-secretary, secretary@example.com')).toBeInTheDocument()
+    expect(screen.getByText('event.official')).toBeInTheDocument()
+    expect(screen.getByText('Teemu Toimitsija, 040-official, official@example.com')).toBeInTheDocument()
+    expect(screen.getByText('event.secretary')).toBeInTheDocument()
+    expect(screen.getByText('Siiri Sihteeri, 040-secretary, secretary@example.com')).toBeInTheDocument()
     expect(container).toMatchSnapshot()
   })
 

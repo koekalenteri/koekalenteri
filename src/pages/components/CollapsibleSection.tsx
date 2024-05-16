@@ -47,7 +47,7 @@ export default function CollapsibleSection({
       sx={{
         display: 'flex',
         alignItems: 'flex-start',
-        pr: 1,
+        pr: { xs: 0.5, sm: 1 },
         borderTop: border ? '2px solid' : 'none',
         borderColor: 'background.selected',
       }}
@@ -56,14 +56,14 @@ export default function CollapsibleSection({
         {isOpen ? <KeyboardArrowDown /> : <KeyboardArrowRight />}
       </IconButton>
       <Box sx={{ pt: '5px', width: 'calc(100% - 34px)', overflowX: 'auto' }}>
-        <Box sx={{ userSelect: 'none', mb: '1px' }} onClick={toggle}>
+        <Box sx={{ userSelect: 'none', mb: '2px' }} onClick={toggle}>
           <Typography>{title}</Typography>
           <FormHelperText error={error} sx={{ color: 'success.main', display: helperText ? 'block' : 'none' }}>
             {helperText}
           </FormHelperText>
         </Box>
         <Collapse in={isOpen} timeout="auto">
-          <Box sx={{ p: 1, borderTop: '1px dashed #bdbdbd' }}>{children}</Box>
+          <Box sx={{ p: { xs: 0.5, sm: 1 }, borderTop: '1px dashed #bdbdbd' }}>{children}</Box>
         </Collapse>
       </Box>
     </Box>

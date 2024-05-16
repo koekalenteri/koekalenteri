@@ -6,10 +6,10 @@ exports[`RegistrationEditPage should render 1`] = `
     class="MuiBox-root css-7sa5ll"
   />
   <div
-    class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation2 css-g9q2hn-MuiPaper-root"
+    class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation2 css-1exk97n-MuiPaper-root"
   >
     <div
-      class="MuiBox-root css-g7pq3x"
+      class="MuiBox-root css-i357mj"
     >
       <button
         class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-tov16f-MuiButtonBase-root-MuiIconButton-root"
@@ -35,7 +35,7 @@ exports[`RegistrationEditPage should render 1`] = `
         class="MuiBox-root css-1qbrvqz"
       >
         <div
-          class="MuiBox-root css-yxbw19"
+          class="MuiBox-root css-1jw9kr7"
         >
           <p
             class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
@@ -57,7 +57,7 @@ exports[`RegistrationEditPage should render 1`] = `
               class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
             >
               <div
-                class="MuiBox-root css-n2y79c"
+                class="MuiBox-root css-e1h6et"
               >
                 <div
                   class="MuiGrid-root MuiGrid-container css-pusk48-MuiGrid-root"
@@ -66,110 +66,166 @@ exports[`RegistrationEditPage should render 1`] = `
                     class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-sm-12 MuiGrid-grid-md-true css-1gzo6kn-MuiGrid-root"
                   >
                     <div
-                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-h9ezi1-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-37visp-MuiGrid-root"
                     >
-                      entryTime
-                      :
-                    </div>
-                    <div
-                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-s4hpul-MuiGrid-root"
-                    >
-                      <b>
-                        dateFormat.datespan
-                      </b>
-                       
                       <span
-                        class="info"
-                      />
+                        class="MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"
+                      >
+                        entryTime
+                      </span>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-h9ezi1-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-eva6pi-MuiGrid-root"
                     >
-                      event.organizer
-                      :
+                      <p
+                        class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
+                      >
+                        <b>
+                          dateFormat.datespan
+                        </b>
+                         
+                        <span
+                          class="info"
+                        />
+                      </p>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-163n9ee-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-37visp-MuiGrid-root"
                     >
-                      Suomen Noutajakoirajärjestö ry
+                      <span
+                        class="MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"
+                      >
+                        event.organizer
+                      </span>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-h9ezi1-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-eva6pi-MuiGrid-root"
                     >
-                      event.judges
-                      :
+                      <p
+                        class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
+                      >
+                        Suomen Noutajakoirajärjestö ry
+                      </p>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-163n9ee-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-37visp-MuiGrid-root"
                     >
-                      Tuomari 1
+                      <span
+                        class="MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"
+                      >
+                        event.judges
+                      </span>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-h9ezi1-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-eva6pi-MuiGrid-root"
                     >
-                      event.official
-                      :
+                      <p
+                        class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
+                      >
+                        Tuomari 1
+                      </p>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-163n9ee-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-37visp-MuiGrid-root"
                     >
-                      Teemu Toimitsija, 040-official, official@example.com
+                      <span
+                        class="MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"
+                      >
+                        event.official
+                      </span>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-h9ezi1-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-eva6pi-MuiGrid-root"
                     >
-                      event.secretary
-                      :
+                      <p
+                        class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
+                      >
+                        Teemu Toimitsija, 040-official, official@example.com
+                      </p>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-163n9ee-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-37visp-MuiGrid-root"
                     >
-                      Siiri Sihteeri, 040-secretary, secretary@example.com
+                      <span
+                        class="MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"
+                      >
+                        event.secretary
+                      </span>
+                    </div>
+                    <div
+                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-eva6pi-MuiGrid-root"
+                    >
+                      <p
+                        class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
+                      >
+                        Siiri Sihteeri, 040-secretary, secretary@example.com
+                      </p>
                     </div>
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-sm-12 MuiGrid-grid-md-true css-1gzo6kn-MuiGrid-root"
                   >
                     <div
-                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-h9ezi1-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-37visp-MuiGrid-root"
                     >
-                      event.cost
-                      :
-                    </div>
-                    <div
-                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-163n9ee-MuiGrid-root"
-                    >
-                      123 €event.costMember 123 €
-                    </div>
-                    <div
-                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-h9ezi1-MuiGrid-root"
-                    >
-                      event.priority
-                      :
-                    </div>
-                    <div
-                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-163n9ee-MuiGrid-root"
-                    >
-                      <div
-                        class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-1w6a0pi-MuiChip-root"
+                      <span
+                        class="MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"
                       >
-                        <span
-                          class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
+                        event.cost
+                      </span>
+                    </div>
+                    <div
+                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-eva6pi-MuiGrid-root"
+                    >
+                      <p
+                        class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
+                      >
+                        123 €event.costMember 123 €
+                      </p>
+                    </div>
+                    <div
+                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-37visp-MuiGrid-root"
+                    >
+                      <span
+                        class="MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"
+                      >
+                        event.priority
+                      </span>
+                    </div>
+                    <div
+                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-eva6pi-MuiGrid-root"
+                    >
+                      <p
+                        class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
+                      >
+                        <div
+                          class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-1w6a0pi-MuiChip-root"
                         >
-                          Jäsenet
-                        </span>
-                      </div>
+                          <span
+                            class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
+                          >
+                            Jäsenet
+                          </span>
+                        </div>
+                      </p>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-h9ezi1-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-37visp-MuiGrid-root"
                     >
-                      event.description
-                      :
+                      <span
+                        class="MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"
+                      >
+                        event.description
+                      </span>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-163n9ee-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-eva6pi-MuiGrid-root"
                     >
-                      test
+                      <p
+                        class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
+                      >
+                        test
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -187,7 +243,7 @@ exports[`RegistrationEditPage should render 1`] = `
       class="MuiBox-root css-d9iw6n"
     >
       <div
-        class="MuiBox-root css-g7pq3x"
+        class="MuiBox-root css-i357mj"
       >
         <button
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-tov16f-MuiButtonBase-root-MuiIconButton-root"
@@ -213,7 +269,7 @@ exports[`RegistrationEditPage should render 1`] = `
           class="MuiBox-root css-1qbrvqz"
         >
           <div
-            class="MuiBox-root css-yxbw19"
+            class="MuiBox-root css-1jw9kr7"
           >
             <p
               class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
@@ -237,7 +293,7 @@ exports[`RegistrationEditPage should render 1`] = `
                 class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
               >
                 <div
-                  class="MuiBox-root css-n2y79c"
+                  class="MuiBox-root css-e1h6et"
                 >
                   <div
                     class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-1 css-a5rdam-MuiGrid-root"
@@ -640,7 +696,7 @@ exports[`RegistrationEditPage should render 1`] = `
         </div>
       </div>
       <div
-        class="MuiBox-root css-1d8l8v2"
+        class="MuiBox-root css-eo0ytz"
       >
         <button
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-tov16f-MuiButtonBase-root-MuiIconButton-root"
@@ -666,7 +722,7 @@ exports[`RegistrationEditPage should render 1`] = `
           class="MuiBox-root css-1qbrvqz"
         >
           <div
-            class="MuiBox-root css-yxbw19"
+            class="MuiBox-root css-1jw9kr7"
           >
             <p
               class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
@@ -690,7 +746,7 @@ exports[`RegistrationEditPage should render 1`] = `
                 class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
               >
                 <div
-                  class="MuiBox-root css-n2y79c"
+                  class="MuiBox-root css-e1h6et"
                 >
                   <div
                     class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-1 css-gjtr4m-MuiGrid-root"
@@ -1221,7 +1277,7 @@ exports[`RegistrationEditPage should render 1`] = `
         </div>
       </div>
       <div
-        class="MuiBox-root css-1d8l8v2"
+        class="MuiBox-root css-eo0ytz"
       >
         <button
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-tov16f-MuiButtonBase-root-MuiIconButton-root"
@@ -1247,7 +1303,7 @@ exports[`RegistrationEditPage should render 1`] = `
           class="MuiBox-root css-1qbrvqz"
         >
           <div
-            class="MuiBox-root css-yxbw19"
+            class="MuiBox-root css-1jw9kr7"
           >
             <p
               class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
@@ -1271,7 +1327,7 @@ exports[`RegistrationEditPage should render 1`] = `
                 class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
               >
                 <div
-                  class="MuiBox-root css-n2y79c"
+                  class="MuiBox-root css-e1h6et"
                 >
                   <div
                     class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
@@ -1364,7 +1420,7 @@ exports[`RegistrationEditPage should render 1`] = `
         </div>
       </div>
       <div
-        class="MuiBox-root css-1d8l8v2"
+        class="MuiBox-root css-eo0ytz"
       >
         <button
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-tov16f-MuiButtonBase-root-MuiIconButton-root"
@@ -1390,7 +1446,7 @@ exports[`RegistrationEditPage should render 1`] = `
           class="MuiBox-root css-1qbrvqz"
         >
           <div
-            class="MuiBox-root css-yxbw19"
+            class="MuiBox-root css-1jw9kr7"
           >
             <p
               class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
@@ -1414,7 +1470,7 @@ exports[`RegistrationEditPage should render 1`] = `
                 class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
               >
                 <div
-                  class="MuiBox-root css-n2y79c"
+                  class="MuiBox-root css-e1h6et"
                 >
                   <div
                     class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
@@ -1747,7 +1803,7 @@ exports[`RegistrationEditPage should render 1`] = `
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-1d8l8v2"
+              class="MuiBox-root css-eo0ytz"
             >
               <button
                 class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-tov16f-MuiButtonBase-root-MuiIconButton-root"
@@ -1773,7 +1829,7 @@ exports[`RegistrationEditPage should render 1`] = `
                 class="MuiBox-root css-1qbrvqz"
               >
                 <div
-                  class="MuiBox-root css-yxbw19"
+                  class="MuiBox-root css-1jw9kr7"
                 >
                   <p
                     class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
@@ -1797,7 +1853,7 @@ exports[`RegistrationEditPage should render 1`] = `
                       class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
                     >
                       <div
-                        class="MuiBox-root css-n2y79c"
+                        class="MuiBox-root css-e1h6et"
                       >
                         <div
                           class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
@@ -2061,7 +2117,7 @@ exports[`RegistrationEditPage should render 1`] = `
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-1d8l8v2"
+              class="MuiBox-root css-eo0ytz"
             >
               <button
                 class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-tov16f-MuiButtonBase-root-MuiIconButton-root"
@@ -2087,7 +2143,7 @@ exports[`RegistrationEditPage should render 1`] = `
                 class="MuiBox-root css-1qbrvqz"
               >
                 <div
-                  class="MuiBox-root css-yxbw19"
+                  class="MuiBox-root css-1jw9kr7"
                 >
                   <p
                     class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
@@ -2111,7 +2167,7 @@ exports[`RegistrationEditPage should render 1`] = `
                       class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
                     >
                       <div
-                        class="MuiBox-root css-n2y79c"
+                        class="MuiBox-root css-e1h6et"
                       >
                         <div
                           class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
@@ -2290,7 +2346,7 @@ exports[`RegistrationEditPage should render 1`] = `
         </div>
       </div>
       <div
-        class="MuiBox-root css-1d8l8v2"
+        class="MuiBox-root css-eo0ytz"
       >
         <button
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-tov16f-MuiButtonBase-root-MuiIconButton-root"
@@ -2316,7 +2372,7 @@ exports[`RegistrationEditPage should render 1`] = `
           class="MuiBox-root css-1qbrvqz"
         >
           <div
-            class="MuiBox-root css-yxbw19"
+            class="MuiBox-root css-1jw9kr7"
           >
             <p
               class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
@@ -2340,7 +2396,7 @@ exports[`RegistrationEditPage should render 1`] = `
                 class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
               >
                 <div
-                  class="MuiBox-root css-n2y79c"
+                  class="MuiBox-root css-e1h6et"
                 >
                   <div
                     class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
@@ -2376,7 +2432,7 @@ exports[`RegistrationEditPage should render 1`] = `
         </div>
       </div>
       <div
-        class="MuiBox-root css-1d8l8v2"
+        class="MuiBox-root css-eo0ytz"
       >
         <button
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-tov16f-MuiButtonBase-root-MuiIconButton-root"
@@ -2402,7 +2458,7 @@ exports[`RegistrationEditPage should render 1`] = `
           class="MuiBox-root css-1qbrvqz"
         >
           <div
-            class="MuiBox-root css-yxbw19"
+            class="MuiBox-root css-1jw9kr7"
           >
             <p
               class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
@@ -2424,7 +2480,7 @@ exports[`RegistrationEditPage should render 1`] = `
                 class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
               >
                 <div
-                  class="MuiBox-root css-n2y79c"
+                  class="MuiBox-root css-e1h6et"
                 >
                   <div
                     class="MuiFormControl-root MuiTextField-root css-136h9lv-MuiFormControl-root-MuiTextField-root"

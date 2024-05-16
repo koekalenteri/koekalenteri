@@ -3,7 +3,7 @@
 exports[`JudgeSection should hide classes for NOWT event (KOE-317) 1`] = `
 <div>
   <div
-    class="MuiBox-root css-z0stvt"
+    class="MuiBox-root css-l530ik"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-2rshpx-MuiButtonBase-root-MuiIconButton-root"
@@ -29,7 +29,7 @@ exports[`JudgeSection should hide classes for NOWT event (KOE-317) 1`] = `
       class="MuiBox-root css-1qbrvqz"
     >
       <div
-        class="MuiBox-root css-yxbw19"
+        class="MuiBox-root css-1jw9kr7"
       >
         <p
           class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
@@ -51,7 +51,7 @@ exports[`JudgeSection should hide classes for NOWT event (KOE-317) 1`] = `
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-n2y79c"
+              class="MuiBox-root css-e1h6et"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
@@ -368,7 +368,7 @@ exports[`JudgeSection should hide classes for NOWT event (KOE-317) 1`] = `
 exports[`JudgeSection should not warn about judge 0 not beign available (KOE-357) 1`] = `
 <div>
   <div
-    class="MuiBox-root css-z0stvt"
+    class="MuiBox-root css-l530ik"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-2rshpx-MuiButtonBase-root-MuiIconButton-root"
@@ -394,7 +394,7 @@ exports[`JudgeSection should not warn about judge 0 not beign available (KOE-357
       class="MuiBox-root css-1qbrvqz"
     >
       <div
-        class="MuiBox-root css-yxbw19"
+        class="MuiBox-root css-1jw9kr7"
       >
         <p
           class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
@@ -416,7 +416,7 @@ exports[`JudgeSection should not warn about judge 0 not beign available (KOE-357
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-n2y79c"
+              class="MuiBox-root css-e1h6et"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
@@ -732,7 +732,7 @@ exports[`JudgeSection should not warn about judge 0 not beign available (KOE-357
 exports[`JudgeSection should render properly with one judge selected 1`] = `
 <div>
   <div
-    class="MuiBox-root css-z0stvt"
+    class="MuiBox-root css-l530ik"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-2rshpx-MuiButtonBase-root-MuiIconButton-root"
@@ -758,7 +758,7 @@ exports[`JudgeSection should render properly with one judge selected 1`] = `
       class="MuiBox-root css-1qbrvqz"
     >
       <div
-        class="MuiBox-root css-yxbw19"
+        class="MuiBox-root css-1jw9kr7"
       >
         <p
           class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
@@ -780,7 +780,7 @@ exports[`JudgeSection should render properly with one judge selected 1`] = `
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-n2y79c"
+              class="MuiBox-root css-e1h6et"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
@@ -1096,7 +1096,7 @@ exports[`JudgeSection should render properly with one judge selected 1`] = `
 exports[`JudgeSection should render properly with three judges selected 1`] = `
 <div>
   <div
-    class="MuiBox-root css-z0stvt"
+    class="MuiBox-root css-l530ik"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-2rshpx-MuiButtonBase-root-MuiIconButton-root"
@@ -1122,7 +1122,7 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
       class="MuiBox-root css-1qbrvqz"
     >
       <div
-        class="MuiBox-root css-yxbw19"
+        class="MuiBox-root css-1jw9kr7"
       >
         <p
           class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
@@ -1144,7 +1144,7 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-n2y79c"
+              class="MuiBox-root css-e1h6et"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
@@ -1902,7 +1902,7 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
 exports[`JudgeSection should render properly with two judges selected 1`] = `
 <div>
   <div
-    class="MuiBox-root css-z0stvt"
+    class="MuiBox-root css-l530ik"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-2rshpx-MuiButtonBase-root-MuiIconButton-root"
@@ -1928,7 +1928,7 @@ exports[`JudgeSection should render properly with two judges selected 1`] = `
       class="MuiBox-root css-1qbrvqz"
     >
       <div
-        class="MuiBox-root css-yxbw19"
+        class="MuiBox-root css-1jw9kr7"
       >
         <p
           class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
@@ -1950,7 +1950,7 @@ exports[`JudgeSection should render properly with two judges selected 1`] = `
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-n2y79c"
+              class="MuiBox-root css-e1h6et"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"

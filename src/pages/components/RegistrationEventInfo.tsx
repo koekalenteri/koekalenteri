@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import type { PublicDogEvent } from '../../types'
 
 import { useTranslation } from 'react-i18next'
@@ -5,6 +6,7 @@ import PictureAsPdfOutlined from '@mui/icons-material/PictureAsPdfOutlined'
 import Grid from '@mui/material/Grid'
 import Link from '@mui/material/Link'
 import Paper from '@mui/material/Paper'
+import Typography from '@mui/material/Typography'
 
 import useEventStatus from '../../hooks/useEventStatus'
 import { judgeName } from '../../lib/judge'
@@ -20,6 +22,18 @@ interface Props {
   readonly invitationAttachment?: string | undefined
 }
 
+const Header = ({ children }: { children: ReactNode }) => (
+  <Grid item xs={4} alignContent="top" sx={{ borderRight: '1px dashed #eee', borderBottom: '1px solid #eee' }}>
+    <Typography variant="caption">{children}</Typography>
+  </Grid>
+)
+
+const Data = ({ children }: { children: ReactNode }) => (
+  <Grid item xs={8} alignContent="center" sx={{ borderBottom: '1px solid #eee' }}>
+    <Typography variant="body2">{children}</Typography>
+  </Grid>
+)
+
 export default function RegistrationEventInfo({ event, invitationAttachment }: Props) {
   const { t } = useTranslation()
   const status = useEventStatus(event)
@@ -28,7 +42,7 @@ export default function RegistrationEventInfo({ event, invitationAttachment }: P
   }`
 
   return (
-    <Paper sx={{ p: 1, mb: 1, width: '100%' }} elevation={2}>
+    <Paper sx={{ p: { xs: 0, sm: 1 }, mb: 1, width: '100%' }} elevation={2}>
       <CollapsibleSection title={title} border={false}>
         <Grid
           container
@@ -37,79 +51,51 @@ export default function RegistrationEventInfo({ event, invitationAttachment }: P
           sx={{ '& .MuiGrid-item': { overflow: 'hidden', textOverflow: 'ellipsis' } }}
         >
           <Grid item container sm={12} md columnSpacing={1}>
-            <Grid item xs={4}>
-              {t('entryTime')}:
-            </Grid>
-            <Grid item xs={8} sx={{ '& .info': { px: 1 } }}>
+            <Header>{t('entryTime')}</Header>
+            <Data>
               <b>{t('dateFormat.datespan', { start: event.entryStartDate, end: event.entryEndDate })}</b>&nbsp;
               <span className="info">{status}</span>
-            </Grid>
-            <Grid item xs={4}>
-              {t('event.organizer')}:
-            </Grid>
-            <Grid item xs={8}>
-              {event.organizer?.name}
-            </Grid>
-            <Grid item xs={4}>
-              {t('event.judges')}:
-            </Grid>
-            <Grid item xs={8}>
-              {event.judges.map((j) => judgeName(j, t)).join(', ')}
-            </Grid>
+            </Data>
+            <Header>{t('event.organizer')}</Header>
+            <Data>{event.organizer?.name}</Data>
+            <Header>{t('event.judges')}</Header>
+            <Data>{event.judges.map((j) => judgeName(j, t)).join(', ')}</Data>
             {printContactInfo(event.contactInfo?.official) ? (
               <>
-                <Grid item xs={4}>
-                  {t('event.official')}:
-                </Grid>
-                <Grid item xs={8}>
-                  {printContactInfo(event.contactInfo?.official)}
-                </Grid>
+                <Header>{t('event.official')}</Header>
+                <Data>{printContactInfo(event.contactInfo?.official)}</Data>
               </>
             ) : null}
             {printContactInfo(event.contactInfo?.secretary) ? (
               <>
-                <Grid item xs={4}>
-                  {t('event.secretary')}:
-                </Grid>
-                <Grid item xs={8}>
-                  {printContactInfo(event.contactInfo?.secretary)}
-                </Grid>
+                <Header>{t('event.secretary')}</Header>
+                <Data>{printContactInfo(event.contactInfo?.secretary)}</Data>
               </>
             ) : null}
           </Grid>
           <Grid item container sm={12} md columnSpacing={1}>
-            <Grid item xs={4}>
-              {t('event.cost')}:
-            </Grid>
-            <Grid item xs={8}>
+            <Header>{t('event.cost')}</Header>
+            <Data>
               <CostInfo event={event} />
-            </Grid>
+            </Data>
             {event.priority ? (
               <>
-                <Grid item xs={4}>
-                  {t('event.priority')}:
-                </Grid>
-                <Grid item xs={8}>
+                <Header>{t('event.priority')}</Header>
+                <Data>
                   <PriorityChips priority={event.priority} />
-                </Grid>
+                </Data>
               </>
             ) : null}
             {event.description ? (
               <>
-                <Grid item xs={4}>
-                  {t('event.description')}:
-                </Grid>
-                <Grid item xs={8}>
-                  {event.description}
-                </Grid>
+                <Header>{t('event.description')}</Header>
+                <Data>{event.description}</Data>
               </>
             ) : null}
             {invitationAttachment && event.state === 'invited' ? (
               <>
-                <Grid item xs={4}>
-                  {t('event.attachments')}:
-                </Grid>
-                <Grid item xs={8}>
+                <Header>{t('event.attachments')}</Header>
+                <Data>
                   <PictureAsPdfOutlined fontSize="small" sx={{ verticalAlign: 'middle', pr: 0.5 }} />
                   <Link
                     href={`${API_BASE_URL}/file/${invitationAttachment}/kutsu.pdf`}
@@ -120,7 +106,7 @@ export default function RegistrationEventInfo({ event, invitationAttachment }: P
                   >
                     Kutsu.pdf
                   </Link>
-                </Grid>
+                </Data>
               </>
             ) : null}
           </Grid>

@@ -1,7 +1,7 @@
-import type { TooltipProps } from '@mui/material/Tooltip'
 import type { GridColDef } from '@mui/x-data-grid'
 import type { ReactElement } from 'react'
-import type { Registration, RegistrationDate } from '../../../../types'
+import type { PublicDogEvent, Registration, RegistrationDate } from '../../../../types'
+import type { TooltipContent } from '../../../components/IconsTooltip'
 
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -16,39 +16,24 @@ import MarkEmailReadOutlined from '@mui/icons-material/MarkEmailReadOutlined'
 import PersonOutline from '@mui/icons-material/PersonOutline'
 import SavingsOutlined from '@mui/icons-material/SavingsOutlined'
 import SpeakerNotesOutlined from '@mui/icons-material/SpeakerNotesOutlined'
-import { styled } from '@mui/material'
-import Box from '@mui/material/Box'
 import Stack from '@mui/material/Stack'
-import Tooltip, { tooltipClasses } from '@mui/material/Tooltip'
-import Typography from '@mui/material/Typography'
 import { GridActionsCellItem } from '@mui/x-data-grid'
 
 import { formatMoney } from '../../../../lib/money'
+import { hasPriority } from '../../../../lib/registration'
+import { PriorityIcon } from '../../../components/icons/PriorityIcon'
+import { IconsTooltip } from '../../../components/IconsTooltip'
 
 import GroupColors from './GroupColors'
 
-const IconsTooltip = styled(({ className, ...props }: TooltipProps) => (
-  <Tooltip {...props} classes={{ popper: className }} />
-))({
-  [`& .${tooltipClasses.tooltip}`]: {
-    maxWidth: 'none',
-  },
-})
-
-type TooltipContent = { text: string; icon: JSX.Element }
-
-const IconsTooltipContent = ({ roles }: { roles: TooltipContent[] }) => (
-  <Box>
-    {roles.map((role) => (
-      <Box key={role.text} display="flex" alignItems="center">
-        {role.icon}&nbsp;<Typography fontSize="small">{role.text}</Typography>
-      </Box>
-    ))}
-  </Box>
-)
-
-const RegistrationIcons = (reg: Registration) => {
+interface RegistrationIconsProps {
+  event: PublicDogEvent
+  reg: Registration
+}
+const RegistrationIcons = ({ event, reg }: RegistrationIconsProps) => {
   const { t } = useTranslation()
+
+  const priority = hasPriority(event, reg)
 
   const manualResultCount = useMemo(
     () => reg.qualifyingResults.filter((r) => !r.official).length,
@@ -57,10 +42,25 @@ const RegistrationIcons = (reg: Registration) => {
 
   const tooltipContent: TooltipContent[] = useMemo(() => {
     const result: TooltipContent[] = []
-    if (reg.handler.membership || reg.owner.membership) {
+
+    if (priority) {
+      const info50 =
+        priority === 0.5 ? (reg.owner.membership ? ' (vain omistaja on jäsen)' : ' (vain ohjaaja on jäsen)') : ''
+      result.push({
+        icon: <PriorityIcon priority={priority} fontSize="small" />,
+        text: `Ilmoittautuja on etusijalla${info50}`,
+      })
+    }
+    if (reg.owner.membership) {
       result.push({
         icon: <PersonOutline fontSize="small" />,
-        text: 'Ilmoittautuja on järjestävän yhdistyksen jäsen',
+        text: 'Omistaja on järjestävän yhdistyksen jäsen',
+      })
+    }
+    if (reg.handler.membership) {
+      result.push({
+        icon: <PersonOutline fontSize="small" />,
+        text: 'Ohjaaja on järjestävän yhdistyksen jäsen',
       })
     }
     if (reg.paidAt) {
@@ -107,23 +107,12 @@ const RegistrationIcons = (reg: Registration) => {
       })
     }
     return result
-  }, [
-    manualResultCount,
-    reg.confirmed,
-    reg.handler.membership,
-    reg.internalNotes,
-    reg.invitationRead,
-    reg.notes,
-    reg.owner.membership,
-    reg.paidAmount,
-    reg.paidAt,
-    reg.refundAmount,
-    reg.refundAt,
-  ])
+  }, [manualResultCount, priority, reg])
 
   return (
-    <IconsTooltip placement="right" title={<IconsTooltipContent roles={tooltipContent} />}>
+    <IconsTooltip placement="right" items={tooltipContent}>
       <Stack direction="row" alignItems="center">
+        {priority ? <PriorityIcon dim priority={priority} fontSize="small" /> : null}
         <PersonOutline fontSize="small" sx={{ opacity: reg.handler.membership || reg.owner.membership ? 1 : 0.05 }} />
         {reg.refundAt ? (
           <SavingsOutlined fontSize="small" />
@@ -142,6 +131,7 @@ const RegistrationIcons = (reg: Registration) => {
 
 export function useClassEntrySelectionColumns(
   available: RegistrationDate[],
+  event: PublicDogEvent,
   openEditDialog?: (id: string) => void,
   cancelRegistration?: (id: string) => void,
   refundRegistration?: (id: string) => void
@@ -223,7 +213,7 @@ export function useClassEntrySelectionColumns(
         headerName: '',
         width: 150,
         align: 'center',
-        renderCell: (p) => <RegistrationIcons {...p.row} />,
+        renderCell: (p) => <RegistrationIcons event={event} reg={p.row} />,
         sortable: false,
       },
       {
@@ -277,5 +267,5 @@ export function useClassEntrySelectionColumns(
     })
 
     return { cancelledColumns, entryColumns, participantColumns }
-  }, [available, cancelRegistration, openEditDialog, refundRegistration, t])
+  }, [available, cancelRegistration, event, openEditDialog, refundRegistration, t])
 }

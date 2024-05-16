@@ -3,7 +3,7 @@
 exports[`PayerInfo should render with minimal info 1`] = `
 <div>
   <div
-    class="MuiBox-root css-z0stvt"
+    class="MuiBox-root css-l530ik"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-2rshpx-MuiButtonBase-root-MuiIconButton-root"
@@ -29,7 +29,7 @@ exports[`PayerInfo should render with minimal info 1`] = `
       class="MuiBox-root css-1qbrvqz"
     >
       <div
-        class="MuiBox-root css-yxbw19"
+        class="MuiBox-root css-1jw9kr7"
       >
         <p
           class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
@@ -51,7 +51,7 @@ exports[`PayerInfo should render with minimal info 1`] = `
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-n2y79c"
+              class="MuiBox-root css-e1h6et"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"

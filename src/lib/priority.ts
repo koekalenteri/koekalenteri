@@ -6,6 +6,9 @@ export interface Priority {
   value: string
 }
 
+export const PRIORITY_MEMBER = 'member'
+export const PRIORITY_INVITED = 'invited'
+
 export const PRIORITY: Priority[] = [
   { group: 'Järjestävän yhdistyksen jäsen', name: 'Jäsenet', value: 'member' },
   { group: 'Etusija nimetyillä roduilla', name: 'Kultaisetnoutajat', value: '111' },
