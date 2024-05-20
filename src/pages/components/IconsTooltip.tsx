@@ -24,11 +24,15 @@ interface Props extends Omit<TooltipProps, 'title'> {
   items: TooltipContent[]
 }
 
-export const IconsTooltip = styled(({ className, items, children, ...props }: Props) => (
-  <Tooltip {...props} classes={{ popper: className }} title={<IconsTooltipContent items={items} />}>
-    {children}
-  </Tooltip>
-))({
+export const IconsTooltip = styled(({ className, items, children, ...props }: Props) => {
+  if (!items.length) return <>{children}</>
+
+  return (
+    <Tooltip {...props} classes={{ popper: className }} title={<IconsTooltipContent items={items} />}>
+      {children}
+    </Tooltip>
+  )
+})({
   [`& .${tooltipClasses.tooltip}`]: {
     maxWidth: 'none',
   },
