@@ -225,7 +225,7 @@ export const RefundDailog = ({ open, registration, onClose }: Props) => {
           onChange={handleNotesChange}
           rows={2}
           sx={{ width: '100%', mt: 1 }}
-          value={registration.internalNotes}
+          value={internalNotes}
         />
       </DialogContent>
       <DialogActions>
