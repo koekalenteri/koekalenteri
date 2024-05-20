@@ -255,8 +255,8 @@ export function useClassEntrySelectionColumns(
     ]
 
     const participantColumns: GridColDef<Registration>[] = [...entryColumns]
-    const isPredefinedReason = (v: string): v is 'dog-heat' | 'handler-sick' | 'dog-sick' | 'moved-classes' | 'gdpr' =>
-      ['dog-heat', 'handler-sick', 'dog-sick', 'moved-classes', 'gdpr'].includes(v)
+    const isPredefinedReason = (v: string): v is 'dog-heat' | 'handler-sick' | 'dog-sick' | 'gdpr' =>
+      ['dog-heat', 'handler-sick', 'dog-sick', 'gdpr'].includes(v)
 
     const cancelledColumns: GridColDef<Registration>[] = [...participantColumns]
     cancelledColumns.splice(cancelledColumns.length - 2, 0, {

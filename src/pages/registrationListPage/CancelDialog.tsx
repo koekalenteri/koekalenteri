@@ -83,7 +83,6 @@ export function CancelDialog({ disabled, event, onCancel, onClose, open, registr
             <MenuItem value="dog-heat">{t('registration.cancelReason.dog-heat')}</MenuItem>
             <MenuItem value="handler-sick">{t('registration.cancelReason.handler-sick')}</MenuItem>
             <MenuItem value="dog-sick">{t('registration.cancelReason.dog-sick')}</MenuItem>
-            <MenuItem value="moved-classes">{t('registration.cancelReason.moved-classes')}</MenuItem>
             <MenuItem value="other">{t('registration.cancelReason.other')}</MenuItem>
             <MenuItem value="gdpr">{t('registration.cancelReason.gdpr')}</MenuItem>
           </Select>
