@@ -102,7 +102,7 @@ exports[`JudgeSection should hide classes for NOWT event (KOE-317) 1`] = `
                     class="MuiGrid-root MuiGrid-item css-1khyezo-MuiGrid-root"
                   >
                     <div
-                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1etx6i0-MuiAutocomplete-root"
+                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-i48e2f-MuiAutocomplete-root"
                     >
                       <div
                         class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
@@ -177,7 +177,7 @@ exports[`JudgeSection should hide classes for NOWT event (KOE-317) 1`] = `
                     class="MuiGrid-root MuiGrid-item css-wxwn3y-MuiGrid-root"
                   >
                     <div
-                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1etx6i0-MuiAutocomplete-root"
+                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-5r88sx-MuiAutocomplete-root"
                       data-testid="Maa"
                     >
                       <div
@@ -467,7 +467,7 @@ exports[`JudgeSection should not warn about judge 0 not beign available (KOE-357
                     class="MuiGrid-root MuiGrid-item css-17sva53-MuiGrid-root"
                   >
                     <div
-                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1etx6i0-MuiAutocomplete-root"
+                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-i48e2f-MuiAutocomplete-root"
                     >
                       <div
                         class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
@@ -541,7 +541,7 @@ exports[`JudgeSection should not warn about judge 0 not beign available (KOE-357
                     class="MuiGrid-root MuiGrid-item css-wxwn3y-MuiGrid-root"
                   >
                     <div
-                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1etx6i0-MuiAutocomplete-root"
+                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-5r88sx-MuiAutocomplete-root"
                       data-testid="Maa"
                     >
                       <div
@@ -831,7 +831,7 @@ exports[`JudgeSection should render properly with one judge selected 1`] = `
                     class="MuiGrid-root MuiGrid-item css-17sva53-MuiGrid-root"
                   >
                     <div
-                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1etx6i0-MuiAutocomplete-root"
+                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-i48e2f-MuiAutocomplete-root"
                     >
                       <div
                         class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
@@ -905,7 +905,7 @@ exports[`JudgeSection should render properly with one judge selected 1`] = `
                     class="MuiGrid-root MuiGrid-item css-wxwn3y-MuiGrid-root"
                   >
                     <div
-                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1etx6i0-MuiAutocomplete-root"
+                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-5r88sx-MuiAutocomplete-root"
                       data-testid="Maa"
                     >
                       <div
@@ -1195,7 +1195,7 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
                     class="MuiGrid-root MuiGrid-item css-17sva53-MuiGrid-root"
                   >
                     <div
-                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1etx6i0-MuiAutocomplete-root"
+                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-i48e2f-MuiAutocomplete-root"
                     >
                       <div
                         class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
@@ -1269,7 +1269,7 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
                     class="MuiGrid-root MuiGrid-item css-wxwn3y-MuiGrid-root"
                   >
                     <div
-                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1etx6i0-MuiAutocomplete-root"
+                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-5r88sx-MuiAutocomplete-root"
                       data-testid="Maa"
                     >
                       <div
@@ -1416,7 +1416,7 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
                     class="MuiGrid-root MuiGrid-item css-17sva53-MuiGrid-root"
                   >
                     <div
-                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1etx6i0-MuiAutocomplete-root"
+                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-i48e2f-MuiAutocomplete-root"
                     >
                       <div
                         class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
@@ -1490,7 +1490,7 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
                     class="MuiGrid-root MuiGrid-item css-wxwn3y-MuiGrid-root"
                   >
                     <div
-                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1etx6i0-MuiAutocomplete-root"
+                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-5r88sx-MuiAutocomplete-root"
                       data-testid="Maa"
                     >
                       <div
@@ -1637,7 +1637,7 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
                     class="MuiGrid-root MuiGrid-item css-17sva53-MuiGrid-root"
                   >
                     <div
-                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1etx6i0-MuiAutocomplete-root"
+                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-i48e2f-MuiAutocomplete-root"
                     >
                       <div
                         class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
@@ -1711,7 +1711,7 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
                     class="MuiGrid-root MuiGrid-item css-wxwn3y-MuiGrid-root"
                   >
                     <div
-                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1etx6i0-MuiAutocomplete-root"
+                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-5r88sx-MuiAutocomplete-root"
                       data-testid="Maa"
                     >
                       <div
@@ -2001,7 +2001,7 @@ exports[`JudgeSection should render properly with two judges selected 1`] = `
                     class="MuiGrid-root MuiGrid-item css-17sva53-MuiGrid-root"
                   >
                     <div
-                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1etx6i0-MuiAutocomplete-root"
+                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-i48e2f-MuiAutocomplete-root"
                     >
                       <div
                         class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
@@ -2075,7 +2075,7 @@ exports[`JudgeSection should render properly with two judges selected 1`] = `
                     class="MuiGrid-root MuiGrid-item css-wxwn3y-MuiGrid-root"
                   >
                     <div
-                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1etx6i0-MuiAutocomplete-root"
+                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-5r88sx-MuiAutocomplete-root"
                       data-testid="Maa"
                     >
                       <div
@@ -2222,7 +2222,7 @@ exports[`JudgeSection should render properly with two judges selected 1`] = `
                     class="MuiGrid-root MuiGrid-item css-17sva53-MuiGrid-root"
                   >
                     <div
-                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1etx6i0-MuiAutocomplete-root"
+                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-i48e2f-MuiAutocomplete-root"
                     >
                       <div
                         class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
@@ -2296,7 +2296,7 @@ exports[`JudgeSection should render properly with two judges selected 1`] = `
                     class="MuiGrid-root MuiGrid-item css-wxwn3y-MuiGrid-root"
                   >
                     <div
-                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1etx6i0-MuiAutocomplete-root"
+                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-5r88sx-MuiAutocomplete-root"
                       data-testid="Maa"
                     >
                       <div

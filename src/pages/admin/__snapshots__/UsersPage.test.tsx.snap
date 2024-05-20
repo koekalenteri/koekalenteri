@@ -163,7 +163,7 @@ exports[`OrganizerListPage renders 1`] = `
               class="MuiStack-root css-cnn9ag-MuiStack-root"
             >
               <div
-                class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-81mto1-MuiAutocomplete-root"
+                class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1b0e6fc-MuiAutocomplete-root"
                 data-testid="Yhdistys"
               >
                 <div

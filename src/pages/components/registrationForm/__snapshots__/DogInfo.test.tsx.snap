@@ -66,7 +66,7 @@ exports[`DogInfo should render 1`] = `
                       class="MuiBox-root css-70qvj9"
                     >
                       <div
-                        class="MuiAutocomplete-root MuiAutocomplete-hasClearIcon css-zjk1eq-MuiAutocomplete-root"
+                        class="MuiAutocomplete-root MuiAutocomplete-hasClearIcon css-9x1m3z-MuiAutocomplete-root"
                       >
                         <div
                           class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
@@ -374,7 +374,7 @@ exports[`DogInfo should render 1`] = `
                   class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-6 MuiGrid-grid-sm-3 MuiGrid-grid-lg-3 css-1blu1sr-MuiGrid-root"
                 >
                   <div
-                    class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon fact css-1etx6i0-MuiAutocomplete-root"
+                    class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon fact css-5r88sx-MuiAutocomplete-root"
                     data-testid="dog.gender"
                   >
                     <div
@@ -449,7 +449,7 @@ exports[`DogInfo should render 1`] = `
                   class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-1b3l6lk-MuiGrid-root"
                 >
                   <div
-                    class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon fact css-1etx6i0-MuiAutocomplete-root"
+                    class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon fact css-5r88sx-MuiAutocomplete-root"
                     data-testid="dog.breed"
                   >
                     <div
