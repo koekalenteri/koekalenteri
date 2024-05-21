@@ -94,6 +94,7 @@ export const VALIDATORS: Validators<PartialEvent, 'event'> = {
     if (required && !contactInfoShown(contactInfo?.official) && !contactInfoShown(contactInfo?.secretary)) {
       return 'contactInfo'
     }
+    if (required && !contactInfo?.secretary?.email) return 'secretaryEmail'
     return false
   },
   cost: (event, required) => required && !event.cost,
