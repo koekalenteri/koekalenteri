@@ -39,13 +39,23 @@ export const EventClassPlaces = ({ event, eventClass }: { event: PublicDogEvent;
 
   return (
     <Grid container>
-      <TextGrid xs={dates.length ? 2 : 6}>{eventClass}</TextGrid>
+      <TextGrid item xs={dates.length ? 2 : 6}>
+        {eventClass}
+      </TextGrid>
       {dates.length ? (
-        <TextGrid xs={4}>{dates.map((date) => t('dateFormat.wdshort', { date })).join(', ')}</TextGrid>
+        <TextGrid item xs={4}>
+          {dates.map((date) => t('dateFormat.wdshort', { date })).join(', ')}
+        </TextGrid>
       ) : null}
-      <NumberGrid xs={2}>{entryStatus.entries}</NumberGrid>
-      <NumberGrid xs={2}>{entryStatus.places}</NumberGrid>
-      <NumberGrid xs={2}>{entryStatus.members}</NumberGrid>
+      <NumberGrid item xs={2}>
+        {entryStatus.entries}
+      </NumberGrid>
+      <NumberGrid item xs={2}>
+        {entryStatus.places}
+      </NumberGrid>
+      <NumberGrid item xs={2}>
+        {entryStatus.members}
+      </NumberGrid>
     </Grid>
   )
 }

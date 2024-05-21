@@ -80,27 +80,27 @@ exports[`EventInfo should render contact info 1`] = `
         class="MuiGrid-root MuiGrid-container css-11lq3yg-MuiGrid-root"
       >
         <div
-          class="MuiGrid-root MuiGrid-grid-xs-2 css-bx5ner-MuiGrid-root"
+          class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-dr8jig-MuiGrid-root"
         >
           ALO
         </div>
         <div
-          class="MuiGrid-root MuiGrid-grid-xs-4 css-e1hidd-MuiGrid-root"
+          class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-1u5voze-MuiGrid-root"
         >
           eeeeee d.M.
         </div>
         <div
-          class="MuiGrid-root MuiGrid-grid-xs-2 css-dv3kpf-MuiGrid-root"
+          class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-83otcn-MuiGrid-root"
         >
           0
         </div>
         <div
-          class="MuiGrid-root MuiGrid-grid-xs-2 css-dv3kpf-MuiGrid-root"
+          class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-83otcn-MuiGrid-root"
         >
           10
         </div>
         <div
-          class="MuiGrid-root MuiGrid-grid-xs-2 css-dv3kpf-MuiGrid-root"
+          class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-83otcn-MuiGrid-root"
         >
           2
         </div>
@@ -262,27 +262,27 @@ exports[`EventInfo should render event information 1`] = `
         class="MuiGrid-root MuiGrid-container css-11lq3yg-MuiGrid-root"
       >
         <div
-          class="MuiGrid-root MuiGrid-grid-xs-2 css-bx5ner-MuiGrid-root"
+          class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-dr8jig-MuiGrid-root"
         >
           ALO
         </div>
         <div
-          class="MuiGrid-root MuiGrid-grid-xs-4 css-e1hidd-MuiGrid-root"
+          class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-1u5voze-MuiGrid-root"
         >
           eeeeee d.M.
         </div>
         <div
-          class="MuiGrid-root MuiGrid-grid-xs-2 css-dv3kpf-MuiGrid-root"
+          class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-83otcn-MuiGrid-root"
         >
           0
         </div>
         <div
-          class="MuiGrid-root MuiGrid-grid-xs-2 css-dv3kpf-MuiGrid-root"
+          class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-83otcn-MuiGrid-root"
         >
           10
         </div>
         <div
-          class="MuiGrid-root MuiGrid-grid-xs-2 css-dv3kpf-MuiGrid-root"
+          class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-83otcn-MuiGrid-root"
         >
           2
         </div>
