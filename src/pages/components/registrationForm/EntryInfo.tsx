@@ -62,8 +62,12 @@ export function EntryInfo({
   const classes = uniqueClasses(event)
   const regDates = useEventRegistrationDates(event, reg.class ?? className)
   const dates = uniqueDate(regDates.map((rd) => rd.date))
+  const selectedDates = reg.dates.filter((rd) => dates.find((d) => isSameDay(d, rd.date)))
+  const tmpDates = selectedDates.length ? selectedDates.map((rd) => rd.date) : dates
   const [filterDates, setFilterDates] = useState<Date[]>(
-    uniqueDate(classDate ? regDates.filter((d) => format(d.date, 'dd.MM.') === classDate).map((rd) => rd.date) : dates)
+    uniqueDate(
+      classDate ? regDates.filter((d) => format(d.date, 'dd.MM.') === classDate).map((rd) => rd.date) : tmpDates
+    )
   )
   const isValidRegistrationDate = (rd: RegistrationDate) => filterDates.find((fd) => isSameDay(fd, rd.date))
   const datesAndTimes = regDates.filter(isValidRegistrationDate)
@@ -106,6 +110,21 @@ export function EntryInfo({
     if (!rdates.length || rdates.length !== reg.dates.length) {
       if (ddates.length) changes.dates = ddates
     }
+
+    if (showDatesFilter) {
+      const usedDates = changes.dates || reg.dates
+      if (filterDates.length === 0) changes.dates = []
+      const missingDates = filterDates.filter((filterDate) => !usedDates.find((ud) => isSameDay(ud.date, filterDate)))
+      const addDates = cdates.filter((cd) => missingDates.find((date) => isSameDay(date, cd.date)))
+      if (addDates.length) changes.dates = [...usedDates, ...addDates]
+    }
+
+    if (changes.dates)
+      changes.dates.sort((a, b) => {
+        if (a.date !== b.date) return a.date.valueOf() - b.date.valueOf()
+        if (a.time && b.time) return a.time.localeCompare(b.time)
+        return 0
+      })
 
     if (Object.keys(changes).length) {
       onChange?.(changes)
@@ -161,7 +180,7 @@ export function EntryInfo({
         <Grid item xs={12} md={6} sx={{ display: showDatesFilter ? undefined : 'none' }}>
           <AutocompleteMulti
             disabled={disabled}
-            error={errorStates.dates}
+            error={errorStates.dates || (showDatesFilter && filterDates.length === 0)}
             helperText={t('registration.datesFilterInfo')}
             label={t('registration.datesFilter')}
             onChange={(_, value) => setFilterDates(value.sort((a, b) => a.valueOf() - b.valueOf()))}
@@ -178,7 +197,7 @@ export function EntryInfo({
             helperText={t('registration.datesInfo')}
             label={t('registration.dates')}
             onChange={handleDatesAndTimesChange}
-            isOptionEqualToValue={(o, v) => o.date.valueOf() === v.date.valueOf() && o.time === v.time}
+            isOptionEqualToValue={(o, v) => o.date?.valueOf() === v.date?.valueOf() && o.time === v.time}
             getOptionLabel={getRegDateTimeLabel}
             options={datesAndTimes}
             value={reg.dates}
