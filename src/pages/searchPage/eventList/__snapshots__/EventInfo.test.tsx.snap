@@ -31,7 +31,7 @@ exports[`EventInfo should render contact info 1`] = `
         class="MuiGrid-root MuiGrid-container css-11lq3yg-MuiGrid-root"
       >
         <div
-          class="MuiGrid-root MuiGrid-grid-xs-2 css-13x2423-MuiGrid-root"
+          class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-1o7apob-MuiGrid-root"
         >
           <span
             class="MuiTypography-root MuiTypography-caption css-1hltvp8-MuiTypography-root"
@@ -40,7 +40,7 @@ exports[`EventInfo should render contact info 1`] = `
           </span>
         </div>
         <div
-          class="MuiGrid-root MuiGrid-grid-xs-4 css-b8j6au-MuiGrid-root"
+          class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-gj1fbr-MuiGrid-root"
         >
           <span
             class="MuiTypography-root MuiTypography-caption css-1hltvp8-MuiTypography-root"
@@ -49,7 +49,7 @@ exports[`EventInfo should render contact info 1`] = `
           </span>
         </div>
         <div
-          class="MuiGrid-root MuiGrid-grid-xs-2 css-12f80rm-MuiGrid-root"
+          class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-tx3obz-MuiGrid-root"
         >
           <span
             class="MuiTypography-root MuiTypography-caption css-1hltvp8-MuiTypography-root"
@@ -58,7 +58,7 @@ exports[`EventInfo should render contact info 1`] = `
           </span>
         </div>
         <div
-          class="MuiGrid-root MuiGrid-grid-xs-2 css-12f80rm-MuiGrid-root"
+          class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-tx3obz-MuiGrid-root"
         >
           <span
             class="MuiTypography-root MuiTypography-caption css-1hltvp8-MuiTypography-root"
@@ -67,7 +67,7 @@ exports[`EventInfo should render contact info 1`] = `
           </span>
         </div>
         <div
-          class="MuiGrid-root MuiGrid-grid-xs-2 css-12f80rm-MuiGrid-root"
+          class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-tx3obz-MuiGrid-root"
         >
           <span
             class="MuiTypography-root MuiTypography-caption css-1hltvp8-MuiTypography-root"
@@ -213,7 +213,7 @@ exports[`EventInfo should render event information 1`] = `
         class="MuiGrid-root MuiGrid-container css-11lq3yg-MuiGrid-root"
       >
         <div
-          class="MuiGrid-root MuiGrid-grid-xs-2 css-13x2423-MuiGrid-root"
+          class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-1o7apob-MuiGrid-root"
         >
           <span
             class="MuiTypography-root MuiTypography-caption css-1hltvp8-MuiTypography-root"
@@ -222,7 +222,7 @@ exports[`EventInfo should render event information 1`] = `
           </span>
         </div>
         <div
-          class="MuiGrid-root MuiGrid-grid-xs-4 css-b8j6au-MuiGrid-root"
+          class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-gj1fbr-MuiGrid-root"
         >
           <span
             class="MuiTypography-root MuiTypography-caption css-1hltvp8-MuiTypography-root"
@@ -231,7 +231,7 @@ exports[`EventInfo should render event information 1`] = `
           </span>
         </div>
         <div
-          class="MuiGrid-root MuiGrid-grid-xs-2 css-12f80rm-MuiGrid-root"
+          class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-tx3obz-MuiGrid-root"
         >
           <span
             class="MuiTypography-root MuiTypography-caption css-1hltvp8-MuiTypography-root"
@@ -240,7 +240,7 @@ exports[`EventInfo should render event information 1`] = `
           </span>
         </div>
         <div
-          class="MuiGrid-root MuiGrid-grid-xs-2 css-12f80rm-MuiGrid-root"
+          class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-tx3obz-MuiGrid-root"
         >
           <span
             class="MuiTypography-root MuiTypography-caption css-1hltvp8-MuiTypography-root"
@@ -249,7 +249,7 @@ exports[`EventInfo should render event information 1`] = `
           </span>
         </div>
         <div
-          class="MuiGrid-root MuiGrid-grid-xs-2 css-12f80rm-MuiGrid-root"
+          class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-tx3obz-MuiGrid-root"
         >
           <span
             class="MuiTypography-root MuiTypography-caption css-1hltvp8-MuiTypography-root"

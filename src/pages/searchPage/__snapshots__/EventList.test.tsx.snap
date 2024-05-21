@@ -137,7 +137,7 @@ exports[`EventList should render 1`] = `
                   class="MuiGrid-root MuiGrid-container css-11lq3yg-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid-root MuiGrid-grid-xs-2 css-137k60d-MuiGrid-root"
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-1rl1j2j-MuiGrid-root"
                   >
                     <span
                       class="MuiTypography-root MuiTypography-caption css-alilem-MuiTypography-root"
@@ -146,7 +146,7 @@ exports[`EventList should render 1`] = `
                     </span>
                   </div>
                   <div
-                    class="MuiGrid-root MuiGrid-grid-xs-4 css-1oy25er-MuiGrid-root"
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-h9ezi1-MuiGrid-root"
                   >
                     <span
                       class="MuiTypography-root MuiTypography-caption css-alilem-MuiTypography-root"
@@ -155,7 +155,7 @@ exports[`EventList should render 1`] = `
                     </span>
                   </div>
                   <div
-                    class="MuiGrid-root MuiGrid-grid-xs-2 css-1ppzlxj-MuiGrid-root"
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-4v0ap6-MuiGrid-root"
                   >
                     <span
                       class="MuiTypography-root MuiTypography-caption css-alilem-MuiTypography-root"
@@ -164,7 +164,7 @@ exports[`EventList should render 1`] = `
                     </span>
                   </div>
                   <div
-                    class="MuiGrid-root MuiGrid-grid-xs-2 css-1ppzlxj-MuiGrid-root"
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-4v0ap6-MuiGrid-root"
                   >
                     <span
                       class="MuiTypography-root MuiTypography-caption css-alilem-MuiTypography-root"
@@ -173,7 +173,7 @@ exports[`EventList should render 1`] = `
                     </span>
                   </div>
                   <div
-                    class="MuiGrid-root MuiGrid-grid-xs-2 css-1ppzlxj-MuiGrid-root"
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-4v0ap6-MuiGrid-root"
                   >
                     <span
                       class="MuiTypography-root MuiTypography-caption css-alilem-MuiTypography-root"

@@ -25,21 +25,21 @@ export const EventClassPlacesHeader = ({ event }: { event: PublicDogEvent }) => 
 
   return (
     <Grid container>
-      <Grid xs={showDates ? 2 : 6}>
+      <Grid item xs={showDates ? 2 : 6}>
         <HeaderText>{t('event.classPlacesHeader.name')}</HeaderText>
       </Grid>
       {showDates ? (
-        <Grid xs={4}>
+        <Grid item xs={4}>
           <HeaderText>{t('event.classPlacesHeader.dates')}</HeaderText>
         </Grid>
       ) : null}
-      <Grid xs={2} textAlign="right">
+      <Grid item xs={2} textAlign="right">
         <HeaderText>{t('event.classPlacesHeader.entries')}</HeaderText>
       </Grid>
-      <Grid xs={2} textAlign="right">
+      <Grid item xs={2} textAlign="right">
         <HeaderText>{t('event.classPlacesHeader.places')}</HeaderText>
       </Grid>
-      <Grid xs={2} textAlign="right">
+      <Grid item xs={2} textAlign="right">
         <HeaderText>{t('event.classPlacesHeader.members')}</HeaderText>
       </Grid>
     </Grid>
