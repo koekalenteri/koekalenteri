@@ -121,9 +121,16 @@ export const RefundDailog = ({ open, registration, onClose }: Props) => {
     const transaction = selectedTransactions[0]
     try {
       const amount = Math.min(total, transaction.amount) - handlingCost
-      const response = await actions.refund(transaction.transactionId, amount)
+      const response = await actions.refund(registration, transaction.transactionId, amount)
       if (response?.status === 'ok') {
-        enqueueSnackbar('Maksu palautettu', { variant: 'success' })
+        if (response.provider === 'email refund') {
+          enqueueSnackbar(
+            'Maksun palautus on kesken. Ilmoittautujalle on lähetetty sähköposti rahojen palautuksen viimeistelyä varten. Näet audit trailista, kun palautus on käsitelty loppuun.',
+            { variant: 'success' }
+          )
+        } else {
+          enqueueSnackbar('Maksu palautettu', { variant: 'success' })
+        }
         handleClose()
       } else if (response?.status === 'pending') {
         if (response.provider === 'email refund') {
@@ -173,7 +180,7 @@ export const RefundDailog = ({ open, registration, onClose }: Props) => {
         )
       }
     }
-  }, [actions, enqueueSnackbar, handlingCost, handleClose, selectedTransactions, total])
+  }, [selectedTransactions, total, handlingCost, actions, registration, enqueueSnackbar, handleClose])
 
   return (
     <Dialog open={!!open} maxWidth="md" fullWidth>

@@ -13,7 +13,9 @@ import type { RefundItem } from '../types/paytrail'
 import { metricScope } from 'aws-embedded-metrics'
 import { nanoid } from 'nanoid'
 
+import { formatMoney } from '../../lib/money'
 import { CONFIG } from '../config'
+import { audit, registrationAuditKey } from '../lib/audit'
 import { authorize } from '../lib/auth'
 import { parseJSONWithFallback } from '../lib/json'
 import { debugProxyEvent } from '../lib/log'
@@ -136,9 +138,17 @@ const refundCreate = metricScope(
           { eventId, id: registrationId },
           'set #refundStatus = :refundStatus',
           { '#refundStatus': 'refundStatus' },
-          { ':refundStatus': result.status === 'pending' ? 'PENDING' : 'OK' },
+          { ':refundStatus': result.status === 'pending' || result.provider === 'email refund' ? 'PENDING' : 'OK' },
           registrationTable
         )
+
+        if (result.status === 'pending' || result.provider === 'email refund') {
+          audit({
+            auditKey: registrationAuditKey(registration),
+            message: `Palautus on kesken (${transaction.provider}), ${formatMoney(amount / 100)}`,
+            user: transaction.user,
+          })
+        }
 
         metricsSuccess(metrics, event.requestContext, 'refundCreate')
         return response<RefundPaymentResponse>(200, result, event)

@@ -64,7 +64,12 @@ const RegistrationIcons = ({ event, reg }: RegistrationIconsProps) => {
       })
     }
     if (reg.paidAt) {
-      if (reg.refundAt) {
+      if (reg.refundStatus === 'PENDING') {
+        result.push({
+          icon: <SavingsOutlined fontSize="small" />,
+          text: `Palautuksen käsittely on kesken. Palautetaan ${formatMoney(reg.refundAmount ?? 0)}, maksoi ${formatMoney(reg.paidAmount ?? 0)}`,
+        })
+      } else if (reg.refundAt) {
         result.push({
           icon: <SavingsOutlined fontSize="small" />,
           text: `Ilmoittautumismaksua on palautettu. Palautettu ${formatMoney(reg.refundAmount ?? 0)}, maksoi ${formatMoney(reg.paidAmount ?? 0)}`,
@@ -114,7 +119,7 @@ const RegistrationIcons = ({ event, reg }: RegistrationIconsProps) => {
       <Stack direction="row" alignItems="center">
         {priority ? <PriorityIcon dim priority={priority} fontSize="small" /> : null}
         <PersonOutline fontSize="small" sx={{ opacity: reg.handler.membership || reg.owner.membership ? 1 : 0.05 }} />
-        {reg.refundAt ? (
+        {reg.refundAt || reg.refundStatus === 'PENDING' ? (
           <SavingsOutlined fontSize="small" />
         ) : (
           <EuroOutlined fontSize="small" sx={{ opacity: reg.paidAt ? 1 : 0.05 }} />

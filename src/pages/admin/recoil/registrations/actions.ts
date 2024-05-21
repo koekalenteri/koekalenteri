@@ -124,10 +124,20 @@ export const useAdminRegistrationActions = (eventId: string) => {
       return getRegistrationTransactions(eventId, registrationId, token)
     },
 
-    async refund(transactionId: string, amount: number) {
+    async refund(reg: Registration, transactionId: string, amount: number) {
       if (!token) throw new Error('missing token')
 
-      return createRefund(transactionId, amount, token)
+      const result = await createRefund(transactionId, amount, token)
+
+      if (result?.status === 'pending' || result?.status === 'ok') {
+        updateAdminRegistration({
+          ...reg,
+          refundStatus: result?.status === 'pending' || result.provider === 'email refund' ? 'PENDING' : 'SUCCESS',
+          refundAmount: (reg.refundAmount ?? 0) + amount / 100,
+        })
+      }
+
+      return result
     },
 
     async putInternalNotes(
