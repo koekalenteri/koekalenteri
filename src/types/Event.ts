@@ -31,6 +31,7 @@ export interface JsonDogEvent extends JsonDbRecord {
   judges: Array<PublicJudge>
   kcId?: number
   location: string
+  members?: number
   name: string
   official: Partial<User>
   organizer: PublicOrganizer

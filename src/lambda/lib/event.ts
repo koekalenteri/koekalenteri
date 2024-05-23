@@ -68,18 +68,21 @@ export const updateRegistrations = async (eventId: string, eventTable: string) =
   for (const cls of classes) {
     const regsToClass = registrations?.filter((r) => r.class === cls.class)
     cls.entries = regsToClass?.length
-    cls.members = regsToClass?.filter((r) => membershipPriority(r)).length
+    cls.members = regsToClass?.filter(membershipPriority).length
   }
   const entries = registrations?.length || 0
+  const members = registrations?.filter(membershipPriority).length ?? 0
   await dynamoDB.update(
     eventKey,
-    'set #entries = :entries, #classes = :classes',
+    'set #entries = :entries, #members = :members, #classes = :classes',
     {
       '#entries': 'entries',
+      '#members': 'members',
       '#classes': 'classes',
     },
     {
       ':entries': entries,
+      ':members': members,
       ':classes': classes,
     },
     eventTable
