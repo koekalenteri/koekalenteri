@@ -34,6 +34,9 @@ const testEvent: DogEvent = {
       members: 2,
     },
   ],
+  places: 11,
+  entries: 22,
+  members: 2,
 }
 
 describe('EventInfo', () => {

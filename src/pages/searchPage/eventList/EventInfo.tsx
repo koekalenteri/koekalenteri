@@ -74,7 +74,7 @@ export const EventInfo = ({ event }: Props) => {
       ) : null}
       <InfoItem label={t('event.judges')} order={{ xs: 3, lg: 2 }}>
         {judges.map((j) => (
-          <Box>{j}</Box>
+          <Box key={j}>{j}</Box>
         ))}
       </InfoItem>
       {official ? (

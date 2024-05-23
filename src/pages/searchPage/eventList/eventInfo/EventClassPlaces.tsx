@@ -13,7 +13,9 @@ const TextGrid = styled(Grid)({
 })
 const NumberGrid = styled(Grid)({ paddingRight: 4, textAlign: 'right' })
 
-export const EventClassPlaces = ({ event, eventClass }: { event: PublicDogEvent; eventClass: string }) => {
+export type MinimalEvent = Pick<PublicDogEvent, 'classes' | 'startDate' | 'entries' | 'places' | 'members'>
+
+export const EventClassPlaces = ({ event, eventClass }: { event: MinimalEvent; eventClass: string }) => {
   const { t } = useTranslation()
 
   const classes = event.classes.filter((c) => c.class === eventClass)
@@ -22,20 +24,24 @@ export const EventClassPlaces = ({ event, eventClass }: { event: PublicDogEvent;
   const entryStatus = useMemo(() => {
     const status = classes.reduce(
       (acc, c) => {
-        acc.entries += c.entries ?? 0
         acc.places += c.places ?? 0
-        acc.members += c.members ?? 0
+
+        // entries and members are already summarized per class
+        acc.entries = c.entries ?? 0
+        acc.members = c.members ?? 0
         return acc
       },
       { entries: 0, places: 0, members: 0 }
     )
 
     if (event.classes.length <= 1) {
-      status.entries = event.entries ?? status.entries
       status.places = event.places
+
+      status.entries = event.entries ?? status.entries
+      status.members = event.members ?? 0
     }
     return status
-  }, [classes, event.classes.length, event.entries, event.places])
+  }, [classes, event.classes.length, event.entries, event.members, event.places])
 
   return (
     <Grid container>
