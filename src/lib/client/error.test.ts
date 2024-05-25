@@ -1,9 +1,7 @@
-import { AwsRum } from 'aws-rum-web'
+import type { AwsRum } from 'aws-rum-web'
 
 import { reportError } from './error'
 import * as rum from './rum'
-
-const mockAwsRum = AwsRum as jest.Mock
 
 describe('error', () => {
   describe('reportError', () => {
