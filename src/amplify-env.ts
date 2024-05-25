@@ -1,6 +1,8 @@
 import type { ResourcesConfig } from 'aws-amplify'
 import type { AwsRumConfig } from 'aws-rum-web'
 
+import { isDevEnv } from './lib/env'
+
 export const AWSConfig: ResourcesConfig = {
   Geo: {
     LocationService: {
@@ -43,7 +45,7 @@ export const AWSConfig: ResourcesConfig = {
   },
 }
 
-if (!AWSConfig.Auth?.Cognito.identityPoolId) {
+if (!AWSConfig.Auth?.Cognito.identityPoolId && isDevEnv()) {
   throw new Error('Please configure environment variables in .env (use .env_sample as reference')
 }
 

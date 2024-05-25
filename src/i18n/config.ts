@@ -1,5 +1,7 @@
 import type { InitOptions } from 'i18next'
 
+import { isDevEnv } from '../lib/env'
+
 import { en, enBreed, enBreedAbbr, enCountry, fi, fiBreed, fiBreedAbbr, fiCountry } from './locales'
 
 export const i18nInit: InitOptions = {
@@ -11,7 +13,7 @@ export const i18nInit: InitOptions = {
   },
   fallbackLng: 'fi',
   supportedLngs: ['fi', 'en'],
-  debug: process.env.NODE_ENV === 'development',
+  debug: isDevEnv(),
   interpolation: {
     escapeValue: false,
   },

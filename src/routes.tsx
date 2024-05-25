@@ -2,6 +2,7 @@ import type { RouteObject } from 'react-router-dom'
 
 import { Navigate } from 'react-router-dom'
 
+import { isDevEnv } from './lib/env'
 import AdminHomePage from './pages/admin/AdminHomePage'
 import AdminStartListPage from './pages/admin/AdminStartListPage'
 import EmailTemplateListPage from './pages/admin/EmailTemplateListPage'
@@ -116,7 +117,7 @@ const routes: RouteObject[] = [
       },
       {
         path: Path.admin.events,
-        element: <EventListPage isDev={process.env.NODE_ENV === 'development'} />,
+        element: <EventListPage isDev={isDevEnv()} />,
       },
       {
         path: Path.admin.newEvent,
