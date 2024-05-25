@@ -8,7 +8,6 @@ import { rum } from './rum'
 
 jest.mock('aws-rum-web')
 jest.unmock('./rum')
-jest.replaceProperty(process.env, 'REACT_APP_IDENTITY_POOL_ID', 'id-pool')
 
 describe('rum', () => {
   describe('rum', () => {

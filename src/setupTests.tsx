@@ -33,4 +33,6 @@ jest.mock('@mui/material', () => {
   }
 })
 
+process.env.REACT_APP_IDENTITY_POOL_ID = 'test-id-pool'
+
 jest.mock('./lib/client/rum')
