@@ -1,7 +1,7 @@
 import { fetchAuthSession } from 'aws-amplify/auth'
 import { enqueueSnackbar } from 'notistack'
 
-import { reportError } from '../lib/client/rum'
+import { reportError } from '../lib/client/error'
 import { parseJSON } from '../lib/utils'
 import { API_BASE_URL } from '../routeConfig'
 

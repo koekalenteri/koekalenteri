@@ -4,7 +4,7 @@ import { useSnackbar } from 'notistack'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
 import { putAdmin, putRole, putUser } from '../../../../api/user'
-import { reportError } from '../../../../lib/client/rum'
+import { reportError } from '../../../../lib/client/error'
 import { idTokenAtom } from '../../../recoil'
 import { adminOrganizersAtom } from '../organizers'
 

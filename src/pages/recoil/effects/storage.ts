@@ -1,6 +1,6 @@
 import type { AtomEffect } from 'recoil'
 
-import { reportError } from '../../../lib/client/rum'
+import { reportError } from '../../../lib/client/error'
 import { parseJSON } from '../../../lib/utils'
 
 export const parseStorageJSON = (value: string | null) => {

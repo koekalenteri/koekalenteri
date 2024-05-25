@@ -4,7 +4,7 @@ import { signOut as awsSignOut } from 'aws-amplify/auth'
 import { enqueueSnackbar } from 'notistack'
 import { useRecoilCallback, useRecoilState, useSetRecoilState } from 'recoil'
 
-import { reportError } from '../../../lib/client/rum'
+import { reportError } from '../../../lib/client/error'
 import { Path } from '../../../routeConfig'
 import { adminEventsAtom } from '../../admin/recoil'
 

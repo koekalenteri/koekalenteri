@@ -1,7 +1,7 @@
 import { snapshot_UNSTABLE } from 'recoil'
 
 import * as userAPI from '../../../api/user'
-import * as rum from '../../../lib/client/rum'
+import * as error from '../../../lib/client/error'
 
 import { userSelector } from './selectors'
 
@@ -13,7 +13,7 @@ describe('recoil/user', () => {
 
       const err = new Error('api error')
       jest.spyOn(userAPI, 'getUser').mockRejectedValueOnce(err)
-      const reportErrorSpy = jest.spyOn(rum, 'reportError').mockImplementation(jest.fn())
+      const reportErrorSpy = jest.spyOn(error, 'reportError').mockImplementation(jest.fn())
 
       try {
         await expect(initialSnapshot.getPromise(userSelector)).resolves.toBeNull()

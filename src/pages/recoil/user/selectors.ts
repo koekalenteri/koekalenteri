@@ -1,7 +1,7 @@
 import { selector } from 'recoil'
 
 import { getUser } from '../../../api/user'
-import { reportError } from '../../../lib/client/rum'
+import { reportError } from '../../../lib/client/error'
 
 import { idTokenAtom } from './atoms'
 

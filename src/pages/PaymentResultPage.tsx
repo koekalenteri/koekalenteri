@@ -5,7 +5,7 @@ import { t } from 'i18next'
 import { enqueueSnackbar } from 'notistack'
 
 import { verifyPayment } from '../api/payment'
-import { reportError } from '../lib/client/rum'
+import { reportError } from '../lib/client/error'
 import { Path } from '../routeConfig'
 
 export const paymentResultLoader = async ({ request }: LoaderFunctionArgs) => {

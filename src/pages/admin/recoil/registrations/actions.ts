@@ -10,7 +10,7 @@ import {
   putAdminRegistrationNotes,
   putRegistrationGroups,
 } from '../../../../api/registration'
-import { reportError } from '../../../../lib/client/rum'
+import { reportError } from '../../../../lib/client/error'
 import { idTokenAtom } from '../../../recoil'
 import { adminEventSelector } from '../events'
 

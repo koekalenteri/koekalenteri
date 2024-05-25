@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
 
 import { getRegistrationAuditTrail } from '../../../api/registration'
-import { reportError } from '../../../lib/client/rum'
+import { reportError } from '../../../lib/client/error'
 import { hasChanges } from '../../../lib/utils'
 import { idTokenAtom } from '../../recoil'
 import { currentAdminRegistrationSelector, editableAdminEventRegistrationByEventIdAndIdAtom } from '../recoil'
