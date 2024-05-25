@@ -7,7 +7,6 @@
 coverage
 build
 dist
-ses-templates/samples
 
 # misc
 .env
