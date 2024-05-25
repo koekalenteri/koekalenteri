@@ -6,7 +6,15 @@ import i18next from 'i18next'
 import { getEmailTemplates } from '../../../../api/email'
 import { idTokenAtom } from '../../../recoil'
 
-const templateIds: EmailTemplateId[] = ['registration', 'receipt', 'picked', 'reserve', 'invitation', 'access']
+const templateIds: EmailTemplateId[] = [
+  'registration',
+  'receipt',
+  'picked',
+  'reserve',
+  'invitation',
+  'access',
+  'refund',
+]
 
 export const remoteEmailTemplatesEffect: AtomEffect<EmailTemplate[]> = ({ getPromise, setSelf, trigger }) => {
   if (trigger === 'get') {

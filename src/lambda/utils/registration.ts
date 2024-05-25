@@ -2,7 +2,7 @@ import type { JsonConfirmedEvent, JsonRegistration } from '../../types'
 
 import { i18n } from '../../i18n/lambda'
 
-export type RegistrationTemplateContext = '' | 'cancel' | 'confirm' | 'receipt' | 'update' | 'invitation'
+export type RegistrationTemplateContext = '' | 'cancel' | 'confirm' | 'receipt' | 'update' | 'invitation' | 'refund'
 
 export function emailTo(registration: JsonRegistration) {
   const to: string[] = [registration.handler.email]

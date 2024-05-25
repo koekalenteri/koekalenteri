@@ -43,13 +43,15 @@
   "edit": "Edit",
   "editRegistration": "Edit registration",
   "emailTemplate": {
+    "access": "Access granted",
     "invitation": "Invitation",
     "picked": "Picked notification",
     "receipt": "Receipt",
     "registration": "Confirmation",
-    "reserve": "Reserve notification"
+    "reserve": "Reserve notification",
+    "refund": "Refund"
   },
-  "emailTemplates": "Messages",
+  "emailTemplates": "Email templates",
   "error": {
     "eventNotFound": "Event not found",
     "registrationNotFound": "Registration not found"

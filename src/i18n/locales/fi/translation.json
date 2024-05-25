@@ -66,14 +66,15 @@
   "editWhat": "Muokkaa {{what}}",
   "editRegistration": "Muokkaa ilmoittautumista",
   "editRoles": "Muokkaa rooleja",
-  "emailTemplates": "Viestit",
+  "emailTemplates": "Visetipohjat",
   "emailTemplate": {
     "access": "Lisätty käyttäjäoikeus",
     "invitation": "Koekutsu",
     "picked": "Koepaikkailmoitus",
     "receipt": "Kuitti",
     "registration": "Vahvistusviesti",
-    "reserve": "Varasijailmoitus"
+    "reserve": "Varasijailmoitus",
+    "refund": "Maksun palautus"
   },
   "error": {
     "eventNotFound": "Tapahtumaa ei löydy",

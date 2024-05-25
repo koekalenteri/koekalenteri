@@ -3,10 +3,10 @@ import type { Transaction } from '../../../../types'
 
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { capitalize } from '@mui/material'
 
 import { formatDate } from '../../../../i18n/dates'
 import { formatMoney } from '../../../../lib/money'
+import { getProviderName } from '../../../../lib/payment'
 
 /*
 "bankReference": "7062825129",
@@ -20,34 +20,6 @@ import { formatMoney } from '../../../../lib/money'
 "reference": "L5qGrAvfcD:qGhvZdDYqF",
 "type": "payment"
 */
-
-const providerNames = {
-  'apple-pay': 'Apple Pay',
-  'danske-business': 'Danske B2B',
-  'email refund': 'Sähköposti + tilisiirto',
-  'nordea-business': 'Nordea B2B',
-  'op-tililuotto': 'OP Tililuotto',
-  aktia: 'Aktia',
-  alandsbanken: 'Ålandsbanken',
-  alisa: 'Alisa Yrityslasku',
-  amex: 'American Express',
-  collectorb2b: 'Walley B2B',
-  collectorb2c: 'Walley',
-  creditcard: 'Visa / Mastercard',
-  handelsbanken: 'Handkesbanken',
-  jousto: 'Jousto',
-  mobilepay: 'MobilePay',
-  nordea: 'Nordea',
-  omasp: 'OmaSP',
-  oplasku: 'OP Lasku',
-  osuuspankki: 'OP',
-  paypal: 'PayPal',
-  pivo: 'Pivo',
-  pop: 'POP Pankki',
-  saastopankki: 'Säästöpankki',
-  siirto: 'Siirto',
-  spankki: 'S-Pankki',
-}
 
 export const useRefundColumns = (): readonly GridColDef<Transaction>[] => {
   const { t } = useTranslation()
@@ -64,7 +36,7 @@ export const useRefundColumns = (): readonly GridColDef<Transaction>[] => {
         field: 'provider',
         flex: 1,
         headerName: t('registration.refundDialog.columns.provider'),
-        valueFormatter: (value) => (providerNames[value] ? providerNames[value] : capitalize(value ?? '')),
+        valueFormatter: getProviderName,
       },
       { field: 'status', width: 60, headerName: t('registration.refundDialog.columns.status') },
       { field: 'bankReference', width: 120, headerName: t('registration.refundDialog.columns.bankReference') },
