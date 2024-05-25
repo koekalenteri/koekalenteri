@@ -98,6 +98,7 @@ const refundSuccess = metricScope(
                   ...changes,
                   createdAt: t('dateFormat.long', { date: transaction.createdAt }),
                   refundAt: t('dateFormat.long', { date: registration.refundAt }),
+                  paidAmount: formatMoney(registration.paidAmount ?? 0),
                   amount: formatMoney(amount),
                   handlingCost: formatMoney(Math.max(0, (registration.paidAmount ?? 0) - amount)),
                   providerName,
