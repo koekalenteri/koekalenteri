@@ -20,7 +20,7 @@ import type {
 import { differenceInMonths, startOfYear } from 'date-fns'
 import { matchIsValidTel } from 'mui-tel-input'
 
-import { validEmail } from '../../../lib/utils'
+import { validEmail } from '../../../lib/email'
 import { getRequirements, REQUIREMENTS } from '../../../rules'
 
 function validateBreeder(breeder: RegistrationBreeder | undefined) {
