@@ -115,6 +115,7 @@
       "confirmed": "Published",
       "confirmed_entryOpen": "Entry is open",
       "confirmed_entryClosed": "Entry is closed",
+      "confirmed_entryClosed_info": "Entry closed",
       "confirmed_eventOngoing": "Event is ongoing",
       "confirmed_eventOver": "Event is over",
       "confirmed_save": "Event was published",

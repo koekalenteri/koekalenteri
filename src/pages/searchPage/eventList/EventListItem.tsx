@@ -1,6 +1,6 @@
 import type { PublicDogEvent } from '../../../types'
 
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown'
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight'
@@ -9,9 +9,10 @@ import Collapse from '@mui/material/Collapse'
 import IconButton from '@mui/material/IconButton'
 import Typography from '@mui/material/Typography'
 import Grid from '@mui/material/Unstable_Grid2'
+import { startOfDay } from 'date-fns'
 import { useRecoilState } from 'recoil'
 
-import { isEntryOpen, isEntryUpcoming } from '../../../lib/utils'
+import { isEntryClosed, isEntryOpen, isEventOver, isValidForEntry } from '../../../lib/utils'
 import { Path } from '../../../routeConfig'
 import LinkButton from '../../components/LinkButton'
 import { openedEventAtom } from '../../recoil'
@@ -29,9 +30,22 @@ export const EventListItem = ({ event, odd }: Props) => {
   const [open, setOpen] = useRecoilState(openedEventAtom(event.id))
   const { t } = useTranslation()
 
-  const infoText = isEntryUpcoming(event)
-    ? t('dateFormat.datespan', { start: event.entryStartDate, end: event.entryEndDate })
-    : null
+  const infoText = useMemo(() => {
+    if (isEntryOpen(event)) return t('dateFormat.datespan', { start: event.entryStartDate, end: event.entryEndDate })
+    if (isEventOver(event)) return t('event.states.confirmed_eventOver')
+
+    if (event.state === 'picked') return t('event.states.picked')
+
+    if (isEntryClosed(event)) return t('event.states.confirmed_entryClosed_info')
+
+    return null
+  }, [event, t])
+
+  const showPlaces = useMemo(
+    (): boolean =>
+      !!event.entryStartDate && startOfDay(event.entryStartDate) <= new Date() && isValidForEntry(event.state),
+    [event]
+  )
 
   const handleClick = useCallback(() => setOpen(!open), [open, setOpen])
 
@@ -60,7 +74,7 @@ export const EventListItem = ({ event, odd }: Props) => {
               </Typography>
             </Grid>
             <Grid xsOffset={'auto'} display={{ xs: 'none', sm: 'block' }}>
-              {isEntryOpen(event) ? <EventPlaces event={event} /> : null}
+              {showPlaces ? <EventPlaces event={event} /> : null}
             </Grid>
           </Grid>
           <Grid container xs={12} sm="auto" columnSpacing={1}>
@@ -69,7 +83,7 @@ export const EventListItem = ({ event, odd }: Props) => {
               {event.eventType}
             </Grid>
             <Grid xsOffset={'auto'} display={{ sm: 'none' }}>
-              {isEntryOpen(event) ? <EventPlaces event={event} /> : null}
+              {showPlaces ? <EventPlaces event={event} /> : null}
             </Grid>
           </Grid>
           <Grid container xs={12} sm>
@@ -78,7 +92,7 @@ export const EventListItem = ({ event, odd }: Props) => {
               {event.name ? event.name : ''}
             </Grid>
             <Grid xs="auto" smOffset="auto">
-              <Typography variant="button">
+              <Typography variant="body2">
                 {isEntryOpen(event) ? (
                   <LinkButton to={Path.register(event)} text={t('register')} sx={{ pr: 0 }} />
                 ) : (

@@ -35,7 +35,7 @@ exports[`EventStateInfo should render start list link for started event 1`] = `
 exports[`EventStateInfo should render state info for cancelled event 1`] = `
 <div>
   <div
-    class="MuiBox-root css-bmuutb"
+    class="MuiBox-root css-1lejymi"
   >
     event.states.cancelled_info
   </div>
@@ -46,7 +46,7 @@ exports[`EventStateInfo should render state info for cancelled event 1`] = `
 exports[`EventStateInfo should render state info for tenatative event 1`] = `
 <div>
   <div
-    class="MuiBox-root css-bmuutb"
+    class="MuiBox-root css-1lejymi"
   >
     event.states.tentative_info
   </div>
@@ -57,7 +57,7 @@ exports[`EventStateInfo should render state info for tenatative event 1`] = `
 exports[`EventStateInfo should render text 1`] = `
 <div>
   <div
-    class="MuiBox-root css-bmuutb"
+    class="MuiBox-root css-1lejymi"
   >
     anything
   </div>

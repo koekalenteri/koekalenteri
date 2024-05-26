@@ -52,7 +52,13 @@ exports[`EventList should render 1`] = `
             </div>
             <div
               class="MuiGrid2-root MuiGrid2-direction-xs-row css-crfct9-MuiGrid2-root"
-            />
+            >
+              <div
+                class="MuiBox-root css-s2uf1z"
+              >
+                10 toltaPlaces
+              </div>
+            </div>
           </div>
           <div
             class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-sm-auto css-g5vypw-MuiGrid2-root"
@@ -69,7 +75,13 @@ exports[`EventList should render 1`] = `
             </div>
             <div
               class="MuiGrid2-root MuiGrid2-direction-xs-row css-16aba0k-MuiGrid2-root"
-            />
+            >
+              <div
+                class="MuiBox-root css-s2uf1z"
+              >
+                10 toltaPlaces
+              </div>
+            </div>
           </div>
           <div
             class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-sm-true css-1ar5pha-MuiGrid2-root"
@@ -87,13 +99,15 @@ exports[`EventList should render 1`] = `
             <div
               class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-auto css-xvs7kq-MuiGrid2-root"
             >
-              <span
-                class="MuiTypography-root MuiTypography-button css-g7ow3s-MuiTypography-root"
+              <p
+                class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
               >
                 <div
-                  class="MuiBox-root css-bmuutb"
-                />
-              </span>
+                  class="MuiBox-root css-1lejymi"
+                >
+                  event.states.confirmed_eventOver
+                </div>
+              </p>
             </div>
           </div>
         </div>
