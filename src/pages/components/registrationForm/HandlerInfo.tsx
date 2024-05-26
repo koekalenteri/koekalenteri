@@ -92,7 +92,7 @@ export function HandlerInfo({ reg, disabled, error, helperText, onChange, onOpen
             id="handler_email"
             label={t('contact.email')}
             name="email"
-            onChange={(e) => handleChange({ email: e.target.value })}
+            onChange={(e) => handleChange({ email: e.target.value.trim() })}
             value={reg.handler?.email ?? ''}
           />
         </Grid>

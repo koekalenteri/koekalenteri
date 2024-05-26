@@ -68,7 +68,7 @@ describe('HadnlerInfo', () => {
     await user.type(locationInput, 'test city')
     expect(onChange).toHaveBeenLastCalledWith({ handler: { location: 'test city', name: 'test handler' } })
 
-    await user.type(emailInput, 'test@exmaple.com')
+    await user.type(emailInput, ' test@exmaple.com \n')
     expect(onChange).toHaveBeenLastCalledWith({
       handler: { email: 'test@exmaple.com', location: 'test city', name: 'test handler' },
     })

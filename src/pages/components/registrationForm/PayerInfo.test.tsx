@@ -63,7 +63,7 @@ describe('PayerInfo', () => {
     await user.type(input, 'test handler')
     expect(onChange).toHaveBeenLastCalledWith({ payer: { name: 'test handler' } })
 
-    await user.type(emailInput, 'test@exmaple.com')
+    await user.type(emailInput, '\r\ntest@exmaple.com\r\n ')
     expect(onChange).toHaveBeenLastCalledWith({
       payer: { email: 'test@exmaple.com', name: 'test handler' },
     })

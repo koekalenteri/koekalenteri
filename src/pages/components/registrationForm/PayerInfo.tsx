@@ -63,7 +63,7 @@ export function PayerInfo({ reg, disabled, error, helperText, onChange, onOpenCh
             id="payer_email"
             label={t('contact.email')}
             name="email"
-            onChange={(e) => handleChange({ email: e.target.value })}
+            onChange={(e) => handleChange({ email: e.target.value.trim() })}
             value={reg.payer?.email ?? ''}
           />
         </Grid>

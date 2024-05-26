@@ -77,7 +77,7 @@ describe('OwnerInfo', () => {
     })
     onChange.mockClear()
 
-    await user.type(emailInput, 'test@exmaple.com')
+    await user.type(emailInput, 'test@exmaple.com \n')
     expect(onChange).toHaveBeenLastCalledWith({
       owner: { email: 'test@exmaple.com', location: 'test city', name: 'test handler' },
       ownerHandles: true,
