@@ -7,6 +7,7 @@ import { metricScope } from 'aws-embedded-metrics'
 
 import { i18n } from '../../i18n/lambda'
 import { formatMoney } from '../../lib/money'
+import { getProviderName } from '../../lib/payment'
 import { CONFIG } from '../config'
 import { audit, registrationAuditKey } from '../lib/audit'
 import { sendTemplatedMail } from '../lib/email'
@@ -98,7 +99,7 @@ const paymentSuccess = metricScope(
 
             audit({
               auditKey: registrationAuditKey(registration),
-              message: `Maksu (${provider}), ${formatMoney(amount)}`,
+              message: `Maksu (${getProviderName(provider)}), ${formatMoney(amount)}`,
               user: registration.createdBy,
             })
 

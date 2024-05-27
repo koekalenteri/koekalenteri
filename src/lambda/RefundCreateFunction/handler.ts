@@ -14,6 +14,7 @@ import { metricScope } from 'aws-embedded-metrics'
 import { nanoid } from 'nanoid'
 
 import { formatMoney } from '../../lib/money'
+import { getProviderName } from '../../lib/payment'
 import { CONFIG } from '../config'
 import { audit, registrationAuditKey } from '../lib/audit'
 import { authorize } from '../lib/auth'
@@ -147,7 +148,7 @@ const refundCreate = metricScope(
         if (result.status === 'pending' || result.provider === 'email refund') {
           audit({
             auditKey: registrationAuditKey(registration),
-            message: `Palautus on kesken (${transaction.provider}), ${formatMoney(amount / 100)}`,
+            message: `Palautus on kesken (${getProviderName(transaction.provider)}), ${formatMoney(amount / 100)}`,
             user: transaction.user,
           })
         }

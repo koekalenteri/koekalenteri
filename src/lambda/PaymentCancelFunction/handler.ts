@@ -6,6 +6,7 @@ import type { PaytrailCallbackParams } from '../types/paytrail'
 import { metricScope } from 'aws-embedded-metrics'
 
 import { formatMoney } from '../../lib/money'
+import { getProviderName } from '../../lib/payment'
 import { CONFIG } from '../config'
 import { audit, registrationAuditKey } from '../lib/audit'
 import { debugProxyEvent } from '../lib/log'
@@ -62,7 +63,7 @@ const paymentCancel = metricScope(
 
           audit({
             auditKey: registrationAuditKey(registration),
-            message: `Maksu epäonnistui (${provider}), ${formatMoney(transaction.amount / 100)}`,
+            message: `Maksu epäonnistui (${getProviderName(provider)}), ${formatMoney(transaction.amount / 100)}`,
             user: registration.createdBy,
           })
         } else {

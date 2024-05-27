@@ -28,7 +28,7 @@ export const PROVIDER_NAMES: Record<string, string> = {
   spankki: 'S-Pankki',
 }
 
-const hasName = (provider: string): provider is keyof typeof PROVIDER_NAMES => provider in PROVIDER_NAMES
+const hasName = (provider?: string): provider is keyof typeof PROVIDER_NAMES => !!provider && provider in PROVIDER_NAMES
 
-export const getProviderName = (provider: string) =>
+export const getProviderName = (provider?: string) =>
   hasName(provider) ? PROVIDER_NAMES[provider] : capitalize(provider ?? '')

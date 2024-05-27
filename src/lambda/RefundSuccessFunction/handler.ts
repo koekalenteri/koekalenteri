@@ -56,7 +56,7 @@ const refundSuccess = metricScope(
             if (!registration) throw new Error('registration not found')
             const t = i18n.getFixedT(registration.language)
             const amount = parseInt(params['checkout-amount'] ?? '0') / 100
-            const provider = params['checkout-provider'] ?? ''
+            const provider = params['checkout-provider']
             const providerName = getProviderName(provider)
 
             const changes: Required<Pick<JsonRegistration, 'refundAmount' | 'refundAt' | 'refundStatus'>> = {
