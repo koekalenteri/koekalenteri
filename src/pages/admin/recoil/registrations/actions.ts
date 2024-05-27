@@ -132,6 +132,7 @@ export const useAdminRegistrationActions = (eventId: string) => {
       if (result?.status === 'pending' || result?.status === 'ok') {
         updateAdminRegistration({
           ...reg,
+          refundAt: new Date().toISOString(),
           refundStatus: result?.status === 'pending' || result.provider === 'email refund' ? 'PENDING' : 'SUCCESS',
           refundAmount: (reg.refundAmount ?? 0) + amount / 100,
         })
