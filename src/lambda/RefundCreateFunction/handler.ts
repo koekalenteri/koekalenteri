@@ -138,7 +138,9 @@ const refundCreate = metricScope(
           { eventId, id: registrationId },
           'set #refundStatus = :refundStatus',
           { '#refundStatus': 'refundStatus' },
-          { ':refundStatus': result.status === 'pending' || result.provider === 'email refund' ? 'PENDING' : 'OK' },
+          {
+            ':refundStatus': result.status === 'pending' || result.provider === 'email refund' ? 'PENDING' : 'SUCCESS',
+          },
           registrationTable
         )
 
