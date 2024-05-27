@@ -146,7 +146,7 @@ export default function RegistrationList({ event, disabled, rows, onUnregister }
   const columns = allColumns.filter((c) => c.type !== 'custom')
 
   return (
-    <Paper sx={{ p: 0, mb: 1, width: '100%' }} elevation={2}>
+    <Paper sx={{ p: { xs: 0.5, md: 1 }, mb: 1, width: '100%' }} elevation={2}>
       <Typography variant="h5">Ilmoitetut koirat</Typography>
       <Box sx={{ height: 120, '& .cancelled': { opacity: 0.75 } }}>
         <StyledDataGrid
