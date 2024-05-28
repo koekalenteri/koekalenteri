@@ -208,8 +208,6 @@
   "login": "Kirjaudu",
   "loginFailed": "Kirjautuminen epäonnistui",
   "logout": "Kirjaudu ulos",
-  "members_one": "({{count}} jäsen)",
-  "members_other": "({{count}} jäsentä)",
   "name": "Nimi",
   "noResults": "Tekemälläsi haulla ei löytynyt tapahtumia. Poista joku hakusuodattimista.",
   "official": "Virallinen",

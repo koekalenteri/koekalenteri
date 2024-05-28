@@ -155,8 +155,6 @@
   "login": "Login",
   "loginFailed": "Login failed",
   "logout": "Logout",
-  "members_one": "({{count}} memeber)",
-  "members_other": "({{count}} members)",
   "name": "Name",
   "noResults": "Your search returned no events. Please remove one of the search filters.",
   "official": "Official",
