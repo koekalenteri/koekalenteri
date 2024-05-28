@@ -71,7 +71,7 @@
       "dates": "date(s)",
       "entries": "entries",
       "places": "places",
-      "members": "members"
+      "members": "priorized"
     },
     "contactInfo": "Contact information",
     "cost": "Fee",
