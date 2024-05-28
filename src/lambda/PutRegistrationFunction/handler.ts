@@ -12,6 +12,7 @@ import { CONFIG } from '../config'
 import { audit, registrationAuditKey } from '../lib/audit'
 import { getOrigin, getUsername } from '../lib/auth'
 import { sendTemplatedMail } from '../lib/email'
+import { updateRegistrations } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { metricsError, metricsSuccess } from '../utils/metrics'
@@ -53,7 +54,9 @@ const putRegistrationHandler = metricScope(
         registration.modifiedAt = timestamp
         registration.modifiedBy = username
 
-        const confirmedEvent = await dynamoDB.read<JsonConfirmedEvent>({ id: registration.eventId }, eventTable)
+        const confirmedEvent = cancel
+          ? await updateRegistrations(registration.eventId, eventTable)
+          : await dynamoDB.read<JsonConfirmedEvent>({ id: registration.eventId }, eventTable)
 
         if (!confirmedEvent) {
           throw new Error(`Event of type "${registration.eventType}" not found with id "${registration.eventId}"`)
