@@ -84,9 +84,6 @@ exports[`RegistrationEditPage should render 1`] = `
                           dateFormat.datespan
                         </b>
                          
-                        <span
-                          class="info"
-                        />
                       </p>
                     </div>
                     <div

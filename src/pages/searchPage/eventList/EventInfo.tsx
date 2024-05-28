@@ -9,10 +9,10 @@ import Typography from '@mui/material/Typography'
 import Grid from '@mui/material/Unstable_Grid2/Grid2'
 import { endOfDay } from 'date-fns'
 
-import useEventStatus from '../../../hooks/useEventStatus'
 import { judgeName } from '../../../lib/judge'
 import { isEntryOpen, printContactInfo, unique } from '../../../lib/utils'
 import CostInfo from '../../components/CostInfo'
+import { EntryStatus } from '../../components/EntryStatus'
 import { PriorityChips } from '../../components/PriorityChips'
 
 import { EventClassPlaces } from './eventInfo/EventClassPlaces'
@@ -48,7 +48,6 @@ const judgeClasses = (judge: PublicJudge, event: PublicDogEvent) => {
 
 export const EventInfo = ({ event }: Props) => {
   const { t } = useTranslation()
-  const status = useEventStatus(event)
   const official = useMemo(() => printContactInfo(event.contactInfo?.official), [event.contactInfo?.official])
   const secretary = useMemo(() => printContactInfo(event.contactInfo?.secretary), [event.contactInfo?.secretary])
   const classes = useMemo(
@@ -60,8 +59,8 @@ export const EventInfo = ({ event }: Props) => {
   return (
     <Grid container columnSpacing={1} disableEqualOverflow sx={{ py: 0.5 }}>
       <InfoItem label={t('entryTime')} order={{ xs: 1 }}>
-        {t('dateFormat.datespan', { start: event.entryStartDate, end: event.entryEndDate })}{' '}
-        <span className="info">{status}</span>
+        {t('dateFormat.datespan', { start: event.entryStartDate, end: event.entryEndDate })}
+        <EntryStatus event={event} />
         {isEntryOpen(event) ? t('dateFormat.distanceLeft', { date: endOfDay(event.entryEndDate!) }) : ''}
       </InfoItem>
       {classes.length ? (

@@ -81,9 +81,6 @@ exports[`RegistrationEventInfo does not render empty contact info 1`] = `
                           dateFormat.datespan
                         </b>
                          
-                        <span
-                          class="info"
-                        />
                       </p>
                     </div>
                     <div
@@ -281,9 +278,6 @@ exports[`RegistrationEventInfo renders 1`] = `
                           dateFormat.datespan
                         </b>
                          
-                        <span
-                          class="info"
-                        />
                       </p>
                     </div>
                     <div

@@ -2,7 +2,9 @@ import type { PublicDogEvent } from '../types'
 
 import { useTranslation } from 'react-i18next'
 
-function getStatusKey(event: PublicDogEvent) {
+export type MinimalEventForStatus = Pick<PublicDogEvent, 'state' | 'entryOrigEndDate'>
+
+function getStatusKey(event: MinimalEventForStatus) {
   if (event.state === 'tentative' || event.state === 'cancelled') {
     return event.state
   }
@@ -11,7 +13,7 @@ function getStatusKey(event: PublicDogEvent) {
   }
 }
 
-export default function useEventStatus(event: PublicDogEvent) {
+export default function useEventStatus(event: MinimalEventForStatus) {
   const { t } = useTranslation()
 
   const statusKey = getStatusKey(event)

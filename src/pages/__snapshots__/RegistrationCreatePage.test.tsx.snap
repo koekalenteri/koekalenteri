@@ -91,9 +91,6 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                           dateFormat.datespan
                         </b>
                          
-                        <span
-                          class="info"
-                        />
                       </p>
                     </div>
                     <div
@@ -2974,9 +2971,6 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                           dateFormat.datespan
                         </b>
                          
-                        <span
-                          class="info"
-                        />
                       </p>
                     </div>
                     <div

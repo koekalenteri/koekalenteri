@@ -1350,10 +1350,6 @@ exports[`SearchPage filters by date 1`] = `
                   entryTime
                 </span>
                 dateFormat.datespan
-                 
-                <span
-                  class="info"
-                />
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-true css-2qi7fb-MuiGrid2-root"
@@ -1636,10 +1632,6 @@ exports[`SearchPage filters by date 1`] = `
                   entryTime
                 </span>
                 dateFormat.datespan
-                 
-                <span
-                  class="info"
-                />
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-true css-2qi7fb-MuiGrid2-root"
@@ -1936,10 +1928,6 @@ exports[`SearchPage filters by date 1`] = `
                   entryTime
                 </span>
                 dateFormat.datespan
-                 
-                <span
-                  class="info"
-                />
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-true css-2qi7fb-MuiGrid2-root"
@@ -2294,10 +2282,6 @@ exports[`SearchPage filters by date 1`] = `
                   entryTime
                 </span>
                 dateFormat.datespan
-                 
-                <span
-                  class="info"
-                />
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-true css-2qi7fb-MuiGrid2-root"
@@ -3206,10 +3190,6 @@ exports[`SearchPage filters by date/end 1`] = `
                   entryTime
                 </span>
                 dateFormat.datespan
-                 
-                <span
-                  class="info"
-                />
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-true css-2qi7fb-MuiGrid2-root"
@@ -3492,10 +3472,6 @@ exports[`SearchPage filters by date/end 1`] = `
                   entryTime
                 </span>
                 dateFormat.datespan
-                 
-                <span
-                  class="info"
-                />
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-true css-2qi7fb-MuiGrid2-root"
@@ -3792,10 +3768,6 @@ exports[`SearchPage filters by date/end 1`] = `
                   entryTime
                 </span>
                 dateFormat.datespan
-                 
-                <span
-                  class="info"
-                />
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-true css-2qi7fb-MuiGrid2-root"
@@ -4150,10 +4122,6 @@ exports[`SearchPage filters by date/end 1`] = `
                   entryTime
                 </span>
                 dateFormat.datespan
-                 
-                <span
-                  class="info"
-                />
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-true css-2qi7fb-MuiGrid2-root"
@@ -5107,10 +5075,6 @@ exports[`SearchPage filters by event class 1`] = `
                   entryTime
                 </span>
                 dateFormat.datespan
-                 
-                <span
-                  class="info"
-                />
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-true css-2qi7fb-MuiGrid2-root"
@@ -5465,10 +5429,6 @@ exports[`SearchPage filters by event class 1`] = `
                   entryTime
                 </span>
                 dateFormat.datespan
-                 
-                <span
-                  class="info"
-                />
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-true css-2qi7fb-MuiGrid2-root"
@@ -5765,10 +5725,6 @@ exports[`SearchPage filters by event class 1`] = `
                   entryTime
                 </span>
                 dateFormat.datespan
-                 
-                <span
-                  class="info"
-                />
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-true css-2qi7fb-MuiGrid2-root"
@@ -6085,10 +6041,6 @@ exports[`SearchPage filters by event class 1`] = `
                   entryTime
                 </span>
                 dateFormat.datespan
-                 
-                <span
-                  class="info"
-                />
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-true css-2qi7fb-MuiGrid2-root"
@@ -7042,10 +6994,6 @@ exports[`SearchPage filters by event type 1`] = `
                   entryTime
                 </span>
                 dateFormat.datespan
-                 
-                <span
-                  class="info"
-                />
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-true css-2qi7fb-MuiGrid2-root"
@@ -7342,10 +7290,6 @@ exports[`SearchPage filters by event type 1`] = `
                   entryTime
                 </span>
                 dateFormat.datespan
-                 
-                <span
-                  class="info"
-                />
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-true css-2qi7fb-MuiGrid2-root"
@@ -7700,10 +7644,6 @@ exports[`SearchPage filters by event type 1`] = `
                   entryTime
                 </span>
                 dateFormat.datespan
-                 
-                <span
-                  class="info"
-                />
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-true css-2qi7fb-MuiGrid2-root"
@@ -8000,10 +7940,6 @@ exports[`SearchPage filters by event type 1`] = `
                   entryTime
                 </span>
                 dateFormat.datespan
-                 
-                <span
-                  class="info"
-                />
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-true css-2qi7fb-MuiGrid2-root"
@@ -8991,10 +8927,6 @@ exports[`SearchPage filters by organizer 1`] = `
                   entryTime
                 </span>
                 dateFormat.datespan
-                 
-                <span
-                  class="info"
-                />
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-true css-2qi7fb-MuiGrid2-root"

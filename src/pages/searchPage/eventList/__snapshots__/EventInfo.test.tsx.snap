@@ -14,10 +14,6 @@ exports[`EventInfo should render contact info 1`] = `
         entryTime
       </span>
       dateFormat.datespan
-       
-      <span
-        class="info"
-      />
     </div>
     <div
       class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-true css-yu5d00-MuiGrid2-root"
@@ -196,10 +192,6 @@ exports[`EventInfo should render event information 1`] = `
         entryTime
       </span>
       dateFormat.datespan
-       
-      <span
-        class="info"
-      />
     </div>
     <div
       class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-true css-yu5d00-MuiGrid2-root"

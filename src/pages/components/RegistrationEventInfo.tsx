@@ -8,13 +8,13 @@ import Link from '@mui/material/Link'
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
 
-import useEventStatus from '../../hooks/useEventStatus'
 import { judgeName } from '../../lib/judge'
 import { printContactInfo } from '../../lib/utils'
 import { API_BASE_URL } from '../../routeConfig'
 
 import CollapsibleSection from './CollapsibleSection'
 import CostInfo from './CostInfo'
+import { EntryStatus } from './EntryStatus'
 import { PriorityChips } from './PriorityChips'
 
 interface Props {
@@ -36,7 +36,6 @@ const Data = ({ children }: { children: ReactNode }) => (
 
 export default function RegistrationEventInfo({ event, invitationAttachment }: Props) {
   const { t } = useTranslation()
-  const status = useEventStatus(event)
   const title = `${event.eventType} ${t('dateFormat.datespan', { start: event.startDate, end: event.endDate })} ${
     event.location + (event.name ? ` (${event.name})` : '')
   }`
@@ -54,7 +53,7 @@ export default function RegistrationEventInfo({ event, invitationAttachment }: P
             <Header>{t('entryTime')}</Header>
             <Data>
               <b>{t('dateFormat.datespan', { start: event.entryStartDate, end: event.entryEndDate })}</b>&nbsp;
-              <span className="info">{status}</span>
+              <EntryStatus event={event} />
             </Data>
             <Header>{t('event.organizer')}</Header>
             <Data>{event.organizer?.name}</Data>
