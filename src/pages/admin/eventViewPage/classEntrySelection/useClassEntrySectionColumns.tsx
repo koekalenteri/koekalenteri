@@ -31,8 +31,6 @@ interface RegistrationIconsProps {
   reg: Registration
 }
 const RegistrationIcons = ({ event, reg }: RegistrationIconsProps) => {
-  const { t } = useTranslation()
-
   const priority = hasPriority(event, reg)
 
   const manualResultCount = useMemo(
@@ -116,8 +114,8 @@ const RegistrationIcons = ({ event, reg }: RegistrationIconsProps) => {
 
   return (
     <IconsTooltip placement="right" items={tooltipContent}>
-      <Stack direction="row" alignItems="center">
-        {priority ? <PriorityIcon dim priority={priority} fontSize="small" /> : null}
+      <Stack direction="row" alignItems="center" mt="3px">
+        <PriorityIcon dim priority={priority} fontSize="small" sx={{ opacity: priority ? 1 : 0.05 }} />
         <PersonOutline fontSize="small" sx={{ opacity: reg.handler.membership || reg.owner.membership ? 1 : 0.05 }} />
         {reg.refundAt || reg.refundStatus === 'PENDING' ? (
           <SavingsOutlined fontSize="small" />
@@ -216,7 +214,7 @@ export function useClassEntrySelectionColumns(
       {
         field: 'icons',
         headerName: '',
-        width: 150,
+        width: 180, // icons * 20 + 20 for padding
         align: 'center',
         renderCell: (p) => <RegistrationIcons event={event} reg={p.row} />,
         sortable: false,
