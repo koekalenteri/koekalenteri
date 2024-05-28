@@ -6,6 +6,7 @@ import type { JsonConfirmedEvent } from '../../types'
 import { metricScope } from 'aws-embedded-metrics'
 import { nanoid } from 'nanoid'
 
+import { isValidForEntry } from '../../lib/utils'
 import { CONFIG } from '../config'
 import { authorize } from '../lib/auth'
 import { updateRegistrations } from '../lib/event'
@@ -41,7 +42,8 @@ const putEventHandler = metricScope(
         }
 
         if (
-          existing?.state === 'confirmed' &&
+          existing &&
+          isValidForEntry(existing?.state) &&
           existing.entryEndDate &&
           !existing.entryOrigEndDate &&
           item.entryEndDate &&
