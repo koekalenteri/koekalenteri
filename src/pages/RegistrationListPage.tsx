@@ -20,6 +20,7 @@ import { isPast, isToday } from 'date-fns'
 import { enqueueSnackbar } from 'notistack'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
+import { hasPriority } from '../lib/registration'
 import { isConfirmedEvent } from '../lib/typeGuards'
 import { Path } from '../routeConfig'
 
@@ -193,11 +194,11 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
             <Paper sx={{ bgcolor: 'background.selected', p: 1, m: 1, width: 350 }}>
               <List disablePadding>
                 <ListItem disablePadding>
-                  <ListItemIcon sx={{ minWidth: 32, color: membershipIconColor(event, registration) }}>
+                  <ListItemIcon sx={{ minWidth: 32, color: priorityIconColor(event, registration) }}>
                     <PersonOutline fontSize="small" />
                   </ListItemIcon>
                   <ListItemText
-                    primary={membershipStatus(event, registration)}
+                    primary={priorityStatus(event, registration)}
                     primaryTypographyProps={{ variant: 'subtitle1', fontWeight: 'bold' }}
                   />
                 </ListItem>
@@ -262,27 +263,14 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
   )
 }
 
-const hasPriority = (event: PublicDogEvent, registration: Registration) => {
-  if (event.priority?.includes('member') && (registration.handler.membership || registration.owner.membership)) {
-    return true
-  }
-  if (event.priority?.includes(registration.dog.breedCode ?? '')) {
-    return true
-  }
-  if (event.priority?.includes('invited') && registration.priorityByInvitation) {
-    return true
-  }
-  return false
-}
-
-function membershipIconColor(event: PublicDogEvent, registration: Registration) {
+function priorityIconColor(event: PublicDogEvent, registration: Registration) {
   if (hasPriority(event, registration)) {
     return 'primary.main'
   }
   return 'transparent'
 }
 
-function membershipStatus(event: PublicDogEvent, registration: Registration) {
+function priorityStatus(event: PublicDogEvent, registration: Registration) {
   if (hasPriority(event, registration)) {
     return 'Olen etusijalla'
   }

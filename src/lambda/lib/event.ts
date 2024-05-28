@@ -1,5 +1,6 @@
 import type { EventClassState, JsonConfirmedEvent, JsonRegistration, JsonRegistrationGroupInfo } from '../../types'
 
+import { hasPriority } from '../../lib/registration'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
@@ -61,17 +62,16 @@ export const updateRegistrations = async (eventId: string, eventTable: string) =
   // ignore cancelled or unpaid registrations
   const registrations = allRegistrations?.filter((r) => r.state === 'ready' && !r.cancelled)
 
-  const membershipPriority = (r: JsonRegistration) =>
-    Boolean(confirmedEvent.priority?.includes('member') && (r.handler?.membership || r.owner?.membership))
+  const priorityFilter = (r: JsonRegistration) => hasPriority(confirmedEvent, r)
 
   const classes = confirmedEvent.classes || []
   for (const cls of classes) {
     const regsToClass = registrations?.filter((r) => r.class === cls.class)
     cls.entries = regsToClass?.length
-    cls.members = regsToClass?.filter(membershipPriority).length
+    cls.members = regsToClass?.filter(priorityFilter).length
   }
   const entries = registrations?.length || 0
-  const members = registrations?.filter(membershipPriority).length ?? 0
+  const members = registrations?.filter(priorityFilter).length ?? 0
   await dynamoDB.update(
     eventKey,
     'set #entries = :entries, #members = :members, #classes = :classes',

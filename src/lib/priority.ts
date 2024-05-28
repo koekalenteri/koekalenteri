@@ -1,3 +1,5 @@
+import type { BreedCode, PublicDogEvent } from '../types'
+
 import { unique } from './utils'
 
 export interface Priority {
@@ -8,6 +10,7 @@ export interface Priority {
 
 export const PRIORITY_MEMBER = 'member'
 export const PRIORITY_INVITED = 'invited'
+export const PRIORIZED_BREED_CODES: BreedCode[] = ['110', '111', '121', '122', '263', '312']
 
 export const PRIORITY: Priority[] = [
   { group: 'Järjestävän yhdistyksen jäsen', name: 'Jäsenet', value: 'member' },
@@ -20,7 +23,7 @@ export const PRIORITY: Priority[] = [
   { group: 'Järjestäjän kutsumat koirat', name: 'Kutsutut', value: 'invited' },
 ]
 
-export const priorityValuesToPriority = (values: Array<string | undefined> = []) => {
+export const priorityValuesToPriority = (values: Partial<PublicDogEvent['priority']> = []) => {
   const result: Priority[] = []
   if (!Array.isArray(values)) return result
 
