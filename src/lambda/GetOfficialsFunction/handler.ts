@@ -40,7 +40,6 @@ const refreshOfficials = async (event: APIGatewayProxyEvent): Promise<APIGateway
         const name = capitalize(item.nimi)
         const location = capitalize(item.paikkakunta)
         const official: JsonOfficial = {
-          languages: [],
           createdAt: new Date().toISOString(),
           createdBy: 'system',
           modifiedAt: new Date().toISOString(),
