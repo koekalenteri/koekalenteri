@@ -14,6 +14,7 @@ import { isEntryOpen, printContactInfo, unique } from '../../../lib/utils'
 import CostInfo from '../../components/CostInfo'
 import { EntryStatus } from '../../components/EntryStatus'
 import { PriorityChips } from '../../components/PriorityChips'
+import { TimeLeft } from '../../components/TimeLeft'
 
 import { EventClassPlaces } from './eventInfo/EventClassPlaces'
 import { EventClassPlacesHeader } from './eventInfo/EventClassPlacesHeader'
@@ -61,7 +62,7 @@ export const EventInfo = ({ event }: Props) => {
       <InfoItem label={t('entryTime')} order={{ xs: 1 }}>
         {t('dateFormat.datespan', { start: event.entryStartDate, end: event.entryEndDate })}
         <EntryStatus event={event} />
-        {isEntryOpen(event) ? t('dateFormat.distanceLeft', { date: endOfDay(event.entryEndDate!) }) : ''}
+        {isEntryOpen(event) ? <TimeLeft date={endOfDay(event.entryEndDate!)} /> : ''}
       </InfoItem>
       {classes.length ? (
         <InfoItem label={t('event.classPlaces')} order={{ xs: 2, lg: 3, xl: 10 }} xl={true}>

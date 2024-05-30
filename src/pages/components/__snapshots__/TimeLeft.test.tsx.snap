@@ -1,0 +1,11 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`TimeLeft renders with date 1`] = `
+<p
+  class="MuiTypography-root MuiTypography-body1 css-14wzn0b-MuiTypography-root"
+>
+  dateFormat.distanceLeft
+</p>
+`;
+
+exports[`TimeLeft renders without date 1`] = `null`;

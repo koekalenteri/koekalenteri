@@ -1,28 +1,28 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`RegistrationEventInfo renders 1`] = `null`;
+exports[`EntryStatus renders 1`] = `null`;
 
-exports[`RegistrationEventInfo renders 2`] = `
+exports[`EntryStatus renders 2`] = `
 <p
-  class="MuiTypography-root MuiTypography-body2 css-smevnp-MuiTypography-root"
+  class="MuiTypography-root MuiTypography-body1 css-14wzn0b-MuiTypography-root"
 >
   (event.states.tentative_info)
 </p>
 `;
 
-exports[`RegistrationEventInfo renders 3`] = `
+exports[`EntryStatus renders 3`] = `
 <p
-  class="MuiTypography-root MuiTypography-body2 css-smevnp-MuiTypography-root"
+  class="MuiTypography-root MuiTypography-body1 css-14wzn0b-MuiTypography-root"
 >
   (event.states.cancelled_info)
 </p>
 `;
 
-exports[`RegistrationEventInfo renders 4`] = `null`;
+exports[`EntryStatus renders 4`] = `null`;
 
-exports[`RegistrationEventInfo renders 5`] = `
+exports[`EntryStatus renders 5`] = `
 <p
-  class="MuiTypography-root MuiTypography-body2 css-smevnp-MuiTypography-root"
+  class="MuiTypography-root MuiTypography-body1 css-14wzn0b-MuiTypography-root"
 >
   (event.states.extended_info)
 </p>

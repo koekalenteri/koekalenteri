@@ -14,7 +14,7 @@ export const EntryStatus = ({ event }: Props) => {
   if (!status) return null
 
   return (
-    <Typography variant="body2" display="inline" mx={0.5}>
+    <Typography display="inline" ml={1}>
       {status}
     </Typography>
   )

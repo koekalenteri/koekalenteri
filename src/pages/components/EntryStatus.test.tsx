@@ -21,7 +21,7 @@ function Wrapper({ children }: { readonly children: ReactNode }) {
   )
 }
 
-describe('RegistrationEventInfo', () => {
+describe('EntryStatus', () => {
   it.each<[MinimalEventForStatus, string]>([
     [
       {
