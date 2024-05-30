@@ -26,7 +26,7 @@ export interface Official extends OfficialPerson {
   eventTypes: string[]
 }
 
-export type JsonOfficial = Omit<Judge, keyof DbRecord> & Omit<JsonDbRecord, 'id'> & { id: number }
+export type JsonOfficial = Omit<Official, keyof DbRecord> & Omit<JsonDbRecord, 'id'> & { id: number }
 
 export interface Judge extends OfficialPerson {
   district: string
