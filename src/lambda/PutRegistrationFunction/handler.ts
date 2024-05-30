@@ -54,9 +54,7 @@ const putRegistrationHandler = metricScope(
         registration.modifiedAt = timestamp
         registration.modifiedBy = username
 
-        const confirmedEvent = cancel
-          ? await updateRegistrations(registration.eventId, eventTable)
-          : await dynamoDB.read<JsonConfirmedEvent>({ id: registration.eventId }, eventTable)
+        const confirmedEvent = await dynamoDB.read<JsonConfirmedEvent>({ id: registration.eventId }, eventTable)
 
         if (!confirmedEvent) {
           throw new Error(`Event of type "${registration.eventType}" not found with id "${registration.eventId}"`)
@@ -64,6 +62,10 @@ const putRegistrationHandler = metricScope(
 
         const data: JsonRegistration = { ...existing, ...registration }
         await dynamoDB.write(data)
+
+        if (cancel) {
+          await updateRegistrations(registration.eventId, eventTable)
+        }
 
         const message = getAuditMessage(cancel, confirm, data, existing)
         if (message) {
