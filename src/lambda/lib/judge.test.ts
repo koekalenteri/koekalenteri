@@ -12,6 +12,8 @@ jest.unstable_mockModule('nanoid', () => ({ nanoid: () => 'test-id' }))
 const { fetchJudgesForEventTypes, partializeJudge, updateJudges, updateUsersFromJudges } = await import('./judge')
 
 describe('judge', () => {
+  const logSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined)
+
   afterEach(() => {
     jest.clearAllMocks()
   })
@@ -242,6 +244,8 @@ describe('judge', () => {
         ],
         'judge-table-not-found-in-env'
       )
+      expect(logSpy).toHaveBeenCalledWith('new judge: test (0)')
+      expect(logSpy).toHaveBeenCalledTimes(1)
     })
 
     it('should update judges', async () => {
@@ -284,6 +288,8 @@ describe('judge', () => {
         ],
         'judge-table-not-found-in-env'
       )
+      expect(logSpy).toHaveBeenCalledWith('updating judge 123: changes: eventTypes, location')
+      expect(logSpy).toHaveBeenCalledTimes(1)
     })
 
     it('should delete judges', async () => {
@@ -334,6 +340,9 @@ describe('judge', () => {
         ],
         'judge-table-not-found-in-env'
       )
+      expect(logSpy).toHaveBeenCalledWith('new judge: other (222)')
+      expect(logSpy).toHaveBeenCalledWith('deleting judge: test (123)')
+      expect(logSpy).toHaveBeenCalledTimes(2)
     })
 
     it('should undefined dynamoDB result', async () => {
@@ -370,7 +379,6 @@ describe('judge', () => {
   })
 
   describe('updateUsersFromJudes', () => {
-    const logSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined)
     const mockReadAll = jest.fn<CustomDynamoClient['readAll']>().mockResolvedValue([])
     const mockBatchWrite = jest.fn()
     const mockDB = {

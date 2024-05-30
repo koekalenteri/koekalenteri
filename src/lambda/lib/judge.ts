@@ -48,7 +48,7 @@ export const fetchJudgesForEventTypes = async (
         name,
         location,
         district: item.kennelpiiri,
-        email: item.sähköposti,
+        email: item.sähköposti.toLocaleLowerCase(),
         phone: item.puhelin,
         eventTypes: item.koemuodot.map((koemuoto) => koemuoto.lyhenne),
         official: true,
@@ -83,6 +83,7 @@ export const updateJudges = async (dynamoDB: CustomDynamoClient, judges: Partial
 
   // New
   for (const judge of newJudges) {
+    console.log(`new judge: ${judge.name} (${judge.id})`)
     const added: JsonJudge = {
       active: true,
       languages: [],
@@ -99,7 +100,10 @@ export const updateJudges = async (dynamoDB: CustomDynamoClient, judges: Partial
   for (const judge of judges) {
     const existing = existingJudges.find((j) => j.id === judge.id)
     if (!existing) continue
-    if (Object.keys(diff(partializeJudge(existing), judge)).length > 0) {
+    const partial = partializeJudge(existing)
+    const changes = Object.keys(diff(partial, { ...partial, ...judge }))
+    if (changes.length > 0) {
+      console.log(`updating judge ${judge.id}: changes: ${changes.join(', ')}`)
       const updated: JsonJudge = {
         ...existing,
         ...judge,
@@ -112,6 +116,7 @@ export const updateJudges = async (dynamoDB: CustomDynamoClient, judges: Partial
 
   // Deleted
   for (const judge of deletedJudges) {
+    console.log(`deleting judge: ${judge.name} (${judge.id})`)
     judge.deletedAt = now
     judge.deletedBy = 'system'
 
@@ -127,51 +132,54 @@ export const updateUsersFromJudges = async (dynamoDB: CustomDynamoClient, judges
   if (!judges.length) return
 
   const allUsers = (await dynamoDB.readAll<JsonUser>(userTable)) ?? []
+  const existingUsers = allUsers.filter((u) => judges.find((j) => j.email === u.email))
+  const newJudges = judges.filter((j) => !allUsers.find((u) => u.email === j.email))
+
   const write: JsonUser[] = []
   const modifiedBy = 'system'
   const dateString = new Date().toISOString()
 
-  for (const judge of judges) {
-    const email = judge.email.toLocaleLowerCase()
-    const existing = allUsers.find((u) => u.email === email)
-    if (existing) {
-      const updated: JsonUser = {
-        ...existing,
-        name: reverseName(judge.name),
-        email,
-        kcId: judge.id,
-        judge: judge.eventTypes,
-        location: judge.location ?? existing.location,
-        phone: judge.phone ?? existing.phone,
-      }
-      const changes = Object.keys(diff(existing, updated))
-      if (changes.length > 0) {
-        console.log(`updating user from judge: ${judge.name}. changed props: ${changes.join(', ')}`)
-        write.push({
-          ...updated,
-          modifiedAt: dateString,
-          modifiedBy,
-        })
-      }
-    } else {
-      console.log(`creating user from judge: ${judge.name}, email: ${email}`)
-      const newUser: JsonUser = {
-        id: nanoid(10),
-        createdAt: dateString,
-        createdBy: modifiedBy,
+  for (const judge of newJudges) {
+    console.log(`creating user from judge: ${judge.name}, email: ${judge.email}`)
+    const newUser: JsonUser = {
+      id: nanoid(10),
+      createdAt: dateString,
+      createdBy: modifiedBy,
+      modifiedAt: dateString,
+      modifiedBy,
+      name: reverseName(judge.name),
+      email: judge.email,
+      kcId: judge.id,
+      judge: judge.eventTypes,
+    }
+    if (judge.location) newUser.location = judge.location
+    if (judge.phone) newUser.phone = judge.phone
+
+    write.push(newUser)
+  }
+
+  for (const existing of existingUsers) {
+    const judge = judges.find((j) => j.email === existing.email)
+    if (!judge) continue
+    const updated: JsonUser = {
+      ...existing,
+      name: reverseName(judge.name),
+      kcId: judge.id,
+      judge: judge.eventTypes,
+      location: judge.location ?? existing.location,
+      phone: judge.phone ?? existing.phone,
+    }
+    const changes = Object.keys(diff(existing, updated))
+    if (changes.length > 0) {
+      console.log(`updating user from judge: ${judge.name}. changed props: ${changes.join(', ')}`)
+      write.push({
+        ...updated,
         modifiedAt: dateString,
         modifiedBy,
-        name: reverseName(judge.name),
-        email,
-        kcId: judge.id,
-        judge: judge.eventTypes,
-      }
-      if (judge.location) newUser.location = judge.location
-      if (judge.phone) newUser.phone = judge.phone
-
-      write.push(newUser)
+      })
     }
   }
+
   if (write.length) {
     dynamoDB.batchWrite(write, userTable)
   }
