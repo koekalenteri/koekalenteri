@@ -28,67 +28,60 @@ const refreshJudges = async (event: APIGatewayProxyEvent) => {
   const klapi = new KLAPI(getKLAPIConfig)
   const eventTypes = (await dynamoDB.readAll<EventType>(eventTypeTable))?.filter((et) => et.official && et.active) || []
   const existingJudges = (await dynamoDB.readAll<JsonJudge>()) ?? []
+  const deletedAt = new Date().toISOString()
+  for (const judge of existingJudges) {
+    if (!judge.deletedAt) judge.deletedAt = deletedAt
+  }
   const write: JsonJudge[] = []
+  let fail = false
+
   for (const eventType of eventTypes) {
     const { status, json } = await klapi.lueKoemuodonYlituomarit({
       Koemuoto: eventType.eventType,
       Kieli: KLKieli.Suomi,
     })
-    if (status === 200 && json) {
-      for (const item of json) {
-        const existing = existingJudges.find((j) => j.id === item.jäsennumero)
-        const name = capitalize(item.nimi)
-        const location = capitalize(item.paikkakunta)
-        const judge: JsonJudge = {
-          active: true,
-          languages: [],
-          createdAt: new Date().toISOString(),
-          createdBy: 'system',
-          modifiedAt: new Date().toISOString(),
-          modifiedBy: 'system',
-          ...existing,
-          id: item.jäsennumero,
-          name,
-          location,
-          district: item.kennelpiiri,
-          email: item.sähköposti,
-          phone: item.puhelin,
-          eventTypes: item.koemuodot.map((koemuoto) => koemuoto.lyhenne),
-          official: true,
-          deletedBy: '',
-        }
-        if (judge.deletedAt) {
-          delete judge.deletedAt
-        }
-        if (!existing || Object.keys(diff(existing, judge)).length > 0) {
-          const mode = existing ? 'updated' : 'new'
-          console.log(`${mode} judge: ${judge.id}: ${judge.name}`, { existing, judge })
-          write.push(judge)
-          if (existing) {
-            Object.assign(existing, judge)
-          } else {
-            existingJudges.push(judge)
-          }
-        } else {
-          // Make sure user info is up to date
-          await getAndUpdateUserByEmail(
-            judge.email,
-            {
-              name: reverseName(judge.name),
-              kcId: judge.id,
-              judge: judge.eventTypes,
-              location: judge.location,
-              phone: judge.phone,
-            },
-            true
-          )
-        }
-      }
-    }
-    if (write.length) {
-      await dynamoDB.batchWrite(write)
 
-      for (const judge of write) {
+    if (status !== 200 || !json) {
+      fail = true
+      continue
+    }
+
+    for (const item of json) {
+      const existing = existingJudges.find((j) => j.id === item.jäsennumero)
+      const name = capitalize(item.nimi)
+      const location = capitalize(item.paikkakunta)
+      const judge: JsonJudge = {
+        active: true,
+        languages: [],
+        createdAt: new Date().toISOString(),
+        createdBy: 'system',
+        modifiedAt: new Date().toISOString(),
+        modifiedBy: 'system',
+        ...existing,
+        id: item.jäsennumero,
+        name,
+        location,
+        district: item.kennelpiiri,
+        email: item.sähköposti,
+        phone: item.puhelin,
+        eventTypes: item.koemuodot.map((koemuoto) => koemuoto.lyhenne),
+        official: true,
+        deletedBy: '',
+      }
+      if (judge.deletedAt) {
+        delete judge.deletedAt
+      }
+      if (!existing || Object.keys(diff(existing, judge)).length > 0) {
+        const mode = existing ? 'updated' : 'new'
+        console.log(`${mode} judge: ${judge.id}: ${judge.name}`, { existing, judge })
+        write.push(judge)
+        if (existing) {
+          Object.assign(existing, judge)
+        } else {
+          existingJudges.push(judge)
+        }
+      } else {
+        // Make sure user info is up to date
         await getAndUpdateUserByEmail(
           judge.email,
           {
@@ -101,6 +94,33 @@ const refreshJudges = async (event: APIGatewayProxyEvent) => {
           true
         )
       }
+    }
+  }
+
+  if (!fail) {
+    for (const judge of existingJudges) {
+      if (judge.deletedAt === deletedAt) {
+        console.log(`deleting judge: ${judge.id}: ${judge.name}`)
+        write.push(judge)
+      }
+    }
+  }
+
+  if (write.length) {
+    await dynamoDB.batchWrite(write)
+
+    for (const judge of write) {
+      await getAndUpdateUserByEmail(
+        judge.email,
+        {
+          name: reverseName(judge.name),
+          kcId: judge.id,
+          judge: judge.eventTypes,
+          location: judge.location,
+          phone: judge.phone,
+        },
+        true
+      )
     }
   }
 
