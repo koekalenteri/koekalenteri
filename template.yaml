@@ -598,8 +598,6 @@ Resources:
         - DynamoDBReadPolicy:
             TableName: !Ref EventTable
         - DynamoDBReadPolicy:
-            TableName: !Ref EventRegistrationTable
-        - DynamoDBReadPolicy:
             TableName: !Ref UserTable
         - DynamoDBReadPolicy:
             TableName: !Ref UserLinkTable
@@ -622,6 +620,39 @@ Resources:
     Type: AWS::Logs::LogGroup
     Properties:
       LogGroupName: !Join ['/', ['/aws/lambda', !Ref GetAdminEventsFunction]]
+      RetentionInDays: 30
+
+  GetAdminEventFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: lambda/GetAdminEventFunction/handler.default
+      Layers:
+        - !Ref CommonLayer
+      Tracing: Active
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref EventTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserLinkTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref AuditTable
+        - CloudWatchPutMetricPolicy: {}
+      Events:
+        GetEvent:
+          Type: Api
+          Properties:
+            Path: /admin/event/{id}
+            Method: GET
+            RestApiId: !Ref KoekalenteriApi
+    Metadata:
+      BuildMethod: makefile
+
+  GetAdminEventFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref GetAdminEventFunction]]
       RetentionInDays: 30
 
   PutEventFunction:

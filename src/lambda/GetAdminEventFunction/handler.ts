@@ -4,6 +4,7 @@ import type { AWSError } from 'aws-sdk'
 import type { JsonDogEvent } from '../../types'
 
 import { metricScope } from 'aws-embedded-metrics'
+import { unescape } from 'querystring'
 
 import { CONFIG } from '../config'
 import { authorize } from '../lib/auth'
@@ -14,7 +15,7 @@ import { response } from '../utils/response'
 
 const dynamoDB = new CustomDynamoClient(CONFIG.eventTable)
 
-const getAdminEventsHandler = metricScope(
+const getAdminEventHandler = metricScope(
   (metrics: MetricsLogger) =>
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
       try {
@@ -31,17 +32,18 @@ const getAdminEventsHandler = metricScope(
 
         console.log(`User ${user.id} is member of ['${memberOf.join("', '")}'].`)
 
-        // @todo add index & use query to get relevant items
-        const items = await dynamoDB.readAll<JsonDogEvent>()
-        const allowed = items?.filter((item) => user.admin || memberOf.includes(item.organizer.id))
+        const id = unescape(event.pathParameters?.id ?? '')
+        const item = await dynamoDB.read<JsonDogEvent>({ id })
 
-        metricsSuccess(metrics, event.requestContext, 'getAdminEvents')
+        const allowed = user.admin ? item : item && memberOf.includes(item.organizer.id)
+
+        metricsSuccess(metrics, event.requestContext, 'getAdminEvent')
         return response(200, allowed, event)
       } catch (err) {
-        metricsError(metrics, event.requestContext, 'getAdminEvents')
+        metricsError(metrics, event.requestContext, 'getAdminEvent')
         return response((err as AWSError).statusCode ?? 501, err, event)
       }
     }
 )
 
-export default getAdminEventsHandler
+export default getAdminEventHandler
