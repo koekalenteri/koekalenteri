@@ -3,8 +3,8 @@ import { stringToLang } from './effects'
 describe('user/effects', () => {
   describe('stringToLang', () => {
     it('should default to fi', () => {
+      expect(stringToLang()).toEqual('fi')
       expect(stringToLang(null)).toEqual('fi')
-      expect(stringToLang(undefined)).toEqual('fi')
       expect(stringToLang('nonsense')).toEqual('fi')
     })
 
