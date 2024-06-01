@@ -1,6 +1,5 @@
 import type { AtomEffect } from 'recoil'
 
-import { reportError } from '../../../lib/client/error'
 import { parseJSON } from '../../../lib/utils'
 
 export const parseStorageJSON = (value: string | null) => {
@@ -29,7 +28,7 @@ export const storageEffect: AtomEffect<any> = ({ node, setSelf, onSet, trigger, 
 
   onSet((newValue, _, isReset) => {
     if (!visible) {
-      reportError(new Error(`Preventing change from invisible window to local storage. Key: ${node.key}`))
+      console.info(`Preventing change from invisible window to local storage. Key: ${node.key}`)
       return
     }
 
