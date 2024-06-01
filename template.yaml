@@ -640,12 +640,14 @@ Resources:
             TableName: !Ref AuditTable
         - CloudWatchPutMetricPolicy: {}
       Events:
-        GetEvent:
+        GetAdminEvent:
           Type: Api
           Properties:
             Path: /admin/event/{id}
             Method: GET
             RestApiId: !Ref KoekalenteriApi
+            Auth:
+              Authorizer: CognitoAuthorizer
     Metadata:
       BuildMethod: makefile
 
