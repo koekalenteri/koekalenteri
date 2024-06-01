@@ -5,7 +5,7 @@ export const getStorageKeysStartingWith = (prefixes: string[]) => {
     for (const prefix of prefixes) {
       if (key?.startsWith(prefix)) {
         keys.push(key)
-        continue
+        break
       }
     }
   }
