@@ -3,6 +3,7 @@ import type { DogEvent } from '../../../../types'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { addDays, differenceInDays } from 'date-fns'
+import { diff } from 'deep-object-diff'
 import { useSnackbar } from 'notistack'
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
 
@@ -96,8 +97,18 @@ export const useAdminEventActions = () => {
     return saved
   }
 
-  async function save(event: Partial<DogEvent>): Promise<DogEvent> {
-    const saved = await putEvent(event, token)
+  async function save(event: Partial<DogEvent>): Promise<DogEvent | undefined> {
+    let changes: Partial<DogEvent> = event
+    if (event.id && event.id === currentAdminEvent?.id) {
+      const changedKeys = Object.keys(diff(currentAdminEvent, event))
+      changes = { id: event.id }
+      for (const key of changedKeys) {
+        //@ts-expect-error typescript is just so stupid sometimes
+        changes[key] = event[key]
+      }
+    }
+    console.log(changes)
+    const saved = await putEvent(changes, token)
     setAdminEventId(saved.id)
     setCurrentAdminEvent(saved)
     updatePublicEvents(saved)
