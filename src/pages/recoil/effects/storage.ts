@@ -23,11 +23,8 @@ export const storageEffect: AtomEffect<any> = ({ node, setSelf, onSet, trigger, 
     }
   }
 
-  let visible = document.visibilityState === 'visible'
-  const handleVisibilityChange = () => (visible = document.visibilityState === 'visible')
-
   onSet((newValue, _, isReset) => {
-    if (!visible) {
+    if (document.visibilityState !== 'visible') {
       console.info(`Preventing change from invisible window to local storage. Key: ${node.key}`)
       return
     }
@@ -50,12 +47,10 @@ export const storageEffect: AtomEffect<any> = ({ node, setSelf, onSet, trigger, 
     }
   }
 
-  window.addEventListener('visibilitychange', handleVisibilityChange)
   window.addEventListener('storage', handleStorageChange)
 
   return () => {
     window.removeEventListener('storage', handleStorageChange)
-    window.removeEventListener('visibilitychange', handleVisibilityChange)
   }
 }
 
