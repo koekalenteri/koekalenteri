@@ -1,6 +1,6 @@
 import type { EventClassState, JsonConfirmedEvent, JsonRegistration, JsonRegistrationGroupInfo } from '../../types'
 
-import { hasPriority } from '../../lib/registration'
+import { hasPriority, sortRegistrationsByDateClassTimeAndNumber } from '../../lib/registration'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
@@ -70,7 +70,7 @@ export const updateRegistrations = async (eventId: string, eventTable: string) =
     cls.entries = regsToClass?.length
     cls.members = regsToClass?.filter(priorityFilter).length
   }
-  const entries = registrations?.length || 0
+  const entries = registrations?.length ?? 0
   const members = registrations?.filter(priorityFilter).length ?? 0
   await dynamoDB.update(
     eventKey,
@@ -109,19 +109,6 @@ const numberGroupKey = <T extends JsonRegistration>(reg: T) => {
   return 'reserve-' + ct
 }
 
-const byTimeAndNumber = <T extends JsonRegistration>(a: T, b: T): number =>
-  a.group?.time === b.group?.time
-    ? (a.group?.number || 999) - (b.group?.number || 999)
-    : (a.group?.time ?? '').localeCompare(b.group?.time ?? '')
-
-const byClassTimeAndNumber = <T extends JsonRegistration>(a: T, b: T): number =>
-  a.class === b.class ? byTimeAndNumber(a, b) : (a.class ?? '').localeCompare(b.class ?? '')
-
-const byDateClassTimeAndNumber = <T extends JsonRegistration>(a: T, b: T): number =>
-  a.group?.date === b.group?.date
-    ? byClassTimeAndNumber(a, b)
-    : (a.group?.date ?? '').localeCompare(b.group?.date ?? '')
-
 const saveGroup = ({ eventId, id, group }: JsonRegistrationGroupInfo) => {
   return dynamoDB.update(
     { eventId, id },
@@ -139,7 +126,7 @@ const saveGroup = ({ eventId, id, group }: JsonRegistrationGroupInfo) => {
 }
 
 export const fixRegistrationGroups = async <T extends JsonRegistration>(items: T[]): Promise<T[]> => {
-  items.sort(byDateClassTimeAndNumber)
+  items.sort(sortRegistrationsByDateClassTimeAndNumber)
 
   const grouped: Record<string, T[]> = {}
   for (const item of items) {

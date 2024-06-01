@@ -6,6 +6,7 @@ import type { JsonRegistration, JsonRegistrationGroupInfo } from '../../types'
 import { metricScope } from 'aws-embedded-metrics'
 import { unescape } from 'querystring'
 
+import { sortRegistrationsByDateClassTimeAndNumber } from '../../lib/registration'
 import { CONFIG } from '../config'
 import { audit, registrationAuditKey } from '../lib/audit'
 import { authorize, getOrigin } from '../lib/auth'
@@ -37,21 +38,8 @@ const numberGroupKey = <T extends JsonRegistration>(reg: T) => {
   return 'reserve-' + ct
 }
 
-const byTimeAndNumber = <T extends JsonRegistration>(a: T, b: T): number =>
-  a.group?.time === b.group?.time
-    ? (a.group?.number || 999) - (b.group?.number || 999)
-    : (a.group?.time ?? '').localeCompare(b.group?.time ?? '')
-
-const byClassTimeAndNumber = <T extends JsonRegistration>(a: T, b: T): number =>
-  a.class === b.class ? byTimeAndNumber(a, b) : (a.class ?? '').localeCompare(b.class ?? '')
-
-const byDateClassTimeAndNumber = <T extends JsonRegistration>(a: T, b: T): number =>
-  a.group?.date === b.group?.date
-    ? byClassTimeAndNumber(a, b)
-    : (a.group?.date ?? '').localeCompare(b.group?.date ?? '')
-
 async function fixGroups<T extends JsonRegistration>(items: T[]): Promise<T[]> {
-  items.sort(byDateClassTimeAndNumber)
+  items.sort(sortRegistrationsByDateClassTimeAndNumber)
 
   const grouped: Record<string, T[]> = {}
   for (const item of items) {
