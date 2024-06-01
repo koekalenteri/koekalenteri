@@ -3,7 +3,7 @@ import type { Registration } from '../../../types'
 import { atom, atomFamily } from 'recoil'
 
 import { emptyBreeder, emptyDog, emptyPerson } from '../../components/RegistrationForm'
-import { logEffect, storageEffect } from '../effects'
+import { logEffect, sessionStorageEffect } from '../effects'
 
 import { remoteRegistrationEffect } from './effects'
 import { registrationSelector } from './selectors'
@@ -40,17 +40,17 @@ export const newRegistrationAtom = atom<Registration | undefined>({
     reserve: 'DAY',
     state: 'creating',
   },
-  effects: [logEffect, storageEffect],
+  effects: [logEffect, sessionStorageEffect],
 })
 
 export const registrationByIdsAtom = atomFamily<Registration | undefined | null, string>({
   key: 'registration/ids',
   default: undefined,
-  effects: [logEffect, storageEffect, remoteRegistrationEffect],
+  effects: [logEffect, sessionStorageEffect, remoteRegistrationEffect],
 })
 
 export const editableRegistrationByIdsAtom = atomFamily<Registration | undefined | null, string | undefined>({
   key: 'editableRegistration/ids',
   default: registrationSelector,
-  effects: [logEffect, storageEffect],
+  effects: [logEffect, sessionStorageEffect],
 })

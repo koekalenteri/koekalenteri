@@ -48,7 +48,7 @@ test('It should change the language', () => {
   expect(within(menu).getByText('locale.en')).toHaveClass('Mui-selected')
   expect(within(menu).getByText('locale.fi')).not.toHaveClass('Mui-selected')
 
-  expect(localStorage.getItem('language')).toEqual('en')
+  expect(localStorage.getItem('language')).toEqual('"en"')
 
-  localStorage.setItem('language', 'fi')
+  localStorage.setItem('language', '"fi"')
 })

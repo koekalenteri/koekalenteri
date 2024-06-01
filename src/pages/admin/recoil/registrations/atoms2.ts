@@ -2,7 +2,7 @@ import type { Registration } from '../../../../types'
 
 import { atomFamily } from 'recoil'
 
-import { logEffect, storageEffect } from '../../../recoil'
+import { logEffect, sessionStorageEffect } from '../../../recoil'
 
 import { adminEventRegistrationSelector } from './selectors'
 
@@ -12,5 +12,5 @@ export const editableAdminEventRegistrationByEventIdAndIdAtom = atomFamily<
 >({
   key: 'editableAdminEventRegistration/eventId+Id',
   default: adminEventRegistrationSelector,
-  effects: [logEffect, storageEffect],
+  effects: [logEffect, sessionStorageEffect],
 })

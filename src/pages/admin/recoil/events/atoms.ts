@@ -5,7 +5,7 @@ import { addDays, isSameDay, nextSaturday, startOfDay, sub } from 'date-fns'
 import { atom, atomFamily, selector } from 'recoil'
 
 import { uniqueClasses } from '../../../../lib/utils'
-import { logEffect, storageEffect } from '../../../recoil'
+import { localStorageEffect, logEffect, sessionStorageEffect } from '../../../recoil'
 
 import { remoteAdminEventsEffect } from './effects'
 import { adminEventSelector, currentAdminEventSelector } from './selectors'
@@ -13,7 +13,7 @@ import { adminEventSelector, currentAdminEventSelector } from './selectors'
 export const adminEventsAtom = atom<DogEvent[]>({
   key: 'adminEvents',
   default: [],
-  effects: [logEffect, storageEffect, remoteAdminEventsEffect],
+  effects: [logEffect, localStorageEffect, remoteAdminEventsEffect],
 })
 
 const EntryStartWeeks = 6
@@ -42,25 +42,25 @@ export const newEventAtom = atom<DogEvent>({
     classes: [],
     judges: [{ id: 0, name: '', official: true }],
   } as unknown as DogEvent,
-  effects: [logEffect, storageEffect],
+  effects: [logEffect, localStorageEffect],
 })
 
 export const adminShowPastEventsAtom = atom<boolean>({
   key: 'adminShowPastEvents',
   default: false,
-  effects: [logEffect, storageEffect],
+  effects: [logEffect, localStorageEffect],
 })
 
 export const adminEventFilterTextAtom = atom<string>({
   key: 'adminEventFilterText',
   default: '',
-  effects: [logEffect, storageEffect],
+  effects: [logEffect, localStorageEffect],
 })
 
 export const adminEventIdAtom = atom<string | undefined>({
   key: 'adminEventId',
   default: undefined,
-  effects: [logEffect, storageEffect],
+  effects: [logEffect, localStorageEffect],
 })
 
 export const eventClassAtom = atom<RegistrationClass | string>({
@@ -72,13 +72,13 @@ export const eventClassAtom = atom<RegistrationClass | string>({
       return uniqueClasses(event)[0]
     },
   }),
-  effects: [logEffect, storageEffect],
+  effects: [logEffect, sessionStorageEffect],
 })
 
 export const adminEventColumnsAtom = atom<GridColumnVisibilityModel>({
   key: 'adminEventColumns',
   default: { id: false },
-  effects: [logEffect, storageEffect],
+  effects: [logEffect, localStorageEffect],
 })
 
 /**
@@ -87,5 +87,5 @@ export const adminEventColumnsAtom = atom<GridColumnVisibilityModel>({
 export const editableEventByIdAtom = atomFamily<DogEvent | undefined, string>({
   key: 'editableEvent/Id',
   default: adminEventSelector,
-  effects: [logEffect, storageEffect],
+  effects: [logEffect, sessionStorageEffect],
 })

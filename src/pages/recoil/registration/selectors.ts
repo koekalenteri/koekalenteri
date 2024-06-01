@@ -8,18 +8,13 @@ export const registrationSelector = selectorFamily<Registration | undefined | nu
   key: 'registrationSelector',
   get:
     (id) =>
-    ({ get }) => {
-      if (!id) {
-        return
-      }
-      return get(registrationByIdsAtom(id))
-    },
+    ({ get }) =>
+      id ? get(registrationByIdsAtom(id)) : undefined,
   set:
     (id) =>
     ({ set }, value) => {
-      if (!id || !value || value instanceof DefaultValue) {
-        return
+      if (id && value && !(value instanceof DefaultValue)) {
+        set(registrationByIdsAtom(id), value)
       }
-      set(registrationByIdsAtom(id), value)
     },
 })

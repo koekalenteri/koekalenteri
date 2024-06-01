@@ -3,14 +3,14 @@ import type { Registration } from '../../../../types'
 import { atom, atomFamily } from 'recoil'
 
 import { emptyBreeder, emptyDog, emptyPerson } from '../../../components/RegistrationForm'
-import { logEffect, storageEffect } from '../../../recoil'
+import { localStorageEffect, logEffect } from '../../../recoil'
 
 import { remoteRegistrationsEffect } from './effects'
 
 export const adminRegistrationIdAtom = atom<string | undefined>({
   key: 'adminRegistrationId',
   default: undefined,
-  effects: [logEffect, storageEffect],
+  effects: [logEffect, localStorageEffect],
 })
 
 export const eventRegistrationsAtom = atomFamily<Registration[], string>({
@@ -42,5 +42,5 @@ export const adminNewRegistrationAtom = atom<Registration | undefined>({
     qualifyingResults: [],
     reserve: 'DAY',
   },
-  effects: [logEffect, storageEffect],
+  effects: [logEffect, localStorageEffect],
 })

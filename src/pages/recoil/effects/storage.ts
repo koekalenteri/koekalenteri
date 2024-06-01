@@ -2,84 +2,60 @@ import type { AtomEffect } from 'recoil'
 
 import { parseJSON } from '../../../lib/utils'
 
+import { runCleaners } from './storageCleaners'
+
+runCleaners()
+
 export const parseStorageJSON = (value: string | null) => {
-  let parsed
   try {
     if (value !== null) {
-      parsed = parseJSON(value)
+      return parseJSON(value)
     }
   } catch (e) {
     console.warn('JSON parse error', e)
   }
-  return parsed
 }
 
-export const storageEffect: AtomEffect<any> = ({ node, setSelf, onSet, trigger, resetSelf }) => {
-  if (trigger === 'get') {
-    const savedValue = localStorage.getItem(node.key)
-    if (savedValue !== null) {
-      const parsed = parseStorageJSON(savedValue)
-      setSelf(parsed)
-    }
-  }
-
-  onSet((newValue, _, isReset) => {
-    if (document.visibilityState !== 'visible') {
-      console.info(`Preventing change from invisible window to local storage. Key: ${node.key}`)
-      return
-    }
-
-    if (isReset || newValue === null || newValue === undefined) {
-      localStorage.removeItem(node.key)
-    } else {
-      localStorage.setItem(node.key, JSON.stringify(newValue))
-    }
-  })
-
-  const handleStorageChange = (e: StorageEvent) => {
-    if (e.storageArea === localStorage && e.key === node.key) {
-      const parsed = parseStorageJSON(e.newValue)
-      if (parsed === undefined) {
-        resetSelf()
-      } else {
-        setSelf(parsed)
-      }
-    }
-  }
-
-  window.addEventListener('storage', handleStorageChange)
-
-  return () => {
-    window.removeEventListener('storage', handleStorageChange)
-  }
-}
-
-export function stringStorageEffect<T extends string>(defaultValue: string): AtomEffect<T> {
-  return ({ node, setSelf, onSet, trigger }) => {
+export const getStorageEffect =
+  (storage: Storage): AtomEffect<any> =>
+  ({ node, setSelf, onSet, trigger, resetSelf }) => {
     if (trigger === 'get') {
-      const savedValue = localStorage.getItem(node.key)
+      const savedValue = storage.getItem(node.key)
       if (savedValue !== null) {
-        setSelf(savedValue as T)
+        setSelf(parseStorageJSON(savedValue))
       }
     }
 
     onSet((newValue, _, isReset) => {
+      if (document.visibilityState !== 'visible') {
+        console.info(`Preventing change from invisible window to storage. Key: ${node.key}`)
+        return
+      }
+
       if (isReset || newValue === null || newValue === undefined) {
-        localStorage.removeItem(node.key)
+        storage.removeItem(node.key)
       } else {
-        localStorage.setItem(node.key, newValue)
+        storage.setItem(node.key, JSON.stringify(newValue))
       }
     })
 
     const handleStorageChange = (e: StorageEvent) => {
-      if (e.storageArea === localStorage && e.key === node.key) {
-        const value = e.newValue ?? defaultValue
-        setSelf(value as T)
+      if (e.storageArea === storage && e.key === node.key) {
+        const parsed = parseStorageJSON(e.newValue)
+        if (parsed === undefined) {
+          resetSelf()
+        } else {
+          setSelf(parsed)
+        }
       }
     }
 
     window.addEventListener('storage', handleStorageChange)
 
-    return () => window.removeEventListener('storage', handleStorageChange)
+    return () => {
+      window.removeEventListener('storage', handleStorageChange)
+    }
   }
-}
+
+export const localStorageEffect = getStorageEffect(localStorage)
+export const sessionStorageEffect = getStorageEffect(sessionStorage)

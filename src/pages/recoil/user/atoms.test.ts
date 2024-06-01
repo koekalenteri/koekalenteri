@@ -17,10 +17,10 @@ describe('languageAtom', () => {
       const snapshot = snapshot_UNSTABLE()
       expect(snapshot.getLoadable(languageAtom).valueOrThrow()).toEqual('en')
     })
-    it('when unsupported, it should fallback to "en"', () => {
+    it('when unsupported, it should fallback to "fi"', () => {
       i18n.language = 'sv'
       const snapshot = snapshot_UNSTABLE()
-      expect(snapshot.getLoadable(languageAtom).valueOrThrow()).toEqual('en')
+      expect(snapshot.getLoadable(languageAtom).valueOrThrow()).toEqual('fi')
     })
   })
 })

@@ -2,14 +2,14 @@ import type { EventType, RegistrationClass, RegistrationTime } from '../../../..
 
 import { atom } from 'recoil'
 
-import { logEffect, storageEffect } from '../../../recoil/effects'
+import { localStorageEffect, logEffect } from '../../../recoil/effects'
 
 import { remoteEventTypesEffect } from './effects'
 
 export const eventTypesAtom = atom<EventType[]>({
   key: 'eventTypes',
   default: [],
-  effects: [logEffect, storageEffect, remoteEventTypesEffect],
+  effects: [logEffect, localStorageEffect, remoteEventTypesEffect],
 })
 
 export const eventTypeFilterAtom = atom<string>({

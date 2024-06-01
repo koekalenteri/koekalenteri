@@ -3,19 +3,19 @@ import type { PublicDogEvent, RegistrationClass } from '../../../types'
 import { startOfDay } from 'date-fns'
 import { atom } from 'recoil'
 
-import { logEffect, storageEffect } from '../effects'
+import { localStorageEffect, logEffect } from '../effects'
 
 import { remoteEventsEffect, urlSyncEffect } from './effects'
 
 export const eventsAtom = atom<PublicDogEvent[]>({
   key: 'events',
-  effects: [logEffect, storageEffect, remoteEventsEffect],
+  effects: [logEffect, localStorageEffect, remoteEventsEffect],
 })
 
 export const eventIdAtom = atom<string | undefined>({
   key: 'eventId',
   default: '',
-  effects: [logEffect, storageEffect],
+  effects: [logEffect, localStorageEffect],
 })
 
 export type FilterProps = {

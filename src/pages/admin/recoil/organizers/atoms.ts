@@ -3,14 +3,14 @@ import type { Organizer } from '../../../../types'
 
 import { atom } from 'recoil'
 
-import { logEffect, storageEffect } from '../../../recoil/effects'
+import { localStorageEffect, logEffect } from '../../../recoil/effects'
 
 import { remoteOrganizersEffect } from './effects'
 
 export const adminOrganizersAtom = atom<Organizer[]>({
   key: 'adminOrganizers',
   default: [],
-  effects: [logEffect, storageEffect, remoteOrganizersEffect],
+  effects: [logEffect, localStorageEffect, remoteOrganizersEffect],
 })
 
 export const adminOrganizerFilterAtom = atom<string>({
@@ -21,29 +21,29 @@ export const adminOrganizerFilterAtom = atom<string>({
 export const adminOrganizerIdAtom = atom<string | undefined>({
   key: 'adminOrganizerId',
   default: '',
-  effects: [logEffect, storageEffect],
+  effects: [logEffect, localStorageEffect],
 })
 
 export const adminOrganizerColumnsAtom = atom<GridColumnVisibilityModel>({
   key: 'adminOrganizerColumns',
   default: { id: false },
-  effects: [logEffect, storageEffect],
+  effects: [logEffect, localStorageEffect],
 })
 
 export const adminEventOrganizerIdAtom = atom<string>({
   key: 'adminEventOrganizerId',
   default: '',
-  effects: [logEffect, storageEffect],
+  effects: [logEffect, localStorageEffect],
 })
 
 export const adminUsersOrganizerIdAtom = atom<string>({
   key: 'adminUsersOrganizerId',
   default: '',
-  effects: [logEffect, storageEffect],
+  effects: [logEffect, localStorageEffect],
 })
 
 export const adminShowOnlyOrganizersWithUsersAtom = atom<boolean>({
   key: 'adminShowOnlyOrganizersWithUsers',
   default: true,
-  effects: [logEffect, storageEffect],
+  effects: [logEffect, localStorageEffect],
 })
