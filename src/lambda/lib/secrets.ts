@@ -18,7 +18,7 @@ async function getSSMParams(names: string[]): Promise<ParamsFromKeys<typeof name
   const values: ParamsFromKeys<typeof names> = {}
   const params = result.Parameters || []
   for (const name of names) {
-    values[name] = params.find((p) => p.Name === name)?.Value || ''
+    values[name] = params.find((p) => p.Name === name)?.Value ?? ''
   }
   return values
 }
