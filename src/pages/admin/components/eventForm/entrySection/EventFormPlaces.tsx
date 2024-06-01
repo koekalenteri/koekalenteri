@@ -37,7 +37,7 @@ export default function EventFormPlaces({ event, disabled, helperTexts, onChange
       cls.places = Math.max(0, Math.min(value ?? 0, 200))
     }
     const total = newClasses.reduce((prev, cur) => prev + (cur?.places ?? 0), 0)
-    onChange?.({ classes: newClasses, places: total ? total : event.places })
+    onChange?.({ classes: newClasses, places: total > 0 ? total : event.places })
   }
 
   const handlePlacesChange = useCallback(

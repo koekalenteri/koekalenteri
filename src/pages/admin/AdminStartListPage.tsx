@@ -50,7 +50,7 @@ export default function AdminStartListPage() {
     <Box p={1}>
       <TableContainer component={Paper}>
         {dates.map((d) => (
-          <Table size="small">
+          <Table key={d} size="small">
             <TableRow>
               <TableCell colSpan={9}>
                 <Typography variant="h5">{d}</Typography>
@@ -87,7 +87,7 @@ export default function AdminStartListPage() {
                         ) : null}
                       </TableRow>
                       {grouped[d][c][tm].map((reg) => (
-                        <TableRow>
+                        <TableRow key={reg.id}>
                           <TableCell>{reg.group?.number.toString().padStart(5)}</TableCell>
                           <TableCell>
                             {reg.dog.breedCode && reg.dog.gender

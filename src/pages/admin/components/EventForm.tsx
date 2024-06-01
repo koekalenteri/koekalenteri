@@ -102,7 +102,7 @@ export default function EventForm({ event, changes, disabled, onSave, onCancel, 
     [activeEventTypes, event.eventType]
   )
   const selectedEventTypeClasses = useMemo(
-    () => eventTypeClasses && eventTypeClasses[event.eventType],
+    () => eventTypeClasses?.[event.eventType],
     [event.eventType, eventTypeClasses]
   )
 

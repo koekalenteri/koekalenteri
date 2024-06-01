@@ -1,5 +1,4 @@
 import type { RouteObject } from 'react-router-dom'
-import type { CreatePaymentResponse } from '../types'
 
 import { Suspense } from 'react'
 import { defer, useParams } from 'react-router-dom'
@@ -40,16 +39,6 @@ describe('PaymentPage', () => {
       id: registrationWithStaticDatesAndClass.eventId,
     }))
 
-    const response: CreatePaymentResponse = {
-      transactionId: '',
-      href: '',
-      terms: '',
-      groups: [],
-      reference: '',
-      providers: [],
-      customProviders: {},
-    }
-
     const path = Path.payment(registrationWithStaticDatesAndClass)
     const routes: RouteObject[] = [
       {
@@ -86,16 +75,6 @@ describe('PaymentPage', () => {
       id: registrationWithStaticDatesAndClass.eventId,
     }))
 
-    const response: CreatePaymentResponse = {
-      transactionId: '',
-      href: '',
-      terms: '',
-      groups: [],
-      reference: '',
-      providers: [],
-      customProviders: {},
-    }
-
     const path = Path.payment(registrationWithStaticDatesAndClass)
     const routes: RouteObject[] = [
       {
@@ -103,7 +82,7 @@ describe('PaymentPage', () => {
         element: <PaymentPage />,
         loader: async () =>
           defer({
-            response: new Promise((resolve) => resolve(mockResponse)),
+            response: Promise.resolve(mockResponse),
           }),
       },
     ]

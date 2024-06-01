@@ -20,7 +20,7 @@ export function constructAPIGwEvent(message: unknown, options: Options = DEFAULT
     path: opts.path,
     queryStringParameters: opts.query,
     headers: opts.headers,
-    body: opts.rawBody || JSON.stringify(message),
+    body: opts.rawBody ?? JSON.stringify(message),
     multiValueHeaders: {},
     multiValueQueryStringParameters: {},
     isBase64Encoded: false,

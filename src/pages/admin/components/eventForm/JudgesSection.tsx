@@ -94,7 +94,7 @@ export default function JudgesSection({
             />
           ) : (
             <UnofficialJudge
-              key={index}
+              key={judge.id || judge.name || index}
               event={event}
               disabled={disabled}
               onChange={onChange}
