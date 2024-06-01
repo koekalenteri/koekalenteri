@@ -92,7 +92,7 @@ export const EventListItem = ({ event, odd }: Props) => {
               {event.name ? event.name : ''}
             </Grid>
             <Grid xs="auto" smOffset="auto">
-              <Typography variant="body2">
+              <Typography variant="body2" component="div">
                 {isEntryOpen(event) ? (
                   <LinkButton to={Path.register(event)} text={t('register')} sx={{ pr: 0 }} />
                 ) : (

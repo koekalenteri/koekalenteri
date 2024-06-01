@@ -1315,7 +1315,7 @@ exports[`SearchPage filters by date 1`] = `
             <div
               class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-auto css-xvs7kq-MuiGrid2-root"
             >
-              <p
+              <div
                 class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
               >
                 <div
@@ -1323,7 +1323,7 @@ exports[`SearchPage filters by date 1`] = `
                 >
                   event.states.confirmed_eventOver
                 </div>
-              </p>
+              </div>
             </div>
           </div>
         </div>
@@ -1597,7 +1597,7 @@ exports[`SearchPage filters by date 1`] = `
             <div
               class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-auto css-xvs7kq-MuiGrid2-root"
             >
-              <p
+              <div
                 class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
               >
                 <div
@@ -1605,7 +1605,7 @@ exports[`SearchPage filters by date 1`] = `
                 >
                   event.states.confirmed_eventOver
                 </div>
-              </p>
+              </div>
             </div>
           </div>
         </div>
@@ -1893,7 +1893,7 @@ exports[`SearchPage filters by date 1`] = `
             <div
               class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-auto css-xvs7kq-MuiGrid2-root"
             >
-              <p
+              <div
                 class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
               >
                 <div
@@ -1901,7 +1901,7 @@ exports[`SearchPage filters by date 1`] = `
                 >
                   event.states.confirmed_eventOver
                 </div>
-              </p>
+              </div>
             </div>
           </div>
         </div>
@@ -2247,7 +2247,7 @@ exports[`SearchPage filters by date 1`] = `
             <div
               class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-auto css-xvs7kq-MuiGrid2-root"
             >
-              <p
+              <div
                 class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
               >
                 <div
@@ -2255,7 +2255,7 @@ exports[`SearchPage filters by date 1`] = `
                 >
                   event.states.confirmed_eventOver
                 </div>
-              </p>
+              </div>
             </div>
           </div>
         </div>
@@ -3155,7 +3155,7 @@ exports[`SearchPage filters by date/end 1`] = `
             <div
               class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-auto css-xvs7kq-MuiGrid2-root"
             >
-              <p
+              <div
                 class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
               >
                 <div
@@ -3163,7 +3163,7 @@ exports[`SearchPage filters by date/end 1`] = `
                 >
                   event.states.confirmed_eventOver
                 </div>
-              </p>
+              </div>
             </div>
           </div>
         </div>
@@ -3437,7 +3437,7 @@ exports[`SearchPage filters by date/end 1`] = `
             <div
               class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-auto css-xvs7kq-MuiGrid2-root"
             >
-              <p
+              <div
                 class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
               >
                 <div
@@ -3445,7 +3445,7 @@ exports[`SearchPage filters by date/end 1`] = `
                 >
                   event.states.confirmed_eventOver
                 </div>
-              </p>
+              </div>
             </div>
           </div>
         </div>
@@ -3733,7 +3733,7 @@ exports[`SearchPage filters by date/end 1`] = `
             <div
               class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-auto css-xvs7kq-MuiGrid2-root"
             >
-              <p
+              <div
                 class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
               >
                 <div
@@ -3741,7 +3741,7 @@ exports[`SearchPage filters by date/end 1`] = `
                 >
                   event.states.confirmed_eventOver
                 </div>
-              </p>
+              </div>
             </div>
           </div>
         </div>
@@ -4087,7 +4087,7 @@ exports[`SearchPage filters by date/end 1`] = `
             <div
               class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-auto css-xvs7kq-MuiGrid2-root"
             >
-              <p
+              <div
                 class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
               >
                 <div
@@ -4095,7 +4095,7 @@ exports[`SearchPage filters by date/end 1`] = `
                 >
                   event.states.confirmed_eventOver
                 </div>
-              </p>
+              </div>
             </div>
           </div>
         </div>
@@ -5040,7 +5040,7 @@ exports[`SearchPage filters by event class 1`] = `
             <div
               class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-auto css-xvs7kq-MuiGrid2-root"
             >
-              <p
+              <div
                 class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
               >
                 <div
@@ -5048,7 +5048,7 @@ exports[`SearchPage filters by event class 1`] = `
                 >
                   event.states.confirmed_eventOver
                 </div>
-              </p>
+              </div>
             </div>
           </div>
         </div>
@@ -5394,7 +5394,7 @@ exports[`SearchPage filters by event class 1`] = `
             <div
               class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-auto css-xvs7kq-MuiGrid2-root"
             >
-              <p
+              <div
                 class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
               >
                 <div
@@ -5402,7 +5402,7 @@ exports[`SearchPage filters by event class 1`] = `
                 >
                   event.states.confirmed_eventOver
                 </div>
-              </p>
+              </div>
             </div>
           </div>
         </div>
@@ -5690,7 +5690,7 @@ exports[`SearchPage filters by event class 1`] = `
             <div
               class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-auto css-xvs7kq-MuiGrid2-root"
             >
-              <p
+              <div
                 class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
               >
                 <div
@@ -5698,7 +5698,7 @@ exports[`SearchPage filters by event class 1`] = `
                 >
                   event.states.confirmed_entryClosed_info
                 </div>
-              </p>
+              </div>
             </div>
           </div>
         </div>
@@ -6008,13 +6008,13 @@ exports[`SearchPage filters by event class 1`] = `
             <div
               class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-auto css-xvs7kq-MuiGrid2-root"
             >
-              <p
+              <div
                 class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
               >
                 <div
                   class="MuiBox-root css-1lejymi"
                 />
-              </p>
+              </div>
             </div>
           </div>
         </div>
@@ -6959,7 +6959,7 @@ exports[`SearchPage filters by event type 1`] = `
             <div
               class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-auto css-xvs7kq-MuiGrid2-root"
             >
-              <p
+              <div
                 class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
               >
                 <div
@@ -6967,7 +6967,7 @@ exports[`SearchPage filters by event type 1`] = `
                 >
                   event.states.confirmed_eventOver
                 </div>
-              </p>
+              </div>
             </div>
           </div>
         </div>
@@ -7255,7 +7255,7 @@ exports[`SearchPage filters by event type 1`] = `
             <div
               class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-auto css-xvs7kq-MuiGrid2-root"
             >
-              <p
+              <div
                 class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
               >
                 <div
@@ -7263,7 +7263,7 @@ exports[`SearchPage filters by event type 1`] = `
                 >
                   event.states.confirmed_eventOver
                 </div>
-              </p>
+              </div>
             </div>
           </div>
         </div>
@@ -7609,7 +7609,7 @@ exports[`SearchPage filters by event type 1`] = `
             <div
               class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-auto css-xvs7kq-MuiGrid2-root"
             >
-              <p
+              <div
                 class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
               >
                 <div
@@ -7617,7 +7617,7 @@ exports[`SearchPage filters by event type 1`] = `
                 >
                   event.states.confirmed_eventOver
                 </div>
-              </p>
+              </div>
             </div>
           </div>
         </div>
@@ -7905,7 +7905,7 @@ exports[`SearchPage filters by event type 1`] = `
             <div
               class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-auto css-xvs7kq-MuiGrid2-root"
             >
-              <p
+              <div
                 class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
               >
                 <div
@@ -7913,7 +7913,7 @@ exports[`SearchPage filters by event type 1`] = `
                 >
                   event.states.confirmed_entryClosed_info
                 </div>
-              </p>
+              </div>
             </div>
           </div>
         </div>
@@ -8892,7 +8892,7 @@ exports[`SearchPage filters by organizer 1`] = `
             <div
               class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-auto css-xvs7kq-MuiGrid2-root"
             >
-              <p
+              <div
                 class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
               >
                 <div
@@ -8900,7 +8900,7 @@ exports[`SearchPage filters by organizer 1`] = `
                 >
                   event.states.confirmed_eventOver
                 </div>
-              </p>
+              </div>
             </div>
           </div>
         </div>

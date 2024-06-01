@@ -99,7 +99,7 @@ exports[`EventList should render 1`] = `
             <div
               class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-auto css-xvs7kq-MuiGrid2-root"
             >
-              <p
+              <div
                 class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
               >
                 <div
@@ -107,7 +107,7 @@ exports[`EventList should render 1`] = `
                 >
                   event.states.confirmed_eventOver
                 </div>
-              </p>
+              </div>
             </div>
           </div>
         </div>
