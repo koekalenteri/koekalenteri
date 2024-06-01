@@ -10,7 +10,7 @@ import { useRecoilState, useResetRecoilState } from 'recoil'
 
 import { hasChanges } from '../../../lib/utils'
 import EventForm from '../components/EventForm'
-import { adminEventSelector, editableEventByIdAtom, useAdminEventActions } from '../recoil'
+import { adminEventSelector, adminEditableEventByIdAtom, useAdminEventActions } from '../recoil'
 
 interface Props {
   readonly eventId: string
@@ -23,8 +23,8 @@ export default function EventDetailsDialog({ eventId, onClose, open }: Props) {
   const { enqueueSnackbar } = useSnackbar()
   const actions = useAdminEventActions()
   const [storedEvent, setStoredEvent] = useRecoilState(adminEventSelector(eventId))
-  const [event, setEvent] = useRecoilState(editableEventByIdAtom(eventId))
-  const resetEvent = useResetRecoilState(editableEventByIdAtom(eventId))
+  const [event, setEvent] = useRecoilState(adminEditableEventByIdAtom(eventId))
+  const resetEvent = useResetRecoilState(adminEditableEventByIdAtom(eventId))
   const [changes, setChanges] = useState<boolean>(hasChanges(storedEvent, event))
 
   const handleChange = useCallback(

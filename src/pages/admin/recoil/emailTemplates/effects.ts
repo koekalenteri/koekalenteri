@@ -16,7 +16,7 @@ const templateIds: EmailTemplateId[] = [
   'refund',
 ]
 
-export const remoteEmailTemplatesEffect: AtomEffect<EmailTemplate[]> = ({ getPromise, setSelf, trigger }) => {
+export const adminRemoteEmailTemplatesEffect: AtomEffect<EmailTemplate[]> = ({ getPromise, setSelf, trigger }) => {
   if (trigger === 'get') {
     getPromise(idTokenAtom).then((token) => {
       getEmailTemplates(token)

@@ -2,17 +2,17 @@ import type { Official } from '../../../../types'
 
 import { atom } from 'recoil'
 
-import { localStorageEffect, logEffect } from '../../../recoil/effects'
+import { logEffect, sessionStorageEffect } from '../../../recoil/effects'
 
-import { remoteOfficialsEffect } from './effects'
+import { adminRemoteOfficialsEffect } from './effects'
 
-export const officialsAtom = atom<Official[]>({
-  key: 'officials',
+export const adminOfficialsAtom = atom<Official[]>({
+  key: 'adminOfficials',
   default: [],
-  effects: [logEffect, localStorageEffect, remoteOfficialsEffect],
+  effects: [logEffect, sessionStorageEffect, adminRemoteOfficialsEffect],
 })
 
-export const officialFilterAtom = atom<string>({
-  key: 'officialFilter',
+export const adminOfficialFilterAtom = atom<string>({
+  key: 'adminOfficialFilter',
   default: '',
 })

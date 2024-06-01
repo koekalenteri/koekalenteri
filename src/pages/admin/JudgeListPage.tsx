@@ -11,14 +11,14 @@ import { isAdminSelector } from '../recoil'
 import FullPageFlex from './components/FullPageFlex'
 import { QuickSearchToolbar } from './components/QuickSearchToolbar'
 import useJudgeListColumns from './judgeListPage/columns'
-import { filteredJudgesSelector, judgeFilterAtom, useJudgesActions } from './recoil'
+import { adminFilteredJudgesSelector, adminJudgeFilterAtom, useAdminJudgesActions } from './recoil'
 
 export default function JudgeListPage() {
-  const [searchText, setSearchText] = useRecoilState(judgeFilterAtom)
+  const [searchText, setSearchText] = useRecoilState(adminJudgeFilterAtom)
   const { t } = useTranslation()
-  const judges = useRecoilValue(filteredJudgesSelector)
+  const judges = useRecoilValue(adminFilteredJudgesSelector)
   const isAdmin = useRecoilValue(isAdminSelector)
-  const actions = useJudgesActions()
+  const actions = useAdminJudgesActions()
 
   const columns = useJudgeListColumns()
 

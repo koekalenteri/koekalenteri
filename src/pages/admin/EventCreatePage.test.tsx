@@ -15,7 +15,7 @@ import { locales } from '../../i18n'
 import { flushPromises } from '../../test-utils/utils'
 
 import EventCreatePage from './EventCreatePage'
-import { newEventAtom } from './recoil'
+import { adminNewEventAtom } from './recoil'
 
 jest.mock('../../api/event')
 jest.mock('../../api/eventType')
@@ -35,7 +35,7 @@ describe('EventEditPage', () => {
     const language = i18n.language as Language
 
     const eventDate = new Date('2021-04-23')
-    const defaultValue = await snapshot_UNSTABLE().getPromise(newEventAtom)
+    const defaultValue = await snapshot_UNSTABLE().getPromise(adminNewEventAtom)
     const initialValue = {
       ...defaultValue,
       startDate: eventDate,
@@ -47,7 +47,7 @@ describe('EventEditPage', () => {
     const { container } = render(
       <ThemeProvider theme={theme}>
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales[language]}>
-          <RecoilRoot initializeState={({ set }) => set(newEventAtom, initialValue)}>
+          <RecoilRoot initializeState={({ set }) => set(adminNewEventAtom, initialValue)}>
             <MemoryRouter>
               <Suspense fallback={<div>loading...</div>}>
                 <SnackbarProvider>

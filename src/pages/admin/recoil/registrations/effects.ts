@@ -6,7 +6,7 @@ import { getParamFromFamilyKey, idTokenAtom } from '../../../recoil'
 
 const loaded: Record<string, boolean> = {}
 
-export const remoteRegistrationsEffect: AtomEffect<Registration[]> = ({ getPromise, node, setSelf, trigger }) => {
+export const adminRemoteRegistrationsEffect: AtomEffect<Registration[]> = ({ getPromise, node, setSelf, trigger }) => {
   if (trigger === 'get') {
     const eventId = getParamFromFamilyKey(node.key)
     if (loaded[eventId]) return

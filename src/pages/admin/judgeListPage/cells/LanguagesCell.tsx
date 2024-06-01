@@ -10,12 +10,12 @@ import { t } from 'i18next'
 import { useRecoilValue } from 'recoil'
 
 import { isAdminSelector } from '../../../recoil'
-import { useJudgesActions } from '../../recoil'
+import { useAdminJudgesActions } from '../../recoil'
 
 const LangToggle = styled(ToggleButton)({ paddingTop: 1, paddingBottom: 1 })
 
 const LanguagesCell = (props: GridRenderCellParams<Judge, Judge>) => {
-  const actions = useJudgesActions()
+  const actions = useAdminJudgesActions()
   const isAdmin = useRecoilValue(isAdminSelector)
 
   const changeLanguges = useCallback(

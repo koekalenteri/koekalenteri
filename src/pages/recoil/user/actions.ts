@@ -6,7 +6,6 @@ import { useRecoilCallback, useRecoilState, useSetRecoilState } from 'recoil'
 
 import { reportError } from '../../../lib/client/error'
 import { Path } from '../../../routeConfig'
-import { adminEventsAtom } from '../../admin/recoil'
 
 import { idTokenAtom, loginPathAtom } from './atoms'
 import { userSelector } from './selectors'
@@ -43,7 +42,8 @@ export const useUserActions = () => {
         try {
           navigate(Path.home, { replace: true })
           reset(idTokenAtom)
-          reset(adminEventsAtom)
+          // reset(adminEventsAtom)
+          sessionStorage.clear()
           if (notice) {
             enqueueSnackbar('Heippa!', { variant: 'info' })
           }

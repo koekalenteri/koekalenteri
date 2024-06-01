@@ -4,21 +4,21 @@ import { atom } from 'recoil'
 
 import { localStorageEffect, logEffect } from '../../../recoil/effects'
 
-import { remoteEventTypesEffect } from './effects'
+import { adminRemoteEventTypesEffect } from './effects'
 
-export const eventTypesAtom = atom<EventType[]>({
-  key: 'eventTypes',
+export const adminEventTypesAtom = atom<EventType[]>({
+  key: 'adminEventTypes',
   default: [],
-  effects: [logEffect, localStorageEffect, remoteEventTypesEffect],
+  effects: [logEffect, localStorageEffect, adminRemoteEventTypesEffect],
 })
 
-export const eventTypeFilterAtom = atom<string>({
-  key: 'eventTypeFilter',
+export const adminEventTypeFilterAtom = atom<string>({
+  key: 'adminEventTypeFilter',
   default: '',
 })
 
-export const eventTypeClassesAtom = atom<Record<string, RegistrationClass[]>>({
-  key: 'eventTypeClasses',
+export const adminEventTypeClassesAtom = atom<Record<string, RegistrationClass[]>>({
+  key: 'adminEventTypeClasses',
   default: {
     unofficialEvents: ['ALO', 'AVO', 'VOI'],
     NOU: [],
@@ -28,8 +28,8 @@ export const eventTypeClassesAtom = atom<Record<string, RegistrationClass[]>>({
   },
 })
 
-export const eventTypeGroupsAtom = atom<Record<string, RegistrationTime[]>>({
-  key: 'eventTypeGroups',
+export const adminEventTypeGroupsAtom = atom<Record<string, RegistrationTime[]>>({
+  key: 'adminEventTypeGroups',
   default: {
     unofficialEvents: ['ap', 'ip', 'kp'],
     NOU: ['ap', 'ip', 'kp'],

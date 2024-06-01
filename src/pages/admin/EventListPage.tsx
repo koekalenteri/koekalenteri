@@ -25,13 +25,13 @@ import AutoButton from './eventListPage/AutoButton'
 import useEventListColumns from './eventListPage/columns'
 import { adminUserEventOrganizersSelector, adminUserFilteredEventsSelector } from './recoil/user'
 import {
+  adminCurrentEventSelector,
   adminEventColumnsAtom,
   adminEventFilterTextAtom,
   adminEventIdAtom,
   adminEventOrganizerIdAtom,
+  adminNewEventAtom,
   adminShowPastEventsAtom,
-  currentAdminEventSelector,
-  newEventAtom,
   useAdminEventActions,
 } from './recoil'
 
@@ -47,15 +47,15 @@ export default function EventListPage({ isDev }: Props) {
   const [searchText, setSearchText] = useRecoilState(adminEventFilterTextAtom)
   const [selectedEventID, setSelectedEventID] = useRecoilState(adminEventIdAtom)
   const [visibilityModel, setVisibilityModel] = useRecoilState(adminEventColumnsAtom)
-  const selectedEvent = useRecoilValue(currentAdminEventSelector)
+  const selectedEvent = useRecoilValue(adminCurrentEventSelector)
   const events = useRecoilValue(adminUserFilteredEventsSelector)
   const actions = useAdminEventActions()
   const columns = useEventListColumns()
   const orgs = useRecoilValue(adminUserEventOrganizersSelector)
   const [orgId, setOrgId] = useRecoilState(adminEventOrganizerIdAtom)
   const options = useMemo(() => [{ id: '', name: 'Kaikki' }, ...orgs], [orgs])
-  const newEvent = useRecoilValue(newEventAtom)
-  const resetNewEvent = useResetRecoilState(newEventAtom)
+  const newEvent = useRecoilValue(adminNewEventAtom)
+  const resetNewEvent = useResetRecoilState(adminNewEventAtom)
 
   const deleteAction = useCallback(() => {
     confirm({

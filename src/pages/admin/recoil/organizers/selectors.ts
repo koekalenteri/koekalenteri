@@ -13,8 +13,8 @@ import {
   adminShowOnlyOrganizersWithUsersAtom,
 } from './atoms'
 
-export const filteredOrganizersSelector = selector({
-  key: 'filteredOrganizers',
+export const adminFilteredOrganizersSelector = selector({
+  key: 'adminFilteredOrganizers',
   get: ({ get }) => {
     const filter = get(adminOrganizerFilterAtom).toLocaleLowerCase(i18next.language)
     const list = get(adminOrganizersAtom)
@@ -37,8 +37,8 @@ export const adminOrganizerSelector = selectorFamily<Organizer | undefined, stri
     },
 })
 
-export const currentAdminOrganizerSelector = selector({
-  key: 'currentAdminOrganizerSelector',
+export const adminCurrentOrganizerSelector = selector({
+  key: 'adminCurrentOrganizerSelector',
   get: ({ get }) => {
     const organizerId = get(adminOrganizerIdAtom)
     return organizerId ? get(adminOrganizerSelector(organizerId)) : undefined

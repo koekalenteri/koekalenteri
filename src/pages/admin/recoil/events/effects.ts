@@ -6,7 +6,7 @@ import { idTokenAtom } from '../../../recoil'
 
 let loaded = false
 
-export const remoteAdminEventsEffect: AtomEffect<DogEvent[]> = ({ getPromise, setSelf, trigger }) => {
+export const adminRemoteEventsEffect: AtomEffect<DogEvent[]> = ({ getPromise, setSelf, trigger }) => {
   if (trigger === 'get' && !loaded) {
     getPromise(idTokenAtom).then((token) => {
       loaded = true

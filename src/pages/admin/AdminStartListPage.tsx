@@ -14,7 +14,7 @@ import { useRecoilValue } from 'recoil'
 
 import { hasAdminAccessSelector, useUserActions } from '../recoil'
 
-import { eventRegistrationsAtom } from './recoil'
+import { adminEventRegistrationsAtom } from './recoil'
 
 type GroupedRegs = Record<string, Record<string, Record<string, Registration[]>>>
 
@@ -24,7 +24,7 @@ export default function AdminStartListPage() {
   const hasAccess = useRecoilValue(hasAdminAccessSelector)
   const params = useParams()
   const eventId = params.id ?? ''
-  const allRegistrations = useRecoilValue(eventRegistrationsAtom(eventId))
+  const allRegistrations = useRecoilValue(adminEventRegistrationsAtom(eventId))
   const regsToPrint = allRegistrations.filter((reg) => !reg.cancelled)
   const nameLen = regsToPrint.reduce((acc, reg) => Math.min(38, Math.max(acc, reg.dog.name?.length ?? 0)), 0)
   const grouped = regsToPrint.reduce<GroupedRegs>((acc, reg) => {

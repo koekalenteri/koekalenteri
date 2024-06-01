@@ -7,10 +7,10 @@ import Switch from '@mui/material/Switch'
 import { useRecoilValue } from 'recoil'
 
 import { isAdminSelector } from '../../../recoil'
-import { useJudgesActions } from '../../recoil'
+import { useAdminJudgesActions } from '../../recoil'
 
 const ActiveCell = (props: GridRenderCellParams<Judge, boolean>) => {
-  const actions = useJudgesActions()
+  const actions = useAdminJudgesActions()
   const isAdmin = useRecoilValue(isAdminSelector)
 
   const toggleActive = useCallback(

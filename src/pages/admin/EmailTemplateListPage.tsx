@@ -19,17 +19,22 @@ import StyledDataGrid from '../components/StyledDataGrid'
 
 import FullPageFlex from './components/FullPageFlex'
 import { TemplateEditor } from './emailTemplateListPage/TemplateEditor'
-import { editableTemplateByIdAtom, emailTemplatesAtom, templateSelector, useEmailTemplatesActions } from './recoil'
+import {
+  adminEditableTemplateByIdAtom,
+  adminEmailTemplatesAtom,
+  adminEmailTemplateSelector,
+  useAdminEmailTemplatesActions,
+} from './recoil'
 
 export default function EmailTemplateListPage() {
-  const emailTemplates = useRecoilValue(emailTemplatesAtom)
+  const emailTemplates = useRecoilValue(adminEmailTemplatesAtom)
   const [selectedTab, setSelectedTab] = useState<number>(0)
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>()
-  const storedTemplate = useRecoilValue(templateSelector(selectedTemplateId))
-  const [template, setTemplate] = useRecoilState(editableTemplateByIdAtom(selectedTemplateId))
-  const resetTemplate = useResetRecoilState(editableTemplateByIdAtom(selectedTemplateId))
+  const storedTemplate = useRecoilValue(adminEmailTemplateSelector(selectedTemplateId))
+  const [template, setTemplate] = useRecoilState(adminEditableTemplateByIdAtom(selectedTemplateId))
+  const resetTemplate = useResetRecoilState(adminEditableTemplateByIdAtom(selectedTemplateId))
   const [changes, setChanges] = useState<boolean>(hasChanges(storedTemplate, template))
-  const actions = useEmailTemplatesActions()
+  const actions = useAdminEmailTemplatesActions()
 
   const { t } = useTranslation()
 

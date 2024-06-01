@@ -14,10 +14,10 @@ import { reportError } from '../../../../lib/client/error'
 import { idTokenAtom } from '../../../recoil'
 import { adminEventSelector } from '../events'
 
-import { currentEventRegistrationsSelector } from './selectors'
+import { adminCurrentEventRegistrationsSelector } from './selectors'
 
 export const useAdminRegistrationActions = (eventId: string) => {
-  const [adminRegistrations, setAdminRegistrations] = useRecoilState(currentEventRegistrationsSelector)
+  const [adminRegistrations, setAdminRegistrations] = useRecoilState(adminCurrentEventRegistrationsSelector)
   const [event, setEvent] = useRecoilState(adminEventSelector(eventId))
   const token = useRecoilValue(idTokenAtom)
   const { enqueueSnackbar } = useSnackbar()

@@ -22,7 +22,7 @@ import Typography from '@mui/material/Typography'
 import { useRecoilValue } from 'recoil'
 
 import { putInvitationAttachment } from '../../../api/event'
-import useEventRegistrationInfo from '../../../hooks/useEventRegistrationsInfo'
+import useAdminEventRegistrationInfo from '../../../hooks/useAdminEventRegistrationsInfo'
 import { API_BASE_URL } from '../../../routeConfig'
 import { idTokenAtom } from '../../recoil'
 
@@ -37,7 +37,7 @@ const InfoPanel = ({ event, registrations, onOpenMessageDialog }: Props) => {
   const [attachmentKey, setAttachmentKey] = useState(event.invitationAttachment)
   const [expanded, setExpanded] = useState(true)
   const [tab, setTab] = useState(0)
-  const { reserveByClass, numbersByClass, selectedByClass, stateByClass } = useEventRegistrationInfo(
+  const { reserveByClass, numbersByClass, selectedByClass, stateByClass } = useAdminEventRegistrationInfo(
     event,
     registrations
   )

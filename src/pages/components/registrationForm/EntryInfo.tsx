@@ -13,7 +13,7 @@ import { useTranslation } from 'react-i18next'
 import Grid from '@mui/material/Grid'
 import { format, isSameDay } from 'date-fns'
 
-import { useEventRegistrationDates } from '../../../hooks/useEventRegistrationDates'
+import { useAdminEventRegistrationDates } from '../../../hooks/useAdminEventRegistrationDates'
 import { registrationDates, unique, uniqueClasses, uniqueDate } from '../../../lib/utils'
 import { isRegistrationClass } from '../../admin/EventViewPage'
 import AutocompleteMulti from '../AutocompleteMulti'
@@ -60,7 +60,7 @@ export function EntryInfo({
   )
 
   const classes = uniqueClasses(event)
-  const regDates = useEventRegistrationDates(event, reg.class ?? className)
+  const regDates = useAdminEventRegistrationDates(event, reg.class ?? className)
   const dates = uniqueDate(regDates.map((rd) => rd.date))
   const selectedDates = reg.dates.filter((rd) => dates.find((d) => isSameDay(d, rd.date)))
   const tmpDates = selectedDates.length ? selectedDates.map((rd) => rd.date) : dates

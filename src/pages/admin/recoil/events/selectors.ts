@@ -11,8 +11,8 @@ import {
   adminEventFilterTextAtom,
   adminEventIdAtom,
   adminEventsAtom,
+  adminNewEventAtom,
   adminShowPastEventsAtom,
-  newEventAtom,
 } from './atoms'
 
 export const adminEventSelector = selectorFamily<DogEvent | undefined, string | undefined>({
@@ -21,7 +21,7 @@ export const adminEventSelector = selectorFamily<DogEvent | undefined, string | 
     (eventId) =>
     ({ get }) => {
       if (!eventId) {
-        return get(newEventAtom)
+        return get(adminNewEventAtom)
       }
       const events = get(adminEventsAtom)
       return events.find((e) => e.id === eventId)
@@ -51,8 +51,8 @@ export const confirmedAdminEventSelector = selectorFamily<ConfirmedEvent | null,
     },
 })
 
-export const currentAdminEventSelector = selector({
-  key: 'currentAdminEvent',
+export const adminCurrentEventSelector = selector({
+  key: 'adminCurrentEvent',
   get: ({ get }) => {
     const eventId = get(adminEventIdAtom)
     return eventId ? get(adminEventSelector(eventId)) : undefined
@@ -69,8 +69,8 @@ export const currentAdminEventSelector = selector({
   },
 })
 
-export const filteredAdminEventsSelector = selector({
-  key: 'filteredAdminEvents',
+export const adminFilteredEventsSelector = selector({
+  key: 'adminFilteredEvents',
   get: ({ get }) => {
     const events = get(adminEventsAtom)
     const filter = get(adminEventFilterTextAtom).toLocaleLowerCase(i18next.language)

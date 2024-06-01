@@ -36,7 +36,7 @@ import { Path } from '../../../routeConfig'
 import { AsyncButton } from '../../components/AsyncButton'
 import AutocompleteSingle from '../../components/AutocompleteSingle'
 import { idTokenAtom } from '../../recoil'
-import { adminEventSelector, emailTemplatesAtom } from '../recoil'
+import { adminEmailTemplatesAtom, adminEventSelector } from '../recoil'
 
 interface Props {
   readonly registrations: Registration[]
@@ -52,7 +52,7 @@ export default function SendMessageDialog({ event, registrations, templateId, op
   const { enqueueSnackbar } = useSnackbar()
   const [text, setText] = useState('')
   const token = useRecoilValue(idTokenAtom)
-  const templates = useRecoilValue(emailTemplatesAtom)
+  const templates = useRecoilValue(adminEmailTemplatesAtom)
   const setEvent = useSetRecoilState(adminEventSelector(event.id))
   const [selectedTemplate, setSelectedTemplate] = useState<EmailTemplate | undefined>(
     templates.find((t) => t.id === templateId)

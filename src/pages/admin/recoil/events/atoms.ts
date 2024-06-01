@@ -7,13 +7,13 @@ import { atom, atomFamily, selector } from 'recoil'
 import { uniqueClasses } from '../../../../lib/utils'
 import { localStorageEffect, logEffect, sessionStorageEffect } from '../../../recoil'
 
-import { remoteAdminEventsEffect } from './effects'
-import { adminEventSelector, currentAdminEventSelector } from './selectors'
+import { adminRemoteEventsEffect } from './effects'
+import { adminCurrentEventSelector, adminEventSelector } from './selectors'
 
 export const adminEventsAtom = atom<DogEvent[]>({
   key: 'adminEvents',
   default: [],
-  effects: [logEffect, localStorageEffect, remoteAdminEventsEffect],
+  effects: [logEffect, sessionStorageEffect, adminRemoteEventsEffect],
 })
 
 const EntryStartWeeks = 6
@@ -31,7 +31,7 @@ export const isDetaultEntryStartDate = (date: Date | undefined, eventStartDate: 
 export const isDetaultEntryEndDate = (date: Date | undefined, eventStartDate: Date) =>
   !date || isSameDay(defaultEntryEndDate(eventStartDate), date)
 
-export const newEventAtom = atom<DogEvent>({
+export const adminNewEventAtom = atom<DogEvent>({
   key: 'newEvent',
   default: {
     state: 'draft',
@@ -63,12 +63,12 @@ export const adminEventIdAtom = atom<string | undefined>({
   effects: [logEffect, localStorageEffect],
 })
 
-export const eventClassAtom = atom<RegistrationClass | string>({
-  key: 'eventClass',
+export const adminEventClassAtom = atom<RegistrationClass | string>({
+  key: 'adminEventClass',
   default: selector({
-    key: 'eventClass/default',
+    key: 'adminEventClass/default',
     get: ({ get }) => {
-      const event = get(currentAdminEventSelector)
+      const event = get(adminCurrentEventSelector)
       return uniqueClasses(event)[0]
     },
   }),
@@ -82,10 +82,10 @@ export const adminEventColumnsAtom = atom<GridColumnVisibilityModel>({
 })
 
 /**
- * Existing event editing, edits stored to local storage
+ * Existing event editing, edits stored to session storage
  */
-export const editableEventByIdAtom = atomFamily<DogEvent | undefined, string>({
-  key: 'editableEvent/Id',
+export const adminEditableEventByIdAtom = atomFamily<DogEvent | undefined, string>({
+  key: 'adminEditableEvent/Id',
   default: adminEventSelector,
   effects: [logEffect, sessionStorageEffect],
 })

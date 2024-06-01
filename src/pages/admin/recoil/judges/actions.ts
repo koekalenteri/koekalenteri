@@ -7,10 +7,10 @@ import { getJudges, putJudge } from '../../../../api/judge'
 import { idTokenAtom } from '../../../recoil/user'
 import { adminUsersAtom } from '../user'
 
-import { judgesAtom } from './atoms'
+import { adminJudgesAtom } from './atoms'
 
-export const useJudgesActions = () => {
-  const [judges, setJudges] = useRecoilState(judgesAtom)
+export const useAdminJudgesActions = () => {
+  const [judges, setJudges] = useRecoilState(adminJudgesAtom)
   const resetUsers = useResetRecoilState(adminUsersAtom)
   const token = useRecoilValue(idTokenAtom)
 

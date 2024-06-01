@@ -5,7 +5,7 @@ import { selector, selectorFamily } from 'recoil'
 
 import { unique } from '../../../../lib/utils'
 import { adminUserOrgIdsSelector, isAdminSelector, userSelector } from '../../../recoil'
-import { adminEventOrganizersSelector, adminEventsAtom, filteredAdminEventsSelector } from '../events'
+import { adminEventOrganizersSelector, adminEventsAtom, adminFilteredEventsSelector } from '../events'
 import { adminEventOrganizerIdAtom, adminOrganizersAtom, adminUsersOrganizerIdAtom } from '../organizers'
 
 import { adminUserFilterAtom, adminUserIdAtom, adminUsersAtom } from './atoms'
@@ -27,8 +27,8 @@ export const adminUsersOrganizersSelector = selector({
   },
 })
 
-export const filteredAdminUsersSelector = selector({
-  key: 'filteredUsers',
+export const adminFilteredUsersSelector = selector({
+  key: 'adminFilteredUsers',
   get: ({ get }) => {
     const isAdmin = get(isAdminSelector)
     const filter = get(adminUserFilterAtom).toLocaleLowerCase(i18next.language)
@@ -67,8 +67,8 @@ export const adminUserSelector = selectorFamily<User | undefined, string | undef
     },
 })
 
-export const currentAdminUserSelector = selector({
-  key: 'currentAdminUser',
+export const adminCurrentUserSelector = selector({
+  key: 'adminCurrentAdminUser',
   get: ({ get }) => {
     const userId = get(adminUserIdAtom)
     return userId ? get(adminUserSelector(userId)) : undefined
@@ -119,7 +119,7 @@ export const adminUserFilteredEventsSelector = selector({
   key: 'adminUserFilteredEvents',
   get: ({ get }) => {
     const user = get(userSelector)
-    const events = get(filteredAdminEventsSelector)
+    const events = get(adminFilteredEventsSelector)
     const orgId = get(adminEventOrganizerIdAtom)
 
     const userEvents = user?.admin ? events : events.filter((e) => user?.roles?.[e.organizer.id])

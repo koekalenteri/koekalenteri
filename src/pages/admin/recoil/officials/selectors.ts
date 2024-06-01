@@ -1,13 +1,13 @@
 import i18next from 'i18next'
 import { selector } from 'recoil'
 
-import { officialFilterAtom, officialsAtom } from './atoms'
+import { adminOfficialFilterAtom, adminOfficialsAtom } from './atoms'
 
-export const filteredOfficialsSelector = selector({
-  key: 'filteredOfficials',
+export const adminFilteredOfficialsSelector = selector({
+  key: 'adminFilteredOfficials',
   get: ({ get }) => {
-    const filter = get(officialFilterAtom).toLocaleLowerCase(i18next.language)
-    const list = get(officialsAtom)
+    const filter = get(adminOfficialFilterAtom).toLocaleLowerCase(i18next.language)
+    const list = get(adminOfficialsAtom)
 
     if (!filter) {
       return list

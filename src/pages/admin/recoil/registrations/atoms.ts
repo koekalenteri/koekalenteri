@@ -5,7 +5,7 @@ import { atom, atomFamily } from 'recoil'
 import { emptyBreeder, emptyDog, emptyPerson } from '../../../components/RegistrationForm'
 import { localStorageEffect, logEffect } from '../../../recoil'
 
-import { remoteRegistrationsEffect } from './effects'
+import { adminRemoteRegistrationsEffect } from './effects'
 
 export const adminRegistrationIdAtom = atom<string | undefined>({
   key: 'adminRegistrationId',
@@ -13,9 +13,9 @@ export const adminRegistrationIdAtom = atom<string | undefined>({
   effects: [logEffect, localStorageEffect],
 })
 
-export const eventRegistrationsAtom = atomFamily<Registration[], string>({
+export const adminEventRegistrationsAtom = atomFamily<Registration[], string>({
   key: 'eventRegistrations',
-  effects: [logEffect, remoteRegistrationsEffect],
+  effects: [logEffect, adminRemoteRegistrationsEffect],
 })
 
 export const adminNewRegistrationAtom = atom<Registration | undefined>({

@@ -27,13 +27,13 @@ import AutoButton from './eventListPage/AutoButton'
 import { CreateUserDialog } from './usersPage/CreateUserDialog'
 import { EditUserRolesDialog } from './usersPage/EditUserRolesDialog'
 import {
+  adminCurrentUserSelector,
+  adminFilteredUsersSelector,
   adminUserFilterAtom,
   adminUserIdAtom,
   adminUsersColumnsAtom,
   adminUsersOrganizerIdAtom,
   adminUsersOrganizersSelector,
-  currentAdminUserSelector,
-  filteredAdminUsersSelector,
 } from './recoil'
 
 const IconPlaceholder = () => <StarsOutlined sx={{ color: 'transparent' }} fontSize="small" />
@@ -103,10 +103,10 @@ export default function UsersPage() {
     }
     return [{ id: '', name: 'Kaikki' }, ...userOrgs]
   }, [orgs, user?.admin, user?.roles])
-  const users = useRecoilValue(filteredAdminUsersSelector)
+  const users = useRecoilValue(adminFilteredUsersSelector)
 
   const [selectedUserID, setSelectedUserID] = useRecoilState(adminUserIdAtom)
-  const selectedUser = useRecoilValue(currentAdminUserSelector)
+  const selectedUser = useRecoilValue(adminCurrentUserSelector)
   const [createOpen, setCreateOpen] = useState(false)
   const [rolesOpen, setRolesOpen] = useState(false)
 

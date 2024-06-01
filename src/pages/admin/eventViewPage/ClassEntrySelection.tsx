@@ -22,8 +22,8 @@ import { isSameDay } from 'date-fns'
 import { useConfirm } from 'material-ui-confirm'
 import { useSnackbar } from 'notistack'
 
-import { useEventRegistrationDates } from '../../../hooks/useEventRegistrationDates'
-import { useEventRegistrationGroups } from '../../../hooks/useEventRegistrationGroups'
+import { useAdminEventRegistrationDates } from '../../../hooks/useAdminEventRegistrationDates'
+import { useAdminEventRegistrationGroups } from '../../../hooks/useAdminEventRegistrationGroups'
 import { eventRegistrationDateKey } from '../../../lib/event'
 import { uniqueDate } from '../../../lib/utils'
 import { NullComponent } from '../../components/NullComponent'
@@ -106,7 +106,7 @@ const ClassEntrySelection = ({
     },
     [setRefundOpen, setSelectedRegistrationId]
   )
-  const dates = useEventRegistrationDates(event, eventClass)
+  const dates = useAdminEventRegistrationDates(event, eventClass)
   const { cancelledColumns, entryColumns, participantColumns } = useClassEntrySelectionColumns(
     dates,
     event,
@@ -114,7 +114,7 @@ const ClassEntrySelection = ({
     handleCancel,
     handleRefund
   )
-  const groups = useEventRegistrationGroups(event, eventClass)
+  const groups = useAdminEventRegistrationGroups(event, eventClass)
 
   const registrationsByGroup: Record<string, RegistrationWithGroups[]> = useMemo(() => {
     const byGroup: Record<string, RegistrationWithGroups[]> = { cancelled: [], reserve: [] }

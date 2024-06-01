@@ -20,7 +20,7 @@ const getIdToken = async (): Promise<string | undefined> => {
 export const idTokenAtom = atom<string | undefined>({
   key: 'idToken',
   default: getIdToken(),
-  effects: [logEffect, sessionStorageEffect],
+  effects: [logEffect, localStorageEffect],
 })
 
 export const languageAtom = atom<Language>({

@@ -17,7 +17,7 @@ import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
-import useEventRegistrationInfo from '../../hooks/useEventRegistrationsInfo'
+import useAdminEventRegistrationInfo from '../../hooks/useAdminEventRegistrationsInfo'
 import { Path } from '../../routeConfig'
 
 import FullPageFlex from './components/FullPageFlex'
@@ -30,7 +30,7 @@ import RegistrationEditDialog from './eventViewPage/RegistrationEditDialog'
 import SendMessageDialog from './eventViewPage/SendMessageDialog'
 import TabPanel from './eventViewPage/TabPanel'
 import Title from './eventViewPage/Title'
-import { adminEventSelector, adminRegistrationIdAtom, eventClassAtom, eventRegistrationsAtom } from './recoil'
+import { adminEventClassAtom, adminEventRegistrationsAtom, adminEventSelector, adminRegistrationIdAtom } from './recoil'
 
 const REG_CLASSES = ['ALO', 'AVO', 'VOI']
 
@@ -49,9 +49,9 @@ export default function EventViewPage() {
   const eventId = params.id ?? ''
   const event = useRecoilValue(adminEventSelector(eventId))
 
-  const [selectedEventClass, setSelectedEventClass] = useRecoilState(eventClassAtom)
+  const [selectedEventClass, setSelectedEventClass] = useRecoilState(adminEventClassAtom)
   const [selectedRegistrationId, setSelectedRegistrationId] = useRecoilState(adminRegistrationIdAtom)
-  const allRegistrations = useRecoilValue(eventRegistrationsAtom(eventId))
+  const allRegistrations = useRecoilValue(adminEventRegistrationsAtom(eventId))
   const registrations = useMemo(
     () => allRegistrations.filter((r) => r.class === selectedEventClass || r.eventType === selectedEventClass),
     [allRegistrations, selectedEventClass]
@@ -62,7 +62,7 @@ export default function EventViewPage() {
   )
   const [recipientRegistrations, setRecipientRegistrations] = useState<Registration[]>([])
   const [messageTemplateId, setMessageTemplateId] = useState<EmailTemplateId>()
-  const { eventClasses, stateByClass } = useEventRegistrationInfo(event, allRegistrations)
+  const { eventClasses, stateByClass } = useAdminEventRegistrationInfo(event, allRegistrations)
 
   const activeTab = useMemo(
     () => Math.max(eventClasses.findIndex((c) => c === selectedEventClass) ?? 0, 0),

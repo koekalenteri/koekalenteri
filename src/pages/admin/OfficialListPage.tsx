@@ -14,7 +14,7 @@ import { isAdminSelector } from '../recoil'
 
 import FullPageFlex from './components/FullPageFlex'
 import { QuickSearchToolbar } from './components/QuickSearchToolbar'
-import { filteredOfficialsSelector, officialFilterAtom, useOfficialsActions } from './recoil'
+import { adminFilteredOfficialsSelector, adminOfficialFilterAtom, useAdminOfficialsActions } from './recoil'
 
 declare module '@mui/x-data-grid' {
   interface ToolbarPropsOverrides {
@@ -26,11 +26,11 @@ declare module '@mui/x-data-grid' {
 
 export default function OfficialListPage() {
   const large = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
-  const [searchText, setSearchText] = useRecoilState(officialFilterAtom)
+  const [searchText, setSearchText] = useRecoilState(adminOfficialFilterAtom)
   const { t } = useTranslation()
-  const officials = useRecoilValue(filteredOfficialsSelector)
+  const officials = useRecoilValue(adminFilteredOfficialsSelector)
   const isAdmin = useRecoilValue(isAdminSelector)
-  const actions = useOfficialsActions()
+  const actions = useAdminOfficialsActions()
 
   const columns: GridColDef<Official>[] = [
     {

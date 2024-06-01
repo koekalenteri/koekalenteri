@@ -10,7 +10,7 @@ import { hasChanges } from '../../lib/utils'
 import { Path } from '../../routeConfig'
 
 import EventForm from './components/EventForm'
-import { adminEventSelector, editableEventByIdAtom, useAdminEventActions } from './recoil'
+import { adminEditableEventByIdAtom, adminEventSelector, useAdminEventActions } from './recoil'
 
 export default function EventEditPage() {
   const { id: eventId = '' } = useParams()
@@ -20,8 +20,8 @@ export default function EventEditPage() {
 
   const actions = useAdminEventActions()
   const storedEvent = useRecoilValue(adminEventSelector(eventId))
-  const [event, setEvent] = useRecoilState(editableEventByIdAtom(eventId))
-  const resetEvent = useResetRecoilState(editableEventByIdAtom(eventId))
+  const [event, setEvent] = useRecoilState(adminEditableEventByIdAtom(eventId))
+  const resetEvent = useResetRecoilState(adminEditableEventByIdAtom(eventId))
   const [changes, setChanges] = useState<boolean>(hasChanges(storedEvent, event))
 
   const handleChange = useCallback(

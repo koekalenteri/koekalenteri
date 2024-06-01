@@ -1,18 +1,18 @@
 import i18next from 'i18next'
 import { selector } from 'recoil'
 
-import { judgeFilterAtom, judgesAtom } from './atoms'
+import { adminJudgeFilterAtom, adminJudgesAtom } from './atoms'
 
-export const activeJudgesSelector = selector({
-  key: 'activeJudges',
-  get: ({ get }) => get(judgesAtom).filter((item) => item.active),
+export const adminActiveJudgesSelector = selector({
+  key: 'adminActiveJudges',
+  get: ({ get }) => get(adminJudgesAtom).filter((item) => item.active),
 })
 
-export const filteredJudgesSelector = selector({
-  key: 'filteredJudges',
+export const adminFilteredJudgesSelector = selector({
+  key: 'adminFilteredJudges',
   get: ({ get }) => {
-    const filter = get(judgeFilterAtom).toLocaleLowerCase(i18next.language)
-    const list = get(judgesAtom)
+    const filter = get(adminJudgeFilterAtom).toLocaleLowerCase(i18next.language)
+    const list = get(adminJudgesAtom)
 
     if (!filter) {
       return list

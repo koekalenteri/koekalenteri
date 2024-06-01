@@ -14,19 +14,19 @@ import { eventsAtom, idTokenAtom, userSelector } from '../../../recoil'
 
 import {
   adminEventIdAtom,
-  newEventAtom,
+  adminNewEventAtom,
   newEventEntryEndDate,
   newEventEntryStartDate,
   newEventStartDate,
 } from './atoms'
-import { currentAdminEventSelector } from './selectors'
+import { adminCurrentEventSelector } from './selectors'
 
 export const useAdminEventActions = () => {
   const token = useRecoilValue(idTokenAtom)
   const user = useRecoilValue(userSelector)
   const setAdminEventId = useSetRecoilState(adminEventIdAtom)
-  const [currentAdminEvent, setCurrentAdminEvent] = useRecoilState(currentAdminEventSelector)
-  const setNewEvent = useSetRecoilState(newEventAtom)
+  const [currentAdminEvent, setCurrentAdminEvent] = useRecoilState(adminCurrentEventSelector)
+  const setNewEvent = useSetRecoilState(adminNewEventAtom)
   const [publicEvents, setPublicEvents] = useRecoilState(eventsAtom)
   const { enqueueSnackbar } = useSnackbar()
   const { t } = useTranslation()

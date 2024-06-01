@@ -4,27 +4,27 @@ import { selector, selectorFamily } from 'recoil'
 
 import { adminEventIdAtom } from '../events/atoms'
 
-import { adminRegistrationIdAtom, eventRegistrationsAtom } from './atoms'
+import { adminEventRegistrationsAtom, adminRegistrationIdAtom } from './atoms'
 
-export const currentEventRegistrationsSelector = selector<Registration[]>({
-  key: 'currentEventRegistrations',
+export const adminCurrentEventRegistrationsSelector = selector<Registration[]>({
+  key: 'adminCurrentEventRegistrations',
   get: ({ get }) => {
     const currentEventId = get(adminEventIdAtom)
-    return currentEventId ? get(eventRegistrationsAtom(currentEventId)) : []
+    return currentEventId ? get(adminEventRegistrationsAtom(currentEventId)) : []
   },
   set: ({ get, set }, newValue) => {
     const currentEventId = get(adminEventIdAtom)
     if (currentEventId) {
-      set(eventRegistrationsAtom(currentEventId), newValue)
+      set(adminEventRegistrationsAtom(currentEventId), newValue)
     }
   },
 })
 
-export const currentAdminRegistrationSelector = selector<Registration | undefined>({
-  key: 'currentAdminRegistration',
+export const adminCurrentRegistrationSelector = selector<Registration | undefined>({
+  key: 'adminCurrentRegistration',
   get: ({ get }) => {
     const registrationId = get(adminRegistrationIdAtom)
-    return get(currentEventRegistrationsSelector).find((r) => r.id === registrationId)
+    return get(adminCurrentEventRegistrationsSelector).find((r) => r.id === registrationId)
   },
 })
 
@@ -34,7 +34,7 @@ export const adminEventRegistrationSelector = selectorFamily<Registration | unde
     get:
       ({ eventId, id }) =>
       ({ get }) => {
-        const registrations = get(eventRegistrationsAtom(eventId)) ?? []
+        const registrations = get(adminEventRegistrationsAtom(eventId)) ?? []
         return registrations.find((r) => r.id === id)
       },
   }

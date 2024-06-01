@@ -13,14 +13,14 @@ import { QuickSearchToolbar } from './components/QuickSearchToolbar'
 import AutoButton from './eventListPage/AutoButton'
 import { useEventTypeListPageColumns } from './eventTypeListPage/columns'
 import { CreateEventTypeDialog } from './eventTypeListPage/CreateEventTypeDialog'
-import { eventTypeFilterAtom, filteredEventTypesSelector, useAdminEventTypeActions } from './recoil'
+import { adminEventTypeFilterAtom, adminFilteredEventTypesSelector, useAdminEventTypeActions } from './recoil'
 
 export default function EventTypeListPage() {
   const { t } = useTranslation()
-  const eventTypes = useRecoilValue(filteredEventTypesSelector)
+  const eventTypes = useRecoilValue(adminFilteredEventTypesSelector)
   const isAdmin = useRecoilValue(isAdminSelector)
   const actions = useAdminEventTypeActions()
-  const [searchText, setSearchText] = useRecoilState(eventTypeFilterAtom)
+  const [searchText, setSearchText] = useRecoilState(adminEventTypeFilterAtom)
   const [createOpen, setCreateOpen] = useState(false)
 
   const columns = useEventTypeListPageColumns()

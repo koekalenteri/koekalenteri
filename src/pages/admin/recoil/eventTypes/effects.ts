@@ -8,7 +8,7 @@ import { idTokenAtom } from '../../../recoil/user'
 
 let loaded = false
 
-export const remoteEventTypesEffect: AtomEffect<EventType[]> = ({ getPromise, setSelf, trigger }) => {
+export const adminRemoteEventTypesEffect: AtomEffect<EventType[]> = ({ getPromise, setSelf, trigger }) => {
   if (trigger === 'get' && !loaded) {
     getPromise(idTokenAtom).then((token) => {
       if (!token) return

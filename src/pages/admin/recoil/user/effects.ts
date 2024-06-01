@@ -6,7 +6,7 @@ import { idTokenAtom } from '../../../recoil'
 
 let loaded = false
 
-export const remoteUsersEffect: AtomEffect<User[]> = ({ getPromise, onSet, setSelf, trigger }) => {
+export const adminRemoteUsersEffect: AtomEffect<User[]> = ({ getPromise, onSet, setSelf, trigger }) => {
   const fetchUsers = () => {
     loaded = false
     getPromise(idTokenAtom).then((token) => {

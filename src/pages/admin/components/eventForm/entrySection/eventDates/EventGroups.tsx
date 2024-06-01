@@ -8,19 +8,19 @@ import { useTranslation } from 'react-i18next'
 import Stack from '@mui/material/Stack'
 import { useRecoilValue } from 'recoil'
 
-import { useEventDatesOptions } from '../../../../../../hooks/useEventDatesOptions'
-import { useEventRegistrationDates } from '../../../../../../hooks/useEventRegistrationDates'
+import { useAdminEventDatesOptions } from '../../../../../../hooks/useAdminEventDatesOptions'
+import { useAdminEventRegistrationDates } from '../../../../../../hooks/useAdminEventRegistrationDates'
 import { applyNewGroupsToDogEventDates } from '../../../../../../lib/event'
 import AutocompleteMulti from '../../../../../components/AutocompleteMulti'
-import { eventTypeGroupsSelector } from '../../../../recoil'
+import { adminEventTypeGroupsSelector } from '../../../../recoil'
 
 interface Props extends Pick<SectionProps, 'event' | 'onChange'> {}
 
 export const EventGroups = ({ event, onChange }: Readonly<Props>) => {
   const { t } = useTranslation()
-  const options = useEventDatesOptions(event)
-  const defaultDates = useEventRegistrationDates(event)
-  const typeGroups = useRecoilValue(eventTypeGroupsSelector(event.eventType))
+  const options = useAdminEventDatesOptions(event)
+  const defaultDates = useAdminEventRegistrationDates(event)
+  const typeGroups = useRecoilValue(adminEventTypeGroupsSelector(event.eventType))
   const defaultGroups = useMemo(() => typeGroups.filter((g) => g !== 'kp'), [typeGroups])
 
   const value: RegistrationDate[] = useMemo(

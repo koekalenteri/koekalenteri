@@ -3,14 +3,14 @@ import type { User } from '../../../../types'
 
 import { atom } from 'recoil'
 
-import { localStorageEffect, logEffect } from '../../../recoil/effects'
+import { localStorageEffect, logEffect, sessionStorageEffect } from '../../../recoil/effects'
 
-import { remoteUsersEffect } from './effects'
+import { adminRemoteUsersEffect } from './effects'
 
 export const adminUsersAtom = atom<User[]>({
   key: 'adminUsers',
   default: [],
-  effects: [logEffect, localStorageEffect, remoteUsersEffect],
+  effects: [logEffect, sessionStorageEffect, adminRemoteUsersEffect],
 })
 
 export const adminUserFilterAtom = atom<string>({

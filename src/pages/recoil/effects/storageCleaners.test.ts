@@ -17,12 +17,21 @@ describe('storageCleaners', () => {
 
       cleanPre112()
       expect(keysSpy).toHaveBeenCalledWith([
-        'registration/ids__',
-        'editableRegistration/ids__',
-        'editableEvent/Id__',
-        'newRegistration',
-        'open/eventId__',
+        'adminEvents',
+        'adminOrganizers',
+        'adminUsers',
         'editableAdminEventRegistration/eventId+Id__',
+        'editableEmailTemplate/Id',
+        'editableEvent/Id__',
+        'editableRegistration/ids__',
+        'emailTemplates',
+        'emailTemplates',
+        'eventTypes',
+        'judges',
+        'newRegistration',
+        'officials',
+        'open/eventId__',
+        'registration/ids__',
       ])
       expect(removeSpy).toHaveBeenCalledTimes(testKeys.length)
       expect(logSpy).toHaveBeenCalledWith('Cleaned up 2 storage keys deprecated in version 1.1.2')

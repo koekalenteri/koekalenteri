@@ -4,14 +4,14 @@ import { useMemo } from 'react'
 import { useRecoilValue } from 'recoil'
 
 import { getEventDays } from '../lib/event'
-import { eventTypeGroupsSelector } from '../pages/admin/recoil'
+import { adminEventTypeGroupsSelector } from '../pages/admin/recoil'
 
-export const useEventRegistrationDates = (
+export const useAdminEventRegistrationDates = (
   event: Pick<PublicDogEvent, 'classes' | 'endDate' | 'startDate' | 'dates'> &
     Partial<Pick<PublicDogEvent, 'eventType'>>,
   eventClass?: string
 ) => {
-  const eventTypeGroups = useRecoilValue(eventTypeGroupsSelector(event.eventType))
+  const eventTypeGroups = useRecoilValue(adminEventTypeGroupsSelector(event.eventType))
   const defaultGroups = useMemo(
     () => (eventTypeGroups.length > 1 ? eventTypeGroups.filter((g) => g !== 'kp') : eventTypeGroups),
     [eventTypeGroups]

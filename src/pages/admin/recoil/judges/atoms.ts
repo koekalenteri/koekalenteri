@@ -2,17 +2,17 @@ import type { Judge } from '../../../../types'
 
 import { atom } from 'recoil'
 
-import { localStorageEffect, logEffect } from '../../../recoil/effects'
+import { logEffect, sessionStorageEffect } from '../../../recoil/effects'
 
-import { remoteJudgesEffect } from './effects'
+import { adminRemoteJudgesEffect } from './effects'
 
-export const judgesAtom = atom<Judge[]>({
-  key: 'judges',
+export const adminJudgesAtom = atom<Judge[]>({
+  key: 'adminJudges',
   default: [],
-  effects: [logEffect, localStorageEffect, remoteJudgesEffect],
+  effects: [logEffect, sessionStorageEffect, adminRemoteJudgesEffect],
 })
 
-export const judgeFilterAtom = atom<string>({
-  key: 'judgeFilter',
+export const adminJudgeFilterAtom = atom<string>({
+  key: 'adminJudgeFilter',
   default: '',
 })

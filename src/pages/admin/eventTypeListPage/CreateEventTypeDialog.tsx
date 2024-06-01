@@ -11,7 +11,7 @@ import DialogTitle from '@mui/material/DialogTitle'
 import TextField from '@mui/material/TextField'
 import { useRecoilValue } from 'recoil'
 
-import { eventTypesAtom, useAdminEventTypeActions } from '../recoil'
+import { adminEventTypesAtom, useAdminEventTypeActions } from '../recoil'
 
 interface Props {
   readonly onClose: () => void
@@ -21,7 +21,7 @@ interface Props {
 export function CreateEventTypeDialog({ onClose, open }: Props) {
   const actions = useAdminEventTypeActions()
   const { t } = useTranslation()
-  const existing = useRecoilValue(eventTypesAtom)
+  const existing = useRecoilValue(adminEventTypesAtom)
   const existingTypes = useMemo(() => existing.map((et) => et.eventType), [existing])
   const [eventType, setEventType] = useState<string>('')
   const [description, setDescription] = useState<EventType['description']>({ fi: '', en: '', sv: '' })

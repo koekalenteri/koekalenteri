@@ -18,13 +18,13 @@ import { QuickSearchToolbar } from './components/QuickSearchToolbar'
 import AutoButton from './eventListPage/AutoButton'
 import { EditOrganizerDialog } from './organizerListPage/EditOrganizerDialog'
 import {
+  adminCurrentOrganizerSelector,
+  adminFilteredOrganizersSelector,
   adminOrganizerColumnsAtom,
   adminOrganizerFilterAtom,
   adminOrganizerIdAtom,
   adminShowOnlyOrganizersWithUsersAtom,
-  currentAdminOrganizerSelector,
-  filteredOrganizersSelector,
-  useOrganizersActions,
+  useAdminOrganizersActions,
 } from './recoil'
 
 export default function OrganizerListPage() {
@@ -32,10 +32,10 @@ export default function OrganizerListPage() {
   const [selectedID, setSelectedID] = useRecoilState(adminOrganizerIdAtom)
   const [visibilityModel, setVisibilityModel] = useRecoilState(adminOrganizerColumnsAtom)
   const [showWithUsers, setShowWithUsers] = useRecoilState(adminShowOnlyOrganizersWithUsersAtom)
-  const organizers = useRecoilValue(filteredOrganizersSelector)
+  const organizers = useRecoilValue(adminFilteredOrganizersSelector)
   const isAdmin = useRecoilValue(isAdminSelector)
-  const selectedOrganizer = useRecoilValue(currentAdminOrganizerSelector)
-  const actions = useOrganizersActions()
+  const selectedOrganizer = useRecoilValue(adminCurrentOrganizerSelector)
+  const actions = useAdminOrganizersActions()
   const [editOpen, setEditOpen] = useState(false)
 
   const { t } = useTranslation()

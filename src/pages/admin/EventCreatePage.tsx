@@ -9,7 +9,7 @@ import { useRecoilState, useResetRecoilState } from 'recoil'
 import { Path } from '../../routeConfig'
 
 import EventForm from './components/EventForm'
-import { newEventAtom, useAdminEventActions } from './recoil'
+import { adminNewEventAtom, useAdminEventActions } from './recoil'
 
 export default function EventCreatePage() {
   const { t } = useTranslation()
@@ -17,8 +17,8 @@ export default function EventCreatePage() {
   const navigate = useNavigate()
 
   const actions = useAdminEventActions()
-  const [event, setEvent] = useRecoilState(newEventAtom)
-  const resetEvent = useResetRecoilState(newEventAtom)
+  const [event, setEvent] = useRecoilState(adminNewEventAtom)
+  const resetEvent = useResetRecoilState(adminNewEventAtom)
 
   const handleChange = useCallback(
     (newState: DogEvent) => {

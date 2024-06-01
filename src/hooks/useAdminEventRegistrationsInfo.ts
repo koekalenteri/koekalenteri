@@ -13,7 +13,7 @@ interface EventClassInfoNumbers {
   invalid: boolean
 }
 
-export default function useEventRegistrationInfo(event: DogEvent | undefined, registrations: Registration[]) {
+export default function useAdminEventRegistrationInfo(event: DogEvent | undefined, registrations: Registration[]) {
   const dates = useMemo(() => eventDates(event), [event])
 
   const reserveByClass: Record<string, Registration[]> = useMemo(() => {

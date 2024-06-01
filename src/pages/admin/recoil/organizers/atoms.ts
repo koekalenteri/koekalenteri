@@ -3,14 +3,14 @@ import type { Organizer } from '../../../../types'
 
 import { atom } from 'recoil'
 
-import { localStorageEffect, logEffect } from '../../../recoil/effects'
+import { localStorageEffect, logEffect, sessionStorageEffect } from '../../../recoil/effects'
 
-import { remoteOrganizersEffect } from './effects'
+import { adminRemoteOrganizersEffect } from './effects'
 
 export const adminOrganizersAtom = atom<Organizer[]>({
   key: 'adminOrganizers',
   default: [],
-  effects: [logEffect, localStorageEffect, remoteOrganizersEffect],
+  effects: [logEffect, sessionStorageEffect, adminRemoteOrganizersEffect],
 })
 
 export const adminOrganizerFilterAtom = atom<string>({

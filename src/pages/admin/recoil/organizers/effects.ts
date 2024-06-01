@@ -8,7 +8,7 @@ import { idTokenAtom } from '../../../recoil'
 
 let loaded = false
 
-export const remoteOrganizersEffect: AtomEffect<Organizer[]> = ({ setSelf, getPromise, trigger }) => {
+export const adminRemoteOrganizersEffect: AtomEffect<Organizer[]> = ({ setSelf, getPromise, trigger }) => {
   if (trigger === 'get' && !loaded) {
     getPromise(idTokenAtom).then((token) => {
       if (!token) return

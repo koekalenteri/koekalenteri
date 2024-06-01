@@ -5,18 +5,18 @@ import { selector, selectorFamily } from 'recoil'
 
 import { OFFICIAL_EVENT_TYPES } from '../../components/eventForm/validation'
 
-import { eventTypeFilterAtom, eventTypeGroupsAtom, eventTypesAtom } from './atoms'
+import { adminEventTypeFilterAtom, adminEventTypeGroupsAtom, adminEventTypesAtom } from './atoms'
 
-export const activeEventTypesSelector = selector({
-  key: 'activeEventTypes',
-  get: ({ get }) => get(eventTypesAtom).filter((et) => et.active),
+export const adminActiveEventTypesSelector = selector({
+  key: 'adminActiveEventTypes',
+  get: ({ get }) => get(adminEventTypesAtom).filter((et) => et.active),
 })
 
-export const filteredEventTypesSelector = selector({
-  key: 'filteredEventTypes',
+export const adminFilteredEventTypesSelector = selector({
+  key: 'adminFilteredEventTypes',
   get: ({ get }) => {
-    const filter = get(eventTypeFilterAtom).toLocaleLowerCase(i18next.language)
-    const list = get(eventTypesAtom)
+    const filter = get(adminEventTypeFilterAtom).toLocaleLowerCase(i18next.language)
+    const list = get(adminEventTypesAtom)
 
     if (!filter) {
       return list
@@ -30,13 +30,13 @@ export const filteredEventTypesSelector = selector({
   },
 })
 
-export const eventTypeGroupsSelector = selectorFamily<RegistrationTime[], string | undefined>({
-  key: 'eventTypeGroupsSelector',
+export const adminEventTypeGroupsSelector = selectorFamily<RegistrationTime[], string | undefined>({
+  key: 'adminEventTypeGroupsSelector',
   get:
     (eventType) =>
     ({ get }) => {
       if (!eventType) return []
-      const groups = get(eventTypeGroupsAtom)
+      const groups = get(adminEventTypeGroupsAtom)
 
       return OFFICIAL_EVENT_TYPES.includes(eventType) ? groups[eventType] ?? [] : groups.unofficialEvents
     },

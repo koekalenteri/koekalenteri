@@ -2,19 +2,19 @@ import type { EmailTemplate } from '../../../../types'
 
 import { atom, atomFamily } from 'recoil'
 
-import { localStorageEffect, logEffect } from '../../../recoil/effects'
+import { logEffect, sessionStorageEffect } from '../../../recoil/effects'
 
-import { remoteEmailTemplatesEffect } from './effects'
-import { templateSelector } from './selectors'
+import { adminRemoteEmailTemplatesEffect } from './effects'
+import { adminEmailTemplateSelector } from './selectors'
 
-export const emailTemplatesAtom = atom<EmailTemplate[]>({
-  key: 'emailTemplates',
+export const adminEmailTemplatesAtom = atom<EmailTemplate[]>({
+  key: 'adminEmailTemplates',
   default: [],
-  effects: [logEffect, localStorageEffect, remoteEmailTemplatesEffect],
+  effects: [logEffect, sessionStorageEffect, adminRemoteEmailTemplatesEffect],
 })
 
-export const editableTemplateByIdAtom = atomFamily<EmailTemplate | undefined, string | undefined>({
-  key: 'editableEmailTemplate/Id',
-  default: templateSelector,
-  effects: [logEffect, localStorageEffect],
+export const adminEditableTemplateByIdAtom = atomFamily<EmailTemplate | undefined, string | undefined>({
+  key: 'adminEditableEmailTemplate/Id',
+  default: adminEmailTemplateSelector,
+  effects: [logEffect, sessionStorageEffect],
 })

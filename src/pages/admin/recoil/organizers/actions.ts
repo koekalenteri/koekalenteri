@@ -10,7 +10,7 @@ import { adminOrganizersAtom } from './atoms'
 
 const nameSort = (a: Organizer, b: Organizer) => a.name.localeCompare(b.name, i18next.language)
 
-export const useOrganizersActions = () => {
+export const useAdminOrganizersActions = () => {
   const [organizers, setOrganizers] = useRecoilState(adminOrganizersAtom)
   const token = useRecoilValue(idTokenAtom)
 

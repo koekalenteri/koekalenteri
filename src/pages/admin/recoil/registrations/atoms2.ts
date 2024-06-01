@@ -6,11 +6,11 @@ import { logEffect, sessionStorageEffect } from '../../../recoil'
 
 import { adminEventRegistrationSelector } from './selectors'
 
-export const editableAdminEventRegistrationByEventIdAndIdAtom = atomFamily<
+export const adminEditableEventRegistrationByEventIdAndIdAtom = atomFamily<
   Registration | undefined,
   { eventId: string; id: string }
 >({
-  key: 'editableAdminEventRegistration/eventId+Id',
+  key: 'adminEditableEventRegistration/eventId+Id',
   default: adminEventRegistrationSelector,
   effects: [logEffect, sessionStorageEffect],
 })

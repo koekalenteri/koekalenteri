@@ -6,12 +6,12 @@ import { useRecoilState, useRecoilValue } from 'recoil'
 import { putEmailTemplate } from '../../../../api/email'
 import { idTokenAtom } from '../../../recoil'
 
-import { emailTemplatesAtom } from './atoms'
+import { adminEmailTemplatesAtom } from './atoms'
 
-export const useEmailTemplatesActions = () => {
+export const useAdminEmailTemplatesActions = () => {
   const token = useRecoilValue(idTokenAtom)
   const { enqueueSnackbar } = useSnackbar()
-  const [emailTemplates, setEmailTemplates] = useRecoilState(emailTemplatesAtom)
+  const [emailTemplates, setEmailTemplates] = useRecoilState(adminEmailTemplatesAtom)
 
   return {
     async save(template: EmailTemplate) {

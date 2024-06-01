@@ -5,11 +5,11 @@ import { getOfficials } from '../../../../api/official'
 import { idTokenAtom } from '../../../recoil'
 import { adminUsersAtom } from '../user'
 
-import { officialsAtom } from './atoms'
+import { adminOfficialsAtom } from './atoms'
 
-export const useOfficialsActions = () => {
+export const useAdminOfficialsActions = () => {
   const token = useRecoilValue(idTokenAtom)
-  const setOfficials = useSetRecoilState(officialsAtom)
+  const setOfficials = useSetRecoilState(adminOfficialsAtom)
   const resetUsers = useResetRecoilState(adminUsersAtom)
 
   const refresh = async () => {

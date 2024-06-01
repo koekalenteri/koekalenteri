@@ -17,11 +17,11 @@ import { isEventOver, merge } from '../../../lib/utils'
 import { AsyncButton } from '../../components/AsyncButton'
 import AutocompleteSingle from '../../components/AutocompleteSingle'
 import {
-  activeEventTypesSelector,
-  activeJudgesSelector,
+  adminActiveEventTypesSelector,
+  adminActiveJudgesSelector,
+  adminEventTypeClassesAtom,
   adminUserOrganizersSelector,
   adminUsersAtom,
-  eventTypeClassesAtom,
 } from '../recoil'
 
 import AdditionalInfoSection from './eventForm/AdditionalInfoSection'
@@ -72,9 +72,9 @@ const SELECTABLE_EVENT_STATES: EventState[] = ['draft', 'tentative', 'confirmed'
 export default function EventForm({ event, changes, disabled, onSave, onCancel, onChange }: Props) {
   const { t } = useTranslation()
   const md = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
-  const activeEventTypes = useRecoilValue(activeEventTypesSelector)
-  const activeJudges = useRecoilValue(activeJudgesSelector)
-  const eventTypeClasses = useRecoilValue(eventTypeClassesAtom)
+  const activeEventTypes = useRecoilValue(adminActiveEventTypesSelector)
+  const activeJudges = useRecoilValue(adminActiveJudgesSelector)
+  const eventTypeClasses = useRecoilValue(adminEventTypeClassesAtom)
   const users = useRecoilValue(adminUsersAtom)
   const organizers = useRecoilValue(adminUserOrganizersSelector)
   const [errors, setErrors] = useState(event ? validateEvent(event) : [])
