@@ -30,7 +30,9 @@ const Header = ({ children }: { children: ReactNode }) => (
 
 const Data = ({ children }: { children: ReactNode }) => (
   <Grid item xs={8} alignContent="center" sx={{ borderBottom: '1px solid #eee' }}>
-    <Typography variant="body2">{children}</Typography>
+    <Typography variant="body2" component="div">
+      {children}
+    </Typography>
   </Grid>
 )
 

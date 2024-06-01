@@ -84,14 +84,14 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                     <div
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-eva6pi-MuiGrid-root"
                     >
-                      <p
+                      <div
                         class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
                       >
                         <b>
                           dateFormat.datespan
                         </b>
                          
-                      </p>
+                      </div>
                     </div>
                     <div
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-37visp-MuiGrid-root"
@@ -105,11 +105,11 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                     <div
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-eva6pi-MuiGrid-root"
                     >
-                      <p
+                      <div
                         class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
                       >
                         Suomen Noutajakoirajärjestö ry
-                      </p>
+                      </div>
                     </div>
                     <div
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-37visp-MuiGrid-root"
@@ -123,11 +123,11 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                     <div
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-eva6pi-MuiGrid-root"
                     >
-                      <p
+                      <div
                         class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
                       >
                         Tuomari 1
-                      </p>
+                      </div>
                     </div>
                     <div
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-37visp-MuiGrid-root"
@@ -141,11 +141,11 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                     <div
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-eva6pi-MuiGrid-root"
                     >
-                      <p
+                      <div
                         class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
                       >
                         Teemu Toimitsija, 040-official, official@example.com
-                      </p>
+                      </div>
                     </div>
                     <div
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-37visp-MuiGrid-root"
@@ -159,11 +159,11 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                     <div
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-eva6pi-MuiGrid-root"
                     >
-                      <p
+                      <div
                         class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
                       >
                         Siiri Sihteeri, 040-secretary, secretary@example.com
-                      </p>
+                      </div>
                     </div>
                   </div>
                   <div
@@ -181,11 +181,11 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                     <div
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-eva6pi-MuiGrid-root"
                     >
-                      <p
+                      <div
                         class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
                       >
                         123 €event.costMember 123 €
-                      </p>
+                      </div>
                     </div>
                     <div
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-37visp-MuiGrid-root"
@@ -199,11 +199,11 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                     <div
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-eva6pi-MuiGrid-root"
                     >
-                      <p
+                      <div
                         class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
                       >
                         <div
-                          class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-1w6a0pi-MuiChip-root"
+                          class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-1kzz4rd-MuiChip-root"
                         >
                           <span
                             class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
@@ -211,7 +211,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                             Jäsenet
                           </span>
                         </div>
-                      </p>
+                      </div>
                     </div>
                     <div
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-37visp-MuiGrid-root"
@@ -225,11 +225,11 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                     <div
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-eva6pi-MuiGrid-root"
                     >
-                      <p
+                      <div
                         class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
                       >
                         test
-                      </p>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -2964,14 +2964,14 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                     <div
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-eva6pi-MuiGrid-root"
                     >
-                      <p
+                      <div
                         class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
                       >
                         <b>
                           dateFormat.datespan
                         </b>
                          
-                      </p>
+                      </div>
                     </div>
                     <div
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-37visp-MuiGrid-root"
@@ -2985,11 +2985,11 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                     <div
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-eva6pi-MuiGrid-root"
                     >
-                      <p
+                      <div
                         class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
                       >
                         Suomen Noutajakoirajärjestö ry
-                      </p>
+                      </div>
                     </div>
                     <div
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-37visp-MuiGrid-root"
@@ -3003,11 +3003,11 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                     <div
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-eva6pi-MuiGrid-root"
                     >
-                      <p
+                      <div
                         class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
                       >
                         Tuomari 1
-                      </p>
+                      </div>
                     </div>
                     <div
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-37visp-MuiGrid-root"
@@ -3021,11 +3021,11 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                     <div
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-eva6pi-MuiGrid-root"
                     >
-                      <p
+                      <div
                         class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
                       >
                         Teemu Toimitsija, 040-official, official@example.com
-                      </p>
+                      </div>
                     </div>
                     <div
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-37visp-MuiGrid-root"
@@ -3039,11 +3039,11 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                     <div
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-eva6pi-MuiGrid-root"
                     >
-                      <p
+                      <div
                         class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
                       >
                         Siiri Sihteeri, 040-secretary, secretary@example.com
-                      </p>
+                      </div>
                     </div>
                   </div>
                   <div
@@ -3061,11 +3061,11 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                     <div
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-eva6pi-MuiGrid-root"
                     >
-                      <p
+                      <div
                         class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
                       >
                         123 €event.costMember 123 €
-                      </p>
+                      </div>
                     </div>
                     <div
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-37visp-MuiGrid-root"
@@ -3079,11 +3079,11 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                     <div
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-eva6pi-MuiGrid-root"
                     >
-                      <p
+                      <div
                         class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
                       >
                         <div
-                          class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-1w6a0pi-MuiChip-root"
+                          class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-1kzz4rd-MuiChip-root"
                         >
                           <span
                             class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
@@ -3091,7 +3091,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                             Jäsenet
                           </span>
                         </div>
-                      </p>
+                      </div>
                     </div>
                     <div
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-37visp-MuiGrid-root"
@@ -3105,11 +3105,11 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                     <div
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-eva6pi-MuiGrid-root"
                     >
-                      <p
+                      <div
                         class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
                       >
                         test
-                      </p>
+                      </div>
                     </div>
                   </div>
                 </div>

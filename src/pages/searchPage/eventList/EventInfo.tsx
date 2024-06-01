@@ -31,6 +31,7 @@ const InfoItem = ({ label, children, ...props }: { label: string; children: Reac
       bgcolor="background.form"
       borderRadius="4px"
       sx={{ p: 0.5, ml: -0.5, width: '100%', display: 'block' }}
+      component="div"
     >
       {label}
     </Typography>

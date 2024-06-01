@@ -1344,21 +1344,21 @@ exports[`SearchPage filters by date 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-xxwg8p-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   entryTime
-                </span>
+                </div>
                 dateFormat.datespan
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-true css-2qi7fb-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.classPlaces
-                </span>
+                </div>
                 <div
                   class="MuiGrid-root MuiGrid-container css-11lq3yg-MuiGrid-root"
                 >
@@ -1427,11 +1427,11 @@ exports[`SearchPage filters by date 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-rqmia2-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.judges
-                </span>
+                </div>
                 <div
                   class="MuiBox-root css-0"
                 >
@@ -1441,43 +1441,43 @@ exports[`SearchPage filters by date 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-du4ln6-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.official
-                </span>
+                </div>
                 Teemu Toimitsija, 040-official, official@example.com
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-1xsjs3x-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.secretary
-                </span>
+                </div>
                 Siiri Sihteeri, 040-secretary, secretary@example.com
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-4xg2f1-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   paymentDetails
-                </span>
+                </div>
                 123 €event.costMember 123 €
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-78nh0m-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.priority
-                </span>
+                </div>
                 <div
-                  class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-1w6a0pi-MuiChip-root"
+                  class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-1kzz4rd-MuiChip-root"
                 >
                   <span
                     class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
@@ -1489,11 +1489,11 @@ exports[`SearchPage filters by date 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-1nsuxbh-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.description
-                </span>
+                </div>
                 test
               </div>
             </div>
@@ -1626,21 +1626,21 @@ exports[`SearchPage filters by date 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-xxwg8p-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   entryTime
-                </span>
+                </div>
                 dateFormat.datespan
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-true css-2qi7fb-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.classPlaces
-                </span>
+                </div>
                 <div
                   class="MuiGrid-root MuiGrid-container css-11lq3yg-MuiGrid-root"
                 >
@@ -1723,11 +1723,11 @@ exports[`SearchPage filters by date 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-rqmia2-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.judges
-                </span>
+                </div>
                 <div
                   class="MuiBox-root css-0"
                 >
@@ -1737,43 +1737,43 @@ exports[`SearchPage filters by date 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-du4ln6-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.official
-                </span>
+                </div>
                 Teemu Toimitsija, 040-official, official@example.com
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-1xsjs3x-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.secretary
-                </span>
+                </div>
                 Siiri Sihteeri, 040-secretary, secretary@example.com
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-4xg2f1-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   paymentDetails
-                </span>
+                </div>
                 123 €event.costMember 123 €
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-78nh0m-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.priority
-                </span>
+                </div>
                 <div
-                  class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-1w6a0pi-MuiChip-root"
+                  class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-1kzz4rd-MuiChip-root"
                 >
                   <span
                     class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
@@ -1785,11 +1785,11 @@ exports[`SearchPage filters by date 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-1nsuxbh-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.description
-                </span>
+                </div>
                 test
               </div>
             </div>
@@ -1922,21 +1922,21 @@ exports[`SearchPage filters by date 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-xxwg8p-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   entryTime
-                </span>
+                </div>
                 dateFormat.datespan
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-true css-2qi7fb-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.classPlaces
-                </span>
+                </div>
                 <div
                   class="MuiGrid-root MuiGrid-container css-11lq3yg-MuiGrid-root"
                 >
@@ -2077,11 +2077,11 @@ exports[`SearchPage filters by date 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-rqmia2-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.judges
-                </span>
+                </div>
                 <div
                   class="MuiBox-root css-0"
                 >
@@ -2091,43 +2091,43 @@ exports[`SearchPage filters by date 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-du4ln6-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.official
-                </span>
+                </div>
                 Teemu Toimitsija, 040-official, official@example.com
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-1xsjs3x-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.secretary
-                </span>
+                </div>
                 Siiri Sihteeri, 040-secretary, secretary@example.com
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-4xg2f1-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   paymentDetails
-                </span>
+                </div>
                 123 €event.costMember 123 €
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-78nh0m-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.priority
-                </span>
+                </div>
                 <div
-                  class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-1w6a0pi-MuiChip-root"
+                  class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-1kzz4rd-MuiChip-root"
                 >
                   <span
                     class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
@@ -2139,11 +2139,11 @@ exports[`SearchPage filters by date 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-1nsuxbh-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.description
-                </span>
+                </div>
                 test
               </div>
             </div>
@@ -2276,21 +2276,21 @@ exports[`SearchPage filters by date 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-xxwg8p-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   entryTime
-                </span>
+                </div>
                 dateFormat.datespan
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-true css-2qi7fb-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.classPlaces
-                </span>
+                </div>
                 <div
                   class="MuiGrid-root MuiGrid-container css-11lq3yg-MuiGrid-root"
                 >
@@ -2373,11 +2373,11 @@ exports[`SearchPage filters by date 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-rqmia2-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.judges
-                </span>
+                </div>
                 <div
                   class="MuiBox-root css-0"
                 >
@@ -2387,43 +2387,43 @@ exports[`SearchPage filters by date 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-du4ln6-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.official
-                </span>
+                </div>
                 Teemu Toimitsija, 040-official, official@example.com
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-1xsjs3x-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.secretary
-                </span>
+                </div>
                 Siiri Sihteeri, 040-secretary, secretary@example.com
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-4xg2f1-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   paymentDetails
-                </span>
+                </div>
                 123 €event.costMember 123 €
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-78nh0m-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.priority
-                </span>
+                </div>
                 <div
-                  class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-1w6a0pi-MuiChip-root"
+                  class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-1kzz4rd-MuiChip-root"
                 >
                   <span
                     class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
@@ -2435,11 +2435,11 @@ exports[`SearchPage filters by date 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-1nsuxbh-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.description
-                </span>
+                </div>
                 test
               </div>
             </div>
@@ -3184,21 +3184,21 @@ exports[`SearchPage filters by date/end 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-xxwg8p-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   entryTime
-                </span>
+                </div>
                 dateFormat.datespan
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-true css-2qi7fb-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.classPlaces
-                </span>
+                </div>
                 <div
                   class="MuiGrid-root MuiGrid-container css-11lq3yg-MuiGrid-root"
                 >
@@ -3267,11 +3267,11 @@ exports[`SearchPage filters by date/end 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-rqmia2-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.judges
-                </span>
+                </div>
                 <div
                   class="MuiBox-root css-0"
                 >
@@ -3281,43 +3281,43 @@ exports[`SearchPage filters by date/end 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-du4ln6-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.official
-                </span>
+                </div>
                 Teemu Toimitsija, 040-official, official@example.com
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-1xsjs3x-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.secretary
-                </span>
+                </div>
                 Siiri Sihteeri, 040-secretary, secretary@example.com
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-4xg2f1-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   paymentDetails
-                </span>
+                </div>
                 123 €event.costMember 123 €
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-78nh0m-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.priority
-                </span>
+                </div>
                 <div
-                  class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-1w6a0pi-MuiChip-root"
+                  class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-1kzz4rd-MuiChip-root"
                 >
                   <span
                     class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
@@ -3329,11 +3329,11 @@ exports[`SearchPage filters by date/end 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-1nsuxbh-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.description
-                </span>
+                </div>
                 test
               </div>
             </div>
@@ -3466,21 +3466,21 @@ exports[`SearchPage filters by date/end 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-xxwg8p-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   entryTime
-                </span>
+                </div>
                 dateFormat.datespan
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-true css-2qi7fb-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.classPlaces
-                </span>
+                </div>
                 <div
                   class="MuiGrid-root MuiGrid-container css-11lq3yg-MuiGrid-root"
                 >
@@ -3563,11 +3563,11 @@ exports[`SearchPage filters by date/end 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-rqmia2-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.judges
-                </span>
+                </div>
                 <div
                   class="MuiBox-root css-0"
                 >
@@ -3577,43 +3577,43 @@ exports[`SearchPage filters by date/end 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-du4ln6-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.official
-                </span>
+                </div>
                 Teemu Toimitsija, 040-official, official@example.com
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-1xsjs3x-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.secretary
-                </span>
+                </div>
                 Siiri Sihteeri, 040-secretary, secretary@example.com
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-4xg2f1-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   paymentDetails
-                </span>
+                </div>
                 123 €event.costMember 123 €
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-78nh0m-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.priority
-                </span>
+                </div>
                 <div
-                  class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-1w6a0pi-MuiChip-root"
+                  class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-1kzz4rd-MuiChip-root"
                 >
                   <span
                     class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
@@ -3625,11 +3625,11 @@ exports[`SearchPage filters by date/end 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-1nsuxbh-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.description
-                </span>
+                </div>
                 test
               </div>
             </div>
@@ -3762,21 +3762,21 @@ exports[`SearchPage filters by date/end 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-xxwg8p-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   entryTime
-                </span>
+                </div>
                 dateFormat.datespan
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-true css-2qi7fb-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.classPlaces
-                </span>
+                </div>
                 <div
                   class="MuiGrid-root MuiGrid-container css-11lq3yg-MuiGrid-root"
                 >
@@ -3917,11 +3917,11 @@ exports[`SearchPage filters by date/end 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-rqmia2-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.judges
-                </span>
+                </div>
                 <div
                   class="MuiBox-root css-0"
                 >
@@ -3931,43 +3931,43 @@ exports[`SearchPage filters by date/end 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-du4ln6-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.official
-                </span>
+                </div>
                 Teemu Toimitsija, 040-official, official@example.com
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-1xsjs3x-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.secretary
-                </span>
+                </div>
                 Siiri Sihteeri, 040-secretary, secretary@example.com
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-4xg2f1-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   paymentDetails
-                </span>
+                </div>
                 123 €event.costMember 123 €
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-78nh0m-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.priority
-                </span>
+                </div>
                 <div
-                  class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-1w6a0pi-MuiChip-root"
+                  class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-1kzz4rd-MuiChip-root"
                 >
                   <span
                     class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
@@ -3979,11 +3979,11 @@ exports[`SearchPage filters by date/end 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-1nsuxbh-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.description
-                </span>
+                </div>
                 test
               </div>
             </div>
@@ -4116,21 +4116,21 @@ exports[`SearchPage filters by date/end 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-xxwg8p-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   entryTime
-                </span>
+                </div>
                 dateFormat.datespan
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-true css-2qi7fb-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.classPlaces
-                </span>
+                </div>
                 <div
                   class="MuiGrid-root MuiGrid-container css-11lq3yg-MuiGrid-root"
                 >
@@ -4213,11 +4213,11 @@ exports[`SearchPage filters by date/end 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-rqmia2-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.judges
-                </span>
+                </div>
                 <div
                   class="MuiBox-root css-0"
                 >
@@ -4227,43 +4227,43 @@ exports[`SearchPage filters by date/end 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-du4ln6-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.official
-                </span>
+                </div>
                 Teemu Toimitsija, 040-official, official@example.com
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-1xsjs3x-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.secretary
-                </span>
+                </div>
                 Siiri Sihteeri, 040-secretary, secretary@example.com
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-4xg2f1-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   paymentDetails
-                </span>
+                </div>
                 123 €event.costMember 123 €
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-78nh0m-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.priority
-                </span>
+                </div>
                 <div
-                  class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-1w6a0pi-MuiChip-root"
+                  class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-1kzz4rd-MuiChip-root"
                 >
                   <span
                     class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
@@ -4275,11 +4275,11 @@ exports[`SearchPage filters by date/end 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-1nsuxbh-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.description
-                </span>
+                </div>
                 test
               </div>
             </div>
@@ -5069,21 +5069,21 @@ exports[`SearchPage filters by event class 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-xxwg8p-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   entryTime
-                </span>
+                </div>
                 dateFormat.datespan
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-true css-2qi7fb-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.classPlaces
-                </span>
+                </div>
                 <div
                   class="MuiGrid-root MuiGrid-container css-11lq3yg-MuiGrid-root"
                 >
@@ -5224,11 +5224,11 @@ exports[`SearchPage filters by event class 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-rqmia2-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.judges
-                </span>
+                </div>
                 <div
                   class="MuiBox-root css-0"
                 >
@@ -5238,43 +5238,43 @@ exports[`SearchPage filters by event class 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-du4ln6-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.official
-                </span>
+                </div>
                 Teemu Toimitsija, 040-official, official@example.com
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-1xsjs3x-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.secretary
-                </span>
+                </div>
                 Siiri Sihteeri, 040-secretary, secretary@example.com
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-4xg2f1-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   paymentDetails
-                </span>
+                </div>
                 123 €event.costMember 123 €
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-78nh0m-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.priority
-                </span>
+                </div>
                 <div
-                  class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-1w6a0pi-MuiChip-root"
+                  class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-1kzz4rd-MuiChip-root"
                 >
                   <span
                     class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
@@ -5286,11 +5286,11 @@ exports[`SearchPage filters by event class 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-1nsuxbh-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.description
-                </span>
+                </div>
                 test
               </div>
             </div>
@@ -5423,21 +5423,21 @@ exports[`SearchPage filters by event class 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-xxwg8p-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   entryTime
-                </span>
+                </div>
                 dateFormat.datespan
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-true css-2qi7fb-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.classPlaces
-                </span>
+                </div>
                 <div
                   class="MuiGrid-root MuiGrid-container css-11lq3yg-MuiGrid-root"
                 >
@@ -5520,11 +5520,11 @@ exports[`SearchPage filters by event class 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-rqmia2-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.judges
-                </span>
+                </div>
                 <div
                   class="MuiBox-root css-0"
                 >
@@ -5534,43 +5534,43 @@ exports[`SearchPage filters by event class 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-du4ln6-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.official
-                </span>
+                </div>
                 Teemu Toimitsija, 040-official, official@example.com
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-1xsjs3x-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.secretary
-                </span>
+                </div>
                 Siiri Sihteeri, 040-secretary, secretary@example.com
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-4xg2f1-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   paymentDetails
-                </span>
+                </div>
                 123 €event.costMember 123 €
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-78nh0m-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.priority
-                </span>
+                </div>
                 <div
-                  class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-1w6a0pi-MuiChip-root"
+                  class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-1kzz4rd-MuiChip-root"
                 >
                   <span
                     class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
@@ -5582,11 +5582,11 @@ exports[`SearchPage filters by event class 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-1nsuxbh-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.description
-                </span>
+                </div>
                 test
               </div>
             </div>
@@ -5719,21 +5719,21 @@ exports[`SearchPage filters by event class 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-xxwg8p-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   entryTime
-                </span>
+                </div>
                 dateFormat.datespan
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-true css-2qi7fb-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.classPlaces
-                </span>
+                </div>
                 <div
                   class="MuiGrid-root MuiGrid-container css-11lq3yg-MuiGrid-root"
                 >
@@ -5845,11 +5845,11 @@ exports[`SearchPage filters by event class 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-rqmia2-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.judges
-                </span>
+                </div>
                 <div
                   class="MuiBox-root css-0"
                 >
@@ -5864,43 +5864,43 @@ exports[`SearchPage filters by event class 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-du4ln6-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.official
-                </span>
+                </div>
                 Teemu Toimitsija, 040-official, official@example.com
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-1xsjs3x-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.secretary
-                </span>
+                </div>
                 Siiri Sihteeri, 040-secretary, secretary@example.com
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-4xg2f1-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   paymentDetails
-                </span>
+                </div>
                 123 €event.costMember 123 €
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-78nh0m-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.priority
-                </span>
+                </div>
                 <div
-                  class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-1w6a0pi-MuiChip-root"
+                  class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-1kzz4rd-MuiChip-root"
                 >
                   <span
                     class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
@@ -5912,11 +5912,11 @@ exports[`SearchPage filters by event class 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-1nsuxbh-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.description
-                </span>
+                </div>
                 test
               </div>
             </div>
@@ -6035,21 +6035,21 @@ exports[`SearchPage filters by event class 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-xxwg8p-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   entryTime
-                </span>
+                </div>
                 dateFormat.datespan
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-true css-2qi7fb-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.classPlaces
-                </span>
+                </div>
                 <div
                   class="MuiGrid-root MuiGrid-container css-11lq3yg-MuiGrid-root"
                 >
@@ -6132,11 +6132,11 @@ exports[`SearchPage filters by event class 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-rqmia2-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.judges
-                </span>
+                </div>
                 <div
                   class="MuiBox-root css-0"
                 >
@@ -6146,43 +6146,43 @@ exports[`SearchPage filters by event class 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-du4ln6-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.official
-                </span>
+                </div>
                 Teemu Toimitsija, 040-official, official@example.com
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-1xsjs3x-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.secretary
-                </span>
+                </div>
                 Siiri Sihteeri, 040-secretary, secretary@example.com
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-4xg2f1-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   paymentDetails
-                </span>
+                </div>
                 123 €event.costMember 123 €
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-78nh0m-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.priority
-                </span>
+                </div>
                 <div
-                  class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-1w6a0pi-MuiChip-root"
+                  class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-1kzz4rd-MuiChip-root"
                 >
                   <span
                     class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
@@ -6194,11 +6194,11 @@ exports[`SearchPage filters by event class 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-1nsuxbh-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.description
-                </span>
+                </div>
                 test
               </div>
             </div>
@@ -6988,21 +6988,21 @@ exports[`SearchPage filters by event type 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-xxwg8p-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   entryTime
-                </span>
+                </div>
                 dateFormat.datespan
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-true css-2qi7fb-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.classPlaces
-                </span>
+                </div>
                 <div
                   class="MuiGrid-root MuiGrid-container css-11lq3yg-MuiGrid-root"
                 >
@@ -7085,11 +7085,11 @@ exports[`SearchPage filters by event type 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-rqmia2-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.judges
-                </span>
+                </div>
                 <div
                   class="MuiBox-root css-0"
                 >
@@ -7099,43 +7099,43 @@ exports[`SearchPage filters by event type 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-du4ln6-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.official
-                </span>
+                </div>
                 Teemu Toimitsija, 040-official, official@example.com
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-1xsjs3x-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.secretary
-                </span>
+                </div>
                 Siiri Sihteeri, 040-secretary, secretary@example.com
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-4xg2f1-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   paymentDetails
-                </span>
+                </div>
                 123 €event.costMember 123 €
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-78nh0m-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.priority
-                </span>
+                </div>
                 <div
-                  class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-1w6a0pi-MuiChip-root"
+                  class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-1kzz4rd-MuiChip-root"
                 >
                   <span
                     class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
@@ -7147,11 +7147,11 @@ exports[`SearchPage filters by event type 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-1nsuxbh-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.description
-                </span>
+                </div>
                 test
               </div>
             </div>
@@ -7284,21 +7284,21 @@ exports[`SearchPage filters by event type 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-xxwg8p-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   entryTime
-                </span>
+                </div>
                 dateFormat.datespan
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-true css-2qi7fb-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.classPlaces
-                </span>
+                </div>
                 <div
                   class="MuiGrid-root MuiGrid-container css-11lq3yg-MuiGrid-root"
                 >
@@ -7439,11 +7439,11 @@ exports[`SearchPage filters by event type 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-rqmia2-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.judges
-                </span>
+                </div>
                 <div
                   class="MuiBox-root css-0"
                 >
@@ -7453,43 +7453,43 @@ exports[`SearchPage filters by event type 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-du4ln6-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.official
-                </span>
+                </div>
                 Teemu Toimitsija, 040-official, official@example.com
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-1xsjs3x-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.secretary
-                </span>
+                </div>
                 Siiri Sihteeri, 040-secretary, secretary@example.com
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-4xg2f1-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   paymentDetails
-                </span>
+                </div>
                 123 €event.costMember 123 €
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-78nh0m-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.priority
-                </span>
+                </div>
                 <div
-                  class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-1w6a0pi-MuiChip-root"
+                  class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-1kzz4rd-MuiChip-root"
                 >
                   <span
                     class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
@@ -7501,11 +7501,11 @@ exports[`SearchPage filters by event type 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-1nsuxbh-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.description
-                </span>
+                </div>
                 test
               </div>
             </div>
@@ -7638,21 +7638,21 @@ exports[`SearchPage filters by event type 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-xxwg8p-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   entryTime
-                </span>
+                </div>
                 dateFormat.datespan
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-true css-2qi7fb-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.classPlaces
-                </span>
+                </div>
                 <div
                   class="MuiGrid-root MuiGrid-container css-11lq3yg-MuiGrid-root"
                 >
@@ -7735,11 +7735,11 @@ exports[`SearchPage filters by event type 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-rqmia2-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.judges
-                </span>
+                </div>
                 <div
                   class="MuiBox-root css-0"
                 >
@@ -7749,43 +7749,43 @@ exports[`SearchPage filters by event type 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-du4ln6-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.official
-                </span>
+                </div>
                 Teemu Toimitsija, 040-official, official@example.com
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-1xsjs3x-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.secretary
-                </span>
+                </div>
                 Siiri Sihteeri, 040-secretary, secretary@example.com
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-4xg2f1-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   paymentDetails
-                </span>
+                </div>
                 123 €event.costMember 123 €
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-78nh0m-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.priority
-                </span>
+                </div>
                 <div
-                  class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-1w6a0pi-MuiChip-root"
+                  class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-1kzz4rd-MuiChip-root"
                 >
                   <span
                     class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
@@ -7797,11 +7797,11 @@ exports[`SearchPage filters by event type 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-1nsuxbh-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.description
-                </span>
+                </div>
                 test
               </div>
             </div>
@@ -7934,21 +7934,21 @@ exports[`SearchPage filters by event type 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-xxwg8p-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   entryTime
-                </span>
+                </div>
                 dateFormat.datespan
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-true css-2qi7fb-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.classPlaces
-                </span>
+                </div>
                 <div
                   class="MuiGrid-root MuiGrid-container css-11lq3yg-MuiGrid-root"
                 >
@@ -8060,11 +8060,11 @@ exports[`SearchPage filters by event type 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-rqmia2-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.judges
-                </span>
+                </div>
                 <div
                   class="MuiBox-root css-0"
                 >
@@ -8079,43 +8079,43 @@ exports[`SearchPage filters by event type 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-du4ln6-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.official
-                </span>
+                </div>
                 Teemu Toimitsija, 040-official, official@example.com
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-1xsjs3x-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.secretary
-                </span>
+                </div>
                 Siiri Sihteeri, 040-secretary, secretary@example.com
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-4xg2f1-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   paymentDetails
-                </span>
+                </div>
                 123 €event.costMember 123 €
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-78nh0m-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.priority
-                </span>
+                </div>
                 <div
-                  class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-1w6a0pi-MuiChip-root"
+                  class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-1kzz4rd-MuiChip-root"
                 >
                   <span
                     class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
@@ -8127,11 +8127,11 @@ exports[`SearchPage filters by event type 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-1nsuxbh-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.description
-                </span>
+                </div>
                 test
               </div>
             </div>
@@ -8921,21 +8921,21 @@ exports[`SearchPage filters by organizer 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-xxwg8p-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   entryTime
-                </span>
+                </div>
                 dateFormat.datespan
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-true css-2qi7fb-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.classPlaces
-                </span>
+                </div>
                 <div
                   class="MuiGrid-root MuiGrid-container css-11lq3yg-MuiGrid-root"
                 >
@@ -9018,11 +9018,11 @@ exports[`SearchPage filters by organizer 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-rqmia2-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.judges
-                </span>
+                </div>
                 <div
                   class="MuiBox-root css-0"
                 >
@@ -9032,43 +9032,43 @@ exports[`SearchPage filters by organizer 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-du4ln6-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.official
-                </span>
+                </div>
                 Teemu Toimitsija, 040-official, official@example.com
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-1xsjs3x-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.secretary
-                </span>
+                </div>
                 Siiri Sihteeri, 040-secretary, secretary@example.com
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-4xg2f1-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   paymentDetails
-                </span>
+                </div>
                 123 €event.costMember 123 €
               </div>
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-78nh0m-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.priority
-                </span>
+                </div>
                 <div
-                  class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-1w6a0pi-MuiChip-root"
+                  class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-1kzz4rd-MuiChip-root"
                 >
                   <span
                     class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
@@ -9080,11 +9080,11 @@ exports[`SearchPage filters by organizer 1`] = `
               <div
                 class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-1nsuxbh-MuiGrid2-root"
               >
-                <span
+                <div
                   class="MuiTypography-root MuiTypography-caption css-6aiw1p-MuiTypography-root"
                 >
                   event.description
-                </span>
+                </div>
                 test
               </div>
             </div>

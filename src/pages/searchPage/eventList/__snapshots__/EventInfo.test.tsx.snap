@@ -8,21 +8,21 @@ exports[`EventInfo should render contact info 1`] = `
     <div
       class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-yzd260-MuiGrid2-root"
     >
-      <span
+      <div
         class="MuiTypography-root MuiTypography-caption css-ltaje5-MuiTypography-root"
       >
         entryTime
-      </span>
+      </div>
       dateFormat.datespan
     </div>
     <div
       class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-true css-yu5d00-MuiGrid2-root"
     >
-      <span
+      <div
         class="MuiTypography-root MuiTypography-caption css-ltaje5-MuiTypography-root"
       >
         event.classPlaces
-      </span>
+      </div>
       <div
         class="MuiGrid-root MuiGrid-container css-11lq3yg-MuiGrid-root"
       >
@@ -105,11 +105,11 @@ exports[`EventInfo should render contact info 1`] = `
     <div
       class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-241rwc-MuiGrid2-root"
     >
-      <span
+      <div
         class="MuiTypography-root MuiTypography-caption css-ltaje5-MuiTypography-root"
       >
         event.judges
-      </span>
+      </div>
       <div
         class="MuiBox-root css-0"
       >
@@ -119,43 +119,43 @@ exports[`EventInfo should render contact info 1`] = `
     <div
       class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-1dgrg5x-MuiGrid2-root"
     >
-      <span
+      <div
         class="MuiTypography-root MuiTypography-caption css-ltaje5-MuiTypography-root"
       >
         event.official
-      </span>
+      </div>
       official name, 0700-official, official@example.com
     </div>
     <div
       class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-m9ba3e-MuiGrid2-root"
     >
-      <span
+      <div
         class="MuiTypography-root MuiTypography-caption css-ltaje5-MuiTypography-root"
       >
         event.secretary
-      </span>
+      </div>
       secretary name, 0700-secretary, secretary@example.com
     </div>
     <div
       class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-1i1pohp-MuiGrid2-root"
     >
-      <span
+      <div
         class="MuiTypography-root MuiTypography-caption css-ltaje5-MuiTypography-root"
       >
         paymentDetails
-      </span>
+      </div>
       123 €event.costMember 123 €
     </div>
     <div
       class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-1e29lse-MuiGrid2-root"
     >
-      <span
+      <div
         class="MuiTypography-root MuiTypography-caption css-ltaje5-MuiTypography-root"
       >
         event.priority
-      </span>
+      </div>
       <div
-        class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-13htn8f-MuiChip-root"
+        class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-1wrwlv4-MuiChip-root"
       >
         <span
           class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
@@ -167,11 +167,11 @@ exports[`EventInfo should render contact info 1`] = `
     <div
       class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-kjsw1z-MuiGrid2-root"
     >
-      <span
+      <div
         class="MuiTypography-root MuiTypography-caption css-ltaje5-MuiTypography-root"
       >
         event.description
-      </span>
+      </div>
       event description text
     </div>
   </div>
@@ -186,21 +186,21 @@ exports[`EventInfo should render event information 1`] = `
     <div
       class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-yzd260-MuiGrid2-root"
     >
-      <span
+      <div
         class="MuiTypography-root MuiTypography-caption css-ltaje5-MuiTypography-root"
       >
         entryTime
-      </span>
+      </div>
       dateFormat.datespan
     </div>
     <div
       class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-true css-yu5d00-MuiGrid2-root"
     >
-      <span
+      <div
         class="MuiTypography-root MuiTypography-caption css-ltaje5-MuiTypography-root"
       >
         event.classPlaces
-      </span>
+      </div>
       <div
         class="MuiGrid-root MuiGrid-container css-11lq3yg-MuiGrid-root"
       >
@@ -283,11 +283,11 @@ exports[`EventInfo should render event information 1`] = `
     <div
       class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-241rwc-MuiGrid2-root"
     >
-      <span
+      <div
         class="MuiTypography-root MuiTypography-caption css-ltaje5-MuiTypography-root"
       >
         event.judges
-      </span>
+      </div>
       <div
         class="MuiBox-root css-0"
       >
@@ -297,43 +297,43 @@ exports[`EventInfo should render event information 1`] = `
     <div
       class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-1dgrg5x-MuiGrid2-root"
     >
-      <span
+      <div
         class="MuiTypography-root MuiTypography-caption css-ltaje5-MuiTypography-root"
       >
         event.official
-      </span>
+      </div>
       Teemu Toimitsija, 040-official, official@example.com
     </div>
     <div
       class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-m9ba3e-MuiGrid2-root"
     >
-      <span
+      <div
         class="MuiTypography-root MuiTypography-caption css-ltaje5-MuiTypography-root"
       >
         event.secretary
-      </span>
+      </div>
       Siiri Sihteeri, 040-secretary, secretary@example.com
     </div>
     <div
       class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-1i1pohp-MuiGrid2-root"
     >
-      <span
+      <div
         class="MuiTypography-root MuiTypography-caption css-ltaje5-MuiTypography-root"
       >
         paymentDetails
-      </span>
+      </div>
       123 €event.costMember 123 €
     </div>
     <div
       class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-1e29lse-MuiGrid2-root"
     >
-      <span
+      <div
         class="MuiTypography-root MuiTypography-caption css-ltaje5-MuiTypography-root"
       >
         event.priority
-      </span>
+      </div>
       <div
-        class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-13htn8f-MuiChip-root"
+        class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-1wrwlv4-MuiChip-root"
       >
         <span
           class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
@@ -345,11 +345,11 @@ exports[`EventInfo should render event information 1`] = `
     <div
       class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-kjsw1z-MuiGrid2-root"
     >
-      <span
+      <div
         class="MuiTypography-root MuiTypography-caption css-ltaje5-MuiTypography-root"
       >
         event.description
-      </span>
+      </div>
       event description text
     </div>
   </div>
