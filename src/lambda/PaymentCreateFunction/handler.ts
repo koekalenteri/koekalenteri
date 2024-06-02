@@ -91,9 +91,10 @@ const paymentCreate = metricScope(
         ]
 
         const customer: PaymentCustomer = {
-          email: registration?.payer.email,
+          // We don't want to deliver the receipt from Paytrail to the customer, hence adding '.local' to the email. KOE-763
+          email: registration.payer.email && `${registration.payer.email}.local`,
           ...splitName(registration?.payer.name),
-          phone: registration?.payer.phone,
+          phone: registration.payer.phone,
         }
 
         const result = await createPayment(
