@@ -9,6 +9,8 @@ import DialogTitle from '@mui/material/DialogTitle'
 import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
 import ListItemText from '@mui/material/ListItemText'
+import Stack from '@mui/material/Stack'
+import Typography from '@mui/material/Typography'
 
 import { hasChanges } from '../../../lib/utils'
 import CollapsibleSection from '../../components/CollapsibleSection'
@@ -103,7 +105,12 @@ export default function RegistrationDialogBase({
         },
       }}
     >
-      <DialogTitle id="reg-dialog-title">{title}</DialogTitle>
+      <DialogTitle id="reg-dialog-title">
+        <Stack direction="row" justifyContent="space-between" alignItems="center">
+          {title}
+          <Typography variant="caption">{registration.id}</Typography>
+        </Stack>
+      </DialogTitle>
       <DialogContent dividers sx={{ height: '100%', p: 0 }}>
         <RegistrationForm
           admin={admin}
