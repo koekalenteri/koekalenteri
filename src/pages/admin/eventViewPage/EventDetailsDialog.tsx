@@ -10,7 +10,7 @@ import { useRecoilState, useResetRecoilState } from 'recoil'
 
 import { hasChanges } from '../../../lib/utils'
 import EventForm from '../components/EventForm'
-import { adminEventSelector, adminEditableEventByIdAtom, useAdminEventActions } from '../recoil'
+import { adminEditableEventByIdAtom, adminEventSelector, useAdminEventActions } from '../recoil'
 
 interface Props {
   readonly eventId: string
