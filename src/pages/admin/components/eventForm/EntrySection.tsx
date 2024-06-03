@@ -1,14 +1,16 @@
 import type { SyntheticEvent } from 'react'
 import type { Priority } from '../../../../lib/priority'
-import type { RegistrationClass } from '../../../../types'
+import type { EventClass, RegistrationClass } from '../../../../types'
 import type { DateValue } from '../../../components/DateRange'
 import type { SectionProps } from '../EventForm'
 
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import FormHelperText from '@mui/material/FormHelperText'
 import Grid from '@mui/material/Grid'
 import { endOfDay, startOfDay, sub } from 'date-fns'
+import clamp from 'date-fns/clamp'
+import { enqueueSnackbar } from 'notistack'
 
 import { PRIORITY, priorityValuesToPriority } from '../../../../lib/priority'
 import AutocompleteMulti from '../../../components/AutocompleteMulti'
@@ -42,6 +44,27 @@ export default function EntrySection(props: Props) {
       onChange?.({ priority: value.map((p) => p.value) }),
     [onChange]
   )
+
+  useEffect(() => {
+    // KOE-808 make sure classes are inside event dates
+    if (!event.classes.some((c) => c.date < event.startDate || c.date > event.endDate)) return
+
+    const newClasses: EventClass[] = []
+    const interval = { start: event.startDate, end: event.endDate }
+    for (const cls of event.classes) {
+      if (cls.date < interval.start || cls.date > interval.end) {
+        const date = clamp(cls.date, interval)
+        newClasses.push({ ...cls, date })
+        enqueueSnackbar(
+          `Korjaus: ${cls.class}/${t('dateFormat.wdshort', { date: cls.date })} siirretty ${cls.class}/${t('dateFormat.wdshort', { date })}`,
+          { variant: 'info' }
+        )
+      } else {
+        newClasses.push(cls)
+      }
+    }
+    onChange?.({ classes: newClasses })
+  }, [event.classes, event.endDate, event.startDate, onChange, t])
 
   return (
     <CollapsibleSection

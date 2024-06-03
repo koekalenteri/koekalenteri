@@ -2,7 +2,7 @@ import type { ChangeEvent } from 'react'
 import type { DeepPartial, EventClass } from '../../../../../types'
 import type { SectionProps } from '../../EventForm'
 
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
 import Checkbox from '@mui/material/Checkbox'
@@ -15,6 +15,7 @@ import TableCell from '@mui/material/TableCell'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import Typography from '@mui/material/Typography'
+import { enqueueSnackbar } from 'notistack'
 
 import { getEventClassesByDays, getUniqueEventClasses } from '../../../../../lib/event'
 import { NumberInput } from '../../../../components/NumberInput'
@@ -59,6 +60,17 @@ export default function EventFormPlaces({ event, disabled, helperTexts, onChange
     },
     [event.classes, event.places, onChange]
   )
+
+  useEffect(() => {
+    // KOE-808 fix places count
+    if (classesEnabled) {
+      const total = event.classes.reduce((acc, cur) => acc + (cur?.places ?? 0), 0)
+      if (total !== event.places) {
+        onChange?.({ places: total })
+        enqueueSnackbar(`Korjaus: Koepaikkojen määrä muutettu ${event.places} -> ${total}`, { variant: 'info' })
+      }
+    }
+  }, [classesEnabled, event.classes, event.places, onChange])
 
   return (
     <Box sx={{ p: 1, border: '1px dashed #ddd', borderRadius: 1 }}>
