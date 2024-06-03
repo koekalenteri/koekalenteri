@@ -931,7 +931,7 @@ exports[`JudgeListPage renders 1`] = `
                     tabindex="-1"
                   >
                     <span
-                      class="MuiSwitch-root MuiSwitch-sizeMedium css-julti5-MuiSwitch-root"
+                      class="MuiSwitch-root MuiSwitch-sizeSmall css-1diaq70-MuiSwitch-root"
                     >
                       <span
                         class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-checked css-11xzqlw-MuiButtonBase-root-MuiSwitch-switchBase"
@@ -1142,7 +1142,7 @@ exports[`JudgeListPage renders 1`] = `
                     tabindex="-1"
                   >
                     <span
-                      class="MuiSwitch-root MuiSwitch-sizeMedium css-julti5-MuiSwitch-root"
+                      class="MuiSwitch-root MuiSwitch-sizeSmall css-1diaq70-MuiSwitch-root"
                     >
                       <span
                         class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-checked css-11xzqlw-MuiButtonBase-root-MuiSwitch-switchBase"
@@ -1353,7 +1353,7 @@ exports[`JudgeListPage renders 1`] = `
                     tabindex="-1"
                   >
                     <span
-                      class="MuiSwitch-root MuiSwitch-sizeMedium css-julti5-MuiSwitch-root"
+                      class="MuiSwitch-root MuiSwitch-sizeSmall css-1diaq70-MuiSwitch-root"
                     >
                       <span
                         class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-checked css-11xzqlw-MuiButtonBase-root-MuiSwitch-switchBase"
@@ -2429,7 +2429,7 @@ exports[`JudgeListPage renders 2`] = `
       tabindex="-1"
     >
       <span
-        class="MuiSwitch-root MuiSwitch-sizeMedium css-julti5-MuiSwitch-root"
+        class="MuiSwitch-root MuiSwitch-sizeSmall css-1diaq70-MuiSwitch-root"
       >
         <span
           class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-checked css-11xzqlw-MuiButtonBase-root-MuiSwitch-switchBase"
@@ -2640,7 +2640,7 @@ exports[`JudgeListPage renders 2`] = `
       tabindex="-1"
     >
       <span
-        class="MuiSwitch-root MuiSwitch-sizeMedium css-julti5-MuiSwitch-root"
+        class="MuiSwitch-root MuiSwitch-sizeSmall css-1diaq70-MuiSwitch-root"
       >
         <span
           class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-checked css-11xzqlw-MuiButtonBase-root-MuiSwitch-switchBase"
@@ -2851,7 +2851,7 @@ exports[`JudgeListPage renders 2`] = `
       tabindex="-1"
     >
       <span
-        class="MuiSwitch-root MuiSwitch-sizeMedium css-julti5-MuiSwitch-root"
+        class="MuiSwitch-root MuiSwitch-sizeSmall css-1diaq70-MuiSwitch-root"
       >
         <span
           class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-checked css-11xzqlw-MuiButtonBase-root-MuiSwitch-switchBase"

@@ -541,7 +541,7 @@ exports[`EventTypeListPage renders 1`] = `
                     tabindex="-1"
                   >
                     <span
-                      class="MuiSwitch-root MuiSwitch-sizeMedium css-julti5-MuiSwitch-root"
+                      class="MuiSwitch-root MuiSwitch-sizeSmall css-1diaq70-MuiSwitch-root"
                     >
                       <span
                         class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-11xzqlw-MuiButtonBase-root-MuiSwitch-switchBase"
