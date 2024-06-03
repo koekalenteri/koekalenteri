@@ -931,7 +931,7 @@ exports[`JudgeListPage renders 1`] = `
                     tabindex="-1"
                   >
                     <span
-                      class="MuiSwitch-root MuiSwitch-sizeSmall css-1diaq70-MuiSwitch-root"
+                      class="MuiSwitch-root MuiSwitch-sizeSmall css-g5ae86-MuiSwitch-root"
                     >
                       <span
                         class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-checked css-11xzqlw-MuiButtonBase-root-MuiSwitch-switchBase"
@@ -965,7 +965,7 @@ exports[`JudgeListPage renders 1`] = `
                   >
                     <svg
                       aria-hidden="true"
-                      class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                      class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-e2rkvs-MuiSvgIcon-root"
                       data-testid="CheckBoxOutlineBlankOutlinedIcon"
                       focusable="false"
                       viewBox="0 0 24 24"
@@ -1142,7 +1142,7 @@ exports[`JudgeListPage renders 1`] = `
                     tabindex="-1"
                   >
                     <span
-                      class="MuiSwitch-root MuiSwitch-sizeSmall css-1diaq70-MuiSwitch-root"
+                      class="MuiSwitch-root MuiSwitch-sizeSmall css-g5ae86-MuiSwitch-root"
                     >
                       <span
                         class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-checked css-11xzqlw-MuiButtonBase-root-MuiSwitch-switchBase"
@@ -1176,7 +1176,7 @@ exports[`JudgeListPage renders 1`] = `
                   >
                     <svg
                       aria-hidden="true"
-                      class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                      class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-e2rkvs-MuiSvgIcon-root"
                       data-testid="CheckBoxOutlineBlankOutlinedIcon"
                       focusable="false"
                       viewBox="0 0 24 24"
@@ -1353,7 +1353,7 @@ exports[`JudgeListPage renders 1`] = `
                     tabindex="-1"
                   >
                     <span
-                      class="MuiSwitch-root MuiSwitch-sizeSmall css-1diaq70-MuiSwitch-root"
+                      class="MuiSwitch-root MuiSwitch-sizeSmall css-g5ae86-MuiSwitch-root"
                     >
                       <span
                         class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-checked css-11xzqlw-MuiButtonBase-root-MuiSwitch-switchBase"
@@ -1387,7 +1387,7 @@ exports[`JudgeListPage renders 1`] = `
                   >
                     <svg
                       aria-hidden="true"
-                      class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                      class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-e2rkvs-MuiSvgIcon-root"
                       data-testid="CheckBoxOutlineBlankOutlinedIcon"
                       focusable="false"
                       viewBox="0 0 24 24"
@@ -2429,7 +2429,7 @@ exports[`JudgeListPage renders 2`] = `
       tabindex="-1"
     >
       <span
-        class="MuiSwitch-root MuiSwitch-sizeSmall css-1diaq70-MuiSwitch-root"
+        class="MuiSwitch-root MuiSwitch-sizeSmall css-g5ae86-MuiSwitch-root"
       >
         <span
           class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-checked css-11xzqlw-MuiButtonBase-root-MuiSwitch-switchBase"
@@ -2463,7 +2463,7 @@ exports[`JudgeListPage renders 2`] = `
     >
       <svg
         aria-hidden="true"
-        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+        class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-e2rkvs-MuiSvgIcon-root"
         data-testid="CheckBoxOutlineBlankOutlinedIcon"
         focusable="false"
         viewBox="0 0 24 24"
@@ -2640,7 +2640,7 @@ exports[`JudgeListPage renders 2`] = `
       tabindex="-1"
     >
       <span
-        class="MuiSwitch-root MuiSwitch-sizeSmall css-1diaq70-MuiSwitch-root"
+        class="MuiSwitch-root MuiSwitch-sizeSmall css-g5ae86-MuiSwitch-root"
       >
         <span
           class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-checked css-11xzqlw-MuiButtonBase-root-MuiSwitch-switchBase"
@@ -2674,7 +2674,7 @@ exports[`JudgeListPage renders 2`] = `
     >
       <svg
         aria-hidden="true"
-        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+        class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-e2rkvs-MuiSvgIcon-root"
         data-testid="CheckBoxOutlineBlankOutlinedIcon"
         focusable="false"
         viewBox="0 0 24 24"
@@ -2851,7 +2851,7 @@ exports[`JudgeListPage renders 2`] = `
       tabindex="-1"
     >
       <span
-        class="MuiSwitch-root MuiSwitch-sizeSmall css-1diaq70-MuiSwitch-root"
+        class="MuiSwitch-root MuiSwitch-sizeSmall css-g5ae86-MuiSwitch-root"
       >
         <span
           class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-checked css-11xzqlw-MuiButtonBase-root-MuiSwitch-switchBase"
@@ -2885,7 +2885,7 @@ exports[`JudgeListPage renders 2`] = `
     >
       <svg
         aria-hidden="true"
-        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+        class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-e2rkvs-MuiSvgIcon-root"
         data-testid="CheckBoxOutlineBlankOutlinedIcon"
         focusable="false"
         viewBox="0 0 24 24"

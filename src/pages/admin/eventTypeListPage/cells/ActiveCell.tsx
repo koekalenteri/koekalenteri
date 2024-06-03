@@ -17,7 +17,7 @@ const ActiveCell = (props: GridRenderCellParams<EventType, boolean>) => {
     [actions, props.row]
   )
 
-  return <Switch checked={!!props.value} onChange={toggleActive} size="small" />
+  return <Switch checked={!!props.value} onChange={toggleActive} size="small" sx={{ verticalAlign: 'unset' }} />
 }
 
 export default ActiveCell

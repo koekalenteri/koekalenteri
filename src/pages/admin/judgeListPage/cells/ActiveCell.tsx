@@ -20,7 +20,15 @@ const ActiveCell = (props: GridRenderCellParams<Judge, boolean>) => {
     [actions, props.row]
   )
 
-  return <Switch checked={!!props.value} onChange={toggleActive} disabled={!isAdmin} size="small" />
+  return (
+    <Switch
+      checked={!!props.value}
+      onChange={toggleActive}
+      disabled={!isAdmin}
+      size="small"
+      sx={{ verticalAlign: 'unset' }}
+    />
+  )
 }
 
 export default ActiveCell
