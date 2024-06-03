@@ -12,7 +12,7 @@ import { capitalize, reverseName } from './string'
 
 const { judgeTable, userTable } = CONFIG
 
-export type PartialJsonJudge = Omit<Judge, 'languages'>
+export type PartialJsonJudge = Omit<Judge, 'languages' | 'active'>
 
 export const fetchJudgesForEventTypes = async (
   klapi: KLAPI,
@@ -43,7 +43,6 @@ export const fetchJudgesForEventTypes = async (
       const name = capitalize(item.nimi)
       const location = capitalize(item.paikkakunta)
       judges.push({
-        active: true,
         id: item.jäsennumero,
         name,
         location,
@@ -60,7 +59,6 @@ export const fetchJudgesForEventTypes = async (
 }
 
 export const partializeJudge = (judge: JsonJudge): RequireAllKeys<PartialJsonJudge> => ({
-  active: judge.active,
   district: judge.district,
   email: judge.email,
   eventTypes: judge.eventTypes,

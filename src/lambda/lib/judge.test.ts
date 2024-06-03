@@ -101,7 +101,6 @@ describe('judge', () => {
       expect(result).toMatchInlineSnapshot(`
         [
           {
-            "active": true,
             "district": "piiri",
             "email": "toumari1@example.com",
             "eventTypes": [
@@ -115,7 +114,6 @@ describe('judge', () => {
             "phone": "puh",
           },
           {
-            "active": true,
             "district": "piiri",
             "email": "toumari2@example.com",
             "eventTypes": [
@@ -154,7 +152,6 @@ describe('judge', () => {
       }
       expect(partializeJudge(fullJudge)).toMatchInlineSnapshot(`
         {
-          "active": false,
           "district": "district",
           "email": "email",
           "eventTypes": [],
@@ -183,7 +180,6 @@ describe('judge', () => {
       }
       expect(partializeJudge(judge)).toMatchInlineSnapshot(`
         {
-          "active": undefined,
           "district": "district",
           "email": "email",
           "eventTypes": [],
