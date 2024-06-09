@@ -20,7 +20,7 @@ import Stack from '@mui/material/Stack'
 import { GridActionsCellItem } from '@mui/x-data-grid'
 
 import { formatMoney } from '../../../../lib/money'
-import { hasPriority } from '../../../../lib/registration'
+import { canRefund, hasPriority } from '../../../../lib/registration'
 import { PriorityIcon } from '../../../components/icons/PriorityIcon'
 import { IconsTooltip } from '../../../components/IconsTooltip'
 
@@ -243,7 +243,7 @@ export function useClassEntrySelectionColumns(
               onClick={() => cancelRegistration?.(p.row.id)}
               showInMenu
             />,
-            p.row.cancelled ? (
+            canRefund(p.row) ? (
               <GridActionsCellItem
                 key="refund"
                 icon={<EventBusyOutlined fontSize="small" />}

@@ -25,6 +25,7 @@ import { useSnackbar } from 'notistack'
 import { useAdminEventRegistrationDates } from '../../../hooks/useAdminEventRegistrationDates'
 import { useAdminEventRegistrationGroups } from '../../../hooks/useAdminEventRegistrationGroups'
 import { eventRegistrationDateKey } from '../../../lib/event'
+import { getRegistrationGroupKey, GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE } from '../../../lib/registration'
 import { uniqueDate } from '../../../lib/utils'
 import { NullComponent } from '../../components/NullComponent'
 import StyledDataGrid from '../../components/StyledDataGrid'
@@ -59,13 +60,15 @@ declare module '@mui/x-data-grid' {
 }
 
 const listKey = (reg: Registration, eventGroups: RegistrationGroup[]) => {
-  if (reg.cancelled) {
-    return 'cancelled'
+  const key = getRegistrationGroupKey(reg)
+
+  if (key === GROUP_KEY_CANCELLED) return GROUP_KEY_CANCELLED
+
+  if (eventGroups.find((eg) => eg.key === key)) {
+    return key
   }
-  if (reg.group && eventGroups.find((eg) => eg.key === reg.group?.key)) {
-    return reg.group.key
-  }
-  return 'reserve'
+
+  return GROUP_KEY_RESERVE
 }
 
 const ClassEntrySelection = ({
@@ -93,8 +96,8 @@ const ClassEntrySelection = ({
     async (id: string) => {
       const reg = registrations.find((r) => r.id === id)
       if (!reg) return
-      const regs = registrations.filter((r) => r.group?.key === 'cancelled' && r.id !== id)
-      const group: RegistrationGroup = { key: 'cancelled', number: regs.length + 1 }
+      const regs = registrations.filter((r) => getRegistrationGroupKey(r) === GROUP_KEY_CANCELLED && r.id !== id)
+      const group: RegistrationGroup = { key: GROUP_KEY_CANCELLED, number: regs.length + 1 }
       await actions.saveGroups(reg.eventId, [{ eventId: reg.eventId, id, group }])
     },
     [actions, registrations]
@@ -144,8 +147,8 @@ const ClassEntrySelection = ({
 
     if (
       (state === 'picked' || state === 'invited') &&
-      group.key !== 'cancelled' &&
-      group.key !== 'reserve' &&
+      group.key !== GROUP_KEY_CANCELLED &&
+      group.key !== GROUP_KEY_RESERVE &&
       item.targetGroupKey !== group.key
     ) {
       const extra = state === 'invited' ? ' sekä koekutsu' : ''
@@ -170,7 +173,7 @@ const ClassEntrySelection = ({
 
     const newGroup = { ...group, number: regs.length + 1 }
 
-    if (group.key === 'cancelled' || (group.key === 'reserve' && !canArrangeReserve)) {
+    if (group.key === GROUP_KEY_CANCELLED || (group.key === GROUP_KEY_RESERVE && !canArrangeReserve)) {
       if (reg.group?.key === group.key) {
         // user can not re-order items in cancelled or reserve groups
         delete item.targetGroupKey
@@ -203,15 +206,15 @@ const ClassEntrySelection = ({
   const handleReject = (group: RegistrationGroup) => (item: DragItem) => {
     const reg = registrations.find((r) => r.id === item.id)
     if (!reg) return
-    if (reg.group?.key === group.key) {
-      if (group.key === 'reserve') {
+    if (getRegistrationGroupKey(reg) === group.key) {
+      if (group.key === GROUP_KEY_RESERVE) {
         enqueueSnackbar(`Varasijalla olevia koiria ei voi enää järjestellä, kun varasijailmoituksia on lähetetty`, {
           variant: 'info',
         })
       }
       return
     }
-    if (state === 'picked' && group.key === 'reserve') {
+    if (state === 'picked' && group.key === GROUP_KEY_RESERVE) {
       enqueueSnackbar(`Kun koepaikat on vahvistettu, ei koirakkoa voi enää siirtää osallistujista varasijalle.`, {
         variant: 'warning',
       })
@@ -274,7 +277,7 @@ const ClassEntrySelection = ({
         <DragableDataGrid
           autoHeight
           canDrop={(item) => {
-            return state !== 'started' || item?.groupKey === 'reserve'
+            return state !== 'started' || item?.groupKey === GROUP_KEY_RESERVE
           }}
           flex={registrationsByGroup[group.key]?.length}
           key={group.key}
@@ -308,9 +311,9 @@ const ClassEntrySelection = ({
       <DragableDataGrid
         autoHeight
         canDrop={(item) =>
-          (state !== 'picked' && item?.groupKey !== 'reserve') ||
-          item?.groupKey === 'cancelled' ||
-          (item?.groupKey === 'reserve' && canArrangeReserve)
+          (state !== 'picked' && item?.groupKey !== GROUP_KEY_RESERVE) ||
+          item?.groupKey === GROUP_KEY_CANCELLED ||
+          (item?.groupKey === GROUP_KEY_RESERVE && canArrangeReserve)
         }
         columns={entryColumns}
         slotProps={{
@@ -330,11 +333,11 @@ const ClassEntrySelection = ({
       <Typography variant="h6">Peruneet</Typography>
       <DragableDataGrid
         autoHeight
-        canDrop={(item) => item?.groupKey !== 'cancelled'}
+        canDrop={(item) => item?.groupKey !== GROUP_KEY_CANCELLED}
         columns={cancelledColumns}
         slotProps={{
           row: {
-            groupKey: 'cancelled',
+            groupKey: GROUP_KEY_CANCELLED,
           },
         }}
         hideFooter
@@ -343,7 +346,7 @@ const ClassEntrySelection = ({
         rowSelectionModel={selectedRegistrationId ? [selectedRegistrationId] : []}
         onCellClick={handleCellClick}
         onRowDoubleClick={handleDoubleClick}
-        onDrop={handleDrop({ key: 'cancelled', number: registrationsByGroup.cancelled.length + 1 })}
+        onDrop={handleDrop({ key: GROUP_KEY_CANCELLED, number: registrationsByGroup.cancelled.length + 1 })}
       />
     </DndProvider>
   )

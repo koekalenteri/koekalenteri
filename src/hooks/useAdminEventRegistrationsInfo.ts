@@ -2,6 +2,7 @@ import type { DogEvent, EventState, Registration } from '../types'
 
 import { useMemo } from 'react'
 
+import { getRegistrationGroupKey, GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE } from '../lib/registration'
 import { eventDates, placesForClass, uniqueClasses } from '../lib/utils'
 
 interface EventClassInfoNumbers {
@@ -18,7 +19,7 @@ export default function useAdminEventRegistrationInfo(event: DogEvent | undefine
 
   const reserveByClass: Record<string, Registration[]> = useMemo(() => {
     const byClass: Record<string, Registration[]> = {}
-    const allReserve = registrations.filter((r) => !r.cancelled && (!r.group || r.group.key === 'reserve'))
+    const allReserve = registrations.filter((r) => getRegistrationGroupKey(r) === GROUP_KEY_RESERVE)
     for (const reg of allReserve) {
       const c = reg.class ?? reg.eventType
       if (!(c in byClass)) {
@@ -42,8 +43,8 @@ export default function useAdminEventRegistrationInfo(event: DogEvent | undefine
     for (const c of eventClasses) {
       const places = placesForClass(event, c)
       const classRegs = registrations.filter((r) => (r.class ?? r.eventType) === c)
-      const regs = classRegs.filter((r) => r.group && !r.cancelled && r.group.key !== 'reserve').length
-      const reserve = classRegs.filter((r) => !r.cancelled && (!r.group || r.group.key === 'reserve')).length
+      const regs = classRegs.filter((r) => r.group && !r.cancelled && r.group.key !== GROUP_KEY_RESERVE).length
+      const reserve = classRegs.filter((r) => !r.cancelled && (!r.group || r.group.key === GROUP_KEY_RESERVE)).length
       const cancelled = classRegs.filter((r) => r.cancelled).length
       result[c] = {
         places,
@@ -60,7 +61,7 @@ export default function useAdminEventRegistrationInfo(event: DogEvent | undefine
   const selectedByClass = useMemo(() => {
     const byClass: Record<string, Registration[]> = {}
     const allSelected = registrations.filter(
-      (r) => !r.cancelled && r.group && r.group.key !== 'reserve' && r.group.key !== 'cancelled'
+      (r) => !r.cancelled && r.group && r.group.key !== GROUP_KEY_RESERVE && r.group.key !== GROUP_KEY_CANCELLED
     )
     for (const reg of allSelected) {
       const c = reg.class ?? reg.eventType

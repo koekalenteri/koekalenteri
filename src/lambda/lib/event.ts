@@ -1,6 +1,12 @@
 import type { EventClassState, JsonConfirmedEvent, JsonRegistration, JsonRegistrationGroupInfo } from '../../types'
 
-import { hasPriority, sortRegistrationsByDateClassTimeAndNumber } from '../../lib/registration'
+import {
+  getRegistrationGroupKey,
+  getRegistrationNumberingGroupKey,
+  GROUP_KEY_CANCELLED,
+  hasPriority,
+  sortRegistrationsByDateClassTimeAndNumber,
+} from '../../lib/registration'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
@@ -91,25 +97,7 @@ export const updateRegistrations = async (eventId: string, eventTable: string) =
   return confirmedEvent
 }
 
-const groupKey = <T extends JsonRegistration>(reg: T) => {
-  if (reg.cancelled) {
-    return 'cancelled'
-  }
-  return reg.group?.key ?? 'reserve'
-}
-
-const numberGroupKey = <T extends JsonRegistration>(reg: T) => {
-  const ct = reg.class ?? reg.eventType
-  if (reg.cancelled) {
-    return 'cancelled-' + ct
-  }
-  if (reg.group?.date) {
-    return 'participants' //`${reg.group?.date}-${ct}`
-  }
-  return 'reserve-' + ct
-}
-
-const saveGroup = ({ eventId, id, group }: JsonRegistrationGroupInfo) => {
+export const saveGroup = ({ eventId, id, group }: JsonRegistrationGroupInfo) => {
   return dynamoDB.update(
     { eventId, id },
     'set #grp = :value, #cancelled = :cancelled',
@@ -119,7 +107,7 @@ const saveGroup = ({ eventId, id, group }: JsonRegistrationGroupInfo) => {
     },
     {
       ':value': { ...group }, // https://stackoverflow.com/questions/37006008/typescript-index-signature-is-missing-in-type
-      ':cancelled': group?.key === 'cancelled',
+      ':cancelled': group?.key === GROUP_KEY_CANCELLED,
     },
     registrationTable
   )
@@ -128,17 +116,17 @@ const saveGroup = ({ eventId, id, group }: JsonRegistrationGroupInfo) => {
 export const fixRegistrationGroups = async <T extends JsonRegistration>(items: T[]): Promise<T[]> => {
   items.sort(sortRegistrationsByDateClassTimeAndNumber)
 
-  const grouped: Record<string, T[]> = {}
+  const numberingGroups: Record<string, T[]> = {}
   for (const item of items) {
-    const groupKey = numberGroupKey(item)
-    grouped[groupKey] = grouped[groupKey] || [] // make sure the array exists
-    grouped[groupKey].push(item)
+    const numberingGroupKey = getRegistrationNumberingGroupKey(item)
+    numberingGroups[numberingGroupKey] = numberingGroups[numberingGroupKey] || [] // make sure the array exists
+    numberingGroups[numberingGroupKey].push(item)
   }
 
-  for (const regs of Object.values(grouped)) {
+  for (const regs of Object.values(numberingGroups)) {
     for (let i = 0; i < regs.length; i++) {
       const reg = regs[i]
-      const key = groupKey(reg)
+      const key = getRegistrationGroupKey(reg)
       const number = i + 1
       if (reg.group?.key !== key || reg.group?.number !== number) {
         reg.group = { ...reg.group, key, number }

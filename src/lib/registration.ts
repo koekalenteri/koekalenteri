@@ -2,6 +2,11 @@ import type { JsonRegistration, PublicDogEvent, Registration } from '../types'
 
 import { PRIORITY_INVITED, PRIORITY_MEMBER } from './priority'
 
+export const GROUP_KEY_CANCELLED = 'cancelled'
+export const GROUP_KEY_RESERVE = 'reserve'
+
+const REFUNDABLE_GROUP_KEYS = [GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE]
+
 type RegistrationPriorityFields = Pick<Registration, 'priorityByInvitation'> & {
   owner?: Pick<Registration['owner'], 'membership'>
   handler?: Pick<Registration['handler'], 'membership'>
@@ -37,3 +42,30 @@ export const sortRegistrationsByDateClassTimeAndNumber = <T extends JsonRegistra
   a.group?.date === b.group?.date
     ? byClassTimeAndNumber(a, b)
     : (a.group?.date ?? '').localeCompare(b.group?.date ?? '')
+
+export const getRegistrationNumberingGroupKey = <T extends JsonRegistration | Registration>(
+  reg: Pick<T, 'cancelled' | 'class' | 'eventType' | 'group'>
+) => {
+  const classOrType = reg.class ?? reg.eventType
+  if (reg.cancelled) {
+    return `${GROUP_KEY_CANCELLED}-${classOrType}`
+  }
+  if (reg.group?.date) {
+    return 'participants'
+  }
+  return `${GROUP_KEY_RESERVE}-${classOrType}`
+}
+
+export const getRegistrationGroupKey = <T extends JsonRegistration | Registration>(
+  reg: Pick<T, 'cancelled' | 'group'>
+) => {
+  if (reg.cancelled) {
+    return GROUP_KEY_CANCELLED
+  }
+  return reg.group?.key ?? GROUP_KEY_RESERVE
+}
+
+export const canRefund = <T extends JsonRegistration | Registration>(
+  reg: Pick<T, 'cancelled' | 'group' | 'paidAmount' | 'refundAmount'>
+): boolean =>
+  (reg.paidAmount ?? 0) > (reg.refundAmount ?? 0) && REFUNDABLE_GROUP_KEYS.includes(getRegistrationGroupKey(reg))

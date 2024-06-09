@@ -6,11 +6,11 @@ import type { JsonRegistration, JsonRegistrationGroupInfo } from '../../types'
 import { metricScope } from 'aws-embedded-metrics'
 import { unescape } from 'querystring'
 
-import { sortRegistrationsByDateClassTimeAndNumber } from '../../lib/registration'
+import { getRegistrationGroupKey, GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE } from '../../lib/registration'
 import { CONFIG } from '../config'
 import { audit, registrationAuditKey } from '../lib/audit'
 import { authorize, getOrigin } from '../lib/auth'
-import { updateRegistrations } from '../lib/event'
+import { fixRegistrationGroups, saveGroup, updateRegistrations } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
 import { sendTemplatedEmailToEventRegistrations } from '../lib/registration'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
@@ -19,64 +19,6 @@ import { response } from '../utils/response'
 
 const { eventTable, registrationTable } = CONFIG
 export const dynamoDB = new CustomDynamoClient(registrationTable)
-
-const groupKey = <T extends JsonRegistration>(reg: T) => {
-  if (reg.cancelled) {
-    return 'cancelled'
-  }
-  return reg.group?.key ?? 'reserve'
-}
-
-const numberGroupKey = <T extends JsonRegistration>(reg: T) => {
-  const ct = reg.class ?? reg.eventType
-  if (reg.cancelled) {
-    return 'cancelled-' + ct
-  }
-  if (reg.group?.date) {
-    return 'participants' //`${reg.group?.date}-${ct}`
-  }
-  return 'reserve-' + ct
-}
-
-async function fixGroups<T extends JsonRegistration>(items: T[]): Promise<T[]> {
-  items.sort(sortRegistrationsByDateClassTimeAndNumber)
-
-  const grouped: Record<string, T[]> = {}
-  for (const item of items) {
-    const groupKey = numberGroupKey(item)
-    grouped[groupKey] = grouped[groupKey] || [] // make sure the array exists
-    grouped[groupKey].push(item)
-  }
-
-  for (const regs of Object.values(grouped)) {
-    for (let i = 0; i < regs.length; i++) {
-      const reg = regs[i]
-      const key = groupKey(reg)
-      const number = i + 1
-      if (reg.group?.key !== key || reg.group?.number !== number) {
-        reg.group = { ...reg.group, key, number }
-        await saveGroup(reg)
-      }
-    }
-  }
-
-  return items
-}
-
-async function saveGroup({ eventId, id, group }: JsonRegistrationGroupInfo) {
-  return dynamoDB.update(
-    { eventId, id },
-    'set #grp = :value, #cancelled = :cancelled',
-    {
-      '#grp': 'group',
-      '#cancelled': 'cancelled',
-    },
-    {
-      ':value': { ...group }, // https://stackoverflow.com/questions/37006008/typescript-index-signature-is-missing-in-type
-      ':cancelled': group?.key === 'cancelled',
-    }
-  )
-}
 
 const isParticipantGroup = (group?: string) => group && group !== 'reserve' && group !== 'cancelled'
 
@@ -120,7 +62,7 @@ const putRegistrationGroupsHandler = metricScope(
             ':eventId': eventId,
           })
         )?.filter((r) => r.state === 'ready')
-        const itemsWithGroups = await fixGroups(items ?? [])
+        const itemsWithGroups = await fixRegistrationGroups(items ?? [])
         const confirmedEvent = await updateRegistrations(eventId, eventTable)
         const { classes, entries } = confirmedEvent
         const cls = itemsWithGroups.find((item) => item.id === groups[0].id)?.class
@@ -137,7 +79,8 @@ const putRegistrationGroupsHandler = metricScope(
         }
 
         const oldResCan =
-          oldItems?.filter((reg) => reg.group?.key === 'reserve' || reg.group?.key === 'cancelled') ?? []
+          oldItems?.filter((reg) => [GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE].includes(getRegistrationGroupKey(reg))) ??
+          []
 
         const picked =
           confirmedEvent.state === 'picked' || (cls && classes.find((c) => c.class === cls && c.state === 'picked'))
@@ -185,12 +128,12 @@ const putRegistrationGroupsHandler = metricScope(
           const movedReserve = itemsWithGroups.filter(
             (reg) =>
               reg.class === cls &&
-              reg.group?.key === 'reserve' &&
+              getRegistrationGroupKey(reg) === GROUP_KEY_RESERVE &&
               reg.reserveNotified &&
               oldResCan.find(
                 (old) =>
                   old.id === reg.id &&
-                  old.group?.key === 'reserve' &&
+                  getRegistrationGroupKey(old) === GROUP_KEY_RESERVE &&
                   (old.group?.number ?? 999) > (reg.group?.number ?? 999)
               )
           )
@@ -198,7 +141,7 @@ const putRegistrationGroupsHandler = metricScope(
           console.log({ movedReserve })
 
           const { ok: reserveOk, failed: reserveFailed } = await sendTemplatedEmailToEventRegistrations(
-            'reserve',
+            GROUP_KEY_RESERVE,
             confirmedEvent,
             movedReserve,
             origin,
@@ -223,8 +166,8 @@ const putRegistrationGroupsHandler = metricScope(
         const cancelled = itemsWithGroups.filter(
           (reg) =>
             reg.class === cls &&
-            reg.group?.key === 'cancelled' &&
-            oldResCan.find((old) => old.id === reg.id && old.group?.key !== 'cancelled')
+            getRegistrationGroupKey(reg) === GROUP_KEY_CANCELLED &&
+            oldResCan.find((old) => old.id === reg.id && getRegistrationGroupKey(old) !== GROUP_KEY_CANCELLED)
         )
 
         console.log({ cancelled })
