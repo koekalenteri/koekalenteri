@@ -7,6 +7,7 @@ import { metricScope } from 'aws-embedded-metrics'
 import { unescape } from 'querystring'
 
 import { CONFIG } from '../config'
+import { authorize } from '../lib/auth'
 import { fixRegistrationGroups } from '../lib/event'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { metricsError, metricsSuccess } from '../utils/metrics'
@@ -18,6 +19,11 @@ const getRegistrationsHandler = metricScope(
   (metrics: MetricsLogger) =>
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
       try {
+        const user = await authorize(event)
+        if (!user) {
+          return response(401, 'Unauthorized', event)
+        }
+
         const eventId = unescape(event.pathParameters?.eventId ?? '')
         const allItems = await dynamoDB.query<JsonRegistration>('eventId = :eventId', {
           ':eventId': eventId,
