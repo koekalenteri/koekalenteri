@@ -65,10 +65,17 @@ const putRegistrationHandler = metricScope(
         })
 
         const alreadyRegistered = existingRegistrations?.find(
-          (r) => r.dog.regNo === registration.dog.regNo && r.id !== registration.id
+          (r) => r.dog.regNo === registration.dog.regNo && r.state === 'ready' && r.id !== registration.id
         )
         if (alreadyRegistered) {
-          return response(409, 'Conflict: Dog already registered to this event', event)
+          return response(
+            409,
+            {
+              message: 'Conflict: Dog already registered to this event',
+              cancelled: Boolean(alreadyRegistered.cancelled),
+            },
+            event
+          )
         }
 
         const data: JsonRegistration = { ...existing, ...registration }
