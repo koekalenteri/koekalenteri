@@ -6,8 +6,7 @@ import type { JsonDogEvent } from '../../types'
 import { metricScope } from 'aws-embedded-metrics'
 
 import { CONFIG } from '../config'
-import { authorize } from '../lib/auth'
-import { userIsMemberOf } from '../lib/user'
+import { authorizeWithMemberOf } from '../lib/auth'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { metricsError, metricsSuccess } from '../utils/metrics'
 import { response } from '../utils/response'
@@ -18,19 +17,9 @@ const getAdminEventsHandler = metricScope(
   (metrics: MetricsLogger) =>
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
       try {
-        const user = await authorize(event)
-        if (!user) {
-          return response(401, 'Unauthorized', event)
-        }
+        const { user, memberOf, res } = await authorizeWithMemberOf(event)
 
-        const memberOf = userIsMemberOf(user)
-        if (!memberOf.length && !user?.admin) {
-          console.error(`User ${user.id} is not admin or member of any organizations.`)
-          return response(403, 'Forbidden', event)
-        }
-
-        console.log(`User ${user.id} is member of ['${memberOf.join("', '")}'].`)
-
+        if (res) return res
         // @todo add index & use query to get relevant items
         const items = await dynamoDB.readAll<JsonDogEvent>()
         const allowed = items?.filter((item) => user.admin || memberOf.includes(item.organizer.id))

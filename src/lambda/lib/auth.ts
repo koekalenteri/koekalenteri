@@ -6,8 +6,9 @@ import { nanoid } from 'nanoid'
 
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
+import { response } from '../utils/response'
 
-import { findUserByEmail, updateUser } from './user'
+import { findUserByEmail, updateUser, userIsMemberOf } from './user'
 
 interface UserLink {
   cognitoUser: string
@@ -110,4 +111,21 @@ export function getOrigin(event?: Partial<APIGatewayProxyEvent>) {
 export async function getUsername(event: Partial<APIGatewayProxyEvent>) {
   const user = await getOrCreateUserFromEvent(event)
   return user?.name ?? 'anonymous'
+}
+
+export const authorizeWithMemberOf = async (event: APIGatewayProxyEvent) => {
+  const user = await authorize(event)
+  if (!user) {
+    return { res: response(401, 'Unauthorized', event) }
+  }
+
+  const memberOf = userIsMemberOf(user)
+  if (!memberOf.length && !user?.admin) {
+    console.error(`User ${user.id} is not admin or member of any organizations.`)
+    return { user, res: response(403, 'Forbidden', event) }
+  }
+
+  console.log(`User ${user.id} is member of ['${memberOf.join("', '")}'].`)
+
+  return { user, memberOf }
 }
