@@ -3,9 +3,11 @@ import type { Registration } from '../types'
 import { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
+import { enqueueSnackbar } from 'notistack'
 import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
 
-import { hasChanges } from '../lib/utils'
+import { APIError } from '../api/http'
+import { hasChanges, printContactInfo } from '../lib/utils'
 import { Path } from '../routeConfig'
 
 import LinkButton from './components/LinkButton'
@@ -55,9 +57,23 @@ export default function RegistrationCreatePage() {
       resetRegistration()
       navigate(Path.payment(saved))
     } catch (error) {
+      if (error instanceof APIError && error.status === 409) {
+        enqueueSnackbar(
+          t('registration.notifications.alreadyRegistered', {
+            reg: registration,
+            context: error.body?.cancelled && 'cancel',
+            contact: printContactInfo(event.contactInfo?.secretary),
+          }),
+          {
+            variant: 'info',
+            persist: true,
+          }
+        )
+        return
+      }
       console.error(error)
     }
-  }, [actions, event, navigate, registration, resetRegistration])
+  }, [actions, event, navigate, registration, resetRegistration, t])
 
   const handleCancel = useCallback(() => {
     resetRegistration()

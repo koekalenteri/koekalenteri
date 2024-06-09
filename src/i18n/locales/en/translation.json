@@ -232,6 +232,8 @@
     "modified_other": "Changes saved.\nConfirmation email was sent to:\n{{to}}",
     "notes": "Notes",
     "notifications": {
+      "alreadyRegistered": "Dog {{reg.dog.regNo}} {{reg.dog.name}} has already been registered to this event",
+      "alreadyRegistered_cancel": "The dog {{reg.dog.regNo}} {{reg.dog.name}} has already been registered for this event, and the registration has been canceled. Please contact the test secretary {{contact}} if you wish to re-register the dog for the event.",
       "paymentFailed": "Payment failed, please try again"
     },
     "owner": "Owner",

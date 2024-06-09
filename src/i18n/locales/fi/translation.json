@@ -311,6 +311,8 @@
     "modified_other": "Muutokset on tallennettu.\nVahvistus on lähetetty sähköpostiosoitteisiin:\n{{to}}",
     "notes": "Lisätiedot",
     "notifications": {
+      "alreadyRegistered": "Koira {{reg.dog.regNo}} {{reg.dog.name}} on jo ilmoitettu tähän tapahtumaan",
+      "alreadyRegistered_cancel": "Koira {{reg.dog.regNo}} {{reg.dog.name}} on jo ilmoitettu tähän tapahtumaan, ja ilmoittautuminen on peruttu. Ota yhteyttä koesihteeriin {{contact}}, jos haluat ilmoittaa koiran uudelleen tapahtumaan.",
       "paymentFailed": "Maksu epäonnistui, ole hyvä ja yritä uudelleen"
     },
     "owner": "Omistajan tiedot",
