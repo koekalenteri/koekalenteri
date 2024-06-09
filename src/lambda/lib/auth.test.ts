@@ -9,6 +9,7 @@ jest.unstable_mockModule('nanoid', () => ({ nanoid: () => 'test-id' }))
 jest.unstable_mockModule('../lib/user', () => ({
   findUserByEmail: jest.fn(),
   updateUser: jest.fn(),
+  userIsMemberOf: jest.fn(),
 }))
 
 const mockRead = jest.fn(async (): Promise<any> => undefined)
