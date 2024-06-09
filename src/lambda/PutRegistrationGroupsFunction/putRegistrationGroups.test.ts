@@ -49,6 +49,8 @@ const mockUser: JsonUser = {
 }
 
 describe('putRegistrationGroupsHandler', () => {
+  jest.spyOn(console, 'log').mockImplementation(() => undefined)
+
   afterEach(() => {
     mockSend.mockClear()
   })
