@@ -60,6 +60,17 @@ const putRegistrationHandler = metricScope(
           throw new Error(`Event of type "${registration.eventType}" not found with id "${registration.eventId}"`)
         }
 
+        const existingRegistrations = await dynamoDB.query<JsonRegistration>('eventId = :eventId', {
+          ':eventId': registration.eventId,
+        })
+
+        const alreadyRegistered = existingRegistrations?.find(
+          (r) => r.dog.regNo === registration.dog.regNo && r.id !== registration.id
+        )
+        if (alreadyRegistered) {
+          return response(409, 'Conflict: Dog already registered to this event', event)
+        }
+
         const data: JsonRegistration = { ...existing, ...registration }
         await dynamoDB.write(data)
 
