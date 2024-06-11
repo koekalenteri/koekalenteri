@@ -12,7 +12,7 @@ import { endOfDay, startOfDay, sub } from 'date-fns'
 import clamp from 'date-fns/clamp'
 import { enqueueSnackbar } from 'notistack'
 
-import { PRIORITY, priorityValuesToPriority } from '../../../../lib/priority'
+import { getPrioritySort, PRIORITY, priorityValuesToPriority } from '../../../../lib/priority'
 import AutocompleteMulti from '../../../components/AutocompleteMulti'
 import CollapsibleSection from '../../../components/CollapsibleSection'
 import DateRange from '../../../components/DateRange'
@@ -25,11 +25,16 @@ export interface Props extends Readonly<SectionProps> {
 }
 
 export default function EntrySection(props: Props) {
-  const { t } = useTranslation()
+  const { t } = useTranslation(['translation', 'breed'])
   const { disabled, event, eventTypeClasses, fields, helperTexts, onChange, onOpenChange, open } = props
+  const prioritySort = getPrioritySort(t)
   const error = helperTexts?.entryStartDate ?? helperTexts?.entryEndDate ?? helperTexts?.places
   const helperText = error ? t('validation.event.errors') : ''
-  const eventPriority = useMemo(() => priorityValuesToPriority(event.priority), [event.priority])
+  const eventPriority = useMemo(
+    () => priorityValuesToPriority(event.priority).sort(prioritySort),
+    [event.priority, prioritySort]
+  )
+  const sortedPriorities = useMemo(() => PRIORITY.slice().sort(prioritySort), [prioritySort])
 
   const handleDateChange = useCallback(
     (start: DateValue, end: DateValue) =>
@@ -107,10 +112,10 @@ export default function EntrySection(props: Props) {
             <AutocompleteMulti
               disabled={disabled}
               disablePortal
-              groupBy={(o) => o?.group ?? ''}
+              groupBy={(o) => t(o.group)}
               isOptionEqualToValue={(o, v) => o?.value === v?.value}
-              getOptionLabel={(o) => o?.name ?? ''}
-              options={PRIORITY}
+              getOptionLabel={(o) => t(o.name)}
+              options={sortedPriorities}
               onChange={handlePriorityChange}
               value={eventPriority}
               label={'Etusijat'}

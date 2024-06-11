@@ -162,7 +162,7 @@ exports[`RegistrationEventInfo does not render empty contact info 1`] = `
                           <span
                             class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
                           >
-                            Jäsenet
+                            priority.members
                           </span>
                         </div>
                       </div>
@@ -395,7 +395,7 @@ exports[`RegistrationEventInfo renders 1`] = `
                           <span
                             class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
                           >
-                            Jäsenet
+                            priority.members
                           </span>
                         </div>
                       </div>

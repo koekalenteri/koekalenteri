@@ -160,7 +160,7 @@ exports[`EventInfo should render contact info 1`] = `
         <span
           class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
         >
-          Jäsenet
+          priority.members
         </span>
       </div>
     </div>
@@ -338,7 +338,7 @@ exports[`EventInfo should render event information 1`] = `
         <span
           class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
         >
-          Jäsenet
+          priority.members
         </span>
       </div>
     </div>

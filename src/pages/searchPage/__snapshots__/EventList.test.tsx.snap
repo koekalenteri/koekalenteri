@@ -280,7 +280,7 @@ exports[`EventList should render 1`] = `
                   <span
                     class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
                   >
-                    Jäsenet
+                    priority.members
                   </span>
                 </div>
               </div>

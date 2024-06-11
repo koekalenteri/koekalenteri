@@ -2151,7 +2151,7 @@ exports[`EventForm should render 1`] = `
                                 <span
                                   class="MuiChip-label MuiChip-labelMedium css-6od3lo-MuiChip-label"
                                 >
-                                  Jäsenet
+                                  priority.members
                                 </span>
                                 <svg
                                   aria-hidden="true"

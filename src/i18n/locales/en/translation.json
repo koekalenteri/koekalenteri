@@ -105,6 +105,7 @@
     "official": "Chief officer",
     "organizer": "Organizer",
     "places": "Places",
+    "priority": "Priorities",
     "secretary": "Secretary",
     "startDate": "Starting date",
     "state": "State",
@@ -163,6 +164,15 @@
   "organizer": "Organizer",
   "paymentDetails": "Payment details",
   "places": "Places",
+  "priority": {
+    "members": "members",
+    "invited": "invited"
+  },
+  "priorityGroup": {
+    "breed": "Priority breeds",
+    "invited": "Dogs invited by the organizer",
+    "members": "Members of the organizing society"
+  },
   "register": "Register",
   "registration": {
     "breeder": "Breeder information",

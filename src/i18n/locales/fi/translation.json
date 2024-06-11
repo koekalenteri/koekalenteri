@@ -225,6 +225,15 @@
   },
   "paymentDetails": "Maksutiedot",
   "places": "Paikkoja",
+  "priority": {
+    "members": "jäsenet",
+    "invited": "kutsutut"
+  },
+  "priorityGroup": {
+    "breed": "Nimetyt rodut",
+    "invited": "Järjestäjän kutsumat koirat",
+    "members": "Järjestävän yhdistyksen jäsen"
+  },
   "refund": "Palauta maksu",
   "register": "Ilmoittaudu",
   "registration": {
