@@ -6,15 +6,12 @@ import { useTranslation } from 'react-i18next'
 import Dialog from '@mui/material/Dialog'
 import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
-import List from '@mui/material/List'
-import ListItem from '@mui/material/ListItem'
-import ListItemText from '@mui/material/ListItemText'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 
 import { hasChanges } from '../../../lib/utils'
-import CollapsibleSection from '../../components/CollapsibleSection'
 import RegistrationForm from '../../components/RegistrationForm'
+import { AuditTrail } from '../components/AuditTrail'
 import { useAdminRegistrationActions } from '../recoil/registrations/actions'
 
 interface Props {
@@ -122,20 +119,7 @@ export default function RegistrationDialogBase({
           onSave={handleSave}
           registration={registration}
         />
-        {auditTrail ? (
-          <CollapsibleSection title={`Audit trail (${auditTrail.length})`} initOpen={false}>
-            <List dense>
-              {auditTrail.map((at, i) => (
-                <ListItem key={i}>
-                  <ListItemText
-                    primary={`${t('dateFormat.long', { date: at.timestamp, defaultValue: '?' })} ${at.message}`}
-                    secondary={at.user}
-                  />
-                </ListItem>
-              ))}
-            </List>
-          </CollapsibleSection>
-        ) : null}
+        <AuditTrail auditTrail={auditTrail} />
       </DialogContent>
     </Dialog>
   )

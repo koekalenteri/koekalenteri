@@ -8,7 +8,6 @@ import { unescape } from 'querystring'
 
 import { getRegistrationGroupKey, GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE } from '../../lib/registration'
 import { CONFIG } from '../config'
-import { audit, registrationAuditKey } from '../lib/audit'
 import { authorize, getOrigin } from '../lib/auth'
 import { fixRegistrationGroups, saveGroup, updateRegistrations } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
@@ -49,12 +48,7 @@ const putRegistrationGroupsHandler = metricScope(
         )?.filter((r) => r.state === 'ready')
 
         for (const group of eventGroups) {
-          await saveGroup(group)
-          await audit({
-            auditKey: registrationAuditKey(group),
-            user: user.name,
-            message: `Ryhmä: ${group.group?.key} #${group.group?.number}`,
-          })
+          await saveGroup(group, user)
         }
 
         const items = (
@@ -62,7 +56,7 @@ const putRegistrationGroupsHandler = metricScope(
             ':eventId': eventId,
           })
         )?.filter((r) => r.state === 'ready')
-        const itemsWithGroups = await fixRegistrationGroups(items ?? [])
+        const itemsWithGroups = await fixRegistrationGroups(items ?? [], user)
         const confirmedEvent = await updateRegistrations(eventId, eventTable)
         const { classes, entries } = confirmedEvent
         const cls = itemsWithGroups.find((item) => item.id === groups[0].id)?.class

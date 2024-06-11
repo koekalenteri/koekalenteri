@@ -32,7 +32,7 @@ const getRegistrationsHandler = metricScope(
         // filter out registrations that are pending payment
         const items = allItems?.filter((item) => item.state === 'ready')
 
-        const itemsWithGroups = await fixRegistrationGroups(items ?? [])
+        const itemsWithGroups = await fixRegistrationGroups(items ?? [], user)
         metricsSuccess(metrics, event.requestContext, 'getRegistrations')
         return response(200, itemsWithGroups, event)
       } catch (err: unknown) {

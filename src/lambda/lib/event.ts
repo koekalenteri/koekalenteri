@@ -1,4 +1,10 @@
-import type { EventClassState, JsonConfirmedEvent, JsonRegistration, JsonRegistrationGroupInfo } from '../../types'
+import type {
+  EventClassState,
+  JsonConfirmedEvent,
+  JsonRegistration,
+  JsonRegistrationGroupInfo,
+  JsonUser,
+} from '../../types'
 
 import {
   getRegistrationGroupKey,
@@ -9,6 +15,8 @@ import {
 } from '../../lib/registration'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
+
+import { audit, registrationAuditKey } from './audit'
 
 const { eventTable, registrationTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(eventTable)
@@ -97,9 +105,10 @@ export const updateRegistrations = async (eventId: string, eventTable: string) =
   return confirmedEvent
 }
 
-export const saveGroup = ({ eventId, id, group }: JsonRegistrationGroupInfo) => {
-  return dynamoDB.update(
-    { eventId, id },
+export const saveGroup = async ({ eventId, id, group }: JsonRegistrationGroupInfo, user: JsonUser) => {
+  const registrationKey = { eventId, id }
+  dynamoDB.update(
+    registrationKey,
     'set #grp = :value, #cancelled = :cancelled',
     {
       '#grp': 'group',
@@ -111,9 +120,14 @@ export const saveGroup = ({ eventId, id, group }: JsonRegistrationGroupInfo) => 
     },
     registrationTable
   )
+  await audit({
+    auditKey: registrationAuditKey(registrationKey),
+    user: user.name,
+    message: `Ryhmä: ${group?.key} #${group?.number}`,
+  })
 }
 
-export const fixRegistrationGroups = async <T extends JsonRegistration>(items: T[]): Promise<T[]> => {
+export const fixRegistrationGroups = async <T extends JsonRegistration>(items: T[], user: JsonUser): Promise<T[]> => {
   items.sort(sortRegistrationsByDateClassTimeAndNumber)
 
   const numberingGroups: Record<string, T[]> = {}
@@ -130,7 +144,7 @@ export const fixRegistrationGroups = async <T extends JsonRegistration>(items: T
       const number = i + 1
       if (reg.group?.key !== key || reg.group?.number !== number) {
         reg.group = { ...reg.group, key, number }
-        await saveGroup(reg)
+        await saveGroup(reg, user)
       }
     }
   }
