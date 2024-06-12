@@ -11,12 +11,11 @@ import { i18n } from '../../i18n/lambda'
 import { CONFIG } from '../config'
 import { audit, registrationAuditKey } from '../lib/audit'
 import { getOrigin, getUsername } from '../lib/auth'
-import { sendTemplatedMail } from '../lib/email'
+import { emailTo, registrationEmailTemplateData, sendTemplatedMail } from '../lib/email'
 import { updateRegistrations } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { metricsError, metricsSuccess } from '../utils/metrics'
-import { emailTo, registrationEmailTemplateData } from '../utils/registration'
 import { response } from '../utils/response'
 
 const { emailFrom, eventTable, registrationTable } = CONFIG

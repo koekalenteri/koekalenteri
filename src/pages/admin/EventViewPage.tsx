@@ -84,13 +84,7 @@ export default function EventViewPage() {
   const handleCreateClose = useCallback(() => setCreateOpen(false), [])
   const handleDetailsClose = useCallback(() => setDetailsOpen(false), [])
   const handleRefundClose = useCallback(() => setRefundOpen(false), [])
-
-  function openMsgDlg() {
-    setMsgDlgOpen(true)
-  }
-  function closeMsgDlg() {
-    setMsgDlgOpen(false)
-  }
+  const closeMsgDlg = useCallback(() => setMsgDlgOpen(false), [])
 
   const handleOpenMsgDialog = (recipients: Registration[], templateId?: EmailTemplateId) => {
     setRecipientRegistrations(recipients)
@@ -124,7 +118,10 @@ export default function EventViewPage() {
           <Button startIcon={<FormatListBulleted />} onClick={() => setDetailsOpen(true)}>
             Näytä tapahtuman tiedot
           </Button>
-          <Button startIcon={<EmailOutlined />} onClick={openMsgDlg}>
+          <Button
+            startIcon={<EmailOutlined />}
+            onClick={() => handleOpenMsgDialog(selectedRegistration ? [selectedRegistration] : [])}
+          >
             Lähetä viesti
           </Button>
           <Divider orientation="vertical"></Divider>

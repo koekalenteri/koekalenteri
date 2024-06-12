@@ -1,6 +1,8 @@
 import type { DbRecord, Dog, JsonDbRecord, JsonDog, JsonTestResult, Language, Person, Replace, TestResult } from '.'
 
 export type RegistrationClass = 'ALO' | 'AVO' | 'VOI'
+export type RegistrationTemplateContext = '' | 'cancel' | 'confirm' | 'receipt' | 'update' | 'invitation' | 'refund'
+
 export interface JsonRegistration extends JsonDbRecord {
   agreeToTerms: boolean
   breeder: RegistrationBreeder

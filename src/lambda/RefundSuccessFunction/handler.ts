@@ -10,12 +10,11 @@ import { formatMoney } from '../../lib/money'
 import { getProviderName } from '../../lib/payment'
 import { CONFIG } from '../config'
 import { audit, registrationAuditKey } from '../lib/audit'
-import { sendTemplatedMail } from '../lib/email'
+import { registrationEmailTemplateData, sendTemplatedMail } from '../lib/email'
 import { debugProxyEvent } from '../lib/log'
 import { parseParams, updateTransactionStatus, verifyParams } from '../lib/payment'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { metricsError, metricsSuccess } from '../utils/metrics'
-import { registrationEmailTemplateData } from '../utils/registration'
 import { response } from '../utils/response'
 
 const { frontendURL, emailFrom, eventTable, registrationTable, transactionTable } = CONFIG

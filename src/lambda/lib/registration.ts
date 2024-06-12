@@ -1,14 +1,12 @@
-import type { EmailTemplateId, JsonConfirmedEvent, JsonRegistration } from '../../types'
-import type { RegistrationTemplateContext } from '../utils/registration'
+import type { EmailTemplateId, JsonConfirmedEvent, JsonRegistration, RegistrationTemplateContext } from '../../types'
 
 import { formatDate } from '../../i18n/dates'
 import { i18n } from '../../i18n/lambda'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
-import { emailTo, registrationEmailTemplateData } from '../utils/registration'
 
 import { audit, registrationAuditKey } from './audit'
-import { sendTemplatedMail } from './email'
+import { emailTo, registrationEmailTemplateData, sendTemplatedMail } from './email'
 
 const { emailFrom, registrationTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(registrationTable)
@@ -59,9 +57,9 @@ export const sendTemplatedEmailToEventRegistrations = async (
   const failed: string[] = []
   for (const registration of registrations) {
     const to = emailTo(registration)
-    const data = registrationEmailTemplateData(registration, confirmedEvent, origin, context)
+    const data = registrationEmailTemplateData(registration, confirmedEvent, origin, context, text)
     try {
-      await sendTemplatedMail(template, registration.language, emailFrom, to, { ...data, text })
+      await sendTemplatedMail(template, registration.language, emailFrom, to, data)
       ok.push(...to)
       audit({
         auditKey: registrationAuditKey(registration),

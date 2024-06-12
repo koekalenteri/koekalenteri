@@ -3,7 +3,6 @@ import type { DogEvent, EmailTemplate, EmailTemplateId, Language, Registration }
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import ArrowForwardIosSharp from '@mui/icons-material/ArrowForwardIosSharp'
-import CheckBox from '@mui/icons-material/CheckBox'
 import Accordion from '@mui/material/Accordion'
 import AccordionDetails from '@mui/material/AccordionDetails'
 import AccordionSummary from '@mui/material/AccordionSummary'
@@ -14,8 +13,6 @@ import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
 import FormControl from '@mui/material/FormControl'
-import FormControlLabel from '@mui/material/FormControlLabel'
-import FormGroup from '@mui/material/FormGroup'
 import FormLabel from '@mui/material/FormLabel'
 import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
@@ -31,8 +28,7 @@ import { useSnackbar } from 'notistack'
 import { useRecoilValue, useSetRecoilState } from 'recoil'
 
 import { sendTemplatedEmail } from '../../../api/email'
-import { formatDateSpan } from '../../../i18n/dates'
-import { Path } from '../../../routeConfig'
+import { useRegistrationEmailTemplateData } from '../../../hooks/useRegistrationEmailTemplateData'
 import { AsyncButton } from '../../components/AsyncButton'
 import AutocompleteSingle from '../../components/AutocompleteSingle'
 import { idTokenAtom } from '../../recoil'
@@ -86,7 +82,7 @@ export default function SendMessageDialog({ event, registrations, templateId, op
   }, [compiledTemplate, compiledSubject, previewData])
 
   const handleSend = useCallback(async () => {
-    if (!templateId) {
+    if (!selectedTemplate) {
       return
     }
     try {
@@ -95,7 +91,8 @@ export default function SendMessageDialog({ event, registrations, templateId, op
           title: 'Viestin lähettäminen',
           content: (
             <div>
-              Olet lähettämässä viestiä {t(`emailTemplate.${templateId}`)} {registrations.length} ilmoittautumiseen.
+              Olet lähettämässä viestiä {t(`emailTemplate.${selectedTemplate.id}`)} {registrations.length}{' '}
+              ilmoittautumiseen.
               <br />
               Oletko varma, että haluat lähettää viestin?
             </div>
@@ -104,6 +101,7 @@ export default function SendMessageDialog({ event, registrations, templateId, op
           cancellationText: t('cancel'),
         })
       } catch (e) {
+        console.error(e)
         return // cancelled
       }
 
@@ -114,7 +112,7 @@ export default function SendMessageDialog({ event, registrations, templateId, op
         classes = event.classes,
       } = await sendTemplatedEmail(
         {
-          template: templateId,
+          template: selectedTemplate.id,
           eventId: event.id,
           registrationIds: registrations.map<string>((r) => r.id),
           text,
@@ -139,7 +137,7 @@ export default function SendMessageDialog({ event, registrations, templateId, op
       enqueueSnackbar('Viestin lähetys epäonnistui 💩', { variant: 'error' })
       console.log(error)
     }
-  }, [confirm, enqueueSnackbar, event, onClose, registrations, setEvent, t, templateId, text, token])
+  }, [confirm, enqueueSnackbar, event, onClose, registrations, selectedTemplate, setEvent, t, text, token])
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="lg">
@@ -188,6 +186,7 @@ export default function SendMessageDialog({ event, registrations, templateId, op
 
             <Paper sx={{ width: '100%', p: 1, bgcolor: 'background.form' }}>
               <AutocompleteSingle
+                disabled={!!templateId}
                 getOptionLabel={(o) => (o ? t(`emailTemplate.${o.id}`) : '')}
                 isOptionEqualToValue={(o, v) => o?.id === v?.id}
                 options={templates}
@@ -195,13 +194,15 @@ export default function SendMessageDialog({ event, registrations, templateId, op
                 label={'Viestin tyyppi'}
                 value={selectedTemplate}
               />
-              <FormControl component="fieldset" sx={{ my: 1 }}>
+              {/*
+              <FormControl component="fieldset" sx={{ my: 1 }} disabled>
                 <FormLabel component="legend">Yhteystiedot:</FormLabel>
                 <FormGroup sx={{ mx: 2, my: 1 }}>
                   <FormControlLabel control={<CheckBox name="official" />} label={t('event.official')} />
                   <FormControlLabel control={<CheckBox name="secretary" />} label={t('event.secretary')} />
                 </FormGroup>
               </FormControl>
+              */}
               <FormControl component="fieldset" fullWidth>
                 <FormLabel component="legend">Voit lisätä tähän halutessasi lisäviestin:</FormLabel>
                 <TextField fullWidth multiline rows={4} value={text} onChange={(e) => setText(e.target.value)} />
@@ -234,49 +235,4 @@ function listEmails(r: Registration): string {
     return r.owner.email
   }
   return [r.owner.email, r.handler.email].join(', ')
-}
-
-function useRegistrationEmailTemplateData(registration: Registration, event: DogEvent, context: string, text: string) {
-  const { t } = useTranslation()
-
-  if (!registration || !event) {
-    return {}
-  }
-
-  const eventDate = formatDateSpan(event.startDate, registration.language, { end: event.endDate })
-  const reserveText = registration.reserve ? t(`registration.reserveChoises.${registration.reserve}`) : ''
-  const dogBreed = registration.dog.breedCode ? t(`breed:${registration.dog.breedCode}`, 'breed') : ''
-  const regDates = registration.dates
-    .map((d) => t('dateFormat.short', { date: d.date }) + (d.time ? ' ' + t(`registration.time.${d.time}`) : ''))
-    .join(', ')
-  const link = Path.registration(registration)
-  const qualifyingResults = registration.qualifyingResults.map((r) => ({
-    ...r,
-    date: t('dateFormat.date', { date: r.date }),
-  }))
-  const groupDate = registration.group?.date ? t('dateFormat.wdshort', { date: registration.group.date }) : ''
-  const groupTime = registration.group?.time ? t(`registration.timeLong.${registration.group.time}`) : ''
-  const invitationLink = Path.invitation(registration)
-
-  return {
-    subject: t('registration.email.subject', { context, defaultValue: '' }),
-    title: t('registration.email.title', { context, defaultValue: '' }),
-    dogBreed,
-    link,
-    event,
-    eventDate,
-    invitationLink,
-    qualifyingResults,
-    reg: registration,
-    regDates,
-    reserveText,
-    groupDate,
-    groupTime,
-    text,
-  }
-}
-
-function reverseName(name: string) {
-  const [last = '', first = ''] = name.split(' ')
-  return `${first} ${last}`.trim()
 }

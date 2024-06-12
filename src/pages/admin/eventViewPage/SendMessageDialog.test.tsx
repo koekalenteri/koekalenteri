@@ -1,6 +1,9 @@
 import type { ReactNode } from 'react'
 import type { Registration } from '../../../types'
 
+import { ThemeProvider } from '@mui/material'
+import { LocalizationProvider } from '@mui/x-date-pickers'
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { render } from '@testing-library/react'
 import { ConfirmProvider } from 'material-ui-confirm'
 import { SnackbarProvider } from 'notistack'
@@ -8,19 +11,25 @@ import { RecoilRoot } from 'recoil'
 
 import { eventWithStaticDates } from '../../../__mockData__/events'
 import { registrationWithStaticDates, registrationWithStaticDatesCancelled } from '../../../__mockData__/registrations'
+import theme from '../../../assets/Theme'
+import { locales } from '../../../i18n'
 import { flushPromises } from '../../../test-utils/utils'
 
 import SendMessageDialog from './SendMessageDialog'
 
 jest.mock('../../../api/email')
 
-function Wrapper(props: { readonly children?: ReactNode }) {
+const Wrapper = ({ children }: { readonly children: ReactNode }) => {
   return (
-    <RecoilRoot>
-      <SnackbarProvider>
-        <ConfirmProvider>{props.children}</ConfirmProvider>
-      </SnackbarProvider>
-    </RecoilRoot>
+    <ThemeProvider theme={theme}>
+      <RecoilRoot>
+        <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
+          <SnackbarProvider>
+            <ConfirmProvider>{children}</ConfirmProvider>
+          </SnackbarProvider>
+        </LocalizationProvider>
+      </RecoilRoot>
+    </ThemeProvider>
   )
 }
 
