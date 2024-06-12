@@ -19,12 +19,13 @@ import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import Tabs from '@mui/material/Tabs'
 import Typography from '@mui/material/Typography'
-import { useRecoilValue } from 'recoil'
+import { useRecoilValue, useSetRecoilState } from 'recoil'
 
 import { putInvitationAttachment } from '../../../api/event'
 import useAdminEventRegistrationInfo from '../../../hooks/useAdminEventRegistrationsInfo'
 import { API_BASE_URL } from '../../../routeConfig'
 import { idTokenAtom } from '../../recoil'
+import { adminEventSelector } from '../recoil'
 
 interface Props {
   readonly event: DogEvent
@@ -35,6 +36,7 @@ interface Props {
 const InfoPanel = ({ event, registrations, onOpenMessageDialog }: Props) => {
   const token = useRecoilValue(idTokenAtom)
   const [attachmentKey, setAttachmentKey] = useState(event.invitationAttachment)
+  const setEvent = useSetRecoilState(adminEventSelector(event.id))
   const [expanded, setExpanded] = useState(true)
   const [tab, setTab] = useState(0)
   const { reserveByClass, numbersByClass, selectedByClass, stateByClass } = useAdminEventRegistrationInfo(
@@ -53,8 +55,9 @@ const InfoPanel = ({ event, registrations, onOpenMessageDialog }: Props) => {
       if (!e.target.files) return
       const fileKey = await putInvitationAttachment(event.id, e.target.files[0], token)
       setAttachmentKey(fileKey)
+      setEvent({ ...event, invitationAttachment: fileKey })
     },
-    [event, token]
+    [event, setEvent, token]
   )
 
   return (
