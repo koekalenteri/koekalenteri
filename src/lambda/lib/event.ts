@@ -111,7 +111,7 @@ export const saveGroup = async (
   reason: string = ''
 ) => {
   const registrationKey = { eventId, id }
-  dynamoDB.update(
+  await dynamoDB.update(
     registrationKey,
     'set #grp = :value, #cancelled = :cancelled',
     {
