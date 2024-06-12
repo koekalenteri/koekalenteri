@@ -48,7 +48,8 @@ const putRegistrationGroupsHandler = metricScope(
         )?.filter((r) => r.state === 'ready')
 
         for (const group of eventGroups) {
-          await saveGroup(group, user, '(siirto)')
+          const oldGroup = oldItems?.find((r) => r.id === group.id)?.group
+          await saveGroup(group, oldGroup, user, '(siirto)')
         }
 
         const items = (

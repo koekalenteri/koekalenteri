@@ -107,11 +107,11 @@ export const updateRegistrations = async (eventId: string, eventTable: string) =
 
 export const saveGroup = async (
   { eventId, id, group }: JsonRegistrationGroupInfo,
+  previous: JsonRegistrationGroupInfo['group'],
   user: JsonUser,
   reason: string = ''
 ) => {
   const registrationKey = { eventId, id }
-  const before = await dynamoDB.read<JsonRegistration>(registrationKey)
   await dynamoDB.update(
     registrationKey,
     'set #grp = :value, #cancelled = :cancelled',
@@ -125,11 +125,11 @@ export const saveGroup = async (
     },
     registrationTable
   )
+  const oldGroupInfo = previous ? `${previous.key} #${previous.number} -> ` : ''
   await audit({
     auditKey: registrationAuditKey(registrationKey),
     user: user.name,
-    message:
-      `Ryhmä: ${before?.group?.key} #${before?.group?.number} -> ${group?.key} #${group?.number} ${reason}`.trim(),
+    message: `Ryhmä: ${oldGroupInfo}${group?.key} #${group?.number} ${reason}`.trim(),
   })
 }
 
@@ -149,8 +149,9 @@ export const fixRegistrationGroups = async <T extends JsonRegistration>(items: T
       const key = getRegistrationGroupKey(reg)
       const number = i + 1
       if (reg.group?.key !== key || reg.group?.number !== number) {
+        const oldGroup = reg.group
         reg.group = { ...reg.group, key, number }
-        await saveGroup(reg, user, '(seuraus)')
+        await saveGroup(reg, oldGroup, user, '(seuraus)')
       }
     }
   }
