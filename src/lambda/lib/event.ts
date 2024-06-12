@@ -133,7 +133,11 @@ export const saveGroup = async (
   })
 }
 
-export const fixRegistrationGroups = async <T extends JsonRegistration>(items: T[], user: JsonUser): Promise<T[]> => {
+export const fixRegistrationGroups = async <T extends JsonRegistration>(
+  items: T[],
+  user: JsonUser,
+  save: boolean = true
+): Promise<T[]> => {
   items.sort(sortRegistrationsByDateClassTimeAndNumber)
 
   const numberingGroups: Record<string, T[]> = {}
@@ -151,7 +155,9 @@ export const fixRegistrationGroups = async <T extends JsonRegistration>(items: T
       if (reg.group?.key !== key || reg.group?.number !== number) {
         const oldGroup = reg.group
         reg.group = { ...reg.group, key, number }
-        await saveGroup(reg, oldGroup, user, '(seuraus)')
+        if (save) {
+          await saveGroup(reg, oldGroup, user, '(seuraus)')
+        }
       }
     }
   }

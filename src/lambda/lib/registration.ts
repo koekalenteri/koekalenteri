@@ -13,18 +13,6 @@ import { sendTemplatedMail } from './email'
 const { emailFrom, registrationTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(registrationTable)
 
-const setLastEmail = async ({ eventId, id }: JsonRegistration, value: string) =>
-  dynamoDB.update(
-    { eventId, id },
-    'set #field = :value',
-    {
-      '#field': 'lastEmail',
-    },
-    {
-      ':value': value,
-    }
-  )
-
 export const updateRegistrationField = async <F extends keyof JsonRegistration>(
   eventId: JsonRegistration['eventId'],
   id: JsonRegistration['id'],
@@ -41,6 +29,12 @@ export const updateRegistrationField = async <F extends keyof JsonRegistration>(
       ':value': value,
     }
   )
+
+const setLastEmail = async (reg: JsonRegistration, value: string) => {
+  // update the in-memory object too
+  reg.lastEmail = value
+  return updateRegistrationField(reg.eventId, reg.id, 'lastEmail', value)
+}
 
 export const setReserveNotified = async (registrations: JsonRegistration[]) =>
   Promise.all(

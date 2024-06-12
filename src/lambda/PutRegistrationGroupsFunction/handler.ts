@@ -41,23 +41,43 @@ const putRegistrationGroupsHandler = metricScope(
 
         const eventGroups = groups.filter((g) => g.eventId === eventId)
 
-        const oldItems = (
-          await dynamoDB.query<JsonRegistration>('eventId = :eventId', {
-            ':eventId': eventId,
-          })
-        )?.filter((r) => r.state === 'ready')
+        const oldItems =
+          (
+            await dynamoDB.query<JsonRegistration>('eventId = :eventId', {
+              ':eventId': eventId,
+            })
+          )?.filter((r) => r.state === 'ready') ?? []
 
+        // create a new copy of oldItems, so we can update without touching the original ones
+        const updatedItems = oldItems.map((r) => ({ ...r }))
+
+        // update the items in memory first
         for (const group of eventGroups) {
-          const oldGroup = oldItems?.find((r) => r.id === group.id)?.group
-          await saveGroup(group, oldGroup, user, '(siirto)')
+          const reg = updatedItems.find((r) => r.id === group.id)
+          if (reg) Object.assign(reg, group)
         }
 
+        // fix numbering etc, because client might provide outdated / out of bounds info, but do not update db
+        fixRegistrationGroups(updatedItems, user, false)
+
+        // finally save those that were requested to be saved and actually changed
+        for (const group of eventGroups) {
+          const reg = updatedItems.find((r) => r.id === group.id)
+          const oldGroup = oldItems.find((r) => r.id === group.id)?.group
+          if (reg && (reg.group?.key !== oldGroup?.key || reg.group?.number !== oldGroup?.number)) {
+            await saveGroup(reg, oldGroup, user, '(siirto)')
+          }
+        }
+
+        // load fresh list of registrations (should equal to updatedItems, but better be safe)
         const items = (
           await dynamoDB.query<JsonRegistration>('eventId = :eventId', {
             ':eventId': eventId,
           })
         )?.filter((r) => r.state === 'ready')
         const itemsWithGroups = await fixRegistrationGroups(items ?? [], user)
+
+        // update event counts
         const confirmedEvent = await updateRegistrations(eventId, eventTable)
         const { classes, entries } = confirmedEvent
         const cls = itemsWithGroups.find((item) => item.id === groups[0].id)?.class
@@ -82,7 +102,18 @@ const putRegistrationGroupsHandler = metricScope(
         const invited =
           confirmedEvent.state === 'invited' || (cls && classes.find((c) => c.class === cls && c.state === 'invited'))
 
-        console.log({ state: confirmedEvent.state, cls, classes, picked, invited, oldItems, items })
+        const regString = (r: JsonRegistration) =>
+          `${r.group?.key}/${r.group?.number} ${r.id} ${r.dog.regNo}  ${r.dog.name} ${r.handler.name}`
+
+        console.log({
+          state: confirmedEvent.state,
+          cls,
+          classes,
+          picked,
+          invited,
+          oldItems: oldItems.map(regString),
+          items: items?.map(regString),
+        })
 
         if (picked || invited) {
           /**
@@ -93,7 +124,9 @@ const putRegistrationGroupsHandler = metricScope(
               reg.class === cls && isParticipantGroup(reg.group?.key) && oldResCan.find((old) => old.id === reg.id)
           )
 
-          console.log({ newParticipants })
+          console.log({
+            newParticipants: newParticipants.map(regString),
+          })
 
           const { ok: pickedOk, failed: pickedFailed } = await sendTemplatedEmailToEventRegistrations(
             'picked',
@@ -133,7 +166,7 @@ const putRegistrationGroupsHandler = metricScope(
               )
           )
 
-          console.log({ movedReserve })
+          console.log({ movedReserve: movedReserve.map(regString) })
 
           const { ok: reserveOk, failed: reserveFailed } = await sendTemplatedEmailToEventRegistrations(
             GROUP_KEY_RESERVE,
@@ -165,7 +198,7 @@ const putRegistrationGroupsHandler = metricScope(
             oldResCan.find((old) => old.id === reg.id && getRegistrationGroupKey(old) !== GROUP_KEY_CANCELLED)
         )
 
-        console.log({ cancelled })
+        console.log({ cancelled: cancelled.map(regString) })
 
         const { ok: cancelledOk, failed: cancelledFailed } = await sendTemplatedEmailToEventRegistrations(
           'registration',
