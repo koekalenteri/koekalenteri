@@ -110,7 +110,7 @@ const excludeByYear = (result: Partial<TestResult>, date: Date) => result.date &
 
 export function validateDog(
   event: { eventType: string; startDate: Date },
-  reg: { class?: string; dog?: Dog; results?: Partial<TestResult>[] }
+  reg: { class?: Registration['class']; dog?: Dog; results?: Partial<TestResult>[] }
 ): WideValidationResult<Registration, 'registration'> {
   const dog = reg.dog
   if (!dog?.regNo || !dog?.name || !dog?.rfid || !dog.dam?.name || !dog.sire?.name) {
@@ -148,7 +148,7 @@ export type RelevantResults = { relevant: QualifyingResult[]; qualifies: boolean
 const byDate = (a: TestResult, b: TestResult) => new Date(a.date).valueOf() - new Date(b.date).valueOf()
 export function filterRelevantResults(
   { eventType, startDate }: { eventType: string; startDate: Date },
-  regClass: RegistrationClass | undefined,
+  regClass: Registration['class'],
   officialResults?: TestResult[],
   manualResults?: Partial<TestResult>[]
 ): RelevantResults {
@@ -166,7 +166,8 @@ export function filterRelevantResults(
   if (check.qualifies && check.relevant.length) {
     const officialNotThisYear = officialResults?.filter((r) => !excludeByYear(r, startDate))
     const manulNotThisYear = manualValid?.filter((r) => !excludeByYear(r, startDate))
-    const dis = nextClass && checkRequiredResults(nextClassRules, officialNotThisYear, manulNotThisYear, false)
+    const dis =
+      nextClass && checkRequiredResults(nextClassRules ?? undefined, officialNotThisYear, manulNotThisYear, false)
     if (dis?.qualifies) {
       return {
         relevant: check.relevant.concat(dis.relevant).sort(byDate),
@@ -183,7 +184,7 @@ function findDisqualifyingResult(
   officialResults: TestResult[] | undefined,
   manualResults: Partial<TestResult>[] | undefined,
   eventType: string,
-  nextClass?: RegistrationClass
+  nextClass?: Registration['class']
 ): RelevantResults | undefined {
   const compare = (r: Partial<TestResult>) =>
     r.type === eventType && ((r.class && r.class === nextClass) || r.result === 'NOU1')
@@ -243,7 +244,7 @@ function checkRequiredResults(
 
 function bestResults(
   eventType: string,
-  regClass: string | undefined,
+  regClass: Registration['class'],
   officialResults: TestResult[] | undefined,
   manualResults: Partial<TestResult>[] | undefined
 ): QualifyingResult[] {

@@ -76,7 +76,7 @@ export const uniqueClassDates = (event: PublicDogEvent, cls: string) =>
     ? eventDates(event)
     : uniqueDate(event.classes.filter((c) => c.class === cls).map((c) => c.date ?? event.startDate))
 
-export const registrationDates = (event: PublicDogEvent, times: RegistrationTime[], cls?: string) =>
+export const registrationDates = (event: PublicDogEvent, times: RegistrationTime[], cls?: string | null) =>
   (cls ? uniqueClassDates(event, cls) : eventDates(event)).flatMap<RegistrationDate>((date) =>
     times.map((time) => ({ date, time }))
   )

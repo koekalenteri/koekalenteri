@@ -476,6 +476,19 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                   class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
                 />
               </button>
+              <button
+                aria-selected="false"
+                class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary css-1aiw5ei-MuiButtonBase-root-MuiTab-root"
+                id="tab-AVO"
+                role="tab"
+                tabindex="-1"
+                type="button"
+              >
+                AVO
+                <span
+                  class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                />
+              </button>
             </div>
             <span
               class="MuiTabs-indicator css-snoo6i-MuiTabs-indicator"
@@ -4335,6 +4348,10 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
             </div>
           </div>
         </div>
+        <div
+          role="tabpanel"
+          style="width: 100%; min-height: 400px; display: none;"
+        />
       </div>
     </div>
   </div>

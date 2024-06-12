@@ -53,7 +53,10 @@ export default function EventViewPage() {
   const [selectedRegistrationId, setSelectedRegistrationId] = useRecoilState(adminRegistrationIdAtom)
   const allRegistrations = useRecoilValue(adminEventRegistrationsAtom(eventId))
   const registrations = useMemo(
-    () => allRegistrations.filter((r) => r.class === selectedEventClass || r.eventType === selectedEventClass),
+    () =>
+      allRegistrations.filter(
+        (r) => r.class === selectedEventClass || (!r.class && r.eventType === selectedEventClass)
+      ),
     [allRegistrations, selectedEventClass]
   )
   const selectedRegistration = useMemo(
@@ -62,18 +65,19 @@ export default function EventViewPage() {
   )
   const [recipientRegistrations, setRecipientRegistrations] = useState<Registration[]>([])
   const [messageTemplateId, setMessageTemplateId] = useState<EmailTemplateId>()
-  const { eventClasses, stateByClass } = useAdminEventRegistrationInfo(event, allRegistrations)
+  const { eventClasses, stateByClass, missingClasses } = useAdminEventRegistrationInfo(event, allRegistrations)
+  const allClasses = useMemo(() => eventClasses.concat(missingClasses), [eventClasses, missingClasses])
 
   const activeTab = useMemo(
-    () => Math.max(eventClasses.findIndex((c) => c === selectedEventClass) ?? 0, 0),
-    [eventClasses, selectedEventClass]
+    () => Math.max(allClasses.findIndex((c) => c === selectedEventClass) ?? 0, 0),
+    [allClasses, selectedEventClass]
   )
 
   const handleTabChange = useCallback(
     (_: React.SyntheticEvent, newValue: number) => {
-      setSelectedEventClass(eventClasses[newValue])
+      setSelectedEventClass(allClasses[newValue])
     },
-    [eventClasses, setSelectedEventClass]
+    [allClasses, setSelectedEventClass]
   )
 
   const handleClose = useCallback(() => setOpen(false), [])
@@ -95,10 +99,10 @@ export default function EventViewPage() {
   }
 
   useEffect(() => {
-    if (selectedEventClass && !eventClasses.includes(selectedEventClass)) {
-      setSelectedEventClass(eventClasses[0])
+    if (selectedEventClass && !allClasses.includes(selectedEventClass)) {
+      setSelectedEventClass(allClasses[0])
     }
-  }, [eventClasses, selectedEventClass, setSelectedEventClass])
+  }, [allClasses, selectedEventClass, setSelectedEventClass])
 
   if (!event) {
     return <>duh</>
@@ -149,11 +153,15 @@ export default function EventViewPage() {
 
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
           <Tabs value={activeTab} onChange={handleTabChange}>
-            {eventClasses.map((eventClass) => (
+            {allClasses.map((eventClass) => (
               <Tab
                 key={`tab-${eventClass}`}
                 id={`tab-${eventClass}`}
-                sx={{ borderLeft: '1px solid', borderLeftColor: 'divider' }}
+                sx={{
+                  borderLeft: '1px solid',
+                  borderLeftColor: 'divider',
+                  bgcolor: missingClasses.includes(eventClass) ? 'error.light' : undefined,
+                }}
                 label={eventClass}
               ></Tab>
             ))}
@@ -169,7 +177,7 @@ export default function EventViewPage() {
             height: '100%',
           }}
         >
-          {eventClasses.map((eventClass, index) => (
+          {allClasses.map((eventClass, index) => (
             <TabPanel key={`tabPanel-${eventClass}`} index={index} activeTab={activeTab}>
               <ClassEntrySelection
                 event={event}
@@ -196,7 +204,11 @@ export default function EventViewPage() {
       <Suspense>
         <RegistrationCreateDialog
           event={event}
-          eventClass={isRegistrationClass(selectedEventClass) ? selectedEventClass : undefined}
+          eventClass={
+            isRegistrationClass(selectedEventClass) && eventClasses.includes(selectedEventClass)
+              ? selectedEventClass
+              : undefined
+          }
           onClose={handleCreateClose}
           open={createOpen}
         />

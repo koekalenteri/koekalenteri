@@ -2,7 +2,6 @@ import type { Resetter, SetterOrUpdater } from 'recoil'
 import type { AuditRecord, ConfirmedEvent, DogEvent, Registration } from '../../../types'
 
 import { useCallback, useMemo } from 'react'
-import { useTranslation } from 'react-i18next'
 import Dialog from '@mui/material/Dialog'
 import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
@@ -39,7 +38,6 @@ export default function RegistrationDialogBase({
   resetRegistration,
   setRegistration,
 }: Props) {
-  const { t } = useTranslation()
   const actions = useAdminRegistrationActions(event.id)
 
   const handleChange = useCallback(

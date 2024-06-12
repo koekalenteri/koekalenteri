@@ -6,7 +6,7 @@ export interface JsonRegistration extends JsonDbRecord {
   breeder: RegistrationBreeder
   cancelled?: boolean
   cancelReason?: string
-  class?: RegistrationClass
+  class?: RegistrationClass | null
   confirmed?: boolean
   dates: JsonRegistrationDate[]
   dog: JsonDog

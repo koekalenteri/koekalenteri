@@ -41,7 +41,7 @@ export default function RegistrationCreatePage() {
         setRegistration(newState)
 
         if (params.class && params.class !== newState.class) {
-          navigate(Path.register(event, newState.class))
+          navigate(Path.register(event, newState.class ?? undefined))
         }
       }
     },

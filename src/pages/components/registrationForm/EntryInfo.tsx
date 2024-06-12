@@ -92,15 +92,15 @@ export function EntryInfo({
 
   useEffect(() => {
     const changes: Partial<Registration> = {}
-    let newClass: string | undefined | null = null
+    let newClass: string | undefined | null = undefined
     if (className && reg.class !== className) {
       newClass = className
     } else if (reg.class && !classes.includes(reg.class)) {
-      newClass = classes.length > 0 ? classes[0] : undefined
+      newClass = classes.length > 0 ? classes[0] : null
     } else if (!reg.class && classes.length) {
       newClass = classes[0]
     }
-    if (isRegistrationClass(newClass) || newClass === undefined) {
+    if (isRegistrationClass(newClass) || newClass === null) {
       changes.class = newClass
     }
 
@@ -161,7 +161,7 @@ export function EntryInfo({
             label={t('registration.class')}
             onChange={handleClassChange}
             options={classes}
-            value={reg.class}
+            value={reg.class ?? undefined}
           />
         </Grid>
         <Grid item xs={12} md={sizeSwitch ? 6 : 4}>

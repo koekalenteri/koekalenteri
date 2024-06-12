@@ -38,6 +38,11 @@ export default function useAdminEventRegistrationInfo(event: DogEvent | undefine
     return classes
   }, [event])
 
+  const missingClasses = useMemo(
+    () => Object.keys(reserveByClass).filter((c) => !eventClasses.includes(c)),
+    [eventClasses, reserveByClass]
+  )
+
   const numbersByClass = useMemo(() => {
     const result: { [key: string]: EventClassInfoNumbers } = {}
     for (const c of eventClasses) {
@@ -84,5 +89,5 @@ export default function useAdminEventRegistrationInfo(event: DogEvent | undefine
     return byClass
   }, [event])
 
-  return { dates, eventClasses, reserveByClass, numbersByClass, selectedByClass, stateByClass }
+  return { dates, eventClasses, missingClasses, reserveByClass, numbersByClass, selectedByClass, stateByClass }
 }

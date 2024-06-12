@@ -1,4 +1,4 @@
-import type { RegistrationClass, TestResult } from './types'
+import type { Registration, TestResult } from './types'
 
 import { parseISO } from 'date-fns'
 
@@ -53,7 +53,7 @@ export function getRuleDate(date: Date | string, available: RuleDate[] = Object.
   return available[available.length - 1]
 }
 
-export function getRequirements(eventType: string, regClass: RegistrationClass | undefined, date: Date) {
+export function getRequirements(eventType: string, regClass: Registration['class'], date: Date) {
   const eventRequirements = REQUIREMENTS[eventType] || {}
   const classRequirements = regClass && (eventRequirements as EventClassRequirement)[regClass]
   const requirements = classRequirements ?? (eventRequirements as EventRequirement)
