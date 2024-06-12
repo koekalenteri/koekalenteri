@@ -774,11 +774,11 @@ Resources:
             TableName: !Ref UserTable
         - DynamoDBReadPolicy:
             TableName: !Ref UserLinkTable
-        - DynamoDBReadPolicy:
+        - DynamoDBCrudPolicy:
             TableName: !Ref AuditTable
         - CloudWatchPutMetricPolicy: {}
       Events:
-        GetRegistration:
+        GetRegistrations:
           Type: Api
           Properties:
             Path: /admin/registration/{eventId}
