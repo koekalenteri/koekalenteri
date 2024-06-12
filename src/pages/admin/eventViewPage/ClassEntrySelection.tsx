@@ -183,6 +183,10 @@ const ClassEntrySelection = ({
     } else if (item.targetGroupKey) {
       const pos = (item.targetIndex ?? 0) + (item.position === 'before' ? 0 : 1)
       newGroup.number = regs[pos]?.group?.number ?? 0
+      // moved as last, set number to last + 1
+      if (item.position === 'after' && pos > 0 && newGroup.number === 0) {
+        newGroup.number = (regs[regs.length - 1]?.group?.number ?? 0) + 1
+      }
       regs.splice(pos, 0, reg)
       save.push({ eventId: reg.eventId, id: reg.id, group: newGroup })
 
