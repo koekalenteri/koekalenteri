@@ -18,6 +18,8 @@ import { flushPromises } from '../../../test-utils/utils'
 import SendMessageDialog from './SendMessageDialog'
 
 jest.mock('../../../api/email')
+jest.mock('../../../api/event')
+jest.mock('../../../api/registration')
 
 const Wrapper = ({ children }: { readonly children: ReactNode }) => {
   return (

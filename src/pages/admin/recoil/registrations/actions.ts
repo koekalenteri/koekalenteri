@@ -43,6 +43,16 @@ export const useAdminRegistrationActions = (eventId: string) => {
       return saved
     },
 
+    update(updated: Registration[]) {
+      const regs = [...adminRegistrations]
+      for (const reg of updated) {
+        const index = regs.findIndex((r) => r.id === reg.id)
+        const insert = index === -1
+        regs.splice(insert ? regs.length : index, insert ? 0 : 1, reg)
+      }
+      setAdminRegistrations([...regs])
+    },
+
     async saveGroups(eventId: string, groups: RegistrationGroupInfo[]) {
       try {
         if (!token) throw new Error('missing token')

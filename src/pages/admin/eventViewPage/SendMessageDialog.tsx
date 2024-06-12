@@ -33,6 +33,7 @@ import { AsyncButton } from '../../components/AsyncButton'
 import AutocompleteSingle from '../../components/AutocompleteSingle'
 import { idTokenAtom } from '../../recoil'
 import { adminEmailTemplatesAtom, adminEventSelector } from '../recoil'
+import { useAdminRegistrationActions } from '../recoil/registrations/actions'
 
 interface Props {
   readonly registrations: Registration[]
@@ -49,6 +50,7 @@ export default function SendMessageDialog({ event, registrations, templateId, op
   const [text, setText] = useState('')
   const token = useRecoilValue(idTokenAtom)
   const templates = useRecoilValue(adminEmailTemplatesAtom)
+  const actions = useAdminRegistrationActions(event.id)
   const setEvent = useSetRecoilState(adminEventSelector(event.id))
   const [selectedTemplate, setSelectedTemplate] = useState<EmailTemplate | undefined>(
     templates.find((t) => t.id === templateId)
@@ -110,6 +112,7 @@ export default function SendMessageDialog({ event, registrations, templateId, op
         failed = [],
         state = event.state,
         classes = event.classes,
+        registrations: updatedRegistrations,
       } = await sendTemplatedEmail(
         {
           template: selectedTemplate.id,
@@ -132,12 +135,13 @@ export default function SendMessageDialog({ event, registrations, templateId, op
         })
       }
       setEvent({ ...event, state, classes })
+      actions.update(updatedRegistrations)
       onClose?.()
     } catch (error) {
       enqueueSnackbar('Viestin lähetys epäonnistui 💩', { variant: 'error' })
       console.log(error)
     }
-  }, [confirm, enqueueSnackbar, event, onClose, registrations, selectedTemplate, setEvent, t, text, token])
+  }, [actions, confirm, enqueueSnackbar, event, onClose, registrations, selectedTemplate, setEvent, t, text, token])
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="lg">
