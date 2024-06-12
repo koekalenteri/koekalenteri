@@ -76,7 +76,7 @@ export interface JsonRegistrationWithGroup extends JsonRegistration {
 }
 
 export interface JsonPublicRegistration {
-  class?: string
+  class?: string | null
   cancelled?: boolean
   dog: JsonDog
   group: JsonRegistrationGroup

@@ -47,7 +47,7 @@ export const StartListPage = () => {
   }
 
   let lastDate: Date | undefined
-  let lastClass: string | undefined
+  let lastClass: PublicRegistration['class']
   let lastTime: string | undefined
   let index = 0
 

@@ -4,6 +4,7 @@ import type {
   JsonRegistration,
   JsonRegistrationGroupInfo,
   JsonUser,
+  Registration,
 } from '../../types'
 
 import {
@@ -24,7 +25,7 @@ const dynamoDB = new CustomDynamoClient(eventTable)
 export const markParticipants = async (
   confirmedEvent: JsonConfirmedEvent,
   state: EventClassState,
-  eventClass?: string
+  eventClass?: Registration['class']
 ) => {
   const eventKey = { id: confirmedEvent.id }
   let allInvited = true
