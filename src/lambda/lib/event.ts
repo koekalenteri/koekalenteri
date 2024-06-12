@@ -111,6 +111,7 @@ export const saveGroup = async (
   reason: string = ''
 ) => {
   const registrationKey = { eventId, id }
+  const before = await dynamoDB.read<JsonRegistration>(registrationKey)
   await dynamoDB.update(
     registrationKey,
     'set #grp = :value, #cancelled = :cancelled',
@@ -127,7 +128,8 @@ export const saveGroup = async (
   await audit({
     auditKey: registrationAuditKey(registrationKey),
     user: user.name,
-    message: `Ryhmä: ${group?.key} #${group?.number} ${reason}`.trim(),
+    message:
+      `Ryhmä: ${before?.group?.key} #${before?.group?.number} -> ${group?.key} #${group?.number} ${reason}`.trim(),
   })
 }
 
