@@ -84,15 +84,27 @@ describe('putRegistrationGroupsHandler', () => {
     // stored registrations after update
     mockDynamoDB.query.mockResolvedValueOnce(updated)
 
-    // event
-    mockDynamoDB.read.mockResolvedValueOnce(event)
+    mockDynamoDB.read.mockImplementation(
+      async <T extends object>(key: Record<string, string | number | undefined> | null) => {
+        if (key && key.eventId)
+          return registrationsToEventWithParticipantsInvited.find(
+            (r) => r.eventId === key.eventId && r.id === key.id
+          ) as T | undefined
+
+        if (key && key.id === event.id) return event as T
+
+        console.error('not handled', key)
+        // return event
+        return undefined
+      }
+    )
 
     const res = await putRegistrationGroupsHandler(
       constructAPIGwEvent(
         [
           { eventId: 'testInvited', id: updated[6].id, group: updated[6].group, cancelled: false },
         ] as JsonRegistrationGroupInfo[],
-        { pathParameters: { eventId: 'testInvited' } }
+        { pathParameters: { eventId: event.id } }
       )
     )
 
@@ -111,6 +123,21 @@ describe('putRegistrationGroupsHandler', () => {
     // stored registrations before update
     mockDynamoDB.query.mockResolvedValueOnce(registrationsToEventWithParticipantsInvited)
 
+    mockDynamoDB.read.mockImplementation(
+      async <T extends object>(key: Record<string, string | number | undefined> | null) => {
+        if (key && key.eventId)
+          return registrationsToEventWithParticipantsInvited.find(
+            (r) => r.eventId === key.eventId && r.id === key.id
+          ) as T | undefined
+
+        if (key && key.id === event.id) return event as T
+
+        console.error('not handled', key)
+        // return event
+        return undefined
+      }
+    )
+
     const updated = registrationsToEventWithParticipantsInvited.map((r) => ({
       ...r,
       reserveNotified: r.group?.key === 'reserve' ? true : undefined,
@@ -122,15 +149,12 @@ describe('putRegistrationGroupsHandler', () => {
     // stored registrations after update
     mockDynamoDB.query.mockResolvedValueOnce(updated)
 
-    // event
-    mockDynamoDB.read.mockResolvedValueOnce(event)
-
     const res = await putRegistrationGroupsHandler(
       constructAPIGwEvent(
         [
           { eventId: 'testInvited', id: updated[6].id, group: updated[6].group, cancelled: false },
         ] as JsonRegistrationGroupInfo[],
-        { pathParameters: { eventId: 'testInvited' } }
+        { pathParameters: { eventId: event.id } }
       )
     )
 
@@ -151,6 +175,21 @@ describe('putRegistrationGroupsHandler', () => {
     // stored registrations before update
     mockDynamoDB.query.mockResolvedValueOnce(registrationsToEventWithALOInvited)
 
+    mockDynamoDB.read.mockImplementation(
+      async <T extends object>(key: Record<string, string | number | undefined> | null) => {
+        if (key && key.eventId)
+          return registrationsToEventWithParticipantsInvited.find(
+            (r) => r.eventId === key.eventId && r.id === key.id
+          ) as T | undefined
+
+        if (key && key.id === event.id) return event as T
+
+        console.error('not handled', key)
+        // return event
+        return undefined
+      }
+    )
+
     const updated = registrationsToEventWithALOInvited.map((r) => ({
       ...r,
       group:
@@ -164,14 +203,14 @@ describe('putRegistrationGroupsHandler', () => {
     mockDynamoDB.query.mockResolvedValueOnce(updated)
 
     // event
-    mockDynamoDB.read.mockResolvedValueOnce(event)
+    // mockDynamoDB.read.mockResolvedValueOnce(event)
 
     const res = await putRegistrationGroupsHandler(
       constructAPIGwEvent(
         [
-          { eventId: 'testInvited', id: updated[6].id, group: updated[6].group, cancelled: false },
+          { eventId: event.id, id: updated[6].id, group: updated[6].group, cancelled: false },
         ] as JsonRegistrationGroupInfo[],
-        { pathParameters: { eventId: 'testInvited' } }
+        { pathParameters: { eventId: event.id } }
       )
     )
 
