@@ -70,7 +70,7 @@ const sendMessagesHandler = metricScope((metrics: MetricsLogger) => async (event
 
     metricsSuccess(metrics, event.requestContext, 'sendMessageHandler')
     const { state, classes } = confirmedEvent
-    return response(200, { ok, failed, classes, state }, event)
+    return response(200, { ok, failed, classes, state, registrations }, event)
   } catch (err) {
     console.error(err)
     if (err instanceof Error) {
