@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "@aws-amplify/ui-react": "^6.1.12",
-    "@mui/icons-material": "^5.15.19",
+    "@mui/icons-material": "^5.15.20",
     "@mui/material": "^5.15.19",
     "@mui/x-data-grid": "^7.6.2",
     "@mui/x-date-pickers": "^7.6.2",
