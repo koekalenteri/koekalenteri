@@ -68,7 +68,7 @@ exports[`RegistrationForm renders 1`] = `
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-1ypbpkt-MuiGrid-root"
                     >
                       <div
-                        class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-5r88sx-MuiAutocomplete-root"
+                        class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-fzem9i-MuiAutocomplete-root"
                         data-testid="registration.class"
                       >
                         <div
@@ -144,7 +144,7 @@ exports[`RegistrationForm renders 1`] = `
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-11eerce-MuiGrid-root"
                     >
                       <div
-                        class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-5r88sx-MuiAutocomplete-root"
+                        class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-fzem9i-MuiAutocomplete-root"
                         data-testid="registration.reserve"
                       >
                         <div
@@ -227,7 +227,7 @@ exports[`RegistrationForm renders 1`] = `
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-11eerce-MuiGrid-root"
                     >
                       <div
-                        class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasClearIcon MuiAutocomplete-hasPopupIcon css-i48e2f-MuiAutocomplete-root"
+                        class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasClearIcon MuiAutocomplete-hasPopupIcon css-1um6vq2-MuiAutocomplete-root"
                         data-testid="registration.datesFilter"
                       >
                         <div
@@ -355,7 +355,7 @@ exports[`RegistrationForm renders 1`] = `
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-11eerce-MuiGrid-root"
                     >
                       <div
-                        class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasClearIcon MuiAutocomplete-hasPopupIcon css-i48e2f-MuiAutocomplete-root"
+                        class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasClearIcon MuiAutocomplete-hasPopupIcon css-1um6vq2-MuiAutocomplete-root"
                         data-testid="registration.dates"
                       >
                         <div
@@ -552,7 +552,7 @@ exports[`RegistrationForm renders 1`] = `
                           class="MuiBox-root css-70qvj9"
                         >
                           <div
-                            class="MuiAutocomplete-root MuiAutocomplete-hasClearIcon css-9x1m3z-MuiAutocomplete-root"
+                            class="MuiAutocomplete-root MuiAutocomplete-hasClearIcon css-lyc8p5-MuiAutocomplete-root"
                           >
                             <div
                               class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
@@ -860,7 +860,7 @@ exports[`RegistrationForm renders 1`] = `
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-6 MuiGrid-grid-sm-3 MuiGrid-grid-lg-3 css-1gdqftf-MuiGrid-root"
                     >
                       <div
-                        class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon fact css-5r88sx-MuiAutocomplete-root"
+                        class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon fact css-fzem9i-MuiAutocomplete-root"
                         data-testid="dog.gender"
                       >
                         <div
@@ -935,7 +935,7 @@ exports[`RegistrationForm renders 1`] = `
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-wfcdf7-MuiGrid-root"
                     >
                       <div
-                        class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon fact css-5r88sx-MuiAutocomplete-root"
+                        class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon fact css-fzem9i-MuiAutocomplete-root"
                         data-testid="dog.breed"
                       >
                         <div
@@ -2541,7 +2541,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-1ypbpkt-MuiGrid-root"
                     >
                       <div
-                        class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-5r88sx-MuiAutocomplete-root"
+                        class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-fzem9i-MuiAutocomplete-root"
                         data-testid="registration.class"
                       >
                         <div
@@ -2617,7 +2617,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-11eerce-MuiGrid-root"
                     >
                       <div
-                        class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-5r88sx-MuiAutocomplete-root"
+                        class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-fzem9i-MuiAutocomplete-root"
                         data-testid="registration.reserve"
                       >
                         <div
@@ -2700,7 +2700,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-11eerce-MuiGrid-root"
                     >
                       <div
-                        class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasClearIcon MuiAutocomplete-hasPopupIcon css-i48e2f-MuiAutocomplete-root"
+                        class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasClearIcon MuiAutocomplete-hasPopupIcon css-1um6vq2-MuiAutocomplete-root"
                         data-testid="registration.datesFilter"
                       >
                         <div
@@ -2828,7 +2828,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-11eerce-MuiGrid-root"
                     >
                       <div
-                        class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasClearIcon MuiAutocomplete-hasPopupIcon css-i48e2f-MuiAutocomplete-root"
+                        class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasClearIcon MuiAutocomplete-hasPopupIcon css-1um6vq2-MuiAutocomplete-root"
                         data-testid="registration.dates"
                       >
                         <div
@@ -3025,7 +3025,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                           class="MuiBox-root css-70qvj9"
                         >
                           <div
-                            class="MuiAutocomplete-root MuiAutocomplete-hasClearIcon css-9x1m3z-MuiAutocomplete-root"
+                            class="MuiAutocomplete-root MuiAutocomplete-hasClearIcon css-lyc8p5-MuiAutocomplete-root"
                           >
                             <div
                               class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
@@ -3332,7 +3332,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-6 MuiGrid-grid-sm-3 MuiGrid-grid-lg-3 css-1gdqftf-MuiGrid-root"
                     >
                       <div
-                        class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-5r88sx-MuiAutocomplete-root"
+                        class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-fzem9i-MuiAutocomplete-root"
                         data-testid="dog.gender"
                       >
                         <div
@@ -3407,7 +3407,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-wfcdf7-MuiGrid-root"
                     >
                       <div
-                        class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-5r88sx-MuiAutocomplete-root"
+                        class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-fzem9i-MuiAutocomplete-root"
                         data-testid="dog.breed"
                       >
                         <div

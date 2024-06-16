@@ -9,7 +9,7 @@ exports[`EventForm should render 1`] = `
       class="MuiBox-root css-hpgf8j"
     >
       <div
-        class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-e0pd4x-MuiAutocomplete-root"
+        class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-vl10t1-MuiAutocomplete-root"
         data-testid="event.state"
       >
         <div
@@ -320,7 +320,7 @@ exports[`EventForm should render 1`] = `
                         class="MuiGrid-root MuiGrid-item css-1tz4rhg-MuiGrid-root"
                       >
                         <div
-                          class="MuiAutocomplete-root css-1j0qgw8-MuiAutocomplete-root"
+                          class="MuiAutocomplete-root css-ka7ti6-MuiAutocomplete-root"
                         >
                           <div
                             class="MuiBox-root css-91p3uw"
@@ -398,7 +398,7 @@ exports[`EventForm should render 1`] = `
                         class="MuiGrid-root MuiGrid-item css-17sva53-MuiGrid-root"
                       >
                         <div
-                          class="MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-1j0qgw8-MuiAutocomplete-root"
+                          class="MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-ka7ti6-MuiAutocomplete-root"
                         >
                           <div
                             class="MuiBox-root css-91p3uw"
@@ -506,7 +506,7 @@ exports[`EventForm should render 1`] = `
                         class="MuiGrid-root MuiGrid-item css-15ghomv-MuiGrid-root"
                       >
                         <div
-                          class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-i48e2f-MuiAutocomplete-root"
+                          class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1um6vq2-MuiAutocomplete-root"
                         >
                           <div
                             class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
@@ -670,7 +670,7 @@ exports[`EventForm should render 1`] = `
                         class="MuiGrid-root MuiGrid-item css-15ghomv-MuiGrid-root"
                       >
                         <div
-                          class="MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-1j0qgw8-MuiAutocomplete-root"
+                          class="MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-ka7ti6-MuiAutocomplete-root"
                         >
                           <div
                             class="MuiBox-root css-91p3uw"
@@ -778,7 +778,7 @@ exports[`EventForm should render 1`] = `
                         class="MuiGrid-root MuiGrid-item css-17sva53-MuiGrid-root"
                       >
                         <div
-                          class="MuiAutocomplete-root css-1j0qgw8-MuiAutocomplete-root"
+                          class="MuiAutocomplete-root css-ka7ti6-MuiAutocomplete-root"
                         >
                           <div
                             class="MuiBox-root css-91p3uw"
@@ -866,7 +866,7 @@ exports[`EventForm should render 1`] = `
                         class="MuiGrid-root MuiGrid-item css-twodqs-MuiGrid-root"
                       >
                         <div
-                          class="MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-1j0qgw8-MuiAutocomplete-root"
+                          class="MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-ka7ti6-MuiAutocomplete-root"
                         >
                           <div
                             class="MuiBox-root css-91p3uw"
@@ -974,7 +974,7 @@ exports[`EventForm should render 1`] = `
                         class="MuiGrid-root MuiGrid-item css-twodqs-MuiGrid-root"
                       >
                         <div
-                          class="MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-1j0qgw8-MuiAutocomplete-root"
+                          class="MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-ka7ti6-MuiAutocomplete-root"
                         >
                           <div
                             class="MuiBox-root css-91p3uw"
@@ -1188,7 +1188,7 @@ exports[`EventForm should render 1`] = `
                         class="MuiGrid-root MuiGrid-item css-17sva53-MuiGrid-root"
                       >
                         <div
-                          class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-i48e2f-MuiAutocomplete-root"
+                          class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1um6vq2-MuiAutocomplete-root"
                         >
                           <div
                             class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
@@ -1262,7 +1262,7 @@ exports[`EventForm should render 1`] = `
                         class="MuiGrid-root MuiGrid-item css-wxwn3y-MuiGrid-root"
                       >
                         <div
-                          class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-5r88sx-MuiAutocomplete-root"
+                          class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-fzem9i-MuiAutocomplete-root"
                           data-testid="Maa"
                         >
                           <div
@@ -1682,7 +1682,7 @@ exports[`EventForm should render 1`] = `
                               ALO
                             </div>
                             <div
-                              class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasClearIcon MuiAutocomplete-hasPopupIcon css-i48e2f-MuiAutocomplete-root"
+                              class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasClearIcon MuiAutocomplete-hasPopupIcon css-1um6vq2-MuiAutocomplete-root"
                               data-testid="registration.dates"
                             >
                               <div
@@ -2125,7 +2125,7 @@ exports[`EventForm should render 1`] = `
                         class="MuiGrid-root MuiGrid-item css-9q39ia-MuiGrid-root"
                       >
                         <div
-                          class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-i48e2f-MuiAutocomplete-root"
+                          class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1um6vq2-MuiAutocomplete-root"
                           data-testid="Etusijat"
                         >
                           <div
@@ -2288,7 +2288,7 @@ exports[`EventForm should render 1`] = `
                         class="MuiGrid-root MuiGrid-item css-wxwn3y-MuiGrid-root"
                       >
                         <div
-                          class="MuiAutocomplete-root css-1j0qgw8-MuiAutocomplete-root"
+                          class="MuiAutocomplete-root css-ka7ti6-MuiAutocomplete-root"
                         >
                           <div
                             class="MuiBox-root css-91p3uw"
@@ -2381,7 +2381,7 @@ exports[`EventForm should render 1`] = `
                         class="MuiGrid-root MuiGrid-item css-wxwn3y-MuiGrid-root"
                       >
                         <div
-                          class="MuiAutocomplete-root css-1j0qgw8-MuiAutocomplete-root"
+                          class="MuiAutocomplete-root css-ka7ti6-MuiAutocomplete-root"
                         >
                           <div
                             class="MuiBox-root css-91p3uw"

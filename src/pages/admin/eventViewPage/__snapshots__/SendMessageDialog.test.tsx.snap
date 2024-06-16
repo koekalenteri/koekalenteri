@@ -151,7 +151,7 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
                 class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 css-72p3bc-MuiPaper-root"
               >
                 <div
-                  class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-5r88sx-MuiAutocomplete-root"
+                  class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-fzem9i-MuiAutocomplete-root"
                   data-testid="Viestin tyyppi"
                 >
                   <div
@@ -819,7 +819,7 @@ exports[`SendMessageDialog renders with minimal parameters 1`] = `
                 class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 css-72p3bc-MuiPaper-root"
               >
                 <div
-                  class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-5r88sx-MuiAutocomplete-root"
+                  class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-fzem9i-MuiAutocomplete-root"
                   data-testid="Viestin tyyppi"
                 >
                   <div
