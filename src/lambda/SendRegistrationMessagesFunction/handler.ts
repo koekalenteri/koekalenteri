@@ -27,7 +27,7 @@ const sendMessagesHandler = metricScope((metrics: MetricsLogger) => async (event
       return response(401, 'Unauthorized', event)
     }
     const message: RegistrationMessage = parseJSONWithFallback(event.body)
-    const { template, eventId, registrationIds, text } = message
+    const { template, eventId, contactInfo, registrationIds, text } = message
 
     const eventRegistrations = (
       await dynamoDB.query<JsonRegistration>('eventId = :eventId', { ':eventId': eventId })
@@ -48,7 +48,7 @@ const sendMessagesHandler = metricScope((metrics: MetricsLogger) => async (event
 
     const { ok, failed } = await sendTemplatedEmailToEventRegistrations(
       template,
-      confirmedEvent,
+      { ...confirmedEvent, contactInfo },
       registrations,
       origin,
       text,

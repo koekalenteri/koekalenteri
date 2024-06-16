@@ -3,16 +3,20 @@ import type { DogEvent, EmailTemplate, EmailTemplateId, Language, Registration }
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import ArrowForwardIosSharp from '@mui/icons-material/ArrowForwardIosSharp'
+import { styled } from '@mui/material'
 import Accordion from '@mui/material/Accordion'
 import AccordionDetails from '@mui/material/AccordionDetails'
 import AccordionSummary from '@mui/material/AccordionSummary'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
+import Checkbox from '@mui/material/Checkbox'
 import Dialog from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
 import FormControl from '@mui/material/FormControl'
+import FormControlLabel from '@mui/material/FormControlLabel'
+import FormGroup from '@mui/material/FormGroup'
 import FormLabel from '@mui/material/FormLabel'
 import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
@@ -43,10 +47,15 @@ interface Props {
   readonly onClose?: () => void
 }
 
+const CONTACT_INFO_GROUPS = ['secretary', 'official'] as const
+const CONTACT_INFO_PROPS = ['name', 'email', 'phone'] as const
+const ContactInfoCheckbox = styled(Checkbox)({ paddingTop: 0, paddingBottom: 0 })
+
 export default function SendMessageDialog({ event, registrations, templateId, open, onClose }: Props) {
   const confirm = useConfirm()
   const { i18n, t } = useTranslation()
   const { enqueueSnackbar } = useSnackbar()
+  const [contactInfo, setContactInfo] = useState(event.contactInfo)
   const [text, setText] = useState('')
   const token = useRecoilValue(idTokenAtom)
   const templates = useRecoilValue(adminEmailTemplatesAtom)
@@ -62,7 +71,7 @@ export default function SendMessageDialog({ event, registrations, templateId, op
     }
     return [Handlebars.compile(ses.HtmlPart), Handlebars.compile(ses.SubjectPart)]
   }, [i18n.language, selectedTemplate?.ses])
-  const previewData = useRegistrationEmailTemplateData(registrations[0], event, '', text)
+  const previewData = useRegistrationEmailTemplateData(registrations[0], { ...event, contactInfo }, '', text)
 
   useEffect(() => {
     if (templateId && templates?.length) {
@@ -117,6 +126,7 @@ export default function SendMessageDialog({ event, registrations, templateId, op
         {
           template: selectedTemplate.id,
           eventId: event.id,
+          contactInfo,
           registrationIds: registrations.map<string>((r) => r.id),
           text,
         },
@@ -141,7 +151,20 @@ export default function SendMessageDialog({ event, registrations, templateId, op
       enqueueSnackbar('Viestin lähetys epäonnistui 💩', { variant: 'error' })
       console.log(error)
     }
-  }, [actions, confirm, enqueueSnackbar, event, onClose, registrations, selectedTemplate, setEvent, t, text, token])
+  }, [
+    actions,
+    confirm,
+    contactInfo,
+    enqueueSnackbar,
+    event,
+    onClose,
+    registrations,
+    selectedTemplate,
+    setEvent,
+    t,
+    text,
+    token,
+  ])
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="lg">
@@ -198,18 +221,36 @@ export default function SendMessageDialog({ event, registrations, templateId, op
                 label={'Viestin tyyppi'}
                 value={selectedTemplate}
               />
-              {/*
-              <FormControl component="fieldset" sx={{ my: 1 }} disabled>
-                <FormLabel component="legend">Yhteystiedot:</FormLabel>
-                <FormGroup sx={{ mx: 2, my: 1 }}>
-                  <FormControlLabel control={<CheckBox name="official" />} label={t('event.official')} />
-                  <FormControlLabel control={<CheckBox name="secretary" />} label={t('event.secretary')} />
-                </FormGroup>
-              </FormControl>
-              */}
               <FormControl component="fieldset" fullWidth>
                 <FormLabel component="legend">Voit lisätä tähän halutessasi lisäviestin:</FormLabel>
                 <TextField fullWidth multiline rows={4} value={text} onChange={(e) => setText(e.target.value)} />
+              </FormControl>
+              <FormControl component="fieldset" sx={{ my: 1 }}>
+                <FormLabel component="legend">Yhteystiedot:</FormLabel>
+                <FormGroup sx={{ mx: 2, my: 1 }}>
+                  {CONTACT_INFO_GROUPS.map((group) => (
+                    <div key={`${group}`}>
+                      <FormLabel component="legend">{t(`event.${group}`)}</FormLabel>
+                      <FormGroup sx={{ mx: 2, my: 0 }} row>
+                        {CONTACT_INFO_PROPS.map((prop) => (
+                          <FormControlLabel
+                            key={`${group}.${prop}`}
+                            control={<ContactInfoCheckbox name={`${group}.${prop}`} />}
+                            label={t(`contact.${prop}`)}
+                            checked={Boolean(contactInfo?.[group]?.[prop])}
+                            disabled={!event?.[group]?.[prop]}
+                            onChange={(e, checked) =>
+                              setContactInfo((old) => ({
+                                ...old,
+                                [group]: { ...old?.[group], [prop]: checked ? event?.[group]?.[prop] : undefined },
+                              }))
+                            }
+                          />
+                        ))}
+                      </FormGroup>
+                    </div>
+                  ))}
+                </FormGroup>
               </FormControl>
             </Paper>
           </Box>
