@@ -242,7 +242,13 @@ export default function SendMessageDialog({ event, registrations, templateId, op
                             onChange={(e, checked) =>
                               setContactInfo((old) => ({
                                 ...old,
-                                [group]: { ...old?.[group], [prop]: checked ? event?.[group]?.[prop] : undefined },
+                                [group]: {
+                                  ...old?.[group],
+                                  [prop]: checked
+                                    ? // prefer contactInfo from event, fall back to actual contact info
+                                      event?.contactInfo?.[group]?.[prop] ?? event?.[group]?.[prop]
+                                    : undefined,
+                                },
                               }))
                             }
                           />
