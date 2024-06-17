@@ -1,6 +1,6 @@
 import type { Theme } from '@mui/material'
 import type { TFunction } from 'i18next'
-import type { DeepPartial, PublicConfirmedEvent, Registration, TestResult } from '../../types'
+import type { DeepPartial, Language, PublicConfirmedEvent, Registration, TestResult } from '../../types'
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
@@ -79,7 +79,7 @@ export default function RegistrationForm({
   onSave,
   registration,
 }: Props) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const large = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
   const [errors, setErrors] = useState(validateRegistration(registration, event))
   const [open, setOpen] = useState<{ [key: string]: boolean | undefined }>({})
@@ -182,6 +182,13 @@ export default function RegistrationForm({
       handleChange({ qualifies: filtered.qualifies, qualifyingResults: filtered.relevant })
     }
   }, [event, handleChange, registration])
+
+  useEffect(() => {
+    // update language on new registrations
+    if (!registration.id && i18n.language !== registration.language) {
+      handleChange?.({ language: i18n.language as Language })
+    }
+  }, [i18n.language, handleChange, registration.language, registration.id])
 
   return (
     <Paper

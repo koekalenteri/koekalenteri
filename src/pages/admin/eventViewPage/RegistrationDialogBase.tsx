@@ -102,8 +102,7 @@ export default function RegistrationDialogBase({
     >
       <DialogTitle id="reg-dialog-title">
         <Stack direction="row" justifyContent="space-between" alignItems="center">
-          {title}
-          <Typography variant="caption">{registration.id}</Typography>
+          {title} ({registration.language})<Typography variant="caption">{registration.id}</Typography>
         </Stack>
       </DialogTitle>
       <DialogContent dividers sx={{ height: '100%', p: 0 }}>
