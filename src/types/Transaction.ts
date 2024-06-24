@@ -12,6 +12,7 @@ export interface JsonTransaction {
   provider?: string
   createdAt: string
   statusAt?: string
+  user?: string
 }
 
 export interface Transaction extends Omit<JsonTransaction, 'createdAt' | 'statusAt'> {

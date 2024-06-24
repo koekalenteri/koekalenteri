@@ -99,7 +99,7 @@ const paymentSuccess = metricScope(
             audit({
               auditKey: registrationAuditKey(registration),
               message: `Maksu (${getProviderName(provider)}), ${formatMoney(amount)}`,
-              user: registration.createdBy,
+              user: transaction.user ?? 'anonymous',
             })
 
             // send confirmation message

@@ -65,7 +65,7 @@ const paymentVerify = metricScope(
             audit({
               auditKey: registrationAuditKey(registration),
               message: `Maksu epäonnistui (${getProviderName(provider)}), ${formatMoney(transaction.amount / 100)}`,
-              user: registration.createdBy,
+              user: transaction.user ?? 'anonymous',
             })
           }
         }

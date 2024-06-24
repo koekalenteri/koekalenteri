@@ -1,6 +1,6 @@
 import type { MetricsLogger } from 'aws-embedded-metrics'
 import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
-import type { JsonRegistration, JsonTransaction } from '../../types'
+import type { JsonRefundTransaction, JsonRegistration } from '../../types'
 import type { PaytrailCallbackParams } from '../types/paytrail'
 
 import { metricScope } from 'aws-embedded-metrics'
@@ -31,7 +31,7 @@ const refundCancel = metricScope(
       try {
         await verifyParams(params)
 
-        const transaction = await dynamoDB.read<JsonTransaction>({ transactionId })
+        const transaction = await dynamoDB.read<JsonRefundTransaction>({ transactionId })
         if (!transaction) throw new Error(`Transaction with id '${transactionId}' was not found`)
 
         if (transaction.status !== 'fail') {
@@ -61,7 +61,7 @@ const refundCancel = metricScope(
           audit({
             auditKey: registrationAuditKey(registration),
             message: `Palautus epäonnistui (${transaction.provider}), ${formatMoney(transaction.amount / 100)}`,
-            user: registration.createdBy,
+            user: transaction.user,
           })
         } else {
           console.log(`Transaction '${transactionId}' already marked as failed`)

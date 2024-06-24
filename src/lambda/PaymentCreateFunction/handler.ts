@@ -13,7 +13,7 @@ import { metricScope } from 'aws-embedded-metrics'
 import { nanoid } from 'nanoid'
 
 import { CONFIG } from '../config'
-import { getOrigin } from '../lib/auth'
+import { authorize, getOrigin } from '../lib/auth'
 import { parseJSONWithFallback } from '../lib/json'
 import { debugProxyEvent } from '../lib/log'
 import { paymentDescription } from '../lib/payment'
@@ -112,6 +112,7 @@ const paymentCreate = metricScope(
           return response<undefined>(500, undefined, event)
         }
 
+        const user = await authorize(event)
         const transaction: JsonTransaction = {
           transactionId: result.transactionId,
           status: 'new',
@@ -122,6 +123,7 @@ const paymentCreate = metricScope(
           stamp,
           items,
           createdAt: new Date().toISOString(),
+          user: user?.name ?? registration.payer.name,
         }
         await dynamoDB.write(transaction)
 
