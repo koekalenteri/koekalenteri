@@ -58,9 +58,14 @@ const paymentCreate = metricScope(
           },
           registrationTable
         )
-        if (!registration) {
+        if (!registration || registration.cancelled) {
           metricsError(metrics, event.requestContext, 'paymentCreate')
           return response<string>(404, 'Registration not found', event)
+        }
+
+        if (registration.paymentStatus === 'PENDING') {
+          metricsError(metrics, event.requestContext, 'paymentCreate')
+          return response<string>(409, 'Previous payment pending', event)
         }
 
         const organizer = await dynamoDB.read<Organizer>({ id: jsonEvent?.organizer.id }, organizerTable)
