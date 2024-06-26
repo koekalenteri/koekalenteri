@@ -283,7 +283,7 @@ function paymentIconColor(registration: Registration) {
 
 function paymentStatus(registration: Registration) {
   if (registration.paymentStatus === 'SUCCESS') return 'Olen maksanut'
-  if (registration.paymentStatus === 'PENDING') return 'Odottaa vahvistusta'
+  if (registration.paymentStatus === 'PENDING') return 'Odottaa maksun käsittelyä'
   return 'Koemaksu puuttuu vielä'
 }
 

@@ -32,7 +32,7 @@ const paymentText = (registration: Registration) =>
   registration.paymentStatus === 'SUCCESS'
     ? 'Olen maksanut'
     : registration.paymentStatus === 'PENDING'
-      ? 'Odottaa vahvistusta'
+      ? 'Odottaa maksun käsittelyä'
       : 'Koemaksu puuttuu vielä'
 
 const Icons = ({ event, registration }: { event: PublicDogEvent; registration: Registration }) => {
