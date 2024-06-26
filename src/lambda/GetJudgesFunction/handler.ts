@@ -15,14 +15,19 @@ import { metricsError, metricsSuccess } from '../utils/metrics'
 import { response } from '../utils/response'
 
 const { eventTypeTable, judgeTable } = CONFIG
-const dynamoDB = new CustomDynamoClient(judgeTable)
+// exported for testing
+export const dynamoDB = new CustomDynamoClient(judgeTable)
 
 const getJudgesHandler = metricScope(
   (metrics: MetricsLogger) =>
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
       try {
+        const user = await authorize(event)
+        if (!user) {
+          return response(401, 'Unauthorized', event)
+        }
+
         if (event.queryStringParameters && 'refresh' in event.queryStringParameters) {
-          const user = await authorize(event)
           if (!user?.admin) {
             return response(401, 'Unauthorized', event)
           }

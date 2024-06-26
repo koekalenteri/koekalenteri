@@ -34,7 +34,9 @@ export const getAllUsers = async (): Promise<JsonUser[]> => {
   return users ?? []
 }
 
-export const findUserByEmail = async (email: string): Promise<JsonUser | undefined> => {
+export const findUserByEmail = async (email?: string): Promise<JsonUser | undefined> => {
+  if (!email) return undefined
+
   const users = await dynamoDB.query<JsonUser>('email = :email', { ':email': email }, userTable, 'gsiEmail')
 
   return users?.find((user) => user.email === email)
