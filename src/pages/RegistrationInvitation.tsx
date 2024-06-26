@@ -17,8 +17,10 @@ export const registrationInvitationLoader = async ({
 
   if (!id || !registrationId) return {}
 
-  const event = await getEvent(id, request.signal)
-  const registration = await getRegistration(id, registrationId, undefined, request.signal)
+  const [event, registration] = await Promise.all([
+    getEvent(id, request.signal),
+    getRegistration(id, registrationId, undefined, request.signal),
+  ])
 
   if (!event || !registration) return {}
 
@@ -29,7 +31,7 @@ export const registrationInvitationLoader = async ({
     }
   }
 
-  if (event.invitationAttachment) {
+  if (registration.invitationAttachment) {
     return redirect(Path.invitationAttachment(registration))
   } else {
     return redirect(Path.registration(registration))
