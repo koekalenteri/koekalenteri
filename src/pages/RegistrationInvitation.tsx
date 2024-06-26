@@ -24,14 +24,11 @@ export const registrationInvitationLoader = async ({
 
   if (!event || !registration) return {}
 
-  if (registration) {
+  if (registration && registration.invitationAttachment) {
     if (!registration.invitationRead) {
       registration.invitationRead = true
       await putRegistration(registration, undefined, request.signal)
     }
-  }
-
-  if (registration.invitationAttachment) {
     return redirect(Path.invitationAttachment(registration))
   } else {
     return redirect(Path.registration(registration))
