@@ -448,7 +448,7 @@ describe('judge', () => {
       const existing: JsonUser = {
         createdAt: '2024-05-30T20:00:00.000Z',
         createdBy: 'system',
-        email: 'dredd@example.com',
+        email: 'Dredd@Example.Com',
         id: 'test-id',
         judge: ['NOME-A', 'NOU'],
         kcId: 333,
@@ -491,7 +491,7 @@ describe('judge', () => {
         'user-table-not-found-in-env'
       )
       expect(mockBatchWrite).toHaveBeenCalledTimes(1)
-      expect(logSpy).toHaveBeenCalledWith('updating user from judge: dredd judge. changed props: judge, phone')
+      expect(logSpy).toHaveBeenCalledWith('updating user from judge: dredd judge. changed props: email, judge, phone')
     })
   })
 })

@@ -149,7 +149,7 @@ export const updateUsersFromOfficials = async (dynamoDB: CustomDynamoClient, off
   }
 
   for (const existing of existingUsers) {
-    const official = officials.find((o) => o.email === existing.email)
+    const official = officials.find((o) => validEmail(o.email) && o.email === existing.email.toLocaleLowerCase())
     if (!official) continue
     const updated: JsonUser = {
       ...existing,
@@ -172,6 +172,14 @@ export const updateUsersFromOfficials = async (dynamoDB: CustomDynamoClient, off
   }
 
   if (write.length) {
-    dynamoDB.batchWrite(write, userTable)
+    try {
+      await dynamoDB.batchWrite(write, userTable)
+    } catch (e) {
+      console.error(e)
+      console.log('write:')
+      for (const user of write) {
+        console.log(user)
+      }
+    }
   }
 }

@@ -130,8 +130,8 @@ export const updateUsersFromJudges = async (dynamoDB: CustomDynamoClient, judges
   if (!judges.length) return
 
   const allUsers = (await dynamoDB.readAll<JsonUser>(userTable)) ?? []
-  const existingUsers = allUsers.filter((u) => judges.find((j) => j.email === u.email))
-  const newJudges = judges.filter((j) => !allUsers.find((u) => u.email === j.email))
+  const existingUsers = allUsers.filter((u) => judges.find((j) => j.email === u.email.toLocaleLowerCase()))
+  const newJudges = judges.filter((j) => !allUsers.find((u) => u.email.toLocaleLowerCase() === j.email))
 
   const write: JsonUser[] = []
   const modifiedBy = 'system'
@@ -157,11 +157,12 @@ export const updateUsersFromJudges = async (dynamoDB: CustomDynamoClient, judges
   }
 
   for (const existing of existingUsers) {
-    const judge = judges.find((j) => j.email === existing.email)
+    const judge = judges.find((j) => j.email === existing.email.toLocaleLowerCase())
     if (!judge) continue
     const updated: JsonUser = {
       ...existing,
       name: reverseName(judge.name),
+      email: judge.email,
       kcId: judge.id,
       judge: judge.eventTypes,
       location: judge.location ?? existing.location,
