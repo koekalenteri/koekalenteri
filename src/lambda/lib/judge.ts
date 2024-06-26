@@ -1,16 +1,15 @@
-import type { JsonJudge, JsonUser, Judge, RequireAllKeys } from '../../types'
+import type { JsonJudge, Judge, RequireAllKeys } from '../../types'
 import type CustomDynamoClient from '../utils/CustomDynamoClient'
 import type KLAPI from './KLAPI'
 
 import { diff } from 'deep-object-diff'
-import { nanoid } from 'nanoid'
 
 import { CONFIG } from '../config'
 import { KLKieli } from '../types/KLAPI'
 
-import { capitalize, reverseName } from './string'
+import { capitalize } from './string'
 
-const { judgeTable, userTable } = CONFIG
+const { judgeTable } = CONFIG
 
 export type PartialJsonJudge = Omit<Judge, 'languages' | 'active'>
 
@@ -123,63 +122,5 @@ export const updateJudges = async (dynamoDB: CustomDynamoClient, judges: Partial
 
   if (write.length) {
     await dynamoDB.batchWrite(write, judgeTable)
-  }
-}
-
-export const updateUsersFromJudges = async (dynamoDB: CustomDynamoClient, judges: PartialJsonJudge[]) => {
-  if (!judges.length) return
-
-  const allUsers = (await dynamoDB.readAll<JsonUser>(userTable)) ?? []
-  const existingUsers = allUsers.filter((u) => judges.find((j) => j.email === u.email.toLocaleLowerCase()))
-  const newJudges = judges.filter((j) => !allUsers.find((u) => u.email.toLocaleLowerCase() === j.email))
-
-  const write: JsonUser[] = []
-  const modifiedBy = 'system'
-  const dateString = new Date().toISOString()
-
-  for (const judge of newJudges) {
-    console.log(`creating user from judge: ${judge.name}, email: ${judge.email}`)
-    const newUser: JsonUser = {
-      id: nanoid(10),
-      createdAt: dateString,
-      createdBy: modifiedBy,
-      modifiedAt: dateString,
-      modifiedBy,
-      name: reverseName(judge.name),
-      email: judge.email,
-      kcId: judge.id,
-      judge: judge.eventTypes,
-    }
-    if (judge.location) newUser.location = judge.location
-    if (judge.phone) newUser.phone = judge.phone
-
-    write.push(newUser)
-  }
-
-  for (const existing of existingUsers) {
-    const judge = judges.find((j) => j.email === existing.email.toLocaleLowerCase())
-    if (!judge) continue
-    const updated: JsonUser = {
-      ...existing,
-      name: reverseName(judge.name),
-      email: judge.email,
-      kcId: judge.id,
-      judge: judge.eventTypes,
-      location: judge.location ?? existing.location,
-      phone: judge.phone ?? existing.phone,
-    }
-    const changes = Object.keys(diff(existing, updated))
-    if (changes.length > 0) {
-      console.log(`updating user from judge: ${judge.name}. changed props: ${changes.join(', ')}`)
-      write.push({
-        ...updated,
-        modifiedAt: dateString,
-        modifiedBy,
-      })
-    }
-  }
-
-  if (write.length) {
-    dynamoDB.batchWrite(write, userTable)
   }
 }

@@ -1,4 +1,4 @@
-import type { JsonJudge, JsonUser } from '../../types'
+import type { JsonJudge } from '../../types'
 import type CustomDynamoClient from '../utils/CustomDynamoClient'
 import type { PartialJsonJudge } from './judge'
 import type KLAPI from './KLAPI'
@@ -9,7 +9,7 @@ jest.useFakeTimers()
 jest.setSystemTime(new Date('2024-05-30T20:00:00Z'))
 jest.unstable_mockModule('nanoid', () => ({ nanoid: () => 'test-id' }))
 
-const { fetchJudgesForEventTypes, partializeJudge, updateJudges, updateUsersFromJudges } = await import('./judge')
+const { fetchJudgesForEventTypes, partializeJudge, updateJudges } = await import('./judge')
 
 describe('judge', () => {
   const logSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined)
@@ -371,127 +371,6 @@ describe('judge', () => {
         ],
         'judge-table-not-found-in-env'
       )
-    })
-  })
-
-  describe('updateUsersFromJudes', () => {
-    const mockReadAll = jest.fn<CustomDynamoClient['readAll']>().mockResolvedValue([])
-    const mockBatchWrite = jest.fn()
-    const mockDB = {
-      readAll: mockReadAll,
-      batchWrite: mockBatchWrite,
-    } as unknown as CustomDynamoClient
-
-    it('should do nothing with empty judges array', async () => {
-      await updateUsersFromJudges(mockDB, [])
-
-      expect(mockReadAll).not.toHaveBeenCalled()
-      expect(mockBatchWrite).not.toHaveBeenCalled()
-    })
-
-    it('should add user', async () => {
-      const added1: PartialJsonJudge = {
-        id: 222,
-        name: 'surname firstname',
-        email: 'other@example.com',
-        district: 'other district',
-        eventTypes: ['NOME-A'],
-      }
-      const added2: PartialJsonJudge = {
-        id: 333,
-        name: 'dredd judge',
-        email: 'dredd@example.com',
-        district: 'some district',
-        eventTypes: ['NOME-A', 'NOU'],
-        phone: 'phone',
-        location: 'location',
-      }
-
-      await updateUsersFromJudges(mockDB, [added1, added2])
-
-      expect(mockReadAll).toHaveBeenCalledWith('user-table-not-found-in-env')
-      expect(mockReadAll).toHaveBeenCalledTimes(1)
-      expect(mockBatchWrite).toHaveBeenCalledWith(
-        [
-          {
-            createdAt: '2024-05-30T20:00:00.000Z',
-            createdBy: 'system',
-            email: 'other@example.com',
-            id: 'test-id',
-            judge: ['NOME-A'],
-            kcId: 222,
-            modifiedAt: '2024-05-30T20:00:00.000Z',
-            modifiedBy: 'system',
-            name: 'firstname surname',
-          },
-          {
-            createdAt: '2024-05-30T20:00:00.000Z',
-            createdBy: 'system',
-            email: 'dredd@example.com',
-            id: 'test-id',
-            judge: ['NOME-A', 'NOU'],
-            kcId: 333,
-            location: 'location',
-            modifiedAt: '2024-05-30T20:00:00.000Z',
-            modifiedBy: 'system',
-            name: 'judge dredd',
-            phone: 'phone',
-          },
-        ],
-        'user-table-not-found-in-env'
-      )
-      expect(mockBatchWrite).toHaveBeenCalledTimes(1)
-      expect(logSpy).toHaveBeenCalledWith('creating user from judge: surname firstname, email: other@example.com')
-    })
-
-    it('should update user', async () => {
-      const existing: JsonUser = {
-        createdAt: '2024-05-30T20:00:00.000Z',
-        createdBy: 'system',
-        email: 'Dredd@Example.Com',
-        id: 'test-id',
-        judge: ['NOME-A', 'NOU'],
-        kcId: 333,
-        location: 'location',
-        modifiedAt: '2024-05-30T20:00:00.000Z',
-        modifiedBy: 'system',
-        name: 'judge dredd',
-        phone: 'phone',
-      }
-
-      mockReadAll.mockResolvedValueOnce([existing])
-
-      const judge: PartialJsonJudge = {
-        id: 333,
-        name: 'dredd judge',
-        email: 'dredd@example.com',
-        district: 'other district',
-        eventTypes: ['NOME-A'],
-        phone: 'new phone',
-      }
-
-      await updateUsersFromJudges(mockDB, [judge])
-
-      expect(mockBatchWrite).toHaveBeenCalledWith(
-        [
-          {
-            createdAt: '2024-05-30T20:00:00.000Z',
-            createdBy: 'system',
-            email: 'dredd@example.com',
-            id: 'test-id',
-            judge: ['NOME-A'],
-            kcId: 333,
-            location: 'location',
-            modifiedAt: '2024-05-30T20:00:00.000Z',
-            modifiedBy: 'system',
-            name: 'judge dredd',
-            phone: 'new phone',
-          },
-        ],
-        'user-table-not-found-in-env'
-      )
-      expect(mockBatchWrite).toHaveBeenCalledTimes(1)
-      expect(logSpy).toHaveBeenCalledWith('updating user from judge: dredd judge. changed props: email, judge, phone')
     })
   })
 })

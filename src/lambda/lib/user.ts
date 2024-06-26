@@ -1,10 +1,16 @@
-import type { JsonUser, Organizer, UserRole } from '../../types'
+import type { JsonUser, Official, Organizer, UserRole } from '../../types'
+import type { PartialJsonJudge } from './judge'
+
+import { diff } from 'deep-object-diff'
+import { nanoid } from 'nanoid'
 
 import { i18n } from '../../i18n/lambda'
+import { validEmail } from '../../lib/email'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
 import { sendTemplatedMail } from './email'
+import { reverseName } from './string'
 
 const { userTable, userLinkTable, organizerTable, emailFrom } = CONFIG
 
@@ -94,4 +100,83 @@ export const setUserRole = async (
   }
 
   return { ...user, roles }
+}
+
+export const updateUsersFromOfficialsOrJudges = async (
+  dynamoDB: CustomDynamoClient,
+  items: Official[] | PartialJsonJudge[],
+  eventTypesFiled: 'officer' | 'judge'
+) => {
+  if (!items.length) return
+
+  const allUsers = (await dynamoDB.readAll<JsonUser>(userTable)) ?? []
+  const allUsersWithEmail = allUsers.filter((u) => validEmail(u.email))
+  const existingUsers = allUsersWithEmail.filter((u) => items.find((o) => o.email === u.email.toLocaleLowerCase()))
+  const itemsWithEmail = items.filter((i) => validEmail(i.email))
+  const newItems = itemsWithEmail.filter((i) => !allUsersWithEmail.find((u) => u.email.toLocaleLowerCase() === i.email))
+
+  const write: JsonUser[] = []
+  const modifiedBy = 'system'
+  const dateString = new Date().toISOString()
+
+  for (const item of newItems) {
+    if (!validEmail(item.email)) {
+      console.log(`skipping item due to invalid email: ${item.name}, email: ${item.email}`)
+      continue
+    }
+    console.log(`creating user from item: ${item.name}, email: ${item.email}`)
+    const newUser: JsonUser = {
+      id: nanoid(10),
+      createdAt: dateString,
+      createdBy: modifiedBy,
+      modifiedAt: dateString,
+      modifiedBy,
+      name: reverseName(item.name),
+      email: item.email,
+      kcId: item.id,
+      [eventTypesFiled]: item.eventTypes,
+    }
+
+    if (item.location) newUser.location = item.location
+    if (item.phone) newUser.phone = item.phone
+
+    write.push(newUser)
+  }
+
+  for (const existing of existingUsers) {
+    const item = itemsWithEmail.find((o) => o.email === existing.email.toLocaleLowerCase())
+    if (!item) continue
+    const updated: JsonUser = {
+      ...existing,
+      name: reverseName(item.name),
+      email: item.email,
+      kcId: item.id,
+      location: item.location ?? existing.location,
+      phone: item.phone ?? existing.phone,
+      [eventTypesFiled]: item.eventTypes,
+    }
+    const changes = Object.keys(diff(existing, updated))
+    if (changes.length > 0) {
+      console.log(`updating user from item: ${item.name}. changed props: ${changes.join(', ')}`)
+      write.push({
+        ...updated,
+        modifiedAt: dateString,
+        modifiedBy,
+      })
+    }
+  }
+
+  if (write.length) {
+    try {
+      await dynamoDB.batchWrite(write, userTable)
+    } catch (e) {
+      console.error(e)
+      console.log('write:')
+      for (const user of write) {
+        console.log(user)
+      }
+
+      throw e
+    }
+  }
 }

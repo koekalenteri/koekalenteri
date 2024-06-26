@@ -1,4 +1,4 @@
-import type { JsonOfficial, JsonUser, Official } from '../../types'
+import type { JsonOfficial, Official } from '../../types'
 import type CustomDynamoClient from '../utils/CustomDynamoClient'
 import type KLAPI from './KLAPI'
 
@@ -8,7 +8,7 @@ jest.useFakeTimers()
 jest.setSystemTime(new Date('2024-05-30T20:00:00Z'))
 jest.unstable_mockModule('nanoid', () => ({ nanoid: () => 'test-id' }))
 
-const { fetchOfficialsForEventTypes, updateOfficials, updateUsersFromOfficials } = await import('./official')
+const { fetchOfficialsForEventTypes, updateOfficials } = await import('./official')
 
 describe('official', () => {
   const logSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined)
@@ -296,129 +296,6 @@ describe('official', () => {
           },
         ],
         'official-table-not-found-in-env'
-      )
-    })
-  })
-
-  describe('updateUsersFromOfficials', () => {
-    const mockReadAll = jest.fn<CustomDynamoClient['readAll']>().mockResolvedValue([])
-    const mockBatchWrite = jest.fn()
-    const mockDB = {
-      readAll: mockReadAll,
-      batchWrite: mockBatchWrite,
-    } as unknown as CustomDynamoClient
-
-    it('should do nothing with empty officials array', async () => {
-      await updateUsersFromOfficials(mockDB, [])
-
-      expect(mockReadAll).not.toHaveBeenCalled()
-      expect(mockBatchWrite).not.toHaveBeenCalled()
-    })
-
-    it('should add user', async () => {
-      const added1: Official = {
-        id: 222,
-        name: 'surname firstname',
-        email: 'other@example.com',
-        district: 'other district',
-        eventTypes: ['NOME-A'],
-      }
-      const added2: Official = {
-        id: 333,
-        name: 'dredd official',
-        email: 'dredd@example.com',
-        district: 'some district',
-        eventTypes: ['NOME-A', 'NOU'],
-        phone: 'phone',
-        location: 'location',
-      }
-
-      await updateUsersFromOfficials(mockDB, [added1, added2])
-
-      expect(mockReadAll).toHaveBeenCalledWith('user-table-not-found-in-env')
-      expect(mockReadAll).toHaveBeenCalledTimes(1)
-      expect(mockBatchWrite).toHaveBeenCalledWith(
-        [
-          {
-            createdAt: '2024-05-30T20:00:00.000Z',
-            createdBy: 'system',
-            email: 'other@example.com',
-            id: 'test-id',
-            officer: ['NOME-A'],
-            kcId: 222,
-            modifiedAt: '2024-05-30T20:00:00.000Z',
-            modifiedBy: 'system',
-            name: 'firstname surname',
-          },
-          {
-            createdAt: '2024-05-30T20:00:00.000Z',
-            createdBy: 'system',
-            email: 'dredd@example.com',
-            id: 'test-id',
-            officer: ['NOME-A', 'NOU'],
-            kcId: 333,
-            location: 'location',
-            modifiedAt: '2024-05-30T20:00:00.000Z',
-            modifiedBy: 'system',
-            name: 'official dredd',
-            phone: 'phone',
-          },
-        ],
-        'user-table-not-found-in-env'
-      )
-      expect(mockBatchWrite).toHaveBeenCalledTimes(1)
-      expect(logSpy).toHaveBeenCalledWith('creating user from official: surname firstname, email: other@example.com')
-    })
-
-    it('should update user', async () => {
-      const existing: JsonUser = {
-        createdAt: '2024-05-30T20:00:00.000Z',
-        createdBy: 'system',
-        email: 'dredd@eXaMpLe.com',
-        id: 'test-id',
-        officer: ['NOME-A', 'NOU'],
-        kcId: 333,
-        location: 'location',
-        modifiedAt: '2024-05-30T20:00:00.000Z',
-        modifiedBy: 'system',
-        name: 'official dredd',
-        phone: 'phone',
-      }
-
-      mockReadAll.mockResolvedValueOnce([existing])
-
-      const official: Official = {
-        id: 333,
-        name: 'dredd official',
-        email: 'dredd@example.com',
-        district: 'other district',
-        eventTypes: ['NOME-A'],
-        phone: 'new phone',
-      }
-
-      await updateUsersFromOfficials(mockDB, [official])
-
-      expect(mockBatchWrite).toHaveBeenCalledWith(
-        [
-          {
-            createdAt: '2024-05-30T20:00:00.000Z',
-            createdBy: 'system',
-            email: 'dredd@example.com',
-            id: 'test-id',
-            officer: ['NOME-A'],
-            kcId: 333,
-            location: 'location',
-            modifiedAt: '2024-05-30T20:00:00.000Z',
-            modifiedBy: 'system',
-            name: 'official dredd',
-            phone: 'new phone',
-          },
-        ],
-        'user-table-not-found-in-env'
-      )
-      expect(mockBatchWrite).toHaveBeenCalledTimes(1)
-      expect(logSpy).toHaveBeenCalledWith(
-        'updating user from official: dredd official. changed props: email, officer, phone'
       )
     })
   })

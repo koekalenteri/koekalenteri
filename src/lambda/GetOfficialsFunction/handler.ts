@@ -8,8 +8,9 @@ import { metricScope } from 'aws-embedded-metrics'
 import { CONFIG } from '../config'
 import { authorize } from '../lib/auth'
 import KLAPI from '../lib/KLAPI'
-import { fetchOfficialsForEventTypes, updateOfficials, updateUsersFromOfficials } from '../lib/official'
+import { fetchOfficialsForEventTypes, updateOfficials } from '../lib/official'
 import { getKLAPIConfig } from '../lib/secrets'
+import { updateUsersFromOfficialsOrJudges } from '../lib/user'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { metricsError, metricsSuccess } from '../utils/metrics'
 import { response } from '../utils/response'
@@ -42,7 +43,7 @@ const getOfficialsHandler = metricScope(
 
           if (officials?.length) {
             await updateOfficials(dynamoDB, officials)
-            await updateUsersFromOfficials(dynamoDB, officials)
+            await updateUsersFromOfficialsOrJudges(dynamoDB, officials, 'officer')
           }
         }
 

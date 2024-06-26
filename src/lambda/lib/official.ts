@@ -1,17 +1,15 @@
-import type { JsonOfficial, JsonUser, Official } from '../../types'
+import type { JsonOfficial, Official } from '../../types'
 import type CustomDynamoClient from '../utils/CustomDynamoClient'
 import type KLAPI from './KLAPI'
 
 import { diff } from 'deep-object-diff'
-import { nanoid } from 'nanoid'
 
-import { validEmail } from '../../lib/email'
 import { CONFIG } from '../config'
 import { KLKieli } from '../types/KLAPI'
 
-import { capitalize, reverseName } from './string'
+import { capitalize } from './string'
 
-const { officialTable, userTable } = CONFIG
+const { officialTable } = CONFIG
 
 export const fetchOfficialsForEventTypes = async (
   klapi: KLAPI,
@@ -107,79 +105,5 @@ export const updateOfficials = async (dynamoDB: CustomDynamoClient, officials: O
 
   if (write.length) {
     await dynamoDB.batchWrite(write, officialTable)
-  }
-}
-
-export const updateUsersFromOfficials = async (dynamoDB: CustomDynamoClient, officials: Official[]) => {
-  if (!officials.length) return
-
-  const allUsers = (await dynamoDB.readAll<JsonUser>(userTable)) ?? []
-  const existingUsers = allUsers.filter((u) => officials.find((o) => o.email === u.email.toLocaleLowerCase()))
-  const newOfficials = officials.filter(
-    (o) => o.email && !allUsers.find((u) => u.email.toLocaleLowerCase() === o.email)
-  )
-
-  const write: JsonUser[] = []
-  const modifiedBy = 'system'
-  const dateString = new Date().toISOString()
-
-  for (const official of newOfficials) {
-    if (!validEmail(official.email)) {
-      console.log(`skipping official due to invalid email: ${official.name}, email: ${official.email}`)
-      continue
-    }
-    console.log(`creating user from official: ${official.name}, email: ${official.email}`)
-    const newUser: JsonUser = {
-      id: nanoid(10),
-      createdAt: dateString,
-      createdBy: modifiedBy,
-      modifiedAt: dateString,
-      modifiedBy,
-      name: reverseName(official.name),
-      email: official.email,
-      kcId: official.id,
-      officer: official.eventTypes,
-      location: official.location,
-      phone: official.phone,
-    }
-    if (official.location) newUser.location = official.location
-    if (official.phone) newUser.phone = official.phone
-
-    write.push(newUser)
-  }
-
-  for (const existing of existingUsers) {
-    const official = officials.find((o) => validEmail(o.email) && o.email === existing.email.toLocaleLowerCase())
-    if (!official) continue
-    const updated: JsonUser = {
-      ...existing,
-      name: reverseName(official.name),
-      email: official.email,
-      kcId: official.id,
-      officer: official.eventTypes,
-      location: official.location ?? existing.location,
-      phone: official.phone ?? existing.phone,
-    }
-    const changes = Object.keys(diff(existing, updated))
-    if (changes.length > 0) {
-      console.log(`updating user from official: ${official.name}. changed props: ${changes.join(', ')}`)
-      write.push({
-        ...updated,
-        modifiedAt: dateString,
-        modifiedBy,
-      })
-    }
-  }
-
-  if (write.length) {
-    try {
-      await dynamoDB.batchWrite(write, userTable)
-    } catch (e) {
-      console.error(e)
-      console.log('write:')
-      for (const user of write) {
-        console.log(user)
-      }
-    }
   }
 }
