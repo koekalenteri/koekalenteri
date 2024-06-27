@@ -1,8 +1,8 @@
+import type { Locale } from 'date-fns'
 import type { Language } from '../types'
 
 import { formatDistanceToNowStrict, isSameDay, isSameMonth, isSameYear, isValid, parseISO } from 'date-fns'
-import en from 'date-fns/locale/en-GB/index'
-import fi from 'date-fns/locale/fi/index'
+import { enGB as en, fi } from 'date-fns/locale'
 import { formatInTimeZone } from 'date-fns-tz'
 
 export interface DateFormatOptions {

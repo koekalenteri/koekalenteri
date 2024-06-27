@@ -2,7 +2,7 @@ import type { PartialEvent } from '../EventForm'
 import type { Props } from './BasicInfoSection'
 
 import { LocalizationProvider } from '@mui/x-date-pickers'
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { screen } from '@testing-library/react'
 import { add, format } from 'date-fns'
 
