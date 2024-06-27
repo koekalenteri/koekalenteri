@@ -531,7 +531,6 @@ Resources:
           ResponseParameters:
             Headers:
               Access-Control-Allow-Origin: "'*'"
-      MinimumCompressionSize: 4096
 
   # API Functions
   GetEventsFunction:
