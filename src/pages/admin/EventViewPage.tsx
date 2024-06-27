@@ -8,6 +8,7 @@ import EditOutlined from '@mui/icons-material/EditOutlined'
 import EmailOutlined from '@mui/icons-material/EmailOutlined'
 import FormatListBulleted from '@mui/icons-material/FormatListBulleted'
 import FormatListNumberedOutlined from '@mui/icons-material/FormatListNumberedOutlined'
+import Alert from '@mui/material/Alert'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Divider from '@mui/material/Divider'
@@ -157,7 +158,7 @@ export default function EventViewPage() {
                 sx={{
                   borderLeft: '1px solid',
                   borderLeftColor: 'divider',
-                  bgcolor: missingClasses.includes(eventClass) ? 'error.light' : undefined,
+                  bgcolor: missingClasses.includes(eventClass) ? '#fdeded' : undefined,
                 }}
                 label={eventClass}
               ></Tab>
@@ -176,6 +177,12 @@ export default function EventViewPage() {
         >
           {allClasses.map((eventClass, index) => (
             <TabPanel key={`tabPanel-${eventClass}`} index={index} activeTab={activeTab}>
+              {missingClasses.includes(eventClass) ? (
+                <Alert severity="info" sx={{ m: 1 }}>
+                  Nämä ilmoittautumiset ovat koeluokassa, jota ei enää ole kokeessa. Ilmoittautumisten luokat täytyy
+                  korjata.
+                </Alert>
+              ) : null}
               <ClassEntrySelection
                 event={event}
                 eventClass={eventClass}

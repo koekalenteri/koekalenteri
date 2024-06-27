@@ -3,7 +3,7 @@ import type { DogEvent, EventState, Registration } from '../types'
 import { useMemo } from 'react'
 
 import { getRegistrationGroupKey, GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE } from '../lib/registration'
-import { eventDates, placesForClass, uniqueClasses } from '../lib/utils'
+import { eventDates, placesForClass, unique, uniqueClasses } from '../lib/utils'
 
 interface EventClassInfoNumbers {
   places: number
@@ -16,6 +16,8 @@ interface EventClassInfoNumbers {
 
 export default function useAdminEventRegistrationInfo(event: DogEvent | undefined, registrations: Registration[]) {
   const dates = useMemo(() => eventDates(event), [event])
+
+  const registrationClasses = unique(registrations.map((r) => r.class ?? r.eventType))
 
   const reserveByClass: Record<string, Registration[]> = useMemo(() => {
     const byClass: Record<string, Registration[]> = {}
@@ -39,8 +41,8 @@ export default function useAdminEventRegistrationInfo(event: DogEvent | undefine
   }, [event])
 
   const missingClasses = useMemo(
-    () => Object.keys(reserveByClass).filter((c) => !eventClasses.includes(c)),
-    [eventClasses, reserveByClass]
+    () => registrationClasses.filter((c) => !eventClasses.includes(c)),
+    [eventClasses, registrationClasses]
   )
 
   const numbersByClass = useMemo(() => {
