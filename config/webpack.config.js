@@ -128,11 +128,11 @@ module.exports = function (webpackEnv) {
       pathinfo: isEnvDevelopment,
       // There will be one main bundle, and one file per asynchronous chunk.
       // In development, it does not produce real files.
-      filename: isEnvProduction ? 'static/js/[name].[contenthash:8].js' : isEnvDevelopment && 'static/js/bundle.js',
+      filename: isEnvProduction ? 'static/js/[id].[contenthash:8].js' : isEnvDevelopment && 'static/js/[name].dev.js',
       // There are also additional JS chunk files if you use code splitting.
       chunkFilename: isEnvProduction
-        ? 'static/js/[name].[contenthash:8].chunk.js'
-        : isEnvDevelopment && 'static/js/[name].chunk.js',
+        ? 'static/js/[id].[contenthash:8].js'
+        : isEnvDevelopment && 'static/js/[name].dev.js',
       assetModuleFilename: 'static/media/[name].[hash][ext]',
       // webpack uses `publicPath` to determine where the app is being served from.
       // It requires a trailing slash, or the file assets will get an incorrect path.
@@ -155,9 +155,11 @@ module.exports = function (webpackEnv) {
       },
     },
     infrastructureLogging: {
-      level: 'none',
+      level: 'warn',
     },
     optimization: {
+      chunkIds: isEnvProduction ? 'deterministic' : 'named',
+      moduleIds: isEnvProduction ? 'deterministic' : 'named',
       minimize: isEnvProduction,
       minimizer: [
         new EsbuildPlugin({
@@ -165,6 +167,29 @@ module.exports = function (webpackEnv) {
           css: true,
         }),
       ],
+      runtimeChunk: {
+        name: 'runtime',
+      },
+      splitChunks: {
+        chunks: 'all',
+        cacheGroups: {
+          aws: {
+            name: 'aws',
+            priority: 1,
+            test: /[\\/]node_modules[\\/](@aws|aws|@xstate|xstate)/,
+          },
+          mui: {
+            name: 'mui',
+            priority: 1,
+            test: /[\\/]node_modules[\\/](@mui|mui)/,
+          },
+          handlebars: {
+            name: 'handlebars',
+            priority: 1,
+            test: /[\\/]node_modules[\\/]handlebars/,
+          },
+        },
+      },
     },
     resolve: {
       // This allows you to set a fallback for where webpack should look for modules.
@@ -422,8 +447,8 @@ module.exports = function (webpackEnv) {
         new MiniCssExtractPlugin({
           // Options similar to the same options in webpackOptions.output
           // both options are optional
-          filename: 'static/css/[name].[contenthash:8].css',
-          chunkFilename: 'static/css/[name].[contenthash:8].chunk.css',
+          filename: isEnvProduction ? 'static/css/[id].[contenthash:8].css' : 'static/css/[name].dev.css',
+          chunkFilename: isEnvProduction ? 'static/css/[id].[contenthash:8].css' : 'static/css/[name].dev.css',
         }),
       // Generate an asset manifest file with the following content:
       // - "files" key: Mapping of all asset filenames to their corresponding
