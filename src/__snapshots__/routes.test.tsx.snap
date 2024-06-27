@@ -98,55 +98,53 @@ exports[`routes should match a snapshot 1`] = `
         "index": true,
       },
       {
-        "element": <EventListPage
-          isDev={false}
-        />,
+        "lazy": [Function],
         "path": "/admin/event",
       },
       {
-        "element": <EventCreatePage />,
+        "lazy": [Function],
         "path": "/admin/event/create",
       },
       {
-        "element": <EventEditPage />,
+        "lazy": [Function],
         "path": "/admin/event/edit/:id",
       },
       {
-        "element": <EventViewPage />,
+        "lazy": [Function],
         "path": "/admin/event/view/:id",
       },
       {
-        "element": <OrganizerListPage />,
+        "lazy": [Function],
         "path": "/admin/organizations",
       },
       {
-        "element": <OfficialListPage />,
+        "lazy": [Function],
         "path": "/admin/officials",
       },
       {
-        "element": <UsersPage />,
+        "lazy": [Function],
         "path": "/admin/users",
       },
       {
-        "element": <JudgeListPage />,
+        "lazy": [Function],
         "path": "/admin/judge",
       },
       {
-        "element": <EventTypeListPage />,
+        "lazy": [Function],
         "path": "/admin/types",
       },
       {
-        "element": <EmailTemplateListPage />,
+        "lazy": [Function],
         "path": "/admin/templates",
       },
     ],
-    "element": <AdminHomePage />,
     "errorElement": <ErrorPage />,
+    "lazy": [Function],
     "path": "/admin",
   },
   {
-    "element": <AdminStartListPage />,
     "errorElement": <ErrorPage />,
+    "lazy": [Function],
     "path": "/admin/event/startlist/:id",
   },
   {

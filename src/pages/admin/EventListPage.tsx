@@ -15,6 +15,7 @@ import { useConfirm } from 'material-ui-confirm'
 import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
 
 import { formatDistance } from '../../i18n/dates'
+import { isDevEnv } from '../../lib/env'
 import { Path } from '../../routeConfig'
 import AutocompleteSingle from '../components/AutocompleteSingle'
 import StyledDataGrid from '../components/StyledDataGrid'
@@ -35,11 +36,7 @@ import {
   useAdminEventActions,
 } from './recoil'
 
-interface Props {
-  readonly isDev?: boolean
-}
-
-export default function EventListPage({ isDev }: Props) {
+export default function EventListPage() {
   const confirm = useConfirm()
   const { t } = useTranslation()
   const navigate = useNavigate()
@@ -140,7 +137,7 @@ export default function EventListPage({ isDev }: Props) {
           onClick={actions.copyCurrent}
           text={t('copy')}
         />
-        {isDev && (
+        {isDevEnv() && (
           <AutoButton
             startIcon={<ContentCopyOutlined />}
             disabled={!selectedEventID}
