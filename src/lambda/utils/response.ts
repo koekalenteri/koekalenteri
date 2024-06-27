@@ -1,5 +1,7 @@
 import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 
+import { gzipSync } from 'zlib'
+
 import { getOrigin } from '../lib/auth'
 
 export const allowOrigin = (event: APIGatewayProxyEvent) => {
@@ -18,11 +20,23 @@ export const response = <T = unknown>(
   statusCode: number,
   body: T,
   event: APIGatewayProxyEvent
-): APIGatewayProxyResult => ({
-  statusCode: statusCode,
-  body: JSON.stringify(body),
-  headers: {
-    'Access-Control-Allow-Origin': allowOrigin(event),
-    'Content-Type': 'application/json',
-  },
-})
+): APIGatewayProxyResult => {
+  const acceptEncoding = event.headers['Accept-Encoding'] ?? ''
+
+  const result: APIGatewayProxyResult = {
+    statusCode: statusCode,
+    body: JSON.stringify(body),
+    headers: {
+      'Access-Control-Allow-Origin': allowOrigin(event),
+      'Content-Type': 'application/json',
+    },
+  }
+
+  if (acceptEncoding.includes('gzip') && result.body.length > 4096) {
+    result.isBase64Encoded = true
+    result.body = gzipSync(result.body).toString('base64')
+    result.headers!['Content-Encoding'] = 'gzip'
+  }
+
+  return result
+}
