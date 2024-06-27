@@ -44,7 +44,7 @@
     "uuid": "^9.0.1"
   },
   "scripts": {
-    "analyze": "source-map-explorer 'build/static/js/*.js'",
+    "analyze": "source-map-explorer 'build/static/js/*.js' --no-border-checks",
     "build-backend": "node scripts/build-backend.mjs",
     "build-backend-watch": "npm run build-backend -- --watch",
     "build-frontend": "node scripts/build-frontend.js",
