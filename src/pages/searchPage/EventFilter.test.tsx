@@ -2,12 +2,12 @@ import type { Judge, Organizer, RegistrationClass } from '../../types'
 import type { FilterProps } from '../recoil'
 
 import { ThemeProvider } from '@mui/material'
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { fireEvent, render, screen, within } from '@testing-library/react'
-import fi from 'date-fns/locale/fi'
 
 import theme from '../../assets/Theme'
+import { locales } from '../../i18n'
 import { createMatchMedia } from '../../test-utils/utils'
 
 import { EventFilter } from './EventFilter'
@@ -52,7 +52,7 @@ const eventClasses: RegistrationClass[] = ['ALO', 'AVO', 'VOI']
 const renderComponent = (filter: FilterProps, onChange?: (filter: FilterProps) => void) =>
   render(
     <ThemeProvider theme={theme}>
-      <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={fi}>
+      <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
         <EventFilter
           judges={judges}
           organizers={organizers}

@@ -3,7 +3,7 @@ import type { MinimalEventForStatus } from '../../hooks/useEventStatus'
 
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { render, screen } from '@testing-library/react'
 
 import theme from '../../assets/Theme'

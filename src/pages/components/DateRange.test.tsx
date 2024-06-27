@@ -1,18 +1,18 @@
 import type { Props } from './DateRange'
 
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { screen } from '@testing-library/react'
 import { format, parseISO, startOfMonth } from 'date-fns'
-import fi from 'date-fns/locale/fi'
 
+import { locales } from '../../i18n'
 import { flushPromises, renderWithUserEvents } from '../../test-utils/utils'
 
 import DateRange from './DateRange'
 
 const renderComponent = (props: Props) => {
   const res = renderWithUserEvents(
-    <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={fi}>
+    <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
       <DateRange {...props} />
     </LocalizationProvider>,
     undefined,

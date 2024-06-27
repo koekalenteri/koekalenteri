@@ -2,14 +2,14 @@ import type { DogEvent } from '../../../types'
 
 import { Suspense } from 'react'
 import { ThemeProvider } from '@mui/material'
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { screen, within } from '@testing-library/react'
-import fi from 'date-fns/locale/fi'
 import { RecoilRoot } from 'recoil'
 
 import { eventWithStaticDatesAndClass } from '../../../__mockData__/events'
 import theme from '../../../assets/Theme'
+import { locales } from '../../../i18n'
 import { flushPromises, renderWithUserEvents } from '../../../test-utils/utils'
 
 import EventForm from './EventForm'
@@ -25,7 +25,7 @@ jest.mock('../../../api/registration')
 const renderComponent = (event: DogEvent, onSave?: () => Promise<void>, onCancel?: () => void, onChange?: () => void) =>
   renderWithUserEvents(
     <ThemeProvider theme={theme}>
-      <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={fi}>
+      <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
         <RecoilRoot>
           <Suspense fallback={<div>loading?...</div>}>
             <EventForm event={event} changes onSave={onSave} onCancel={onCancel} onChange={onChange} />
