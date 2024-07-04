@@ -130,7 +130,7 @@ exports[`EventListPage renders 1`] = `
         </button>
       </div>
       <div
-        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-68eyva-MuiDataGrid-root"
+        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-ei6p06-MuiDataGrid-root"
         style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 1; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 200px; --DataGrid-columnsTotalWidth: 200px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
       >
         <div
@@ -426,6 +426,7 @@ exports[`EventListPage renders 1`] = `
                           <button
                             aria-label="Sort"
                             class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
+                            field="date"
                             tabindex="-1"
                             title="Sort"
                             type="button"
@@ -501,6 +502,7 @@ exports[`EventListPage renders 1`] = `
                           <button
                             aria-label="Sort"
                             class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
+                            field="eventType"
                             tabindex="-1"
                             title="Sort"
                             type="button"
@@ -576,6 +578,7 @@ exports[`EventListPage renders 1`] = `
                           <button
                             aria-label="Sort"
                             class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
+                            field="classes"
                             tabindex="-1"
                             title="Sort"
                             type="button"
@@ -651,6 +654,7 @@ exports[`EventListPage renders 1`] = `
                           <button
                             aria-label="Sort"
                             class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
+                            field="organizer"
                             tabindex="-1"
                             title="Sort"
                             type="button"
@@ -726,6 +730,7 @@ exports[`EventListPage renders 1`] = `
                           <button
                             aria-label="Sort"
                             class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
+                            field="name"
                             tabindex="-1"
                             title="Sort"
                             type="button"
@@ -801,6 +806,7 @@ exports[`EventListPage renders 1`] = `
                           <button
                             aria-label="Sort"
                             class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
+                            field="location"
                             tabindex="-1"
                             title="Sort"
                             type="button"
@@ -876,6 +882,7 @@ exports[`EventListPage renders 1`] = `
                           <button
                             aria-label="Sort"
                             class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
+                            field="secretary"
                             tabindex="-1"
                             title="Sort"
                             type="button"
@@ -951,6 +958,7 @@ exports[`EventListPage renders 1`] = `
                           <button
                             aria-label="Sort"
                             class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
+                            field="official"
                             tabindex="-1"
                             title="Sort"
                             type="button"
@@ -1026,6 +1034,7 @@ exports[`EventListPage renders 1`] = `
                           <button
                             aria-label="Sort"
                             class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
+                            field="judges"
                             tabindex="-1"
                             title="Sort"
                             type="button"
@@ -1101,6 +1110,7 @@ exports[`EventListPage renders 1`] = `
                           <button
                             aria-label="Sort"
                             class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
+                            field="places"
                             tabindex="-1"
                             title="Sort"
                             type="button"
@@ -1176,6 +1186,7 @@ exports[`EventListPage renders 1`] = `
                           <button
                             aria-label="Sort"
                             class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
+                            field="state"
                             tabindex="-1"
                             title="Sort"
                             type="button"
