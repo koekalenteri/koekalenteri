@@ -16,7 +16,7 @@ import RegistrationForm from './components/RegistrationForm'
 import { useRegistrationActions } from './recoil/registration/actions'
 import { confirmedEventSelector, newRegistrationAtom, spaAtom } from './recoil'
 
-export default function RegistrationCreatePage() {
+export function Component() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const params = useParams()
@@ -114,3 +114,5 @@ export default function RegistrationCreatePage() {
     </>
   )
 }
+
+Component.displayName = 'RegistrationCreatePage'

@@ -4,10 +4,7 @@ import { Navigate } from 'react-router-dom'
 
 import { ErrorPage } from './pages/ErrorPage'
 import { HomePage } from './pages/HomePage'
-import { LoginPage } from './pages/LoginPage'
-import { paymentLoader, PaymentPage } from './pages/PaymentPage'
 import { paymentResultLoader } from './pages/PaymentResultPage'
-import RegistrationCreatePage from './pages/RegistrationCreatePage'
 import RegistrationEditPage from './pages/RegistrationEditPage'
 import { registrationInvitationLoader } from './pages/RegistrationInvitation'
 import { RegistrationListPage } from './pages/RegistrationListPage'
@@ -30,13 +27,12 @@ const routes: RouteObject[] = [
       ...['event/:eventType/:id/:class/:date', 'event/:eventType/:id/:class', 'event/:eventType/:id'].map<RouteObject>(
         (path) => ({
           path,
-          element: <RegistrationCreatePage />,
+          lazy: () => import('./pages/RegistrationCreatePage'),
         })
       ),
       {
         path: 'p/:id/:registrationId',
-        loader: paymentLoader,
-        element: <PaymentPage />,
+        lazy: () => import('./pages/PaymentPage'),
       },
       {
         path: 'p/success',
@@ -75,7 +71,11 @@ const routes: RouteObject[] = [
       },
     ],
   },
-  { path: Path.login, element: <LoginPage />, errorElement: <ErrorPage /> },
+  {
+    path: Path.login,
+    lazy: () => import('./pages/LoginPage'),
+    errorElement: <ErrorPage />,
+  },
   { path: Path.logout, element: <Navigate to="/" replace />, errorElement: <ErrorPage /> },
   {
     path: Path.admin.root,

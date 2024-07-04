@@ -41,6 +41,7 @@ exports[`AdminHomePage renders the child page content when user is logged in 1`]
             height="28"
             src="snj-logo.png"
             style="margin-top: -4px; margin-bottom: -4px;"
+            width="23"
           />
         </span>
         <div
@@ -271,6 +272,7 @@ exports[`AdminHomePage renders the page when user is logged in 1`] = `
             height="28"
             src="snj-logo.png"
             style="margin-top: -4px; margin-bottom: -4px;"
+            width="23"
           />
         </span>
         <div

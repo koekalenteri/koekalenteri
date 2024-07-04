@@ -16,7 +16,7 @@ import { locales } from '../i18n'
 import { Path } from '../routeConfig'
 import { DataMemoryRouter, flushPromises } from '../test-utils/utils'
 
-import { PaymentPage } from './PaymentPage'
+import { Component as PaymentPage } from './PaymentPage'
 
 jest.mock('../api/event')
 jest.mock('../api/payment')

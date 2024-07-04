@@ -9,20 +9,19 @@ exports[`routes should match a snapshot 1`] = `
         "index": true,
       },
       {
-        "element": <RegistrationCreatePage />,
+        "lazy": [Function],
         "path": "event/:eventType/:id/:class/:date",
       },
       {
-        "element": <RegistrationCreatePage />,
+        "lazy": [Function],
         "path": "event/:eventType/:id/:class",
       },
       {
-        "element": <RegistrationCreatePage />,
+        "lazy": [Function],
         "path": "event/:eventType/:id",
       },
       {
-        "element": <PaymentPage />,
-        "loader": [Function],
+        "lazy": [Function],
         "path": "p/:id/:registrationId",
       },
       {
@@ -76,8 +75,8 @@ exports[`routes should match a snapshot 1`] = `
     "path": "/",
   },
   {
-    "element": <LoginPage />,
     "errorElement": <ErrorPage />,
+    "lazy": [Function],
     "path": "/login",
   },
   {

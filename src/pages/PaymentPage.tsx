@@ -17,7 +17,7 @@ import { ProviderButton } from './paymentPage/ProviderButton'
 import { LoadingPage } from './LoadingPage'
 import { confirmedEventSelector, registrationSelector } from './recoil'
 
-export const paymentLoader = async ({ params }: { params: Params<string> }) => {
+export const loader = async ({ params }: { params: Params<string> }) => {
   const createPaymentWrap = async () => {
     if (params.id && params.registrationId) {
       try {
@@ -85,7 +85,7 @@ const PaymentPageWithData = ({ id, registrationId, event, registration, response
   )
 }
 
-export const PaymentPage = () => {
+export function Component() {
   const { id, registrationId } = useParams()
   const event = useRecoilValue(confirmedEventSelector(id))
   const registration = useRecoilValue(registrationSelector(`${id ?? ''}:${registrationId ?? ''}`))
@@ -107,3 +107,5 @@ export const PaymentPage = () => {
     </Suspense>
   )
 }
+
+Component.displayName = 'PaymentPage'

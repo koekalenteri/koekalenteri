@@ -8,7 +8,7 @@ import theme from '../assets/Theme'
 import { Path } from '../routeConfig'
 import { DataMemoryRouter } from '../test-utils/utils'
 
-import { LoginPage } from './LoginPage'
+import { Component as LoginPage } from './LoginPage'
 
 jest.mock('@aws-amplify/ui-react', () => require('./global-mocks/auth/idle'))
 jest.mock('./components/Header', () => () => <>HEADER</>)

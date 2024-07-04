@@ -11,7 +11,7 @@ import { languageAtom } from './recoil'
 
 import '@aws-amplify/ui-react/styles.css'
 
-export function LoginPage() {
+export function Component() {
   const { route } = useAuthenticator((context) => [context.route])
   const actions = useUserActions()
   const language = useRecoilValue(languageAtom)
@@ -53,3 +53,5 @@ export function LoginPage() {
     </>
   )
 }
+
+Component.displayName = 'LoginPage'

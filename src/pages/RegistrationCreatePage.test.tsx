@@ -15,7 +15,7 @@ import theme from '../assets/Theme'
 import { locales } from '../i18n'
 import { flushPromises } from '../test-utils/utils'
 
-import RegistrationCreatePage from './RegistrationCreatePage'
+import { Component as RegistrationCreatePage } from './RegistrationCreatePage'
 
 jest.mock('../api/user')
 jest.mock('../api/event')
