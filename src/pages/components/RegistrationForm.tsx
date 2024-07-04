@@ -105,7 +105,7 @@ export default function RegistrationForm({
   const handleChange = useCallback(
     (props: DeepPartial<Registration> | undefined = {}, replace?: boolean) => {
       if (disabled) return
-      if (props.class || props.results || props.dog?.results) {
+      if (props.class || props.results || props.dog?.results || (props.dog && !registration.qualifies)) {
         const cls = props.class ?? registration.class
         const dogResults = props.dog?.results ?? registration.dog?.results ?? []
         const results = props.results ?? registration.results ?? []
