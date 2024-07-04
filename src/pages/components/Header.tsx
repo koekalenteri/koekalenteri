@@ -54,7 +54,7 @@ const Header = ({ toggleMenu }: Props) => {
           startIcon={
             <img
               src={logo}
-              width="23"
+              width="20"
               height="28"
               alt="Suomen noutajakoirajärjestö"
               style={{ marginTop: '-4px', marginBottom: '-4px' }}
