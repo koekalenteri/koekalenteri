@@ -81,6 +81,8 @@ function getClientEnvironment(publicUrl) {
         // Whether or not react-refresh is enabled.
         // It is defined here so it is available in the webpackHotDevClient.
         FAST_REFRESH: process.env.FAST_REFRESH !== 'false',
+        // API url for preconnect link
+        API_URL: process.env.REACT_APP_API_BASE_URL ?? 'http://127.0.0.1:8080',
       }
     )
   // Stringify all values so we can feed into webpack DefinePlugin
