@@ -176,17 +176,122 @@ module.exports = function (webpackEnv) {
           aws: {
             name: 'aws',
             priority: 1,
-            test: /[\\/]node_modules[\\/](@aws|aws|@xstate|xstate)/,
+            test: /[\\/]node_modules[\\/]aws/,
           },
-          mui: {
-            name: 'mui',
+          awsAuth: {
+            name: 'aws-auth',
             priority: 1,
-            test: /[\\/]node_modules[\\/](@mui|mui)/,
+            test: /[\\/]node_modules[\\/]@aws-amplify[\\/]auth/,
+          },
+          awsCore: {
+            name: 'aws-core',
+            priority: 1,
+            test: /[\\/]node_modules[\\/]@aws-amplify[\\/]core/,
+          },
+          awsCrypto: {
+            name: 'aws-crypto',
+            priority: 1,
+            test: /[\\/]node_modules[\\/]@aws-crypto/,
+          },
+          awsUi: {
+            name: 'aws-ui',
+            priority: 1,
+            test: /[\\/]node_modules[\\/]@aws-amplify[\\/]ui/,
+          },
+          dateFns: {
+            name: 'date-fns',
+            priority: 1,
+            test: /[\\/]node_modules[\\/]date-fns/,
+          },
+          emotion: {
+            name: 'emotion',
+            priority: 1,
+            test: /[\\/]node_modules[\\/]@emotion/,
           },
           handlebars: {
             name: 'handlebars',
             priority: 1,
             test: /[\\/]node_modules[\\/]handlebars/,
+          },
+          i18next: {
+            name: 'i18next',
+            priority: 1,
+            test: /[\\/]node_modules[\\/]i18next/,
+          },
+          mui: {
+            name: 'mui',
+            priority: 1,
+            test: /[\\/]node_modules[\\/]@mui/,
+          },
+          notistack: {
+            name: 'notistack',
+            priority: 1,
+            test: /[\\/]node_modules[\\/]notistack/,
+          },
+          recoil: {
+            name: 'recoil',
+            priority: 1,
+            test: /[\\/]node_modules[\\/]recoil/,
+          },
+          reactDom: {
+            name: 'react-dom',
+            priority: 1,
+            test: /[\\/]node_modules[\\/]react-dom/,
+          },
+          reactRouter: {
+            name: 'react-router',
+            priority: 1,
+            test: /[\\/]node_modules[\\/]react-router/,
+          },
+          remixRun: {
+            name: 'remix-run',
+            priority: 1,
+            test: /[\\/]node_modules[\\/]@remix-run/,
+          },
+          xstate: {
+            name: 'xstate',
+            priority: 1,
+            test: /[\\/]node_modules[\\/](@xstate|xstate)/,
+          },
+
+          muiData: {
+            name: 'mui-x-data',
+            priority: 2,
+            test: /[\\/]node_modules[\\/]@mui[\\/]x-data/,
+          },
+          muiMaterial: {
+            name: 'mui-material',
+            priority: 2,
+            test: /[\\/]node_modules[\\/]@mui[\\/]material/,
+          },
+          muiTel: {
+            name: 'mui-tel-input',
+            priority: 2,
+            test: /[\\/]node_modules[\\/]mui-tel-input/,
+          },
+
+          muiLocale: {
+            name: 'mui-locale',
+            priority: 3,
+            test: /[\\/]node_modules[\\/]@mui[\\/]material[\\/]locale/,
+          },
+
+          styles: {
+            priority: 10,
+            name(module) {
+              const match = module.context.match(/[\\/](.*).css/)
+
+              if (!match) {
+                return false
+              }
+
+              const moduleName = match[1]
+
+              return moduleName
+            },
+            test: /\.css$/,
+            chunks: 'all',
+            enforce: true,
           },
         },
       },
