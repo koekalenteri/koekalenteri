@@ -3,7 +3,7 @@
 exports[`SearchPage filters by date - no-results 1`] = `
 <div>
   <div
-    class="MuiBox-root css-qqwhrr"
+    class="MuiBox-root css-th7t69"
   >
     <div
       class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAccordion-root MuiAccordion-rounded Mui-expanded MuiAccordion-gutters css-1086bdv-MuiPaper-root-MuiAccordion-root"
@@ -614,7 +614,7 @@ exports[`SearchPage filters by date - no-results 1`] = `
 exports[`SearchPage filters by date 1`] = `
 <div>
   <div
-    class="MuiBox-root css-qqwhrr"
+    class="MuiBox-root css-th7t69"
   >
     <div
       class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAccordion-root MuiAccordion-rounded Mui-expanded MuiAccordion-gutters css-1086bdv-MuiPaper-root-MuiAccordion-root"
@@ -2454,7 +2454,7 @@ exports[`SearchPage filters by date 1`] = `
 exports[`SearchPage filters by date/end 1`] = `
 <div>
   <div
-    class="MuiBox-root css-qqwhrr"
+    class="MuiBox-root css-th7t69"
   >
     <div
       class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAccordion-root MuiAccordion-rounded Mui-expanded MuiAccordion-gutters css-1086bdv-MuiPaper-root-MuiAccordion-root"
@@ -4294,7 +4294,7 @@ exports[`SearchPage filters by date/end 1`] = `
 exports[`SearchPage filters by event class 1`] = `
 <div>
   <div
-    class="MuiBox-root css-qqwhrr"
+    class="MuiBox-root css-th7t69"
   >
     <div
       class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAccordion-root MuiAccordion-rounded Mui-expanded MuiAccordion-gutters css-1086bdv-MuiPaper-root-MuiAccordion-root"
@@ -6213,7 +6213,7 @@ exports[`SearchPage filters by event class 1`] = `
 exports[`SearchPage filters by event type 1`] = `
 <div>
   <div
-    class="MuiBox-root css-qqwhrr"
+    class="MuiBox-root css-th7t69"
   >
     <div
       class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAccordion-root MuiAccordion-rounded Mui-expanded MuiAccordion-gutters css-1086bdv-MuiPaper-root-MuiAccordion-root"
@@ -8146,7 +8146,7 @@ exports[`SearchPage filters by event type 1`] = `
 exports[`SearchPage filters by organizer 1`] = `
 <div>
   <div
-    class="MuiBox-root css-qqwhrr"
+    class="MuiBox-root css-th7t69"
   >
     <div
       class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAccordion-root MuiAccordion-rounded Mui-expanded MuiAccordion-gutters css-1086bdv-MuiPaper-root-MuiAccordion-root"

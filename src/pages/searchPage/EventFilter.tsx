@@ -97,7 +97,7 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
     <Box
       p={0}
       bgcolor={'white'}
-      sx={{ position: 'sticky', top: HEADER_HEIGHT, zIndex: 2, borderBottom: '1px solid #eee' }}
+      sx={{ position: 'sticky', top: `calc(${HEADER_HEIGHT} - 1px)`, zIndex: 2, borderBottom: '1px solid #eee' }}
     >
       <Accordion defaultExpanded={md} expanded={expanded} onChange={(_e, expanded) => setExpanded(expanded)}>
         <AccordionSummary
