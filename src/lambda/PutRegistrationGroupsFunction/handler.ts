@@ -41,6 +41,12 @@ const putRegistrationGroupsHandler = metricScope(
 
         const eventGroups = groups.filter((g) => g.eventId === eventId)
 
+        if (eventGroups.length === 0) {
+          console.error(`no groups after filtering by eventId='${eventId}'`, groups)
+          metricsError(metrics, event.requestContext, 'putRegistrationGroups')
+          return response(422, 'no groups', event)
+        }
+
         const oldItems =
           (
             await dynamoDB.query<JsonRegistration>('eventId = :eventId', {
@@ -49,12 +55,14 @@ const putRegistrationGroupsHandler = metricScope(
           )?.filter((r) => r.state === 'ready') ?? []
 
         // create a new copy of oldItems, so we can update without touching the original ones
-        const updatedItems = oldItems.map((r) => ({ ...r }))
+        const updatedItems: JsonRegistration[] = oldItems.map((r) => ({ ...r }))
 
         // update the items in memory first
         for (const group of eventGroups) {
           const reg = updatedItems.find((r) => r.id === group.id)
-          if (reg) Object.assign(reg, group)
+          if (reg) {
+            Object.assign(reg, group)
+          }
         }
 
         // fix numbering etc, because client might provide outdated / out of bounds info, but do not update db
@@ -78,7 +86,7 @@ const putRegistrationGroupsHandler = metricScope(
         const itemsWithGroups = await fixRegistrationGroups(items ?? [], user)
 
         // update event counts
-        const confirmedEvent = await updateRegistrations(eventId, eventTable)
+        const confirmedEvent = await updateRegistrations(eventId, eventTable, itemsWithGroups)
         const { classes, entries } = confirmedEvent
         const cls = itemsWithGroups.find((item) => item.id === groups[0].id)?.class
 

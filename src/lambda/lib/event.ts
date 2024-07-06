@@ -58,7 +58,11 @@ export const markParticipants = async (
   return confirmedEvent
 }
 
-export const updateRegistrations = async (eventId: string, eventTable: string) => {
+export const updateRegistrations = async (
+  eventId: string,
+  eventTable: string,
+  updatedRegistrations?: JsonRegistration[]
+) => {
   const eventKey = { id: eventId }
 
   const confirmedEvent = await dynamoDB.read<JsonConfirmedEvent>(eventKey, eventTable)
@@ -66,13 +70,15 @@ export const updateRegistrations = async (eventId: string, eventTable: string) =
     throw new Error(`Event with id "${eventId}" not found`)
   }
 
-  const allRegistrations = await dynamoDB.query<JsonRegistration>(
-    'eventId = :id',
-    {
-      ':id': eventId,
-    },
-    registrationTable
-  )
+  const allRegistrations =
+    updatedRegistrations ??
+    (await dynamoDB.query<JsonRegistration>(
+      'eventId = :id',
+      {
+        ':id': eventId,
+      },
+      registrationTable
+    ))
 
   // ignore cancelled or unpaid registrations
   const registrations = allRegistrations?.filter((r) => r.state === 'ready' && !r.cancelled)

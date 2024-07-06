@@ -1,4 +1,4 @@
-import type { JsonRegistrationGroupInfo, JsonUser } from '../../types'
+import type { JsonRegistration, JsonRegistrationGroupInfo, JsonUser } from '../../types'
 import type CustomDynamoClient from '../utils/CustomDynamoClient'
 
 import { jest } from '@jest/globals'
@@ -50,9 +50,11 @@ const mockUser: JsonUser = {
 
 describe('putRegistrationGroupsHandler', () => {
   jest.spyOn(console, 'log').mockImplementation(() => undefined)
+  const mockConsoleError = jest.spyOn(console, 'error')
 
   afterEach(() => {
     mockSend.mockClear()
+    mockConsoleError.mockClear()
   })
 
   it('should return 401 if authorization fails', async () => {
@@ -67,6 +69,98 @@ describe('putRegistrationGroupsHandler', () => {
     const res = await putRegistrationGroupsHandler(constructAPIGwEvent(groups))
 
     expect(res.statusCode).toEqual(422)
+  })
+
+  it('shoud return 422 with groups to not belonging to event', async () => {
+    const event = eventWithParticipantsInvited
+    const mockGroup = {
+      eventId: 'incorrect-event-id',
+      id: 'whatever',
+      group: { key: 'reserve', number: 1 },
+      cancelled: false,
+    }
+    authorizeMock.mockResolvedValueOnce(mockUser)
+    mockConsoleError.mockImplementationOnce(() => undefined)
+
+    const res = await putRegistrationGroupsHandler(
+      constructAPIGwEvent([mockGroup] as JsonRegistrationGroupInfo[], { pathParameters: { eventId: event.id } })
+    )
+    expect(res.statusCode).toEqual(422)
+    expect(mockConsoleError).toHaveBeenCalledWith(`no groups after filtering by eventId='${event.id}'`, [mockGroup])
+    expect(mockConsoleError).toHaveBeenCalledTimes(1)
+  })
+
+  it('should move from cancelled to reserve', async () => {
+    const event = eventWithParticipantsInvited
+    authorizeMock.mockResolvedValueOnce(mockUser)
+
+    // stored registrations before update
+    mockDynamoDB.query.mockResolvedValueOnce(registrationsToEventWithParticipantsInvited)
+
+    const updated = registrationsToEventWithParticipantsInvited.map((r) => ({ ...r }))
+    const reg = updated[4]
+    expect(reg.cancelled).toBe(true)
+
+    reg.group = { key: 'reserve', number: 3 }
+    reg.cancelled = false
+
+    // stored registrations after update
+    mockDynamoDB.query.mockResolvedValueOnce(updated)
+
+    // read implementation for updateRegistrations
+    mockDynamoDB.read.mockImplementation(
+      async <T extends object>(key: Record<string, string | number | undefined> | null) => {
+        if (key && key.eventId)
+          return registrationsToEventWithParticipantsInvited.find(
+            (r) => r.eventId === key.eventId && r.id === key.id
+          ) as T | undefined
+
+        if (key && key.id === event.id) return JSON.parse(JSON.stringify(event)) as T
+
+        console.error('not handled', key)
+        // return event
+        return undefined
+      }
+    )
+
+    const res = await putRegistrationGroupsHandler(
+      constructAPIGwEvent(
+        [{ eventId: event.id, id: reg.id, group: reg.group, cancelled: false }] as JsonRegistrationGroupInfo[],
+        {
+          pathParameters: { eventId: event.id },
+        }
+      )
+    )
+    expect(mockDynamoDB.update).toHaveBeenCalledTimes(2)
+    expect(mockDynamoDB.update).toHaveBeenNthCalledWith(
+      1,
+      { eventId: 'testInvited', id: 'testInvited5' },
+      'set #grp = :value, #cancelled = :cancelled',
+      { '#cancelled': 'cancelled', '#grp': 'group' },
+      { ':cancelled': false, ':value': { key: 'reserve', number: 3 } },
+      'registration-table-not-found-in-env'
+    )
+    expect(mockDynamoDB.update).toHaveBeenNthCalledWith(
+      2,
+      { id: 'testInvited' },
+      'set #entries = :entries, #members = :members, #classes = :classes',
+      { '#classes': 'classes', '#entries': 'entries', '#members': 'members' },
+      {
+        ':classes': [
+          { class: 'ALO', date: '2024-07-12T21:00:00.000Z', entries: 5, members: 0, places: 3 },
+          { class: 'AVO', date: '2024-07-12T21:00:00.000Z', entries: 2, members: 0, places: 1 },
+        ],
+        ':entries': 7,
+        ':members': 0,
+      },
+      'event-table-not-found-in-env'
+    )
+
+    expect(res.statusCode).toBe(200)
+    const resultItems: JsonRegistration[] = JSON.parse(res.body).items
+    const resultItem = resultItems.find((r) => r.id === reg.id)
+    expect(resultItem?.cancelled).toBe(false)
+    expect(resultItem?.group).toEqual(reg.group)
   })
 
   it('should not send "reserve" message, when reserve is not notified', async () => {
@@ -102,7 +196,7 @@ describe('putRegistrationGroupsHandler', () => {
     const res = await putRegistrationGroupsHandler(
       constructAPIGwEvent(
         [
-          { eventId: 'testInvited', id: updated[6].id, group: updated[6].group, cancelled: false },
+          { eventId: event.id, id: updated[6].id, group: updated[6].group, cancelled: false },
         ] as JsonRegistrationGroupInfo[],
         { pathParameters: { eventId: event.id } }
       )
