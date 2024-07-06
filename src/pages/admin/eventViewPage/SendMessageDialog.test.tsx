@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import type { Registration } from '../../../types'
 
+import { Suspense } from 'react'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
@@ -27,7 +28,9 @@ const Wrapper = ({ children }: { readonly children: ReactNode }) => {
       <RecoilRoot>
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
           <SnackbarProvider>
-            <ConfirmProvider>{children}</ConfirmProvider>
+            <ConfirmProvider>
+              <Suspense fallback={<>loading...</>}>{children}</Suspense>
+            </ConfirmProvider>
           </SnackbarProvider>
         </LocalizationProvider>
       </RecoilRoot>

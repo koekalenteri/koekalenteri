@@ -29,13 +29,13 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
       tabindex="-1"
     >
       <div
-        aria-labelledby=":r7:"
+        aria-labelledby=":r8:"
         class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation24 MuiDialog-paper MuiDialog-paperScrollPaper MuiDialog-paperWidthLg MuiDialog-paperFullWidth css-cyxlny-MuiPaper-root-MuiDialog-paper"
         role="dialog"
       >
         <h2
           class="MuiTypography-root MuiTypography-h6 MuiDialogTitle-root css-1xs83er-MuiTypography-root-MuiDialogTitle-root"
-          id=":r7:"
+          id=":r8:"
         >
           Viestin lähettäminen
         </h2>
@@ -973,13 +973,13 @@ exports[`SendMessageDialog renders with minimal parameters 1`] = `
       tabindex="-1"
     >
       <div
-        aria-labelledby=":r2:"
+        aria-labelledby=":r3:"
         class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation24 MuiDialog-paper MuiDialog-paperScrollPaper MuiDialog-paperWidthLg MuiDialog-paperFullWidth css-cyxlny-MuiPaper-root-MuiDialog-paper"
         role="dialog"
       >
         <h2
           class="MuiTypography-root MuiTypography-h6 MuiDialogTitle-root css-1xs83er-MuiTypography-root-MuiDialogTitle-root"
-          id=":r2:"
+          id=":r3:"
         >
           Viestin lähettäminen
         </h2>

@@ -14,20 +14,20 @@ import { reportError } from '../../../../lib/client/error'
 import { idTokenAtom } from '../../../recoil'
 import { adminEventSelector } from '../events'
 
-import { adminCurrentEventRegistrationsSelector } from './selectors'
+import { adminEventRegistrationsSelector } from './selectors'
 
 export const useAdminRegistrationActions = (eventId: string) => {
-  const [adminRegistrations, setAdminRegistrations] = useRecoilState(adminCurrentEventRegistrationsSelector)
+  const [eventRegistrations, setEventRegistrations] = useRecoilState(adminEventRegistrationsSelector(eventId))
   const [event, setEvent] = useRecoilState(adminEventSelector(eventId))
   const token = useRecoilValue(idTokenAtom)
   const { enqueueSnackbar } = useSnackbar()
 
   const updateAdminRegistration = (saved: Registration) => {
-    const regs = [...adminRegistrations]
+    const regs = [...eventRegistrations]
     const index = regs.findIndex((r) => r.id === saved.id)
     const insert = index === -1
     regs.splice(insert ? regs.length : index, insert ? 0 : 1, saved)
-    setAdminRegistrations([...regs])
+    setEventRegistrations([...regs])
   }
 
   return {
@@ -44,13 +44,13 @@ export const useAdminRegistrationActions = (eventId: string) => {
     },
 
     update(updated: Registration[]) {
-      const regs = [...adminRegistrations]
+      const regs = [...eventRegistrations]
       for (const reg of updated) {
         const index = regs.findIndex((r) => r.id === reg.id)
         const insert = index === -1
         regs.splice(insert ? regs.length : index, insert ? 0 : 1, reg)
       }
-      setAdminRegistrations([...regs])
+      setEventRegistrations([...regs])
     },
 
     async saveGroups(eventId: string, groups: RegistrationGroupInfo[]) {
@@ -118,7 +118,7 @@ export const useAdminRegistrationActions = (eventId: string) => {
             style: { whiteSpace: 'pre-line' },
           })
         }
-        setAdminRegistrations(items)
+        setEventRegistrations(items)
         if (event) {
           setEvent({ ...event, classes, entries })
         }
@@ -158,7 +158,7 @@ export const useAdminRegistrationActions = (eventId: string) => {
     ) {
       if (!token) throw new Error('missing token')
 
-      const reg = adminRegistrations.find((r) => r.id === id)
+      const reg = eventRegistrations.find((r) => r.id === id)
       if (!reg) throw new Error('unexpected error occured')
 
       await putAdminRegistrationNotes({ eventId, id, internalNotes }, token)

@@ -1,28 +1,23 @@
 import type { AtomEffect } from 'recoil'
 import type { Registration } from '../../../../types'
 
+import { DefaultValue } from 'recoil'
+
 import { getRegistrations } from '../../../../api/registration'
 import { getParamFromFamilyKey, idTokenAtom } from '../../../recoil'
-
-const loaded: Record<string, boolean> = {}
 
 export const adminRemoteRegistrationsEffect: AtomEffect<Registration[]> = ({ getPromise, node, setSelf, trigger }) => {
   if (trigger === 'get') {
     const eventId = getParamFromFamilyKey(node.key)
-    if (loaded[eventId]) return
-    getPromise(idTokenAtom).then((token) => {
-      if (!token) return
-      loaded[eventId] = true
-      getRegistrations(eventId, token)
-        .then((registrations) => {
-          if (registrations) {
-            setSelf(registrations)
-          }
+
+    setSelf(
+      getPromise(idTokenAtom).then((token) => {
+        if (!token) return new DefaultValue()
+
+        return getRegistrations(eventId, token).then((registrations) => {
+          return registrations ?? new DefaultValue()
         })
-        .catch((reason) => {
-          console.error(reason)
-          setSelf([])
-        })
-    })
+      })
+    )
   }
 }
