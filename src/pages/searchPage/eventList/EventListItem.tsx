@@ -57,6 +57,7 @@ export const EventListItem = ({ event, odd }: Props) => {
         py: 1,
         pr: 1,
         bgcolor: odd ? 'background.oddRow' : 'background.default',
+        overflow: 'hidden',
       }}
       role="row"
     >
