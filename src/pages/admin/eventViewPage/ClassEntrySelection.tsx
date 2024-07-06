@@ -200,7 +200,7 @@ const ClassEntrySelection = ({
       }
     } else {
       // move from list to another
-      save.push({ eventId: reg.eventId, id: reg.id, group: newGroup })
+      save.push({ eventId: reg.eventId, id: reg.id, group: newGroup, cancelled: newGroup.key === GROUP_KEY_CANCELLED })
     }
 
     // finally send all the updates to backend
