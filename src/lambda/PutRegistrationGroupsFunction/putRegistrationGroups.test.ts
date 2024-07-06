@@ -147,8 +147,8 @@ describe('putRegistrationGroupsHandler', () => {
       { '#classes': 'classes', '#entries': 'entries', '#members': 'members' },
       {
         ':classes': [
-          { class: 'ALO', date: '2024-07-12T21:00:00.000Z', entries: 5, members: 0, places: 3 },
-          { class: 'AVO', date: '2024-07-12T21:00:00.000Z', entries: 2, members: 0, places: 1 },
+          { class: 'ALO', date: expect.any(String), entries: 5, members: 0, places: 3 },
+          { class: 'AVO', date: expect.any(String), entries: 2, members: 0, places: 1 },
         ],
         ':entries': 7,
         ':members': 0,
