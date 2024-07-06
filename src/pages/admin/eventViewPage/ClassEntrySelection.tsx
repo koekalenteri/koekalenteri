@@ -188,7 +188,7 @@ const ClassEntrySelection = ({
         newGroup.number = (regs[regs.length - 1]?.group?.number ?? 0) + 1
       }
       regs.splice(pos, 0, reg)
-      save.push({ eventId: reg.eventId, id: reg.id, group: newGroup })
+      save.push({ eventId: reg.eventId, id: reg.id, group: newGroup, cancelled: newGroup.key === GROUP_KEY_CANCELLED })
 
       // update all the registrations that needs to move, and add to `save` array
       for (let i = pos + 1, num = newGroup.number + 1; i < regs.length; i++, num++) {

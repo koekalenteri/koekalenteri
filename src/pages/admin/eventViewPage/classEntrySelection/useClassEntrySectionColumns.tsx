@@ -236,13 +236,15 @@ export function useClassEntrySelectionColumns(
               onClick={() => openEditDialog?.(p.row.id)}
               showInMenu
             />,
-            <GridActionsCellItem
-              key="withdraw"
-              icon={<EventBusyOutlined fontSize="small" />}
-              label={t('withdraw')}
-              onClick={() => cancelRegistration?.(p.row.id)}
-              showInMenu
-            />,
+            p.row.cancelled ? null : (
+              <GridActionsCellItem
+                key="withdraw"
+                icon={<EventBusyOutlined fontSize="small" />}
+                label={t('withdraw')}
+                onClick={() => cancelRegistration?.(p.row.id)}
+                showInMenu
+              />
+            ),
             canRefund(p.row) ? (
               <GridActionsCellItem
                 key="refund"
