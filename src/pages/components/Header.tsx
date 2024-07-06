@@ -60,12 +60,18 @@ const Header = ({ toggleMenu }: Props) => {
               style={{ marginTop: '-4px', marginBottom: '-4px' }}
             />
           }
+          label="home"
           onClick={handleHomeClick}
         >
           Koekalenteri
         </AppBarButton>
         {hasAdminAccess ? (
-          <AppBarButton active={inAdmin} startIcon={<ManageAccountsOutlined />} onClick={handleAdminClick}>
+          <AppBarButton
+            active={inAdmin}
+            startIcon={<ManageAccountsOutlined />}
+            onClick={handleAdminClick}
+            label="admin"
+          >
             {t('admin')}
           </AppBarButton>
         ) : null}

@@ -59,9 +59,9 @@ export const EventListItem = ({ event, odd }: Props) => {
         bgcolor: odd ? 'background.oddRow' : 'background.default',
         overflow: 'hidden',
       }}
-      role="row"
+      component="article"
     >
-      <Grid container spacing={0} alignItems="start" disableEqualOverflow>
+      <Grid container spacing={0} alignItems="start" disableEqualOverflow role="heading" aria-level={2}>
         <Grid>
           <IconButton aria-label="expand row" size="small" color="primary" onClick={handleClick}>
             {open ? <KeyboardArrowDown /> : <KeyboardArrowRight />}
@@ -92,7 +92,7 @@ export const EventListItem = ({ event, odd }: Props) => {
             <Grid xs={true} sm="auto" overflow={'hidden'} textOverflow={'ellipsis'} sx={{ textWrap: 'nowrap' }}>
               {event.name ? event.name : ''}
             </Grid>
-            <Grid xs="auto" smOffset="auto">
+            <Grid xs="auto" smOffset="auto" alignContent="center">
               <Typography variant="body2" component="div">
                 {isEntryOpen(event) ? (
                   <LinkButton to={Path.register(event)} text={t('register')} sx={{ pr: 0 }} />
@@ -113,6 +113,7 @@ export const EventListItem = ({ event, odd }: Props) => {
           mt: 0,
         }}
         timeout="auto"
+        role="region"
       >
         <EventInfo event={event}></EventInfo>
       </Collapse>

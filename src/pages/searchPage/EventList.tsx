@@ -7,16 +7,13 @@ interface Props {
   readonly events: PublicDogEvent[]
 }
 
-export function EventList({ events }: Props) {
-  if (!events.length) {
-    return <EmptyResult />
-  }
-
-  return (
-    <div>
+export const EventList = ({ events }: Props) =>
+  !events.length ? (
+    <EmptyResult />
+  ) : (
+    <>
       {events.map((event, i) => (
         <EventListItem key={event.id} event={event} odd={i % 2 === 1} />
       ))}
-    </div>
+    </>
   )
-}

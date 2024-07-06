@@ -21,7 +21,12 @@ export default function HelpMenu() {
 
   return (
     <>
-      <AppBarButton onClick={handleClick} startIcon={<HelpOutlineOutlined />} endIcon={<ExpandMore />}>
+      <AppBarButton
+        onClick={handleClick}
+        startIcon={<HelpOutlineOutlined />}
+        endIcon={<ExpandMore />}
+        label={t('support')}
+      >
         {t('support')}
       </AppBarButton>
       <Menu

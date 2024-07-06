@@ -4,6 +4,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
 <div>
   <div
     class="MuiBox-root css-7sa5ll"
+    role="button"
   >
     <a
       class="link"
@@ -2884,6 +2885,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
 <div>
   <div
     class="MuiBox-root css-7sa5ll"
+    role="button"
   >
     <a
       class="link"

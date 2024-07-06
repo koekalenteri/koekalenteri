@@ -3,29 +3,35 @@ import { lightFormat } from 'date-fns'
 import preval from 'preval.macro'
 
 import pkg from '../../../package.json'
-import { BANNER_HEIGHT } from '../components/Banner'
+import { HEADER_HEIGHT } from '../../assets/Theme'
 
 const buildTimestamp = preval`module.exports = new Date().getTime();` as number
 
 export default function Version() {
-  const date = lightFormat(buildTimestamp, 'dd.MM.yyyy HH:mm')
+  const date = lightFormat(buildTimestamp, 'dd.MM.yyyy')
+  const time = lightFormat(buildTimestamp, 'HH:mm')
   return (
     <Box
       sx={{
-        top: `calc(${BANNER_HEIGHT} -  14px)`,
+        top: HEADER_HEIGHT,
+        position: 'absolute',
         left: 0,
+        right: 0,
         color: '#eee',
-        fontSize: 6,
+        fontSize: 8,
         fontFamily: 'monospace',
         p: 0.5,
-        position: 'absolute',
         textAlign: 'right',
         zIndex: 2,
-        width: '100%',
-        textShadow: '1px 1px 1px #222',
+        textShadow: '1px 1px 1px #000',
       }}
+      component="aside"
     >
-      v{pkg.version} [{date}]
+      v{pkg.version}
+      <br />
+      <small>{date}</small>
+      <br />
+      <small>{time}</small>
     </Box>
   )
 }

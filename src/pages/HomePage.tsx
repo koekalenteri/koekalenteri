@@ -20,7 +20,7 @@ export function HomePage() {
     <>
       <Header />
       <Banner />
-      <Box>
+      <Box component="main">
         <Suspense fallback={<LoadingIndicator />}>
           <Outlet />
         </Suspense>

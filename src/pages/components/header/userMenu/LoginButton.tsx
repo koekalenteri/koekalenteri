@@ -9,7 +9,7 @@ export default function LoginButton() {
   const actions = useUserActions()
 
   return (
-    <AppBarButton onClick={actions.login} startIcon={<PersonOutline />}>
+    <AppBarButton onClick={actions.login} startIcon={<PersonOutline />} label={t(`login`)}>
       {t(`login`)}
     </AppBarButton>
   )

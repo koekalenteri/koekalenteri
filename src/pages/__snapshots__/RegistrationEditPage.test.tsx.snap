@@ -4,6 +4,7 @@ exports[`RegistrationEditPage should render 1`] = `
 <div>
   <div
     class="MuiBox-root css-7sa5ll"
+    role="button"
   />
   <div
     class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation2 css-1exk97n-MuiPaper-root"

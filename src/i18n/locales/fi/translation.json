@@ -200,6 +200,7 @@
     "fi": "suomi",
     "sv": "ruotsi"
   },
+  "languageMenu": "Kieli",
   "languages": "Arvostelukielet",
   "locale": {
     "en": "In English",

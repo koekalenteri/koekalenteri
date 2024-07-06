@@ -9,11 +9,13 @@ interface Props {
   readonly endIcon?: ReactNode
   readonly onClick?: MouseEventHandler
   readonly children?: ReactNode
+  readonly label: string
 }
 
 export default function AppBarButton(props: Props) {
   return (
     <Button
+      aria-label={props.label}
       onClick={props.onClick}
       startIcon={props.startIcon}
       endIcon={props.endIcon}

@@ -152,6 +152,7 @@
     "fi": "finnish",
     "sv": "swedish"
   },
+  "languageMenu": "Language",
   "languages": "Judging languages",
   "login": "Login",
   "loginFailed": "Login failed",

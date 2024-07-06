@@ -4,6 +4,7 @@ exports[`EventStateInfo should render start list link for invited event 1`] = `
 <div>
   <div
     class="MuiBox-root css-mro3c9"
+    role="button"
   >
     <a
       class="link"
@@ -20,6 +21,7 @@ exports[`EventStateInfo should render start list link for started event 1`] = `
 <div>
   <div
     class="MuiBox-root css-mro3c9"
+    role="button"
   >
     <a
       class="link"
@@ -34,33 +36,33 @@ exports[`EventStateInfo should render start list link for started event 1`] = `
 
 exports[`EventStateInfo should render state info for cancelled event 1`] = `
 <div>
-  <div
+  <span
     class="MuiBox-root css-1lejymi"
   >
     event.states.cancelled_info
-  </div>
+  </span>
    
 </div>
 `;
 
 exports[`EventStateInfo should render state info for tenatative event 1`] = `
 <div>
-  <div
+  <span
     class="MuiBox-root css-1lejymi"
   >
     event.states.tentative_info
-  </div>
+  </span>
    
 </div>
 `;
 
 exports[`EventStateInfo should render text 1`] = `
 <div>
-  <div
+  <span
     class="MuiBox-root css-1lejymi"
   >
     anything
-  </div>
+  </span>
    
 </div>
 `;

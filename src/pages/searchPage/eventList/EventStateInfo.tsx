@@ -20,7 +20,7 @@ export function EventStateInfo({ id, state, text = null }: Props) {
   }
 
   return (
-    <Box sx={{ textTransform: 'uppercase' }}>
+    <Box sx={{ textTransform: 'uppercase' }} component="span">
       {state === 'tentative' || state === 'cancelled' ? t(`event.states.${state}_info`) : text}
     </Box>
   )

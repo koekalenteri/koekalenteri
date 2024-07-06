@@ -30,6 +30,7 @@ const Banner = () => {
 
   return (
     <Box
+      component="header"
       sx={{
         position: 'relative',
         width: '100%',
@@ -39,6 +40,7 @@ const Banner = () => {
     >
       {loading !== undefined && (
         <img
+          alt="banner"
           src={banner1504}
           srcSet={`${banner512} 512w, ${banner889} 900w, ${banner1504} 1504w`}
           style={{

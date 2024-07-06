@@ -17,6 +17,7 @@ exports[`ErrorPage should render 404 1`] = `
     </p>
     <div
       class="MuiBox-root css-mro3c9"
+      role="button"
     >
       <a
         class="link"
@@ -41,6 +42,7 @@ exports[`ErrorPage should render 500 1`] = `
     </h1>
     <div
       class="MuiBox-root css-mro3c9"
+      role="button"
     >
       <a
         class="link"

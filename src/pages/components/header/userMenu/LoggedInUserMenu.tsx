@@ -25,7 +25,7 @@ export default function LoggedInUserMenu({ userName }: Props) {
 
   return (
     <>
-      <AppBarButton onClick={handleClick} startIcon={<PersonOutline />} endIcon={<ExpandMore />}>
+      <AppBarButton onClick={handleClick} startIcon={<PersonOutline />} endIcon={<ExpandMore />} label="user">
         {userName}
       </AppBarButton>
       <Menu

@@ -95,6 +95,7 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
 
   return (
     <Box
+      component="nav"
       p={0}
       bgcolor={'white'}
       sx={{ position: 'sticky', top: `calc(${HEADER_HEIGHT} - 1px)`, zIndex: 2, borderBottom: '1px solid #eee' }}
