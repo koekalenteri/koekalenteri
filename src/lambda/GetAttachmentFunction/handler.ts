@@ -19,6 +19,10 @@ const getAttachmentHandler = metricScope(
           metricsError(metrics, event.requestContext, 'getAttachment')
           return response(404, 'not found', event)
         }
+        const dl = event.queryStringParameters && 'dl' in event.queryStringParameters
+        const disposition = dl
+          ? `attachment; filename="${unescape(event.pathParameters?.name ?? 'kutsu.pdf')}"`
+          : 'inline'
 
         metricsSuccess(metrics, event.requestContext, 'getAttachment')
         return {
@@ -28,7 +32,7 @@ const getAttachmentHandler = metricScope(
           headers: {
             'Access-Control-Allow-Origin': allowOrigin(event),
             'Content-Type': 'application/pdf',
-            'Content-Disposition': `inline; filename="${unescape(event.pathParameters?.name ?? 'kutsu.pdf')}"`,
+            'Content-Disposition': `${disposition}`,
           },
         }
       } catch (err) {
