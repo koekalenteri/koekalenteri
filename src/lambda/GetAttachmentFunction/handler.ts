@@ -28,7 +28,7 @@ const getAttachmentHandler = metricScope(
           headers: {
             'Access-Control-Allow-Origin': allowOrigin(event),
             'Content-Type': 'application/pdf',
-            'Content-Disposition': `attachment; filename="${unescape(event.pathParameters?.name ?? 'kutsu.pdf')}"`,
+            'Content-Disposition': `inline; filename="${unescape(event.pathParameters?.name ?? 'kutsu.pdf')}"`,
           },
         }
       } catch (err) {
