@@ -6,7 +6,6 @@ import { ErrorPage } from './pages/ErrorPage'
 import { HomePage } from './pages/HomePage'
 import { paymentResultLoader } from './pages/PaymentResultPage'
 import RegistrationEditPage from './pages/RegistrationEditPage'
-import { registrationInvitationLoader } from './pages/RegistrationInvitation'
 import { RegistrationListPage } from './pages/RegistrationListPage'
 import { SearchPage } from './pages/SearchPage'
 import { startListLoader, StartListPage } from './pages/StartListPage'
@@ -57,11 +56,6 @@ const routes: RouteObject[] = [
         element: <RegistrationEditPage />,
       },
       {
-        path: 'r/:id/:registrationId/invitation',
-        loader: registrationInvitationLoader,
-        element: <>loading...</>,
-      },
-      {
         path: 'r/:id/:registrationId/saved',
         element: <RegistrationListPage />,
       },
@@ -70,6 +64,11 @@ const routes: RouteObject[] = [
         element: <RegistrationListPage />,
       },
     ],
+  },
+  {
+    path: 'r/:id/:registrationId/invitation',
+    lazy: () => import('./pages/RegistrationInvitation'),
+    errorElement: <ErrorPage />,
   },
   {
     path: Path.login,

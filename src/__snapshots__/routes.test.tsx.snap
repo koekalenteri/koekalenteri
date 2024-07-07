@@ -55,13 +55,6 @@ exports[`routes should match a snapshot 1`] = `
         "path": "r/:id/:registrationId/edit",
       },
       {
-        "element": <React.Fragment>
-          loading...
-        </React.Fragment>,
-        "loader": [Function],
-        "path": "r/:id/:registrationId/invitation",
-      },
-      {
         "element": <RegistrationListPage />,
         "path": "r/:id/:registrationId/saved",
       },
@@ -73,6 +66,11 @@ exports[`routes should match a snapshot 1`] = `
     "element": <HomePage />,
     "errorElement": <ErrorPage />,
     "path": "/",
+  },
+  {
+    "errorElement": <ErrorPage />,
+    "lazy": [Function],
+    "path": "r/:id/:registrationId/invitation",
   },
   {
     "errorElement": <ErrorPage />,
