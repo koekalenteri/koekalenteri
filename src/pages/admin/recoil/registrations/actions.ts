@@ -1,7 +1,7 @@
 import type { PublicDogEvent, Registration, RegistrationGroupInfo } from '../../../../types'
 
 import { useSnackbar } from 'notistack'
-import { useRecoilState, useRecoilValue } from 'recoil'
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
 
 import { createRefund } from '../../../../api/payment'
 import {
@@ -14,11 +14,13 @@ import { reportError } from '../../../../lib/client/error'
 import { idTokenAtom } from '../../../recoil'
 import { adminEventSelector } from '../events'
 
+import { adminBackgroundActionsRunningAtom } from './atoms'
 import { adminEventRegistrationsSelector } from './selectors'
 
 export const useAdminRegistrationActions = (eventId: string) => {
   const [eventRegistrations, setEventRegistrations] = useRecoilState(adminEventRegistrationsSelector(eventId))
   const [event, setEvent] = useRecoilState(adminEventSelector(eventId))
+  const setBackgroundActionsRunning = useSetRecoilState(adminBackgroundActionsRunningAtom)
   const token = useRecoilValue(idTokenAtom)
   const { enqueueSnackbar } = useSnackbar()
 
@@ -56,6 +58,18 @@ export const useAdminRegistrationActions = (eventId: string) => {
     async saveGroups(eventId: string, groups: RegistrationGroupInfo[]) {
       try {
         if (!token) throw new Error('missing token')
+
+        // early update for respinsiveness
+        const regs = [...eventRegistrations]
+        for (const group of groups) {
+          const index = regs.findIndex((r) => r.id === group.id)
+          if (index === -1) continue
+          const reg = regs[index]
+          regs.splice(index, 1, { ...reg, ...group })
+        }
+        setEventRegistrations([...regs])
+        setBackgroundActionsRunning(true)
+
         const {
           items,
           classes,
@@ -122,6 +136,7 @@ export const useAdminRegistrationActions = (eventId: string) => {
         if (event) {
           setEvent({ ...event, classes, entries })
         }
+        setBackgroundActionsRunning(false)
       } catch (e) {
         reportError(e)
         return false

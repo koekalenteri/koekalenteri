@@ -11,6 +11,7 @@ import FormatListNumberedOutlined from '@mui/icons-material/FormatListNumberedOu
 import Alert from '@mui/material/Alert'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
+import CircularProgress from '@mui/material/CircularProgress'
 import Divider from '@mui/material/Divider'
 import Grid from '@mui/material/Grid'
 import Stack from '@mui/material/Stack'
@@ -32,6 +33,7 @@ import SendMessageDialog from './eventViewPage/SendMessageDialog'
 import TabPanel from './eventViewPage/TabPanel'
 import Title from './eventViewPage/Title'
 import {
+  adminBackgroundActionsRunningAtom,
   adminEventClassAtom,
   adminEventRegistrationsSelector,
   adminEventSelector,
@@ -73,6 +75,7 @@ export default function EventViewPage() {
   const [messageTemplateId, setMessageTemplateId] = useState<EmailTemplateId>()
   const { eventClasses, stateByClass, missingClasses } = useAdminEventRegistrationInfo(event, allRegistrations)
   const allClasses = useMemo(() => eventClasses.concat(missingClasses), [eventClasses, missingClasses])
+  const backgroundActionsRunning = useRecoilValue(adminBackgroundActionsRunningAtom)
 
   const activeTab = useMemo(
     () => Math.max(allClasses.findIndex((c) => c === selectedEventClass) ?? 0, 0),
@@ -154,21 +157,28 @@ export default function EventViewPage() {
           </Button>
         </Stack>
 
-        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-          <Tabs value={activeTab} onChange={handleTabChange}>
-            {allClasses.map((eventClass) => (
-              <Tab
-                key={`tab-${eventClass}`}
-                id={`tab-${eventClass}`}
-                sx={{
-                  borderLeft: '1px solid',
-                  borderLeftColor: 'divider',
-                  bgcolor: missingClasses.includes(eventClass) ? '#fdeded' : undefined,
-                }}
-                label={eventClass}
-              ></Tab>
-            ))}
-          </Tabs>
+        <Box sx={{ borderBottom: 1, borderColor: 'divider', mr: 2 }}>
+          <Stack direction="row" alignItems="center" justifyContent="space-between">
+            <Tabs value={activeTab} onChange={handleTabChange}>
+              {allClasses.map((eventClass) => (
+                <Tab
+                  key={`tab-${eventClass}`}
+                  id={`tab-${eventClass}`}
+                  sx={{
+                    borderLeft: '1px solid',
+                    borderLeftColor: 'divider',
+                    bgcolor: missingClasses.includes(eventClass) ? '#fdeded' : undefined,
+                  }}
+                  label={eventClass}
+                ></Tab>
+              ))}
+            </Tabs>
+            <CircularProgress
+              size={20}
+              color="info"
+              sx={{ opacity: backgroundActionsRunning ? 1 : 0, transition: 'opacity 0.1s ease-in-out' }}
+            />
+          </Stack>
         </Box>
 
         <Box

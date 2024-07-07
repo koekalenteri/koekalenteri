@@ -85,6 +85,7 @@ const ClassEntrySelection = ({
   const { t } = useTranslation()
   const { enqueueSnackbar } = useSnackbar()
   const actions = useAdminRegistrationActions(event.id)
+
   const handleOpen = useCallback(
     (id: string) => {
       setSelectedRegistrationId?.(id)
@@ -92,6 +93,7 @@ const ClassEntrySelection = ({
     },
     [setOpen, setSelectedRegistrationId]
   )
+
   const handleCancel = useCallback(
     async (id: string) => {
       const reg = registrations.find((r) => r.id === id)
@@ -102,6 +104,7 @@ const ClassEntrySelection = ({
     },
     [actions, registrations]
   )
+
   const handleRefund = useCallback(
     async (id: string) => {
       setSelectedRegistrationId?.(id)
@@ -109,7 +112,9 @@ const ClassEntrySelection = ({
     },
     [setRefundOpen, setSelectedRegistrationId]
   )
+
   const dates = useAdminEventRegistrationDates(event, eventClass)
+
   const { cancelledColumns, entryColumns, participantColumns } = useClassEntrySelectionColumns(
     dates,
     event,
@@ -117,6 +122,7 @@ const ClassEntrySelection = ({
     handleCancel,
     handleRefund
   )
+
   const groups = useAdminEventRegistrationGroups(event, eventClass)
 
   const registrationsByGroup: Record<string, RegistrationWithGroups[]> = useMemo(() => {
@@ -171,6 +177,7 @@ const ClassEntrySelection = ({
     // determine all the other registrations in group
     const regs = registrations.filter((r) => r.group?.key === group.key && r.id !== reg.id)
 
+    // by default, assume new location is last in group
     const newGroup = { ...group, number: regs.length + 1 }
 
     if (group.key === GROUP_KEY_CANCELLED || (group.key === GROUP_KEY_RESERVE && !canArrangeReserve)) {
@@ -180,26 +187,31 @@ const ClassEntrySelection = ({
         return
       }
       save.push({ eventId: reg.eventId, id: reg.id, group: newGroup })
-    } else if (item.targetGroupKey) {
-      const pos = (item.targetIndex ?? 0) + (item.position === 'before' ? 0 : 1)
+    } else if (item.targetGroupKey && item.targetGroupKey === item.groupKey) {
+      const targetIndex = item.targetIndex ?? 0
+      // if moving down, substract 1 (bevause this reg is not included in regs)
+      const directionModifier = item.index < targetIndex ? -1 : 0
+      // modifier based on if hovered above or below the target
+      const hoverModifier = item.position === 'before' ? -0.5 : 0.5
+      // final position
+      const pos = targetIndex + directionModifier
+      // take the number from registration in that position
       newGroup.number = regs[pos]?.group?.number ?? 0
+
       // moved as last, set number to last + 1
       if (item.position === 'after' && pos > 0 && newGroup.number === 0) {
         newGroup.number = (regs[regs.length - 1]?.group?.number ?? 0) + 1
       }
+      // put the registration in correct position
       regs.splice(pos, 0, reg)
-      save.push({ eventId: reg.eventId, id: reg.id, group: newGroup, cancelled: newGroup.key === GROUP_KEY_CANCELLED })
-
-      // update all the registrations that needs to move, and add to `save` array
-      for (let i = pos + 1, num = newGroup.number + 1; i < regs.length; i++, num++) {
-        const r = regs[i]
-        if (r.group && r.group?.number !== num) {
-          const grp = { ...r.group, number: num }
-          save.push({ eventId: r.eventId, id: r.id, group: grp })
-        }
-      }
+      // save using a 0.5 modifier based on position. backend will fix the numbers.
+      save.push({
+        eventId: reg.eventId,
+        id: reg.id,
+        group: { ...newGroup, number: newGroup.number + hoverModifier },
+      })
     } else {
-      // move from list to another
+      // move from list to another (always last)
       save.push({ eventId: reg.eventId, id: reg.id, group: newGroup, cancelled: newGroup.key === GROUP_KEY_CANCELLED })
     }
 
@@ -257,6 +269,7 @@ const ClassEntrySelection = ({
     },
     [enqueueSnackbar]
   )
+
   const handleDoubleClick = useCallback(() => setOpen?.(true), [setOpen])
 
   return (

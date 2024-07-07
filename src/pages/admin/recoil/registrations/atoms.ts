@@ -7,6 +7,11 @@ import { localStorageEffect, logEffect } from '../../../recoil'
 
 import { adminRemoteRegistrationsEffect } from './effects'
 
+export const adminBackgroundActionsRunningAtom = atom<boolean>({
+  key: 'adminBackgroundActionsRunningAtom',
+  default: false,
+})
+
 export const adminRegistrationIdAtom = atom<string | undefined>({
   key: 'adminRegistrationId',
   default: undefined,
