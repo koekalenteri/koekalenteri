@@ -8,21 +8,9 @@ import { getEvents } from '../../../api/event'
 
 import { deserializeFilter, serializeFilter } from './filters'
 
-let loaded = false
-
 export const remoteEventsEffect: AtomEffect<PublicDogEvent[]> = ({ setSelf, trigger }) => {
-  if (trigger === 'get' && !loaded) {
-    loaded = true
-    getEvents()
-      .then((events) => {
-        const result = [...events]
-        result.sort((a, b) => a.startDate.valueOf() - b.startDate.valueOf())
-        setSelf(result)
-      })
-      .catch((reason) => {
-        console.error(reason)
-        setSelf([])
-      })
+  if (trigger === 'get') {
+    setSelf(getEvents().then((events) => events.sort((a, b) => a.startDate.valueOf() - b.startDate.valueOf())))
   }
 }
 

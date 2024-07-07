@@ -47,7 +47,7 @@ export async function getEvents(signal?: AbortSignal): Promise<PublicDogEvent[]>
 
 export async function getAdminEvents(signal?: AbortSignal): Promise<DogEvent[]> {
   return new Promise((resolve) => {
-    process.nextTick(() => resolve(mockEvents))
+    process.nextTick(() => resolve([...mockEvents]))
   })
 }
 

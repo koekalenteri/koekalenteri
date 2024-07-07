@@ -1,21 +1,19 @@
 import type { AtomEffect } from 'recoil'
 import type { DogEvent } from '../../../../types'
 
+import { DefaultValue } from 'recoil'
+
 import { getAdminEvents } from '../../../../api/event'
 import { idTokenAtom } from '../../../recoil'
 
-let loaded = false
-
 export const adminRemoteEventsEffect: AtomEffect<DogEvent[]> = ({ getPromise, setSelf, trigger }) => {
-  if (trigger === 'get' && !loaded) {
-    getPromise(idTokenAtom).then((token) => {
-      loaded = true
-      getAdminEvents(token)
-        .then(setSelf)
-        .catch((reason) => {
-          console.error(reason)
-          setSelf([])
-        })
-    })
+  if (trigger === 'get') {
+    setSelf(
+      getPromise(idTokenAtom).then((token) =>
+        token
+          ? getAdminEvents(token).then((events) => events.sort((a, b) => a.startDate.valueOf() - b.startDate.valueOf()))
+          : new DefaultValue()
+      )
+    )
   }
 }

@@ -2,26 +2,19 @@ import type { AtomEffect } from 'recoil'
 import type { Judge } from '../../../../types'
 
 import i18next from 'i18next'
+import { DefaultValue } from 'recoil'
 
 import { getJudges } from '../../../../api/judge'
 import { idTokenAtom } from '../../../recoil/user'
 
-let loaded = false
-
 export const adminRemoteJudgesEffect: AtomEffect<Judge[]> = ({ getPromise, setSelf, trigger }) => {
-  if (trigger === 'get' && !loaded) {
-    getPromise(idTokenAtom).then((token) => {
-      if (!token) return
-      loaded = true
-      getJudges(token)
-        .then((judges) => {
-          judges.sort((a, b) => a.name.localeCompare(b.name, i18next.language))
-          setSelf(judges)
-        })
-        .catch((reason) => {
-          console.error(reason)
-          setSelf([])
-        })
-    })
+  if (trigger === 'get') {
+    setSelf(
+      getPromise(idTokenAtom).then((token) =>
+        token
+          ? getJudges(token).then((judges) => judges.sort((a, b) => a.name.localeCompare(b.name, i18next.language)))
+          : new DefaultValue()
+      )
+    )
   }
 }

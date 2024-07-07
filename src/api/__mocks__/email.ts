@@ -10,7 +10,7 @@ const mockTemplates: EmailTemplate[] = [
 
 export async function getEmailTemplates(token?: string, signal?: AbortSignal) {
   return new Promise((resolve) => {
-    process.nextTick(() => resolve(mockTemplates))
+    process.nextTick(() => resolve([...mockTemplates]))
   })
 }
 

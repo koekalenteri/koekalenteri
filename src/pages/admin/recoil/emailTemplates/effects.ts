@@ -18,9 +18,9 @@ const templateIds: EmailTemplateId[] = [
 
 export const adminRemoteEmailTemplatesEffect: AtomEffect<EmailTemplate[]> = ({ getPromise, setSelf, trigger }) => {
   if (trigger === 'get') {
-    getPromise(idTokenAtom).then((token) => {
-      getEmailTemplates(token)
-        .then((emailTemplates) => {
+    setSelf(
+      getPromise(idTokenAtom).then((token) =>
+        getEmailTemplates(token).then((emailTemplates) => {
           if (emailTemplates.length < templateIds.length) {
             for (const id of templateIds) {
               if (!emailTemplates.find((t) => t.id === id)) {
@@ -36,13 +36,9 @@ export const adminRemoteEmailTemplatesEffect: AtomEffect<EmailTemplate[]> = ({ g
               }
             }
           }
-          const sortedEmailTemplates = [...emailTemplates].sort((a, b) => a.id.localeCompare(b.id, i18next.language))
-          setSelf(sortedEmailTemplates)
+          return emailTemplates.sort((a, b) => a.id.localeCompare(b.id, i18next.language))
         })
-        .catch((reason) => {
-          console.error(reason)
-          setSelf([])
-        })
-    })
+      )
+    )
   }
 }

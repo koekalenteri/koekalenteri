@@ -45,11 +45,12 @@ export default function EventListPage() {
   const [selectedEventID, setSelectedEventID] = useRecoilState(adminEventIdAtom)
   const [visibilityModel, setVisibilityModel] = useRecoilState(adminEventColumnsAtom)
   const selectedEvent = useRecoilValue(adminCurrentEventSelector)
-  const events = useRecoilValue(adminUserFilteredEventsSelector)
   const actions = useAdminEventActions()
   const columns = useEventListColumns()
   const orgs = useRecoilValue(adminUserEventOrganizersSelector)
   const [orgId, setOrgId] = useRecoilState(adminEventOrganizerIdAtom)
+  // order matters here, need to use dependencies before this one
+  const events = useRecoilValue(adminUserFilteredEventsSelector)
   const options = useMemo(() => [{ id: '', name: 'Kaikki' }, ...orgs], [orgs])
   const newEvent = useRecoilValue(adminNewEventAtom)
   const resetNewEvent = useResetRecoilState(adminNewEventAtom)
