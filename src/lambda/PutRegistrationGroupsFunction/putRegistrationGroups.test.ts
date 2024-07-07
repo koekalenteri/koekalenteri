@@ -5,8 +5,8 @@ import { jest } from '@jest/globals'
 
 import { eventWithALOClassInvited, eventWithParticipantsInvited } from '../../__mockData__/events'
 import {
-  registrationsToEventWithALOInvited,
-  registrationsToEventWithParticipantsInvited,
+  jsonRegistrationsToEventWithALOInvited,
+  jsonRegistrationsToEventWithParticipantsInvited,
 } from '../../__mockData__/registrations'
 import { constructAPIGwEvent } from '../test-utils/helpers'
 
@@ -94,12 +94,12 @@ describe('putRegistrationGroupsHandler', () => {
     authorizeMock.mockResolvedValueOnce(mockUser)
 
     // stored registrations before update
-    mockDynamoDB.query.mockResolvedValueOnce(registrationsToEventWithParticipantsInvited)
+    mockDynamoDB.query.mockResolvedValueOnce(jsonRegistrationsToEventWithParticipantsInvited)
 
     // event
     mockDynamoDB.read.mockResolvedValueOnce(event)
 
-    const updated: JsonRegistration[] = registrationsToEventWithParticipantsInvited.map((r) => ({ ...r }))
+    const updated: JsonRegistration[] = jsonRegistrationsToEventWithParticipantsInvited.map((r) => ({ ...r }))
     const reg = updated[4]
     expect(reg.cancelled).toBe(true)
 
@@ -151,12 +151,12 @@ describe('putRegistrationGroupsHandler', () => {
     authorizeMock.mockResolvedValueOnce(mockUser)
 
     // stored registrations before update
-    mockDynamoDB.query.mockResolvedValueOnce(registrationsToEventWithParticipantsInvited)
+    mockDynamoDB.query.mockResolvedValueOnce(jsonRegistrationsToEventWithParticipantsInvited)
 
     // event
     mockDynamoDB.read.mockResolvedValueOnce(event)
 
-    const updated: JsonRegistration[] = registrationsToEventWithParticipantsInvited.map((r) => ({ ...r }))
+    const updated: JsonRegistration[] = jsonRegistrationsToEventWithParticipantsInvited.map((r) => ({ ...r }))
     const reg = updated[5]
 
     reg.group = { key: 'reserve', number: 3 } // move from place 1 to place 3
@@ -211,12 +211,12 @@ describe('putRegistrationGroupsHandler', () => {
     authorizeMock.mockResolvedValueOnce(mockUser)
 
     // stored registrations before update
-    mockDynamoDB.query.mockResolvedValueOnce(registrationsToEventWithParticipantsInvited)
+    mockDynamoDB.query.mockResolvedValueOnce(jsonRegistrationsToEventWithParticipantsInvited)
 
     // event
     mockDynamoDB.read.mockResolvedValueOnce(event)
 
-    const updated = registrationsToEventWithParticipantsInvited.map((r) => ({ ...r }))
+    const updated = jsonRegistrationsToEventWithParticipantsInvited.map((r) => ({ ...r }))
 
     // switch the two reserve-registrations positions
     updated[5].group = { ...updated[5].group, number: 2, key: 'reserve' }
@@ -244,7 +244,7 @@ describe('putRegistrationGroupsHandler', () => {
     authorizeMock.mockResolvedValueOnce(mockUser)
 
     // stored registrations before update
-    const storedItems = registrationsToEventWithParticipantsInvited.map((r) => ({
+    const storedItems = jsonRegistrationsToEventWithParticipantsInvited.map((r) => ({
       ...r,
       reserveNotified: r.group?.key === 'reserve' ? true : undefined,
     }))
@@ -285,7 +285,7 @@ describe('putRegistrationGroupsHandler', () => {
     authorizeMock.mockResolvedValueOnce(mockUser)
 
     // stored registrations before update
-    const storedItems = registrationsToEventWithALOInvited.map((r) => ({
+    const storedItems = jsonRegistrationsToEventWithALOInvited.map((r) => ({
       ...r,
       reserveNotified: r.group?.key === 'reserve' ? true : undefined,
     }))
@@ -294,7 +294,7 @@ describe('putRegistrationGroupsHandler', () => {
     // event
     mockDynamoDB.read.mockResolvedValueOnce(event)
 
-    const updated = registrationsToEventWithALOInvited.map((r) => ({
+    const updated = jsonRegistrationsToEventWithALOInvited.map((r) => ({
       ...r,
       group:
         r.class === 'ALO' && r.group?.key === 'reserve' && r.group?.number === 1
