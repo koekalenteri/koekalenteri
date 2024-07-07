@@ -1,4 +1,4 @@
-import type { Registration } from '../types'
+import type { JsonRegistration, Registration } from '../types'
 
 import {
   registrationDogAged10MonthsAndNoResults,
@@ -199,68 +199,72 @@ const registrationToEventWithParticipantsInvitedBase = {
   modifiedAt: eventWithParticipantsInvited.entryEndDate,
 }
 
-export const registrationsToEventWithParticipantsInvited: Registration[] = [
-  {
-    ...registrationToEventWithParticipantsInvitedBase,
-    id: eventWithParticipantsInvited.id + '1',
-    class: 'ALO',
-    dates: [{ date: eventWithParticipantsInvited.startDate, time: 'ap' }],
-    group: { date: eventWithParticipantsInvited.startDate, time: 'ap', number: 1, key: 'ALO-AP' },
-  },
-  {
-    ...registrationToEventWithParticipantsInvitedBase,
-    id: eventWithParticipantsInvited.id + '2',
-    class: 'ALO',
-    dates: [
-      { date: eventWithParticipantsInvited.startDate, time: 'ap' },
-      { date: eventWithParticipantsInvited.startDate, time: 'ip' },
-    ],
-    group: { date: eventWithParticipantsInvited.startDate, time: 'ip', number: 2, key: 'ALO-IP' },
-  },
-  {
-    ...registrationToEventWithParticipantsInvitedBase,
-    id: eventWithParticipantsInvited.id + '3',
-    class: 'AVO',
-    dates: [{ date: eventWithParticipantsInvited.startDate, time: 'ap' }],
-    group: { date: eventWithParticipantsInvited.startDate, time: 'ap', number: 3, key: 'AVO-AP' },
-  },
-  {
-    ...registrationToEventWithParticipantsInvitedBase,
-    id: eventWithParticipantsInvited.id + '4',
-    class: 'AVO',
-    dates: [{ date: eventWithParticipantsInvited.startDate, time: 'ip' }],
-    group: { date: eventWithParticipantsInvited.startDate, time: 'ip', number: 4, key: 'AVO-IP' },
-  },
-  {
-    ...registrationToEventWithParticipantsInvitedBase,
-    id: eventWithParticipantsInvited.id + '5',
-    class: 'ALO',
-    dates: [{ date: eventWithParticipantsInvited.startDate, time: 'ip' }],
-    cancelled: true,
-    cancelReason: 'koska mä voin',
-    group: { number: 1, key: 'cancelled' },
-  },
-  {
-    ...registrationToEventWithParticipantsInvitedBase,
-    id: eventWithParticipantsInvited.id + '6',
-    class: 'ALO',
-    dates: [{ date: eventWithParticipantsInvited.startDate, time: 'ap' }],
-    group: { number: 1, key: 'reserve' },
-  },
-  {
-    ...registrationToEventWithParticipantsInvitedBase,
-    id: eventWithParticipantsInvited.id + '7',
-    class: 'ALO',
-    dates: [{ date: eventWithParticipantsInvited.startDate, time: 'ap' }],
-    group: { number: 2, key: 'reserve' },
-  },
-]
+export const registrationsToEventWithParticipantsInvited: JsonRegistration[] = JSON.parse(
+  JSON.stringify([
+    {
+      ...registrationToEventWithParticipantsInvitedBase,
+      id: eventWithParticipantsInvited.id + '1',
+      class: 'ALO',
+      dates: [{ date: eventWithParticipantsInvited.startDate, time: 'ap' }],
+      group: { date: eventWithParticipantsInvited.startDate, time: 'ap', number: 1, key: 'ALO-AP' },
+    },
+    {
+      ...registrationToEventWithParticipantsInvitedBase,
+      id: eventWithParticipantsInvited.id + '2',
+      class: 'ALO',
+      dates: [
+        { date: eventWithParticipantsInvited.startDate, time: 'ap' },
+        { date: eventWithParticipantsInvited.startDate, time: 'ip' },
+      ],
+      group: { date: eventWithParticipantsInvited.startDate, time: 'ip', number: 2, key: 'ALO-IP' },
+    },
+    {
+      ...registrationToEventWithParticipantsInvitedBase,
+      id: eventWithParticipantsInvited.id + '3',
+      class: 'AVO',
+      dates: [{ date: eventWithParticipantsInvited.startDate, time: 'ap' }],
+      group: { date: eventWithParticipantsInvited.startDate, time: 'ap', number: 3, key: 'AVO-AP' },
+    },
+    {
+      ...registrationToEventWithParticipantsInvitedBase,
+      id: eventWithParticipantsInvited.id + '4',
+      class: 'AVO',
+      dates: [{ date: eventWithParticipantsInvited.startDate, time: 'ip' }],
+      group: { date: eventWithParticipantsInvited.startDate, time: 'ip', number: 4, key: 'AVO-IP' },
+    },
+    {
+      ...registrationToEventWithParticipantsInvitedBase,
+      id: eventWithParticipantsInvited.id + '5',
+      class: 'ALO',
+      dates: [{ date: eventWithParticipantsInvited.startDate, time: 'ip' }],
+      cancelled: true,
+      cancelReason: 'koska mä voin',
+      group: { number: 1, key: 'cancelled' },
+    },
+    {
+      ...registrationToEventWithParticipantsInvitedBase,
+      id: eventWithParticipantsInvited.id + '6',
+      class: 'ALO',
+      dates: [{ date: eventWithParticipantsInvited.startDate, time: 'ap' }],
+      group: { number: 1, key: 'reserve' },
+    },
+    {
+      ...registrationToEventWithParticipantsInvitedBase,
+      id: eventWithParticipantsInvited.id + '7',
+      class: 'ALO',
+      dates: [{ date: eventWithParticipantsInvited.startDate, time: 'ap' }],
+      group: { number: 2, key: 'reserve' },
+    },
+  ])
+)
 
-export const registrationsToEventWithALOInvited = registrationsToEventWithParticipantsInvited.map((r, i) => ({
-  ...r,
-  eventId: eventWithALOClassInvited.id,
-  id: `${eventWithALOClassInvited.id}${i + 1}`,
-}))
+export const registrationsToEventWithALOInvited: JsonRegistration[] = registrationsToEventWithParticipantsInvited.map(
+  (r, i) => ({
+    ...r,
+    eventId: eventWithALOClassInvited.id,
+    id: `${eventWithALOClassInvited.id}${i + 1}`,
+  })
+)
 
 export const mockRegistrationData = [
   registrationWithStaticDates,

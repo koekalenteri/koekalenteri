@@ -53,8 +53,7 @@ describe('putRegistrationGroupsHandler', () => {
   const mockConsoleError = jest.spyOn(console, 'error')
 
   afterEach(() => {
-    mockSend.mockClear()
-    mockConsoleError.mockClear()
+    jest.clearAllMocks()
   })
 
   it('should return 401 if authorization fails', async () => {
@@ -72,7 +71,7 @@ describe('putRegistrationGroupsHandler', () => {
   })
 
   it('shoud return 422 with groups to not belonging to event', async () => {
-    const event = eventWithParticipantsInvited
+    const event = JSON.parse(JSON.stringify(eventWithParticipantsInvited))
     const mockGroup = {
       eventId: 'incorrect-event-id',
       id: 'whatever',
@@ -91,37 +90,21 @@ describe('putRegistrationGroupsHandler', () => {
   })
 
   it('should move from cancelled to reserve', async () => {
-    const event = eventWithParticipantsInvited
+    const event = JSON.parse(JSON.stringify(eventWithParticipantsInvited))
     authorizeMock.mockResolvedValueOnce(mockUser)
 
     // stored registrations before update
     mockDynamoDB.query.mockResolvedValueOnce(registrationsToEventWithParticipantsInvited)
 
-    const updated = registrationsToEventWithParticipantsInvited.map((r) => ({ ...r }))
+    // event
+    mockDynamoDB.read.mockResolvedValueOnce(event)
+
+    const updated: JsonRegistration[] = registrationsToEventWithParticipantsInvited.map((r) => ({ ...r }))
     const reg = updated[4]
     expect(reg.cancelled).toBe(true)
 
     reg.group = { key: 'reserve', number: 3 }
     reg.cancelled = false
-
-    // stored registrations after update
-    mockDynamoDB.query.mockResolvedValueOnce(updated)
-
-    // read implementation for updateRegistrations
-    mockDynamoDB.read.mockImplementation(
-      async <T extends object>(key: Record<string, string | number | undefined> | null) => {
-        if (key && key.eventId)
-          return registrationsToEventWithParticipantsInvited.find(
-            (r) => r.eventId === key.eventId && r.id === key.id
-          ) as T | undefined
-
-        if (key && key.id === event.id) return JSON.parse(JSON.stringify(event)) as T
-
-        console.error('not handled', key)
-        // return event
-        return undefined
-      }
-    )
 
     const res = await putRegistrationGroupsHandler(
       constructAPIGwEvent(
@@ -163,35 +146,81 @@ describe('putRegistrationGroupsHandler', () => {
     expect(resultItem?.group).toEqual(reg.group)
   })
 
-  it('should not send "reserve" message, when reserve is not notified', async () => {
-    const event = eventWithParticipantsInvited
+  it('should move to last place', async () => {
+    const event = JSON.parse(JSON.stringify(eventWithParticipantsInvited))
     authorizeMock.mockResolvedValueOnce(mockUser)
 
     // stored registrations before update
     mockDynamoDB.query.mockResolvedValueOnce(registrationsToEventWithParticipantsInvited)
 
+    // event
+    mockDynamoDB.read.mockResolvedValueOnce(event)
+
+    const updated: JsonRegistration[] = registrationsToEventWithParticipantsInvited.map((r) => ({ ...r }))
+    const reg = updated[5]
+
+    reg.group = { key: 'reserve', number: 3 } // move from place 1 to place 3
+    reg.cancelled = false
+
+    const res = await putRegistrationGroupsHandler(
+      constructAPIGwEvent(
+        [{ eventId: event.id, id: reg.id, group: reg.group, cancelled: false }] as JsonRegistrationGroupInfo[],
+        {
+          pathParameters: { eventId: event.id },
+        }
+      )
+    )
+    expect(mockDynamoDB.update).toHaveBeenCalledTimes(3)
+    expect(mockDynamoDB.update).toHaveBeenNthCalledWith(
+      1,
+      { eventId: 'testInvited', id: 'testInvited7' },
+      'set #grp = :value, #cancelled = :cancelled',
+      { '#cancelled': 'cancelled', '#grp': 'group' },
+      { ':cancelled': false, ':value': { key: 'reserve', number: 1 } },
+      'registration-table-not-found-in-env'
+    )
+    expect(mockDynamoDB.update).toHaveBeenNthCalledWith(
+      2,
+      { eventId: 'testInvited', id: 'testInvited6' },
+      'set #grp = :value, #cancelled = :cancelled',
+      { '#cancelled': 'cancelled', '#grp': 'group' },
+      { ':cancelled': false, ':value': { key: 'reserve', number: 2 } },
+      'registration-table-not-found-in-env'
+    )
+    expect(mockDynamoDB.update).toHaveBeenNthCalledWith(
+      3,
+      { id: 'testInvited' },
+      'set #entries = :entries, #members = :members, #classes = :classes',
+      { '#classes': 'classes', '#entries': 'entries', '#members': 'members' },
+      {
+        ':classes': [
+          { class: 'ALO', date: expect.any(String), entries: 4, members: 0, places: 3 },
+          { class: 'AVO', date: expect.any(String), entries: 2, members: 0, places: 1 },
+        ],
+        ':entries': 6,
+        ':members': 0,
+      },
+      'event-table-not-found-in-env'
+    )
+
+    expect(res.statusCode).toBe(200)
+  })
+
+  it('should not send "reserve" message, when reserve is not notified', async () => {
+    const event = JSON.parse(JSON.stringify(eventWithParticipantsInvited))
+    authorizeMock.mockResolvedValueOnce(mockUser)
+
+    // stored registrations before update
+    mockDynamoDB.query.mockResolvedValueOnce(registrationsToEventWithParticipantsInvited)
+
+    // event
+    mockDynamoDB.read.mockResolvedValueOnce(event)
+
     const updated = registrationsToEventWithParticipantsInvited.map((r) => ({ ...r }))
 
+    // switch the two reserve-registrations positions
     updated[5].group = { ...updated[5].group, number: 2, key: 'reserve' }
     updated[6].group = { ...updated[6].group, number: 1, key: 'reserve' }
-
-    // stored registrations after update
-    mockDynamoDB.query.mockResolvedValueOnce(updated)
-
-    mockDynamoDB.read.mockImplementation(
-      async <T extends object>(key: Record<string, string | number | undefined> | null) => {
-        if (key && key.eventId)
-          return registrationsToEventWithParticipantsInvited.find(
-            (r) => r.eventId === key.eventId && r.id === key.id
-          ) as T | undefined
-
-        if (key && key.id === event.id) return event as T
-
-        console.error('not handled', key)
-        // return event
-        return undefined
-      }
-    )
 
     const res = await putRegistrationGroupsHandler(
       constructAPIGwEvent(
@@ -211,42 +240,31 @@ describe('putRegistrationGroupsHandler', () => {
   })
 
   it('should send "reserve" message, when reserve is notified', async () => {
-    const event = eventWithParticipantsInvited
+    const event = JSON.parse(JSON.stringify(eventWithParticipantsInvited))
     authorizeMock.mockResolvedValueOnce(mockUser)
 
     // stored registrations before update
-    mockDynamoDB.query.mockResolvedValueOnce(registrationsToEventWithParticipantsInvited)
-
-    mockDynamoDB.read.mockImplementation(
-      async <T extends object>(key: Record<string, string | number | undefined> | null) => {
-        if (key && key.eventId)
-          return registrationsToEventWithParticipantsInvited.find(
-            (r) => r.eventId === key.eventId && r.id === key.id
-          ) as T | undefined
-
-        if (key && key.id === event.id) return event as T
-
-        console.error('not handled', key)
-        // return event
-        return undefined
-      }
-    )
-
-    const updated = registrationsToEventWithParticipantsInvited.map((r) => ({
+    const storedItems = registrationsToEventWithParticipantsInvited.map((r) => ({
       ...r,
       reserveNotified: r.group?.key === 'reserve' ? true : undefined,
     }))
+    mockDynamoDB.query.mockResolvedValueOnce(storedItems)
+
+    // event
+    mockDynamoDB.read.mockResolvedValueOnce(event)
+
+    const updated: JsonRegistration[] = storedItems.map((r) => ({ ...r }))
 
     updated[5].group = { ...updated[5].group, number: 2, key: 'reserve' }
     updated[6].group = { ...updated[6].group, number: 1, key: 'reserve' }
-
-    // stored registrations after update
-    mockDynamoDB.query.mockResolvedValueOnce(updated)
+    updated[5].cancelled = false
+    updated[6].cancelled = false
 
     const res = await putRegistrationGroupsHandler(
       constructAPIGwEvent(
         [
           { eventId: 'testInvited', id: updated[6].id, group: updated[6].group, cancelled: false },
+          { eventId: 'testInvited', id: updated[5].id, group: updated[5].group, cancelled: false },
         ] as JsonRegistrationGroupInfo[],
         { pathParameters: { eventId: event.id } }
       )
@@ -263,47 +281,31 @@ describe('putRegistrationGroupsHandler', () => {
   })
 
   it('should send "invitation" message, when moved to a class that is invited (and event is only picked)', async () => {
-    const event = eventWithALOClassInvited
+    const event = JSON.parse(JSON.stringify(eventWithALOClassInvited))
     authorizeMock.mockResolvedValueOnce(mockUser)
 
     // stored registrations before update
-    mockDynamoDB.query.mockResolvedValueOnce(registrationsToEventWithALOInvited)
+    const storedItems = registrationsToEventWithALOInvited.map((r) => ({
+      ...r,
+      reserveNotified: r.group?.key === 'reserve' ? true : undefined,
+    }))
+    mockDynamoDB.query.mockResolvedValueOnce(storedItems)
 
-    mockDynamoDB.read.mockImplementation(
-      async <T extends object>(key: Record<string, string | number | undefined> | null) => {
-        if (key && key.eventId)
-          return registrationsToEventWithParticipantsInvited.find(
-            (r) => r.eventId === key.eventId && r.id === key.id
-          ) as T | undefined
-
-        if (key && key.id === event.id) return event as T
-
-        console.error('not handled', key)
-        // return event
-        return undefined
-      }
-    )
+    // event
+    mockDynamoDB.read.mockResolvedValueOnce(event)
 
     const updated = registrationsToEventWithALOInvited.map((r) => ({
       ...r,
       group:
         r.class === 'ALO' && r.group?.key === 'reserve' && r.group?.number === 1
-          ? { date: eventWithParticipantsInvited.startDate, time: 'ap', number: 2, key: 'ALO-AP' }
+          ? { date: eventWithParticipantsInvited.startDate.toISOString(), time: 'ap', number: 2, key: 'ALO-AP' }
           : r.group,
       reserveNotified: r.group?.key === 'reserve' ? true : undefined,
     }))
 
-    // stored registrations after update
-    mockDynamoDB.query.mockResolvedValueOnce(updated)
-
-    // event
-    // mockDynamoDB.read.mockResolvedValueOnce(event)
-
     const res = await putRegistrationGroupsHandler(
       constructAPIGwEvent(
-        [
-          { eventId: event.id, id: updated[6].id, group: updated[6].group, cancelled: false },
-        ] as JsonRegistrationGroupInfo[],
+        [{ eventId: event.id, id: updated[5].id, group: updated[5].group }] as JsonRegistrationGroupInfo[],
         { pathParameters: { eventId: event.id } }
       )
     )
@@ -311,7 +313,16 @@ describe('putRegistrationGroupsHandler', () => {
     expect(mockSend).toHaveBeenNthCalledWith(1, 'picked', event, [updated[5]], undefined, '', 'Test User', '')
     expect(mockSend).toHaveBeenNthCalledWith(2, 'invitation', event, [updated[5]], undefined, '', 'Test User', '')
 
-    expect(mockSend).toHaveBeenNthCalledWith(3, 'reserve', event, [updated[6]], undefined, '', 'Test User', '')
+    expect(mockSend).toHaveBeenNthCalledWith(
+      3,
+      'reserve',
+      event,
+      [{ ...updated[6], group: { ...updated[6].group, number: 1 } }],
+      undefined,
+      '',
+      'Test User',
+      ''
+    )
 
     expect(mockSend).toHaveBeenNthCalledWith(4, 'registration', event, [], undefined, '', 'Test User', 'cancel')
     expect(mockSend).toHaveBeenCalledTimes(4)

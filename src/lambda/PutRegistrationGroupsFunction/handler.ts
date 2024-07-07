@@ -6,11 +6,17 @@ import type { JsonRegistration, JsonRegistrationGroupInfo } from '../../types'
 import { metricScope } from 'aws-embedded-metrics'
 import { unescape } from 'querystring'
 
-import { getRegistrationGroupKey, GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE } from '../../lib/registration'
+import {
+  getRegistrationGroupKey,
+  GROUP_KEY_CANCELLED,
+  GROUP_KEY_RESERVE,
+  sortRegistrationsByDateClassTimeAndNumber,
+} from '../../lib/registration'
 import { CONFIG } from '../config'
 import { authorize, getOrigin } from '../lib/auth'
 import { fixRegistrationGroups, saveGroup, updateRegistrations } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
+import { debugProxyEvent } from '../lib/log'
 import { sendTemplatedEmailToEventRegistrations } from '../lib/registration'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { metricsError, metricsSuccess } from '../utils/metrics'
@@ -21,9 +27,13 @@ export const dynamoDB = new CustomDynamoClient(registrationTable)
 
 const isParticipantGroup = (group?: string) => group && group !== 'reserve' && group !== 'cancelled'
 
+const regString = (r: JsonRegistration) =>
+  `${r.group?.key}/${r.group?.number} ${r.id} ${r.dog.regNo}  ${r.dog.name} ${r.handler.name} [${r.reserveNotified}]`
+
 const putRegistrationGroupsHandler = metricScope(
   (metrics: MetricsLogger) =>
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+      debugProxyEvent(event)
       try {
         const user = await authorize(event)
         if (!user) {
@@ -54,6 +64,10 @@ const putRegistrationGroupsHandler = metricScope(
             })
           )?.filter((r) => r.state === 'ready') ?? []
 
+        // sort the items just for logging
+        oldItems.sort(sortRegistrationsByDateClassTimeAndNumber)
+        console.log({ oldState: oldItems.map(regString) })
+
         // create a new copy of oldItems, so we can update without touching the original ones
         const updatedItems: JsonRegistration[] = oldItems.map((r) => ({ ...r }))
 
@@ -65,30 +79,27 @@ const putRegistrationGroupsHandler = metricScope(
           }
         }
 
-        // fix numbering etc, because client might provide outdated / out of bounds info, but do not update db
-        fixRegistrationGroups(updatedItems, user, false)
+        console.log({ updatedState: updatedItems.map(regString) })
 
-        // finally save those that were requested to be saved and actually changed
-        for (const group of eventGroups) {
-          const reg = updatedItems.find((r) => r.id === group.id)
-          const oldGroup = oldItems.find((r) => r.id === group.id)?.group
-          if (reg && (reg.group?.key !== oldGroup?.key || reg.group?.number !== oldGroup?.number)) {
-            await saveGroup(reg, oldGroup, user, '(siirto)')
+        // fix numbering etc, because client might provide outdated / out of bounds info, but do not update db
+        await fixRegistrationGroups(updatedItems, user, false)
+
+        console.log({ fixedState: updatedItems.map(regString) })
+
+        // Finally save any changes
+        for (const reg of updatedItems) {
+          const oldGroup = oldItems.find((r) => r.id === reg.id)?.group
+          if (reg.group?.key !== oldGroup?.key || reg.group?.number !== oldGroup?.number) {
+            const reason = eventGroups.find((g) => g.id === reg.id) ? 'siirto' : 'seuraus'
+            await saveGroup(reg, oldGroup, user, reason)
+            console.log({ id: reg.id, group: reg.group, reason })
           }
         }
 
-        // load fresh list of registrations (should equal to updatedItems, but better be safe)
-        const items = (
-          await dynamoDB.query<JsonRegistration>('eventId = :eventId', {
-            ':eventId': eventId,
-          })
-        )?.filter((r) => r.state === 'ready')
-        const itemsWithGroups = await fixRegistrationGroups(items ?? [], user)
-
         // update event counts
-        const confirmedEvent = await updateRegistrations(eventId, eventTable, itemsWithGroups)
+        const confirmedEvent = await updateRegistrations(eventId, eventTable, updatedItems)
         const { classes, entries } = confirmedEvent
-        const cls = itemsWithGroups.find((item) => item.id === groups[0].id)?.class
+        const cls = updatedItems.find((item) => item.id === groups[0].id)?.class
 
         const emails = {
           invitedOk: [],
@@ -110,24 +121,19 @@ const putRegistrationGroupsHandler = metricScope(
         const invited =
           confirmedEvent.state === 'invited' || (cls && classes.find((c) => c.class === cls && c.state === 'invited'))
 
-        const regString = (r: JsonRegistration) =>
-          `${r.group?.key}/${r.group?.number} ${r.id} ${r.dog.regNo}  ${r.dog.name} ${r.handler.name}`
-
         console.log({
           state: confirmedEvent.state,
           cls,
           classes,
           picked,
           invited,
-          oldItems: oldItems.map(regString),
-          items: items?.map(regString),
         })
 
         if (picked || invited) {
           /**
            * When event/class has already been 'picked' or 'invited', registrations moved from reserve to participants receive 'picked' email
            */
-          const newParticipants = itemsWithGroups.filter(
+          const newParticipants = updatedItems.filter(
             (reg) =>
               reg.class === cls && isParticipantGroup(reg.group?.key) && oldResCan.find((old) => old.id === reg.id)
           )
@@ -161,7 +167,7 @@ const putRegistrationGroupsHandler = metricScope(
           /**
            * Registrations in reserve group that moved up, receive updated 'reserve' email
            */
-          const movedReserve = itemsWithGroups.filter(
+          const movedReserve = updatedItems.filter(
             (reg) =>
               reg.class === cls &&
               getRegistrationGroupKey(reg) === GROUP_KEY_RESERVE &&
@@ -199,7 +205,7 @@ const putRegistrationGroupsHandler = metricScope(
         /**
          * Registrations moved to cancelled group receive "cancelled" email
          */
-        const cancelled = itemsWithGroups.filter(
+        const cancelled = updatedItems.filter(
           (reg) =>
             reg.class === cls &&
             getRegistrationGroupKey(reg) === GROUP_KEY_CANCELLED &&
@@ -221,7 +227,7 @@ const putRegistrationGroupsHandler = metricScope(
         Object.assign(emails, { cancelledOk, cancelledFailed })
 
         metricsSuccess(metrics, event.requestContext, 'putRegistrationGroups')
-        return response(200, { items: itemsWithGroups, classes, entries, ...emails }, event)
+        return response(200, { items: updatedItems, classes, entries, ...emails }, event)
       } catch (err) {
         console.error(err)
         if (err instanceof Error) {
