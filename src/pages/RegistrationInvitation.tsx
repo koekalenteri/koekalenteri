@@ -65,7 +65,7 @@ export const Component = () => {
             <Paper sx={{ p: 1 }}>
               <Typography variant="caption">Koe</Typography>
               <Typography>
-                {event.eventType} {t('dateFormat.datespan', { start: event.entryStartDate, end: event.entryEndDate })}{' '}
+                {event.eventType} {t('dateFormat.datespan', { start: event.startDate, end: event.endDate })}{' '}
                 {event.location} ({event.name})
               </Typography>
               <Typography variant="caption">Ilmoitettu koira</Typography>
