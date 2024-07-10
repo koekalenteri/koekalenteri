@@ -32,7 +32,7 @@ export const response = <T = unknown>(
     },
   }
 
-  if (acceptEncoding.includes('gzip') && result.body.length > 4096) {
+  if (result.body && acceptEncoding.includes('gzip') && result.body.length > 4096) {
     result.isBase64Encoded = true
     result.body = gzipSync(result.body).toString('base64')
     result.headers!['Content-Encoding'] = 'gzip'
