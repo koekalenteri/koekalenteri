@@ -63,7 +63,7 @@ export default function EventViewPage() {
   const registrations = useMemo(
     () =>
       allRegistrations.filter(
-        (r) => r.class === selectedEventClass || (!r.class && r.eventType === selectedEventClass)
+        (r) => (r.class ?? undefined) === selectedEventClass || (!r.class && r.eventType === selectedEventClass)
       ),
     [allRegistrations, selectedEventClass]
   )
