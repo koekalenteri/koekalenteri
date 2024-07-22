@@ -38,14 +38,9 @@ exports[`OfficialListPage renders 1`] = `
         </button>
       </div>
       <div
-        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-ei6p06-MuiDataGrid-root"
+        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-tqmbrt-MuiDataGrid-root"
         style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 1; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 150px; --DataGrid-columnsTotalWidth: 150px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
       >
-        <div
-          class="css-qtdhae"
-          data-id="gridPanelAnchor"
-          role="presentation"
-        />
         <div
           class="MuiStack-root css-k5y4k9-MuiStack-root"
         >
@@ -112,6 +107,11 @@ exports[`OfficialListPage renders 1`] = `
           role="grid"
           tabindex="-1"
         >
+          <div
+            class="css-qtdhae"
+            data-id="gridPanelAnchor"
+            role="presentation"
+          />
           <div
             class="MuiDataGrid-virtualScroller css-1793420-MuiDataGrid-virtualScroller"
             role="presentation"
