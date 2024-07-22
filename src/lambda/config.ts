@@ -1,5 +1,5 @@
 export const CONFIG = {
-  stackName: process.env.AWS_SAM_LOCAL ? 'local' : process.env.STACK_NAME ?? 'local',
+  stackName: process.env.AWS_SAM_LOCAL ? 'local' : (process.env.STACK_NAME ?? 'local'),
   stageName: process.env.STAGE_NAME ?? '',
 
   frontendURL: `https://${process.env.CUSTOM_DOMAIN ?? 'koekalenteri.snj.fi'}`,

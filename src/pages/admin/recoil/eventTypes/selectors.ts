@@ -38,6 +38,6 @@ export const adminEventTypeGroupsSelector = selectorFamily<RegistrationTime[], s
       if (!eventType) return []
       const groups = get(adminEventTypeGroupsAtom)
 
-      return OFFICIAL_EVENT_TYPES.includes(eventType) ? groups[eventType] ?? [] : groups.unofficialEvents
+      return OFFICIAL_EVENT_TYPES.includes(eventType) ? (groups[eventType] ?? []) : groups.unofficialEvents
     },
 })

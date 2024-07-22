@@ -217,7 +217,7 @@ export default function EventViewPage() {
           event={event}
           onClose={handleClose}
           open={open}
-          registrationId={open ? selectedRegistrationId ?? '' : ''}
+          registrationId={open ? (selectedRegistrationId ?? '') : ''}
         />
       </Suspense>
       <Suspense>

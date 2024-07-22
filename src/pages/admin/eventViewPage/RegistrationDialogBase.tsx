@@ -69,7 +69,7 @@ export default function RegistrationDialogBase({
 
   const title = useMemo(() => {
     if (registration?.dog?.name) {
-      const handlerName = registration?.ownerHandles ? registration?.owner?.name : registration?.handler?.name ?? ''
+      const handlerName = registration?.ownerHandles ? registration?.owner?.name : (registration?.handler?.name ?? '')
       if (handlerName) {
         return `${registration.dog.name} / ${handlerName}`
       }

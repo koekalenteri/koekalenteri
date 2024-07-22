@@ -246,7 +246,7 @@ export default function SendMessageDialog({ event, registrations, templateId, op
                                   ...old?.[group],
                                   [prop]: checked
                                     ? // prefer contactInfo from event, fall back to actual contact info
-                                      event?.contactInfo?.[group]?.[prop] ?? event?.[group]?.[prop]
+                                      (event?.contactInfo?.[group]?.[prop] ?? event?.[group]?.[prop])
                                     : undefined,
                                 },
                               }))

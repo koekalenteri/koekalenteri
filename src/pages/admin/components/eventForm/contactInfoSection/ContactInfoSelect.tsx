@@ -43,7 +43,7 @@ export default function ContactInfoSelect({ disabled, name, show, defaults, onCh
       const prop = event.target.name as keyof PublicContactInfo
       const value = {
         ...state,
-        [prop]: event.target.checked ? defaults?.[prop] ?? '' : '',
+        [prop]: event.target.checked ? (defaults?.[prop] ?? '') : '',
       }
       setState(value)
       onChange(name, value)

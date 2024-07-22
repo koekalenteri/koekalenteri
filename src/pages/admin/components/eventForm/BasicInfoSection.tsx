@@ -45,8 +45,8 @@ export interface Props extends Readonly<SectionProps> {
 
 const getTypeClasses = (eventType?: string, eventTypeClasses?: Record<string, RegistrationClass[]>) =>
   OFFICIAL_EVENT_TYPES.includes(eventType ?? '')
-    ? eventTypeClasses?.[eventType ?? ''] ?? []
-    : eventTypeClasses?.unofficialEvents ?? []
+    ? (eventTypeClasses?.[eventType ?? ''] ?? [])
+    : (eventTypeClasses?.unofficialEvents ?? [])
 
 export default function BasicInfoSection({
   disabled,
@@ -150,7 +150,7 @@ export default function BasicInfoSection({
     [onChange]
   )
   const isEqualId = useCallback((o?: { id?: number | string }, v?: { id?: number | string }) => o?.id === v?.id, [])
-  const getName = useCallback((o?: string | { name?: string }) => (typeof o === 'string' ? o : o?.name ?? ''), [])
+  const getName = useCallback((o?: string | { name?: string }) => (typeof o === 'string' ? o : (o?.name ?? '')), [])
   const getNameOrEmail = useCallback(
     (o?: string | Partial<Person>) => (typeof o === 'string' ? o : o?.name || o?.email || ''),
     []

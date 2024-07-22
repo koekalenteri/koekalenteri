@@ -35,7 +35,7 @@ interface Props {
 
 export const compareEventClass = (a: DeepPartial<EventClass>, b: DeepPartial<EventClass>) =>
   isSameDay(a.date ?? new Date(), b.date ?? new Date())
-    ? a.class?.localeCompare(b.class ?? '') ?? 0
+    ? (a.class?.localeCompare(b.class ?? '') ?? 0)
     : (a.date?.valueOf() ?? 0) - (b.date?.valueOf() ?? 0)
 
 export default function EventClasses(props: Props) {

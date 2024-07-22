@@ -89,7 +89,7 @@ export const applyNewGroupsToDogEventClass = (
   const newByDate = groupDates(newDates)
   const newClasses = classes.map((c) => ({
     ...c,
-    groups: c.class === eventClass ? [] : c.groups ?? defaultGroups,
+    groups: c.class === eventClass ? [] : (c.groups ?? defaultGroups),
   }))
 
   for (const [dateString, newTimes] of Object.entries(newByDate)) {
@@ -145,7 +145,7 @@ export const applyNewGroupsToDogEventDates = (
 
   finalDates.sort((a, b) =>
     a.date.valueOf() === b.date.valueOf()
-      ? a.time?.localeCompare(b.time ?? '') ?? 0
+      ? (a.time?.localeCompare(b.time ?? '') ?? 0)
       : a.date.valueOf() - b.date.valueOf()
   )
 
