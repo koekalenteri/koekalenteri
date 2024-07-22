@@ -14,6 +14,7 @@ import Button from '@mui/material/Button'
 import CircularProgress from '@mui/material/CircularProgress'
 import Divider from '@mui/material/Divider'
 import Grid from '@mui/material/Grid'
+import Modal from '@mui/material/Modal'
 import Stack from '@mui/material/Stack'
 import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
@@ -21,6 +22,7 @@ import { useRecoilState, useRecoilValue } from 'recoil'
 
 import useAdminEventRegistrationInfo from '../../hooks/useAdminEventRegistrationsInfo'
 import { Path } from '../../routeConfig'
+import LoadingIndicator from '../components/LoadingIndicator'
 
 import FullPageFlex from './components/FullPageFlex'
 import ClassEntrySelection from './eventViewPage/ClassEntrySelection'
@@ -212,15 +214,19 @@ export default function EventViewPage() {
           ))}
         </Box>
       </FullPageFlex>
-      <Suspense>
+      <Suspense
+        fallback={
+          <Modal open>
+            <LoadingIndicator />
+          </Modal>
+        }
+      >
         <RegistrationEditDialog
           event={event}
           onClose={handleClose}
           open={open}
           registrationId={open ? (selectedRegistrationId ?? '') : ''}
         />
-      </Suspense>
-      <Suspense>
         <RegistrationCreateDialog
           event={event}
           eventClass={
@@ -231,8 +237,6 @@ export default function EventViewPage() {
           onClose={handleCreateClose}
           open={createOpen}
         />
-      </Suspense>
-      <Suspense>
         <SendMessageDialog
           event={event}
           onClose={closeMsgDlg}
@@ -240,11 +244,7 @@ export default function EventViewPage() {
           registrations={recipientRegistrations}
           templateId={messageTemplateId}
         />
-      </Suspense>
-      <Suspense>
         <EventDetailsDialog eventId={eventId} open={detailsOpen} onClose={handleDetailsClose} />
-      </Suspense>
-      <Suspense>
         {selectedRegistration && (
           <RefundDailog registration={selectedRegistration} open={refundOpen} onClose={handleRefundClose} />
         )}
