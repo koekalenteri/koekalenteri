@@ -7,13 +7,16 @@ import type {
   Registration,
 } from '../../types'
 
+import { formatDate } from '../../i18n/dates'
 import {
   getRegistrationGroupKey,
   getRegistrationNumberingGroupKey,
   GROUP_KEY_CANCELLED,
+  GROUP_KEY_RESERVE,
   hasPriority,
   sortRegistrationsByDateClassTimeAndNumber,
 } from '../../lib/registration'
+import { isDefined } from '../../lib/typeGuards'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
@@ -112,6 +115,17 @@ export const updateRegistrations = async (
   return confirmedEvent
 }
 
+export const formatGroupAuditInfo = (group: JsonRegistrationGroupInfo['group']): string => {
+  if (!group) return ''
+
+  if (group.key === GROUP_KEY_CANCELLED) return `Peruneet #${group.number}`
+  if (group.key === GROUP_KEY_RESERVE) return `Ilmoittautuneet #${group.number}`
+
+  const groupKey = [group.date && formatDate(group.date, 'eeeeee d.M.'), group.time].filter(isDefined).join(' ')
+
+  return `${groupKey} #${group.number}`
+}
+
 export const saveGroup = async (
   { eventId, id, group }: JsonRegistrationGroupInfo,
   previous: JsonRegistrationGroupInfo['group'],
@@ -132,11 +146,11 @@ export const saveGroup = async (
     },
     registrationTable
   )
-  const oldGroupInfo = previous ? `${previous.key} #${previous.number} -> ` : ''
+  const oldGroupInfo = previous ? `${formatGroupAuditInfo(previous)} -> ` : ''
   await audit({
     auditKey: registrationAuditKey(registrationKey),
     user: user.name,
-    message: `Ryhmä: ${oldGroupInfo}${group?.key} #${group?.number} ${reason}`.trim(),
+    message: `Ryhmä: ${oldGroupInfo}${formatGroupAuditInfo(group)} ${reason}`.trim(),
   })
 }
 
