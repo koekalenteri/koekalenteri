@@ -1,3 +1,5 @@
+import type { SortableRegistration } from './registration'
+
 import { PRIORITY_INVITED, PRIORITY_MEMBER, PRIORIZED_BREED_CODES } from './priority'
 import {
   canRefund,
@@ -6,6 +8,7 @@ import {
   GROUP_KEY_CANCELLED,
   GROUP_KEY_RESERVE,
   hasPriority,
+  sortRegistrationsByDateClassTimeAndNumber,
 } from './registration'
 
 describe('lib/registration', () => {
@@ -74,6 +77,34 @@ describe('lib/registration', () => {
         expect(hasPriority({ priority: [breedCode] }, { dog: { breedCode: '1' } })).toEqual(false)
         expect(hasPriority({ priority: [breedCode] }, {})).toEqual(false)
       })
+    })
+  })
+
+  describe('sortRegistrationsByDateClassTimeAndNumber', () => {
+    it('should sort registrations properly', () => {
+      const regs: SortableRegistration[] = [
+        { group: { date: '2024-08-02T21:00:00.000Z', number: 19, time: 'ip', key: '2024-08-02-ip' } },
+        { group: { date: '2024-08-02T21:00:00.000Z', number: 20, time: 'ip', key: '2024-08-02-ip' } },
+        { group: { date: '2024-08-02T21:00:00.000Z', number: 23.5, time: 'ip', key: '2024-08-02-ip' } },
+        { group: { date: '2024-08-02T21:00:00.000Z', number: 22, time: 'ip', key: '2024-08-02-ip' } },
+        { group: { date: '2024-08-02T21:00:00.000Z', number: 23, time: 'ip', key: '2024-08-02-ip' } },
+        { group: { date: '2024-08-02T21:00:00.000Z', number: 24, time: 'ip', key: '2024-08-02-ip' } },
+      ]
+      regs.sort(sortRegistrationsByDateClassTimeAndNumber)
+      expect(regs.map((r) => r.group?.number)).toEqual([19, 20, 22, 23, 23.5, 24])
+    })
+
+    it('should value null and undefined class the same as missing class', () => {
+      const regs2: SortableRegistration[] = [
+        { group: { date: '2024-08-02T21:00:00.000Z', number: 19, time: 'ip', key: '2024-08-02-ip' } },
+        { class: undefined, group: { date: '2024-08-02T21:00:00.000Z', number: 20, time: 'ip', key: '2024-08-02-ip' } },
+        { class: null, group: { date: '2024-08-02T21:00:00.000Z', number: 23.5, time: 'ip', key: '2024-08-02-ip' } },
+        { group: { date: '2024-08-02T21:00:00.000Z', number: 22, time: 'ip', key: '2024-08-02-ip' } },
+        { group: { date: '2024-08-02T21:00:00.000Z', number: 23, time: 'ip', key: '2024-08-02-ip' } },
+        { group: { date: '2024-08-02T21:00:00.000Z', number: 24, time: 'ip', key: '2024-08-02-ip' } },
+      ]
+      regs2.sort(sortRegistrationsByDateClassTimeAndNumber)
+      expect(regs2.map((r) => r.group?.number)).toEqual([19, 20, 22, 23, 23.5, 24])
     })
   })
 
