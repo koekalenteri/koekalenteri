@@ -11,7 +11,7 @@ import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Paper from '@mui/material/Paper'
 import Stack from '@mui/material/Stack'
-import { useRecoilValue } from 'recoil'
+import { useRecoilValue, waitForAll } from 'recoil'
 
 import { isEventOver, merge } from '../../../lib/utils'
 import { AsyncButton } from '../../components/AsyncButton'
@@ -72,11 +72,15 @@ const SELECTABLE_EVENT_STATES: EventState[] = ['draft', 'tentative', 'confirmed'
 export default function EventForm({ event, changes, disabled, onSave, onCancel, onChange }: Props) {
   const { t } = useTranslation()
   const md = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
-  const activeEventTypes = useRecoilValue(adminActiveEventTypesSelector)
-  const activeJudges = useRecoilValue(adminActiveJudgesSelector)
-  const eventTypeClasses = useRecoilValue(adminEventTypeClassesAtom)
-  const users = useRecoilValue(adminUsersAtom)
-  const organizers = useRecoilValue(adminUserOrganizersSelector)
+  const [activeEventTypes, activeJudges, eventTypeClasses, users, organizers] = useRecoilValue(
+    waitForAll([
+      adminActiveEventTypesSelector,
+      adminActiveJudgesSelector,
+      adminEventTypeClassesAtom,
+      adminUsersAtom,
+      adminUserOrganizersSelector,
+    ])
+  )
   const [errors, setErrors] = useState(event ? validateEvent(event) : [])
   const [open, setOpen] = useState<{ [key: string]: boolean | undefined }>({
     basic: true,

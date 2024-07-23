@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
-import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
+import { useRecoilState, useRecoilValue, useSetRecoilState, waitForAll } from 'recoil'
 
 import { EventFilter } from './searchPage/EventFilter'
 import { EventList } from './searchPage/EventList'
@@ -18,11 +18,15 @@ import {
 export function SearchPage() {
   const [filter, setFilter] = useRecoilState(eventFilterAtom)
   const setSpa = useSetRecoilState(spaAtom)
-  const organizers = useRecoilValue(filterOrganizersSelector)
-  const activeJudges = useRecoilValue(filterJudgesSelector)
-  const activeEventTypes = useRecoilValue(filterEventTypesSelector)
-  const activeEventClasses = useRecoilValue(filterEventClassesSelector)
-  const events = useRecoilValue(filteredEventsSelector)
+  const [organizers, activeJudges, activeEventTypes, activeEventClasses, events] = useRecoilValue(
+    waitForAll([
+      filterOrganizersSelector,
+      filterJudgesSelector,
+      filterEventTypesSelector,
+      filterEventClassesSelector,
+      filteredEventsSelector,
+    ])
+  )
   const location = useLocation()
 
   useEffect(() => setSpa(true), [setSpa])
