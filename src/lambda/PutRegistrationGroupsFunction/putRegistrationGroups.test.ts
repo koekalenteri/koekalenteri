@@ -328,4 +328,60 @@ describe('putRegistrationGroupsHandler', () => {
     expect(mockSend).toHaveBeenCalledTimes(4)
     expect(res.statusCode).toBe(200)
   })
+
+  it('should update counts when moved to cancelled', async () => {
+    const event = JSON.parse(JSON.stringify(eventWithParticipantsInvited))
+    authorizeMock.mockResolvedValueOnce(mockUser)
+
+    // stored registrations before update
+    mockDynamoDB.query.mockResolvedValueOnce(jsonRegistrationsToEventWithParticipantsInvited)
+
+    // event
+    mockDynamoDB.read.mockResolvedValueOnce(event)
+
+    const updated: JsonRegistration[] = jsonRegistrationsToEventWithParticipantsInvited.map((r) => ({ ...r }))
+    const reg = updated[3]
+    expect(reg.cancelled).toBe(false)
+
+    reg.group = { key: 'cancelled', number: 1 }
+
+    const res = await putRegistrationGroupsHandler(
+      constructAPIGwEvent([{ eventId: event.id, id: reg.id, group: reg.group }] as JsonRegistrationGroupInfo[], {
+        pathParameters: { eventId: event.id },
+      })
+    )
+    expect(mockDynamoDB.update).toHaveBeenCalledTimes(2)
+    expect(mockDynamoDB.update).toHaveBeenNthCalledWith(
+      1,
+      { eventId: 'testInvited', id: 'testInvited4' },
+      'set #grp = :value, #cancelled = :cancelled',
+      { '#cancelled': 'cancelled', '#grp': 'group' },
+      { ':cancelled': true, ':value': { key: 'cancelled', number: 1 } },
+      'registration-table-not-found-in-env'
+    )
+    expect(mockDynamoDB.update).toHaveBeenNthCalledWith(
+      2,
+      { id: 'testInvited' },
+      'set #entries = :entries, #members = :members, #classes = :classes',
+      { '#classes': 'classes', '#entries': 'entries', '#members': 'members' },
+      {
+        ':classes': [
+          { class: 'ALO', date: expect.any(String), entries: 4, members: 0, places: 3 },
+          { class: 'AVO', date: expect.any(String), entries: 1, members: 0, places: 1 },
+        ],
+        ':entries': 5,
+        ':members': 0,
+      },
+      'event-table-not-found-in-env'
+    )
+
+    expect(res.statusCode).toBe(200)
+    const result = JSON.parse(res.body)
+    const resultItems: JsonRegistration[] = result.items
+    const resultItem = resultItems.find((r) => r.id === reg.id)
+    expect(resultItem?.cancelled).toBe(true)
+    expect(resultItem?.group).toEqual(reg.group)
+    expect(result.entries).toBe(5)
+    expect(result.classes).toEqual([expect.objectContaining({ entries: 4 }), expect.objectContaining({ entries: 1 })])
+  })
 })

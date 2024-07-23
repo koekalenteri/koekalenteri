@@ -91,6 +91,10 @@ const putRegistrationGroupsHandler = metricScope(
           const oldGroup = oldItems.find((r) => r.id === reg.id)?.group
           if (reg.group?.key !== oldGroup?.key || reg.group?.number !== oldGroup?.number) {
             const reason = eventGroups.find((g) => g.id === reg.id) ? 'siirto' : 'seuraus'
+
+            // update cancellation status, so the counts get right in updateRegistrations
+            reg.cancelled = reg.group?.key === GROUP_KEY_CANCELLED
+
             await saveGroup(reg, oldGroup, user, reason)
             console.log({ id: reg.id, group: reg.group, reason })
           }

@@ -112,6 +112,9 @@ export const updateRegistrations = async (
     eventTable
   )
 
+  confirmedEvent.entries = entries
+  confirmedEvent.members = members
+
   return confirmedEvent
 }
 

@@ -49,6 +49,7 @@ const mockRegistrationDefaults: Omit<
   qualifyingResults: [],
   reserve: 'ANY' as const,
   state: 'ready' as const,
+  cancelled: false,
 }
 
 export const registrationWithStaticDates: Registration = {
