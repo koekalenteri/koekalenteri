@@ -13,6 +13,22 @@ import { response } from '../utils/response'
 
 const dynamoDB = new CustomDynamoClient(CONFIG.eventTable)
 
+const queryEvents = async (since?: string): Promise<JsonDogEvent[] | undefined> => {
+  if (since) {
+    const modifiedAfter = new Date(Number(since)).toISOString()
+    const season = modifiedAfter.substring(0, 4)
+
+    return dynamoDB.query<JsonDogEvent>(
+      'season = :season AND modifiedAt > :modifiedAfter',
+      { ':season': season, ':modifiedAfter': modifiedAfter },
+      CONFIG.eventTable,
+      'gsiSeasonModifiedAt'
+    )
+  }
+
+  return dynamoDB.readAll<JsonDogEvent>()
+}
+
 const getAdminEventsHandler = metricScope(
   (metrics: MetricsLogger) =>
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
@@ -20,8 +36,9 @@ const getAdminEventsHandler = metricScope(
         const { user, memberOf, res } = await authorizeWithMemberOf(event)
 
         if (res) return res
-        // @todo add index & use query to get relevant items
-        const items = await dynamoDB.readAll<JsonDogEvent>()
+
+        const items = await queryEvents(event.queryStringParameters?.since)
+
         const allowed = items?.filter((item) => user.admin || memberOf.includes(item.organizer.id))
 
         metricsSuccess(metrics, event.requestContext, 'getAdminEvents')

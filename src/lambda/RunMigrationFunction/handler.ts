@@ -1,7 +1,7 @@
 import type { MetricsLogger } from 'aws-embedded-metrics'
 import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import type { AWSError } from 'aws-sdk'
-import type { JsonRegistration } from '../../types'
+import type { JsonDogEvent } from '../../types'
 
 import { metricScope } from 'aws-embedded-metrics'
 
@@ -21,19 +21,15 @@ const runMigrationHandler = metricScope(
         return response(401, 'Unauthorized', event)
       }
 
-      const timestamp = new Date().toISOString()
-
       try {
-        const registrations = (await dynamoDB.readAll<JsonRegistration>(CONFIG.registrationTable)) ?? []
+        const events = (await dynamoDB.readAll<JsonDogEvent>()) ?? []
+
         let count = 0
 
-        for (const item of registrations) {
-          if (!item.state) {
-            item.state = item.paidAt ? 'ready' : 'creating'
-            item.modifiedAt = timestamp
-            item.modifiedBy = 'migration'
-
-            await dynamoDB.write(item, CONFIG.registrationTable)
+        for (const item of events) {
+          if (!item.season) {
+            item.season = item.startDate.substring(0, 4)
+            await dynamoDB.write(item)
             count++
           }
         }

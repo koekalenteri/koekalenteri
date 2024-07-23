@@ -158,6 +158,8 @@ Resources:
       AttributeDefinitions:
           - AttributeName: id
             AttributeType: S
+          - AttributeName: season
+            AttributeType: S
           - AttributeName: modifiedAt
             AttributeType: S
       GlobalSecondaryIndexes:
@@ -165,6 +167,14 @@ Resources:
           KeySchema:
             - AttributeName: modifiedAt
               KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+        - IndexName: gsiSeasonModifiedAt
+          KeySchema:
+            - AttributeName: season
+              KeyType: HASH
+            - AttributeName: modifiedAt
+              KeyType: RANGE
           Projection:
             ProjectionType: ALL
       Tags:

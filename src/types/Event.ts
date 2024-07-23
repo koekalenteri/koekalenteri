@@ -37,6 +37,7 @@ export interface JsonDogEvent extends JsonDbRecord {
   organizer: PublicOrganizer
   places: number
   priority?: string[]
+  season?: string
   secretary: Partial<User>
   startDate: string
   state: EventState

@@ -11,8 +11,9 @@ export async function getEvents(signal?: AbortSignal): Promise<PublicDogEvent[]>
   return http.get<PublicDogEvent[]>(PATH, { signal })
 }
 
-export async function getAdminEvents(token?: string, signal?: AbortSignal): Promise<DogEvent[]> {
-  return http.get<DogEvent[]>(ADMIN_PATH, withToken({ signal }, token))
+export async function getAdminEvents(token?: string, lastModified?: number, signal?: AbortSignal): Promise<DogEvent[]> {
+  const qs = lastModified ? `?since=${lastModified}` : ''
+  return http.get<DogEvent[]>(ADMIN_PATH + qs, withToken({ signal }, token))
 }
 
 export async function getEvent(id: string, signal?: AbortSignal): Promise<DogEvent> {

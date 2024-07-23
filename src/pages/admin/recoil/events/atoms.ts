@@ -1,7 +1,7 @@
 import type { GridColumnVisibilityModel } from '@mui/x-data-grid'
 import type { DogEvent, RegistrationClass } from '../../../../types'
 
-import { addDays, isSameDay, nextSaturday, startOfDay, sub } from 'date-fns'
+import { addDays, addYears, isSameDay, nextSaturday, startOfDay, sub } from 'date-fns'
 import { atom, atomFamily, selector } from 'recoil'
 
 import { uniqueClasses } from '../../../../lib/utils'
@@ -9,6 +9,12 @@ import { localStorageEffect, logEffect, sessionStorageEffect } from '../../../re
 
 import { adminRemoteEventsEffect } from './effects'
 import { adminCurrentEventSelector, adminEventSelector } from './selectors'
+
+export const adminEventsFetchedAtom = atom<number | undefined>({
+  key: 'adminEventsFetched',
+  default: addYears(new Date(), -1).valueOf(),
+  effects: [logEffect, sessionStorageEffect],
+})
 
 export const adminEventsAtom = atom<DogEvent[]>({
   key: 'adminEvents',
