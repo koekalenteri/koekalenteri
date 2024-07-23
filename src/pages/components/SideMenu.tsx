@@ -5,6 +5,7 @@ import { NavLink } from 'react-router-dom'
 import Accessibility from '@mui/icons-material/Accessibility'
 import EmojiEventsOutlined from '@mui/icons-material/EmojiEventsOutlined'
 import Event from '@mui/icons-material/Event'
+import HandymanOutlined from '@mui/icons-material/HandymanOutlined'
 import Logout from '@mui/icons-material/Logout'
 import MailOutline from '@mui/icons-material/MailOutline'
 import PersonOutline from '@mui/icons-material/PersonOutline'
@@ -15,14 +16,16 @@ import Box from '@mui/material/Box'
 import Divider from '@mui/material/Divider'
 import { useRecoilValue } from 'recoil'
 
+import { runMigrations } from '../../api/migrate'
 import { HEADER_HEIGHT } from '../../assets/Theme'
 import { Path } from '../../routeConfig'
-import { isAdminSelector } from '../recoil'
+import { idTokenAtom, isAdminSelector } from '../recoil'
 import { useUserActions } from '../recoil/user/actions'
 
 import DrawerItem from './sideMenu/DrawerItem'
 import DrawerList from './sideMenu/DrawerList'
 import MiniDrawer from './sideMenu/MiniDrawer'
+import { AsyncButton } from './AsyncButton'
 
 interface Props {
   readonly open?: boolean
@@ -35,6 +38,7 @@ export function SideMenu({ open, onClose }: Props) {
   const { t } = useTranslation()
   const actions = useUserActions()
   const isAdmin = useRecoilValue(isAdminSelector)
+  const token = useRecoilValue(idTokenAtom)
 
   return (
     <MiniDrawer
@@ -50,35 +54,40 @@ export function SideMenu({ open, onClose }: Props) {
         <NavLink to={Path.admin.events} onClick={onClose}>
           <DrawerItem text={t('events')} icon={<Event />} />
         </NavLink>
-        {isAdmin && (
-          <NavLink to={Path.admin.orgs} onClick={onClose}>
-            <DrawerItem text={t('organizations')} icon={<Support />} />
-          </NavLink>
-        )}
         <NavLink to={Path.admin.judges} onClick={onClose}>
           <DrawerItem text={t('judges')} icon={<Accessibility />} />
         </NavLink>
         <NavLink to={Path.admin.officials} onClick={onClose}>
           <DrawerItem text={t('officials')} icon={<SupervisorAccount />} />
         </NavLink>
-        {isAdmin && (
-          <NavLink to={Path.admin.eventTypes} onClick={onClose}>
-            <DrawerItem text={t('eventTypes')} icon={<EmojiEventsOutlined />} />
-          </NavLink>
-        )}
         <NavLink to={Path.admin.users} onClick={onClose}>
           <DrawerItem text={t('users')} icon={<PersonOutline />} />
         </NavLink>
-        {isAdmin && (
-          <NavLink to={Path.admin.emailTemplates} onClick={onClose}>
-            <DrawerItem text={t('emailTemplates')} icon={<MailOutline />} />
-          </NavLink>
-        )}
       </DrawerList>
       <Divider />
       <DrawerList>
         <DrawerItem text={t('logout')} icon={<Logout />} onClick={async () => actions.signOut()} />
       </DrawerList>
+      <Box sx={{ flex: 1, flexGrow: 1, minHeight: '32px' }} />
+      {isAdmin && (
+        <>
+          <Divider>admin section</Divider>
+          <DrawerList>
+            <NavLink to={Path.admin.orgs} onClick={onClose}>
+              <DrawerItem text={t('organizations')} icon={<Support />} />
+            </NavLink>
+            <NavLink to={Path.admin.eventTypes} onClick={onClose}>
+              <DrawerItem text={t('eventTypes')} icon={<EmojiEventsOutlined />} />
+            </NavLink>
+            <NavLink to={Path.admin.emailTemplates} onClick={onClose}>
+              <DrawerItem text={t('emailTemplates')} icon={<MailOutline />} />
+            </NavLink>
+            <AsyncButton onClick={async () => runMigrations(token)} sx={{ p: 0, width: '100%' }}>
+              <DrawerItem text="Run migrations" icon={<HandymanOutlined />} />
+            </AsyncButton>
+          </DrawerList>
+        </>
+      )}
     </MiniDrawer>
   )
 }
