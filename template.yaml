@@ -163,7 +163,7 @@ Resources:
           - AttributeName: modifiedAt
             AttributeType: S
       GlobalSecondaryIndexes:
-        - IndexName: gsiModifiedAt
+        - IndexName: gsiModifiedAt # TODO: remove after 1.1.8 release
           KeySchema:
             - AttributeName: modifiedAt
               KeyType: HASH
@@ -296,13 +296,6 @@ Resources:
             AttributeType: N
           - AttributeName: modifiedAt
             AttributeType: S
-      GlobalSecondaryIndexes:
-        - IndexName: gsiModifiedAt
-          KeySchema:
-            - AttributeName: modifiedAt
-              KeyType: HASH
-          Projection:
-            ProjectionType: ALL
       Tags:
         - Key: Env
           Value: !Ref AWS::StackName
@@ -324,13 +317,6 @@ Resources:
             AttributeType: N
           - AttributeName: modifiedAt
             AttributeType: S
-      GlobalSecondaryIndexes:
-        - IndexName: gsiModifiedAt
-          KeySchema:
-            - AttributeName: modifiedAt
-              KeyType: HASH
-          Projection:
-            ProjectionType: ALL
       Tags:
         - Key: Env
           Value: !Ref AWS::StackName
@@ -352,13 +338,6 @@ Resources:
             AttributeType: S
           - AttributeName: modifiedAt
             AttributeType: S
-      GlobalSecondaryIndexes:
-        - IndexName: gsiModifiedAt
-          KeySchema:
-            - AttributeName: modifiedAt
-              KeyType: HASH
-          Projection:
-            ProjectionType: ALL
       Tags:
         - Key: Env
           Value: !Ref AWS::StackName
