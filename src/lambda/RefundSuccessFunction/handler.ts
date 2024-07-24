@@ -39,7 +39,7 @@ const refundSuccess = metricScope(
 
         const status = params['checkout-status']
 
-        if (status && transaction.status !== 'ok') {
+        if (status && (transaction.status !== 'ok' || !transaction.statusAt)) {
           if (status !== transaction.status || !transaction.statusAt) {
             await updateTransactionStatus(transactionId, status)
           }
