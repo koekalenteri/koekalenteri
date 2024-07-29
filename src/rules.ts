@@ -113,7 +113,6 @@ export const REQUIREMENTS: { [key: string]: EventRequirement | EventClassRequire
   },
   'SM NOME-B': {
     results: {
-      // FI30354/17, FI12062/20
       '2023-04-15': (officialResults: TestResult[], manualResults: ManualTestResult[]): QualifyingResults => {
         // TODO: get this date from last SM NOME-B event
         const minDate = new Date('2023-08-18')
