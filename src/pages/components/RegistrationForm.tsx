@@ -1,6 +1,13 @@
 import type { Theme } from '@mui/material'
 import type { TFunction } from 'i18next'
-import type { DeepPartial, Language, PublicConfirmedEvent, Registration, TestResult } from '../../types'
+import type {
+  DeepPartial,
+  Language,
+  ManualTestResult,
+  PublicConfirmedEvent,
+  Registration,
+  TestResult,
+} from '../../types'
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
@@ -109,7 +116,7 @@ export default function RegistrationForm({
         const cls = props.class ?? registration.class
         const dogResults = props.dog?.results ?? registration.dog?.results ?? []
         const results = props.results ?? registration.results ?? []
-        const filtered = filterRelevantResults(event, cls, dogResults as TestResult[], results)
+        const filtered = filterRelevantResults(event, cls, dogResults as TestResult[], results as ManualTestResult[])
         props.qualifyingResults = filtered.relevant
         props.qualifies = filtered.qualifies
       }
