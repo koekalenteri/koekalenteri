@@ -1,9 +1,16 @@
-import type { Registration, TestResult } from './types'
+import type { ManualTestResult, QualifyingResult, Registration, TestResult } from './types'
 
 import { parseISO } from 'date-fns'
 
+export type QualifyingResults = { relevant: QualifyingResult[]; qualifies: boolean }
+
 export type EventResultRequirement = Partial<TestResult> & { count: number; excludeCurrentYear?: boolean }
 export type EventResultRequirements = Array<EventResultRequirement>
+export type EventResultRequirementFn = (
+  officialResults: TestResult[],
+  manualResults: ManualTestResult[]
+) => QualifyingResults
+export type EventResultRules = EventResultRequirements | Array<EventResultRequirements> | EventResultRequirementFn
 
 export enum RULE_DATES {
   '1977-01-01',
@@ -20,12 +27,14 @@ export type RuleDate = keyof typeof RULE_DATES
 export type EventRequirement = {
   age?: number
   breedCode?: Array<string>
-  results?: { [Property in RuleDate]?: EventResultRequirements | Array<EventResultRequirements> }
+  results?: {
+    [Property in RuleDate]?: EventResultRules
+  }
 }
 
 export type EventResultRequirementsByDate = {
   date: RuleDate
-  rules: EventResultRequirements | Array<EventResultRequirements>
+  rules: EventResultRules
 }
 
 export type EventRequirementsByDate = {
@@ -99,6 +108,39 @@ export const REQUIREMENTS: { [key: string]: EventRequirement | EventClassRequire
         '2009-01-01': [{ type: 'NOME-B', result: 'AVO1', count: 2 }],
         '2016-04-01': [{ type: 'NOME-B', result: 'AVO1', count: 2 }],
         '2023-04-15': [{ type: 'NOME-B', result: 'AVO1', count: 1 }],
+      },
+    },
+  },
+  'SM NOME-B': {
+    results: {
+      // FI30354/17, FI12062/20
+      '2023-04-15': (officialResults: TestResult[], manualResults: ManualTestResult[]): QualifyingResults => {
+        // TODO: get this date from last SM NOME-B event
+        const minDate = new Date('2023-08-18')
+
+        // 5 best results after last SM NOME-B event's registrationEndDate are considered
+        const relevant: QualifyingResult[] = officialResults
+          .filter(
+            (r) =>
+              r.type === 'NOME-B' &&
+              r.class === 'VOI' &&
+              ['VOI1', 'VOI2', 'VOI3'].includes(r.result) &&
+              r.date &&
+              r.date > minDate
+          )
+          .map((r) => ({ ...r, qualifies: true, official: true }))
+          .concat(
+            manualResults
+              .filter((r) => r.type === 'NOME-B' && r.class === 'VOI' && r.date && r.date > minDate)
+              .map((r) => ({ ...r, qualifies: true, official: false }))
+          )
+          .sort((a, b) => a.result.localeCompare(b.result))
+
+        // One VOI1 is required for qualifying
+        // TODO: EXCEPT for the winner of previous SM NOME-B, in case the result was not VOI1
+        const qualifies = Boolean(relevant.find((r) => r.result === 'VOI1'))
+
+        return { relevant: relevant.slice(0, 5), qualifies }
       },
     },
   },

@@ -9,7 +9,7 @@ import { objectContains } from '../validation'
 const asArray = (v: EventResultRequirements | EventResultRequirement) => (Array.isArray(v) ? v : [v])
 
 function findFirstMissing(requirements: EventResultRequirementsByDate | undefined, results: QualifyingResult[]) {
-  if (!requirements) {
+  if (!requirements || typeof requirements.rules === 'function') {
     return []
   }
   for (const rule of requirements.rules) {
@@ -23,14 +23,14 @@ function findFirstMissing(requirements: EventResultRequirementsByDate | undefine
 }
 
 export function availableTypes(requirements?: EventResultRequirementsByDate) {
-  if (!requirements) {
+  if (!requirements || typeof requirements.rules === 'function') {
     return []
   }
   return unique(requirements.rules.flatMap((rule) => asArray(rule).map((opt) => opt.type)))
 }
 
 export function availableResults(requirements?: EventResultRequirementsByDate, type?: string) {
-  if (!requirements) {
+  if (!requirements || typeof requirements.rules === 'function') {
     return []
   }
   return unique(

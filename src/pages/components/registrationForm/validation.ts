@@ -4,10 +4,12 @@ import type {
   EventResultRequirement,
   EventResultRequirements,
   EventResultRequirementsByDate,
+  QualifyingResults,
 } from '../../../rules'
 import type {
   BreedCode,
   Dog,
+  ManualTestResult,
   Person,
   PublicConfirmedEvent,
   QualifyingResult,
@@ -143,15 +145,13 @@ function validateDogBreed(event: { eventType: string }, dog: { breedCode?: Breed
   }
 }
 
-export type RelevantResults = { relevant: QualifyingResult[]; qualifies: boolean }
-
 const byDate = (a: TestResult, b: TestResult) => new Date(a.date).valueOf() - new Date(b.date).valueOf()
 export function filterRelevantResults(
   { eventType, startDate }: { eventType: string; startDate: Date },
   regClass: Registration['class'],
   officialResults?: TestResult[],
-  manualResults?: Partial<TestResult>[]
-): RelevantResults {
+  manualResults?: ManualTestResult[]
+): QualifyingResults {
   const nextClass = regClass && getNextClass(regClass)
   const rules = getRequirements(eventType, regClass, startDate)
   const nextClassRules = nextClass && getRequirements(eventType, nextClass, startDate)
@@ -185,7 +185,7 @@ function findDisqualifyingResult(
   manualResults: Partial<TestResult>[] | undefined,
   eventType: string,
   nextClass?: Registration['class']
-): RelevantResults | undefined {
+): QualifyingResults | undefined {
   const compare = (r: Partial<TestResult>) =>
     r.type === eventType && ((r.class && r.class === nextClass) || r.result === 'NOU1')
   const officialResult = officialResults?.find(compare)
@@ -201,9 +201,9 @@ function findDisqualifyingResult(
 function checkRequiredResults(
   requirements: EventResultRequirementsByDate | undefined,
   officialResults: TestResult[] = [],
-  manualResults: Partial<TestResult>[] = [],
+  manualResults: ManualTestResult[] = [],
   qualifying = true
-): RelevantResults {
+): QualifyingResults {
   if (!requirements) {
     return { relevant: [], qualifies: qualifying }
   }
@@ -220,22 +220,32 @@ function checkRequiredResults(
   const checkResult = (result: Partial<TestResult>, r: EventResultRequirement, official: boolean) => {
     const { count, ...resultProps } = r
     if (objectContains(result, resultProps)) {
-      relevant.push({ ...result, qualifying, official } as QualifyingResult)
+      if (!relevant.find((rel) => rel.date === result.date))
+        relevant.push({ ...result, qualifying, official } as QualifyingResult)
       if (getCount(r) >= count) {
         qualifies = true
       }
     }
   }
 
-  for (const result of officialResults) {
-    for (const resultRules of requirements.rules) {
-      asArray(resultRules).forEach((resultRule) => checkResult(result, resultRule, true))
-    }
+  if (typeof requirements.rules === 'function') {
+    return requirements.rules(officialResults, manualResults)
   }
 
-  for (const result of manualResults) {
+  for (const resultRules of requirements.rules) {
+    for (const result of officialResults) {
+      asArray(resultRules).forEach((resultRule) => checkResult(result, resultRule, true))
+    }
+    if (qualifies) break
+    counts.clear()
+  }
+
+  if (!qualifies) {
     for (const resultRules of requirements.rules) {
-      asArray(resultRules).forEach((resultRule) => checkResult(result, resultRule, false))
+      for (const result of manualResults) {
+        asArray(resultRules).forEach((resultRule) => checkResult(result, resultRule, false))
+      }
+      if (qualifies) break
     }
   }
 
