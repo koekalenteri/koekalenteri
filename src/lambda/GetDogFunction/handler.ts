@@ -69,6 +69,7 @@ const getDogHandler = metricScope(
               for (const result of results.json || []) {
                 res.push({
                   type: result.koemuoto,
+                  subType: result.tapahtumanTyyppi,
                   class: result.luokka,
                   date: result.aika,
                   result: result.tulos,

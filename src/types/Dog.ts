@@ -31,6 +31,7 @@ export interface JsonTestResult {
   location: string
   result: string
   judge: string
+  subType?: string
   points?: number
   rank?: number
   ext?: string
