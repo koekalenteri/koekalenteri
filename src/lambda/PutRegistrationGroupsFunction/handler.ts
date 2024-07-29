@@ -66,7 +66,7 @@ const putRegistrationGroupsHandler = metricScope(
 
         // sort the items just for logging
         oldItems.sort(sortRegistrationsByDateClassTimeAndNumber)
-        console.log({ oldState: oldItems.map(regString) })
+        // console.log({ oldState: oldItems.map(regString) })
 
         // create a new copy of oldItems, so we can update without touching the original ones
         const updatedItems: JsonRegistration[] = oldItems.map((r) => ({ ...r }))
@@ -79,12 +79,12 @@ const putRegistrationGroupsHandler = metricScope(
           }
         }
 
-        console.log({ updatedState: updatedItems.map(regString) })
+        // console.log({ updatedState: updatedItems.map(regString) })
 
         // fix numbering etc, because client might provide outdated / out of bounds info, but do not update db
         await fixRegistrationGroups(updatedItems, user, false)
 
-        console.log({ fixedState: updatedItems.map(regString) })
+        // console.log({ fixedState: updatedItems.map(regString) })
 
         // Finally save any changes
         for (const reg of updatedItems) {
@@ -96,7 +96,7 @@ const putRegistrationGroupsHandler = metricScope(
             reg.cancelled = reg.group?.key === GROUP_KEY_CANCELLED
 
             await saveGroup(reg, oldGroup, user, reason)
-            console.log({ id: reg.id, group: reg.group, reason })
+            // console.log({ id: reg.id, group: reg.group, reason })
           }
         }
 
@@ -125,6 +125,7 @@ const putRegistrationGroupsHandler = metricScope(
         const invited =
           confirmedEvent.state === 'invited' || (cls && classes.find((c) => c.class === cls && c.state === 'invited'))
 
+        /*
         console.log({
           state: confirmedEvent.state,
           cls,
@@ -132,6 +133,7 @@ const putRegistrationGroupsHandler = metricScope(
           picked,
           invited,
         })
+        */
 
         if (picked || invited) {
           /**
