@@ -2541,29 +2541,47 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                   <div
                     class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
                   >
-                    <button
-                      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-mvwufc-MuiButtonBase-root-MuiButton-root"
-                      disabled=""
-                      tabindex="-1"
-                      type="button"
+                    <div
+                      class="MuiStack-root css-1k3liqh-MuiStack-root"
                     >
-                      <span
-                        class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1d6wzja-MuiButton-startIcon"
+                      <button
+                        class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-q3vbvi-MuiButtonBase-root-MuiButton-root"
+                        disabled=""
+                        tabindex="-1"
+                        type="button"
                       >
-                        <svg
-                          aria-hidden="true"
-                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                          data-testid="AddOutlinedIcon"
-                          focusable="false"
-                          viewBox="0 0 24 24"
+                        <span
+                          class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1d6wzja-MuiButton-startIcon"
                         >
-                          <path
-                            d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6z"
-                          />
-                        </svg>
-                      </span>
-                      registration.cta.addResult
-                    </button>
+                          <svg
+                            aria-hidden="true"
+                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                            data-testid="AddOutlinedIcon"
+                            focusable="false"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6z"
+                            />
+                          </svg>
+                        </span>
+                        registration.cta.addResult
+                      </button>
+                      <div
+                        class="MuiStack-root css-1w9onfo-MuiStack-root"
+                      >
+                        <span
+                          class="MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"
+                        >
+                          Karsintapisteet yht.:
+                        </span>
+                        <div
+                          class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-g7diby-MuiAvatar-root"
+                        >
+                          0
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -5353,29 +5371,47 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                   <div
                     class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
                   >
-                    <button
-                      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-mvwufc-MuiButtonBase-root-MuiButton-root"
-                      disabled=""
-                      tabindex="-1"
-                      type="button"
+                    <div
+                      class="MuiStack-root css-1k3liqh-MuiStack-root"
                     >
-                      <span
-                        class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1d6wzja-MuiButton-startIcon"
+                      <button
+                        class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-q3vbvi-MuiButtonBase-root-MuiButton-root"
+                        disabled=""
+                        tabindex="-1"
+                        type="button"
                       >
-                        <svg
-                          aria-hidden="true"
-                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                          data-testid="AddOutlinedIcon"
-                          focusable="false"
-                          viewBox="0 0 24 24"
+                        <span
+                          class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1d6wzja-MuiButton-startIcon"
                         >
-                          <path
-                            d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6z"
-                          />
-                        </svg>
-                      </span>
-                      registration.cta.addResult
-                    </button>
+                          <svg
+                            aria-hidden="true"
+                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                            data-testid="AddOutlinedIcon"
+                            focusable="false"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6z"
+                            />
+                          </svg>
+                        </span>
+                        registration.cta.addResult
+                      </button>
+                      <div
+                        class="MuiStack-root css-1w9onfo-MuiStack-root"
+                      >
+                        <span
+                          class="MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"
+                        >
+                          Karsintapisteet yht.:
+                        </span>
+                        <div
+                          class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-g7diby-MuiAvatar-root"
+                        >
+                          0
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

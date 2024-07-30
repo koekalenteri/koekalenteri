@@ -33,7 +33,7 @@ const STATE_INCLUSION: Record<EventState, EventState[]> = {
   completed: ['confirmed'],
 }
 
-export const OFFICIAL_EVENT_TYPES = ['NOU', 'NOME-B', 'NOME-A', 'NOWT', 'NKM', 'SM NOME-B']
+export const OFFICIAL_EVENT_TYPES = ['NOU', 'NOME-B', 'NOME-B SM', 'NOME-A', 'NOME-A SM', 'NOWT', 'NOWT SM', 'NKM']
 
 const REQUIRED_BY_STATE: Record<EventState, EventFlags> = {
   draft: {

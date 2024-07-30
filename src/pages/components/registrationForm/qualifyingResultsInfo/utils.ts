@@ -22,15 +22,31 @@ function findFirstMissing(requirements: EventResultRequirementsByDate | undefine
   }
 }
 
-export function availableTypes(requirements?: EventResultRequirementsByDate) {
+export function availableTypes(requirements?: EventResultRequirementsByDate, eventType?: string) {
   if (!requirements || typeof requirements.rules === 'function') {
+    switch (eventType) {
+      case 'NOME-B SM':
+        return ['NOME-B']
+      case 'NOME-A SM':
+        return ['NOME-A', 'NOME-A KV']
+      case 'NOWT SM':
+        return ['NOWT']
+    }
     return []
   }
   return unique(requirements.rules.flatMap((rule) => asArray(rule).map((opt) => opt.type)))
 }
 
-export function availableResults(requirements?: EventResultRequirementsByDate, type?: string) {
+export function availableResults(requirements?: EventResultRequirementsByDate, type?: string, eventType?: string) {
   if (!requirements || typeof requirements.rules === 'function') {
+    switch (eventType) {
+      case 'NOME-B SM':
+      case 'NOMWT SM':
+        return ['VOI1', 'VOI2', 'VOI3']
+      case 'NOME-A SM':
+        if (type === 'NOME-A') return ['A1 CERT', 'A1 RES-CERT', 'A1', 'A2', 'A3']
+        if (type === 'NOME-A KV') return ['EXC CACIT', 'EXC RES-CACIT', 'EXC', 'VG', 'G']
+    }
     return []
   }
   return unique(
@@ -44,7 +60,7 @@ export function availableResults(requirements?: EventResultRequirementsByDate, t
 
 export function createMissingResult(
   requirements: EventResultRequirementsByDate | undefined,
-  results: ManualTestResult[],
+  results: Array<QualifyingResult | ManualTestResult>,
   regNo: string
 ): ManualTestResult {
   const rule = findFirstMissing(requirements, results)

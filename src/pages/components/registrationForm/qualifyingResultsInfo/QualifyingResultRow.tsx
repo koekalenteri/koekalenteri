@@ -1,12 +1,14 @@
 import type { EventResultRequirementsByDate } from '../../../../rules'
-import type { ManualTestResult, TestResult } from '../../../../types'
+import type { ManualTestResult, QualifyingResult, TestResult } from '../../../../types'
 
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import DeleteOutline from '@mui/icons-material/DeleteOutline'
+import Avatar from '@mui/material/Avatar'
 import Button from '@mui/material/Button'
 import FormControl from '@mui/material/FormControl'
 import Grid from '@mui/material/Grid'
+import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
 import { DatePicker } from '@mui/x-date-pickers'
 import { addMonths } from 'date-fns'
@@ -16,65 +18,108 @@ import AutocompleteSingle from '../../AutocompleteSingle'
 import { availableResults, availableTypes, resultBorderColor } from './utils'
 
 interface Props {
+  readonly eventType?: string
   readonly dob?: Date
-  readonly result: ManualTestResult
+  readonly result: QualifyingResult | ManualTestResult
   readonly disabled?: boolean
   readonly requirements?: EventResultRequirementsByDate
   readonly onChange?: (result: ManualTestResult, props: Partial<TestResult>) => void
   readonly onRemove?: (result: ManualTestResult) => void
 }
 
-export default function QualifyingResultRow({ dob, result, disabled, requirements, onChange, onRemove }: Props) {
+const isManualResult = (result: QualifyingResult | ManualTestResult): result is ManualTestResult => !result.official
+const getSuffix = (
+  result: QualifyingResult | ManualTestResult
+): ' CERT' | ' CACIT' | ' RES-CERT' | ' RES-CACIT' | '' => {
+  if (result.cacit) return ' CACIT'
+  if (result.cert) return ' CERT'
+  if (result.resCacit) return ' RES-CACIT'
+  if (result.resCert) return ' RES-CERT'
+  return ''
+}
+
+const parseResult = (result?: string): Partial<TestResult> => {
+  if (!result) return {}
+
+  const resCert = result.includes('RES-CERT')
+  const cert = !resCert && result.includes('CERT')
+  const resCacit = result.includes('RES-CACIT')
+  const cacit = !resCacit && result.includes('CACIT')
+  const realResult = result.replace(/(RES-CERT|CERT|RES-CACIT|CACIT)/, '').trim()
+  const testClass = realResult.length === 4 ? realResult.slice(0, -1) : undefined
+
+  return {
+    result: realResult,
+    cert,
+    resCert,
+    cacit,
+    resCacit,
+    class: testClass,
+  }
+}
+
+export default function QualifyingResultRow({
+  eventType,
+  dob,
+  result,
+  disabled,
+  requirements,
+  onChange,
+  onRemove,
+}: Props) {
   const { t } = useTranslation()
   const handleChange = useCallback(
-    (result: ManualTestResult, props: Partial<TestResult>) => {
-      onChange?.(result, props)
+    (result: QualifyingResult | ManualTestResult, props: Partial<TestResult>) => {
+      if (isManualResult(result)) onChange?.(result, { ...props, points: undefined })
     },
     [onChange]
   )
-  const handleRemove = useCallback(() => onRemove?.(result), [onRemove, result])
+  const handleRemove = useCallback(() => {
+    if (isManualResult(result)) onRemove?.(result)
+  }, [onRemove, result])
   const maxDate = new Date()
   const date9Months = dob ? addMonths(dob, 9) : maxDate
   const minDate = date9Months < maxDate ? date9Months : maxDate
 
   return (
     <Grid item container spacing={1} alignItems="center">
-      <Grid item xs={6} sm={4} md={2}>
+      <Grid item xs={6} sm={3.5} md={2}>
         <AutocompleteSingle
           disabled={result.official || disabled}
           disableClearable
-          options={availableTypes(requirements)}
+          options={availableTypes(requirements, eventType)}
           label={t('testResult.eventType')}
-          onChange={(value) => handleChange(result, { type: value, result: availableResults(requirements, value)[0] })}
+          onChange={(value) => {
+            const testResult = availableResults(requirements, value, eventType)[0]
+            handleChange(result, { type: value, ...parseResult(testResult) })
+          }}
           value={result.type}
         />
       </Grid>
-      <Grid item xs={6} sm={4} md={2}>
+      <Grid item xs={6} sm={4} md={2.5} lg={2}>
         <AutocompleteSingle
           disabled={result.official || disabled}
           disableClearable
-          options={availableResults(requirements, result.type)}
+          options={availableResults(requirements, result.type, eventType)}
           label={t('testResult.result')}
-          onChange={(value) =>
+          onChange={(value) => {
             handleChange(result, {
-              result: value === 'CERT' ? 'VOI1' : value,
-              cert: value === 'CERT',
-              class: value.slice(0, -1),
+              ...parseResult(value),
             })
-          }
+          }}
           sx={{
             '& fieldset': {
               borderColor: resultBorderColor(result.qualifying),
               borderWidth: !result.result || result.qualifying === undefined ? undefined : 2,
             },
-            '&.Mui-disabled .MuiOutlinedInput-notchedOutline': {
+            '& .Mui-disabled .MuiOutlinedInput-notchedOutline': {
               borderColor: resultBorderColor(result.qualifying),
             },
           }}
-          value={result.cert ? 'CERT' : result.result}
+          value={`${result.result}${getSuffix(result)}`}
         />
       </Grid>
-      <Grid item xs={6} sm={4} md={2}>
+      <Grid item xs={6} sm={4} md={2.5} lg={2}>
         <FormControl fullWidth>
           <DatePicker
             disabled={result.official || disabled}
@@ -90,7 +135,7 @@ export default function QualifyingResultRow({ dob, result, disabled, requirement
           />
         </FormControl>
       </Grid>
-      <Grid item xs={6} sm={4} md={2}>
+      <Grid item xs={6} sm={3.5} md={2}>
         <TextField
           disabled={result.official || disabled}
           error={!result.location}
@@ -100,7 +145,7 @@ export default function QualifyingResultRow({ dob, result, disabled, requirement
           value={result.location}
         />
       </Grid>
-      <Grid item xs={12} sm={4} md={2.5}>
+      <Grid item xs={12} sm={4} md={3} lg={2}>
         <TextField
           disabled={result.official || disabled}
           error={!result.judge}
@@ -110,10 +155,30 @@ export default function QualifyingResultRow({ dob, result, disabled, requirement
           value={result.judge}
         />
       </Grid>
-      <Grid item sx={{ display: result.official ? 'none' : 'block' }} xs={12} sm={4} md={1.5}>
-        <Button disabled={disabled} startIcon={<DeleteOutline />} onClick={handleRemove}>
-          {t('registration.cta.deleteResult')}
-        </Button>
+      <Grid item flex={1}>
+        <Stack direction="row" gap={1} justifyContent="end" alignItems="center">
+          <Button
+            sx={{ display: result.official ? 'none' : undefined }}
+            disabled={disabled}
+            startIcon={<DeleteOutline />}
+            onClick={handleRemove}
+            variant="outlined"
+          >
+            {t('registration.cta.deleteResult')}
+          </Button>
+          <Avatar
+            sx={{
+              width: 32,
+              height: 21,
+              bgcolor: 'info.main',
+              fontSize: '1em',
+              display: result.points ? undefined : 'none',
+            }}
+            variant="rounded"
+          >
+            {result.points}
+          </Avatar>
+        </Stack>
       </Grid>
     </Grid>
   )

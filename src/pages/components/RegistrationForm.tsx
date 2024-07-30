@@ -293,6 +293,7 @@ export default function RegistrationForm({
           />
         </Collapse>
         <QualifyingResultsInfo
+          eventType={event.eventType}
           regNo={registration.dog?.regNo}
           dob={registration.dog?.dob}
           disabled={disabled}

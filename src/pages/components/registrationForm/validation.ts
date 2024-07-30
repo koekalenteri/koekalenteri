@@ -4,15 +4,16 @@ import type {
   EventResultRequirement,
   EventResultRequirements,
   EventResultRequirementsByDate,
-  QualifyingResults,
 } from '../../../rules'
 import type {
   BreedCode,
   Dog,
+  DogEvent,
   ManualTestResult,
   Person,
   PublicConfirmedEvent,
   QualifyingResult,
+  QualifyingResults,
   Registration,
   RegistrationBreeder,
   RegistrationClass,
@@ -147,7 +148,7 @@ function validateDogBreed(event: { eventType: string }, dog: { breedCode?: Breed
 
 const byDate = (a: TestResult, b: TestResult) => new Date(a.date).valueOf() - new Date(b.date).valueOf()
 export function filterRelevantResults(
-  { eventType, startDate }: { eventType: string; startDate: Date },
+  { eventType, startDate, entryEndDate }: Pick<DogEvent, 'eventType' | 'startDate' | 'entryEndDate'>,
   regClass: Registration['class'],
   officialResults?: TestResult[],
   manualResults?: ManualTestResult[]
@@ -162,12 +163,13 @@ export function filterRelevantResults(
     return test
   }
 
-  const check = checkRequiredResults(rules, officialResults, manualValid)
+  const check = checkRequiredResults(rules, officialResults, manualValid, entryEndDate)
   if (check.qualifies && check.relevant.length) {
     const officialNotThisYear = officialResults?.filter((r) => !excludeByYear(r, startDate))
     const manulNotThisYear = manualValid?.filter((r) => !excludeByYear(r, startDate))
     const dis =
-      nextClass && checkRequiredResults(nextClassRules ?? undefined, officialNotThisYear, manulNotThisYear, false)
+      nextClass &&
+      checkRequiredResults(nextClassRules ?? undefined, officialNotThisYear, manulNotThisYear, entryEndDate, false)
     if (dis?.qualifies) {
       return {
         relevant: check.relevant.concat(dis.relevant).sort(byDate),
@@ -202,6 +204,7 @@ function checkRequiredResults(
   requirements: EventResultRequirementsByDate | undefined,
   officialResults: TestResult[] = [],
   manualResults: ManualTestResult[] = [],
+  entryEndDate: Date | undefined,
   qualifying = true
 ): QualifyingResults {
   if (!requirements) {
@@ -229,7 +232,7 @@ function checkRequiredResults(
   }
 
   if (typeof requirements.rules === 'function') {
-    return requirements.rules(officialResults, manualResults)
+    return requirements.rules(officialResults, manualResults, entryEndDate)
   }
 
   for (const resultRules of requirements.rules) {
@@ -246,6 +249,7 @@ function checkRequiredResults(
         asArray(resultRules).forEach((resultRule) => checkResult(result, resultRule, false))
       }
       if (qualifies) break
+      counts.clear()
     }
   }
 

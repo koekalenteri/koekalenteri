@@ -4,8 +4,11 @@ import type { ManualTestResult, QualifyingResult, Registration, TestResult } fro
 import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import AddOutlined from '@mui/icons-material/AddOutlined'
+import Avatar from '@mui/material/Avatar'
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
+import Stack from '@mui/material/Stack'
+import Typography from '@mui/material/Typography'
 
 import CollapsibleSection from '../CollapsibleSection'
 
@@ -13,6 +16,7 @@ import QualifyingResultRow from './qualifyingResultsInfo/QualifyingResultRow'
 import { createMissingResult, getResultId } from './qualifyingResultsInfo/utils'
 
 interface Props {
+  readonly eventType?: string
   readonly regNo?: string
   readonly dob?: Date
   readonly results?: ManualTestResult[]
@@ -27,6 +31,7 @@ interface Props {
 }
 
 export default function QualifyingResultsInfo({
+  eventType,
   regNo,
   dob,
   results,
@@ -46,7 +51,7 @@ export default function QualifyingResultsInfo({
     if (!regNo) {
       return []
     }
-    const newResults: Array<ManualTestResult> = (qualifyingResults ?? []).map((r) => ({
+    const newResults: Array<QualifyingResult | ManualTestResult> = (qualifyingResults ?? []).map((r) => ({
       ...r,
       id: getResultId(r),
       regNo,
@@ -54,7 +59,7 @@ export default function QualifyingResultsInfo({
     if (results) {
       for (const result of results) {
         if (!newResults.find((r) => !r.official && r.id && r.id === result.id)) {
-          newResults.push({ ...result, official: false })
+          newResults.push({ ...result, official: false, qualifying: undefined })
         }
       }
     }
@@ -62,12 +67,12 @@ export default function QualifyingResultsInfo({
   }, [qualifyingResults, results, regNo])
 
   const handleChange = useCallback(
-    (result: ManualTestResult, props: Partial<TestResult>) => {
+    (result: QualifyingResult | ManualTestResult, props: Partial<TestResult>) => {
       const index = qualifying.findIndex((r) => !r.official && r.id && r.id === result.id)
       if (index >= 0) {
-        const newResults: ManualTestResult[] = qualifying.slice(0)
+        const newResults = qualifying.slice(0)
         newResults.splice(index, 1, { ...result, ...props })
-        onChange?.({ results: newResults.filter((r) => !r.official) })
+        onChange?.({ results: newResults.filter((r): r is ManualTestResult => !r.official) })
       }
     },
     [onChange, qualifying]
@@ -90,6 +95,8 @@ export default function QualifyingResultsInfo({
     [onChange, results]
   )
 
+  const totalPoints = useMemo(() => qualifying.reduce((acc, r) => acc + (r.points ?? 0), 0), [qualifying])
+
   return (
     <CollapsibleSection
       title={t('registration.qualifyingResults')}
@@ -101,6 +108,7 @@ export default function QualifyingResultsInfo({
       <Grid item container spacing={1}>
         {qualifying.map((result) => (
           <QualifyingResultRow
+            eventType={eventType}
             dob={dob}
             key={getResultId(result)}
             disabled={disabled}
@@ -110,9 +118,28 @@ export default function QualifyingResultsInfo({
             onRemove={handleRemoveResult}
           />
         ))}
-        <Button startIcon={<AddOutlined />} disabled={disableResultInput} onClick={handleAddResult}>
-          {t('registration.cta.addResult')}
-        </Button>
+        <Stack direction="row" mt={1} ml={1} justifyContent="space-between" width="100%">
+          <Button
+            startIcon={<AddOutlined />}
+            disabled={disableResultInput}
+            onClick={handleAddResult}
+            variant="outlined"
+          >
+            {t('registration.cta.addResult')}
+          </Button>
+          <Stack
+            display={totalPoints ? undefined : 'none'}
+            direction="row"
+            gap={1}
+            justifyContent="end"
+            alignItems="center"
+          >
+            <Typography variant="caption">Karsintapisteet yht.:</Typography>
+            <Avatar sx={{ width: 32, height: 21, bgcolor: 'info.main', fontSize: '1em' }} variant="rounded">
+              {totalPoints}
+            </Avatar>
+          </Stack>
+        </Stack>
       </Grid>
     </CollapsibleSection>
   )
