@@ -93,7 +93,13 @@ export function Component() {
   useEffect(() => {
     // make sure the registration is for correct event
     if (registration.eventId !== event.id || registration.eventType !== event.eventType) {
-      setRegistration({ ...registration, eventId: event.id, eventType: event.eventType })
+      setRegistration({
+        ...registration,
+        eventId: event.id,
+        eventType: event.eventType,
+        qualifies: undefined,
+        qualifyingResults: [],
+      })
     }
   }, [event.eventType, event.id, registration, setRegistration])
 
