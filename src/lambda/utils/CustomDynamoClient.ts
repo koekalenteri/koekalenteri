@@ -128,4 +128,22 @@ export default class CustomDynamoClient {
     console.log('DB.update', params)
     return this.docClient.update(params).promise()
   }
+
+  async delete<T extends object>(
+    key: Record<string, number | string | undefined> | null,
+    table?: string
+  ): Promise<boolean> {
+    if (!key) {
+      console.warn('CustomDynamoClient.delete: no key provoded, returning false')
+      return false
+    }
+    const params = {
+      TableName: table ? fromSamLocalTable(table) : this.table,
+      Key: key,
+    }
+    console.log('DB.delete', params)
+
+    const data = await this.docClient.delete(params).promise()
+    return !data.$response.error
+  }
 }

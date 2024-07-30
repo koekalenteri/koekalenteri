@@ -104,6 +104,11 @@ const getDogHandler = metricScope(
               metricsError(metrics, event.requestContext, 'getDog')
               return response(status, 'Upstream error: ' + error, event)
             }
+            if (status === 404 && error === 'diseased') {
+              await dynamoDB.delete({ regNo })
+              metricsError(metrics, event.requestContext, 'getDog')
+              return response(status, 'Upstream error: ' + error, event)
+            }
           }
         }
 
