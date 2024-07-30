@@ -38,6 +38,8 @@ export interface JsonTestResult {
   notes?: string
   cert?: boolean
   resCert?: boolean
+  cacit?: boolean
+  resCacit?: boolean
 }
 
 export interface TestResult extends Omit<JsonTestResult, 'date'> {

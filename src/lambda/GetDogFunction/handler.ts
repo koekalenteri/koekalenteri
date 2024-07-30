@@ -67,6 +67,11 @@ const getDogHandler = metricScope(
             if (results.status === 200) {
               const res: JsonTestResult[] = []
               for (const result of results.json || []) {
+                const notes = result.lisämerkinnät.toLocaleLowerCase().trim()
+                const resCert = /vara[ -]sert/.test(notes)
+                const cert = !resCert && /sert/.test(notes)
+                const resCacit = /vara[ -]]cacit/.test(notes)
+                const cacit = !resCacit && /cacit/.test(notes)
                 res.push({
                   type: result.koemuoto,
                   subType: result.tapahtumanTyyppi,
@@ -81,8 +86,10 @@ const getDogHandler = metricScope(
                   points: result.pisteet,
                   rank: result.sijoitus,
 
-                  cert: result.lisämerkinnät.slice(0, 5).toLowerCase() === 'cert ',
-                  resCert: result.lisämerkinnät.slice(0, 9).toLowerCase() === 'vara sert',
+                  cert,
+                  resCert,
+                  cacit,
+                  resCacit,
                 })
               }
               item.results = res

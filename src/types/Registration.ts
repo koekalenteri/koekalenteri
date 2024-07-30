@@ -57,6 +57,7 @@ export interface JsonRegistrationGroupInfo extends Pick<JsonRegistration, 'event
 export interface ManualTestResult extends QualifyingResult {
   id: string
   regNo: string
+  official: false
 }
 
 export interface Registration
@@ -100,7 +101,14 @@ export interface JsonQualifyingResult extends JsonTestResult {
 export interface QualifyingResult extends TestResult {
   official: boolean
   qualifying?: boolean
+  points?: number
+  // for component
+  id?: string
+  // for manual results
+  regNo?: string
 }
+
+export type QualifyingResults = { relevant: QualifyingResult[]; qualifies: boolean }
 
 export interface JsonRegistrationDate {
   date: string
