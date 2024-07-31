@@ -399,6 +399,7 @@ function getSectionHelperTexts(
     payer: registration.ownerPays ? t('registration.ownerPays') : `${registration.payer?.name || ''}`,
     qualifyingResults: t('registration.qualifyingResultsInfo', {
       class: registration.class,
+      eventType: registration.eventType,
       qualifies: t(registration.qualifies ? 'registration.qyalifyingResultsYes' : 'registration.qualifyingResultsNo'),
     }),
     reserve: t('registration.reserveHelp'),

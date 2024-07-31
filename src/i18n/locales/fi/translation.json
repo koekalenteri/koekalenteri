@@ -332,7 +332,7 @@
     "paid": "Maksettu",
     "payer": "Maksajan tiedot",
     "qualifyingResults": "Osallistumisoikeuteen vaikuttavat tulokset",
-    "qualifyingResultsInfo": "Tulosten perusteella koiralla {{qualifies}} osallistua {{class}} luokkaan.",
+    "qualifyingResultsInfo": "Tulosten perusteella koiralla {{qualifies}} osallistua {{eventType}} {{class}}-luokkaan.",
     "qualifyingResultsNo": "ei ole oikeutta",
     "qyalifyingResultsYes": "on oikeus",
     "refundDialog": {
