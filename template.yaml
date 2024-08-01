@@ -1809,7 +1809,7 @@ Resources:
     Type: AWS::Logs::LogGroup
     Properties:
       LogGroupName: !Join ['/', ['/aws/lambda', !Ref PaymentCreateFunction]]
-      RetentionInDays: 30
+      RetentionInDays: 180
 
   PaymentVerifyFunction:
     Type: AWS::Serverless::Function
@@ -1851,7 +1851,7 @@ Resources:
     Type: AWS::Logs::LogGroup
     Properties:
       LogGroupName: !Join ['/', ['/aws/lambda', !Ref PaymentVerifyFunction]]
-      RetentionInDays: 30
+      RetentionInDays: 180
 
   PaymentSuccessFunction:
     Type: AWS::Serverless::Function
@@ -1899,7 +1899,7 @@ Resources:
     Type: AWS::Logs::LogGroup
     Properties:
       LogGroupName: !Join ['/', ['/aws/lambda', !Ref PaymentSuccessFunction]]
-      RetentionInDays: 30
+      RetentionInDays: 180
 
   PaymentCancelFunction:
     Type: AWS::Serverless::Function
