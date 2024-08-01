@@ -20,7 +20,7 @@ import Stack from '@mui/material/Stack'
 import { GridActionsCellItem } from '@mui/x-data-grid'
 
 import { formatMoney } from '../../../../lib/money'
-import { canRefund, hasPriority } from '../../../../lib/registration'
+import { canRefund, hasPriority, priorityDescriptionKey } from '../../../../lib/registration'
 import { PriorityIcon } from '../../../components/icons/PriorityIcon'
 import { IconsTooltip } from '../../../components/IconsTooltip'
 import RankingPoints from '../../../components/RankingPoints'
@@ -32,6 +32,7 @@ interface RegistrationIconsProps {
   reg: Registration
 }
 const RegistrationIcons = ({ event, reg }: RegistrationIconsProps) => {
+  const { t } = useTranslation()
   const priority = hasPriority(event, reg)
 
   const manualResultCount = useMemo(
@@ -43,11 +44,13 @@ const RegistrationIcons = ({ event, reg }: RegistrationIconsProps) => {
     const result: TooltipContent[] = []
 
     if (priority) {
+      const key = priorityDescriptionKey(event, reg)
+      const descr = key && t(`priorityDescription.${key}`)
       const info50 =
-        priority === 0.5 ? (reg.owner.membership ? ' (vain omistaja on jäsen)' : ' (vain ohjaaja on jäsen)') : ''
+        priority === 0.5 ? (reg.owner.membership ? '(vain omistaja on jäsen)' : '(vain ohjaaja on jäsen)') : ''
       result.push({
         icon: <PriorityIcon priority={priority} fontSize="small" />,
-        text: `Ilmoittautuja on etusijalla${info50}`,
+        text: `Ilmoittautuja on etusijalla: ${descr} ${info50}`.trim(),
       })
     }
     if (reg.owner.membership) {

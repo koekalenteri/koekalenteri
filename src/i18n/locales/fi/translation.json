@@ -230,6 +230,13 @@
     "members": "jäsenet",
     "invited": "kutsutut"
   },
+  "priorityDescription": {
+    "breed": "rotu",
+    "invited": "kutsuttu",
+    "member": "jäsenyys",
+    "b-sm.3": "3xVOI1",
+    "b-sm.2": "2xVOI1 (KVA-B)"
+  },
   "priorityGroup": {
     "breed": "Nimetyt rodut",
     "invited": "Järjestäjän kutsumat koirat",

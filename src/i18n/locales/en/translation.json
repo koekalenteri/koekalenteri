@@ -169,6 +169,11 @@
     "members": "members",
     "invited": "invited"
   },
+  "priorityDescription": {
+    "breed": "breed",
+    "invited": "invitation",
+    "members": "membership"
+  },
   "priorityGroup": {
     "breed": "Priority breeds",
     "invited": "Dogs invited by the organizer",

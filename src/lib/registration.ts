@@ -8,6 +8,8 @@ import type {
   RegistrationTemplateContext,
 } from '../types'
 
+import { NOME_B_CH_qualification_start_date } from '../rules_ch'
+
 import { PRIORITY_INVITED, PRIORITY_MEMBER } from './priority'
 
 export const GROUP_KEY_CANCELLED = 'cancelled'
@@ -19,10 +21,11 @@ type RegistrationPriorityFields = Pick<Registration, 'priorityByInvitation'> & {
   owner?: Pick<Registration['owner'], 'membership'>
   handler?: Pick<Registration['handler'], 'membership'>
   dog?: Pick<Registration['dog'], 'breedCode'>
+  qualifyingResults?: Registration['qualifyingResults'] | JsonRegistration['qualifyingResults']
 }
 
 export const hasPriority = (
-  event: Pick<PublicDogEvent, 'priority'>,
+  event: Partial<Pick<PublicDogEvent, 'eventType' | 'priority'>>,
   registration: RegistrationPriorityFields
 ): true | false | 0.5 => {
   if (event.priority?.includes(PRIORITY_MEMBER)) {
@@ -35,7 +38,39 @@ export const hasPriority = (
   if (registration.dog?.breedCode && event.priority?.includes(registration.dog.breedCode)) {
     return true
   }
+
+  if (event.eventType === 'NOME-B SM') {
+    const count = registration.qualifyingResults?.reduce((acc, r) => acc + (r.result === 'VOI1' ? 1 : 0), 0) ?? 0
+    const kvaDateOrString = registration.qualifyingResults?.find((r) => r.result === 'FI KVA-B')?.date
+    const kvaDate = typeof kvaDateOrString === 'string' ? new Date(kvaDateOrString) : kvaDateOrString
+    if (count >= 3 || (kvaDate && kvaDate.valueOf() < NOME_B_CH_qualification_start_date.valueOf() && count === 2)) {
+      return true
+    }
+  }
   return false
+}
+
+export const priorityDescriptionKey = (
+  event: Partial<Pick<PublicDogEvent, 'eventType' | 'priority'>>,
+  registration: RegistrationPriorityFields
+): 'member' | 'invited' | 'breed' | 'b-sm.3' | 'b-sm.2' | undefined => {
+  if (event.priority?.includes(PRIORITY_MEMBER)) {
+    if (registration.handler?.membership || registration.owner?.membership) return PRIORITY_MEMBER
+  }
+  if (event.priority?.includes(PRIORITY_INVITED) && registration.priorityByInvitation) {
+    return PRIORITY_INVITED
+  }
+  if (registration.dog?.breedCode && event.priority?.includes(registration.dog.breedCode)) {
+    return 'breed'
+  }
+
+  if (event.eventType === 'NOME-B SM') {
+    const count = registration.qualifyingResults?.reduce((acc, r) => acc + (r.result === 'VOI1' ? 1 : 0), 0) ?? 0
+    const kvaDateOrString = registration.qualifyingResults?.find((r) => r.result === 'FI KVA-B')?.date
+    const kvaDate = typeof kvaDateOrString === 'string' ? new Date(kvaDateOrString) : kvaDateOrString
+    if (count >= 3) return 'b-sm.3'
+    if (kvaDate && kvaDate.valueOf() < NOME_B_CH_qualification_start_date.valueOf() && count === 2) return 'b-sm.2'
+  }
 }
 
 export type SortableRegistration = Pick<JsonRegistration, 'class' | 'group'>

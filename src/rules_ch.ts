@@ -18,10 +18,12 @@ const byPointsAndDate = (a: QualifyingResult, b: QualifyingResult) => {
   return bPoints - aPoints
 }
 
+export const NOME_B_CH_qualification_start_date = new Date('2023-08-18') // TODO: get this date from last NOME-B SM event
+
 export const NOME_B_CH_requirements: EventResultRequirementFn = (officialResults, manualResults, entryEndDate) => {
   const maxResults = 5
   const endDate = entryEndDate ?? new Date()
-  const minResultDate = new Date('2023-08-18') // TODO: get this date from last NOME-B SM event
+  const minResultDate = NOME_B_CH_qualification_start_date
   const maxResultDate = subDays(endDate, 1)
 
   const resultFilter = (r: TestResult | ManualTestResult) =>
