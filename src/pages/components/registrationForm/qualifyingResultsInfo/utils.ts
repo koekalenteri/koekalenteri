@@ -37,14 +37,23 @@ export function availableTypes(requirements?: EventResultRequirementsByDate, eve
   return unique(requirements.rules.flatMap((rule) => asArray(rule).map((opt) => opt.type)))
 }
 
-export function availableResults(requirements?: EventResultRequirementsByDate, type?: string, eventType?: string) {
+export function availableResults(
+  requirements?: EventResultRequirementsByDate,
+  type?: string,
+  eventType?: string,
+  existingResults?: ManualTestResult[]
+) {
   if (!requirements || typeof requirements.rules === 'function') {
+    const hasKVA = existingResults?.some((r) => r.result.startsWith('FI KVA'))
     switch (eventType) {
       case 'NOME-B SM':
-      case 'NOMWT SM':
-        return ['VOI1', 'VOI2', 'VOI3']
+        return [hasKVA ? undefined : 'FI KVA-B', 'VOI1', 'VOI2', 'VOI3'].filter(Boolean)
+      case 'NOWT SM':
+        return [hasKVA ? undefined : 'FI KVA-WT', 'VOI1', 'VOI2', 'VOI3'].filter(Boolean)
       case 'NOME-A SM':
-        if (type === 'NOME-A') return ['A1 CERT', 'A1 RES-CERT', 'A1', 'A2', 'A3']
+        if (type === 'NOME-A')
+          return [hasKVA ? undefined : 'FI KVA-FT', 'A1 CERT', 'A1 RES-CERT', 'A1', 'A2', 'A3'].filter(Boolean)
+
         if (type === 'NOME-A KV') return ['EXC CACIT', 'EXC RES-CACIT', 'EXC', 'VG', 'G']
     }
     return []

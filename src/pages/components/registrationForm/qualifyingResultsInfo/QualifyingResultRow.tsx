@@ -21,6 +21,7 @@ interface Props {
   readonly eventType?: string
   readonly dob?: Date
   readonly result: QualifyingResult | ManualTestResult
+  readonly manualResults?: ManualTestResult[]
   readonly disabled?: boolean
   readonly requirements?: EventResultRequirementsByDate
   readonly onChange?: (result: ManualTestResult, props: Partial<TestResult>) => void
@@ -40,6 +41,10 @@ const getSuffix = (
 
 const parseResult = (result?: string): Partial<TestResult> => {
   if (!result) return {}
+
+  if (result === 'FI KVA-B') return { result: 'FI KVA-B', class: 'VOI' }
+  if (result === 'FI KVA-WT') return { result: 'FI KVA-WT', class: 'VOI' }
+  if (result === 'FI KVA-FT') return { result: 'FI KVA-FT' }
 
   const resCert = result.includes('RES-CERT')
   const cert = !resCert && result.includes('CERT')
@@ -62,6 +67,7 @@ export default function QualifyingResultRow({
   eventType,
   dob,
   result,
+  manualResults,
   disabled,
   requirements,
   onChange,
@@ -90,7 +96,7 @@ export default function QualifyingResultRow({
           options={availableTypes(requirements, eventType)}
           label={t('testResult.eventType')}
           onChange={(value) => {
-            const testResult = availableResults(requirements, value, eventType)[0]
+            const testResult = availableResults(requirements, value, eventType, manualResults)[0]
             handleChange(result, { type: value, ...parseResult(testResult) })
           }}
           value={result.type}
@@ -100,7 +106,7 @@ export default function QualifyingResultRow({
         <AutocompleteSingle
           disabled={result.official || disabled}
           disableClearable
-          options={availableResults(requirements, result.type, eventType)}
+          options={availableResults(requirements, result.type, eventType, manualResults)}
           label={t('testResult.result')}
           onChange={(value) => {
             handleChange(result, {

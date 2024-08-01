@@ -113,6 +113,7 @@ export default function QualifyingResultsInfo({
             key={getResultId(result)}
             disabled={disabled}
             result={result}
+            manualResults={results}
             requirements={requirements}
             onChange={handleChange}
             onRemove={handleRemoveResult}

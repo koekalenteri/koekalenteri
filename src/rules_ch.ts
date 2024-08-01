@@ -27,11 +27,10 @@ export const NOME_B_CH_requirements: EventResultRequirementFn = (officialResults
   const resultFilter = (r: TestResult | ManualTestResult) =>
     r.type === 'NOME-B' &&
     r.class === 'VOI' &&
-    r.date >= minResultDate &&
-    r.date <= maxResultDate &&
-    ['VOI1', 'VOI2', 'VOI3'].includes(r.result)
+    ((r.date >= minResultDate && r.date <= maxResultDate && ['VOI1', 'VOI2', 'VOI3'].includes(r.result)) ||
+      r.result.startsWith('FI KVA'))
 
-  const POINTS: Record<string, number> = { VOI1: 6, VOI2: 3, VOI3: 1 }
+  const POINTS: Record<string, number> = { 'FI KVA-B': 6, VOI1: 6, VOI2: 3, VOI3: 1 }
 
   const resultPoints = (r: TestResult | ManualTestResult) => POINTS[r.result] || 0
 
@@ -90,12 +89,14 @@ export const NOME_A_CH_requirements: EventResultRequirementFn = (officialResults
   const maxResultDate = subDays(endDate, 1)
 
   const resultFilter = (result: TestResult | ManualTestResult) =>
-    result.date >= minResultDate &&
-    result.date <= maxResultDate &&
     ['NOME-A', 'NOME-A KV'].includes(result.type) &&
-    ['A1', 'A2', 'A3', 'EXC', 'VG', 'G'].includes(result.result)
+    ((result.date >= minResultDate &&
+      result.date <= maxResultDate &&
+      ['A1', 'A2', 'A3', 'EXC', 'VG', 'G'].includes(result.result)) ||
+      result.result === 'FI KVA-FT')
 
   const resultPoints = (result: TestResult | ManualTestResult) => {
+    if (result.result === 'FI KVA-FT') return 6
     if (result.result === 'A1' || result.result === 'EXC') {
       if (result.cert || result.cacit) return 6
       if (result.resCert || result.resCacit) return 5
@@ -145,13 +146,15 @@ export const NOWT_CH_requirements: EventResultRequirementFn = (officialResults, 
   const maxResultDate = subDays(endDate, 1)
 
   const resultFilter = (result: TestResult | ManualTestResult) =>
-    result.date >= minResultDate &&
-    result.date <= maxResultDate &&
     result.type === 'NOWT' &&
     result.class === 'VOI' &&
-    ['VOI1', 'VOI2', 'VOI3'].includes(result.result)
+    ((result.date >= minResultDate &&
+      result.date <= maxResultDate &&
+      ['VOI1', 'VOI2', 'VOI3'].includes(result.result)) ||
+      result.result === 'FI KVA-WT')
 
   const resultPoints = (result: TestResult | ManualTestResult) => {
+    if (result.result === 'FI KVA-WT') return 6
     if (result.result === 'VOI1') {
       if (result.cert) return 6
       if (result.resCert) return 5
