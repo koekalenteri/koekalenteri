@@ -8,12 +8,12 @@ import type {
   RegistrationTemplateContext,
 } from '../types'
 
-import { NOME_B_CH_qualification_start_date } from '../rules_ch'
-
 import { PRIORITY_INVITED, PRIORITY_MEMBER } from './priority'
 
 export const GROUP_KEY_CANCELLED = 'cancelled'
 export const GROUP_KEY_RESERVE = 'reserve'
+
+export const NOME_B_CH_qualification_start_date = new Date('2023-08-18') // TODO: get this date from last NOME-B SM event
 
 const REFUNDABLE_GROUP_KEYS = [GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE]
 

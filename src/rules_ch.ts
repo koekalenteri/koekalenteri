@@ -2,6 +2,8 @@ import type { ManualTestResult, QualifyingResult, QualifyingResults, TestResult 
 
 import { subDays, subYears } from 'date-fns'
 
+import { NOME_B_CH_qualification_start_date } from './lib/registration'
+
 export type EventResultRequirementFn = (
   officialResults: TestResult[],
   manualResults: ManualTestResult[],
@@ -17,8 +19,6 @@ const byPointsAndDate = (a: QualifyingResult, b: QualifyingResult) => {
   }
   return bPoints - aPoints
 }
-
-export const NOME_B_CH_qualification_start_date = new Date('2023-08-18') // TODO: get this date from last NOME-B SM event
 
 export const NOME_B_CH_requirements: EventResultRequirementFn = (officialResults, manualResults, entryEndDate) => {
   const maxResults = 5
