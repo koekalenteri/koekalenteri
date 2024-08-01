@@ -23,6 +23,7 @@ import { formatMoney } from '../../../../lib/money'
 import { canRefund, hasPriority } from '../../../../lib/registration'
 import { PriorityIcon } from '../../../components/icons/PriorityIcon'
 import { IconsTooltip } from '../../../components/IconsTooltip'
+import RankingPoints from '../../../components/RankingPoints'
 
 import GroupColors from './GroupColors'
 
@@ -112,6 +113,8 @@ const RegistrationIcons = ({ event, reg }: RegistrationIconsProps) => {
     return result
   }, [manualResultCount, priority, reg])
 
+  const points = useMemo(() => reg.qualifyingResults.reduce((acc, r) => acc + (r.points ?? 0), 0), [reg])
+
   return (
     <IconsTooltip placement="right" items={tooltipContent}>
       <Stack direction="row" alignItems="center" mt="3px">
@@ -127,6 +130,7 @@ const RegistrationIcons = ({ event, reg }: RegistrationIconsProps) => {
         <ErrorOutlineOutlined fontSize="small" sx={{ opacity: manualResultCount ? 1 : 0.05 }} />
         <CommentOutlined fontSize="small" sx={{ opacity: reg.notes.trim() ? 1 : 0.05 }} />
         <SpeakerNotesOutlined fontSize="small" sx={{ opacity: reg.internalNotes?.trim() ? 1 : 0.05 }} />
+        <RankingPoints points={points} />
       </Stack>
     </IconsTooltip>
   )
@@ -214,7 +218,7 @@ export function useClassEntrySelectionColumns(
       {
         field: 'icons',
         headerName: '',
-        width: 180, // icons * 20 + 20 for padding
+        width: 204, // icons * 20 + 24 for ranking points + 20 for padding
         align: 'center',
         renderCell: (p) => <RegistrationIcons event={event} reg={p.row} />,
         sortable: false,

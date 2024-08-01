@@ -4,7 +4,6 @@ import type { ManualTestResult, QualifyingResult, TestResult } from '../../../..
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import DeleteOutline from '@mui/icons-material/DeleteOutline'
-import Avatar from '@mui/material/Avatar'
 import Button from '@mui/material/Button'
 import FormControl from '@mui/material/FormControl'
 import Grid from '@mui/material/Grid'
@@ -14,6 +13,7 @@ import { DatePicker } from '@mui/x-date-pickers'
 import { addMonths } from 'date-fns'
 
 import AutocompleteSingle from '../../AutocompleteSingle'
+import RankingPoints from '../../RankingPoints'
 
 import { availableResults, availableTypes, resultBorderColor } from './utils'
 
@@ -172,18 +172,7 @@ export default function QualifyingResultRow({
           >
             {t('registration.cta.deleteResult')}
           </Button>
-          <Avatar
-            sx={{
-              width: 32,
-              height: 21,
-              bgcolor: 'info.main',
-              fontSize: '1em',
-              display: result.points ? undefined : 'none',
-            }}
-            variant="rounded"
-          >
-            {result.points}
-          </Avatar>
+          <RankingPoints points={result.points} />
         </Stack>
       </Grid>
     </Grid>

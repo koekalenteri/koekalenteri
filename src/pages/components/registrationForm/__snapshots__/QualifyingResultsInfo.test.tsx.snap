@@ -391,7 +391,7 @@ exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
                         />
                       </button>
                       <div
-                        class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-1wfsx85-MuiAvatar-root"
+                        class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-10gc78y-MuiAvatar-root"
                       >
                         <svg
                           aria-hidden="true"
@@ -445,7 +445,7 @@ exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
                       Karsintapisteet yht.:
                     </span>
                     <div
-                      class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-1ddowyj-MuiAvatar-root"
+                      class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-10gc78y-MuiAvatar-root"
                     >
                       0
                     </div>
@@ -852,7 +852,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                         />
                       </button>
                       <div
-                        class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-1wfsx85-MuiAvatar-root"
+                        class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-10gc78y-MuiAvatar-root"
                       >
                         <svg
                           aria-hidden="true"
@@ -1205,7 +1205,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                         />
                       </button>
                       <div
-                        class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-1wfsx85-MuiAvatar-root"
+                        class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-10gc78y-MuiAvatar-root"
                       >
                         <svg
                           aria-hidden="true"
@@ -1558,7 +1558,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                         />
                       </button>
                       <div
-                        class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-1wfsx85-MuiAvatar-root"
+                        class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-10gc78y-MuiAvatar-root"
                       >
                         <svg
                           aria-hidden="true"
@@ -1612,7 +1612,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                       Karsintapisteet yht.:
                     </span>
                     <div
-                      class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-1ddowyj-MuiAvatar-root"
+                      class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-10gc78y-MuiAvatar-root"
                     >
                       0
                     </div>
@@ -1719,7 +1719,7 @@ exports[`QualifyingResultsInfo should render with minimal input 1`] = `
                       Karsintapisteet yht.:
                     </span>
                     <div
-                      class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-1ddowyj-MuiAvatar-root"
+                      class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-10gc78y-MuiAvatar-root"
                     >
                       0
                     </div>

@@ -2244,7 +2244,7 @@ exports[`RegistrationForm renders 1`] = `
                           Karsintapisteet yht.:
                         </span>
                         <div
-                          class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-g7diby-MuiAvatar-root"
+                          class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-r2qeyn-MuiAvatar-root"
                         >
                           0
                         </div>
@@ -4736,7 +4736,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                           Karsintapisteet yht.:
                         </span>
                         <div
-                          class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-g7diby-MuiAvatar-root"
+                          class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-r2qeyn-MuiAvatar-root"
                         >
                           0
                         </div>

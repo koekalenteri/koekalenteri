@@ -14,7 +14,7 @@ exports[`ClassEntrySelection renders 1`] = `
   >
     <div
       class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-v9clve-MuiDataGrid-root"
-      style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 566px; --DataGrid-columnsTotalWidth: 566px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 36px;"
+      style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 590px; --DataGrid-columnsTotalWidth: 590px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 36px;"
     >
       <div
         aria-colcount="9"
@@ -400,7 +400,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="icons"
                   role="columnheader"
-                  style="height: 39px; width: 180px; min-width: 180px; max-width: 180px;"
+                  style="height: 39px; width: 204px; min-width: 204px; max-width: 204px;"
                   tabindex="-1"
                 >
                   <div
@@ -539,7 +539,7 @@ exports[`ClassEntrySelection renders 1`] = `
   >
     <div
       class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-3cdqp0-MuiDataGrid-root"
-      style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 566px; --DataGrid-columnsTotalWidth: 566px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 0px; --DataGrid-headersTotalHeight: 0px; --DataGrid-topContainerHeight: 0px; --DataGrid-bottomContainerHeight: 0px; --height: 36px;"
+      style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 590px; --DataGrid-columnsTotalWidth: 590px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 0px; --DataGrid-headersTotalHeight: 0px; --DataGrid-topContainerHeight: 0px; --DataGrid-bottomContainerHeight: 0px; --height: 36px;"
     >
       <div
         class="MuiStack-root header css-1d532f0-MuiStack-root"
@@ -935,7 +935,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="icons"
                   role="columnheader"
-                  style="height: 0px; width: 180px; min-width: 180px; max-width: 180px;"
+                  style="height: 0px; width: 204px; min-width: 204px; max-width: 204px;"
                   tabindex="-1"
                 >
                   <div
@@ -1080,7 +1080,7 @@ exports[`ClassEntrySelection renders 1`] = `
   >
     <div
       class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-3cdqp0-MuiDataGrid-root"
-      style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 566px; --DataGrid-columnsTotalWidth: 566px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 0px; --DataGrid-headersTotalHeight: 0px; --DataGrid-topContainerHeight: 0px; --DataGrid-bottomContainerHeight: 0px; --height: 36px;"
+      style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 590px; --DataGrid-columnsTotalWidth: 590px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 0px; --DataGrid-headersTotalHeight: 0px; --DataGrid-topContainerHeight: 0px; --DataGrid-bottomContainerHeight: 0px; --height: 36px;"
     >
       <div
         class="MuiStack-root header css-1d532f0-MuiStack-root"
@@ -1476,7 +1476,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="icons"
                   role="columnheader"
-                  style="height: 0px; width: 180px; min-width: 180px; max-width: 180px;"
+                  style="height: 0px; width: 204px; min-width: 204px; max-width: 204px;"
                   tabindex="-1"
                 >
                   <div
@@ -1626,7 +1626,7 @@ exports[`ClassEntrySelection renders 1`] = `
   >
     <div
       class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-3cdqp0-MuiDataGrid-root"
-      style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 566px; --DataGrid-columnsTotalWidth: 566px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 36px;"
+      style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 590px; --DataGrid-columnsTotalWidth: 590px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 36px;"
     >
       <div
         aria-colcount="9"
@@ -2012,7 +2012,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="icons"
                   role="columnheader"
-                  style="height: 39px; width: 180px; min-width: 180px; max-width: 180px;"
+                  style="height: 39px; width: 204px; min-width: 204px; max-width: 204px;"
                   tabindex="-1"
                 >
                   <div
@@ -2162,7 +2162,7 @@ exports[`ClassEntrySelection renders 1`] = `
   >
     <div
       class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-3cdqp0-MuiDataGrid-root"
-      style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 716px; --DataGrid-columnsTotalWidth: 716px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 36px;"
+      style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 740px; --DataGrid-columnsTotalWidth: 740px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 36px;"
     >
       <div
         aria-colcount="10"
@@ -2624,7 +2624,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="icons"
                   role="columnheader"
-                  style="height: 39px; width: 180px; min-width: 180px; max-width: 180px;"
+                  style="height: 39px; width: 204px; min-width: 204px; max-width: 204px;"
                   tabindex="-1"
                 >
                   <div
@@ -2780,7 +2780,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
   >
     <div
       class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-v9clve-MuiDataGrid-root"
-      style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 566px; --DataGrid-columnsTotalWidth: 566px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 36px;"
+      style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 590px; --DataGrid-columnsTotalWidth: 590px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 36px;"
     >
       <div
         aria-colcount="9"
@@ -3166,7 +3166,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="icons"
                   role="columnheader"
-                  style="height: 39px; width: 180px; min-width: 180px; max-width: 180px;"
+                  style="height: 39px; width: 204px; min-width: 204px; max-width: 204px;"
                   tabindex="-1"
                 >
                   <div
@@ -3305,7 +3305,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
   >
     <div
       class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-3cdqp0-MuiDataGrid-root"
-      style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 566px; --DataGrid-columnsTotalWidth: 566px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 0px; --DataGrid-headersTotalHeight: 0px; --DataGrid-topContainerHeight: 0px; --DataGrid-bottomContainerHeight: 0px; --height: 36px;"
+      style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 590px; --DataGrid-columnsTotalWidth: 590px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 0px; --DataGrid-headersTotalHeight: 0px; --DataGrid-topContainerHeight: 0px; --DataGrid-bottomContainerHeight: 0px; --height: 36px;"
     >
       <div
         class="MuiStack-root header css-1d532f0-MuiStack-root"
@@ -3701,7 +3701,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="icons"
                   role="columnheader"
-                  style="height: 0px; width: 180px; min-width: 180px; max-width: 180px;"
+                  style="height: 0px; width: 204px; min-width: 204px; max-width: 204px;"
                   tabindex="-1"
                 >
                   <div
@@ -3846,7 +3846,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
   >
     <div
       class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-3cdqp0-MuiDataGrid-root"
-      style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 566px; --DataGrid-columnsTotalWidth: 566px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 0px; --DataGrid-headersTotalHeight: 0px; --DataGrid-topContainerHeight: 0px; --DataGrid-bottomContainerHeight: 0px; --height: 36px;"
+      style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 590px; --DataGrid-columnsTotalWidth: 590px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 0px; --DataGrid-headersTotalHeight: 0px; --DataGrid-topContainerHeight: 0px; --DataGrid-bottomContainerHeight: 0px; --height: 36px;"
     >
       <div
         class="MuiStack-root header css-1d532f0-MuiStack-root"
@@ -4242,7 +4242,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="icons"
                   role="columnheader"
-                  style="height: 0px; width: 180px; min-width: 180px; max-width: 180px;"
+                  style="height: 0px; width: 204px; min-width: 204px; max-width: 204px;"
                   tabindex="-1"
                 >
                   <div
@@ -4392,7 +4392,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
   >
     <div
       class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-3cdqp0-MuiDataGrid-root"
-      style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 566px; --DataGrid-columnsTotalWidth: 566px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 36px;"
+      style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 590px; --DataGrid-columnsTotalWidth: 590px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 36px;"
     >
       <div
         aria-colcount="9"
@@ -4778,7 +4778,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="icons"
                   role="columnheader"
-                  style="height: 39px; width: 180px; min-width: 180px; max-width: 180px;"
+                  style="height: 39px; width: 204px; min-width: 204px; max-width: 204px;"
                   tabindex="-1"
                 >
                   <div
@@ -5021,7 +5021,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                     data-colindex="7"
                     data-field="icons"
                     role="gridcell"
-                    style="--width: 180px;"
+                    style="--width: 204px;"
                     tabindex="-1"
                   >
                     <div
@@ -5117,6 +5117,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                           d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2m0 14H5.17l-.59.59-.58.58V4h16zM6 12h2v2H6zm0-3h2v2H6zm0-3h2v2H6zm4 6h5v2h-5zm0-3h8v2h-8zm0-3h8v2h-8z"
                         />
                       </svg>
+                      <div
+                        class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-10gc78y-MuiAvatar-root"
+                      >
+                        0
+                      </div>
                     </div>
                   </div>
                   <div
@@ -5192,7 +5197,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
   >
     <div
       class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-3cdqp0-MuiDataGrid-root"
-      style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 716px; --DataGrid-columnsTotalWidth: 716px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 36px;"
+      style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 740px; --DataGrid-columnsTotalWidth: 740px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 36px;"
     >
       <div
         aria-colcount="10"
@@ -5654,7 +5659,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="icons"
                   role="columnheader"
-                  style="height: 39px; width: 180px; min-width: 180px; max-width: 180px;"
+                  style="height: 39px; width: 204px; min-width: 204px; max-width: 204px;"
                   tabindex="-1"
                 >
                   <div
@@ -5907,7 +5912,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                     data-colindex="8"
                     data-field="icons"
                     role="gridcell"
-                    style="--width: 180px;"
+                    style="--width: 204px;"
                     tabindex="-1"
                   >
                     <div
@@ -6003,6 +6008,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                           d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2m0 14H5.17l-.59.59-.58.58V4h16zM6 12h2v2H6zm0-3h2v2H6zm0-3h2v2H6zm4 6h5v2h-5zm0-3h8v2h-8zm0-3h8v2h-8z"
                         />
                       </svg>
+                      <div
+                        class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-10gc78y-MuiAvatar-root"
+                      >
+                        0
+                      </div>
                     </div>
                   </div>
                   <div

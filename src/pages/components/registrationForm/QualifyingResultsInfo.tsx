@@ -4,13 +4,13 @@ import type { ManualTestResult, QualifyingResult, Registration, TestResult } fro
 import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import AddOutlined from '@mui/icons-material/AddOutlined'
-import Avatar from '@mui/material/Avatar'
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 
 import CollapsibleSection from '../CollapsibleSection'
+import RankingPoints from '../RankingPoints'
 
 import QualifyingResultRow from './qualifyingResultsInfo/QualifyingResultRow'
 import { createMissingResult, getResultId } from './qualifyingResultsInfo/utils'
@@ -136,9 +136,7 @@ export default function QualifyingResultsInfo({
             alignItems="center"
           >
             <Typography variant="caption">Karsintapisteet yht.:</Typography>
-            <Avatar sx={{ width: 32, height: 21, bgcolor: 'info.main', fontSize: '1em' }} variant="rounded">
-              {totalPoints}
-            </Avatar>
+            <RankingPoints points={totalPoints} />
           </Stack>
         </Stack>
       </Grid>

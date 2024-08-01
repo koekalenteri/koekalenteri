@@ -2411,7 +2411,7 @@ exports[`RegistrationEditPage should render 1`] = `
                           Karsintapisteet yht.:
                         </span>
                         <div
-                          class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-g7diby-MuiAvatar-root"
+                          class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-r2qeyn-MuiAvatar-root"
                         >
                           0
                         </div>
