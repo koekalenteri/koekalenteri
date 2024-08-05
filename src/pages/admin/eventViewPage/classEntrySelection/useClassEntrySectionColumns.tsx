@@ -39,6 +39,7 @@ const RegistrationIcons = ({ event, reg }: RegistrationIconsProps) => {
     () => reg.qualifyingResults.filter((r) => !r.official).length,
     [reg.qualifyingResults]
   )
+  const rankingPoints = useMemo(() => reg.qualifyingResults.reduce((acc, r) => acc + (r.points ?? 0), 0), [reg])
 
   const tooltipContent: TooltipContent[] = useMemo(() => {
     const result: TooltipContent[] = []
@@ -113,10 +114,20 @@ const RegistrationIcons = ({ event, reg }: RegistrationIconsProps) => {
         text: 'Sisäinen kommentti: ' + reg.internalNotes,
       })
     }
+    if (reg.internalNotes?.trim()) {
+      result.push({
+        icon: <SpeakerNotesOutlined fontSize="small" />,
+        text: 'Sisäinen kommentti: ' + reg.internalNotes,
+      })
+    }
+    if (rankingPoints > 0) {
+      result.push({
+        icon: <RankingPoints points={rankingPoints} />,
+        text: 'Karsintapisteet: ' + rankingPoints,
+      })
+    }
     return result
-  }, [manualResultCount, priority, reg])
-
-  const points = useMemo(() => reg.qualifyingResults.reduce((acc, r) => acc + (r.points ?? 0), 0), [reg])
+  }, [event, manualResultCount, priority, rankingPoints, reg, t])
 
   return (
     <IconsTooltip placement="right" items={tooltipContent}>
@@ -133,7 +144,7 @@ const RegistrationIcons = ({ event, reg }: RegistrationIconsProps) => {
         <ErrorOutlineOutlined fontSize="small" sx={{ opacity: manualResultCount ? 1 : 0.05 }} />
         <CommentOutlined fontSize="small" sx={{ opacity: reg.notes.trim() ? 1 : 0.05 }} />
         <SpeakerNotesOutlined fontSize="small" sx={{ opacity: reg.internalNotes?.trim() ? 1 : 0.05 }} />
-        <RankingPoints points={points} />
+        <RankingPoints points={rankingPoints} />
       </Stack>
     </IconsTooltip>
   )
@@ -221,7 +232,7 @@ export function useClassEntrySelectionColumns(
       {
         field: 'icons',
         headerName: '',
-        width: 204, // icons * 20 + 24 for ranking points + 20 for padding
+        width: 200, // icons * 20 + 20 for padding
         align: 'center',
         renderCell: (p) => <RegistrationIcons event={event} reg={p.row} />,
         sortable: false,

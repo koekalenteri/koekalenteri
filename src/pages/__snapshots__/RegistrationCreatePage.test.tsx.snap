@@ -2576,7 +2576,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                           Karsintapisteet yht.:
                         </span>
                         <div
-                          class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-r2qeyn-MuiAvatar-root"
+                          class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-1yqgyr9-MuiAvatar-root"
                         >
                           0
                         </div>
@@ -5403,7 +5403,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                           Karsintapisteet yht.:
                         </span>
                         <div
-                          class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-r2qeyn-MuiAvatar-root"
+                          class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-1yqgyr9-MuiAvatar-root"
                         >
                           0
                         </div>

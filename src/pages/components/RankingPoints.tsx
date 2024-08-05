@@ -7,10 +7,10 @@ interface Props {
 const RankingPoints = ({ points }: Props) => (
   <Avatar
     sx={{
-      width: 24,
+      width: 20,
       height: 20,
       bgcolor: 'secondary.dark',
-      fontSize: '0.9rem',
+      fontSize: '0.8rem',
       display: points ? undefined : 'none',
     }}
     variant="rounded"
