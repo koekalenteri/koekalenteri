@@ -4,6 +4,7 @@ import { parseISO } from 'date-fns'
 import fetchMock from 'jest-fetch-mock'
 
 import { emptyEvent } from '../__mockData__/emptyEvent'
+import { zonedEndOfDay, zonedStartOfDay } from '../i18n/dates'
 import { isEntryClosing, isEntryOpen, isEntryUpcoming } from '../lib/utils'
 import { API_BASE_URL } from '../routeConfig'
 
@@ -55,26 +56,25 @@ test('putEvent', async () => {
 })
 
 /**
- * Using parseISO here, because new Date() for a date without time defaults to midnight in GMT.
+ * Using zonedStartOfDay / zonedEndOfDay here, because new Date() for a date without time defaults to midnight in GMT.
  * new Date() could also be inconsistent between browsers.
- * We want midnight in current timezone.
+ * We want midnight in Europe/Helsinki timezone.
  */
 
 const event: DogEvent = {
   ...emptyEvent,
-  entryStartDate: parseISO('2021-01-02'),
-  entryEndDate: parseISO('2021-01-13'),
+  entryStartDate: zonedStartOfDay('2021-01-02'),
+  entryEndDate: zonedEndOfDay('2021-01-13'),
 }
 
 test.each([
-  { date: '2021-01-01 23:59', open: false, closing: false, upcoming: true },
-  { date: '2021-01-02', open: true, closing: false, upcoming: false },
-  { date: '2021-01-02 00:00', open: true, closing: false, upcoming: false },
-  { date: '2021-01-05', open: true, closing: false, upcoming: false },
-  { date: '2021-01-06', open: true, closing: true, upcoming: false },
-  { date: '2021-01-13', open: true, closing: true, upcoming: false },
-  { date: '2021-01-13 23:59', open: true, closing: true, upcoming: false },
-  { date: '2021-01-14 00:00', open: false, closing: false, upcoming: false },
+  { date: '2021-01-01T23:59+02:00', open: false, closing: false, upcoming: true },
+  { date: '2021-01-02T00:00+02:00', open: true, closing: false, upcoming: false },
+  { date: '2021-01-05T00:00+02:00', open: true, closing: false, upcoming: false },
+  { date: '2021-01-06T00:00+02:00', open: true, closing: true, upcoming: false },
+  { date: '2021-01-13T00:00+02:00', open: true, closing: true, upcoming: false },
+  { date: '2021-01-13T23:59+02:00', open: true, closing: true, upcoming: false },
+  { date: '2021-01-14T00:00+02:00', open: false, closing: false, upcoming: false },
 ])(
   `When entry is 2021-01-02 to 2021-01-13, @$date: isEntryOpen: $open, isEntryClosing: $closing, isEntryUpcoming: $upcoming`,
   ({ date, open, closing, upcoming }) => {
@@ -87,10 +87,10 @@ test.each([
 test('isEntryOpen with mocked date', function () {
   jest.useFakeTimers()
 
-  jest.setSystemTime(parseISO('2021-01-01'))
+  jest.setSystemTime(zonedEndOfDay('2021-01-01'))
   expect(isEntryOpen(event)).toEqual(false)
 
-  jest.setSystemTime(parseISO('2021-01-02'))
+  jest.setSystemTime(zonedStartOfDay('2021-01-02'))
   expect(isEntryOpen(event)).toEqual(true)
 
   jest.useRealTimers()
