@@ -1,4 +1,4 @@
-import { currentFinnishTime, formatDateSpan } from './dates'
+import { currentFinnishTime, formatDateSpan, zonedEndOfDay, zonedStartOfDay } from './dates'
 
 describe('formatDateSpan', () => {
   it.each([
@@ -37,5 +37,19 @@ describe('currentFinnishTime', () => {
 
   it('formats correctly', () => {
     expect(currentFinnishTime()).toEqual('2020-04-01T13:20:30+03:00')
+  })
+})
+
+describe('zonedStartOfDay', () => {
+  it('should use Europe/Helsinki by default', () => {
+    expect(zonedStartOfDay('2024-01-01').toISOString()).toEqual('2023-12-31T22:00:00.000Z')
+    expect(zonedStartOfDay('2024-06-02').toISOString()).toEqual('2024-06-01T21:00:00.000Z')
+  })
+})
+
+describe('zonedEndOfDay', () => {
+  it('should use Europe/Helsinki by default', () => {
+    expect(zonedEndOfDay('2024-01-01').toISOString()).toEqual('2024-01-01T21:59:59.999Z')
+    expect(zonedEndOfDay('2024-06-02').toISOString()).toEqual('2024-06-02T20:59:59.999Z')
   })
 })
