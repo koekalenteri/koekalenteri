@@ -24,46 +24,23 @@ type RegistrationPriorityFields = Pick<Registration, 'priorityByInvitation'> & {
   qualifyingResults?: Registration['qualifyingResults'] | JsonRegistration['qualifyingResults']
 }
 
-export const hasPriority = (
+type PriorityCheckFn<T> = (
   event: Partial<Pick<PublicDogEvent, 'eventType' | 'priority'>>,
   registration: RegistrationPriorityFields
-): true | false | 0.5 => {
-  if (event.priority?.includes(PRIORITY_MEMBER)) {
-    if (registration.handler?.membership && registration.owner?.membership) return true
-    if (registration.handler?.membership || registration.owner?.membership) return 0.5
-  }
-  if (event.priority?.includes(PRIORITY_INVITED) && registration.priorityByInvitation) {
-    return true
-  }
-  if (registration.dog?.breedCode && event.priority?.includes(registration.dog.breedCode)) {
-    return true
-  }
+) => T
 
-  if (event.eventType === 'NOME-B SM') {
-    const count = registration.qualifyingResults?.reduce((acc, r) => acc + (r.result === 'VOI1' ? 1 : 0), 0) ?? 0
-    const kvaDateOrString = registration.qualifyingResults?.find((r) => r.result === 'FI KVA-B')?.date
-    const kvaDate = typeof kvaDateOrString === 'string' ? new Date(kvaDateOrString) : kvaDateOrString
-    if (count >= 3 || (kvaDate && kvaDate.valueOf() < NOME_B_CH_qualification_start_date.valueOf() && count === 2)) {
-      return true
-    }
-  }
-  return false
-}
+const hasMembershipPriority: PriorityCheckFn<boolean> = (event, registration) =>
+  Boolean(
+    event.priority?.includes(PRIORITY_MEMBER) && (registration.handler?.membership || registration.owner?.membership)
+  )
 
-export const priorityDescriptionKey = (
-  event: Partial<Pick<PublicDogEvent, 'eventType' | 'priority'>>,
-  registration: RegistrationPriorityFields
-): 'member' | 'invited' | 'breed' | 'b-sm.3' | 'b-sm.2' | undefined => {
-  if (event.priority?.includes(PRIORITY_MEMBER)) {
-    if (registration.handler?.membership || registration.owner?.membership) return PRIORITY_MEMBER
-  }
-  if (event.priority?.includes(PRIORITY_INVITED) && registration.priorityByInvitation) {
-    return PRIORITY_INVITED
-  }
-  if (registration.dog?.breedCode && event.priority?.includes(registration.dog.breedCode)) {
-    return 'breed'
-  }
+const hasInvitationPriority: PriorityCheckFn<boolean> = (event, registration) =>
+  Boolean(event.priority?.includes(PRIORITY_INVITED) && registration.priorityByInvitation)
 
+const hasBreedPriority: PriorityCheckFn<boolean> = (event, registration) =>
+  Boolean(registration.dog?.breedCode && event.priority?.includes(registration.dog.breedCode))
+
+const hasNomeBSMPriority: PriorityCheckFn<false | 'b-sm.2' | 'b-sm.3'> = (event, registration) => {
   if (event.eventType === 'NOME-B SM') {
     const count = registration.qualifyingResults?.reduce((acc, r) => acc + (r.result === 'VOI1' ? 1 : 0), 0) ?? 0
     const kvaDateOrString = registration.qualifyingResults?.find((r) => r.result === 'FI KVA-B')?.date
@@ -71,6 +48,36 @@ export const priorityDescriptionKey = (
     if (count >= 3) return 'b-sm.3'
     if (kvaDate && kvaDate.valueOf() < NOME_B_CH_qualification_start_date.valueOf() && count === 2) return 'b-sm.2'
   }
+  return false
+}
+
+export const hasPriority: PriorityCheckFn<true | false | 0.5> = (event, registration) => {
+  if (hasMembershipPriority(event, registration)) {
+    if (registration.handler?.membership && registration.owner?.membership) return true
+    return 0.5
+  }
+  if (
+    hasInvitationPriority(event, registration) ||
+    hasBreedPriority(event, registration) ||
+    hasNomeBSMPriority(event, registration)
+  ) {
+    return true
+  }
+  return false
+}
+
+export const priorityDescriptionKey: PriorityCheckFn<
+  'member' | 'invited' | 'breed' | 'b-sm.3' | 'b-sm.2' | undefined
+> = (event, registration) => {
+  if (hasMembershipPriority(event, registration)) return PRIORITY_MEMBER
+
+  if (hasInvitationPriority(event, registration)) return PRIORITY_INVITED
+
+  if (hasBreedPriority(event, registration)) return 'breed'
+
+  const nomeBSMPriority = hasNomeBSMPriority(event, registration)
+
+  if (nomeBSMPriority) return nomeBSMPriority
 }
 
 export type SortableRegistration = Pick<JsonRegistration, 'class' | 'group'>

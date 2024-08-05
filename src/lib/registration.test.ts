@@ -1,3 +1,4 @@
+import type { JsonQualifyingResult, QualifyingResult } from '../types'
 import type { SortableRegistration } from './registration'
 
 import { PRIORITY_INVITED, PRIORITY_MEMBER, PRIORIZED_BREED_CODES } from './priority'
@@ -8,6 +9,7 @@ import {
   GROUP_KEY_CANCELLED,
   GROUP_KEY_RESERVE,
   hasPriority,
+  priorityDescriptionKey,
   sortRegistrationsByDateClassTimeAndNumber,
 } from './registration'
 
@@ -76,6 +78,154 @@ describe('lib/registration', () => {
 
         expect(hasPriority({ priority: [breedCode] }, { dog: { breedCode: '1' } })).toEqual(false)
         expect(hasPriority({ priority: [breedCode] }, {})).toEqual(false)
+      })
+    })
+
+    describe('NOME-B SM priority', () => {
+      const NOME_B_VOI1: Readonly<QualifyingResult> = {
+        result: 'VOI1',
+        official: false,
+        date: new Date('2024-06-06'),
+        location: 'Somewhere',
+        class: 'VOI',
+        type: 'NOME-B',
+        judge: 'Some One',
+      }
+      const NOME_B_VOI2: Readonly<QualifyingResult> = {
+        ...NOME_B_VOI1,
+        result: 'VOI2',
+      }
+      const NOME_B_KVA_NEW: Readonly<QualifyingResult> = {
+        ...NOME_B_VOI1,
+        result: 'FI KVA-B',
+      }
+      const NOME_B_KVA_OLD: Readonly<QualifyingResult> = {
+        ...NOME_B_KVA_NEW,
+        date: new Date('2023-06-06'),
+      }
+      it.each<Array<QualifyingResult> | Array<JsonQualifyingResult>>([
+        [],
+        [NOME_B_VOI1],
+        [NOME_B_VOI1, NOME_B_VOI1],
+        [NOME_B_VOI1, NOME_B_VOI1, NOME_B_VOI2],
+        [NOME_B_VOI1, NOME_B_VOI1, NOME_B_KVA_NEW],
+        JSON.parse(JSON.stringify([NOME_B_VOI1, NOME_B_VOI1, NOME_B_KVA_NEW])),
+      ])('should return false when not prirized', (...qualifyingResults) => {
+        expect(hasPriority({ eventType: 'NOME-B SM' }, { qualifyingResults })).toEqual(false)
+      })
+
+      it.each<Array<QualifyingResult>>([
+        [NOME_B_VOI1, NOME_B_VOI1, NOME_B_VOI1],
+        [NOME_B_VOI1, NOME_B_VOI1, NOME_B_KVA_OLD],
+      ])('should return true when prirized', (...qualifyingResults) => {
+        expect(hasPriority({ eventType: 'NOME-B SM' }, { qualifyingResults })).toEqual(true)
+      })
+    })
+  })
+
+  describe('priorityDescriptionKey', () => {
+    it('should return undefined when nobody is priorized', () => {
+      expect(priorityDescriptionKey({}, {})).toEqual(undefined)
+    })
+
+    describe('membership priority', () => {
+      const event = { priority: [PRIORITY_MEMBER] }
+
+      it.each`
+        owner    | handler  | result
+        ${false} | ${false} | ${undefined}
+        ${true}  | ${false} | ${PRIORITY_MEMBER}
+        ${false} | ${true}  | ${PRIORITY_MEMBER}
+        ${true}  | ${true}  | ${PRIORITY_MEMBER}
+      `(
+        'should return $result when owner membersio is $owner and handler membership is $handler',
+        ({ owner, handler, result }) => {
+          expect(
+            priorityDescriptionKey(event, {
+              owner: {
+                membership: owner,
+              },
+              handler: {
+                membership: handler,
+              },
+              dog: {},
+              priorityByInvitation: true,
+            })
+          ).toEqual(result)
+        }
+      )
+    })
+
+    describe('priority by invitation', () => {
+      const event = { priority: [PRIORITY_INVITED] }
+      it('should return "invited" when invited', () => {
+        expect(priorityDescriptionKey(event, { priorityByInvitation: true })).toEqual(PRIORITY_INVITED)
+      })
+      it('should return undefined when not invited', () => {
+        expect(priorityDescriptionKey(event, { priorityByInvitation: false })).toEqual(undefined)
+        expect(priorityDescriptionKey(event, {})).toEqual(undefined)
+      })
+    })
+
+    describe('breed priority', () => {
+      it.each(PRIORIZED_BREED_CODES)('should work for breedCode %p', (breedCode) => {
+        expect(priorityDescriptionKey({ priority: [breedCode] }, { dog: { breedCode } })).toEqual('breed')
+        expect(priorityDescriptionKey({ priority: PRIORIZED_BREED_CODES }, { dog: { breedCode } })).toEqual('breed')
+
+        expect(priorityDescriptionKey({ priority: [breedCode] }, { dog: { breedCode: '1' } })).toEqual(undefined)
+        expect(priorityDescriptionKey({ priority: [breedCode] }, {})).toEqual(undefined)
+      })
+    })
+
+    describe('NOME-B SM priority', () => {
+      const NOME_B_VOI1: Readonly<QualifyingResult> = {
+        result: 'VOI1',
+        official: false,
+        date: new Date('2024-06-06'),
+        location: 'Somewhere',
+        class: 'VOI',
+        type: 'NOME-B',
+        judge: 'Some One',
+      }
+      const NOME_B_VOI2: Readonly<QualifyingResult> = {
+        ...NOME_B_VOI1,
+        result: 'VOI2',
+      }
+      const NOME_B_KVA_NEW: Readonly<QualifyingResult> = {
+        ...NOME_B_VOI1,
+        result: 'FI KVA-B',
+      }
+      const NOME_B_KVA_OLD: Readonly<QualifyingResult> = {
+        ...NOME_B_KVA_NEW,
+        date: new Date('2023-06-06'),
+      }
+      it.each<Array<QualifyingResult> | Array<JsonQualifyingResult>>([
+        [],
+        [NOME_B_VOI1],
+        [NOME_B_VOI1, NOME_B_VOI1],
+        [NOME_B_VOI1, NOME_B_VOI1, NOME_B_VOI2],
+        [NOME_B_VOI1, NOME_B_VOI1, NOME_B_KVA_NEW],
+        JSON.parse(JSON.stringify([NOME_B_VOI1, NOME_B_VOI1, NOME_B_KVA_NEW])),
+      ])('should return undefined when not prirized', (...qualifyingResults) => {
+        expect(priorityDescriptionKey({ eventType: 'NOME-B SM' }, { qualifyingResults })).toEqual(undefined)
+      })
+
+      it('should return "b-sm.3" with 3xVOI1', () => {
+        expect(
+          priorityDescriptionKey(
+            { eventType: 'NOME-B SM' },
+            { qualifyingResults: [NOME_B_VOI1, NOME_B_VOI1, NOME_B_VOI1] }
+          )
+        ).toEqual('b-sm.3')
+      })
+
+      it('should return "b-sm.2" with 2xVOI1 + KVA', () => {
+        expect(
+          priorityDescriptionKey(
+            { eventType: 'NOME-B SM' },
+            { qualifyingResults: [NOME_B_VOI1, NOME_B_VOI1, NOME_B_KVA_OLD] }
+          )
+        ).toEqual('b-sm.2')
       })
     })
   })
