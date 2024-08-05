@@ -165,7 +165,7 @@ exports[`EventInfo should render contact info 1`] = `
       </div>
     </div>
     <div
-      class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-kjsw1z-MuiGrid2-root"
+      class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-xddi98-MuiGrid2-root"
     >
       <div
         class="MuiTypography-root MuiTypography-caption css-ltaje5-MuiTypography-root"
@@ -343,7 +343,7 @@ exports[`EventInfo should render event information 1`] = `
       </div>
     </div>
     <div
-      class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-kjsw1z-MuiGrid2-root"
+      class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-xddi98-MuiGrid2-root"
     >
       <div
         class="MuiTypography-root MuiTypography-caption css-ltaje5-MuiTypography-root"

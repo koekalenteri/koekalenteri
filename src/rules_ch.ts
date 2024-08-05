@@ -21,14 +21,49 @@ const byPointsAndDate = (a: QualifyingResult, b: QualifyingResult) => {
   return bPoints - aPoints
 }
 
+const getNOME_B_CH_RankingPeriod = (entryEndDate: Date) => ({
+  maxResultDate: zonedEndOfDay(entryEndDate ?? new Date()),
+  minResultDate: NOME_B_CH_qualification_start_date,
+})
+
+const getNOME_A_CH_RankingPeriod = (entryEndDate: Date) => {
+  const endDate = zonedEndOfDay(entryEndDate)
+
+  return {
+    maxResultDate: endDate,
+    minResultDate: subYears(endDate, 2),
+  }
+}
+
+const getNOWT_CH_RankingPeriod = (entryEndDate: Date) => {
+  const endDate = zonedEndOfDay(entryEndDate)
+
+  return {
+    maxResultDate: endDate,
+    minResultDate: subYears(endDate, 1),
+  }
+}
+
+export const getRankingPeriod = (eventType: string, entryEndDate?: Date) => {
+  if (!entryEndDate) return
+
+  switch (eventType) {
+    case 'NOME-B SM':
+      return getNOME_B_CH_RankingPeriod(entryEndDate)
+    case 'NOME-A SM':
+      return getNOME_A_CH_RankingPeriod(entryEndDate)
+    case 'NOWT SM':
+      return getNOWT_CH_RankingPeriod(entryEndDate)
+  }
+}
+
 export const NOME_B_CH_requirements: EventResultRequirementFn = (
   officialResults,
   manualResults,
   entryEndDate
 ): QualifyingResults => {
   const maxResults = 5
-  const maxResultDate = zonedEndOfDay(entryEndDate ?? new Date())
-  const minResultDate = NOME_B_CH_qualification_start_date
+  const { maxResultDate, minResultDate } = getNOME_B_CH_RankingPeriod(entryEndDate ?? new Date())
 
   const resultFilter = (r: TestResult | ManualTestResult) =>
     r.type === 'NOME-B' &&
@@ -94,9 +129,7 @@ export const NOME_A_CH_requirements: EventResultRequirementFn = (
    * jotka on saatu kokeen ilmoittautumisajan päättymistä edeltävän kahden vuoden aikana.
    */
   const maxResults = 5
-  const endDate = zonedEndOfDay(entryEndDate ?? new Date())
-  const minResultDate = subYears(endDate, 2)
-  const maxResultDate = endDate
+  const { minResultDate, maxResultDate } = getNOME_A_CH_RankingPeriod(entryEndDate ?? new Date())
 
   const resultFilter = (result: TestResult | ManualTestResult) =>
     ['NOME-A', 'NOME-A KV'].includes(result.type) &&
@@ -155,9 +188,7 @@ export const NOWT_CH_requirements: EventResultRequirementFn = (
    */
 
   const maxResults = 5
-  const endDate = zonedEndOfDay(entryEndDate ?? new Date())
-  const minResultDate = subYears(endDate, 1)
-  const maxResultDate = endDate
+  const { minResultDate, maxResultDate } = getNOWT_CH_RankingPeriod(entryEndDate ?? new Date())
 
   const resultFilter = (result: TestResult | ManualTestResult) =>
     result.type === 'NOWT' &&

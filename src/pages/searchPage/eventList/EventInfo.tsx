@@ -11,6 +11,7 @@ import Grid from '@mui/material/Unstable_Grid2/Grid2'
 import { zonedEndOfDay } from '../../../i18n/dates'
 import { judgeName } from '../../../lib/judge'
 import { isEntryOpen, printContactInfo, unique } from '../../../lib/utils'
+import { getRankingPeriod } from '../../../rules_ch'
 import CostInfo from '../../components/CostInfo'
 import { EntryStatus } from '../../components/EntryStatus'
 import { PriorityChips } from '../../components/PriorityChips'
@@ -57,6 +58,7 @@ export const EventInfo = ({ event }: Props) => {
     [event.classes, event.eventType]
   )
   const judges = useMemo(() => event.judges.map((j) => `${judgeName(j, t)}${judgeClasses(j, event)}`), [event, t])
+  const rankingPeriod = getRankingPeriod(event.eventType, event.entryEndDate)
 
   return (
     <Grid container columnSpacing={1} disableEqualOverflow sx={{ py: 0.5 }}>
@@ -98,8 +100,13 @@ export const EventInfo = ({ event }: Props) => {
           <PriorityChips priority={event.priority} />
         </InfoItem>
       ) : null}
+      {rankingPeriod ? (
+        <InfoItem label={t('registration.rankingTime')} order={{ xs: 8 }}>
+          {t('dateFormat.datespan', { start: rankingPeriod.minResultDate, end: rankingPeriod.maxResultDate })}
+        </InfoItem>
+      ) : null}
       {event.description ? (
-        <InfoItem label={t('event.description')} order={{ xs: 8 }}>
+        <InfoItem label={t('event.description')} order={{ xs: 9 }}>
           {event.description}
         </InfoItem>
       ) : null}
