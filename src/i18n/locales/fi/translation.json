@@ -342,6 +342,7 @@
     "qualifyingResultsInfo": "Tulosten perusteella koiralla {{qualifies}} osallistua {{eventType}} {{class}}-luokkaan.",
     "qualifyingResultsNo": "ei ole oikeutta",
     "qyalifyingResultsYes": "on oikeus",
+    "rankingTime": "Karsinta-aika",
     "refundDialog": {
       "columns": {
         "provider": "Maksutapa",

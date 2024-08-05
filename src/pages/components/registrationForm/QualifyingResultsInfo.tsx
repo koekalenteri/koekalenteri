@@ -19,6 +19,7 @@ interface Props {
   readonly eventType?: string
   readonly regNo?: string
   readonly dob?: Date
+  readonly rankingPeriod?: { min?: Date; max?: Date }
   readonly results?: ManualTestResult[]
   readonly requirements?: EventResultRequirementsByDate
   readonly qualifyingResults?: QualifyingResult[]
@@ -34,6 +35,7 @@ export default function QualifyingResultsInfo({
   eventType,
   regNo,
   dob,
+  rankingPeriod,
   results,
   requirements,
   qualifyingResults,
@@ -106,6 +108,9 @@ export default function QualifyingResultsInfo({
       onOpenChange={onOpenChange}
     >
       <Grid item container spacing={1}>
+        <Grid item display={rankingPeriod?.min ? undefined : 'none'}>
+          <Typography variant="caption">{`${t('registration.rankingTime')}: ${t('dateFormat.datespan', { start: rankingPeriod?.min, end: rankingPeriod?.max })}`}</Typography>
+        </Grid>
         {qualifying.map((result) => (
           <QualifyingResultRow
             eventType={eventType}

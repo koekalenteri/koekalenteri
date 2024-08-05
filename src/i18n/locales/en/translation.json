@@ -261,6 +261,7 @@
     "qualifyingResultsInfo": "Bases on the results, dog {{qualifies}} qualify to the {{eventType}} {{class}}-class.",
     "qualifyingResultsNo": "does not",
     "qyalifyingResultsYes": "does",
+    "rankingTime": "Qualifying time",
     "reserve": "Reserve",
     "reserveChoises": {
       "ANY": "Yes",

@@ -108,7 +108,12 @@ export interface QualifyingResult extends TestResult {
   regNo?: string
 }
 
-export type QualifyingResults = { relevant: QualifyingResult[]; qualifies: boolean }
+export type QualifyingResults = {
+  relevant: QualifyingResult[]
+  qualifies: boolean
+  minResultDate?: Date
+  maxResultDate?: Date
+}
 
 export interface JsonRegistrationDate {
   date: string

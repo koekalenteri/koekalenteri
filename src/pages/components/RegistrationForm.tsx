@@ -90,6 +90,7 @@ export default function RegistrationForm({
   const large = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
   const [errors, setErrors] = useState(validateRegistration(registration, event))
   const [open, setOpen] = useState<{ [key: string]: boolean | undefined }>({})
+  const [rankingPeriod, setRankingPeriod] = useState<{ min?: Date; max?: Date }>({})
   const valid = errors.length === 0 && registration.qualifies
   const isMember = registration.handler?.membership || registration.owner?.membership
   const paymentAmount = event.costMember && isMember ? event.costMember : event.cost
@@ -119,6 +120,7 @@ export default function RegistrationForm({
         const filtered = filterRelevantResults(event, cls, dogResults as TestResult[], results as ManualTestResult[])
         props.qualifyingResults = filtered.relevant
         props.qualifies = filtered.qualifies
+        setRankingPeriod({ min: filtered.minResultDate, max: filtered.maxResultDate })
       }
       const newState = replace ? Object.assign({}, registration, props) : merge<Registration>(registration, props ?? {})
       if (hasChanges(registration, newState)) {
@@ -179,13 +181,17 @@ export default function RegistrationForm({
 
   useEffect(() => {
     setErrors(validateRegistration(registration, event))
-    if (registration.qualifies === undefined) {
-      const filtered = filterRelevantResults(
-        event,
-        registration?.class,
-        registration?.dog?.results ?? [],
-        registration?.results
-      )
+
+    const filtered = filterRelevantResults(
+      event,
+      registration?.class,
+      registration?.dog?.results ?? [],
+      registration?.results
+    )
+    setRankingPeriod({ min: filtered.minResultDate, max: filtered.maxResultDate })
+    const newState = { ...registration, qualifies: filtered.qualifies, qualifyingResults: filtered.relevant }
+
+    if (hasChanges(registration, newState)) {
       handleChange({ qualifies: filtered.qualifies, qualifyingResults: filtered.relevant })
     }
   }, [event, handleChange, registration])
@@ -297,6 +303,7 @@ export default function RegistrationForm({
           regNo={registration.dog?.regNo}
           dob={registration.dog?.dob}
           disabled={disabled}
+          rankingPeriod={rankingPeriod}
           requirements={requirements}
           results={registration.results}
           qualifyingResults={registration.qualifyingResults}

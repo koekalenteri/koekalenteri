@@ -57,6 +57,15 @@ exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
                 class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
               >
                 <div
+                  class="MuiGrid-root MuiGrid-item css-1uydgkw-MuiGrid-root"
+                >
+                  <span
+                    class="MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"
+                  >
+                    registration.rankingTime: dateFormat.datespan
+                  </span>
+                </div>
+                <div
                   class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-1bzbk8b-MuiGrid-root"
                 >
                   <div
@@ -517,6 +526,15 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
               >
+                <div
+                  class="MuiGrid-root MuiGrid-item css-1uydgkw-MuiGrid-root"
+                >
+                  <span
+                    class="MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"
+                  >
+                    registration.rankingTime: dateFormat.datespan
+                  </span>
+                </div>
                 <div
                   class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-1bzbk8b-MuiGrid-root"
                 >
@@ -1684,6 +1702,15 @@ exports[`QualifyingResultsInfo should render with minimal input 1`] = `
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
               >
+                <div
+                  class="MuiGrid-root MuiGrid-item css-1uydgkw-MuiGrid-root"
+                >
+                  <span
+                    class="MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"
+                  >
+                    registration.rankingTime: dateFormat.datespan
+                  </span>
+                </div>
                 <div
                   class="MuiStack-root css-1k3liqh-MuiStack-root"
                 >

@@ -2210,6 +2210,15 @@ exports[`RegistrationForm renders 1`] = `
                     class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
                   >
                     <div
+                      class="MuiGrid-root MuiGrid-item css-1uydgkw-MuiGrid-root"
+                    >
+                      <span
+                        class="MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"
+                      >
+                        registration.rankingTime: dateFormat.datespan
+                      </span>
+                    </div>
+                    <div
                       class="MuiStack-root css-1k3liqh-MuiStack-root"
                     >
                       <button
@@ -4701,6 +4710,15 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                   <div
                     class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
                   >
+                    <div
+                      class="MuiGrid-root MuiGrid-item css-1uydgkw-MuiGrid-root"
+                    >
+                      <span
+                        class="MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"
+                      >
+                        registration.rankingTime: dateFormat.datespan
+                      </span>
+                    </div>
                     <div
                       class="MuiStack-root css-1k3liqh-MuiStack-root"
                     >

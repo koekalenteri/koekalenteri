@@ -2542,6 +2542,15 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                     class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
                   >
                     <div
+                      class="MuiGrid-root MuiGrid-item css-1uydgkw-MuiGrid-root"
+                    >
+                      <span
+                        class="MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"
+                      >
+                        registration.rankingTime: dateFormat.datespan
+                      </span>
+                    </div>
+                    <div
                       class="MuiStack-root css-1k3liqh-MuiStack-root"
                     >
                       <button
@@ -5368,6 +5377,15 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                   <div
                     class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
                   >
+                    <div
+                      class="MuiGrid-root MuiGrid-item css-1uydgkw-MuiGrid-root"
+                    >
+                      <span
+                        class="MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"
+                      >
+                        registration.rankingTime: dateFormat.datespan
+                      </span>
+                    </div>
                     <div
                       class="MuiStack-root css-1k3liqh-MuiStack-root"
                     >
