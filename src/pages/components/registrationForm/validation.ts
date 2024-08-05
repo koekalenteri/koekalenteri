@@ -26,6 +26,18 @@ import { matchIsValidTel } from 'mui-tel-input'
 import { validEmail } from '../../../lib/email'
 import { getRequirements, REQUIREMENTS } from '../../../rules'
 
+const RE_RegNo = /^[A-ZÖ]{1,2}[A-Z\-/ .]{0,8}[0-9/]{4,12}$/
+const RE_FinnishVeryOldRegNo = /^SF[0-9]{5}[0-9A-Z]?\/1?8?[0-9]{2}$/
+const RE_FinnishOldRegNo = /^FIN[0-9]{5}\/[0-9]{2}$/
+const RE_FinnishRegNo = /^(FI|ER)[0-9]{5}\/[0-9]{2}$/
+
+export const validateRegNo = (input: string): boolean => RE_RegNo.test(input)
+
+export const isFinnishRegNo = (regNo: string): boolean =>
+  RE_FinnishRegNo.test(regNo) || RE_FinnishOldRegNo.test(regNo) || RE_FinnishVeryOldRegNo.test(regNo)
+
+export const isModernFinnishRegNo = (regNo: string): boolean => RE_FinnishRegNo.test(regNo)
+
 function validateBreeder(breeder: RegistrationBreeder | undefined) {
   return !breeder || !breeder.name || !breeder.location
 }
@@ -111,26 +123,7 @@ export const objectContains = (obj: Record<string, any>, req: Record<string, any
 
 const excludeByYear = (result: Partial<TestResult>, date: Date) => result.date && result.date > startOfYear(date)
 
-export function validateDog(
-  event: { eventType: string; startDate: Date },
-  reg: { class?: Registration['class']; dog?: Dog; results?: Partial<TestResult>[] }
-): WideValidationResult<Registration, 'registration'> {
-  const dog = reg.dog
-  if (!dog?.regNo || !dog?.name || !dog?.rfid || !dog.dam?.name || !dog.sire?.name) {
-    return 'required'
-  }
-  const breedCode = validateDogBreed(event, dog)
-  if (breedCode) {
-    return { key: 'dogBreed', opts: { field: 'dog', type: breedCode.replace('.', '-') } }
-  }
-  const minAge = validateDogAge(event, dog)
-  if (minAge) {
-    return { key: 'dogAge', opts: { field: 'dog', length: minAge } }
-  }
-  return false
-}
-
-function validateDogAge(event: { eventType: string; startDate: Date }, dog: { dob?: Date }) {
+const validateDogAge = (event: { eventType: string; startDate: Date }, dog: { dob?: Date }) => {
   const requirements = REQUIREMENTS[event.eventType]
   const minAge = (requirements as EventRequirement)?.age ?? 0
   if (!dog.dob || differenceInMonths(event.startDate, dog.dob) < minAge) {
@@ -138,12 +131,44 @@ function validateDogAge(event: { eventType: string; startDate: Date }, dog: { do
   }
 }
 
-function validateDogBreed(event: { eventType: string }, dog: { breedCode?: BreedCode }) {
+const validateDogBreed = (event: { eventType: string }, dog: { breedCode?: BreedCode }) => {
   const requirements = REQUIREMENTS[event.eventType]
   const breeds = (requirements as EventRequirement)?.breedCode ?? []
   if (breeds.length && dog.breedCode && !breeds.includes(dog.breedCode)) {
     return dog.breedCode
   }
+}
+
+const validateDogForEvent = (event: { eventType: string }, dog: Partial<Dog>) => {
+  const requirements = REQUIREMENTS[event.eventType]
+  const validator = (requirements as EventRequirement)?.dog
+  if (validator) return validator(dog)
+}
+
+export function validateDog(
+  event: { eventType: string; startDate: Date },
+  reg: { class?: Registration['class']; dog?: Dog; results?: Partial<TestResult>[] }
+): WideValidationResult<Registration, 'registration'> {
+  const dog = reg.dog
+
+  if (!dog?.regNo || !dog?.name) {
+    return 'required'
+  }
+
+  const forEvent = validateDogForEvent(event, dog)
+  if (forEvent) return { key: forEvent, opts: { field: 'dog' } }
+
+  if (!dog?.rfid || !dog.dam?.name || !dog.sire?.name) {
+    return 'required'
+  }
+
+  const breedCode = validateDogBreed(event, dog)
+  if (breedCode) return { key: 'dogBreed', opts: { field: 'dog', type: breedCode.replace('.', '-') } }
+
+  const minAge = validateDogAge(event, dog)
+  if (minAge) return { key: 'dogAge', opts: { field: 'dog', length: minAge } }
+
+  return false
 }
 
 const byDate = (a: TestResult, b: TestResult) => new Date(a.date).valueOf() - new Date(b.date).valueOf()
@@ -280,9 +305,4 @@ function getNextClass(c: RegistrationClass | undefined): RegistrationClass | und
   if (c === 'AVO') {
     return 'VOI'
   }
-}
-
-const RE = new RegExp(/^[A-ZÖ]{2}[A-Z\-/ .]{0,8}[0-9/]{4,12}$/)
-export function validateRegNo(input: string): boolean {
-  return RE.test(input)
 }

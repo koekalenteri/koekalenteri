@@ -1,8 +1,9 @@
 import type { EventResultRequirementFn } from './rules_ch'
-import type { Registration, TestResult } from './types'
+import type { Dog, Registration, TestResult } from './types'
 
 import { parseISO } from 'date-fns'
 
+import { isModernFinnishRegNo } from './pages/components/registrationForm/validation'
 import { NOME_A_CH_requirements, NOME_B_CH_requirements, NOWT_CH_requirements } from './rules_ch'
 
 export type EventResultRequirement = Partial<TestResult> & { count: number; excludeCurrentYear?: boolean }
@@ -24,6 +25,7 @@ export type RuleDate = keyof typeof RULE_DATES
 export type EventRequirement = {
   age?: number
   breedCode?: Array<string>
+  dog?: (dog: Partial<Dog>) => false | 'dogSM'
   results?: {
     [Property in RuleDate]?: EventResultRules
   }
@@ -58,6 +60,9 @@ export function getRuleDate(date: Date | string, available: RuleDate[] = Object.
   }
   return available[available.length - 1]
 }
+
+const validateDogForSM = (dog: Partial<Dog>) =>
+  dog.regNo && dog.kcId && isModernFinnishRegNo(dog.regNo) ? false : 'dogSM'
 
 export function getRequirements(eventType: string, regClass: Registration['class'], date: Date) {
   const eventRequirements = REQUIREMENTS[eventType] || {}
@@ -109,6 +114,7 @@ export const REQUIREMENTS: { [key: string]: EventRequirement | EventClassRequire
     },
   },
   'NOME-B SM': {
+    dog: validateDogForSM,
     results: {
       '2023-04-15': NOME_B_CH_requirements,
     },
@@ -140,6 +146,7 @@ export const REQUIREMENTS: { [key: string]: EventRequirement | EventClassRequire
     },
   },
   'NOWT SM': {
+    dog: validateDogForSM,
     results: {
       '2023-04-15': NOWT_CH_requirements,
     },
@@ -158,6 +165,7 @@ export const REQUIREMENTS: { [key: string]: EventRequirement | EventClassRequire
     },
   },
   'NOME-A SM': {
+    dog: validateDogForSM,
     results: {
       '2023-04-15': NOME_A_CH_requirements,
     },

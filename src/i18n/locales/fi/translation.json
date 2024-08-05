@@ -454,6 +454,7 @@
       "dogAge": "Koiran tulee olla vähintään {{length}} kuukautta vanha koepäivänä.",
       "dogBreed": "Rodulla \"$t(breed:{{type}})\" ei ole osallistumisoikeutta kokeeseen.",
       "dogResults": "Tulosten perusteella koiralla ei ole oikeutta osallistua valittuun koeluokkaan.",
+      "dogSM": "SM-kokeeseen ovat oikeutettuja ilmoittautumaan vain Suomessa rekisteröidyt koirat",
       "email": "Sähköpostiosoite on virheellinen",
       "phone": "Puhelinnumero on virheellinen",
       "required": "$t(registration.{{field}}) ovat puutteelliset",

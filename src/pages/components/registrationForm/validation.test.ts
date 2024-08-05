@@ -1,6 +1,13 @@
 import type { BreedCode, Person } from '../../../types'
 
-import { filterRelevantResults, validateDog, validatePerson, validateRegNo } from './validation'
+import {
+  filterRelevantResults,
+  isFinnishRegNo,
+  isModernFinnishRegNo,
+  validateDog,
+  validatePerson,
+  validateRegNo,
+} from './validation'
 
 const testDog = {
   regNo: 'test-123',
@@ -27,6 +34,7 @@ describe('validRegNo', () => {
     'DRC -L 1822362',
     'DRC-L 1620751',
     'FI44076/17',
+    'ER12345/24',
     'KCAS 03997505',
     'KCAU1583901',
     'KCREG AW01372609',
@@ -39,6 +47,7 @@ describe('validRegNo', () => {
     'ÖHZB LR 12568',
     'SE39992/2017',
     'SHSB 742304',
+    'S11405/2007',
   ])('should return true for %p', (regNo) => {
     expect(validateRegNo(regNo)).toEqual(true)
   })
@@ -48,64 +57,153 @@ describe('validRegNo', () => {
   })
 })
 
+describe('isFinnishRegNo', () => {
+  it.each([
+    'CLP/LR/ 36170',
+    'DK04329/2016',
+    'DK18979/2018',
+    'DRC -L 1822362',
+    'DRC-L 1620751',
+    'KCAS 03997505',
+    'KCAU1583901',
+    'KCREG AW01372609',
+    'LO1752937',
+    'LOE 2442557',
+    'LOF 266115/28299',
+    'LOF259519/34993',
+    'MET .LABR.968/17',
+    'NHSB3168346',
+    'ÖHZB LR 12568',
+    'SE39992/2017',
+    'SHSB 742304',
+    'S11405/2007',
+  ])('should return false for %p', (regNo) => {
+    expect(isFinnishRegNo(regNo)).toEqual(false)
+  })
+
+  it.each([
+    'SF00028/1899',
+    'SF00107/12',
+    'SF03072/23',
+    'SF08750/31',
+    'SF04962/42',
+    'SF00072/50',
+    'SF07328/62',
+    'SF128604/76',
+    'SF20554P/79',
+    'SF00291U/80',
+
+    'SF29182U/85',
+    'SF29183V/85',
+    'SF29184X/85',
+    'SF291850/85',
+    'SF291861/85',
+    'SF291872/85',
+    'SF291883/85',
+    'SF291894/85',
+
+    'SF07908L/85',
+    'SF20150/89',
+    'SF30121/94',
+    'FIN25483/95',
+    'FIN31871/98',
+    'FIN11170/01',
+    'FIN45793/08',
+    'FI59578/09',
+    'FI44076/17',
+    'ER12345/24',
+  ])('should return true for %p', (regNo) => {
+    expect(isFinnishRegNo(regNo)).toEqual(true)
+  })
+})
+
+describe('isModernFinnishRegNo', () => {
+  it.each(['FI59578/09', 'FI44076/17', 'ER12345/24'])('should return true for %p', (regNo) => {
+    expect(isModernFinnishRegNo(regNo)).toEqual(true)
+  })
+
+  it.each(['SF00028/1899', 'SF00107/12', 'SF00291U/80', 'SF30121/94', 'FIN45793/08'])(
+    'should return false for %p',
+    (regNo) => {
+      expect(isModernFinnishRegNo(regNo)).toEqual(false)
+    }
+  )
+})
+
 describe('validateDog', () => {
-  it('Should validate registration number', function () {
+  it('should validate registration number', function () {
     const testEvent = { eventType: 'NOU', startDate: new Date('2020-10-15') }
     expect(validateDog(testEvent, { dog: testDog })).toEqual(false)
     expect(validateDog(testEvent, { dog: { ...testDog, regNo: '' } })).toEqual('required')
   })
 
-  it('Should validate identification number', function () {
+  it('should validate identification number', function () {
     const testEvent = { eventType: 'NOU', startDate: new Date('2020-10-15') }
     expect(validateDog(testEvent, { dog: testDog })).toEqual(false)
     expect(validateDog(testEvent, { dog: { ...testDog, rfid: '' } })).toEqual('required')
   })
 
-  it('Should validate name', function () {
+  it('should validate name', function () {
     const testEvent = { eventType: 'NOU', startDate: new Date('2020-10-15') }
     expect(validateDog(testEvent, { dog: testDog })).toEqual(false)
     expect(validateDog(testEvent, { dog: { ...testDog, name: '' } })).toEqual('required')
   })
 
-  it('Should validate dog breed', function () {
-    const valid: Array<BreedCode> = ['110', '111', '121', '122', '263', '312']
+  it.each<BreedCode>(['110', '111', '121', '122', '263', '312'])('should allow breed %p for NOU event', (breedCode) => {
     const testEvent = { eventType: 'NOU', startDate: new Date('2020-10-15') }
-    for (const test of valid) {
-      expect(validateDog(testEvent, { dog: { ...testDog, breedCode: test } })).toEqual(false)
-    }
-    const invalid: Array<BreedCode> = ['1', '13', '148.1P']
-    for (const test of invalid) {
-      expect(validateDog(testEvent, { dog: { ...testDog, breedCode: test } })).toEqual({
-        key: 'dogBreed',
-        opts: { field: 'dog', type: test.replace('.', '-') },
-      })
-    }
+    expect(validateDog(testEvent, { dog: { ...testDog, breedCode } })).toEqual(false)
   })
 
-  it('Should validate dog age', function () {
-    const cases = [
-      {
-        dob: '2021-01-01',
-        result: { key: 'dogAge', opts: { field: 'dog', length: 9 } },
-      },
-      {
-        dob: '2020-01-16',
-        result: { key: 'dogAge', opts: { field: 'dog', length: 9 } },
-      },
-      {
-        dob: '2020-01-15',
-        result: false,
-      },
-      {
-        dob: '2010-01-01',
-        result: false,
-      },
-    ]
-
+  it.each<BreedCode>(['1', '13', '148.1P'])('should not allow breed %p for NOU event', (breedCode) => {
     const testEvent = { eventType: 'NOU', startDate: new Date('2020-10-15') }
-    for (const test of cases) {
-      expect(validateDog(testEvent, { dog: { ...testDog, dob: new Date(test.dob) } })).toEqual(test.result)
-    }
+    expect(validateDog(testEvent, { dog: { ...testDog, breedCode } })).toEqual({
+      key: 'dogBreed',
+      opts: { field: 'dog', type: breedCode.replace('.', '-') },
+    })
+  })
+
+  it.each([
+    ['2021-01-01', { key: 'dogAge', opts: { field: 'dog', length: 9 } }],
+    ['2020-01-16', { key: 'dogAge', opts: { field: 'dog', length: 9 } }],
+    ['2020-01-15', false],
+    ['2010-01-01', false],
+  ])('when event is at 2020-10-50 and dog dob is %p, should return %p', (dob, result) => {
+    const testEvent = { eventType: 'NOU', startDate: new Date('2020-10-15') }
+    expect(validateDog(testEvent, { dog: { ...testDog, dob: new Date(dob) } })).toEqual(result)
+  })
+
+  it.each([
+    [{ key: 'dogSM', opts: { field: 'dog' } }, 'NOME-B SM', 'KCSB4027CU'],
+    [{ key: 'dogSM', opts: { field: 'dog' } }, 'NOME-A SM', 'KCSB4027CU'],
+    [{ key: 'dogSM', opts: { field: 'dog' } }, 'NOWT SM', 'KCSB4027CU'],
+    [{ key: 'dogSM', opts: { field: 'dog' } }, 'NOME-B SM', 'SE39992/2017'],
+    [{ key: 'dogSM', opts: { field: 'dog' } }, 'NOME-A SM', 'SE39992/2017'],
+    [{ key: 'dogSM', opts: { field: 'dog' } }, 'NOWT SM', 'SE39992/2017'],
+    [false, 'NOME-B SM', 'FI10090/20'],
+    [false, 'NOME-A SM', 'FI10090/20'],
+    [false, 'NOWT SM', 'FI10090/20'],
+  ])('should return %p when eventType is %p and regNo is %p', (expected, eventType, regNo) => {
+    expect(
+      validateDog(
+        {
+          eventType,
+          startDate: new Date('2024-10-15'),
+        },
+        { dog: { ...testDog, kcId: 123, regNo } }
+      )
+    ).toEqual(expected)
+  })
+
+  it.each(['NOU', 'NOME-B', 'NOME-A', 'NOWT'])('should accept foreign dog from %p event', (eventType) => {
+    expect(
+      validateDog(
+        {
+          eventType,
+          startDate: new Date('2024-10-15'),
+        },
+        { dog: { ...testDog, kcId: 123, regNo: 'KCSB4027CU' } }
+      )
+    ).toEqual(false)
   })
 
   describe('results', function () {
