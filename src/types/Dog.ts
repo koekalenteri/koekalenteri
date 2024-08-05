@@ -2,6 +2,7 @@ export interface JsonDog extends DogName {
   regNo: string
   callingName?: string
   rfid?: string
+  kcId?: number
   breedCode?: BreedCode
   dob?: string
   gender?: DogGender

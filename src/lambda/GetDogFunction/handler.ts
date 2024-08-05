@@ -51,6 +51,7 @@ const getDogHandler = metricScope(
             // Cache
             item = {
               ...item, // keep refined info on refres
+              kcId: json.id,
               regNo: json.rekisterinumero,
               name: json.nimi,
               rfid: json.tunnistusmerkintä,
