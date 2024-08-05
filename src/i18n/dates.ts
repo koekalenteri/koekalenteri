@@ -1,9 +1,20 @@
 import type { Locale } from 'date-fns'
 import type { Language } from '../types'
 
-import { formatDistanceToNowStrict, isSameDay, isSameMonth, isSameYear, isValid, parseISO } from 'date-fns'
+import {
+  endOfDay,
+  formatDistanceToNowStrict,
+  isSameDay,
+  isSameMonth,
+  isSameYear,
+  isValid,
+  parseISO,
+  startOfDay,
+} from 'date-fns'
 import { enGB as en, fi } from 'date-fns/locale'
-import { formatInTimeZone } from 'date-fns-tz'
+import { formatInTimeZone, fromZonedTime, toZonedTime } from 'date-fns-tz'
+
+export type DateType = Date | number | string
 
 export interface DateFormatOptions {
   tz?: string
@@ -73,3 +84,20 @@ export function formatDistance(date?: Date, lng?: string): string {
 }
 
 export const currentFinnishTime = (): string => formatDate(new Date(), "yyyy-MM-dd'T'HH:mm:ssxxx")
+
+const calcZonedDate = <
+  T extends (date: DateType, options?: any) => Date,
+  O = T extends (date: DateType, options?: infer U) => Date ? U : undefined,
+>(
+  date: DateType,
+  tz: string,
+  fn: T,
+  options?: O
+): Date => {
+  const inputZoned = toZonedTime(date, tz)
+  const fnZoned = fn(inputZoned, options)
+  return fromZonedTime(fnZoned, tz)
+}
+
+export const zonedStartOfDay = (date: DateType, tz = 'Europe/Helsinki') => calcZonedDate(date, tz, startOfDay)
+export const zonedEndOfDay = (date: DateType, tz = 'Europe/Helsinki') => calcZonedDate(date, tz, endOfDay)

@@ -1,17 +1,18 @@
 import type { EventState, JsonDogEvent, JsonEventClass, RegistrationClass } from '../../types'
 
-import { addMonths, addWeeks, startOfDay } from 'date-fns'
+import { addMonths, addWeeks } from 'date-fns'
 
+import { zonedStartOfDay } from '../../i18n/dates'
 import { i18n } from '../../i18n/lambda'
 
 const timestamp = new Date().toISOString()
 
-const twoWeeksAgo = startOfDay(addWeeks(Date.now(), -2)).toISOString()
-const oneWeekAgo = startOfDay(addWeeks(Date.now(), -1)).toISOString()
-const today = startOfDay(new Date()).toISOString()
-const oneWeekAway = startOfDay(addWeeks(Date.now(), 1)).toISOString()
-const twoWeeksAway = startOfDay(addWeeks(Date.now(), 2)).toISOString()
-const monthAway = startOfDay(addMonths(Date.now(), 1)).toISOString()
+const twoWeeksAgo = zonedStartOfDay(addWeeks(Date.now(), -2)).toISOString()
+const oneWeekAgo = zonedStartOfDay(addWeeks(Date.now(), -1)).toISOString()
+const today = zonedStartOfDay(new Date()).toISOString()
+const oneWeekAway = zonedStartOfDay(addWeeks(Date.now(), 1)).toISOString()
+const twoWeeksAway = zonedStartOfDay(addWeeks(Date.now(), 2)).toISOString()
+const monthAway = zonedStartOfDay(addMonths(Date.now(), 1)).toISOString()
 
 const draft: JsonDogEvent = {
   classes: [],

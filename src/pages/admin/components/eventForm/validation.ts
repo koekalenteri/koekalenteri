@@ -2,8 +2,7 @@ import type { ValidationResult, Validators } from '../../../../i18n/validation'
 import type { DogEvent, EventState, PublicContactInfo } from '../../../../types'
 import type { PartialEvent } from '../EventForm'
 
-import { startOfDay } from 'date-fns'
-
+import { zonedEndOfDay, zonedStartOfDay } from '../../../../i18n/dates'
 import { unique } from '../../../../lib/utils'
 
 type EventCallback = (event: PartialEvent) => boolean
@@ -150,8 +149,8 @@ export const VALIDATORS: Validators<PartialEvent, 'event'> = {
     }
     return list.length ? { key: 'placesClass', opts: { field: 'places', list, length: list.length } } : false
   },
-  startDate: (event, required) => (required && event.startDate < startOfDay(new Date()) ? 'startDate' : false),
-  endDate: (event, required) => (required && event.endDate < startOfDay(new Date()) ? 'endDate' : false),
+  startDate: (event, required) => (required && event.startDate < zonedStartOfDay(new Date()) ? 'startDate' : false),
+  endDate: (event, required) => (required && event.endDate < zonedEndOfDay(new Date()) ? 'endDate' : false),
 }
 
 export type FieldRequirements = {

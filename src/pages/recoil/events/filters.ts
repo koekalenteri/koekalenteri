@@ -2,9 +2,9 @@ import type { TFunction } from 'i18next'
 import type { PublicDogEvent } from '../../../types'
 import type { FilterProps } from './atoms'
 
-import { endOfDay, format, formatISO, startOfDay } from 'date-fns'
+import { format, formatISO } from 'date-fns'
 
-import { formatDateSpan } from '../../../i18n/dates'
+import { formatDateSpan, zonedEndOfDay, zonedStartOfDay } from '../../../i18n/dates'
 import { isEntryClosing, isEntryOpen, isEntryUpcoming } from '../../../lib/utils'
 import { isRegistrationClass } from '../../admin/EventViewPage'
 
@@ -15,10 +15,10 @@ export function withinDateFilters(
   event: Partial<Pick<PublicDogEvent, 'startDate' | 'endDate'>>,
   { start, end }: Pick<FilterProps, 'start' | 'end'>
 ) {
-  if (start && (!event.endDate || endOfDay(event.endDate) < endOfDay(start))) {
+  if (start && (!event.endDate || zonedEndOfDay(event.endDate) < zonedEndOfDay(start))) {
     return false
   }
-  if (end && (!event.startDate || startOfDay(event.startDate) > startOfDay(end))) {
+  if (end && (!event.startDate || zonedStartOfDay(event.startDate) > zonedStartOfDay(end))) {
     return false
   }
   return true

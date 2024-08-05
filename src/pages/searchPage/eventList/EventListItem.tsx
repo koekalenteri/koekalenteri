@@ -9,9 +9,9 @@ import Collapse from '@mui/material/Collapse'
 import IconButton from '@mui/material/IconButton'
 import Typography from '@mui/material/Typography'
 import Grid from '@mui/material/Unstable_Grid2'
-import { startOfDay } from 'date-fns'
 import { useRecoilState } from 'recoil'
 
+import { zonedStartOfDay } from '../../../i18n/dates'
 import { isEntryClosed, isEntryOpen, isEventOver, isValidForEntry } from '../../../lib/utils'
 import { Path } from '../../../routeConfig'
 import LinkButton from '../../components/LinkButton'
@@ -43,7 +43,7 @@ export const EventListItem = ({ event, odd }: Props) => {
 
   const showPlaces = useMemo(
     (): boolean =>
-      !!event.entryStartDate && startOfDay(event.entryStartDate) <= new Date() && isValidForEntry(event.state),
+      !!event.entryStartDate && zonedStartOfDay(event.entryStartDate) <= new Date() && isValidForEntry(event.state),
     [event]
   )
 

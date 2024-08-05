@@ -13,7 +13,7 @@ import { PRIORITY_INVITED, PRIORITY_MEMBER } from './priority'
 export const GROUP_KEY_CANCELLED = 'cancelled'
 export const GROUP_KEY_RESERVE = 'reserve'
 
-export const NOME_B_CH_qualification_start_date = new Date('2023-08-18') // TODO: get this date from last NOME-B SM event
+export const NOME_B_CH_qualification_start_date = new Date('2023-08-17T21:00:00Z') // TODO: get this date from last NOME-B SM event
 
 const REFUNDABLE_GROUP_KEYS = [GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE]
 

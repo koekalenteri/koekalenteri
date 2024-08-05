@@ -8,9 +8,10 @@ import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import FormHelperText from '@mui/material/FormHelperText'
 import Grid from '@mui/material/Grid'
-import { clamp, endOfDay, startOfDay, sub } from 'date-fns'
+import { clamp, sub } from 'date-fns'
 import { enqueueSnackbar } from 'notistack'
 
+import { zonedEndOfDay, zonedStartOfDay } from '../../../../i18n/dates'
 import { getPrioritySort, PRIORITY, priorityValuesToPriority } from '../../../../lib/priority'
 import AutocompleteMulti from '../../../components/AutocompleteMulti'
 import CollapsibleSection from '../../../components/CollapsibleSection'
@@ -38,8 +39,8 @@ export default function EntrySection(props: Props) {
   const handleDateChange = useCallback(
     (start: DateValue, end: DateValue) =>
       onChange?.({
-        entryStartDate: start ? startOfDay(start) : undefined,
-        entryEndDate: end ? endOfDay(end) : undefined,
+        entryStartDate: start ? zonedStartOfDay(start) : undefined,
+        entryEndDate: end ? zonedEndOfDay(end) : undefined,
       }),
     [onChange]
   )

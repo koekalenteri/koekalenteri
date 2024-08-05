@@ -1,7 +1,8 @@
 import type { ManualTestResult, QualifyingResult, QualifyingResults, TestResult } from './types'
 
-import { subDays, subYears } from 'date-fns'
+import { subYears } from 'date-fns'
 
+import { zonedEndOfDay } from './i18n/dates'
 import { NOME_B_CH_qualification_start_date } from './lib/registration'
 
 export type EventResultRequirementFn = (
@@ -20,11 +21,14 @@ const byPointsAndDate = (a: QualifyingResult, b: QualifyingResult) => {
   return bPoints - aPoints
 }
 
-export const NOME_B_CH_requirements: EventResultRequirementFn = (officialResults, manualResults, entryEndDate) => {
+export const NOME_B_CH_requirements: EventResultRequirementFn = (
+  officialResults,
+  manualResults,
+  entryEndDate
+): QualifyingResults => {
   const maxResults = 5
-  const endDate = entryEndDate ?? new Date()
+  const maxResultDate = zonedEndOfDay(entryEndDate ?? new Date())
   const minResultDate = NOME_B_CH_qualification_start_date
-  const maxResultDate = subDays(endDate, 1)
 
   const resultFilter = (r: TestResult | ManualTestResult) =>
     r.type === 'NOME-B' &&
@@ -65,10 +69,14 @@ export const NOME_B_CH_requirements: EventResultRequirementFn = (officialResults
    */
   const qualifies = Boolean(relevant.find((r) => r.result === 'VOI1'))
 
-  return { relevant: relevant.slice(0, maxResults), qualifies }
+  return { relevant: relevant.slice(0, maxResults), qualifies, minResultDate, maxResultDate }
 }
 
-export const NOME_A_CH_requirements: EventResultRequirementFn = (officialResults, manualResults, entryEndDate) => {
+export const NOME_A_CH_requirements: EventResultRequirementFn = (
+  officialResults,
+  manualResults,
+  entryEndDate
+): QualifyingResults => {
   /**
    * NOME A SM-kokeeseen ovat oikeutettuja ilmoittautumaan Suomessa rekisteröidyt koirat, joilla on osallistumisoikeus
    * NOME A -kokeeseen ja jotka ovat saavuttaneet korkeimman palkintosijan NOME A -kokeesta tai KV-kokeesta.
@@ -86,9 +94,9 @@ export const NOME_A_CH_requirements: EventResultRequirementFn = (officialResults
    * jotka on saatu kokeen ilmoittautumisajan päättymistä edeltävän kahden vuoden aikana.
    */
   const maxResults = 5
-  const endDate = entryEndDate ?? new Date()
+  const endDate = zonedEndOfDay(entryEndDate ?? new Date())
   const minResultDate = subYears(endDate, 2)
-  const maxResultDate = subDays(endDate, 1)
+  const maxResultDate = endDate
 
   const resultFilter = (result: TestResult | ManualTestResult) =>
     ['NOME-A', 'NOME-A KV'].includes(result.type) &&
@@ -119,10 +127,14 @@ export const NOME_A_CH_requirements: EventResultRequirementFn = (officialResults
     )
     .sort(byPointsAndDate)
 
-  return { relevant: relevant.slice(0, maxResults), qualifies }
+  return { relevant: relevant.slice(0, maxResults), qualifies, minResultDate, maxResultDate }
 }
 
-export const NOWT_CH_requirements: EventResultRequirementFn = (officialResults, manualResults, entryEndDate) => {
+export const NOWT_CH_requirements: EventResultRequirementFn = (
+  officialResults,
+  manualResults,
+  entryEndDate
+): QualifyingResults => {
   /**
    * Kokeeseen ovat oikeutettuja ilmoittautumaan Suomessa rekisteröidyt noutajat, jotka ovat saavuttaneet KVA-WT arvon
    * tai vähintään yhden VOI1-tuloksen WT-kokeessa, joka on saatu kokeen ilmoittautumisajan päättymistä
@@ -143,9 +155,9 @@ export const NOWT_CH_requirements: EventResultRequirementFn = (officialResults, 
    */
 
   const maxResults = 5
-  const endDate = entryEndDate ?? new Date()
+  const endDate = zonedEndOfDay(entryEndDate ?? new Date())
   const minResultDate = subYears(endDate, 1)
-  const maxResultDate = subDays(endDate, 1)
+  const maxResultDate = endDate
 
   const resultFilter = (result: TestResult | ManualTestResult) =>
     result.type === 'NOWT' &&
@@ -179,5 +191,5 @@ export const NOWT_CH_requirements: EventResultRequirementFn = (officialResults, 
 
   const qualifies = relevant.some((r) => r.result === 'VOI1')
 
-  return { relevant: relevant.slice(0, maxResults), qualifies }
+  return { relevant: relevant.slice(0, maxResults), qualifies, minResultDate, maxResultDate }
 }

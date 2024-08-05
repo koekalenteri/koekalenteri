@@ -8,8 +8,10 @@ import type {
   RegistrationTime,
 } from '../types'
 
-import { eachDayOfInterval, endOfDay, startOfDay, subDays } from 'date-fns'
+import { eachDayOfInterval, subDays } from 'date-fns'
 import { diff } from 'deep-object-diff'
+
+import { zonedEndOfDay, zonedStartOfDay } from '../i18n/dates'
 
 type EventVitals = Partial<Pick<PublicDogEvent, 'startDate' | 'endDate' | 'entryStartDate' | 'entryEndDate' | 'state'>>
 
@@ -23,28 +25,28 @@ export const isEntryUpcoming = ({ entryStartDate, state }: EventVitals, now = ne
 export const isEntryOpen = ({ entryStartDate, entryEndDate, state }: EventVitals, now = new Date()) =>
   !!entryStartDate &&
   !!entryEndDate &&
-  startOfDay(entryStartDate) <= now &&
-  endOfDay(entryEndDate) >= now &&
+  zonedStartOfDay(entryStartDate) <= now &&
+  zonedEndOfDay(entryEndDate) >= now &&
   isValidForEntry(state)
 
 export const isEntryClosing = (event: EventVitals, now = new Date()) =>
   !!event.entryEndDate &&
   isEntryOpen(event, now) &&
-  subDays(event.entryEndDate, 7) <= endOfDay(now) &&
+  subDays(event.entryEndDate, 7) <= zonedEndOfDay(now) &&
   isValidForEntry(event.state)
 
 export const isEntryClosed = ({ startDate, entryEndDate }: EventVitals, now = new Date()) =>
-  !!startDate && !!entryEndDate && endOfDay(entryEndDate) < now && startOfDay(startDate) > now
+  !!startDate && !!entryEndDate && zonedEndOfDay(entryEndDate) < now && zonedStartOfDay(startDate) > now
 
 export const isEventOngoing = ({ startDate, endDate, state }: EventVitals, now = new Date()) =>
   !!startDate &&
   !!endDate &&
-  startOfDay(startDate) <= now &&
-  endOfDay(endDate) >= now &&
+  zonedStartOfDay(startDate) <= now &&
+  zonedEndOfDay(endDate) >= now &&
   isValidForEntry(state) &&
   state !== 'confirmed'
 
-export const isEventOver = ({ endDate }: EventVitals, now = new Date()) => !!endDate && endOfDay(endDate) < now
+export const isEventOver = ({ endDate }: EventVitals, now = new Date()) => !!endDate && zonedEndOfDay(endDate) < now
 
 export const eventDates = (event?: Pick<PublicDogEvent, 'classes' | 'startDate' | 'endDate'>) => {
   if (!event) return []

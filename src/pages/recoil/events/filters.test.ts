@@ -1,4 +1,4 @@
-import { endOfDay, startOfDay } from 'date-fns'
+import { zonedEndOfDay, zonedStartOfDay } from '../../../i18n/dates'
 
 import { readDate, withinDateFilters, writeDate } from './filters'
 
@@ -21,8 +21,8 @@ describe('recoil.events.filters', () => {
 
   describe('withinDateFilters', () => {
     const today = new Date()
-    const startOfToday = startOfDay(today)
-    const endOfToday = endOfDay(today)
+    const startOfToday = zonedStartOfDay(today)
+    const endOfToday = zonedEndOfDay(today)
     describe.each`
       endDate
       ${today}

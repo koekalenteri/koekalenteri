@@ -1,8 +1,8 @@
 import type { PublicDogEvent, RegistrationClass } from '../../../types'
 
-import { startOfDay } from 'date-fns'
 import { atom } from 'recoil'
 
+import { zonedStartOfDay } from '../../../i18n/dates'
 import { localStorageEffect, logEffect } from '../effects'
 
 import { remoteEventsEffect, urlSyncEffect } from './effects'
@@ -34,7 +34,7 @@ export type FilterProps = {
 export const eventFilterAtom = atom<FilterProps>({
   key: 'eventFilter',
   default: {
-    start: startOfDay(new Date()),
+    start: zonedStartOfDay(new Date()),
     end: null,
     withOpenEntry: false,
     withUpcomingEntry: false,

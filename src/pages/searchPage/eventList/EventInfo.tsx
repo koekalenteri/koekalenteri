@@ -7,8 +7,8 @@ import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Grid from '@mui/material/Unstable_Grid2/Grid2'
-import { endOfDay } from 'date-fns'
 
+import { zonedEndOfDay } from '../../../i18n/dates'
 import { judgeName } from '../../../lib/judge'
 import { isEntryOpen, printContactInfo, unique } from '../../../lib/utils'
 import CostInfo from '../../components/CostInfo'
@@ -63,7 +63,7 @@ export const EventInfo = ({ event }: Props) => {
       <InfoItem label={t('entryTime')} order={{ xs: 1 }}>
         {t('dateFormat.datespan', { start: event.entryStartDate, end: event.entryEndDate })}
         <EntryStatus event={event} />
-        {isEntryOpen(event) ? <TimeLeft date={endOfDay(event.entryEndDate!)} /> : ''}
+        {isEntryOpen(event) ? <TimeLeft date={zonedEndOfDay(event.entryEndDate!)} /> : ''}
       </InfoItem>
       {classes.length ? (
         <InfoItem label={t('event.classPlaces')} order={{ xs: 2, lg: 3, xl: 10 }} xl={true}>

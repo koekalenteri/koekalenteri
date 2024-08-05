@@ -1,9 +1,10 @@
 import type { GridColumnVisibilityModel } from '@mui/x-data-grid'
 import type { DogEvent, RegistrationClass } from '../../../../types'
 
-import { addDays, addYears, isSameDay, nextSaturday, startOfDay, sub } from 'date-fns'
+import { addDays, addYears, isSameDay, nextSaturday, sub } from 'date-fns'
 import { atom, atomFamily, selector } from 'recoil'
 
+import { zonedStartOfDay } from '../../../../i18n/dates'
 import { uniqueClasses } from '../../../../lib/utils'
 import { localStorageEffect, logEffect, sessionStorageEffect } from '../../../recoil'
 
@@ -28,7 +29,7 @@ const EntryEndWeeks = 3
 export const defaultEntryStartDate = (eventStartDate: Date) => sub(eventStartDate, { weeks: EntryStartWeeks })
 export const defaultEntryEndDate = (eventStartDate: Date) => sub(eventStartDate, { weeks: EntryEndWeeks })
 
-export const newEventStartDate = startOfDay(nextSaturday(addDays(Date.now(), 90)))
+export const newEventStartDate = zonedStartOfDay(nextSaturday(addDays(Date.now(), 90)))
 export const newEventEntryStartDate = defaultEntryStartDate(newEventStartDate)
 export const newEventEntryEndDate = defaultEntryEndDate(newEventStartDate)
 

@@ -16,8 +16,9 @@ import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import Grid from '@mui/material/Grid'
 import TextField from '@mui/material/TextField'
-import { add, differenceInDays, eachDayOfInterval, isAfter, isSameDay, startOfDay } from 'date-fns'
+import { add, differenceInDays, eachDayOfInterval, isAfter, isSameDay } from 'date-fns'
 
+import { zonedStartOfDay } from '../../../../i18n/dates'
 import { getRuleDate } from '../../../../rules'
 import CollapsibleSection from '../../../components/CollapsibleSection'
 import DateRange from '../../../components/DateRange'
@@ -326,7 +327,7 @@ function eventClassOptions(event: PartialEvent | undefined, typeClasses: Registr
 function updateClassDates(event: PartialEvent, start: Date, end: Date) {
   const result: EventClass[] = []
   for (const c of event.classes) {
-    const date = startOfDay(add(start, { days: differenceInDays(c.date ?? event.startDate, event.startDate) }))
+    const date = zonedStartOfDay(add(start, { days: differenceInDays(c.date ?? event.startDate, event.startDate) }))
     if (!isAfter(date, end)) {
       result.push({ ...c, date })
     }
