@@ -32,7 +32,7 @@ const readDogResultsFromKlapi = async (klapi: KLAPI, regNo: string): Promise<Jso
   const apiResult = await klapi.lueKoiranKoetulokset({ Rekisterinumero: regNo, Kieli: KLKieli.Suomi })
 
   if (apiResult.status !== 200) {
-    console.error('lueKoiranKoetulokset failed: ', JSON.stringify(apiResult))
+    console.error('lueKoiranKoetulokset failed', JSON.stringify(apiResult))
 
     return []
   }
@@ -83,20 +83,20 @@ const readDogFromKlapi = async (regNo: string, existing?: JsonDog) => {
     // Cache
     dog = {
       ...existing, // keep refined info on refres
-      kcId: json.id,
-      regNo: json.rekisterinumero,
-      name: json.nimi,
-      rfid: json.tunnistusmerkintä,
       breedCode: json.rotukoodi as BreedCode,
       dob: json.syntymäaika,
       gender: GENDER[json.sukupuoli],
-      titles: json.tittelit,
+      kcId: json.id,
+      name: json.nimi,
       refreshDate: new Date().toISOString(),
+      regNo: json.rekisterinumero,
+      rfid: json.tunnistusmerkintä,
+      titles: json.tittelit,
     }
 
     dog.results = await readDogResultsFromKlapi(klapi, dog.regNo)
   } else {
-    console.error('lueKoiranPerustiedot failed: ', status, json, error)
+    console.error('lueKoiranPerustiedot failed', { status, json, error })
   }
 
   return { dog, status, error }

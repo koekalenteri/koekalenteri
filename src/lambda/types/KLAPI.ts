@@ -46,7 +46,7 @@ export type KLKoira = {
   tittelit: string
   syntymäaika: string
   kuollut?: string
-  sukupuoli: string
+  sukupuoli: 'narttu' | 'female' | 'tik' | 'uros' | 'male' | 'hane'
   rotukoodi: string
   rotunimi: string
   väri: string
