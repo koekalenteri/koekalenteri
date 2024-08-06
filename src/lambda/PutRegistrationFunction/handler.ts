@@ -21,6 +21,64 @@ import { response } from '../utils/response'
 const { emailFrom, eventTable, registrationTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(registrationTable)
 
+const getData = async (registration: JsonRegistration) => {
+  const confirmedEvent = await dynamoDB.read<JsonConfirmedEvent>({ id: registration.eventId }, eventTable)
+
+  if (!confirmedEvent) {
+    throw new Error(`Event of type "${registration.eventType}" not found with id "${registration.eventId}"`)
+  }
+
+  const existing = registration.id
+    ? await dynamoDB.read<JsonRegistration>({ eventId: registration.eventId, id: registration.id })
+    : undefined
+
+  if (registration.id && !existing) {
+    throw new Error(`Registration not found with id "${registration.id}"`)
+  }
+
+  return { confirmedEvent, existing }
+}
+
+const isAlreadyRegistered = async (eventId: string, regNo: string): Promise<JsonRegistration | undefined> => {
+  const existingRegistrations = await dynamoDB.query<JsonRegistration>('eventId = :eventId', { ':eventId': eventId })
+  const alreadyRegistered = existingRegistrations?.find((r) => r.dog.regNo === regNo && r.state === 'ready')
+
+  return alreadyRegistered
+}
+
+const getEmailContext = (update: boolean, cancel: boolean, confirm: boolean, invitation: boolean) => {
+  if (cancel) return 'cancel'
+  if (confirm) return 'confirm'
+  if (invitation) return 'invitation'
+  if (update) return 'update'
+  return ''
+}
+
+const getAuditMessage = (
+  cancel: boolean,
+  confirm: boolean,
+  data: JsonRegistration,
+  existing?: JsonRegistration
+): string => {
+  if (cancel) return 'Ilmoittautuminen peruttiin'
+  if (confirm) return 'Ilmoittautumisen vahvistus'
+  if (!existing) return 'Ilmoittautui'
+
+  const t = i18n.getFixedT('fi')
+  const changes: Partial<JsonRegistration> = diff(existing, data)
+  console.debug('Audit changes', changes)
+  const keys = ['class', 'dog', 'breeder', 'owner', 'handler', 'qualifyingResults', 'notes'] as const
+  const modified: string[] = []
+
+  for (const key of keys) {
+    if (changes[key]) {
+      modified.push(t(`registration.${key}`))
+    }
+  }
+
+  return modified.length ? 'Muutti: ' + modified.join(', ') : ''
+}
+
 const putRegistrationHandler = metricScope(
   (metrics: MetricsLogger) =>
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
@@ -29,56 +87,35 @@ const putRegistrationHandler = metricScope(
       const origin = getOrigin(event)
 
       try {
-        let existing
         const registration: JsonRegistration = parseJSONWithFallback(event.body)
-        const update = !!registration.id
-        let cancel = false
-        let invitation = false
-        let confirm = false
-        if (update) {
-          existing = await dynamoDB.read<JsonRegistration>({ eventId: registration.eventId, id: registration.id })
-          if (!existing) {
-            throw new Error(`Registration not found with id "${registration.id}"`)
-          }
-          cancel = !existing.cancelled && !!registration.cancelled
-          confirm = !existing.confirmed && !!registration.confirmed && !existing.cancelled
-          invitation = !existing.invitationRead && !!registration.invitationRead && !existing.cancelled
-        } else {
+        const { confirmedEvent, existing } = await getData(registration)
+
+        if (!existing) {
           registration.id = nanoid(10)
           registration.createdAt = timestamp
           registration.createdBy = username
         }
 
+        const update = !!existing
+        const cancel = !existing?.cancelled && !!registration.cancelled
+        const confirm = !existing?.confirmed && !!registration.confirmed && !existing?.cancelled
+        const invitation = !existing?.invitationRead && !!registration.invitationRead && !existing?.cancelled
+
         // modification info is always updated
         registration.modifiedAt = timestamp
         registration.modifiedBy = username
 
-        const confirmedEvent = await dynamoDB.read<JsonConfirmedEvent>({ id: registration.eventId }, eventTable)
-
-        if (!confirmedEvent) {
-          throw new Error(`Event of type "${registration.eventType}" not found with id "${registration.eventId}"`)
-        }
-
         // Prevent double registrations when trying to insert new registration
-        if (!existing) {
-          const existingRegistrations = await dynamoDB.query<JsonRegistration>('eventId = :eventId', {
-            ':eventId': registration.eventId,
-          })
-
-          const alreadyRegistered = existingRegistrations?.find(
-            (r) => r.dog.regNo === registration.dog.regNo && r.state === 'ready' && r.id !== registration.id
+        const alreadyRegistered = !existing && (await isAlreadyRegistered(registration.eventId, registration.dog.regNo))
+        if (alreadyRegistered) {
+          return response(
+            409,
+            {
+              message: 'Conflict: Dog already registered to this event',
+              cancelled: Boolean(alreadyRegistered.cancelled),
+            },
+            event
           )
-
-          if (alreadyRegistered) {
-            return response(
-              409,
-              {
-                message: 'Conflict: Dog already registered to this event',
-                cancelled: Boolean(alreadyRegistered.cancelled),
-              },
-              event
-            )
-          }
         }
 
         const data: JsonRegistration = { ...existing, ...registration }
@@ -118,38 +155,5 @@ const putRegistrationHandler = metricScope(
       }
     }
 )
-
-function getEmailContext(update: boolean, cancel: boolean, confirm: boolean, invitation: boolean) {
-  if (cancel) return 'cancel'
-  if (confirm) return 'confirm'
-  if (invitation) return 'invitation'
-  if (update) return 'update'
-  return ''
-}
-
-function getAuditMessage(
-  cancel: boolean,
-  confirm: boolean,
-  data: JsonRegistration,
-  existing?: JsonRegistration
-): string {
-  if (cancel) return 'Ilmoittautuminen peruttiin'
-  if (confirm) return 'Ilmoittautumisen vahvistus'
-  if (!existing) return 'Ilmoittautui'
-
-  const t = i18n.getFixedT('fi')
-  const changes: Partial<JsonRegistration> = diff(existing, data)
-  console.debug('Audit changes', changes)
-  const keys = ['class', 'dog', 'breeder', 'owner', 'handler', 'qualifyingResults', 'notes'] as const
-  const modified: string[] = []
-
-  for (const key of keys) {
-    if (changes[key]) {
-      modified.push(t(`registration.${key}`))
-    }
-  }
-
-  return modified.length ? 'Muutti: ' + modified.join(', ') : ''
-}
 
 export default putRegistrationHandler
