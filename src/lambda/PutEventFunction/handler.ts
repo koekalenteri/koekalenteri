@@ -1,7 +1,7 @@
 import type { MetricsLogger } from 'aws-embedded-metrics'
 import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import type { AWSError } from 'aws-sdk'
-import type { JsonConfirmedEvent } from '../../types'
+import type { JsonConfirmedEvent, JsonUser } from '../../types'
 
 import { metricScope } from 'aws-embedded-metrics'
 import { nanoid } from 'nanoid'
@@ -17,6 +17,18 @@ import { response } from '../utils/response'
 
 const dynamoDB = new CustomDynamoClient(CONFIG.eventTable)
 
+const isUserForbidden = (
+  user: JsonUser,
+  existing: JsonConfirmedEvent | undefined,
+  item: JsonConfirmedEvent
+): boolean => {
+  if (user.admin) return false
+  if (existing?.organizer?.id && !user.roles?.[existing.organizer.id]) return true
+  if (item?.organizer?.id && !user.roles?.[item.organizer.id]) return true
+
+  return false
+}
+
 const putEventHandler = metricScope(
   (metrics: MetricsLogger) =>
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
@@ -28,14 +40,14 @@ const putEventHandler = metricScope(
       const timestamp = new Date().toISOString()
 
       try {
-        let existing
         const item: JsonConfirmedEvent = parseJSONWithFallback(event.body)
-        if (item.id) {
-          existing = await dynamoDB.read<JsonConfirmedEvent>({ id: item.id })
-          if (!user.admin && !user.roles?.[existing?.organizer?.id ?? '']) {
-            return response(403, 'Forbidden', event)
-          }
-        } else {
+        const existing = item.id ? await dynamoDB.read<JsonConfirmedEvent>({ id: item.id }) : undefined
+
+        if (isUserForbidden(user, existing, item)) {
+          return response(403, 'Forbidden', event)
+        }
+
+        if (!existing) {
           item.id = nanoid(10)
           item.createdAt = timestamp
           item.createdBy = user.name
@@ -58,9 +70,6 @@ const putEventHandler = metricScope(
         item.modifiedBy = user.name
 
         const data = { ...existing, ...item }
-        if (!user.admin && !user.roles?.[data.organizer?.id ?? '']) {
-          return response(403, 'Forbidden', event)
-        }
         await dynamoDB.write(data)
 
         if (existing && existing.entries !== data.entries) {
