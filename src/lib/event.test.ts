@@ -90,23 +90,25 @@ describe('lib/event', () => {
       }
     )
 
-    describe('applyNewGroupsToDogEventClass should apply defaults to other classes without groups', () => {
-      const classes: EventClass[] = [
-        { class: 'ALO', date },
-        { class: 'AVO', date, groups: ['ip'] },
-        { class: 'VOI', date, groups: ['kp'] },
-        { class: 'VOI', date: date2, groups: [] },
-      ]
-      expect(
-        applyNewGroupsToDogEventClass({ classes }, 'VOI', defaultGroups, [{ date, time: 'ap' }, { date: date2 }])
-      ).toEqual({
-        classes: [
-          { class: 'ALO', date, groups: defaultGroups },
+    describe('applyNewGroupsToDogEventClass', () => {
+      it('should apply defaults to other classes without groups', () => {
+        const classes: EventClass[] = [
+          { class: 'ALO', date },
           { class: 'AVO', date, groups: ['ip'] },
-          { class: 'VOI', date, groups: ['ap'] },
-          { class: 'VOI', date: date2, groups: [...defaultGroups] },
-        ],
-        dates: undefined,
+          { class: 'VOI', date, groups: ['kp'] },
+          { class: 'VOI', date: date2, groups: [] },
+        ]
+        expect(
+          applyNewGroupsToDogEventClass({ classes }, 'VOI', defaultGroups, [{ date, time: 'ap' }, { date: date2 }])
+        ).toEqual({
+          classes: [
+            { class: 'ALO', date, groups: defaultGroups },
+            { class: 'AVO', date, groups: ['ip'] },
+            { class: 'VOI', date, groups: ['ap'] },
+            { class: 'VOI', date: date2, groups: [...defaultGroups] },
+          ],
+          dates: undefined,
+        })
       })
     })
 
