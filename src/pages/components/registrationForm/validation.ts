@@ -261,20 +261,13 @@ function checkRequiredResults(
   }
 
   for (const resultRules of requirements.rules) {
-    for (const result of officialResults) {
-      asArray(resultRules).forEach((resultRule) => checkResult(result, resultRule, true))
-    }
-    if (qualifies) break
-    counts.clear()
-  }
-
-  if (!qualifies) {
-    for (const resultRules of requirements.rules) {
-      for (const result of manualResults) {
-        asArray(resultRules).forEach((resultRule) => checkResult(result, resultRule, false))
+    for (const rule of asArray(resultRules)) {
+      for (const result of officialResults) {
+        checkResult(result, rule, true)
       }
-      if (qualifies) break
-      counts.clear()
+      for (const result of manualResults) {
+        checkResult(result, rule, false)
+      }
     }
   }
 

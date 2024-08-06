@@ -1,4 +1,4 @@
-import type { BreedCode, Person } from '../../../types'
+import type { BreedCode, ManualTestResult, Person } from '../../../types'
 
 import {
   filterRelevantResults,
@@ -206,7 +206,7 @@ describe('validateDog', () => {
     ).toEqual(false)
   })
 
-  describe('results', function () {
+  describe('filterRelevantResults', function () {
     describe('NOU', function () {
       it('Should allow a dog with no results', function () {
         expect(
@@ -404,6 +404,7 @@ describe('validateDog', () => {
           judge: 'Test Judge',
         }
         expect(filterRelevantResults(testEvent, 'AVO', [ALO2, ALO1]).qualifies).toEqual(false)
+        expect(filterRelevantResults(testEvent, 'AVO', [ALO2], [ALO1 as ManualTestResult]).qualifies).toEqual(false)
       })
 
       it('Should allow a dog with 2xAVO1 the same year 2016..2022', function () {
@@ -556,6 +557,7 @@ describe('validateDog', () => {
           judge: 'Test Judge',
         }
         expect(filterRelevantResults(testEvent, 'VOI', [AVO1_1, AVO1_2]).qualifies).toEqual(true)
+        expect(filterRelevantResults(testEvent, 'VOI', [AVO1_1], [AVO1_2 as ManualTestResult]).qualifies).toEqual(true)
       })
 
       it('Should reject a dog with only 1xAVO1 2016..2022', function () {
@@ -577,6 +579,7 @@ describe('validateDog', () => {
           judge: 'Test Judge',
         }
         expect(filterRelevantResults(testEvent, 'VOI', [AVO2, AVO1]).qualifies).toEqual(false)
+        expect(filterRelevantResults(testEvent, 'VOI', [AVO2], [AVO1 as ManualTestResult]).qualifies).toEqual(false)
       })
 
       it('Should allow a dog with 1xAVO1 2006..2008', function () {
@@ -598,6 +601,7 @@ describe('validateDog', () => {
           judge: 'Test Judge',
         }
         expect(filterRelevantResults(testEvent, 'VOI', [AVO2, AVO1]).qualifies).toEqual(true)
+        expect(filterRelevantResults(testEvent, 'VOI', [AVO2], [AVO1 as ManualTestResult]).qualifies).toEqual(true)
       })
     })
 
@@ -613,6 +617,7 @@ describe('validateDog', () => {
           judge: 'Test Judge',
         }
         expect(filterRelevantResults(testEvent, 'ALO', [NOU1]).qualifies).toEqual(true)
+        expect(filterRelevantResults(testEvent, 'ALO', [], [NOU1 as ManualTestResult]).qualifies).toEqual(true)
       })
 
       it('Should reject a dog with NOU0', function () {
@@ -626,6 +631,7 @@ describe('validateDog', () => {
           judge: 'Test Judge',
         }
         expect(filterRelevantResults(testEvent, 'ALO', [NOU0]).qualifies).toEqual(false)
+        expect(filterRelevantResults(testEvent, 'ALO', [], [NOU0 as ManualTestResult]).qualifies).toEqual(false)
       })
 
       it('Should allow a dog with ALO1 the same year 2016..2022', function () {
@@ -647,6 +653,7 @@ describe('validateDog', () => {
           judge: 'Test Judge',
         }
         expect(filterRelevantResults(testEvent, 'ALO', [NOU1, ALO1]).qualifies).toEqual(true)
+        expect(filterRelevantResults(testEvent, 'ALO', [NOU1], [ALO1 as ManualTestResult]).qualifies).toEqual(true)
       })
 
       it('Should reject a dog with ALO1 the next year 2016..2022', function () {
@@ -668,6 +675,7 @@ describe('validateDog', () => {
           judge: 'Test Judge',
         }
         expect(filterRelevantResults(testEvent, 'ALO', [NOU1, ALO1]).qualifies).toEqual(false)
+        expect(filterRelevantResults(testEvent, 'ALO', [NOU1], [ALO1 as ManualTestResult]).qualifies).toEqual(false)
       })
 
       it('Should reject a dog with any AVO result', function () {
@@ -689,6 +697,7 @@ describe('validateDog', () => {
           judge: 'Test Judge',
         }
         expect(filterRelevantResults(testEvent, 'ALO', [NOU1, AVO0]).qualifies).toEqual(false)
+        expect(filterRelevantResults(testEvent, 'ALO', [NOU1], [AVO0 as ManualTestResult]).qualifies).toEqual(false)
       })
     })
 
@@ -712,6 +721,7 @@ describe('validateDog', () => {
           judge: 'Test Judge',
         }
         expect(filterRelevantResults(testEvent, 'AVO', [ALO1_1, ALO1_2]).qualifies).toEqual(true)
+        expect(filterRelevantResults(testEvent, 'AVO', [ALO1_1], [ALO1_2 as ManualTestResult]).qualifies).toEqual(true)
       })
 
       it('Should reject a dog with no ALO1', function () {
@@ -725,6 +735,7 @@ describe('validateDog', () => {
           judge: 'Test Judge',
         }
         expect(filterRelevantResults(testEvent, 'AVO', [ALO2]).qualifies).toEqual(false)
+        expect(filterRelevantResults(testEvent, 'AVO', [], [ALO2 as ManualTestResult]).qualifies).toEqual(false)
       })
 
       it('Should allow a dog with AVO1 the same year', function () {
