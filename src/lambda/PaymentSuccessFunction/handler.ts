@@ -21,6 +21,76 @@ import { response } from '../utils/response'
 const { frontendURL, emailFrom, eventTable, registrationTable, transactionTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(transactionTable)
 
+const handleSuccessfulPayment = async (
+  eventId: string,
+  registrationId: string,
+  params: Partial<PaytrailCallbackParams>,
+  transaction: JsonTransaction,
+  provider: string | undefined
+) => {
+  const registration = await dynamoDB.read<JsonRegistration>(
+    {
+      eventId: eventId,
+      id: registrationId,
+    },
+    registrationTable
+  )
+  if (!registration) throw new Error('registration not found')
+  const t = i18n.getFixedT(registration.language)
+  const amount = parseInt(params['checkout-amount'] ?? '0') / 100
+
+  await dynamoDB.update(
+    { eventId, id: registrationId },
+    'set #paidAmount = :paidAmount, #paidAt = :paidAt, #paymentStatus = :paymentStatus, #state = :state',
+    {
+      '#paidAmount': 'paidAmount',
+      '#paidAt': 'paidAt',
+      '#paymentStatus': 'paymentStatus',
+      '#state': 'state',
+    },
+    {
+      ':paidAmount': (registration.paidAmount ?? 0) + amount,
+      ':paidAt': new Date().toISOString(),
+      ':paymentStatus': 'SUCCESS',
+      ':state': 'ready',
+    },
+    registrationTable
+  )
+
+  registration.paidAmount = (registration.paidAmount ?? 0) + amount
+  registration.paidAt = new Date().toISOString()
+  registration.paymentStatus = 'SUCCESS'
+  registration.state = 'ready'
+
+  const confirmedEvent = await updateRegistrations(registration.eventId, eventTable)
+
+  // send receipt
+  try {
+    const receiptTo = [registration.payer.email]
+    const receiptData = registrationEmailTemplateData(registration, confirmedEvent, frontendURL, 'receipt')
+    await sendTemplatedMail('receipt', registration.language, emailFrom, receiptTo, {
+      ...receiptData,
+      ...transaction,
+      createdAt: t('dateFormat.long', { date: transaction.createdAt }),
+      amount: formatMoney(amount),
+    })
+  } catch (e) {
+    // this is not fatal
+    console.error('failed to send receipt', e)
+  }
+
+  audit({
+    auditKey: registrationAuditKey(registration),
+    message: `Maksu (${getProviderName(provider)}), ${formatMoney(amount)}`,
+    user: transaction.user ?? 'anonymous',
+  })
+
+  // send confirmation message
+  const to = emailTo(registration)
+  const data = registrationEmailTemplateData(registration, confirmedEvent, frontendURL, '')
+  await sendTemplatedMail('registration', registration.language, emailFrom, to, data)
+}
+
 /**
  * paymentSuccess is called by payment provider, to update successful payment status
  */
@@ -45,67 +115,7 @@ const paymentSuccess = metricScope(
           await updateTransactionStatus(transactionId, status, provider)
 
           if (status === 'ok') {
-            const registration = await dynamoDB.read<JsonRegistration>(
-              {
-                eventId: eventId,
-                id: registrationId,
-              },
-              registrationTable
-            )
-            if (!registration) throw new Error('registration not found')
-            const t = i18n.getFixedT(registration.language)
-            const amount = parseInt(params['checkout-amount'] ?? '0') / 100
-
-            await dynamoDB.update(
-              { eventId, id: registrationId },
-              'set #paidAmount = :paidAmount, #paidAt = :paidAt, #paymentStatus = :paymentStatus, #state = :state',
-              {
-                '#paidAmount': 'paidAmount',
-                '#paidAt': 'paidAt',
-                '#paymentStatus': 'paymentStatus',
-                '#state': 'state',
-              },
-              {
-                ':paidAmount': (registration.paidAmount ?? 0) + amount,
-                ':paidAt': new Date().toISOString(),
-                ':paymentStatus': 'SUCCESS',
-                ':state': 'ready',
-              },
-              registrationTable
-            )
-
-            registration.paidAmount = (registration.paidAmount ?? 0) + amount
-            registration.paidAt = new Date().toISOString()
-            registration.paymentStatus = 'SUCCESS'
-            registration.state = 'ready'
-
-            const confirmedEvent = await updateRegistrations(registration.eventId, eventTable)
-
-            // send receipt
-            try {
-              const receiptTo = [registration.payer.email]
-              const receiptData = registrationEmailTemplateData(registration, confirmedEvent, frontendURL, 'receipt')
-              await sendTemplatedMail('receipt', registration.language, emailFrom, receiptTo, {
-                ...receiptData,
-                ...transaction,
-                createdAt: t('dateFormat.long', { date: transaction.createdAt }),
-                amount: formatMoney(amount),
-              })
-            } catch (e) {
-              // this is not fatal
-              console.error('failed to send receipt', e)
-            }
-
-            audit({
-              auditKey: registrationAuditKey(registration),
-              message: `Maksu (${getProviderName(provider)}), ${formatMoney(amount)}`,
-              user: transaction.user ?? 'anonymous',
-            })
-
-            // send confirmation message
-            const to = emailTo(registration)
-            const data = registrationEmailTemplateData(registration, confirmedEvent, frontendURL, '')
-            await sendTemplatedMail('registration', registration.language, emailFrom, to, data)
+            await handleSuccessfulPayment(eventId, registrationId, params, transaction, provider)
           }
         }
 
