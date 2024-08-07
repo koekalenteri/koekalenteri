@@ -53,6 +53,7 @@ const refreshEventTypes = async (user: JsonUser) => {
   const insert = eventTypes.filter((et) => !existing?.find((ex) => ex.id === et.id))
 
   if (insert.length) {
+    console.log('existing eventTypes', existing)
     console.log('new eventTypes', insert)
     await dynamoDB.batchWrite(insert)
   }
