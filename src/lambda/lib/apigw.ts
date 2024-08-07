@@ -10,6 +10,18 @@ import { debugProxyEvent } from './log'
 
 export type LambdaHandler = (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult>
 
+export class LambdaError extends Error {
+  status: number
+  error: string | undefined
+
+  constructor(status: number, error: string | undefined) {
+    const message = `${status} ${error}`
+    super(message)
+    this.status = status
+    this.error = error
+  }
+}
+
 export const getParam = (
   event: Partial<Pick<APIGatewayProxyEvent, 'pathParameters'>>,
   name: string,
@@ -40,10 +52,17 @@ export const lambda = (service: string, handler: LambdaHandler) =>
       return result
     } catch (err) {
       console.error(err)
+
+      metricsError(metrics, event.requestContext, service)
+
+      if (err instanceof LambdaError) {
+        return response(err.status, { error: err.error }, event)
+      }
+
       if (err instanceof Error) {
         console.error(err.message)
       }
-      metricsError(metrics, event.requestContext, service)
+
       return response((err as AWSError).statusCode ?? 501, err, event)
     }
   })
