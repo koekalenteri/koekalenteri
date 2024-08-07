@@ -52,7 +52,6 @@ const refreshEventTypes = async (user: JsonUser) => {
   const insert = eventTypes.filter((et) => !existing?.find((ex) => ex.eventType === et.eventType))
 
   if (insert.length) {
-    console.log('existing eventTypes', existing)
     console.log('new eventTypes', insert)
     await dynamoDB.batchWrite(insert)
   }
@@ -70,8 +69,8 @@ const refreshEventTypes = async (user: JsonUser) => {
       'set #description = :description, #modifiedAt = :modifiedAt, #modifiedBy = :modifiedBy',
       {
         '#description': 'description',
-        '#modifiedAt': 'description',
-        '#modifiedBy': 'description',
+        '#modifiedAt': 'modifiedAt',
+        '#modifiedBy': 'modifiedBy',
       },
       {
         ':description': updated.description,
@@ -89,6 +88,9 @@ const getEventTypesLambda = lambda('getEventTypes', async (event) => {
   }
 
   if (event.queryStringParameters && 'refresh' in event.queryStringParameters) {
+    if (!user?.admin) {
+      return response(401, 'Unauthorized', event)
+    }
     await refreshEventTypes(user)
   }
 
