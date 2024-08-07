@@ -4,10 +4,10 @@ import type { AWSError } from 'aws-sdk'
 import type { JsonDogEvent } from '../../types'
 
 import { metricScope } from 'aws-embedded-metrics'
-import { unescape } from 'querystring'
 
 import { sanitizeDogEvent } from '../../lib/event'
 import { CONFIG } from '../config'
+import { getParam } from '../lib/apigw'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { metricsError, metricsSuccess } from '../utils/metrics'
 import { response } from '../utils/response'
@@ -18,7 +18,7 @@ const getEventHandler = metricScope(
   (metrics: MetricsLogger) =>
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
       try {
-        const id = unescape(event.pathParameters?.id ?? '')
+        const id = getParam(event, 'id')
         const item = await dynamoDB.read<JsonDogEvent>({ id })
         const publicEvent = item && sanitizeDogEvent(item)
 

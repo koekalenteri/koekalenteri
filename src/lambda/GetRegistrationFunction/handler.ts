@@ -4,9 +4,9 @@ import type { AWSError } from 'aws-sdk'
 import type { JsonDogEvent, JsonRegistration } from '../../types'
 
 import { metricScope } from 'aws-embedded-metrics'
-import { unescape } from 'querystring'
 
 import { CONFIG } from '../config'
+import { getParam } from '../lib/apigw'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { metricsError, metricsSuccess } from '../utils/metrics'
 import { response } from '../utils/response'
@@ -17,8 +17,8 @@ const getRegistrationHandler = metricScope(
   (metrics: MetricsLogger) =>
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
       try {
-        const eventId = unescape(event.pathParameters?.eventId ?? '')
-        const id = unescape(event.pathParameters?.id ?? '')
+        const eventId = getParam(event, 'eventId')
+        const id = getParam(event, 'id')
         if (!eventId || !id) {
           metricsError(metrics, event.requestContext, 'getRegistration')
           return response(404, 'not found', event)

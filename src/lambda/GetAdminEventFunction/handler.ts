@@ -4,9 +4,9 @@ import type { AWSError } from 'aws-sdk'
 import type { JsonDogEvent } from '../../types'
 
 import { metricScope } from 'aws-embedded-metrics'
-import { unescape } from 'querystring'
 
 import { CONFIG } from '../config'
+import { getParam } from '../lib/apigw'
 import { authorizeWithMemberOf } from '../lib/auth'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { metricsError, metricsSuccess } from '../utils/metrics'
@@ -22,7 +22,7 @@ const getAdminEventHandler = metricScope(
 
         if (res) return res
 
-        const id = unescape(event.pathParameters?.id ?? '')
+        const id = getParam(event, 'id')
         const item = await dynamoDB.read<JsonDogEvent>({ id })
 
         const allowed = user.admin ? item : item && memberOf.includes(item.organizer.id)

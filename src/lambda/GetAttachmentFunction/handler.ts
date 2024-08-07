@@ -3,8 +3,8 @@ import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import type { AWSError } from 'aws-sdk'
 
 import { metricScope } from 'aws-embedded-metrics'
-import { unescape } from 'querystring'
 
+import { getParam } from '../lib/apigw'
 import { downloadFile } from '../lib/file'
 import { metricsError, metricsSuccess } from '../utils/metrics'
 import { allowOrigin, response } from '../utils/response'
@@ -13,16 +13,14 @@ const getAttachmentHandler = metricScope(
   (metrics: MetricsLogger) =>
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
       try {
-        const data = await downloadFile(unescape(event.pathParameters?.key ?? ''))
+        const data = await downloadFile(getParam(event, 'key'))
 
         if (!data.Body) {
           metricsError(metrics, event.requestContext, 'getAttachment')
           return response(404, 'not found', event)
         }
         const dl = event.queryStringParameters && 'dl' in event.queryStringParameters
-        const disposition = dl
-          ? `attachment; filename="${unescape(event.pathParameters?.name ?? 'kutsu.pdf')}"`
-          : 'inline'
+        const disposition = dl ? `attachment; filename="${getParam(event, 'name', 'kutsu.pdf')}"` : 'inline'
 
         metricsSuccess(metrics, event.requestContext, 'getAttachment')
         return {

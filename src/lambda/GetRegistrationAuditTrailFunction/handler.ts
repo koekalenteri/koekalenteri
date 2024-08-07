@@ -3,8 +3,8 @@ import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import type { AWSError } from 'aws-sdk'
 
 import { metricScope } from 'aws-embedded-metrics'
-import { unescape } from 'querystring'
 
+import { getParam } from '../lib/apigw'
 import { auditTrail } from '../lib/audit'
 import { authorize } from '../lib/auth'
 import { metricsError, metricsSuccess } from '../utils/metrics'
@@ -18,8 +18,8 @@ const getAuditTrailHandler = metricScope(
         if (!user) {
           return response(401, 'Unauthorized', event)
         }
-        const eventId = unescape(event.pathParameters?.eventId ?? '')
-        const id = unescape(event.pathParameters?.id ?? '')
+        const eventId = getParam(event, 'eventId')
+        const id = getParam(event, 'id')
         const trail = await auditTrail(`${eventId}:${id}`)
         metricsSuccess(metrics, event.requestContext, 'getAuditTrail')
         return response(200, trail, event)

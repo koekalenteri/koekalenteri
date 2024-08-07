@@ -3,8 +3,8 @@ import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import type { AWSError } from 'aws-sdk'
 
 import { metricScope } from 'aws-embedded-metrics'
-import { unescape } from 'querystring'
 
+import { getParam } from '../lib/apigw'
 import { authorize } from '../lib/auth'
 import { getTransactionsByReference } from '../lib/payment'
 import { metricsError, metricsSuccess } from '../utils/metrics'
@@ -18,8 +18,8 @@ const getRegistrationTransactions = metricScope(
         if (!user) {
           return response(401, 'Unauthorized', event)
         }
-        const eventId = unescape(event.pathParameters?.eventId ?? '')
-        const id = unescape(event.pathParameters?.id ?? '')
+        const eventId = getParam(event, 'eventId')
+        const id = getParam(event, 'id')
         const reference = `${eventId}:${id}`
         const transactions = await getTransactionsByReference(reference)
 

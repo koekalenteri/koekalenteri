@@ -5,9 +5,9 @@ import type { BreedCode, JsonDog, JsonTestResult } from '../../types'
 
 import { metricScope } from 'aws-embedded-metrics'
 import { differenceInMinutes } from 'date-fns'
-import { unescape } from 'querystring'
 
 import { CONFIG } from '../config'
+import { getParam } from '../lib/apigw'
 import KLAPI from '../lib/KLAPI'
 import { getKLAPIConfig } from '../lib/secrets'
 import { KLKieli } from '../types/KLAPI'
@@ -106,7 +106,7 @@ const getDogHandler = metricScope(
   (metrics: MetricsLogger) =>
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
       try {
-        const regNo = unescape(event.pathParameters?.regNo?.replace('~', '/') ?? '')
+        const regNo = getParam(event, 'regNo').replace('~', '/')
 
         let item = await dynamoDB.read<JsonDog>({ regNo })
 

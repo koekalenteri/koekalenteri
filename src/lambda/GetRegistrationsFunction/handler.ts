@@ -4,9 +4,9 @@ import type { AWSError } from 'aws-sdk'
 import type { JsonRegistration } from '../../types'
 
 import { metricScope } from 'aws-embedded-metrics'
-import { unescape } from 'querystring'
 
 import { CONFIG } from '../config'
+import { getParam } from '../lib/apigw'
 import { authorize } from '../lib/auth'
 import { fixRegistrationGroups } from '../lib/event'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
@@ -24,7 +24,7 @@ const getRegistrationsHandler = metricScope(
           return response(401, 'Unauthorized', event)
         }
 
-        const eventId = unescape(event.pathParameters?.eventId ?? '')
+        const eventId = getParam(event, 'eventId')
         const allItems = await dynamoDB.query<JsonRegistration>('eventId = :eventId', {
           ':eventId': eventId,
         })
