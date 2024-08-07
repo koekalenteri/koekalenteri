@@ -12,6 +12,7 @@ import Alert from '@mui/material/Alert'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import CircularProgress from '@mui/material/CircularProgress'
+import DialogContent from '@mui/material/DialogContent'
 import Divider from '@mui/material/Divider'
 import Grid from '@mui/material/Grid'
 import Modal from '@mui/material/Modal'
@@ -217,7 +218,9 @@ export default function EventViewPage() {
       <Suspense
         fallback={
           <Modal open>
-            <LoadingIndicator />
+            <DialogContent>
+              <LoadingIndicator />
+            </DialogContent>
           </Modal>
         }
       >
