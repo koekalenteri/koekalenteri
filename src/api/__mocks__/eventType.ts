@@ -2,7 +2,6 @@ import type { JsonEventType } from '../../types'
 
 const mockEventTypes: JsonEventType[] = [
   {
-    id: 'asdf',
     createdAt: '',
     createdBy: '',
     modifiedAt: '',

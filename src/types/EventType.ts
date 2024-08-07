@@ -1,6 +1,6 @@
 import type { DbRecord, JsonDbRecord } from './Database'
 
-export interface EventType extends DbRecord {
+export interface EventType extends Omit<DbRecord, 'id'> {
   eventType: string
   description: {
     fi: string
@@ -13,4 +13,4 @@ export interface EventType extends DbRecord {
 
 export type EventTypeData = Omit<EventType, keyof DbRecord>
 
-export type JsonEventType = EventTypeData & JsonDbRecord
+export type JsonEventType = EventTypeData & Omit<JsonDbRecord, 'id'>

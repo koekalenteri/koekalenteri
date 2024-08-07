@@ -28,7 +28,6 @@ const getEventTypesFromKlapi = async (user: JsonUser) => {
     for (const item of json) {
       const prev = eventTypes.find((et) => et.eventType === item.lyhenne)
       const eventType: JsonEventType = prev ?? {
-        id: item.lyhenne,
         createdAt: timestamp,
         createdBy: user.name,
         modifiedAt: timestamp,
@@ -50,7 +49,7 @@ const refreshEventTypes = async (user: JsonUser) => {
   const existing = await dynamoDB.readAll<JsonEventType>()
   const eventTypes = await getEventTypesFromKlapi(user)
 
-  const insert = eventTypes.filter((et) => !existing?.find((ex) => ex.id === et.id))
+  const insert = eventTypes.filter((et) => !existing?.find((ex) => ex.eventType === et.eventType))
 
   if (insert.length) {
     console.log('existing eventTypes', existing)
@@ -59,13 +58,13 @@ const refreshEventTypes = async (user: JsonUser) => {
   }
 
   const updates = eventTypes.filter((et) => {
-    const ex = existing?.find((ex) => ex.id === et.id)
+    const ex = existing?.find((ex) => ex.eventType === et.eventType)
     return ex && Object.keys(diff(ex.description, et.description)).length > 0
   })
 
   for (const updated of updates) {
-    const ex = existing?.find((ex) => ex.id === updated.id)
-    console.log(`description changed for ${updated.id}`, ex?.description, updated.description)
+    const ex = existing?.find((ex) => ex.eventType === updated.eventType)
+    console.log(`description changed for ${updated.eventType}`, ex?.description, updated.description)
     await dynamoDB.update(
       { eventType: updated.eventType },
       'set #description = :description, #modifiedAt = :modifiedAt, #modifiedBy = :modifiedBy',

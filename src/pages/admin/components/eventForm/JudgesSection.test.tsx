@@ -138,7 +138,6 @@ describe('JudgeSection', () => {
       },
       createdAt: new Date(),
       modifiedAt: new Date(),
-      id: 'NOWT',
       createdBy: '',
       modifiedBy: '',
     }

@@ -10,10 +10,11 @@ const { stageName } = CONFIG
 
 export const getApiHost = (event: APIGatewayProxyEvent) => `${event.headers.Host ?? ''}/${stageName}`
 
-export const createDbRecord = <T extends JsonDbRecord>(
+export const createDbRecord = <T extends Partial<JsonDbRecord>>(
   event: APIGatewayProxyEvent,
   timestamp: string,
-  username: string
+  username: string,
+  addId: boolean = false
 ): T => {
   const baseRecord: Partial<JsonDbRecord> = {
     createdAt: timestamp,
@@ -25,7 +26,7 @@ export const createDbRecord = <T extends JsonDbRecord>(
     modifiedAt: timestamp,
     modifiedBy: username,
   }
-  if (!item.id) {
+  if (!item.id && addId) {
     item.id = nanoid(10)
   }
 
