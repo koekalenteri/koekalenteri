@@ -1,9 +1,8 @@
 import type { JsonConfirmedEvent, JsonRegistration } from '../../types'
 
-import { diff } from 'deep-object-diff'
 import { nanoid } from 'nanoid'
 
-import { i18n } from '../../i18n/lambda'
+import { getRegistrationChanges } from '../../lib/registration'
 import { CONFIG } from '../config'
 import { audit, registrationAuditKey } from '../lib/audit'
 import { getOrigin, getUsername } from '../lib/auth'
@@ -50,19 +49,7 @@ const getAuditMessage = (
   if (confirm) return 'Ilmoittautumisen vahvistus'
   if (!existing) return 'Ilmoittautui'
 
-  const t = i18n.getFixedT('fi')
-  const changes: Partial<JsonRegistration> = diff(existing, data)
-  console.debug('Audit changes', changes)
-  const keys = ['class', 'dog', 'breeder', 'owner', 'handler', 'qualifyingResults', 'notes'] as const
-  const modified: string[] = []
-
-  for (const key of keys) {
-    if (changes[key]) {
-      modified.push(t(`registration.${key}`))
-    }
-  }
-
-  return modified.length ? 'Muutti: ' + modified.join(', ') : ''
+  return getRegistrationChanges(existing, data)
 }
 
 const putRegistrationLambda = lambda('putRegistration', async (event) => {
