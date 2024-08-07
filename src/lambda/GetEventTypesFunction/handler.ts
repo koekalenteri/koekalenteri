@@ -27,7 +27,7 @@ const getEventTypesFromKlapi = async (user: JsonUser) => {
     }
     for (const item of json) {
       const prev = eventTypes.find((et) => et.eventType === item.lyhenne)
-      const eventType: JsonEventType = prev || {
+      const eventType: JsonEventType = prev ?? {
         id: item.lyhenne,
         createdAt: timestamp,
         createdBy: user.name,
