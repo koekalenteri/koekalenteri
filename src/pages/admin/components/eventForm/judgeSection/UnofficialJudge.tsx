@@ -10,8 +10,8 @@ import TextField from '@mui/material/TextField'
 
 import { countries } from '../../../../../lib/countries'
 import AutocompleteSingle from '../../../../components/AutocompleteSingle'
-import EventClasses from '../components/EventClasses'
 
+import JudgeClasses from './JudgeClasses'
 import { filterClassesByJudgeId, hasJudge, updateJudge } from './utils'
 
 interface Props extends Pick<SectionProps, 'event' | 'disabled' | 'onChange'> {
@@ -42,22 +42,7 @@ export const UnofficialJudge = ({ event, judge, index, selectedEventType, disabl
           }}
         />
       </Grid>
-      <Grid item sx={{ width: 300 }} display={event.eventType === 'NOWT' ? 'NONE' : undefined}>
-        <EventClasses
-          id={`class${index}`}
-          disabled={disabled}
-          eventStartDate={event.startDate}
-          eventEndDate={event.endDate}
-          value={filterClassesByJudgeId(event.classes, judge.id)}
-          classes={[...event.classes]}
-          label="Arvostelee luokat"
-          onChange={(_e, values) =>
-            onChange?.({
-              classes: updateJudge(event, judge.id, judge, [...values]),
-            })
-          }
-        />
-      </Grid>
+      <JudgeClasses disabled={disabled} event={event} index={index} judge={judge} onChange={onChange} />
       <Grid item sx={{ width: 200 }}>
         <AutocompleteSingle
           options={countries}
