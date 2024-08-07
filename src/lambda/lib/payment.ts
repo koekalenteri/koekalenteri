@@ -18,14 +18,15 @@ import { getPaytrailConfig } from './secrets'
 const { transactionTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(transactionTable)
 
-export const parseParams = (headers: Partial<PaytrailCallbackParams>) => {
-  const [eventId, registrationId] = headers['checkout-reference']?.split(':') ?? []
+export const parseParams = (params: Partial<PaytrailCallbackParams>) => {
+  const [eventId, registrationId] = params['checkout-reference']?.split(':') ?? []
 
   return {
     eventId,
     registrationId,
-    transactionId: headers['checkout-transaction-id'],
-    status: headers['checkout-status'],
+    transactionId: params['checkout-transaction-id'],
+    status: params['checkout-status'],
+    provider: params['checkout-provider'],
   }
 }
 
@@ -47,11 +48,11 @@ export const verifyParams = async (params: Partial<PaytrailCallbackParams>) => {
 }
 
 export const updateTransactionStatus = async (
-  transactionId: string | undefined,
-  status: JsonTransaction['status'],
+  transaction: JsonTransaction | undefined,
+  status: JsonTransaction['status'] | undefined,
   provider?: string
-) => {
-  if (!transactionId) return
+): Promise<boolean> => {
+  if (!transaction || !status) return false
 
   const expression = provider
     ? 'set #status = :status, #statusAt = :statusAt, #provider = :provider'
@@ -72,7 +73,14 @@ export const updateTransactionStatus = async (
     values[':provider'] = provider
   }
 
-  dynamoDB.update({ transactionId }, expression, names, values, transactionTable)
+  if (transaction.statusAt && transaction.status === status && (!provider || transaction.provider === provider)) {
+    console.log('skipping no-op transaction status/provider update')
+    return false
+  }
+
+  await dynamoDB.update({ transactionId: transaction.transactionId }, expression, names, values, transactionTable)
+
+  return true
 }
 
 export const paymentDescription = (

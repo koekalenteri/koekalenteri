@@ -1,5 +1,6 @@
 import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import type { AWSError } from 'aws-sdk'
+import type { JsonUser } from '../../types'
 
 import { metricScope } from 'aws-embedded-metrics'
 
@@ -9,6 +10,7 @@ import { response } from '../utils/response'
 import { debugProxyEvent } from './log'
 
 export type LambdaHandler = (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult>
+export type AdminLambdaHandler = (event: APIGatewayProxyEvent, user: JsonUser) => Promise<APIGatewayProxyResult>
 
 export class LambdaError extends Error {
   status: number
@@ -57,10 +59,6 @@ export const lambda = (service: string, handler: LambdaHandler) =>
 
       if (err instanceof LambdaError) {
         return response(err.status, { error: err.error }, event)
-      }
-
-      if (err instanceof Error) {
-        console.error(err.message)
       }
 
       return response((err as AWSError).statusCode ?? 501, err, event)

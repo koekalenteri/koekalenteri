@@ -5,7 +5,7 @@ import { constructAPIGwEvent } from '../test-utils/helpers'
 import { debugProxyEvent } from './log'
 
 const errorSpy = jest.spyOn(console, 'error')
-const logSpy = jest.spyOn(console, 'log')
+const debugSpy = jest.spyOn(console, 'debug')
 
 describe('log', () => {
   afterEach(() => jest.resetAllMocks())
@@ -13,7 +13,7 @@ describe('log', () => {
   describe('debugProxyEvent', () => {
     it('should not throw errors', () => {
       errorSpy.mockImplementationOnce(() => undefined)
-      logSpy.mockImplementationOnce(() => {
+      debugSpy.mockImplementationOnce(() => {
         throw new Error('test error')
       })
 
@@ -26,11 +26,9 @@ describe('log', () => {
 
       debugProxyEvent(evt)
 
-      expect(logSpy).toHaveBeenCalledWith('event.headers', {})
-      expect(logSpy).toHaveBeenCalledWith('event.queryStringParameters', {})
-      expect(logSpy).toHaveBeenCalledWith('event.multivalueHeaders', {})
-      expect(logSpy).toHaveBeenCalledWith('event.multiValueQueryStringParameters', {})
-      expect(logSpy).toHaveBeenCalledWith('event.body', '"message"')
+      expect(debugSpy).toHaveBeenCalledWith('event.headers', {})
+      expect(debugSpy).toHaveBeenCalledWith('event.queryStringParameters', {})
+      expect(debugSpy).toHaveBeenCalledWith('event.body', '"message"')
       expect(errorSpy).not.toHaveBeenCalled()
     })
   })

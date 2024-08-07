@@ -2,7 +2,6 @@ import type {
   JsonConfirmedEvent,
   JsonPaymentTransaction,
   JsonRefundTransaction,
-  JsonRegistration,
   Organizer,
   RefundPaymentResponse,
 } from '../../types'
@@ -13,11 +12,13 @@ import { nanoid } from 'nanoid'
 import { formatMoney } from '../../lib/money'
 import { getProviderName } from '../../lib/payment'
 import { CONFIG } from '../config'
-import { lambda, LambdaError } from '../lib/apigw'
 import { audit, registrationAuditKey } from '../lib/audit'
 import { authorize } from '../lib/auth'
+import { getEvent } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
+import { lambda, LambdaError } from '../lib/lambda'
 import { refundPayment } from '../lib/paytrail'
+import { getRegistration } from '../lib/registration'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { getApiHost } from '../utils/proxyEvent'
 import { response } from '../utils/response'
@@ -34,21 +35,8 @@ const getData = async (transactionId: string) => {
 
   const [eventId, registrationId] = paymentTransaction.reference.split(':')
 
-  const jsonEvent = await dynamoDB.read<JsonConfirmedEvent>({ id: eventId }, eventTable)
-  if (!jsonEvent) {
-    throw new LambdaError(404, `Event with id '${eventId}' was not found`)
-  }
-
-  const registration = await dynamoDB.read<JsonRegistration>(
-    {
-      eventId: eventId,
-      id: registrationId,
-    },
-    registrationTable
-  )
-  if (!registration) {
-    throw new LambdaError(404, `Registration with id '${registrationId}' for event with id '${eventId}' was not found`)
-  }
+  const jsonEvent = await getEvent<JsonConfirmedEvent>(eventId)
+  const registration = await getRegistration(eventId, registrationId)
 
   const organizer = await dynamoDB.read<Organizer>({ id: jsonEvent?.organizer.id }, organizerTable)
   if (!organizer?.paytrailMerchantId) {
@@ -61,7 +49,7 @@ const getData = async (transactionId: string) => {
 /**
  * refundCreate is called by client to refund a payment
  */
-const refundCreate = lambda('refundCreate', async (event) => {
+const refundCreateLambda = lambda('refundCreate', async (event) => {
   const user = await authorize(event)
   if (!user) {
     return response(401, 'Unauthorized', event)
@@ -146,4 +134,4 @@ const refundCreate = lambda('refundCreate', async (event) => {
   return response<RefundPaymentResponse>(200, result, event)
 })
 
-export default refundCreate
+export default refundCreateLambda

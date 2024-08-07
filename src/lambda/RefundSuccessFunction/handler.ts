@@ -1,9 +1,5 @@
-import type { MetricsLogger } from 'aws-embedded-metrics'
-import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import type { JsonConfirmedEvent, JsonRefundTransaction, JsonRegistration } from '../../types'
 import type { PaytrailCallbackParams } from '../types/paytrail'
-
-import { metricScope } from 'aws-embedded-metrics'
 
 import { i18n } from '../../i18n/lambda'
 import { formatMoney } from '../../lib/money'
@@ -11,119 +7,105 @@ import { getProviderName } from '../../lib/payment'
 import { CONFIG } from '../config'
 import { audit, registrationAuditKey } from '../lib/audit'
 import { registrationEmailTemplateData, sendTemplatedMail } from '../lib/email'
-import { debugProxyEvent } from '../lib/log'
+import { getEvent } from '../lib/event'
+import { lambda, LambdaError } from '../lib/lambda'
 import { parseParams, updateTransactionStatus, verifyParams } from '../lib/payment'
+import { getRegistration } from '../lib/registration'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
-import { metricsError, metricsSuccess } from '../utils/metrics'
 import { response } from '../utils/response'
 
-const { frontendURL, emailFrom, eventTable, registrationTable, transactionTable } = CONFIG
+const { frontendURL, emailFrom, registrationTable, transactionTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(transactionTable)
 
 /**
  * refundSuccess is called by payment provider, to update successful refund status
  */
-const refundSuccess = metricScope(
-  (metrics: MetricsLogger) =>
-    async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-      debugProxyEvent(event)
+const refundSuccessLambda = lambda('refundSuccess', async (event) => {
+  const params: Partial<PaytrailCallbackParams> = event.queryStringParameters ?? {}
 
-      const params: Partial<PaytrailCallbackParams> = event.queryStringParameters ?? {}
-      const { eventId, registrationId, transactionId } = parseParams(params)
+  await verifyParams(params)
 
-      try {
-        await verifyParams(params)
+  const { status, eventId, registrationId, transactionId } = parseParams(params)
 
-        const transaction = await dynamoDB.read<JsonRefundTransaction>({ transactionId })
-        if (!transaction) throw new Error(`Transaction with id '${transactionId}' was not found`)
+  if (!status) {
+    throw new LambdaError(400, 'Bad Request')
+  }
 
-        const status = params['checkout-status']
+  const transaction = await dynamoDB.read<JsonRefundTransaction>({ transactionId })
+  if (!transaction) {
+    throw new LambdaError(404, `Transaction with id '${transactionId}' was not found`)
+  }
 
-        if (status && (transaction.status !== 'ok' || !transaction.statusAt)) {
-          if (status !== transaction.status || !transaction.statusAt) {
-            await updateTransactionStatus(transactionId, status)
-          }
+  if (transaction.statusAt && transaction.status === 'ok') {
+    console.log('transaction already has status "ok", ignoring request')
+    return response(200, undefined, event)
+  }
 
-          if (status === 'ok') {
-            const registration = await dynamoDB.read<JsonRegistration>(
-              {
-                eventId: eventId,
-                id: registrationId,
-              },
-              registrationTable
-            )
-            if (!registration) throw new Error('registration not found')
-            const t = i18n.getFixedT(registration.language)
-            const amount = parseInt(params['checkout-amount'] ?? '0') / 100
-            const provider = params['checkout-provider']
-            const providerName = getProviderName(provider)
+  const registration = await getRegistration(eventId, registrationId)
 
-            const changes: Required<Pick<JsonRegistration, 'refundAmount' | 'refundAt' | 'refundStatus'>> = {
-              refundAmount: (registration.refundAmount ?? 0) + amount,
-              refundAt: new Date().toISOString(),
-              refundStatus: 'SUCCESS',
-            }
+  const updated = await updateTransactionStatus(transaction, status)
+  if (updated && status === 'ok') {
+    const t = i18n.getFixedT(registration.language)
+    const amount = parseInt(params['checkout-amount'] ?? '0') / 100
+    const provider = params['checkout-provider']
+    const providerName = getProviderName(provider)
 
-            await dynamoDB.update(
-              { eventId, id: registrationId },
-              'set #refundAmount = :refundAmount, #refundAt = :refundAt, #refundStatus = :refundStatus',
-              {
-                '#refundAmount': 'refundAmount',
-                '#refundAt': 'refundAt',
-                '#refundStatus': 'refundStatus',
-              },
-              {
-                ':refundAmount': changes.refundAmount,
-                ':refundAt': changes.refundAt,
-                ':refundStatus': changes.refundStatus,
-              },
-              registrationTable
-            )
-
-            registration.refundAmount = (registration.refundAmount ?? 0) + amount
-            registration.refundAt = new Date().toISOString()
-            registration.refundStatus = 'SUCCESS'
-
-            const confirmedEvent = await dynamoDB.read<JsonConfirmedEvent>({ id: eventId }, eventTable)
-
-            if (confirmedEvent) {
-              // send refund notification
-              try {
-                const recipient = [registration.payer.email]
-                const templateData = registrationEmailTemplateData(registration, confirmedEvent, frontendURL, 'refund')
-                await sendTemplatedMail('refund', registration.language, emailFrom, recipient, {
-                  ...templateData,
-                  ...transaction,
-                  ...changes,
-                  createdAt: t('dateFormat.long', { date: transaction.createdAt }),
-                  refundAt: t('dateFormat.long', { date: registration.refundAt }),
-                  paidAmount: formatMoney(registration.paidAmount ?? 0),
-                  amount: formatMoney(amount),
-                  handlingCost: formatMoney(Math.max(0, (registration.paidAmount ?? 0) - amount)),
-                  providerName,
-                })
-              } catch (e) {
-                // this is not fatal
-                console.error('failed to send refund email', e)
-              }
-            }
-
-            audit({
-              auditKey: registrationAuditKey(registration),
-              message: `Palautus (${providerName}), ${formatMoney(amount)}`,
-              user: transaction.user,
-            })
-          }
-        }
-
-        metricsSuccess(metrics, event.requestContext, 'refundSuccess')
-        return response(200, undefined, event)
-      } catch (e) {
-        console.error(e)
-        metricsError(metrics, event.requestContext, 'refundSuccess')
-        return response(500, undefined, event)
-      }
+    const changes: Required<Pick<JsonRegistration, 'refundAmount' | 'refundAt' | 'refundStatus'>> = {
+      refundAmount: (registration.refundAmount ?? 0) + amount,
+      refundAt: new Date().toISOString(),
+      refundStatus: 'SUCCESS',
     }
-)
 
-export default refundSuccess
+    await dynamoDB.update(
+      { eventId, id: registrationId },
+      'set #refundAmount = :refundAmount, #refundAt = :refundAt, #refundStatus = :refundStatus',
+      {
+        '#refundAmount': 'refundAmount',
+        '#refundAt': 'refundAt',
+        '#refundStatus': 'refundStatus',
+      },
+      {
+        ':refundAmount': changes.refundAmount,
+        ':refundAt': changes.refundAt,
+        ':refundStatus': changes.refundStatus,
+      },
+      registrationTable
+    )
+
+    registration.refundAmount = (registration.refundAmount ?? 0) + amount
+    registration.refundAt = new Date().toISOString()
+    registration.refundStatus = 'SUCCESS'
+
+    const confirmedEvent = await getEvent<JsonConfirmedEvent>(eventId)
+
+    // send refund notification
+    try {
+      const recipient = [registration.payer.email]
+      const templateData = registrationEmailTemplateData(registration, confirmedEvent, frontendURL, 'refund')
+      await sendTemplatedMail('refund', registration.language, emailFrom, recipient, {
+        ...templateData,
+        ...transaction,
+        ...changes,
+        createdAt: t('dateFormat.long', { date: transaction.createdAt }),
+        refundAt: t('dateFormat.long', { date: registration.refundAt }),
+        paidAmount: formatMoney(registration.paidAmount ?? 0),
+        amount: formatMoney(amount),
+        handlingCost: formatMoney(Math.max(0, (registration.paidAmount ?? 0) - amount)),
+        providerName,
+      })
+    } catch (e) {
+      // this is not fatal
+      console.error('failed to send refund email', e)
+    }
+
+    audit({
+      auditKey: registrationAuditKey(registration),
+      message: `Palautus (${providerName}), ${formatMoney(amount)}`,
+      user: transaction.user,
+    })
+  }
+
+  return response(200, undefined, event)
+})
+
+export default refundSuccessLambda

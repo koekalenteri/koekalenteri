@@ -1,6 +1,7 @@
 import type {
   EventClassState,
   JsonConfirmedEvent,
+  JsonDogEvent,
   JsonRegistration,
   JsonRegistrationGroupInfo,
   JsonUser,
@@ -21,9 +22,19 @@ import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
 import { audit, registrationAuditKey } from './audit'
+import { LambdaError } from './lambda'
 
 const { eventTable, registrationTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(eventTable)
+
+export const getEvent = async <T extends JsonDogEvent = JsonDogEvent>(id: string): Promise<T> => {
+  const jsonEvent = await dynamoDB.read<T>({ id }, eventTable)
+  if (!jsonEvent) {
+    throw new LambdaError(404, `Event with id '${id}' was not found`)
+  }
+
+  return jsonEvent
+}
 
 export const markParticipants = async (
   confirmedEvent: JsonConfirmedEvent,
@@ -68,9 +79,9 @@ export const updateRegistrations = async (
 ) => {
   const eventKey = { id: eventId }
 
-  const confirmedEvent = await dynamoDB.read<JsonConfirmedEvent>(eventKey, eventTable)
+  const confirmedEvent = await getEvent<JsonConfirmedEvent>(eventId)
   if (!confirmedEvent) {
-    throw new Error(`Event with id "${eventId}" not found`)
+    throw new LambdaError(404, `Event with id "${eventId}" not found`)
   }
 
   const allRegistrations =

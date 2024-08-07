@@ -21,7 +21,7 @@ jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
 const { authorize } = await import('../lib/auth')
 const authorizeMock = authorize as jest.Mock<typeof authorize>
 
-const { default: getOfficialsHandler, dynamoDB } = await import('./handler')
+const { default: getOfficialsLambda, dynamoDB } = await import('./handler')
 const mockDynamoDB = dynamoDB as jest.Mocked<typeof dynamoDB>
 
 const mockUser: JsonUser = {
@@ -38,17 +38,19 @@ const mockAdminUser: JsonUser = {
   admin: true,
 }
 
-describe('getOfficialsHandler', () => {
+describe('getOfficialsLambda', () => {
+  jest.spyOn(console, 'debug').mockImplementation(() => undefined)
+
   it('should return 401 if authorization fails', async () => {
     authorizeMock.mockResolvedValueOnce(null)
-    const res = await getOfficialsHandler(constructAPIGwEvent({}))
+    const res = await getOfficialsLambda(constructAPIGwEvent({}))
 
     expect(res.statusCode).toEqual(401)
   })
 
   it('should return 401 with refresh if user is not admin', async () => {
     authorizeMock.mockResolvedValueOnce(mockUser)
-    const res = await getOfficialsHandler(constructAPIGwEvent({}, { query: { refresh: 'true' } }))
+    const res = await getOfficialsLambda(constructAPIGwEvent({}, { query: { refresh: 'true' } }))
 
     expect(res.statusCode).toEqual(401)
   })
@@ -57,7 +59,7 @@ describe('getOfficialsHandler', () => {
     authorizeMock.mockResolvedValueOnce(mockUser)
     mockDynamoDB.readAll.mockResolvedValue([{ deletedAt: 'sometimes' }, { name: 'not deleted' }])
 
-    const res = await getOfficialsHandler(constructAPIGwEvent({}))
+    const res = await getOfficialsLambda(constructAPIGwEvent({}))
     expect(res.statusCode).toEqual(200)
     expect(res.body).toMatchInlineSnapshot('"[{"name":"not deleted"}]"')
   })

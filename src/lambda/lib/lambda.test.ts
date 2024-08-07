@@ -1,6 +1,6 @@
 import { jest } from '@jest/globals'
 
-import { getParam } from './apigw'
+import { getParam } from './lambda'
 describe('params', () => {
   describe('getParam', () => {
     it('should fallback to defaultValue', () => {
@@ -20,7 +20,7 @@ describe('params', () => {
     })
 
     it('should not throw on malformed input and return default value instead', () => {
-      const errorSpy = jest.spyOn(console, 'error')
+      const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
 
       expect(() => getParam({ pathParameters: { malformed: '%E0%A4%A' } }, 'malformed')).not.toThrow()
       expect(getParam({ pathParameters: { malformed: '%E0%A4%A' } }, 'malformed', 'def')).toEqual('def')

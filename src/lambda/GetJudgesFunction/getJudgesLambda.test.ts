@@ -33,12 +33,10 @@ const mockUser: JsonUser = {
   name: 'Test User',
   email: 'test@example.com',
 }
-const mockAdminUser: JsonUser = {
-  ...mockUser,
-  admin: true,
-}
 
-describe('getJudgesHandler', () => {
+describe('getJudgesLambda', () => {
+  jest.spyOn(console, 'debug').mockImplementation(() => undefined)
+
   it('should return 401 if authorization fails', async () => {
     authorizeMock.mockResolvedValueOnce(null)
     const res = await getJudgesHandler(constructAPIGwEvent({}))

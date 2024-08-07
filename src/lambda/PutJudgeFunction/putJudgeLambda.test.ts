@@ -16,7 +16,7 @@ jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
 const { authorize } = await import('../lib/auth')
 const authorizeMock = authorize as jest.Mock<typeof authorize>
 
-const { default: putJudgeHandler, dynamoDB } = await import('./handler')
+const { default: putJudgeLambda, dynamoDB } = await import('./handler')
 const mockDynamoDB = dynamoDB as jest.Mocked<typeof dynamoDB>
 
 const mockUser: JsonUser = {
@@ -29,17 +29,19 @@ const mockUser: JsonUser = {
   email: 'test@example.com',
 }
 
-describe('putJudgeHandler', () => {
+describe('putJudgeLambda', () => {
+  jest.spyOn(console, 'debug').mockImplementation(() => undefined)
+
   it('should return 401 if authorization fails', async () => {
     authorizeMock.mockResolvedValueOnce(null)
-    const res = await putJudgeHandler(constructAPIGwEvent('test'))
+    const res = await putJudgeLambda(constructAPIGwEvent('test'))
 
     expect(res.statusCode).toEqual(401)
   })
 
   it('should write the authorized user to database', async () => {
     authorizeMock.mockResolvedValueOnce(mockUser)
-    const res = await putJudgeHandler(
+    const res = await putJudgeLambda(
       constructAPIGwEvent({ id: 'judge', name: 'Test Judge', createdAt: '1986-10-05T22:39:02.250Z' })
     )
 

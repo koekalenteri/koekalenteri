@@ -1,12 +1,10 @@
 import type { APIGatewayProxyEvent } from 'aws-lambda'
 
-export const debugProxyEvent = (apiEvent: APIGatewayProxyEvent) => {
+export const debugProxyEvent = (event: APIGatewayProxyEvent) => {
   try {
-    console.log('event.headers', apiEvent.headers)
-    console.log('event.queryStringParameters', apiEvent.queryStringParameters)
-    console.log('event.multivalueHeaders', apiEvent.multiValueHeaders)
-    console.log('event.multiValueQueryStringParameters', apiEvent.multiValueQueryStringParameters)
-    console.log('event.body', apiEvent.body)
+    console.debug('event.headers', event.headers)
+    console.debug('event.queryStringParameters', event.queryStringParameters)
+    console.debug('event.body', event.body)
   } catch (e) {
     console.error(e)
   }

@@ -2,10 +2,10 @@ import type { EventState, JsonConfirmedEvent, JsonRegistration, JsonRegistration
 
 import { getRegistrationGroupKey, GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE } from '../../lib/registration'
 import { CONFIG } from '../config'
-import { getParam, lambda } from '../lib/apigw'
 import { authorize, getOrigin } from '../lib/auth'
 import { fixRegistrationGroups, saveGroup, updateRegistrations } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
+import { getParam, lambda } from '../lib/lambda'
 import { sendTemplatedEmailToEventRegistrations } from '../lib/registration'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { response } from '../utils/response'
@@ -67,7 +67,7 @@ const parseGroups = (json: string | null, eventId: string): JsonRegistrationGrou
   return filtered
 }
 
-const putRegistrationGroupsHandler = lambda('putRegistrationGroups', async (event) => {
+const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event) => {
   const user = await authorize(event)
   if (!user) {
     return response(401, 'Unauthorized', event)
@@ -215,4 +215,4 @@ const putRegistrationGroupsHandler = lambda('putRegistrationGroups', async (even
   )
 })
 
-export default putRegistrationGroupsHandler
+export default putRegistrationGroupsLambda

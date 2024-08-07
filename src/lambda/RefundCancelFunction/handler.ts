@@ -1,17 +1,13 @@
-import type { MetricsLogger } from 'aws-embedded-metrics'
-import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
-import type { JsonRefundTransaction, JsonRegistration } from '../../types'
+import type { JsonRefundTransaction } from '../../types'
 import type { PaytrailCallbackParams } from '../types/paytrail'
-
-import { metricScope } from 'aws-embedded-metrics'
 
 import { formatMoney } from '../../lib/money'
 import { CONFIG } from '../config'
 import { audit, registrationAuditKey } from '../lib/audit'
-import { debugProxyEvent } from '../lib/log'
+import { lambda, LambdaError } from '../lib/lambda'
 import { parseParams, updateTransactionStatus, verifyParams } from '../lib/payment'
+import { getRegistration } from '../lib/registration'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
-import { metricsError, metricsSuccess } from '../utils/metrics'
 import { response } from '../utils/response'
 
 const { registrationTable, transactionTable } = CONFIG
@@ -20,61 +16,43 @@ const dynamoDB = new CustomDynamoClient(transactionTable)
 /**
  * refundCancel is called by payment provider, to update cancelled refund status
  */
-const refundCancel = metricScope(
-  (metrics: MetricsLogger) =>
-    async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-      debugProxyEvent(event)
+const refundCancelLambda = lambda('refundCancel', async (event) => {
+  const params: Partial<PaytrailCallbackParams> = event.queryStringParameters ?? {}
+  const { eventId, registrationId, transactionId } = parseParams(params)
 
-      const params: Partial<PaytrailCallbackParams> = event.queryStringParameters ?? {}
-      const { eventId, registrationId, transactionId } = parseParams(params)
+  await verifyParams(params)
 
-      try {
-        await verifyParams(params)
+  const transaction = await dynamoDB.read<JsonRefundTransaction>({ transactionId })
+  if (!transaction) {
+    throw new LambdaError(404, `Transaction with id '${transactionId}' was not found`)
+  }
 
-        const transaction = await dynamoDB.read<JsonRefundTransaction>({ transactionId })
-        if (!transaction) throw new Error(`Transaction with id '${transactionId}' was not found`)
+  const registration = await getRegistration(eventId, registrationId)
 
-        if (transaction.status !== 'fail') {
-          await updateTransactionStatus(transactionId, 'fail')
-
-          const registration = await dynamoDB.read<JsonRegistration>(
-            {
-              eventId: eventId,
-              id: registrationId,
-            },
-            registrationTable
-          )
-          if (!registration) throw new Error('registration not found')
-
-          if (registration.refundStatus === 'PENDING') {
-            await dynamoDB.update(
-              { eventId, id: registrationId },
-              'set #refundStatus = :refundStatus',
-              { '#refundStatus': 'refundStatus' },
-              {
-                ':refundStatus': 'CANCEL',
-              },
-              registrationTable
-            )
-          }
-
-          audit({
-            auditKey: registrationAuditKey(registration),
-            message: `Palautus epäonnistui (${transaction.provider}), ${formatMoney(transaction.amount / 100)}`,
-            user: transaction.user,
-          })
-        } else {
-          console.log(`Transaction '${transactionId}' already marked as failed`)
-        }
-
-        metricsSuccess(metrics, event.requestContext, 'refundCancel')
-        return response(200, undefined, event)
-      } catch (e) {
-        console.error(e)
-        metricsError(metrics, event.requestContext, 'refundCancel')
-        return response(500, undefined, event)
-      }
+  const updated = await updateTransactionStatus(transaction, 'fail')
+  if (updated) {
+    if (registration.refundStatus === 'PENDING') {
+      await dynamoDB.update(
+        { eventId, id: registrationId },
+        'set #refundStatus = :refundStatus',
+        { '#refundStatus': 'refundStatus' },
+        {
+          ':refundStatus': 'CANCEL',
+        },
+        registrationTable
+      )
     }
-)
 
-export default refundCancel
+    audit({
+      auditKey: registrationAuditKey(registration),
+      message: `Palautus epäonnistui (${transaction.provider}), ${formatMoney(transaction.amount / 100)}`,
+      user: transaction.user,
+    })
+  } else {
+    console.log(`Transaction '${transactionId}' already marked as failed`)
+  }
+
+  return response(200, undefined, event)
+})
+
+export default refundCancelLambda

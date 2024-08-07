@@ -36,7 +36,7 @@ jest.unstable_mockModule('../lib/registration', () => ({
 const { authorize } = await import('../lib/auth')
 const authorizeMock = authorize as jest.Mock<typeof authorize>
 
-const { default: putRegistrationGroupsHandler } = await import('./handler')
+const { default: putRegistrationGroupsLambda } = await import('./handler')
 
 const mockUser: JsonUser = {
   id: '',
@@ -48,7 +48,8 @@ const mockUser: JsonUser = {
   email: 'test@example.com',
 }
 
-describe('putRegistrationGroupsHandler', () => {
+describe('putRegistrationGroupsLambda', () => {
+  jest.spyOn(console, 'debug').mockImplementation(() => undefined)
   jest.spyOn(console, 'log').mockImplementation(() => undefined)
   const mockConsoleError = jest.spyOn(console, 'error')
 
@@ -58,14 +59,14 @@ describe('putRegistrationGroupsHandler', () => {
 
   it('should return 401 if authorization fails', async () => {
     authorizeMock.mockResolvedValueOnce(null)
-    const res = await putRegistrationGroupsHandler(constructAPIGwEvent('test'))
+    const res = await putRegistrationGroupsLambda(constructAPIGwEvent('test'))
 
     expect(res.statusCode).toEqual(401)
   })
 
   it.each([undefined, null, [], {}])('should return 422 with invalid groups: %p', async (groups) => {
     authorizeMock.mockResolvedValueOnce(mockUser)
-    const res = await putRegistrationGroupsHandler(constructAPIGwEvent(groups))
+    const res = await putRegistrationGroupsLambda(constructAPIGwEvent(groups))
 
     expect(res.statusCode).toEqual(422)
   })
@@ -81,7 +82,7 @@ describe('putRegistrationGroupsHandler', () => {
     authorizeMock.mockResolvedValueOnce(mockUser)
     mockConsoleError.mockImplementationOnce(() => undefined)
 
-    const res = await putRegistrationGroupsHandler(
+    const res = await putRegistrationGroupsLambda(
       constructAPIGwEvent([mockGroup] as JsonRegistrationGroupInfo[], { pathParameters: { eventId: event.id } })
     )
     expect(res.statusCode).toEqual(422)
@@ -106,7 +107,7 @@ describe('putRegistrationGroupsHandler', () => {
     reg.group = { key: 'reserve', number: 3 }
     reg.cancelled = false
 
-    const res = await putRegistrationGroupsHandler(
+    const res = await putRegistrationGroupsLambda(
       constructAPIGwEvent(
         [{ eventId: event.id, id: reg.id, group: reg.group, cancelled: false }] as JsonRegistrationGroupInfo[],
         {
@@ -162,7 +163,7 @@ describe('putRegistrationGroupsHandler', () => {
     reg.group = { key: 'reserve', number: 3 } // move from place 1 to place 3
     reg.cancelled = false
 
-    const res = await putRegistrationGroupsHandler(
+    const res = await putRegistrationGroupsLambda(
       constructAPIGwEvent(
         [{ eventId: event.id, id: reg.id, group: reg.group, cancelled: false }] as JsonRegistrationGroupInfo[],
         {
@@ -222,7 +223,7 @@ describe('putRegistrationGroupsHandler', () => {
     updated[5].group = { ...updated[5].group, number: 2, key: 'reserve' }
     updated[6].group = { ...updated[6].group, number: 1, key: 'reserve' }
 
-    const res = await putRegistrationGroupsHandler(
+    const res = await putRegistrationGroupsLambda(
       constructAPIGwEvent(
         [
           { eventId: event.id, id: updated[6].id, group: updated[6].group, cancelled: false },
@@ -260,7 +261,7 @@ describe('putRegistrationGroupsHandler', () => {
     updated[5].cancelled = false
     updated[6].cancelled = false
 
-    const res = await putRegistrationGroupsHandler(
+    const res = await putRegistrationGroupsLambda(
       constructAPIGwEvent(
         [
           { eventId: 'testInvited', id: updated[6].id, group: updated[6].group, cancelled: false },
@@ -303,7 +304,7 @@ describe('putRegistrationGroupsHandler', () => {
       reserveNotified: r.group?.key === 'reserve' ? true : undefined,
     }))
 
-    const res = await putRegistrationGroupsHandler(
+    const res = await putRegistrationGroupsLambda(
       constructAPIGwEvent(
         [{ eventId: event.id, id: updated[5].id, group: updated[5].group }] as JsonRegistrationGroupInfo[],
         { pathParameters: { eventId: event.id } }
@@ -345,7 +346,7 @@ describe('putRegistrationGroupsHandler', () => {
 
     reg.group = { key: 'cancelled', number: 1 }
 
-    const res = await putRegistrationGroupsHandler(
+    const res = await putRegistrationGroupsLambda(
       constructAPIGwEvent([{ eventId: event.id, id: reg.id, group: reg.group }] as JsonRegistrationGroupInfo[], {
         pathParameters: { eventId: event.id },
       })

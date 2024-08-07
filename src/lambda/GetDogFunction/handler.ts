@@ -1,18 +1,13 @@
-import type { MetricsLogger } from 'aws-embedded-metrics'
-import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
-import type { AWSError } from 'aws-sdk'
 import type { BreedCode, JsonDog, JsonTestResult } from '../../types'
 
-import { metricScope } from 'aws-embedded-metrics'
 import { differenceInMinutes } from 'date-fns'
 
 import { CONFIG } from '../config'
-import { getParam } from '../lib/apigw'
 import KLAPI from '../lib/KLAPI'
+import { getParam, lambda, LambdaError } from '../lib/lambda'
 import { getKLAPIConfig } from '../lib/secrets'
 import { KLKieli } from '../types/KLAPI'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
-import { metricsError, metricsSuccess } from '../utils/metrics'
 import { response } from '../utils/response'
 
 const dynamoDB = new CustomDynamoClient(CONFIG.dogTable)
@@ -102,47 +97,36 @@ const readDogFromKlapi = async (regNo: string, existing?: JsonDog) => {
   return { dog, status, error }
 }
 
-const getDogHandler = metricScope(
-  (metrics: MetricsLogger) =>
-    async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-      try {
-        const regNo = getParam(event, 'regNo').replace('~', '/')
+const getDogLambda = lambda('getDog', async (event) => {
+  const regNo = getParam(event, 'regNo').replace('~', '/')
 
-        let item = await dynamoDB.read<JsonDog>({ regNo })
+  let item = await dynamoDB.read<JsonDog>({ regNo })
 
-        const itemAge = item?.refreshDate ? differenceInMinutes(new Date(), new Date(item.refreshDate)) : 0
-        const refresh = (event.queryStringParameters && 'refresh' in event.queryStringParameters) || itemAge > 60
+  const itemAge = item?.refreshDate ? differenceInMinutes(new Date(), new Date(item.refreshDate)) : 0
+  const refresh = (event.queryStringParameters && 'refresh' in event.queryStringParameters) || itemAge > 60
 
-        console.log('cached: ' + JSON.stringify(item))
-        console.log(`itemAge: ${itemAge}, refresh: ${refresh}`)
+  console.log('cached: ' + JSON.stringify(item))
+  console.log(`itemAge: ${itemAge}, refresh: ${refresh}`)
 
-        if (!item || refresh) {
-          const { dog, status, error } = await readDogFromKlapi(regNo, item)
+  if (!item || refresh) {
+    const { dog, status, error } = await readDogFromKlapi(regNo, item)
 
-          if (!dog) {
-            metricsError(metrics, event.requestContext, 'getDog')
-            return response(status, 'Upstream error: ' + error, event)
-          }
-
-          if (status === 404 && error === 'diseased') {
-            await dynamoDB.delete({ regNo })
-            metricsError(metrics, event.requestContext, 'getDog')
-            return response(status, 'Upstream error: ' + error, event)
-          }
-
-          await dynamoDB.write(dog)
-
-          item = dog
-        }
-
-        metricsSuccess(metrics, event.requestContext, 'getDog')
-        return response(200, item, event)
-      } catch (err) {
-        console.error(err)
-        metricsError(metrics, event.requestContext, 'getDog')
-        return response((err as AWSError).statusCode ?? 501, err, event)
-      }
+    if (!dog) {
+      throw new LambdaError(status, `Upstream error: ${error}`)
     }
-)
 
-export default getDogHandler
+    if (status === 404 && error === 'diseased') {
+      await dynamoDB.delete({ regNo })
+
+      throw new LambdaError(status, `Upstream error: ${error}`)
+    }
+
+    await dynamoDB.write(dog)
+
+    item = dog
+  }
+
+  return response(200, item, event)
+})
+
+export default getDogLambda

@@ -1,90 +1,65 @@
-import type { MetricsLogger } from 'aws-embedded-metrics'
-import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
-import type { AWSError } from 'aws-sdk'
 import type { Organizer } from '../../types'
 
-import { metricScope } from 'aws-embedded-metrics'
 import { nanoid } from 'nanoid'
 
 import { CONFIG } from '../config'
 import { authorize } from '../lib/auth'
 import KLAPI from '../lib/KLAPI'
+import { lambda } from '../lib/lambda'
 import { getKLAPIConfig } from '../lib/secrets'
 import { KLYhdistysRajaus } from '../types/KLAPI'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
-import { metricsError, metricsSuccess } from '../utils/metrics'
 import { response } from '../utils/response'
 
 const dynamoDB = new CustomDynamoClient(CONFIG.organizerTable)
 
-const refreshOrganizers = metricScope(
-  (metrics: MetricsLogger) =>
-    async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-      try {
-        const user = await authorize(event)
-        if (!user?.admin) {
-          metricsError(metrics, event.requestContext, 'refreshOrganizers')
-          return response(401, 'Unauthorized', event)
-        }
+const refreshOrganizersLambda = lambda('refreshOrganizers', async (event) => {
+  const user = await authorize(event)
+  if (!user?.admin) {
+    return response(401, 'Unauthorized', event)
+  }
 
-        const klapi = new KLAPI(getKLAPIConfig)
-        const { status, json } = await klapi.lueYhdistykset({ Rajaus: KLYhdistysRajaus.Koejärjestätä })
-        if (status === 200 && json) {
-          const insert: Organizer[] = []
-          const existing = await dynamoDB.readAll<Organizer>()
-          for (const item of json) {
-            const old = existing?.find((org) => org.kcId === item.jäsennumero)
-            if (!old) {
-              const org: Organizer = { id: nanoid(10), kcId: item.jäsennumero, name: item.strYhdistys }
-              insert.push(org)
-            } else if (old.name !== item.strYhdistys) {
-              console.log(`Organizer ${old.kcId} name changed from ${old.name} to ${item.strYhdistys}`, old, item)
-              await dynamoDB.update(
-                { id: old.id },
-                'set #name = :name',
-                {
-                  '#name': 'name',
-                },
-                {
-                  ':name': item.strYhdistys,
-                }
-              )
-            }
+  const klapi = new KLAPI(getKLAPIConfig)
+  const { status, json } = await klapi.lueYhdistykset({ Rajaus: KLYhdistysRajaus.Koejärjestätä })
+  if (status === 200 && json) {
+    const insert: Organizer[] = []
+    const existing = await dynamoDB.readAll<Organizer>()
+    for (const item of json) {
+      const old = existing?.find((org) => org.kcId === item.jäsennumero)
+      if (!old) {
+        const org: Organizer = { id: nanoid(10), kcId: item.jäsennumero, name: item.strYhdistys }
+        insert.push(org)
+      } else if (old.name !== item.strYhdistys) {
+        console.log(`Organizer ${old.kcId} name changed from ${old.name} to ${item.strYhdistys}`, old, item)
+        await dynamoDB.update(
+          { id: old.id },
+          'set #name = :name',
+          {
+            '#name': 'name',
+          },
+          {
+            ':name': item.strYhdistys,
           }
-          if (insert.length) {
-            await dynamoDB.batchWrite(insert)
-          }
-        }
-        const items = await dynamoDB.readAll<Organizer>()
-
-        metricsSuccess(metrics, event.requestContext, 'refreshOrganizers')
-        return response(200, items, event)
-      } catch (err) {
-        console.error(err)
-        metricsError(metrics, event.requestContext, 'refreshOrganizers')
-        return response((err as AWSError).statusCode ?? 501, err, event)
+        )
       }
     }
-)
-
-const getOrganizersHandler = metricScope(
-  (metrics: MetricsLogger) =>
-    async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-      try {
-        if (event.queryStringParameters && 'refresh' in event.queryStringParameters) {
-          return refreshOrganizers(event)
-        }
-
-        const items = await dynamoDB.readAll<Organizer>()
-
-        metricsSuccess(metrics, event.requestContext, 'getOrganizers')
-        return response(200, items, event)
-      } catch (err) {
-        console.error(err)
-        metricsError(metrics, event.requestContext, 'getOrganizers')
-        return response((err as AWSError).statusCode ?? 501, err, event)
-      }
+    if (insert.length) {
+      await dynamoDB.batchWrite(insert)
     }
-)
+  }
+  const items = await dynamoDB.readAll<Organizer>()
 
-export default getOrganizersHandler
+  return response(200, items, event)
+})
+
+const getOrganizersLambda = lambda('getOrganizers', async (event) => {
+  if (event.queryStringParameters && 'refresh' in event.queryStringParameters) {
+    return refreshOrganizersLambda(event)
+  }
+
+  const items = await dynamoDB.readAll<Organizer>()
+
+  return response(200, items, event)
+})
+
+export default getOrganizersLambda

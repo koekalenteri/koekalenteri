@@ -7,9 +7,24 @@ import CustomDynamoClient from '../utils/CustomDynamoClient'
 
 import { audit, registrationAuditKey } from './audit'
 import { emailTo, registrationEmailTemplateData, sendTemplatedMail } from './email'
+import { LambdaError } from './lambda'
 
 const { emailFrom, registrationTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(registrationTable)
+
+export const getRegistration = async (eventId: string, registrationId: string) => {
+  const registration = await dynamoDB.read<JsonRegistration>(
+    {
+      eventId: eventId,
+      id: registrationId,
+    },
+    registrationTable
+  )
+  if (!registration) {
+    throw new LambdaError(404, `Registration with id '${registrationId}' for event with id '${eventId}' was not found`)
+  }
+  return registration
+}
 
 export const updateRegistrationField = async <F extends keyof JsonRegistration>(
   eventId: JsonRegistration['eventId'],

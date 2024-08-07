@@ -1,17 +1,12 @@
-import type { MetricsLogger } from 'aws-embedded-metrics'
-import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
-import type { AWSError } from 'aws-sdk'
 import type { JsonEventType, JsonUser } from '../../types'
-
-import { metricScope } from 'aws-embedded-metrics'
 
 import { CONFIG } from '../config'
 import { authorize } from '../lib/auth'
 import KLAPI from '../lib/KLAPI'
+import { lambda } from '../lib/lambda'
 import { getKLAPIConfig } from '../lib/secrets'
 import { KLKieli, KLKieliToLang } from '../types/KLAPI'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
-import { metricsError, metricsSuccess } from '../utils/metrics'
 import { response } from '../utils/response'
 
 const dynamoDB = new CustomDynamoClient(CONFIG.eventTypeTable)
@@ -76,29 +71,18 @@ const refreshEventTypes = async (user: JsonUser) => {
   }
 }
 
-const getEventTypesHandler = metricScope(
-  (metrics: MetricsLogger) =>
-    async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-      try {
-        const user = await authorize(event)
-        if (!user) {
-          metricsError(metrics, event.requestContext, 'getEventTypes')
-          return response(401, 'Unauthorized', event)
-        }
+const getEventTypesLambda = lambda('getEventTypes', async (event) => {
+  const user = await authorize(event)
+  if (!user) {
+    return response(401, 'Unauthorized', event)
+  }
 
-        if (event.queryStringParameters && 'refresh' in event.queryStringParameters) {
-          await refreshEventTypes(user)
-        }
+  if (event.queryStringParameters && 'refresh' in event.queryStringParameters) {
+    await refreshEventTypes(user)
+  }
 
-        const items = await dynamoDB.readAll<JsonEventType>()
-        metricsSuccess(metrics, event.requestContext, 'getEventTypes')
-        return response(200, items, event)
-      } catch (err) {
-        console.error(err)
-        metricsError(metrics, event.requestContext, 'getEventTypes')
-        return response((err as AWSError).statusCode ?? 501, err, event)
-      }
-    }
-)
+  const items = await dynamoDB.readAll<JsonEventType>()
+  return response(200, items, event)
+})
 
-export default getEventTypesHandler
+export default getEventTypesLambda

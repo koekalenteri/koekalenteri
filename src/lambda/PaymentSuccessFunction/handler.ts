@@ -1,9 +1,5 @@
-import type { MetricsLogger } from 'aws-embedded-metrics'
-import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
-import type { JsonRegistration, JsonTransaction } from '../../types'
+import type { JsonTransaction } from '../../types'
 import type { PaytrailCallbackParams } from '../types/paytrail'
-
-import { metricScope } from 'aws-embedded-metrics'
 
 import { i18n } from '../../i18n/lambda'
 import { formatMoney } from '../../lib/money'
@@ -12,10 +8,10 @@ import { CONFIG } from '../config'
 import { audit, registrationAuditKey } from '../lib/audit'
 import { emailTo, registrationEmailTemplateData, sendTemplatedMail } from '../lib/email'
 import { updateRegistrations } from '../lib/event'
-import { debugProxyEvent } from '../lib/log'
+import { lambda } from '../lib/lambda'
 import { parseParams, updateTransactionStatus, verifyParams } from '../lib/payment'
+import { getRegistration } from '../lib/registration'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
-import { metricsError, metricsSuccess } from '../utils/metrics'
 import { response } from '../utils/response'
 
 const { frontendURL, emailFrom, eventTable, registrationTable, transactionTable } = CONFIG
@@ -28,14 +24,8 @@ const handleSuccessfulPayment = async (
   transaction: JsonTransaction,
   provider: string | undefined
 ) => {
-  const registration = await dynamoDB.read<JsonRegistration>(
-    {
-      eventId: eventId,
-      id: registrationId,
-    },
-    registrationTable
-  )
-  if (!registration) throw new Error('registration not found')
+  const registration = await getRegistration(eventId, registrationId)
+
   const t = i18n.getFixedT(registration.language)
   const amount = parseInt(params['checkout-amount'] ?? '0') / 100
 
@@ -94,39 +84,21 @@ const handleSuccessfulPayment = async (
 /**
  * paymentSuccess is called by payment provider, to update successful payment status
  */
-const paymentSuccess = metricScope(
-  (metrics: MetricsLogger) =>
-    async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-      debugProxyEvent(event)
+const paymentSuccessLambda = lambda('paymentSuccess', async (event) => {
+  const params: Partial<PaytrailCallbackParams> = event.queryStringParameters ?? {}
+  const { eventId, provider, registrationId, status, transactionId } = parseParams(params)
 
-      const params: Partial<PaytrailCallbackParams> = event.queryStringParameters ?? {}
-      const { eventId, registrationId, transactionId } = parseParams(params)
+  await verifyParams(params)
 
-      try {
-        await verifyParams(params)
+  const transaction = await dynamoDB.read<JsonTransaction>({ transactionId })
+  if (!transaction) throw new Error(`Transaction with id '${transactionId}' was not found`)
 
-        const transaction = await dynamoDB.read<JsonTransaction>({ transactionId })
-        if (!transaction) throw new Error(`Transaction with id '${transactionId}' was not found`)
+  const updated = await updateTransactionStatus(transaction, status, provider)
+  if (updated && status === 'ok') {
+    await handleSuccessfulPayment(eventId, registrationId, params, transaction, provider)
+  }
 
-        const provider = params['checkout-provider']
-        const status = params['checkout-status']
+  return response(200, undefined, event)
+})
 
-        if (status && (status !== transaction.status || !transaction.statusAt)) {
-          await updateTransactionStatus(transactionId, status, provider)
-
-          if (status === 'ok') {
-            await handleSuccessfulPayment(eventId, registrationId, params, transaction, provider)
-          }
-        }
-
-        metricsSuccess(metrics, event.requestContext, 'paymentSuccess')
-        return response(200, undefined, event)
-      } catch (e) {
-        console.error(e)
-        metricsError(metrics, event.requestContext, 'paymentSuccess')
-        return response(500, undefined, event)
-      }
-    }
-)
-
-export default paymentSuccess
+export default paymentSuccessLambda

@@ -4,6 +4,7 @@ import type CustomDynamoClient from '../utils/CustomDynamoClient'
 
 import { jest } from '@jest/globals'
 
+import { LambdaError } from '../lib/lambda'
 import { constructAPIGwEvent } from '../test-utils/helpers'
 
 const mockDynamoDB: jest.Mocked<CustomDynamoClient> = {
@@ -33,6 +34,7 @@ jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
 const { default: getDogHandler } = await import('./handler')
 
 describe('getDogHandler', () => {
+  jest.spyOn(console, 'debug').mockImplementation(() => undefined)
   const logSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined)
   const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
 
@@ -57,7 +59,7 @@ describe('getDogHandler', () => {
     expect(mockDynamoDB.read).toHaveBeenCalledTimes(1)
 
     expect(res.statusCode).toBe(404)
-    expect(res.body).toBe(JSON.stringify('Upstream error: not found'))
+    expect(res.body).toBe(JSON.stringify({ error: 'Upstream error: not found' }))
 
     expect(logSpy).toHaveBeenCalledWith('cached: undefined')
     expect(logSpy).toHaveBeenCalledWith('itemAge: 0, refresh: false')
@@ -67,7 +69,8 @@ describe('getDogHandler', () => {
       json: undefined,
       error: 'not found',
     })
-    expect(errorSpy).toHaveBeenCalledTimes(1)
+    expect(errorSpy).toHaveBeenCalledWith(expect.any(LambdaError))
+    expect(errorSpy).toHaveBeenCalledTimes(2)
   })
 
   it('should handle cached dog that has been marked diseased', async () => {
@@ -81,7 +84,7 @@ describe('getDogHandler', () => {
     expect(mockDynamoDB.delete).toHaveBeenCalledTimes(1)
 
     expect(res.statusCode).toBe(404)
-    expect(res.body).toBe(JSON.stringify('Upstream error: diseased'))
+    expect(res.body).toBe(JSON.stringify({ error: 'Upstream error: diseased' }))
 
     expect(logSpy).toHaveBeenCalledWith('cached: {"regNo":"FI12345/24","refreshDate":"2023-01-01"}')
     expect(logSpy).toHaveBeenCalledWith('itemAge: 772440, refresh: true')
@@ -91,7 +94,8 @@ describe('getDogHandler', () => {
       json: undefined,
       error: 'diseased',
     })
-    expect(errorSpy).toHaveBeenCalledTimes(1)
+    expect(errorSpy).toHaveBeenCalledWith(expect.any(LambdaError))
+    expect(errorSpy).toHaveBeenCalledTimes(2)
   })
 
   it('should refresh data', async () => {
