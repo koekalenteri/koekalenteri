@@ -1,5 +1,7 @@
 import type { JsonEventType, JsonUser } from '../../types'
 
+import { diff } from 'deep-object-diff'
+
 import { CONFIG } from '../config'
 import { authorize } from '../lib/auth'
 import KLAPI from '../lib/KLAPI'
@@ -11,11 +13,11 @@ import { response } from '../utils/response'
 
 const dynamoDB = new CustomDynamoClient(CONFIG.eventTypeTable)
 
-const refreshEventTypes = async (user: JsonUser) => {
+const getEventTypesFromKlapi = async (user: JsonUser) => {
   const klapi = new KLAPI(getKLAPIConfig)
-  const insert: JsonEventType[] = []
-  const existing = await dynamoDB.readAll<JsonEventType>()
+
   const timestamp = new Date().toISOString()
+  const eventTypes: JsonEventType[] = []
 
   for (const kieli of [KLKieli.Suomi, KLKieli.Ruotsi, KLKieli.Englanti]) {
     const { status, json, error } = await klapi.lueKoemuodot({ Kieli: kieli })
@@ -24,50 +26,59 @@ const refreshEventTypes = async (user: JsonUser) => {
       continue
     }
     for (const item of json) {
-      const old = existing?.find((et) => et.eventType === item.lyhenne)
-      if (!old) {
-        const oldInsert = insert.find((et) => et.eventType === item.lyhenne)
-        if (!oldInsert) {
-          insert.push({
-            id: item.lyhenne,
-            createdAt: timestamp,
-            createdBy: user.name,
-            modifiedAt: timestamp,
-            modifiedBy: user.name,
-            eventType: item.lyhenne,
-            description: { fi: '', en: '', sv: '', [KLKieliToLang[kieli]]: item.koemuoto },
-            official: true,
-          })
-        } else {
-          oldInsert.description[KLKieliToLang[kieli]] = item.koemuoto
-        }
-      } else if (old?.description[KLKieliToLang[kieli]] !== item.koemuoto) {
-        console.log(
-          `EventType ${old.eventType} description.${KLKieliToLang[kieli]} changed from ${
-            old.description[KLKieliToLang[kieli]]
-          } to ${item.koemuoto}`,
-          old,
-          item
-        )
-        old.description = {
-          ...old.description,
-          [KLKieliToLang[kieli]]: item.koemuoto,
-        }
-        await dynamoDB.update(
-          { eventType: old.eventType },
-          'set #description = :description',
-          {
-            '#description': 'description',
-          },
-          {
-            ':description': old.description,
-          }
-        )
+      const prev = eventTypes.find((et) => et.eventType === item.lyhenne)
+      const eventType: JsonEventType = prev || {
+        id: item.lyhenne,
+        createdAt: timestamp,
+        createdBy: user.name,
+        modifiedAt: timestamp,
+        modifiedBy: user.name,
+        eventType: item.lyhenne,
+        description: { fi: '', en: '', sv: '' },
+        official: true,
       }
+      if (!prev) eventTypes.push(eventType)
+
+      eventType.description[KLKieliToLang[kieli]] = item.koemuoto
     }
   }
+
+  return eventTypes
+}
+
+const refreshEventTypes = async (user: JsonUser) => {
+  const existing = await dynamoDB.readAll<JsonEventType>()
+  const eventTypes = await getEventTypesFromKlapi(user)
+
+  const insert = eventTypes.filter((et) => !existing?.find((ex) => ex.id === et.id))
+
   if (insert.length) {
+    console.log('new eventTypes', insert)
     await dynamoDB.batchWrite(insert)
+  }
+
+  const updates = eventTypes.filter((et) => {
+    const ex = existing?.find((ex) => ex.id === et.id)
+    return ex && Object.keys(diff(ex.description, et.description)).length > 0
+  })
+
+  for (const updated of updates) {
+    const ex = existing?.find((ex) => ex.id === updated.id)
+    console.log(`description changed for ${updated.id}`, ex?.description, updated.description)
+    await dynamoDB.update(
+      { eventType: updated.eventType },
+      'set #description = :description, #modifiedAt = :modifiedAt, #modifiedBy = :modifiedBy',
+      {
+        '#description': 'description',
+        '#modifiedAt': 'description',
+        '#modifiedBy': 'description',
+      },
+      {
+        ':description': updated.description,
+        ':modifiedAt': updated.modifiedAt,
+        ':modifiedBy': updated.modifiedBy,
+      }
+    )
   }
 }
 
