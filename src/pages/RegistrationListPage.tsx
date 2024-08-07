@@ -155,16 +155,19 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
   }, [location.pathname, navigate, registration, t])
 
   useEffect(() => {
-    if (registration?.paymentStatus === 'PENDING' && reloadCount < 5) {
-      const timeout = setTimeout(() => {
-        actions.reload(registration).then((reg) => {
-          setReloadCount((old) => old + 1)
-          setRegistration(reg)
-        })
-      }, 10_000)
-
-      return () => clearTimeout(timeout)
+    if (registration?.paymentStatus !== 'PENDING' || reloadCount >= 5) {
+      return
     }
+
+    const reload = async () => {
+      const reg = await actions.reload(registration)
+      setReloadCount((old) => old + 1)
+      setRegistration(reg)
+    }
+
+    const timeout = setTimeout(reload, 10_000)
+
+    return () => clearTimeout(timeout)
   }, [actions, registration, reloadCount, setRegistration])
 
   if (!event || !registration) {
