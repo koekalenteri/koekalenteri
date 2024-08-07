@@ -56,6 +56,19 @@ export const setReserveNotified = async (registrations: JsonRegistration[]) =>
       .map(({ eventId, id }) => updateRegistrationField(eventId, id, 'reserveNotified', true))
   )
 
+const getLastEmailInfo = (
+  template: EmailTemplateId,
+  templateName: string,
+  registration: JsonRegistration,
+  date: string
+): string => {
+  if (template === 'reserve') {
+    return `${templateName} (#${registration.group?.number ?? '?'}) ${date}`
+  }
+
+  return `${templateName} ${date}`
+}
+
 export const sendTemplatedEmailToEventRegistrations = async (
   template: EmailTemplateId,
   confirmedEvent: JsonConfirmedEvent,
@@ -81,7 +94,7 @@ export const sendTemplatedEmailToEventRegistrations = async (
         message: `${templateName}: ${to.join(', ')}`,
         user,
       })
-      await setLastEmail(registration, `${templateName} ${lastEmailDate}`)
+      await setLastEmail(registration, getLastEmailInfo(template, templateName, registration, lastEmailDate))
     } catch (e) {
       failed.push(...to)
       audit({
