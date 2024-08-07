@@ -15,7 +15,6 @@ import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
 import FormControl from '@mui/material/FormControl'
-import FormControlLabel from '@mui/material/FormControlLabel'
 import FormGroup from '@mui/material/FormGroup'
 import FormLabel from '@mui/material/FormLabel'
 import List from '@mui/material/List'
@@ -38,6 +37,8 @@ import AutocompleteSingle from '../../components/AutocompleteSingle'
 import { idTokenAtom } from '../../recoil'
 import { adminEmailTemplatesAtom, adminEventSelector } from '../recoil'
 import { useAdminRegistrationActions } from '../recoil/registrations/actions'
+
+import ContactInfoGroup from './sendMessageDialog/ContactInfoGroup'
 
 interface Props {
   readonly registrations: Registration[]
@@ -229,32 +230,13 @@ export default function SendMessageDialog({ event, registrations, templateId, op
                 <FormLabel component="legend">Yhteystiedot:</FormLabel>
                 <FormGroup sx={{ mx: 2, my: 1 }}>
                   {CONTACT_INFO_GROUPS.map((group) => (
-                    <div key={`${group}`}>
-                      <FormLabel component="legend">{t(`event.${group}`)}</FormLabel>
-                      <FormGroup sx={{ mx: 2, my: 0 }} row>
-                        {CONTACT_INFO_PROPS.map((prop) => (
-                          <FormControlLabel
-                            key={`${group}.${prop}`}
-                            control={<ContactInfoCheckbox name={`${group}.${prop}`} />}
-                            label={t(`contact.${prop}`)}
-                            checked={Boolean(contactInfo?.[group]?.[prop])}
-                            disabled={!event?.[group]?.[prop]}
-                            onChange={(e, checked) =>
-                              setContactInfo((old) => ({
-                                ...old,
-                                [group]: {
-                                  ...old?.[group],
-                                  [prop]: checked
-                                    ? // prefer contactInfo from event, fall back to actual contact info
-                                      (event?.contactInfo?.[group]?.[prop] ?? event?.[group]?.[prop])
-                                    : undefined,
-                                },
-                              }))
-                            }
-                          />
-                        ))}
-                      </FormGroup>
-                    </div>
+                    <ContactInfoGroup
+                      contactInfo={contactInfo}
+                      event={event}
+                      group={group}
+                      key={group}
+                      setContactInfo={setContactInfo}
+                    />
                   ))}
                 </FormGroup>
               </FormControl>
