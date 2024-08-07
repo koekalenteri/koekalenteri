@@ -4,10 +4,10 @@ import type { JsonUser } from '../../types'
 
 import { metricScope } from 'aws-embedded-metrics'
 
-import { metricsError, metricsSuccess } from '../utils/metrics'
 import { response } from '../utils/response'
 
 import { debugProxyEvent } from './log'
+import { metricsError, metricsSuccess } from './metrics'
 
 export type LambdaHandler = (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult>
 export type AdminLambdaHandler = (event: APIGatewayProxyEvent, user: JsonUser) => Promise<APIGatewayProxyResult>
