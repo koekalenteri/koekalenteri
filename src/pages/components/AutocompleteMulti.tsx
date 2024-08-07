@@ -34,8 +34,8 @@ export default function AutocompleteMulti<T>(props: AutocompleteMultiProps<T>) {
       fullWidth
       multiple
       renderInput={(inputProps) => <TextField {...inputProps} label={label} error={error} helperText={helperText} />}
-      renderOption={(optionProps, option, { selected }) => (
-        <li {...optionProps}>
+      renderOption={({ key, ...optionProps }, option, { selected }) => (
+        <li key={key} {...optionProps}>
           <Checkbox
             icon={<CheckBoxOutlineBlank fontSize="small" />}
             checkedIcon={<CheckBox fontSize="small" />}
