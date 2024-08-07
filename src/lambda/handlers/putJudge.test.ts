@@ -16,7 +16,7 @@ jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
 const { authorize } = await import('../lib/auth')
 const authorizeMock = authorize as jest.Mock<typeof authorize>
 
-const { default: putJudgeLambda, dynamoDB } = await import('./handler')
+const { default: putJudgeLambda, dynamoDB } = await import('./putJudge')
 const mockDynamoDB = dynamoDB as jest.Mocked<typeof dynamoDB>
 
 const mockUser: JsonUser = {

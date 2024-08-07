@@ -9,7 +9,7 @@ import { response } from '../utils/response'
 
 const dynamoDB = new CustomDynamoClient(CONFIG.userTable)
 
-const setAdminLambda = lambda('setAdmin', async (event) => {
+const setUserAdminLambda = lambda('setUserAdmin', async (event) => {
   const user = await authorize(event)
   if (!user) {
     return response(401, 'Unauthorized', event)
@@ -49,4 +49,4 @@ const setAdminLambda = lambda('setAdmin', async (event) => {
   return response(200, { ...existing, ...item }, event)
 })
 
-export default setAdminLambda
+export default setUserAdminLambda

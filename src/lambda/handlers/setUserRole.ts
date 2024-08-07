@@ -10,7 +10,7 @@ import { response } from '../utils/response'
 
 const dynamoDB = new CustomDynamoClient(CONFIG.userTable)
 
-const setRoleLambda = lambda('setRole', async (event) => {
+const setUserRoleLambda = lambda('setUserRole', async (event) => {
   const user = await authorize(event)
   if (!user) {
     return response(401, 'Unauthorized', event)
@@ -44,4 +44,4 @@ const setRoleLambda = lambda('setRole', async (event) => {
   return response(200, saved, event)
 })
 
-export default setRoleLambda
+export default setUserRoleLambda
