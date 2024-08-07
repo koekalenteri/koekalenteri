@@ -519,7 +519,7 @@ Resources:
   GetEventsFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
-      Handler: lambda/handlers/getEvents.default
+      Handler: lambda/GetEventsFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -546,7 +546,7 @@ Resources:
   GetEventFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/getEvent.default
+      Handler: lambda/GetEventFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -573,7 +573,7 @@ Resources:
   GetAdminEventsFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/getAdminEvents.default
+      Handler: lambda/GetAdminEventsFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -608,7 +608,7 @@ Resources:
   GetAdminEventFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/getAdminEvent.default
+      Handler: lambda/GetAdminEventFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -643,7 +643,7 @@ Resources:
   PutEventFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/putEvent.default
+      Handler: lambda/PutEventFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -678,7 +678,7 @@ Resources:
   CopyEventFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/copyEvent.default
+      Handler: lambda/CopyEventFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -715,7 +715,7 @@ Resources:
   DemoEventsFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/demoEvents.default
+      Handler: lambda/DemoEventsFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -744,7 +744,7 @@ Resources:
   GetRegistrationsFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/getRegistrations.default
+      Handler: lambda/GetRegistrationsFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -781,7 +781,7 @@ Resources:
   GetRegistrationTransactionsFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/getRegistrationTransactions.default
+      Handler: lambda/GetRegistrationTransactionsFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -818,7 +818,7 @@ Resources:
   GetRegistrationAuditTrailFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/getRegistrationAuditTrail.default
+      Handler: lambda/GetRegistrationAuditTrailFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -855,7 +855,7 @@ Resources:
   GetRegistrationFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/getRegistration.default
+      Handler: lambda/GetRegistrationFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -884,7 +884,7 @@ Resources:
   PutRegistrationFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/putRegistration.default
+      Handler: lambda/PutRegistrationFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -921,7 +921,7 @@ Resources:
   PutAdminRegistrationFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/putAdminRegistration.default
+      Handler: lambda/PutAdminRegistrationFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -964,7 +964,7 @@ Resources:
   PutRegistrationGroupsFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/putRegistrationGroups.default
+      Handler: lambda/PutRegistrationGroupsFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -1007,7 +1007,7 @@ Resources:
   PutAdminRegistrationNotesFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/putAdminRegistrationNotes.default
+      Handler: lambda/PutAdminRegistrationNotesFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -1049,7 +1049,7 @@ Resources:
   GetJudgesFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/getJudgesFunction.default
+      Handler: lambda/GetJudgesFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -1093,7 +1093,7 @@ Resources:
   PutJudgeFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/putJudge.default
+      Handler: lambda/PutJudgeFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -1128,7 +1128,7 @@ Resources:
   GetOfficialsFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/getOfficials.default
+      Handler: lambda/GetOfficialsFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -1172,7 +1172,7 @@ Resources:
   GetOrganizersFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/getOrganizers.default
+      Handler: lambda/GetOrganizersFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -1214,7 +1214,7 @@ Resources:
   PutOrganizerFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/putOrganizer.default
+      Handler: lambda/PutOrganizerFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -1256,7 +1256,7 @@ Resources:
   GetDogFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/getDog.default
+      Handler: lambda/GetDogFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -1290,7 +1290,7 @@ Resources:
   GetEventTypesFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/getEventTypes.default
+      Handler: lambda/GetEventTypesFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -1332,7 +1332,7 @@ Resources:
   PutEventTypeFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/putEventType.default
+      Handler: lambda/PutEventTypeFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -1371,7 +1371,7 @@ Resources:
   GetEmailTemplatesFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/getEmailTemplates.default
+      Handler: lambda/GetEmailTemplatesFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -1404,7 +1404,7 @@ Resources:
   PutEmailTemplateFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/putEmailTemplate.default
+      Handler: lambda/PutEmailTemplateFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -1447,7 +1447,7 @@ Resources:
   SendRegistrationMessagesFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/sendMessages.default
+      Handler: lambda/SendRegistrationMessagesFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -1490,7 +1490,7 @@ Resources:
   GetUserFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/getUser.default
+      Handler: lambda/GetUserFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -1521,7 +1521,7 @@ Resources:
   GetUsersFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/getUsers.default
+      Handler: lambda/GetUsersFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -1552,7 +1552,7 @@ Resources:
   AddUserFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/addUser.default
+      Handler: lambda/AddUserFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -1593,7 +1593,7 @@ Resources:
   SetRoleFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/setUserRole.default
+      Handler: lambda/SetRoleFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -1634,7 +1634,7 @@ Resources:
   SetAdminFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/setUserAdmin.default
+      Handler: lambda/SetAdminFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -1667,7 +1667,7 @@ Resources:
   GetStartListFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/getStartList.default
+      Handler: lambda/GetStartListFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -1696,7 +1696,7 @@ Resources:
   PutInvitationAttachmentFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/putInvitationAttachment.default
+      Handler: lambda/PutInvitationAttachmentFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -1736,7 +1736,7 @@ Resources:
   GetAttachmentFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/getAttachment.default
+      Handler: lambda/GetAttachmentFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -1772,7 +1772,7 @@ Resources:
   PaymentCreateFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/paymentCreate.default
+      Handler: lambda/PaymentCreateFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -1814,7 +1814,7 @@ Resources:
   PaymentVerifyFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/paymentVerify.default
+      Handler: lambda/PaymentVerifyFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -1856,7 +1856,7 @@ Resources:
   PaymentSuccessFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/paymentSuccess.default
+      Handler: lambda/PaymentSuccessFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -1904,7 +1904,7 @@ Resources:
   PaymentCancelFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/paymentCancel.default
+      Handler: lambda/PaymentCancelFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -1946,7 +1946,7 @@ Resources:
   RefundCreateFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/refundCreate.default
+      Handler: lambda/RefundCreateFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -1994,7 +1994,7 @@ Resources:
   RefundSuccessFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/refundSuccess.default
+      Handler: lambda/RefundSuccessFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -2042,7 +2042,7 @@ Resources:
   RefundCancelFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/refundCancel.default
+      Handler: lambda/RefundCancelFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -2084,7 +2084,7 @@ Resources:
   RunMigrationFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda/handlers/runMigration.default
+      Handler: lambda/RunMigrationFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active

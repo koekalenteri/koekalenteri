@@ -31,7 +31,7 @@ jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
   default: jest.fn(() => mockDynamoDB),
 }))
 
-const { default: getDogHandler } = await import('./getDog')
+const { default: getDogHandler } = await import('./handler')
 
 describe('getDogHandler', () => {
   jest.spyOn(console, 'debug').mockImplementation(() => undefined)

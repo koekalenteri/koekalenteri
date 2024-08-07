@@ -36,7 +36,7 @@ jest.unstable_mockModule('../lib/registration', () => ({
 const { authorize } = await import('../lib/auth')
 const authorizeMock = authorize as jest.Mock<typeof authorize>
 
-const { default: putRegistrationGroupsLambda } = await import('./putRegistrationGroups')
+const { default: putRegistrationGroupsLambda } = await import('./handler')
 
 const mockUser: JsonUser = {
   id: '',
