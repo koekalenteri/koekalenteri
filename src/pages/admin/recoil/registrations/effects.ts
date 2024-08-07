@@ -14,9 +14,7 @@ export const adminRemoteRegistrationsEffect: AtomEffect<Registration[]> = ({ get
       getPromise(idTokenAtom).then((token) => {
         if (!token) return new DefaultValue()
 
-        return getRegistrations(eventId, token).then((registrations) => {
-          return registrations ?? new DefaultValue()
-        })
+        return getRegistrations(eventId, token).then((registrations) => registrations ?? new DefaultValue())
       })
     )
   }
