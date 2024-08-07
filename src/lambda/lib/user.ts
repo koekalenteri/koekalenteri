@@ -102,19 +102,12 @@ export const setUserRole = async (
   return { ...user, roles }
 }
 
-export const updateUsersFromOfficialsOrJudges = async (
-  dynamoDB: CustomDynamoClient,
-  items: Official[] | PartialJsonJudge[],
+const buildUserUpdates = (
+  itemsWithEmail: Official[],
+  newItems: Official[],
+  existingUsers: JsonUser[],
   eventTypesFiled: 'officer' | 'judge'
 ) => {
-  if (!items.length) return
-
-  const allUsers = (await dynamoDB.readAll<JsonUser>(userTable)) ?? []
-  const allUsersWithEmail = allUsers.filter((u) => validEmail(u.email))
-  const existingUsers = allUsersWithEmail.filter((u) => items.find((o) => o.email === u.email.toLocaleLowerCase()))
-  const itemsWithEmail = items.filter((i) => validEmail(i.email))
-  const newItems = itemsWithEmail.filter((i) => !allUsersWithEmail.find((u) => u.email.toLocaleLowerCase() === i.email))
-
   const write: JsonUser[] = []
   const modifiedBy = 'system'
   const dateString = new Date().toISOString()
@@ -165,6 +158,24 @@ export const updateUsersFromOfficialsOrJudges = async (
       })
     }
   }
+
+  return write
+}
+
+export const updateUsersFromOfficialsOrJudges = async (
+  dynamoDB: CustomDynamoClient,
+  items: Official[] | PartialJsonJudge[],
+  eventTypesFiled: 'officer' | 'judge'
+) => {
+  if (!items.length) return
+
+  const allUsers = (await dynamoDB.readAll<JsonUser>(userTable)) ?? []
+  const allUsersWithEmail = allUsers.filter((u) => validEmail(u.email))
+  const existingUsers = allUsersWithEmail.filter((u) => items.find((o) => o.email === u.email.toLocaleLowerCase()))
+  const itemsWithEmail = items.filter((i) => validEmail(i.email))
+  const newItems = itemsWithEmail.filter((i) => !allUsersWithEmail.find((u) => u.email.toLocaleLowerCase() === i.email))
+
+  const write = buildUserUpdates(itemsWithEmail, newItems, existingUsers, eventTypesFiled)
 
   if (write.length) {
     try {
