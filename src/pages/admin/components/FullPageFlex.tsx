@@ -2,17 +2,18 @@ import type { ReactNode } from 'react'
 
 import Box from '@mui/material/Box'
 
-type FullPageFlexProps = {
+interface Props {
   children?: ReactNode
+  minWidth?: number
 }
 
-const FullPageFlex = (props: FullPageFlexProps) => {
+const FullPageFlex = ({ children, minWidth }: Props) => {
   return (
     <Box
       sx={{
         display: 'flex',
         p: 0,
-        overflow: 'hidden',
+        overflow: minWidth ? undefined : 'hidden',
         height: '100%',
         flexDirection: 'column',
         alignItems: 'flex-start',
@@ -25,9 +26,10 @@ const FullPageFlex = (props: FullPageFlexProps) => {
           flexGrow: 1,
           width: '100%',
           minHeight: 300,
+          minWidth,
         }}
       >
-        {props.children}
+        {children}
       </Box>
     </Box>
   )

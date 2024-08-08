@@ -115,7 +115,7 @@ export default function EventViewPage() {
 
   return (
     <>
-      <FullPageFlex>
+      <FullPageFlex minWidth={900}>
         <Grid container justifyContent="space-between">
           <Grid item xs>
             <Title event={event} />

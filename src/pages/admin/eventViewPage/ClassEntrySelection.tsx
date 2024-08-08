@@ -12,11 +12,14 @@ import type {
 } from '../../../types'
 import type { DragItem } from './classEntrySelection/dropableDataGrid/DragableRow'
 
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
+import Checkbox from '@mui/material/Checkbox'
+import FormControlLabel from '@mui/material/FormControlLabel'
+import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { isSameDay } from 'date-fns'
 import { useConfirm } from 'material-ui-confirm'
@@ -85,6 +88,7 @@ const ClassEntrySelection = ({
   const { t } = useTranslation()
   const { enqueueSnackbar } = useSnackbar()
   const actions = useAdminRegistrationActions(event.id)
+  const [unlockArrange, setUnlockArrange] = useState(false)
 
   const handleOpen = useCallback(
     (id: string) => {
@@ -143,7 +147,11 @@ const ClassEntrySelection = ({
     return byGroup
   }, [groups, registrations])
 
-  const canArrangeReserve = !registrationsByGroup.reserve.some((r) => r.reserveNotified)
+  const reserveNotNotified = useMemo(
+    () => !registrationsByGroup.reserve.some((r) => r.reserveNotified),
+    [registrationsByGroup.reserve]
+  )
+  const canArrangeReserve = reserveNotNotified || unlockArrange
 
   const handleDrop = (group: RegistrationGroup) => async (item: DragItem) => {
     const reg = registrations.find((r) => r.id === item.id)
@@ -155,7 +163,7 @@ const ClassEntrySelection = ({
       (state === 'picked' || state === 'invited') &&
       group.key !== GROUP_KEY_CANCELLED &&
       group.key !== GROUP_KEY_RESERVE &&
-      item.targetGroupKey !== group.key
+      ((item.targetGroupKey && item.targetGroupKey !== group.key) || item.groupKey !== group.key)
     ) {
       const extra = state === 'invited' ? ' sekä koekutsu' : ''
       try {
@@ -186,7 +194,7 @@ const ClassEntrySelection = ({
         delete item.targetGroupKey
         return
       }
-      save.push({ eventId: reg.eventId, id: reg.id, group: newGroup })
+      save.push({ eventId: reg.eventId, id: reg.id, group: newGroup, cancelled: newGroup.key === GROUP_KEY_CANCELLED })
     } else if (item.targetGroupKey && item.targetGroupKey === item.groupKey) {
       const targetIndex = item.targetIndex ?? 0
       // if moving down, substract 1 (bevause this reg is not included in regs)
@@ -210,13 +218,16 @@ const ClassEntrySelection = ({
         id: reg.id,
         group: { ...newGroup, number: newGroup.number + hoverModifier },
       })
-    } else {
+    } else if (item.groupKey !== newGroup.key) {
+      console.log('heihei', item)
       // move from list to another (always last)
       save.push({ eventId: reg.eventId, id: reg.id, group: newGroup, cancelled: newGroup.key === GROUP_KEY_CANCELLED })
     }
 
     // finally send all the updates to backend
-    await actions.saveGroups(reg.eventId, save)
+    if (save.length) {
+      await actions.saveGroups(reg.eventId, save)
+    }
   }
 
   const handleReject = (group: RegistrationGroup) => (item: DragItem) => {
@@ -324,7 +335,17 @@ const ClassEntrySelection = ({
           onReject={handleReject(group)}
         />
       ))}
-      <Typography variant="h6">Ilmoittautuneet</Typography>
+      <Stack direction="row" justifyContent="space-between" gap={2}>
+        <Typography variant="h6">Ilmoittautuneet</Typography>
+        <FormControlLabel
+          control={<Checkbox checked={unlockArrange} />}
+          disabled={reserveNotNotified}
+          disableTypography
+          label="Järjestä varasijoja, jo lähetetyistä varasijailmoituksista huolimatta"
+          onChange={(e, checked) => setUnlockArrange(checked)}
+          sx={{ fontSize: '0.82rem', lineHeight: 1, maxWidth: 240 }}
+        />
+      </Stack>
       <DragableDataGrid
         autoHeight
         canDrop={(item) =>
