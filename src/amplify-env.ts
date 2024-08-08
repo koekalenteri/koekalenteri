@@ -37,7 +37,7 @@ if (!AWSConfig.Auth?.Cognito.identityPoolId && isDevEnv()) {
 }
 
 export const RUM_CONFIG: AwsRumConfig = {
-  sessionSampleRate: 1,
+  sessionSampleRate: 0.25,
   guestRoleArn: process.env.REACT_APP_RUM_ROLE_ARN,
   identityPoolId: process.env.REACT_APP_RUM_IDENTITY_POOL_ID,
   endpoint: process.env.REACT_APP_RUM_ENDPOINT,

@@ -20,6 +20,7 @@ import { useSnackbar } from 'notistack'
 
 import { useAdminEventRegistrationDates } from '../../../hooks/useAdminEventRegistrationDates'
 import { useAdminEventRegistrationGroups } from '../../../hooks/useAdminEventRegistrationGroups'
+import { rum } from '../../../lib/client/rum'
 import { eventRegistrationDateKey } from '../../../lib/event'
 import { getRegistrationGroupKey, GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE } from '../../../lib/registration'
 import { uniqueDate } from '../../../lib/utils'
@@ -203,6 +204,14 @@ const ClassEntrySelection = ({
       })
     } else {
       console.log(reg.group?.key, group.key, reg.dates)
+      rum()?.recordEvent('dnd-group-rejected', {
+        eventId: reg.eventId,
+        registrationId: reg.id,
+        targetGroup: group.key,
+        sourceGroup: reg.group?.key,
+        regGroups: reg.dates.map((rd) => eventRegistrationDateKey(rd)).join(', '),
+        dropGroups: item.groups.join(', '),
+      })
       enqueueSnackbar(`Koira ${reg.dog.name} ei ole ilmoittautunut tähän ryhmään`, { variant: 'error' })
     }
   }
