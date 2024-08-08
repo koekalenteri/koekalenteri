@@ -56,7 +56,8 @@ export const setReserveNotified = async (registrations: JsonRegistration[]) =>
       .map(({ eventId, id }) => updateRegistrationField(eventId, id, 'reserveNotified', true))
   )
 
-const getLastEmailInfo = (
+// exported for testing
+export const getLastEmailInfo = (
   template: EmailTemplateId,
   templateName: string,
   registration: JsonRegistration,

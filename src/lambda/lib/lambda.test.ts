@@ -1,7 +1,7 @@
 import { jest } from '@jest/globals'
 
 import { getParam } from './lambda'
-describe('params', () => {
+describe('lambda', () => {
   describe('getParam', () => {
     it('should fallback to defaultValue', () => {
       expect(getParam({}, 'test')).toEqual('')
