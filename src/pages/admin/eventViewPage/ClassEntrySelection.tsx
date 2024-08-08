@@ -2,14 +2,7 @@ import type { GridCallbackDetails, GridCellParams, GridRowSelectionModel, MuiEve
 import type { Dispatch, SetStateAction } from 'react'
 import type React from 'react'
 import type { SetterOrUpdater } from 'recoil'
-import type {
-  DogEvent,
-  EventClassState,
-  EventState,
-  Registration,
-  RegistrationGroup,
-  RegistrationGroupInfo,
-} from '../../../types'
+import type { DogEvent, EventClassState, EventState, Registration, RegistrationGroup } from '../../../types'
 import type { DragItem } from './classEntrySelection/dropableDataGrid/DragableRow'
 
 import { useCallback, useMemo, useState } from 'react'
@@ -34,6 +27,7 @@ import { NullComponent } from '../../components/NullComponent'
 import StyledDataGrid from '../../components/StyledDataGrid'
 import { useAdminRegistrationActions } from '../recoil/registrations/actions'
 
+import { determineChangesFromDrop } from './classEntrySelection/dnd'
 import DragableDataGrid from './classEntrySelection/DropableDataGrid'
 import GroupHeader from './classEntrySelection/GroupHeader'
 import NoRowsOverlay from './classEntrySelection/NoRowsOverlay'
@@ -181,50 +175,12 @@ const ClassEntrySelection = ({
     // make sure the dropped registration is selected, so its intuitive to user
     setSelectedRegistrationId?.(reg.id)
 
-    const save: RegistrationGroupInfo[] = []
     // determine all the other registrations in group
     const regs = registrations.filter((r) => r.group?.key === group.key && r.id !== reg.id)
+    // determine changes
+    const save = determineChangesFromDrop(item, group, reg, regs, canArrangeReserve)
 
-    // by default, assume new location is last in group
-    const newGroup = { ...group, number: regs.length + 1 }
-
-    if (group.key === GROUP_KEY_CANCELLED || (group.key === GROUP_KEY_RESERVE && !canArrangeReserve)) {
-      if (reg.group?.key === group.key) {
-        // user can not re-order items in cancelled or reserve groups
-        delete item.targetGroupKey
-        return
-      }
-      save.push({ eventId: reg.eventId, id: reg.id, group: newGroup, cancelled: newGroup.key === GROUP_KEY_CANCELLED })
-    } else if (item.targetGroupKey && item.targetGroupKey === item.groupKey) {
-      const targetIndex = item.targetIndex ?? 0
-      // if moving down, substract 1 (bevause this reg is not included in regs)
-      const directionModifier = item.index < targetIndex ? -1 : 0
-      // modifier based on if hovered above or below the target
-      const hoverModifier = item.position === 'before' ? -0.5 : 0.5
-      // final position
-      const pos = targetIndex + directionModifier
-      // take the number from registration in that position
-      newGroup.number = regs[pos]?.group?.number ?? 0
-
-      // moved as last, set number to last + 1
-      if (item.position === 'after' && pos > 0 && newGroup.number === 0) {
-        newGroup.number = (regs[regs.length - 1]?.group?.number ?? 0) + 1
-      }
-      // put the registration in correct position
-      regs.splice(pos, 0, reg)
-      // save using a 0.5 modifier based on position. backend will fix the numbers.
-      save.push({
-        eventId: reg.eventId,
-        id: reg.id,
-        group: { ...newGroup, number: newGroup.number + hoverModifier },
-      })
-    } else if (item.groupKey !== newGroup.key) {
-      console.log('heihei', item)
-      // move from list to another (always last)
-      save.push({ eventId: reg.eventId, id: reg.id, group: newGroup, cancelled: newGroup.key === GROUP_KEY_CANCELLED })
-    }
-
-    // finally send all the updates to backend
+    // send all the updates to backend
     if (save.length) {
       await actions.saveGroups(reg.eventId, save)
     }

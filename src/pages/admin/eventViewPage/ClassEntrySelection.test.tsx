@@ -42,8 +42,6 @@ describe('ClassEntrySelection', () => {
   })
 
   it('renders with cancelled registration(s)', async () => {
-    const dates = [registrationWithStaticDates.dates[0].date]
-
     const registrations: Registration[] = [registrationWithStaticDates, registrationWithStaticDatesCancelled].map(
       (r) => ({ ...r, setGroup: jest.fn() })
     )
