@@ -20,6 +20,13 @@ const refundCancelLambda = lambda('refundCancel', async (event) => {
   const params: Partial<PaytrailCallbackParams> = event.queryStringParameters ?? {}
   const { eventId, registrationId, transactionId } = parseParams(params)
 
+  if (!params['checkout-transaction-id']) {
+    console.log(
+      'Request did not contain transaction-id, this happens when transaction was not actually created. Ignoring request.'
+    )
+    return response(200, undefined, event)
+  }
+
   await verifyParams(params)
 
   const transaction = await dynamoDB.read<JsonRefundTransaction>({ transactionId })
