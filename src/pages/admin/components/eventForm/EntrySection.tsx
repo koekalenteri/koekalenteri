@@ -83,7 +83,7 @@ export default function EntrySection(props: Props) {
         <Grid item container spacing={1}>
           <Grid item width={600}>
             <DateRange
-              disabled={disabled}
+              startDisabled={disabled}
               startLabel="Ilmoittautumisaika alkaa"
               endLabel="Ilmoittautumisaika päättyy"
               start={event.entryStartDate ?? null}
@@ -99,7 +99,7 @@ export default function EntrySection(props: Props) {
         </Grid>
         <Grid item container spacing={1}>
           <Grid item minWidth={600} maxWidth={900}>
-            <EventDates event={event} eventTypeClasses={eventTypeClasses} onChange={onChange} />
+            <EventDates disabled={disabled} event={event} eventTypeClasses={eventTypeClasses} onChange={onChange} />
           </Grid>
         </Grid>
         <Grid item container spacing={1}>

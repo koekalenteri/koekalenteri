@@ -13,11 +13,11 @@ import { applyNewGroupsToDogEventClass } from '../../../../../../lib/event'
 import AutocompleteMulti from '../../../../../components/AutocompleteMulti'
 import { adminEventTypeGroupsSelector } from '../../../../recoil'
 
-interface Props extends Pick<SectionProps, 'event' | 'onChange'> {
+interface Props extends Pick<SectionProps, 'disabled' | 'event' | 'onChange'> {
   eventClass: RegistrationClass
 }
 
-export const ClassGroups = ({ event, eventClass, onChange }: Readonly<Props>) => {
+export const ClassGroups = ({ disabled, event, eventClass, onChange }: Readonly<Props>) => {
   const { t } = useTranslation()
   const typeGroups = useRecoilValue(adminEventTypeGroupsSelector(event.eventType))
   const defaultGroups = useMemo(() => typeGroups.filter((g) => g !== 'kp'), [typeGroups])
@@ -53,6 +53,7 @@ export const ClassGroups = ({ event, eventClass, onChange }: Readonly<Props>) =>
     <Stack direction="row" gap={1} alignItems="center" key={eventClass}>
       <Box minWidth={40}>{eventClass}</Box>
       <AutocompleteMulti
+        disabled={disabled}
         label={t('registration.dates')}
         onChange={handleChange}
         isOptionEqualToValue={(o, v) => o.date?.valueOf() === v.date?.valueOf() && o.time === v.time}

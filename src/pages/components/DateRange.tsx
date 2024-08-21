@@ -13,12 +13,13 @@ export type DateValue = Date | null
 export interface Props {
   readonly defaultStart?: Date
   readonly defaultEnd?: Date
-  readonly disabled?: boolean
   readonly start: DateValue
+  readonly startDisabled?: boolean
   readonly startLabel: string
   readonly startError?: boolean
   readonly startHelperText?: string
   readonly end: DateValue
+  readonly endDisabled?: boolean
   readonly endLabel: string
   readonly endError?: boolean
   readonly endHelperText?: string
@@ -40,19 +41,20 @@ function coerceToDateValue(d: DateValue) {
 }
 
 export default function DateRange({
-  start,
-  end,
-  startLabel,
-  endLabel,
-  startError,
-  endError,
-  startHelperText,
-  endHelperText,
-  defaultStart,
   defaultEnd,
+  defaultStart,
+  end,
+  endDisabled,
+  endError,
+  endHelperText,
+  endLabel,
   range,
   required,
-  disabled,
+  start,
+  startDisabled,
+  startError,
+  startHelperText,
+  startLabel,
   onChange,
 }: Props) {
   const { t } = useTranslation()
@@ -70,7 +72,7 @@ export default function DateRange({
       <FormControl sx={{ pr: 0.5, width: '50%' }}>
         <DatePicker
           referenceDate={defaultStart}
-          disabled={disabled}
+          disabled={startDisabled}
           label={startLabel}
           value={start}
           format={t('dateFormatString.long')}
@@ -93,7 +95,7 @@ export default function DateRange({
       <FormControl sx={{ pl: 0.5, width: '50%' }}>
         <DatePicker
           referenceDate={defaultEnd}
-          disabled={disabled}
+          disabled={endDisabled}
           label={endLabel}
           value={end}
           format={t('dateFormatString.long')}

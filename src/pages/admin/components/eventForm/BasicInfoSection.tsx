@@ -172,13 +172,14 @@ export default function BasicInfoSection({
               startLabel={t('event.startDate')}
               endLabel={t('event.endDate')}
               start={event.startDate}
+              startDisabled={hasEntries || disabled}
               startError={errorStates?.startDate}
               startHelperText={helperTexts?.startDate}
               end={event.endDate}
+              endDisabled={disabled}
               endError={errorStates?.endDate}
               endHelperText={helperTexts?.endDate}
               required
-              disabled={hasEntries || disabled}
               onChange={handleDateChange}
             />
           </Grid>

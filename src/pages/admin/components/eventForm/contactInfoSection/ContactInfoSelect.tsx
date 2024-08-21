@@ -68,9 +68,9 @@ export default function ContactInfoSelect({ disabled, name, show, defaults, onCh
         control={<Checkbox checked={state.phone !== ''} name="phone" onChange={handleCheck} />}
         label={t('contact.phone')}
       />
-      <TextField name="name" value={state.name} onChange={handleChange} />
-      <TextField name="email" value={state.email} onChange={handleChange} />
-      <TextField name="phone" value={state.phone} onChange={handleChange} />
+      <TextField disabled={disabled} name="name" value={state.name} onChange={handleChange} />
+      <TextField disabled={disabled} name="email" value={state.email} onChange={handleChange} />
+      <TextField disabled={disabled} name="phone" value={state.phone} onChange={handleChange} />
     </FormGroup>
   )
 }

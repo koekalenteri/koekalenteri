@@ -14,9 +14,9 @@ import { applyNewGroupsToDogEventDates } from '../../../../../../lib/event'
 import AutocompleteMulti from '../../../../../components/AutocompleteMulti'
 import { adminEventTypeGroupsSelector } from '../../../../recoil'
 
-interface Props extends Pick<SectionProps, 'event' | 'onChange'> {}
+interface Props extends Pick<SectionProps, 'disabled' | 'event' | 'onChange'> {}
 
-export const EventGroups = ({ event, onChange }: Readonly<Props>) => {
+export const EventGroups = ({ disabled, event, onChange }: Readonly<Props>) => {
   const { t } = useTranslation()
   const options = useAdminEventDatesOptions(event)
   const defaultDates = useAdminEventRegistrationDates(event)
@@ -61,6 +61,7 @@ export const EventGroups = ({ event, onChange }: Readonly<Props>) => {
   return (
     <Stack direction="row" gap={1} alignItems="center">
       <AutocompleteMulti
+        disabled={disabled}
         label={t('registration.dates')}
         getOptionLabel={getGroupLabel}
         isOptionEqualToValue={(o, v) => o.date?.valueOf() === v.date?.valueOf() && o.time === v.time}
