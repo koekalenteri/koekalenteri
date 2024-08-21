@@ -1,10 +1,10 @@
 import type { GridColumnVisibilityModel } from '@mui/x-data-grid'
 import type { DogEvent, RegistrationClass } from '../../../../types'
 
-import { addDays, addYears, isSameDay, nextSaturday, sub } from 'date-fns'
+import { addYears } from 'date-fns'
 import { atom, atomFamily, selector } from 'recoil'
 
-import { zonedStartOfDay } from '../../../../i18n/dates'
+import { newEventEntryEndDate, newEventEntryStartDate, newEventStartDate } from '../../../../lib/event'
 import { uniqueClasses } from '../../../../lib/utils'
 import { localStorageEffect, logEffect, sessionStorageEffect } from '../../../recoil'
 
@@ -22,21 +22,6 @@ export const adminEventsAtom = atom<DogEvent[]>({
   default: [],
   effects: [logEffect, sessionStorageEffect, adminRemoteEventsEffect],
 })
-
-const EntryStartWeeks = 6
-const EntryEndWeeks = 3
-
-export const defaultEntryStartDate = (eventStartDate: Date) => sub(eventStartDate, { weeks: EntryStartWeeks })
-export const defaultEntryEndDate = (eventStartDate: Date) => sub(eventStartDate, { weeks: EntryEndWeeks })
-
-export const newEventStartDate = zonedStartOfDay(nextSaturday(addDays(Date.now(), 90)))
-export const newEventEntryStartDate = defaultEntryStartDate(newEventStartDate)
-export const newEventEntryEndDate = defaultEntryEndDate(newEventStartDate)
-
-export const isDetaultEntryStartDate = (date: Date | undefined, eventStartDate: Date) =>
-  !date || isSameDay(defaultEntryStartDate(eventStartDate), date)
-export const isDetaultEntryEndDate = (date: Date | undefined, eventStartDate: Date) =>
-  !date || isSameDay(defaultEntryEndDate(eventStartDate), date)
 
 export const adminNewEventAtom = atom<DogEvent>({
   key: 'newEvent',

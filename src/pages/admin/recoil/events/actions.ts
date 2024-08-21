@@ -2,23 +2,16 @@ import type { DogEvent } from '../../../../types'
 
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
-import { addDays, differenceInDays } from 'date-fns'
 import { diff } from 'deep-object-diff'
 import { useSnackbar } from 'notistack'
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
 
 import { copyEventWithRegistrations, putEvent } from '../../../../api/event'
-import { sanitizeDogEvent } from '../../../../lib/event'
+import { copyDogEvent, sanitizeDogEvent } from '../../../../lib/event'
 import { Path } from '../../../../routeConfig'
 import { eventsAtom, idTokenAtom, userSelector } from '../../../recoil'
 
-import {
-  adminEventIdAtom,
-  adminNewEventAtom,
-  newEventEntryEndDate,
-  newEventEntryStartDate,
-  newEventStartDate,
-} from './atoms'
+import { adminEventIdAtom, adminNewEventAtom } from './atoms'
 import { adminCurrentEventSelector } from './selectors'
 
 export const useAdminEventActions = () => {
@@ -60,27 +53,8 @@ export const useAdminEventActions = () => {
     if (!currentAdminEvent) {
       return
     }
-    const copy = structuredClone(currentAdminEvent)
-    copy.id = ''
-    copy.name = 'Kopio - ' + (copy.name ?? '')
-    copy.state = 'draft'
-    copy.entries = 0
-    copy.classes.forEach((c) => {
-      c.entries = c.members = 0
-      if (c.date) {
-        c.date = addDays(newEventStartDate, differenceInDays(copy.startDate, c.date))
-      }
-      delete c.state
-    })
 
-    const days = differenceInDays(copy.endDate, copy.startDate)
-    copy.startDate = newEventStartDate
-    copy.endDate = addDays(newEventStartDate, days)
-    copy.entryStartDate = newEventEntryStartDate
-    copy.entryEndDate = newEventEntryEndDate
-
-    delete copy.kcId
-    delete copy.entryOrigEndDate
+    const copy = copyDogEvent(currentAdminEvent)
 
     setNewEvent(copy)
     navigate(Path.admin.newEvent)

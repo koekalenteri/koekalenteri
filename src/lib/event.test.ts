@@ -1,11 +1,19 @@
 import type { DogEvent, EventClass, RegistrationDate, RegistrationTime } from '../types'
 
+import { addDays } from 'date-fns'
+
+import { eventWithEntryClosing, eventWithParticipantsInvited } from '../__mockData__/events'
+
 import {
   applyNewGroupsToDogEventClass,
   applyNewGroupsToDogEventDates,
+  copyDogEvent,
   getEventClassesByDays,
   getEventDays,
   getUniqueEventClasses,
+  newEventEntryEndDate,
+  newEventEntryStartDate,
+  newEventStartDate,
 } from './event'
 
 describe('lib/event', () => {
@@ -172,6 +180,65 @@ describe('lib/event', () => {
           })
         }
       )
+    })
+  })
+
+  describe('copyDogEvent', () => {
+    it('should remove id', () => expect(copyDogEvent(eventWithParticipantsInvited).id).toEqual(''))
+    it('should add "Kopio - " to name', () =>
+      expect(copyDogEvent(eventWithParticipantsInvited).name.startsWith('Kopio -')).toBeTruthy())
+    it('should set state to draft', () => expect(copyDogEvent(eventWithParticipantsInvited).state).toEqual('draft'))
+    it('should reset entries and members', () => {
+      const copy = copyDogEvent({ ...eventWithParticipantsInvited, members: 10, entries: 15 })
+      expect(copy.entries).toBe(0)
+      expect(copy.members).toBe(0)
+    })
+    it('should set startDate', () =>
+      expect(copyDogEvent(eventWithParticipantsInvited).startDate).toEqual(newEventStartDate))
+    it('should set endDate', () =>
+      expect(copyDogEvent(eventWithParticipantsInvited).endDate).toEqual(newEventStartDate))
+    it('should set endDate on two day event', () =>
+      expect(copyDogEvent(eventWithEntryClosing).endDate).toEqual(addDays(newEventStartDate, 1)))
+    it('should set entryStartDate / entryEndDate', () => {
+      const copy = copyDogEvent({ ...eventWithParticipantsInvited, entryOrigEndDate: new Date() })
+      expect(copy.entryStartDate).toEqual(newEventEntryStartDate)
+      expect(copy.entryEndDate).toEqual(newEventEntryEndDate)
+      expect(copy.entryOrigEndDate).toBeUndefined()
+    })
+    it('should update classes', () => {
+      const copy = copyDogEvent(eventWithParticipantsInvited)
+      expect(copy.classes.length).toBe(2)
+      for (let i = 0; i < 2; i++) {
+        expect(copy.classes[i].places).toBe(eventWithParticipantsInvited.classes[i].places)
+        expect(copy.classes[i].entries).toBe(0)
+        expect(copy.classes[i].members).toBe(0)
+        expect(copy.classes[i].date).toEqual(newEventStartDate)
+      }
+    })
+    it('should update class dates on muptiple day event', () => {
+      const copy = copyDogEvent({
+        ...eventWithEntryClosing,
+        classes: [
+          { class: 'ALO', date: eventWithEntryClosing.startDate, places: 2 },
+          { class: 'ALO', date: eventWithEntryClosing.endDate, places: 12 },
+        ],
+      })
+      expect(copy.classes[0].date).toEqual(copy.startDate)
+      expect(copy.classes[1].date).toEqual(copy.endDate)
+    })
+
+    it('should update dates', () => {
+      const copy = copyDogEvent({
+        ...eventWithEntryClosing,
+        dates: [
+          { date: eventWithEntryClosing.startDate, time: 'ap' },
+          { date: eventWithEntryClosing.endDate, time: 'ip' },
+        ],
+      })
+
+      expect(copy.dates?.length).toBe(2)
+      expect(copy.dates?.[0].date).toEqual(copy.startDate)
+      expect(copy.dates?.[1].date).toEqual(copy.endDate)
     })
   })
 })

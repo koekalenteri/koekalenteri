@@ -133,7 +133,7 @@ export const eventWithParticipantsInvited: ConfirmedEvent = {
   eventType: 'NOME-B',
   state: 'invited',
   classes: [
-    { class: 'ALO', date: addDays(today, 7), places: 3, entries: 2 },
+    { class: 'ALO', date: addDays(today, 7), places: 3, entries: 2, members: 1 },
     { class: 'AVO', date: addDays(today, 7), places: 1, entries: 2 },
   ],
   places: 4,

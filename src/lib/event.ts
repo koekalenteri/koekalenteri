@@ -10,9 +10,26 @@ import type {
   SanitizedPublicDogEvent,
 } from '../types'
 
-import { eachDayOfInterval, isSameDay } from 'date-fns'
+import { addDays, differenceInDays, eachDayOfInterval, isSameDay, nextSaturday, sub } from 'date-fns'
+
+import { zonedStartOfDay } from '../i18n/dates'
 
 import { unique } from './utils'
+
+const EntryStartWeeks = 6
+const EntryEndWeeks = 3
+
+export const defaultEntryStartDate = (eventStartDate: Date) => sub(eventStartDate, { weeks: EntryStartWeeks })
+export const defaultEntryEndDate = (eventStartDate: Date) => sub(eventStartDate, { weeks: EntryEndWeeks })
+
+export const newEventStartDate = zonedStartOfDay(nextSaturday(addDays(Date.now(), 90)))
+export const newEventEntryStartDate = defaultEntryStartDate(newEventStartDate)
+export const newEventEntryEndDate = defaultEntryEndDate(newEventStartDate)
+
+export const isDetaultEntryStartDate = (date: Date | undefined, eventStartDate: Date) =>
+  !date || isSameDay(defaultEntryStartDate(eventStartDate), date)
+export const isDetaultEntryEndDate = (date: Date | undefined, eventStartDate: Date) =>
+  !date || isSameDay(defaultEntryEndDate(eventStartDate), date)
 
 export const getEventDays = ({ startDate, endDate }: Pick<DogEvent, 'startDate' | 'endDate'>) =>
   eachDayOfInterval({
@@ -150,4 +167,38 @@ export const applyNewGroupsToDogEventDates = (
   )
 
   return { classes: [], dates: finalDates }
+}
+
+export const copyDogEvent = (event: DogEvent): DogEvent => {
+  const copy = structuredClone(event)
+  const origStartDate = event.startDate
+  const days = differenceInDays(copy.endDate, copy.startDate)
+
+  copy.id = ''
+  copy.name = 'Kopio - ' + (copy.name ?? '')
+  copy.state = 'draft'
+  copy.entries = copy.members = 0
+
+  copy.classes.forEach((c) => {
+    c.entries = c.members = 0
+    if (c.date) {
+      c.date = addDays(newEventStartDate, differenceInDays(c.date, origStartDate))
+    }
+    delete c.state
+  })
+
+  copy.dates?.forEach((d) => {
+    d.date = addDays(newEventStartDate, differenceInDays(d.date, origStartDate))
+  })
+
+  copy.startDate = newEventStartDate
+  copy.endDate = addDays(newEventStartDate, days)
+  copy.entryStartDate = newEventEntryStartDate
+  copy.entryEndDate = newEventEntryEndDate
+
+  delete copy.kcId
+  delete copy.entryOrigEndDate
+  delete copy.invitationAttachment
+
+  return copy
 }

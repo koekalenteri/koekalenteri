@@ -7,8 +7,8 @@ import { screen } from '@testing-library/react'
 import { add, format } from 'date-fns'
 
 import { locales } from '../../../../i18n'
+import { defaultEntryEndDate, defaultEntryStartDate, newEventStartDate } from '../../../../lib/event'
 import { flushPromises, renderWithUserEvents } from '../../../../test-utils/utils'
-import { defaultEntryEndDate, defaultEntryStartDate, newEventStartDate } from '../../recoil'
 
 import BasicInfoSection from './BasicInfoSection'
 

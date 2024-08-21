@@ -19,15 +19,15 @@ import TextField from '@mui/material/TextField'
 import { add, differenceInDays, eachDayOfInterval, isAfter, isSameDay } from 'date-fns'
 
 import { zonedStartOfDay } from '../../../../i18n/dates'
-import { getRuleDate } from '../../../../rules'
-import CollapsibleSection from '../../../components/CollapsibleSection'
-import DateRange from '../../../components/DateRange'
 import {
   defaultEntryEndDate,
   defaultEntryStartDate,
   isDetaultEntryEndDate,
   isDetaultEntryStartDate,
-} from '../../recoil'
+} from '../../../../lib/event'
+import { getRuleDate } from '../../../../rules'
+import CollapsibleSection from '../../../components/CollapsibleSection'
+import DateRange from '../../../components/DateRange'
 
 import HelpPopover from './basicInfoSection/HelpPopover'
 import EventClasses from './components/EventClasses'
