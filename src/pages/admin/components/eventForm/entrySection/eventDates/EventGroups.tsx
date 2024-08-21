@@ -49,10 +49,12 @@ export const EventGroups = ({ event, onChange }: Readonly<Props>) => {
   useEffect(() => {
     if (typeGroups.length <= 1) return
 
-    if (event.dates?.length !== value.length) {
+    const lengthChanged = event.dates?.length !== value.length
+    const dateChanged = !lengthChanged && event.dates?.some((v, i) => value[i].date.valueOf() !== v.date.valueOf())
+    if (lengthChanged || dateChanged) {
       onChange?.({ classes: [], dates: value })
     }
-  }, [event.dates?.length, onChange, typeGroups.length, value])
+  }, [event.dates, onChange, typeGroups.length, value])
 
   if (typeGroups.length <= 1) return null
 
