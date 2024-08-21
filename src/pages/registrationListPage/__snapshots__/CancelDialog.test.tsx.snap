@@ -45,7 +45,7 @@ exports[`CancelDialog should display secretary contact info when disabled 1`] = 
             class="MuiTypography-root MuiDialogContentText-root MuiTypography-body1 MuiDialogContentText-root css-qfso29-MuiTypography-root-MuiDialogContentText-root"
             id="cancel-dialog-description"
           >
-            Ilmoittautumisen voi perua koepäivänä vain ottamalla yhteyttä suoraan koesihteeriin Siiri Sihteeri 040-secretary
+            Ilmoittautumisen voi perua kokeen alkamispäivänä ja kokeen alkamista edeltävänä päivänä vain ottamalla yhteyttä suoraan koesihteeriin Siiri Sihteeri 040-secretary
           </p>
           <p
             class="MuiTypography-root MuiDialogContentText-root MuiTypography-body1 MuiDialogContentText-root css-1cajira-MuiTypography-root-MuiDialogContentText-root"

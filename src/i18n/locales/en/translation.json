@@ -187,7 +187,7 @@
       "done": "Your registration has been canceled",
       "title": "Cancellation of registration",
       "text": "You are canceling the registration of the dog {{registration.dog.regNo}} {{registration.dog.name}} for the event {{event.startDate, date}} {{event.eventType}} {{event.location}}",
-      "lateText": "The registration can only be canceled on the day of the trial by contacting the trial secretary directly, {{event.contactInfo.secretary.name}} {{contact}}.",
+      "lateText": "You can cancel your registration on the day of the trial and the day before the trial only by directly contacting the trial secretary {{event.contactInfo.secretary.name}} {{contact}}.",
       "confirmation": "Are you sure you want to cancel your registration?",
       "terms": "See detailed cancellation terms in the <2>rules</2>",
       "reason": "Reason for cancellation",

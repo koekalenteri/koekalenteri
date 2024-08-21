@@ -252,7 +252,7 @@
       "done": "Ilmoittautumisesi on peruttu",
       "title": "Ilmoittautumisen peruminen",
       "text": "Olet perumassa koiran {{registration.dog.regNo}} {{registration.dog.name}} ilmoittautumista kokeeseen {{event.startDate, date}} {{event.eventType}} {{event.location}}",
-      "lateText": "Ilmoittautumisen voi perua koepäivänä vain ottamalla yhteyttä suoraan koesihteeriin {{event.contactInfo.secretary.name}} {{contact}}",
+      "lateText": "Ilmoittautumisen voi perua kokeen alkamispäivänä ja kokeen alkamista edeltävänä päivänä vain ottamalla yhteyttä suoraan koesihteeriin {{event.contactInfo.secretary.name}} {{contact}}",
       "confirmation": "Oletko varma, että haluat perua ilmoittautumisen?",
       "terms": "Katso tarkemmat peruutusehdot <2>säännöistä</2>",
       "reason": "Perumisen syy",

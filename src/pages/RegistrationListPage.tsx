@@ -16,7 +16,7 @@ import ListItemSecondaryAction from '@mui/material/ListItemSecondaryAction'
 import ListItemText from '@mui/material/ListItemText'
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
-import { isPast, isToday } from 'date-fns'
+import { isPast, subDays } from 'date-fns'
 import { enqueueSnackbar } from 'notistack'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
@@ -57,7 +57,7 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
   const actions = useRegistrationActions()
   const allDisabled = useMemo(() => !event || !isConfirmedEvent(event) || isPast(event.endDate), [event])
   const cancelDisabled = useMemo(
-    () => !event || allDisabled || isPast(event.startDate) || isToday(event.startDate),
+    () => !event || allDisabled || subDays(event.startDate, 2) > new Date(),
     [allDisabled, event]
   )
 

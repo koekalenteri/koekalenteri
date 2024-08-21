@@ -26,7 +26,7 @@ describe('CancelDialog', () => {
 
     expect(
       screen.getByText(
-        `Ilmoittautumisen voi perua koepäivänä vain ottamalla yhteyttä suoraan koesihteeriin ${name} ${phone}`
+        `Ilmoittautumisen voi perua kokeen alkamispäivänä ja kokeen alkamista edeltävänä päivänä vain ottamalla yhteyttä suoraan koesihteeriin ${name} ${phone}`
       )
     ).toBeInTheDocument()
     expect(baseElement).toMatchSnapshot()
