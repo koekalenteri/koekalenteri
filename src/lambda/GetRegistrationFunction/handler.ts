@@ -1,6 +1,6 @@
 import { getEvent } from '../lib/event'
 import { getParam, lambda, LambdaError } from '../lib/lambda'
-import { getRegistration } from '../lib/registration'
+import { getRegistration, isParticipantGroup } from '../lib/registration'
 import { response } from '../utils/response'
 
 const getRegistrationLambda = lambda('getRegistration', async (event) => {
@@ -11,13 +11,15 @@ const getRegistrationLambda = lambda('getRegistration', async (event) => {
   }
 
   const registration = await getRegistration(eventId, id)
+  const dogEvent = await getEvent(eventId)
+
+  if (isParticipantGroup(registration.group?.key)) {
+    registration.invitationAttachment = dogEvent?.invitationAttachment
+  }
 
   // Make sure not to leak information to user
   delete registration.group
   delete registration.internalNotes
-
-  const dogEvent = await getEvent(eventId)
-  registration.invitationAttachment = dogEvent?.invitationAttachment
 
   return response(200, registration, event)
 })

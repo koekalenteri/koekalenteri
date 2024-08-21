@@ -2,6 +2,7 @@ import type { EmailTemplateId, JsonConfirmedEvent, JsonRegistration, Registratio
 
 import { formatDate } from '../../i18n/dates'
 import { i18n } from '../../i18n/lambda'
+import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE } from '../../lib/registration'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
@@ -12,7 +13,7 @@ import { LambdaError } from './lambda'
 const { emailFrom, registrationTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(registrationTable)
 
-export const getRegistration = async (eventId: string, registrationId: string) => {
+export const getRegistration = async (eventId: string, registrationId: string): Promise<JsonRegistration> => {
   const registration = await dynamoDB.read<JsonRegistration>(
     {
       eventId: eventId,
@@ -108,3 +109,6 @@ export const sendTemplatedEmailToEventRegistrations = async (
   }
   return { ok, failed }
 }
+
+export const isParticipantGroup = (group?: string) =>
+  group && group !== GROUP_KEY_RESERVE && group !== GROUP_KEY_CANCELLED

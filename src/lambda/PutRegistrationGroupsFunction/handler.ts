@@ -6,14 +6,12 @@ import { authorize, getOrigin } from '../lib/auth'
 import { fixRegistrationGroups, saveGroup, updateRegistrations } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
 import { getParam, lambda } from '../lib/lambda'
-import { sendTemplatedEmailToEventRegistrations } from '../lib/registration'
+import { isParticipantGroup, sendTemplatedEmailToEventRegistrations } from '../lib/registration'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { response } from '../utils/response'
 
 const { eventTable, registrationTable } = CONFIG
 export const dynamoDB = new CustomDynamoClient(registrationTable)
-
-const isParticipantGroup = (group?: string) => group && group !== 'reserve' && group !== 'cancelled'
 
 const isEventOrClassState = (event: JsonConfirmedEvent, cls: string | null | undefined, state: EventState): boolean =>
   Boolean(event.state === state || (cls && event.classes.find((c) => c.class === cls && c.state === state)))
