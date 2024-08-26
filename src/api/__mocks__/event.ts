@@ -8,6 +8,7 @@ import {
   eventWithEntryClosing,
   eventWithEntryNotYetOpen,
   eventWithEntryOpen,
+  eventWithParticipantsInvited,
   eventWithStaticDates,
   eventWithStaticDatesAnd3Classes,
   eventWithStaticDatesAndClass,
@@ -37,6 +38,7 @@ export const mockEvents: DogEvent[] = [
   eventWithEntryOpen,
   eventWithEntryNotYetOpen,
   eventWithEntryClosing,
+  eventWithParticipantsInvited,
 ]
 
 export async function getEvents(signal?: AbortSignal): Promise<PublicDogEvent[]> {

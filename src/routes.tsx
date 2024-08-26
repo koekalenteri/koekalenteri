@@ -152,7 +152,7 @@ const routes: RouteObject[] = [
   {
     path: Path.admin.startList(':id'),
     lazy: async () => ({
-      Component: (await import(/* webpackChunkName: "admin" */ './pages/admin/AdminStartListPage')).default,
+      Component: (await import(/* webpackChunkName: "admin" */ './pages/admin/StartListPage')).default,
     }),
     errorElement: <ErrorPage />,
   },

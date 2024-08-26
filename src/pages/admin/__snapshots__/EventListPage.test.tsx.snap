@@ -357,7 +357,7 @@ exports[`EventListPage renders 1`] = `
         <div
           aria-colcount="11"
           aria-multiselectable="false"
-          aria-rowcount="5"
+          aria-rowcount="6"
           class="MuiDataGrid-main css-3eek4p-MuiDataGrid-main"
           role="grid"
           tabindex="-1"
@@ -1239,7 +1239,7 @@ exports[`EventListPage renders 1`] = `
             <div
               class="MuiDataGrid-virtualScrollerContent css-1kwdphh-MuiDataGrid-virtualScrollerContent"
               role="presentation"
-              style="width: auto; height: 112px;"
+              style="width: auto; height: 140px;"
             >
               <div
                 class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"
@@ -1408,8 +1408,166 @@ exports[`EventListPage renders 1`] = `
                   aria-rowindex="3"
                   aria-selected="false"
                   class="MuiDataGrid-row"
-                  data-id="test3"
+                  data-id="testInvited"
                   data-rowindex="1"
+                  role="row"
+                  style="max-height: 28px; min-height: 28px; --height: 28px;"
+                >
+                  <div
+                    class="MuiDataGrid-cellOffsetLeft"
+                    role="presentation"
+                    style="width: 0px;"
+                  />
+                  <div
+                    aria-colindex="1"
+                    aria-colspan="1"
+                    class="MuiDataGrid-cell MuiDataGrid-cell--textRight"
+                    data-colindex="0"
+                    data-field="date"
+                    role="gridcell"
+                    style="--width: 120px;"
+                    tabindex="-1"
+                    title="dateFormat.datespan"
+                  >
+                    dateFormat.datespan
+                  </div>
+                  <div
+                    aria-colindex="2"
+                    aria-colspan="1"
+                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
+                    data-colindex="1"
+                    data-field="eventType"
+                    role="gridcell"
+                    style="--width: 0px;"
+                    tabindex="-1"
+                    title="NOME-B"
+                  >
+                    NOME-B
+                  </div>
+                  <div
+                    aria-colindex="3"
+                    aria-colspan="1"
+                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
+                    data-colindex="2"
+                    data-field="classes"
+                    role="gridcell"
+                    style="--width: 0px;"
+                    tabindex="-1"
+                    title="ALO, AVO"
+                  >
+                    ALO, AVO
+                  </div>
+                  <div
+                    aria-colindex="4"
+                    aria-colspan="1"
+                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
+                    data-colindex="3"
+                    data-field="organizer"
+                    role="gridcell"
+                    style="--width: 0px;"
+                    tabindex="-1"
+                    title="Suomen Noutajakoirajärjestö ry"
+                  >
+                    Suomen Noutajakoirajärjestö ry
+                  </div>
+                  <div
+                    aria-colindex="5"
+                    aria-colspan="1"
+                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
+                    data-colindex="4"
+                    data-field="name"
+                    role="gridcell"
+                    style="--width: 0px;"
+                    tabindex="-1"
+                    title="test"
+                  >
+                    test
+                  </div>
+                  <div
+                    aria-colindex="6"
+                    aria-colspan="1"
+                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
+                    data-colindex="5"
+                    data-field="location"
+                    role="gridcell"
+                    style="--width: 0px;"
+                    tabindex="-1"
+                    title="test"
+                  >
+                    test
+                  </div>
+                  <div
+                    aria-colindex="7"
+                    aria-colspan="1"
+                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
+                    data-colindex="6"
+                    data-field="secretary"
+                    role="gridcell"
+                    style="--width: 0px;"
+                    tabindex="-1"
+                    title="Siiri Sihteeri"
+                  >
+                    Siiri Sihteeri
+                  </div>
+                  <div
+                    aria-colindex="8"
+                    aria-colspan="1"
+                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
+                    data-colindex="7"
+                    data-field="official"
+                    role="gridcell"
+                    style="--width: 0px;"
+                    tabindex="-1"
+                    title="Teemu Toimitsija"
+                  >
+                    Teemu Toimitsija
+                  </div>
+                  <div
+                    aria-colindex="9"
+                    aria-colspan="1"
+                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
+                    data-colindex="8"
+                    data-field="judges"
+                    role="gridcell"
+                    style="--width: 0px;"
+                    tabindex="-1"
+                    title="Tuomari 1"
+                  >
+                    Tuomari 1
+                  </div>
+                  <div
+                    aria-colindex="10"
+                    aria-colspan="1"
+                    class="MuiDataGrid-cell MuiDataGrid-cell--textRight"
+                    data-colindex="9"
+                    data-field="places"
+                    role="gridcell"
+                    style="--width: 80px;"
+                    tabindex="-1"
+                    title="4 / 4"
+                  >
+                    4 / 4
+                  </div>
+                  <div
+                    aria-colindex="11"
+                    aria-colspan="1"
+                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
+                    data-colindex="10"
+                    data-field="state"
+                    role="gridcell"
+                    style="--width: 0px;"
+                    tabindex="-1"
+                    title="event.states.invited"
+                  >
+                    event.states.invited
+                  </div>
+                </div>
+                <div
+                  aria-rowindex="4"
+                  aria-selected="false"
+                  class="MuiDataGrid-row"
+                  data-id="test3"
+                  data-rowindex="2"
                   role="row"
                   style="max-height: 28px; min-height: 28px; --height: 28px;"
                 >
@@ -1563,11 +1721,11 @@ exports[`EventListPage renders 1`] = `
                   </div>
                 </div>
                 <div
-                  aria-rowindex="4"
+                  aria-rowindex="5"
                   aria-selected="false"
                   class="MuiDataGrid-row"
                   data-id="test4"
-                  data-rowindex="2"
+                  data-rowindex="3"
                   role="row"
                   style="max-height: 28px; min-height: 28px; --height: 28px;"
                 >
@@ -1721,11 +1879,11 @@ exports[`EventListPage renders 1`] = `
                   </div>
                 </div>
                 <div
-                  aria-rowindex="5"
+                  aria-rowindex="6"
                   aria-selected="false"
                   class="MuiDataGrid-row MuiDataGrid-row--lastVisible"
                   data-id="test5"
-                  data-rowindex="3"
+                  data-rowindex="4"
                   role="row"
                   style="max-height: 28px; min-height: 28px; --height: 28px;"
                 >
@@ -1920,7 +2078,7 @@ exports[`EventListPage renders 1`] = `
               <p
                 class="MuiTablePagination-displayedRows css-levciy-MuiTablePagination-displayedRows"
               >
-                1–4 of 4
+                1–5 of 5
               </p>
               <div
                 class="MuiTablePagination-actions"

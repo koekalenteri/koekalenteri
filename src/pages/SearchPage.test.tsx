@@ -50,14 +50,14 @@ describe('SearchPage', () => {
   it('renders', async () => {
     renderPage('', locales.fi)
     await flushPromises()
-    expect(screen.getAllByRole('article').length).toEqual(4)
+    expect(screen.getAllByRole('article').length).toEqual(5)
   })
 
   it('filters by date/start', async () => {
     renderPage('/?s=2021-03-01', locales.fi)
     await flushPromises()
     expect(screen.getByRole('textbox', { name: 'daterangeStart' })).toHaveValue('01.03.2021')
-    expect(screen.getAllByRole('article').length).toEqual(4)
+    expect(screen.getAllByRole('article').length).toEqual(5)
   })
 
   it('filters by date/end', async () => {
@@ -90,7 +90,7 @@ describe('SearchPage', () => {
     const { container } = renderPage('/?t=NOME-B', locales.fi)
     await flushPromises()
     expect(screen.getByRole('button', { name: 'NOME-B' })).toBeInTheDocument()
-    expect(screen.getAllByRole('article').length).toEqual(4)
+    expect(screen.getAllByRole('article').length).toEqual(5)
     expect(container).toMatchSnapshot()
   })
 
@@ -98,7 +98,7 @@ describe('SearchPage', () => {
     const { container } = renderPage('/?c=AVO', locales.fi)
     await flushPromises()
     expect(screen.getByRole('button', { name: 'AVO' })).toBeInTheDocument()
-    expect(screen.getAllByRole('article').length).toEqual(4)
+    expect(screen.getAllByRole('article').length).toEqual(5)
     expect(container).toMatchSnapshot()
   })
 
@@ -114,7 +114,7 @@ describe('SearchPage', () => {
     renderPage('/?j=Tuomari%202', locales.fi)
     await flushPromises()
     expect(screen.getByRole('button', { name: 'Tuomari 2' })).toBeInTheDocument()
-    expect(screen.getAllByRole('article').length).toEqual(5)
+    expect(screen.getAllByRole('article').length).toEqual(6)
   })
 
   it('filters by entryUpcoming', async () => {

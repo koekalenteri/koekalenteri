@@ -65,7 +65,7 @@ export async function getRegistrations(eventId: string, token?: string, signal?:
   return new Promise((resolve, reject) => {
     const event = mockEvents.find((item) => item.id === eventId)
     if (!event) {
-      process.nextTick(() => reject(new Error('not found')))
+      process.nextTick(() => reject(new Error(`event not found with id: ${eventId}`)))
     } else {
       process.nextTick(() => resolve(mockRegistrations[eventId] || []))
     }
