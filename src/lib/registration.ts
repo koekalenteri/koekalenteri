@@ -166,6 +166,7 @@ export const getRegistrationEmailTemplateData = (
     groupDate,
     groupTime,
     text,
+    origin,
   }
 }
 

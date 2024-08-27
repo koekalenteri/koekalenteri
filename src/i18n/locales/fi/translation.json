@@ -69,6 +69,8 @@
   "emailTemplates": "Viestipohjat",
   "emailTemplate": {
     "access": "Lisätty käyttäjäoikeus",
+    "cancel-picked": "Peruutusilmoitus koepaikalta",
+    "cancel-reserve": "Peruutusilmoitus varasijalta",
     "invitation": "Koekutsu",
     "picked": "Koepaikkailmoitus",
     "receipt": "Kuitti",

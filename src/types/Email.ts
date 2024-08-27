@@ -1,7 +1,16 @@
 import type { DbRecord, JsonDbRecord } from './Database'
 import type { ContactInfo } from './Event'
 
-export type EmailTemplateId = 'registration' | 'receipt' | 'picked' | 'reserve' | 'invitation' | 'access' | 'refund'
+export type EmailTemplateId =
+  | 'registration'
+  | 'receipt'
+  | 'picked'
+  | 'reserve'
+  | 'invitation'
+  | 'access'
+  | 'refund'
+  | 'cancel-picked'
+  | 'cancel-reserve'
 
 export interface SESTemplate {
   TemplateName: string

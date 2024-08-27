@@ -44,6 +44,8 @@
   "editRegistration": "Edit registration",
   "emailTemplate": {
     "access": "Access granted",
+    "cancel-picked": "Cancel notice (picked)",
+    "cancel-reserve": "Cancel notice (reserve)",
     "invitation": "Invitation",
     "picked": "Picked notification",
     "receipt": "Receipt",

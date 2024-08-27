@@ -4,17 +4,20 @@ import type { EmailTemplate, EmailTemplateId } from '../../../../types'
 import i18next from 'i18next'
 
 import { getEmailTemplates } from '../../../../api/email'
+import { exhaustiveStringTuple } from '../../../../lib/typeGuards'
 import { idTokenAtom } from '../../../recoil'
 
-const templateIds: EmailTemplateId[] = [
-  'registration',
-  'receipt',
-  'picked',
-  'reserve',
-  'invitation',
+const templateIds = exhaustiveStringTuple<EmailTemplateId>()(
   'access',
+  'cancel-picked',
+  'cancel-reserve',
+  'invitation',
+  'picked',
+  'receipt',
   'refund',
-]
+  'registration',
+  'reserve'
+)
 
 export const adminRemoteEmailTemplatesEffect: AtomEffect<EmailTemplate[]> = ({ getPromise, setSelf, trigger }) => {
   if (trigger === 'get') {

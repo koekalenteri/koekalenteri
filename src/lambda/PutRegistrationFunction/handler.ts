@@ -1,8 +1,9 @@
-import type { JsonConfirmedEvent, JsonRegistration } from '../../types'
+import type { EmailTemplateId, JsonConfirmedEvent, JsonRegistration } from '../../types'
 
+import { isPast } from 'date-fns'
 import { nanoid } from 'nanoid'
 
-import { getRegistrationChanges } from '../../lib/registration'
+import { getRegistrationChanges, GROUP_KEY_RESERVE } from '../../lib/registration'
 import { CONFIG } from '../config'
 import { audit, registrationAuditKey } from '../lib/audit'
 import { getOrigin, getUsername } from '../lib/auth'
@@ -10,7 +11,7 @@ import { emailTo, registrationEmailTemplateData, sendTemplatedMail } from '../li
 import { getEvent, updateRegistrations } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
 import { lambda } from '../lib/lambda'
-import { getRegistration } from '../lib/registration'
+import { getRegistration, isParticipantGroup } from '../lib/registration'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { response } from '../utils/response'
 
@@ -111,6 +112,28 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
     const templateData = registrationEmailTemplateData(registration, confirmedEvent, origin, context)
 
     await sendTemplatedMail('registration', registration.language, emailFrom, to, templateData)
+
+    // also notify secretary about cancellation (allowed to fail)
+    try {
+      const secretaryEmail = confirmedEvent.contactInfo?.secretary?.email ?? confirmedEvent.secretary.email
+      if (existing && cancel && secretaryEmail) {
+        let template: EmailTemplateId | undefined = undefined
+        if (
+          existing.group?.key === GROUP_KEY_RESERVE &&
+          (existing.reserveNotified || isPast(confirmedEvent.entryEndDate))
+        ) {
+          template = 'cancel-reserve'
+        } else if (isParticipantGroup(existing.group?.key ?? GROUP_KEY_RESERVE)) {
+          template = 'cancel-picked'
+        }
+
+        if (template) {
+          await sendTemplatedMail(template, 'fi', emailFrom, [secretaryEmail], templateData)
+        }
+      }
+    } catch (e) {
+      console.error('error notifying cancellation to secretary', e)
+    }
   }
 
   return response(200, data, event)

@@ -23,3 +23,5 @@ export type KeysOf<o> = o extends readonly unknown[]
   : {
       [K in keyof o]: K extends string ? K : K extends number ? `${K}` : never
     }[keyof o]
+
+export type AtLeastOne<T> = [T, ...T[]]
