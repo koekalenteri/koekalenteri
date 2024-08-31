@@ -103,6 +103,7 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
     cancelledFailed: [],
   }
 
+  const oldCancelled = oldItems.filter((reg) => getRegistrationGroupKey(reg) === GROUP_KEY_CANCELLED)
   const oldResCan =
     oldItems.filter((reg) => [GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE].includes(getRegistrationGroupKey(reg))) ?? []
 
@@ -189,7 +190,7 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
     (reg) =>
       classEquals(reg.class, cls) &&
       getRegistrationGroupKey(reg) === GROUP_KEY_CANCELLED &&
-      oldResCan.find((old) => old.id === reg.id && getRegistrationGroupKey(old) !== GROUP_KEY_CANCELLED)
+      !oldCancelled.find((old) => old.id === reg.id)
   )
 
   console.log({ cancelled: cancelled.map(regString) })
