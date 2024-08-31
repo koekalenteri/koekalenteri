@@ -115,7 +115,7 @@ export const sendTemplatedEmailToEventRegistrations = async (
 export const isParticipantGroup = (group?: string): boolean =>
   Boolean(group) && group !== GROUP_KEY_RESERVE && group !== GROUP_KEY_CANCELLED
 
-export const isDogAlreadyRegisteredToEvent = async (
+export const findExistingRegistrationToEventForDog = async (
   eventId: string,
   regNo: string
 ): Promise<JsonRegistration | undefined> => {

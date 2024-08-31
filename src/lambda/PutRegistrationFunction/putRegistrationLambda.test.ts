@@ -19,13 +19,15 @@ jest.unstable_mockModule('../lib/event', () => ({
 
 const mockGetRegistration = jest.fn<(eventId: string, registrationId: string) => Promise<JsonRegistration>>()
 const mockSaveRegistration = jest.fn()
-const mockIsDogAlreadyRegisteredToEvent = jest.fn(async () => false)
+const mockfindExistingRegistrationToEventForDog = jest.fn<
+  (eventId: string, regNo: string) => Promise<JsonRegistration | undefined>
+>(async () => undefined)
 const mockisParticipantGroup = jest.fn()
 
 jest.unstable_mockModule('../lib/registration', () => ({
   getRegistration: mockGetRegistration,
   saveRegistration: mockSaveRegistration,
-  isDogAlreadyRegisteredToEvent: mockIsDogAlreadyRegisteredToEvent,
+  findExistingRegistrationToEventForDog: mockfindExistingRegistrationToEventForDog,
   isParticipantGroup: mockisParticipantGroup,
 }))
 
@@ -284,7 +286,9 @@ describe('putRegistrationLabmda', () => {
   })
 
   it('should return 409 if dog is already registered to the event', async () => {
-    mockIsDogAlreadyRegisteredToEvent.mockResolvedValueOnce(true)
+    mockfindExistingRegistrationToEventForDog.mockResolvedValueOnce(
+      JSON.parse(JSON.stringify(registrationWithStaticDates))
+    )
 
     const res = await putRegistrationLabmda(constructAPIGwEvent({ ...registrationWithStaticDates, id: undefined }))
 

@@ -12,8 +12,8 @@ import { getEvent, updateRegistrations } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
 import { lambda } from '../lib/lambda'
 import {
+  findExistingRegistrationToEventForDog,
   getRegistration,
-  isDogAlreadyRegisteredToEvent,
   isParticipantGroup,
   saveRegistration,
 } from '../lib/registration'
@@ -59,7 +59,7 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
 
   if (!existing) {
     // Prevent double registrations when trying to insert new registration
-    const alreadyRegistered = await isDogAlreadyRegisteredToEvent(registration.eventId, registration.dog.regNo)
+    const alreadyRegistered = await findExistingRegistrationToEventForDog(registration.eventId, registration.dog.regNo)
 
     if (alreadyRegistered) {
       return response(
