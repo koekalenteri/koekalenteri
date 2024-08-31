@@ -90,15 +90,25 @@ describe('putRegistrationLabmda', () => {
     expect(res.statusCode).toEqual(200)
   })
 
-  it('should do happy path for cancelled registration', async () => {
+  it.each([
+    [undefined, 'Ilmoittautuminen peruttiin, syy: (ei täytetty)'],
+    ['dog-heat', 'Ilmoittautuminen peruttiin, syy: Koiran juoksut'],
+    ['handler-sick', 'Ilmoittautuminen peruttiin, syy: Ohjaajan sairastuminen'],
+    ['dog-sick', 'Ilmoittautuminen peruttiin, syy: Koiran sairastuminen'],
+    ['gdpr', 'Ilmoittautuminen peruttiin, syy: En halua kertoa'],
+    ['custom reason', 'Ilmoittautuminen peruttiin, syy: custom reason'],
+  ])('should do happy path for cancelled registration', async (cancelReason, auditMessage) => {
     const existingJson = JSON.parse(JSON.stringify(registrationWithStaticDates))
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
     mockGetRegistration.mockResolvedValueOnce(existingJson)
-    const res = await putRegistrationLabmda(constructAPIGwEvent({ ...registrationWithStaticDates, cancelled: true }))
+    const res = await putRegistrationLabmda(
+      constructAPIGwEvent({ ...registrationWithStaticDates, cancelled: true, cancelReason })
+    )
 
     expect(mockSaveRegistration).toHaveBeenCalledWith({
       ...existingJson,
       cancelled: true,
+      cancelReason,
       modifiedAt: new Date().toISOString(),
       modifiedBy: 'anonymous',
     })
@@ -107,7 +117,7 @@ describe('putRegistrationLabmda', () => {
     expect(mockAudit).toHaveBeenCalledWith(
       expect.objectContaining({
         auditKey: `${eventWithStaticDates.id}:${registrationWithStaticDates.id}`,
-        message: 'Ilmoittautuminen peruttiin',
+        message: auditMessage,
         user: 'anonymous',
       })
     )
@@ -152,7 +162,7 @@ describe('putRegistrationLabmda', () => {
     expect(mockAudit).toHaveBeenCalledWith(
       expect.objectContaining({
         auditKey: `${eventWithStaticDates.id}:${registrationWithStaticDates.id}`,
-        message: 'Ilmoittautuminen peruttiin',
+        message: 'Ilmoittautuminen peruttiin, syy: (ei täytetty)',
         user: 'anonymous',
       })
     )
@@ -205,7 +215,7 @@ describe('putRegistrationLabmda', () => {
     expect(mockAudit).toHaveBeenCalledWith(
       expect.objectContaining({
         auditKey: `${eventWithStaticDates.id}:${registrationWithStaticDates.id}`,
-        message: 'Ilmoittautuminen peruttiin',
+        message: 'Ilmoittautuminen peruttiin, syy: (ei täytetty)',
         user: 'anonymous',
       })
     )
@@ -258,7 +268,7 @@ describe('putRegistrationLabmda', () => {
     expect(mockAudit).toHaveBeenCalledWith(
       expect.objectContaining({
         auditKey: `${eventWithStaticDates.id}:${registrationWithStaticDates.id}`,
-        message: 'Ilmoittautuminen peruttiin',
+        message: 'Ilmoittautuminen peruttiin, syy: (ei täytetty)',
         user: 'anonymous',
       })
     )

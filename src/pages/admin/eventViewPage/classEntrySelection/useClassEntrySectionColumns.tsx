@@ -20,7 +20,7 @@ import Stack from '@mui/material/Stack'
 import { GridActionsCellItem } from '@mui/x-data-grid'
 
 import { formatMoney } from '../../../../lib/money'
-import { canRefund, hasPriority, priorityDescriptionKey } from '../../../../lib/registration'
+import { canRefund, hasPriority, isPredefinedReason, priorityDescriptionKey } from '../../../../lib/registration'
 import { PriorityIcon } from '../../../components/icons/PriorityIcon'
 import { IconsTooltip } from '../../../components/IconsTooltip'
 import RankingPoints from '../../../components/RankingPoints'
@@ -278,8 +278,6 @@ export function useClassEntrySelectionColumns(
     ]
 
     const participantColumns: GridColDef<Registration>[] = [...entryColumns]
-    const isPredefinedReason = (v: string): v is 'dog-heat' | 'handler-sick' | 'dog-sick' | 'gdpr' =>
-      ['dog-heat', 'handler-sick', 'dog-sick', 'gdpr'].includes(v)
 
     const cancelledColumns: GridColDef<Registration>[] = [...participantColumns]
     cancelledColumns.splice(cancelledColumns.length - 2, 0, {

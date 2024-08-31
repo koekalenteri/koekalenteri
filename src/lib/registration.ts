@@ -185,3 +185,6 @@ export const getRegistrationChanges = (existing: JsonRegistration, data: JsonReg
 
   return modified.length ? 'Muutti: ' + modified.join(', ') : ''
 }
+
+export const isPredefinedReason = (v?: string): v is 'dog-heat' | 'handler-sick' | 'dog-sick' | 'gdpr' =>
+  !!v && ['dog-heat', 'handler-sick', 'dog-sick', 'gdpr'].includes(v)

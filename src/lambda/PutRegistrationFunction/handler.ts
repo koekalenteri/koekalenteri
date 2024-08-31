@@ -3,7 +3,8 @@ import type { EmailTemplateId, JsonConfirmedEvent, JsonRegistration, Registratio
 import { isPast } from 'date-fns'
 import { nanoid } from 'nanoid'
 
-import { getRegistrationChanges, GROUP_KEY_RESERVE } from '../../lib/registration'
+import { i18n } from '../../i18n/lambda'
+import { getRegistrationChanges, GROUP_KEY_RESERVE, isPredefinedReason } from '../../lib/registration'
 import { CONFIG } from '../config'
 import { audit, registrationAuditKey } from '../lib/audit'
 import { getOrigin, getUsername } from '../lib/auth'
@@ -36,13 +37,26 @@ const getEmailContext = (update: boolean, cancel: boolean, confirm: boolean, inv
   return ''
 }
 
+const getCancelAuditMessage = (data: JsonRegistration) => {
+  if (!data.cancelReason) return 'Ilmoittautuminen peruttiin, syy: (ei täytetty)'
+
+  if (isPredefinedReason(data.cancelReason)) {
+    const t = i18n.getFixedT('fi')
+    const reason = t(`registration.cancelReason.${data.cancelReason}`)
+
+    return `Ilmoittautuminen peruttiin, syy: ${reason}`
+  }
+
+  return `Ilmoittautuminen peruttiin, syy: ${data.cancelReason}`
+}
+
 const getAuditMessage = (
   cancel: boolean,
   confirm: boolean,
   data: JsonRegistration,
   existing?: JsonRegistration
 ): string => {
-  if (cancel) return 'Ilmoittautuminen peruttiin'
+  if (cancel) return getCancelAuditMessage(data)
   if (confirm) return 'Ilmoittautumisen vahvistus'
   if (!existing) return 'Ilmoittautui'
 
