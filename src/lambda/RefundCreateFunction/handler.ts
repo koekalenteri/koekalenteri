@@ -23,7 +23,7 @@ import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { getApiHost } from '../utils/proxyEvent'
 import { response } from '../utils/response'
 
-const { eventTable, organizerTable, registrationTable, transactionTable } = CONFIG
+const { organizerTable, registrationTable, transactionTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(transactionTable)
 
 const getData = async (transactionId: string) => {

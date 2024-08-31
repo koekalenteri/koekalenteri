@@ -20,7 +20,7 @@ export const isValidForEntry = (state?: EventState) => !['draft', 'tentative', '
 export const isEventUpcoming = ({ startDate }: EventVitals, now = new Date()) => !!startDate && startDate > now
 
 export const isEntryUpcoming = ({ entryStartDate, state }: EventVitals, now = new Date()) =>
-  !!entryStartDate && entryStartDate > now && isValidForEntry(state)
+  !!entryStartDate && entryStartDate > now && (isValidForEntry(state) || state === 'tentative')
 
 export const isEntryOpen = ({ entryStartDate, entryEndDate, state }: EventVitals, now = new Date()) =>
   !!entryStartDate &&
