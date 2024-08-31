@@ -1559,7 +1559,7 @@ exports[`RegistrationEditPage should render 1`] = `
                             id="owner_email"
                             name="email"
                             type="text"
-                            value="owner@exmaple.com"
+                            value="owner@example.com"
                           />
                           <fieldset
                             aria-hidden="true"
@@ -1942,7 +1942,7 @@ exports[`RegistrationEditPage should render 1`] = `
                                   id="handler_email"
                                   name="email"
                                   type="text"
-                                  value="handler@exmaple.com"
+                                  value="handler@example.com"
                                 />
                                 <fieldset
                                   aria-hidden="true"
@@ -2214,7 +2214,7 @@ exports[`RegistrationEditPage should render 1`] = `
                                   id="payer_email"
                                   name="email"
                                   type="text"
-                                  value="owner@exmaple.com"
+                                  value="owner@example.com"
                                 />
                                 <fieldset
                                   aria-hidden="true"

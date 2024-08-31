@@ -11,25 +11,21 @@ import { emailTo, registrationEmailTemplateData, sendTemplatedMail } from '../li
 import { getEvent, updateRegistrations } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
 import { lambda } from '../lib/lambda'
-import { getRegistration, isParticipantGroup } from '../lib/registration'
-import CustomDynamoClient from '../utils/CustomDynamoClient'
+import {
+  getRegistration,
+  isDogAlreadyRegisteredToEvent,
+  isParticipantGroup,
+  saveRegistration,
+} from '../lib/registration'
 import { response } from '../utils/response'
 
-const { emailFrom, eventTable, registrationTable } = CONFIG
-const dynamoDB = new CustomDynamoClient(registrationTable)
+const { emailFrom, eventTable } = CONFIG
 
 const getData = async (registration: JsonRegistration) => {
   const confirmedEvent = await getEvent<JsonConfirmedEvent>(registration.eventId)
   const existing = registration.id ? await getRegistration(registration.eventId, registration.id) : undefined
 
   return { confirmedEvent, existing }
-}
-
-const isAlreadyRegistered = async (eventId: string, regNo: string): Promise<JsonRegistration | undefined> => {
-  const existingRegistrations = await dynamoDB.query<JsonRegistration>('eventId = :eventId', { ':eventId': eventId })
-  const alreadyRegistered = existingRegistrations?.find((r) => r.dog.regNo === regNo && r.state === 'ready')
-
-  return alreadyRegistered
 }
 
 const getEmailContext = (update: boolean, cancel: boolean, confirm: boolean, invitation: boolean) => {
@@ -62,6 +58,20 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
   const { confirmedEvent, existing } = await getData(registration)
 
   if (!existing) {
+    // Prevent double registrations when trying to insert new registration
+    const alreadyRegistered = await isDogAlreadyRegisteredToEvent(registration.eventId, registration.dog.regNo)
+
+    if (alreadyRegistered) {
+      return response(
+        409,
+        {
+          message: 'Conflict: Dog already registered to this event',
+          cancelled: Boolean(alreadyRegistered.cancelled),
+        },
+        event
+      )
+    }
+
     registration.id = nanoid(10)
     registration.createdAt = timestamp
     registration.createdBy = username
@@ -76,24 +86,11 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
   registration.modifiedAt = timestamp
   registration.modifiedBy = username
 
-  // Prevent double registrations when trying to insert new registration
-  const alreadyRegistered = !existing && (await isAlreadyRegistered(registration.eventId, registration.dog.regNo))
-  if (alreadyRegistered) {
-    return response(
-      409,
-      {
-        message: 'Conflict: Dog already registered to this event',
-        cancelled: Boolean(alreadyRegistered.cancelled),
-      },
-      event
-    )
-  }
-
   const data: JsonRegistration = { ...existing, ...registration }
-  await dynamoDB.write(data)
+  await saveRegistration(data)
 
   if (cancel) {
-    await updateRegistrations(registration.eventId, eventTable)
+    await updateRegistrations(registration.eventId)
   }
 
   const message = getAuditMessage(cancel, confirm, data, existing)

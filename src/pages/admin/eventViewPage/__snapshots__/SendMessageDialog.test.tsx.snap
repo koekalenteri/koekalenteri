@@ -113,7 +113,7 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
                                 <p
                                   class="MuiTypography-root MuiTypography-body2 MuiListItemText-secondary css-83ijpv-MuiTypography-root"
                                 >
-                                  owner@exmaple.com, handler@exmaple.com
+                                  owner@example.com, handler@example.com
                                 </p>
                               </div>
                             </li>
@@ -131,7 +131,7 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
                                 <p
                                   class="MuiTypography-root MuiTypography-body2 MuiListItemText-secondary css-83ijpv-MuiTypography-root"
                                 >
-                                  owner@exmaple.com, handler@exmaple.com
+                                  owner@example.com, handler@example.com
                                 </p>
                               </div>
                             </li>
@@ -690,7 +690,7 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
                         
 
                         <td>
-                          owner@exmaple.com
+                          owner@example.com
                         </td>
                         
 
@@ -744,7 +744,7 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
                         
 
                         <td>
-                          handler@exmaple.com
+                          handler@example.com
                         </td>
                         
 

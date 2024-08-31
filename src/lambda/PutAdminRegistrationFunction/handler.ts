@@ -14,7 +14,7 @@ import { getRegistration } from '../lib/registration'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { response } from '../utils/response'
 
-const { emailFrom, eventTable, registrationTable } = CONFIG
+const { emailFrom, registrationTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(registrationTable)
 
 const putAdminRegistrationLambda = lambda('putAdminRegistration', async (event) => {
@@ -46,7 +46,7 @@ const putAdminRegistrationLambda = lambda('putAdminRegistration', async (event) 
   const data: JsonRegistration = { ...existing, ...registration }
   await dynamoDB.write(data)
 
-  const confirmedEvent = await updateRegistrations(registration.eventId, eventTable)
+  const confirmedEvent = await updateRegistrations(registration.eventId)
 
   const message = getAuditMessage(data, existing)
   if (message) {

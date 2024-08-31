@@ -10,7 +10,7 @@ import { isParticipantGroup, sendTemplatedEmailToEventRegistrations } from '../l
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { response } from '../utils/response'
 
-const { eventTable, registrationTable } = CONFIG
+const { registrationTable } = CONFIG
 export const dynamoDB = new CustomDynamoClient(registrationTable)
 
 const isEventOrClassState = (event: JsonConfirmedEvent, cls: string | null | undefined, state: EventState): boolean =>
@@ -89,7 +89,7 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
   const updatedItems = await updateItems(oldItems, eventGroups, user)
 
   // update event counts
-  const confirmedEvent = await updateRegistrations(eventId, eventTable, updatedItems)
+  const confirmedEvent = await updateRegistrations(eventId, updatedItems)
   const cls = updatedItems.find((item) => item.id === eventGroups[0].id)?.class
 
   const emails = {

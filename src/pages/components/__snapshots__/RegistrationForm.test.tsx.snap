@@ -1394,7 +1394,7 @@ exports[`RegistrationForm renders 1`] = `
                             id="owner_email"
                             name="email"
                             type="text"
-                            value="owner@exmaple.com"
+                            value="owner@example.com"
                           />
                           <fieldset
                             aria-hidden="true"
@@ -1775,7 +1775,7 @@ exports[`RegistrationForm renders 1`] = `
                                   id="handler_email"
                                   name="email"
                                   type="text"
-                                  value="handler@exmaple.com"
+                                  value="handler@example.com"
                                 />
                                 <fieldset
                                   aria-hidden="true"
@@ -2046,7 +2046,7 @@ exports[`RegistrationForm renders 1`] = `
                                   id="payer_email"
                                   name="email"
                                   type="text"
-                                  value="owner@exmaple.com"
+                                  value="owner@example.com"
                                 />
                                 <fieldset
                                   aria-hidden="true"
@@ -3895,7 +3895,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                             id="owner_email"
                             name="email"
                             type="text"
-                            value="owner@exmaple.com"
+                            value="owner@example.com"
                           />
                           <fieldset
                             aria-hidden="true"
@@ -4276,7 +4276,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                                   id="handler_email"
                                   name="email"
                                   type="text"
-                                  value="handler@exmaple.com"
+                                  value="handler@example.com"
                                 />
                                 <fieldset
                                   aria-hidden="true"
@@ -4547,7 +4547,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                                   id="payer_email"
                                   name="email"
                                   type="text"
-                                  value="owner@exmaple.com"
+                                  value="owner@example.com"
                                 />
                                 <fieldset
                                   aria-hidden="true"

@@ -3,15 +3,11 @@ import type { JsonConfirmedEvent, JsonUser } from '../../types'
 import { nanoid } from 'nanoid'
 
 import { isValidForEntry } from '../../lib/utils'
-import { CONFIG } from '../config'
 import { authorize } from '../lib/auth'
-import { getEvent, updateRegistrations } from '../lib/event'
+import { getEvent, saveEvent, updateRegistrations } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
 import { lambda } from '../lib/lambda'
-import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { response } from '../utils/response'
-
-const dynamoDB = new CustomDynamoClient(CONFIG.eventTable)
 
 const isUserForbidden = (
   user: JsonUser,
@@ -63,11 +59,11 @@ const putEventLambda = lambda('putEvent', async (event) => {
   item.modifiedBy = user.name
 
   const data = { ...existing, ...item }
-  await dynamoDB.write(data)
+  await saveEvent(data)
 
   if (existing && existing.entries !== data.entries) {
     // update registrations in case the secretary version was out of date
-    updateRegistrations(data.id, CONFIG.eventTable)
+    updateRegistrations(data.id)
   }
 
   return response(200, data, event)

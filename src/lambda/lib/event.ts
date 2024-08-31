@@ -36,6 +36,8 @@ export const getEvent = async <T extends JsonDogEvent = JsonDogEvent>(id: string
   return jsonEvent
 }
 
+export const saveEvent = async (data: JsonDogEvent) => dynamoDB.write(data, eventTable)
+
 export const markParticipants = async (
   confirmedEvent: JsonConfirmedEvent,
   state: EventClassState,
@@ -72,11 +74,7 @@ export const markParticipants = async (
   return confirmedEvent
 }
 
-export const updateRegistrations = async (
-  eventId: string,
-  eventTable: string,
-  updatedRegistrations?: JsonRegistration[]
-) => {
+export const updateRegistrations = async (eventId: string, updatedRegistrations?: JsonRegistration[]) => {
   const eventKey = { id: eventId }
 
   const confirmedEvent = await getEvent<JsonConfirmedEvent>(eventId)

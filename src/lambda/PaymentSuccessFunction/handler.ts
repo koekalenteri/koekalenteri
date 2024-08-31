@@ -14,7 +14,7 @@ import { getRegistration } from '../lib/registration'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { response } from '../utils/response'
 
-const { frontendURL, emailFrom, eventTable, registrationTable, transactionTable } = CONFIG
+const { frontendURL, emailFrom, registrationTable, transactionTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(transactionTable)
 
 const handleSuccessfulPayment = async (
@@ -52,7 +52,7 @@ const handleSuccessfulPayment = async (
   registration.paymentStatus = 'SUCCESS'
   registration.state = 'ready'
 
-  const confirmedEvent = await updateRegistrations(registration.eventId, eventTable)
+  const confirmedEvent = await updateRegistrations(registration.eventId)
 
   // send receipt
   try {

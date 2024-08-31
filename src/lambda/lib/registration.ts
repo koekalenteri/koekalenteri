@@ -27,6 +27,8 @@ export const getRegistration = async (eventId: string, registrationId: string): 
   return registration
 }
 
+export const saveRegistration = async (data: JsonRegistration) => dynamoDB.write(data, registrationTable)
+
 export const updateRegistrationField = async <F extends keyof JsonRegistration>(
   eventId: JsonRegistration['eventId'],
   id: JsonRegistration['id'],
@@ -110,5 +112,19 @@ export const sendTemplatedEmailToEventRegistrations = async (
   return { ok, failed }
 }
 
-export const isParticipantGroup = (group?: string) =>
-  group && group !== GROUP_KEY_RESERVE && group !== GROUP_KEY_CANCELLED
+export const isParticipantGroup = (group?: string): boolean =>
+  Boolean(group) && group !== GROUP_KEY_RESERVE && group !== GROUP_KEY_CANCELLED
+
+export const isDogAlreadyRegisteredToEvent = async (
+  eventId: string,
+  regNo: string
+): Promise<JsonRegistration | undefined> => {
+  const existingRegistrations = await dynamoDB.query<JsonRegistration>(
+    'eventId = :eventId',
+    { ':eventId': eventId },
+    registrationTable
+  )
+  const alreadyRegistered = existingRegistrations?.find((r) => r.dog.regNo === regNo && r.state === 'ready')
+
+  return alreadyRegistered
+}
