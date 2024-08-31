@@ -273,6 +273,9 @@
     },
     "saved_one": "Registration saved.\nConfirmation email was sent to:\n{{to}}",
     "saved_other": "Registration saved.\nConfirmation email was sent to:\n{{to}}",
+    "state": {
+      "cancelled": "This registration is cancelled"
+    },
     "terms": "I accept the <2>registration terms</2> and the <6>data protection statement</6>.",
     "time": {
       "ap": "(am)",

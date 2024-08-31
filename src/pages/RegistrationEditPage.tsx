@@ -3,6 +3,7 @@ import type { Registration } from '../types'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
+import Typography from '@mui/material/Typography'
 import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
 
 import { hasChanges, isEntryClosed, isEventOngoing, isEventOver } from '../lib/utils'
@@ -25,7 +26,8 @@ export default function RegistrationEditPage() {
   const resetRegistration = useResetRecoilState(editableRegistrationByIdsAtom(ids))
   const spa = useRecoilValue(spaAtom)
   const actions = useRegistrationActions()
-  const disabled = !event || isEntryClosed(event) || isEventOngoing(event) || isEventOver(event)
+  const disabled =
+    !event || isEntryClosed(event) || isEventOngoing(event) || isEventOver(event) || savedRegistration?.cancelled
   const changes = useMemo(
     () => !disabled && !!savedRegistration && hasChanges(savedRegistration, registration),
     [registration, savedRegistration, disabled]
@@ -77,6 +79,11 @@ export default function RegistrationEditPage() {
     <>
       <LinkButton sx={{ mb: 1 }} to="/" back={spa} text={spa ? t('goBack') : t('goHome')} />
       <RegistrationEventInfo event={event} invitationAttachment={registration.invitationAttachment} />
+      {registration.cancelled ? (
+        <Typography variant="h5" align="center" color="info.main">
+          {t('registration.state.cancelled')}
+        </Typography>
+      ) : null}
       <RegistrationForm
         changes={changes}
         disabled={disabled}

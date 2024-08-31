@@ -68,15 +68,22 @@ export default function RegistrationDialogBase({
   }, [onClose, resetRegistration])
 
   const title = useMemo(() => {
+    const prefix = registration?.cancelled ? 'PERUTTU: ' : ''
     if (registration?.dog?.name) {
       const handlerName = registration?.ownerHandles ? registration?.owner?.name : (registration?.handler?.name ?? '')
       if (handlerName) {
-        return `${registration.dog.name} / ${handlerName}`
+        return `${prefix}${registration.dog.name} / ${handlerName}`
       }
-      return registration.dog.name
+      return `${prefix}registration.dog.name`
     }
     return ''
-  }, [registration?.dog?.name, registration?.handler?.name, registration?.owner?.name, registration?.ownerHandles])
+  }, [
+    registration?.cancelled,
+    registration?.dog.name,
+    registration?.handler?.name,
+    registration?.owner?.name,
+    registration?.ownerHandles,
+  ])
 
   if (!registration) {
     return null
@@ -110,6 +117,7 @@ export default function RegistrationDialogBase({
           admin={admin}
           changes={changes}
           classDisabled={classDisabled}
+          disabled={registration.cancelled}
           event={event as ConfirmedEvent}
           onCancel={handleCancel}
           onChange={handleChange}
