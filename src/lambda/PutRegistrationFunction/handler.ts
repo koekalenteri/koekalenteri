@@ -69,34 +69,32 @@ const sendMessages = async (
   registration: JsonRegistration,
   confirmedEvent: JsonConfirmedEvent
 ) => {
-  if (context && registration.handler?.email && registration.owner?.email) {
-    // send update message when registration is updated, confirmed or cancelled
-    const to = emailTo(registration)
-    const templateData = registrationEmailTemplateData(registration, confirmedEvent, origin, context)
+  // send update message when registration is updated, confirmed or cancelled
+  const to = emailTo(registration)
+  const templateData = registrationEmailTemplateData(registration, confirmedEvent, origin, context)
 
-    await sendTemplatedMail('registration', registration.language, emailFrom, to, templateData)
+  await sendTemplatedMail('registration', registration.language, emailFrom, to, templateData)
 
-    // also notify secretary about cancellation (allowed to fail)
-    try {
-      const secretaryEmail = confirmedEvent.contactInfo?.secretary?.email ?? confirmedEvent.secretary.email
-      if (context === 'cancel' && secretaryEmail) {
-        let template: EmailTemplateId | undefined = undefined
-        if (
-          registration.group?.key === GROUP_KEY_RESERVE &&
-          (registration.reserveNotified || isPast(confirmedEvent.entryEndDate))
-        ) {
-          template = 'cancel-reserve'
-        } else if (isParticipantGroup(registration.group?.key ?? GROUP_KEY_RESERVE)) {
-          template = 'cancel-picked'
-        }
-
-        if (template) {
-          await sendTemplatedMail(template, 'fi', emailFrom, [secretaryEmail], templateData)
-        }
+  // also notify secretary about cancellation (allowed to fail)
+  try {
+    const secretaryEmail = confirmedEvent.contactInfo?.secretary?.email ?? confirmedEvent.secretary.email
+    if (context === 'cancel' && secretaryEmail) {
+      let template: EmailTemplateId | undefined = undefined
+      if (
+        registration.group?.key === GROUP_KEY_RESERVE &&
+        (registration.reserveNotified || isPast(confirmedEvent.entryEndDate))
+      ) {
+        template = 'cancel-reserve'
+      } else if (isParticipantGroup(registration.group?.key ?? GROUP_KEY_RESERVE)) {
+        template = 'cancel-picked'
       }
-    } catch (e) {
-      console.error('error notifying cancellation to secretary', e)
+
+      if (template) {
+        await sendTemplatedMail(template, 'fi', emailFrom, [secretaryEmail], templateData)
+      }
     }
+  } catch (e) {
+    console.error('error notifying cancellation to secretary', e)
   }
 }
 
@@ -154,7 +152,9 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
   }
 
   const context = getEmailContext(update, cancel, confirm, invitation)
-  await sendMessages(origin, context, registration, confirmedEvent)
+  if (context && registration.handler?.email && registration.owner?.email) {
+    await sendMessages(origin, context, registration, confirmedEvent)
+  }
 
   return response(200, data, event)
 })
