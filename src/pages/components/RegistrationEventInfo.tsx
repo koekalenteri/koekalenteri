@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import type { PublicDogEvent } from '../../types'
+import type { ConfirmedEvent, PublicDogEvent } from '../../types'
 
 import { useTranslation } from 'react-i18next'
 import PictureAsPdfOutlined from '@mui/icons-material/PictureAsPdfOutlined'
@@ -10,7 +10,7 @@ import Typography from '@mui/material/Typography'
 
 import { judgeName } from '../../lib/judge'
 import { printContactInfo } from '../../lib/utils'
-import { API_BASE_URL } from '../../routeConfig'
+import { Path } from '../../routeConfig'
 
 import CollapsibleSection from './CollapsibleSection'
 import CostInfo from './CostInfo'
@@ -99,7 +99,7 @@ export default function RegistrationEventInfo({ event, invitationAttachment }: P
                 <Data>
                   <PictureAsPdfOutlined fontSize="small" sx={{ verticalAlign: 'middle', pr: 0.5 }} />
                   <Link
-                    href={`${API_BASE_URL}/file/${invitationAttachment}/kutsu.pdf`}
+                    href={Path.invitationAttachment({ ...event, invitationAttachment } as ConfirmedEvent)}
                     rel="noopener"
                     target="_blank"
                     type="application/pdf"

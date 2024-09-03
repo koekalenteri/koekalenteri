@@ -9,7 +9,10 @@ const getAttachmentLambda = lambda('getAttachment', async (event) => {
     throw new LambdaError(404, 'not found')
   }
   const dl = event.queryStringParameters && 'dl' in event.queryStringParameters
-  const disposition = dl ? `attachment; filename="${getParam(event, 'name', 'kutsu.pdf')}"` : 'inline'
+  const fileName = getParam(event, 'name', 'kutsu.pdf')
+  const params = `filename="${fileName.replace(/[^a-zA-Z0-9]/g, '')}"; filename*=utf-8''${encodeURIComponent(fileName)}`
+  const disposition = dl ? 'attachment' : 'inline'
+  const dispositionWithParams = `${disposition}; ${params}`
 
   return {
     statusCode: 200,
@@ -18,7 +21,7 @@ const getAttachmentLambda = lambda('getAttachment', async (event) => {
     headers: {
       'Access-Control-Allow-Origin': allowOrigin(event),
       'Content-Type': 'application/pdf',
-      'Content-Disposition': `${disposition}`,
+      'Content-Disposition': `${dispositionWithParams}`,
     },
   }
 })
