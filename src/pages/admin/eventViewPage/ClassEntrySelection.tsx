@@ -162,8 +162,8 @@ const ClassEntrySelection = ({
       const extra = state === 'invited' ? ' sekä koekutsu' : ''
       try {
         await confirm({
-          title: 'Olet lisäämässä koirakkoa osallistujiin',
-          description: `Kun koirakko on lisätty, koirakolle lähtee vahvistusviesti koepaikasta${extra}. Oletko varma että haluat lisätä tämän koirakon osallistujiin?`,
+          title: `Olet lisäämässä koiraa ${reg.dog.name} osallistujiin`,
+          description: `Kun koirakko on lisätty, koirakolle lähtee vahvistusviesti koepaikasta${extra}. Oletko varma että haluat lisätä koiran ${reg.dog.name} osallistujiin?`,
           confirmationText: 'Lisää osallistujiin',
           cancellationText: t('cancel'),
         })
