@@ -1,6 +1,6 @@
 import type { ConfirmedEvent, DogEvent } from '../../../../types'
 
-import { startOfToday } from 'date-fns'
+import { isPast } from 'date-fns'
 import i18next from 'i18next'
 import { DefaultValue, selector, selectorFamily } from 'recoil'
 
@@ -79,7 +79,7 @@ export const adminFilteredEventsSelector = selector({
     return events.filter((event) => {
       return (
         !event.deletedAt &&
-        (showPast || !event.startDate || event.startDate >= startOfToday()) &&
+        (showPast || !event.startDate || !isPast(event.startDate)) &&
         (!filter ||
           [event.eventType, event.name, event.location, event.official?.name, event.secretary?.name]
             .join(' ')
