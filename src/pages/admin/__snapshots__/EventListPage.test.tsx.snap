@@ -1269,9 +1269,9 @@ exports[`EventListPage renders 1`] = `
                     role="gridcell"
                     style="--width: 120px;"
                     tabindex="-1"
-                    title="dateFormat.datespan"
+                    title="dateFormat.datespan start, end"
                   >
-                    dateFormat.datespan
+                    dateFormat.datespan start, end
                   </div>
                   <div
                     aria-colindex="2"
@@ -1427,9 +1427,9 @@ exports[`EventListPage renders 1`] = `
                     role="gridcell"
                     style="--width: 120px;"
                     tabindex="-1"
-                    title="dateFormat.datespan"
+                    title="dateFormat.datespan start, end"
                   >
-                    dateFormat.datespan
+                    dateFormat.datespan start, end
                   </div>
                   <div
                     aria-colindex="2"
@@ -1585,9 +1585,9 @@ exports[`EventListPage renders 1`] = `
                     role="gridcell"
                     style="--width: 120px;"
                     tabindex="-1"
-                    title="dateFormat.datespan"
+                    title="dateFormat.datespan start, end"
                   >
-                    dateFormat.datespan
+                    dateFormat.datespan start, end
                   </div>
                   <div
                     aria-colindex="2"
@@ -1743,9 +1743,9 @@ exports[`EventListPage renders 1`] = `
                     role="gridcell"
                     style="--width: 120px;"
                     tabindex="-1"
-                    title="dateFormat.datespan"
+                    title="dateFormat.datespan start, end"
                   >
-                    dateFormat.datespan
+                    dateFormat.datespan start, end
                   </div>
                   <div
                     aria-colindex="2"
@@ -1901,9 +1901,9 @@ exports[`EventListPage renders 1`] = `
                     role="gridcell"
                     style="--width: 120px;"
                     tabindex="-1"
-                    title="dateFormat.datespan"
+                    title="dateFormat.datespan start, end"
                   >
-                    dateFormat.datespan
+                    dateFormat.datespan start, end
                   </div>
                   <div
                     aria-colindex="2"

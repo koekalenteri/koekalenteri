@@ -3,7 +3,7 @@ import type { ReactNode } from 'react'
 
 export const useTranslation = () => {
   return {
-    t: (str: string, { date }: { date?: Date } = {}) => {
+    t: (str: string, opts: any = {}) => {
       switch (str) {
         // Values for translations that can not be just the key for tests
         case 'dateFormat.long':
@@ -22,7 +22,7 @@ export const useTranslation = () => {
         case 'datemask':
           return '__.__.____'
         default:
-          return str
+          return `${str}${opts && Object.keys(opts).length ? ' ' + Object.keys(opts).join(', ') : ''}`
       }
     },
     i18n: {

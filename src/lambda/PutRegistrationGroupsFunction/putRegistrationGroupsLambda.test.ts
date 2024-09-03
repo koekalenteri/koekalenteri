@@ -8,7 +8,6 @@ import {
   jsonRegistrationsToEventWithALOInvited,
   jsonRegistrationsToEventWithParticipantsInvited,
 } from '../../__mockData__/registrations'
-import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE } from '../../lib/registration'
 import { constructAPIGwEvent } from '../test-utils/helpers'
 
 jest.unstable_mockModule('../lib/auth', () => ({
@@ -29,10 +28,13 @@ jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
   default: jest.fn(() => mockDynamoDB),
 }))
 
+const libRegistration = await import('../lib/registration')
+
 const mockSend = jest.fn(() => ({ ok: [], failed: [] }))
+
 jest.unstable_mockModule('../lib/registration', () => ({
+  ...libRegistration,
   sendTemplatedEmailToEventRegistrations: mockSend,
-  isParticipantGroup: (group?: string) => group && group !== GROUP_KEY_RESERVE && group !== GROUP_KEY_CANCELLED,
 }))
 
 const { authorize } = await import('../lib/auth')

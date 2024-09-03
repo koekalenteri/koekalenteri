@@ -37,7 +37,7 @@ exports[`RegistrationEventInfo does not render empty contact info 1`] = `
           <p
             class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
           >
-            NOU dateFormat.datespan test location (test)
+            NOU dateFormat.datespan start, end test location (test)
           </p>
           <p
             class="MuiFormHelperText-root css-ml08u8-MuiFormHelperText-root"
@@ -78,7 +78,7 @@ exports[`RegistrationEventInfo does not render empty contact info 1`] = `
                         class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
                       >
                         <b>
-                          dateFormat.datespan
+                          dateFormat.datespan start, end
                         </b>
                          
                       </div>
@@ -234,7 +234,7 @@ exports[`RegistrationEventInfo renders 1`] = `
           <p
             class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
           >
-            NOU dateFormat.datespan test location (test)
+            NOU dateFormat.datespan start, end test location (test)
           </p>
           <p
             class="MuiFormHelperText-root css-ml08u8-MuiFormHelperText-root"
@@ -275,7 +275,7 @@ exports[`RegistrationEventInfo renders 1`] = `
                         class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
                       >
                         <b>
-                          dateFormat.datespan
+                          dateFormat.datespan start, end
                         </b>
                          
                       </div>

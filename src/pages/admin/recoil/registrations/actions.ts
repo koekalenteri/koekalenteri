@@ -11,6 +11,7 @@ import {
   putRegistrationGroups,
 } from '../../../../api/registration'
 import { reportError } from '../../../../lib/client/error'
+import { GROUP_KEY_CANCELLED } from '../../../../lib/registration'
 import { idTokenAtom } from '../../../recoil'
 import { adminEventSelector } from '../events'
 
@@ -53,6 +54,15 @@ export const useAdminRegistrationActions = (eventId: string) => {
         regs.splice(insert ? regs.length : index, insert ? 0 : 1, reg)
       }
       setEventRegistrations([...regs])
+    },
+
+    async cancel(eventId: string, id: string, cancelReason: string, number: number) {
+      const reg = eventRegistrations.find((r) => r.id === id)
+      if (!reg) throw new Error('unexpected error occured')
+
+      await this.saveGroups(eventId, [
+        { eventId, id, group: { key: GROUP_KEY_CANCELLED, number }, cancelled: true, cancelReason },
+      ])
     },
 
     async saveGroups(eventId: string, groups: RegistrationGroupInfo[]) {

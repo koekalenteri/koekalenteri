@@ -56,10 +56,10 @@ export const EditOrganizerDialog = ({ onClose, onSave, open, organizer }: Props)
       </DialogContent>
       <DialogActions>
         <Button color="primary" disabled={!changed} startIcon={<Save />} onClick={handleSave} variant="contained">
-          Tallenna
+          {t('save')}
         </Button>
         <Button onClick={onClose} variant="outlined">
-          Sulje
+          {t('close')}
         </Button>
       </DialogActions>
     </Dialog>

@@ -39,6 +39,7 @@ interface Props {
   readonly eventClass: string
   readonly registrations?: Registration[]
   readonly setOpen?: Dispatch<SetStateAction<boolean>>
+  readonly setCancelOpen?: Dispatch<SetStateAction<boolean>>
   readonly setRefundOpen?: Dispatch<SetStateAction<boolean>>
   readonly selectedRegistrationId?: string
   readonly setSelectedRegistrationId?: SetterOrUpdater<string | undefined>
@@ -74,6 +75,7 @@ const ClassEntrySelection = ({
   eventClass,
   registrations = [],
   setOpen,
+  setCancelOpen,
   setRefundOpen,
   selectedRegistrationId,
   setSelectedRegistrationId,
@@ -94,14 +96,11 @@ const ClassEntrySelection = ({
   )
 
   const handleCancel = useCallback(
-    async (id: string) => {
-      const reg = registrations.find((r) => r.id === id)
-      if (!reg) return
-      const regs = registrations.filter((r) => getRegistrationGroupKey(r) === GROUP_KEY_CANCELLED && r.id !== id)
-      const group: RegistrationGroup = { key: GROUP_KEY_CANCELLED, number: regs.length + 1 }
-      await actions.saveGroups(reg.eventId, [{ eventId: reg.eventId, id, group }])
+    (id: string) => {
+      setSelectedRegistrationId?.(id)
+      setCancelOpen?.(true)
     },
-    [actions, registrations]
+    [setCancelOpen, setSelectedRegistrationId]
   )
 
   const handleRefund = useCallback(

@@ -227,7 +227,7 @@ exports[`EventEditPage renders properly 1`] = `
                                 class="MuiFormHelperText-root Mui-disabled Mui-error MuiFormHelperText-sizeMedium MuiFormHelperText-contained MuiFormHelperText-filled Mui-required css-1vg31rc-MuiFormHelperText-root"
                                 id=":r2:-helper-text"
                               >
-                                validation.event.startDate
+                                validation.event.startDate field, state, type
                               </p>
                             </div>
                           </div>
@@ -310,7 +310,7 @@ exports[`EventEditPage renders properly 1`] = `
                                 class="MuiFormHelperText-root Mui-disabled Mui-error MuiFormHelperText-sizeMedium MuiFormHelperText-contained MuiFormHelperText-filled Mui-required css-1vg31rc-MuiFormHelperText-root"
                                 id=":r4:-helper-text"
                               >
-                                validation.event.endDate
+                                validation.event.endDate field, state, type
                               </p>
                             </div>
                           </div>
@@ -1247,7 +1247,7 @@ exports[`EventEditPage renders properly 1`] = `
                                 role="combobox"
                                 spellcheck="false"
                                 type="text"
-                                value="FI"
+                                value="FI ns"
                               />
                               <div
                                 class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
@@ -3139,7 +3139,7 @@ exports[`EventEditPage renders properly 1`] = `
             />
           </svg>
         </span>
-        Tallenna
+        save
       </button>
       <button
         class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-q3vbvi-MuiButtonBase-root-MuiButton-root"
@@ -3161,7 +3161,7 @@ exports[`EventEditPage renders properly 1`] = `
             />
           </svg>
         </span>
-        Peruuta
+        cancel
         <span
           class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
         />

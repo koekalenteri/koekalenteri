@@ -56,7 +56,7 @@ exports[`EventTypeListPage renders 1`] = `
               />
             </svg>
           </span>
-          updateData
+          updateData data
           <span
             class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
           />

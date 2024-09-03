@@ -2,11 +2,12 @@ import type { EventState, JsonConfirmedEvent, JsonRegistration, JsonRegistration
 
 import { getRegistrationGroupKey, GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE } from '../../lib/registration'
 import { CONFIG } from '../config'
+import { audit, registrationAuditKey } from '../lib/audit'
 import { authorize, getOrigin } from '../lib/auth'
 import { fixRegistrationGroups, saveGroup, updateRegistrations } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
 import { getParam, lambda } from '../lib/lambda'
-import { isParticipantGroup, sendTemplatedEmailToEventRegistrations } from '../lib/registration'
+import { getCancelAuditMessage, isParticipantGroup, sendTemplatedEmailToEventRegistrations } from '../lib/registration'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { response } from '../utils/response'
 
@@ -204,6 +205,16 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
     user.name,
     'cancel'
   )
+
+  // audit cancellations
+  for (const reg of cancelled) {
+    const message = getCancelAuditMessage(reg)
+    audit({
+      auditKey: registrationAuditKey(reg),
+      message,
+      user: user.name,
+    })
+  }
 
   Object.assign(emails, { cancelledOk, cancelledFailed })
 

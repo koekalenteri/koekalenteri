@@ -169,7 +169,7 @@ exports[`DogInfo should render 1`] = `
                     <p
                       class="MuiFormHelperText-root MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-1wc848c-MuiFormHelperText-root"
                     >
-                      registration.cta.helper.update
+                      registration.cta.helper.update date
                     </p>
                   </div>
                 </div>

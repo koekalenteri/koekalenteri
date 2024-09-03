@@ -31,7 +31,7 @@ exports[`OrganizerListPage renders 1`] = `
               />
             </svg>
           </span>
-          updateData
+          updateData data
           <span
             class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
           />
@@ -57,7 +57,7 @@ exports[`OrganizerListPage renders 1`] = `
               />
             </svg>
           </span>
-          editWhat
+          editWhat what
         </button>
       </div>
       <div

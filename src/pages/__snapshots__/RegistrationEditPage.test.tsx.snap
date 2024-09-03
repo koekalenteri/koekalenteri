@@ -41,7 +41,7 @@ exports[`RegistrationEditPage should render 1`] = `
           <p
             class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
           >
-            NOU dateFormat.datespan test location (test)
+            NOU dateFormat.datespan start, end test location (test)
           </p>
           <p
             class="MuiFormHelperText-root css-ml08u8-MuiFormHelperText-root"
@@ -82,7 +82,7 @@ exports[`RegistrationEditPage should render 1`] = `
                         class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
                       >
                         <b>
-                          dateFormat.datespan
+                          dateFormat.datespan start, end
                         </b>
                          
                       </div>
@@ -812,7 +812,7 @@ exports[`RegistrationEditPage should render 1`] = `
                         <p
                           class="MuiFormHelperText-root MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-1vg31rc-MuiFormHelperText-root"
                         >
-                          registration.cta.helper.update
+                          registration.cta.helper.update date
                         </p>
                       </div>
                     </div>
@@ -2357,7 +2357,7 @@ exports[`RegistrationEditPage should render 1`] = `
             <p
               class="MuiFormHelperText-root css-9tosq5-MuiFormHelperText-root"
             >
-              registration.qualifyingResultsInfo
+              registration.qualifyingResultsInfo class, eventType, qualifies
             </p>
           </div>
           <div
@@ -2382,7 +2382,7 @@ exports[`RegistrationEditPage should render 1`] = `
                       <span
                         class="MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"
                       >
-                        registration.rankingTime: dateFormat.datespan
+                        registration.rankingTime: dateFormat.datespan start, end
                       </span>
                     </div>
                     <div

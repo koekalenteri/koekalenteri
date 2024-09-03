@@ -139,7 +139,7 @@ export function EditUserRolesDialog({ onClose, open, user }: Props) {
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose} variant="outlined">
-          Sulje
+          {t('close')}
         </Button>
       </DialogActions>
     </Dialog>

@@ -81,7 +81,7 @@ export function CreateEventTypeDialog({ onClose, open }: Props) {
       </DialogContent>
       <DialogActions>
         <Button onClick={onSave} variant="contained" disabled={!eventType || !description.fi || !description.en}>
-          Tallenna
+          t{'save'}
         </Button>
         <Button onClick={onClose} variant="outlined">
           t{'cancel'}

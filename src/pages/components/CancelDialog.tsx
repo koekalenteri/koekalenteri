@@ -1,10 +1,9 @@
 import type { SelectChangeEvent } from '@mui/material/Select'
-import type { TFunction } from 'i18next'
 import type { ChangeEvent } from 'react'
 import type { PublicDogEvent, Registration } from '../../types'
 
 import { useCallback, useState } from 'react'
-import { Trans } from 'react-i18next'
+import { Trans, useTranslation } from 'react-i18next'
 import Button from '@mui/material/Button'
 import Dialog from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
@@ -19,19 +18,26 @@ import MenuItem from '@mui/material/MenuItem'
 import Select from '@mui/material/Select'
 import TextField from '@mui/material/TextField'
 
+import { isPredefinedReason } from '../../lib/registration'
+
 interface Props {
+  readonly admin?: boolean
   readonly disabled?: boolean
   readonly event: PublicDogEvent | null | undefined
   readonly onCancel?: (reason: string) => void
   readonly onClose?: () => void
   readonly open: boolean
   readonly registration: Registration | null | undefined
-  readonly t: TFunction
 }
 
-export function CancelDialog({ disabled, event, onCancel, onClose, open, registration, t }: Props) {
-  const [reason, setReason] = useState('')
-  const [freeReason, setFreeReason] = useState('')
+const CancelDialog = ({ admin, disabled, event, onCancel, onClose, open, registration }: Props) => {
+  const { t } = useTranslation()
+  const [reason, setReason] = useState(
+    registration?.cancelReason && isPredefinedReason(registration.cancelReason) ? registration.cancelReason : ''
+  )
+  const [freeReason, setFreeReason] = useState(
+    registration?.cancelReason && !isPredefinedReason(registration.cancelReason) ? registration?.cancelReason : ''
+  )
 
   const handleReasonChange = useCallback((event: SelectChangeEvent) => {
     setReason(event.target.value)
@@ -87,7 +93,7 @@ export function CancelDialog({ disabled, event, onCancel, onClose, open, registr
             <MenuItem value="gdpr">{t('registration.cancelReason.gdpr')}</MenuItem>
           </Select>
           <FormHelperText>
-            {(reason === 'handler-sick' || reason === 'dog-sick') && (
+            {!admin && (reason === 'handler-sick' || reason === 'dog-sick') && (
               <>
                 {t(`registration.cancelReason.${reason}-info`)} &nbsp;
                 <a href={`mailto://${event.contactInfo?.secretary?.email}`}>{event.contactInfo?.secretary?.email}</a>
@@ -127,9 +133,11 @@ export function CancelDialog({ disabled, event, onCancel, onClose, open, registr
           {t('registration.cancelDialog.cta')}
         </Button>
         <Button onClick={onClose} variant="outlined">
-          {t('cancel')}
+          {t('close')}
         </Button>
       </DialogActions>
     </Dialog>
   )
 }
+
+export default CancelDialog

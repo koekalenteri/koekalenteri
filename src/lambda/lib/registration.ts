@@ -2,7 +2,7 @@ import type { EmailTemplateId, JsonConfirmedEvent, JsonRegistration, Registratio
 
 import { formatDate } from '../../i18n/dates'
 import { i18n } from '../../i18n/lambda'
-import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE } from '../../lib/registration'
+import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE, isPredefinedReason } from '../../lib/registration'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
@@ -127,4 +127,17 @@ export const findExistingRegistrationToEventForDog = async (
   const alreadyRegistered = existingRegistrations?.find((r) => r.dog.regNo === regNo && r.state === 'ready')
 
   return alreadyRegistered
+}
+
+export const getCancelAuditMessage = (data: JsonRegistration) => {
+  if (!data.cancelReason) return 'Ilmoittautuminen peruttiin, syy: (ei täytetty)'
+
+  if (isPredefinedReason(data.cancelReason)) {
+    const t = i18n.getFixedT('fi')
+    const reason = t(`registration.cancelReason.${data.cancelReason}`)
+
+    return `Ilmoittautuminen peruttiin, syy: ${reason}`
+  }
+
+  return `Ilmoittautuminen peruttiin, syy: ${data.cancelReason}`
 }

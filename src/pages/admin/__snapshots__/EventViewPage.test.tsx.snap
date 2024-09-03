@@ -19,7 +19,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
           >
             NOME-B
             , 
-            dateFormat.datespan
+            dateFormat.datespan start, end
             , 
             test location
             <div
@@ -4433,7 +4433,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
           >
             NOU
             , 
-            dateFormat.datespan
+            dateFormat.datespan start, end
             , 
             test location
             <div
@@ -8266,9 +8266,9 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                             role="gridcell"
                             style="--width: 150px;"
                             tabindex="-1"
-                            title="110.M"
+                            title="110.M ns, defaultValue"
                           >
-                            110.M
+                            110.M ns, defaultValue
                           </div>
                           <div
                             aria-colindex="6"
@@ -9153,9 +9153,9 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                             role="gridcell"
                             style="--width: 150px;"
                             tabindex="-1"
-                            title="110.M"
+                            title="110.M ns, defaultValue"
                           >
-                            110.M
+                            110.M ns, defaultValue
                           </div>
                           <div
                             aria-colindex="6"

@@ -3,6 +3,7 @@
   "admin": "Administration",
   "cancel": "Cancel",
   "clear": "Clear",
+  "close": "Close",
   "contact": {
     "city": "City",
     "email": "Email",
@@ -283,6 +284,7 @@
     }
   },
   "registrations": "Registrations",
+  "save": "Save",
   "search": {
     "placeholder": "Search..."
   },

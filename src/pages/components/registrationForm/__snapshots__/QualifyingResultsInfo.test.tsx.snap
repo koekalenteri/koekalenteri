@@ -62,7 +62,7 @@ exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
                   <span
                     class="MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"
                   >
-                    registration.rankingTime: dateFormat.datespan
+                    registration.rankingTime: dateFormat.datespan start, end
                   </span>
                 </div>
                 <div
@@ -532,7 +532,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                   <span
                     class="MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"
                   >
-                    registration.rankingTime: dateFormat.datespan
+                    registration.rankingTime: dateFormat.datespan start, end
                   </span>
                 </div>
                 <div
@@ -1708,7 +1708,7 @@ exports[`QualifyingResultsInfo should render with minimal input 1`] = `
                   <span
                     class="MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"
                   >
-                    registration.rankingTime: dateFormat.datespan
+                    registration.rankingTime: dateFormat.datespan start, end
                   </span>
                 </div>
                 <div

@@ -66,7 +66,7 @@ exports[`EventList should render 1`] = `
           <div
             class="MuiGrid2-root MuiGrid2-direction-xs-row css-11up7g7-MuiGrid2-root"
           >
-            dateFormat.datespan
+            dateFormat.datespan start, end
           </div>
           <div
             class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-true MuiGrid2-grid-sm-auto css-fzjiz8-MuiGrid2-root"
@@ -134,7 +134,7 @@ exports[`EventList should render 1`] = `
               >
                 entryTime
               </div>
-              dateFormat.datespan
+              dateFormat.datespan start, end
             </div>
             <div
               class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-true css-2qi7fb-MuiGrid2-root"

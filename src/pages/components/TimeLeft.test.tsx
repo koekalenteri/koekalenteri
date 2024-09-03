@@ -26,7 +26,7 @@ describe('TimeLeft', () => {
     const { container } = render(<TimeLeft date={now} />, { wrapper: Wrapper })
 
     expect(container.firstChild).toMatchSnapshot()
-    expect(screen.getByText('dateFormat.distanceLeft')).toBeInTheDocument()
+    expect(screen.getByText('dateFormat.distanceLeft date')).toBeInTheDocument()
   })
 
   it('renders without date', () => {

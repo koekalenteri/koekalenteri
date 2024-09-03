@@ -3,6 +3,7 @@
   "admin": "Ylläpito",
   "cancel": "Peruuta",
   "clear": "Tyhjennä",
+  "close": "Sulje",
   "confirmTitle": "Varmistus",
   "contact": {
     "city": "Kotikunta",
@@ -388,6 +389,7 @@
   },
   "registrations": "Ilmoittautumiset",
   "roles": "Roolit",
+  "save": "Tallenna",
   "size": {
     "fi": "Koko suomeksi",
     "en": "Koko englanniksi"

@@ -48,7 +48,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
           <p
             class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
           >
-            NOU dateFormat.datespan test location (test)
+            NOU dateFormat.datespan start, end test location (test)
           </p>
           <p
             class="MuiFormHelperText-root css-ml08u8-MuiFormHelperText-root"
@@ -89,7 +89,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                         class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
                       >
                         <b>
-                          dateFormat.datespan
+                          dateFormat.datespan start, end
                         </b>
                          
                       </div>
@@ -854,7 +854,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
             <p
               class="MuiFormHelperText-root Mui-error css-9tosq5-MuiFormHelperText-root"
             >
-              validation.registration.required
+              validation.registration.required field
             </p>
           </div>
           <div
@@ -984,7 +984,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                         <p
                           class="MuiFormHelperText-root MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-1vg31rc-MuiFormHelperText-root"
                         >
-                          registration.cta.helper.fetch
+                          registration.cta.helper.fetch date
                         </p>
                       </div>
                     </div>
@@ -1460,7 +1460,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
             <p
               class="MuiFormHelperText-root Mui-error css-9tosq5-MuiFormHelperText-root"
             >
-              validation.registration.choose
+              validation.registration.choose field
             </p>
           </div>
           <div
@@ -1601,7 +1601,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
             <p
               class="MuiFormHelperText-root Mui-error css-9tosq5-MuiFormHelperText-root"
             >
-              validation.registration.choose
+              validation.registration.choose field
             </p>
           </div>
           <div
@@ -2522,7 +2522,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
             <p
               class="MuiFormHelperText-root css-9tosq5-MuiFormHelperText-root"
             >
-              validation.registration.choose
+              validation.registration.choose field
             </p>
           </div>
           <div
@@ -2547,7 +2547,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                       <span
                         class="MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"
                       >
-                        registration.rankingTime: dateFormat.datespan
+                        registration.rankingTime: dateFormat.datespan start, end
                       </span>
                     </div>
                     <div
@@ -2761,7 +2761,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
         <p
           class="MuiFormHelperText-root Mui-error css-w5l3sh-MuiFormHelperText-root"
         >
-          validation.registration.terms
+          validation.registration.terms field
         </p>
       </div>
     </div>
@@ -2953,7 +2953,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
           <p
             class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
           >
-            NOME-B dateFormat.datespan test location (test)
+            NOME-B dateFormat.datespan start, end test location (test)
           </p>
           <p
             class="MuiFormHelperText-root css-ml08u8-MuiFormHelperText-root"
@@ -2994,7 +2994,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                         class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
                       >
                         <b>
-                          dateFormat.datespan
+                          dateFormat.datespan start, end
                         </b>
                          
                       </div>
@@ -3690,7 +3690,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
             <p
               class="MuiFormHelperText-root Mui-error css-9tosq5-MuiFormHelperText-root"
             >
-              validation.registration.required
+              validation.registration.required field
             </p>
           </div>
           <div
@@ -3820,7 +3820,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                         <p
                           class="MuiFormHelperText-root MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-1vg31rc-MuiFormHelperText-root"
                         >
-                          registration.cta.helper.fetch
+                          registration.cta.helper.fetch date
                         </p>
                       </div>
                     </div>
@@ -4296,7 +4296,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
             <p
               class="MuiFormHelperText-root Mui-error css-9tosq5-MuiFormHelperText-root"
             >
-              validation.registration.choose
+              validation.registration.choose field
             </p>
           </div>
           <div
@@ -4437,7 +4437,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
             <p
               class="MuiFormHelperText-root Mui-error css-9tosq5-MuiFormHelperText-root"
             >
-              validation.registration.choose
+              validation.registration.choose field
             </p>
           </div>
           <div
@@ -5358,7 +5358,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
             <p
               class="MuiFormHelperText-root Mui-error css-9tosq5-MuiFormHelperText-root"
             >
-              validation.registration.choose
+              validation.registration.choose field
             </p>
           </div>
           <div
@@ -5383,7 +5383,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                       <span
                         class="MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"
                       >
-                        registration.rankingTime: dateFormat.datespan
+                        registration.rankingTime: dateFormat.datespan start, end
                       </span>
                     </div>
                     <div
@@ -5597,7 +5597,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
         <p
           class="MuiFormHelperText-root Mui-error css-w5l3sh-MuiFormHelperText-root"
         >
-          validation.registration.terms
+          validation.registration.terms field
         </p>
       </div>
     </div>

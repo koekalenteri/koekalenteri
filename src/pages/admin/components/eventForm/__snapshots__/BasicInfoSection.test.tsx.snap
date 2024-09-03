@@ -39,7 +39,7 @@ exports[`BasicInfoSection should render 1`] = `
         <p
           class="MuiFormHelperText-root css-ys8f5x-MuiFormHelperText-root"
         >
-          validation.event.effectiveRules
+          validation.event.effectiveRules date
         </p>
       </div>
       <div

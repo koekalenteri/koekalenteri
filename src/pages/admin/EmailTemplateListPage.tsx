@@ -118,10 +118,10 @@ export default function EmailTemplateListPage() {
                     variant="contained"
                     onClick={handleSave}
                   >
-                    Tallenna
+                    {t('save')}
                   </Button>
                   <Button startIcon={<Cancel />} disabled={!changes} variant="outlined" onClick={handleCancel}>
-                    Peruuta
+                    {t('cancel')}
                   </Button>
                 </Stack>
               </Box>

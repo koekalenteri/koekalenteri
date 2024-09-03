@@ -655,7 +655,7 @@ exports[`RegistrationForm renders 1`] = `
                         <p
                           class="MuiFormHelperText-root MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-1vg31rc-MuiFormHelperText-root"
                         >
-                          registration.cta.helper.update
+                          registration.cta.helper.update date
                         </p>
                       </div>
                     </div>
@@ -2190,7 +2190,7 @@ exports[`RegistrationForm renders 1`] = `
             <p
               class="MuiFormHelperText-root css-9tosq5-MuiFormHelperText-root"
             >
-              registration.qualifyingResultsInfo
+              registration.qualifyingResultsInfo class, eventType, qualifies
             </p>
           </div>
           <div
@@ -2215,7 +2215,7 @@ exports[`RegistrationForm renders 1`] = `
                       <span
                         class="MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"
                       >
-                        registration.rankingTime: dateFormat.datespan
+                        registration.rankingTime: dateFormat.datespan start, end
                       </span>
                     </div>
                     <div
@@ -3023,7 +3023,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
             <p
               class="MuiFormHelperText-root Mui-error css-9tosq5-MuiFormHelperText-root"
             >
-              validation.registration.required
+              validation.registration.required field
             </p>
           </div>
           <div
@@ -3153,7 +3153,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                         <p
                           class="MuiFormHelperText-root MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-1vg31rc-MuiFormHelperText-root"
                         >
-                          registration.cta.helper.fetch
+                          registration.cta.helper.fetch date
                         </p>
                       </div>
                     </div>
@@ -3629,7 +3629,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
             <p
               class="MuiFormHelperText-root Mui-error css-9tosq5-MuiFormHelperText-root"
             >
-              validation.registration.choose
+              validation.registration.choose field
             </p>
           </div>
           <div
@@ -3770,7 +3770,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
             <p
               class="MuiFormHelperText-root Mui-error css-9tosq5-MuiFormHelperText-root"
             >
-              validation.registration.choose
+              validation.registration.choose field
             </p>
           </div>
           <div
@@ -4691,7 +4691,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
             <p
               class="MuiFormHelperText-root css-9tosq5-MuiFormHelperText-root"
             >
-              validation.registration.choose
+              validation.registration.choose field
             </p>
           </div>
           <div
@@ -4716,7 +4716,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                       <span
                         class="MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"
                       >
-                        registration.rankingTime: dateFormat.datespan
+                        registration.rankingTime: dateFormat.datespan start, end
                       </span>
                     </div>
                     <div

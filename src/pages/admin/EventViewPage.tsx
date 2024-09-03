@@ -21,7 +21,9 @@ import Tabs from '@mui/material/Tabs'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
 import useAdminEventRegistrationInfo from '../../hooks/useAdminEventRegistrationsInfo'
+import { getRegistrationGroupKey, GROUP_KEY_CANCELLED } from '../../lib/registration'
 import { Path } from '../../routeConfig'
+import CancelDialog from '../components/CancelDialog'
 import LoadingIndicator from '../components/LoadingIndicator'
 
 import FullPageFlex from './components/FullPageFlex'
@@ -34,6 +36,7 @@ import RegistrationEditDialog from './eventViewPage/RegistrationEditDialog'
 import SendMessageDialog from './eventViewPage/SendMessageDialog'
 import TabPanel from './eventViewPage/TabPanel'
 import Title from './eventViewPage/Title'
+import { useAdminRegistrationActions } from './recoil/registrations/actions'
 import {
   adminBackgroundActionsRunningAtom,
   adminEventClassAtom,
@@ -54,10 +57,12 @@ export default function EventViewPage() {
   const [createOpen, setCreateOpen] = useState(false)
   const [msgDlgOpen, setMsgDlgOpen] = useState(false)
   const [refundOpen, setRefundOpen] = useState(false)
+  const [cancelOpen, setCancelOpen] = useState(false)
 
   const params = useParams()
   const eventId = params.id ?? ''
   const event = useRecoilValue(adminEventSelector(eventId))
+  const actions = useAdminRegistrationActions(eventId)
 
   const [selectedEventClass, setSelectedEventClass] = useRecoilState(adminEventClassAtom)
   const [selectedRegistrationId, setSelectedRegistrationId] = useRecoilState(adminRegistrationIdAtom)
@@ -92,6 +97,7 @@ export default function EventViewPage() {
   )
 
   const handleClose = useCallback(() => setOpen(false), [])
+  const handleCancelClose = useCallback(() => setCancelOpen(false), [])
   const handleCreateClose = useCallback(() => setCreateOpen(false), [])
   const handleDetailsClose = useCallback(() => setDetailsOpen(false), [])
   const handleRefundClose = useCallback(() => setRefundOpen(false), [])
@@ -102,6 +108,18 @@ export default function EventViewPage() {
     setMessageTemplateId(templateId)
     setMsgDlgOpen(true)
   }
+
+  const handleCancel = useCallback(
+    async (reason: string) => {
+      if (!selectedRegistration) return
+      const regs = registrations.filter(
+        (r) => getRegistrationGroupKey(r) === GROUP_KEY_CANCELLED && r.id !== selectedRegistration.id
+      )
+      await actions.cancel(selectedRegistration.eventId, selectedRegistration.id, reason, regs.length + 1)
+      setCancelOpen(false)
+    },
+    [actions, registrations, selectedRegistration]
+  )
 
   useEffect(() => {
     if (selectedEventClass && !allClasses.includes(selectedEventClass)) {
@@ -205,6 +223,7 @@ export default function EventViewPage() {
                 eventClass={eventClass}
                 registrations={registrations}
                 setOpen={setOpen}
+                setCancelOpen={setCancelOpen}
                 setRefundOpen={setRefundOpen}
                 selectedRegistrationId={selectedRegistrationId}
                 setSelectedRegistrationId={setSelectedRegistrationId}
@@ -249,6 +268,15 @@ export default function EventViewPage() {
         <EventDetailsDialog eventId={eventId} open={detailsOpen} onClose={handleDetailsClose} />
         {selectedRegistration && (
           <RefundDailog registration={selectedRegistration} open={refundOpen} onClose={handleRefundClose} />
+        )}
+        {selectedRegistration && (
+          <CancelDialog
+            event={event}
+            open={cancelOpen}
+            onClose={handleCancelClose}
+            onCancel={handleCancel}
+            registration={selectedRegistration}
+          />
         )}
       </Suspense>
     </>

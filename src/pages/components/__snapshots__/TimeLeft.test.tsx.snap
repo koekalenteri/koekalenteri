@@ -4,7 +4,7 @@ exports[`TimeLeft renders with date 1`] = `
 <p
   class="MuiTypography-root MuiTypography-body1 css-14wzn0b-MuiTypography-root"
 >
-  dateFormat.distanceLeft
+  dateFormat.distanceLeft date
 </p>
 `;
 

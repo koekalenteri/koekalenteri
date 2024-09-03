@@ -3,8 +3,7 @@ import type { EmailTemplateId, JsonConfirmedEvent, JsonRegistration, Registratio
 import { isPast } from 'date-fns'
 import { nanoid } from 'nanoid'
 
-import { i18n } from '../../i18n/lambda'
-import { getRegistrationChanges, GROUP_KEY_RESERVE, isPredefinedReason } from '../../lib/registration'
+import { getRegistrationChanges, GROUP_KEY_RESERVE } from '../../lib/registration'
 import { CONFIG } from '../config'
 import { audit, registrationAuditKey } from '../lib/audit'
 import { getOrigin, getUsername } from '../lib/auth'
@@ -14,6 +13,7 @@ import { parseJSONWithFallback } from '../lib/json'
 import { lambda } from '../lib/lambda'
 import {
   findExistingRegistrationToEventForDog,
+  getCancelAuditMessage,
   getRegistration,
   isParticipantGroup,
   saveRegistration,
@@ -35,19 +35,6 @@ const getEmailContext = (update: boolean, cancel: boolean, confirm: boolean, inv
   if (invitation) return 'invitation'
   if (update) return 'update'
   return ''
-}
-
-const getCancelAuditMessage = (data: JsonRegistration) => {
-  if (!data.cancelReason) return 'Ilmoittautuminen peruttiin, syy: (ei täytetty)'
-
-  if (isPredefinedReason(data.cancelReason)) {
-    const t = i18n.getFixedT('fi')
-    const reason = t(`registration.cancelReason.${data.cancelReason}`)
-
-    return `Ilmoittautuminen peruttiin, syy: ${reason}`
-  }
-
-  return `Ilmoittautuminen peruttiin, syy: ${data.cancelReason}`
 }
 
 const getAuditMessage = (

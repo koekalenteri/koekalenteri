@@ -299,10 +299,10 @@ export default function EventForm({ event, changes, disabled, onSave, onCancel, 
           variant="contained"
           onClick={onSave}
         >
-          Tallenna
+          {t('save')}
         </AsyncButton>
         <Button startIcon={<Cancel />} variant="outlined" onClick={onCancel}>
-          Peruuta
+          {t('cancel')}
         </Button>
       </Stack>
     </Paper>

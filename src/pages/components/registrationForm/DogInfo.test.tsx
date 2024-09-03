@@ -146,7 +146,7 @@ describe('DogInfo', () => {
     await flushPromises()
 
     expect(button.textContent).toEqual('registration.cta.error')
-    expect(screen.getByText('registration.cta.helper.error')).toBeInTheDocument()
+    expect(screen.getByText('registration.cta.helper.error date')).toBeInTheDocument()
   })
 
   it('should display friendly error when dog is not found', async () => {
@@ -171,6 +171,6 @@ describe('DogInfo', () => {
     await flushPromises()
 
     expect(button.textContent).toEqual('registration.cta.notfound')
-    expect(screen.getByText('registration.cta.helper.notfound')).toBeInTheDocument()
+    expect(screen.getByText('registration.cta.helper.notfound date')).toBeInTheDocument()
   })
 })

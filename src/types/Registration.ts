@@ -51,8 +51,10 @@ export interface JsonRegistrationGroup extends Partial<JsonRegistrationDate> {
   key: string
 }
 
-export interface RegistrationGroupInfo extends Pick<Registration, 'eventId' | 'id' | 'group' | 'cancelled'> {}
-export interface JsonRegistrationGroupInfo extends Pick<JsonRegistration, 'eventId' | 'id' | 'group' | 'cancelled'> {}
+export interface RegistrationGroupInfo
+  extends Pick<Registration, 'eventId' | 'id' | 'group' | 'cancelled' | 'cancelReason'> {}
+export interface JsonRegistrationGroupInfo
+  extends Pick<JsonRegistration, 'eventId' | 'id' | 'group' | 'cancelled' | 'cancelReason'> {}
 
 export interface ManualTestResult extends QualifyingResult {
   id: string

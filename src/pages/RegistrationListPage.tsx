@@ -24,11 +24,11 @@ import { hasPriority } from '../lib/registration'
 import { isConfirmedEvent } from '../lib/typeGuards'
 import { Path } from '../routeConfig'
 
+import CancelDialog from './components/CancelDialog'
 import Header from './components/Header'
 import LinkButton from './components/LinkButton'
 import RegistrationEventInfo from './components/RegistrationEventInfo'
 import { useRegistrationActions } from './recoil/registration/actions'
-import { CancelDialog } from './registrationListPage/CancelDialog'
 import { ConfirmDialog } from './registrationListPage/ConfirmDialog'
 import RegistrationList from './registrationListPage/RegistrationList'
 import { LoadingPage } from './LoadingPage'
@@ -252,7 +252,6 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
           onClose={handleCalcelClose}
           open={cancelOpen}
           registration={registration}
-          t={t}
         />
         <ConfirmDialog
           open={confirmOpen}

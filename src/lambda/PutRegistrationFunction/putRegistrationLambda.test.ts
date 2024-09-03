@@ -24,7 +24,10 @@ const mockfindExistingRegistrationToEventForDog = jest.fn<
 >(async () => undefined)
 const mockisParticipantGroup = jest.fn()
 
+const libRegistration = await import('../lib/registration')
+
 jest.unstable_mockModule('../lib/registration', () => ({
+  ...libRegistration,
   getRegistration: mockGetRegistration,
   saveRegistration: mockSaveRegistration,
   findExistingRegistrationToEventForDog: mockfindExistingRegistrationToEventForDog,
