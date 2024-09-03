@@ -1,20 +1,22 @@
 import type { ConfirmedEvent } from '../types'
 
-import { addDays, parseISO, startOfDay } from 'date-fns'
+import { addDays } from 'date-fns'
+
+import { zonedStartOfDay } from '../i18n/dates'
 
 import { emptyEvent } from './emptyEvent'
 
-const today = startOfDay(new Date())
+const today = zonedStartOfDay(new Date())
 
 export const eventWithStaticDates: ConfirmedEvent = {
   ...emptyEvent,
   id: 'test1',
   eventType: 'NOU',
   classes: [],
-  startDate: parseISO('2021-02-10'),
-  endDate: parseISO('2021-02-11'),
-  entryStartDate: parseISO('2021-02-01'),
-  entryEndDate: parseISO('2021-02-07'),
+  startDate: zonedStartOfDay('2021-02-10'),
+  endDate: zonedStartOfDay('2021-02-11'),
+  entryStartDate: zonedStartOfDay('2021-02-01'),
+  entryEndDate: zonedStartOfDay('2021-02-07'),
   judges: [{ id: 123, name: 'Tuomari 1' }],
   location: 'test location',
 }
@@ -24,13 +26,13 @@ export const eventWithStaticDatesAndClass: ConfirmedEvent = {
   id: 'test1-b',
   eventType: 'NOME-B',
   classes: [
-    { class: 'ALO', date: parseISO('2021-02-10') },
-    { class: 'ALO', date: parseISO('2021-02-11') },
+    { class: 'ALO', date: zonedStartOfDay('2021-02-10') },
+    { class: 'ALO', date: zonedStartOfDay('2021-02-11') },
   ],
-  startDate: parseISO('2021-02-10'),
-  endDate: parseISO('2021-02-11'),
-  entryStartDate: parseISO('2021-02-01'),
-  entryEndDate: parseISO('2021-02-07'),
+  startDate: zonedStartOfDay('2021-02-10'),
+  endDate: zonedStartOfDay('2021-02-11'),
+  entryStartDate: zonedStartOfDay('2021-02-01'),
+  entryEndDate: zonedStartOfDay('2021-02-07'),
   judges: [{ id: 123, name: 'Tuomari 1' }],
   location: 'test location',
 }
@@ -40,14 +42,14 @@ export const eventWithStaticDatesAnd3Classes: ConfirmedEvent = {
   id: 'test1-c',
   eventType: 'NOME-B',
   classes: [
-    { class: 'ALO', date: parseISO('2021-02-10') },
-    { class: 'AVO', date: parseISO('2021-02-10') },
-    { class: 'VOI', date: parseISO('2021-02-11') },
+    { class: 'ALO', date: zonedStartOfDay('2021-02-10') },
+    { class: 'AVO', date: zonedStartOfDay('2021-02-10') },
+    { class: 'VOI', date: zonedStartOfDay('2021-02-11') },
   ],
-  startDate: parseISO('2021-02-10'),
-  endDate: parseISO('2021-02-11'),
-  entryStartDate: parseISO('2021-02-01'),
-  entryEndDate: parseISO('2021-02-07'),
+  startDate: zonedStartOfDay('2021-02-10'),
+  endDate: zonedStartOfDay('2021-02-11'),
+  entryStartDate: zonedStartOfDay('2021-02-01'),
+  entryEndDate: zonedStartOfDay('2021-02-07'),
   judges: [{ id: 123, name: 'Tuomari 1' }],
   location: 'test location',
 }
