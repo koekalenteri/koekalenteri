@@ -1,9 +1,7 @@
 import type { ConfirmedEvent, JsonDogEvent } from '../types'
 
-import { zonedStartOfDay } from '../i18n/dates'
-
 export const emptyEvent: ConfirmedEvent = {
-  classes: [{ class: 'ALO', date: zonedStartOfDay('1990-01-01') }],
+  classes: [{ class: 'ALO', date: new Date('1990-01-01') }],
   contactInfo: {
     official: {
       name: 'Teemu Toimitsija',
@@ -18,20 +16,20 @@ export const emptyEvent: ConfirmedEvent = {
   },
   cost: 123,
   costMember: 123,
-  createdAt: zonedStartOfDay('1989-01-01'),
+  createdAt: new Date('1989-01-01'),
   createdBy: 'test',
   description: 'test',
-  endDate: zonedStartOfDay('1990-01-01'),
+  endDate: new Date('1990-01-01'),
   entries: 0,
-  entryEndDate: zonedStartOfDay('1990-01-01'),
-  entryStartDate: zonedStartOfDay('1990-01-01'),
+  entryEndDate: new Date('1990-01-01'),
+  entryStartDate: new Date('1990-01-01'),
   eventType: 'test',
   headquarters: { zipCode: '33101' },
   id: 'test',
   judges: [{ id: 123, name: 'Tuomari 1', official: true }],
   kcId: 123456,
   location: 'test',
-  modifiedAt: zonedStartOfDay('1989-01-02'),
+  modifiedAt: new Date('1989-01-02'),
   modifiedBy: 'test',
   name: 'test',
   official: {
@@ -48,7 +46,7 @@ export const emptyEvent: ConfirmedEvent = {
     name: 'Suomen Noutajakoirajärjestö ry',
   },
   places: 10,
-  startDate: zonedStartOfDay('1990-01-01'),
+  startDate: new Date('1990-01-01'),
   state: 'confirmed' as const,
 }
 
