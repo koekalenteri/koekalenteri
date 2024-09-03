@@ -28,7 +28,9 @@ import FormHelperText from '@mui/material/FormHelperText'
 import Link from '@mui/material/Link'
 import Paper from '@mui/material/Paper'
 import Stack from '@mui/material/Stack'
+import { diff } from 'deep-object-diff'
 
+import { isDevEnv } from '../../lib/env'
 import { hasChanges, merge } from '../../lib/utils'
 import { getRequirements } from '../../rules'
 
@@ -37,6 +39,7 @@ import { BreederInfo } from './registrationForm/BreederInfo'
 import { DogInfo } from './registrationForm/DogInfo'
 import { EntryInfo } from './registrationForm/EntryInfo'
 import { HandlerInfo } from './registrationForm/HandlerInfo'
+import MembershipInfo from './registrationForm/MembershipInfo'
 import { OwnerInfo } from './registrationForm/OwnerInfo'
 import { PayerInfo } from './registrationForm/PayerInfo'
 import QualifyingResultsInfo from './registrationForm/QualifyingResultsInfo'
@@ -55,6 +58,7 @@ interface Props {
   readonly onChange?: (registration: Registration) => void
   readonly onSave?: () => Promise<void>
   readonly registration: Registration
+  readonly savedRegistration?: Registration | null
 }
 
 export const emptyDog = {
@@ -85,12 +89,14 @@ export default function RegistrationForm({
   onChange,
   onSave,
   registration,
+  savedRegistration,
 }: Props) {
   const { t, i18n } = useTranslation()
   const large = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
   const [errors, setErrors] = useState(validateRegistration(registration, event))
   const [open, setOpen] = useState<{ [key: string]: boolean | undefined }>({})
   const [rankingPeriod, setRankingPeriod] = useState<{ min?: Date; max?: Date }>({})
+
   const valid = errors.length === 0 && registration.qualifies
   const isMember = registration.handler?.membership || registration.owner?.membership
   const paymentAmount = event.costMember && isMember ? event.costMember : event.cost
@@ -122,12 +128,16 @@ export default function RegistrationForm({
         props.qualifies = filtered.qualifies
         setRankingPeriod({ min: filtered.minResultDate, max: filtered.maxResultDate })
       }
+
       const newState = replace ? Object.assign({}, registration, props) : merge<Registration>(registration, props ?? {})
       if (hasChanges(registration, newState)) {
         onChange?.(newState)
+        if (isDevEnv()) {
+          console.debug('changed', diff(registration, newState))
+        }
       }
     },
-    [event, onChange, registration, disabled]
+    [disabled, registration, event, onChange]
   )
 
   const handleOpenChange = useCallback(
@@ -191,10 +201,13 @@ export default function RegistrationForm({
     setRankingPeriod({ min: filtered.minResultDate, max: filtered.maxResultDate })
     const newState = { ...registration, qualifies: filtered.qualifies, qualifyingResults: filtered.relevant }
 
-    if (hasChanges(registration, newState)) {
+    if (hasChanges(savedRegistration ?? registration, newState)) {
+      if (isDevEnv()) {
+        console.log('changes', diff(savedRegistration ?? registration, newState))
+      }
       handleChange({ qualifies: filtered.qualifies, qualifyingResults: filtered.relevant })
     }
-  }, [event, handleChange, registration])
+  }, [event, handleChange, registration, savedRegistration])
 
   useEffect(() => {
     // update language on new registrations
@@ -266,6 +279,7 @@ export default function RegistrationForm({
           open={open.breeder}
         />
         <OwnerInfo
+          admin={admin}
           reg={registration}
           disabled={disabled}
           error={errorStates.owner}
@@ -277,6 +291,7 @@ export default function RegistrationForm({
         />
         <Collapse in={!registration.ownerHandles}>
           <HandlerInfo
+            admin={admin}
             reg={registration}
             disabled={disabled}
             error={errorStates.handler}
@@ -320,7 +335,7 @@ export default function RegistrationForm({
           onOpenChange={(value) => handleOpenChange('info', value)}
           open={open.info}
         />
-        <Box sx={{ m: 1, mt: 2, ml: 4, borderTop: '1px solid #bdbdbd' }}>
+        <Box sx={{ p: 1, pl: 4, borderTop: '1px solid #bdbdbd' }}>
           <FormControl error={errorStates.agreeToTerms} disabled={!!registration.id}>
             <FormControlLabel
               disabled={disabled}
@@ -351,6 +366,7 @@ export default function RegistrationForm({
           </FormControl>
           <FormHelperText error>{helperTexts.agreeToTerms}</FormHelperText>
         </Box>
+        <MembershipInfo reg={registration} orgId={event.organizer.id} onChange={handleChange} />
       </Box>
 
       <Stack
@@ -361,7 +377,7 @@ export default function RegistrationForm({
         useFlexGap
       >
         <Box my="auto">
-          <b>Summa:</b> {paymentAmount} €
+          <b>Maksettava:</b> {paymentAmount - (registration.paidAmount ?? 0)} €
         </Box>
         <AsyncButton
           color="primary"

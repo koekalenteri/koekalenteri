@@ -13,6 +13,7 @@ import CollapsibleSection from '../CollapsibleSection'
 import { useDogCacheKey } from './hooks/useDogCacheKey'
 
 interface Props {
+  readonly admin?: boolean
   readonly reg: DeepPartial<Registration>
   readonly disabled?: boolean
   readonly error?: boolean
@@ -23,7 +24,7 @@ interface Props {
   readonly orgId: string
 }
 
-export function HandlerInfo({ reg, disabled, error, helperText, onChange, onOpenChange, open, orgId }: Props) {
+export function HandlerInfo({ admin, reg, disabled, error, helperText, onChange, onOpenChange, open, orgId }: Props) {
   const { t, i18n } = useTranslation()
   const [cache, setCache] = useDogCacheKey(reg.dog?.regNo, 'handler')
 
@@ -33,20 +34,21 @@ export function HandlerInfo({ reg, disabled, error, helperText, onChange, onOpen
         props.membership === undefined ? cache?.membership : { ...cache?.membership, [orgId]: props.membership }
       const cached = setCache({ ...cache, ...props, membership })
       if (cached) {
-        onChange?.({ handler: { ...cached, membership: cached.membership?.[orgId] } })
+        onChange?.({ handler: { ...cached, membership: cached.membership?.[orgId] ?? false } })
       }
     },
     [cache, onChange, orgId, setCache]
   )
 
   useEffect(() => {
-    if (reg.ownerHandles) return
+    // Don't change registrations based on cache when secretary handles them
+    if (admin || reg.ownerHandles) return
 
     const cachedMembership = cache?.membership?.[orgId]
     if (cachedMembership !== undefined && reg.handler?.membership !== cachedMembership) {
       onChange?.({ handler: { ...reg.handler, membership: cachedMembership } })
     }
-  }, [cache, onChange, orgId, reg.handler, reg.ownerHandles])
+  }, [admin, cache, onChange, orgId, reg.handler, reg.ownerHandles])
 
   return (
     <CollapsibleSection

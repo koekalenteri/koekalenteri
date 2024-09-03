@@ -52,7 +52,7 @@ export default function CollapsibleSection({
         borderColor: 'background.selected',
       }}
     >
-      <IconButton size="small" color="primary" onClick={toggle}>
+      <IconButton size="small" color={'primary'} onClick={toggle} disabled={!onOpenChange}>
         {isOpen ? <KeyboardArrowDown /> : <KeyboardArrowRight />}
       </IconButton>
       <Box sx={{ pt: '5px', width: 'calc(100% - 34px)', overflowX: 'auto' }}>

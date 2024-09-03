@@ -6,8 +6,9 @@ exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
     class="MuiBox-root css-l530ik"
   >
     <button
-      class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-2rshpx-MuiButtonBase-root-MuiIconButton-root"
-      tabindex="0"
+      class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-2rshpx-MuiButtonBase-root-MuiIconButton-root"
+      disabled=""
+      tabindex="-1"
       type="button"
     >
       <svg
@@ -21,9 +22,6 @@ exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
           d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"
         />
       </svg>
-      <span
-        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-      />
     </button>
     <div
       class="MuiBox-root css-1qbrvqz"
@@ -476,8 +474,9 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
     class="MuiBox-root css-l530ik"
   >
     <button
-      class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-2rshpx-MuiButtonBase-root-MuiIconButton-root"
-      tabindex="0"
+      class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-2rshpx-MuiButtonBase-root-MuiIconButton-root"
+      disabled=""
+      tabindex="-1"
       type="button"
     >
       <svg
@@ -491,9 +490,6 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
           d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"
         />
       </svg>
-      <span
-        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-      />
     </button>
     <div
       class="MuiBox-root css-1qbrvqz"
@@ -1652,8 +1648,9 @@ exports[`QualifyingResultsInfo should render with minimal input 1`] = `
     class="MuiBox-root css-l530ik"
   >
     <button
-      class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-2rshpx-MuiButtonBase-root-MuiIconButton-root"
-      tabindex="0"
+      class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-2rshpx-MuiButtonBase-root-MuiIconButton-root"
+      disabled=""
+      tabindex="-1"
       type="button"
     >
       <svg
@@ -1667,9 +1664,6 @@ exports[`QualifyingResultsInfo should render with minimal input 1`] = `
           d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"
         />
       </svg>
-      <span
-        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-      />
     </button>
     <div
       class="MuiBox-root css-1qbrvqz"

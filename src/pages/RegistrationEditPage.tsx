@@ -36,7 +36,6 @@ export default function RegistrationEditPage() {
   const handleChange = useCallback(
     (newState: Registration) => {
       if (hasChanges(registration, newState)) {
-        console.log('changes')
         setRegistration(newState)
       }
     },
@@ -89,6 +88,7 @@ export default function RegistrationEditPage() {
         disabled={disabled}
         event={event}
         registration={registration}
+        savedRegistration={savedRegistration}
         className={params.class}
         classDate={params.date}
         onSave={handleSave}

@@ -247,6 +247,7 @@
     "handler": "Handler",
     "handlerIsMember": "Handler is a member of the organizing society",
     "member": "Member",
+    "membership": "Membership",
     "modified_one": "Changes saved.\nConfirmation email was sent to:\n{{to}}",
     "modified_other": "Changes saved.\nConfirmation email was sent to:\n{{to}}",
     "notes": "Notes",

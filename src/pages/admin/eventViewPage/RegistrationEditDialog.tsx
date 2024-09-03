@@ -48,6 +48,7 @@ export default function RegistrationEditDialog({ event, registrationId, open, on
       onClose={onClose}
       open={open}
       registration={registration}
+      savedRegistration={savedRegistration}
       resetRegistration={resetRegistration}
       setRegistration={setRegistration}
       auditTrail={auditTrail}

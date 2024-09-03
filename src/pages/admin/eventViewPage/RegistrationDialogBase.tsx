@@ -14,7 +14,6 @@ import { AuditTrail } from '../components/AuditTrail'
 import { useAdminRegistrationActions } from '../recoil/registrations/actions'
 
 interface Props {
-  readonly admin?: boolean
   readonly auditTrail?: AuditRecord[]
   readonly changes: boolean
   readonly classDisabled?: boolean
@@ -22,12 +21,12 @@ interface Props {
   readonly onClose?: () => void
   readonly open: boolean
   readonly registration?: Registration
+  readonly savedRegistration?: Registration
   readonly resetRegistration: Resetter
   readonly setRegistration: SetterOrUpdater<Registration | undefined>
 }
 
 export default function RegistrationDialogBase({
-  admin,
   auditTrail,
   changes,
   classDisabled,
@@ -35,6 +34,7 @@ export default function RegistrationDialogBase({
   onClose,
   open,
   registration,
+  savedRegistration,
   resetRegistration,
   setRegistration,
 }: Props) {
@@ -114,7 +114,7 @@ export default function RegistrationDialogBase({
       </DialogTitle>
       <DialogContent dividers sx={{ height: '100%', p: 0 }}>
         <RegistrationForm
-          admin={admin}
+          admin
           changes={changes}
           classDisabled={classDisabled}
           disabled={registration.cancelled}
@@ -123,6 +123,7 @@ export default function RegistrationDialogBase({
           onChange={handleChange}
           onSave={handleSave}
           registration={registration}
+          savedRegistration={savedRegistration}
         />
         <AuditTrail auditTrail={auditTrail} />
       </DialogContent>

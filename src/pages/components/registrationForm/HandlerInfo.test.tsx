@@ -60,22 +60,30 @@ describe('HadnlerInfo', () => {
     const memberCheckbox = screen.getByRole('checkbox', { name: 'registration.handlerIsMember' })
 
     await user.clear(input)
-    expect(onChange).toHaveBeenLastCalledWith({ handler: { name: '' } })
+    expect(onChange).toHaveBeenLastCalledWith({ handler: { membership: false, name: '' } })
 
     await user.type(input, 'test handler')
-    expect(onChange).toHaveBeenLastCalledWith({ handler: { name: 'test handler' } })
+    expect(onChange).toHaveBeenLastCalledWith({ handler: { membership: false, name: 'test handler' } })
 
     await user.type(locationInput, 'test city')
-    expect(onChange).toHaveBeenLastCalledWith({ handler: { location: 'test city', name: 'test handler' } })
+    expect(onChange).toHaveBeenLastCalledWith({
+      handler: { location: 'test city', membership: false, name: 'test handler' },
+    })
 
     await user.type(emailInput, ' test@exmaple.com \n')
     expect(onChange).toHaveBeenLastCalledWith({
-      handler: { email: 'test@exmaple.com', location: 'test city', name: 'test handler' },
+      handler: { email: 'test@exmaple.com', location: 'test city', membership: false, name: 'test handler' },
     })
 
     await user.type(phoneInput, '40123456')
     expect(onChange).toHaveBeenLastCalledWith({
-      handler: { email: 'test@exmaple.com', location: 'test city', name: 'test handler', phone: '+358 40 123456' },
+      handler: {
+        email: 'test@exmaple.com',
+        location: 'test city',
+        membership: false,
+        name: 'test handler',
+        phone: '+358 40 123456',
+      },
     })
 
     await user.click(memberCheckbox)

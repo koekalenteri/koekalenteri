@@ -6,8 +6,9 @@ exports[`JudgeSection should hide classes for NOWT event (KOE-317) 1`] = `
     class="MuiBox-root css-l530ik"
   >
     <button
-      class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-2rshpx-MuiButtonBase-root-MuiIconButton-root"
-      tabindex="0"
+      class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-2rshpx-MuiButtonBase-root-MuiIconButton-root"
+      disabled=""
+      tabindex="-1"
       type="button"
     >
       <svg
@@ -21,9 +22,6 @@ exports[`JudgeSection should hide classes for NOWT event (KOE-317) 1`] = `
           d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"
         />
       </svg>
-      <span
-        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-      />
     </button>
     <div
       class="MuiBox-root css-1qbrvqz"
@@ -371,8 +369,9 @@ exports[`JudgeSection should not warn about judge 0 not beign available (KOE-357
     class="MuiBox-root css-l530ik"
   >
     <button
-      class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-2rshpx-MuiButtonBase-root-MuiIconButton-root"
-      tabindex="0"
+      class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-2rshpx-MuiButtonBase-root-MuiIconButton-root"
+      disabled=""
+      tabindex="-1"
       type="button"
     >
       <svg
@@ -386,9 +385,6 @@ exports[`JudgeSection should not warn about judge 0 not beign available (KOE-357
           d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"
         />
       </svg>
-      <span
-        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-      />
     </button>
     <div
       class="MuiBox-root css-1qbrvqz"
@@ -735,8 +731,9 @@ exports[`JudgeSection should render properly with one judge selected 1`] = `
     class="MuiBox-root css-l530ik"
   >
     <button
-      class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-2rshpx-MuiButtonBase-root-MuiIconButton-root"
-      tabindex="0"
+      class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-2rshpx-MuiButtonBase-root-MuiIconButton-root"
+      disabled=""
+      tabindex="-1"
       type="button"
     >
       <svg
@@ -750,9 +747,6 @@ exports[`JudgeSection should render properly with one judge selected 1`] = `
           d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"
         />
       </svg>
-      <span
-        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-      />
     </button>
     <div
       class="MuiBox-root css-1qbrvqz"
@@ -1099,8 +1093,9 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
     class="MuiBox-root css-l530ik"
   >
     <button
-      class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-2rshpx-MuiButtonBase-root-MuiIconButton-root"
-      tabindex="0"
+      class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-2rshpx-MuiButtonBase-root-MuiIconButton-root"
+      disabled=""
+      tabindex="-1"
       type="button"
     >
       <svg
@@ -1114,9 +1109,6 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
           d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"
         />
       </svg>
-      <span
-        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-      />
     </button>
     <div
       class="MuiBox-root css-1qbrvqz"
@@ -1905,8 +1897,9 @@ exports[`JudgeSection should render properly with two judges selected 1`] = `
     class="MuiBox-root css-l530ik"
   >
     <button
-      class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-2rshpx-MuiButtonBase-root-MuiIconButton-root"
-      tabindex="0"
+      class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-2rshpx-MuiButtonBase-root-MuiIconButton-root"
+      disabled=""
+      tabindex="-1"
       type="button"
     >
       <svg
@@ -1920,9 +1913,6 @@ exports[`JudgeSection should render properly with two judges selected 1`] = `
           d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"
         />
       </svg>
-      <span
-        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-      />
     </button>
     <div
       class="MuiBox-root css-1qbrvqz"

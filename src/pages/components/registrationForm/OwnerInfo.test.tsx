@@ -62,16 +62,24 @@ describe('OwnerInfo', () => {
     const payerCheckbox = screen.getByRole('checkbox', { name: 'registration.ownerPays' })
 
     await user.clear(input)
-    expect(onChange).toHaveBeenLastCalledWith({ owner: { name: '' }, ownerHandles: true, ownerPays: true })
+    expect(onChange).toHaveBeenLastCalledWith({
+      owner: { membership: false, name: '' },
+      ownerHandles: true,
+      ownerPays: true,
+    })
     onChange.mockClear()
 
     await user.type(input, 'test handler')
-    expect(onChange).toHaveBeenLastCalledWith({ owner: { name: 'test handler' }, ownerHandles: true, ownerPays: true })
+    expect(onChange).toHaveBeenLastCalledWith({
+      owner: { membership: false, name: 'test handler' },
+      ownerHandles: true,
+      ownerPays: true,
+    })
     onChange.mockClear()
 
     await user.type(locationInput, 'test city')
     expect(onChange).toHaveBeenLastCalledWith({
-      owner: { location: 'test city', name: 'test handler' },
+      owner: { location: 'test city', membership: false, name: 'test handler' },
       ownerHandles: true,
       ownerPays: true,
     })
@@ -79,7 +87,7 @@ describe('OwnerInfo', () => {
 
     await user.type(emailInput, 'test@exmaple.com \n')
     expect(onChange).toHaveBeenLastCalledWith({
-      owner: { email: 'test@exmaple.com', location: 'test city', name: 'test handler' },
+      owner: { email: 'test@exmaple.com', location: 'test city', membership: false, name: 'test handler' },
       ownerHandles: true,
       ownerPays: true,
     })
@@ -87,7 +95,13 @@ describe('OwnerInfo', () => {
 
     await user.type(phoneInput, '40123456')
     expect(onChange).toHaveBeenLastCalledWith({
-      owner: { email: 'test@exmaple.com', location: 'test city', name: 'test handler', phone: '+358 40 123456' },
+      owner: {
+        email: 'test@exmaple.com',
+        location: 'test city',
+        membership: false,
+        name: 'test handler',
+        phone: '+358 40 123456',
+      },
       ownerHandles: true,
       ownerPays: true,
     })

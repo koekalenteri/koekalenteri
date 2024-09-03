@@ -6,8 +6,9 @@ exports[`HeadquartersSection should render collapsed 1`] = `
     class="MuiBox-root css-l530ik"
   >
     <button
-      class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-2rshpx-MuiButtonBase-root-MuiIconButton-root"
-      tabindex="0"
+      class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-2rshpx-MuiButtonBase-root-MuiIconButton-root"
+      disabled=""
+      tabindex="-1"
       type="button"
     >
       <svg
@@ -21,9 +22,6 @@ exports[`HeadquartersSection should render collapsed 1`] = `
           d="M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6z"
         />
       </svg>
-      <span
-        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-      />
     </button>
     <div
       class="MuiBox-root css-1qbrvqz"
@@ -236,8 +234,9 @@ exports[`HeadquartersSection should render open 1`] = `
     class="MuiBox-root css-l530ik"
   >
     <button
-      class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-2rshpx-MuiButtonBase-root-MuiIconButton-root"
-      tabindex="0"
+      class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-2rshpx-MuiButtonBase-root-MuiIconButton-root"
+      disabled=""
+      tabindex="-1"
       type="button"
     >
       <svg
@@ -251,9 +250,6 @@ exports[`HeadquartersSection should render open 1`] = `
           d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"
         />
       </svg>
-      <span
-        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-      />
     </button>
     <div
       class="MuiBox-root css-1qbrvqz"

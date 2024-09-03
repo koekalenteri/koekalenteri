@@ -327,6 +327,7 @@
     "handlerIsMember": "Ohjaaja on järjestävän yhdistyksen jäsen",
     "internalNotes": "Sisäinen kommentti (ei näy ilmoittautujalle)",
     "member": "Jäsen",
+    "membership": "Jäsenyystiedot",
     "modified_one": "Muutokset on tallennettu.\nVahvistus on lähetetty sähköpostiosoitteeseen:\n{{to}}",
     "modified_other": "Muutokset on tallennettu.\nVahvistus on lähetetty sähköpostiosoitteisiin:\n{{to}}",
     "notes": "Lisätiedot",
