@@ -124,7 +124,7 @@ const EventProperty = <P extends Property, freeSolo extends boolean>(props: Even
                   {params.InputProps.endAdornment}
                 </>
               ),
-            }
+            },
           }}
         />
         <IconButton onClick={helpClick} sx={{ display: helpClick ? 'flex' : 'none', margin: 'auto' }}>
