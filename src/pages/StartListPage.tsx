@@ -4,7 +4,7 @@ import type { PublicRegistration } from '../types'
 import { useTranslation } from 'react-i18next'
 import { useLoaderData, useParams } from 'react-router-dom'
 import Box from '@mui/material/Box'
-import Grid from '@mui/material/Grid'
+import Grid2 from '@mui/material/Grid2'
 import { styled } from '@mui/material/styles'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
@@ -53,16 +53,16 @@ export const StartListPage = () => {
 
   return (
     <Box p={1}>
-      <Grid container>
-        <Grid item display="flex" flexGrow={1}>
+      <Grid2 container>
+        <Grid2 display="flex" flexGrow={1}>
           <h1>
             {event.eventType} {event.location} {event.name ? `(${event.name})` : ''}
           </h1>
-        </Grid>
-        <Grid item display="flex" justifyContent="end">
+        </Grid2>
+        <Grid2 display="flex" justifyContent="end">
           {t('dateFormat.dtshort', { date: now })}
-        </Grid>
-      </Grid>
+        </Grid2>
+      </Grid2>
       <Table size="small">
         <TableBody>
           {participants.map((reg) => {

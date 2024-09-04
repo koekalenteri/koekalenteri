@@ -1,7 +1,7 @@
 import type { SectionProps } from '../EventForm'
 
 import { useTranslation } from 'react-i18next'
-import Grid from '@mui/material/Grid'
+import Grid2 from '@mui/material/Grid2'
 import { useRecoilValue } from 'recoil'
 
 import CollapsibleSection from '../../../components/CollapsibleSection'
@@ -32,9 +32,9 @@ export default function PaymentSection({
       error={error}
       helperText={helperText}
     >
-      <Grid container spacing={1}>
-        <Grid item container spacing={1}>
-          <Grid item sx={{ width: 200 }}>
+      <Grid2 container spacing={1}>
+        <Grid2 container spacing={1}>
+          <Grid2 sx={{ width: 200 }}>
             <EventPrice
               id="cost"
               disabled={disabled}
@@ -43,8 +43,8 @@ export default function PaymentSection({
               fields={fields}
               onChange={onChange}
             />
-          </Grid>
-          <Grid item sx={{ width: 200 }}>
+          </Grid2>
+          <Grid2 sx={{ width: 200 }}>
             <EventPrice
               id="costMember"
               disabled={disabled}
@@ -53,9 +53,9 @@ export default function PaymentSection({
               fields={fields}
               onChange={onChange}
             />
-          </Grid>
-        </Grid>
-      </Grid>
+          </Grid2>
+        </Grid2>
+      </Grid2>
     </CollapsibleSection>
   )
 }

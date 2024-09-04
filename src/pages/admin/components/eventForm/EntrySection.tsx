@@ -7,7 +7,7 @@ import type { SectionProps } from '../EventForm'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import FormHelperText from '@mui/material/FormHelperText'
-import Grid from '@mui/material/Grid'
+import Grid2 from '@mui/material/Grid2'
 import { clamp, sub } from 'date-fns'
 import { enqueueSnackbar } from 'notistack'
 
@@ -79,9 +79,9 @@ export default function EntrySection(props: Props) {
       error={!!error}
       helperText={helperText}
     >
-      <Grid item container spacing={1}>
-        <Grid item container spacing={1}>
-          <Grid item width={600}>
+      <Grid2 container spacing={1}>
+        <Grid2 container spacing={1}>
+          <Grid2 width={600}>
             <DateRange
               startDisabled={disabled}
               startLabel="Ilmoittautumisaika alkaa"
@@ -95,20 +95,20 @@ export default function EntrySection(props: Props) {
               onChange={handleDateChange}
             />
             <FormHelperText error>{helperTexts?.entryStartDate ?? helperTexts?.entryEndDate}</FormHelperText>
-          </Grid>
-        </Grid>
-        <Grid item container spacing={1}>
-          <Grid item minWidth={600} maxWidth={900}>
+          </Grid2>
+        </Grid2>
+        <Grid2 container spacing={1}>
+          <Grid2 minWidth={600} maxWidth={900}>
             <EventDates disabled={disabled} event={event} eventTypeClasses={eventTypeClasses} onChange={onChange} />
-          </Grid>
-        </Grid>
-        <Grid item container spacing={1}>
-          <Grid item width={600}>
+          </Grid2>
+        </Grid2>
+        <Grid2 container spacing={1}>
+          <Grid2 width={600}>
             <EventFormPlaces disabled={disabled} {...props} />
-          </Grid>
-        </Grid>
-        <Grid item container spacing={1}>
-          <Grid item minWidth={600} maxWidth={900}>
+          </Grid2>
+        </Grid2>
+        <Grid2 container spacing={1}>
+          <Grid2 minWidth={600} maxWidth={900}>
             <AutocompleteMulti
               disabled={disabled}
               disablePortal
@@ -120,9 +120,9 @@ export default function EntrySection(props: Props) {
               value={eventPriority}
               label={'Etusijat'}
             />
-          </Grid>
-        </Grid>
-      </Grid>
+          </Grid2>
+        </Grid2>
+      </Grid2>
     </CollapsibleSection>
   )
 }

@@ -115,14 +115,16 @@ const EventProperty = <P extends Property, freeSolo extends boolean>(props: Even
           required={isRequired}
           error={!!error}
           helperText={helperText}
-          InputProps={{
-            ...params.InputProps,
-            endAdornment: (
-              <>
-                {endAdornment}
-                {params.InputProps.endAdornment}
-              </>
-            ),
+          slotProps={{
+            input: {
+              ...params.InputProps,
+              endAdornment: (
+                <>
+                  {endAdornment}
+                  {params.InputProps.endAdornment}
+                </>
+              ),
+            }
           }}
         />
         <IconButton onClick={helpClick} sx={{ display: helpClick ? 'flex' : 'none', margin: 'auto' }}>

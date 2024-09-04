@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 import Checkbox from '@mui/material/Checkbox'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import FormGroup from '@mui/material/FormGroup'
-import Grid from '@mui/material/Grid'
+import Grid2 from '@mui/material/Grid2'
 import Switch from '@mui/material/Switch'
 import TextField from '@mui/material/TextField'
 import { MuiTelInput } from 'mui-tel-input'
@@ -66,10 +66,9 @@ export function OwnerInfo({ admin, reg, disabled, error, helperText, onChange, o
       open={open && !!reg.dog?.regNo}
       onOpenChange={onOpenChange}
     >
-      <Grid item container spacing={1}>
-        <Grid item xs={12} sm={6}>
+      <Grid2 container spacing={1}>
+        <Grid2 size={{ xs: 12, sm: 6 }}>
           <TextField
-            InputProps={{ autoComplete: 'name' }}
             disabled={disabled}
             error={!reg.owner?.name}
             fullWidth
@@ -78,11 +77,13 @@ export function OwnerInfo({ admin, reg, disabled, error, helperText, onChange, o
             name="name"
             onChange={(e) => handleChange({ name: e.target.value })}
             value={reg.owner?.name ?? ''}
+            slotProps={{
+              input: { autoComplete: 'name' },
+            }}
           />
-        </Grid>
-        <Grid item xs={12} sm={6}>
+        </Grid2>
+        <Grid2 size={{ xs: 12, sm: 6 }}>
           <TextField
-            InputProps={{ autoComplete: 'address-level2' }}
             disabled={disabled}
             error={!reg.owner?.location}
             fullWidth
@@ -91,11 +92,13 @@ export function OwnerInfo({ admin, reg, disabled, error, helperText, onChange, o
             name="city"
             onChange={(e) => handleChange({ location: e.target.value })}
             value={reg.owner?.location ?? ''}
+            slotProps={{
+              input: { autoComplete: 'address-level2' },
+            }}
           />
-        </Grid>
-        <Grid item xs={12} sm={6}>
+        </Grid2>
+        <Grid2 size={{ xs: 12, sm: 6 }}>
           <TextField
-            InputProps={{ autoComplete: 'email' }}
             disabled={disabled}
             error={!reg.owner?.email}
             fullWidth
@@ -104,9 +107,12 @@ export function OwnerInfo({ admin, reg, disabled, error, helperText, onChange, o
             name="email"
             onChange={(e) => handleChange({ email: e.target.value.trim() })}
             value={reg.owner?.email ?? ''}
+            slotProps={{
+              input: { autoComplete: 'email' },
+            }}
           />
-        </Grid>
-        <Grid item xs={12} sm={6}>
+        </Grid2>
+        <Grid2 size={{ xs: 12, sm: 6 }}>
           <MuiTelInput
             langOfCountryName={i18n.language}
             defaultCountry="FI"
@@ -121,8 +127,8 @@ export function OwnerInfo({ admin, reg, disabled, error, helperText, onChange, o
             onChange={(phone) => handleChange({ phone })}
             value={reg.owner?.phone ?? ''}
           />
-        </Grid>
-      </Grid>
+        </Grid2>
+      </Grid2>
       <FormGroup>
         <FormControlLabel
           control={

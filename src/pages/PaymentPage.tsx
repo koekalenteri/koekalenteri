@@ -3,7 +3,7 @@ import type { CreatePaymentResponse, PublicDogEvent, Registration } from '../typ
 
 import { Suspense } from 'react'
 import { Await, defer, Navigate, useLoaderData, useParams } from 'react-router-dom'
-import Grid from '@mui/material/Grid'
+import Grid2 from '@mui/material/Grid2'
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
 import { useRecoilValue } from 'recoil'
@@ -70,15 +70,15 @@ const PaymentPageWithData = ({ id, registrationId, event, registration, response
       {response.groups.map((group) => (
         <Paper key={group.id} sx={{ p: 1, m: 1 }} elevation={0}>
           <Typography variant="h6">{group.name}</Typography>
-          <Grid container spacing={1}>
+          <Grid2 container spacing={1}>
             {response.providers
               .filter((provider) => provider.group === group.id)
               .map((provider, index) => (
-                <Grid item key={provider.id + index}>
+                <Grid2 key={provider.id + index}>
                   <ProviderButton provider={provider} />
-                </Grid>
+                </Grid2>
               ))}
-          </Grid>
+          </Grid2>
         </Paper>
       ))}
     </Paper>

@@ -3,15 +3,15 @@ import type { PublicDogEvent } from '../../../../types'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { styled } from '@mui/material'
-import Grid from '@mui/material/Grid'
+import Grid2 from '@mui/material/Grid2'
 
-const TextGrid = styled(Grid)({
+const TextGrid = styled(Grid2)({
   paddingLeft: 4,
   whiteSpace: 'nowrap',
   overflow: 'hidden',
   textOverflow: 'ellipsis',
 })
-const NumberGrid = styled(Grid)({ paddingRight: 4, textAlign: 'right' })
+const NumberGrid = styled(Grid2)({ paddingRight: 4, textAlign: 'right' })
 
 export type MinimalEvent = Pick<PublicDogEvent, 'classes' | 'startDate' | 'entries' | 'places' | 'members'>
 
@@ -44,24 +44,14 @@ export const EventClassPlaces = ({ event, eventClass }: { event: MinimalEvent; e
   }, [classes, event.classes.length, event.entries, event.members, event.places])
 
   return (
-    <Grid container>
-      <TextGrid item xs={dates.length ? 2 : 6}>
-        {eventClass}
-      </TextGrid>
+    <Grid2 container size="auto">
+      <TextGrid size={{ xs: dates.length ? 2 : 6 }}>{eventClass}</TextGrid>
       {dates.length ? (
-        <TextGrid item xs={4}>
-          {dates.map((date) => t('dateFormat.wdshort', { date })).join(', ')}
-        </TextGrid>
+        <TextGrid size={{ xs: 4 }}>{dates.map((date) => t('dateFormat.wdshort', { date })).join(', ')}</TextGrid>
       ) : null}
-      <NumberGrid item xs={2}>
-        {entryStatus.entries}
-      </NumberGrid>
-      <NumberGrid item xs={2}>
-        {entryStatus.places}
-      </NumberGrid>
-      <NumberGrid item xs={2}>
-        {entryStatus.members}
-      </NumberGrid>
-    </Grid>
+      <NumberGrid size={{ xs: 2 }}>{entryStatus.entries}</NumberGrid>
+      <NumberGrid size={{ xs: 2 }}>{entryStatus.places}</NumberGrid>
+      <NumberGrid size={{ xs: 2 }}>{entryStatus.members}</NumberGrid>
+    </Grid2>
   )
 }

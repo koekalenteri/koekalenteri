@@ -135,13 +135,13 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                   class="MuiBox-root css-e1h6et"
                 >
                   <div
-                    class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
+                    class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-8ouyy0-MuiGrid2-root"
                   >
                     <div
-                      class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
+                      class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-kymgvu-MuiGrid2-root"
                     >
                       <div
-                        class="MuiGrid-root MuiGrid-item css-15ghomv-MuiGrid-root"
+                        class="MuiGrid2-root MuiGrid2-direction-xs-row css-1omxrj9-MuiGrid2-root"
                       >
                         <div
                           class="MuiBox-root css-8atqhb"
@@ -315,7 +315,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                         </div>
                       </div>
                       <div
-                        class="MuiGrid-root MuiGrid-item css-1tz4rhg-MuiGrid-root"
+                        class="MuiGrid2-root MuiGrid2-direction-xs-row css-1indjrb-MuiGrid2-root"
                       >
                         <div
                           class="MuiAutocomplete-root css-ka7ti6-MuiAutocomplete-root"
@@ -387,10 +387,10 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                       </div>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
+                      class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-kymgvu-MuiGrid2-root"
                     >
                       <div
-                        class="MuiGrid-root MuiGrid-item css-17sva53-MuiGrid-root"
+                        class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
                       >
                         <div
                           class="MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-ka7ti6-MuiAutocomplete-root"
@@ -502,7 +502,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                         </div>
                       </div>
                       <div
-                        class="MuiGrid-root MuiGrid-item css-15ghomv-MuiGrid-root"
+                        class="MuiGrid2-root MuiGrid2-direction-xs-row css-1omxrj9-MuiGrid2-root"
                       >
                         <div
                           class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1um6vq2-MuiAutocomplete-root"
@@ -577,10 +577,10 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                       </div>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
+                      class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-kymgvu-MuiGrid2-root"
                     >
                       <div
-                        class="MuiGrid-root MuiGrid-item css-15ghomv-MuiGrid-root"
+                        class="MuiGrid2-root MuiGrid2-direction-xs-row css-1omxrj9-MuiGrid2-root"
                       >
                         <div
                           class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-y4n9bg-MuiFormControl-root-MuiTextField-root"
@@ -621,10 +621,10 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                       </div>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
+                      class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-kymgvu-MuiGrid2-root"
                     >
                       <div
-                        class="MuiGrid-root MuiGrid-item css-15ghomv-MuiGrid-root"
+                        class="MuiGrid2-root MuiGrid2-direction-xs-row css-1omxrj9-MuiGrid2-root"
                       >
                         <div
                           class="MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-ka7ti6-MuiAutocomplete-root"
@@ -736,7 +736,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                         </div>
                       </div>
                       <div
-                        class="MuiGrid-root MuiGrid-item css-17sva53-MuiGrid-root"
+                        class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
                       >
                         <div
                           class="MuiAutocomplete-root css-ka7ti6-MuiAutocomplete-root"
@@ -808,10 +808,10 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                       </div>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
+                      class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-kymgvu-MuiGrid2-root"
                     >
                       <div
-                        class="MuiGrid-root MuiGrid-item css-twodqs-MuiGrid-root"
+                        class="MuiGrid2-root MuiGrid2-direction-xs-row css-7gfl1g-MuiGrid2-root"
                       >
                         <div
                           class="MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-ka7ti6-MuiAutocomplete-root"
@@ -906,7 +906,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                         </div>
                       </div>
                       <div
-                        class="MuiGrid-root MuiGrid-item css-twodqs-MuiGrid-root"
+                        class="MuiGrid2-root MuiGrid2-direction-xs-row css-7gfl1g-MuiGrid2-root"
                       >
                         <div
                           class="MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-ka7ti6-MuiAutocomplete-root"
@@ -1074,13 +1074,13 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                   class="MuiBox-root css-e1h6et"
                 >
                   <div
-                    class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
+                    class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-8ouyy0-MuiGrid2-root"
                   >
                     <div
-                      class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-1bzbk8b-MuiGrid-root"
+                      class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-1xy87v7-MuiGrid2-root"
                     >
                       <div
-                        class="MuiGrid-root MuiGrid-item css-17sva53-MuiGrid-root"
+                        class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
                       >
                         <div
                           class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-fzem9i-MuiAutocomplete-root"
@@ -1155,7 +1155,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                         </div>
                       </div>
                       <div
-                        class="MuiGrid-root MuiGrid-item css-17sva53-MuiGrid-root"
+                        class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
                       >
                         <div
                           class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1um6vq2-MuiAutocomplete-root"
@@ -1229,7 +1229,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                         </div>
                       </div>
                       <div
-                        class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+                        class="MuiGrid2-root MuiGrid2-direction-xs-row css-1fzlhpv-MuiGrid2-root"
                       >
                         <button
                           class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1qsu95a-MuiButtonBase-root-MuiButton-root"
@@ -1257,7 +1257,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                       </div>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+                      class="MuiGrid2-root MuiGrid2-direction-xs-row css-1fzlhpv-MuiGrid2-root"
                     >
                       <button
                         class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1qsu95a-MuiButtonBase-root-MuiButton-root"
@@ -1385,13 +1385,13 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                   class="MuiBox-root css-e1h6et"
                 >
                   <div
-                    class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
+                    class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-8ouyy0-MuiGrid2-root"
                   >
                     <div
-                      class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
+                      class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-kymgvu-MuiGrid2-root"
                     >
                       <div
-                        class="MuiGrid-root MuiGrid-item css-15ghomv-MuiGrid-root"
+                        class="MuiGrid2-root MuiGrid2-direction-xs-row css-1omxrj9-MuiGrid2-root"
                       >
                         <div
                           class="MuiBox-root css-8atqhb"
@@ -1533,17 +1533,17 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                       </div>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
+                      class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-kymgvu-MuiGrid2-root"
                     >
                       <div
-                        class="MuiGrid-root MuiGrid-item css-9q39ia-MuiGrid-root"
+                        class="MuiGrid2-root MuiGrid2-direction-xs-row css-1l67lv6-MuiGrid2-root"
                       />
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
+                      class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-kymgvu-MuiGrid2-root"
                     >
                       <div
-                        class="MuiGrid-root MuiGrid-item css-15ghomv-MuiGrid-root"
+                        class="MuiGrid2-root MuiGrid2-direction-xs-row css-1omxrj9-MuiGrid2-root"
                       >
                         <div
                           class="MuiBox-root css-18pzlwv"
@@ -1689,10 +1689,10 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                       </div>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
+                      class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-kymgvu-MuiGrid2-root"
                     >
                       <div
-                        class="MuiGrid-root MuiGrid-item css-9q39ia-MuiGrid-root"
+                        class="MuiGrid2-root MuiGrid2-direction-xs-row css-1l67lv6-MuiGrid2-root"
                       >
                         <div
                           class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1um6vq2-MuiAutocomplete-root"
@@ -1823,13 +1823,13 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                   class="MuiBox-root css-e1h6et"
                 >
                   <div
-                    class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-1 css-a5rdam-MuiGrid-root"
+                    class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-8ouyy0-MuiGrid2-root"
                   >
                     <div
-                      class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
+                      class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-kymgvu-MuiGrid2-root"
                     >
                       <div
-                        class="MuiGrid-root MuiGrid-item css-wxwn3y-MuiGrid-root"
+                        class="MuiGrid2-root MuiGrid2-direction-xs-row css-vc2zjg-MuiGrid2-root"
                       >
                         <div
                           class="MuiAutocomplete-root css-ka7ti6-MuiAutocomplete-root"
@@ -1909,7 +1909,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                         </div>
                       </div>
                       <div
-                        class="MuiGrid-root MuiGrid-item css-wxwn3y-MuiGrid-root"
+                        class="MuiGrid2-root MuiGrid2-direction-xs-row css-vc2zjg-MuiGrid2-root"
                       >
                         <div
                           class="MuiAutocomplete-root css-ka7ti6-MuiAutocomplete-root"
@@ -2045,13 +2045,13 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                   class="MuiBox-root css-e1h6et"
                 >
                   <div
-                    class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-1 css-a5rdam-MuiGrid-root"
+                    class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-8ouyy0-MuiGrid2-root"
                   >
                     <div
-                      class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
+                      class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-kymgvu-MuiGrid2-root"
                     >
                       <div
-                        class="MuiGrid-root MuiGrid-item css-17sva53-MuiGrid-root"
+                        class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
                       >
                         <div
                           class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-y4n9bg-MuiFormControl-root-MuiTextField-root"
@@ -2091,7 +2091,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                         </div>
                       </div>
                       <div
-                        class="MuiGrid-root MuiGrid-item css-17sva53-MuiGrid-root"
+                        class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
                       >
                         <div
                           class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-y4n9bg-MuiFormControl-root-MuiTextField-root"
@@ -2132,10 +2132,10 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                       </div>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
+                      class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-kymgvu-MuiGrid2-root"
                     >
                       <div
-                        class="MuiGrid-root MuiGrid-item css-17sva53-MuiGrid-root"
+                        class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
                       >
                         <div
                           class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-y4n9bg-MuiFormControl-root-MuiTextField-root"
@@ -2175,7 +2175,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                         </div>
                       </div>
                       <div
-                        class="MuiGrid-root MuiGrid-item css-17sva53-MuiGrid-root"
+                        class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
                       >
                         <div
                           class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-y4n9bg-MuiFormControl-root-MuiTextField-root"
@@ -2271,13 +2271,13 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                   class="MuiBox-root css-e1h6et"
                 >
                   <div
-                    class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-1 css-a5rdam-MuiGrid-root"
+                    class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-8ouyy0-MuiGrid2-root"
                   >
                     <div
-                      class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-spacing-xs-1 css-v8g4am-MuiGrid-root"
+                      class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-kymgvu-MuiGrid2-root"
                     >
                       <div
-                        class="MuiGrid-root MuiGrid-item css-17sva53-MuiGrid-root"
+                        class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
                       >
                         event.official
                         <div
@@ -2478,7 +2478,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                         </div>
                       </div>
                       <div
-                        class="MuiGrid-root MuiGrid-item css-17sva53-MuiGrid-root"
+                        class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
                       >
                         event.secretary
                         <div

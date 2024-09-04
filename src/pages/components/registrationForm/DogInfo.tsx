@@ -9,7 +9,7 @@ import Button from '@mui/material/Button'
 import CircularProgress from '@mui/material/CircularProgress'
 import FormControl from '@mui/material/FormControl'
 import FormHelperText from '@mui/material/FormHelperText'
-import Grid from '@mui/material/Grid'
+import Grid2 from '@mui/material/Grid2'
 import TextField from '@mui/material/TextField'
 import { Box } from '@mui/system'
 import { DatePicker } from '@mui/x-date-pickers'
@@ -211,8 +211,8 @@ export const DogInfo = ({
       open={open}
       onOpenChange={onOpenChange}
     >
-      <Grid container spacing={1} alignItems="flex-start">
-        <Grid item xs={12} sm={7} md={6} lg={3}>
+      <Grid2 container spacing={1} alignItems="flex-start">
+        <Grid2 size={{ xs: 12, sm: 7, md: 6, lg: 3 }}>
           <FormControl fullWidth>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <Autocomplete
@@ -240,8 +240,8 @@ export const DogInfo = ({
               {t(`registration.cta.helper.${state.mode}`, { date: reg?.dog?.refreshDate })}
             </FormHelperText>
           </FormControl>
-        </Grid>
-        <Grid item xs={12} sm={5} md={6} lg={3}>
+        </Grid2>
+        <Grid2 size={{ xs: 12, sm: 5, md: 6, lg: 3 }}>
           <TextField
             className={rfidDisabled && reg?.dog?.rfid ? 'fact' : ''}
             disabled={disabled || rfidDisabled}
@@ -251,8 +251,8 @@ export const DogInfo = ({
             error={!rfidDisabled && !reg?.dog?.rfid}
             onChange={(e) => handleChange({ dog: { rfid: e.target.value } })}
           />
-        </Grid>
-        <Grid item container spacing={1} xs={12} lg={6}>
+        </Grid2>
+        <Grid2 container spacing={1} size={{ xs: 12, lg: 6 }}>
           <TitlesAndName
             className={disabledByMode && reg?.dog?.breedCode ? 'fact' : ''}
             disabledTitles={disabled || (disabledByMode && state.mode !== 'update')}
@@ -264,8 +264,8 @@ export const DogInfo = ({
             titles={reg?.dog?.titles}
             titlesLabel={t('dog.titles')}
           />
-        </Grid>
-        <Grid item xs={6} sm={3} lg={3}>
+        </Grid2>
+        <Grid2 size={{ xs: 6, sm: 3, lg: 3 }}>
           <FormControl className={disabledByMode && reg?.dog?.dob ? 'fact' : ''} fullWidth>
             <DatePicker
               referenceDate={subYears(new Date(), 2)}
@@ -280,8 +280,8 @@ export const DogInfo = ({
               views={['year', 'month', 'day']}
             />
           </FormControl>
-        </Grid>
-        <Grid item xs={6} sm={3} lg={3}>
+        </Grid2>
+        <Grid2 size={{ xs: 6, sm: 3, lg: 3 }}>
           <AutocompleteSingle<DogGender | '', true>
             className={disabledByMode && reg?.dog?.gender ? 'fact' : ''}
             disableClearable
@@ -294,8 +294,8 @@ export const DogInfo = ({
             options={['F', 'M'] as DogGender[]}
             value={reg?.dog?.gender ?? ''}
           />
-        </Grid>
-        <Grid item xs={12} sm={6}>
+        </Grid2>
+        <Grid2 size={{ xs: 12, sm: 6 }}>
           <AutocompleteSingle<BreedCode | '', true>
             className={disabledByMode && reg?.dog?.breedCode ? 'fact' : ''}
             disableClearable
@@ -308,8 +308,8 @@ export const DogInfo = ({
             options={['122', '111', '121', '312', '110', '263']}
             value={reg?.dog?.breedCode}
           />
-        </Grid>
-        <Grid item xs={12} lg={6}>
+        </Grid2>
+        <Grid2 size={{ xs: 12, lg: 6 }}>
           <TextField
             disabled={sireDamDisabled}
             fullWidth
@@ -319,8 +319,8 @@ export const DogInfo = ({
             error={!sireDamDisabled && !reg?.dog?.sire?.name}
             value={reg?.dog?.sire?.name ?? ''}
           />
-        </Grid>
-        <Grid item xs={12} lg={6}>
+        </Grid2>
+        <Grid2 size={{ xs: 12, lg: 6 }}>
           <TextField
             disabled={sireDamDisabled}
             fullWidth
@@ -330,8 +330,8 @@ export const DogInfo = ({
             error={!sireDamDisabled && !reg?.dog?.dam?.name}
             value={reg?.dog?.dam?.name ?? ''}
           />
-        </Grid>
-      </Grid>
+        </Grid2>
+      </Grid2>
     </CollapsibleSection>
   )
 }

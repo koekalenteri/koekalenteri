@@ -3,7 +3,7 @@ import type { PublicDogEvent } from '../../../../types'
 
 import { useTranslation } from 'react-i18next'
 import { styled } from '@mui/material'
-import Grid from '@mui/material/Grid'
+import Grid2 from '@mui/material/Grid2'
 import Typography from '@mui/material/Typography'
 
 const Caption = (props: TypographyProps) => <Typography {...props} variant="caption" />
@@ -24,24 +24,24 @@ export const EventClassPlacesHeader = ({ event }: { event: PublicDogEvent }) => 
   const showDates = event.classes.length > 0
 
   return (
-    <Grid container>
-      <Grid item xs={showDates ? 2 : 6}>
+    <Grid2 container>
+      <Grid2 size={{ xs: showDates ? 2 : 6 }}>
         <HeaderText>{t('event.classPlacesHeader.name')}</HeaderText>
-      </Grid>
+      </Grid2>
       {showDates ? (
-        <Grid item xs={4}>
+        <Grid2 size={{ xs: 4 }}>
           <HeaderText>{t('event.classPlacesHeader.dates')}</HeaderText>
-        </Grid>
+        </Grid2>
       ) : null}
-      <Grid item xs={2} textAlign="right">
+      <Grid2 size={{ xs: 2 }} textAlign="right">
         <HeaderText>{t('event.classPlacesHeader.entries')}</HeaderText>
-      </Grid>
-      <Grid item xs={2} textAlign="right">
+      </Grid2>
+      <Grid2 size={{ xs: 2 }} textAlign="right">
         <HeaderText>{t('event.classPlacesHeader.places')}</HeaderText>
-      </Grid>
-      <Grid item xs={2} textAlign="right">
+      </Grid2>
+      <Grid2 size={{ xs: 2 }} textAlign="right">
         <HeaderText>{t('event.classPlacesHeader.members')}</HeaderText>
-      </Grid>
-    </Grid>
+      </Grid2>
+    </Grid2>
   )
 }

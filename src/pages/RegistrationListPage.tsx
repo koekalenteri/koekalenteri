@@ -8,11 +8,10 @@ import EuroOutlined from '@mui/icons-material/EuroOutlined'
 import PersonOutline from '@mui/icons-material/PersonOutline'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
-import Grid from '@mui/material/Grid'
+import Grid2 from '@mui/material/Grid2'
 import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
 import ListItemIcon from '@mui/material/ListItemIcon'
-import ListItemSecondaryAction from '@mui/material/ListItemSecondaryAction'
 import ListItemText from '@mui/material/ListItemText'
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
@@ -185,15 +184,15 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
           alignItems: 'flex-start',
         }}
       >
-        <Grid container direction="row" wrap="nowrap" justifyContent="space-between">
-          <Grid item>
+        <Grid2 container direction="row" flexWrap="nowrap" justifyContent="space-between">
+          <Grid2>
             <Box pl={1}>
               <LinkButton sx={{ mb: 1, pl: 0 }} to="/" back={spa} text={spa ? t('goBack') : t('goHome')} />
               <Typography variant="h5">Ilmoittautumistiedot</Typography>
             </Box>
             <RegistrationEventInfo event={event} invitationAttachment={registration.invitationAttachment} />
-          </Grid>
-          <Grid item sx={{ display: { xs: 'none', sm: 'none', md: 'unset' } }}>
+          </Grid2>
+          <Grid2 sx={{ display: { xs: 'none', sm: 'none', md: 'unset' } }}>
             <Paper sx={{ bgcolor: 'background.selected', p: 1, m: 1, width: 350 }}>
               <List disablePadding>
                 <ListItem disablePadding>
@@ -205,7 +204,21 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
                     primaryTypographyProps={{ variant: 'subtitle1', fontWeight: 'bold' }}
                   />
                 </ListItem>
-                <ListItem disablePadding>
+                <ListItem
+                  disablePadding
+                  secondaryAction={
+                    !registration.cancelled &&
+                    registration.paymentStatus !== 'SUCCESS' &&
+                    registration.paymentStatus !== 'PENDING' ? (
+                      <Button
+                        aria-label={t('registration.cta.pay')}
+                        onClick={() => navigate(Path.payment(registration))}
+                      >
+                        {t('registration.cta.pay')}
+                      </Button>
+                    ) : null
+                  }
+                >
                   <ListItemIcon sx={{ minWidth: 32, color: paymentIconColor(registration) }}>
                     <EuroOutlined fontSize="small" />
                   </ListItemIcon>
@@ -213,18 +226,6 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
                     primary={paymentStatus(registration)}
                     primaryTypographyProps={{ variant: 'subtitle1', fontWeight: 'bold' }}
                   />
-                  {!registration.cancelled &&
-                  registration.paymentStatus !== 'SUCCESS' &&
-                  registration.paymentStatus !== 'PENDING' ? (
-                    <ListItemSecondaryAction>
-                      <Button
-                        aria-label={t('registration.cta.pay')}
-                        onClick={() => navigate(Path.payment(registration))}
-                      >
-                        {t('registration.cta.pay')}
-                      </Button>
-                    </ListItemSecondaryAction>
-                  ) : null}
                 </ListItem>
                 <ListItem disablePadding>
                   <ListItemIcon sx={{ minWidth: 32, color: 'primary.main' }}>
@@ -237,8 +238,8 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
                 </ListItem>
               </List>
             </Paper>
-          </Grid>
-        </Grid>
+          </Grid2>
+        </Grid2>
         <RegistrationList
           disabled={allDisabled}
           event={event}

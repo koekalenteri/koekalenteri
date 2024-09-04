@@ -4,7 +4,7 @@ import { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import Checkbox from '@mui/material/Checkbox'
 import FormControlLabel from '@mui/material/FormControlLabel'
-import Grid from '@mui/material/Grid'
+import Grid2 from '@mui/material/Grid2'
 import TextField from '@mui/material/TextField'
 import { MuiTelInput } from 'mui-tel-input'
 
@@ -58,10 +58,9 @@ export function HandlerInfo({ admin, reg, disabled, error, helperText, onChange,
       open={open}
       onOpenChange={onOpenChange}
     >
-      <Grid item container spacing={1}>
-        <Grid item xs={12} sm={6}>
+      <Grid2 container spacing={1}>
+        <Grid2 size={{ xs: 12, sm: 6 }}>
           <TextField
-            InputProps={{ autoComplete: 'name' }}
             disabled={disabled}
             error={!reg.handler?.name}
             fullWidth
@@ -70,11 +69,13 @@ export function HandlerInfo({ admin, reg, disabled, error, helperText, onChange,
             name="name"
             onChange={(e) => handleChange({ name: e.target.value })}
             value={reg.handler?.name ?? ''}
+            slotProps={{
+              input: { autoComplete: 'name' },
+            }}
           />
-        </Grid>
-        <Grid item xs={12} sm={6}>
+        </Grid2>
+        <Grid2 size={{ xs: 12, sm: 6 }}>
           <TextField
-            InputProps={{ autoComplete: 'address-level2' }}
             disabled={disabled}
             error={!reg.handler?.location}
             fullWidth
@@ -83,11 +84,13 @@ export function HandlerInfo({ admin, reg, disabled, error, helperText, onChange,
             name="city"
             onChange={(e) => handleChange({ location: e.target.value })}
             value={reg.handler?.location ?? ''}
+            slotProps={{
+              input: { autoComplete: 'address-level2' },
+            }}
           />
-        </Grid>
-        <Grid item xs={12} sm={6}>
+        </Grid2>
+        <Grid2 size={{ xs: 12, sm: 6 }}>
           <TextField
-            InputProps={{ autoComplete: 'email' }}
             disabled={disabled}
             error={!reg.handler?.email}
             fullWidth
@@ -96,9 +99,12 @@ export function HandlerInfo({ admin, reg, disabled, error, helperText, onChange,
             name="email"
             onChange={(e) => handleChange({ email: e.target.value.trim() })}
             value={reg.handler?.email ?? ''}
+            slotProps={{
+              input: { autoComplete: 'email' },
+            }}
           />
-        </Grid>
-        <Grid item xs={12} sm={6}>
+        </Grid2>
+        <Grid2 size={{ xs: 12, sm: 6 }}>
           <MuiTelInput
             langOfCountryName={i18n.language}
             defaultCountry="FI"
@@ -113,8 +119,8 @@ export function HandlerInfo({ admin, reg, disabled, error, helperText, onChange,
             onChange={(phone) => handleChange({ phone })}
             value={reg.handler?.phone ?? ''}
           />
-        </Grid>
-      </Grid>
+        </Grid2>
+      </Grid2>
       <FormControlLabel
         disabled={disabled}
         control={

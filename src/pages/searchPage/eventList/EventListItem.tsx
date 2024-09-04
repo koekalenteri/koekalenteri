@@ -6,7 +6,7 @@ import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown'
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight'
 import Box from '@mui/material/Box'
 import Collapse from '@mui/material/Collapse'
-import Grid from '@mui/material/Grid2'
+import Grid2 from '@mui/material/Grid2'
 import IconButton from '@mui/material/IconButton'
 import Typography from '@mui/material/Typography'
 import { useRecoilState } from 'recoil'
@@ -61,24 +61,24 @@ export const EventListItem = ({ event, odd }: Props) => {
       }}
       component="article"
     >
-      <Grid container spacing={0} alignItems="start" role="heading" aria-level={2}>
-        <Grid>
+      <Grid2 container spacing={0} alignItems="start" role="heading" aria-level={2}>
+        <Grid2>
           <IconButton aria-label="expand row" size="small" color="primary" onClick={handleClick}>
             {open ? <KeyboardArrowDown /> : <KeyboardArrowRight />}
           </IconButton>
-        </Grid>
-        <Grid container onClick={handleClick} spacing={0} columnSpacing={1} size="grow">
-          <Grid container columnSpacing={1} size={12}>
-            <Grid overflow={'hidden'} textOverflow={'ellipsis'} sx={{ textWrap: 'nowrap' }} size="grow">
+        </Grid2>
+        <Grid2 container onClick={handleClick} spacing={0} columnSpacing={1} size="grow">
+          <Grid2 container columnSpacing={1} size={12}>
+            <Grid2 overflow={'hidden'} textOverflow={'ellipsis'} sx={{ textWrap: 'nowrap' }} size="grow">
               <Typography variant="caption" color="text.secondary">
                 {event.organizer.name}
               </Typography>
-            </Grid>
-            <Grid display={{ xs: 'none', sm: 'block' }} offset="auto">
+            </Grid2>
+            <Grid2 display={{ xs: 'none', sm: 'block' }} offset="auto">
               {showPlaces ? <EventPlaces event={event} /> : null}
-            </Grid>
-          </Grid>
-          <Grid
+            </Grid2>
+          </Grid2>
+          <Grid2
             container
             columnSpacing={1}
             size={{
@@ -86,8 +86,8 @@ export const EventListItem = ({ event, odd }: Props) => {
               sm: 'auto',
             }}
           >
-            <Grid>{t('dateFormat.datespan', { start: event.startDate, end: event.endDate })}</Grid>
-            <Grid
+            <Grid2>{t('dateFormat.datespan', { start: event.startDate, end: event.endDate })}</Grid2>
+            <Grid2
               overflow={'hidden'}
               textOverflow={'ellipsis'}
               sx={{ textWrap: 'nowrap' }}
@@ -97,20 +97,20 @@ export const EventListItem = ({ event, odd }: Props) => {
               }}
             >
               {event.eventType}
-            </Grid>
-            <Grid display={{ sm: 'none' }} offset="auto">
+            </Grid2>
+            <Grid2 display={{ sm: 'none' }} offset="auto">
               {showPlaces ? <EventPlaces event={event} /> : null}
-            </Grid>
-          </Grid>
-          <Grid
+            </Grid2>
+          </Grid2>
+          <Grid2
             container
             size={{
               xs: 12,
               sm: 'grow',
             }}
           >
-            <Grid>{event.location}</Grid>
-            <Grid
+            <Grid2>{event.location}</Grid2>
+            <Grid2
               overflow={'hidden'}
               textOverflow={'ellipsis'}
               sx={{ textWrap: 'nowrap' }}
@@ -120,8 +120,8 @@ export const EventListItem = ({ event, odd }: Props) => {
               }}
             >
               {event.name ? event.name : ''}
-            </Grid>
-            <Grid
+            </Grid2>
+            <Grid2
               alignContent="center"
               size="auto"
               offset={{
@@ -135,10 +135,10 @@ export const EventListItem = ({ event, odd }: Props) => {
                   <EventStateInfo id={event.id} state={event.state} text={infoText} />
                 )}
               </Typography>
-            </Grid>
-          </Grid>
-        </Grid>
-      </Grid>
+            </Grid2>
+          </Grid2>
+        </Grid2>
+      </Grid2>
       <Collapse
         in={open}
         sx={{

@@ -64,11 +64,13 @@ export const NumberInput = ({
       type="text"
       inputMode="numeric"
       size="small"
-      InputProps={{
-        ...props.InputProps,
-        inputProps: {
-          pattern,
-          style: { textAlign: 'right', padding: 4, ...props.InputProps?.inputProps },
+      slotProps={{
+        input: {
+          ...props.InputProps,
+          inputProps: {
+            pattern,
+            style: { textAlign: 'right', padding: 4, ...props.InputProps?.inputProps },
+          },
         },
       }}
     ></TextField>

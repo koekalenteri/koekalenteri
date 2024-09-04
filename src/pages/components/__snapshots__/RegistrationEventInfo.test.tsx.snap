@@ -56,13 +56,13 @@ exports[`RegistrationEventInfo does not render empty contact info 1`] = `
                 class="MuiBox-root css-e1h6et"
               >
                 <div
-                  class="MuiGrid-root MuiGrid-container css-pusk48-MuiGrid-root"
+                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row css-15pm0jo-MuiGrid2-root"
                 >
                   <div
-                    class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-sm-12 MuiGrid-grid-md-true css-1gzo6kn-MuiGrid-root"
+                    class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-grid-sm-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 css-ywssai-MuiGrid2-root"
                   >
                     <div
-                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-37visp-MuiGrid-root"
+                      class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-4 css-1vng41o-MuiGrid2-root"
                     >
                       <span
                         class="MuiTypography-root MuiTypography-caption css-1gju9dp-MuiTypography-root"
@@ -71,7 +71,7 @@ exports[`RegistrationEventInfo does not render empty contact info 1`] = `
                       </span>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-eva6pi-MuiGrid-root"
+                      class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-7 css-teo3zo-MuiGrid2-root"
                     >
                       <div
                         class="MuiTypography-root MuiTypography-body2 css-1nmqws6-MuiTypography-root"
@@ -83,7 +83,7 @@ exports[`RegistrationEventInfo does not render empty contact info 1`] = `
                       </div>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-37visp-MuiGrid-root"
+                      class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-4 css-1vng41o-MuiGrid2-root"
                     >
                       <span
                         class="MuiTypography-root MuiTypography-caption css-1gju9dp-MuiTypography-root"
@@ -92,7 +92,7 @@ exports[`RegistrationEventInfo does not render empty contact info 1`] = `
                       </span>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-eva6pi-MuiGrid-root"
+                      class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-7 css-teo3zo-MuiGrid2-root"
                     >
                       <div
                         class="MuiTypography-root MuiTypography-body2 css-1nmqws6-MuiTypography-root"
@@ -101,7 +101,7 @@ exports[`RegistrationEventInfo does not render empty contact info 1`] = `
                       </div>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-37visp-MuiGrid-root"
+                      class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-4 css-1vng41o-MuiGrid2-root"
                     >
                       <span
                         class="MuiTypography-root MuiTypography-caption css-1gju9dp-MuiTypography-root"
@@ -110,7 +110,7 @@ exports[`RegistrationEventInfo does not render empty contact info 1`] = `
                       </span>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-eva6pi-MuiGrid-root"
+                      class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-7 css-teo3zo-MuiGrid2-root"
                     >
                       <div
                         class="MuiTypography-root MuiTypography-body2 css-1nmqws6-MuiTypography-root"
@@ -120,10 +120,10 @@ exports[`RegistrationEventInfo does not render empty contact info 1`] = `
                     </div>
                   </div>
                   <div
-                    class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-sm-12 MuiGrid-grid-md-true css-1gzo6kn-MuiGrid-root"
+                    class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-grid-sm-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 css-ywssai-MuiGrid2-root"
                   >
                     <div
-                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-37visp-MuiGrid-root"
+                      class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-4 css-1vng41o-MuiGrid2-root"
                     >
                       <span
                         class="MuiTypography-root MuiTypography-caption css-1gju9dp-MuiTypography-root"
@@ -132,7 +132,7 @@ exports[`RegistrationEventInfo does not render empty contact info 1`] = `
                       </span>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-eva6pi-MuiGrid-root"
+                      class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-7 css-teo3zo-MuiGrid2-root"
                     >
                       <div
                         class="MuiTypography-root MuiTypography-body2 css-1nmqws6-MuiTypography-root"
@@ -141,7 +141,7 @@ exports[`RegistrationEventInfo does not render empty contact info 1`] = `
                       </div>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-37visp-MuiGrid-root"
+                      class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-4 css-1vng41o-MuiGrid2-root"
                     >
                       <span
                         class="MuiTypography-root MuiTypography-caption css-1gju9dp-MuiTypography-root"
@@ -150,7 +150,7 @@ exports[`RegistrationEventInfo does not render empty contact info 1`] = `
                       </span>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-eva6pi-MuiGrid-root"
+                      class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-7 css-teo3zo-MuiGrid2-root"
                     >
                       <div
                         class="MuiTypography-root MuiTypography-body2 css-1nmqws6-MuiTypography-root"
@@ -167,7 +167,7 @@ exports[`RegistrationEventInfo does not render empty contact info 1`] = `
                       </div>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-37visp-MuiGrid-root"
+                      class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-4 css-1vng41o-MuiGrid2-root"
                     >
                       <span
                         class="MuiTypography-root MuiTypography-caption css-1gju9dp-MuiTypography-root"
@@ -176,7 +176,7 @@ exports[`RegistrationEventInfo does not render empty contact info 1`] = `
                       </span>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-eva6pi-MuiGrid-root"
+                      class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-7 css-teo3zo-MuiGrid2-root"
                     >
                       <div
                         class="MuiTypography-root MuiTypography-body2 css-1nmqws6-MuiTypography-root"
@@ -252,13 +252,13 @@ exports[`RegistrationEventInfo renders 1`] = `
                 class="MuiBox-root css-e1h6et"
               >
                 <div
-                  class="MuiGrid-root MuiGrid-container css-pusk48-MuiGrid-root"
+                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row css-15pm0jo-MuiGrid2-root"
                 >
                   <div
-                    class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-sm-12 MuiGrid-grid-md-true css-1gzo6kn-MuiGrid-root"
+                    class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-grid-sm-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 css-ywssai-MuiGrid2-root"
                   >
                     <div
-                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-37visp-MuiGrid-root"
+                      class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-4 css-1vng41o-MuiGrid2-root"
                     >
                       <span
                         class="MuiTypography-root MuiTypography-caption css-1gju9dp-MuiTypography-root"
@@ -267,7 +267,7 @@ exports[`RegistrationEventInfo renders 1`] = `
                       </span>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-eva6pi-MuiGrid-root"
+                      class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-7 css-teo3zo-MuiGrid2-root"
                     >
                       <div
                         class="MuiTypography-root MuiTypography-body2 css-1nmqws6-MuiTypography-root"
@@ -279,7 +279,7 @@ exports[`RegistrationEventInfo renders 1`] = `
                       </div>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-37visp-MuiGrid-root"
+                      class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-4 css-1vng41o-MuiGrid2-root"
                     >
                       <span
                         class="MuiTypography-root MuiTypography-caption css-1gju9dp-MuiTypography-root"
@@ -288,7 +288,7 @@ exports[`RegistrationEventInfo renders 1`] = `
                       </span>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-eva6pi-MuiGrid-root"
+                      class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-7 css-teo3zo-MuiGrid2-root"
                     >
                       <div
                         class="MuiTypography-root MuiTypography-body2 css-1nmqws6-MuiTypography-root"
@@ -297,7 +297,7 @@ exports[`RegistrationEventInfo renders 1`] = `
                       </div>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-37visp-MuiGrid-root"
+                      class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-4 css-1vng41o-MuiGrid2-root"
                     >
                       <span
                         class="MuiTypography-root MuiTypography-caption css-1gju9dp-MuiTypography-root"
@@ -306,7 +306,7 @@ exports[`RegistrationEventInfo renders 1`] = `
                       </span>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-eva6pi-MuiGrid-root"
+                      class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-7 css-teo3zo-MuiGrid2-root"
                     >
                       <div
                         class="MuiTypography-root MuiTypography-body2 css-1nmqws6-MuiTypography-root"
@@ -315,7 +315,7 @@ exports[`RegistrationEventInfo renders 1`] = `
                       </div>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-37visp-MuiGrid-root"
+                      class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-4 css-1vng41o-MuiGrid2-root"
                     >
                       <span
                         class="MuiTypography-root MuiTypography-caption css-1gju9dp-MuiTypography-root"
@@ -324,7 +324,7 @@ exports[`RegistrationEventInfo renders 1`] = `
                       </span>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-eva6pi-MuiGrid-root"
+                      class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-7 css-teo3zo-MuiGrid2-root"
                     >
                       <div
                         class="MuiTypography-root MuiTypography-body2 css-1nmqws6-MuiTypography-root"
@@ -333,7 +333,7 @@ exports[`RegistrationEventInfo renders 1`] = `
                       </div>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-37visp-MuiGrid-root"
+                      class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-4 css-1vng41o-MuiGrid2-root"
                     >
                       <span
                         class="MuiTypography-root MuiTypography-caption css-1gju9dp-MuiTypography-root"
@@ -342,7 +342,7 @@ exports[`RegistrationEventInfo renders 1`] = `
                       </span>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-eva6pi-MuiGrid-root"
+                      class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-7 css-teo3zo-MuiGrid2-root"
                     >
                       <div
                         class="MuiTypography-root MuiTypography-body2 css-1nmqws6-MuiTypography-root"
@@ -352,10 +352,10 @@ exports[`RegistrationEventInfo renders 1`] = `
                     </div>
                   </div>
                   <div
-                    class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-sm-12 MuiGrid-grid-md-true css-1gzo6kn-MuiGrid-root"
+                    class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-grid-sm-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 css-ywssai-MuiGrid2-root"
                   >
                     <div
-                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-37visp-MuiGrid-root"
+                      class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-4 css-1vng41o-MuiGrid2-root"
                     >
                       <span
                         class="MuiTypography-root MuiTypography-caption css-1gju9dp-MuiTypography-root"
@@ -364,7 +364,7 @@ exports[`RegistrationEventInfo renders 1`] = `
                       </span>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-eva6pi-MuiGrid-root"
+                      class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-7 css-teo3zo-MuiGrid2-root"
                     >
                       <div
                         class="MuiTypography-root MuiTypography-body2 css-1nmqws6-MuiTypography-root"
@@ -373,7 +373,7 @@ exports[`RegistrationEventInfo renders 1`] = `
                       </div>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-37visp-MuiGrid-root"
+                      class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-4 css-1vng41o-MuiGrid2-root"
                     >
                       <span
                         class="MuiTypography-root MuiTypography-caption css-1gju9dp-MuiTypography-root"
@@ -382,7 +382,7 @@ exports[`RegistrationEventInfo renders 1`] = `
                       </span>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-eva6pi-MuiGrid-root"
+                      class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-7 css-teo3zo-MuiGrid2-root"
                     >
                       <div
                         class="MuiTypography-root MuiTypography-body2 css-1nmqws6-MuiTypography-root"
@@ -399,7 +399,7 @@ exports[`RegistrationEventInfo renders 1`] = `
                       </div>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-37visp-MuiGrid-root"
+                      class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-4 css-1vng41o-MuiGrid2-root"
                     >
                       <span
                         class="MuiTypography-root MuiTypography-caption css-1gju9dp-MuiTypography-root"
@@ -408,7 +408,7 @@ exports[`RegistrationEventInfo renders 1`] = `
                       </span>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-eva6pi-MuiGrid-root"
+                      class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-7 css-teo3zo-MuiGrid2-root"
                     >
                       <div
                         class="MuiTypography-root MuiTypography-body2 css-1nmqws6-MuiTypography-root"

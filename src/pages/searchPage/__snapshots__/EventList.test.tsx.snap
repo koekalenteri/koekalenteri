@@ -134,7 +134,7 @@ exports[`EventList should render 1`] = `
               dateFormat.datespan start, end
             </div>
             <div
-              class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xl-grow css-7l04vv-MuiGrid2-root"
+              class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-grow css-75emen-MuiGrid2-root"
             >
               <div
                 class="MuiTypography-root MuiTypography-caption css-1hon9kk-MuiTypography-root"
@@ -142,10 +142,10 @@ exports[`EventList should render 1`] = `
                 event.classPlaces
               </div>
               <div
-                class="MuiGrid-root MuiGrid-container css-11lq3yg-MuiGrid-root"
+                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row css-16epkjp-MuiGrid2-root"
               >
                 <div
-                  class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-1rl1j2j-MuiGrid-root"
+                  class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-o7ym4l-MuiGrid2-root"
                 >
                   <span
                     class="MuiTypography-root MuiTypography-caption css-kr08qa-MuiTypography-root"
@@ -154,7 +154,7 @@ exports[`EventList should render 1`] = `
                   </span>
                 </div>
                 <div
-                  class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-h9ezi1-MuiGrid-root"
+                  class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-4 css-17mdbs-MuiGrid2-root"
                 >
                   <span
                     class="MuiTypography-root MuiTypography-caption css-kr08qa-MuiTypography-root"
@@ -163,7 +163,7 @@ exports[`EventList should render 1`] = `
                   </span>
                 </div>
                 <div
-                  class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-4v0ap6-MuiGrid-root"
+                  class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-ah1px6-MuiGrid2-root"
                 >
                   <span
                     class="MuiTypography-root MuiTypography-caption css-kr08qa-MuiTypography-root"
@@ -172,7 +172,7 @@ exports[`EventList should render 1`] = `
                   </span>
                 </div>
                 <div
-                  class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-4v0ap6-MuiGrid-root"
+                  class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-ah1px6-MuiGrid2-root"
                 >
                   <span
                     class="MuiTypography-root MuiTypography-caption css-kr08qa-MuiTypography-root"
@@ -181,7 +181,7 @@ exports[`EventList should render 1`] = `
                   </span>
                 </div>
                 <div
-                  class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-4v0ap6-MuiGrid-root"
+                  class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-ah1px6-MuiGrid2-root"
                 >
                   <span
                     class="MuiTypography-root MuiTypography-caption css-kr08qa-MuiTypography-root"
@@ -191,30 +191,30 @@ exports[`EventList should render 1`] = `
                 </div>
               </div>
               <div
-                class="MuiGrid-root MuiGrid-container css-11lq3yg-MuiGrid-root"
+                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-grid-xs-auto css-olph29-MuiGrid2-root"
               >
                 <div
-                  class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-5ly7kt-MuiGrid-root"
+                  class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-12i7t8b-MuiGrid2-root"
                 >
                   ALO
                 </div>
                 <div
-                  class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-1qjqtyt-MuiGrid-root"
+                  class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-4 css-1qvf8lj-MuiGrid2-root"
                 >
                   eeeeee d.M.
                 </div>
                 <div
-                  class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-198xas1-MuiGrid-root"
+                  class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-sh76jz-MuiGrid2-root"
                 >
                   0
                 </div>
                 <div
-                  class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-198xas1-MuiGrid-root"
+                  class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-sh76jz-MuiGrid2-root"
                 >
                   10
                 </div>
                 <div
-                  class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-2 css-198xas1-MuiGrid-root"
+                  class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-sh76jz-MuiGrid2-root"
                 >
                   0
                 </div>

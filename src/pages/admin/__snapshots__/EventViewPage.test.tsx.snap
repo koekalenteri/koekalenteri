@@ -9,10 +9,10 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
       class="MuiBox-root css-1p4wdw2"
     >
       <div
-        class="MuiGrid-root MuiGrid-container css-1xzqqmo-MuiGrid-root"
+        class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row css-1axco6e-MuiGrid2-root"
       >
         <div
-          class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true css-17utxkx-MuiGrid-root"
+          class="MuiGrid2-root MuiGrid2-direction-xs-row css-1fzlhpv-MuiGrid2-root"
         >
           <h5
             class="MuiTypography-root MuiTypography-h5 css-iyqn9l-MuiTypography-root"
@@ -30,7 +30,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
           </h5>
         </div>
         <div
-          class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-auto css-kcsfla-MuiGrid-root"
+          class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-auto css-1djy14n-MuiGrid2-root"
         >
           <div
             class="MuiPaper-root MuiPaper-elevation MuiPaper-elevation0 MuiAccordion-root Mui-expanded css-l06xkd-MuiPaper-root-MuiAccordion-root"
@@ -4401,10 +4401,10 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
       class="MuiBox-root css-1p4wdw2"
     >
       <div
-        class="MuiGrid-root MuiGrid-container css-1xzqqmo-MuiGrid-root"
+        class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row css-1axco6e-MuiGrid2-root"
       >
         <div
-          class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true css-17utxkx-MuiGrid-root"
+          class="MuiGrid2-root MuiGrid2-direction-xs-row css-1fzlhpv-MuiGrid2-root"
         >
           <h5
             class="MuiTypography-root MuiTypography-h5 css-iyqn9l-MuiTypography-root"
@@ -4422,7 +4422,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
           </h5>
         </div>
         <div
-          class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-auto css-kcsfla-MuiGrid-root"
+          class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-auto css-1djy14n-MuiGrid2-root"
         >
           <div
             class="MuiPaper-root MuiPaper-elevation MuiPaper-elevation0 MuiAccordion-root Mui-expanded css-l06xkd-MuiPaper-root-MuiAccordion-root"

@@ -28,20 +28,6 @@ export function QuickSearchToolbar(props: QuickSearchToolbarProps) {
           value={props.value}
           onChange={props.onChange}
           placeholder={t('search.placeholder')}
-          InputProps={{
-            startAdornment: <Search fontSize="small" />,
-            endAdornment: (
-              <IconButton
-                title={t('clear')}
-                aria-label={t('clear')}
-                size="small"
-                style={{ visibility: props.value ? 'visible' : 'hidden' }}
-                onClick={props.clearSearch}
-              >
-                <Clear fontSize="small" />
-              </IconButton>
-            ),
-          }}
           sx={{
             width: {
               xs: 1,
@@ -54,6 +40,22 @@ export function QuickSearchToolbar(props: QuickSearchToolbarProps) {
             '& .MuiInput-underline:before': {
               borderBottom: 1,
               borderColor: 'divider',
+            },
+          }}
+          slotProps={{
+            input: {
+              startAdornment: <Search fontSize="small" />,
+              endAdornment: (
+                <IconButton
+                  title={t('clear')}
+                  aria-label={t('clear')}
+                  size="small"
+                  style={{ visibility: props.value ? 'visible' : 'hidden' }}
+                  onClick={props.clearSearch}
+                >
+                  <Clear fontSize="small" />
+                </IconButton>
+              ),
             },
           }}
         />

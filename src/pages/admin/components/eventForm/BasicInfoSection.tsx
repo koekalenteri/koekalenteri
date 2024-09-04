@@ -14,7 +14,7 @@ import type { PartialEvent, SectionProps } from '../EventForm'
 
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import Grid from '@mui/material/Grid'
+import Grid2 from '@mui/material/Grid2'
 import TextField from '@mui/material/TextField'
 import { add, differenceInDays, eachDayOfInterval, isAfter, isSameDay } from 'date-fns'
 
@@ -165,9 +165,9 @@ export default function BasicInfoSection({
       error={error}
       helperText={helperText}
     >
-      <Grid item container spacing={1}>
-        <Grid item container spacing={1}>
-          <Grid item sx={{ width: 600 }}>
+      <Grid2 container spacing={1}>
+        <Grid2 container spacing={1}>
+          <Grid2 sx={{ width: 600 }}>
             <DateRange
               startLabel={t('event.startDate')}
               endLabel={t('event.endDate')}
@@ -182,8 +182,8 @@ export default function BasicInfoSection({
               required
               onChange={handleDateChange}
             />
-          </Grid>
-          <Grid item sx={{ width: 300, display: 'none' /* KOE-451 */ }}>
+          </Grid2>
+          <Grid2 sx={{ width: 300, display: 'none' /* KOE-451 */ }}>
             <EventProperty
               id="kcId"
               disabled={disabled}
@@ -198,10 +198,10 @@ export default function BasicInfoSection({
             <HelpPopover anchorEl={helpAnchorEl} onClose={closeHelp}>
               {t('event.kcId_info')}
             </HelpPopover>
-          </Grid>
-        </Grid>
-        <Grid item container spacing={1}>
-          <Grid item sx={{ width: 300 }}>
+          </Grid2>
+        </Grid2>
+        <Grid2 container spacing={1}>
+          <Grid2 sx={{ width: 300 }}>
             <EventProperty
               id="eventType"
               disabled={hasEntries || disabled}
@@ -210,8 +210,8 @@ export default function BasicInfoSection({
               options={eventTypes ?? []}
               onChange={handleTypeChange}
             />
-          </Grid>
-          <Grid item sx={{ width: 600 }}>
+          </Grid2>
+          <Grid2 sx={{ width: 600 }}>
             <EventClasses
               id="class"
               disabled={disabled}
@@ -227,10 +227,10 @@ export default function BasicInfoSection({
               showCount
               onChange={handleClassesChange}
             />
-          </Grid>
-        </Grid>
-        <Grid item container spacing={1}>
-          <Grid item sx={{ width: 600 }}>
+          </Grid2>
+        </Grid2>
+        <Grid2 container spacing={1}>
+          <Grid2 sx={{ width: 600 }}>
             <TextField
               disabled={disabled}
               label="Tapahtuman nimi"
@@ -238,10 +238,10 @@ export default function BasicInfoSection({
               value={event.name ?? ''}
               onChange={handleNameChange}
             />
-          </Grid>
-        </Grid>
-        <Grid item container spacing={1}>
-          <Grid item sx={{ width: 600 }}>
+          </Grid2>
+        </Grid2>
+        <Grid2 container spacing={1}>
+          <Grid2 sx={{ width: 600 }}>
             <EventProperty
               disabled={disabled}
               event={event}
@@ -261,8 +261,8 @@ export default function BasicInfoSection({
                 )
               }}
             />
-          </Grid>
-          <Grid item sx={{ width: 300 }}>
+          </Grid2>
+          <Grid2 sx={{ width: 300 }}>
             <EventProperty
               disabled={disabled}
               event={event}
@@ -272,10 +272,10 @@ export default function BasicInfoSection({
               onChange={onChange}
               options={[]}
             />
-          </Grid>
-        </Grid>
-        <Grid item container spacing={1}>
-          <Grid item sx={{ width: 450 }}>
+          </Grid2>
+        </Grid2>
+        <Grid2 container spacing={1}>
+          <Grid2 sx={{ width: 450 }}>
             <EventProperty
               disabled={disabled}
               event={event}
@@ -286,8 +286,8 @@ export default function BasicInfoSection({
               onChange={onChange}
               options={availableOfficials}
             />
-          </Grid>
-          <Grid item sx={{ width: 450 }}>
+          </Grid2>
+          <Grid2 sx={{ width: 450 }}>
             <EventProperty
               disabled={disabled}
               event={event}
@@ -298,9 +298,9 @@ export default function BasicInfoSection({
               onChange={onChange}
               options={secretaries ?? []}
             />
-          </Grid>
-        </Grid>
-      </Grid>
+          </Grid2>
+        </Grid2>
+      </Grid2>
     </CollapsibleSection>
   )
 }

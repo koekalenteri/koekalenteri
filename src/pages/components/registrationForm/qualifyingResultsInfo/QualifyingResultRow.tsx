@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next'
 import DeleteOutline from '@mui/icons-material/DeleteOutline'
 import Button from '@mui/material/Button'
 import FormControl from '@mui/material/FormControl'
-import Grid from '@mui/material/Grid'
+import Grid2 from '@mui/material/Grid2'
 import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
 import { DatePicker } from '@mui/x-date-pickers'
@@ -88,8 +88,8 @@ export default function QualifyingResultRow({
   const minDate = date9Months < maxDate ? date9Months : maxDate
 
   return (
-    <Grid item container spacing={1} alignItems="center">
-      <Grid item xs={6} sm={3.5} md={2}>
+    <Grid2 container spacing={1} alignItems="center">
+      <Grid2 size={{ xs: 6, sm: 3.5, md: 2 }}>
         <AutocompleteSingle
           disabled={result.official || disabled}
           disableClearable
@@ -101,8 +101,8 @@ export default function QualifyingResultRow({
           }}
           value={result.type}
         />
-      </Grid>
-      <Grid item xs={6} sm={4} md={2.5} lg={2}>
+      </Grid2>
+      <Grid2 size={{ xs: 6, sm: 4, md: 2.5, lg: 2 }}>
         <AutocompleteSingle
           disabled={result.official || disabled}
           disableClearable
@@ -124,8 +124,8 @@ export default function QualifyingResultRow({
           }}
           value={`${result.result}${getSuffix(result)}`}
         />
-      </Grid>
-      <Grid item xs={6} sm={4} md={2.5} lg={2}>
+      </Grid2>
+      <Grid2 size={{ xs: 6, sm: 4, md: 2.5, lg: 2 }}>
         <FormControl fullWidth>
           <DatePicker
             disabled={result.official || disabled}
@@ -140,8 +140,8 @@ export default function QualifyingResultRow({
             value={result.date || null}
           />
         </FormControl>
-      </Grid>
-      <Grid item xs={6} sm={3.5} md={2}>
+      </Grid2>
+      <Grid2 size={{ xs: 6, sm: 3.5, md: 2 }}>
         <TextField
           disabled={result.official || disabled}
           error={!result.location}
@@ -150,8 +150,8 @@ export default function QualifyingResultRow({
           onChange={(e) => handleChange(result, { location: e.target.value })}
           value={result.location}
         />
-      </Grid>
-      <Grid item xs={12} sm={4} md={3} lg={2}>
+      </Grid2>
+      <Grid2 size={{ xs: 12, sm: 4, md: 3, lg: 2 }}>
         <TextField
           disabled={result.official || disabled}
           error={!result.judge}
@@ -160,8 +160,8 @@ export default function QualifyingResultRow({
           onChange={(e) => handleChange(result, { judge: e.target.value })}
           value={result.judge}
         />
-      </Grid>
-      <Grid item flex={1}>
+      </Grid2>
+      <Grid2 flex={1}>
         <Stack direction="row" gap={1} justifyContent="end" alignItems="center">
           <Button
             sx={{ display: result.official ? 'none' : undefined }}
@@ -174,7 +174,7 @@ export default function QualifyingResultRow({
           </Button>
           <RankingPoints points={result.points} />
         </Stack>
-      </Grid>
-    </Grid>
+      </Grid2>
+    </Grid2>
   )
 }

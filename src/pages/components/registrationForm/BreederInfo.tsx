@@ -2,7 +2,7 @@ import type { DeepPartial, Registration, RegistrationBreeder } from '../../../ty
 
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import Grid from '@mui/material/Grid'
+import Grid2 from '@mui/material/Grid2'
 import TextField from '@mui/material/TextField'
 
 import CollapsibleSection from '../CollapsibleSection'
@@ -39,8 +39,8 @@ export function BreederInfo({ reg, disabled, error, helperText, onChange, onOpen
       open={open && !!reg.dog?.regNo}
       onOpenChange={onOpenChange}
     >
-      <Grid item container spacing={1}>
-        <Grid item xs={12} sm={6}>
+      <Grid2 container spacing={1}>
+        <Grid2 size={{ xs: 12, sm: 6 }}>
           <TextField
             disabled={disabled}
             error={!reg.breeder?.name}
@@ -50,8 +50,8 @@ export function BreederInfo({ reg, disabled, error, helperText, onChange, onOpen
             value={reg.breeder?.name ?? ''}
             onChange={(e) => handleChange({ name: e.target.value })}
           />
-        </Grid>
-        <Grid item xs={12} sm={6}>
+        </Grid2>
+        <Grid2 size={{ xs: 12, sm: 6 }}>
           <TextField
             disabled={disabled}
             error={!reg.breeder?.location}
@@ -61,8 +61,8 @@ export function BreederInfo({ reg, disabled, error, helperText, onChange, onOpen
             value={reg.breeder?.location ?? ''}
             onChange={(e) => handleChange({ location: e.target.value })}
           />
-        </Grid>
-      </Grid>
+        </Grid2>
+      </Grid2>
     </CollapsibleSection>
   )
 }

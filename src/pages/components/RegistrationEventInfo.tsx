@@ -3,7 +3,7 @@ import type { ConfirmedEvent, PublicDogEvent } from '../../types'
 
 import { useTranslation } from 'react-i18next'
 import PictureAsPdfOutlined from '@mui/icons-material/PictureAsPdfOutlined'
-import Grid from '@mui/material/Grid'
+import Grid2 from '@mui/material/Grid2'
 import Link from '@mui/material/Link'
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
@@ -23,17 +23,17 @@ interface Props {
 }
 
 const Header = ({ children }: { children: ReactNode }) => (
-  <Grid item xs={4} alignContent="top" sx={{ borderRight: '1px dashed #eee', borderBottom: '1px solid #eee' }}>
+  <Grid2 size={{ xs: 4 }} alignContent="top" sx={{ borderRight: '1px dashed #eee', borderBottom: '1px solid #eee' }}>
     <Typography variant="caption">{children}</Typography>
-  </Grid>
+  </Grid2>
 )
 
 const Data = ({ children }: { children: ReactNode }) => (
-  <Grid item xs={8} alignContent="center" sx={{ borderBottom: '1px solid #eee' }}>
+  <Grid2 size={{ xs: 7 }} alignContent="center" sx={{ borderBottom: '1px solid #eee' }}>
     <Typography variant="body2" component="div">
       {children}
     </Typography>
-  </Grid>
+  </Grid2>
 )
 
 export default function RegistrationEventInfo({ event, invitationAttachment }: Props) {
@@ -45,13 +45,13 @@ export default function RegistrationEventInfo({ event, invitationAttachment }: P
   return (
     <Paper sx={{ p: { xs: 0, sm: 1 }, mb: 1, width: '100%' }} elevation={2}>
       <CollapsibleSection title={title} border={false}>
-        <Grid
+        <Grid2
           container
           justifyContent="space-between"
           alignItems="flex-start"
-          sx={{ '& .MuiGrid-item': { overflow: 'hidden', textOverflow: 'ellipsis' } }}
+          sx={{ '& .MuiGrid2-root': { overflow: 'hidden', textOverflow: 'ellipsis' } }}
         >
-          <Grid item container sm={12} md columnSpacing={1}>
+          <Grid2 container size={{ sm: 12, md: 6, lg: 4 }} columnSpacing={1}>
             <Header>{t('entryTime')}</Header>
             <Data>
               <b>{t('dateFormat.datespan', { start: event.entryStartDate, end: event.entryEndDate })}</b>&nbsp;
@@ -73,8 +73,8 @@ export default function RegistrationEventInfo({ event, invitationAttachment }: P
                 <Data>{printContactInfo(event.contactInfo?.secretary)}</Data>
               </>
             ) : null}
-          </Grid>
-          <Grid item container sm={12} md columnSpacing={1}>
+          </Grid2>
+          <Grid2 container size={{ sm: 12, md: 6, lg: 4 }} columnSpacing={1}>
             <Header>{t('event.cost')}</Header>
             <Data>
               <CostInfo event={event} />
@@ -110,8 +110,8 @@ export default function RegistrationEventInfo({ event, invitationAttachment }: P
                 </Data>
               </>
             ) : null}
-          </Grid>
-        </Grid>
+          </Grid2>
+        </Grid2>
       </CollapsibleSection>
     </Paper>
   )

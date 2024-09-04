@@ -4,7 +4,7 @@ import type { SectionProps } from '../EventForm'
 
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import Grid from '@mui/material/Grid'
+import Grid2 from '@mui/material/Grid2'
 import TextField from '@mui/material/TextField'
 
 import CollapsibleSection from '../../../components/CollapsibleSection'
@@ -55,9 +55,9 @@ export default function HeadquartersSection({
       error={errorStates?.headquarters}
       helperText={helperTexts?.headquarters}
     >
-      <Grid container spacing={1}>
-        <Grid item container spacing={1}>
-          <Grid item sx={{ width: 300 }}>
+      <Grid2 container spacing={1}>
+        <Grid2 container spacing={1}>
+          <Grid2 sx={{ width: 300 }}>
             <TextField
               disabled={disabled}
               label={t('event.headquarters.name')}
@@ -65,8 +65,8 @@ export default function HeadquartersSection({
               onChange={handleNameChange}
               fullWidth
             />
-          </Grid>
-          <Grid item sx={{ width: 300 }}>
+          </Grid2>
+          <Grid2 sx={{ width: 300 }}>
             <TextField
               disabled={disabled}
               label={t('event.headquarters.address')}
@@ -74,10 +74,10 @@ export default function HeadquartersSection({
               onChange={handleAddressChange}
               fullWidth
             />
-          </Grid>
-        </Grid>
-        <Grid item container spacing={1}>
-          <Grid item sx={{ width: 300 }}>
+          </Grid2>
+        </Grid2>
+        <Grid2 container spacing={1}>
+          <Grid2 sx={{ width: 300 }}>
             <TextField
               disabled={disabled}
               label={t('event.headquarters.zipCode')}
@@ -85,8 +85,8 @@ export default function HeadquartersSection({
               onChange={handleZipCodeChange}
               fullWidth
             />
-          </Grid>
-          <Grid item sx={{ width: 300 }}>
+          </Grid2>
+          <Grid2 sx={{ width: 300 }}>
             <TextField
               disabled={disabled}
               label={t('event.headquarters.postalDistrict')}
@@ -94,9 +94,9 @@ export default function HeadquartersSection({
               onChange={handleDistrictChange}
               fullWidth
             />
-          </Grid>
-        </Grid>
-      </Grid>
+          </Grid2>
+        </Grid2>
+      </Grid2>
     </CollapsibleSection>
   )
 }

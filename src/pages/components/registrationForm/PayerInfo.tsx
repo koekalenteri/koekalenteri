@@ -2,7 +2,7 @@ import type { DeepPartial, Registration, RegistrationPerson } from '../../../typ
 
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import Grid from '@mui/material/Grid'
+import Grid2 from '@mui/material/Grid2'
 import TextField from '@mui/material/TextField'
 import { MuiTelInput } from 'mui-tel-input'
 
@@ -40,10 +40,9 @@ export function PayerInfo({ reg, disabled, error, helperText, onChange, onOpenCh
       open={open}
       onOpenChange={onOpenChange}
     >
-      <Grid item container spacing={1}>
-        <Grid item xs={12} sm={6}>
+      <Grid2 container spacing={1}>
+        <Grid2 size={{ xs: 12, sm: 6 }}>
           <TextField
-            InputProps={{ autoComplete: 'name' }}
             disabled={disabled}
             error={!reg.payer?.name}
             fullWidth
@@ -52,11 +51,13 @@ export function PayerInfo({ reg, disabled, error, helperText, onChange, onOpenCh
             name="name"
             onChange={(e) => handleChange({ name: e.target.value })}
             value={reg.payer?.name ?? ''}
+            slotProps={{
+              input: { autoComplete: 'name' },
+            }}
           />
-        </Grid>
-        <Grid item xs={12} sm={6}>
+        </Grid2>
+        <Grid2 size={{ xs: 12, sm: 6 }}>
           <TextField
-            InputProps={{ autoComplete: 'email' }}
             disabled={disabled}
             error={!reg.payer?.email}
             fullWidth
@@ -65,9 +66,12 @@ export function PayerInfo({ reg, disabled, error, helperText, onChange, onOpenCh
             name="email"
             onChange={(e) => handleChange({ email: e.target.value.trim() })}
             value={reg.payer?.email ?? ''}
+            slotProps={{
+              input: { autoComplete: 'email' },
+            }}
           />
-        </Grid>
-        <Grid item xs={12} sm={6}>
+        </Grid2>
+        <Grid2 size={{ xs: 12, sm: 6 }}>
           <MuiTelInput
             langOfCountryName={i18n.language}
             defaultCountry="FI"
@@ -82,8 +86,8 @@ export function PayerInfo({ reg, disabled, error, helperText, onChange, onOpenCh
             onChange={(phone) => handleChange({ phone })}
             value={reg.payer?.phone ?? ''}
           />
-        </Grid>
-      </Grid>
+        </Grid2>
+      </Grid2>
     </CollapsibleSection>
   )
 }

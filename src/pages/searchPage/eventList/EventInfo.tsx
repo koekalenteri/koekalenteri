@@ -5,12 +5,12 @@ import type { PublicDogEvent, PublicJudge } from '../../../types'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
-import Grid from '@mui/material/Grid2'
+import Grid2 from '@mui/material/Grid2'
 import Typography from '@mui/material/Typography'
 
 import { zonedEndOfDay } from '../../../i18n/dates'
 import { judgeName } from '../../../lib/judge'
-import { isEntryOpen, isObject, printContactInfo, unique } from '../../../lib/utils'
+import { isEntryOpen, printContactInfo, unique } from '../../../lib/utils'
 import { getRankingPeriod } from '../../../rules_ch'
 import CostInfo from '../../components/CostInfo'
 import { EntryStatus } from '../../components/EntryStatus'
@@ -25,13 +25,12 @@ interface Props {
 }
 
 const InfoItem = ({ label, children, ...props }: { label: string; children: ReactNode } & Grid2Props) => (
-  <Grid
+  <Grid2
     size={{
       xs: 12,
       md: 6,
       lg: 4,
       xl: 2,
-      ...(isObject(props.size) ? props.size : {}),
     }}
     {...props}
   >
@@ -46,7 +45,7 @@ const InfoItem = ({ label, children, ...props }: { label: string; children: Reac
       {label}
     </Typography>
     {children}
-  </Grid>
+  </Grid2>
 )
 
 const judgeClasses = (judge: PublicJudge, event: PublicDogEvent) => {
@@ -70,14 +69,18 @@ export const EventInfo = ({ event }: Props) => {
   const rankingPeriod = getRankingPeriod(event.eventType, event.entryEndDate)
 
   return (
-    <Grid container columnSpacing={1} sx={{ py: 0.5 }}>
+    <Grid2 container columnSpacing={1} sx={{ py: 0.5 }}>
       <InfoItem label={t('entryTime')} order={{ xs: 1 }}>
         {t('dateFormat.datespan', { start: event.entryStartDate, end: event.entryEndDate })}
         <EntryStatus event={event} />
         {isEntryOpen(event) ? <TimeLeft date={zonedEndOfDay(event.entryEndDate!)} /> : ''}
       </InfoItem>
       {classes.length ? (
-        <InfoItem label={t('event.classPlaces')} order={{ xs: 2, lg: 3, xl: 10 }} size={{ xl: 'grow' }}>
+        <InfoItem
+          label={t('event.classPlaces')}
+          order={{ xs: 2, lg: 3, xl: 10 }}
+          size={{ xs: 12, md: 6, lg: 4, xl: 'grow' }}
+        >
           <EventClassPlacesHeader event={event} />
           {classes.map((c) => (
             <EventClassPlaces key={c} event={event} eventClass={c} />
@@ -119,6 +122,6 @@ export const EventInfo = ({ event }: Props) => {
           {event.description}
         </InfoItem>
       ) : null}
-    </Grid>
+    </Grid2>
   )
 }

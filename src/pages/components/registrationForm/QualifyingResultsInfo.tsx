@@ -5,7 +5,7 @@ import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import AddOutlined from '@mui/icons-material/AddOutlined'
 import Button from '@mui/material/Button'
-import Grid from '@mui/material/Grid'
+import Grid2 from '@mui/material/Grid2'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 
@@ -107,10 +107,10 @@ export default function QualifyingResultsInfo({
       open={open && !!regNo}
       onOpenChange={onOpenChange}
     >
-      <Grid item container spacing={1}>
-        <Grid item display={rankingPeriod?.min ? undefined : 'none'}>
+      <Grid2 container spacing={1}>
+        <Grid2 display={rankingPeriod?.min ? undefined : 'none'}>
           <Typography variant="caption">{`${t('registration.rankingTime')}: ${t('dateFormat.datespan', { start: rankingPeriod?.min, end: rankingPeriod?.max })}`}</Typography>
-        </Grid>
+        </Grid2>
         {qualifying.map((result) => (
           <QualifyingResultRow
             eventType={eventType}
@@ -144,7 +144,7 @@ export default function QualifyingResultsInfo({
             <RankingPoints points={totalPoints} />
           </Stack>
         </Stack>
-      </Grid>
+      </Grid2>
     </CollapsibleSection>
   )
 }
